@@ -1,0 +1,14 @@
+{
+    "extends": ["standard", "prettier"],
+    "parser": "babel-eslint",
+    "env": {
+        "mocha": true,
+        "node": true,
+        "jest/globals": true
+    },
+    "plugins": ["sql", "jest"],
+    "rules": {
+        "no-unexpected-multiline": ["warn"],
+        "max-len": ["error", { "code": 650 }]
+    }
+}

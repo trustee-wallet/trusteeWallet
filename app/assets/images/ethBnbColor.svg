@@ -1,0 +1,19 @@
+<svg id='Layer_2' xmlns='http://www.w3.org/2000/svg' width='100' height='100'
+	 viewBox='0 0 100 100'>
+	<g id='bnb'>
+		<linearGradient id='SVGID_1_' gradientUnits='userSpaceOnUse' x1='0.181'
+						y1='48.968' x2='99.812' y2='51.032'>
+			<stop offset='0' stopColor='#f3ba2f' />
+			<stop offset='1' stopColor='#f59e6c' />
+		</linearGradient>
+		<path fill='url(#SVGID_1_)' d='M30.579,42.021l19.42-19.419l19.43,19.429l11.3-11.3L49.999,0L19.28,30.721L30.579,42.021 M0,49.998l11.3-11.3l11.3,11.3l-11.3,11.3L0,49.998z M30.579,57.979l19.42,19.419l19.429-19.429l11.306,11.294l-0.006,0.006 L49.999,100l-30.72-30.72l-0.016-0.016L30.579,57.979 M77.4,50.005l11.3-11.3l11.3,11.3l-11.3,11.3L77.4,50.005z'
+		/>
+		<linearGradient id='SVGID_2_' gradientUnits='userSpaceOnUse' x1='0.181'
+						y1='48.968' x2='99.812' y2='51.032'>
+			<stop offset='0' stopColor='#f3ba2f' />
+			<stop offset='1' stopColor='#f59e6c' />
+		</linearGradient>
+		<path fill='url(#SVGID_2_)' d='M61.461,49.994h0.005L49.999,38.528l-8.474,8.474h0l-0.973,0.974l-2.008,2.008L38.527,50 l0.016,0.016l11.456,11.456l11.466-11.466l0.006-0.007L61.461,49.994'
+		/>
+	</g>
+</svg>

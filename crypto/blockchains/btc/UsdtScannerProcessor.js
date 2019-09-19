@@ -1,0 +1,91 @@
+import BlocksoftUtils from '../../common/BlocksoftUtils'
+import BlocksoftAxios from '../../common/BlocksoftAxios'
+import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+
+const axios = require('axios')
+
+const USDT_TOKEN_ID = 31
+const USDT_API = 'https://api.wallet.trustee.deals/omni-get-balance'
+const USDT_TX_API = 'https://microscanners.trustee.deals/txs'
+
+class UsdtScannerProcessor {
+    lastBlock = 0
+
+    /**
+     * @param {string} address
+     * @return {Promise<int>}
+     */
+    async getBalance(address) {
+        BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance started', address)
+        // noinspection JSUnresolvedFunction
+        let tmp = await axios.post(USDT_API, {
+                address : address,
+                tokenID : USDT_TOKEN_ID
+            });
+
+        if (typeof(tmp.data.data.balance) === 'undefined') {
+            throw new Error('Undefined balance ' + JSON.stringify(tmp.data))
+        }
+        let balance = tmp.data.data.balance
+        BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance finished', address + ' => ' + balance)
+        return balance
+    }
+
+    /**
+     * @param {string} address
+     * @return {Promise<UnifiedTransaction[]>}
+     */
+    async getTransactions(address) {
+        address = address.trim()
+        BlocksoftCryptoLog.log('UsdtScannerProcessor.getTransactions started', address)
+        let link = `${USDT_TX_API}/${address}`
+        let tmp  = await BlocksoftAxios.get(link)
+
+        if(tmp.status < 200 || tmp.status >= 300) {
+            throw new Error('not valid server response status ' + link)
+        }
+
+        if (typeof tmp.data === 'undefined') {
+            throw new Error('Undefined txs ' + link + ' ' + JSON.stringify(tmp.data))
+        }
+
+        tmp = tmp.data
+        if (tmp.data) {
+            tmp = tmp.data // wtf but ok to support old wallets
+        }
+        if (typeof tmp.transactions === 'undefined') {
+            throw new Error('Undefined txs ' + link + ' ' + JSON.stringify(tmp))
+        }
+
+        let transactions = []
+        this.lastBlock = tmp.lastBlock
+        for (let tx of tmp.transactions) {
+            let transaction = this._unifyTransaction(address, tx)
+            transactions.push(transaction)
+        }
+        BlocksoftCryptoLog.log('UsdtScannerProcessor.getTransactions finished', address)
+        return transactions
+    }
+
+    _unifyTransaction(address, transaction) {
+        return {
+            transaction_hash: transaction.transaction_txid,
+            block_hash: transaction.transaction_block_hash,
+            block_number: +transaction.block_number,
+            block_time: transaction.created_time,
+            block_confirmations: this.lastBlock - transaction.block_number,
+            transaction_direction: (address.toLowerCase() === transaction.from_address.toLowerCase()) ? 'outcome' :  'income',
+            address_from: transaction.from_address,
+            address_to: transaction.to_address,
+            address_amount: transaction.amount,
+            transaction_status: (transaction.custom_valid.toString() === '1' && transaction._removed.toString() === '0') ? 'success' : 'fail',
+            transaction_fee : BlocksoftUtils.toSatoshi(transaction.fee),
+            input_value : transaction.custom_type
+        }
+    }
+}
+
+// noinspection JSUnusedLocalSymbols
+module.exports.init = function(settings) {
+    return new UsdtScannerProcessor()
+}

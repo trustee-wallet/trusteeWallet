@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`services/validator react sample with mount 1`] = `
+<View>
+  <Text>
+    Welcome to React Native!
+  </Text>
+  <Text>
+    res = 
+    {"status":"fail","errorArr":[{"msg":"Word land is invalid","word":"land","field":"mnemonic_11_invalid"}]}
+  </Text>
+</View>
+`;
