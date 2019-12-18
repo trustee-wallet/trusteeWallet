@@ -6,9 +6,7 @@ const Web3 = require('web3')
 
 const CACHE_ERRORS_VALID_TIME = 60000 // 1 minute
 
-const CACHE_ERRORS_BY_LINKS = {
-
-}
+const CACHE_ERRORS_BY_LINKS = {}
 
 class EthScannerProcessor {
 
@@ -19,7 +17,6 @@ class EthScannerProcessor {
         if (typeof settings.network === 'undefined') {
             throw new Error('EthScannerProcessor requires settings.network')
         }
-        BlocksoftCryptoLog.logDivider()
         BlocksoftCryptoLog.log('EthScannerProcessor init started', settings.currencyCode)
         switch (settings.network) {
             case 'mainnet':
@@ -40,13 +37,13 @@ class EthScannerProcessor {
 
     /**
      * @param {string} address
-     * @return {Promise<int>}
+     * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalance(address) {
         // noinspection JSUnresolvedVariable
         let balance = await this._web3.eth.getBalance(address)
         BlocksoftCryptoLog.log('EthScannerProcessor.getBalance finished', address + ' => ' + balance)
-        return balance
+        return {balance, unconfirmed : 0, provider : 'etherscan'}
     }
 
     /**
@@ -63,7 +60,7 @@ class EthScannerProcessor {
             tmp = await BlocksoftAxios.get(link)
         } catch (e) {
             let now = new Date().getTime()
-            if (typeof CACHE_ERRORS_BY_LINKS[link] === 'undefined' || CACHE_ERRORS_BY_LINKS[link] === 0 || (time - CACHE_ERRORS_BY_LINKS[link] > CACHE_ERRORS_VALID_TIME)) {
+            if (typeof CACHE_ERRORS_BY_LINKS[link] === 'undefined' || CACHE_ERRORS_BY_LINKS[link] === 0 || (now - CACHE_ERRORS_BY_LINKS[link] > CACHE_ERRORS_VALID_TIME)) {
                 e.code = 'ERROR_SILENT'
             } else {
                 e.code = 'ERROR_PROVIDER'
@@ -79,26 +76,34 @@ class EthScannerProcessor {
         if (typeof (tmp.data.result) === 'string') {
             throw new Error('Undefined txs ' + link + ' ' + tmp.data.res)
         }
-        let transactions = []
-        for (let tx of tmp.data.result) {
-            let transaction = this._unifyTransaction(address, tx)
-            transactions.push(transaction)
-        }
+
+        let transactions = await this._unifyTransactions(address, tmp.data.result)
         BlocksoftCryptoLog.log('EthScannerProcessor.getTransactions finished', address)
         return transactions
     }
 
-    _unifyTransaction(address, transaction) {
-        let transaction_status = 'fail'
-        if (typeof(transaction.txreceipt_status) === 'undefined') {
-            if (transaction.confirmations > 1) {
+    async _unifyTransactions(address, result) {
+        let transactions = []
+        for (let tx of result) {
+            let transaction = await this._unifyTransaction(address, tx)
+            transactions.push(transaction)
+        }
+        return transactions
+    }
+
+
+    async _unifyTransaction(address, transaction) {
+        let confirmations = transaction.confirmations;
+        let transaction_status = 'new'
+        if (typeof (transaction.txreceipt_status) === 'undefined' || transaction.txreceipt_status === '1') {
+            if (confirmations > 10) {
                 transaction_status = 'success'
             }
-        } else if (transaction.txreceipt_status === '1' && transaction.isError === '0') {
-            transaction_status = 'success'
+        } else if (transaction.isError !== '0') {
+            transaction_status = 'fail'
         }
 
-        if (transaction.timeStamp === "undefined") {
+        if (typeof (transaction.timeStamp) === "undefined") {
             new Error(' no transaction.timeStamp error transaction data ' + JSON.stringify(transaction))
         }
         let formattedTime = transaction.timeStamp
@@ -113,7 +118,7 @@ class EthScannerProcessor {
             block_hash: transaction.blockHash,
             block_number: +transaction.blockNumber,
             block_time: formattedTime,
-            block_confirmations: +transaction.confirmations,
+            block_confirmations: confirmations,
             transaction_direction: (address.toLowerCase() === transaction.from.toLowerCase()) ? 'outcome' : 'income',
             address_from: transaction.from,
             address_to: transaction.to,
@@ -136,6 +141,6 @@ class EthScannerProcessor {
 
 module.exports.EthScannerProcessor = EthScannerProcessor
 
-module.exports.init = function(settings) {
+module.exports.init = function (settings) {
     return new EthScannerProcessor(settings)
 }

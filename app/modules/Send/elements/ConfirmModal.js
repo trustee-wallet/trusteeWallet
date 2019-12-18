@@ -24,7 +24,11 @@ import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import FiatRatesActions from '../../../appstores/Actions/FiatRatesActions'
 
-const { width: WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
+const { height: WINDOW_HEIGHT } = Dimensions.get('window')
+
+import Theme from '../../../themes/Themes'
+import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
+let styles
 
 
 export class ConfirmModal extends Component {
@@ -34,7 +38,7 @@ export class ConfirmModal extends Component {
     }
 
     componentWillMount() {
-
+        styles = Theme.getStyles().sendScreenStyles.confirmModalStyles
     }
 
     handleHide = () => {
@@ -57,7 +61,7 @@ export class ConfirmModal extends Component {
         const { wallet_hash: walletHash } = wallet
         const { address: addressFrom, derivation_path: derivationPath } = account
         const { currencyCode } = cryptocurrency
-
+        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         //TODO: fix this
         const derivationPathTmp = derivationPath.replace(/quote/g, '\'')
@@ -71,6 +75,7 @@ export class ConfirmModal extends Component {
                     .setAddressFrom(addressFrom)
                     .setAddressTo(addressTo)
                     .setAmount(amountRaw)
+                    .setAdditional(account.account_json)
                     .setTransferAll(useAllFunds)
                     .setFee(fee)
             ).sendTx()
@@ -85,13 +90,36 @@ export class ConfirmModal extends Component {
                 address_from: addressFrom,
                 address_amount: amountRaw,
                 transaction_fee: fee.feeForTx,
+                transaction_of_trustee_wallet : 1,
+                transaction_json : {memo : ''},
                 created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                updated_at: new Date().toISOString(),
+                transaction_direction : 'outcome'
+            }
+            if (typeof tx.block_hash !== 'undefined') {
+                transaction.block_hash = tx.block_hash
+            }
+            if (typeof tx.transaction_status !== 'undefined') {
+                transaction.transaction_status = tx.transaction_status
+            }
+            if (typeof tx.transaction_json !== 'undefined') {
+                transaction.transaction_json = tx.transaction_json
+            }
+            if (typeof tx.timestamp !== 'undefined' && tx.timestamp) {
+                transaction.created_at = new Date(tx.timestamp).toISOString()
+                transaction.updated_at = new Date(tx.timestamp).toISOString()
             }
 
-            MarketingEvent.checkSellSendTx(transaction)
+            MarketingEvent.checkSellSendTx({
+                walletHash: walletHash,
+                currency_code: currencyCode,
+                transaction_hash: tx.hash,
+                address_to: addressTo,
+                address_from: addressFrom,
+                address_amount: amountRaw,
+            })
 
-            await transactionActions.saveTransaction(transaction)
+            transactionActions.saveTransaction(transaction)
 
             hideModal()
 
@@ -101,14 +129,25 @@ export class ConfirmModal extends Component {
                 title: strings('modal.send.success'),
                 description: strings('modal.send.txSuccess')
             }, () => {
-                NavStore.goBack(null)
+
+                const { type } = this.props.sendStore.data
+
+                if(type === 'TRADE_SEND'){
+                    NavStore.goNext('FinishScreen', {
+                        finishScreenParam: {
+                            selectedCryptocurrency: this.props.sendStore.data.cryptocurrency
+                        }
+                    })
+                } else {
+                    NavStore.goBack(null)
+                }
             })
 
         } catch (e) {
 
             hideModal()
 
-            Log.err('Send.ConfirmModal.handleSend', e)
+            Log.err('Send.ConfirmModal.handleSend ' + e.message)
 
             Keyboard.dismiss()
 
@@ -116,7 +155,7 @@ export class ConfirmModal extends Component {
                 type: 'INFO_MODAL',
                 icon: false,
                 title: strings('modal.send.fail'),
-                description: e.message,
+                description: typeof e.code != 'undefined' ? strings(`send.errors.${e.message}`, { symbol: typeof extend.addressCurrencyCode == "undefined" ? extend.currencySymbol : extend.addressCurrencyCode }) : e.message,
                 error: e
             })
         }
@@ -125,11 +164,10 @@ export class ConfirmModal extends Component {
 
     render() {
         const { show } = this.props
-        const { amount, address, account, cryptocurrency, wallet } = this.props.data.data
+        const { amount, address, account, cryptocurrency, wallet, type } = this.props.data.data
         const { currencySymbol } = cryptocurrency
         const { currency_rate_usd } = cryptocurrency
         const { localCurrencySymbol } = this.props.fiatRatesStore
-
 
         const equivalent = FiatRatesActions.toLocalCurrency(amount * currency_rate_usd)
 
@@ -175,11 +213,10 @@ export class ConfirmModal extends Component {
                                                 </Text>
                                             </View>
                                             {
-
-                                                <Text style={styles.content__subtext}>
-                                                    { localCurrencySymbol } { equivalent }
-                                                </Text>
-
+                                                type !== 'TRADE_SEND' ?
+                                                    <Text style={styles.content__subtext}>
+                                                        { localCurrencySymbol } { equivalent }
+                                                    </Text> : null
                                             }
                                             <View style={styles.box__line}></View>
                                         </View>
@@ -209,12 +246,14 @@ export class ConfirmModal extends Component {
                                         <ButtonLine
                                             press={() => this.handleHide()}
                                             styles={styles.btn}
+                                            touchableOpacityStyle={styles.btn__touchableOpacity}
                                             styleText={i18n.locale == 'ru-RU' ? { fontSize: 16 } : null}>
                                             {strings('send.confirmModal.edit')}
                                         </ButtonLine>
                                         <Button
                                             press={() => this.handleSend()}
                                             styles={styles.btn}
+                                            touchableOpacityStyle={styles.btn__touchableOpacity}
                                             styleText={i18n.locale == 'ru-RU' ? { fontSize: 16 } : null}>
                                             {strings('send.confirmModal.confirm')}
                                         </Button>
@@ -239,148 +278,9 @@ const styles_ = {
 
 const mapStateToProps = (state) => {
     return {
+        sendStore: state.sendStore,
         fiatRatesStore: state.fiatRatesStore
     }
 }
 
 export default connect(mapStateToProps, {}, null, { forwardRef: true })(ConfirmModal)
-
-const styles = {
-    modal: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        // width: WIDTH - 40,
-        height: '100%',
-        paddingLeft: 10,
-        paddingRight: 10,
-        justifyContent: 'center',
-        zIndex: 10000
-    },
-    content: {
-        flex: 1,
-    },
-    top: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginTop: 12
-    },
-    title: {
-        marginBottom: 5,
-        width: WIDTH < 410 ? 180 : '100%',
-        fontFamily: 'SFUIDisplay-Semibold',
-        fontSize: 18,
-        textAlign: 'center',
-        color: '#f4f4f4'
-    },
-    bg: {
-        flex: 1,
-        position: 'relative',
-        alignItems: 'center',
-        borderTopLeftRadius: 14,
-        borderTopRightRadius: 14,
-        zIndex: 100
-    },
-    cross: {
-        position: 'absolute',
-        top: 10,
-        right: 10
-    },
-    icon: {
-        width: 230,
-        height: 220,
-        marginTop: 10,
-        marginBottom: 10
-    },
-    text: {
-        paddingLeft: 15,
-        paddingRight: 15,
-        marginBottom: 10,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#f4f4f4'
-    },
-    bottom: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingLeft: 15,
-        paddingRight: 15,
-        paddingTop: 22,
-        paddingBottom: 22,
-        marginTop: 'auto',
-        backgroundColor: '#fff',
-        borderBottomLeftRadius: 14,
-        borderBottomRightRadius: 14
-    },
-    btn: {
-        width: 122
-    },
-    box: {
-        alignItems: 'center'
-    },
-    box__line: {
-        width: 200,
-        height: 1,
-        marginBottom: 15,
-        backgroundColor: '#6B3CA7'
-    },
-    content__title: {
-        marginTop: 20,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 19,
-        textAlign: 'center',
-        color: '#f4f4f4'
-    },
-    content__text: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    content__text_first: {
-        marginBottom: 6,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 36,
-        color: '#f4f4f4'
-    },
-    content__text_last: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 24,
-        color: '#f4f4f4'
-    },
-    content__subtext: {
-        marginTop: -5,
-        marginBottom: 15,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 16,
-        color: '#f4f4f4'
-    },
-    description: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        paddingLeft: 15,
-        paddingRight: 15,
-
-        alignItems: 'center'
-    },
-    description__text: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#e3e3e3'
-    },
-    description__line: {
-        height: 22,
-        width: 1,
-        backgroundColor: '#864dd9'
-    }
-}
-
-/*
- <Image
-                            style={ styles.icon }
-                            resizeMode='contain'
-                            source={require('../../../assets/images/congratsIcon.png')}/>
-                               <Text style={styles.content__title}>
-                                { strings('send.confirmModal.amount') }
-                            </Text>
- */

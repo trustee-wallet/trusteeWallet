@@ -29,7 +29,7 @@ import App from '../../appstores/Actions/App/App'
 
 import { showModal } from '../../appstores/Actions/ModalActions'
 
-import { setWalletMnemonic } from '../../appstores/Actions/CreateWalletActions'
+import { setCallback, setWalletMnemonic } from '../../appstores/Actions/CreateWalletActions'
 
 import walletDS from '../../appstores/DataSource/Wallet/Wallet'
 
@@ -65,7 +65,7 @@ class EnterMnemonicPhrase extends Component {
     handleImport = async () => {
 
 
-        const { walletName } = this.props.walletCreate
+        const { walletName, callback } = this.props.walletCreate
 
         const result = await this.mnemonicPhrase.handleValidate()
 
@@ -102,14 +102,18 @@ class EnterMnemonicPhrase extends Component {
                 icon: true,
                 title: strings('modal.walletCreate.success'),
                 description: strings('modal.walletCreate.walletImported')
-            }, () => {
-                NavStore.reset('DashboardStack')
+            }, async () => {
+                if(callback === null){
+                    NavStore.reset('DashboardStack')
+                    await App.refreshWalletsStore()
+                } else {
+                    callback()
+                    setCallback({ callback: null })
+                }
             })
 
-            await App.refreshWalletsStore()
-
         } catch (e) {
-            Log.err('WalletCreate.EnterMnemonicPhrase errorSaving', e)
+            Log.err('WalletCreate.EnterMnemonicPhrase error ' + e.message)
         }
 
     }
@@ -152,10 +156,11 @@ class EnterMnemonicPhrase extends Component {
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <Navigation
                     title={strings('walletCreate.importTitle')}
+                    isClose={false}
                 />
                 <KeyboardAwareView>
                     <ScrollView
-                        keyboardShouldPersistTaps
+                        keyboardShouldPersistTaps={'always'}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={focused ? styles.wrapper__content_active : styles.wrapper__content}
                         style={styles.wrapper__scrollView}>

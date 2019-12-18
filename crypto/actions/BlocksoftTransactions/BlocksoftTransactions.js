@@ -4,26 +4,6 @@
  */
 const Dispatcher = require('../../blockchains/Dispatcher').init()
 
-const FIELDS = {
-    'transaction_hash' : 1,
-    'transaction_status' : 1,
-    'block_hash' : 1,
-    'block_number' : 1,
-    'block_time' : 1,
-    'block_confirmations' : 1,
-    'transaction_direction' : 1,
-    'address_to' : 1,
-    'address_from' : 1,
-    'address_amount' : 1,
-    'transaction_fee' : 1,
-    'vout' : 1,
-    'vin' : 1,
-    'lock_time' : 1,
-    'contract_address' : 1,
-    'input_value' : 1,
-    'transaction_json' : 1
-}
-
 class BlocksoftTransactions {
 
     /**
@@ -32,7 +12,7 @@ class BlocksoftTransactions {
      */
     _processor = {}
     /**
-     * @type {{currencyCode, address}}
+     * @type {{currencyCode, address, jsonData}}
      * @private
      */
     _data = {}
@@ -62,6 +42,16 @@ class BlocksoftTransactions {
     }
 
     /**
+     * @param {*} jsonData
+     * @return {BlocksoftTransactions}
+     */
+    setAdditional(jsonData) {
+        this._data.jsonData = jsonData
+        return this
+    }
+
+
+    /**
      * @return {{transaction_status, block_confirmations, transaction_direction, address_to, block_hash, block_number, transaction_fee, address_from, vout, block_time, lock_time, vin, transaction_hash, address_amount, contract_address, input_value, transaction_json}}
      */
     async getTransactions() {
@@ -69,21 +59,16 @@ class BlocksoftTransactions {
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
+        let resultData = []
         try {
-            let resultData = await this._processor[currencyCode].getTransactions(this._data.address)
-            if (resultData && resultData[0]) {
-                for (let key of Object.keys(resultData[0])) {
-                    if (!FIELDS[key]) {
-                        // noinspection ExceptionCaughtLocallyJS
-                        throw new Error('undefined tx key ' + key)
-                    }
-                }
-            }
-            return resultData
+            resultData = await this._processor[currencyCode].getTransactions(this._data.address, this._data.jsonData)
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
+            e.message += ' on actual getTransactions step '
             throw e
         }
+
+        return resultData
     }
 }
 

@@ -10,6 +10,8 @@ import {
     Animated, Keyboard
 } from 'react-native'
 
+import AntDesing from 'react-native-vector-icons/AntDesign'
+
 import GradientView from '../../../components/elements/GradientView'
 
 import CustomFee from './customfee/CustomFee'
@@ -21,14 +23,17 @@ import BlocksoftTransaction from '../../../../crypto/actions/BlocksoftTransactio
 import BlocksoftBalances from '../../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 
-import AntDesing from 'react-native-vector-icons/AntDesign'
-
 import { strings } from '../../../services/i18n'
-
 import Log from '../../../services/Log/Log'
+
 import FiatRatesActions from '../../../appstores/Actions/FiatRatesActions'
 
+import Theme from '../../../themes/Themes'
+import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
+let styles
+
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
+
 
 class Fee extends Component {
 
@@ -53,6 +58,8 @@ class Fee extends Component {
     }
 
     async componentWillMount() {
+
+        styles = Theme.getStyles().sendScreenStyles.feeStyles
 
         // setLoaderStatus(true)
 
@@ -92,7 +99,14 @@ class Fee extends Component {
 
         try {
 
-            const tmpSetAmount = sendData.useAllFunds ? await BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).getBalance() : sendData.amountRaw
+            let tmpSetAmount = 0
+            if (sendData.useAllFunds) {
+                const tmp = await BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).getBalance()
+                tmpSetAmount = BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) // to think show this as option or no
+                Log.log(`Fee.componentWillMount balance ${currencyCode} ${address} data`, tmp)
+            } else {
+                tmpSetAmount = sendData.amountRaw
+            }
 
             const addressTo = sendData.address ? sendData.address : address
             const fees = await (
@@ -115,7 +129,7 @@ class Fee extends Component {
             }
 
         } catch (e) {
-            Log.err('Send.Fee.componentWillMount', e)
+            Log.err('Send.Fee.componentWillMount error ' + e.message)
 
             this.setState({
                 status: 'fail'
@@ -165,7 +179,11 @@ class Fee extends Component {
             })
 
         } catch (e) {
-            Log.err('Send.Fee.handleTransferAll', e)
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                Log.err('Send.Fee.handleTransferAll error ' + e.message)
+            } else {
+                e.message = strings('send.errors.' + e.message)
+            }
 
             Keyboard.dismiss()
 
@@ -173,7 +191,7 @@ class Fee extends Component {
                 type: 'INFO_MODAL',
                 icon: false,
                 title: 'Error',
-                description: JSON.stringify(e)
+                description: e.message
             })
         }
 
@@ -361,106 +379,4 @@ const styles_active = {
     array: ['#b95f94', '#eba0ae'],
     start: { x: 0.0, y: 0.5 },
     end: { x: 1, y: 0.5 }
-}
-
-const styles = {
-    wrapper: {
-        width: '100%',
-        alignItems: 'flex-start'
-    },
-    fee__top: {
-        //width: '100%',
-        alignItems: 'center',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        marginBottom: 5,
-        marginTop: 10
-    },
-    fee__item__top: {
-        flexDirection: 'row'
-    },
-    fee__title: {
-        fontSize: 14,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#e3e3e3',
-        textAlign: 'left'
-    },
-    fee__btn_title: {
-        fontSize: 10,
-        fontFamily: 'SFUIDisplay-Bold',
-        color: '#864dd9'
-    },
-    fee__content__wrap: {
-        minHeight: 200,
-        maxWidth: '100%',
-        justifyContent: 'flex-start',
-        flexDirection: 'row',
-        overflow: 'hidden'
-    },
-    fee__content__wrap_hidden: {
-        minHeight: 0,
-        maxHeight: 0,
-        height: 0,
-        overflow: 'hidden'
-    },
-    fee__content: {
-        alignContent: 'flex-start',
-        paddingLeft: 15,
-        paddingRight: 15,
-        minWidth: WINDOW_WIDTH - 60,
-        marginBottom: 5,
-        marginLeft: 0,
-    },
-    fee__wrap: {
-        width: '100%',
-        marginLeft: -15,
-    },
-    fee__item: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 1,
-        borderRadius: 9
-    },
-    fee__item__title: {
-        fontSize: 18,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#f4f4f4'
-    },
-    fee__item__top__text: {
-        bottom: 2,
-        fontSize: 12,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#f4f4f4'
-    },
-    fee__active: {
-        color: '#f4f4f4'
-    },
-    fee__item__number: {
-        marginTop: 0,
-        fontSize: 11,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#e3e3e3'
-    },
-    fee__item__text: {
-        marginTop: -3,
-        fontSize: 11,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#e3e3e3'
-    },
-    fee__divider: {
-        marginTop: 6,
-        marginBottom: 6,
-        width: 1,
-        backgroundColor: '#e3e6e9'
-    },
-    fee__circle: {
-        width: 16,
-        height: 16,
-        marginLeft: 15,
-        marginRight: 15,
-        borderRadius: 8
-    },
-    fd_row: {
-        flexDirection: 'row'
-    }
 }

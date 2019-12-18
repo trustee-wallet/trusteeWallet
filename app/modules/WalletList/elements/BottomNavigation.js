@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { View, Text, TouchableOpacity, Image, Vibration, Platform } from 'react-native'
+import { connect } from 'react-redux'
 
 import DeviceInfo from 'react-native-device-info'
 
@@ -11,16 +12,18 @@ import CustomIcon from '../../../components/elements/CustomIcon'
 import NavStore from '../../../components/navigation/NavStore'
 import ToolTips from '../../../components/elements/ToolTips'
 
-import { setExchangeType } from '../../../appstores/Actions/ExchangeStorage'
-
 import { strings } from '../../../services/i18n'
 import { showModal } from '../../../appstores/Actions/ModalActions'
 import Toast from '../../../services/Toast/Toast'
 import ToolTipsActions from '../../../appstores/Actions/ToolTipsActions'
 import ExchangeActions from '../../../appstores/Actions/ExchangeActions'
 import settingsActions from '../../../appstores/Actions/SettingsActions'
+import Log from '../../../services/Log/Log'
+import Netinfo from '../../../services/Netinfo/Netinfo'
+import { setLoaderStatus } from '../../../appstores/Actions/MainStoreActions'
 
 const deviceModel = DeviceInfo.getModel()
+
 
 class BottomNavigation extends Component {
 
@@ -33,28 +36,39 @@ class BottomNavigation extends Component {
         this.buySellBtnTooltip = React.createRef()
     }
 
-    handleModal = () => {
-        showModal({
-            type: 'INFO_MODAL',
-            icon: null,
-            title: strings('modal.settings.soon'),
-            description: strings('modal.settings.soonDescription')
-        })
+    handleModal = async () => {
+        try {
+            await Netinfo.isInternetReachable()
+
+            if(typeof this.props.exchangeStore.tradeApiConfig.exchangeWays == 'undefined'){
+                setLoaderStatus(true)
+                await ExchangeActions.init()
+                setLoaderStatus(false)
+            }
+
+            NavStore.goNext('ExchangeScreenStack')
+        } catch(e) {
+            Log.err('Send.SendScreen.handleTransferAll error ' + e.message)
+        }
     }
 
-    handleMainBtn = () => {
+    handleMainBtn = async (type) => {
+        try {
+            await Netinfo.isInternetReachable()
 
-        settingsActions.setSettings('tool_tips_state', 0)
+            if(!this.props.exchangeStore.exchangeApiConfig.length){
+                setLoaderStatus(true)
+                await ExchangeActions.init()
+                setLoaderStatus(false)
+            }
 
-        this.buySellBtnTooltip.hideTooltip()
-        ToolTipsActions.setToolTipState('HOME_SCREEN_BUY_SELL_BTN_TIP')
+            ToolTipsActions.setToolTipState('HOME_SCREEN_BUY_SELL_BTN_TIP')
 
-        ExchangeActions.getExchangeStatus((res) => {
-            setExchangeType({ exchangeType: this.state.btnType === 'BUY' ? 'BUY' : 'SELL' })
-            NavStore.goNext('ExchangeScreenStack', {
-                exchangeApiConfig: res
-            })
-        })
+            ExchangeActions.handleSetTradeType({ tradeType: type })
+            NavStore.goNext('TradeScreenStack')
+        } catch (e){
+            Log.err('Send.SendScreen.handleTransferAll error ' + e.message)
+        }
     }
 
     handleSettings = () => {
@@ -74,50 +88,54 @@ class BottomNavigation extends Component {
         })
     }
 
+    returnBuyTooltip = () => {
+        return (
+            <View style={{ alignItems: 'center' }}>
+                <View style={{ marginTop: 1 }}>
+                    <FontistoIcon size={18} name={'shopping-basket-add'} color={`${'#404040'}`}/>
+                </View>
+                <Text style={{...styles.navigation__item__text, marginTop: 4}}>{ strings('dashboardStack.buy') }</Text>
+            </View>
+        )
+    }
+
+    renderExchangeTooltip = () => {
+        return (
+            <View style={{ alignItems: 'center' }}>
+                <EntypoItem size={20} name="cycle" color={`${'#404040'}`} />
+                <Text style={styles.navigation__item__text}>{ strings('dashboardStack.exchange') }</Text>
+            </View>
+        )
+    }
+
     render() {
 
         const { btnType } = this.state
 
-
         return (
             <View style={styles.wrapper}>
+
                 <TouchableOpacity style={styles.navigation__item} onPress={this.handleModal}>
-                    <EntypoItem size={20} name="cycle" color={`${'#404040'}`} />
-                    <Text style={styles.navigation__item__text}>{ strings('dashboardStack.exchange') }</Text>
+
+                    <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={100} MainComponent={this.renderExchangeTooltip} />
+
                 </TouchableOpacity>
-                <View style={{...styles.navigation__item, marginTop: -40}}>
-                    <View style={styles.navigation__item__content}>
-                        <View style={{ marginTop: Platform.OS === 'ios' ? 0 : -24 }}>
-                            <ToolTips ref={ref => this.buySellBtnTooltip = ref} tipType='HOME_SCREEN_BUY_SELL_BTN_TIP'>
-                                <View style={[styles.navigation__main__container, { position: 'absolute', top: 0, left: 10 }]}>
-                                    <TouchableOpacity style={[styles.navigation__main, { shadowColor: '#fff', shadowOpacity: 0, elevation: 0 }]}
-                                                      onPress={this.handleMainBtn}
-                                                      activeOpacity={0.8}
-                                                      onLongPress={this.handleChangeBtn}>
-                                        <FontistoIcon size={20} name={ btnType === 'BUY' ? 'shopping-basket-add' : 'shopping-basket-remove' } color={`${'#404040'}`}/>
-                                        <Text style={{...styles.navigation__item__text, color: '#404040'}}>{ strings(btnType === 'BUY' ?  'dashboardStack.buy' : 'dashboardStack.sell') }</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </ToolTips>
-                        </View>
-                        <View style={[styles.navigation__main__container, { position: 'absolute', top: 0, left: 10, zIndex: 100 }]}>
-                            <TouchableOpacity style={styles.navigation__main}
-                                              onPress={this.handleMainBtn}
-                                              activeOpacity={0.8}
-                                              onLongPress={this.handleChangeBtn}>
-                                <FontistoIcon size={20} name={ btnType === 'BUY' ? 'shopping-basket-add' : 'shopping-basket-remove' } color={`${'#404040'}`}/>
-                                <Text style={{...styles.navigation__item__text, color: '#404040'}}>{ strings(btnType === 'BUY' ?  'dashboardStack.buy' : 'dashboardStack.sell') }</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <Image
-                            style={styles.navigation__main__shadow}
-                            resizeMode='stretch'
-                            source={ Platform.OS === 'ios' ? require('../../../assets/images/mainBtnShadowIOS.png') : require('../../../assets/images/mainBtnShadowAndroid.png') }/>
+
+                <TouchableOpacity style={[styles.navigation__item]} onPress={() => this.handleMainBtn('BUY')}>
+
+                    <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={100} MainComponent={this.returnBuyTooltip} />
+
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleMainBtn('SELL')}>
+                    <View style={{ marginTop: 1 }}>
+                        <FontistoIcon size={18} name={'shopping-basket-remove'} color={`${'#404040'}`}/>
                     </View>
-                </View>
+                    <Text style={{...styles.navigation__item__text, marginTop: 4}}>{ strings('dashboardStack.sell') }</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.navigation__item} onPress={this.handleSettings}>
                     <IconAwesome size={20} name="gear" color={`${'#404040'}`} />
-                    <Text style={styles.navigation__item__text}>{ strings('dashboardStack.settings') }</Text>
+                    <Text style={[styles.navigation__item__text, { marginTop: 3 }]}>{ strings('dashboardStack.settings') }</Text>
                 </TouchableOpacity>
                 <View style={styles.wrapper__shadow}>
                     <View style={styles.wrapper__shadow__item} />
@@ -127,7 +145,13 @@ class BottomNavigation extends Component {
     }
 }
 
-export default BottomNavigation
+const mapStateToProps = (state) => {
+    return {
+        exchangeStore: state.exchangeStore
+    }
+}
+
+export default connect(mapStateToProps,{})(BottomNavigation)
 
 const styles = {
     wrapper: {
@@ -137,8 +161,9 @@ const styles = {
         zIndex: 2,
 
         width: '100%',
-        height: deviceModel === 'iPhone X' ? 108 : 78,
+        // height: deviceModel === 'iPhone X' || deviceModel === 'iPhone XS Max' ? 108 : 78,
         paddingTop: 22,
+
     },
     wrapper__shadow: {
         position: 'absolute',
@@ -156,17 +181,17 @@ const styles = {
 
         // marginTop: 20,
 
-        backgroundColor: '#fff',
+        backgroundColor: '#f9f9f9',
 
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: 12,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        shadowOpacity: 0.58,
+        shadowRadius: 16.00,
 
-        elevation: 5,
+        elevation: 24,
     },
     navigation__item: {
         position: 'relative',

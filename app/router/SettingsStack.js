@@ -1,4 +1,4 @@
-import { createStackNavigator } from 'react-navigation'
+import { createStackNavigator } from 'react-navigation-stack'
 import SettingsMain from '../modules/Settings/SettingsMainScreen'
 import WalletList from '../modules/Settings/WalletListScreen'
 import LanguageListScreen from '../modules/Settings/LanguageListScreen'

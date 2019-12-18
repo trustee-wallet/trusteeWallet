@@ -8,8 +8,8 @@ import {
     View,
     Dimensions,
     Text,
-    Clipboard
-} from "react-native";
+    Clipboard, Platform, Linking
+} from 'react-native'
 import QRCodeScanner from "react-native-qrcode-scanner";
 
 import Navigation from '../../components/navigation/Navigation';
@@ -22,6 +22,8 @@ import _ from "lodash";
 import { decodeTransactionQrCode } from '../../services/utils'
 import accountDS from "../../appstores/DataSource/Account/Account";
 import firebase from "react-native-firebase"
+import { check, PERMISSIONS, request } from 'react-native-permissions'
+import ImagePicker from 'react-native-image-picker'
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -47,7 +49,7 @@ class QRCodeScannerScreen extends Component {
             type
         } = this.props.qrCodeScanner.config;
 
-        const res = decodeTransactionQrCode(param);
+        const res = await decodeTransactionQrCode(param);
 
         const { currencies, selectedWallet } = this.props.main;
         let currency = _.find(currencies, { currencyCode: res.data.currencyCode });

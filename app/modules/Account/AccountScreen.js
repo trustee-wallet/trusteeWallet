@@ -13,6 +13,7 @@ import Navigation from '../../components/navigation/Navigation'
 import GradientView from '../../components/elements/GradientView'
 import ButtonIcon from '../../components/elements/ButtonIcon'
 import NavStore from '../../components/navigation/NavStore'
+import ToolTips from '../../components/elements/ToolTips'
 
 import Orders from './elements/Orders'
 
@@ -31,12 +32,12 @@ import { showModal } from '../../appstores/Actions/ModalActions'
 
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
+import BlocksoftInvoice from '../../../crypto/actions/BlocksoftInvoice/BlocksoftInvoice'
+
 import firebase from 'react-native-firebase'
 
 import Log from '../../services/Log/Log'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
-
-const WIDTH = Dimensions.get('window').width
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window')
 
@@ -44,10 +45,13 @@ import updateAccountBalanceDaemon from '../../services/Daemon/classes/UpdateAcco
 import updateAccountTransactionsDaemon from '../../services/Daemon/classes/UpdateAccountBalance'
 import updateExchangeOrdersDaemon from '../../services/Daemon/classes/UpdateExchangeOrders'
 
-
 import Toast from '../../services/Toast/Toast'
 import FiatRatesActions from '../../appstores/Actions/FiatRatesActions'
 
+import Theme from '../../themes/Themes'
+import AccountActions from '../../appstores/Actions/AccountActions'
+import BlocksoftBalances from '../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
+let styles
 
 class Account extends Component {
 
@@ -71,36 +75,87 @@ class Account extends Component {
                 { key: 'first', title: 'First' },
                 { key: 'second', title: 'Second' },
             ],
+
+            isBalanceChanged: false,
+            isTransactionChanged: false
         }
 
         this.ordersRef = React.createRef()
     }
 
     async componentWillMount() {
-        const { balancePretty, transactions } = this.props.account
+        try {
+            styles = Theme.getStyles().accountScreenStyles
 
-        this.setState({
-            balance: balancePretty,
-            transactions
-        })
+            const { balanceProvider } = this.props.account
 
-        this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
-            this.handleOnIndexChanged(0)
-        })
+            this.setState({
+                balanceProvider,
+            })
+
+            await updateAccountBalanceDaemon.forceDaemonUpdate()
+            await updateExchangeOrdersDaemon.forceDaemonUpdate()
+            await updateAccountTransactionsDaemon.forceDaemonUpdate()
+        } catch (e) {
+            Log.err('AccountScreen.componentDidMount' + e.message)
+        }
     }
 
-    componentWillReceiveProps(props) {
+    componentDidMount() {
+        try {
+            this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
 
-        const { account } = props
+                setTimeout(() => {
+                    const param = this.props.navigation.getParam('accountScreenParam')
 
-        Log.log(`Account.AccountScreen got props`, account)
-
-        if (Object.keys(account).length != 0) {
-            this.setState({
-                balance: account.balancePretty.toString(),
-                transactions: account.transactions
+                    this.handleOnIndexChanged(typeof param != 'undefined' && param.isOrdersActive ? 1 : 0)
+                }, 100)
             })
+        } catch (e) {
+            Log.err('AccountScreen.componentDidMount' + e.message)
         }
+    }
+
+    async componentWillReceiveProps(props) {
+
+        // const { account } = props
+        //
+        // Log.log(`Account.AccountScreen got props`, account)
+        //
+        // if (Object.keys(account).length != 0 && typeof account.transactions != 'undefined') {
+        //
+        //     if(this.props.account.balance !== props.account.balance){
+        //         this.setState({
+        //             isBalanceChanged: true,
+        //         })
+        //     }
+        //
+        //     const isUnconfirmed = props.account.transactions.find(item => typeof item.block_confirmations == 'undefined')
+        //
+        //     if((this.props.account.transactions.length !== props.account.transactions.length) || typeof isUnconfirmed != 'undefined' ){
+        //         this.setState({
+        //             isTransactionChanged: true
+        //         })
+        //     }
+        //
+        //     if(this.state.isBalanceChanged && this.state.isTransactionChanged){
+        //         console.log('balancePretty2', account.balancePretty)
+        //         this.setState({
+        //             isBalanceChanged: false,
+        //             isTransactionChanged: false,
+        //             balance: account.balancePretty ? account.balancePretty.toString() : '0.0',
+        //             balanceProvider : account.balanceProvider,
+        //             transactions: account.transactions
+        //         })
+        //     }
+        //
+        //     if(!this.state.isBalanceChanged && !this.state.isTransactionChanged){
+        //         this.setState({
+        //             transactions: account.transactions
+        //         })
+        //     }
+        //
+        // }
     }
 
     handleLink = (data) => {
@@ -112,13 +167,23 @@ class Account extends Component {
             if (supported) {
                 Linking.openURL(`${currencyExplorerTxLink}${address}`)
             } else {
-                Log.err(`Account.AccountScreen Don't know how to open URI: ${currencyExplorerTxLink}${address}`)
+                Log.err('Account.AccountScreen Dont know how to open URI', `${currencyExplorerTxLink}${address}`)
             }
         })
     }
 
-    handleReceive = () => {
-        NavStore.goNext('ReceiveScreen')
+    handleReceive = async () => {
+        if (this.props.account.currency_code === 'BTC_LIGHT') {
+            //@misha todo view where will be entered
+            BlocksoftInvoice.setCurrencyCode(this.props.account.currency_code).setAddress(this.props.account.address).setAdditional(this.props.account.account_json).setAmount(900).setMemo('ksu is testing6')
+            let res = await BlocksoftInvoice.createInvoice()
+            //@misha todo view with this hash qr
+            console.log('should open view with invoice tx hash and qr', res.hash)
+            copyToClipboard(res.hash)
+            Toast.setMessage(strings('toast.copied')).show()
+        } else {
+            NavStore.goNext('ReceiveScreen')
+        }
     }
 
     handleSend = () => {
@@ -134,7 +199,8 @@ class Account extends Component {
 
         await updateAccountBalanceDaemon.forceDaemonUpdate()
 
-        this.state.index ? await updateExchangeOrdersDaemon.forceDaemonUpdate() : await updateAccountTransactionsDaemon.forceDaemonUpdate()
+        await updateExchangeOrdersDaemon.forceDaemonUpdate()
+        await updateAccountTransactionsDaemon.forceDaemonUpdate()
 
         await setSelectedAccount()
 
@@ -184,7 +250,7 @@ class Account extends Component {
             if (supported) {
                 Linking.openURL(`${currencyExplorerLink}${address}`)
             } else {
-                Log.err(`Account.AccountScreen Don't know how to open URI: ${currencyExplorerLink}${address}`)
+                Log.err('Account.AccountScreen Dont know how to open URI', `${currencyExplorerLink}${address}`)
             }
         })
     }
@@ -231,7 +297,9 @@ class Account extends Component {
 
     handleOnIndexChanged = (index) => {
 
-        this.ordersRef.setAmountToView()
+        try {
+            this.ordersRef.setAmountToView()
+        } catch (e) {}
 
         this.setState({
             amountToView: 10,
@@ -240,10 +308,11 @@ class Account extends Component {
         })
     }
 
-    renderScene = ({ route }) => {
-        switch (route.key) {
+    renderScene = ({ route, transactions }) => {
+
+        switch (route.route.key) {
             case 'first':
-                return this.renderTransaction()
+                return this.renderTransaction(transactions)
             case 'second':
                 return <Orders ref={ orders => this.ordersRef = orders } amountToView={this.state.amountToView} currency={this.props.cryptocurrency} />
             default:
@@ -253,31 +322,82 @@ class Account extends Component {
 
     handleShowMore = () => this.setState({ amountToView: this.state.amountToView + 10 })
 
-    renderTransaction = () => {
+    renderTooltip = (props) => {
 
-        const { transactions, selectedTransactionHash, amountToView } = this.state
+        return (
+            <View>
+                <Text style={styles.transaction_title}>{strings('account.history')}</Text>
+                { !props.transactions.length ? <Text style={styles.transaction__empty_text}>{ strings('account.noTransactions') }</Text> : null }
+            </View>
+        )
+    }
+
+    nextCallback = () => {
+        this.handleOnIndexChanged(1)
+    }
+
+    renderTransaction = (transactions) => {
+
+        const { selectedTransactionHash, amountToView } = this.state
         const { localCurrencySymbol } = this.props.fiatRatesStore
 
         const cryptocurrency = JSON.parse(JSON.stringify(this.props.cryptocurrency))
 
         return (
-            <View style={{ flex: 1 }}>
-                <Text style={styles.transaction_title}>{strings('account.history')}</Text>
+            <View style={{ flex: 1, alignItems: 'flex-start' }}>
+                <View>
+                    <ToolTips type={'ACCOUNT_SCREEN_TRANSACTION_TIP'}
+                              height={100}
+                              MainComponent={this.renderTooltip}
+                              nextCallback={this.nextCallback}
+                              mainComponentProps={{ transactions }}/>
+                </View>
                 {
                     transactions.length ? transactions.map((item, index) => {
-
                         let date = new Date(item.created_at)
                         date = date.toString()
                         date = date.split(' ')
 
                         let address = (item.transaction_direction == 'outcome') ? item.address_to : item.address_from
+                        address = address == null ? 'address null!!!' : address
                         let prettieAddress = address.slice(0, 4) + '...' + address.slice(address.length - 4, address.length)
-                        let prettieAmount = BlocksoftPrettyNumbers.setCurrencyCode(cryptocurrency.currencyCode).makePrettie(item.address_amount)
+                        let prettieAmount = 0
+                        try {
+                            prettieAmount = BlocksoftPrettyNumbers.setCurrencyCode(cryptocurrency.currencyCode).makePrettie(item.address_amount)
+                        } catch (e) {
+                            Log.err('AccountScreen error ' + e.message + ' with item ' + JSON.stringify(item))
+                        }
                         prettieAmount = +prettieAmount
                         prettieAmount = parseFloat(prettieAmount.toFixed(5))
 
+                        let blockConfirmations
+                        const ifTransactionOfTW = item.transaction_of_trustee_wallet && item.transaction_of_trustee_wallet === 1
+                        const transactionStatus = typeof(item.transaction_status) !== 'undefined' ? item.transaction_status : 'new'
+
+                        if (typeof item.block_confirmations != 'undefined' && item.block_confirmations > 0) {
+                            if (item.block_confirmations > 20) {
+                                blockConfirmations = '20+'
+                            } else {
+                                blockConfirmations = item.block_confirmations
+                            }
+                        }
+
+                        typeof blockConfirmations == 'undefined' ? blockConfirmations = 0 : null
+
+                        //@misha todo view improvement
+
+                        //console.log(item)
+
+                        let invoiceMemo = typeof item.transaction_json === 'undefined' || item.transaction_json == null || typeof item.transaction_json.memo === 'undefined' ? 'no title' : item.transaction_json.memo
+                        if (item.transaction_direction === 'income' && item.block_hash === 'user_invoice') {
+                           if (item.transaction_status === 'pay_waiting' || item.transaction_status === 'new' ) {
+                               console.log('could be destination address shown qr liked or passed by messangers etc to anyone to pay', item.transaction_hash)
+                           }
+                        }
+
+
                         return index < amountToView ? (
-                            <View style={{ position: 'relative', paddingBottom: Platform.OS === 'ios' ? 5 : 0, overflow: 'visible' }} key={index}>
+                            <View style={{ width: '100%', position: 'relative', paddingBottom: Platform.OS === 'ios' ? 5 : 0, overflow: 'visible' }} key={index}>
                                 <View style={{ position: 'relative', zIndex: 3 }}>
                                     {
                                         item.transaction_direction == 'outcome' ?
@@ -292,58 +412,122 @@ class Account extends Component {
                                                 onLeftActionDeactivate={() => this.handleOnRightActionDeactivate()}>
 
                                                 <View style={selectedTransactionHash == item.transaction_hash ? { ...styles.transaction__item, ...styles.transaction__item_active } : { ...styles.transaction__item }}>
-                                                    <Text style={{ ...styles.transaction__subtext, fontSize: 14, marginTop: 2, width: 52 }}>
-                                                        {date[1] + ' ' + date[2]}
-                                                    </Text>
-                                                    <GradientView style={styles.circle} array={item.transaction_direction == 'outcome' ? circle.array : circle.array_} start={circle.start} end={circle.end}/>
+                                                    <View style={{ minWidth: 65 }}>
+                                                        <Text style={{ ...styles.transaction__subtext, fontSize: 14, marginTop: 2, width: 52 }}>
+                                                            {date[1] + ' ' + date[2]}
+                                                        </Text>
+                                                        <Text style={styles.transaction__subtext}>
+                                                            { prettieAddress }
+                                                        </Text>
+                                                    </View>
+                                                    <GradientView style={styles.circle} array={blockConfirmations ? circle.array : circle.array_new} start={circle.start} end={circle.end}/>
                                                     <TouchableOpacity style={styles.transaction__content} onPress={() => this.handleLink({ address: item.transaction_hash })}>
                                                         <View>
-                                                            {
-                                                                item.transaction_direction == 'outcome' ?
-                                                                    <Text style={{ ...styles.transaction__expand }}>{capitalize(item.transaction_direction)}</Text>
-                                                                    :
-                                                                    <Text style={{ ...styles.transaction__income }}>{capitalize(item.transaction_direction)}</Text>
+                                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                <Text style={[styles.transaction__expand, !blockConfirmations ? styles.transaction__new : null ]}>{capitalize(item.transaction_direction)}</Text>
+                                                                {
+                                                                    ifTransactionOfTW ?
+                                                                        <Image
+                                                                            style={{ width: 9, height: 10, marginTop: 1, marginLeft: 5 }}
+                                                                            resizeMode='stretch'
+                                                                            source={require('../../assets/images/logo.png')} /> : null
+                                                                }
+
+                                                            </View>
+                                                            { item.block_hash !== 'paid_invoice' ?
+                                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                <Text style={styles.transaction__subtext}>
+                                                                    { strings(`account.transactionStatuses.${!transactionStatus ? 'new' : transactionStatus}`) }
+                                                                </Text>
+                                                                <Text style={styles.transaction__subtext}>
+                                                                    { ' | '}
+                                                                </Text>
+                                                                <View style={{ marginRight: 3, marginTop: 1 }}>
+                                                                    <MaterialCommunity name="progress-check" size={12} color={"#999999"} />
+                                                                </View>
+                                                                <Text style={styles.transaction__subtext}>
+                                                                    { blockConfirmations }
+                                                                </Text>
+                                                            </View>
+                                                                :
+                                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                <Text style={styles.transaction__subtext}>
+                                                                    { invoiceMemo }
+                                                                </Text>
+                                                                <Text style={styles.transaction__subtext}>
+                                                                    { ' | '}
+                                                                </Text>
+                                                                <Text style={styles.transaction__subtext}>
+                                                                    { strings(`account.transactionStatuses.${!transactionStatus ? 'new' : transactionStatus}`) }
+                                                                </Text>
+                                                            </View>
                                                             }
-                                                            <Text style={{ ...styles.transaction__subtext }}>{prettieAddress}</Text>
                                                         </View>
                                                         <View>
-                                                            {
-                                                                item.transaction_direction == 'outcome' ?
-                                                                    <Text style={{ ...styles.transaction__expand, ...styles.textAlign_right }}>- {prettieAmount} {cryptocurrency.currencySymbol}</Text>
-                                                                    :
-                                                                    <Text style={{ ...styles.transaction__income, ...styles.textAlign_right }}>+ {prettieAmount} {cryptocurrency.currencySymbol}</Text>
-                                                            }
+                                                            <Text style={[styles.transaction__expand, styles.textAlign_right, !blockConfirmations ? styles.transaction__new : null]}>- {prettieAmount} {cryptocurrency.currencySymbol}</Text>
                                                             <Text style={{ ...styles.transaction__subtext, ...styles.textAlign_right }}>{ localCurrencySymbol } { FiatRatesActions.toLocalCurrency(prettieAmount * cryptocurrency.currency_rate_usd) }</Text>
-
                                                         </View>
                                                     </TouchableOpacity>
                                                 </View>
                                             </View>
                                             :
                                             <View style={selectedTransactionHash == item.transaction_hash ? { ...styles.transaction__item, ...styles.transaction__item_active } : { ...styles.transaction__item }}>
-                                                <Text style={{ ...styles.transaction__subtext, fontSize: 14, marginTop: 2, width: 52 }}>
-                                                    {date[1] + ' ' + date[2]}
-                                                </Text>
-                                                <GradientView style={styles.circle} array={item.transaction_direction == 'outcome' ? circle.array : circle.array_} start={circle.start} end={circle.end}/>
+                                                <View style={{ minWidth: 65 }}>
+                                                    <Text style={{ ...styles.transaction__subtext, fontSize: 14, marginTop: 2, width: 52 }}>
+                                                        {date[1] + ' ' + date[2]}
+                                                    </Text>
+                                                    <Text style={{ ...styles.transaction__subtext }}>{prettieAddress}</Text>
+                                                </View>
+                                                <GradientView style={styles.circle} array={blockConfirmations ? circle.array_ : circle.array_new} start={circle.start} end={circle.end}/>
                                                 <TouchableOpacity style={styles.transaction__content} onPress={() => this.handleLink({ address: item.transaction_hash })}>
                                                     <View>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <Text style={[ styles.transaction__income, !blockConfirmations ? styles.transaction__new : null ]}>{capitalize(item.transaction_direction)}</Text>
+                                                            {
+                                                                ifTransactionOfTW ?
+                                                                    <Image
+                                                                        style={{ width: 9, height: 10, marginTop: 1, marginLeft: 5 }}
+                                                                        resizeMode='stretch'
+                                                                        source={require('../../assets/images/logo.png')} /> : null
+                                                            }
+
+                                                        </View>
                                                         {
-                                                            item.transaction_direction == 'outcome' ?
-                                                                <Text style={{ ...styles.transaction__expand }}>{capitalize(item.transaction_direction)}</Text>
-                                                                :
-                                                                <Text style={{ ...styles.transaction__income }}>{capitalize(item.transaction_direction)}</Text>
+                                                            item.block_hash !== 'user_invoice' ?
+                                                            <View
+                                                                style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                <Text style={styles.transaction__subtext}>
+                                                                    {strings(`account.transactionStatuses.${!transactionStatus ? 'new' : transactionStatus}`)}
+                                                                </Text>
+                                                                <Text style={styles.transaction__subtext}>
+                                                                    {' | '}
+                                                                </Text>
+                                                                <View style={{ marginRight: 3, marginTop: 1 }}>
+                                                                    <MaterialCommunity name="progress-check" size={12}
+                                                                                       color={"#999999"}/>
+                                                                </View>
+                                                                <Text style={styles.transaction__subtext}>
+                                                                    {blockConfirmations}
+                                                                </Text>
+                                                            </View>
+                                                            :
+                                                            <View
+                                                                style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                <Text style={styles.transaction__subtext}>
+                                                                    { invoiceMemo }
+                                                                </Text>
+                                                                <Text style={styles.transaction__subtext}>
+                                                                    { ' | '}
+                                                                </Text>
+                                                                <Text style={styles.transaction__subtext}>
+                                                                    {strings(`account.transactionStatuses.${!transactionStatus ? 'new' : transactionStatus}`)}
+                                                                </Text>
+                                                            </View>
                                                         }
-                                                        <Text style={{ ...styles.transaction__subtext }}>{prettieAddress}</Text>
                                                     </View>
                                                     <View>
-                                                        {
-                                                            item.transaction_direction == 'outcome' ?
-                                                                <Text style={{ ...styles.transaction__expand, ...styles.textAlign_right }}>- {prettieAmount} {cryptocurrency.currencySymbol}</Text>
-                                                                :
-                                                                <Text style={{ ...styles.transaction__income, ...styles.textAlign_right }}>+ {prettieAmount} {cryptocurrency.currencySymbol}</Text>
-                                                        }
+                                                        <Text style={[styles.transaction__income, styles.textAlign_right, !blockConfirmations ? styles.transaction__new : null]}>+ {prettieAmount} {cryptocurrency.currencySymbol}</Text>
                                                         <Text style={{ ...styles.transaction__subtext, ...styles.textAlign_right }}>{ localCurrencySymbol } { FiatRatesActions.toLocalCurrency(prettieAmount * cryptocurrency.currency_rate_usd) }</Text>
-
                                                     </View>
                                                 </TouchableOpacity>
                                             </View>
@@ -355,53 +539,77 @@ class Account extends Component {
                                         <Text style={styles.transaction__action__text}>Replace</Text>
                                     </View>
                                 </View>
-                                {transactions.length != index + 1 && amountToView != index + 1 ? <GradientView key={index} style={styles.line} array={line.array} start={line.start} end={line.end}/> : null}
+                                {transactions.length != index + 1 && amountToView != index + 1 ? <GradientView key={index} style={styles.line} array={blockConfirmations ? line.array : line.array_new} start={line.start} end={line.end}/> : null}
                             </View>
                         ): null
-                    }) : <Text style={styles.transaction__empty_text}>{strings('account.noTransactions')}</Text>
+                    }) : null
                 }
                 {
                     this.state.amountToView < this.state.dataLength ?
-                        <TouchableOpacity style={styles.showMore} onPress={this.handleShowMore}>
-                            <Text style={styles.showMore__btn}>
-                                { strings('account.showMore') }
-                            </Text>
-                            <Ionicons name='ios-arrow-down' size={12} color='#7127ac' />
-                        </TouchableOpacity> : null
+                        <View style={{ width: '100%', alignItems: 'center' }}>
+                            <TouchableOpacity style={styles.showMore} onPress={this.handleShowMore}>
+                                <Text style={styles.showMore__btn}>
+                                    { strings('account.showMore') }
+                                </Text>
+                                <Ionicons name='ios-arrow-down' size={12} color='#7127ac' />
+                            </TouchableOpacity>
+                        </View> : null
                 }
             </View>
+        )
+    }
+
+    renderAddressTooltip = (props) => {
+        return (
+            <Text style={styles.topContent__address}>
+                { props.address.slice(0, 10) + '...' + props.address.slice(props.address.length - 8, props.address.length) }
+            </Text>
         )
     }
 
     render() {
         firebase.analytics().setCurrentScreen('Account.AccountScreen')
 
-
-
-
-        const { address } = this.props.account
+        const { address, currency_code, balance, transactions } = this.props.account
         const { localCurrencySymbol } = this.props.fiatRatesStore
 
-        const { balance, dataLength } = this.state
+        let{ dataLength } = this.state
+
+        let prettieBalance = BlocksoftPrettyNumbers.setCurrencyCode(currency_code).makePrettie(balance)
+        if (prettieBalance) {
+            prettieBalance = prettieBalance.toString()
+        } else {
+            prettieBalance = '0.0'
+        }
 
         const cryptocurrency = JSON.parse(JSON.stringify(this.props.cryptocurrency))
 
         const contentHeight = dataLength ? (Platform.OS === 'android' ? 62.3 : 58.7) * dataLength + ((Platform.OS === 'android' ? 62.3 : 58.7) * dataLength < SCREEN_HEIGHT - 450 ? SCREEN_HEIGHT - 450 : 40) : SCREEN_HEIGHT - 450
 
-        let prettieUsdBalance = (cryptocurrency.currency_rate_usd * this.state.balance).toFixed(5) == 0.00000 ? 0 : (cryptocurrency.currency_rate_usd * this.state.balance).toFixed(5)
+        let prettieUsdBalance = (cryptocurrency.currency_rate_usd * prettieBalance).toFixed(5) == 0.00000 ? 0 : (cryptocurrency.currency_rate_usd * prettieBalance).toFixed(5)
+        
+        console.log({
+            currency_code : this.props.account.currency_code,
+            address : this.props.account.address,
+            state_balance :  this.state.balance,
+            props_balance : this.props.account.balance
+        })
 
         prettieUsdBalance = +prettieUsdBalance
-        prettieUsdBalance = prettieUsdBalance.toFixed(2)
 
-        const logData = { currency: cryptocurrency.currencyCode, address, amount: this.state.balance, usd: prettieUsdBalance }
+        if (this.props.account.balance_provider) {
+            const logData = { currency: cryptocurrency.currencyCode, address, amount: prettieBalance + '', balanceProvider: this.props.account.balance_provider + '', usd: prettieUsdBalance + ''}
+            MarketingEvent.logEvent('view_account', logData)
+            Log.log('Account.AccountScreen is rendered', logData)
+        }
 
-        MarketingEvent.logEvent('view_account', logData)
-        Log.log('Account.AccountScreen is rendered', logData)
 
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <Navigation
                     title={`${strings('account.title')} ${cryptocurrency.currencySymbol}`}
+                    isBack={false}
+                    navigation={this.props.navigation}
                 />
                 <ScrollView
                     style={styles.wrapper__scrollView}
@@ -445,12 +653,12 @@ class Account extends Component {
                                         <View style={styles.topContent__title}>
                                             <Text style={styles.topContent__title_first}>
                                                 {
-                                                    typeof balance.toString().split('.')[1] != 'undefined' ? balance.toString().split('.')[0] + '.' : balance.toString().split('.')[0]
+                                                    typeof prettieBalance.toString().split('.')[1] != 'undefined' ? prettieBalance.toString().split('.')[0] + '.' : prettieBalance.toString().split('.')[0]
                                                 }
                                             </Text>
                                             <Text style={styles.topContent__title_last}>
                                                 {
-                                                    typeof balance.toString().split('.')[1] != 'undefined' ? balance.toString().split('.')[1].slice(0, 7) + ' ' + cryptocurrency.currencySymbol : ' ' + cryptocurrency.currencySymbol
+                                                    typeof prettieBalance.toString().split('.')[1] != 'undefined' ? prettieBalance.toString().split('.')[1].slice(0, 7) + ' ' + cryptocurrency.currencySymbol : ' ' + cryptocurrency.currencySymbol
                                                 }
                                             </Text>
                                         </View>
@@ -464,9 +672,7 @@ class Account extends Component {
                                     </View>
                                 </View>
                                 <View style={styles.topContent__middle}>
-                                    <Text style={styles.topContent__address}>
-                                        {address.slice(0, 10) + '...' + address.slice(address.length - 8, address.length)}
-                                    </Text>
+                                    <ToolTips showAfterRender={true} height={100} type={'ACCOUNT_SCREEN_ADDRESS_TIP'} cryptocurrency={cryptocurrency} mainComponentProps={{ address }} MainComponent={this.renderAddressTooltip} />
                                     <TouchableOpacity onPress={() => this.handleCopyAddress()} style={styles.copyBtn}>
                                         <Text style={styles.copyBtn__text}>
                                             {strings('account.copy')}
@@ -500,7 +706,7 @@ class Account extends Component {
                             tabBarPosition={'none'}
                             navigationState={this.state}
                             swipeEnabled={this.state.swipeEnable}
-                            renderScene={this.renderScene}
+                            renderScene={(route) => this.renderScene({route, transactions})}
                             onIndexChange={this.handleOnIndexChanged}
                             style={{ minHeight: SCREEN_HEIGHT - 450 }}
                             initialLayout={{ width: Dimensions.get('window').width }}
@@ -537,12 +743,14 @@ const styles_ = {
 const circle = {
     array: ['#752cb2', '#efa7b5'],
     array_: ['#7127ac', '#9b62f0'],
+    array_new: ['#EA751D', '#F4ED69'],
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 }
 }
 
 const line = {
     array: ['#752cb2', '#efa7b5'],
+    array_new: ['#EA751D', '#F4ED69'],
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 }
 }
@@ -562,251 +770,3 @@ const stl = StyleSheet.create({
         zIndex: 0
     }
 })
-
-const styles = {
-    wrapper: {
-        flex: 1
-    },
-    wrapper__scrollView: {
-        marginTop: 80,
-    },
-    wrapper__content: {
-        flex: 1,
-
-        paddingTop: 20,
-    },
-    topContent: {
-        position: 'relative',
-        marginTop: 25,
-        marginBottom: 30,
-        marginLeft: 30,
-        marginRight: 30
-    },
-    topContent__top: {
-        position: 'relative',
-        alignItems: 'center',
-        height: 160,
-        marginTop: -25
-    },
-    topBlock__top_bg: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        width: '100%',
-        height: 140
-    },
-    topContent__title: {
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-        marginTop: 20,
-        marginBottom: 20
-    },
-    topContent__subtitle: {
-        marginTop: -5,
-        marginBottom: 15,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 16,
-        color: '#f4f4f4',
-        textAlign: 'center'
-    },
-    topContent__title_first: {
-        height: 42,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 36,
-        color: '#f4f4f4'
-    },
-    topContent__title_last: {
-        height: 30,
-        fontFamily: 'SFUIDisplay-Regular',
-        textAlign: 'center',
-        fontSize: 24,
-        color: '#f4f4f4'
-    },
-    topContent__bottom: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        overflow: 'visible'
-    },
-    topContent__middle: {
-        alignItems: 'center',
-        marginTop: 20
-    },
-    topContent__address: {
-        marginBottom: 3,
-        fontFamily: 'SFUIDisplay-Semibold',
-        fontSize: 14,
-        color: '#404040'
-    },
-    copyBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 80,
-        paddingLeft: 50,
-        paddingRight: 50,
-        marginTop: -35
-    },
-    copyBtn__text: {
-        marginTop: 22,
-        marginRight: 17,
-        fontFamily: 'SFUIDisplay-Bold',
-        fontSize: 10,
-        color: '#864dd9'
-    },
-    copyBtn__icon: {
-        marginTop: 18
-    },
-    shadow: {
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#fff',
-        borderRadius: 15,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.23,
-        shadowRadius: 2.62,
-
-        elevation: 4
-    },
-    transaction_title: {
-        marginLeft: 30,
-        marginBottom: 10,
-        color: '#404040',
-        fontSize: 22,
-        fontFamily: 'SFUIDisplay-Regular'
-    },
-    transaction__empty_text: {
-        marginTop: -10,
-        marginLeft: 30,
-        color: '#404040',
-        fontSize: 16,
-        fontFamily: 'SFUIDisplay-Regular'
-    },
-    transaction__item: {
-        position: 'relative',
-        paddingTop: 10,
-        paddingBottom: 10,
-        paddingLeft: 15,
-        paddingRight: 15,
-        marginLeft: 15,
-        marginRight: 15,
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    transaction__item_active: {
-        backgroundColor: '#fff',
-        borderRadius: 15,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.23,
-        shadowRadius: 2.62,
-
-        elevation: 4
-    },
-    transaction__subtext: {
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#999999',
-        fontSize: 12
-    },
-    transaction__content: {
-        flex: 1,
-        justifyContent: 'space-between',
-        flexDirection: 'row'
-    },
-    transaction__expand: {
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#e77ca3',
-        fontSize: 16
-    },
-    transaction__income: {
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#864dd9',
-        fontSize: 16
-    },
-    transaction__bg: {
-        alignItems: 'flex-end',
-        position: 'absolute',
-        top: 0,
-        left: 15,
-        width: WIDTH - 30,
-        height: '100%',
-        borderRadius: 15,
-        zIndex: 1
-    },
-    transaction__bg_active: {
-        backgroundColor: '#e77ca3'
-    },
-    transaction__action: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 72,
-        height: '100%'
-    },
-    transaction__action__text: {
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#ffffff',
-        fontSize: 10
-    },
-    textAlign_right: {
-        textAlign: 'right'
-    },
-    circle: {
-        position: 'relative',
-        width: 10,
-        height: 10,
-        marginLeft: 6,
-        marginRight: 20,
-        borderRadius: 10,
-        zIndex: 2
-    },
-    line: {
-        position: 'absolute',
-        top: 30,
-        left: 92,
-        width: 2,
-        height: 60,
-        zIndex: 2
-    },
-    topContent__whiteBox: {
-        width: 40,
-    },
-    dots: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-
-        marginBottom: 10,
-    },
-    dots__item: {
-        width: 10,
-        height: 10,
-
-        marginHorizontal: 4,
-
-        borderRadius: 10,
-        backgroundColor: '#f4f4f4'
-    },
-    dots__item_active: {
-        backgroundColor: '#864dd9'
-    },
-    showMore: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-
-        padding: 10,
-        marginBottom: 20
-    },
-    showMore__btn: {
-        marginRight: 5,
-
-        color: '#864dd9',
-        fontSize: 10,
-        fontFamily: 'SFUIDisplay-Bold'
-    }
-}
-

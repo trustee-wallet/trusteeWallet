@@ -8,7 +8,12 @@ import { strings } from '../../../services/i18n'
 import { capitalize } from '../../../services/utils'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
+import fiatRatesActions from '../../../appstores/Actions/FiatRatesActions'
+
+import Theme from '../../../themes/Themes'
+import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
+import ToolTips from '../../../components/elements/ToolTips'
+let styles
 
 
 class Orders extends Component {
@@ -21,26 +26,43 @@ class Orders extends Component {
         }
     }
 
+    componentWillMount() {
+        styles = Theme.getStyles().accountScreenStyles.orders
+    }
+
     getExchangeOrdersLength = () => this.state.exchangeOrders.length
 
     handleShowMore = () => this.setState({ amountToView: this.state.amountToView + 10 })
 
     setAmountToView = () => { this.setState({ amountToView: 10 }) }
 
+    renderTooltip = (props) => {
+
+        return (
+            <View>
+                <Text style={styles.transaction_title}>{strings('exchangeInit.ordersHistory')}</Text>
+                { !props.exchangeOrders.length ? <Text style={styles.transaction__empty_text}>{strings('exchangeInit.ordersNull')}</Text> : null }
+            </View>
+        )
+    }
+
     render(){
 
         const { amountToView } = this.state
+        const { settingsStore } = this.props
         const { exchangeOrders } = this.props.exchangeStore
         const { localCurrencySymbol, localCurrencyRate } = this.props.fiatRatesStore
 
         let tmpExchangeOrders = JSON.parse(JSON.stringify(exchangeOrders))
-        tmpExchangeOrders = tmpExchangeOrders.filter(item => item.currency === this.props.currency.currencyCode.toLowerCase())
+        tmpExchangeOrders = tmpExchangeOrders.filter(item => item.requestedInAmount.currencyCode === this.props.currency.currencyCode || item.requestedOutAmount.currencyCode === this.props.currency.currencyCode)
 
         this.state.exchangeOrders = tmpExchangeOrders
 
         return (
             <View style={styles.transaction}>
-                <Text style={styles.transaction_title}>{strings('exchangeInit.ordersHistory')}</Text>
+                <View>
+                    <ToolTips type={'ACCOUNT_SCREEN_ORDERS_TIP'} height={100} MainComponent={() => this.renderTooltip({ exchangeOrders: tmpExchangeOrders })} mainComponentProps={{ exchangeOrders }} />
+                </View>
                 {
                     tmpExchangeOrders.length ? tmpExchangeOrders.map((item, index) => {
 
@@ -48,15 +70,11 @@ class Orders extends Component {
                         date = date.toString()
                         date = date.split(' ')
 
-                        let prettieAmount = item.requestedFiat
-                        prettieAmount = +prettieAmount
-                        prettieAmount = parseFloat(prettieAmount.toFixed(5))
-
                         return index < amountToView ? (
-                            <View style={{ position: 'relative', paddingBottom: Platform.OS === 'ios' ? 5 : 0, overflow: 'visible' }} key={index}>
+                            <View style={{ width: '100%', position: 'relative', paddingBottom: Platform.OS === 'ios' ? 5 : 0, overflow: 'visible' }} key={index}>
                                 <View style={{ position: 'relative', zIndex: 3 }}>
                                     {
-                                        item.type === 'SELL' ?
+                                        item.exchangeWayType === 'SELL' ?
                                             <View>
                                                 <View style={styles.transaction__item}>
                                                     <View>
@@ -74,10 +92,10 @@ class Orders extends Component {
                                                           <View style={{ flex: 1 }}>
                                                               <View style={styles.transaction__item__content}>
                                                                   <Text style={styles. transaction__expand}>
-                                                                      { capitalize(strings(`exchange.${item.type.toLowerCase()}`)) }
+                                                                      { capitalize(strings(`exchange.${item.exchangeWayType.toLowerCase()}`)) }
                                                                   </Text>
                                                                   <Text style={[styles.transaction__expand, styles.textAlign_right]}>
-                                                                      - { item.requestedCrypto } {this.props.currency.currencySymbol.toUpperCase()}
+                                                                      - { item.requestedInAmount.amount } {this.props.currency.currencySymbol.toUpperCase()}
                                                                   </Text>
                                                               </View>
                                                               <View style={styles.transaction__item__content}>
@@ -85,20 +103,20 @@ class Orders extends Component {
                                                                       { strings(`exchange.ordersStatus.sell.${item.status}`) }
                                                                   </Text>
                                                                   <Text style={{ ...styles.transaction__subtext, ...styles.textAlign_right }}>
-                                                                      { localCurrencySymbol } {(item.requestedFiat / localCurrencyRate).toFixed(2)}
+                                                                      { localCurrencySymbol } {(fiatRatesActions.convertFromCurrencyTo(item.requestedOutAmount.currencyCode, settingsStore.data.local_currency, item.requestedOutAmount.amount)).toFixed(2)}
                                                                   </Text>
                                                               </View>
                                                           </View>
                                                 </View>
                                             </View>
-                                            :
+                                            : item.exchangeWayType === 'BUY' ?
                                             <View style={[styles.transaction__item]}>
                                                 <View>
                                                     <Text style={{ ...styles.transaction__subtext, fontSize: 14, marginTop: 2, width: 52 }}>
                                                         {date[1] + ' ' + date[2]}
                                                     </Text>
                                                     <Text style={[styles.transaction__subtext]}>
-                                                        { item.withdrawDestination.slice(0, 3) + '...' + item.withdrawDestination.slice(item.withdrawDestination.length - 2, item.withdrawDestination.length) }
+                                                        { item.outDestination.slice(0, 3) + '...' + item.outDestination.slice(item.outDestination.length - 2, item.outDestination.length) }
                                                     </Text>
                                                 </View>
                                                 <GradientView style={styles.circle}
@@ -108,10 +126,10 @@ class Orders extends Component {
                                                       <View style={{ flex: 1 }}>
                                                           <View style={styles.transaction__item__content}>
                                                               <Text style={[styles.transaction__income]}>
-                                                                  { capitalize(strings(`exchange.${item.type.toLowerCase()}`)) }
+                                                                  { capitalize(strings(`exchange.${item.exchangeWayType.toLowerCase()}`)) }
                                                               </Text>
                                                               <Text style={[styles.transaction__income, styles.textAlign_right, { flex: 1 }]}>
-                                                                  + { item.requestedCrypto } {this.props.currency.currencySymbol.toUpperCase()}
+                                                                  + { item.requestedOutAmount.amount } {this.props.currency.currencySymbol.toUpperCase()}
                                                               </Text>
                                                           </View>
                                                           <View style={styles.transaction__item__content}>
@@ -119,17 +137,52 @@ class Orders extends Component {
                                                                   { strings(`exchange.ordersStatus.buy.${item.status}`) }
                                                               </Text>
                                                               <Text style={{ ...styles.transaction__subtext, ...styles.textAlign_right }}>
-                                                                  { localCurrencySymbol } {(item.requestedFiat / localCurrencyRate).toFixed(2)}
+                                                                  { localCurrencySymbol } { (fiatRatesActions.convertFromCurrencyTo(item.requestedInAmount.currencyCode, settingsStore.data.local_currency, item.requestedInAmount.amount)).toFixed(2)}
                                                               </Text>
                                                           </View>
                                                       </View>
+                                            </View>
+                                            :
+                                            <View style={[styles.transaction__item]}>
+                                                <View>
+                                                    <Text style={{ ...styles.transaction__subtext, fontSize: 14, marginTop: 2, width: 52 }}>
+                                                        {date[1] + ' ' + date[2]}
+                                                    </Text>
+                                                    <Text style={[styles.transaction__subtext]}>
+                                                        { item.outDestination.slice(0, 3) + '...' + item.outDestination.slice(item.outDestination.length - 2, item.outDestination.length) }
+                                                    </Text>
+                                                </View>
+                                                <GradientView style={styles.circle}
+                                                              array={circle.array_}
+                                                              start={circle.start}
+                                                              end={circle.end}/>
+                                                <View style={{ flex: 1 }}>
+                                                    <View style={styles.transaction__item__content}>
+                                                        <Text style={[styles.transaction__income]}>
+                                                            { capitalize(strings(`exchange.${item.exchangeWayType.toLowerCase()}`)) }
+                                                        </Text>
+                                                        <Text style={[styles.transaction__income, styles.textAlign_right, { flex: 1 }]}>
+                                                             { item.requestedInAmount.currencyCode === this.props.currency.currencyCode ? item.requestedInAmount.amount : item.requestedOutAmount.amount }
+                                                             { ' ' + this.props.currency.currencySymbol.toUpperCase() }
+                                                        </Text>
+                                                    </View>
+                                                    <View style={styles.transaction__item__content}>
+                                                        <Text style={[styles.transaction__subtext, styles.textAlign_right, styles.transaction__subtext_status, { flex: 1, marginRight: 5 }]} numberOfLines={1}>
+                                                            { strings(`exchange.ordersStatus.exchange.${item.status}`) }
+                                                        </Text>
+                                                        <Text style={{ ...styles.transaction__subtext, ...styles.textAlign_right }}>
+                                                            { item.requestedOutAmount.currencyCode === this.props.currency.currencyCode ? item.requestedInAmount.amount : item.requestedOutAmount.amount }
+                                                            { ' ' + BlocksoftDict.getCurrencyAllSettings(item.requestedOutAmount.currencyCode === this.props.currency.currencyCode ? item.requestedInAmount.currencyCode : item.requestedOutAmount.currencyCode).currencySymbol }
+                                                        </Text>
+                                                    </View>
+                                                </View>
                                             </View>
                                     }
                                 </View>
                                 { tmpExchangeOrders.length != index + 1 && amountToView != index + 1 ? <GradientView key={index} style={styles.line} array={line.array} start={line.start} end={line.end}/> : null }
                             </View>
                         ) : null
-                    }) : <Text style={styles.transaction__empty_text}>{strings('exchangeInit.ordersNull')}</Text>
+                    }) : null
                 }
                 {
                     this.state.amountToView < this.state.exchangeOrders.length ?
@@ -147,6 +200,7 @@ class Orders extends Component {
 
 const mapStateToProps = (state) => {
     return {
+        settingsStore: state.settingsStore,
         exchangeStore: state.exchangeStore,
         fiatRatesStore: state.fiatRatesStore
     }
@@ -165,136 +219,4 @@ const line = {
     array: ['#752cb2', '#efa7b5'],
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 }
-}
-
-const styles = {
-    transaction: {
-        flex: 1,
-        paddingHorizontal: 15,
-    },
-    transaction_title: {
-        marginLeft: 15,
-        marginBottom: 10,
-        color: '#404040',
-        fontSize: 22,
-        fontFamily: 'SFUIDisplay-Regular'
-    },
-    transaction__empty_text: {
-        marginTop: -10,
-        marginLeft: 15,
-        color: '#404040',
-        fontSize: 16,
-        fontFamily: 'SFUIDisplay-Regular'
-    },
-    transaction__item: {
-        position: 'relative',
-        paddingTop: 10,
-        paddingBottom: 10,
-        marginLeft: 15,
-        marginRight: 15,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-    },
-    transaction__item__content: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-    transaction__item_active: {
-        backgroundColor: '#fff',
-        borderRadius: 15,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.23,
-        shadowRadius: 2.62,
-
-        elevation: 4
-    },
-    transaction__subtext: {
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#999999',
-        fontSize: 12
-    },
-    transaction__content: {
-        flex: 1,
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        flexDirection: 'row'
-    },
-    transaction__expand: {
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#e77ca3',
-        fontSize: 16
-    },
-    transaction__income: {
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#864dd9',
-        fontSize: 16
-    },
-    transaction__bg: {
-        alignItems: 'flex-end',
-        position: 'absolute',
-        top: 0,
-        left: 15,
-        width: SCREEN_WIDTH - 30,
-        height: '100%',
-        borderRadius: 15,
-        //backgroundColor: '#fff',
-        zIndex: 1
-    },
-    transaction__bg_active: {
-        backgroundColor: '#e77ca3'
-    },
-    transaction__action: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 72,
-        height: '100%'
-    },
-    transaction__action__text: {
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#ffffff',
-        fontSize: 10
-    },
-    circle: {
-        position: 'relative',
-        width: 10,
-        height: 10,
-        marginLeft: 6,
-        marginRight: 20,
-        borderRadius: 10,
-        zIndex: 2
-    },
-    line: {
-        position: 'absolute',
-        top: 30,
-        left: 77,
-        width: 2,
-        height: 60,
-        zIndex: 2
-    },
-    textAlign_right: {
-        textAlign: 'right'
-    },
-    transaction__subtext_status: {
-        textAlign: 'left'
-    },
-    showMore: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-
-        padding: 10,
-        marginBottom: 20
-    },
-    showMore__btn: {
-        marginRight: 5,
-
-        color: '#864dd9',
-        fontSize: 10,
-        fontFamily: 'SFUIDisplay-Bold'
-    }
 }

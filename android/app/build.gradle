@@ -103,7 +103,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.trustee.demo"
+        applicationId "com.trusteewallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -113,6 +113,10 @@ android {
 
         renderscriptTargetApi rootProject.ext.compileSdkVersion
         renderscriptSupportModeEnabled true
+        
+        ndk {
+          abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64", "mips"
+        }
     }
     splits {
         abi {
@@ -155,6 +159,10 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-screens')
+    implementation project(':react-native-image-picker')
+    implementation project(':react-native-wheel-picker-android')
+    implementation project(':react-native-flurry-sdk')
     implementation project(':react-native-reanimated')
     implementation project(':react-native-blur-overlay')
     implementation project(':react-native-exit-app')
@@ -173,21 +181,28 @@ dependencies {
     implementation project(':@react-native-community_async-storage')
     implementation project(':react-native-awesome-card-io')
     implementation project(':react-native-gesture-handler')
+    implementation project(':react-native-permissions')
     compile(project(':react-native-firebase')) {
        transitive = false
     }
     implementation project(':react-native-firebase')
     implementation project(':react-native-vector-icons')
     implementation project(':react-native-orientation')
-    implementation project(':react-native-camera')
+    compile (project(':react-native-camera')) {
+      exclude group: "com.google.android.gms"
+    }
+    compile ("com.google.android.gms:play-services-vision:19.0.0") {
+      force = true;
+    }
     implementation project(':react-native-udp')
     implementation project(':react-native-tcp')
     implementation project(':react-native-os')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.appcompat:appcompat:${rootProject.ext.supportLibVersion}"
 
-    implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.annotation:annotation:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0-alpha02'
 
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation project(':react-native-device-info')
@@ -210,6 +225,7 @@ dependencies {
 
     compile project(':react-native-blocksoft-random')
 
+    compile project(':react-native-wheel-picker')
     compile 'com.flurry.android:analytics:11.7.1@aar'
 }
 

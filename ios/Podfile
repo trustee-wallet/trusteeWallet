@@ -6,9 +6,19 @@ target 'TrusteeWallet' do
   # use_frameworks!
 
   # Pods for TrusteeWallet
+
+  pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
+
+  permissions_path = '../node_modules/react-native-permissions/ios'
+
   pod 'Firebase/Core'
   pod 'Firebase/Messaging'
   pod 'Firebase/DynamicLinks'
+  pod 'Firebase/Database'
+
+  pod 'Fabric'
+  pod 'Crashlytics'
+
   pod 'RNFirebase', :path => '../node_modules/react-native-firebase/ios'
 
   pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
@@ -19,8 +29,7 @@ target 'TrusteeWallet' do
 
   pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
 
-  pod 'Flurry-iOS-SDK/FlurrySDK'
-  pod 'Flurry-iOS-SDK/FlurryAds'
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera.podspec"
 
   # pod 'React', :path => '../node_modules/react-native'
   # pod 'React', :path => '../node_modules/react-native', subspecs: [
@@ -68,6 +77,16 @@ target 'TrusteeWallet' do
   pod 'react-native-blur', :path => '../node_modules/@react-native-community/blur'
 
   pod 'RNReanimated', :path => '../node_modules/react-native-reanimated'
+
+  pod 'GoogleAnalytics'
+
+  pod 'GoogleIDFASupport'
+
+  pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
+
+  pod 'react-native-camera', :path => '../node_modules/react-native-camera'
+
+  pod 'RNScreens', :path => '../node_modules/react-native-screens'
 
   target 'TrusteeWallet-tvOSTests' do
     inherit! :search_paths

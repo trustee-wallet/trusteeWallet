@@ -10,7 +10,10 @@ import {
     StyleSheet,
     Image,
     ScrollView,
-    Text, TouchableOpacity, Dimensions
+    Text,
+    TouchableOpacity,
+    Dimensions,
+    Keyboard
 } from 'react-native'
 
 import Button from '../../components/elements/Button'
@@ -30,6 +33,7 @@ import { setMnemonicLength, setWalletName } from '../../appstores/Actions/Create
 import Log from '../../services/Log/Log'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import firebase from "react-native-firebase"
+import { setLoaderStatus } from '../../appstores/Actions/MainStoreActions'
 
 const data = {
     id: 'walletName',
@@ -45,7 +49,7 @@ class EnterNameScreen extends Component {
         super(props)
         this.state = {
             walletName: '',
-            mnemonicLength: 256,
+            mnemonicLength: 128,
             focused: false
         }
         this.walletNameInput = React.createRef()
@@ -79,12 +83,18 @@ class EnterNameScreen extends Component {
             setWalletName({ walletName: result.value })
             setMnemonicLength({ mnemonicLength: this.state.mnemonicLength })
 
+            Keyboard.dismiss()
+
             const { flowType } = this.props.data
 
             switch (flowType) {
                 case 'CREATE_NEW_WALLET':
-                    Log.log('WalletCreate.EnterNameScreen goto BackupStep0Screen')
-                    NavStore.goNext('BackupStep0Screen')
+                    setLoaderStatus(true)
+                    setTimeout(() => {
+                        Log.log('WalletCreate.EnterNameScreen goto BackupStep0Screen')
+                        NavStore.goNext('BackupStep0Screen')
+                        setLoaderStatus(false)
+                    }, 2000)
                     break
                 case 'IMPORT_WALLET':
                     Log.log('WalletCreate.EnterNameScreen goto EnterMnemonicPhrase')
@@ -107,21 +117,21 @@ class EnterNameScreen extends Component {
                     <View style={styles.mnemonicLength__content}>
                         <TouchableOpacity
                             style={styles.mnemonicLength__item}
-                            disabled={mnemonicLength === 256}
-                            onPress={() => this.handleSelectMnemonicLength(256)}>
-                            <View style={styles.radio}>
-                                <View style={mnemonicLength === 256 ? styles.radio__dot : null} />
-                            </View>
-                            <Text>{ 24 + ' ' + strings('walletCreate.words24') }</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.mnemonicLength__item}
                             disabled={mnemonicLength === 128}
                             onPress={() => this.handleSelectMnemonicLength(128)}>
                             <View style={styles.radio}>
                                 <View style={mnemonicLength === 128 ? styles.radio__dot : null} />
                             </View>
                             <Text>{ 12 + ' ' + strings('walletCreate.words12') }</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.mnemonicLength__item}
+                            disabled={mnemonicLength === 256}
+                            onPress={() => this.handleSelectMnemonicLength(256)}>
+                            <View style={styles.radio}>
+                                <View style={mnemonicLength === 256 ? styles.radio__dot : null} />
+                            </View>
+                            <Text>{ 24 + ' ' + strings('walletCreate.words24') }</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -150,10 +160,12 @@ class EnterNameScreen extends Component {
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <Navigation
-                    title={this.renderTitle()}/>
+                    title={this.renderTitle()}
+                    isClose={false}
+                />
                 <KeyboardAwareView>
                     <ScrollView
-                        keyboardShouldPersistTaps
+                        keyboardShouldPersistTaps={'always'}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={focused ? styles.wrapper__content_active : styles.wrapper__content}
                         style={styles.wrapper__scrollView}

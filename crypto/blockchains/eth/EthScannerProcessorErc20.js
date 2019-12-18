@@ -18,15 +18,17 @@ class EthScannerProcessorErc20 extends require('./EthScannerProcessor').EthScann
 
     /**
      * @param {string} address
-     * @return {Promise<int>}
+     * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalance(address) {
         // noinspection JSUnresolvedVariable
         let balance = await this._token.methods.balanceOf(address).call()
         BlocksoftCryptoLog.log('EthScannerProcessorErc20.getBalance finished', address + ' => ' + balance)
-        return balance
+        return {balance, unconfirmed : 0, provider : 'etherscan'}
     }
 }
+
+module.exports.EthScannerProcessorErc20 = EthScannerProcessorErc20
 
 module.exports.init = function(settings) {
     return new EthScannerProcessorErc20(settings)

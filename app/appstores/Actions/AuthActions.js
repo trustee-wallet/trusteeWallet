@@ -71,7 +71,7 @@ export default new class AuthActions {
             })
 
         } catch (e) {
-            Log.err('ACT/Auth registrate error ', e.message)
+            Log.err('ACT/Auth registrate error ' + e.message)
         }
 
         Log.log('ACT/Auth registrate finished')
@@ -94,7 +94,7 @@ export default new class AuthActions {
             })
 
         } catch (e) {
-            Log.err('ACT/Auth singOut error ', e.message)
+            Log.err('ACT/Auth singOut error ' + e.message)
         }
 
         Log.log('ACT/Auth signOut finished')

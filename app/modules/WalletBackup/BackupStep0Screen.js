@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Platform } from 'react-native'
 import Icon from 'react-native-vector-icons/AntDesign'
 
 import Button from '../../components/elements/Button'
@@ -65,7 +65,7 @@ class BackupStep0Screen extends Component {
             })
 
         } catch (e) {
-            Log.err('WalletBackup.BackupStep0Screen.componentDidMount error', e)
+            Log.err('WalletBackup.BackupStep0Screen.componentDidMount error ' + e.message)
         }
     }
 
@@ -102,6 +102,7 @@ class BackupStep0Screen extends Component {
                     flowType === 'BACKUP_WALLET' ?
                         <Navigation
                             title={strings('walletBackup.title')}
+                            isClose={false}
                         /> :
                         <Navigation
                             title={strings('walletBackup.titleNewWallet')}
@@ -126,7 +127,10 @@ class BackupStep0Screen extends Component {
                                 this.state.walletMnemonicArray.map((item, index) => {
                                     return (
                                         <View style={styles.seed__item} key={index}>
-                                            <Text style={styles.seed__text}>{index + 1 + ' ' + item}</Text>
+                                            <View style={styles.seed__index}>
+                                                <Text style={styles.seed__index__text}>{ index + 1 }</Text>
+                                            </View>
+                                            <Text style={styles.seed__text}>{ ' ' + item }</Text>
                                         </View>
                                     )
                                 })
@@ -168,7 +172,7 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(mapStateToProps, mapDispatchToProps)(BackupStep0Screen)
 
 const styles_ = {
-    array: ['#fff', '#F8FCFF'],
+    array: ['#fff', '#fff'],
     start: { x: 0.0, y: 0 },
     end: { x: 0, y: 1 }
 }
@@ -211,22 +215,56 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start'
     },
     seed__item: {
+        position: 'relative',
+
         paddingTop: 5,
         paddingBottom: 5,
         paddingLeft: 10,
         paddingRight: 10,
         marginBottom: 10,
-        marginRight: 10,
+        marginRight: 15,
+        marginTop: 10,
         fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 12,
+        fontSize: 14,
         backgroundColor: '#946288',
         color: '#fff',
         borderRadius: 8
     },
     seed__text: {
         fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 12,
-        color: '#fff'
+        fontSize: 14,
+        color: '#fff',
+        textAlign: 'center'
+    },
+    seed__index: {
+        position: 'absolute',
+        top: -10,
+        right: -10,
+
+        padding: Platform.OS === 'android' ? 2 : 4,
+        width: 20,
+
+        textAlign: 'center',
+
+        backgroundColor: '#fff',
+
+        borderRadius: 20,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+
+        elevation: 5,
+    },
+    seed__index__text: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 10,
+        textAlign: 'center',
+        color: '#404040',
     },
     warning: {
         flexDirection: 'row',

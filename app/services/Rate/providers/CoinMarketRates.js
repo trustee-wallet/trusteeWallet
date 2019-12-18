@@ -5,6 +5,7 @@
  *
  * { currency: 'eth', usd: 246.55, uah: 6640, btc: 0.03154, eur: 218.55, rub: 16143.64 }
  */
+import Log from '../../Log/Log'
 
 const axios = require('axios')
 
@@ -44,7 +45,9 @@ export default class CoinMarketRates {
      */
     async getRate(params) {
         const now = new Date().getTime()
+        let provider = 'coinmarket'
         if (now - this._cachedTime > this._CACHE_VALID_TIME) {
+            Log.log('DMN/CoinMarketRates link ' + this._URL)
             /**
              * @param {string} resData.data[].currency
              * @param {string} resData.data[].usd
@@ -66,15 +69,19 @@ export default class CoinMarketRates {
             this._cachedTime = now
         } else {
             // do nothing and take from cache
+            provider += 'Cache'
         }
 
+        if (typeof this._cachedData[params.currencyCode] === 'undefined') {
+            throw new Error('CoinMarketRates ' + params.currencyCode + ' ' + provider + ' doesnt exists ' + JSON.stringify(Object.keys(this._cachedData)))
+        }
         const rate = this._cachedData[params.currencyCode]
         if (!rate) {
-            throw new Error('CoinMarketRates ' + params.currencyCode + ' doesnt exists in ' + JSON.stringify(this._cachedData))
+            throw new Error('CoinMarketRates ' + params.currencyCode + ' ' + provider + ' is null ' + JSON.stringify(Object.keys(this._cachedData)))
         }
         if (!rate.price_usd) {
-            throw new Error('CoinMarketRates ' + params.currencyCode + ' doesnt trade with usd ' + JSON.stringify(rate))
+            throw new Error('CoinMarketRates ' + params.currencyCode + ' ' + provider + ' doesnt trade with usd ' + JSON.stringify(rate))
         }
-        return { amount: rate.price_usd*1 }
+        return { amount: rate.price_usd*1, provider }
     }
 }

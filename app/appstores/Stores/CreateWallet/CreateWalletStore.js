@@ -2,7 +2,8 @@ const INITIAL_STATE = {
     flowType: '',
     walletName: '',
     walletMnemonic: '',
-    mnemonicLength: 0
+    mnemonicLength: 0,
+    callback: null
 };
 
 const createWalletStore = (state = INITIAL_STATE, action) => {
@@ -30,6 +31,11 @@ const createWalletStore = (state = INITIAL_STATE, action) => {
             return new Object({
                 ...state,
                 flowType: action.flowType
+            });
+        case 'SET_CALLBACK':
+            return new Object({
+                ...state,
+                callback: action.callback
             });
         default:
             return state;

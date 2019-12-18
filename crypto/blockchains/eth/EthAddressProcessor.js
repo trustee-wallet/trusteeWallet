@@ -36,6 +36,9 @@ class EthAddressProcessor {
     async signMessage(msg, privateKey) {
         BlocksoftCryptoLog.log('EthAddressProcessor.signMessage msg', msg)
         // noinspection JSUnresolvedVariable
+        if (privateKey.substr(0, 2) !== '0x') {
+            privateKey = '0x' + privateKey
+        }
         let signData = await this._web3.eth.accounts.sign(msg, privateKey)
         BlocksoftCryptoLog.log('EthAddressProcessor.signMessage signed', signData)
         return signData

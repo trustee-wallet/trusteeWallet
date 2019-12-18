@@ -10,14 +10,16 @@ export default class ButtonLine extends Component {
 
     render() {
 
-        const { styleText, disabled } = this.props
+        const { styleText, touchableOpacityStyle, disabled } = this.props
 
         return (
             <View style={{ backgroundColor: '#fff', ...this.props.styles}}>
-                <TouchableOpacity onPress={this.props.press} style={{...styles.btn, ...this.props.innerStyle}} disabled={typeof disabled != 'undefined' ? disabled : false }>
-                    <Text style={{...styles.btn__text, ...styleText}}>
-                        { this.props.children }
-                    </Text>
+                <TouchableOpacity onPress={this.props.press} style={touchableOpacityStyle}>
+                    <View style={{...styles.btn, ...this.props.innerStyle}} disabled={typeof disabled != 'undefined' ? disabled : false }>
+                        <Text style={{...styles.btn__text, ...styleText}}>
+                            { this.props.children }
+                        </Text>
+                    </View>
                 </TouchableOpacity>
             </View>
         )

@@ -33,7 +33,7 @@ export default {
                 
                 currency_code VARCHAR(32) NOT NULL,
                 
-                wallet_hash INTEGER NOT NULL,
+                wallet_hash VARCHAR(256) NOT NULL,
                 
                 account_json TEXT NULL,
                 
@@ -46,7 +46,10 @@ export default {
             queryString: `CREATE TABLE IF NOT EXISTS account_balance (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 
-                balance DECIMAL(18,10) NOT NULL,
+                balance_fix DECIMAL(50,20) NULL,
+                balance_txt VARCHAR(256) NULL,
+                balance_provider VARCHAR(256) NULL,
+
                 balance_scan_time INTEGER NOT NULL, 
                 
                 status INTEGER NOT NULL,              
@@ -77,6 +80,24 @@ export default {
         },
         */
         {
+            tableName: 'custom_currency',
+            queryString: `CREATE TABLE IF NOT EXISTS custom_currency (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,        
+              
+                is_hidden INTEGER NOT NULL DEFAULT 0,
+                
+                currency_code VARCHAR(32) NOT NULL,
+                currency_symbol VARCHAR(32) NOT NULL,
+                currency_name VARCHAR(256) NOT NULL,
+                
+                token_type VARCHAR(32) NOT NULL,
+                token_address VARCHAR(256) NOT NULL,
+                token_decimals INTEGER NOT NULL,   
+                token_json TEXT NULL
+            )`
+        },
+
+        {
             tableName: 'currency',
             queryString: `CREATE TABLE IF NOT EXISTS currency (
             
@@ -104,7 +125,10 @@ export default {
             queryString: `CREATE TABLE IF NOT EXISTS wallet (
                 wallet_hash VARCHAR(256) NOT NULL PRIMARY KEY,
                 wallet_name VARCHAR(256) NOT NULL,
-                wallet_json TEXT NULL
+                wallet_is_backed_up INTEGER NULL,
+                wallet_json TEXT NULL,
+                wallet_is_subscribed INTEGER NULL,
+                wallet_is_subscribed_json TEXT NULL
             )`
         },
         {
@@ -139,6 +163,18 @@ export default {
                 block_time DATETIME NULL,
                 created_at DATETIME NULL,
                 updated_at DATETIME NULL
+            )`,
+        },
+        {
+            tableName: 'transactions_used_outputs',
+            queryString: `CREATE TABLE IF NOT EXISTS transactions_used_outputs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                currency_code VARCHAR(256) NULL,                
+                output_tx_id VARCHAR(256) NULL,
+                output_vout VARCHAR(256) NULL,
+                output_address VARCHAR(256) NULL,
+                use_tx_id VARCHAR(256) NULL,                
+                created_at DATETIME NULL
             )`,
         },
         {

@@ -20,6 +20,9 @@ import { setLoaderStatus, proceedSaveGeneratedWallet } from '../../appstores/Act
 import App from "../../appstores/Actions/App/App"
 import Log from '../../services/Log/Log'
 import firebase from "react-native-firebase"
+import { setCallback } from '../../appstores/Actions/CreateWalletActions'
+import settingsActions from '../../appstores/Actions/SettingsActions'
+import walletActions from '../../appstores/Actions/WalletActions'
 
 class BackupStep1Screen extends Component {
 
@@ -96,6 +99,9 @@ class BackupStep1Screen extends Component {
         if (JSON.stringify(this.state.walletMnemonicSelected) !== JSON.stringify(this.state.walletMnemonicDefault)) {
             showModal({type: 'MNEMONIC_FAIL_MODAL'}, this.init)
         } else if (flowType === 'BACKUP_WALLET') {
+
+            walletActions.setWalletBackedUpStatus(this.props.mainStore.selectedWallet.wallet_hash, 1)
+
             showModal({
                 type: 'INFO_MODAL',
                 icon: true,
@@ -105,15 +111,17 @@ class BackupStep1Screen extends Component {
                 NavStore.reset('DashboardStack')
             })
         } else {
-            const {walletName, walletMnemonic} = this.props.createWalletStore
+            const { walletName, walletMnemonic, callback } = this.props.createWalletStore
 
             try {
                 setLoaderStatus(true)
 
-                await proceedSaveGeneratedWallet({
+                const storedKey = await proceedSaveGeneratedWallet({
                     walletName,
                     walletMnemonic
                 })
+
+                walletActions.setWalletBackedUpStatus(storedKey, 1)
 
                 setLoaderStatus(false)
 
@@ -122,13 +130,17 @@ class BackupStep1Screen extends Component {
                     icon: true,
                     title: strings('modal.walletBackup.success'),
                     description: strings('modal.walletBackup.walletCreated')
-                }, () => {
-                    NavStore.reset('DashboardStack')
+                }, async () => {
+                    if(callback === null){
+                        NavStore.reset('DashboardStack')
+                        await App.refreshWalletsStore()
+                    } else {
+                        callback()
+                        setCallback({ callback: null })
+                    }
                 })
-
-                await App.refreshWalletsStore()
             } catch (e) {
-                Log.err('WalletBackup.BackupStep1Screen.validateMnemonic errorSaving', e)
+                Log.err('WalletBackup.BackupStep1Screen.validateMnemonic error ' + e.message)
             }
 
         }
@@ -169,6 +181,7 @@ class BackupStep1Screen extends Component {
                     flowType === 'BACKUP_WALLET' ?
                         <Navigation
                             title={strings('walletBackup.title')}
+                            isClose={false}
                         /> :
                         <Navigation
                             title={strings('walletBackup.titleNewWallet')}
@@ -226,6 +239,7 @@ class BackupStep1Screen extends Component {
 
 const mapStateToProps = (state) => {
     return {
+        mainStore: state.mainStore,
         createWalletStore: state.createWalletStore,
         walletMnemonic: state.createWalletStore.walletMnemonic
     }

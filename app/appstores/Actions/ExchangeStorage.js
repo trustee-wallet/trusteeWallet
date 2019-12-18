@@ -2,6 +2,7 @@ import store from '../../store';
 
 const { dispatch } = store;
 
+
 export function setExchangeData(data) {
     dispatch({
         type: 'SET_EXCHANGE_DATA',
@@ -9,12 +10,6 @@ export function setExchangeData(data) {
     });
 }
 
-export function setExchangeType(data) {
-    dispatch({
-        type: 'SET_EXCHANGE_TYPE',
-        exchangeType: data.exchangeType
-    });
-}
 
 export function setExchangeAccountList(data) {
     dispatch({

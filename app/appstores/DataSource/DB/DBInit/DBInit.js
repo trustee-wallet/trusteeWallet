@@ -68,19 +68,16 @@ class DBInit {
 
         const dbInterface = new DBInterface()
 
-        try {
-            const res = await dbInterface.setQueryString(isEmptyQuery).query()
-            if(res.array.length != 0) {
-                Log.log(_isEmptyStatus.success)
-                return this._update()
-            }
-        } catch (e) {
-            Log.err(e)
-            Log.log(_isEmptyStatus.error)
+
+        const res = await dbInterface.setQueryString(isEmptyQuery).query()
+        if (res.array.length != 0) {
+            Log.log(_isEmptyStatus.success)
+            await this._update()
             return
         }
 
-        for(let i = 0; i < initQuery.length; i++) {
+
+        for (let i = 0; i < initQuery.length; i++) {
             try {
                 await dbInterface.setQueryString(initQuery[i].queryString).query()
                 Log.log(_createTableStatus.success)
@@ -109,11 +106,11 @@ class DBInit {
 
         let currentVersion = 0;
 
-        let fromDB = await dbInterface.setQueryString(`SELECT [paramValue] FROM settings WHERE [paramKey]='dbVersion'`).query()
+        let fromDB = await dbInterface.setQueryString(`SELECT [paramValue] FROM settings WHERE [paramKey]='dbVersion'`).query(true)
         if (fromDB.array && fromDB.array.length) {
             currentVersion = fromDB.array[0].paramValue * 1 // this was THE TRICK
         } else {
-            await dbInterface.setQueryString(`INSERT INTO settings ([paramValue],[paramKey]) VALUES (1, 'dbVersion')`).query()
+            await dbInterface.setQueryString(`INSERT INTO settings ([paramValue],[paramKey]) VALUES (1, 'dbVersion')`).query(true)
         }
         Log.log(_updateTableStatus.init)
         Log.log('!!! UPDATING CURRENT VERSION ' + currentVersion + ' NEXT VERSION ' + maxVersion)
@@ -123,13 +120,13 @@ class DBInit {
             try {
                 if(typeof queryString != 'undefined'){
                     if (checkQueryString && checkQueryField) {
-                        let check = await dbInterface.setQueryString(checkQueryString).query()
+                        let check = await dbInterface.setQueryString(checkQueryString).query(true)
                         check = check.array[0]
                         if (check && typeof check[checkQueryField] === 'undefined') {
-                            await dbInterface.setQueryString(queryString).query()
+                            await dbInterface.setQueryString(queryString).query(true)
                         }
                     } else {
-                        await dbInterface.setQueryString(queryString).query()
+                        await dbInterface.setQueryString(queryString).query(true)
                     }
                 }
                 if (typeof afterFunction != 'undefined') {
@@ -137,7 +134,12 @@ class DBInit {
                 }
                 await dbInterface.setQueryString(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`).query()
             } catch (e) {
-                Log.err(e.message)
+                if (e.message.indexOf('duplicate column name') === -1) {
+                    Log.err('DBInit._update error ' + e.message)
+                    throw new Error('DB update error')
+                } else {
+                    Log.log('DBInit._update warning ' + e.message)
+                }
             }
         }
         // Log.consoleStop()
@@ -156,7 +158,7 @@ class DBInit {
 
         const dbInterface = new DBInterface()
 
-        let tmpQuery = '';
+        let tmpQuery = ''
 
         for (let prop in settings) {
             tmpQuery = `('${prop}','${settings[prop]}'), ${tmpQuery}`
@@ -174,6 +176,8 @@ class DBInit {
      */
     _initCurrency = async () => {
 
+        const visibleCurrencies = ['BTC', 'ETH', 'ETH_USDT', 'ETH_SOUL']
+
         Log.log('DB/Init initCurrency called')
 
         const dbInterface = new DBInterface()
@@ -188,17 +192,15 @@ class DBInit {
                     currency_rate_usd: 0,
                     currency_rate_json: '',
                     currency_rate_scan_time: '',
-                    is_hidden: 0
+                    is_hidden: visibleCurrencies.indexOf(currencyCode) > -1 ? 0 : 1
                 })
             }
 
             await dbInterface.setTableName('currency').setInsertData({ insertObjs }).insert()
             Log.log('DB/Init initCurrency finished')
         } catch (e) {
-            Log.err('DB/Init initCurrency error', e)
+            Log.err('DB/Init initCurrency error ' + e.message)
         }
-
-
 
     }
 

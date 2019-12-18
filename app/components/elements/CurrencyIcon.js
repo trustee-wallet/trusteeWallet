@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 
 import {
     View,
-    Text
-} from "react-native"
+    Text, Image
+} from 'react-native'
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -42,53 +42,134 @@ export default class ButtonLine extends Component {
         } = styles.icons
 
         switch (currencyCode) {
+            case 'ETH_ONE':
+                return (
+                    <View style={{...styles.icon, borderColor: "#35D4D3", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_ONE" style={{ color: '#35D4D3', fontSize: fontSize }}/>
+                            <GradientView
+                                style={{...styles.icon__mark, ...tmpMarkStyle}}
+                                array={['#7E55D2', '#AC8FEA']}
+                                start={position.start}
+                                end={position.end}>
+                                <Text style={{...styles.icon__mark__text, ...tmpMarkTextStyle}}>
+                                    ETH
+                                </Text>
+                            </GradientView>
+                        </View>
+                    </View>
+                )
+
+            case 'TRX_USDT':
+                return (
+                    <View style={{...styles.icon, borderColor: "#31D182", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="USDT" style={{ color: '#31D182', fontSize: fontSize }}/>
+                            <GradientView
+                                style={{...styles.icon__mark, ...tmpMarkStyle}}
+                                array={['#7E55D2', '#AC8FEA']}
+                                start={position.start}
+                                end={position.end}>
+                                <Text style={{...styles.icon__mark__text, ...tmpMarkTextStyle}}>
+                                    TRX
+                                </Text>
+                            </GradientView>
+                        </View>
+                    </View>
+                )
+
+            case 'TRX_BTT':
+                return (
+                    <View style={{...styles.icon, borderColor: "#D73A64", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="TRX_BTT" style={{ color: '#D73A64', fontSize: fontSize }}/>
+                            <GradientView
+                                style={{...styles.icon__mark, ...tmpMarkStyle}}
+                                array={['#7E55D2', '#AC8FEA']}
+                                start={position.start}
+                                end={position.end}>
+                                <Text style={{...styles.icon__mark__text, ...tmpMarkTextStyle}}>
+                                    TRX
+                                </Text>
+                            </GradientView>
+                        </View>
+                    </View>
+                )
+
+            case 'XVG':
+                return (
+                    <View style={{...styles.icon, borderColor: "#00CBFF", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="XVG" style={{ color: '#00CBFF', fontSize: fontSize }} />
+                        </View>
+                    </View>
+                )
+
+            case 'DOGE':
+                return (
+                    <View style={{...styles.icon, borderColor: "#CEB55C", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="DOGE" style={{ color: '#CEB55C', fontSize: fontSize }}/>
+                        </View>
+                    </View>
+                )
+
+            case 'ETH_SOUL':
+                return (
+                    <View style={{...styles.icon, borderColor: "#A1B8CE", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <Image style={{ width: 25, height: 25 }} resize={'stretch'} source={require('../../assets/images/ethSOUL.png')} />
+                            <GradientView
+                                style={{...styles.icon__mark, ...tmpMarkStyle}}
+                                array={['#7E55D2', '#AC8FEA']}
+                                start={position.start}
+                                end={position.end}>
+                                <Text style={{...styles.icon__mark__text, ...tmpMarkTextStyle}}>
+                                    ETH
+                                </Text>
+                            </GradientView>
+                        </View>
+                    </View>
+                )
+            case 'TRX':
+                return (
+                    <View style={{...styles.icon, borderColor: "#E51A31", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="TRX" style={{ color: '#E51A31', fontSize: fontSize }}/>
+                        </View>
+                    </View>
+                )
             case 'LTC':
                 return (
-                    <View style={{...styles.icon, ...tmpContainerStyle}}>
-                        <GradientView
-                            style={styles.icon__item}
-                            array={['#5694A9', '#60BBF5']}
-                            start={position.start}
-                            end={position.end}>
-                            <CustomIcon name="LTC" style={{ color: '#f4f4f4', fontSize: fontSize }}/>
-                        </GradientView>
+                    <View style={{...styles.icon, borderColor: "#60BBF5", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="LTC" style={{ color: "#60BBF5", fontSize: fontSize }} />
+                        </View>
                     </View>
                 )
             case 'ETH':
             case 'ETH_ROPSTEN':
                 return (
-                    <View style={{...styles.icon, ...tmpContainerStyle}}>
-                        <GradientView
-                            style={styles.icon__item}
-                            array={['#145de3', '#4ec8f7']}
-                            start={position.start}
-                            end={position.end}>
-                            <Icon name="ethereum" size={fontSize} color={'#f4f4f4'}/>
-                        </GradientView>
+                    <View style={{...styles.icon, borderColor: "#1EB3E4", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <Icon name="ethereum" size={fontSize} color={'#1EB3E4'}/>
+                        </View>
                     </View>
                 )
             case 'BTC':
             case 'BTC_TEST':
                 return (
-                    <View style={{...styles.icon, ...tmpContainerStyle}}>
-                        <GradientView
-                            style={styles.icon__item}
-                            array={['#e67947', '#f9f871']}
-                            start={position.start}
-                            end={position.end}>
-                            <Icon name="bitcoin" size={fontSize} color={'#f4f4f4'}/>
-                        </GradientView>
+                    <View style={{...styles.icon, borderColor: "#F79E1B", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <Icon name="bitcoin" size={fontSize} color={'#F79E1B'}/>
+                        </View>
                     </View>
                 )
             case 'USDT':
                 return (
-                    <View style={{...styles.icon, ...tmpContainerStyle}}>
-                        <GradientView
-                            style={styles.icon__item}
-                            array={['#3ac058', '#27e3ae']}
-                            start={position.start}
-                            end={position.end}>
-                            <CustomIcon name="USDT" style={{ color: '#f4f4f4', fontSize: fontSize }}/>
+                    <View style={{...styles.icon, borderColor: "#31D182", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="USDT" style={{ color: '#31D182', fontSize: fontSize }}/>
                             <GradientView
                                 style={{...styles.icon__mark, ...tmpMarkStyle}}
                                 array={['#7E55D2', '#AC8FEA']}
@@ -98,18 +179,14 @@ export default class ButtonLine extends Component {
                                     OMNI
                                 </Text>
                             </GradientView>
-                        </GradientView>
+                        </View>
                     </View>
                 )
             case 'ETH_TRUE_USD':
                 return (
-                    <View style={{...styles.icon, ...tmpContainerStyle}}>
-                        <GradientView
-                            style={styles.icon__item}
-                            array={['#000', '#5dc9bc']}
-                            start={position.start}
-                            end={position.end}>
-                            <EthTrueUsd width={fontSize} height={fontSize} />
+                    <View style={{...styles.icon, borderColor: "#5BB6ED", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_TRUE_USD" style={{ color: '#5BB6ED', fontSize: fontSize }}/>
                             <GradientView
                                 style={{...styles.icon__mark, ...tmpMarkStyle}}
                                 array={['#7E55D2', '#AC8FEA']}
@@ -119,18 +196,14 @@ export default class ButtonLine extends Component {
                                     ETH
                                 </Text>
                             </GradientView>
-                        </GradientView>
+                        </View>
                     </View>
                 )
             case 'ETH_USDT':
                 return (
-                    <View style={{...styles.icon, ...tmpContainerStyle}}>
-                        <GradientView
-                            style={styles.icon__item}
-                            array={['#3ac058', '#27e3ae']}
-                            start={position.start}
-                            end={position.end}>
-                            <CustomIcon name="USDT" style={{ color: '#f4f4f4', fontSize: fontSize }}/>
+                    <View style={{...styles.icon, borderColor: "#31D182", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="USDT" style={{ color: '#31D182', fontSize: fontSize }}/>
                             <GradientView
                                 style={{...styles.icon__mark, ...tmpMarkStyle}}
                                 array={['#7E55D2', '#AC8FEA']}
@@ -140,18 +213,14 @@ export default class ButtonLine extends Component {
                                     ETH
                                 </Text>
                             </GradientView>
-                        </GradientView>
+                        </View>
                     </View>
                 )
             case 'ETH_BNB':
                 return (
-                    <View style={{...styles.icon, ...tmpContainerStyle}}>
-                        <GradientView
-                            style={styles.icon__item}
-                            array={['#f59e6c', '#f3ba2f']}
-                            start={position.start}
-                            end={position.end}>
-                            <EthBnbIcon width={fontSize} height={fontSize} />
+                    <View style={{...styles.icon, borderColor: "#F59E6C", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_BNB" style={{ color: '#F59E6C', fontSize: fontSize }}/>
                             <GradientView
                                 style={{...styles.icon__mark, ...tmpMarkStyle}}
                                 array={['#7E55D2', '#AC8FEA']}
@@ -161,18 +230,14 @@ export default class ButtonLine extends Component {
                                     ETH
                                 </Text>
                             </GradientView>
-                        </GradientView>
+                        </View>
                     </View>
                 )
             case 'ETH_USDC':
                 return (
-                    <View style={{...styles.icon, ...tmpContainerStyle}}>
-                        <GradientView
-                            style={styles.icon__item}
-                            array={['#1b4e85', '#2a7fdb']}
-                            start={position.start}
-                            end={position.end}>
-                            <EthUsdCoin width={fontSize} height={fontSize} />
+                    <View style={{...styles.icon, borderColor: "#2A7FDB", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_USDC" style={{ color: '#2A7FDB', fontSize: fontSize }}/>
                             <GradientView
                                 style={{...styles.icon__mark, ...tmpMarkStyle}}
                                 array={['#7E55D2', '#AC8FEA']}
@@ -182,18 +247,14 @@ export default class ButtonLine extends Component {
                                     ETH
                                 </Text>
                             </GradientView>
-                        </GradientView>
+                        </View>
                     </View>
                 )
             case 'ETH_PAX':
                 return (
-                    <View style={{...styles.icon, ...tmpContainerStyle}}>
-                        <GradientView
-                            style={styles.icon__item}
-                            array={['#02845d', '#02d193']}
-                            start={position.start}
-                            end={position.end}>
-                            <EthPax width={fontSize} height={fontSize} />
+                    <View style={{...styles.icon, borderColor: "#02D193", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_PAX" style={{ color: '#02D193', fontSize: fontSize }}/>
                             <GradientView
                                 style={{...styles.icon__mark, ...tmpMarkStyle}}
                                 array={['#7E55D2', '#AC8FEA']}
@@ -203,18 +264,14 @@ export default class ButtonLine extends Component {
                                     ETH
                                 </Text>
                             </GradientView>
-                        </GradientView>
+                        </View>
                     </View>
                 )
             case 'ETH_DAI':
                 return (
-                    <View style={{...styles.icon, ...tmpContainerStyle}}>
-                        <GradientView
-                            style={styles.icon__item}
-                            array={['#ff6f45', '#ffcb38']}
-                            start={position.start}
-                            end={position.end}>
-                            <EthDai width={fontSize} height={fontSize} />
+                    <View style={{...styles.icon, borderColor: "#FF6F45", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_DAI" style={{ color: '#FF6F45', fontSize: fontSize }}/>
                             <GradientView
                                 style={{...styles.icon__mark, ...tmpMarkStyle}}
                                 array={['#7E55D2', '#AC8FEA']}
@@ -224,29 +281,15 @@ export default class ButtonLine extends Component {
                                     ETH
                                 </Text>
                             </GradientView>
-                        </GradientView>
+                        </View>
                     </View>
                 )
-
             default:
                 return (
                     <View style={{...styles.icon, ...tmpContainerStyle}}>
-                        <GradientView
-                            style={styles.icon__item}
-                            array={['#145de3','#4ec8f7']}
-                            start={position.start}
-                            end={position.end}>
-                            <EthErc20 width={fontSize} height={fontSize} />
-                            <GradientView
-                                style={{...styles.icon__mark, ...tmpMarkStyle}}
-                                array={['#7E55D2', '#AC8FEA']}
-                                start={position.start}
-                                end={position.end}>
-                                <Text style={{...styles.icon__mark__text, ...tmpMarkTextStyle}}>
-                                    ETH
-                                </Text>
-                            </GradientView>
-                        </GradientView>
+                        <View style={styles.icon__item}>
+                            <Text>New</Text>
+                        </View>
                     </View>
                 )
         }
@@ -264,17 +307,8 @@ const styles = {
         height: 50,
         borderRadius: 50,
 
-        backgroundColor: '#fff',
-
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.23,
-        shadowRadius: 2.62,
-
-        elevation: 4,
+        borderWidth: 2,
+        borderColor: "#000"
     },
     icon__item: {
         alignItems: 'center',
@@ -301,7 +335,7 @@ const styles = {
         borderRadius: 4
     },
     icon__mark__text: {
-        paddingRight: 20,
+        paddingRight: 17,
         fontSize: 8,
         fontFamily: 'SFUIDisplay-Semibold',
         color: '#fff'

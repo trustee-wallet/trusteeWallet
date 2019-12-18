@@ -8,6 +8,7 @@
 
 import DBOpen from './DBOpen';
 import Log from '../../../services/Log/Log'
+import config from '../../../config/config'
 
 class DBInterface {
 
@@ -50,6 +51,23 @@ class DBInterface {
         this.#_db = DBOpen.getDB()
     }
 
+
+    /**
+     * @param {string} badString
+     * @return {string}
+     */
+    escapeString(badString) {
+        return badString.replace(/[']/g, 'quote')
+    }
+
+    /**
+     * @param {string} goodString
+     * @return {string}
+     */
+    unEscapeString(goodString) {
+        return goodString.replace(/quote/g, '\'')
+    }
+
     /**
      * @param {string} data
      * @return {DBInterface}
@@ -62,22 +80,30 @@ class DBInterface {
     /**
      * @return {Promise}
      */
-    async query() {
+    async query(throwError = false) {
 
         let tmpArray = []
         let tmpRowsAffected
         let res
 
         try {
-            console.log('')
-            console.log('')
+            if (config.debug.appDBLogs) {
+                console.log('')
+                console.log('')
+            }
             res = await this.#_db.query.executeSql(this.#_queryString)
-            console.log('')
-            console.log('')
+            if (config.debug.appDBLogs) {
+                console.log('')
+                console.log('')
+            }
         } catch (e) {
             e.message = 'DB QUERY ERROR: ' + this.#_queryString + ' ' +  e.message
             e.code = 'ERROR_SYSTEM'
-            Log.err(e)
+            if (throwError) {
+                throw e
+            } else {
+                Log.err(e)
+            }
         }
 
         if (!res || !res[0]) {
@@ -129,11 +155,15 @@ class DBInterface {
         }
         let preparedObjectsArray = this._toPreparedObjects(insertObjs)
         try {
-            console.log('')
-            console.log('')
+            if (config.debug.appDBLogs) {
+                console.log('')
+                console.log('')
+            }
             await this.#_db.insertItems(tableName, preparedObjectsArray)
-            console.log('')
-            console.log('')
+            if (config.debug.appDBLogs) {
+                console.log('')
+                console.log('')
+            }
         } catch (e) {
             e.message = 'DB INSERT ERROR: ' + tableName + ' ' + JSON.stringify(preparedObjectsArray) + ' ' +  e.message
             e.code = 'ERROR_SYSTEM'
@@ -175,18 +205,23 @@ class DBInterface {
             e.message = 'DBI/update _toPreparedObject ' + e.message
             throw e
         }
+        let res = false
         try {
-            console.log('')
-            console.log('')
-            await this.#_db.updateItem(tableName, preparedObject, key)
-            console.log('')
-            console.log('')
+            if (config.debug.appDBLogs) {
+                console.log('')
+                console.log('')
+            }
+            res = await this.#_db.updateItem(tableName, preparedObject, key)
+            if (config.debug.appDBLogs) {
+                console.log('')
+                console.log('')
+            }
         } catch (e) {
             e.message = 'DB UPDATE ERROR: ' + tableName + ' ' + JSON.stringify(preparedObject) + ' ' + e.message
             e.code = 'ERROR_SYSTEM'
             Log.err(e)
         }
-        return true
+        return res
     }
 
     /**

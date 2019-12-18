@@ -9,14 +9,21 @@ import MnemonicFailModal from '../../modules/WalletBackup/elements/MnemomicFail'
 import SkipModal from '../../modules/WalletBackup/elements/Skip'
 import CongratsModal from '../../modules/WalletCreate/elements/CongratsModal'
 import ConfirmTransactionModal from '../../modules/Send/elements/ConfirmModal'
-import ChooseInfoModal from '../../modules/Exchange/elements/InfoChooseModal'
+import ChooseInfoModal from '../../modules/Trade/elements/InfoChooseModal'
 
 import LicenseTermsModal from './elements/LicenseTermsModal'
 import LoginModal from './elements/LoginModal'
 import InfoModal from './elements/InfoModal'
+import SelectModal from './elements/SelectModal'
 import CustomReceiveAmountModal from './elements/CustomReceiveAmountModal'
+import ExchangeProviderInfoModal from './elements/ExchangeProviderInfoModal'
+import OpenSettingsModal from './elements/OpenSettingsModal'
 
-const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get("window");
+import PaymentSystemInfo from './elements/PaymentSystemInfo'
+import { setLoaderStatus } from '../../appstores/Actions/MainStoreActions'
+
+
+const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get("window")
 
 
 class SettingsMain extends Component {
@@ -32,9 +39,13 @@ class SettingsMain extends Component {
     componentWillReceiveProps(nextProps, nextContext) {
         if(this.props.modal.show != nextProps.modal.show){
             if(nextProps.modal.show){
+
+                setLoaderStatus(false)
+
                 setTimeout(() => {
                     this.setState({
                         blur: true
+                    }, () => {
                     })
                 }, 0)
             } else {
@@ -73,6 +84,14 @@ class SettingsMain extends Component {
                 return <LoginModal show={show} data={data} callback={callback} />
             case 'INFO_MODAL':
                 return <InfoModal show={show} data={data} callback={callback} />
+            case 'SELECT_MODAL':
+                return <SelectModal show={show} data={data} callback={callback} />
+            case 'PAYMENT_SYSTEM_INFO_MODAL':
+                return <PaymentSystemInfo show={show} data={data} callback={callback} />
+            case 'EXCHANGE_PROVIDER_INFO_MODAL':
+                return <ExchangeProviderInfoModal show={show} data={data} callback={callback} />
+            case 'OPEN_SETTINGS_MODAL':
+                return <OpenSettingsModal show={show} data={data} callback={callback} />
             default:
                 return <View></View>
         }
@@ -86,7 +105,7 @@ class SettingsMain extends Component {
         return (
             <View style={show ? styles.wrapper : styles.wrapper_hidden}>
                 {
-                    this.state.blur ?  <BlurView style={styles.absolute}
+                    this.state.blur ? <BlurView  style={styles.absolute}
                                                  blurType="light"
                                                  blurAmount={10} /> : null
                 }
@@ -101,7 +120,7 @@ class SettingsMain extends Component {
                             blurStyle="light"
                         /> : null
                 }
-                { this.renderTemplate() }
+                {  this.renderTemplate() }
             </View>
         )
     }

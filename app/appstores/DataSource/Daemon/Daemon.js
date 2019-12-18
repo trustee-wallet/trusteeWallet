@@ -12,7 +12,7 @@ export default {
         let res = []
 
         try {
-            res = await dbInterface.setQueryString(`SELECT currency_code, sum(balance) AS currencyBalanceAmount FROM account_balance WHERE wallet_hash = '${walletHash}' AND currency_code = '${currencyCode}'`).query()
+            res = await dbInterface.setQueryString(`SELECT currency_code, sum(balance_fix) AS currencyBalanceAmount FROM account_balance WHERE wallet_hash = '${walletHash}' AND currency_code = '${currencyCode}'`).query()
 
             if (!res || !res.array.length) {
                 throw new Error('nothing summed')
@@ -20,7 +20,7 @@ export default {
 
             Log.daemon('DS/Daemon getCurrencyBalanceAmount finished')
         } catch (e) {
-            let data = await dbInterface.setQueryString(`SELECT currency_code, balance FROM account_balance WHERE wallet_hash = '${walletHash}' AND currency_code = '${currencyCode}'`).query()
+            let data = await dbInterface.setQueryString(`SELECT currency_code, balance_fix AS balance FROM account_balance WHERE wallet_hash = '${walletHash}' AND currency_code = '${currencyCode}'`).query()
             Log.errDaemon('DS/Daemon getCurrencyBalanceAmount error (full data inside)', e, data)
         }
 

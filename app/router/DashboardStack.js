@@ -10,10 +10,9 @@ import Cycle from 'react-native-vector-icons/Entypo'
 import { strings } from '../services/i18n'
 
 import HomeScreenStack from './HomeStack'
-import ExchangeScreenStack from './ExchangeScreenStack'
+import TradeScreenStack from './TradeScreenStack'
 import SettingsScreenStack from './SettingsStack'
 import NavStore from '../components/navigation/NavStore'
-import { setExchangeType } from '../appstores/Actions/ExchangeStorage'
 
 
 export default (props) => {
@@ -25,7 +24,7 @@ export default (props) => {
                 tabBarLabel: strings('dashboardStack.exchange'),
                 tabBarIcon: ({ focused }) => <Cycle size={20} name="cycle" color={`${focused ? '#404040': '#404040'}`} />,
                 tabBarOnPress: () => {
-                    NavStore.goNext('ExchangeScreenStack')
+                    NavStore.goNext('TradeScreenStack')
                 }
             })
         },
@@ -36,7 +35,6 @@ export default (props) => {
                 title: strings('dashboardStack.buy'),
                 tabBarIcon: ({ focused }) => <View><IconAwesome5 size={20} name="shopping-cart" color={`${focused ? '#404040' : '#404040'}`}/></View>,
                 tabBarOnPress: () => {
-                    setExchangeType({ exchangeType: 'BUY' })
                     NavStore.goNext('MainDataScreen')
                 }
             }),

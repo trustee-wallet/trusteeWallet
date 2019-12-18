@@ -17,7 +17,12 @@ export default {
         await dbInterface.setTableName(tableName).setInsertData(data).insert()
 
         Log.daemon('ACT/AccountActions insertAccounts finished')
+    },
 
-    }
 
+    /**
+     * @param {int} id
+     * @return {Promise<{int}>}
+     */
+    getBalance: (id) => accountDS.getAccountBalance(id),
 }

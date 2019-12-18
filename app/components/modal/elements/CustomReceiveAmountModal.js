@@ -14,6 +14,7 @@ import { strings } from '../../../services/i18n'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
+
 export default class CustomReceiveAmountModal extends Component {
 
     constructor(props){
@@ -41,6 +42,8 @@ export default class CustomReceiveAmountModal extends Component {
         const { address, currencyCode } = this.props.data.data
 
         switch (currencyCode) {
+            case 'LTC':
+                return `litecoin:${address}${amount * 1 !== 0 ? `?amount=${amount}` : ''}`
             case 'BTC':
                 return `bitcoin:${address}${amount * 1 !== 0 ? `?amount=${amount}` : ''}`
             case 'ETH':

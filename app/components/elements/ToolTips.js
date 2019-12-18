@@ -1,113 +1,312 @@
 import React, { Component } from 'react'
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Animated, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { connect } from 'react-redux'
 
-import Tooltip from 'react-native-walkthrough-tooltip'
+import Tooltip from 'rn-tooltip'
 
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 
 import { strings } from '../../services/i18n'
 import ToolTipsActions from '../../appstores/Actions/ToolTipsActions'
 import settingsActions from '../../appstores/Actions/SettingsActions'
+import NavStore from '../navigation/NavStore'
+
 
 class ToolTips extends Component {
 
     constructor(props){
         super(props)
         this.state = {
-            isVisible: false,
+            canShowNext: false,
+            isCanBeShowed: true,
             toolTipsState: false,
-            content: <View></View>
+            type: '',
+            content: <View></View>,
+            pressAnim: new Animated.Value(1),
         }
     }
 
-    componentWillMount() {
-        const { tool_tips_state } = this.props.settingsStore.data
-        typeof tool_tips_state != 'undefined' && tool_tips_state === '0' ? ToolTipsActions.setToolTipState('HOME_SCREEN_BUY_SELL_BTN_TIP') : null
+    componentDidMount() {
 
-        this.initTip()
+        const { showAfterRender, prevToggleCallback, nextToggleCallback } = this.props
+
+        ToolTipsActions.setToolTipRef({
+            ref: {
+                toggleTooltip: () => {
+                    typeof prevToggleCallback != 'undefined' ? prevToggleCallback() : null
+                    setTimeout(() => {
+                        this.refTooltip.toggleTooltip()
+                    }, 300)
+                    typeof nextToggleCallback != 'undefined' ? nextCallback() : null
+                }
+            },
+            name: this.props.type
+        })
+
+        setTimeout(() => {
+            try {
+                if(typeof showAfterRender != 'undefined' && showAfterRender){
+                    this.refTooltip.toggleTooltip()
+                }
+            } catch (e) {}
+        }, 300)
     }
 
-    componentWillReceiveProps(nextProps) {
+    animatePress = () => {
+        Animated.timing(this.state.pressAnim, {
+            toValue: 0.2,
+            duration: 300
+        }).start()
 
-        if(typeof nextProps.toolTipsStore != 'undefined'){
-            this.setState({
-                isVisible: nextProps.toolTipsStore.tipsStates.homeScreen.sellBuyBtn,
-                toolTipsState: nextProps.toolTipsStore.tipsStates.homeScreen.sellBuyBtn
-            })
-        }
+        // setTimeout(() => {
+        //     Animated.timing(this.state.pressAnim, {
+        //         toValue: 1,
+        //         duration: 100
+        //     }).start()
+        // }, 100)
     }
 
-    initTip = () => {
-        const { tipsStates } = this.props.toolTipsStore
-        const { tipType } = this.props
+    renderTip = () => {
+        const { tipsRef } = this.props.toolTipsStore
+        const { type, nextCallback } = this.props
         let content
-        let isVisible
+        let nextBtnCallback
+        let nextBtnText
+        let isSkip
+        // let isVisible
 
-        switch (tipType) {
-            case 'HOME_SCREEN_BUY_SELL_BTN_TIP':
-                isVisible = tipsStates.homeScreen.sellBuyBtn
-                content = <View style={{ flex: 1, position: 'relative', padding: 10, backgroundColor: '#732bb1' }}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                    <Text style={{ marginBottom: 5, fontSize: 12, fontFamily: 'SFUIDisplay-Semibold', color: '#f4f4f4' }}>
-                                        { strings('tips.homeScreen.sellBuyBtn.title') }
-                                    </Text>
-                                    <TouchableOpacity style={{ position: 'absolute', top: -20, right: -20, padding: 20 }} onPress={this.handleClose}>
-                                        <AntDesignIcon name='close' size={14} color='#f4f4f4' />
-                                    </TouchableOpacity>
-                                </View>
-                                <Text style={{ maxWidth: 200, fontFamily: 'SFUIDisplay-Regular', fontSize: 10, color: '#f4f4f4', }}>
-                                    { strings('tips.homeScreen.sellBuyBtn.description') }
-                                </Text>
-                          </View>
+        switch (type) {
+            case 'HOME_SCREEN_BUY_BTN_TIP':
+                // isVisible = tipsStates.homeScreen.sellBuyBtn
+                nextBtnText = strings(`tooltips.buttons.next`)
+                isSkip = true
+                nextBtnCallback = () => {
+                    this.state.canShowNext = true
+                    this.refTooltip.toggleTooltip()
+                    tipsRef['HOME_SCREEN_EXCHANGE_BTN_TIP'].toggleTooltip()
+                    setTimeout(() => {
+                        this.state.canShowNext = false
+                        this.setState({ isCanBeShowed: false })
+                    }, 0)
+                }
+                content = this.renderTemplateTip(strings(`tooltips.HOME_SCREEN_BUY_BTN_TIP.title`), strings(`tooltips.HOME_SCREEN_BUY_BTN_TIP.description`), nextBtnCallback, nextBtnText, isSkip)
+                break
+            case 'HOME_SCREEN_EXCHANGE_BTN_TIP':
+                // isVisible = tipsStates.homeScreen.sellBuyBtn
+                nextBtnText = strings(`tooltips.buttons.next`)
+                isSkip = true
+                nextBtnCallback = () => {
+                    this.state.canShowNext = true
+                    this.refTooltip.toggleTooltip()
+                    tipsRef['HOME_SCREEN_CRYPTO_BTN_TIP'].toggleTooltip()
+                    setTimeout(() => {
+                        this.state.canShowNext = false
+                        this.setState({ isCanBeShowed: false })
+                    }, 0)
+                }
+                content = this.renderTemplateTip(strings(`tooltips.HOME_SCREEN_EXCHANGE_BTN_TIP.title`), strings(`tooltips.HOME_SCREEN_EXCHANGE_BTN_TIP.description`), nextBtnCallback, nextBtnText, isSkip)
+                break
+            case 'HOME_SCREEN_CRYPTO_BTN_TIP':
+                // isVisible = tipsStates.homeScreen.sellBuyBtn
+                nextBtnText = strings(`tooltips.buttons.next`)
+                isSkip = true
+                nextBtnCallback = () => {
+                    this.state.canShowNext = true
+                    this.refTooltip.toggleTooltip()
+                    tipsRef['HOME_SCREEN_ADD_CRYPTO_BTN_TIP'].toggleTooltip()
+                    setTimeout(() => {
+                        this.state.canShowNext = false
+                        this.setState({ isCanBeShowed: false })
+                    }, 0)
+                }
+                content = this.renderTemplateTip(strings(`tooltips.HOME_SCREEN_CRYPTO_BTN_TIP.title`), strings('tooltips.HOME_SCREEN_CRYPTO_BTN_TIP.description'), nextBtnCallback, nextBtnText, isSkip)
+                break
+            case 'HOME_SCREEN_QR_BTN_TIP':
+                // isVisible = tipsStates.homeScreen.sellBuyBtn
+                nextBtnText = strings(`tooltips.buttons.close`)
+                isSkip = false
+                nextBtnCallback = () => {
+                    this.state.canShowNext = true
+                    this.refTooltip.toggleTooltip()
+                    setTimeout(() => {
+                        this.state.canShowNext = false
+                    }, 0)
+                    settingsActions.setSettings('tool_tips_state', 0)
+                }
+                content = this.renderTemplateTip(strings(`tooltips.HOME_SCREEN_QR_BTN_TIP.title`), strings('tooltips.HOME_SCREEN_QR_BTN_TIP.description'), nextBtnCallback, nextBtnText, isSkip)
+                break
+            case 'ACCOUNT_SCREEN_ADDRESS_TIP':
+                // isVisible = tipsStates.homeScreen.sellBuyBtn
+                const { currencyName } = this.props.cryptocurrency
+
+                console.log(strings('tooltips.ACCOUNT_SCREEN_ADDRESS_TIP.description',  { currencyName: currencyName }))
+
+                nextBtnText = nextBtnText = strings(`tooltips.buttons.next`)
+                isSkip = true
+                nextBtnCallback = () => {
+                    this.state.canShowNext = true
+                    this.refTooltip.toggleTooltip()
+                    tipsRef['ACCOUNT_SCREEN_TRANSACTION_TIP'].toggleTooltip()
+                    setTimeout(() => {
+                        this.state.canShowNext = false
+                        this.setState({ isCanBeShowed: false })
+                    }, 0)
+                }
+                content = this.renderTemplateTip(strings(`tooltips.ACCOUNT_SCREEN_ADDRESS_TIP.title`), strings('tooltips.ACCOUNT_SCREEN_ADDRESS_TIP.description', { currencyName: currencyName }), nextBtnCallback, nextBtnText, isSkip)
+                break
+            case 'ACCOUNT_SCREEN_TRANSACTION_TIP':
+                // isVisible = tipsStates.homeScreen.sellBuyBtn
+                nextBtnText = nextBtnText = strings(`tooltips.buttons.next`)
+                isSkip = true
+                nextBtnCallback = () => {
+                    this.state.canShowNext = true
+                    this.refTooltip.toggleTooltip()
+                    nextCallback()
+                    setTimeout(() => {
+                        tipsRef['ACCOUNT_SCREEN_ORDERS_TIP'].toggleTooltip()
+                        setTimeout(() => {
+                            this.state.canShowNext = false
+                            this.setState({ isCanBeShowed: false })
+                        }, 0)
+                    }, 500)
+                }
+                content = this.renderTemplateTip(strings(`tooltips.ACCOUNT_SCREEN_TRANSACTION_TIP.title`), strings('tooltips.ACCOUNT_SCREEN_TRANSACTION_TIP.description'), nextBtnCallback, nextBtnText, isSkip)
+                break
+            case 'ACCOUNT_SCREEN_ORDERS_TIP':
+                // isVisible = tipsStates.homeScreen.sellBuyBtn
+                nextBtnText = nextBtnText = strings(`tooltips.buttons.close`)
+                isSkip = false
+                nextBtnCallback = () => {
+                    this.state.canShowNext = true
+                    this.refTooltip.toggleTooltip()
+                    setTimeout(() => {
+                        this.state.canShowNext = false
+                        this.setState({ isCanBeShowed: false })
+                    }, 0)
+                    settingsActions.setSettings('tool_tips_state', 0)
+                }
+                content = this.renderTemplateTip(strings(`tooltips.ACCOUNT_SCREEN_ORDERS_TIP.title`), strings('tooltips.ACCOUNT_SCREEN_ORDERS_TIP.description'), nextBtnCallback, nextBtnText, isSkip)
+                break
+            case 'HOME_SCREEN_ADD_CRYPTO_BTN_TIP':
+                // isVisible = tipsStates.homeScreen.sellBuyBtn
+                nextBtnText = strings(`tooltips.buttons.close`)
+                isSkip = false
+                nextBtnCallback = () => {
+                    this.state.canShowNext = true
+                    this.refTooltip.toggleTooltip()
+                    setTimeout(() => {
+                        this.setState({ isCanBeShowed: false })
+                        this.state.canShowNext = false
+                    }, 0)
+                }
+                content = this.renderTemplateTip(strings(`tooltips.HOME_SCREEN_ADD_CRYPTO_BTN_TIP.title`), strings(`tooltips.HOME_SCREEN_ADD_CRYPTO_BTN_TIP.description`), nextBtnCallback, nextBtnText, isSkip)
                 break
             default:
-                isVisible = false
+                // isVisible = false
                 content = <View><Text>Default</Text></View>
         }
 
-        const { tool_tips_state } = this.props.settingsStore.data
-        const toolTipsState = typeof tool_tips_state == 'undefined' ? true : tool_tips_state === '0' ? false : true
+        // const { tool_tips_state } = this.props.settingsStore.data
+        // const toolTipsState = typeof tool_tips_state == 'undefined' ? true : tool_tips_state === '0' ? false : true
+        //
+        // this.setState({
+        //     isVisible,
+        //     content,
+        //     toolTipsState
+        // })
 
-        this.setState({
-            isVisible,
-            content,
-            toolTipsState
-        })
+        return content
     }
 
-    hideTooltip = () => {
-        this.setState({
-            isVisible: false
-        })
+    renderTemplateTip = (text, description, nextBtnCallback, nextBtnText, isSkip) => {
+        return  <View style={{ width: '100%', flex: 1, backgroundColor: '#732bb1', borderRadius: 10 }}>
+                    <View style={{ margin: 10, marginBottom: 0, flexDirection: 'row' }}>
+                        {/*<Text style={{ marginBottom: 5, fontSize: 14, fontFamily: 'SFUIDisplay-Semibold', color: '#f4f4f4' }}>*/}
+                        {/*    { text }*/}
+                        {/*</Text>*/}
+                        <Text style={{ width: '100%', fontFamily: 'SFUIDisplay-Regular', fontSize: 12, color: '#f4f4f4', }}>
+                            { description }
+                        </Text>
+                    </View>
+                    <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            {
+                                isSkip ?
+                                    <TouchableOpacity onPress={this.skip}>
+                                        <View style={{ height: 20, margin: 10, paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center', borderColor: '#fff', borderWidth: 1, borderStyle: 'solid', borderRadius: 5 }}>
+                                            <Text style={{ fontFamily: 'SFUIDisplay-Regular', fontSize: 12, color: '#fff' }}>{ strings(`tooltips.buttons.skip`) }</Text>
+                                        </View>
+                                    </TouchableOpacity> : null
+                            }
+
+                            <TouchableOpacity style={{ marginLeft: !isSkip ? 'auto' : 0 }} onPress={nextBtnCallback}>
+                                <View style={{ margin: 10, paddingHorizontal: 5, height: 20, alignItems: 'center', justifyContent: 'center', borderRadius: 5, backgroundColor: '#fff' }}>
+                                    <Text style={{ fontFamily: 'SFUIDisplay-Regular', fontSize: 12, color: '#732bb1' }}>{ nextBtnText }</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
     }
 
     handleClose = () => {
-        this.setState({
-            isVisible: false
-        })
+        if(!this.state.canShowNext)
+            this.refTooltip.toggleTooltip()
+    }
 
+    skip = () => {
+        this.state.canShowNext = true
+        this.refTooltip.toggleTooltip()
+        this.setState({ isCanBeShowed: false })
         settingsActions.setSettings('tool_tips_state', 0)
-        ToolTipsActions.setToolTipState('HOME_SCREEN_BUY_SELL_BTN_TIP')
+    }
+
+    renderTooltips = () => {
+        const { isCanBeShowed } = this.state
+        const { height, settingsStore, MainComponent, mainComponentProps, animatePress } = this.props
+
+        const isShow = typeof settingsStore.data.tool_tips_state == 'undefined' || +settingsStore.data.tool_tips_state
+
+
+        if(isShow && isCanBeShowed){
+            if(typeof animatePress == 'undefined'){
+                return (
+                    <Tooltip ref={ref => this.refTooltip = ref}
+                             pointerColor={'#732bb1'}
+                             width={200}
+                             height={height}
+                             onClose={this.handleClose}
+                             containerStyle={styles.containerStyle}
+                             popover={this.renderTip()}
+                             handleClose={() => { this.handleClose() }}>
+                        <MainComponent self={this} disabled={true} {...mainComponentProps} />
+                    </Tooltip>
+                )
+            } else {
+                return (
+                    <Tooltip ref={ref => this.refTooltip = ref}
+                             pointerColor={'#732bb1'}
+                             width={200}
+                             height={height}
+                             onClose={this.handleClose}
+                             containerStyle={styles.containerStyle}
+                             popover={this.renderTip()}
+                             handleClose={() => { this.handleClose() }}>
+                        <Animated.View style={{ opacity: this.state.pressAnim }}>
+                            <MainComponent self={this} disabled={true} {...mainComponentProps} />
+                        </Animated.View>
+                    </Tooltip>
+                )
+            }
+        } else {
+            return (
+                <MainComponent {...mainComponentProps} />
+            )
+        }
     }
 
     render(){
-
-        const { isVisible, content, toolTipsState } = this.state
-        const { licence_terms_accepted } = this.props.settingsStore.data
-
-        return toolTipsState && typeof licence_terms_accepted != 'undefined' ? (
-            <Tooltip
-                     arrowStyle={{ borderTopColor: '#732bb1' }}
-                     contentStyle={{ backgroundColor: '#732bb1' }}
-                     isVisible={isVisible}
-                     content={content}
-                     placement="top"
-
-                    onClose={() => {}}>
-                { this.props.children }
-            </Tooltip>
-        ) : <View style={{ position: 'absolute' }} />
+        return this.renderTooltips()
     }
 }
 
@@ -119,3 +318,24 @@ const mapStateToProps = (state) => {
 }
 
 export default connect(mapStateToProps, {}, null, { forwardRef: true })(ToolTips)
+
+const styles = {
+    containerStyle: {
+        flex: 1,
+
+        padding: 0,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.23,
+        shadowRadius: 2.62,
+
+        elevation: 4,
+
+        backgroundColor: '#732bb1',
+        borderRadius: 10
+    }
+}

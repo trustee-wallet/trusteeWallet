@@ -28,7 +28,7 @@ const cryptoWalletActions = {
 
         } catch (e) {
 
-            Log.err('ACT/CryptoWallet setSelectedWallet error', e)
+            Log.err('ACT/CryptoWallet setSelectedWallet error' + e.message)
 
         }
 

@@ -7,6 +7,131 @@
     },
     "logOut": "Log out"
   },
+  "finishTradeScreen": {
+    "title": "Success!",
+    "description": "Your order was created. \n Once your transaction will get required confirmations it will be fulfilled accordingly.  \n You can monitor your order status in the orders history.",
+    "orderHistoryBtn": "Orders history"
+  },
+   "tooltips": {
+     "HOME_SCREEN_BUY_BTN_TIP": {
+       "title": "",
+       "description": "Here you can buy crypto with card - your Captain Obvious :)"
+     },
+     "HOME_SCREEN_EXCHANGE_BTN_TIP": {
+       "title": "",
+       "description": "Now you don’t need to use exchanges - change crypto to crypto with us in 2 clicks!"
+     },
+     "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
+       "title": "",
+       "description": "Add important assets and start earning - let’s go!"
+     },
+     "HOME_SCREEN_CRYPTO_BTN_TIP": {
+       "title": "",
+       "description": "This is your unique bitcoin wallet - start sending and accepting bitcoins!"
+     },
+     "ACCOUNT_SCREEN_ADDRESS_TIP": {
+       "title": "",
+       "description": "This is your %{currencyName} address - analog of card number for advanced users! "
+     },
+     "ACCOUNT_SCREEN_TRANSACTION_TIP": {
+       "title": "",
+       "description": "Here you can find all the info about your transactions - let’s go!"
+     },
+     "ACCOUNT_SCREEN_ORDERS_TIP": {
+       "title": "",
+       "description": "Here you can find the info about your orders - nothing complicated :)"
+     },
+     "buttons": {
+       "next": "Next",
+       "skip": "Skip",
+       "close": "Close"
+     }
+   },
+   "homeScreen": {
+     "balance": "Balance",
+     "today": "Today",
+     "changedLastDay": "In the last 24 hours"
+   },
+   "walletCreateScreen": {
+     "title": "BUY SELL EXCHANGE ANONYMOUSLY",
+     "createWallet": "Create wallet",
+     "importWallet": "Import wallet"
+   },
+   "exchangeScreen": {
+     "title": "Exchange",
+     "pickProvider": "Pick a provider",
+     "providerInformation": "Provider info",
+     "fee": "Fee",
+     "equivalent": "Equivalent: ~",
+     "exchangeAll": "Exchange all",
+     "min": "minimum:",
+     "max": "maximum:",
+     "exchangeBtn": "Exchange"
+   },
+   "exchangeConfirmScreen": {
+     "title": "Confirm",
+     "youWantToExchange": "You want to exchange",
+     "exchangeDetails": "Exchange details",
+     "exchangeBtn": "Exchange"
+   },
+   "tradeScreen": {
+     "youGet": "You get:",
+     "youGive": "You give:",
+     "crypto": "Crypto",
+     "fiat": "Fiat",
+     "pickPaySys": "Pick a payment method",
+     "only": "only",
+     "worldwide": "Worldwide",
+     "fee": "Banking fee",
+     "selectSum": "Equivalent amount",
+     "custom": "Custom",
+     "limitsTitle": "Sorry, but there are some limits",
+     "minPurchase": "min purchase sum:",
+     "maxPurchase": "max purchase sum:",
+     "selectCrypto": "Select cryptocurrency",
+     "selectFiat": "Select fiat currency",
+     "submit": "Submit",
+     "modalError": {
+        "selectCryptocurrency": "Please, select cryptocurrency",
+        "selectWhatYouGet": "Please, select what you get",
+        "selectWhatYouGive": "Please, select what you give",
+        "selectPaymentSystem": "Please, select payment method",
+        "selectFiatTemplate": "Select fiat template",
+        "limit": "You are out of allowed limits",
+        "selectCard": "Please, select card",
+        "takePhoto": "Please, take a photo of card",
+        "additionalData": "Please, fill additional data"
+     },
+     "paymentInformation": "Payment method info",
+     "urkCardOnly": "Ukranian cards only!",
+     "rusCardOnly": "Russian cards only!",
+     "worldwideOnly": "Worldwide",
+     "minAmount": "Min amount",
+     "maxAmount": "Max amount",
+     "RUB": "Russia",
+     "UAH": "Ukraine",
+     "QIWI": "QIWI wallet"
+   },
+   "confirmScreen": {
+     "title": "Confirm",
+     "rate": "Rate",
+     "fees": "Trade details",
+     "youWantToBuy": "You want to buy",
+     "youWantToSell": "You want to sell",
+     "providerFee": "Banking fee",
+     "outputFee": "Network fee",
+     "trusteeFee": "Trustee fee",
+     "networkFee": "network fee",
+     "info": "Info",
+     "withdrawAddress": "Destination address",
+     "withdrawCardNumber": "Card number for payout",
+     "total": "Total:",
+     "submitBtnBuy": "Buy",
+     "submitBtnSell": "Sell",
+     "edit": "Edit",
+     "confirmScreenBuy": "This payment method currently unavailable. Please, try another one.",
+     "confirmScreenSell": "This payment method currently unavailable. Please, try another one."
+   },
   "settings": {
     "title": "General settings",
     "walletManagement": {
@@ -41,7 +166,8 @@
       },
       "localCurrency": "Local currency",
       "toolTips": "Tooltips",
-      "configMode": "Config"
+      "configMode": "Config",
+      "testerMode": "Tester"
     },
     "walletList": {
       "title": "Wallet list"
@@ -53,7 +179,8 @@
       "privacy": "Privacy policy",
       "terms": "Terms of use"
     },
-    "config": "Config changed to: %{config}"
+    "config": "Config changed to: %{config}",
+    "tester": "Tester/user changed to: %{testerMode}"
   },
   "assets": {
     "mainTitle": "Add asset",
@@ -70,9 +197,9 @@
     "more": "More",
     "shareTitle": "",
     "shareMessage": "",
-    "friendsJoined": "Friends joined via link",
+    "friendsJoined": "Your friends",
     "transAmount": "Transaction amount",
-    "level2UsersAmount": "Second level users numbers",
+    "level2UsersAmount": "Friends of friends",
     "cashbackAmount": "Cashback amount",
     "withdraw": "Withdraw",
     "minWithdraw": "Minimal amount to withdraw",
@@ -85,12 +212,24 @@
     "send": "Send",
     "history": "Transaction history",
     "noTransactions": "You don’t have any transaction yet.",
+    "confirmations": "Confirmations:",
     "showMore": "Show more",
+    "transactionStatuses": {
+      "paid" : "Paid",
+      "pay_waiting" : "Waiting payment",
+      "pay_expired" : "Expired payment",
+      "success": "Success",
+      "pending": "Pending",
+      "new": "New",
+      "fail": "Fail"
+    },
     "receiveScreen": {
       "title": "%{receive}",
       "description": "Your current %{currency} address:",
       "clickToCopy": "Click to copy",
-      "receiveAmount": "Receive an Amount"
+      "receiveAmount": "Receive an Amount",
+      "share": "Share",
+      "copy": "Copy"
     },
     "addAccount": {
       "list": "Crypto list"
@@ -109,52 +248,70 @@
     "attention": "",
     "buy": "Buy",
     "sell": "Sell",
+    "exchange": "Exchange",
     "providerChanged": {
       "title": "Provider changed",
       "description": "Start the transaction again"
     },
     "ordersStatus": {
+      "exchange": {
+        "pending_payin": "Replenishment expected",
+        "canceled_payin": "Replenishment canceled",
+        "done_payin": "Replenishment was successful",
+        "wait_trade": "Exchange pending",
+        "done_trade": "Exchange done successful",
+        "wait_payout": "Payout pending",
+        "canceled_payout": "Payout failure",
+        "done_payout": "Payout was successful",
+        "wait_kyc": "KYC expected",
+        "stopped_order": "Order stopped on provider side",
+        "error_order": "An error occurred while execution. The order was processed manually."
+      },
       "sell": {
-        "pending_payin": "Credit pending",
-        "canceled_payin": "Funds not credited",
-        "done_payin": "Funds credited",
-        "wait_convert": "Currency exchange expected",
-        "done_convert": "Currency exchange was successful",
-        "wait_withdraw": "Withdrawal pending",
-        "canceled_withdraw": "Withdrawal was canceled by the provider",
-        "done_withdraw": "Withdrawal was successful",
-        "error_order": "Stopped"
+        "pending_payin": "Replenishment expected",
+        "canceled_payin": "Replenishment canceled",
+        "done_payin": "Replenishment was successful",
+        "wait_trade": "Exchange pending",
+        "done_trade": "Exchange done successful",
+        "wait_payout": "Payout pending",
+        "canceled_payout": "Payout failure",
+        "done_payout": "Payout was successful",
+        "wait_kyc": "KYC expected",
+        "stopped_order": "Order stopped on provider side",
+        "error_order": "An error occurred while execution. The order was processed manually."
       },
       "buy": {
-        "pending_payin": "Credit pending",
-        "canceled_payin": "Funds not credited",
-        "done_payin": "Funds credited",
-        "wait_convert": "Currency exchange expected",
-        "done_convert": "Currency exchange was successful",
-        "wait_withdraw": "Withdrawal pending",
-        "canceled_withdraw": "Withdrawal was canceled by the provider",
-        "done_withdraw": "Withdrawal was successful",
-        "error_order": "Stopped"
+        "pending_payin": "Replenishment expected",
+        "canceled_payin": "Replenishment canceled",
+        "done_payin": "Replenishment was successful",
+        "wait_trade": "Exchange pending",
+        "done_trade": "Exchange done successful",
+        "wait_payout": "Payout pending",
+        "canceled_payout": "Payout failure",
+        "done_payout": "Payout was successful",
+        "wait_kyc": "KYC expected",
+        "stopped_order": "Order stopped on provider side",
+        "error_order": "An error occurred while execution. The order was processed manually."
       }
     },
     "mainData": {
       "selectCurrency": "Select a cryptocurrency",
       "selectPayment": "Select type of payment",
-      "estimateAmount": "Estimate amount",
+      "estimateAmount": "Enter the amount",
 
       "addCard": "ADD NEW CARD",
       "address": "Your address:",
       "titleBuy": "Buy crypto",
       "titleSell": "Sell crypto",
-      "amount": "Estimate amount",
+      "amount": "Enter amount",
       "buyCrypto": "Buy in ETH",
       "sellCrypto": "Sell in ETH",
       "buyFiat": "Buy in UAH",
       "sellFiat": "Sell in UAH",
       "sellAll": "Sell all",
-      "equivalentCryptoBuy": "Purchase amount: %{equivalent} %{symbol}",
-      "equivalentCryptoSell": "Sell amount: %{equivalent} %{symbol}",
-      "equivalentFiat": "Amount: %{equivalent} %{symbol}",
+      "equivalentCryptoBuy": "Purchase amount: ~",
+      "equivalentCryptoSell": "Sell amount:",
+      "equivalentFiat": "Amount: ~",
       "minAmountToBuy": "Min amount to buy crypto:",
       "minAmountToSell": "Min amount to sell crypto:",
       "minExchange": "%{fiat}",
@@ -178,9 +335,10 @@
     "add": "Add",
     "numberTitleInput": "Card number",
     "dateTitleInput": "MM/YY",
-    "cardCurrency": "Select card currency...",
-    "cardName": "Card name",
-    "noName": "NO NAME"
+    "cardCurrency": "Select card country...",
+    "cardName": "Set a name to the card",
+    "noName": "NO NAME",
+    "country": "Country:"
   },
   "qrScanner" : {
     "line1": "Please, place the qr code inside the",
@@ -189,14 +347,14 @@
   "send": {
     "title": "Send %{currency}",
     "description": "Paste the recipient's wallet address or scan the QR-code.",
-    "descriptionExchange": "The recipient's wallet address is inserted automatically. This is the address of the exchange provider. After a successful transaction, the cryptocurrency will be exchanged for fiat currency and transferred to your card",
+    "descriptionExchange": "The recipient's wallet address is set automatically. This is the address of the exchange provider. Assets exchange and payout will be executed after a successful transaction",
     "address": "Destination address",
     "value": "value",
     "send": "Send",
     "useAllFunds": "Use all funds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
     "notEnough": "You don't have enough funds for send.",
-    "notEnoughForFee": "You don't have enough funds for fee.",
+    "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}",
     "confirmModal": {
       "title": "Do you confirm sending?",
       "amount": "Amount",
@@ -246,6 +404,11 @@
           "satoshi": "SATOSHI"
         }
       }
+    },
+    "errors": {
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Not enough balance in native coin %{symbol} to send",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Transaction amount too small",
+      "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Nothing to transfer"
     }
   },
   "walletBackup": {
@@ -278,7 +441,7 @@
     "submit": "Submit",
     "words12": "words",
     "words24": "words",
-    "description": "Chose recovery phrase length",
+    "description": "Choose recovery phrase length",
     "enterMnemonic": {
       "description": "Insert the entire recovery phrase or enter all words manually (usually 12 or 24 words)",
       "mnemonic": "mnemonic phrase"
@@ -310,6 +473,10 @@
       },
       "picker": {
         "label": "Select a currency..."
+      },
+      "phoneInput": {
+        "phoneNumber": "Phone number",
+        "invalidFormat": "Invalid phone number"
       }
     },
     "navigation": {
@@ -327,6 +494,13 @@
   "modal": {
     "titles": {
       "attention": "Attention!"
+    },
+    "close": "Close",
+    "ok": "OK",
+    "openSettingsModal": {
+      "title": "Camera permission is required",
+      "description": "Go to settings and allow access for camera",
+      "btnSubmitText": "Go to settings"
     },
     "infoBuyModal": {
       "currencyNotAvailable": "Currently %{currencySymbol} not available for purchase",

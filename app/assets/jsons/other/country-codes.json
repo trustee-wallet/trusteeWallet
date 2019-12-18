@@ -225,11 +225,6 @@
     "currencyCode":"AUD"
   },
   {
-    "country":"Cocos (Keeling) Islands",
-    "iso":null,
-    "currencyCode":"AUD"
-  },
-  {
     "country":"Colombia",
     "iso":"170",
     "currencyCode":"COP"
@@ -238,11 +233,6 @@
     "country":"Comoros",
     "iso":"174",
     "currencyCode":"KMF"
-  },
-  {
-    "country":"Congo",
-    "iso":null,
-    "currencyCode":"XAF"
   },
   {
     "country":"Cook Islands",
@@ -315,11 +305,6 @@
     "currencyCode":"SVC"
   },
   {
-    "country":"England",
-    "iso":null,
-    "currencyCode":"GBP"
-  },
-  {
     "country":"Equatorial Guinea",
     "iso":"226",
     "currencyCode":"XAF"
@@ -348,11 +333,6 @@
     "country":"Faroe Islands",
     "iso":"234",
     "currencyCode":"DKK"
-  },
-  {
-    "country":"Fiji Islands",
-    "iso":null,
-    "currencyCode":"FJD"
   },
   {
     "country":"Finland",

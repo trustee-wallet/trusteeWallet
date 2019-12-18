@@ -1,3 +1,5 @@
+import Log from '../../Log/Log'
+
 /**
  * Kuna Rates scanner realization
  *
@@ -44,7 +46,9 @@ export default class KunaRates {
      */
     async getRate(params) {
         const now = new Date().getTime()
+        let provider = 'kuna'
         if (now - this._cachedTime > this._CACHE_VALID_TIME) {
+            Log.log('DMN/KunaRates link ' + this._URL)
             /**
              * @param {string} resData.data[].currency
              * @param {string} resData.data[].usd
@@ -65,15 +69,19 @@ export default class KunaRates {
             this._cachedTime = now
         } else {
             // do nothing and take from cache
+            provider += 'Cache'
         }
 
+        if (typeof this._cachedData[params.currencyCode] === 'undefined') {
+            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' doesnt exists ' + JSON.stringify(Object.keys(this._cachedData)))
+        }
         const rate = this._cachedData[params.currencyCode]
         if (!rate) {
-            throw new Error('KunaRates1 ' + params.currencyCode + ' doesnt exists in ' + JSON.stringify(this._cachedData))
+            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' is null ' + JSON.stringify(Object.keys(this._cachedData)))
         }
         if (!rate.usd) {
-            throw new Error('KunaRates1 ' + params.currencyCode + ' doesnt trade with usd')
+            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' doesnt trade with usd ' + JSON.stringify(rate))
         }
-        return { amount: rate.usd }
+        return { amount: rate.usd, provider }
     }
 }

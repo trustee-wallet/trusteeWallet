@@ -22,6 +22,11 @@ class BtcBalancesProvider {
         }
         this._network = settings.network
         switch (settings.network) {
+            case 'dogecoin':
+                this._blockcypherApiPath = `https://api.blockcypher.com/v1/doge/main`
+                this._smartbitApiPath = false
+                this._bitapsApiPath = `https://api.bitaps.com/doge/v1`
+                break
             case 'litecoin':
                 this._blockcypherApiPath = `https://api.blockcypher.com/v1/ltc/main`
                 this._smartbitApiPath = false
@@ -56,7 +61,7 @@ class BtcBalancesProvider {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('Undefined balance ' + link + ' ' + JSON.stringify(tmp.data))
         }
-        return tmp.data.balance
+        return {balance : tmp.data.balance, unconfirmed : tmp.data.unconfirmed_balance}
     }
 
     /**
@@ -73,7 +78,7 @@ class BtcBalancesProvider {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('Undefined balance ' + link + ' ' + JSON.stringify(tmp.data))
         }
-        return tmp.data.data.balance
+        return {balance : tmp.data.data.balance, unconfirmed : tmp.data.data.pendingReceivedAmount}
     }
 
     /**
@@ -87,7 +92,7 @@ class BtcBalancesProvider {
         let link = `https://blockchain.info/q/addressbalance/${address}`
         CACHE_HISTORY.push(link)
         let tmp = await BlocksoftAxios.get(link)
-        return tmp.data
+        return {balance: tmp.data, unconfirmed: 0}
     }
 
 
@@ -110,7 +115,7 @@ class BtcBalancesProvider {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('Undefined balance ' + link + ' ' + JSON.stringify(tmp.data))
         }
-        return tmp.data.address.total.balance_int
+        return {balance : tmp.data.address.confirmed.balance_int, unconfirmed : tmp.data.address.unconfirmed.balance_int}
 
     }
 
@@ -118,11 +123,13 @@ class BtcBalancesProvider {
         CACHE_HISTORY = []
         let balance = -1
         let now = new Date().getTime()
-        BlocksoftCryptoLog.log('BtcBalancesProvider.get started', address)
+        BlocksoftCryptoLog.log('BtcBalancesProvider.get started ' + this._network, address)
 
+        let provider = ''
         if (now - CACHE_ERRORS.mainTime > CACHE_ERRORS_VALID_TIME) {
             try {
                 balance = await this._getMain(address)
+                provider = 'blockcypher'
             } catch (e) {
                 balance = -1
                 CACHE_ERRORS.mainTime = now
@@ -132,6 +139,7 @@ class BtcBalancesProvider {
         if (now - CACHE_ERRORS.mainSecondTime > CACHE_ERRORS_VALID_TIME && balance === -1) {
             try {
                 balance = await this._getMainSecond(address)
+                provider = 'bitaps'
             } catch (e) {
                 balance = -1
                 CACHE_ERRORS.mainSecondTime = now
@@ -141,6 +149,7 @@ class BtcBalancesProvider {
         if (now - CACHE_ERRORS.mainThirdTime > CACHE_ERRORS_VALID_TIME && balance === -1) {
             try {
                 balance = await this._getMainThird(address)
+                provider = 'blockchaininfo'
             } catch (e) {
                 balance = -1
                 CACHE_ERRORS.mainThirdTime = now
@@ -150,6 +159,7 @@ class BtcBalancesProvider {
         if (balance === -1) {
             try {
                 balance = await this._getAlternative(address)
+                provider = 'smartbit'
             } catch (e) {
                 CACHE_ERRORS.alternativeTime = now
             }
@@ -159,7 +169,9 @@ class BtcBalancesProvider {
             throw new Error('BtcBalancesProvider.get nothing responding ' + JSON.stringify(CACHE_HISTORY))
         }
 
-        BlocksoftCryptoLog.log('BtcBalancesProvider.get finished', address + ' => ' + balance)
+        balance.provider = provider
+
+        BlocksoftCryptoLog.log('BtcBalancesProvider.get finished', address + ' => (balance: ' + balance.balance + ' provider: ' + provider + ')')
         return balance
     }
 }

@@ -12,7 +12,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import GradientView from '../../components/elements/GradientView'
 
-import { getArrayItem, capitalize, normalizeWithDecimals } from '../../services/utils'
+import { getArrayItem, capitalize, normalizeWithDecimals, checkQRPermission } from '../../services/utils'
 
 import validator from '../../services/validator/validator'
 
@@ -47,6 +47,10 @@ class Input extends Component {
         }
     }
 
+    handleForceUpdate = () => {
+        this.forceUpdate()
+    }
+
     getValue = () => this.state.value
 
     handleReadFromClipboard = async () => {
@@ -61,7 +65,7 @@ class Input extends Component {
 
         value === '' && !this.state.focus ? value = this.state.value : value
 
-        const { id, name, type, additional, decimals, callback } = this.props
+        const { id, name, type, subtype, additional, decimals, callback } = this.props
 
         if (additional === 'NUMBER') {
             value = normalizeWithDecimals(value, typeof decimals != 'undefined' ? decimals : 5)
@@ -69,7 +73,7 @@ class Input extends Component {
                 value
             })
         } else {
-            let validation = await validator.arrayValidation([{ id, name, type, value }])
+            let validation = await validator.arrayValidation([{ id, name, type, subtype, value }])
             this.setState({
                 value,
                 errors: validation.errorArr
@@ -82,13 +86,14 @@ class Input extends Component {
     }
 
     handleValidate = async () => {
-        const { id, name, type } = this.props
+        const { id, name, type, subtype } = this.props
         const { value } = this.state
 
         let validation = await validator.arrayValidation([{
             id,
             name,
             type,
+            subtype,
             value
         }])
 
@@ -111,6 +116,7 @@ class Input extends Component {
             name,
             mark,
             action,
+            actionBtnStyles,
             paste,
             qr,
             style,
@@ -126,8 +132,12 @@ class Input extends Component {
             autoFocus,
             tapText,
             tapCallback,
+            tapWrapperStyles,
+            tapContentStyles,
+            tapTextStyles,
             tintColor,
-            validPlaceholder
+            validPlaceholder,
+            onSubmitEditing
         } = this.props
 
         const placeholder = capitalize(name)
@@ -150,6 +160,9 @@ class Input extends Component {
                         activeLineWidth={0}
                         label={placeholder}
                         value={value}
+                        //  returnKeyLabel={'Buy'}
+                        // returnKeyType={'done'}
+                        onSubmitEditing={typeof onSubmitEditing != 'undefined' ? onSubmitEditing : () => {}}
                         autoFocus={typeof autoFocus !== 'undefined' ? autoFocus : false}
                         disabled={typeof disabled !== 'undefined' ? disabled : false}
                         error={error ? error.toString() : ''}
@@ -171,33 +184,35 @@ class Input extends Component {
                 }
                 {
                     typeof tapText != 'undefined' && typeof disabled != 'undefined' && disabled !== true ?
-                        <TouchableOpacity style={styles.tap} onPress={() => { tapCallback(); this.setState({ tap: !this.state.tap })}}>
-                            <View style={{
-                                height: 12, transform: [
-                                    { rotateX: `${this.state.tap ? '0' : '180'}deg`},
-                                ], }}>
-                                <Ionicons size={12} name='ios-swap' color='#7127ac' />
+                        <TouchableOpacity style={[styles.tap, tapWrapperStyles]} onPress={() => { tapCallback(); this.setState({ tap: !this.state.tap })}}>
+                            <View style={[styles.tap__content, tapContentStyles]}>
+                                <View style={{
+                                    height: 12, transform: [
+                                        { rotateX: `${this.state.tap ? '0' : '180'}deg`},
+                                    ], }}>
+                                    <Ionicons size={12} name='ios-swap' color='#7127ac' />
+                                </View>
+                                <Text style={[styles.tap__text, tapTextStyles]}>{ tapText }</Text>
                             </View>
-                            <Text style={styles.tap__text}>{ tapText }</Text>
                         </TouchableOpacity> : null
                 }
                 <View style={styles.actions}>
                     {
                         typeof paste !== 'undefined' && paste ?
-                            <TouchableOpacity onPress={this.handleReadFromClipboard} style={styles.actionBtn}>
+                            <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
                                 <Paste style={styles.actionBtn__icon} name="content-paste" size={25} color="#855eab"/>
                             </TouchableOpacity> : null
                     }
                     {
                         typeof qr !== 'undefined' && qr ?
-                            <TouchableOpacity onPress={() => qrCallback()} style={styles.actionBtn}>
+                            <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
                                 <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }} name="qrcode" size={25} color="#855eab"/>
                             </TouchableOpacity> : null
                     }
                 </View>
                 {
                     typeof action !== 'undefined' && !disabled ?
-                        <TouchableOpacity onPress={action.callback} style={styles.action}>
+                        <TouchableOpacity onPress={action.callback} style={[styles.action, actionBtnStyles]}>
                             <View style={styles.action__title}>
                                 <Text style={styles.action__title__text}>
                                     {action.title}
@@ -250,7 +265,7 @@ const styles = {
         position: 'relative',
         maxHeight: 70,
         minHeight: 70,
-        marginBottom: 10
+        marginBottom: 10,
     },
     content: {
         flexDirection: 'row',
@@ -356,12 +371,13 @@ const styles = {
         maxHeight: 200,
     },
     tap: {
-        flexDirection: 'row',
-        alignItems: 'center',
-
         position: 'absolute',
         right: 0,
         top: 20,
+    },
+    tap__content: {
+        flexDirection: 'row',
+        alignItems: 'center',
         padding: 10,
         paddingVertical: 5,
         borderRadius: 5,

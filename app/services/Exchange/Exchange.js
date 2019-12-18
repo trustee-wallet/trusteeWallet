@@ -36,6 +36,11 @@ export async function getEquivalent(data) {
         throw e
     }
 
+    if (typeof (APIresponse.data) === 'undefined' || !APIresponse.data) {
+        let e = new Error('No APIresponse.data')
+        e.code = 'ERROR_SYSTEN'
+        throw e
+    }
     // Check API response state
     let feeInfo = APIresponse.data
     if (feeInfo.state === 'fail') {

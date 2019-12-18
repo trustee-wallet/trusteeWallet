@@ -7,6 +7,131 @@
     },
     "logOut": "Вийти"
   },
+   "finishTradeScreen": {
+     "title": "Вітаємо!",
+     "description": "Ваш ордер був створений. \n Щойно транзакція отримає необхідні підтвердження, вона буде виконана відповідно. \n Ви можете відстежувати стан ордеру в історії ордерів.",
+     "orderHistoryBtn": "Історія ордерів"
+   },
+   "tooltips": {
+     "HOME_SCREEN_BUY_BTN_TIP": {
+       "title": "",
+       "description": "Тут ти можеш купити крипту з карти - Ваш Капітан Очевидність :)"
+     },
+     "HOME_SCREEN_EXCHANGE_BTN_TIP": {
+       "title": "",
+       "description": "Не обов’язково міняти на біржах - міняй крипту на крипту у нас у 2 кліки!"
+     },
+     "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
+       "title": "",
+       "description": "Додавай необхідні монети та заробляй - вперед!"
+     },
+     "HOME_SCREEN_CRYPTO_BTN_TIP": {
+       "title": "",
+       "description": "Це - твій унікальний біткоїн гаманець - починай відправляти та приймати біткоїни!"
+     },
+     "ACCOUNT_SCREEN_ADDRESS_TIP": {
+       "title": "",
+       "description": "А це твоя особиста %{currencyName} адреса - аналог номеру картки для просунутих користувачів!"
+     },
+     "ACCOUNT_SCREEN_TRANSACTION_TIP": {
+       "title": "",
+       "description": "Тут можеш знайти інформацію про свої транзакції - вперед!"
+     },
+     "ACCOUNT_SCREEN_ORDERS_TIP": {
+       "title": "",
+       "description": "Тут знайдеш інформацію про всі свої ордери - нічого складного :)"
+     },
+     "buttons": {
+       "next": "Далі",
+       "skip": "Пропустити",
+       "close": "Закрити"
+     }
+   },
+   "homeScreen": {
+     "balance": "Баланс",
+     "today": "Сьогодні",
+     "changedLastDay": "За останні 24 години"
+   },
+   "walletCreateScreen": {
+     "title": "КУПУЙ ПРОДАВАЙ ОБМІНЮЙ АНОНІМНО",
+     "createWallet": "Створити гаманець",
+     "importWallet": "Імпортувати гаманець"
+   },
+   "exchangeScreen": {
+     "title": "Обмін",
+     "pickProvider": "Виберіть провайдера",
+     "providerInformation": "Інформація про провайдера",
+     "fee": "Комісія",
+     "equivalent": "Еквівалент: ~",
+     "exchangeAll": "Обміняти все",
+     "min": "мінімально:",
+     "max": "максимально:",
+     "exchangeBtn": "Обміняти"
+   },
+   "exchangeConfirmScreen": {
+     "title": "Підтвердження",
+     "youWantToExchange": "Ви хочете обміняти",
+     "exchangeDetails": "Деталі обміну",
+     "exchangeBtn": "Обміняти"
+   },
+   "tradeScreen": {
+     "youGet": "Отримуєте:",
+     "youGive": "Віддаєте:",
+     "crypto": "Криптовалюта",
+     "fiat": "Фіат",
+     "pickPaySys": "Оберіть спосіб оплати",
+     "only": "тільки",
+     "worldwide": "Інші країни",
+     "fee": "Комісія банка",
+     "selectSum": "Еквівалентна сума",
+     "custom": "Інша",
+     "limitsTitle": "Є деякі обмеження",
+     "minPurchase": "мінімально:",
+     "maxPurchase": "максимально:",
+     "selectCrypto": "Оберіть криптовалюту",
+     "selectFiat": "Оберіть валюту",
+     "submit": "Далі",
+     "modalError": {
+       "selectCryptocurrency": "Виберіть криптовалюту",
+       "selectWhatYouGet": "Виберіть, що Ви отримуєте",
+       "selectWhatYouGive": "Виберіть, що Ви віддаєте",
+       "selectPaymentSystem": "Оберіть спосіб оплати",
+       "selectFiatTemplate": "Select fiat template error",
+       "limit": "Ви вийшли за допустимі межі",
+       "selectCard": "Виберіть картку",
+       "takePhoto": "Будь ласка, зробіть фото картки",
+       "additionalData": "Будь ласка, заповніть дані"
+     },
+     "paymentInformation": "Інформація про оплату",
+     "urkCardOnly": "Тільки українські картки!",
+     "rusCardOnly": "Тільки російські картки!",
+     "worldwideOnly": "Картки інших країн!",
+     "minAmount": "Мінімально",
+     "maxAmount": "Максимально",
+     "RUB": "Росія",
+     "UAH": "Україна",
+     "QIWI": "QIWI гаманець"
+   },
+   "confirmScreen": {
+     "title": "Підтвердження",
+     "rate": "Курс",
+     "fees": "Деталі угоди",
+     "youWantToBuy": "Купуєте",
+     "youWantToSell": "Продаєте",
+     "providerFee": "Комісія банку",
+     "outputFee": "Комісія мережі",
+     "trusteeFee": "Комісія Trustee",
+     "networkFee": "комісія мережі",
+     "info": "Info",
+     "withdrawAddress": "Адреса до зарахування",
+     "withdrawCardNumber": "Номер картки для виплати",
+     "total": "Сума:",
+     "submitBtnBuy": "Покупка",
+     "submitBtnSell": "Продаж",
+     "edit": "Змінити",
+     "confirmScreenBuy": "Цей спосіб оплати наразі недоступний. Будь-ласка, спробуйте інший.",
+     "confirmScreenSell": "Цей спосіб оплати наразі недоступний. Будь-ласка, спробуйте інший."
+   },
   "settings": {
     "title": "Налаштування",
     "walletManagement": {
@@ -41,7 +166,8 @@
       },
       "localCurrency": "Локальна валюта",
       "toolTips": "Підказки",
-      "configMode": "Конфіг"
+      "configMode": "Конфіг",
+      "testerMode": "Тестувальник"
     },
     "walletList": {
       "title": "Список гаманців"
@@ -53,7 +179,8 @@
       "privacy": "Політика конфіденційності",
       "terms": "Умови користування"
     },
-    "config": "Конфіг змінений на: %{config}"
+    "config": "Конфіг змінений на: %{config}",
+    "tester": "Тестувальник/користувач змінений на: %{testerMode}"
   },
   "assets": {
     "mainTitle": "Додати актив",
@@ -70,9 +197,9 @@
     "more": "Ще",
     "shareTitle": "",
     "shareMessage": "",
-    "friendsJoined": "Приєдналось друзів за посиланням",
+    "friendsJoined": "Ваші друзі",
     "transAmount": "Сума транзакцій",
-    "level2UsersAmount": "Кількість друзів другого рівня",
+    "level2UsersAmount": "Друзі друзів",
     "cashbackAmount": "Сума кешбеку",
     "minWithdraw": "Мінімальна сума для виводу",
     "withdraw": "Вивести",
@@ -85,12 +212,24 @@
     "send": "Відправити",
     "history": "Історія транзакцій",
     "noTransactions": "У Вас ще немає транзакцій",
+    "confirmations": "Підтверждень:",
     "showMore": "Показати ще",
+    "transactionStatuses": {
+      "paid" : "Оплачена",
+      "pay_waiting" : "Чекає на оплату",
+      "pay_expired" : "Час на оплату закінчився",
+      "success": "Успішна",
+      "pending": "В очікуванні",
+      "new": "Нова",
+      "fail": "Помилка"
+    },
     "receiveScreen": {
       "title": "%{receive}",
       "description": "Ваша %{currency} адреса:",
       "clickToCopy": "Натисніть, щоб скопіювати",
-      "receiveAmount": "Вказати суму"
+      "receiveAmount": "Вказати суму",
+      "share": "Поділитись",
+      "copy": "Копіювати"
     },
     "addAccount": {
       "list": "Список криптовалют"
@@ -109,38 +248,56 @@
     "attention": "",
     "buy": "Купити",
     "sell": "Продати",
+    "exchange": "Обмін",
     "providerChanged": {
       "title": "Провайдер змінився",
       "description": "Почніть транзакцію спочатку"
     },
     "ordersStatus": {
+      "exchange": {
+        "pending_payin": "Поповнення очікується",
+        "canceled_payin":  "Поповнення відмінене",
+        "done_payin": "Поповнення пройшло успішно",
+        "wait_trade": "Очікується конвертація",
+        "done_trade": "Конвертація пройшла успішно",
+        "wait_payout": "Очікується виплата",
+        "canceled_payout": "Помилка виплати",
+        "done_payout": "Виплата пройшла успішно",
+        "wait_kyc": "KYC очікується",
+        "stopped_order": "Ордер зупинено на стороні провайдера",
+        "error_order": "Помилка під час виконання. Ордер оброблявся вручну."
+      },
       "sell": {
-        "pending_payin": "Очікується зарахування коштів",
-        "canceled_payin":  "Кошти не зараховано",
-        "done_payin": "Кошти зараховано",
-        "wait_convert":  "Очікується обмін валют",
-        "done_convert":  "Обмін валют пройшов успішно",
-        "wait_withdraw":  "Очікується вивід коштів",
-        "canceled_withdraw":  "Вивід відмінив провайдер",
-        "done_withdraw":  "Вивід пройшов успішно",
-        "error_order": "Зупинено"
+        "pending_payin": "Поповнення очікується",
+        "canceled_payin":  "Поповнення відмінене",
+        "done_payin": "Поповнення пройшло успішно",
+        "wait_trade": "Очікується конвертація",
+        "done_trade": "Конвертація пройшла успішно",
+        "wait_payout": "Очікується виплата",
+        "canceled_payout": "Помилка виплати",
+        "done_payout": "Виплата пройшла успішно",
+        "wait_kyc": "KYC очікується",
+        "stopped_order": "Ордер зупинено на стороні провайдера",
+        "error_order": "Помилка під час виконання. Ордер оброблявся вручну."
       },
       "buy": {
-        "pending_payin": "Очікується зарахування коштів",
-        "canceled_payin":  "Кошти не зараховано",
-        "done_payin": "Кошти зараховано",
-        "wait_convert":  "Очікується обмін валют",
-        "done_convert":  "Обмін валют пройшов успішно",
-        "wait_withdraw":  "Очікується вивід коштів",
-        "canceled_withdraw":  "Вивід відмінив провайдер",
-        "done_withdraw":  "Вивід пройшов успішно",
-        "error_order": "Зупинено"
+        "pending_payin": "Поповнення очікується",
+        "canceled_payin":  "Поповнення відмінене",
+        "done_payin": "Поповнення пройшло успішно",
+        "wait_trade": "Очікується конвертація",
+        "done_trade": "Конвертація пройшла успішно",
+        "wait_payout": "Очікується виплата",
+        "canceled_payout": "Помилка виплати",
+        "done_payout": "Виплата пройшла успішно",
+        "wait_kyc": "KYC очікується",
+        "stopped_order": "Ордер зупинено на стороні провайдера",
+        "error_order": "Помилка під час виконання. Ордер оброблявся вручну."
       }
     },
     "mainData": {
       "selectCurrency": "Вибір криптовалюти",
       "selectPayment": "Select type of payment",
-      "estimateAmount": "Estimate amount",
+      "estimateAmount": "Введіть суму",
 
       "addCard": "Додати картку",
       "address": "Адреса зарахування криптовалюти:",
@@ -152,9 +309,9 @@
       "buyFiat": "Купити в UAH",
       "sellFiat": "Продати в UAH",
       "sellAll": "Продати все",
-      "equivalentCryptoBuy": "Сума покупки: %{equivalent} %{symbol}",
-      "equivalentCryptoSell": "Сума продажу: %{equivalent} %{symbol}",
-      "equivalentFiat": "Кількість: %{equivalent} %{symbol}",
+      "equivalentCryptoBuy": "Сума покупки: ~",
+      "equivalentCryptoSell": "Сума продажу:",
+      "equivalentFiat": "Кількість: ~",
       "minAmountToBuy": "Мінімальна сума для купівлі криптовалюти:",
       "minAmountToSell": "Мінімальна сума для продажу криптовалюти:",
       "minExchange": "%{fiat}",
@@ -178,9 +335,10 @@
     "add": "Додати",
     "numberTitleInput": "Номер картки",
     "dateTitleInput": "ММ/РР",
-    "cardCurrency": "Виберіть валюту картки...",
-    "cardName": "Назва картки",
-    "noName": "Без назви"
+    "cardCurrency": "Виберіть країну картки...",
+    "cardName": "Назвіть картку",
+    "noName": "Без назви",
+    "country": "Країна:"
   },
   "qrScanner" : {
     "line1": "Розмістіть QR-код",
@@ -189,14 +347,14 @@
   "send": {
     "title": "Переказ %{currency}",
     "description": "Введіть адресу гаманця отримувача або скануйте QR-код",
-    "descriptionExchange": "Адресу гаманця отримувача вставлено автоматично. Це адреса постачальника обмінів. Після успішної транзакції  буде здійснено обмін криптовалюти на фіатну валюту і виведення Вам на картку",
+    "descriptionExchange": "Адресу гаманця отримувача задано автоматично. Це адреса постачальника обмінів. Обмін активу та зарахування буде здійснено після успішної транзакції",
     "address": "Адреса отримувача",
     "value": "Сума",
     "send": "Відправити",
     "useAllFunds": "Відправити все",
     "equivalent": "Еквівалент: ~ %{amount} %{symbol}",
-    "notEnough": "У Вас недостатньо коштів для відправки.",
-    "notEnoughForFee": "У Вас недостатньо коштів для оплати транзакції.",
+    "notEnough": "У Вас недостатньо коштів для відправки",
+    "notEnoughForFee": "Для надсилання токенів потрібно мати позитивний баланс у нативній монеті %{symbol}",
     "confirmModal": {
       "title": "Підтвердження відправлення",
       "amount": "",
@@ -246,6 +404,11 @@
           "satoshi": "SATOSHI"
         }
       }
+    },
+    "errors": {
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Недостатньо коштів нативної монети %{symbol} для надсилання",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Занадто мала сума транзакції",
+      "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Недостатньо коштів для транзакції"
     }
   },
   "walletBackup": {
@@ -278,7 +441,7 @@
     "submit": "Далі",
     "words12": "слів",
     "words24": "слова",
-    "description": "Виберіть довжину фрази відновлення",
+    "description": "Оберіть довжину фрази відновлення",
     "enterMnemonic": {
       "description": "Вставте фразу відновлення повністю або введіть її вручну (звичайно це 12 або 24 слова).",
       "mnemonic": "Мнемонічна фраза"
@@ -310,6 +473,10 @@
       },
       "picker": {
         "label": "Оберіть валюту..."
+      },
+      "phoneInput": {
+        "phoneNumber": "Номер телефону",
+        "invalidFormat": "Номер телефону невірний"
       }
     },
     "navigation": {
@@ -328,9 +495,16 @@
     "titles": {
       "attention": "Увага!"
     },
+    "close": "Закрити",
+    "ok": "OK",
+    "openSettingsModal": {
+      "title": "Потрібний доступ до камери",
+      "description": "Дайте дозвіл для використання камери в меню налашутваннь",
+      "btnSubmitText": "Перейти в налаштування"
+    },
     "infoBuyModal": {
-      "currencyNotAvailable": "Валюта %{currencySymbol} не доступна для покупки",
-      "notAvailable": "Не доступна для покупки"
+      "currencyNotAvailable": "Валюта %{currencySymbol} недоступна для покупки",
+      "notAvailable": "Недоступна для покупки"
     },
     "licenseTerms": {
       "title": "Legal documents",
@@ -349,15 +523,15 @@
     },
     "exchange": {
       "sorry": "Вибачте...",
-      "descriptionCard": "Оберіть справжню картку або додайте нову.",
+      "descriptionCard": "Оберіть справжню картку або додайте нову",
       "failed": "Помилка...",
       "txCanceled": "Транзакція відхилена",
       "success": "Успіх!",
-      "txSuccess": "Транзакція успішно відправлена."
+      "txSuccess": "Транзакція успішно відправлена"
     },
     "settings": {
       "soon": "Очікується",
-      "soonDescription": "Ця опція буде додана найближчим часом."
+      "soonDescription": "Ця опція буде додана найближчим часом"
     },
     "infoDeleteCard": {
       "title": "Ви дійсно хочете видалити картку?",

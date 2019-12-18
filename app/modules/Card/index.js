@@ -5,7 +5,8 @@ import {
     View,
     Platform,
     TouchableOpacity,
-    Dimensions
+    Dimensions,
+    Keyboard
 } from 'react-native'
 
 import { CardIOModule, CardIOUtilities } from 'react-native-awesome-card-io'
@@ -17,6 +18,8 @@ import _ from 'lodash'
 import axios from 'axios'
 
 import Icon from 'react-native-vector-icons/FontAwesome'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import CardNameInput from '../../components/elements/Input'
 import GradientView from '../../components/elements/GradientView'
@@ -33,12 +36,13 @@ import { renderError } from '../../services/utils'
 import validator from '../../services/validator/validator'
 import i18n, { strings } from '../../services/i18n'
 
-import countries from '../../assets/jsons/other/country-codes'
+import countriesDict from '../../assets/jsons/other/country-codes'
 import currenciesDict from '../../assets/jsons/other/country-by-currency-code'
 
 import Log from '../../services/Log/Log'
 import { connect } from 'react-redux'
 import firebase from "react-native-firebase"
+import { showModal } from '../../appstores/Actions/ModalActions'
 
 const { height: HEIGHT } = Dimensions.get('window')
 
@@ -57,7 +61,7 @@ class Card extends Component {
             errors: [],
             focused: false,
 
-            countryCode: '',
+            selectedCountry: '',
 
             countriesList: [],
 
@@ -68,33 +72,34 @@ class Card extends Component {
 
     componentWillMount() {
 
-        const { fiatRates } = this.props.fiatRatesStore
+        let countries = []
 
-        let currencies = []
-
-        fiatRates.forEach(item1 => currenciesDict.forEach(item2 => {
-            if(item1.cc === item2.currencyCode) currencies.push(item2)
-        }))
-
-        const array = ['GBP','CHF','RUB','UAH','EUR','USD']
-
-        for(const item of array){
-            const currencyIndex = currencies.findIndex(currency => currency.currencyCode === item)
-            currencies.unshift( currencies.splice( currencyIndex, 1 )[0] )
+        for(let item of countriesDict){
+            countries.push(item)
         }
 
-        const countriesList = currencies.map(item => {
-            return { label: item.currencyCode, value: item.currencyCode, color: '#404040'}
+        // console.log('check countries')
+        // console.log(countries)
+        //
+        // const array = ['840','040','826','756','643','804']
+        //
+        // for(const item of array){
+        //     const currencyIndex = countries.findIndex(country => country.iso === item)
+        //     countries.unshift( countries.splice( currencyIndex, 1 )[0] )
+        // }
+
+        const countriesList = countries.map(item => {
+            return { label: item.country, value: item.iso, color: '#404040'}
         })
 
         this.setState({
             countriesList
         })
 
-
         if (Platform.OS === 'ios') {
             CardIOUtilities.preload()
         }
+
     }
 
     componentDidMount() {
@@ -147,11 +152,13 @@ class Card extends Component {
         try {
             cardNumber = cardNumber.split(' ').join('')
 
-            const res = await axios.get('https://lookup.binlist.net/' + cardNumber)
+            const link = 'https://lookup.binlist.net/' + cardNumber
+            Log.log('DMN/Card getCountryCode axios ' + link)
+            const res = await axios.get(link)
 
             return res.data.country.numeric
         } catch (e) {
-            Log.err('Card.getCurrencyCode error', e)
+            Log.err('Card.getCurrencyCode error ' + e.message)
         }
 
         return false
@@ -159,31 +166,42 @@ class Card extends Component {
 
     handleAdd = async () => {
 
-        const { number, countryCode, date } = this.state
+        let { number, selectedCountry, date } = this.state
 
-        let validate = await validator.arrayValidation([
+
+        const arrayToValidate = [
             {
                 id: 'number',
                 name: 'сard number',
                 type: 'CARD_NUMBER',
                 value: number
             },
-            {
-                id: 'date',
-                name: 'expiration date',
-                type: 'EXPIRATION_DATE',
-                value: date
-            }
-        ])
+        ]
+
+        date ? arrayToValidate.push({
+            id: 'date',
+            name: 'expiration date',
+            type: 'EXPIRATION_DATE',
+            value: date
+        }) : date = '00/00'
+
+        let validate = await validator.arrayValidation(arrayToValidate)
+
+        this.setState({
+            errors: validate.errorArr
+        })
 
         const cardName = await this.cardNameInput.handleValidate()
 
-        let cardCurrency = this.currenciesPicker.getSelected()
-        const countryNativeCurrency = countries.find(item => item.iso === countryCode)
-        cardCurrency === '' ? cardCurrency = countryNativeCurrency.currencyCode : cardCurrency
+        if(selectedCountry === '') return
+
+        const countryNativeCurrency = countriesDict.find(item => item.iso === selectedCountry.key)
+        // cardCurrency === '' ? cardCurrency = countryNativeCurrency.currencyCode : cardCurrency
 
 
         if(validate.status === 'success'){
+
+            Keyboard.dismiss()
 
             this.setState({
                 errors: [],
@@ -197,9 +215,9 @@ class Card extends Component {
                     number: number.replace(/\s+/g, ''),
                     expiration_date: date,
                     type: this.state.type,
-                    country_code: countryCode,
+                    country_code: selectedCountry.key,
                     card_name: cardName.value,
-                    currency: cardCurrency
+                    currency: countryNativeCurrency.currencyCode
                 }]
             })
 
@@ -272,13 +290,9 @@ class Card extends Component {
                 if(validate.status === 'success'){
                     const countryCode = await this.getCountryCode(value)
 
-                    this.setState({
-                        countryCode
-                    })
+                    const country = countriesDict.find(item => item.iso === countryCode)
 
-                    const countryNativeCurrency = countries.find(item => item.iso === countryCode)
-
-                    if(typeof countryNativeCurrency != 'undefined') this.currenciesPicker.setSelected(countryNativeCurrency.currencyCode)
+                    if(typeof countryCode != 'undefined') this.setState({ selectedCountry: { key: countryCode, value: country.country } })
                 }
             }
         }
@@ -327,9 +341,8 @@ class Card extends Component {
                             obfuscated: false,
                             issuer: 'visa-or-mastercard'
                         }}
-                        placeholderTextColor={renderError('number', errors) ? '#e77ca3' : '#f4f4f4'}
                         value={this.state.numberPlaceholder}
-                        style={[styles.card__number, styles.card__number_placeholder]}
+                        style={[styles.card__number, styles.card__number_placeholder, { color: renderError('number', errors) ? '#e77ca3' : '#f4f4f4'  }]}
                     /> : null
                 }
                 {
@@ -350,9 +363,8 @@ class Card extends Component {
                             obfuscated: false,
                             issuer: 'visa-or-mastercard'
                         }}
-                        placeholderTextColor={renderError('number', errors) ? '#e77ca3' : '#f4f4f4'}
                         value={number}
-                        style={{...styles.card__number, color: renderError('number', errors) ? '#e77ca3' : '#f4f4f4' }}
+                        style={{...styles.card__number }}
                     /> : null
                 }
                 {
@@ -392,14 +404,13 @@ class Card extends Component {
                         format: 'MM/YY'
                     }}
                     value={this.state.datePlaceholder}
-                    style={[styles.card__date, styles.card__date_placeholder]}
+                    style={[styles.card__date, styles.card__date_placeholder, { color: renderError('date', errors) ? '#e77ca3' : '#f4f4f4'  }]}
                 />
                 <TextInputMask
                     type={'datetime'}
                     options={{
                         format: 'MM/YY'
                     }}
-                    placeholderTextColor={renderError('date', errors) ? '#e77ca3' : '#f4f4f4'}
                     value={date}
                     style={{...styles.card__date, color: renderError('date', errors) ? '#e77ca3' : '#f4f4f4' }}
                 />
@@ -425,12 +436,28 @@ class Card extends Component {
         )
     }
 
+    handleCountrySelect = () => {
+        const tmpCountries = countriesDict.map(item => { return { key: item.iso, value: item.country  } } )
+
+        showModal({
+            type: 'SELECT_MODAL',
+            data: {
+                title: strings('card.cardCurrency').replace(/\./g,''),
+                listForSelect: tmpCountries,
+                selectedItem: this.state.selectedCountry
+            }
+        }, (selectedCountry) => {
+            this.setState({ selectedCountry })
+        })
+    }
+
     render() {
         firebase.analytics().setCurrentScreen('Card.index')
 
         const {
             focused,
-            countriesList
+            countriesList,
+            selectedCountry
         } = this.state
 
         return (
@@ -442,7 +469,7 @@ class Card extends Component {
                     <View style={{flex: 1}}>
                         <ScrollView
                             ref={(ref) => { this.scrollView = ref }}
-                            keyboardShouldPersistTaps
+                            keyboardShouldPersistTaps={'always'}
                             contentContainerStyle={focused ? styles.wrapper__content_active : styles.wrapper__content}
                             showsVerticalScrollIndicator={false}
                             style={styles.wrapper__scrollView}>
@@ -466,21 +493,33 @@ class Card extends Component {
                                     <TouchableOpacity
                                         style={styles.card__press__bg}
                                         onPress={this.handleScan}>
-                                        <Icon style={styles.actionBtn__icon}
-                                              name={'camera'} size={17} color="#7127ac" />
+                                        <MaterialCommunityIcons style={styles.actionBtn__icon}
+                                              name={'credit-card-scan'} size={24} color="#7127ac" />
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                            <Picker ref={ref => this.currenciesPicker = ref}
-                                    items={countriesList}
-                                    placeholder={strings('card.cardCurrency')} />
+                            <TouchableOpacity style={styles.select} onPress={() => this.handleCountrySelect()}>
+                                <GradientView style={styles.select__bg} array={lineStyles_.array} start={lineStyles_.start} end={lineStyles_.end}>
+                                    <Text style={styles.select__text}>
+                                        {
+                                            selectedCountry === '' ? strings('card.cardCurrency') : strings('card.country') + ' ' + selectedCountry.value
+                                        }
+                                    </Text>
+                                    <View style={{ marginTop: 2 }}>
+                                        <Ionicons name="ios-arrow-down" size={20} color="#fff" />
+                                    </View>
+                                </GradientView>
+                            </TouchableOpacity>
+                            {/*<Picker ref={ref => this.currenciesPicker = ref}*/}
+                            {/*        items={countriesList}*/}
+                            {/*        placeholder={strings('card.cardCurrency')} />*/}
                             <View style={{ marginTop: 10 }}>
                                 <CardNameInput
                                     ref={component => this.cardNameInput = component}
                                     id={'cardName'}
                                     name={strings('card.cardName')}
                                     type={'OPTIONAL'}
-                                    style={{ marginRight: 2 }}/>
+                                    style={{ marginRight: 2 }} />
                             </View>
 
                             {/*<WarningText style={styles.warningText}>*/}
@@ -507,6 +546,13 @@ const mapStateToProps = (state) => {
 }
 
 export default connect(mapStateToProps, {})(Card)
+
+const lineStyles_ = {
+    array: ["#864dd9","#ce53f9"],
+    arrayError: ['#e77ca3','#f0a5af'],
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 0 }
+}
 
 const styles_ = {
     array: ["#fff","#F8FCFF"],
@@ -722,5 +768,35 @@ const styles = {
         borderRadius: 44,
         backgroundColor: '#fff',
     },
+    select: {
+        height: 36,
 
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.23,
+        shadowRadius: 2.62,
+
+        elevation: 4,
+
+        backgroundColor: '#fff',
+        borderRadius: 10
+    },
+    select__bg: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+
+        height: '100%',
+        paddingHorizontal: 12,
+
+        borderRadius: 10
+    },
+    select__text: {
+        color: '#fff',
+        fontSize: 16,
+        fontFamily: 'SFUIDisplay-Regular',
+    }
 }

@@ -1,4 +1,12 @@
 rootProject.name = 'TrusteeWallet'
+include ':react-native-screens'
+project(':react-native-screens').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-screens/android')
+include ':react-native-image-picker'
+project(':react-native-image-picker').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-image-picker/android')
+include ':react-native-wheel-picker-android'
+project(':react-native-wheel-picker-android').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-wheel-picker-android/android')
+include ':react-native-flurry-sdk'
+project(':react-native-flurry-sdk').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-flurry-sdk/android')
 include ':react-native-reanimated'
 project(':react-native-reanimated').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-reanimated/android')
 include ':react-native-blur-overlay'
@@ -64,5 +72,10 @@ project(':react-native-device-info').projectDir = new File(rootProject.projectDi
 include ':react-native-blocksoft-random'
 project(':react-native-blocksoft-random').projectDir = new File(rootProject.projectDir, '../crypto-native/react-native-blocksoft-random/android')
 
+include ':react-native-wheel-picker'
+project(':react-native-wheel-picker').projectDir = new File(settingsDir, '../node_modules/react-native-wheel-picker/android')
+
+include ':react-native-permissions'
+project(':react-native-permissions').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-permissions/android')
 
 include ':app'

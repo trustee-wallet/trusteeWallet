@@ -22,7 +22,7 @@ const authDS = {
             prepared.mnemonic = BlocksoftKeysUtils.recheckMnemonic(prepared.mnemonic)
             prepared.hash = await BlocksoftKeysUtils.hashMnemonic(prepared.mnemonic)
 
-            let logData = JSON.parse(JSON.stringify(prepared))
+            let logData = {...prepared}
             if (typeof logData.mnemonic !== 'undefined') logData.mnemonic = '***'
             Log.log('DS/Auth saveAuthMnemonic data', logData)
 
@@ -36,7 +36,7 @@ const authDS = {
             Log.log('DS/Auth saveAuthMnemonic finished', storedKey)
 
         } catch (e) {
-            Log.err('DS/Auth saveAuthMnemonic error', e)
+            Log.err('DS/Auth saveAuthMnemonic error ' + e.message)
         }
         return storedKey
     },
@@ -50,7 +50,7 @@ const authDS = {
 
             Log.log('DS/Auth getAuthMnemonic finished')
         } catch (e) {
-            Log.err('DS/Auth getAuthMnemonic error', e)
+            Log.err('DS/Auth getAuthMnemonic error ' + e.message)
         }
         return authMnemonic
     },
@@ -67,7 +67,7 @@ const authDS = {
 
             return true
         } catch (e) {
-            Log.err('DS/Auth setAuthMnemonicHash error', e)
+            Log.err('DS/Auth setAuthMnemonicHash error ' + e.message)
             return false
         }
 
@@ -92,7 +92,7 @@ const authDS = {
             Log.log('DS/Auth getAuthHash finished')
 
         } catch (e) {
-            Log.err('DS/Auth getAuthHash error', e)
+            Log.err('DS/Auth getAuthHash error ' + e.message)
         }
         return storedAuthHash
     }

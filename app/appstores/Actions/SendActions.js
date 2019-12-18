@@ -31,13 +31,30 @@ export default new class SendActions {
 
     handleInitialURL = async () => {
 
+        let initialURL = ''
         try {
-            const initialURL = await Linking.getInitialURL()
-
+            initialURL = await Linking.getInitialURL()
             if(initialURL === null) return
+        } catch (e) {
+            Log.err('SendActions.handleInitialURL get error ' + e.message, initialURL)
+            return
+        }
+        Log.log('SendActions.handleInitialURL get success', initialURL)
 
-            const res = decodeTransactionQrCode({ data: initialURL })
 
+        let res = {}
+        try {
+            res = await decodeTransactionQrCode({ data: initialURL })
+            if (typeof (res.data) === 'undefined') {
+                throw new Error('res.data is empty')
+            }
+        } catch (e) {
+            Log.err('SendActions.handleInitialURL decode error ' + e.message)
+            return
+        }
+        Log.log('SendActions.handleInitialURL decode success', res.data)
+
+        try {
             const { currencies, selectedWallet } = store.getState().mainStore
             let currency = _.find(currencies, { currencyCode: res.data.currencyCode })
             let { array: accounts } = await accountDS.getAccountData(selectedWallet.wallet_hash, res.data.currencyCode)
@@ -45,7 +62,7 @@ export default new class SendActions {
             setSendData({
                 disabled: false,
                 address: res.data.address,
-                value: res.data.amount.toString(),
+                value: res.data.amount ? res.data.amount.toString() : '0',
 
                 account: accounts[0],
                 cryptocurrency: currency,
@@ -56,7 +73,7 @@ export default new class SendActions {
 
             NavStore.goNext('SendScreen')
         } catch (e) {
-            Log.err('SendActions.handleInitialURL error', e)
+            Log.err('SendActions.handleInitialURL process error ' + e.message)
         }
     }
 }

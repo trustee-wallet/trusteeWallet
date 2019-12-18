@@ -9,12 +9,14 @@ import {
 import Icon from 'react-native-vector-icons/SimpleLineIcons'
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 import Ionicons from "react-native-vector-icons/Ionicons"
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 
 import NavStore from './NavStore'
 
 import GradientView from '../elements/GradientView'
 
 import { strings } from '../../services/i18n'
+import LetterSpacing from '../elements/LetterSpacing'
 
 
 class Navigation extends Component {
@@ -22,8 +24,22 @@ class Navigation extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            search: ''
+            search: '',
+            isBack: true
         }
+    }
+
+    componentWillMount() {
+        try {
+            if(typeof this.props.isBack != 'undefined')
+                this.setState({ isBack: this.props.isBack })
+
+
+            if(typeof this.props.navigation != 'undefined') {
+                if (!this.props.navigation.dangerouslyGetParent().state.index)
+                    this.setState({ isBack: false })
+            }
+        } catch (e) {}
     }
 
     handleInputSearch = (search) => {
@@ -37,41 +53,48 @@ class Navigation extends Component {
 
     render(){
 
-        const { title, titleComponent, style, searchInputCallback } = this.props
+        const { isBack } = this.state
+        const { title, titleComponent, style, searchInputCallback, isClose = true, CustomComponent } = this.props
+
+        const tmpIsClose = typeof isClose != 'undefined' ? isClose : true
 
         return (
             <View style={{...styles.wrapper, height: typeof this.props.children != 'undefined' ? 126 : 'auto'}}>
-                <GradientView style={{...styles.wrapper__content, height: typeof searchInputCallback != 'undefined' ? 120 : 80}} array={bgStyle.array} start={bgStyle.start} end={bgStyle.end}>
+                <GradientView style={{...styles.wrapper__content, height: typeof searchInputCallback != 'undefined' ? 130 : typeof CustomComponent != 'undefined' ? null : 80}} array={bgStyle.array} start={bgStyle.start} end={bgStyle.end}>
                     <View style={{...styles.wrapper__main__content, marginTop: typeof searchInputCallback != 'undefined' ? 10 : 0}}>
-                        <TouchableOpacity style={styles.btn} onPress={NavStore.goBack}>
-                            <Icon style={styles.btn__icon} name="arrow-left" size={styles_.btn__icon.fontSize} color={typeof style != 'undefined' ? style.color : styles_.btn__icon.color} />
-                            <Text style={{...styles.btn__text, ...style }}>
-                                { strings('components.navigation.back') }
-                            </Text>
-                        </TouchableOpacity>
+                        {
+                            isBack ?
+                                <TouchableOpacity style={[styles.btn, { paddingLeft: 23 }]} onPress={NavStore.goBack}>
+                                    <AntDesignIcon style={styles.btn__icon} name="arrowleft" size={styles_.btn__icon.fontSize} color={typeof style != 'undefined' ? style.color : styles_.btn__icon.color} />
+                                    <Text style={{...styles.btn__text, ...style }}>
+                                        {/*{ strings('components.navigation.back') }*/}
+                                    </Text>
+                                </TouchableOpacity>
+                                :
+                                <View style={[styles.btn, { paddingLeft: 23 }]} />
+                        }
                         {
                             typeof title != 'undefined' ?
-                                <Text numberOfLines={1} style={styles.title}>
-                                    { title ? title : '' }
-                                </Text> : null
+                                <View numberOfLines={1} style={{...styles.title, alignItems: "center", flex: 1}}>
+                                    { title ? <LetterSpacing text={title} textStyle={{...styles.title, justifyContent: "center"}} containerStyle={{ justifyContent: "center" }} letterSpacing={0.5} /> : null }
+                                </View> : null
                         }
                         {
                             typeof titleComponent != 'undefined' ? titleComponent : null
                         }
                         {
                             typeof this.props.next != 'undefined' ?
-                                <TouchableOpacity style={{...styles.btn, justifyContent: 'flex-end' }} onPress={this.props.next}>
-                                    <Text style={{...styles.btn__text, ...styles_.btn__icon_yellow}}>
-                                        { typeof this.props.nextTitle != 'undefined' ? this.props.nextTitle : 'Next' }
-                                    </Text>
-                                    <Icon style={styles.btn__icon} name="arrow-right" size={styles_.btn__icon.fontSize} color={styles_.btn__icon_yellow.color} />
+                                <TouchableOpacity style={{...styles.btn, paddingRight: 23, justifyContent: 'flex-end' }} onPress={this.props.next}>
+                                    <View style={{...styles.btn__text, ...styles_.btn__icon_yellow, marginLeft: 10}}>
+                                        { typeof this.props.nextTitle != 'undefined' ? <LetterSpacing text={this.props.nextTitle} textStyle={{...styles.btn__text, ...styles_.btn__icon_yellow}} letterSpacing={0.5} /> : null }
+                                    </View>
                                 </TouchableOpacity> : null
                         }
                         {
-                            typeof this.props.next == 'undefined' ?
-                                <TouchableOpacity style={{...styles.btn, justifyContent: 'flex-end' }} onPress={ () => NavStore.goNext('DashboardStack') }>
-                                    <AntDesignIcon style={styles.btn__icon} name="close" size={20} color={styles_.btn__icon.color} />
-                                </TouchableOpacity> : null
+                            typeof this.props.next == 'undefined' && tmpIsClose ?
+                                <TouchableOpacity style={{...styles.btn, paddingRight: 23, justifyContent: 'flex-end' }} onPress={ () => NavStore.goNext('DashboardStack', null, true) }>
+                                    <MaterialCommunityIcons style={styles.btn__icon} name="window-close" size={22} color={styles_.btn__icon.color} />
+                                </TouchableOpacity> : typeof this.props.next == 'undefined' && !tmpIsClose ? <View style={{...styles.btn, paddingRight: 23, justifyContent: 'flex-end' }} /> : null
                         }
                     </View>
                     {
@@ -79,6 +102,7 @@ class Navigation extends Component {
                             <View style={styles.search}>
                                 <TextInput
                                     style={styles.search__input}
+                                    placeholderTextColor={"#404040"}
                                     onChangeText={this.handleInputSearch}
                                     placeholder={strings('components.navigation.search')}
                                     value={this.state.search}
@@ -86,8 +110,12 @@ class Navigation extends Component {
                                 <Ionicons name='ios-search' color='#7127AC' size={22} />
                             </View> : null
                     }
+                    {
+                        typeof CustomComponent != 'undefined' ?
+                            <CustomComponent /> : null
+                    }
                 </GradientView>
-                <View style={{...styles.wrapper__content_shadow__wrapper, height: typeof searchInputCallback != 'undefined' ? 120 : 80}}>
+                <View style={{...styles.wrapper__content_shadow__wrapper, height: typeof searchInputCallback != 'undefined' ? 130 : typeof CustomComponent != 'undefined' ? "100%" : 80}}>
                     <View style={styles.wrapper__content__shadow} />
                 </View>
                 { this.props.children }
@@ -100,16 +128,16 @@ export default Navigation
 
 const styles_ = {
     btn__icon: {
-        fontSize: 18,
-        color: '#f4f4f4'
+        fontSize: 20,
+        color: '#404040'
     },
     btn__icon_yellow: {
-        color: '#f9f871'
+        color: '#864DD9'
     }
 }
 
 const bgStyle = {
-    array: ["#7127AC","#7127AC"],
+    array: ["#f7f7f7","#f7f7f7"],
     start: { x: 0, y: 1 },
     end: { x: 1, y: 1 }
 }
@@ -136,11 +164,7 @@ const styles = {
         height: 80,
         paddingTop: 35,
         marginBottom: 10,
-        paddingLeft: 23,
-        paddingRight: 23,
 
-        borderBottomRightRadius: 10,
-        borderBottomLeftRadius: 10,
         zIndex: 2
     },
     wrapper__main__content: {
@@ -158,9 +182,7 @@ const styles = {
         height: 80,
         width: '100%',
 
-        backgroundColor: '#fff',
-        borderBottomRightRadius: 10,
-        borderBottomLeftRadius: 10,
+        backgroundColor: '#f7f7f7',
         zIndex: 1
     },
     wrapper__content__shadow: {
@@ -168,46 +190,54 @@ const styles = {
         width: '100%',
         height: '100%',
 
-        backgroundColor: '#fff',
+        backgroundColor: '#f7f7f7',
 
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
-            height: 7,
+            height: 3,
         },
-        shadowOpacity: 0.43,
-        shadowRadius: 9.51,
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
 
-        elevation: 10,
-
-        borderBottomRightRadius: 10,
-        borderBottomLeftRadius: 10,
+        elevation: 7,
     },
     btn: {
         flex: 1,
 
         flexDirection: 'row',
         alignItems: 'center',
+
+        paddingVertical: 10,
     },
     btn__text: {
-        marginLeft: 5,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 15,
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 12,
         color: '#f4f4f4'
     },
     search: {
         flexDirection: 'row',
         alignItems: 'center',
 
-        width: '100%',
+        flex: 1,
 
         height: 30,
 
-        marginTop: 10,
+        marginHorizontal: 23,
         paddingHorizontal: 13,
 
         backgroundColor: '#fff',
-        borderRadius: 20
+        borderRadius: 16,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
     },
     search__input: {
         flex: 1,
@@ -220,15 +250,12 @@ const styles = {
         color: '#404040'
     },
     title: {
-        flex: 1,
         flexWrap: 'nowrap',
 
-        marginTop: 2,
-
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 15,
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 12,
         textAlign: 'center',
-        color: '#f4f4f4'
+        color: '#404040'
     },
     view: {
         flex: 1

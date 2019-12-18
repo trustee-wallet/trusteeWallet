@@ -2,9 +2,25 @@ const Web3 = require('web3')
 
 class BlocksoftUtils {
 
+    static add(val1, val2) {
+        if (!val2 || !(val2 * 1 > 0)) return val1
+        return BlocksoftUtils.toBigNumber(val1).add(BlocksoftUtils.toBigNumber(val2))
+    }
     static toBigNumber(val) {
         // noinspection JSCheckFunctionSignatures,JSUnresolvedVariable
         return new Web3.utils.BN(val)
+    }
+
+    static fromENumber(val) {
+        if (val === null || typeof(val) === 'undefined' || !val ) {
+            return 0
+        }
+        val = val.toString()
+        if (val.indexOf('e+') === -1) {
+            return val
+        }
+        let parts = val.split('e+')
+        return this.fromUnified(parts[0], parts[1])
     }
 
     static toSatoshi(val) {
@@ -16,7 +32,7 @@ class BlocksoftUtils {
     }
 
     static toUnified(val, decimals = 8) {
-        if (typeof (val) === 'undefined') {
+        if (typeof (val) === 'undefined' || val === 'undefined') {
             throw new Error('toUnified val is undefined')
         }
         if (typeof val === 'number') {
@@ -108,12 +124,26 @@ class BlocksoftUtils {
         return newVal
     }
 
-    static toDate(timeStamp) {
+    static toDate(timeStamp, multiply = true) {
         if (timeStamp && timeStamp > 0) {
-            return (new Date(timeStamp * 1000)).toISOString()
+            if (multiply) {
+                timeStamp = timeStamp * 1000
+            }
+            return (new Date(timeStamp)).toISOString()
         } else {
             return new Date().toISOString()
         }
+    }
+
+    static hexToUtf(hex) {
+        return Web3.utils.hexToUtf8(hex)
+    }
+    static decimalToHex(decimal, len = 0) {
+        let str = Web3.utils.toHex(decimal).substr(2)
+        if (len > 0) {
+            str = "0".repeat(len - str.length) + str
+        }
+        return str
     }
 }
 

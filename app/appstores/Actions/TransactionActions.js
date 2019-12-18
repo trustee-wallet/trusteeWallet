@@ -4,7 +4,7 @@ import transactionDS from '../DataSource/Transaction/Transaction'
 
 import Log from '../../services/Log/Log'
 
-const { dispatch } = store
+const {dispatch} = store
 
 const transactionActions = {
 
@@ -19,6 +19,7 @@ const transactionActions = {
      * @param {string} transaction.address_from
      * @param {string} transaction.address_amount
      * @param {string} transaction.transaction_fee
+     * @param {integer} transaction.transaction_of_trustee_wallet
      * @param {string} transaction.created_at: new Date().toISOString(),
      * @param {string} transaction.updated_at: new Date().toISOString()
      */
@@ -26,11 +27,24 @@ const transactionActions = {
 
         try {
 
-           await transactionDS.saveTransaction(transaction)
+            await transactionDS.saveTransaction(transaction)
+
+            const account = store.getState().mainStore.selectedAccount
+
+            if (transaction.account_id === account.account_id) {
+
+                const prepared = {...account}
+                prepared.transactions.unshift(transaction)
+
+                dispatch({
+                    type: 'SET_SELECTED_ACCOUNT',
+                    selectedAccount: prepared
+                })
+            }
 
         } catch (e) {
 
-            Log.err('ACT/Transaction saveTransaction', e)
+            Log.err('ACT/Transaction saveTransaction ' + e.message)
         }
 
     },
@@ -46,13 +60,13 @@ const transactionActions = {
 
         try {
 
-            const { array } = await transactionDS.getTransactions({account_id : accountId})
+            const {array} = await transactionDS.getTransactions({account_id: accountId})
 
             transactions = array
 
         } catch (e) {
 
-            Log.err('ACT/Transaction getTransactions', e)
+            Log.err('ACT/Transaction getTransactions ' + e.message)
         }
 
         return transactions

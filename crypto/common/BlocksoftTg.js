@@ -1,34 +1,55 @@
+/*
+http://t.me/trusteeDevErrorsBot
+953140729:AAFFnqXbtAU53TE0nyIKpfUoIPCOdIyDhxk
+ */
+
+import config from '../../app/config/config'
+import changeableProd from '../../app/config/changeable.prod'
+import changeableTester from '../../app/config/changeable.tester'
+
 const MAX_LENGTH = 4090
+
+const IN_TEST = (process && process.env && process.env['JEST_WORKER_ID'])
+
+const BAD_CHATS = {}
 
 const axios = require('axios')
 
 class BlocksoftTg {
-    constructor() {
-        this.API_KEY =  false // your bot key like 12345678900:123456
-        this.CHAT_IDS = ['1234567'] // your chat ids
-        this.BAD_CHATS = {}
+    constructor(key) {
+        if (typeof (key) !== 'undefined' && key) {
+            this.API_KEY = key
+        } else {
+            this.API_KEY = config.tg.appDefaultTg
+        }
+        this.CHAT_IDS = []
+        for (let chat of config.tg.trusteeCore) {
+            this.CHAT_IDS.push(chat)
+            BAD_CHATS[chat] = {}
+        }
+        for (let chat of config.tg.trusteeTeam) {
+            this.CHAT_IDS.push(chat)
+            BAD_CHATS[chat] = {}
+            BAD_CHATS[chat][changeableProd.tg.info.spamBot] = 1
+        }
     }
 
-    async send(text) {
-        if (!this.API_KEY) {
-            console.log('')
-            console.log('')
-            console.log('!!!!!!!!!!!COULD BE SENT TO TG (plz specify API_KEY and CHAT_IDS at crypto/common/BlocksoftTg.js)!!!!!!!!!!!!!!!!!!')
-            console.log('')
-            console.log('')
-            console.log(text)
-            return true
+    async send(text, API_KEY = false) {
+        if (API_KEY === false) {
+            API_KEY = this.API_KEY
+        }
+        if (IN_TEST) {
+            return false
         }
         let promises = []
         if (text.length > MAX_LENGTH) text = text.substring(0, MAX_LENGTH)
-        for (let i = 0, ic = this.CHAT_IDS.length; i < ic; i++) {
-            let chat = this.CHAT_IDS[i]
-            if (this.BAD_CHATS[chat]) continue
+        for (let chat of this.CHAT_IDS) {
+            if (typeof BAD_CHATS[chat][API_KEY]  != "undefined") continue
             promises.push(
                 this._request('sendMessage', {
                     text: text,
                     chat_id: chat
-                })
+                }, API_KEY)
             )
         }
         let result
@@ -55,8 +76,11 @@ class BlocksoftTg {
      * @return {Promise<*>}
      * @private
      */
-    async _request(method, qs) {
-        let link = `https://api.telegram.org/bot${this.API_KEY}/${method}`
+    async _request(method, qs, API_KEY = false) {
+        if (API_KEY === false) {
+            API_KEY = this.API_KEY
+        }
+        let link = `https://api.telegram.org/bot${API_KEY}/${method}`
         let response
         try {
             // noinspection JSUnresolvedFunction
@@ -65,10 +89,18 @@ class BlocksoftTg {
             if (e.response.data) {
                 e.message = JSON.stringify(e.response.data) + ' ' + e.message
             }
+            if (e.message.indexOf('Request: chat not found') !== -1) {
+                if (typeof BAD_CHATS[qs.chat_id][API_KEY] === "undefined") {
+                    BAD_CHATS[qs.chat_id][API_KEY] = 1
+                } else {
+                    BAD_CHATS[qs.chat_id][API_KEY]++
+                }
+            }
             e.message += ' ' + link + ' ' + JSON.stringify(qs)
+            return false
         }
         return response.data
     }
 }
 
-export default new BlocksoftTg()
+export default BlocksoftTg

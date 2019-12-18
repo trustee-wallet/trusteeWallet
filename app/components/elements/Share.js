@@ -18,6 +18,17 @@ export default class Share extends Component {
                     <body></body>
                 </html>
             `,
+            show: false,
+            link: ''
+        }
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        if(typeof nextProps.link != 'undefined' && nextProps.link && nextProps.link !== '...'){
+            this.setState({
+                show: true,
+                link: nextProps.link
+            })
         }
     }
 
@@ -59,18 +70,21 @@ export default class Share extends Component {
 
     render() {
 
-        const { link, source } = this.props
+        const { source } = this.props
 
         return (
             <View style={{ height: 0, maxHeight: 0, overflow: 'hidden' }}>
-                <WebView
-                    ref={r => (this.webref = r)}
-                    javaScriptEnabled={true}
-                    onLoadEnd={() => this.webref.injectJavaScript(this.createScript(link))}
-                    showsVerticalScrollIndicator={false}
-                    source={source}
-                    useWebKit={true}
-                />
+                {
+                    this.state.show ?
+                        <WebView
+                            ref={r => (this.webref = r)}
+                            javaScriptEnabled={true}
+                            onLoadEnd={() => this.webref.injectJavaScript(this.createScript(this.state.link))}
+                            showsVerticalScrollIndicator={false}
+                            source={source}
+                            useWebKit={true}
+                        /> : null
+                }
             </View>
 
         )

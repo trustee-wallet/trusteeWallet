@@ -33,7 +33,7 @@ class BlocksoftPrettyNumbers {
             return BlocksoftUtils.toEther(number)
         } else if (this._processorCode === 'BTC') {
             return BlocksoftUtils.toBtc(number)
-        } else if (this._processorCode === 'ETH_ERC_20') {
+        } else if (this._processorCode === 'ETH_ERC_20' || this._processorCode === 'UNIFIED') {
             return BlocksoftUtils.toUnified(number, this._decimals)
         }
         throw new Error('undefined BlocksoftPrettyNumbers processor to makePrettie')
@@ -50,7 +50,7 @@ class BlocksoftPrettyNumbers {
             return BlocksoftUtils.toWei(number)
         } else if (this._processorCode === 'BTC') {
             return BlocksoftUtils.toSatoshi(number)
-        } else if (this._processorCode === 'ETH_ERC_20') {
+        } else if (this._processorCode === 'ETH_ERC_20' || this._processorCode === 'UNIFIED') {
             return BlocksoftUtils.fromUnified(number, this._decimals)
         }
         throw new Error('undefined BlocksoftPrettyNumbers processor to makeUnPrettie')

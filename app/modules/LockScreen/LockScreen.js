@@ -188,24 +188,24 @@ class LockScreen extends Component {
 
                         <View style={{ flex: 1 }}>
                             <View style={[styles.top, flowType !== '' ? styles.top__navigation : null]}>
-                                <Image
-                                    style={styles.top__bg}
-                                    resizeMode='stretch'
-                                    source={require('../../assets/images/lockScreenBg.png')}/>
-                                <LottieView style={{
-                                    width: 100,
-                                    height: 100,
-                                    marginRight: 10
-                                }} source={require('../../assets/jsons/animations/dotsLeft.json')} progress={this.state.progress}/>
+                                {/*<Image*/}
+                                {/*    style={styles.top__bg}*/}
+                                {/*    resizeMode='stretch'*/}
+                                {/*    source={require('../../assets/images/lockScreenBg.png')}/>*/}
+                                {/*<LottieView style={{*/}
+                                {/*    width: 100,*/}
+                                {/*    height: 100,*/}
+                                {/*    marginRight: 10*/}
+                                {/*}} source={require('../../assets/jsons/animations/dotsLeft.json')} progress={this.state.progress}/>*/}
                                 <Image
                                     style={styles.top__logo}
                                     resizeMode='stretch'
                                     source={require('../../assets/images/logo.png')}/>
-                                <LottieView style={{
-                                    width: 100,
-                                    height: 100,
-                                    marginLeft: 10
-                                }} source={require('../../assets/jsons/animations/dotsRight.json')} progress={this.state.progress}/>
+                                {/*<LottieView style={{*/}
+                                {/*    width: 100,*/}
+                                {/*    height: 100,*/}
+                                {/*    marginLeft: 10*/}
+                                {/*}} source={require('../../assets/jsons/animations/dotsRight.json')} progress={this.state.progress}/>*/}
                             </View>
                             <PINCode
                                 //pinStatus={'locked'}
@@ -265,8 +265,13 @@ class LockScreen extends Component {
                                 numbersButtonOverlayColor={'#9969df'}
                                 stylePinCodeDeleteButtonColorShowUnderlay={'#9969df'}
                                 stylePinCodeColumnDeleteButton={{
+                                    alignItems: "center",
+                                    justifyContent: "center",
+
                                     marginTop: -3,
-                                    marginLeft: -5
+                                    marginLeft: -5,
+
+                                    height: 54,
                                     //borderWidth: 2,
                                     //borderColor: '#000'
                                 }}
@@ -293,13 +298,32 @@ class LockScreen extends Component {
                                     justifyContent: 'center',
                                     marginTop: -10,
                                     width: 250,
-                                    height: 75
+                                    height: 75,
+
                                     //borderWidth: 2,
                                     //borderColor: '#000'
                                 }}
                                 stylePinCodeColumnButtons={{
                                     alignItems: 'center',
-                                    justifyContent: 'center'
+                                    justifyContent: 'center',
+
+                                    width: 54,
+                                    marginHorizontal: 15,
+
+                                    backgroundColor: "#fff",
+
+                                    shadowColor: "#000",
+                                    shadowOffset: {
+                                        width: 0,
+                                        height: 3,
+                                    },
+                                    shadowOpacity: 0.29,
+                                    shadowRadius: 4.65,
+
+                                    elevation: 7,
+
+                                    borderRadius: 40
+
                                     //borderWidth: 2,
                                     //borderColor: '#000'
                                 }}
@@ -348,7 +372,7 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps, {})(LockScreen)
 
 const styles_ = {
-    array: ['#fff', '#fff'],
+    array: ['#f5f5f5', '#f5f5f5'],
     start: { x: 0.0, y: 0 },
     end: { x: 0, y: 1 }
 }

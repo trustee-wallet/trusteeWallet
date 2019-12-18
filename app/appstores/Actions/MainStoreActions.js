@@ -36,6 +36,8 @@ export async function proceedSaveGeneratedWallet(wallet) {
     await accountBalanceActions.initBalances(storedKey)
 
     Log.log('ACT/MStore proceedSaveGeneratedWallet finished', storedKey)
+
+    return storedKey
 }
 
 export async function proceedGenerateWallet() {
@@ -128,16 +130,25 @@ export async function setCurrencies() {
 
         const { array: currenciesBalanceAmount } = await currencyDS.getCurrencyBalanceAmount(walletHash)
 
-        for (let obj of prepare) {
-            const tmpObj = currenciesBalanceAmount.find((item) => item.currency_code == obj.currency_code)
-            obj.currencyBalanceAmountRaw = tmpObj.currencyBalanceAmount
-            obj.currencyBalanceAmount = BlocksoftPrettyNumbers.setCurrencyCode(obj.currency_code).makePrettie(tmpObj.currencyBalanceAmount)
+        if (currenciesBalanceAmount) {
+            for (let obj of prepare) {
+                Log.log('ACT/MStore setCurrencies obj', JSON.stringify(obj).substr(0, 100))
+                obj.walletHash = walletHash
+                const tmpObj = currenciesBalanceAmount.find((item) => item.currency_code == obj.currency_code)
+                if (tmpObj) {
+                    obj.currencyBalanceAmountRaw = tmpObj.currencyBalanceAmount
+                    obj.currencyBalanceAmount = BlocksoftPrettyNumbers.setCurrencyCode(obj.currency_code).makePrettie(tmpObj.currencyBalanceAmount)
+                } else {
+                    obj.currencyBalanceAmountRaw = 0
+                    obj.currencyBalanceAmount = 0
+                }
+            }
         }
 
         Log.log('ACT/MStore setCurrencies finished')
 
     } catch (e) {
-        Log.log('ACT/MStore setCurrencies error', e)
+        Log.err('ACT/MStore setCurrencies error ' + e.message)
     }
 
     dispatch({
@@ -169,7 +180,12 @@ export async function setSelectedAccount() {
     const { array: transactions } = await transactionDS.getTransactions({ account_id: accounts[0].id })
 
     accounts[0].transactions = transactions
-    accounts[0].balancePretty = BlocksoftPrettyNumbers.setCurrencyCode(accounts[0].currency_code).makePrettie(accounts[0].balance)
+    accounts[0].balancePretty = 0
+    try {
+        accounts[0].balancePretty = BlocksoftPrettyNumbers.setCurrencyCode(accounts[0].currency_code).makePrettie(accounts[0].balance)
+    } catch (e) {
+        Log.err('MainStoreActions error ' + e.message + ' with item ' + JSON.stringify(accounts[0]))
+    }
 
     dispatch({
         type: 'SET_SELECTED_ACCOUNT',
@@ -190,6 +206,14 @@ export function setInitState(data) {
     return {
         type: 'SET_INIT_STATE',
         init: data
+    }
+}
+
+export function setInitError(data) {
+    Log.log('ACT/MStore setInitError called', data)
+    return {
+        type: 'SET_INIT_ERROR',
+        initError : data
     }
 }
 
@@ -221,7 +245,7 @@ export async function deleteCard(cardID) {
         await setCards()
         Log.log('ACT/MStore deleteCard finished')
     } catch (e) {
-        Log.err('ACT/MStore deleteCard error', e)
+        Log.err('ACT/MStore deleteCard error ' + e.message)
     }
 
     setLoaderStatus(false)

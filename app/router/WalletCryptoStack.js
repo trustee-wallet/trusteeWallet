@@ -1,4 +1,4 @@
-import { createStackNavigator } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
 import SelectCrypto from '../modules/WalletCrypto/screen/SelectCrypto';
 
 const WalletCryptoStack = createStackNavigator(

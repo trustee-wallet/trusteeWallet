@@ -43,7 +43,7 @@ or
 
 #### Step 2
 
-wsl ./__hacks__/makeX.OS.Linux.sh
+python ./__hacks__/makeX.py
 
 do step2 any time when some AndroidX errors (classes not found etc)
 

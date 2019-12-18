@@ -12,7 +12,7 @@ function stripHexPrefixAndLower(value) {
 class BlocksoftKeysForRefServerSide {
 
     constructor() {
-        this._link = `https://mainnet.infura.io/v3/478e48mushyfgsdfryumlrynh`
+        this._link = `https://mainnet.infura.io/v3/e69df96932bd4e9db7451fab8d6e0c85`
         // noinspection JSUnresolvedVariable
         this._web3 = new Web3(new Web3.providers.HttpProvider(this._link))
     }
@@ -40,11 +40,14 @@ class BlocksoftKeysForRefServerSide {
             throw new Error('BlocksoftKeysForRefServerSide.checkDataByApi no messageHash ' + JSON.stringify(signedData))
         }
 
-        let clonedData = JSON.parse(JSON.stringify(signedData))
+        let clonedData = {
+            signature : signedData.signature,
+            messageHash : signedData.messageHash
+        }
 
         // noinspection JSUnresolvedFunction,JSUnresolvedVariable
-        let signedDataHash = await this._web3.eth.accounts.hashMessage(clonedData.message)
-        if (signedDataHash !== clonedData.messageHash) {
+        let signedDataHash = await this._web3.eth.accounts.hashMessage(signedData.message)
+        if (signedDataHash !== signedData.messageHash) {
             return false
         }
         if (typeof (clonedData.v) === 'undefined' || typeof (clonedData.r) === 'undefined' || typeof (clonedData.s) === 'undefined') {

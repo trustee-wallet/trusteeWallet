@@ -35,6 +35,7 @@
 		2DCD954D1E0B4F2C00145EB5 /* TrusteeWalletTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* TrusteeWalletTests.m */; };
 		375E6FDDC184427F8FB83FB7 /* libTcpSockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 21ED42EDA60A4698ABA780A6 /* libTcpSockets.a */; };
 		3AC276489AA94F7A825CFF72 /* FontAwesome5_Solid.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 43D2DBF6677C476DB11759CB /* FontAwesome5_Solid.ttf */; };
+		485327C361D742A1918EBBF3 /* libReactNativeFlurry.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49445A95E84E4BC799372CBF /* libReactNativeFlurry.a */; };
 		4D7534B811344A56A51DAED8 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 24EAD70EFE8B46DFA031D128 /* Octicons.ttf */; };
 		511ED0D0078898357C5F9098 /* libPods-TrusteeWallet-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB3A80047D0F47B8D7DB3997 /* libPods-TrusteeWallet-tvOSTests.a */; };
 		5307E1A19A964E4CACE4FCFA /* libRNExitApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 753F2ED1E5CC447192614552 /* libRNExitApp.a */; };
@@ -50,6 +51,7 @@
 		9D3316A19B8C4E56AEAD9441 /* Fontisto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 131E385F96774E94BE8C2A99 /* Fontisto.ttf */; };
 		9DD4F36262A946C49BA9C646 /* libRNRandomBytes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8948D4654047A688D45620 /* libRNRandomBytes.a */; };
 		A7531A4D659D4449960E7481 /* libUdpSockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C7FFA9CD85143E9917BBE1A /* libUdpSockets.a */; };
+		A8C12F5A5FFB437EBA15111A /* libReactNativeFlurryTVOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19E7D3C326BB4BFD854F47E5 /* libReactNativeFlurryTVOS.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 		AFEF586B9EF2465EA44A2B59 /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CE59DEF614E441A08EB242FF /* Entypo.ttf */; };
 		B4FA92D457694F0FB8703012 /* AntDesign.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EB42F60003CE4EB0A9E441B4 /* AntDesign.ttf */; };
@@ -67,7 +69,6 @@
 		CE4E4222CA3C4D6F8B92C034 /* SFUIDisplay-Semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B174E55FE2A74DC985E1A84E /* SFUIDisplay-Semibold.ttf */; };
 		CEFEB8D822BA908A00FC9FC1 /* libRNBlocksoftRandom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CEFEB8D722BA906F00FC9FC1 /* libRNBlocksoftRandom.a */; };
 		D65573DAF894456A8ACFE6C4 /* Roboto-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 00F56256048C4075AFE22764 /* Roboto-Black.ttf */; };
-		D7CADCDE99E8435981A9C036 /* libReactNativePermissions.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9280753CC4EC40E2A60F5778 /* libReactNativePermissions.a */; };
 		D8548018CDDA4550878FAF40 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9D53E3E501C44782AB6992E0 /* Feather.ttf */; };
 		D89F16A1713B49BFA5ED529F /* SFUIDisplay-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9CA527E9F1274CB081853603 /* SFUIDisplay-Bold.ttf */; };
 		E300C185BE9D4C53A5D45CEF /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A30E92ADF00C48C0BCD8F414 /* Zocial.ttf */; };
@@ -76,10 +77,15 @@
 		E8861205A39147E38D46DCAC /* FontAwesome5_Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 726230020893426480BA80A2 /* FontAwesome5_Regular.ttf */; };
 		ED297163215061F000B7C4FE /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED297162215061F000B7C4FE /* JavaScriptCore.framework */; };
 		ED2971652150620600B7C4FE /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED2971642150620600B7C4FE /* JavaScriptCore.framework */; };
-		EDE0BF60477448F9807096EB /* libRNCamera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1E27069B683401FAF958D37 /* libRNCamera.a */; };
 		F10281EF0DD647AD8660F0A2 /* icomoon.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E827DAC7E0FD44F9A31C9BDE /* icomoon.ttf */; };
 		F502AC53E234411188D78F37 /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B890A58D78F54D98B4349C89 /* MaterialIcons.ttf */; };
 		F86DC397C971443180A5B62B /* libRNVectorIcons-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13BB2BB2CBC54F6996EF707D /* libRNVectorIcons-tvOS.a */; };
+		4BD04309688A4EC1AC03A809 /* Montserrat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9CFBFC2D9FBC47DE83BB5FB2 /* Montserrat-Bold.ttf */; };
+		A93445B135614754BB85090E /* Montserrat-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C09E27A6D5754D969C376961 /* Montserrat-Light.ttf */; };
+		7F372219F464436793EBC4B1 /* Montserrat-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BE2DF32C8C7F4A4AA187D1D7 /* Montserrat-Medium.ttf */; };
+		59EE9B47206A4B22B4562973 /* Montserrat-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5BB192A03FB149F8BAE38D44 /* Montserrat-Regular.ttf */; };
+		31A13EBD8F894B36AA5CB494 /* Montserrat-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 031CA37381FB4B23AE5BD1EB /* Montserrat-SemiBold.ttf */; };
+		AF21E0112C8940BDB61FAEC8 /* Montserrat-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8BFBD75B1C06419783D1E4D4 /* Montserrat-Thin.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -194,6 +200,27 @@
 			proxyType = 2;
 			remoteGlobalIDString = 2D2A28881D9B049200D4039D;
 			remoteInfo = "RCTWebSocket-tvOS";
+		};
+		4FFDB5F22355C0CA00E17AD9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A77CED40A55941F7B049D20D /* ReactNativeFlurry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = ReactNativeFlurry;
+		};
+		4FFDB5F42355C0CA00E17AD9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A77CED40A55941F7B049D20D /* ReactNativeFlurry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BC79F54822C18FC9006BE0D5;
+			remoteInfo = ReactNativeFlurryWithMessaging;
+		};
+		4FFDB5F62355C0CA00E17AD9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A77CED40A55941F7B049D20D /* ReactNativeFlurry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BCBC947722934C97008720F2;
+			remoteInfo = ReactNativeFlurryTVOS;
 		};
 		5E9157321DD0AC6500FF2AA8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -334,20 +361,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 64AA15081EF7F30100718508;
 			remoteInfo = "BVLinearGradient-tvOS";
-		};
-		C47F39C3226628A1001888F0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D649AEA676C04D64BD1C5C71 /* RNCamera.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 4107012F1ACB723B00C6AA39;
-			remoteInfo = RNCamera;
-		};
-		C47F3A0922662981001888F0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = EF847B2CCB11474897B31ADB /* ReactNativePermissions.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 9D23B34F1C767B80008B4819;
-			remoteInfo = ReactNativePermissions;
 		};
 		C4EDC7B222674D5000B316E2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -529,6 +542,7 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = TrusteeWallet/main.m; sourceTree = "<group>"; };
 		13BB2BB2CBC54F6996EF707D /* libRNVectorIcons-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNVectorIcons-tvOS.a"; sourceTree = "<group>"; };
 		16AA8828E2198C21A1E2E5FE /* Pods-TrusteeWallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrusteeWallet.debug.xcconfig"; path = "Target Support Files/Pods-TrusteeWallet/Pods-TrusteeWallet.debug.xcconfig"; sourceTree = "<group>"; };
+		19E7D3C326BB4BFD854F47E5 /* libReactNativeFlurryTVOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libReactNativeFlurryTVOS.a; sourceTree = "<group>"; };
 		1A8F93293BB643A58CC85444 /* RNOS.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNOS.xcodeproj; path = "../node_modules/react-native-os/ios/RNOS.xcodeproj"; sourceTree = "<group>"; };
 		1FDBE481D3084D0BAD9681DC /* SQLite.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = SQLite.xcodeproj; path = "../node_modules/react-native-sqlite-storage/src/ios/SQLite.xcodeproj"; sourceTree = "<group>"; };
 		2164529BF18D484FA9A7DE30 /* libSQLite.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libSQLite.a; sourceTree = "<group>"; };
@@ -542,6 +556,7 @@
 		2D25E879295A4E6698F9253D /* RNFirebase.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFirebase.xcodeproj; path = "../node_modules/react-native-firebase/ios/RNFirebase.xcodeproj"; sourceTree = "<group>"; };
 		3ED1BA3A4C99441182E1EB74 /* libRNVectorIcons.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNVectorIcons.a; sourceTree = "<group>"; };
 		43D2DBF6677C476DB11759CB /* FontAwesome5_Solid.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Solid.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf"; sourceTree = "<group>"; };
+		49445A95E84E4BC799372CBF /* libReactNativeFlurry.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libReactNativeFlurry.a; sourceTree = "<group>"; };
 		4C7FFA9CD85143E9917BBE1A /* libUdpSockets.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libUdpSockets.a; sourceTree = "<group>"; };
 		54F7359A336F4ACB89AF9F37 /* libRCTOrientation.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTOrientation.a; sourceTree = "<group>"; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
@@ -566,6 +581,7 @@
 		A30E92ADF00C48C0BCD8F414 /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
 		A31F37D92E814AED82980503 /* TcpSockets.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = TcpSockets.xcodeproj; path = "../node_modules/react-native-tcp/ios/TcpSockets.xcodeproj"; sourceTree = "<group>"; };
 		A5E6683C81914835AFFA9A82 /* OCR A Std Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "OCR A Std Regular.ttf"; path = "../assets/fonts/OCR A Std Regular.ttf"; sourceTree = "<group>"; };
+		A77CED40A55941F7B049D20D /* ReactNativeFlurry.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = ReactNativeFlurry.xcodeproj; path = "../node_modules/react-native-flurry-sdk/ios/ReactNativeFlurry.xcodeproj"; sourceTree = "<group>"; };
 		AB3A80047D0F47B8D7DB3997 /* libPods-TrusteeWallet-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TrusteeWallet-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		B0F111415B6B45CFA7157D02 /* CREDC___.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "CREDC___.ttf"; path = "../assets/fonts/CREDC___.ttf"; sourceTree = "<group>"; };
@@ -584,7 +600,6 @@
 		CE59DEF614E441A08EB242FF /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
 		CEFEB8D222BA906E00FC9FC1 /* RNBlocksoftRandom.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNBlocksoftRandom.xcodeproj; path = "../crypto-native/react-native-blocksoft-random/ios/RNBlocksoftRandom.xcodeproj"; sourceTree = "<group>"; };
 		D4E0C35EB7CC4EEAA28C798D /* RNVectorIcons.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNVectorIcons.xcodeproj; path = "../node_modules/react-native-vector-icons/RNVectorIcons.xcodeproj"; sourceTree = "<group>"; };
-		D649AEA676C04D64BD1C5C71 /* RNCamera.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNCamera.xcodeproj; path = "../node_modules/react-native-camera/ios/RNCamera.xcodeproj"; sourceTree = "<group>"; };
 		D8403709C6464BC08921AABC /* libSajjadBlurOverlay.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libSajjadBlurOverlay.a; sourceTree = "<group>"; };
 		DEB0C30D260E7F709B90FA4D /* Pods-TrusteeWallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrusteeWallet.release.xcconfig"; path = "Target Support Files/Pods-TrusteeWallet/Pods-TrusteeWallet.release.xcconfig"; sourceTree = "<group>"; };
 		DEDFA9AFC2DC403691CF030C /* libRNRandomBytes-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNRandomBytes-tvOS.a"; sourceTree = "<group>"; };
@@ -596,9 +611,14 @@
 		ECD1FACDA5F740B0BB1653E5 /* OCRA-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "OCRA-Regular.ttf"; path = "../assets/fonts/OCRA-Regular.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
-		EF847B2CCB11474897B31ADB /* ReactNativePermissions.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = ReactNativePermissions.xcodeproj; path = "../node_modules/react-native-permissions/ios/ReactNativePermissions.xcodeproj"; sourceTree = "<group>"; };
 		F1E79B70098A489799B4B84B /* SanFran-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SanFran-Bold.ttf"; path = "../assets/fonts/SanFran-Bold.ttf"; sourceTree = "<group>"; };
 		F7FD46C726704211A35CF08D /* libRNOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNOS.a; sourceTree = "<group>"; };
+		9CFBFC2D9FBC47DE83BB5FB2 /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; name = "Montserrat-Bold.ttf"; path = "../assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		C09E27A6D5754D969C376961 /* Montserrat-Light.ttf */ = {isa = PBXFileReference; name = "Montserrat-Light.ttf"; path = "../assets/fonts/Montserrat-Light.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		BE2DF32C8C7F4A4AA187D1D7 /* Montserrat-Medium.ttf */ = {isa = PBXFileReference; name = "Montserrat-Medium.ttf"; path = "../assets/fonts/Montserrat-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		5BB192A03FB149F8BAE38D44 /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; name = "Montserrat-Regular.ttf"; path = "../assets/fonts/Montserrat-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		031CA37381FB4B23AE5BD1EB /* Montserrat-SemiBold.ttf */ = {isa = PBXFileReference; name = "Montserrat-SemiBold.ttf"; path = "../assets/fonts/Montserrat-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		8BFBD75B1C06419783D1E4D4 /* Montserrat-Thin.ttf */ = {isa = PBXFileReference; name = "Montserrat-Thin.ttf"; path = "../assets/fonts/Montserrat-Thin.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -634,13 +654,12 @@
 				BB521688584A4199B1BA0A66 /* libSQLite.a in Frameworks */,
 				375E6FDDC184427F8FB83FB7 /* libTcpSockets.a in Frameworks */,
 				A7531A4D659D4449960E7481 /* libUdpSockets.a in Frameworks */,
-				EDE0BF60477448F9807096EB /* libRNCamera.a in Frameworks */,
-				D7CADCDE99E8435981A9C036 /* libReactNativePermissions.a in Frameworks */,
 				5ABEF96930BF45319EEDBBE7 /* libRCTOrientation.a in Frameworks */,
 				904A7ACA76EF4DEC9310CF56 /* libRNVectorIcons.a in Frameworks */,
 				5461E8CECAF4DD363201EF61 /* libPods-TrusteeWallet.a in Frameworks */,
 				5307E1A19A964E4CACE4FCFA /* libRNExitApp.a in Frameworks */,
 				93487E8457F04FA6ACA8876D /* libSajjadBlurOverlay.a in Frameworks */,
+				485327C361D742A1918EBBF3 /* libReactNativeFlurry.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -658,6 +677,7 @@
 				2D02E4C81E0B4AEC006451C7 /* libRCTWebSocket-tvOS.a in Frameworks */,
 				E35B9FF332BD4349A4B2D79F /* libRNRandomBytes-tvOS.a in Frameworks */,
 				F86DC397C971443180A5B62B /* libRNVectorIcons-tvOS.a in Frameworks */,
+				A8C12F5A5FFB437EBA15111A /* libReactNativeFlurryTVOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -772,6 +792,16 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		4FFDB5ED2355C0CA00E17AD9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4FFDB5F32355C0CA00E17AD9 /* libReactNativeFlurry.a */,
+				4FFDB5F52355C0CA00E17AD9 /* libReactNativeFlurryWithMessaging.a */,
+				4FFDB5F72355C0CA00E17AD9 /* libReactNativeFlurryTVOS.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		5E91572E1DD0AC6500FF2AA8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -835,6 +865,12 @@
 				A5E6683C81914835AFFA9A82 /* OCR A Std Regular.ttf */,
 				ECD1FACDA5F740B0BB1653E5 /* OCRA-Regular.ttf */,
 				00F56256048C4075AFE22764 /* Roboto-Black.ttf */,
+				9CFBFC2D9FBC47DE83BB5FB2 /* Montserrat-Bold.ttf */,
+				C09E27A6D5754D969C376961 /* Montserrat-Light.ttf */,
+				BE2DF32C8C7F4A4AA187D1D7 /* Montserrat-Medium.ttf */,
+				5BB192A03FB149F8BAE38D44 /* Montserrat-Regular.ttf */,
+				031CA37381FB4B23AE5BD1EB /* Montserrat-SemiBold.ttf */,
+				8BFBD75B1C06419783D1E4D4 /* Montserrat-Thin.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -870,13 +906,12 @@
 				1FDBE481D3084D0BAD9681DC /* SQLite.xcodeproj */,
 				A31F37D92E814AED82980503 /* TcpSockets.xcodeproj */,
 				66399C129D1B4235B61E7375 /* UdpSockets.xcodeproj */,
-				D649AEA676C04D64BD1C5C71 /* RNCamera.xcodeproj */,
-				EF847B2CCB11474897B31ADB /* ReactNativePermissions.xcodeproj */,
 				96C32D8D80EB455AB0C2CE33 /* RCTOrientation.xcodeproj */,
 				D4E0C35EB7CC4EEAA28C798D /* RNVectorIcons.xcodeproj */,
 				2D25E879295A4E6698F9253D /* RNFirebase.xcodeproj */,
 				CE41650D10CE49349F7DC898 /* RNExitApp.xcodeproj */,
 				2B75397F3FD44683A3FCA8A2 /* SajjadBlurOverlay.xcodeproj */,
+				A77CED40A55941F7B049D20D /* ReactNativeFlurry.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -956,6 +991,8 @@
 				00929A282FA645198B38B92E /* libRNFirebase.a */,
 				753F2ED1E5CC447192614552 /* libRNExitApp.a */,
 				D8403709C6464BC08921AABC /* libSajjadBlurOverlay.a */,
+				49445A95E84E4BC799372CBF /* libReactNativeFlurry.a */,
+				19E7D3C326BB4BFD854F47E5 /* libReactNativeFlurryTVOS.a */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -1024,22 +1061,6 @@
 			children = (
 				C47F397D2266019F001888F0 /* libBVLinearGradient.a */,
 				C47F397F2266019F001888F0 /* libBVLinearGradient.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		C47F39C0226628A1001888F0 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				C47F39C4226628A1001888F0 /* libRNCamera.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		C47F3A0622662981001888F0 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				C47F3A0A22662981001888F0 /* libReactNativePermissions.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1283,16 +1304,12 @@
 					ProjectRef = C4F41421226DFD3100C06E09 /* React.xcodeproj */;
 				},
 				{
-					ProductGroup = C47F3A0622662981001888F0 /* Products */;
-					ProjectRef = EF847B2CCB11474897B31ADB /* ReactNativePermissions.xcodeproj */;
+					ProductGroup = 4FFDB5ED2355C0CA00E17AD9 /* Products */;
+					ProjectRef = A77CED40A55941F7B049D20D /* ReactNativeFlurry.xcodeproj */;
 				},
 				{
 					ProductGroup = CEFEB8D322BA906E00FC9FC1 /* Products */;
 					ProjectRef = CEFEB8D222BA906E00FC9FC1 /* RNBlocksoftRandom.xcodeproj */;
-				},
-				{
-					ProductGroup = C47F39C0226628A1001888F0 /* Products */;
-					ProjectRef = D649AEA676C04D64BD1C5C71 /* RNCamera.xcodeproj */;
 				},
 				{
 					ProductGroup = 7292F0B922F23BD700253142 /* Products */;
@@ -1444,6 +1461,27 @@
 			remoteRef = 3DAD3E981DF850E9000B6D8A /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		4FFDB5F32355C0CA00E17AD9 /* libReactNativeFlurry.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libReactNativeFlurry.a;
+			remoteRef = 4FFDB5F22355C0CA00E17AD9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4FFDB5F52355C0CA00E17AD9 /* libReactNativeFlurryWithMessaging.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libReactNativeFlurryWithMessaging.a;
+			remoteRef = 4FFDB5F42355C0CA00E17AD9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4FFDB5F72355C0CA00E17AD9 /* libReactNativeFlurryTVOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libReactNativeFlurryTVOS.a;
+			remoteRef = 4FFDB5F62355C0CA00E17AD9 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1582,20 +1620,6 @@
 			fileType = archive.ar;
 			path = libBVLinearGradient.a;
 			remoteRef = C47F397E2266019F001888F0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		C47F39C4226628A1001888F0 /* libRNCamera.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRNCamera.a;
-			remoteRef = C47F39C3226628A1001888F0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		C47F3A0A22662981001888F0 /* libReactNativePermissions.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libReactNativePermissions.a;
-			remoteRef = C47F3A0922662981001888F0 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		C4EDC7B322674D5000B316E2 /* libRCTOrientation.a */ = {
@@ -1780,6 +1804,12 @@
 				C84592EA795F4BB1A1BABE86 /* OCR A Std Regular.ttf in Resources */,
 				20DC486FF3524132BDF81ABE /* OCRA-Regular.ttf in Resources */,
 				D65573DAF894456A8ACFE6C4 /* Roboto-Black.ttf in Resources */,
+				4BD04309688A4EC1AC03A809 /* Montserrat-Bold.ttf in Resources */,
+				A93445B135614754BB85090E /* Montserrat-Light.ttf in Resources */,
+				7F372219F464436793EBC4B1 /* Montserrat-Medium.ttf in Resources */,
+				59EE9B47206A4B22B4562973 /* Montserrat-Regular.ttf in Resources */,
+				31A13EBD8F894B36AA5CB494 /* Montserrat-SemiBold.ttf in Resources */,
+				AF21E0112C8940BDB61FAEC8 /* Montserrat-Thin.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1964,12 +1994,16 @@
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-firebaseiosRNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-blur-overlayios",
+					"$(SRCROOT)..\node_modules\neact-native-flurry-sdkiosReactNativeFlurry",
 				);
 				INFOPLIST_FILE = TrusteeWalletTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2020,12 +2054,16 @@
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-firebaseiosRNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-blur-overlayios",
+					"$(SRCROOT)..\node_modules\neact-native-flurry-sdkiosReactNativeFlurry",
 				);
 				INFOPLIST_FILE = TrusteeWalletTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2086,6 +2124,7 @@
 					"$(SRCROOT)/../node_modules/react-native/Libraries/Image",
 					"$(SRCROOT)..\node_modules\neact-native-firebaseiosRNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-blur-overlayios",
+					"$(SRCROOT)..\node_modules\neact-native-flurry-sdkiosReactNativeFlurry",
 				);
 				INFOPLIST_FILE = TrusteeWallet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -2094,7 +2133,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.trustee.demo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trusteewallet;
 				PRODUCT_NAME = TrusteeWallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -2137,6 +2176,7 @@
 					"$(SRCROOT)/../node_modules/react-native/Libraries/Image",
 					"$(SRCROOT)..\node_modules\neact-native-firebaseiosRNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-blur-overlayios",
+					"$(SRCROOT)..\node_modules\neact-native-flurry-sdkiosReactNativeFlurry",
 				);
 				INFOPLIST_FILE = TrusteeWallet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -2145,7 +2185,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.trustee.demo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trusteewallet;
 				PRODUCT_NAME = TrusteeWallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -2183,11 +2223,15 @@
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-firebaseiosRNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-blur-overlayios",
+					"$(SRCROOT)..\node_modules\neact-native-flurry-sdkiosReactNativeFlurry",
 				);
 				INFOPLIST_FILE = "TrusteeWallet-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2247,11 +2291,15 @@
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-firebaseiosRNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-blur-overlayios",
+					"$(SRCROOT)..\node_modules\neact-native-flurry-sdkiosReactNativeFlurry",
 				);
 				INFOPLIST_FILE = "TrusteeWallet-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2310,11 +2358,15 @@
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-firebaseiosRNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-blur-overlayios",
+					"$(SRCROOT)..\node_modules\neact-native-flurry-sdkiosReactNativeFlurry",
 				);
 				INFOPLIST_FILE = "TrusteeWallet-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2373,11 +2425,15 @@
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-firebaseiosRNFirebase/**",
 					"$(SRCROOT)..\node_modules\neact-native-blur-overlayios",
+					"$(SRCROOT)..\node_modules\neact-native-flurry-sdkiosReactNativeFlurry",
 				);
 				INFOPLIST_FILE = "TrusteeWallet-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",

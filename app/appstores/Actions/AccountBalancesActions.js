@@ -19,7 +19,7 @@ export default {
             } = account
 
             prepare.push({
-                balance: 0,
+                balance_fix: 0,
                 balance_scan_time: 0,
                 status: 0,
                 currency_code,

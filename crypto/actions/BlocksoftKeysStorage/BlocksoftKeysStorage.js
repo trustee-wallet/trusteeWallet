@@ -42,7 +42,7 @@ export class BlocksoftKeysStorage {
      */
     publicSelectedWallet = ''
 
-    constructor(_serviceName = 'BlocksoftKeys'){
+    constructor(_serviceName = 'BlocksoftKeysStorage3'){
         this._serviceName = _serviceName
     }
     /**
@@ -64,6 +64,31 @@ export class BlocksoftKeysStorage {
         if (!res) return false
         return { 'pub': res.username, 'priv': res.password }
     }
+
+    // /**
+    //  * @return {Promise<*>}
+    //  * @public
+    //  */
+    // async getKeychainData() {
+    //
+    //     let serversArray = [
+    //         'wallets_counter',
+    //         'selected_hash'
+    //     ]
+    //
+    //     let count = await this._getKeyValue('wallets_counter')
+    //
+    //     this._serviceWalletsCounter = count && count.priv ? count.priv * 1 : 0
+    //     if (this._serviceWalletsCounter > 0) {
+    //         for (let i = 1; i <= this._serviceWalletsCounter; i++) {
+    //             serversArray.push('wallet_' + i)
+    //         }
+    //     }
+    //
+    //     for(let i = 0; i < serversArray.length; i++){
+    //         await Keychain.getInternalCredential(this._serviceName + '_' + serversArray[i])
+    //     }
+    // }
 
     /**
      * @param {string} key
@@ -202,7 +227,7 @@ export class BlocksoftKeysStorage {
     async saveMnemonic(newMnemonic) {
         await this._init()
 
-        let logData = JSON.parse(JSON.stringify(newMnemonic))
+        let logData = {...newMnemonic}
         if (typeof logData.mnemonic !== 'undefined') logData.mnemonic = '***'
         BlocksoftCryptoLog.log('BlocksoftKeysStorage saveMnemonic', logData)
 
@@ -211,8 +236,6 @@ export class BlocksoftKeysStorage {
         }
         if (this._serviceWallets[newMnemonic.hash]) {
             if (this._serviceWallets[newMnemonic.hash] !== newMnemonic.mnemonic) {
-                console.log(newMnemonic.mnemonic)
-                console.log(this._serviceWallets[newMnemonic.hash])
                 throw new Error('something wrong with hash algorithm')
             }
             return newMnemonic.hash // its ok
@@ -220,6 +243,18 @@ export class BlocksoftKeysStorage {
         this._serviceWalletsCounter++
 
         let unique = newMnemonic.hash
+
+        /*
+        hash should give unique values for different mnemonics
+        let i = 0
+        while (this._serviceWallets[unique]) {
+            unique = newMnemonic.hash + '_' + i
+            i++
+            if (i > 1000) {
+                throw new Error('unique hash is not reachable for ' + newMnemonic.hash)
+            }
+        }
+        */
 
         await this._setKeyValue('wallet_' + this._serviceWalletsCounter, unique, newMnemonic.mnemonic)
         await this._setKeyValue('wallets_counter', this._serviceWalletsCounter)
@@ -230,6 +265,30 @@ export class BlocksoftKeysStorage {
         this.publicSelectedWallet = unique
 
         return newMnemonic.hash
+    }
+
+    getAddressCacheKey(walletHash, discoverPath, currencyCode) {
+        return walletHash + '_' + discoverPath + '_' + currencyCode
+    }
+
+    async getAddressCache(hashOrId) {
+        let res = await this._getKeyValue('ar4_' + hashOrId)
+        if (!res) return false
+        return {address : res.pub, privateKey : res.priv}
+    }
+
+    async setAddressCache(hashOrId, res) {
+        return this._setKeyValue('ar4_' + hashOrId, res.address, res.privateKey)
+    }
+
+    async getLoginCache(hashOrId) {
+        let res = await this._getKeyValue('login_' + hashOrId)
+        if (!res) return false
+        return {login : res.pub, pass : res.priv}
+    }
+
+    async setLoginCache(hashOrId, res) {
+        return this._setKeyValue('login_' + hashOrId, res.login, res.pass)
     }
 
 }

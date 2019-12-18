@@ -1,18 +1,11 @@
-import { createStackNavigator } from 'react-navigation'
+import { createStackNavigator } from 'react-navigation-stack'
 
-import SMSCodeScreen from '../modules/Exchange/SMSCodeScreen'
 import MainDataScreen from '../modules/Exchange/MainDataScreen'
-import InitialScreen from '../modules/Exchange/InitialScreen'
+import ConfirmScreen from '../modules/Exchange/ConfirmScreen'
+import FinishScreen from '../modules/Exchange/FinishScreen'
 
-const ExchangeScreenStack = createStackNavigator(
+const exchangeScreenStack = createStackNavigator(
     {
-        SMSCodeScreen: {
-            screen: SMSCodeScreen,
-            navigationOptions: {
-                header: null
-            }
-        },
-
         MainDataScreen: {
             screen: MainDataScreen,
             navigationOptions: {
@@ -20,16 +13,23 @@ const ExchangeScreenStack = createStackNavigator(
             }
         },
 
-        // InitialScreen: {
-        //     screen: InitialScreen,
-        //     navigationOptions: {
-        //         header: null
-        //     }
-        // }
+        ConfirmScreen: {
+            screen: ConfirmScreen,
+            navigationOptions: {
+                header: null
+            }
+        },
+
+        FinishScreen: {
+            screen: FinishScreen,
+            navigationOptions: {
+                header: null
+            }
+        }
     },
     {
         initialRouteName: 'MainDataScreen',
     }
 )
 
-export default ExchangeScreenStack
+export default exchangeScreenStack

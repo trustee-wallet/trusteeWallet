@@ -12,7 +12,7 @@ class BlocksoftTransaction {
      */
     _processor = {}
     /**
-     * @type {{privateKey, addressFrom, addressTo, amount, feeForTx, currencyCode, addressForChange, replacingTransaction, nSequence}}
+     * @type {{privateKey, addressFrom, addressTo, amount, feeForTx, currencyCode, addressForChange, replacingTransaction, nSequence, jsonData}}
      * @private
      */
     _data = {}
@@ -50,7 +50,7 @@ class BlocksoftTransaction {
      * @return {BlocksoftTransaction}
      */
     setDerivePath(derivePath) {
-        this._private.derivePath = derivePath
+        this._private.derivePath = derivePath.replace(/quote/g, '\'')
         return this
     }
 
@@ -69,15 +69,19 @@ class BlocksoftTransaction {
         }
 
         let discoverFor = {mnemonic, path : this._private.derivePath, currencyCode : this._data.currencyCode}
-        let discoverForKey = discoverFor.mnemonic + '_' + discoverFor.path + '_' + discoverFor.currencyCode
+        let discoverForKey = BlocksoftKeysStorage.getAddressCacheKey(this._private.walletHash, discoverFor.path.replace(/[']/g, "quote"), discoverFor.currencyCode)
 
         let result = this._privateCache[discoverForKey]
         if (!result) {
-            result = await BlocksoftKeys.discoverOne(discoverFor)
-            if (result.address !== this._data.addressFrom) {
-                throw new Error('private key is not for address you set ' + result.address + '!=' + this._data.addressFrom)
+            result = await BlocksoftKeysStorage.getAddressCache(discoverForKey)
+            if (!result) {
+                result = await BlocksoftKeys.discoverOne(discoverFor)
+                BlocksoftKeysStorage.setAddressCache(discoverForKey, result)
             }
             this._privateCache[discoverForKey] = result
+        }
+        if (result.address !== this._data.addressFrom) {
+            throw new Error('private key is not for address you set ' + result.address + '!=' + this._data.addressFrom + ' discover=' + JSON.stringify(discoverFor) + ' this._data=' + JSON.stringify(this._logData))
         }
 
         this._data.privateKey = result.privateKey
@@ -117,7 +121,6 @@ class BlocksoftTransaction {
         return this
     }
 
-
     /**
      * @param {boolean} onOrOff
      * @return {BlocksoftTransaction}
@@ -151,6 +154,15 @@ class BlocksoftTransaction {
              */
             this._processor[currencyCode] = Dispatcher.getTxProcessor(currencyCode)
         }
+        return this
+    }
+
+    /**
+     * @param jsonData
+     * @return {BlocksoftTransaction}
+     */
+    setAdditional(jsonData) {
+        this._data.jsonData = jsonData
         return this
     }
 
@@ -213,13 +225,15 @@ class BlocksoftTransaction {
         }
         let res = ''
         try {
-            BlocksoftCryptoLog.log(`BlocksoftTransaction.getNetworkPrices ${currencyCode} started`, this._logData)
+            BlocksoftCryptoLog.log(`BlocksoftTransaction.getNetworkPrices ${currencyCode} started`, JSON.stringify(this._logData))
             res = await this._processor[currencyCode].getNetworkPrices(this._data)
-            BlocksoftCryptoLog.log(`BlocksoftTransaction.getNetworkPrices ${currencyCode} finished`, res)
+            BlocksoftCryptoLog.log(`BlocksoftTransaction.getNetworkPrices ${currencyCode} finished`, JSON.stringify(res))
         } catch (e) {
             e.message = `BlocksoftTransaction.getNetworkPrices ${currencyCode} error ` + e.message
             // noinspection ES6MissingAwait
-            BlocksoftCryptoLog.err(`BlocksoftTransaction.getNetworkPrices ${currencyCode}`, e)
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                BlocksoftCryptoLog.err(`BlocksoftTransaction.getNetworkPrices ${currencyCode} ` + e.message)
+            }
             if (e.code && e.code === 'ERROR_USER') {
                 throw e
             } else {
@@ -247,7 +261,9 @@ class BlocksoftTransaction {
             BlocksoftCryptoLog.log(`BlocksoftTransaction.getFeeRate ${currencyCode} finished`, res)
         } catch (e) {
             // noinspection ES6MissingAwait
-            BlocksoftCryptoLog.err(`BlocksoftTransaction.getFeeRate ${currencyCode}`, e)
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                BlocksoftCryptoLog.err(`BlocksoftTransaction.getFeeRate ${currencyCode}` + ' ' + e.message)
+            }
             if (e.code && e.code === 'ERROR_USER') {
                 throw e
             } else {
@@ -275,9 +291,9 @@ class BlocksoftTransaction {
             res = await this._processor[currencyCode].sendTx(this._data)
             BlocksoftCryptoLog.log(`BlocksoftTransaction.sendTx ${currencyCode} finished`, res)
         } catch (e) {
-            // noinspection ES6MissingAwait
-            BlocksoftCryptoLog.err(`BlocksoftTransaction.sendTx ${currencyCode} error ` + e.message, e.data ? e.data : e)
-            e.message = 'server.not.responding.while.send.tx.' + currencyCode + ' ' + e.message
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                BlocksoftCryptoLog.err(`BlocksoftTransaction.sendTx ${currencyCode} error ` + e.message, e.data ? e.data : e)
+            }
             throw e
         }
 

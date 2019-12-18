@@ -8,10 +8,10 @@ import api from '../../api'
 
 class UpdateExchangeOrders extends Update {
 
-
     constructor(props) {
         super(props)
         this.updateFunction = this.updateExchangeOrders
+        this.tryCounter = 0
     }
 
 
@@ -26,32 +26,36 @@ class UpdateExchangeOrders extends Update {
         try {
             const res = await api.getExchangeOrders()
 
-            if(res.data.state === 'success'){
-                const { buy, sell } = res.data.data
+            //console.log('updateExchangeOrders')
+            //console.log(res)
 
-                MarketingEvent.checkBuyResults(buy)
+            let exchangeOrders = res.data
+
+            if ( exchangeOrders) {
+
                 //INFO: prepare orders
 
-                const tmpBuyOrders = buy.map(obj => ({ ...obj, type: 'BUY' }))
-
-                const tmpSellOrders = sell.map(obj => ({ ...obj, type: 'SELL' }))
-
-                let exchangeOrders = tmpBuyOrders.concat(tmpSellOrders)
-
                 exchangeOrders = exchangeOrders.sort((a, b) => b.createdAt - a.createdAt)
+
+                const toMarketingEvent = exchangeOrders.filter(item => item.exchangeWayType === 'BUY')
+
+                MarketingEvent.checkBuyResults(toMarketingEvent)
 
                 this.updateEventHandler(exchangeOrders)
 
                 Log.daemon('DMN/UpdateExchangeOrders success')
 
-            } else {
-                Log.errDaemon('DMN/UpdateExchangeOrders error with data ', res.data)
+                this.tryCounter = 0
             }
+
         } catch (e) {
-            if (e.message !== 'No cashbackToken') {
-                Log.errDaemon('DMN/UpdateExchangeOrders error ', e.message)
+            if (Log.isNetworkError(e.message) && this.tryCounter < 10) {
+                this.tryCounter++
+                Log.daemon('DMN/UpdateExchangeOrders network try ' + this.tryCounter + ' ' + e.message)
+            } else if (e.message !== 'No cashbackToken') {
+                Log.errDaemon('DMN/UpdateExchangeOrders error ' + e.message)
             } else {
-                Log.daemon('DMN/UpdateExchangeOrders notice ', e.message)
+                Log.daemon('DMN/UpdateExchangeOrders notice ' + e.message)
             }
         }
     }

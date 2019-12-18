@@ -10,6 +10,7 @@
 import { strings } from '../i18n'
 import BlocksoftKeys from '../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
 import Console from '../../services/Log/Log'
+import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 
 const networksConstants = require('../../../crypto/common/ext/networks-constants')
 
@@ -21,6 +22,7 @@ async function _userDataValidation(obj) {
 
     const id = obj.id
     const type = obj.type
+    const subtype = obj.subtype
     const optional = typeof obj.optional !== 'undefined'
     const name = (typeof obj.name === 'undefined') ? obj.id : obj.name
 
@@ -64,9 +66,17 @@ async function _userDataValidation(obj) {
             break
 
         case 'EXPIRATION_DATE':
+            const mm = value.split('/')[0]
+            const yy = value.split('/')[1]
+
+            let tmpYY = ((new Date().getFullYear()).toString()).substr(1)
+            tmpYY = tmpYY.substr(1)
+
             if (!value)
                 error.msg = strings('validator.empty', { name: name })
             else if (!/^\d{2}\/\d{2}$/g.test(value))
+                error.msg = strings('validator.invalidFormat', { name: name })
+            else if(mm > 12 || yy < tmpYY)
                 error.msg = strings('validator.invalidFormat', { name: name })
             break
 
@@ -98,6 +108,14 @@ async function _userDataValidation(obj) {
             }
             break
 
+        case 'TRX_ADDRESS':
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else if (!/^T[0-9a-zA-Z]{33}$/.test(value)) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
         case 'ETH_ADDRESS':
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
@@ -106,20 +124,22 @@ async function _userDataValidation(obj) {
             }
             break
 
-        // @todo later add other bitcoin like networks as param
-        case 'LTC_ADDRESS':
-        case 'LITECOIN_ADDRESS':
+        // unified LTC XVG DOGE
+        case 'BTC_BY_NETWORK_ADDRESS':
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else {
+                if (typeof networksConstants[subtype].network === 'undefined') {
+                    Log.err('validator not found network for' + subtype)
+                }
                 try {
-                    let output = bitcoin.address.toOutputScript(value, networksConstants.LTC)
+                    let output = bitcoin.address.toOutputScript(value, networksConstants[subtype].network)
                 } catch (e) {
                     error.msg = strings('validator.invalidFormat', { name: name })
                 }
             }
             break
-
+        // actually could be unified to prev ones (as its the same)
         case 'BTC_ADDRESS':
         case 'BITCOIN_ADDRESS':
             if (!value) {
@@ -140,7 +160,7 @@ async function _userDataValidation(obj) {
                 try {
                     let output = bitcoin.address.toOutputScript(value, network)
                 } catch (e) {
-                    error.msg = type //strings('validator.invalidFormat', { name: name })
+                    error.msg = strings('validator.invalidFormat', { name: name })
                 }
             }
             break
@@ -180,7 +200,7 @@ async function _userDataValidation(obj) {
             }
             break
 
-        case 'UNDEFINED':
+        case 'UNEFINED':
             if (typeof value === 'undefined') {
                 error.msg = strings('validator.empty', { name: name })
             }
@@ -231,12 +251,14 @@ async function _validateMnemonic(obj) {
     const mnemonicLength = words.length;
 
     let i = 0
+    let wordsString = ''
     if (obj.mnemonic[obj.mnemonic.length - 1] === " ") {
         i = -1 //last word is spaced so will be checked
     }
     let lastError = false
     for(let word of words) {
         let index = DEFAULT_WORDS.indexOf(word)
+        wordsString += word + ' '
         i++
         if (i === mnemonicLength) {
             //last word
@@ -246,7 +268,6 @@ async function _validateMnemonic(obj) {
         } else if (index === -1) {
             return {msg : `Word ${word} is invalid`, word}
         }
-
     }
 
     if (mnemonicLength <= 11) {
@@ -258,16 +279,18 @@ async function _validateMnemonic(obj) {
     if (mnemonicLength % 3 != 0) {
         return {msg : `Unexpected mnemonic phrase words amount ${mnemonicLength}`, mnemonicLength}
     }
+
     if (lastError) {
         return lastError
     }
 
-
-    // try {
-    //     await BlocksoftKeys.validateMnemonic({mnemonic : obj.mnemonic})
-    // } catch (e) {
-    //     return e.message
-    // }
+    wordsString = wordsString.trim()
+    try {
+        await BlocksoftKeys.validateMnemonic(wordsString)
+    } catch (e) {
+         return e.message
+    }
+    obj.mnemonic = wordsString
 
     return ''
 }

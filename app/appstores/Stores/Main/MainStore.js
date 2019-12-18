@@ -40,6 +40,11 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 init: action.init
             });
+        case 'SET_INIT_ERROR':
+            return new Object({
+                ...state,
+                initError: action.initError
+            });
         case 'SET_CURRENCIES':
             return new Object({
                 ...state,

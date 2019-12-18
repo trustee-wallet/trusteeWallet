@@ -26,7 +26,7 @@ const settingsActions = {
 
             Log.log('ACT/Settings getSettings finished')
         } catch (e) {
-            Log.err('ACT/Settings getSettings error', e)
+            Log.err('ACT/Settings getSettings error ' + e.message)
         }
     },
 
@@ -45,7 +45,7 @@ const settingsActions = {
 
             Log.log('ACT/Settings setSettings finished')
         } catch (e) {
-            Log.err('ACT/Settings setSettings error', e)
+            Log.err('ACT/Settings setSettings error ' + e.message)
         }
     }
 }

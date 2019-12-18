@@ -29,3 +29,10 @@ export const setFlowType = (data) => {
         flowType: data.flowType
     })
 };
+
+export const setCallback = (data) => {
+    dispatch({
+        type: 'SET_CALLBACK',
+        callback: data.callback
+    })
+};

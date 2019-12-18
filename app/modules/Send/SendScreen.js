@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import {
     View,
     ScrollView,
-    Dimensions,
+    Keyboard,
     Text
 } from 'react-native'
 
@@ -21,6 +21,7 @@ import GradientView from '../../components/elements/GradientView'
 import Button from '../../components/elements/Button'
 import NavStore from '../../components/navigation/NavStore'
 
+import accountDS from '../../appstores/DataSource/Account/Account'
 import { setQRConfig, setQRValue } from '../../appstores/Actions/QRCodeScannerActions'
 import { setLoaderStatus } from '../../appstores/Actions/MainStoreActions'
 import { showModal } from '../../appstores/Actions/ModalActions'
@@ -37,7 +38,12 @@ import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FiatRatesActions from '../../appstores/Actions/FiatRatesActions'
 
-const { height: WINDOW_HEIGHT } = Dimensions.get('window')
+import Theme from '../../themes/Themes'
+import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
+import BlocksoftInvoice from '../../../crypto/actions/BlocksoftInvoice/BlocksoftInvoice'
+
+let styles
 
 const addressInput = {
     id: 'address',
@@ -50,6 +56,7 @@ const amountInput = {
     additional: 'NUMBER',
     mark: 'ETH'
 }
+
 
 class SendScreen extends Component {
 
@@ -82,60 +89,73 @@ class SendScreen extends Component {
     }
 
     componentWillMount() {
+
+        styles = Theme.getStyles().sendScreenStyles
+
+        this.init()
+
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-
-            if (Object.keys(this.props.send.data).length != 0) {
-                const {
-                    sendType,
-                    disabled,
-                    account,
-                    address,
-                    value,
-                    cryptocurrency,
-                    description,
-                    useAllFunds
-                } = this.props.send.data;
-
-                (BlocksoftTransaction.setCurrencyCode(account.currency_code)).getNetworkPrices()
-
-                this.setState({
-                    disabled,
-                    account,
-                    cryptocurrency,
-                    description,
-                    useAllFunds,
-                    init: true
-                }, () => {
-                    this.addressInput.handleInput(address)
-                    this.valueInput.handleInput(value)
-                    this.amountInputCallback(value === '' ? this.valueInput.getValue() : value)
-
-                    if(sendType == 'REPLACE_TRANSACTION'){
-                        setTimeout(() => {
-                            this.handleSendTransaction()
-                        }, 500)
-
-                    }
-
-                    this.setState({
-                        useAllFunds
-                    })
-                })
-            } else {
-                const { account, cryptocurrency } = this.props
-
-                this.setState({
-                    account,
-                    cryptocurrency,
-                    init: true,
-                    description: strings('send.description')
-                }, () => {
-                    this.amountInputCallback()
-                });
-
-                (BlocksoftTransaction.setCurrencyCode(account.currency_code)).getNetworkPrices()
-            }
+            this.init()
         })
+    }
+
+    init = () => {
+        if (Object.keys(this.props.send.data).length != 0) {
+            const {
+                sendType,
+                disabled,
+                account,
+                address,
+                value,
+                cryptocurrency,
+                description,
+                useAllFunds
+            } = this.props.send.data;
+
+            this.transactionPrices(account)
+
+            this.setState({
+                disabled,
+                account,
+                cryptocurrency,
+                description,
+                useAllFunds,
+                init: true
+            }, () => {
+                this.addressInput.handleInput(address)
+                this.valueInput.handleInput(value)
+                this.amountInputCallback(value === '' ? this.valueInput.getValue() : value)
+
+                if(sendType == 'REPLACE_TRANSACTION'){
+                    setTimeout(() => {
+                        this.handleSendTransaction()
+                    }, 500)
+
+                }
+
+                this.setState({
+                    useAllFunds
+                })
+
+            })
+        } else {
+            const { account, cryptocurrency } = this.props
+
+            this.setState({
+                account,
+                cryptocurrency,
+                init: true,
+                description: strings('send.description')
+            }, () => {
+                this.amountInputCallback()
+            });
+
+            this.transactionPrices(account)
+        }
+    }
+
+    transactionPrices = (account) => {
+        (BlocksoftTransaction.setWalletHash(account.wallet_hash).setAddressFrom(account.address).setDerivePath(account.derivation_path).setCurrencyCode(account.currency_code)).getNetworkPrices()
     }
 
     handleChangeEquivalentType = () => {
@@ -183,7 +203,9 @@ class SendScreen extends Component {
         const derivationPathTmp = derivationPath.replace(/quote/g, '\'')
         try {
 
-            const balanceRaw = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address)).getBalance()
+            const tmp = await BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).getBalance()
+            const balanceRaw = BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) // to think show this as option or no
+            Log.log(`SendScreen.handleTransferAll balance ${currencyCode} ${address} data`, tmp)
 
             const addressToForTransferAll = (BlocksoftBalances.setCurrencyCode(currencyCode)).getAddressToForTransferAll(address)
 
@@ -201,16 +223,30 @@ class SendScreen extends Component {
             let current = false
 
             // try fast
-            let currentFee = fees[2].feeForTx
+            let currentFee = fees ? fees[2].feeForTx : 0
             try {
-                current = await (
-                    BlocksoftBalances
-                        .setCurrencyCode(currencyCode)
-                        .setAddress(address)
-                        .setFee(fees[2].feeForTx)
-                ).getTransferAllBalance(balanceRaw)
+                try {
+                    current = await (
+                        BlocksoftBalances
+                            .setCurrencyCode(currencyCode)
+                            .setAddress(address)
+                            .setFee(currentFee)
+                    ).getTransferAllBalance(balanceRaw)
+                } catch (e) {
+                    if (typeof e.code != 'undefined' && e.code === 'ERROR_BALANCE_MINUS_FEE' && fees) {
+                        currentFee = fees[0].feeForTx
+                        current = await (
+                            BlocksoftBalances
+                                .setCurrencyCode(currencyCode)
+                                .setAddress(address)
+                                .setFee(currentFee)
+                        ).getTransferAllBalance(balanceRaw)
+                    } else {
+                        throw e
+                    }
+                }
             } catch (e) {
-                if (typeof e.code != 'undefined' && e.code === 'ERROR_BALANCE') {
+                if (typeof e.code != 'undefined' && e.code === 'ERROR_BALANCE' && fees) {
                     current = false
                 } else {
                     throw e
@@ -263,7 +299,11 @@ class SendScreen extends Component {
             this.amountInputCallback((1 * amount).toString(), false)
 
         } catch (e) {
-            Log.err('Send.SendScreen.handleTransferAll', e)
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                Log.err('Send.SendScreen.handleTransferAll error ' + e.message)
+            } else {
+                e.message = strings('send.errors.' + e.message)
+            }
 
             showModal({
                 type: 'INFO_MODAL',
@@ -288,10 +328,37 @@ class SendScreen extends Component {
         const addressValidation = await this.addressInput.handleValidate()
         const valueValidation = await this.valueInput.handleValidate()
         const wallet = this.props.wallet
+        const extend = BlocksoftDict.getCurrencyAllSettings(cryptocurrency.currencyCode)
 
-        Log.log(addressValidation)
+        Log.log('addressValidation', addressValidation)
+        Log.log('valueValidation', valueValidation)
 
         if (addressValidation.status == 'success' && valueValidation.status == 'success' && valueValidation.value != 0) {
+
+            Keyboard.dismiss()
+
+            const enoughFunds = {
+                isAvailable: true,
+                messages: []
+            }
+
+            let parentBalance = await accountDS.getAccountData(wallet.wallet_hash, extend.addressCurrencyCode)
+
+            if(parentBalance.array.length && !parentBalance.array[0].balance_fix){
+                enoughFunds.isAvailable = false
+                const msg = strings('send.notEnoughForFee', { symbol: extend.addressCurrencyCode })
+                enoughFunds.messages.push(msg)
+            }
+
+            if(account.balance_fix == 0){
+                enoughFunds.isAvailable = false
+                enoughFunds.messages.push(strings('send.notEnough'))
+            }
+
+            if(enoughFunds.messages.length) {
+                this.setState({ enoughFunds })
+                return
+            }
 
             setLoaderStatus(true)
 
@@ -301,14 +368,25 @@ class SendScreen extends Component {
 
                 const amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(cryptocurrency.currencyCode).makeUnPrettie(amount)
 
-                const balanceRaw = await BlocksoftBalances.setCurrencyCode(account.currency_code).setAddress(account.address).getBalance()
+                let balanceRaw = amountRaw * 2
+                try {
+                    let tmp = await BlocksoftBalances.setCurrencyCode(account.currency_code).setAddress(account.address).getBalance()
+                    balanceRaw = BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) // to think show this as option or no
+                    Log.log(`SendScreen.handleSendTransaction balance ${account.currency_code} ${account.address} data`, tmp)
+                } catch (e) {
+                    if (e.message === 'node.is.out') {
+                        // show something in the state
+                    } else {
+                        throw e // node out of sync shouldnt break the flow
+                    }
+                }
                 const balance = await BlocksoftPrettyNumbers.setCurrencyCode(cryptocurrency.currencyCode).makePrettie(balanceRaw)
 
-                const mainAddressBalanceRaw = typeof cryptocurrency.feesCurrencyCode != 'undefined' ? await BlocksoftBalances.setCurrencyCode(cryptocurrency.feesCurrencyCode).setAddress(account.address).getBalance() : null
-
-                const enoughFunds = {
-                    isAvailable: true,
-                    messages: []
+                let mainAddressBalanceRaw = null
+                if (typeof cryptocurrency.feesCurrencyCode != 'undefined') {
+                    let tmp = await BlocksoftBalances.setCurrencyCode(cryptocurrency.feesCurrencyCode).setAddress(account.address).getBalance()
+                    mainAddressBalanceRaw = tmp.balance
+                    Log.log(`SendScreen.handleSendTransaction fees balance ${account.feesCurrencyCode} ${account.address} data`, tmp)
                 }
 
                 if(mainAddressBalanceRaw !== null){
@@ -317,7 +395,8 @@ class SendScreen extends Component {
 
                     if(mainAddressBalance == 0) {
                         enoughFunds.isAvailable = false
-                        enoughFunds.messages.push(strings('send.notEnoughForFee'))
+                        const msg = strings('send.notEnoughForFee', { symbol: typeof extend.addressCurrencyCode == 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode })
+                        enoughFunds.messages.push(msg)
                     }
                 }
 
@@ -340,7 +419,7 @@ class SendScreen extends Component {
                     balance
                 })
 
-                setLoaderStatus(false)
+                // setLoaderStatus(false)
 
                 setTimeout(() => {
                     let data = {
@@ -350,25 +429,67 @@ class SendScreen extends Component {
                         wallet,
                         cryptocurrency,
                         account,
-                        useAllFunds
+                        useAllFunds,
+                        type: this.props.send.data.type
                     }
                     showModal({
                         type: 'CONFIRM_TRANSACTION_MODAL',
                         data
                     })
-                    MarketingEvent.checkSellConfirm(data)
+
+
+                    MarketingEvent.checkSellConfirm({
+                        currency_code: cryptocurrency.currencyCode,
+                        address_from : account.address,
+                        address_to : data.address,
+                        address_amount : data.amount,
+                        walletHash : account.wallet_hash
+                    })
                 }, 500)
             } catch (e) {
 
                 setLoaderStatus(false)
-
-                // Log.err('SendScreen.handleSendTransaction error', e)
+                Log.err('SendScreen.handleSendTransaction error', e)
             }
 
             Log.log('SendScreen.handleSendTransaction finished')
         }
     }
 
+    handleCheckInvoice = async () => {
+        //@misha todo
+        let invoice = this.addressInput.getValue()
+        Log.log('SendScreen.handleCheckInvoice started for ' + invoice)
+        BlocksoftInvoice.setCurrencyCode(this.props.account.currency_code).setAddress(this.props.account.address).setAdditional(this.props.account.account_json)
+        try {
+            let res = await BlocksoftInvoice.checkInvoice(invoice)
+            console.log('res', res)
+            if (!res.could_pay) {
+                // show "expired invoice" - the invoice couldnt be paid
+                console.log('not valid invoice')
+            } else {
+                // everything is ok - lets go
+                console.log('memo to show somewhere', res.memo)
+                console.log('created time to show?', res.created)
+                console.log('time left to pay, to show?', res.timed)
+
+                const amount = BlocksoftPrettyNumbers.setCurrencyCode('BTC').makePrettie(res.amount)
+
+                this.valueInput.handleInput((1 * amount).toString(), false)
+                this.amountInputCallback((1 * amount).toString(), false)
+
+            }
+        } catch (e) {
+            console.log('just error', e.message)
+            if (e.message === 'not a valid invoice') {
+                // need just to clean address and show "wrong invoice" - the invoice couldnt be paid
+            } else {
+                Log.err('SendScreen.handleCheckInvoice error', e)
+                // some new error - server timeouted or the bug - wait a little bit
+            }
+        }
+
+    }
 
     amountInputCallback = (value, changeUseAllFunds) => {
         const { currencySymbol, currency_rate_usd } = this.state.cryptocurrency
@@ -450,7 +571,8 @@ class SendScreen extends Component {
             currencySymbol: currency_symbol,
             currencyCode: currency_code,
             extendsProcessor,
-            addressUiChecker
+            addressUiChecker,
+            network
         } = this.state.cryptocurrency
 
         const { local_currency } = this.props.settingsStore.data
@@ -465,6 +587,7 @@ class SendScreen extends Component {
             extendedAddressUiChecker = currencyCode
         }
 
+        const { type } = this.props.send.data
 
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
@@ -475,7 +598,7 @@ class SendScreen extends Component {
                 <KeyboardAwareView>
                     <ScrollView
                         ref={(ref) => { this.scrollView = ref }}
-                        keyboardShouldPersistTaps
+                        keyboardShouldPersistTaps={'always'}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={focused ? styles.wrapper__content_active : styles.wrapper__content}
                         style={styles.wrapper__scrollView}>
@@ -489,6 +612,7 @@ class SendScreen extends Component {
                                 onFocus={() => this.onFocus()}
                                 name={strings('send.address')}
                                 type={extendedAddressUiChecker.toUpperCase() + '_ADDRESS'}
+                                subtype={network}
                                 paste={!disabled}
                                 qr={!disabled}
                                 qrCallback={() => {
@@ -506,6 +630,12 @@ class SendScreen extends Component {
                                 disabled={disabled}
                                 validPlaceholder={true}
                             />
+                            {currencyCode === 'BTC_LIGHT'
+                                ? <Button press={() => this.handleCheckInvoice()}>
+                                    Load invoice (should be auto)
+                                </Button>
+                                : <Text/>
+                            }
                             <View style={{ flexDirection: 'row' }}>
                                 <AmountInput
                                     ref={component => this.valueInput = component}
@@ -520,7 +650,7 @@ class SendScreen extends Component {
                                     tapText={this.state.inputType === 'FIAT' ? local_currency : currencySymbol}
                                     tapCallback={this.handleChangeEquivalentType}
                                     style={{ marginRight: 2 }}
-                                    bottomLeftText={amountInputMark}
+                                    bottomLeftText={type !== 'TRADE_SEND' ? amountInputMark : undefined}
                                     keyboardType={'numeric'}
                                     action={{
                                         title: strings('send.useAllFunds').toUpperCase(),
@@ -565,160 +695,4 @@ const styles_ = {
     array: ['#fff', '#fff'],
     start: { x: 0.0, y: 0 },
     end: { x: 0, y: 1 }
-}
-
-const styles = {
-    wrapper: {
-        flex: 1
-        //paddingBottom: 120,
-    },
-    wrapper__scrollView: {
-        marginTop: 80,
-    },
-    wrapper__content: {
-        flex: 1,
-        minHeight: WINDOW_HEIGHT - 100,
-        justifyContent: 'space-between',
-        paddingTop: 15,
-        paddingLeft: 30,
-        paddingRight: 30,
-        paddingBottom: 30
-    },
-    wrapper__content_active: {
-        flex: 1,
-        minHeight: 400,
-        justifyContent: 'space-between',
-        paddingTop: 15,
-        paddingLeft: 30,
-        paddingRight: 30,
-        paddingBottom: 30
-    },
-    text: {
-        fontSize: 16,
-        color: '#999999',
-        textAlign: 'justify'
-    },
-    slideBtn: {
-        array: ['#43156d', '#7127ac'],
-        start: { x: 0, y: 1 },
-        end: { x: 1, y: 0 }
-    },
-    slideBtn__content: {
-        width: '100%'
-    },
-    fee: {
-        position: 'relative',
-        height: 250,
-        marginTop: 15,
-        overflow: 'visible',
-        zIndex: 10
-    },
-    fee__content_active: {
-        position: 'absolute',
-        right: 0,
-        top: 20,
-        width: 150,
-        paddingBottom: 20,
-        borderBottomRightRadius: 20,
-        borderBottomLeftRadius: 20,
-        borderTopLeftRadius: 20,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
-
-        elevation: 3,
-        backgroundColor: '#fff',
-        zIndex: 20
-    },
-    fee__content: {
-        width: 0,
-        height: 0
-    },
-    fee__subtitle: {
-        marginRight: 5,
-        textAlign: 'right',
-        fontSize: 16,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#404040'
-    },
-    fee__text: {
-        marginRight: 5,
-        textAlign: 'right',
-        fontSize: 12,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#999999'
-    },
-    fee__title: {
-        fontSize: 16,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#999999'
-    },
-    fee__btn: {
-        width: 60,
-        height: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10
-    },
-    fee__btn_active: {
-        width: 60,
-        height: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
-
-        elevation: 3
-    },
-    fee__btn_title: {
-        fontSize: 10,
-        fontFamily: 'SFUIDisplay-Bold',
-        color: '#864dd9'
-    },
-    fee__item: {
-        paddingTop: 10,
-        paddingLeft: 10,
-        paddingRight: 10
-    },
-    feeText: {
-        marginTop: -4,
-        fontSize: 19,
-        color: '#404040',
-        fontFamily: 'SFUIDisplay-Regular'
-    },
-    inputWrap: {
-        flexDirection: 'row'
-    },
-    fee__line: {
-        marginTop: 10,
-        width: '100%',
-        height: 1,
-        backgroundColor: '#e3e6e9'
-    },
-    texts: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginRight: 30,
-    },
-    texts__item: {
-        fontSize: 12,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#e77ca3'
-    },
-    texts__icon: {
-        marginRight: 10,
-        transform: [{ rotate: '180deg'}]
-    },
 }

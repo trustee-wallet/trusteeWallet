@@ -21,7 +21,7 @@ const cryptoWallets = {
 
             return count > 0
         } catch (e) {
-            Log.err('DS/cryptoWallets checkWalletsExists error', e)
+            Log.err('DS/cryptoWallets checkWalletsExists error ' + e.message)
         }
         return false
     },
@@ -43,7 +43,7 @@ const cryptoWallets = {
             prepared.mnemonic = BlocksoftKeysUtils.recheckMnemonic(prepared.mnemonic)
             prepared.hash = await BlocksoftKeysUtils.hashMnemonic(prepared.mnemonic)
 
-            let logData = JSON.parse(JSON.stringify(prepared))
+            let logData = {...prepared}
             if (typeof logData.mnemonic !== 'undefined') logData.mnemonic = '***'
             Log.log('DS/cryptoWallets saveWallet data', logData)
 
@@ -56,7 +56,7 @@ const cryptoWallets = {
             Log.log('DS/cryptoWallets saveWallet finished', storedKey)
 
         } catch (e) {
-            Log.err('DS/cryptoWallets saveWallet error', e)
+            Log.err('DS/cryptoWallets saveWallet error ' + e.message)
         }
         return storedKey
     },
@@ -72,7 +72,7 @@ const cryptoWallets = {
 
             let prepared = await BlocksoftKeys.newMnemonic()
 
-            let logData = JSON.parse(JSON.stringify(prepared))
+            let logData = {...prepared}
             if (typeof logData.mnemonic !== 'undefined') logData.mnemonic = '***'
             Log.log('DS/cryptoWallets generateWallet data', logData)
 
@@ -80,7 +80,7 @@ const cryptoWallets = {
 
             Log.log('DS/cryptoWallets generateWallet finished', storedKey)
         } catch (e) {
-            Log.err('DS/cryptoWallets generateWallet error', e)
+            Log.err('DS/cryptoWallets generateWallet error ' + e.message)
         }
         return storedKey
     },
@@ -102,7 +102,7 @@ const cryptoWallets = {
             Log.log('DS/cryptoWallets getWallets finished', storedWallets)
 
         } catch (e) {
-            Log.err('DS/cryptoWallets getWallets error', e)
+            Log.err('DS/cryptoWallets getWallets error ' + e.message)
         }
         return storedWallets
     },
@@ -116,7 +116,7 @@ const cryptoWallets = {
 
             Log.log('DS/cryptoWallets getSelectedWallet finished')
         } catch (e) {
-            Log.err('DS/cryptoWallets getSelectedWallet error', e)
+            Log.err('DS/cryptoWallets getSelectedWallet error ' + e.message)
         }
         return storedSelectedWalletHash
     },
@@ -130,7 +130,7 @@ const cryptoWallets = {
 
             Log.log('DS/cryptoWallets getWallet finished')
         } catch (e) {
-            Log.err('DS/cryptoWallets getWallet error', e)
+            Log.err('DS/cryptoWallets getWallet error ' + e.message)
         }
         return storedWalletMnemonic
     },
@@ -144,7 +144,7 @@ const cryptoWallets = {
 
             Log.log('DS/cryptoWallets setSelectedWallet finished')
         } catch (e) {
-            Log.err('DS/cryptoWallets setSelectedWallet error', e)
+            Log.err('DS/cryptoWallets setSelectedWallet error' + e.message)
         }
         return storedSelectedWallet
     }

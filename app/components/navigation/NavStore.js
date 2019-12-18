@@ -1,28 +1,55 @@
-import {NavigationActions, StackActions} from 'react-navigation'
+import { NavigationActions, StackActions } from 'react-navigation'
 
 import navigationActions from '../../appstores/Actions/NavigationActions'
+import Log from '../../services/Log/Log'
 
 class ObservableNavStore {
     navigator = null;
 
-    reset = (routeName) => {
-        const resetAction = StackActions.reset({
-            key: null,
-            index: 0,
-            actions: [NavigationActions.navigate({ routeName })],
-        });
-        this.navigator.dispatch(resetAction)
+    getNavigator = () => this.navigator
+
+    reset = (routeName, params = null) => {
+
+        try {
+            const resetAction = StackActions.reset({
+                key: null,
+                index: 0,
+                actions: [NavigationActions.navigate({ routeName, params })],
+            });
+            this.navigator.dispatch(resetAction)
+        } catch (e) {
+            console.log(e)
+        }
     };
 
     goBack = () => {
-        this.navigator.dispatch(NavigationActions.back())
+        try {
+            this.navigator.dispatch(NavigationActions.back())
+        } catch (e) {}
     };
 
-    goNext = (routeName, params = null) => {
-        this.navigator && this.navigator.dispatch(NavigationActions.navigate({
-            routeName,
-            params
-        }));
+    goNext = (routeName, params = null, reset = false) => {
+        try {
+            this.navigator && this.navigator.dispatch(NavigationActions.navigate({
+                routeName,
+                params
+            }));
+
+            if(reset){
+                const resetAction = StackActions.reset({
+                    key: null,
+                    index: 0,
+                    actions: [NavigationActions.navigate({ routeName: "DashboardStack", params })],
+                });
+                this.navigator.dispatch(resetAction)
+            }
+
+            // if(reset){
+            //     this.navigator.dismiss()
+            // }
+        } catch (e) {
+            console.log(e)
+        }
     };
 
     setDashboardInitialRouteName = (dashboardInitialRouteName) => {

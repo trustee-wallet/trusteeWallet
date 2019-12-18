@@ -13,31 +13,43 @@ import currencies from '../../assets/jsons/other/country-by-currency-code'
 
 export default new class FiatRatesActions {
 
+    tryCounter = 0
+
     async init() {
 
         let nbuRates = null
 
         try {
-
             const res = await api.getNBURates()
+            let nbuRatesTmp = []
 
-            if (res.data.state === 'success') {
-                nbuRates = res.data.data
-                nbuRates.push({
-                    cc: 'UAH',
-                    rate: 1
-                })
+            nbuRates = res.data
 
-                await AsyncStorage.setItem('fiatRates', JSON.stringify(nbuRates))
-            } else {
-                nbuRates = await AsyncStorage.getItem('fiatRates')
-                nbuRates = JSON.parse(nbuRates)
-            }
+            nbuRates.push({
+                cc: 'UAH',
+                rate: 1,
+                r030: 804
+            })
 
-            this.setNBURates(nbuRates)
+            nbuRates.forEach(item1 => currencies.forEach(item2 => {
+                if(item1.cc === item2.currencyCode) nbuRatesTmp.push({...item1, symbol: item2.symbol })
+            }))
 
+            await AsyncStorage.setItem('fiatRates', JSON.stringify(nbuRatesTmp))
+
+            this.setNBURates(nbuRatesTmp)
+            return
         } catch (e) {
-            Log.err('ACT/FiatRates init error', e)
+            if (Log.isNetworkError(e.message) && this.tryCounter < 10) {
+                this.tryCounter++
+                Log.log('ACT/FiatRates.init network try ' + this.tryCounter + ' ' + e.message)
+            } else {
+                let error = ' ' + e.message
+                if (typeof (e._response) != 'undefined') {
+                    error += ' ' + e._response
+                }
+                Log.err('ACT/FiatRates.init error' + error)
+            }
         }
 
         if (nbuRates === null) {
@@ -46,13 +58,25 @@ export default new class FiatRatesActions {
                 nbuRates = JSON.parse(nbuRates)
                 this.setNBURates(nbuRates)
             } catch (e) {
-                Log.err('ACT/FiatRates init second try error', e)
+                Log.err('ACT/FiatRates init second try error ' + e.message)
             }
         }
     }
 
-    setNBURates = (nbuRates) => {
+    convertFromCurrencyTo = (fromCurrency, toCurrency, amount) => {
 
+        const fiatRates = JSON.parse(JSON.stringify(store.getState().fiatRatesStore.fiatRates))
+
+        let fromCurrencyRate = fiatRates.filter(item => item.cc === fromCurrency)
+        fromCurrencyRate = fromCurrencyRate[0]
+        let toCurrencyRate = fiatRates.filter(item => item.cc === toCurrency)
+        toCurrencyRate = toCurrencyRate[0]
+
+        return (amount * fromCurrencyRate.rate) / toCurrencyRate.rate
+    }
+
+    setNBURates = (nbuRates) => {
+        if (!nbuRates) return false
         const { settingsStore } = store.getState()
 
         const uahRate = nbuRates.find(item => item.cc === 'USD')
@@ -69,10 +93,13 @@ export default new class FiatRatesActions {
 
     }
 
-    toLocalCurrency = (amount) => {
+    toLocalCurrency = (amount, fixed = true) => {
         const { fiatRatesStore } = store.getState()
 
-        return ((amount * fiatRatesStore.uahRate) / fiatRatesStore.localCurrencyRate).toFixed(2)
+        let toLocal = (amount * fiatRatesStore.uahRate) / fiatRatesStore.localCurrencyRate
+        toLocal = fixed ? toLocal.toFixed(2) : toLocal
+
+        return toLocal
     }
 
     setLocalCurrency = async (localCurrency) => {

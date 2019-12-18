@@ -15,6 +15,7 @@ import {
 } from 'react-native'
 
 import firebase from "react-native-firebase"
+import Share from "react-native-share"
 
 import NavStore from "../../components/navigation/NavStore"
 import Icon from '../../components/elements/CustomIcon.js'
@@ -24,7 +25,8 @@ import FontAwesome from "react-native-vector-icons/FontAwesome"
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5"
 import Ionicons from "react-native-vector-icons/Ionicons"
 
-import settingsActions from '../../appstores/Actions/SettingsActions'
+import ExchangeActions from "../../appstores/Actions/ExchangeActions"
+import settingsActions from "../../appstores/Actions/SettingsActions"
 import lockScreenAction from '../../appstores/Actions/LockScreenActions'
 import { showModal } from "../../appstores/Actions/ModalActions"
 import { setFlowType } from "../../appstores/Actions/CreateWalletActions"
@@ -34,13 +36,17 @@ import { strings } from '../../services/i18n'
 import Cashback from '../../services/Cashback/Cashback'
 import { copyToClipboard } from '../../services/utils'
 
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
+import Log from '../../services/Log/Log'
 
 import config from '../../config/config'
 import Navigation from '../../components/navigation/Navigation'
 import Toast from '../../services/Toast/Toast'
 import AsyncStorage from '@react-native-community/async-storage'
 
+import DBExport from "../../appstores/DataSource/DB/DBExport/DBExport"
+
+import MarketingEvent from "../../services/Marketing/MarketingEvent"
+import BlocksoftCryptoLog from "../../../crypto/common/BlocksoftCryptoLog";
 
 class SettingsMainScreen extends Component {
 
@@ -48,13 +54,15 @@ class SettingsMainScreen extends Component {
         super()
         this.state = {
             devMode: false,
-            mode: ''
+            mode: '',
+            testerMode : '',
         }
     }
 
     async componentWillMount() {
 
         const devMode = await AsyncStorage.getItem('devMode')
+        const testerMode = await AsyncStorage.getItem('testerMode')
 
         console.log('SettingsMainScreen.componentWillMount.devMode')
         console.log(devMode)
@@ -66,7 +74,8 @@ class SettingsMainScreen extends Component {
         if(typeof config.devMode != 'undefined'){
             this.setState({
                 devMode: true,
-                mode: config.exchange.mode
+                mode: config.exchange.mode,
+                testerMode : testerMode
             })
         }
     }
@@ -108,15 +117,43 @@ class SettingsMainScreen extends Component {
 
 
     handleLogs = () => {
+        Log.err('USER INIT GET LOGS', 'User clicked on "getLogs"', 'ALL', true)
+        BlocksoftCryptoLog.err('USER INIT GET LOGS', 'User clicked on "getLogs"', 'ALL', true)
+        DBExport.getSql().then((sql) => {
 
-        showModal({
-            type: 'INFO_MODAL',
-            icon: true,
-            title: 'Success!',
-            description: 'Logs has been successfully copied to clipboard!'
+            const shareOptions = {
+                title: "Trustee. Support",
+                social: Share.Social.EMAIL,
+                subject: "Trustee. Support",
+                url: `
+            
+ ↑↑↑ Send to: contact@trustee.deals ↑↑↑
+
+--LOG-- 
+${Log.getHeaders()} 
+
+
+--SQL-- 
+${sql}
+`,
+                email: "contact@trustee.deals",
+            };
+            Share.open(shareOptions).catch(err => {
+                if(err.error.indexOf("No Activity") !== -1){
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: false,
+                        title: "Sorry...",
+                        description: "No mail apps found"
+                    })
+                }
+            })
+
+            // Linking.openURL('mailto:Contact@trustee.deals?subject=SUPPORT&body=' + )
+                //todo files logs as attachment
+                //+ '\n\n\n\nAPP LOGS\n\n' + Log.getLogs()
+                //+ '\n\n\n\nCRYPTO LOGS\n\n' + BlocksoftCryptoLog.getLogs()
         })
-
-        return copyToClipboard(BlocksoftCryptoLog.getLogs())
     }
 
 
@@ -209,7 +246,29 @@ class SettingsMainScreen extends Component {
         })
 
         Cashback.reInit()
+        ExchangeActions.init()
 
+        Vibration.vibrate(100)
+    }
+
+    handleToggleTester = async () => {
+        let testerMode = await AsyncStorage.getItem('testerMode')
+
+        if(testerMode === 'TESTER'){
+            testerMode = 'USER'
+            MarketingEvent.initMarketing(testerMode)
+        } else {
+            testerMode= 'TESTER'
+            MarketingEvent.initMarketing(testerMode)
+        }
+
+        await AsyncStorage.setItem('testerMode', testerMode)
+
+        Toast.setMessage(strings('settings.tester', { testerMode })).show()
+
+        this.setState({
+            testerMode
+        })
         Vibration.vibrate(100)
     }
 
@@ -238,6 +297,8 @@ class SettingsMainScreen extends Component {
             tool_tips_state
         } = this.props.settings.data
 
+        const { mainStore } = this.props
+
         lock_screen_status = +lock_screen_status
         touchID_status = +touchID_status
 
@@ -245,7 +306,7 @@ class SettingsMainScreen extends Component {
 
         return (
             <View style={styles.wrapper}>
-                <Navigation title={ strings('settings.title') } />
+                <Navigation title={ strings('settings.title') } navigation={this.props.navigation} />
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={styles.wrapper__content}>
                         <View style={{...styles.block, marginTop: 35}}>
@@ -371,6 +432,24 @@ class SettingsMainScreen extends Component {
                                             <View style={styles.divider} />
                                         </View> : null
                                 }
+                                {
+                                    this.state.devMode || this.state.testerMode === 'TESTER' ?
+                                        <View>
+                                            <TouchableOpacity style={{...styles.block__item}} onLongPress={this.handleToggleTester} delayLongPress={1000}>
+                                                <View style={{ marginTop: 5 }}>
+                                                    <MaterialIcon name="card-bulleted-settings-outline" size={20} style={styles.icon} />
+                                                </View>
+                                                <View style={styles.block__item__content}>
+                                                    <Text style={styles.block__text}>{ strings('settings.other.testerMode') }</Text>
+                                                </View>
+                                                <Text style={styles.block__text__right}>
+                                                    { this.state.testerMode }
+                                                </Text>
+                                            </TouchableOpacity>
+                                            <View style={styles.divider} />
+                                        </View>
+                                        : null
+                                }
                                 <TouchableOpacity style={{...styles.block__item}} onPress={() => this.handleReferral()}>
                                     <Ionicons name="ios-people" size={20} style={styles.icon} />
                                     <View style={styles.block__item__content}>
@@ -412,22 +491,22 @@ class SettingsMainScreen extends Component {
                                     </View>
                                 </TouchableOpacity>
                                 <View style={styles.divider} />
-                                <TouchableWithoutFeedback delayLongPress={60000}
-                                                          onLongPress={this.onLongPressButton}>
-                                    <View style={{...styles.block__item}}>
-                                        <View style={{ marginTop: 5 }}>
-                                            <MaterialIcon name="tooltip-text" size={20} style={styles.icon} />
-                                        </View>
-                                        <View style={styles.block__item__content}>
-                                            <Text style={styles.block__text}>{ strings('settings.other.toolTips') }</Text>
-                                        </View>
-                                        <Switch
-                                            style={styles.block__switch}
-                                            onValueChange={this.toggleTipsState}
-                                            value={toolTipsState}/>
-                                    </View>
-                                </TouchableWithoutFeedback>
-                                <View style={styles.divider} />
+                                {/*<TouchableWithoutFeedback delayLongPress={5000}*/}
+                                {/*                          onLongPress={this.onLongPressButton}>*/}
+                                {/*    <View style={{...styles.block__item}}>*/}
+                                {/*        <View style={{ marginTop: 5 }}>*/}
+                                {/*            <MaterialIcon name="tooltip-text" size={20} style={styles.icon} />*/}
+                                {/*        </View>*/}
+                                {/*        <View style={styles.block__item__content}>*/}
+                                {/*            <Text style={styles.block__text}>{ strings('settings.other.toolTips') }</Text>*/}
+                                {/*        </View>*/}
+                                {/*        <Switch*/}
+                                {/*            style={styles.block__switch}*/}
+                                {/*            onValueChange={this.toggleTipsState}*/}
+                                {/*            value={toolTipsState}/>*/}
+                                {/*    </View>*/}
+                                {/*</TouchableWithoutFeedback>*/}
+                                {/*<View style={styles.divider} />*/}
                                 <TouchableOpacity style={{...styles.block__item}} onPress={() => this.handleLogs()}>
                                     <FontAwesome name="bug" size={20} style={styles.icon} />
                                     <View style={styles.block__item__content}>
@@ -435,13 +514,12 @@ class SettingsMainScreen extends Component {
                                     </View>
                                 </TouchableOpacity>
                                 <View style={styles.divider} />
-                                <TouchableOpacity style={{...styles.block__item}} onPress={() => NavStore.goNext('AboutScreen')}>
+                                <TouchableOpacity style={{...styles.block__item}} onPress={() => NavStore.goNext('AboutScreen')} delayLongPress={5000} onLongPress={this.onLongPressButton}>
                                     <Icon name="info" size={20} style={styles.icon} />
                                     <View style={styles.block__item__content}>
                                         <Text style={styles.block__text}>{ strings('settings.other.about') }</Text>
                                     </View>
                                 </TouchableOpacity>
-
                             </View>
                         </View>
                     </View>
@@ -453,6 +531,7 @@ class SettingsMainScreen extends Component {
 
 const mapStateToProps = (state) => {
     return {
+        mainStore: state.mainStore,
         settings: state.settingsStore
     }
 }

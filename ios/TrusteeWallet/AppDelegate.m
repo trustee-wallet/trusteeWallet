@@ -21,7 +21,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [FIROptions defaultOptions].deepLinkURLScheme = @"com.trustee.demo";
+  [FIROptions defaultOptions].deepLinkURLScheme = @"com.trusteewallet";
   [FIRApp configure];
   [RNFirebaseNotifications configure];
 

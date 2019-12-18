@@ -7,6 +7,131 @@
     },
     "logOut": "Выйти"
   },
+   "finishTradeScreen": {
+     "title": "Успех!",
+     "description": "Ваш ордер был создан. \n Как только Ваша транзакция получит необходимые подтверждения, она будет выполнена соответствующим образом. \n Вы можете отслеживать статус Вашего ордера в истории ордеров.",
+     "orderHistoryBtn": "История ордеров"
+   },
+   "tooltips": {
+     "HOME_SCREEN_BUY_BTN_TIP": {
+       "title": "",
+       "description": "Тут ты можешь купить крипту с карты - Ваш Капитан Очевидность :)"
+     },
+     "HOME_SCREEN_EXCHANGE_BTN_TIP": {
+       "title": "",
+       "description": "Не обязательно менять на биржах - меняй крипту на крипту у нас в 2 клика!"
+     },
+     "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
+       "title": "",
+       "description": "Добавляй нужные монеты и зарабатывай - вперед!"
+     },
+     "HOME_SCREEN_CRYPTO_BTN_TIP": {
+       "title": "",
+       "description": "Это - твой уникальный Биткоин кошелек - начинай отправлять и принимать биткоины!"
+     },
+     "ACCOUNT_SCREEN_ADDRESS_TIP": {
+       "title": "",
+       "description": "А это твой личный %{currencyName} адрес - аналог номера карточки для продвинутых пользователей!"
+     },
+     "ACCOUNT_SCREEN_TRANSACTION_TIP": {
+       "title": "",
+       "description": "Тут можешь найти всю информацию о своих транзакциях - вперед!"
+     },
+     "ACCOUNT_SCREEN_ORDERS_TIP": {
+       "title": "",
+       "description": "Тут найдешь информацию обо всех своих ордерах - ничего сложного :)"
+     },
+     "buttons": {
+       "next": "Далее",
+       "skip": "Пропустить",
+       "close": "Закрыть"
+     }
+   },
+   "homeScreen": {
+     "balance": "Баланс",
+     "today": "Сегодня",
+     "changedLastDay": "За последние 24 часа"
+   },
+   "walletCreateScreen": {
+     "title": "ПОКУПАЙ ПРОДАВАЙ ОБМЕНИВАЙ АНОНИМНО",
+     "createWallet": "Создать кошелёк",
+     "importWallet": "Импортировать кошелёк"
+   },
+   "exchangeScreen": {
+     "title": "Обмен",
+     "pickProvider": "Выберите провайдера",
+     "providerInformation": "Информация о провайдере",
+     "fee": "Комиссия",
+     "equivalent": "Эквивалент: ~",
+     "exchangeAll": "Обменять всё",
+     "min": "минимально:",
+     "max": "максимально:",
+     "exchangeBtn": "Обменять"
+   },
+   "exchangeConfirmScreen": {
+     "title": "Подтверждение",
+     "youWantToExchange": "Вы хотите обменять",
+     "exchangeDetails": "Детали обмена",
+     "exchangeBtn": "Обменять"
+   },
+   "tradeScreen": {
+     "youGet": "Получаете:",
+     "youGive": "Отдаете:",
+     "crypto": "Криптовалюта",
+     "fiat": "Фиат",
+     "pickPaySys": "Выберите способ оплаты",
+     "only": "только",
+     "worldwide": "Другие страны",
+     "fee": "Комиссия банка",
+     "selectSum": "Эквивалентная сумма",
+     "custom": "Другая",
+     "limitsTitle": "Есть некоторые ограничения",
+     "minPurchase": "минимально:",
+     "maxPurchase": "максимально:",
+     "selectCrypto": "Выберите криптовалюту",
+     "selectFiat": "Выберите валюту",
+     "submit": "Дальше",
+     "modalError": {
+       "selectCryptocurrency": "Выберите криптовалюту",
+       "selectWhatYouGet": "Выберите, что Вы получаете",
+       "selectWhatYouGive": "Выберите, что Вы отдаете",
+       "selectPaymentSystem": "Выберите способ оплаты",
+       "selectFiatTemplate": "Select fiat template error",
+       "limit": "Вы вышли за допустимые пределы",
+       "selectCard": "Выберите карту",
+       "takePhoto": "Пожалуйста, сделайте фото карты",
+       "additionalData": "Пожалуйста, заполните данные"
+     },
+     "paymentInformation": "Информация об оплате",
+     "urkCardOnly": "Только украинские карты!",
+     "rusCardOnly": "Только русские карты!",
+     "worldwideOnly": "Карты других стран!",
+     "minAmount": "Минимально",
+     "maxAmount": "Максимально",
+     "RUB": "Россия",
+     "UAH": "Украина",
+     "QIWI": "QIWI кошелек"
+   },
+   "confirmScreen": {
+     "title": "Подтверждение",
+     "rate": "Курс",
+     "fees": "Детали сделки",
+     "youWantToBuy": "Покупаете",
+     "youWantToSell": "Продаете",
+     "providerFee": "Комиссия банка",
+     "outputFee": "Комиссия сети",
+     "trusteeFee": "Комиссия Trustee",
+     "networkFee": "комиссия сети",
+     "info": "Info",
+     "withdrawAddress": "Адрес для получения",
+     "withdrawCardNumber": "Номер карты для выплаты",
+     "total": "Сумма:",
+     "submitBtnBuy": "Купить",
+     "submitBtnSell": "Продать",
+     "edit": "Изменить",
+     "confirmScreenBuy": "Выбраный платежный метод в настоящее время недоступен. Пожалуйста, попробуйте другой.",
+     "confirmScreenSell": "Выбраный платежный метод в настоящее время недоступен. Пожалуйста, попробуйте другой."
+   },
   "settings": {
     "title": "Настройки",
     "walletManagement": {
@@ -41,7 +166,8 @@
       },
       "localCurrency": "Локальная валюта",
       "toolTips": "Подсказки",
-      "configMode": "Конфиг"
+      "configMode": "Конфиг",
+      "testerMode": "Тестировщик"
     },
     "walletList": {
       "title": "Список кошельков"
@@ -53,7 +179,8 @@
       "privacy": "Политика конфиденциальности",
       "terms": "Условия пользования"
     },
-    "config": "Конфиг изменен на: %{config}"
+    "config": "Конфиг изменен на: %{config}",
+    "tester": "Тестировщик/пользователь изменен на: %{testerMode}"
   },
   "assets": {
     "mainTitle": "Добавить актив",
@@ -70,9 +197,9 @@
     "more": "Еще",
     "shareTitle": "",
     "shareMessage": "",
-    "friendsJoined": "Присоединилось друзей по ссылке",
+    "friendsJoined": "Ваши друзья",
     "transAmount": "Сумма транзакций",
-    "level2UsersAmount": "Количество друзей второго уровня",
+    "level2UsersAmount": "Друзья друзей",
     "cashbackAmount": "Сумма кешбэка",
     "withdraw": "Вывести",
     "minWithdraw": "Минимальная сумма для вывода",
@@ -85,12 +212,24 @@
     "send": "Отправить",
     "history": "История транзакций",
     "noTransactions": "У Вас еще нет транзакций",
+    "confirmations": "Подтверждений:",
     "showMore": "Показать еще",
+    "transactionStatuses": {
+      "paid" : "Оплачена",
+      "pay_waiting" : "Ждет оплаты",
+      "pay_expired" : "Время для оплаты закончилось",
+      "success": "Успешная",
+      "pending": "В ожидании",
+      "new": "Новая",
+      "fail": "Ошибка"
+    },
     "receiveScreen": {
       "title": "%{receive}",
       "description": "Ваш %{currency} адрес:",
       "clickToCopy": "Нажмите, чтобы скопировать",
-      "receiveAmount": "Указать сумму"
+      "receiveAmount": "Указать сумму",
+      "share": "Поделится",
+      "copy": "Копировать"
     },
     "addAccount": {
       "list": "Список криптовалют"
@@ -109,38 +248,56 @@
     "attention": "",
     "buy": "Купить",
     "sell": "Продать",
+    "exchange": "Обмен",
     "providerChanged": {
       "title": "Провайдер изменился",
       "description": "Начните транзакцию сначала"
     },
     "ordersStatus": {
+      "exchange": {
+        "pending_payin": "Пополнение ожидается",
+        "canceled_payin":  "Пополнение отменено",
+        "done_payin": "Пополнение прошло успешно",
+        "wait_trade": "Ожидается конвертация",
+        "done_trade": "Конвертация прошла успешно",
+        "wait_payout": "Ожидается выплата",
+        "canceled_payout": "Ошибка выплаты",
+        "done_payout": "Выплата прошла успешно",
+        "wait_kyc": "KYC ожидается",
+        "stopped_order": "Ордер остановлен на стороне провайдера",
+        "error_order": "Ошибка при выполнении. Ордер обрабатывался вручную."
+      },
       "sell": {
-        "pending_payin": "Ожидается зачисление средств",
-        "canceled_payin": "Средства не зачислены",
-        "done_payin": "Средства зачислены",
-        "wait_convert": "Ожидается обмен валют",
-        "done_convert": "Обмен валют прошел успешно",
-        "wait_withdraw": "Ожидается вывод средств",
-        "canceled_withdraw": "Вывод отменил провайдер",
-        "done_withdraw": "Вывод прошел успешно",
-        "error_order": "Остановлено"
+        "pending_payin": "Пополнение ожидается",
+        "canceled_payin":  "Пополнение отменено",
+        "done_payin": "Пополнение прошло успешно",
+        "wait_trade": "Ожидается конвертация",
+        "done_trade": "Конвертация прошла успешно",
+        "wait_payout": "Ожидается выплата",
+        "canceled_payout": "Ошибка выплаты",
+        "done_payout": "Выплата прошла успешно",
+        "wait_kyc": "KYC ожидается",
+        "stopped_order": "Ордер остановлен на стороне провайдера",
+        "error_order": "Ошибка при выполнении. Ордер обрабатывался вручную."
       },
       "buy": {
-        "pending_payin": "Ожидается зачисление средств",
-        "canceled_payin": "Средства не зачислены",
-        "done_payin": "Средства зачислены",
-        "wait_convert": "Ожидается обмен валют",
-        "done_convert": "Обмен валют прошел успешно",
-        "wait_withdraw": "Ожидается вывод средств",
-        "canceled_withdraw": "Вывод отменил провайдер",
-        "done_withdraw": "Вывод прошел успешно",
-        "error_order": "Остановлено"
+        "pending_payin": "Пополнение ожидается",
+        "canceled_payin":  "Пополнение отменено",
+        "done_payin": "Пополнение прошло успешно",
+        "wait_trade": "Ожидается конвертация",
+        "done_trade": "Конвертация прошла успешно",
+        "wait_payout": "Ожидается выплата",
+        "canceled_payout": "Ошибка выплаты",
+        "done_payout": "Выплата прошла успешно",
+        "wait_kyc": "KYC ожидается",
+        "stopped_order": "Ордер остановлен на стороне провайдера",
+        "error_order": "Ошибка при выполнении. Ордер обрабатывался вручную."
       }
     },
     "mainData": {
       "selectCurrency": "Выбор криптовалюты",
       "selectPayment": "Select type of payment",
-      "estimateAmount": "Estimate amount",
+      "estimateAmount": "Введите сумму",
 
       "addCard": "Добавить карточку",
       "address": "Адрес зачисления криптовалюты:",
@@ -152,9 +309,9 @@
       "buyFiat": "Купить в UAH",
       "sellFiat": "Продать в UAH",
       "sellAll": "Продать всё",
-      "equivalentCryptoBuy": "Сумма покупки: %{equivalent} %{symbol}",
-      "equivalentCryptoSell": "Сумма продажи: %{equivalent} %{symbol}",
-      "equivalentFiat": "Количество: %{equivalent} %{symbol}",
+      "equivalentCryptoBuy": "Сумма покупки: ~",
+      "equivalentCryptoSell": "Сумма продажи:",
+      "equivalentFiat": "Количество: ~",
       "minAmountToBuy": "Минимальная сумма для покупки криптовалюты:",
       "minAmountToSell": "Минимальная сумма для продажи криптовалюты:",
       "minExchange": "%{fiat}",
@@ -178,9 +335,10 @@
     "add": "Добавить",
     "numberTitleInput": "Номер карточки",
     "dateTitleInput": "ММ/ГГ",
-    "cardCurrency": "Выберите валюта карточки...",
-    "cardName": "Название карточки",
-    "noName": "Без названия"
+    "cardCurrency": "Выберите страну карточки...",
+    "cardName": "Назовите карточку",
+    "noName": "Без названия",
+    "country": "Страна:"
   },
   "qrScanner" : {
     "line1": "Разместите QR-код",
@@ -189,14 +347,14 @@
   "send": {
     "title": "Перевод %{currency}",
     "description": "Вставте адрес кошелька получателя или сканируйте QR-код",
-    "descriptionExchange": "Адрес кошелька получателя вставлен автоматически. Это адрес поставщика обменов. После успешной транзакции криптовалюта будет обменена на фиатную валюту и выведена Вам на карточку",
+    "descriptionExchange": "Адрес кошелька получателя задан автоматически. Это адрес поставщика обменов. Обмен актива и зачисление будет осуществелено после успешной транзакции",
     "address": "Адрес получателя",
     "value": "Сумма",
     "send": "Отправить",
     "useAllFunds": "Использовать все средства",
-    "equivalent": "Еквивалент: ~ %{amount} %{symbol}",
-    "notEnough": "У Вас недостаточно средств для отправки.",
-    "notEnoughForFee": "У Вас недостаточно средств для оплаты транзакции.",
+    "equivalent": "Эквивалент: ~ %{amount} %{symbol}",
+    "notEnough": "У Вас недостаточно средств для отправки",
+    "notEnoughForFee": "Для отправки токенов необходимо иметь положительный баланс в нативной монете %{symbol}",
     "confirmModal": {
       "title": "Подтверждение отправки",
       "amount": "",
@@ -246,6 +404,11 @@
           "satoshi": "SATOSHI"
         }
       }
+    },
+    "errors": {
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Недостаточно средств нативной монеты %{symbol} для отправки",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Слишком маленькая сумма транзакции",
+      "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Недостаточно средств для транзакции"
     }
   },
   "walletBackup": {
@@ -278,7 +441,7 @@
     "submit": "Дальше",
     "words12": "слов",
     "words24": "слова",
-    "description": "Выберите длину фразы востановления",
+    "description": "Выберите длину фразы восстановления",
     "enterMnemonic": {
       "description": "Вставьте фразу восстановления целиком или введите ее вручную (обычно это 12 или 24 слова ).",
       "mnemonic": "Мнемоническая фраза"
@@ -310,6 +473,10 @@
       },
       "picker": {
         "label": "Выберите валюту..."
+      },
+      "phoneInput": {
+        "phoneNumber": "Номер телефона",
+        "invalidFormat": "Номер телефона неправильный"
       }
     },
     "navigation": {
@@ -328,9 +495,16 @@
     "titles": {
       "attention": "Внимание!"
     },
+    "close": "Закрыть",
+    "ok": "OK",
+    "openSettingsModal": {
+      "title": "Требуется доступ к камере",
+      "description": "Разрешите использование камеры в меню настроек",
+      "btnSubmitText": "Перейти в настройки"
+    },
     "infoBuyModal": {
-      "currencyNotAvailable": "Валюта %{currencySymbol} не доступна для покупки",
-      "notAvailable": "Не доступна для покупки"
+      "currencyNotAvailable": "Валюта %{currencySymbol} недоступна для покупки",
+      "notAvailable": "Недоступна для покупки"
     },
     "licenseTerms": {
       "title": "Legal documents",
@@ -349,15 +523,15 @@
     },
     "exchange": {
       "sorry": "Простите...",
-      "descriptionCard": "Выберите существующую карточку или добавьте новую.",
+      "descriptionCard": "Выберите существующую карточку или добавьте новую",
       "failed": "Ошибка...",
       "txCanceled": "Транзакция отменена",
       "success": "Успех!",
-      "txSuccess": "Транзакция успешно отправлена."
+      "txSuccess": "Транзакция успешно отправлена"
     },
     "settings": {
       "soon": "Ожидается",
-      "soonDescription": "Эта опция будет добавлена в ближайшее время."
+      "soonDescription": "Эта опция будет добавлена в ближайшее время"
     },
     "infoDeleteCard": {
       "title": "Вы действительно хотите удалить карточку?",

@@ -4,9 +4,16 @@ import {
     View,
     Text,
     TouchableOpacity,
+    ScrollView,
+    Platform
 } from 'react-native'
 
-import QRCode from 'react-native-qrcode'
+import QRCode from 'react-native-qrcode-svg'
+import Share from 'react-native-share'
+
+import Fontisto from 'react-native-vector-icons/Fontisto'
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import Feather from 'react-native-vector-icons/Feather'
 
 import Button from '../../components/elements/Button'
 import NavStore from '../../components/navigation/NavStore'
@@ -20,12 +27,17 @@ import { copyToClipboard } from '../../services/utils'
 import { showModal } from '../../appstores/Actions/ModalActions'
 import api from '../../services/api'
 import { setLoaderStatus } from '../../appstores/Actions/MainStoreActions'
-import { set } from 'react-native-reanimated'
 import Netinfo from '../../services/Netinfo/Netinfo'
 import Log from '../../services/Log/Log'
 import ExchangeActions from '../../appstores/Actions/ExchangeActions'
-import { setExchangeType } from '../../appstores/Actions/ExchangeStorage'
 import firebase from 'react-native-firebase'
+
+import Theme from '../../themes/Themes'
+import LetterSpacing from '../../components/elements/LetterSpacing'
+import CurrencyIcon from '../../components/elements/CurrencyIcon'
+import LightButton from '../../components/elements/LightButton'
+import CustomIcon from '../../components/elements/CustomIcon'
+let styles
 
 
 class ReceiveScreen extends Component {
@@ -33,6 +45,10 @@ class ReceiveScreen extends Component {
     constructor(){
         super()
         this.state = {}
+    }
+
+    componentWillMount() {
+        styles = Theme.getStyles().receiveScreenStyles
     }
 
     copyToClip = () => {
@@ -47,6 +63,8 @@ class ReceiveScreen extends Component {
         const { address, currency_code } = this.props.account
 
         switch (currency_code) {
+            case 'LTC':
+                return 'litecoin:' + address
             case 'BTC':
                 return 'bitcoin:' + address
             case 'ETH':
@@ -57,7 +75,7 @@ class ReceiveScreen extends Component {
 
     }
 
-    handleBuy = async () => {
+    proceedAction = async (ways, wayType, callback) => {
         const { currencyCode, currencySymbol, network } = this.props.currency
 
         try {
@@ -73,43 +91,55 @@ class ReceiveScreen extends Component {
 
             await Netinfo.isInternetReachable(-120)
 
-            setLoaderStatus(true)
+            const isExist = ways.find(item => item.outCurrencyCode === currencyCode && item.exchangeWayType === wayType)
 
-            const res = await api.getExchangeData()
-
-            if(res.status === 'success'){
-                const isExist = res.data.buy.supportedCrypto.find(item => item === currencyCode)
-
-                if(typeof isExist != 'undefined'){
-                    //TODO: refactor to one request
-
-                    ExchangeActions.getExchangeStatusWithoutRequest(res, (res) => {
-                        setExchangeType({ exchangeType: 'BUY' })
-                        NavStore.goNext('MainDataScreen', {
-                            currencyCode,
-                            exchangeApiConfig: res
-                        })
-                    })
-
-                } else {
-                    showModal({
-                        type: 'INFO_MODAL',
-                        icon: false,
-                        title: strings('modal.exchange.sorry'),
-                        description: strings('modal.infoBuyModal.currencyNotAvailable', { currencySymbol }),
-                    })
-                }
+            if(typeof isExist != 'undefined'){
+                callback()
             } else {
-                throw new Error(res)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.exchange.sorry'),
+                    description: strings('modal.infoBuyModal.currencyNotAvailable', { currencySymbol }),
+                })
             }
 
             setLoaderStatus(false)
 
         } catch (e) {
+            console.log(e)
             Log.err('ReceiveScreen/handleBut error', e.message)
         }
 
         setLoaderStatus(false)
+    }
+
+    handleBuy = () => {
+        const { exchangeStore } = this.props
+
+        this.proceedAction(exchangeStore.tradeApiConfig.exchangeWays, "BUY", () => {
+
+            ExchangeActions.handleSetTradeType({ tradeType: 'BUY' })
+
+            NavStore.goNext('TradeScreenStack', {
+                exchangeScreenParam: {
+                    selectedCryptocurrency: this.props.currency
+                }
+            })
+        })
+    }
+
+    handleExchange = () => {
+        const { exchangeStore } = this.props
+
+        this.proceedAction(exchangeStore.exchangeApiConfig, "EXCHANGE", () => {
+
+            NavStore.goNext('ExchangeScreenStack', {
+                exchangeScreenParam: {
+                    selectedCryptocurrency: this.props.currency
+                }
+            })
+        })
     }
 
     handleCustomReceiveAmount = () => {
@@ -139,6 +169,47 @@ class ReceiveScreen extends Component {
         }
     }
 
+    shareAddress = () => {
+        const { address } = this.props.account
+
+        Share.open({ url: address })
+            .then((res) => { console.log(res) })
+            .catch((err) => { err && console.log(err) })
+    }
+
+    renderAccountDetail = () => {
+
+        const { currencyBalanceAmount, currencySymbol, currencyName, currencyCode } = this.props.currency
+        const { address } = this.props.account
+
+        return (
+            <View style={styles.accountDetail}>
+                <View style={{ flexDirection: "row" }}>
+                    <View style={{ marginTop: 15 }}>
+                        <CurrencyIcon currencyCode={currencyCode}
+                                      containerStyle={{  }} />
+                    </View>
+                    <View style={styles.accountDetail__content}>
+                        <View>
+                            <Text style={styles.accountDetail__title}>
+                                { currencyName }
+                            </Text>
+                            <View style={{ alignItems: "flex-start" }}>
+                                <LetterSpacing text={currencyBalanceAmount + ' ' + currencySymbol} textStyle={styles.accountDetail__text} letterSpacing={.5} />
+                            </View>
+                        </View>
+                    </View>
+                    <TouchableOpacity style={{ paddingTop: 16, paddingRight: 31, paddingLeft: 10, paddingBottom: 20, justifyContent: "center", marginLeft: "auto" }} onPress={this.copyToClip}>
+                        <LightButton Icon={(props) => <MaterialIcons color="#864DD9" size={10} name={"content-copy"} { ...props } /> } iconStyle={{ marginHorizontal: 3 }} title={strings('account.receiveScreen.copy')} />
+                    </TouchableOpacity>
+                </View>
+                <View style={{flex: 1, paddingLeft: 66, paddingRight: 30}}>
+                    <LetterSpacing text={address} containerStyle={{ flexWrap: "wrap", justifyContent: "flex-start", flex: 1 }} textStyle={{...styles.accountDetail__text, marginTop: Platform.OS === "android" ? -3 : 0, marginBottom: 0}} letterSpacing={1} />
+                </View>
+            </View>
+        )
+    }
+
     render(){
 
         const { address } = this.props.account
@@ -150,49 +221,88 @@ class ReceiveScreen extends Component {
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <Navigation
                     title={ strings('account.receiveScreen.title', { receive: strings('repeat.receive') + ' ' + currencySymbol }) }
+                    CustomComponent={this.renderAccountDetail}
                 />
-                <View style={styles.wrapper__content}>
-                    <TouchableOpacity onPress={() => this.copyToClip()}>
-                        <QRCode
-                            value={this.getAddressForQR()}
-                            size={220}
-                            bgColor='#5e2092'
-                            fgColor='white'/>
-                        <Text style={{
-                            marginTop: 10,
-                            color: '#999999',
-                            fontSize: 14,
-                            fontFamily: 'SFUIDisplay-Regular',
-                            textAlign: 'center'
-                        }}>{ strings('account.receiveScreen.clickToCopy') }</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.title}>
-                        { strings('account.receiveScreen.description', { currency: currencyName }) }
-                    </Text>
-                    <TouchableOpacity onPress={this.copyToClip} style={{ position: 'relative' }}>
-                        <Text style={styles.text}>
-                            { address }
-                        </Text>
-                        <GradientView style={styles.line} array={lineStyles_.array} start={lineStyles_.start} end={lineStyles_.end} />
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.buttons}>
-                    <View style={styles.btn}>
-                        <ButtonLine press={this.handleBuy}
-                                    styleText={{ fontSize: 15 }}
-                                    innerStyle={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
-                            { strings('exchange.buy') }
-                        </ButtonLine>
+                <ScrollView>
+                    <View style={styles.wrapper__content}>
+                        <View style={styles.qr}>
+                            <GradientView style={styles.qr__content}  array={styles.qr__bg.array} start={styles.qr__bg.start} end={styles.qr__bg.end}>
+                                <TouchableOpacity style={{ alignItems: "center" }} onPress={() => this.copyToClip()}>
+                                    <QRCode
+                                        value={this.getAddressForQR()}
+                                        size={230}
+                                        color='#404040'
+                                        logoBackgroundColor='transparent'/>
+                                    {/*<Text style={{*/}
+                                    {/*    marginTop: 10,*/}
+                                    {/*    color: '#999999',*/}
+                                    {/*    fontSize: 14,*/}
+                                    {/*    fontFamily: 'SFUIDisplay-Regular',*/}
+                                    {/*    textAlign: 'center'*/}
+                                    {/*}}>{ strings('account.receiveScreen.clickToCopy') }</Text>*/}
+                                </TouchableOpacity>
+                                <View style={styles.line}>
+                                    <View style={styles.line__item} />
+                                </View>
+                                <TouchableOpacity style={{ padding: 24, justifyContent: "center" }} onPress={this.handleCustomReceiveAmount}>
+                                    <LightButton Icon={(props) => <Feather color="#864DD9" size={10} name={"edit"} { ...props } /> } title={strings('account.receiveScreen.receiveAmount')} iconStyle={{ marginHorizontal: 3 }}  />
+                                </TouchableOpacity>
+                            </GradientView>
+                            <View style={styles.qr__shadow}>
+                                <View style={styles.qr__shadow__item} />
+                            </View>
+                        </View>
+                        {/*<Text style={styles.title}>*/}
+                        {/*    { strings('account.receiveScreen.description', { currency: currencyName }) }*/}
+                        {/*</Text>*/}
+
+                        <View style={styles.options}>
+                            <TouchableOpacity style={styles.options__item} onPress={this.handleBuy}>
+                                <View style={styles.options__wrap}>
+                                    <GradientView style={styles.options__content} array={styles.qr__bg.array} start={styles.qr__bg.start} end={styles.qr__bg.end}>
+                                        <View style={{ marginRight: 3 }}>
+                                            <CustomIcon name="buy" style={{ color: '#864DD9', fontSize: 24 }}/>
+                                        </View>
+                                    </GradientView>
+                                    <View style={styles.options__shadow}>
+                                        <View style={styles.options__shadow__item} />
+                                    </View>
+                                </View>
+                                <View style={styles.options__text}>
+                                    <LetterSpacing text={strings('exchange.buy')} textStyle={styles.options__text} letterSpacing={.7} />
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.options__item} onPress={this.handleExchange}>
+                                <View style={styles.options__wrap}>
+                                    <GradientView style={styles.options__content} array={styles.qr__bg.array} start={styles.qr__bg.start} end={styles.qr__bg.end}>
+                                        <CustomIcon name="exchange" style={{ color: '#864DD9', fontSize: 24 }}/>
+                                    </GradientView>
+                                    <View style={styles.options__shadow}>
+                                        <View style={styles.options__shadow__item} />
+                                    </View>
+                                </View>
+                                <View style={styles.options__text}>
+                                    <LetterSpacing text={strings('dashboardStack.exchange')} textStyle={styles.options__text} letterSpacing={.7} />
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.options__item} onPress={this.shareAddress}>
+                                <View style={styles.options__wrap}>
+                                    <GradientView style={styles.options__content} array={styles.qr__bg.array} start={styles.qr__bg.start} end={styles.qr__bg.end}>
+                                        <View style={{ marginRight: 3 }}>
+                                            <Fontisto color={"#864DD9"} size={24} name={"share"} />
+                                        </View>
+                                    </GradientView>
+                                    <View style={styles.options__shadow}>
+                                        <View style={styles.options__shadow__item} />
+                                    </View>
+                                </View>
+                                <View style={styles.options__text}>
+                                    <LetterSpacing text={strings('account.receiveScreen.share')} textStyle={styles.options__text} letterSpacing={.7} />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                    <View style={styles.btn}>
-                        <Button press={this.handleCustomReceiveAmount}
-                                styleText={{ fontSize: 15 }}
-                                innerStyle={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-                                btnWrapStyle={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}>
-                           { strings('account.receiveScreen.receiveAmount') }
-                        </Button>
-                    </View>
-                </View>
+                </ScrollView>
             </GradientView>
         )
     }
@@ -201,7 +311,8 @@ class ReceiveScreen extends Component {
 const mapStateToProps = (state) => {
     return {
         currency: state.mainStore.selectedCryptoCurrency,
-        account: state.mainStore.selectedAccount
+        account: state.mainStore.selectedAccount,
+        exchangeStore: state.exchangeStore
     }
 }
 
@@ -221,63 +332,7 @@ const lineStyles_ = {
 }
 
 const styles_ = {
-    array: ["#fff","#F8FCFF"],
+    array: ["#f5f5f5","#f5f5f5"],
     start: { x: 0.0, y: 0 },
     end: { x: 0, y: 1 }
-}
-
-const styles = {
-    wrapper: {
-        flex: 1,
-    },
-    wrapper__content: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        flex: 1,
-        paddingTop: 60,
-        paddingLeft: 30,
-        paddingRight: 30
-    },
-    title: {
-        marginTop: 20,
-        color: '#999999',
-        fontSize: 22,
-        fontFamily: 'SFUIDisplay-Regular'
-    },
-    text: {
-        color: '#404040',
-        fontSize: 14,
-        fontFamily: 'SFUIDisplay-Semibold'
-    },
-    line: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        bottom: 0,
-        height: 2
-    },
-    buttons: {
-        flexDirection: 'row',
-        width: '100%',
-        minHeight: 50,
-        paddingTop: 20,
-        paddingBottom: 20,
-        paddingHorizontal: 30,
-
-        backgroundColor: '#fff',
-
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 7,
-        },
-        shadowOpacity: 0.43,
-        shadowRadius: 9.51,
-
-        elevation: 10,
-    },
-    btn: {
-        flex: 1,
-        marginBottom: 20
-    },
 }

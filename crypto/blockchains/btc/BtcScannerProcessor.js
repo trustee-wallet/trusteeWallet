@@ -22,22 +22,29 @@
 import BlocksoftUtils from '../../common/BlocksoftUtils'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 
+let bitcoin = require('bitcoinjs-lib')
+
 class BtcScannerProcessor {
     constructor(settings) {
-        BlocksoftCryptoLog.logDivider()
+        this._currencyCode = settings.currencyCode
+        this._network = settings.network
         BlocksoftCryptoLog.log('BtcScannerProcessor init started', settings.currencyCode)
         this.balancesProvider = require('./providers/BtcBalancesProvider').init(settings)
         this.transactionsProvider = require('./providers/BtcTransactionsProvider').init(settings)
+        this.transactionProvider = require('./providers/BtcTransactionProvider').init(settings)
+        this.addressProcessor = require('./BtcAddressProcessor').init(settings)
+
         BlocksoftCryptoLog.log('BtcScannerProcessor inited')
     }
 
 
     /**
      * @param {string} address
-     * @return {Promise<string|int>}
+     * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalance(address) {
-        return await this.balancesProvider.get(address)
+        BlocksoftCryptoLog.log('BtcScannerProcessor.getBalance started ' + this._currencyCode + ' ' + this._network, address)
+        return this.balancesProvider.get(address)
     }
 
     /**
@@ -45,11 +52,11 @@ class BtcScannerProcessor {
      * @return {Promise<UnifiedTransaction[]>}
      */
     async getTransactions(address) {
-        BlocksoftCryptoLog.log('BtcScannerProcessor.getTransactions started', address)
+        BlocksoftCryptoLog.log('BtcScannerProcessor.getTransactions started ' + this._currencyCode + ' ' + this._network, address)
         let tmp = await this.transactionsProvider.get(address)
         let transactions = []
         for (let tx of tmp) {
-            let transaction = this._unifyTransaction(address, tx)
+            let transaction = await this._unifyTransaction(address, tx)
             transactions.push(transaction)
         }
         BlocksoftCryptoLog.log('BtcScannerProcessor.getTransactions finished', address + ' total: ' + transactions.length)
@@ -89,15 +96,15 @@ class BtcScannerProcessor {
      * @return {UnifiedTransaction}
      * @private
      */
-    _unifyTransaction(address, transaction) {
+    async _unifyTransaction(address, transaction) {
         let showAddresses = false
         try {
-           showAddresses = _getAddresses(address, transaction.vin, transaction.vout)
+            showAddresses = await this._getAddresses(transaction.txid, address, transaction.vin, transaction.vout)
         } catch (e) {
-            e.message += ' transaction hash ' + transaction.txid + ' address ' + address
+            e.message += ' transaction hash ' + JSON.stringify(transaction) + ' address ' + address
             throw e
         }
-        if (transaction.time === "undefined") {
+        if (typeof (transaction.time) === "undefined") {
             new Error(' no transaction.time error transaction data ' + JSON.stringify(transaction))
         }
         let formattedTime = transaction.time
@@ -107,78 +114,107 @@ class BtcScannerProcessor {
             e.message += ' timestamp error transaction data ' + JSON.stringify(transaction)
             throw e
         }
+        let confirmations = transaction.confirmations * 1;
         return {
             transaction_hash: transaction.txid,
             block_hash: transaction.blockhash,
             block_number: +transaction.blockheight,
             block_time: formattedTime,
-            block_confirmations: +transaction.confirmations,
+            block_confirmations: confirmations,
             transaction_direction: showAddresses.direction,
             address_from: showAddresses.from,
             address_to: showAddresses.to,
             address_amount: BlocksoftUtils.toSatoshi(showAddresses.value), // to satoshi
-            transaction_status: transaction.confirmations > 0 ? 'success' : '',
+            transaction_status: confirmations > 5 ? 'success' : 'new',
             transaction_fee: BlocksoftUtils.toSatoshi(transaction.fees),
             lock_time: +transaction.locktime,
             vin: JSON.stringify(transaction.vin),
             vout: JSON.stringify(transaction.vout)
         }
     }
-}
 
 
-function _getAddresses(address, vin, vout) {
-
-    let output = {
-        direction: 'outcome',
-        from: '',
-        to: '',
-        value: 0
-    }
-
-    let anyFrom, anyTo
-    let anyToValue = 0
-
-    for (let i = 0, ic = vin.length; i < ic; i++) {
-        if (vin[i].addr === address) {
-            output.from = vin[i].addr
-            break
-        } else if (!anyFrom) {
-            anyFrom = vin[i].addr
+    async _getAddressRestoreSegwitFrom(basicHash, prevHash) {
+        BlocksoftCryptoLog.log('BtcScannerProcessor. _getAddressRestoreSegwitFrom started with prevHash' + prevHash + ' => basicHash' + basicHash)
+        let raw = await this.transactionProvider.getRaw(basicHash)
+        let anyFrom = this.addressProcessor.getAddressByRawWithWitness(raw)
+        if (anyFrom) {
+            BlocksoftCryptoLog.log('BtcScannerProcessor. _getAddressRestoreSegwitFrom found anyFrom by getAddressByRawWithWitness ' + anyFrom)
+            return anyFrom
         }
-    }
-
-    if (!output.from) {
-        output.direction = 'income'
-        output.from = anyFrom
-    }
-
-
-    for (let j = 0, jc = vout.length; j < jc; j++) {
-        if (typeof vout[j].scriptPubKey.addresses === 'undefined') continue
-        if (vout[j].scriptPubKey.addresses === null) continue
-        if (vout[j].scriptPubKey.addresses[0] === address) {
-            if (output.direction === 'income') {
-                // only
-                output.to = address
-                output.value = vout[j].value
-                break
+        let tx = await this.transactionProvider.get(prevHash)
+        if (!tx) return false
+        for (let j = 0, jc = tx.vout.length; j < jc; j++) {
+            if (tx.vout[j].spentTxId === basicHash) {
+                //console.log(JSON.stringify(tx, null, 4))
+                //anyFrom = await this.addressProcessor.getAddressByPublic(tx.vout[j].scriptPubKey)
+                anyFrom = tx.vout[j].address
+                BlocksoftCryptoLog.log('BtcScannerProcessor. _getAddressRestoreSegwitFrom found anyFrom by prevHash ' + anyFrom)
+                return anyFrom
             }
-        } else if (!anyTo || anyToValue < vout[j].value) {
-            // if its not transaction to our address
-            anyTo = vout[j].scriptPubKey.addresses[0]
-            anyToValue = vout[j].value
         }
     }
-    if (!output.to) {
-        output.to = anyTo
-        output.value = anyToValue
-    }
 
-    return output
+    async _getAddresses(basicHash, address, vin, vout) {
+
+        let output = {
+            direction: 'outcome',
+            from: '',
+            to: '',
+            value: 0
+        }
+
+        let anyFrom, anyTo, anyVin
+        let anyToValue = 0
+
+        for (let i = 0, ic = vin.length; i < ic; i++) {
+            if (vin[i].txid) {
+                anyVin = vin[i].txid
+            }
+            if (vin[i].addr === address) {
+                output.from = vin[i].addr
+                break
+            } else if (!anyFrom) {
+                anyFrom = vin[i].addr
+            }
+        }
+
+        if (!output.from) {
+            output.direction = 'income'
+            if (!anyFrom) {
+                anyFrom = await this._getAddressRestoreSegwitFrom(basicHash, anyVin)
+            }
+            output.from = anyFrom
+        }
+
+
+        for (let j = 0, jc = vout.length; j < jc; j++) {
+            if (typeof vout[j].scriptPubKey.addresses === 'undefined') continue
+            if (vout[j].scriptPubKey.addresses === null) continue
+            if (vout[j].scriptPubKey.addresses[0] === address) {
+                if (output.direction === 'income') {
+                    // only
+                    output.to = address
+                    output.value = vout[j].value
+                    break
+                }
+            } else if (!anyTo || anyToValue < vout[j].value) {
+                // if its not transaction to our address
+                anyTo = vout[j].scriptPubKey.addresses[0]
+                anyToValue = vout[j].value
+            }
+        }
+        if (!output.to) {
+            output.to = anyTo
+            output.value = anyToValue
+        }
+
+        return output
+    }
 }
 
+module.exports.BtcScannerProcessor = BtcScannerProcessor
 
-module.exports.init = function(settings) {
+module.exports.init = function (settings) {
     return new BtcScannerProcessor(settings)
 }

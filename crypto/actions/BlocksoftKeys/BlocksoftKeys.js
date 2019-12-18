@@ -13,6 +13,9 @@ const networksConstants = require('../../common/ext/networks-constants')
 
 const Dispatcher = require('../../blockchains/Dispatcher').init()
 
+const ETH_CACHE = {}
+const CACHE = {}
+
 class BlocksoftKeys {
 
     constructor() {
@@ -29,8 +32,29 @@ class BlocksoftKeys {
      * @param {int} size
      * @return {Promise<{mnemonic: string, hash: string}>}
      */
-    async newMnemonic(size = 256) {
+    async newMnemonic(size = 256, USE_TON = false) {
         BlocksoftCryptoLog.log(`BlocksoftKeys newMnemonic called`)
+
+        /*let mnemonic = false
+        if (USE_TON) {
+            for (let i = 0; i < 10000; i++) {
+                let random = await this._getRandomBytesFunction(size / 8)
+                random = Buffer.from(random, 'base64')
+                let testMnemonic = bip39.entropyToMnemonic(random)
+                if (await BlocksoftKeysUtils.tonCheckRevert(testMnemonic)) {
+                    mnemonic = testMnemonic
+                    break
+                }
+                console.log('step ' + i + ' not valid ton ' + testMnemonic)
+            }
+            if (!mnemonic) {
+                throw new Error('TON Mnemonic is not validating')
+            }
+        } else {
+            let random = await this._getRandomBytesFunction(size / 8)
+            random = Buffer.from(random, 'base64')
+            mnemonic = bip39.entropyToMnemonic(random)
+        }*/
         let random = await this._getRandomBytesFunction(size / 8)
         random = Buffer.from(random, 'base64')
         let mnemonic = bip39.entropyToMnemonic(random)
@@ -62,8 +86,9 @@ class BlocksoftKeys {
      * @return {Promise<{currencyCode:[{address, privateKey, path, index, type}]}>}
      */
     async discoverAddresses(data) {
-        let logData = JSON.parse(JSON.stringify(data))
+        let logData = {...data}
         if (typeof logData.mnemonic !== 'undefined') logData.mnemonic = '***'
+
         BlocksoftCryptoLog.log(`BlocksoftKeys discoverAddresses called`, logData)
         if (typeof(data.fullTree) === 'undefined') {
             data.fullTree = false
@@ -78,34 +103,14 @@ class BlocksoftKeys {
         }
 
         let results = {}
-        let seed = BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase()) // will be rechecked on saving
 
         let fromIndex = data.fromIndex ? data.fromIndex : 0
         let toIndex = data.toIndex ? data.toIndex : 10
-
+        let mnemonicCache = data.mnemonic.toLowerCase()
         let bitcoinRoot = false
         for (let currencyCode of toDiscover) {
             results[currencyCode] = []
-            let settings = BlocksoftDict.Currencies[currencyCode]
-
-            let root = false
-            if (typeof networksConstants[currencyCode] !== 'undefined') {
-                root = bip32.fromSeed(seed, networksConstants[currencyCode])
-            } else {
-                if (!bitcoinRoot) {
-                    bitcoinRoot = bip32.fromSeed(seed)
-                }
-                root = bitcoinRoot
-            }
-
-            // BIP32 Extended Private Key to check - uncomment
-            // let childFirst = root.derivePath('m/44\'/2\'/0\'/0')
-            // console.log(childFirst.toBase58())
-
-            /**
-             * @type {EthAddressProcessor|BtcAddressProcessor}
-             */
-            let processor = await Dispatcher.getAddressProcessor(currencyCode)
+            let settings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
             let hexes = []
             if (settings.addressCurrencyCode) {
@@ -125,7 +130,6 @@ class BlocksoftKeys {
                 }
             }
 
-
             let isAlreadyMain = false
 
             let suffixes
@@ -142,31 +146,77 @@ class BlocksoftKeys {
                 ]
                 hexes = [hexes[0]]
             }
-            for (let hex of hexes) {
-                hex &= 0x7FFFFFFF
 
-                if (isAlreadyMain) {
-                    suffixes[0].type = 'second'
+            let hexesCache = mnemonicCache + '_' + settings.addressProcessor + '_' + JSON.stringify(hexes)
+
+            if (typeof(CACHE[hexesCache]) === 'undefined') {
+                BlocksoftCryptoLog.log(`BlocksoftKeys will discover ${settings.addressProcessor}`)
+                let root = false
+                if (typeof networksConstants[currencyCode] !== 'undefined') {
+                    root = bip32.fromSeed(await this.getSeedCached(data.mnemonic), networksConstants[currencyCode])
+                } else {
+                    if (!bitcoinRoot) {
+                        bitcoinRoot = bip32.fromSeed(await this.getSeedCached(data.mnemonic))
+                    }
+                    root = bitcoinRoot
                 }
-                isAlreadyMain = true
+                // BIP32 Extended Private Key to check - uncomment
+                // let childFirst = root.derivePath('m/44\'/2\'/0\'/0')
+                // console.log(childFirst.toBase58())
 
-                for (let index = fromIndex; index < toIndex; index++) {
-                    for (let suffix of suffixes) {
-                        let path = `m/44'/${hex}'/${index}'/${suffix.suffix}`
-                        let child = root.derivePath(path)
-                        let result = processor.getAddress(child.privateKey)
-                        result.basicPrivateKey = child.privateKey.toString('hex')
-                        result.basicPublicKey = child.publicKey.toString('hex')
-                        result.path = path
-                        result.index = index
-                        result.type = suffix.type
-                        results[currencyCode].push(result)
+                /**
+                 * @type {EthAddressProcessor|BtcAddressProcessor}
+                 */
+                let processor = await Dispatcher.innerGetAddressProcessor(settings)
+
+                for (let hex of hexes) {
+                    hex &= 0x7FFFFFFF
+
+                    if (isAlreadyMain) {
+                        suffixes[0].type = 'second'
+                    }
+                    isAlreadyMain = true
+
+                    for (let index = fromIndex; index < toIndex; index++) {
+                        for (let suffix of suffixes) {
+                            let path = `m/44'/${hex}'/${index}'/${suffix.suffix}`
+                            let child = root.derivePath(path)
+                            let result = await processor.getAddress(child.privateKey, {publicKey: child.publicKey, walletHash: data.walletHash})
+                            result.basicPrivateKey = child.privateKey.toString('hex')
+                            result.basicPublicKey = child.publicKey.toString('hex')
+                            result.path = path
+                            result.index = index
+                            result.type = suffix.type
+                            results[currencyCode].push(result)
+                        }
                     }
                 }
+                CACHE[hexesCache] = results[currencyCode]
+                if (currencyCode === 'ETH') {
+                    ETH_CACHE[mnemonicCache] = results[currencyCode][0]
+                }
+            } else {
+                BlocksoftCryptoLog.log(`BlocksoftKeys will be from cache ${settings.addressProcessor}`)
+                results[currencyCode] = CACHE[hexesCache]
             }
         }
         return results
+    }
 
+    getSeedCached(mnemonic) {
+        BlocksoftCryptoLog.log(`BlocksoftKeys bip39MnemonicToSeed started`)
+        let mnemonicCache = mnemonic.toLowerCase()
+        if (typeof CACHE[mnemonicCache] === 'undefined') {
+            CACHE[mnemonicCache] = BlocksoftKeysUtils.bip39MnemonicToSeed(mnemonic.toLowerCase())
+        }
+        let seed = CACHE[mnemonicCache] // will be rechecked on saving
+        BlocksoftCryptoLog.log(`BlocksoftKeys bip39MnemonicToSeed ended`)
+        return seed
+    }
+
+    getEthCached(mnemonicCache) {
+        if(typeof(ETH_CACHE[mnemonicCache]) === 'undefined') return false
+        return ETH_CACHE[mnemonicCache]
     }
 
     /**

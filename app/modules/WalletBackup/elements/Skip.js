@@ -18,6 +18,7 @@ import { strings } from '../../../services/i18n';
 import App from '../../../appstores/Actions/App/App'
 import { setLoaderStatus, proceedSaveGeneratedWallet } from '../../../appstores/Actions/MainStoreActions'
 import Log from '../../../services/Log/Log'
+import { setCallback } from '../../../appstores/Actions/CreateWalletActions'
 
 class Skip extends Component {
 
@@ -26,9 +27,9 @@ class Skip extends Component {
     }
 
     handleSkip = async () => {
-        hideModal();
+        hideModal()
 
-        const { walletName, walletMnemonic } = this.props.createWallet;
+        const { walletName, walletMnemonic, callback } = this.props.createWallet;
 
         try {
             setLoaderStatus(true)
@@ -45,14 +46,17 @@ class Skip extends Component {
                 icon: true,
                 title: strings('modal.walletBackup.success'),
                 description: strings('modal.walletBackup.walletCreated')
-            }, () => {
-                NavStore.reset('DashboardStack')
+            }, async () => {
+                if(callback === null){
+                    NavStore.reset('DashboardStack')
+                    await App.refreshWalletsStore()
+                } else {
+                    callback()
+                    setCallback({ callback: null })
+                }
             });
-
-            await App.refreshWalletsStore()
-
         } catch (e) {
-            Log.err('WalletBackup.Skip errorSaving', e)
+            Log.err('WalletBackup.Skip error ' + e.message)
         }
 
     };

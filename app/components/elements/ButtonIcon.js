@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import {
+    Image,
     Text,
     TouchableOpacity,
     View
@@ -33,6 +34,10 @@ import Litecoin from '../../assets/images/litecoin.svg'
 import EthErc20 from '../../assets/images/ethErc20Color.svg'
 import GradientView from './GradientView'
 
+import BitTorrent from '../../assets/images/bittorrent.png'
+import Dogecoin from '../../assets/images/dogecoin.png'
+import Verge from '../../assets/images/verge.png'
+
 
 export default class ButtonIcon extends Component {
 
@@ -44,9 +49,84 @@ export default class ButtonIcon extends Component {
         const { icon } = this.props
 
         switch(icon){
+            case 'ETH_ONE':
+                return (
+                    <View style={styles.icon__wrap}>
+                        <Image style={{ width: 24, height: 24 }} source={require('../../assets/images/harmony-one.png')} />
+                        <GradientView
+                            style={styles.icon__mark}
+                            array={['#7E55D2', '#AC8FEA']}
+                            start={styles.icons.position.start}
+                            end={styles.icons.position.end}>
+                            <Text style={styles.icon__mark__text}>
+                                ETH
+                            </Text>
+                        </GradientView>
+                    </View>
+                )
+
+            case 'TRX_USDT':
+                return (
+                    <View style={styles.icon__wrap}>
+                        <Tether width={20} height={35} />
+                        <GradientView
+                            style={styles.icon__mark}
+                            array={['#7E55D2', '#AC8FEA']}
+                            start={styles.icons.position.start}
+                            end={styles.icons.position.end}>
+                            <Text style={styles.icon__mark__text}>
+                                TRX
+                            </Text>
+                        </GradientView>
+                    </View>
+                )
+
+            case 'TRX_BTT':
+                return (
+                    <View style={styles.icon__wrap}>
+                        <Image style={{ width: 25, height: 25 }} source={BitTorrent} />
+                        <GradientView
+                            style={styles.icon__mark}
+                            array={['#7E55D2', '#AC8FEA']}
+                            start={styles.icons.position.start}
+                            end={styles.icons.position.end}>
+                            <Text style={styles.icon__mark__text}>
+                                TRX
+                            </Text>
+                        </GradientView>
+                    </View>
+                )
+            case 'XVG':
+                return (
+                    <Image style={{ width: 25, height: 25 }} source={Verge} />
+                )
+            case 'DOGE':
+                return (
+                    <Image style={{ width: 30, height: 30 }} source={Dogecoin} />
+                )
+            case 'ETH_SOUL':
+                return (
+                    <View style={styles.icon__wrap}>
+                        <Image style={{ width: 30, height: 30 }} source={require('../../assets/images/ethSOUL.png')} />
+                        <GradientView
+                            style={styles.icon__mark}
+                            array={['#7E55D2', '#AC8FEA']}
+                            start={styles.icons.position.start}
+                            end={styles.icons.position.end}>
+                            <Text style={styles.icon__mark__text}>
+                                ETH
+                            </Text>
+                        </GradientView>
+                    </View>
+                )
+
             case 'LTC':
                 return (
                     <Litecoin width={20} height={35} />
+                )
+            case 'TRX':
+                return (
+                    <Image style={{ width: 20, height: 25 }} source={require('../../assets/images/trx.png')} />
                 )
             case 'ETH':
             case 'ETH_ROPSTEN':
@@ -238,6 +318,7 @@ const styles = {
     wrapper: {
         width: 46,
         height: 46,
+        marginBottom: 10,
         borderRadius: 23,
         backgroundColor: '#fff',
 

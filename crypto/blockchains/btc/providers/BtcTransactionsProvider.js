@@ -22,6 +22,10 @@ class BtcTransactionsProvider {
             throw new Error('BtcTransactionsProvider requires settings.network')
         }
         switch (settings.network) {
+            case 'dogecoin':
+                this._blockcypherApiPath = `https://api.blockcypher.com/v1/doge/main`
+                this._insightApiPath = false
+                break
             case 'litecoin':
                 this._blockcypherApiPath = `https://api.blockcypher.com/v1/ltc/main`
                 this._insightApiPath = `https://insight.litecore.io/api/txs/`
@@ -111,7 +115,6 @@ class BtcTransactionsProvider {
             throw new Error('Undefined tx ' + link + ' ' + JSON.stringify(tmp.data))
         }
         let ic = tmp.data.txs.length
-        return []
         let txs = []
         for (let i = 0; i < ic; i++) {
             let row = tmp.data.txs[i]
@@ -227,7 +230,8 @@ class BtcTransactionsProvider {
         }
 
         if (txs === -1) {
-            throw new Error('BtcTransactionsProvider.get nothing responding ' + JSON.stringify(CACHE_HISTORY) + msg)
+            BlocksoftCryptoLog.log('BtcTransactionsProvider.get nothing responding ' + JSON.stringify(CACHE_HISTORY) + msg)
+            return []
         }
 
         return txs

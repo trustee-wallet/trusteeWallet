@@ -1,10 +1,10 @@
+import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import BlocksoftUtils from '../../common/BlocksoftUtils'
+
 /**
  * @author Ksu
  * @version 0.3
  */
-import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
-import BlocksoftUtils from '../../common/BlocksoftUtils'
-
 const Dispatcher = require('../../blockchains/Dispatcher').init()
 
 class BlocksoftBalances {
@@ -22,7 +22,7 @@ class BlocksoftBalances {
     _allSettings = {}
 
     /**
-     * @type {{currencyCode, address, fee}}
+     * @type {{currencyCode, address, fee, jsonData}}
      * @private
      */
     _data = {}
@@ -60,15 +60,27 @@ class BlocksoftBalances {
     }
 
     /**
-     * @return {Promise<int>}
+     * @param {*} jsonData
+     * @return {BlocksoftBalances}
+     */
+    setAdditional(jsonData) {
+        this._data.jsonData = jsonData
+        return this
+    }
+
+    /**
+     * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalance() {
         let currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
+        if (currencyCode === 'BTC' && this._data.address.toString().substr(0, 1) === 'm') {
+            throw new Error('plz check btc address as its testnet and mainnet is selected')
+        }
         try {
-            return this._processor[currencyCode].getBalance(this._data.address)
+            return this._processor[currencyCode].getBalance(this._data.address, this._data.jsonData)
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
             throw e
@@ -102,8 +114,9 @@ class BlocksoftBalances {
         if (balance === false) { // use submitted balance if there is recent request (from ui)
             try {
                 BlocksoftCryptoLog.log(`BlocksoftBalances.getTransferAllBalance ${currencyCode} started ${this._data.address} `)
-                balance = await this._processor[currencyCode].getBalance(this._data.address)
-                BlocksoftCryptoLog.log(`BlocksoftBalances.getTransferAllBalance ${currencyCode} got ${this._data.address} with balance`, balance)
+                let tmp = await this._processor[currencyCode].getBalance(this._data.address)
+                balance = BlocksoftUtils.add(tmp.balance, tmp.unconfirmed)
+                BlocksoftCryptoLog.log(`BlocksoftBalances.getTransferAllBalance ${currencyCode} got ${this._data.address} data`, tmp)
             } catch (e) {
                 e.message = `BlocksoftBalances.getTransferAllBalance ${currencyCode} error ` + e.message
                 // noinspection ES6MissingAwait
@@ -120,7 +133,8 @@ class BlocksoftBalances {
         }
 
         if (balance <= 0) {
-            let e = new Error(`not enough funds, current = ${balance} ${this._data.currencyCode}` )
+            BlocksoftCryptoLog.log(`BlocksoftBalances.getTransferAllBalance ${this._data.currencyCode} not enough funds, current = ${balance}`)
+            let e = new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
             e.code = 'ERROR_USER'
             throw e
         }
@@ -145,6 +159,11 @@ class BlocksoftBalances {
         }
         let res = (BlocksoftUtils.toBigNumber(balance)).sub(BlocksoftUtils.toBigNumber(fee)).toString()  //new BN(balance).sub(new BN(fee)).toString()
         BlocksoftCryptoLog.log(`BlocksoftBalances._getTransferAllBalanceMinusFee ${balance} - ${fee} => ${res}`)
+        if (res < 0) {
+            let e = new Error('balance is less than fee')
+            e.code = 'ERROR_BALANCE_MINUS_FEE'
+            throw e
+        }
         return res
     }
 

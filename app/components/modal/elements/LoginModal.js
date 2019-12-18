@@ -61,7 +61,7 @@ export class LoginModal extends Component {
 
             setLoaderStatus(false)
         } catch (e) {
-            Log.err('LoginModal.Login error', e.message)
+            Log.err('LoginModal.Login error ' + e.message)
         }
     }
 

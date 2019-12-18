@@ -1,10 +1,16 @@
-package com.trustee.demo;
+package com.trusteewallet;
 
 import android.app.Application;
 import java.security.Security;
 import androidx.multidex.MultiDexApplication;
+import com.zyu.ReactNativeWheelPickerPackage;
 
+import com.reactnativecommunity.rnpermissions.RNPermissionsPackage;
 import com.facebook.react.ReactApplication;
+import com.swmansion.rnscreens.RNScreensPackage;
+import com.imagepicker.ImagePickerPackage;
+import com.wheelpicker.WheelPickerPackage;
+import com.flurry.android.reactnative.FlurryPackage;
 import com.swmansion.reanimated.ReanimatedPackage;
 import com.bluroverly.SajjadBlurOverlayPackage;
 import com.github.wumke.RNExitApp.RNExitAppPackage;
@@ -47,8 +53,6 @@ import io.invertase.firebase.links.RNFirebaseLinksPackage;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
 import com.reactlibrary.RNBlocksoftRandomPackage;
 
-import com.flurry.android.FlurryAgent;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -64,6 +68,11 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNScreensPackage(),
+            new RNPermissionsPackage(),
+            new ImagePickerPackage(),
+            new WheelPickerPackage(),
+            new FlurryPackage(),
             new ReanimatedPackage(),
             new SajjadBlurOverlayPackage(),
             new RNExitAppPackage(),
@@ -93,6 +102,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
             new RNFirebaseCrashlyticsPackage(),
             new RNFirebaseLinksPackage(),
 
+            new ReactNativeWheelPickerPackage(),
             new VectorIconsPackage(),
             new OrientationPackage(),
             new RNCameraPackage(),
@@ -121,9 +131,6 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
     Security.insertProviderAt(new org.conscrypt.OpenSSLProvider(), 1);
-    new FlurryAgent.Builder()
-    	.withLogEnabled(true)
-    	.build(this, "CNCBDF2SR5QSPSHDNZ23");
 
   }
 }

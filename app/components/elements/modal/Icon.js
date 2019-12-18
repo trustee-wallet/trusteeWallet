@@ -43,9 +43,11 @@ export default class Icon extends Component {
         } else if(this.props.icon == 'warning') {
             return (
                 <View style={styles.shadow}>
-                    <View style={styles.warning}>
-                        <IconIonicons name="ios-warning" size={styles_.warning.size} color={styles_.color} />
-                    </View>
+                    <TouchableOpacity onPress={() => callback()}>
+                        <View style={styles.warning}>
+                            <IconIonicons name="ios-warning" size={styles_.warning.size} color={styles_.color} />
+                        </View>
+                    </TouchableOpacity>
                 </View>
             )
         } else {

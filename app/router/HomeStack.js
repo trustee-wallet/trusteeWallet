@@ -1,4 +1,4 @@
-import { createStackNavigator } from 'react-navigation'
+import { createStackNavigator } from 'react-navigation-stack'
 import HomeScreen from '../modules/WalletList/HomeScreen'
 
 import AccountScreen from '../modules/Account/AccountScreen'

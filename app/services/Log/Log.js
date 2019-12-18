@@ -1,27 +1,58 @@
 import firebase from 'react-native-firebase'
 
-import { Platform } from 'react-native'
-import AsyncStorage from '@react-native-community/async-storage'
-
-import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 import BlocksoftTg from '../../../crypto/common/BlocksoftTg'
 
-const VER = 'v5'
-const DEBUG = false // set true to see usual logs in console
-const DEBUG_DAEMON = false // set true to see cron jobs logs in console
+import config from '../../config/config'
+import changeableProd from '../../config/changeable.prod'
+import changeableTester from '../../config/changeable.tester'
+
+const DEBUG = config.debug.appLogs // set true to see usual logs in console
+const DEBUG_DAEMON = config.debug.appDaemonLogs // set true to see cron jobs logs in console
+
+const MAX_MESSAGE = 2000
+const FULL_MAX_MESSAGE = 20000
 
 let LOGS_TXT = {
     DAEMON: '',
     ALL: ''
 }
 
+let FULL_LOGS_TXT = {
+    DAEMON: '',
+    ALL: ''
+}
+
 class Log {
+
+    constructor() {
+        this.TG = new BlocksoftTg(changeableProd.tg.info.appBot)
+    }
+
+    _reinitTgMessage(testerMode, obj) {
+
+        if(testerMode === 'TESTER'){
+            this.TG.API_KEY = changeableTester.tg.info.appBot
+        } else {
+            this.TG.API_KEY = changeableProd.tg.info.appBot
+        }
+
+        this.LOG_VERSION = obj.LOG_VERSION
+        this.LOG_TESTER = obj.LOG_TESTER
+        this.LOG_DEV = obj.LOG_DEV
+        this.LOG_WALLET = obj.LOG_WALLET
+        this.LOG_CASHBACK = obj.LOG_CASHBACK
+        this.LOG_TOKEN = obj.LOG_TOKEN
+        this.LOG_PLATFORM = obj.LOG_PLATFORM
+    }
+
     consoleStart() {
         this.localConsole = true
     }
+
     consoleStop() {
         this.localConsole = false
     }
+
     daemonDiv() {
         if (DEBUG) {
             console.log('')
@@ -52,18 +83,18 @@ class Log {
 
 
         if (LOG_SUBTYPE !== 'DAEMON') {
-            // if (DEBUG || this.localConsole) {
+            if (DEBUG || this.localConsole) {
                 if (LOG_AS_ERROR) {
                     console.log('\n\n\n\n==================ERROR ' + LOG_SUBTYPE + '====================\n\n\n\n' + line)
                 } else {
                     console.log(line)
                 }
-            //}
+            }
         } else if (DEBUG_DAEMON) {
             if (LOG_AS_ERROR) {
                 console.log('\n\n\n\n==================ERROR ' + LOG_SUBTYPE + '====================\n\n\n\n' + line)
             } else {
-                console.log(line)
+                console.log('DAEMON ' + line)
             }
         }
 
@@ -82,10 +113,10 @@ class Log {
                 line2 += '\n\t\t\t\t\t\t' + JSON.stringify(txtOrObj3, null, '\t')
             }
             if (LOG_SUBTYPE !== 'DAEMON') {
-                //if (DEBUG || this.localConsole) {
+                if (DEBUG || this.localConsole) {
                     console.log(line2)
-                //}
-            } else if (true || DEBUG_DAEMON) {
+                }
+            } else if (DEBUG_DAEMON) {
                 console.log(line2)
             }
             // noinspection JSUnresolvedFunction
@@ -96,14 +127,22 @@ class Log {
             line = '\n\n\n\n==========ERROR ' + LOG_SUBTYPE + '==========\n\n\n\n' + line
         }
         LOGS_TXT[LOG_SUBTYPE] = line + line2 + '\n' + LOGS_TXT[LOG_SUBTYPE]
-        if (LOGS_TXT[LOG_SUBTYPE].length > 500000) {
-            LOGS_TXT[LOG_SUBTYPE] = LOGS_TXT[LOG_SUBTYPE].substr(0, 100000) + '...'
+        FULL_LOGS_TXT[LOG_SUBTYPE] = line + line2 + '\n' + FULL_LOGS_TXT[LOG_SUBTYPE]
+        if (LOGS_TXT[LOG_SUBTYPE].length > MAX_MESSAGE) {
+            LOGS_TXT[LOG_SUBTYPE] = LOGS_TXT[LOG_SUBTYPE].substr(0, MAX_MESSAGE) + '...'
+        }
+        if (FULL_LOGS_TXT[LOG_SUBTYPE].length > FULL_MAX_MESSAGE) {
+            FULL_LOGS_TXT[LOG_SUBTYPE] = FULL_LOGS_TXT[LOG_SUBTYPE].substr(0, FULL_MAX_MESSAGE) + '...'
         }
 
         if (LOG_SUBTYPE !== 'ALL') { // for DAEMON AND OTHER TYPES
             LOGS_TXT['ALL'] = ' >> ' + line + line2 + '\n' + LOGS_TXT['ALL']
-            if (LOGS_TXT['ALL'].length > 500000) {
-                LOGS_TXT['ALL'] = LOGS_TXT['ALL'].substr(0, 100000) + '...'
+            FULL_LOGS_TXT['ALL'] = ' >> ' + line + line2 + '\n' + FULL_LOGS_TXT['ALL']
+            if (LOGS_TXT['ALL'].length > MAX_MESSAGE) {
+                LOGS_TXT['ALL'] = LOGS_TXT['ALL'].substr(0, MAX_MESSAGE) + '...'
+            }
+            if (FULL_LOGS_TXT['ALL'].length > FULL_MAX_MESSAGE) {
+                FULL_LOGS_TXT['ALL'] = FULL_LOGS_TXT['ALL'].substr(0, FULL_MAX_MESSAGE) + '...'
             }
         }
 
@@ -114,17 +153,15 @@ class Log {
     async errDaemon(errorObjectOrText, errorObject2) {
         this.err(errorObjectOrText, errorObject2, 'DAEMON')
     }
+    async errKsu(errorObjectOrText, errorObject2, USE_FORCE = false) {
+        if (!USE_FORCE && this.LOG_TESTER === 'FALSE') return false
+        return this.err(errorObjectOrText, errorObject2, 'ALL', true, '683743064:AAF9wbBImNu_DiCUhOtNNr6c9BARQMfYruM')
+    }
 
-    async err(errorObjectOrText, errorObject2, LOG_SUBTYPE = 'ALL') {
-        const LOG_WALLET = await BlocksoftKeysStorage.getSelectedWallet()
-        const LOG_TOKEN = await AsyncStorage.getItem('fcmToken')
-        const LOG_PLATFORM = Platform.OS + ' v' + Platform.Version
-
-
+    async err(errorObjectOrText, errorObject2, LOG_SUBTYPE = 'ALL', USE_FULL = false, USE_BOT = false) {
         let now = new Date()
-        let line = now.toISOString().replace(/T/, ' ').replace(/\..+/, '')
-
-
+        let date = now.toISOString().replace(/T/, ' ').replace(/\..+/, '')
+        let line = ''
         if (errorObjectOrText && typeof errorObjectOrText !== 'undefined') {
             if (typeof errorObjectOrText === 'string') {
                 line += ' ' + errorObjectOrText
@@ -139,9 +176,16 @@ class Log {
             }
         }
 
-        if (errorObject2 && typeof errorObject2 !== 'undefined' && typeof errorObject2.message !== 'undefined') {
-            line += ' err ' + errorObject2.message
+        if (config.debug.appErrors || DEBUG) {
+            console.log(`----------------ERROR ${LOG_SUBTYPE}-----------------`)
+            console.log(date + line)
+            console.log(errorObjectOrText)
+            if (errorObject2) {
+                console.log(errorObject2)
+            }
+            return false
         }
+
 
         this.log(errorObjectOrText, errorObject2, false, LOG_SUBTYPE, true)
 
@@ -149,36 +193,107 @@ class Log {
             return true
         }
 
-        let msg = `FRONT_${VER} ${LOG_SUBTYPE} ${LOG_WALLET}` + '\n' + line + '\n'
-        if (typeof(LOG_TOKEN) != 'undefined' && LOG_TOKEN) {
-            msg += '\nTOKEN ' + LOG_TOKEN.substr(0, 20)
+        let msg = `FRNT_${this.LOG_VERSION} ${LOG_SUBTYPE}` + '\n' + date + line + '\n'
+        if (typeof (this.LOG_TESTER) != 'undefined' && this.LOG_TESTER) {
+            msg += '\nTESTER ' + this.LOG_TESTER
         }
-        if (typeof(LOG_PLATFORM) != 'undefined' && LOG_PLATFORM) {
-            msg += '\nPLATFORM ' + LOG_PLATFORM
+        if (typeof (this.LOG_DEV) != 'undefined' && this.LOG_DEV) {
+            msg += '\nDEV ' + this.LOG_DEV
         }
-        try {
-            if (typeof(LOG_WALLET) != 'undefined' && LOG_WALLET) {
-                // noinspection JSUnresolvedFunction
-                firebase.crashlytics().setStringValue('LOG_WALLET', LOG_WALLET)
-            }
-            if (typeof(LOG_TOKEN) != 'undefined' && LOG_TOKEN) {
-                // noinspection JSUnresolvedFunction
-                firebase.crashlytics().setStringValue('LOG_TOKEN', LOG_TOKEN)
-            }
-            if (typeof(LOG_PLATFORM) != 'undefined' && LOG_PLATFORM) {
-                // noinspection JSUnresolvedFunction
-                firebase.crashlytics().setStringValue('LOG_PLATFORM', LOG_PLATFORM)
-            }
-            // noinspection JSUnresolvedFunction
-            firebase.crashlytics().recordCustomError('FRONT', line, [])
-        } catch (firebaseError) {
-            msg += ' Crashlytics error ' + firebaseError.message
+        if (typeof (this.LOG_WALLET) != 'undefined' && this.LOG_WALLET) {
+            msg += '\nWALLET ' + this.LOG_WALLET
         }
-        // noinspection ES6MissingAwait
-        BlocksoftTg.send('\n\n\n\n=========================================================\n\n\n\n' + msg + '\n' + LOGS_TXT[LOG_SUBTYPE])
+        if (typeof (this.LOG_CASHBACK) != 'undefined' && this.LOG_CASHBACK) {
+            msg += '\nCASHBACK ' + this.LOG_CASHBACK
+        }
+        if (typeof (this.LOG_TOKEN) != 'undefined' && this.LOG_TOKEN) {
+            msg += '\nTOKEN ' + this.LOG_TOKEN.substr(0, 20)
+        }
+        if (typeof (this.LOG_PLATFORM) != 'undefined' && this.LOG_PLATFORM) {
+            msg += '\nPLATFORM ' + this.LOG_PLATFORM
+        }
+        if (USE_FULL) {
+            // noinspection ES6MissingAwait
+            this.TG.send('\n\n\n\n=========================================================\n\n\n\n' + msg + '\n' + FULL_LOGS_TXT[LOG_SUBTYPE], USE_BOT ? USE_BOT : changeableProd.tg.info.fullBot)
+        } else {
+
+            try {
+                if (typeof (this.LOG_VERSION) != 'undefined' && this.LOG_VERSION) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_VERSION', this.LOG_VERSION)
+                }
+                if (typeof (this.LOG_TESTER) != 'undefined' && this.LOG_TESTER) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_TESTER', this.LOG_TESTER)
+                }
+                if (typeof (this.LOG_DEV) != 'undefined' && this.LOG_DEV) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_DEV', this.LOG_DEV)
+                }
+                if (typeof (this.LOG_WALLET) != 'undefined' && this.LOG_WALLET) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_WALLET', this.LOG_WALLET)
+                }
+                if (typeof (this.LOG_CASHBACK) != 'undefined' && this.LOG_CASHBACK) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_CASHBACK', this.LOG_CASHBACK)
+                }
+                if (typeof (this.LOG_TOKEN) != 'undefined' && this.LOG_TOKEN) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_TOKEN', this.LOG_TOKEN)
+                }
+                if (typeof (this.LOG_PLATFORM) != 'undefined' && this.LOG_PLATFORM) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_PLATFORM', this.LOG_PLATFORM)
+                }
+                // noinspection JSUnresolvedFunction
+                if (typeof firebase.crashlytics().recordCustomError !== 'undefined') {
+                    firebase.crashlytics().recordCustomError('FRNT', line, [])
+                } else {
+                    firebase.crashlytics().log('FRNT ' + line)
+                    firebase.crashlytics().crash()
+                }
+            } catch (firebaseError) {
+                msg += ' Crashlytics error ' + firebaseError.message
+            }
+
+            this.TG.send('\n\n\n\n=========================================================\n\n\n\n' + msg + '\n' + LOGS_TXT[LOG_SUBTYPE])
+        }
 
 
         return true
+    }
+
+    getLogs() {
+        return FULL_LOGS_TXT['ALL']
+    }
+
+    getHeaders() {
+        let msg = `\n\n\n\n=================================\n\nVERSION_${this.LOG_VERSION}`
+        if (typeof (this.LOG_TESTER) != 'undefined' && this.LOG_TESTER) {
+            msg += '\nTESTER ' + this.LOG_TESTER
+        }
+        if (typeof (this.LOG_DEV) != 'undefined' && this.LOG_DEV) {
+            msg += '\nDEV ' + this.LOG_DEV
+        }
+        if (typeof (this.LOG_WALLET) != 'undefined' && this.LOG_WALLET) {
+            msg += '\n\nWALLET ' + this.LOG_WALLET
+        }
+        if (typeof (this.LOG_CASHBACK) != 'undefined' && this.LOG_CASHBACK) {
+            msg += '\n\nCASHBACK ' + this.LOG_CASHBACK
+        }
+        if (typeof (this.LOG_TOKEN) != 'undefined' && this.LOG_TOKEN) {
+            msg += '\n\nTOKEN ' + this.LOG_TOKEN.substr(0, 20)
+            msg += '\n\nTOKEN FULL ' + this.LOG_TOKEN
+        }
+        if (typeof (this.LOG_PLATFORM) != 'undefined' && this.LOG_PLATFORM) {
+            msg += '\n\nPLATFORM ' + this.LOG_PLATFORM
+        }
+        return msg
+    }
+
+    isNetworkError(message) {
+        return (message.indexOf('Network Error') !== -1 || message.indexOf('timeout of 0ms exceeded') !== -1 || message.indexOf('Request failed with status code 500') !== -1)
     }
 
 }

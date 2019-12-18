@@ -1,6 +1,7 @@
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import BlocksoftUtils from '../../common/BlocksoftUtils'
+import BtcUsedOutputsDS from './stores/BtcUsedOutputsDS'
 
 let bitcoin = require('bitcoinjs-lib')
 
@@ -27,32 +28,27 @@ class BtcTxProcessor {
         if (typeof settings.network === 'undefined') {
             throw new Error('BtcTxProcessor requires settings.network')
         }
-        BlocksoftCryptoLog.logDivider()
         BlocksoftCryptoLog.log('BtcTxProcessor init started', settings.currencyCode)
+
         this._estimateFeeApiPath = 'https://estimatefee.com/n'
-        this._langPrefix = 'btc'
-        switch (settings.network) {
-            case 'litecoin':
-                this._langPrefix = 'ltc'
-                this._bitcoinNetwork = networksConstants.LTC
-                break
-            case 'mainnet':
-                this._bitcoinNetwork = bitcoin.networks.bitcoin
-                break
-            case 'testnet':
-                this._bitcoinNetwork = bitcoin.networks.testnet
-                break
-            default:
-                throw new Error('while retrieving Bitcoin Fee Processor - unknown Bitcoin network specified. Got : ' + settings.network)
+
+        if (typeof (networksConstants[settings.network]) === 'undefined') {
+            throw new Error('while retrieving Bitcoin address - unknown Bitcoin network specified. Got : ' + settings.network)
         }
+        this._bitcoinNetwork = networksConstants[settings.network].network
+        this._langPrefix = networksConstants[settings.network].langPrefix
 
         this._isDusty = settings.currencyCode === 'USDT'
         this._data = {}
         this._settings = settings
+        this._initProviders(settings)
+        BlocksoftCryptoLog.log('BtcTxProcessor inited', this._bitcoinNetwork)
+    }
+
+    _initProviders(settings) {
         this.unspentsProvider = require('./providers/BtcTxUnspentsProvider').init(settings)
         this.sendProvider = require('./providers/BtcTxSendProvider').init(settings)
         this.dataProvider = require('./providers/BtcTxDataProvider').init(settings)
-        BlocksoftCryptoLog.log('BtcTxProcessor inited', this._bitcoinNetwork)
     }
 
     /**
@@ -162,10 +158,16 @@ class BtcTxProcessor {
     async _getRawTx(privateKey, addressFrom, addressTo, amount, fee = 0, addressForChange = false, dustAmount = DUST_FIRST_TRY,
                     replacingUtx = false, nSequence = 0xfffffffe) {
         BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx started', { addressFrom, addressTo, amount, fee, addressForChange, dustAmount })
-        let keyPair = bitcoin.ECPair.fromWIF(privateKey, this._bitcoinNetwork)
-        let address = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: this._bitcoinNetwork }).address
-        if (address !== addressFrom) {
-            throw new Error('not valid signing address ' + addressFrom + ' != ' + address)
+        let keyPair = false
+        try {
+            keyPair = bitcoin.ECPair.fromWIF(privateKey, this._bitcoinNetwork)
+            let address = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey, network: this._bitcoinNetwork }).address
+            if (address !== addressFrom) {
+                throw new Error('not valid signing address ' + addressFrom + ' != ' + address)
+            }
+        } catch (e) {
+            e.message += ' in privateKey signature check '
+            throw e
         }
         BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx validated address private key')
 
@@ -193,61 +195,117 @@ class BtcTxProcessor {
             }
         } else {
             BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx will make parsedUtx', `amount = ${amount} fee = ${fee} totalAmount = ${totalAmount}`)
-            utx = await this._parseUnspents(addressFrom, totalAmount)
-            BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx parsedUtx', utx)
+            let minDiffFixing = false
+            try {
+                utx = await this._parseUnspents(addressFrom, totalAmount * 1 + 546)
+                BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx parsedUtx', utx)
+            } catch (e) {
+                try {
+                    utx = await this._parseUnspents(addressFrom, totalAmount * 1)
+                    BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx parsedUtx', utx)
+                } catch (e) {
+                    if (typeof (e.diff) != 'undefined') {
+                        if (addressForChange === 'TRANSFER_ALL') {
+                            BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx parsedUtx transferAll error diff ' + e.diff + ' ' + e.message)
+                            utx = await this._parseUnspents(addressFrom, 'TRANSFER_ALL')
+                            BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx transferAll parsedUtx', utx)
+                            let newFee = utx.balance - amount
+                            if (fee - newFee < 1000) {
+                                BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx transferAll newFee ' + fee + ' => ' + newFee)
+                                fee = newFee
+                                minDiffFixing = true
+                            }
+
+                        } else {
+                            BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx parsedUtx error diff ' + e.diff + ' ' + e.message)
+                            let module = -1 * e.diff
+                            if (module < 10000) {
+                                minDiffFixing = true
+                                BlocksoftCryptoLog.log(`BtcTxProcessor._getRawTx parsedUtx fixing fee = ${fee} totalAmount = ${totalAmount}`)
+                                totalAmount -= module
+                                fee -= module
+                                BlocksoftCryptoLog.log(`BtcTxProcessor._getRawTx parsedUtx fixed fee = ${fee} totalAmount = ${totalAmount}`)
+                                utx = await this._parseUnspents(addressFrom, totalAmount)
+                                BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx parsedUtx', utx)
+                            } else {
+                                throw e
+                            }
+                        }
+                    } else {
+                        throw e
+                    }
+                }
+            }
+
+            if (!utx || !utx.unspents || utx.unspents.length === 0) {
+                let e = new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+                e.code = 'ERROR_USER'
+                throw e
+            }
         }
+
+
 
         let change = utx.balance - amount - fee
         if (change < 0) {
-            let e = new Error('not enough funds, max from outputs ' + subtitle + ' = ' + BlocksoftUtils.toBtc(utx.balance - fee) + ' BTC, requested = ' + BlocksoftUtils.toBtc(amount) + ' BTC')
+            let e = new Error('not enough funds, max from outputs ' + subtitle + ' = '
+                + BlocksoftUtils.toUnified(utx.balance - fee, this._settings.decimals) + ' ' + this._settings.currencyCode
+                + ', requested = ' + BlocksoftUtils.toUnified(amount, this._settings.decimals) + ' ' + this._settings.currencyCode)
             e.code = 'ERROR_USER'
             e.outputs = utx.balance - fee
             throw e
         }
 
-        let log = {inputs : [], outputs : []}
+        if (fee > amount && ! this._isDusty) {
+            let e = new Error('fee more than amount, fee = '
+                + BlocksoftUtils.toUnified(fee, this._settings.decimals) + ' ' + this._settings.currencyCode
+                + ', amount = ' + BlocksoftUtils.toUnified(amount, this._settings.decimals) + ' ' + this._settings.currencyCode)
+            e.code = 'ERROR_USER'
+            throw e
+        }
+
+        let log = { inputs: [], outputs: [] }
         for (let i = 0, ic = utx.unspents.length; i < ic; i++) {
             txb.addInput(utx.unspents[i].txId, utx.unspents[i].vout, nSequence)
-            log.inputs.push({txId : utx.unspents[i].txId, vout : utx.unspents[i].vout})
+            log.inputs.push({ txId: utx.unspents[i].txId, vout: utx.unspents[i].vout,  nSequence })
             BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx input added', utx.unspents[i])
         }
 
         if (addressForChange === 'TRANSFER_ALL' && change < 10000 && !this._isDusty) {
             // noinspection PointlessArithmeticExpressionJS
             txb.addOutput(addressTo, amount * 1)
-            log.outputs.push({addressTo, amount})
-            BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx output added for transfer all', {addressTo, amount})
-
+            log.outputs.push({ addressTo, amount })
+            BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx output added for transfer all', { addressTo, amount })
         } else {
             // noinspection PointlessArithmeticExpressionJS
             txb.addOutput(addressTo, amount * 1)
-            log.outputs.push({addressTo, amount})
-            BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx output added for usual transfer', {addressTo, amount})
-
+            log.outputs.push({ addressTo, amount })
+            BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx output added for usual transfer', { addressTo, amount })
             if (change > 1) {
                 let addressCheckedForChange = addressFrom
                 if (addressForChange && addressForChange !== 'TRANSFER_ALL') {
                     addressCheckedForChange = addressForChange
                 }
-                let tmp = {addressTo : addressCheckedForChange , change}
+                let tmp = { addressTo: addressCheckedForChange, change }
                 try {
                     txb.addOutput(addressCheckedForChange, change)
                     log.outputs.push(tmp)
                     BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx change output added ', tmp)
-                } catch(e) {
+                } catch (e) {
                     e.message = ' transaction add change error: ' + e.message + ' ' + JSON.stringify(tmp)
                     throw e
                 }
             } else {
-                BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx no change', {change})
+                BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx no change', { change })
             }
         }
+        BtcUsedOutputsDS.setTmpUsed(this._settings.currencyCode, addressFrom, log.inputs)
 
         for (let i = 0; i < utx.unspents.length; i++) {
             try {
                 txb.sign(i, keyPair)
                 BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx sign added')
-            } catch(e) {
+            } catch (e) {
                 alert(e.message)
                 e.message = ' transaction sign error: ' + e.message
                 throw e
@@ -259,7 +317,7 @@ class BtcTxProcessor {
             hex = txb.build().toHex()
             BlocksoftCryptoLog.log('BtcTxProcessor._getRawTx size ' + hex.length, log)
 
-        } catch(e) {
+        } catch (e) {
             e.message = ' transaction build error: ' + e.message
             throw e
         }
@@ -272,7 +330,7 @@ class BtcTxProcessor {
 
     /**
      * @param {[{tx_hash, tx_output_n, value, isConfirmed}]} txrefs
-     * @param {number} wishedAmount
+     * @param {number|string} wishedAmount
      * @param {number|boolean} totalBalance
      * @param {{unspents: [{txId, vout, value}], balance}} utx
      * @param {boolean} confirmedOnly
@@ -290,23 +348,25 @@ class BtcTxProcessor {
             }
         }
 
-        // noinspection JSUnresolvedFunction
-        let diff = totalBalance.sub(BlocksoftUtils.toBigNumber(wishedAmount))
-        diff = diff.toString() * 1
-        BlocksoftCryptoLog.log('BtcTxProcessor._sortParse started', `wishedAmount = ${wishedAmount} totalBalance = ${totalBalance} diff ${diff}`)
+        if (wishedAmount !== 'TRANSFER_ALL') {
+            let diff = totalBalance.sub(BlocksoftUtils.toBigNumber(wishedAmount))
+            diff = diff.toString() * 1
+            BlocksoftCryptoLog.log('BtcTxProcessor._sortParse started', `wishedAmount = ${wishedAmount} totalBalance = ${totalBalance} diff ${diff}`)
 
-        let currencyCode = this._settings.currencyCode
-        let decimals = this._settings.decimals
-        if (diff < 0) {
-            let e = new Error(`inputs don't posses enough ${ currencyCode} amount for this transaction (max = ${BlocksoftUtils.toUnified(totalBalance, decimals)} ${currencyCode} / wished ${BlocksoftUtils.toUnified(wishedAmount, decimals)} } ${currencyCode} / diff ${BlocksoftUtils.toUnified(diff, decimals)} ${currencyCode}) `)
-            e.code = 'ERROR_USER'
-            throw e
-        }
+            let currencyCode = this._settings.currencyCode
+            let decimals = this._settings.decimals
+            if (diff < 0) {
+                let e = new Error(`inputs don't posses enough ${currencyCode} amount for this transaction (max = ${BlocksoftUtils.toUnified(totalBalance, decimals)} ${currencyCode} / wished ${BlocksoftUtils.toUnified(wishedAmount, decimals)} } ${currencyCode} / diff ${BlocksoftUtils.toUnified(diff, decimals)} ${currencyCode}) `)
+                e.code = 'ERROR_USER'
+                e.diff = diff
+                throw e
+            }
 
-        let compareFunc = (a, b) => {
-            return b.value - a.value
+            let compareFunc = (a, b) => {
+                return b.value - a.value
+            }
+            txrefs.sort(compareFunc)
         }
-        txrefs.sort(compareFunc)
 
         // noinspection JSUnresolvedFunction
         let leftBalance = totalBalance.sub(BlocksoftUtils.toBigNumber(utx.balance)) // both in satoshi
@@ -317,7 +377,7 @@ class BtcTxProcessor {
 
             if (confirmedOnly && !txrefs[i].isConfirmed) continue
 
-            if (utx.balance >= wishedAmount) {
+            if (wishedAmount !== 'TRANSFER_ALL' && utx.balance >= wishedAmount) {
                 msg += ' finished by collectedAmount ' + utx.balance
                 break
             }
@@ -328,6 +388,8 @@ class BtcTxProcessor {
             //}
 
             if (
+                wishedAmount === 'TRANSFER_ALL'
+                ||
                 (utx.balance + txrefs[i].value <= wishedAmount)
                 ||
                 (leftBalance - txrefs[i].value < wishedAmount) // left of not included outputs will be less than needed
@@ -338,7 +400,7 @@ class BtcTxProcessor {
                     value: txrefs[i].value,
                     isConfirmed: txrefs[i].isConfirmed
                 })
-                utx.balance += txrefs[i].value
+                utx.balance += txrefs[i].value * 1
                 msg += ' ' + i + ') added ' + txrefs[i].value + ' = ' + utx.balance
             } else {
                 msg += ' ' + i + ') skipped ' + txrefs[i].value
@@ -347,7 +409,6 @@ class BtcTxProcessor {
         }
 
         BlocksoftCryptoLog.log('BtcTxProcessor._sortParse ' + msg)
-
         return utx
     }
 
@@ -356,7 +417,7 @@ class BtcTxProcessor {
      * @param {{tx_hash, tx_output_n, value}} txref
      * @return {boolean}
      * @private
-    _isTxrefIncluded(unspents, txref) {
+     _isTxrefIncluded(unspents, txref) {
         for (let i = 0, ic = unspents.length; i < ic; i++) {
             if (unspents[i].txId === txref.tx_hash) {
                 return true
@@ -364,7 +425,7 @@ class BtcTxProcessor {
         }
         return false
     }
-    */
+     */
 
 
     /**
@@ -379,7 +440,7 @@ class BtcTxProcessor {
         unspents: [],
         balance: 0
     }, confirmedOnly = false) {
-        BlocksoftCryptoLog.log('BtcTxProcessor._parseUnspents started', `address = ${address} amount = ${amount}`)
+        BlocksoftCryptoLog.log('BtcTxProcessor._parseUnspents started', `currencyCode= ${this._settings.currencyCode} address = ${address} amount = ${amount}`)
         let getUtxs
         let now = new Date().getTime()
         let cacheUsed = false
@@ -404,11 +465,29 @@ class BtcTxProcessor {
          */
         if (!getUtxs || typeof getUtxs.txrefs === 'undefined') {
             // noinspection JSIgnoredPromiseFromCall,ES6MissingAwait
-            BlocksoftCryptoLog.err('BtcTxProcessor._parseUnspents No Utxs ' + address, JSON.stringify(getUtxs))
-            let e = new Error(`not enough funds / no transactions`)
+            BlocksoftCryptoLog.log('BtcTxProcessor._parseUnspents No Utxs ' + address, JSON.stringify(getUtxs))
+            let e = new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
             e.code = 'ERROR_USER'
             throw e
         }
+        let alreadyUsedForOtherTx = await BtcUsedOutputsDS.getUsed(this._settings.currencyCode, address)
+        if (alreadyUsedForOtherTx) {
+            BlocksoftCryptoLog.log('BtcTxProcessor._parseUnspents already Used', alreadyUsedForOtherTx)
+            for (let i = 0, ic = getUtxs.txrefs.length; i < ic; i++) {
+                let ref = getUtxs.txrefs[i]
+                if (typeof (alreadyUsedForOtherTx[ref.txId + '_' + ref.vout]) !== 'undefined') {
+                    delete getUtxs.txrefs[i]
+                }
+            }
+            BlocksoftCryptoLog.log('BtcTxProcessor._parseUnspents after Cleanup', getUtxs.txrefs)
+            if (!getUtxs.txrefs) {
+                BlocksoftCryptoLog.err('BtcTxProcessor._parseUnspents No Utxs after cleanup ' + address)
+                let e = new Error(`all outputs are already used`)
+                e.code = 'ERROR_USER'
+                throw e
+            }
+        }
+
         if (!cacheUsed) {
             CACHE_UNSPENTS[address] = { getUtxs, cachedTime: now }
         }
@@ -450,7 +529,7 @@ class BtcTxProcessor {
 
         BlocksoftCryptoLog.log('BtcTxProcessor.sendTx started')
         let replacingUtx = false
-        if (typeof data.replacingTransaction !== 'undefined') {
+        if (typeof data.replacingTransaction !== 'undefined' && this.dataProvider) {
             BlocksoftCryptoLog.log('BtcTxProcessor.sendTx will replace', data.replacingTransaction)
             replacingUtx = await this.dataProvider.get(data.replacingTransaction)
         }
@@ -468,7 +547,7 @@ class BtcTxProcessor {
         try {
             response = await this.sendProvider.send(rawTxHex, this._isDusty ? ('with BTC = ' + DUST_FIRST_TRY) : '')
         } catch (e) {
-            if (this._isDusty && typeof e.message !== 'undefined' && !(e.message.indexOf('dust') === -1)) {
+            if (this._isDusty && typeof e.couldResend != 'undefined' && e.couldResend) {
                 response = false
             } else {
                 if (typeof e.code === 'undefined' || e.code !== 'ERROR_USER') {
@@ -482,6 +561,9 @@ class BtcTxProcessor {
         }
 
         if (response) {
+            BtcUsedOutputsDS.saveUsed(response)
+            CACHE_UNSPENTS[data.addressFrom] = false
+            CACHE_UNSPENTS[data.addressTo] = false
             return { hash: response }
         }
 
@@ -490,7 +572,10 @@ class BtcTxProcessor {
         rawTxHex = await this._getRawTx(data.privateKey, data.addressFrom,
             data.addressTo, data.amount, data.feeForTx.feeForTx, addressForChange, DUST_SECOND_TRY, replacingUtx, data.nSequence)
         try {
-            response = await this.sendProvider.send(rawTxHex, 'with BTC = ' + DUST_SECOND_TRY)
+            response = await this.sendProvider.send(rawTxHex, 'with BTC second try = ' + DUST_SECOND_TRY)
+            BtcUsedOutputsDS.saveUsed(response)
+            CACHE_UNSPENTS[data.addressFrom] = false
+            CACHE_UNSPENTS[data.addressTo] = false
         } catch (e) {
             if (e.message.indexOf('dust') !== -1) {
                 e.code = 'ERROR_USER'

@@ -13,7 +13,7 @@ class UsdtScannerProcessor {
 
     /**
      * @param {string} address
-     * @return {Promise<int>}
+     * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalance(address) {
         BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance started', address)
@@ -22,13 +22,15 @@ class UsdtScannerProcessor {
                 address : address,
                 tokenID : USDT_TOKEN_ID
             });
-
+        if (tmp.data.state && tmp.data.state === 'fail') {
+            throw new Error('node.is.out')
+        }
         if (typeof(tmp.data.data.balance) === 'undefined') {
             throw new Error('Undefined balance ' + JSON.stringify(tmp.data))
         }
         let balance = tmp.data.data.balance
         BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance finished', address + ' => ' + balance)
-        return balance
+        return {balance, provider: 'microscanners', unconfirmed : 0}
     }
 
     /**
@@ -58,27 +60,31 @@ class UsdtScannerProcessor {
         }
 
         let transactions = []
-        this.lastBlock = tmp.lastBlock
+        if (tmp.lastBlock > this.lastBlock) {
+            this.lastBlock = tmp.lastBlock
+        }
         for (let tx of tmp.transactions) {
-            let transaction = this._unifyTransaction(address, tx)
+            let transaction = await this._unifyTransaction(address, tx)
             transactions.push(transaction)
         }
         BlocksoftCryptoLog.log('UsdtScannerProcessor.getTransactions finished', address)
         return transactions
     }
 
-    _unifyTransaction(address, transaction) {
+    async _unifyTransaction(address, transaction) {
+        let confirmations = this.lastBlock - transaction.block_number
+        let transaction_status = confirmations > 5 ? 'success' : 'new'
         return {
             transaction_hash: transaction.transaction_txid,
             block_hash: transaction.transaction_block_hash,
             block_number: +transaction.block_number,
             block_time: transaction.created_time,
-            block_confirmations: this.lastBlock - transaction.block_number,
+            block_confirmations: confirmations,
             transaction_direction: (address.toLowerCase() === transaction.from_address.toLowerCase()) ? 'outcome' :  'income',
             address_from: transaction.from_address,
             address_to: transaction.to_address,
             address_amount: transaction.amount,
-            transaction_status: (transaction.custom_valid.toString() === '1' && transaction._removed.toString() === '0') ? 'success' : 'fail',
+            transaction_status: (transaction.custom_valid.toString() === '1' && transaction._removed.toString() === '0') ? transaction_status : 'fail',
             transaction_fee : BlocksoftUtils.toSatoshi(transaction.fee),
             input_value : transaction.custom_type
         }

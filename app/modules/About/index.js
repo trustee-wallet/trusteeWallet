@@ -52,7 +52,7 @@ class AboutScreen extends Component {
                             <View style={styles.header__content}>
                                 <TouchableWithoutFeedback
                                     style={{ backgroundColor: '#fff' }}
-                                    delayLongPress={40000}
+                                    delayLongPress={20000}
                                     onLongPress={this._onLongPressButton.bind()}>
                                     <Image
                                         style={ styles.header__logo }
@@ -61,8 +61,8 @@ class AboutScreen extends Component {
                                 </TouchableWithoutFeedback>
                                 {/*<Text style={styles.header__title}>{  strings('settings.about.header', { OS: Platform.OS === 'android' ? 'Android' : 'IOS' } ) }</Text>*/}
                                 <View style={styles.header__description}>
-                                    <Text style={styles.header__title}>{ strings('settings.about.version') } VERSION_CODE_PLACEHOLDER</Text>
-                                    <Text style={styles.header__hash}>#COMMIT_SHORT_SHA_PLACEHOLDER</Text>
+                                    <Text style={styles.header__title}>{ strings('settings.about.version') } { config.version.code }</Text>
+                                    <Text style={styles.header__hash}>#{ config.version.hash }</Text>
                                 </View>
                             </View>
                         </View>

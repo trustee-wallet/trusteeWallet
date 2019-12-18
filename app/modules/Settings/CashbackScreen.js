@@ -32,6 +32,8 @@ import Netinfo from '../../services/Netinfo/Netinfo'
 import Cashback from '../../services/Cashback/Cashback'
 import { strings } from '../../services/i18n'
 import authDS from '../../appstores/DataSource/Auth/Auth'
+import QRCode from 'react-native-qrcode'
+import { copyToClipboard } from '../../services/utils'
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window")
 
@@ -46,7 +48,7 @@ class CashbackScreen extends Component {
             shareOptions: {
                 title: strings('cashback.shareTitle'),
                 message: strings('cashback.shareMessage'),
-                url: "..."
+                url: ""
             },
             cashbackStatistics: {}
         }
@@ -215,11 +217,32 @@ class CashbackScreen extends Component {
         }
     }
 
+    copyToClip = (link) => {
+        copyToClipboard(link)
+
+        Toast.setMessage(strings('toast.copied')).show()
+    }
+
     render() {
         firebase.analytics().setCurrentScreen('Settings.CashbackScreen')
 
-        const { data: cashbackData} = this.props.cashbackStore
+        let { data: cashbackData} = this.props.cashbackStore
         const { localCurrencySymbol, localCurrencyRate } = this.props.fiatRatesStore
+
+        if (typeof (cashbackData) === 'undefined') {
+            cashbackData = {
+                cashbackBalance: '...',
+                level2: null,
+                weeklyVolume: '...',
+                overalVolume: '...',
+                invitedUsers: '...',
+                cashbackLink: '...'
+            }
+        } else {
+            if (typeof (cashbackData.cashbackLink) === 'undefined') {
+                cashbackData.cashbackLink = '...'
+            }
+        }
 
         return (
             <View style={styles.wrapper}>
@@ -239,16 +262,24 @@ class CashbackScreen extends Component {
                         flexGrow: 1,
                         justifyContent: 'space-between'
                     }}>
-                    <CustomShare ref={ref => this.customShare = ref} link={this.props.cashbackStore.data.cashbackLink} />
+
+                    <CustomShare ref={ref => this.customShare = ref} link={cashbackData.cashbackLink} />
                     {/*<View style={styles.wrapper__content__white} />*/}
                     <View style={styles.wrapper__top}>
-                        <View>
+                        <TouchableOpacity style={{ position: "relative", width: "100%" }} onPress={() => this.copyToClip(cashbackData.cashbackLink)}>
+                            <View style={styles.wrapper__qr}>
+                                <QRCode
+                                    value={cashbackData.cashbackLink}
+                                    size={200}
+                                    bgColor='#5e2092'
+                                    fgColor='white'/>
+                            </View>
                             <Image
                                 style={styles.wrapper__img}
                                 resizeMode='stretch'
-                                source={require('../../assets/images/box.png')}
+                                source={require('../../assets/images/forQrRef.png')}
                             />
-                        </View>
+                        </TouchableOpacity>
                         <View style={styles.wrapper__texts}>
                             <Text style={styles.wrapper__title}>
                                 { strings('cashback.mainTitle') }
@@ -341,27 +372,27 @@ class CashbackScreen extends Component {
                                         this.shareScrollView = ref
                                     }}
                                     contentContainerStyle={styles.sharing__content}
-                                            horizontal={true}>
-                                    <View style={styles.sharing__item}>
-                                        <ButtonIcon style={{ backgroundColor: '#4AA0EB' }} icon="TELEGRAM" callback={() => this.customShare.handleShare('TELEGRAM')} />
-                                        <Text style={styles.sharing__text}>Telegram</Text>
-                                    </View>
-                                    <View style={styles.sharing__item}>
-                                        <ButtonIcon style={{ backgroundColor: '#1877f2' }} icon="FACEBOOK" callback={() => this.handleShare('facebook')} />
-                                        <Text style={styles.sharing__text}>Facebook</Text>
-                                    </View>
-                                    {/*<View style={styles.sharing__item}>*/}
-                                    {/*    <ButtonIcon style={{ backgroundColor: '#DF574E' }} icon="INSTAGRAM" callback={() => this.handleShare('instagram')} />*/}
-                                    {/*    <Text style={styles.sharing__text}>Instagram</Text>*/}
-                                    {/*</View>*/}
-                                    <View style={styles.sharing__item}>
-                                        <ButtonIcon style={{ backgroundColor: '#BA5DF5' }} icon="VIBER" callback={() => this.customShare.handleShare('VIBER')} />
-                                        <Text style={styles.sharing__text}>Viber</Text>
-                                    </View>
-                                    <View style={styles.sharing__item}>
-                                        <ButtonIcon style={{ backgroundColor: '#f55499' }} icon="DOTS" callback={() => this.handleSimpleShare()} />
-                                        <Text style={styles.sharing__text}>{ strings('cashback.more') }</Text>
-                                    </View>
+                                    horizontal={true}>
+                                        <View style={styles.sharing__item}>
+                                            <ButtonIcon style={{ backgroundColor: '#4AA0EB' }} icon="TELEGRAM" callback={() => this.customShare.handleShare('TELEGRAM')} />
+                                            <Text style={styles.sharing__text}>Telegram</Text>
+                                        </View>
+                                        <View style={styles.sharing__item}>
+                                            <ButtonIcon style={{ backgroundColor: '#1877f2' }} icon="FACEBOOK" callback={() => this.handleShare('facebook')} />
+                                            <Text style={styles.sharing__text}>Facebook</Text>
+                                        </View>
+                                        {/*<View style={styles.sharing__item}>*/}
+                                        {/*    <ButtonIcon style={{ backgroundColor: '#DF574E' }} icon="INSTAGRAM" callback={() => this.handleShare('instagram')} />*/}
+                                        {/*    <Text style={styles.sharing__text}>Instagram</Text>*/}
+                                        {/*</View>*/}
+                                        <View style={styles.sharing__item}>
+                                            <ButtonIcon style={{ backgroundColor: '#BA5DF5' }} icon="VIBER" callback={() => this.customShare.handleShare('VIBER')} />
+                                            <Text style={styles.sharing__text}>Viber</Text>
+                                        </View>
+                                        <View style={styles.sharing__item}>
+                                            <ButtonIcon style={{ backgroundColor: '#f55499' }} icon="DOTS" callback={() => this.handleSimpleShare()} />
+                                            <Text style={styles.sharing__text}>{ strings('cashback.more') }</Text>
+                                        </View>
                                 </ScrollView>
                             </View>
                         </GradientView>
@@ -402,10 +433,22 @@ const styles = {
     },
     wrapper__top: {
         flex: 1,
-        justifyContent: 'space-around',
+        justifyContent: 'flex-end',
         alignItems: 'center',
-        paddingLeft: 30,
-        paddingRight: 30
+        marginTop: 5
+    },
+    wrapper__qr: {
+        justifyContent: "flex-end",
+        alignItems: "center",
+
+        position: "absolute",
+        top: 0,
+        left: 0,
+
+        width: "100%",
+        height: "100%",
+
+        zIndex: 2
     },
     wrapper__bottom: {
         position: 'relative',
@@ -452,13 +495,20 @@ const styles = {
         color: '#999999'
     },
     wrapper__img: {
-        width: 240,
-        height: 240
+        position: "relative",
+
+        minWidth: 506,
+        height: 246,
+        marginLeft: (SCREEN_WIDTH - 506) / 2 - 10,
+
+        zIndex: 1
     },
     wrapper__texts: {
         width: '100%',
         marginTop: 20,
-        marginBottom: 5
+        marginBottom: 5,
+        paddingLeft: 30,
+        paddingRight: 30,
     },
     cashbackInfoBg: {
         array: ["#9e56cd","#9e56cd"],

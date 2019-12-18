@@ -3,15 +3,11 @@ import store from '../../store'
 const { dispatch } = store
 
 import BlocksoftKeys from '../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
-
 import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
 import accountDS from '../DataSource/Account/Account'
-
 import currencyDS from '../DataSource/Currency/Currency'
-
 import accountBalanceDS from '../DataSource/AccountBalance/AccountBalance'
-
 import walletDS from '../DataSource/Wallet/Wallet'
 
 import { setCurrencies, setLoaderStatus } from './MainStoreActions'
@@ -19,12 +15,11 @@ import { setCurrencies, setLoaderStatus } from './MainStoreActions'
 import Log from '../../services/Log/Log'
 
 
-
 const currencyActions = {
 
-    addCurrency: async (currencyToAdd) => {
+    addCurrency: async (currencyToAdd, isHidden = 0, isLoader = 1) => {
 
-        setLoaderStatus(true)
+        isLoader ? setLoaderStatus(true) : null
 
         Log.log('ACT/Currency addCurrency started')
 
@@ -40,48 +35,16 @@ const currencyActions = {
 
                 const wallet_hash = wallet.wallet_hash
 
-                errorStepMsg = 'BlocksoftKeysStorage.getWalletMnemonic  started'
-
-                let mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(wallet_hash)
-
-                if (!mnemonic) {
-                    throw new Error('No mnemonic found for ' + wallet_hash)
-                }
-
                 errorStepMsg = 'BlocksoftKeys.discoverAddresses started'
-                const accounts = await BlocksoftKeys.discoverAddresses({
-                    mnemonic,
-                    fullTree: true,
-                    fromIndex: 0,
-                    toIndex: 1,
-                    currencyCode: [currencyToAdd.currencyCode]
-                })
+                await accountDS.discoverAccounts(wallet_hash, [currencyToAdd.currencyCode])
 
-                errorStepMsg = 'accountDS.insertAccounts started'
-                const account = accounts[currencyToAdd.currencyCode][0]
-
-                const accountInsertObjs = {
-                    address: account.address,
-                    name: '',
-                    //TODO: fix this
-                    derivation_path: account.path.replace(/[']/g, "quote"),
-                    derivation_index: account.index,
-                    derivation_type: account.type,
-                    status: 0,
-                    currency_code: currencyToAdd.currencyCode,
-                    wallet_hash: wallet_hash,
-                    account_json: '',
-                    transactions_scan_time: 0
-                }
-
-                await accountDS.insertAccounts({ insertObjs: [accountInsertObjs] })
-
+                errorStepMsg = 'BlocksoftKeys.discoverAddresses got new accounts'
                 const { array: dbAccounts } = await accountDS.getAccountsByWalletHashAndCurrencyCode(wallet_hash, currencyToAdd.currencyCode)
 
                 const { id: insertID } = dbAccounts[0]
 
                 accountBalanceInsertObjs.push({
-                    balance: 0,
+                    balance_fix: 0,
                     balance_scan_time: 0,
                     status: 0,
                     currency_code: currencyToAdd.currencyCode,
@@ -97,7 +60,7 @@ const currencyActions = {
                 currency_rate_usd: 0,
                 currency_rate_json: '',
                 currency_rate_scan_time: '',
-                is_hidden: 0
+                is_hidden: isHidden
             }
 
             await currencyDS.insertCurrency({ insertObjs: [currencyInsertObjs] })
@@ -112,7 +75,7 @@ const currencyActions = {
             }
             e.message += ' currencyToAdd = ' + JSON.stringify(currencyToAdd)
 
-            Log.err('ACT/Currency addCurrency error', e)
+            Log.err('ACT/Currency addCurrency error ' + e.message)
         }
 
         setLoaderStatus(false)
@@ -143,7 +106,7 @@ const currencyActions = {
             await setCurrencies()
 
         } catch (e) {
-            Log.err('ACT/Currency toggleCurrencyVisibility error', e)
+            Log.err('ACT/Currency toggleCurrencyVisibility error ' + e.message)
         }
 
         Log.log('ACT/Currency toggleCurrencyVisibility finished')

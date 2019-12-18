@@ -1,4 +1,4 @@
-package com.trustee.demo;
+package com.trusteewallet;
 
 import com.facebook.react.ReactActivity;
 

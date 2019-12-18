@@ -25,7 +25,15 @@ class EthTxProcessorErc20 extends require('./EthTxProcessor').EthTxProcessor {
         let tmpData = {...data}
         let logData = { tokenAddress: this._tokenAddress, addressTo: data.addressTo, amount: data.amount, addressFrom: data.addressFrom }
         BlocksoftCryptoLog.log('EthTxProcessorErc20 estimateGas started', logData)
-        let estimatedGas = await this._token.methods.transfer(data.addressTo, data.amount).estimateGas({ from: data.addressFrom })
+        let estimatedGas
+        if (data.addressTo === data.addressFrom) {
+            let tmp1 = '0xA09fe17Cb49D7c8A7858C8F9fCac954f82a9f487'
+            let tmp2 = '0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99'
+            BlocksoftCryptoLog.log('EthTxProcessorErc20 estimateGas addressToChanged', logData)
+            estimatedGas = await this._token.methods.transfer(data.addressFrom === tmp1 ? tmp2 : tmp1, data.amount).estimateGas({ from: data.addressFrom })
+        } else {
+            estimatedGas = await this._token.methods.transfer(data.addressTo, data.amount).estimateGas({ from: data.addressFrom })
+        }
         BlocksoftCryptoLog.log('EthTxProcessorErc20 estimateGas finished', estimatedGas)
         return super.getFeeRate(tmpData, estimatedGas)
     }

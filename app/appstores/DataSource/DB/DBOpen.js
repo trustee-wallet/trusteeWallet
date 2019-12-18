@@ -1,7 +1,29 @@
-import SQLiteHelper from "react-native-sqlite-helper"
-const SQLiteHelperDB = new SQLiteHelper('TrusteeWalletDB.db')
+import Log from '../../../services/Log/Log'
 
-import console from '../../../services/Log/Log'
+import SQLiteStorage from 'react-native-sqlite-storage';
+import SQLiteHelper from 'react-native-sqlite-helper'
+
+import config from '../../../config/config'
+
+SQLiteStorage.DEBUG(config.debug.appDBLogs)
+
+const SQLiteHelperDB = new SQLiteHelper('TrusteeWalletDB.db')
+SQLiteHelperDB.successInfo = (text, absolutely) => {
+    if (!config.debug.appDBLogs) return false
+    if (absolutely) {
+        Log.log(text)
+    } else {
+        Log.log(`SQLiteHelper ${text} success`)
+    }
+}
+SQLiteHelperDB.errorInfo = (text, err, absolutely) => {
+    if (!config.debug.appDBLogs && !config.debug.appErrors) return false
+    if (absolutely) {
+        Log.log(text)
+    } else {
+        Log.log(`SQLiteHelper ${text} error: ${err.message}`)
+    }
+}
 
 class DBOpen {
 
@@ -36,7 +58,7 @@ class DBOpen {
         let openedDB
 
         try {
-            const { res : tpmSqlLite } = await SQLiteHelperDB.open()
+            const { res: tpmSqlLite } = await SQLiteHelperDB.open()
             openedDB = tpmSqlLite
         } catch (e) {
             console.log('DBOpen.open.error')
@@ -44,9 +66,7 @@ class DBOpen {
         }
 
         console.log('DBOpen.open.result')
-        typeof openedDB == 'undefined' ?
-            console.log(error) :
-                console.log(success)
+        typeof openedDB == 'undefined' ? console.log(error) : console.log(success)
 
 
         DB = { ...SQLiteHelperDB }

@@ -11,16 +11,18 @@ export default class Button extends Component {
 
     render() {
 
-        const { btnWrapStyle, styleText } = this.props
+        const { btnWrapStyle, styleText, backgroundColorArray, touchableOpacityStyle } = this.props
 
         return (
             <View style={{...styles.wrapper, ...this.props.styles}}>
-                <TouchableOpacity onPress={this.props.press || this.props.onPress} style={[styles.btnWrap, btnWrapStyle]}>
-                    <GradientView style={{...styles.btn, ...this.props.innerStyle}} array={styles_.array} start={styles_.start} end={styles_.end}>
-                        <Text style={{...styles.btn__text, ...styleText }}>
-                            { this.props.children }
-                        </Text>
-                    </GradientView>
+                <TouchableOpacity onPress={this.props.press || this.props.onPress} style={[touchableOpacityStyle]}>
+                    <View style={[styles.btnWrap, btnWrapStyle]}>
+                        <GradientView style={{...styles.btn, ...this.props.innerStyle}} array={typeof backgroundColorArray == 'undefined' ? styles_.array : backgroundColorArray} start={styles_.start} end={styles_.end}>
+                            <Text style={{...styles.btn__text, ...styleText }}>
+                                { this.props.children }
+                            </Text>
+                        </GradientView>
+                    </View>
                 </TouchableOpacity>
             </View>
         )

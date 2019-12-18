@@ -4,20 +4,23 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Image, View, Text, Platform } from 'react-native'
-
+import firebase from 'react-native-firebase'
 import {
     UIActivityIndicator,
     MaterialIndicator
 } from 'react-native-indicators'
 
 import GradientView from '../../components/elements/GradientView'
-
 import NavStore from '../../components/navigation/NavStore'
+
+import App from '../../appstores/Actions/App/App'
 
 import Log from '../../services/Log/Log'
 
-import App from '../../appstores/Actions/App/App'
-import firebase from "react-native-firebase"
+import config from '../../config/config'
+
+import Theme from '../../themes/Themes'
+let styles
 
 
 class InitScreen extends Component {
@@ -25,32 +28,45 @@ class InitScreen extends Component {
     constructor(){
         super()
         this.state = {
-            init: false
+            init: false,
+            initError : false
         }
     }
 
     componentWillMount() {
         Log.log('InitScreen is mounted')
-        App.init()
+        styles = Theme.getStyles().initScreenStyles
+    }
+
+    componentDidMount() {
+        try {
+            App.init(false)
+        } catch (e) {
+            this.setState({
+                initError : e.message
+            })
+        }
     }
 
     componentWillReceiveProps(props) {
         Log.log('InitScreen is receiving props')
         // @debug for raw testing
         // NavStore.reset('WalletCreateScreen')
-        if (props.data.init === true && this.props.data.init !== props.data.init) {
+        if (props.data.initError) {
+            this.setState({
+                initError : props.data.initError
+            })
+        }
+        if (props.data.init === true) { //this one is making "freezing"//&& this.props.data.init !== props.data.init) {
             if (+props.settings.data.lock_screen_status) {
                 Log.log('InitScreen navigated to LockScreen')
                 NavStore.reset('LockScreen')
             } else {
                 Log.log('InitScreen navigated to DashboardStack')
-
-                // setTimeout(() => {
-                    NavStore.reset('DashboardStack')
-                // }, 3000)
+                NavStore.reset('DashboardStack')
             }
         } else {
-            Log.log('InitScreen will be here till DB inited')
+            Log.log('!!!!!!!!!!!!!!!!InitScreen will be here till DB inited')
         }
     }
 
@@ -59,38 +75,43 @@ class InitScreen extends Component {
 
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
-                <Image
-                    style={styles.image}
-                    source={require('../../assets/images/logo.png')}
-                />
-                <View style={{ marginTop: -70, marginBottom: 60 }}>
-                    { Platform.OS === 'ios' ? <UIActivityIndicator size={30} color='#3E3453' /> : <MaterialIndicator size={30} color='#3E3453' /> }
+                <View style={{ flex: 1, justifyContent: 'center' }}>
+                    <Image
+                        style={styles.image}
+                        source={styles.image__url.path}
+                    />
+                    <View style={{ marginTop: -70, marginBottom: 60 }}>
+                        { Platform.OS === 'ios' ? <UIActivityIndicator size={30} color='#3E3453' /> : <MaterialIndicator size={30} color='#3E3453' /> }
+                    </View>
+                    <View style={{ position: 'relative' }}>
+                        <Text style={styles.appName__text} numberOfLines={1}>
+                            TRUSTEE  WALLET
+                        </Text>
+                        <Text style={{
+                            position: 'absolute',
+                            top: 1,
+                            left: 1,
+
+                            width: '100%',
+
+                            fontSize: 30,
+                            fontFamily: 'SFUIDisplay-Bold',
+                            color: '#3E3453',
+                            textAlign: 'center',
+                            zIndex: 1
+                        }} numberOfLines={1}>
+                            TRUSTEE  WALLET
+                        </Text>
+                        {
+                            this.state.initError ?
+                                <Text>{this.state.initError}</Text>
+                                : null
+                        }
+                    </View>
                 </View>
-                <View style={{ position: 'relative' }}>
-                    <Text style={{
-                        position: 'relative',
-                        fontSize: 30,
-                        fontFamily: 'SFUIDisplay-Bold',
-                        color: '#F24B93',
-                        textAlign: 'center',
-                        zIndex: 2
-                    }}>
-                        TRUSTEE  WALLET
-                    </Text>
-                    <Text style={{
-                        position: 'absolute',
-                        top: 1,
-                        left: 1,
-
-                        width: '100%',
-
-                        fontSize: 30,
-                        fontFamily: 'SFUIDisplay-Bold',
-                        color: '#3E3453',
-                        textAlign: 'center',
-                        zIndex: 1
-                    }}>
-                        TRUSTEE  WALLET
+                <View style={{ marginTop: 'auto' }}>
+                    <Text style={{ marginBottom: 10, opacity: .5, textAlign: 'center', fontFamily: 'SFUIDisplay-Regular', fontSize: 10, color: '#3E3453' }}>
+                        { '#' + config.version.hash + ' | ' + config.version.code }
                     </Text>
                 </View>
             </GradientView>
@@ -108,32 +129,7 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps, {})(InitScreen)
 
 const styles_ = {
-    array: ['#fff', '#F8FCFF'],
+    array: ['#fff', '#fff'],
     start: { x: 0.0, y: 0 },
     end: { x: 0, y: 1 }
-}
-
-const styles = {
-    wrapper: {
-        flex: 1,
-        justifyContent: 'center',
-        paddingLeft: 30,
-        paddingRight: 30
-    },
-    title: {
-        textAlign: 'center',
-        marginBottom: 10,
-        fontSize: 34,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#404040'
-    },
-    image: {
-        alignSelf: 'center',
-        width: 148,
-        height: 180,
-        marginBottom: 147
-    },
-    button: {
-        marginBottom: 20
-    }
 }

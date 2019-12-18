@@ -16,6 +16,11 @@ class BtcTxDataProvider {
             throw new Error('BtcTxDataProvider requires settings.network')
         }
         switch (settings.network) {
+            case 'dogecoin':
+                this._isMainSkipped = false
+                this._blockcypherApiPath = `https://api.blockcypher.com/v1/doge/main`
+                this._smartbitApiPath = false
+                break
             case 'litecoin':
                 this._isMainSkipped = false
                 this._blockcypherApiPath = `https://api.blockcypher.com/v1/ltc/main`

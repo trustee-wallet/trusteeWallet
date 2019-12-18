@@ -19,7 +19,6 @@ class EthTxProcessor {
         if (typeof settings.network === 'undefined') {
             throw new Error('EthTxProcessor requires settings.network')
         }
-        BlocksoftCryptoLog.logDivider()
         BlocksoftCryptoLog.log('EthTxProcessor init started', settings.currencyCode)
         this._estimateFeeApiPath = 'https://ethgasstation.info/json/ethgasAPI.json'
         switch (settings.network) {
@@ -196,8 +195,8 @@ class EthTxProcessor {
         let tx = {
             from: data.addressFrom,
             to: data.addressTo,
-            gasPrice: data.feeForTx.gasPrice,
-            gas: data.feeForTx.gasLimit,
+            gasPrice: data.feeForTx.gasPrice * 1,
+            gas: data.feeForTx.gasLimit * 1,
             value: data.amount
         }
         if (typeof data.data !== 'undefined') {
@@ -255,8 +254,11 @@ class EthTxProcessor {
     async _innerSendTx(tx, data) {
         BlocksoftCryptoLog.log('EthTxProcessor._innerSendTx tx', tx)
         // noinspection JSUnresolvedVariable
+        if (data.privateKey.substr(0,2) !== '0x') {
+            data.privateKey = '0x' + data.privateKey
+        }
         let signData = await this._web3.eth.accounts.signTransaction(tx, data.privateKey)
-        BlocksoftCryptoLog.log('EthTxProcessor.sendTx signed', tx)
+        BlocksoftCryptoLog.log('EthTxProcessor._innerSendTx signed', tx)
 
         return new Promise((resolve, reject) => {
             BlocksoftCryptoLog.log('EthTxProcessor.sendTx promise started')

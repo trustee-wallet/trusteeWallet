@@ -1,28 +1,44 @@
-import axios from 'axios'
 import AsyncStorage from '@react-native-community/async-storage'
+import axios from 'axios'
 
 import Cashback from './Cashback/Cashback'
 
 import config from '../config/config'
-
+import Log from './Log/Log'
+import BlocksoftAxios from "../../crypto/common/BlocksoftAxios";
 
 export default {
-    getExchangeData: async () => {
-        const { mode: exchangeMode, apiEndpoints } = config.exchange
-        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest: apiEndpoints.baseURL
 
-        return await sendRequest({
-            url: `${baseUrl}/get-server-data`
+    validateCard: async (data) => {
+        const { mode: exchangeMode, apiEndpoints } = config.exchange
+        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+
+        return fetch(`${baseUrl}/validate-card`, {
+            method: "POST",
+            headers: {
+                'Accept': 'multipart/form-data',
+                'Content-Type': 'multipart/form-data',
+            },
+            body: data
         })
     },
 
+    getExchangeData: async () => {
+        const {mode: exchangeMode, apiEndpoints} = config.exchange
+        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+
+        const token = await AsyncStorage.getItem('cashbackToken')
+
+        return axios.get(`${baseUrl}/get-base-data?cashbackToken=${token}`)
+    },
+
     getExchangeOrders: async () => {
-        const { mode: exchangeMode, apiEndpoints } = config.exchange
-        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest: apiEndpoints.baseURL
+        const {mode: exchangeMode, apiEndpoints} = config.exchange
+        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
 
         const signedData = await Cashback.createSignature()
 
-        const cashbackToken = await AsyncStorage.getItem('cashbackToken')
+        const cashbackToken = Cashback.getCashbackToken()
 
         if (!cashbackToken) {
             throw new Error('No cashbackToken')
@@ -33,22 +49,36 @@ export default {
             timestamp: +new Date()
         }
 
-        const res = await axios.post(`${baseUrl}/get-statuses`, tmp)
-        if(typeof res.data.state !== 'undefined' && res.data.state === 'fail'){
+        const link = `${baseUrl}/get-statuses`
+        Log.log('DMN/Api getExchangeOrders axios ' + link)
+        const res = await axios.post(link, tmp)
+        if (typeof res.data.state !== 'undefined' && res.data.state === 'fail') {
             res.data.cashbackToken = cashbackToken
             res.data.signedData = signedData
+            res.data.publicAddress = Cashback.getPublicAddress()
         }
+
         return res
     },
-    getNBURates: async () => axios.get('https://testapiwallet.blocksoftlab.com/get-nbu-rates')
+    getNBURates: async () => {
+        const { mode: exchangeMode, apiEndpoints } = config.exchange
+        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest: apiEndpoints.baseURL
+        return axios.get(`${baseUrl}/get-nbu-rates`)
+    },
+    createOrder: async (data) => {
+        const { mode: exchangeMode, apiEndpoints } = config.exchange
+        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest: apiEndpoints.baseURL
+        return axios.post(`${baseUrl}/create-order`, data)
+    }
 }
 
 async function sendRequest(param) {
-    const { url } = param
+    const {url} = param
     let res = {}
 
     try {
-        const { data } = await axios.post(url)
+        Log.log(`DMN/Api sendRequest ${url}`)
+        const {data} = await axios.post(url)
 
         res.data = data.data
         res.status = 'success'

@@ -1,4 +1,4 @@
-import { createStackNavigator } from 'react-navigation'
+import { createStackNavigator } from 'react-navigation-stack'
 import BackupStep0Screen from '../modules/WalletBackup/BackupStep0Screen'
 import BackupStep1Screen from '../modules/WalletBackup/BackupStep1Screen'
 

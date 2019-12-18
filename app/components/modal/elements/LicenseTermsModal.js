@@ -10,6 +10,7 @@ import {
     TextInput,
     Linking
 } from 'react-native'
+import { connect } from 'react-redux'
 
 import RNExitApp from 'react-native-exit-app'
 import Modal from 'react-native-modal'
@@ -17,7 +18,6 @@ import Modal from 'react-native-modal'
 import Button from '../../../components/elements/Button'
 import ButtonLine from '../../../components/elements/ButtonLine'
 import GradientView from '../../../components/elements/GradientView'
-import Checkbox from '../../../components/elements/CheckBox'
 
 import OtherActions from '../../../appstores/Actions/OtherActions'
 import { hideModal } from '../../../appstores/Actions/ModalActions'
@@ -53,12 +53,6 @@ export class LicenseTermsModal extends Component {
         OtherActions.acceptTerms()
 
         hideModal()
-    }
-
-    handleCheckBox = () => {
-        this.setState({
-            licenseAccepted: !this.state.licenseAccepted
-        })
     }
 
     render() {
@@ -132,7 +126,19 @@ const styles_ = {
     end: { x: 1, y: 0.5 },
 }
 
-export default LicenseTermsModal
+const mapStateToProps = (state) => {
+    return {
+        toolTipsStore: state.toolTipsStore,
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        dispatch
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(LicenseTermsModal)
 
 const styles = {
     modal: {

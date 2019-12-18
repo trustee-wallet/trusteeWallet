@@ -1,8 +1,14 @@
-import { Clipboard } from 'react-native'
-import bip21 from 'bip21'
+import { Clipboard, Linking, Platform } from 'react-native'
 import { parse } from 'eth-url-parser'
 import _ from 'lodash'
+import { check, PERMISSIONS, request } from 'react-native-permissions'
+import Log from './Log/Log'
+import { setQRConfig, setQRValue } from '../appstores/Actions/QRCodeScannerActions'
+import { strings } from './i18n'
+import NavStore from '../components/navigation/NavStore'
+import { showModal } from '../appstores/Actions/ModalActions'
 
+const axios = require('axios')
 
 export function copyToClipboard(data) {
     Clipboard.setString(data);
@@ -59,7 +65,7 @@ export function normalizeWithDecimals(val, decimals) {
     return !value || value == '.' ? '' : value
 }
 
-export function decodeTransactionQrCode(param) {
+export async function decodeTransactionQrCode(param) {
     let error = {};
     const res = {
         status : '',
@@ -88,14 +94,60 @@ export function decodeTransactionQrCode(param) {
         error = err;
     }
 
-    try {
-        const data = bip21.decode(param.data);
-        res.status = 'success';
-        res.data.address = data.address;
-        res.data.amount =  typeof data.options.amount != 'undefined' ? data.options.amount : '';
-        res.data.currencyCode = 'BTC';
-    } catch (err) {
-        error = err;
+    if (res.status !== 'success') {
+        try {
+            let tmp = param.data.split(':')
+            let network = tmp[0].toLowerCase()
+            if (!tmp[1] || tmp[1].length < 5) {
+                throw new Error('no network ' + JSON.stringify(tmp))
+            }
+            delete(tmp[0])
+
+            tmp = tmp.join(':').split('?')
+            res.data.address = tmp[0];
+            res.status = 'success';
+
+            if (network === 'litecoin' || network === 'ltc') {
+                res.data.currencyCode = 'LTC';
+            } else if (network === 'doge') {
+                res.data.currencyCode = 'DOGE';
+            } else if (network === 'ethereum' || network === 'eth') {
+                res.data.currencyCode = 'ETH';
+            } else if (network === 'verge' || network === 'xvg') {
+                res.data.currencyCode = 'XVG';
+            } else {
+                res.data.currencyCode = 'BTC';
+            }
+
+            if (!tmp[1] || tmp[1].length < 5) {
+                throw new Error('no address ' + JSON.stringify(tmp))
+            }
+
+            tmp = tmp[1].split('&')
+            res.data.amount = ''
+            for (let sub of tmp) {
+                let tmp2 = sub.split('=')
+                if (tmp2[0].toLowerCase() === 'amount') {
+                    res.data.amount = typeof tmp2[1] != 'undefined' ? tmp2[1].toLowerCase() : '';
+                } else if (tmp2[0].toLowerCase() === 'r') {
+                    let bitpay = await axios.get(tmp2[1], {
+                        headers: {
+                            "Accept": 'application/payment-request'
+                        }
+                    })
+                    if (typeof bitpay.data.outputs !== 'undefined' && typeof bitpay.data.outputs[0] !== 'undefined') {
+                        res.data.currencyCode = bitpay.data.currency
+                        res.data.amount = bitpay.data.outputs[0].amount
+                        res.data.address = bitpay.data.outputs[0].address
+                        res.data.memo = bitpay.data.memo
+                    }
+                }
+            }
+
+        } catch (err) {
+            console.log(err)
+            error = err;
+        }
     }
 
     if(_.isEmpty(res.data)) {
@@ -106,6 +158,69 @@ export function decodeTransactionQrCode(param) {
     return res;
 }
 
+export const checkQRPermission = async (callback) => {
+    if(Platform.OS === 'android'){
+        const res = await check(PERMISSIONS.ANDROID.CAMERA)
+
+        console.log(res)
+
+        if(res === 'blocked' || res === 'denied'){
+            request(
+                Platform.select({
+                    android: PERMISSIONS.ANDROID.CAMERA,
+                }),
+            ).then((res) => {
+                if(res !== 'denied'){
+                    callback()
+                }
+            })
+        } else {
+            callback()
+        }
+    }
+
+    if(Platform.OS === 'ios'){
+        const res = await check(PERMISSIONS.IOS.CAMERA)
+
+
+        if(res === 'denied'){
+            request(
+                Platform.select({
+                    ios: PERMISSIONS.IOS.CAMERA,
+                }),
+            ).then((res) => {
+
+                if(res === 'blocked'){
+                    showModal({
+                        type: 'OPEN_SETTINGS_MODAL',
+                        icon: false,
+                        title: strings('modal.openSettingsModal.title'),
+                        description: strings('modal.openSettingsModal.description'),
+                        btnSubmitText: strings('modal.openSettingsModal.btnSubmitText'),
+                        btnCancelCallback: () => {  }
+                    }, () => {
+                        Linking.openURL('app-settings:')
+                    })
+                } else {
+                    callback()
+                }
+            })
+        } else if(res === 'blocked'){
+            showModal({
+                type: 'OPEN_SETTINGS_MODAL',
+                icon: false,
+                title: strings('modal.openSettingsModal.title'),
+                description: strings('modal.openSettingsModal.description'),
+                btnSubmitText: strings('modal.openSettingsModal.btnSubmitText'),
+                btnCancelCallback: () => {  }
+            }, () => {
+                Linking.openURL('app-settings:')
+            })
+        } else {
+            callback()
+        }
+    }
+}
 
 const utils = {
 

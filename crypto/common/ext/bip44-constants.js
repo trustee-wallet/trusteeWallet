@@ -4,6 +4,7 @@
  * [ constant, coinSymbol, coinName ]
  */
 module.exports = [
+    [ 0x80044401, "BTC_LIGHT", "Bitcoin Light" ],
     [ 0x8000003c, "ROPSTEN", "Ropsten Ether" ],
     [ 0x800000c8, "USDT", "USDT Omni" ],
     [ 0x80000001, "ETH_ROPSTEN", "Testnet (all coins)" ],

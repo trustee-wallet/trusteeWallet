@@ -3,11 +3,12 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, TouchableOpacity, Text } from 'react-native'
+import { View, TouchableOpacity, Text, Platform } from 'react-native'
 
 import NavStore from '../../../components/navigation/NavStore'
 import GradientView from '../../../components/elements/GradientView'
 import CurrencyIcon from '../../../components/elements/CurrencyIcon'
+import ToolTips from '../../../components/elements/ToolTips'
 
 import { setSelectedAccount, setSelectedCryptocurrency } from '../../../appstores/Actions/MainStoreActions'
 import FiatRatesActions from '../../../appstores/Actions/FiatRatesActions'
@@ -30,58 +31,80 @@ class Currency extends Component {
         NavStore.goNext('AccountScreen')
     }
 
-    render() {
+    renderTooltip = (props) => {
 
-        const { currency } = this.props
-        const { localCurrencySymbol } = this.props.fiatRatesStore
-        const tmpCurrency = JSON.parse(JSON.stringify(currency))
+        if(typeof props == 'undefined'){
+            return <View></View>
+        }
+
+        const { cryptocurrency } = props
+        const { localCurrencySymbol } = props.fiatRatesStore
+        const tmpCurrency = JSON.parse(JSON.stringify(cryptocurrency))
 
         let amount = +tmpCurrency.currencyBalanceAmount
         amount = amount.toFixed(5)
         amount = amount * 1
 
+        let fiatEquivalent = cryptocurrency.currency_rate_usd * cryptocurrency.currencyBalanceAmount
+
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={() => this.handleCurrencySelect()}>
-                    <View style={styles.cryptoList__item}>
-                        <GradientView
-                            style={styles.cryptoList__item__content}
-                            array={styles_.cryptoList__item.array}
-                            start={styles_.cryptoList__item.start}
-                            end={styles_.cryptoList__item.end}>
+                <View style={{ position: 'relative' }}>
+                    <View style={{
+                        position: "relative",
 
+                        marginBottom: 15,
+                        marginTop: 5,
+                        marginLeft: 16,
+                        marginRight: 16,
+                        backgroundColor: "#fff",
+                        borderRadius: 16,
 
-                            <CurrencyIcon currencyCode={currency.currencyCode}
-                                          containerStyle={styles.cryptoList__icoWrap}
-                                          markStyle={styles.cryptoList__icon__mark}
-                                          markTextStyle={styles.cryptoList__icon__mark__text}
-                                          iconStyle={styles.cryptoList__icon}/>
+                        zIndex: 2
+                    }}>
+                        <TouchableOpacity style={styles.cryptoList__item} {...props} onPress={() => this.handleCurrencySelect()}>
+                            <GradientView
+                                style={styles.cryptoList__item__content}
+                                array={styles_.cryptoList__item.array}
+                                start={styles_.cryptoList__item.start}
+                                end={styles_.cryptoList__item.end}>
+                                <CurrencyIcon currencyCode={cryptocurrency.currencyCode}
+                                              containerStyle={styles.cryptoList__icoWrap}
+                                              markStyle={styles.cryptoList__icon__mark}
+                                              markTextStyle={styles.cryptoList__icon__mark__text}
+                                              iconStyle={styles.cryptoList__icon}/>
 
-                            <View style={styles.cryptoList__info}>
-                                <Text style={styles.cryptoList__title}>
-                                    {currency.currencyName}
-                                </Text>
-                                <Text style={styles.cryptoList__text}>
-                                    { localCurrencySymbol } {currency.currency_rate_usd === 0 ? 0 : FiatRatesActions.toLocalCurrency(currency.currency_rate_usd)}
-                                </Text>
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.cryptoList__title}>
-                                    { amount } { currency.currencySymbol }
-                                </Text>
-                                <Text style={styles.cryptoList__text}>
-                                     { localCurrencySymbol } {currency.currency_rate_usd * currency.currencyBalanceAmount === 0 ? 0 : FiatRatesActions.toLocalCurrency(currency.currency_rate_usd * currency.currencyBalanceAmount)}
-                                </Text>
-                            </View>
-                            <View>
-
-                            </View>
-                        </GradientView>
+                                <View style={styles.cryptoList__info}>
+                                    <Text style={styles.cryptoList__title}>
+                                        {cryptocurrency.currencyName}
+                                    </Text>
+                                    <Text style={styles.cryptoList__text}>
+                                        { localCurrencySymbol } {cryptocurrency.currency_rate_usd === 0 ? 0 : ((FiatRatesActions.toLocalCurrency(cryptocurrency.currency_rate_usd, false).toFixed(5)).replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/,'$1')).toString().split('').join('\u200A'.repeat(1)) }
+                                    </Text>
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={styles.cryptoList__title}>
+                                        { localCurrencySymbol } {cryptocurrency.currency_rate_usd * cryptocurrency.currencyBalanceAmount === 0 ? 0 : FiatRatesActions.toLocalCurrency(fiatEquivalent)}
+                                    </Text>
+                                    <Text style={styles.cryptoList__text}>
+                                        { amount.toString().split('').join('\u200A'.repeat(1)) } { cryptocurrency.currencySymbol }
+                                    </Text>
+                                </View>
+                            </GradientView>
+                        </TouchableOpacity>
                     </View>
-
-                </TouchableOpacity>
+                    <View style={styles.shadow}>
+                        <View style={styles.shadow__item} />
+                    </View>
+                </View>
             </View>
         )
+    }
+
+    render() {
+        const { currency } = this.props
+        const { fiatRatesStore } = this.props
+        return currency.currencyCode === 'BTC' ? <ToolTips animatePress={true} height={100} mainComponentProps={{ cryptocurrency: currency, fiatRatesStore }} disabled={true} MainComponent={this.renderTooltip} type={'HOME_SCREEN_CRYPTO_BTN_TIP'} nextCallback={this.handleCurrencySelect} /> : this.renderTooltip({ cryptocurrency: currency, fiatRatesStore })
     }
 }
 
@@ -119,8 +142,9 @@ const styles_ = {
         size: 24
     },
     cryptoList__item: {
-        array: ['transparent', 'transparent'],
-        start: { x: 0.0, y: 0.5 }
+        array: ['#fff', '#f4f4f4'],
+        start: { x: 1, y: 0 },
+        end: { x: 1, y: 1 }
     },
     bg: {
         array: ['#fff', '#F8FCFF'],
@@ -131,45 +155,46 @@ const styles_ = {
 
 const styles = {
     cryptoList__item: {
+
         justifyContent: 'center',
         height: 70,
-        marginBottom: 10,
-        marginTop: 5,
-        marginLeft: 20,
-        marginRight: 20,
-        paddingLeft: 15,
-        borderRadius: 60,
+        borderRadius: 16,
         shadowColor: '#000',
-        backgroundColor: '#fff',
-        shadowOffset: {
-            width: 0,
-            height: 1
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
+    },
+    cryptoList__item__bg: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
 
-        elevation: 3
+        backgroundColor: "#fff"
     },
     cryptoList__item__content: {
+        flex: 1,
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+
+        paddingLeft: 15,
+
+        borderRadius: 16
     },
     cryptoList__title: {
         color: '#404040',
-        fontFamily: 'SFUIDisplay-Semibold',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 14
     },
     cryptoList__text: {
         color: '#999999',
         fontSize: 12,
-        fontFamily: 'SFUIDisplay-Regular'
+        fontFamily: 'SFUIDisplay-Regular',
     },
     cryptoList__info: {
         flex: 1
     },
     cryptoList__icoWrap: {
-        width: 40,
-        height: 40,
+        width: 42,
+        height: 42,
         marginRight: 15,
         elevation: 0,
         shadowColor: "#fff",
@@ -182,5 +207,35 @@ const styles = {
     },
     cryptoList__icon__mark__text: {
         fontSize: 5
-    }
+    },
+    shadow: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+
+        width: '100%',
+        height: '100%',
+
+        zIndex: 1
+    },
+    shadow__item: {
+
+        marginHorizontal: 20,
+        marginTop: 25,
+        height: Platform.OS === 'ios' ? 50 : 43,
+
+        backgroundColor: "#fff",
+
+        borderRadius: 16,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: 0.34,
+        shadowRadius: 6.27,
+
+        elevation: 10,
+    },
 }

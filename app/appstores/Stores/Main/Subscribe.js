@@ -150,26 +150,52 @@ async function afterAccountBalanceDaemonData(walletHash) {
 
     const currencies = JSON.parse(JSON.stringify(state.mainStore.currencies))
 
+    const selectedCryptoCurrency = JSON.parse(JSON.stringify(state.mainStore.selectedCryptoCurrency))
 
-    const { array: currenciesBalanceAmount } = await currencyDS.getCurrencyBalanceAmount(walletHash)
+    const selectedAccount = JSON.parse(JSON.stringify(state.mainStore.selectedAccount))
 
+    let selectedCryptoCurrencyChanged = false
+
+    let selectedAccountChanged = false
+
+    const { array: tmps } = await currencyDS.getCurrencyBalanceAmount(walletHash)
+
+    let currenciesBalanceAmount = {}
+    for (let tmp of tmps) {
+        currenciesBalanceAmount[tmp.currency_code] = tmp
+    }
     Log.daemon('SB/afterAccountBalanceDaemonData currenciesBalanceAmount ', currenciesBalanceAmount)
     let msg = ''
 
     try {
         for (let objIndex in currencies) {
             const obj = currencies[objIndex]
-            const tmpObj = currenciesBalanceAmount.find((item) => item.currency_code === obj.currency_code)
-            if (!tmpObj) {
-                Log.daemon('SB/afterAccountBalanceDaemonData not found ', obj.currency_code)
+            if (typeof currenciesBalanceAmount[obj.currency_code] === 'undefined') {
+                Log.daemon('SB/afterAccountBalanceDaemonData not found ' + obj.currency_code + ' in ' + walletHash)
                 continue
             }
+            const tmpObj = currenciesBalanceAmount[obj.currency_code]
+            Log.daemon('SB/afterAccountBalanceDaemonData found ' + obj.currency_code + ' in ' + walletHash)
             try {
-                currencies[objIndex].currencyBalanceAmountRaw = tmpObj.currencyBalanceAmount
-                currencies[objIndex].currencyBalanceAmount = BlocksoftPrettyNumbers.setCurrencyCode(obj.currencyCode).makePrettie(tmpObj.currencyBalanceAmount)
+                let balanceRaw = tmpObj.currencyBalanceAmount
+                let balancePrettie =  BlocksoftPrettyNumbers.setCurrencyCode(obj.currencyCode).makePrettie(tmpObj.currencyBalanceAmount)
+                currencies[objIndex].currencyBalanceAmountRaw = balanceRaw
+                currencies[objIndex].currencyBalanceAmount = balancePrettie
+                if (selectedCryptoCurrency && selectedCryptoCurrency.currencyCode === obj.currencyCode && selectedCryptoCurrency.walletHash === walletHash && selectedCryptoCurrency.currencyBalanceAmountRaw !== balanceRaw) {
+                    selectedCryptoCurrencyChanged = true
+                    selectedCryptoCurrency.currencyBalanceAmountRaw = balanceRaw
+                    selectedCryptoCurrency.currencyBalanceAmount = balancePrettie
+                }
+                if (selectedAccount && selectedAccount.currency_code === obj.currencyCode && selectedAccount.wallet_hash === walletHash && selectedAccount.balance !== balanceRaw) {
+                    selectedAccountChanged = true
+                    selectedAccount.balance_fix = balanceRaw
+                    selectedAccount.balance_txt = balanceRaw
+                    selectedAccount.balance = balanceRaw
+                    selectedAccount.balancePretty = balancePrettie
+                }
                 msg += ' ' + obj.currencyCode + ' => ' + currencies[objIndex].currencyBalanceAmount
-            } catch {
-                Log.errDaemon('SB/afterAccountBalanceDaemonData currenciesBalanceAmount could not update ', e)
+            } catch (e) {
+                Log.daemon('SB/afterAccountBalanceDaemonData currenciesBalanceAmount could not update ' + e.message)
             }
         }
     } catch (e) {
@@ -181,6 +207,21 @@ async function afterAccountBalanceDaemonData(walletHash) {
         dispatch({
             type: 'SET_CURRENCIES',
             currencies
+        })
+    }
+    if (selectedCryptoCurrencyChanged) {
+        Log.daemon('SB/afterSelectedCryptoCurrencyChanged finished')
+        dispatch({
+            type: 'SET_SELECTED_CRYPTOCURRENCY',
+            selectedCryptoCurrency: selectedCryptoCurrency
+        })
+    }
+
+    if (selectedAccountChanged) {
+        Log.daemon('SB/afterSelectedAccountChanged finished')
+        dispatch({
+            type: 'SET_SELECTED_ACCOUNT',
+            selectedAccount: selectedAccount
         })
     }
 }
