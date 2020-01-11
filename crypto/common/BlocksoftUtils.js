@@ -6,6 +6,11 @@ class BlocksoftUtils {
         if (!val2 || !(val2 * 1 > 0)) return val1
         return BlocksoftUtils.toBigNumber(val1).add(BlocksoftUtils.toBigNumber(val2))
     }
+
+    /**
+     * @param val
+     * @returns BigNumber
+     */
     static toBigNumber(val) {
         // noinspection JSCheckFunctionSignatures,JSUnresolvedVariable
         return new Web3.utils.BN(val)
@@ -32,7 +37,7 @@ class BlocksoftUtils {
     }
 
     static toUnified(val, decimals = 8) {
-        if (typeof (val) === 'undefined' || val === 'undefined') {
+        if (typeof val === 'undefined' || val === 'undefined') {
             throw new Error('toUnified val is undefined')
         }
         if (typeof val === 'number') {
@@ -82,7 +87,7 @@ class BlocksoftUtils {
     }
 
     static toWei(val, from = 'ether') {
-        if (typeof (val) === 'undefined') {
+        if (typeof val === 'undefined') {
             throw new Error('toWei val is undefined')
         }
         if (typeof val === 'number') {
@@ -125,7 +130,9 @@ class BlocksoftUtils {
     }
 
     static toDate(timeStamp, multiply = true) {
-        if (timeStamp && timeStamp > 0) {
+        if (timeStamp.toString().indexOf('T') !== -1) {
+            return timeStamp
+        } else if (timeStamp && timeStamp > 0) {
             if (multiply) {
                 timeStamp = timeStamp * 1000
             }

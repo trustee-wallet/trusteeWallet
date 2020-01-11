@@ -1,4 +1,6 @@
 /**
+ * @author Ksu
+ * @version 0.5
  * @docs https://www.npmjs.com/package/react-native-keychain
  */
 import 'react-native'
@@ -294,5 +296,4 @@ export class BlocksoftKeysStorage {
 }
 
 let singleBlocksoftKeysStorage = new BlocksoftKeysStorage()
-
 export default singleBlocksoftKeysStorage

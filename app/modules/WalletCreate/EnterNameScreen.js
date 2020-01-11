@@ -213,7 +213,7 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps, {})(EnterNameScreen)
 
 const styles_ = {
-    array: ['#fff', '#fff'],
+    array: ['#f9f9f9', '#f9f9f9'],
     start: { x: 0.0, y: 0 },
     end: { x: 0, y: 1 }
 }

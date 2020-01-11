@@ -11,10 +11,10 @@
   {
     "symbol_native":"CA$",
     "currency":"Canadian Dollar",
-    "symbol":"$",
+    "symbol":"CA$",
     "decimal_digits":2,
     "rounding":0,
-    "currencyCode":"CAD",
+    "CAD":"CAD",
     "name":"Canadian dollars"
   },
   {
@@ -83,7 +83,7 @@
   {
     "symbol_native":"AR$",
     "currency":"Argentine Peso",
-    "symbol":"$",
+    "symbol":"AR$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"ARS",
@@ -92,7 +92,7 @@
   {
     "symbol_native":"AU$",
     "currency":"Australian Dollar",
-    "symbol":"$",
+    "symbol":"AU$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"AUD",
@@ -155,7 +155,7 @@
   {
     "symbol_native":"BN$",
     "currency":"Brunei Dollar",
-    "symbol":"$",
+    "symbol":"BN$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"BND",
@@ -218,7 +218,7 @@
   {
     "symbol_native":"BZ$",
     "currency":"Belize Dollar",
-    "symbol":"$",
+    "symbol":"BZ$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"BZD",
@@ -245,7 +245,7 @@
   {
     "symbol_native":"CL$",
     "currency":"Chilean Peso",
-    "symbol":"$",
+    "symbol":"CL$",
     "decimal_digits":0,
     "rounding":0,
     "currencyCode":"CLP",
@@ -263,7 +263,7 @@
   {
     "symbol_native":"CO$",
     "currency":"Colombian Peso",
-    "symbol":"$",
+    "symbol":"CO$",
     "decimal_digits":0,
     "rounding":0,
     "currencyCode":"COP",
@@ -425,7 +425,7 @@
   {
     "symbol_native":"HK$",
     "currency":"Hong Kong Dollar",
-    "symbol":"$",
+    "symbol":"HK$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"HKD",
@@ -515,7 +515,7 @@
   {
     "symbol_native":"J$",
     "currency":"Jamaican Dollar",
-    "symbol":"$",
+    "symbol":"J$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"JMD",
@@ -749,7 +749,7 @@
   {
     "symbol_native":"MX$",
     "currency":"Mexican Peso",
-    "symbol":"$",
+    "symbol":"MX$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"MXN",
@@ -821,7 +821,7 @@
   {
     "symbol_native":"NZ$",
     "currency":"New Zealand Dollar",
-    "symbol":"$",
+    "symbol":"NZ$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"NZD",
@@ -974,7 +974,7 @@
   {
     "symbol_native":"S$",
     "currency":"Singapore Dollar",
-    "symbol":"$",
+    "symbol":"S$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"SGD",
@@ -1082,7 +1082,7 @@
   {
     "symbol_native":"TT$",
     "currency":"Trinidad and Tobago Dollar",
-    "symbol":"$",
+    "symbol":"TT$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"TTD",
@@ -1127,7 +1127,7 @@
   {
     "symbol_native":"$U",
     "currency":"Uruguayan Peso",
-    "symbol":"$",
+    "symbol":"$U",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"UYU",

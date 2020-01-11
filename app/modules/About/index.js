@@ -21,6 +21,8 @@ import Cashback from '../../services/Cashback/Cashback'
 
 import config from '../../config/config'
 import firebase from 'react-native-firebase'
+import Snow from 'react-native-snow'
+import { connect } from 'react-redux'
 
 class AboutScreen extends Component {
 
@@ -41,6 +43,7 @@ class AboutScreen extends Component {
 
     render() {
         firebase.analytics().setCurrentScreen('About.index')
+
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <ScrollView showsVerticalScrollIndicator={false}>
@@ -71,13 +74,13 @@ class AboutScreen extends Component {
                                 <TouchableOpacity style={styles.block__item}
                                                   onPress={() => this.handleModal('PrivacyPolicyScreen')}>
                                     <Icon name="privacy" size={20} style={styles.block__icon} />
-                                    <Text style={styles.block__text}>{ strings('settings.about.privacy') }</Text>
+                                    <Text style={styles.block__text} numberOfLines={1}>{ strings('settings.about.privacy') }</Text>
                                 </TouchableOpacity>
                                 <View style={styles.divider} />
                                 <TouchableOpacity style={styles.block__item}
                                                   onPress={() => this.handleModal('TermsOfUseScreen')}>
                                     <MaterialCommunityIcons name="file-document-edit" size={24} style={{...styles.block__icon, marginRight: 10}} />
-                                    <Text style={styles.block__text}>{ strings('settings.about.terms') }</Text>
+                                    <Text style={styles.block__text} numberOfLines={1}>{ strings('settings.about.terms') }</Text>
                                 </TouchableOpacity>
                                 <View style={styles.divider} />
                             </View>
@@ -90,6 +93,7 @@ class AboutScreen extends Component {
 }
 
 export default AboutScreen
+
 
 const styles_ = {
     array: ["#fff","#fff"],
@@ -138,6 +142,8 @@ const styles = {
         height: 42
     },
     block__text: {
+        flex: 1,
+
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 19,
         color: '#404040'

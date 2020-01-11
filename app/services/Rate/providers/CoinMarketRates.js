@@ -14,9 +14,8 @@ export default class CoinMarketRates {
     /**
      * could be changed to some our proxy later
      * @type {string}
-     * @private
      */
-    _URL = 'https://api.coinmarketcap.com/v1/ticker/'
+    URL = 'https://api.coinmarketcap.com/v1/ticker/'
 
     /**
      * time to store cached response not to ask twice (ms)
@@ -47,7 +46,7 @@ export default class CoinMarketRates {
         const now = new Date().getTime()
         let provider = 'coinmarket'
         if (now - this._cachedTime > this._CACHE_VALID_TIME) {
-            Log.log('DMN/CoinMarketRates link ' + this._URL)
+            Log.log('DMN/CoinMarketRates link ' + this.URL)
             /**
              * @param {string} resData.data[].currency
              * @param {string} resData.data[].usd
@@ -57,7 +56,7 @@ export default class CoinMarketRates {
              * @param {string} resData.data[].eur
              * @param {string} resData.data[].rub
              */
-            const resData = await axios.get(this._URL)
+            const resData = await axios.get(this.URL)
             if (!resData.data || !resData.data[0] || !resData.data[0].id) {
                 throw new Error(resData.data)
             }
@@ -73,14 +72,14 @@ export default class CoinMarketRates {
         }
 
         if (typeof this._cachedData[params.currencyCode] === 'undefined') {
-            throw new Error('CoinMarketRates ' + params.currencyCode + ' ' + provider + ' doesnt exists ' + JSON.stringify(Object.keys(this._cachedData)))
+            throw new Error('CoinMarketRates ' + params.currencyCode + ' ' + provider + ' wrong code = doesnt exists ' + JSON.stringify(Object.keys(this._cachedData)))
         }
         const rate = this._cachedData[params.currencyCode]
         if (!rate) {
-            throw new Error('CoinMarketRates ' + params.currencyCode + ' ' + provider + ' is null ' + JSON.stringify(Object.keys(this._cachedData)))
+            throw new Error('CoinMarketRates ' + params.currencyCode + ' ' + provider + ' wrong code = is null ' + JSON.stringify(Object.keys(this._cachedData)))
         }
         if (!rate.price_usd) {
-            throw new Error('CoinMarketRates ' + params.currencyCode + ' ' + provider + ' doesnt trade with usd ' + JSON.stringify(rate))
+            throw new Error('CoinMarketRates ' + params.currencyCode + ' ' + provider + ' wrong code = doesnt trade with usd ' + JSON.stringify(rate))
         }
         return { amount: rate.price_usd*1, provider }
     }

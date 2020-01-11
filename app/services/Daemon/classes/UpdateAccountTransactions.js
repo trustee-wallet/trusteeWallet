@@ -72,7 +72,7 @@ class UpdateAccountTransactions extends Update {
                     this.tryCounter[account.currencyCode] = 0
                 } catch (e) {
                     let errMsg = account.currencyCode + ' ' + account.address + ' ' + e.message
-                    if (Log.isNetworkError(e.message) !== -1 && this.tryCounter[account.currencyCode] < 10) {
+                    if (Log.isNetworkError(e.message) && this.tryCounter[account.currencyCode] < 10) {
                         this.tryCounter[account.currencyCode]++
                         Log.daemon('DMN/UpdateAccountTransactions network try ' + this.tryCounter[account.currencyCode] + ' ' + e.message)
                     } else if (typeof e.code !== 'undefined' && e.code === 'ERROR_SILENT') {
@@ -81,7 +81,6 @@ class UpdateAccountTransactions extends Update {
                         // actually we need to update scan time even for error addresses thats why
                         Log.errDaemon('DMN/UpdateAccountTransactions error 1.2 ' + errMsg)
                     }
-
                 }
                 try {
                     let tmps = false

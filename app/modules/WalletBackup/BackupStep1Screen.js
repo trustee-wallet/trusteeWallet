@@ -248,7 +248,7 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps, {})(BackupStep1Screen)
 
 const styles_ = {
-    array: ['#fff', '#F8FCFF'],
+    array: ['#f9f9f9', '#f9f9f9'],
     start: {x: 0.0, y: 0},
     end: {x: 0, y: 1}
 }
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
         left: 0,
         width: '100%',
         height: '100%',
-        backgroundColor: '#F6F8F9',
+        backgroundColor: '#f9f9f9',
         zIndex: 1,
         borderRadius: 10
     },

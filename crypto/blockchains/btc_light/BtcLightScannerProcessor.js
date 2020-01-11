@@ -1,12 +1,10 @@
-import { BlocksoftKeysStorage } from '../../actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
-import BlocksoftUtils from '../../common/BlocksoftUtils'
+/**
+ * @version 0.5
+ */
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import BtcLightProvider from './providers/BtcLightProvider'
 
-class BtcLightScannerProcessor {
-
-    constructor(settings) {
-        this.provider = require('./providers/BtcLightProvider').init(settings)
-    }
+export default class BtcLightScannerProcessor {
 
     /**
      * @param {string} address
@@ -14,9 +12,9 @@ class BtcLightScannerProcessor {
      * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalance(address, jsonData) {
-        await this.provider.setLoginByAddressORJsonData(address, jsonData)
-        let balance = await this.provider.getBalance()
-        return {balance : balance.BTC.AvailableBalance, unconfirmed : 0, provider : 'light'}
+        await BtcLightProvider.setLoginByAddressORJsonData(address, jsonData)
+        let balance = await BtcLightProvider.getBalance()
+        return { balance: balance.BTC.AvailableBalance, unconfirmed: 0, provider: 'light' }
     }
 
     /**
@@ -26,14 +24,14 @@ class BtcLightScannerProcessor {
      */
     async getTransactions(address, jsonData) {
         BlocksoftCryptoLog.log('BtcLightScannerProcessor.getTransactions started')
-        await this.provider.setLoginByAddressORJsonData(address, jsonData)
+        await BtcLightProvider.setLoginByAddressORJsonData(address, jsonData)
         let transactions = []
 
         let userInvoices = {}
         let needMore, offset = 0
         do {
             needMore = false
-            let {invoices, PER_PAGE} = await this.provider.getUserInvoices(offset)
+            let { invoices, PER_PAGE } = await BtcLightProvider.getUserInvoices(offset)
             if (invoices) {
                 this._parseAndSave(invoices, transactions, address)
                 for (let invoice of invoices) {
@@ -49,11 +47,10 @@ class BtcLightScannerProcessor {
         offset = 0
         do {
             needMore = false
-            let {txs, PER_PAGE} = await this.provider.getTransactions(offset)
+            let { txs, PER_PAGE } = await BtcLightProvider.getTransactions(offset)
             if (txs) {
                 for (let tx of txs) {
                     if (tx.type !== 'paid_invoice') {
-                        // console.log('tx', tx)
                         continue
                     }
                     if (typeof userInvoices[tx.timestamp] !== 'undefined') continue
@@ -61,14 +58,14 @@ class BtcLightScannerProcessor {
                         transaction_hash: 'paid_invoice_' + tx.timestamp,
                         block_hash: tx.type, //'paid_invoice'
                         block_number: '0',
-                        block_time : tx.timestamp * 1000,
+                        block_time: tx.timestamp * 1000,
                         block_confirmations: '0',
                         transaction_direction: 'outcome',
                         transaction_json: { memo: tx.memo },
                         address_from: address,
                         address_to: '',
                         address_amount: tx.value,
-                        transaction_status : 'paid',
+                        transaction_status: 'paid'
                     }
                     transactions.push(transaction)
                 }
@@ -87,7 +84,7 @@ class BtcLightScannerProcessor {
         for (let invoice of invoices) {
             try {
                 let block_time = invoice.timestamp * 1000
-                let timed = (now - block_time)/1000
+                let timed = (now - block_time) / 1000
                 let transaction_status = 'new'
                 if (invoice.ispaid === true) {
                     transaction_status = 'paid'
@@ -107,7 +104,7 @@ class BtcLightScannerProcessor {
                     address_from: '',
                     address_to: address,
                     address_amount: invoice.amt,
-                    transaction_status,
+                    transaction_status
                 }
 
                 /*if (timed < 72000000) { // 20 hours
@@ -118,12 +115,9 @@ class BtcLightScannerProcessor {
 
                 transactions.push(transaction)
             } catch (e) {
+                // noinspection JSIgnoredPromiseFromCall
                 BlocksoftCryptoLog.err('BtcLightScanner parse error ' + e.message)
             }
         }
     }
-}
-
-module.exports.init = function (settings) {
-    return new BtcLightScannerProcessor(settings)
 }

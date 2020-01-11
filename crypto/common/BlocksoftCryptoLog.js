@@ -127,52 +127,52 @@ class BlocksoftCryptoLog {
             return true
         }
 
-        let msg = `CRPT_${this.LOG_VERSION}` + '\n' + date + line + '\n'
-        if (typeof (this.LOG_TESTER) != 'undefined' && this.LOG_TESTER) {
+        let msg = `CRPT_jan_${this.LOG_VERSION}` + '\n' + date + line + '\n'
+        if (typeof this.LOG_TESTER != 'undefined' && this.LOG_TESTER) {
             msg += '\nTESTER ' + this.LOG_TESTER
         }
-        if (typeof (this.LOG_DEV) != 'undefined' && this.LOG_DEV) {
+        if (typeof this.LOG_DEV != 'undefined' && this.LOG_DEV) {
             msg += '\nDEV ' + this.LOG_DEV
         }
-        if (typeof (this.LOG_WALLET) != 'undefined' && this.LOG_WALLET) {
+        if (typeof this.LOG_WALLET != 'undefined' && this.LOG_WALLET) {
             msg += '\nWALLET ' + this.LOG_WALLET
         }
-        if (typeof (this.LOG_CASHBACK) != 'undefined' && this.LOG_CASHBACK) {
+        if (typeof this.LOG_CASHBACK != 'undefined' && this.LOG_CASHBACK) {
             msg += '\nCASHBACK ' + this.LOG_CASHBACK
         }
-        if (typeof (this.LOG_TOKEN) != 'undefined' && this.LOG_TOKEN) {
+        if (typeof this.LOG_TOKEN != 'undefined' && this.LOG_TOKEN) {
             msg += '\nTOKEN ' + this.LOG_TOKEN.substr(0, 20)
         }
-        if (typeof (this.LOG_PLATFORM) != 'undefined' && this.LOG_PLATFORM) {
+        if (typeof this.LOG_PLATFORM != 'undefined' && this.LOG_PLATFORM) {
             msg += '\nPLATFORM ' + this.LOG_PLATFORM
         }
 
         try {
-            if (typeof (this.LOG_VERSION) != 'undefined' && this.LOG_VERSION) {
+            if (typeof this.LOG_VERSION != 'undefined' && this.LOG_VERSION) {
                 // noinspection JSUnresolvedFunction
                 firebase.crashlytics().setStringValue('LOG_VERSION', this.LOG_VERSION)
             }
-            if (typeof (this.LOG_TESTER) != 'undefined' && this.LOG_TESTER) {
+            if (typeof this.LOG_TESTER != 'undefined' && this.LOG_TESTER) {
                 // noinspection JSUnresolvedFunction
                 firebase.crashlytics().setStringValue('LOG_TESTER', this.LOG_TESTER)
             }
-            if (typeof (this.LOG_DEV) != 'undefined' && this.LOG_TESTER) {
+            if (typeof this.LOG_DEV != 'undefined' && this.LOG_TESTER) {
                 // noinspection JSUnresolvedFunction
                 firebase.crashlytics().setStringValue('LOG_DEV', this.LOG_TESTER)
             }
-            if (typeof (this.LOG_WALLET) != 'undefined' && this.LOG_WALLET) {
+            if (typeof this.LOG_WALLET != 'undefined' && this.LOG_WALLET) {
                 // noinspection JSUnresolvedFunction
                 firebase.crashlytics().setStringValue('LOG_WALLET', this.LOG_WALLET)
             }
-            if (typeof (this.LOG_CASHBACK) != 'undefined' && this.LOG_CASHBACK) {
+            if (typeof this.LOG_CASHBACK != 'undefined' && this.LOG_CASHBACK) {
                 // noinspection JSUnresolvedFunction
                 firebase.crashlytics().setStringValue('LOG_CASHBACK', this.LOG_CASHBACK)
             }
-            if (typeof (this.LOG_TOKEN) != 'undefined' && this.LOG_TOKEN) {
+            if (typeof this.LOG_TOKEN != 'undefined' && this.LOG_TOKEN) {
                 // noinspection JSUnresolvedFunction
                 firebase.crashlytics().setStringValue('LOG_TOKEN', this.LOG_TOKEN)
             }
-            if (typeof (this.LOG_PLATFORM) != 'undefined' && this.LOG_PLATFORM) {
+            if (typeof this.LOG_PLATFORM != 'undefined' && this.LOG_PLATFORM) {
                 // noinspection JSUnresolvedFunction
                 firebase.crashlytics().setStringValue('LOG_PLATFORM', this.LOG_PLATFORM)
             }
@@ -200,6 +200,15 @@ class BlocksoftCryptoLog {
 
     getLogs() {
         return FULL_LOGS_TXT
+    }
+
+    isNetworkError(message) {
+        return (message.indexOf('Network Error') !== -1
+            || message.indexOf('timeout of 0ms exceeded') !== -1
+            || message.indexOf('Request failed with status code') !== -1
+            || message.indexOf('API calls limits have been reached') !== -1
+            || message.indexOf('SERVER_RESPONSE_') !== -1
+        )
     }
 
 

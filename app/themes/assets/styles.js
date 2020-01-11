@@ -167,25 +167,34 @@ export default {
             flex: 1
         },
         wrapper__scrollView: {
-            marginTop: 80,
+            marginTop: 60,
         },
         wrapper__content: {
             flex: 1,
 
             paddingTop: 20,
         },
+        containerBG: {
+            array: ['#fff', '#f2f2f2'],
+            start: { x: 1, y: 0 },
+            end: { x: 1, y: 1 }
+        },
         topContent: {
             position: 'relative',
+
+            height: 264,
+
             marginTop: 25,
             marginBottom: 30,
-            marginLeft: 30,
-            marginRight: 30
+            marginLeft: 16,
+            marginRight: 16,
+            borderRadius: 16
         },
         topContent__top: {
             position: 'relative',
             alignItems: 'center',
-            height: 160,
-            marginTop: -25
+
+            marginTop: 16
         },
         topBlock__top_bg: {
             position: 'absolute',
@@ -198,77 +207,84 @@ export default {
             flexDirection: 'row',
             alignItems: 'flex-end',
             justifyContent: 'center',
-            marginTop: 20,
-            marginBottom: 20
+            marginBottom: 20,
+            marginTop: 16
         },
         topContent__subtitle: {
-            marginTop: -5,
-            marginBottom: 15,
-            fontFamily: 'SFUIDisplay-Regular',
-            fontSize: 16,
-            color: '#f4f4f4',
+            marginTop: -10,
+            marginBottom: 20,
+            fontFamily: 'SFUIDisplay-Bold',
+            fontSize: 12,
+            color: '#939393',
             textAlign: 'center'
         },
         topContent__title_first: {
             height: 42,
-            fontFamily: 'SFUIDisplay-Regular',
-            fontSize: 36,
-            color: '#f4f4f4'
+            fontSize: 52,
+            fontFamily: "Montserrat-Light",
+            color: '#404040',
+            lineHeight: 50
         },
         topContent__title_last: {
-            height: 30,
-            fontFamily: 'SFUIDisplay-Regular',
-            textAlign: 'center',
-            fontSize: 24,
-            color: '#f4f4f4'
+            fontSize: 20,
+            fontFamily: "Montserrat-Medium",
+            color: '#404040',
+
+            opacity: .8
         },
         topContent__bottom: {
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            justifyContent: 'center',
+
+            marginTop: Platform.OS === "ios" ? -10 : -20,
+
             overflow: 'visible'
         },
         topContent__middle: {
+            marginTop: 5,
             alignItems: 'center',
-            marginTop: 20
         },
         topContent__address: {
             marginBottom: 3,
-            fontFamily: 'SFUIDisplay-Semibold',
-            fontSize: 14,
-            color: '#404040'
+            fontFamily: 'SFUIDisplay-Bold',
+            fontSize: 12,
+            color: '#939393'
         },
         copyBtn: {
             flexDirection: 'row',
             alignItems: 'center',
-            height: 80,
+            height: 74,
             paddingLeft: 50,
             paddingRight: 50,
             marginTop: -35
         },
         copyBtn__text: {
-            marginTop: 22,
-            marginRight: 17,
-            fontFamily: 'SFUIDisplay-Bold',
+            marginTop: 6,
+            marginRight: 7,
+            fontFamily: "Montserrat-Bold",
             fontSize: 10,
             color: '#864dd9'
         },
         copyBtn__icon: {
-            marginTop: 18
+            marginTop: 7
         },
         shadow: {
-            width: '100%',
+            marginTop: 10,
+            marginHorizontal: 5,
+
             height: '100%',
             backgroundColor: '#fff',
-            borderRadius: 15,
-            shadowColor: '#000',
+            borderRadius: 16,
+
+            shadowColor: "#000",
             shadowOffset: {
                 width: 0,
-                height: 2
+                height: 5,
             },
-            shadowOpacity: 0.23,
-            shadowRadius: 2.62,
+            shadowOpacity: 0.34,
+            shadowRadius: 6.27,
 
-            elevation: 4
+            elevation: 10,
         },
         transaction_title: {
             marginLeft: 30,
@@ -313,7 +329,7 @@ export default {
         },
         transaction__subtext: {
             fontFamily: 'SFUIDisplay-Regular',
-            color: '#999999',
+            color: '#808080',
             fontSize: 11
         },
         transaction__content: {

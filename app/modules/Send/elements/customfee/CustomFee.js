@@ -63,6 +63,7 @@ class CustomFee extends Component {
                             callTransferAll={this.callTransferAll}
                             useAllFunds={useAllFunds}/>
             case 'BTC':
+            case 'DOGE':
             case 'BTC_TEST':
             case 'USDT':
                 this.state.selectedCustomFeeComponent = 'customFeeBitcoin'

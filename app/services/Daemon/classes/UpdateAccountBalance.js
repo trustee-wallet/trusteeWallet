@@ -27,7 +27,9 @@ class UpdateAccountBalance extends Update {
     updateAccountBalance = async () => {
         this._tickCount++
         const params = { derivation_type: 'main', not_currency_code : 'BTC' }
-        if (this._tickCount > 5) {
+        if (this._tickCount === 1) {
+            params.not_currency_code = false
+        } else if (this._tickCount > 5) {
             params.derivation_type = false
             params.not_currency_code = false
             this._tickCount = 0
@@ -89,7 +91,7 @@ class UpdateAccountBalance extends Update {
 
                 let balanceIsChanging = false
 
-                if (balanceIsOk && newBalance.balance*1 !== account.balance*1) {
+                if (balanceIsOk && newBalance && newBalance.balance*1 !== account.balance*1) {
                     prepare.updateObj.balanceFix = newBalance.balance // lets send to db totally not changed big number string
                     prepare.updateObj.balanceTxt = newBalance.balance // and string for any case
                     prepare.updateObj.balanceProvider = newBalance.provider

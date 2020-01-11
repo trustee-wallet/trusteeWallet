@@ -15,7 +15,7 @@ import Fee from './Fee'
 import { strings } from '../../../services/i18n'
 import i18n from '../../../../app/services/i18n'
 
-import BlocksoftTransaction from '../../../../crypto/actions/BlocksoftTransaction/BlocksoftTransaction'
+import BlocksoftTransfer from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import transactionActions from '../../../appstores/Actions/TransactionActions'
 
 import Log from '../../../services/Log/Log'
@@ -28,6 +28,7 @@ const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 import Theme from '../../../themes/Themes'
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
+import utils from '../../../services/utils'
 let styles
 
 
@@ -35,6 +36,9 @@ export class ConfirmModal extends Component {
 
     constructor(props) {
         super(props)
+        this.state = {
+            isSendDisabled: false
+        }
     }
 
     componentWillMount() {
@@ -55,8 +59,9 @@ export class ConfirmModal extends Component {
             return false
         }
 
+        this.setState({ isSendDisabled: true })
 
-        const { amountRaw, address: addressTo, cryptocurrency, account, wallet, useAllFunds } = this.props.data.data
+        const { amountRaw, address: addressTo, cryptocurrency, account, wallet, useAllFunds, memo } = this.props.data.data
 
         const { wallet_hash: walletHash } = wallet
         const { address: addressFrom, derivation_path: derivationPath } = account
@@ -69,11 +74,12 @@ export class ConfirmModal extends Component {
         try {
 
             let tx = await (
-                BlocksoftTransaction.setCurrencyCode(currencyCode)
+                BlocksoftTransfer.setCurrencyCode(currencyCode)
                     .setWalletHash(walletHash)
                     .setDerivePath(derivationPathTmp)
                     .setAddressFrom(addressFrom)
                     .setAddressTo(addressTo)
+                    .setMemo(memo)
                     .setAmount(amountRaw)
                     .setAdditional(account.account_json)
                     .setTransferAll(useAllFunds)
@@ -96,6 +102,10 @@ export class ConfirmModal extends Component {
                 updated_at: new Date().toISOString(),
                 transaction_direction : 'outcome'
             }
+            if (typeof  tx.correctedAmountFrom !== 'undefined') {
+                transaction.address_amount = tx.correctedAmountFrom
+            }
+
             if (typeof tx.block_hash !== 'undefined') {
                 transaction.block_hash = tx.block_hash
             }
@@ -123,11 +133,15 @@ export class ConfirmModal extends Component {
 
             hideModal()
 
+            let successMessage = strings('modal.send.txSuccess')
+            if (typeof tx.successMessage != 'undefined') {
+                successMessage = tx.successMessage
+            }
             showModal({
                 type: 'INFO_MODAL',
                 icon: true,
                 title: strings('modal.send.success'),
-                description: strings('modal.send.txSuccess')
+                description: successMessage
             }, () => {
 
                 const { type } = this.props.sendStore.data
@@ -139,6 +153,7 @@ export class ConfirmModal extends Component {
                         }
                     })
                 } else {
+                    BlocksoftTransfer.getTransferPrecache()
                     NavStore.goBack(null)
                 }
             })
@@ -147,7 +162,11 @@ export class ConfirmModal extends Component {
 
             hideModal()
 
-            Log.err('Send.ConfirmModal.handleSend ' + e.message)
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                Log.err('Send.ConfirmModal.handleSend ' + e.message)
+            } else {
+                Log.log('Send.ConfirmModal.handleSend ' + e.message)
+            }
 
             Keyboard.dismiss()
 
@@ -163,13 +182,14 @@ export class ConfirmModal extends Component {
     }
 
     render() {
+        const { isSendDisabled } = this.state
         const { show } = this.props
         const { amount, address, account, cryptocurrency, wallet, type } = this.props.data.data
         const { currencySymbol } = cryptocurrency
         const { currency_rate_usd } = cryptocurrency
         const { localCurrencySymbol } = this.props.fiatRatesStore
 
-        const equivalent = FiatRatesActions.toLocalCurrency(amount * currency_rate_usd)
+        const equivalent = utils.prettierNumber(FiatRatesActions.toLocalCurrency(amount * currency_rate_usd, false), 2)
 
         return (
             <Modal style={styles.modal} hasBackdrop={false} isVisible={show}>
@@ -254,6 +274,7 @@ export class ConfirmModal extends Component {
                                             press={() => this.handleSend()}
                                             styles={styles.btn}
                                             touchableOpacityStyle={styles.btn__touchableOpacity}
+                                            disabled={isSendDisabled}
                                             styleText={i18n.locale == 'ru-RU' ? { fontSize: 16 } : null}>
                                             {strings('send.confirmModal.confirm')}
                                         </Button>

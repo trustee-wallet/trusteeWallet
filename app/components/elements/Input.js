@@ -303,7 +303,7 @@ const styles = {
         bottom: 0,
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 12,
-        color: '#999999'
+        color: '#808080'
     },
     action: {
         position: 'absolute',
@@ -340,7 +340,7 @@ const styles = {
         marginTop: -5,
         fontSize: 14,
         fontFamily: 'SFUIDisplay-Regular',
-        color: '#999999'
+        color: '#808080'
     },
     bottomLeftText: {
         fontSize: 19
@@ -364,7 +364,7 @@ const styles = {
         fontSize: 19,
         fontFamily: 'SFUIDisplay-Regular',
 
-        backgroundColor: '#fff',
+        backgroundColor: '#f9f9f9',
         overflow: 'hidden'
     },
     validPlaceholder_active: {
@@ -381,7 +381,7 @@ const styles = {
         padding: 10,
         paddingVertical: 5,
         borderRadius: 5,
-        backgroundColor: '#f4f4f4'
+        backgroundColor: '#f2f2f2'
     },
     tap__text: {
         marginLeft: 4,

@@ -1,3 +1,6 @@
+/**
+ * @todo review
+ */
 const elliptic = require('elliptic')
 const ec = new elliptic.ec('secp256k1')
 const createHash = require('create-hash')
@@ -19,6 +22,7 @@ function byte2hexStr(byte) {
     return str
 }
 
+// noinspection JSConstructorReturnsPrimitive
 export default {
     ECKeySign : function(hashBytes, privateBytes) {
         const key = ec.keyFromPrivate(privateBytes, 'bytes')
@@ -40,8 +44,7 @@ export default {
         }
 
         const idHex = byte2hexStr(id)
-        const signHex = rHex + sHex + idHex
-        return signHex
+        return rHex + sHex + idHex
     },
 
     addressToHex: function(address) {

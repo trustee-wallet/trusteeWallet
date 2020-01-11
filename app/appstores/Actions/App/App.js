@@ -34,7 +34,6 @@ const { dispatch, getState } = store
 
 import NavStore from '../../../components/navigation/NavStore'
 
-import updateWalletSubscribeDaemon from '../../../services/Daemon/classes/UpdateWalletSubscribe'
 import updateCurrencyRateDaemon from '../../../services/Daemon/classes/UpdateCurrencyRate'
 import updateAccountTransactionsDaemon from '../../../services/Daemon/classes/UpdateAccountTransactions'
 import updateAccountBalanceDaemon from '../../../services/Daemon/classes/UpdateAccountBalance'
@@ -218,7 +217,6 @@ class App {
             updateAccountTransactionsDaemon.setTime(daemon.updateTimes.updateAccountTransactions).start()
             updateAccountBalanceDaemon.setTime(daemon.updateTimes.updateAccountBalance).start()
             updateCurrencyRateDaemon.setTime(daemon.updateTimes.updateCurrencyRate).start()
-            updateWalletSubscribeDaemon.setTime(daemon.updateTimes.updateCurrencyRate).start()
             // updateExchangeOrdersDaemon.setTime(daemon.updateTimes.updateExchangeOrders).start()
 
             this.initStatus = 'updateExchangeOrdersDaemon.updateEventHandler'

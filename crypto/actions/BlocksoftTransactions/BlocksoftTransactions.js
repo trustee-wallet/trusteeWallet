@@ -1,8 +1,10 @@
 /**
  * @author Ksu
- * @version 0.3
+ * @version 0.5
  */
-const Dispatcher = require('../../blockchains/Dispatcher').init()
+import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
+
+const Dispatcher = new BlocksoftDispatcher()
 
 class BlocksoftTransactions {
 

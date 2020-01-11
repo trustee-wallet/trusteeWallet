@@ -193,7 +193,7 @@ class Log {
             return true
         }
 
-        let msg = `FRNT_${this.LOG_VERSION} ${LOG_SUBTYPE}` + '\n' + date + line + '\n'
+        let msg = `FRNT_jan_${this.LOG_VERSION} ${LOG_SUBTYPE}` + '\n' + date + line + '\n'
         if (typeof (this.LOG_TESTER) != 'undefined' && this.LOG_TESTER) {
             msg += '\nTESTER ' + this.LOG_TESTER
         }
@@ -293,7 +293,12 @@ class Log {
     }
 
     isNetworkError(message) {
-        return (message.indexOf('Network Error') !== -1 || message.indexOf('timeout of 0ms exceeded') !== -1 || message.indexOf('Request failed with status code 500') !== -1)
+        return (message.indexOf('Network Error') !== -1
+            || message.indexOf('timeout of 0ms exceeded') !== -1
+            || message.indexOf('Request failed with status code') !== -1
+            || message.indexOf('API calls limits have been reached') !== -1
+            || message.indexOf('SERVER_RESPONSE_') !== -1
+        )
     }
 
 }

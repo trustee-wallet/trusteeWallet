@@ -67,6 +67,10 @@ class ReceiveScreen extends Component {
                 return 'litecoin:' + address
             case 'BTC':
                 return 'bitcoin:' + address
+            case 'BCH':
+                return 'bitcoincash:' + address
+            case 'BTG':
+                return 'bitcoingold:' + address
             case 'ETH':
                 return 'ethereum:' + address
             default:
@@ -172,9 +176,11 @@ class ReceiveScreen extends Component {
     shareAddress = () => {
         const { address } = this.props.account
 
-        Share.open({ url: address })
-            .then((res) => { console.log(res) })
-            .catch((err) => { err && console.log(err) })
+        try {
+            this.refSvg.toDataURL((data) => {
+                Share.open({ message: address, url: `data:image/png;base64,${data}` })
+            })
+        } catch (e) {}
     }
 
     renderAccountDetail = () => {
@@ -195,7 +201,7 @@ class ReceiveScreen extends Component {
                                 { currencyName }
                             </Text>
                             <View style={{ alignItems: "flex-start" }}>
-                                <LetterSpacing text={currencyBalanceAmount + ' ' + currencySymbol} textStyle={styles.accountDetail__text} letterSpacing={.5} />
+                                <LetterSpacing text={((+currencyBalanceAmount).toFixed(5)).replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/,'$1').toString().split('').join('\u200A'.repeat(1)) + ' ' + currencySymbol} textStyle={styles.accountDetail__text} letterSpacing={.5} />
                             </View>
                         </View>
                     </View>
@@ -229,6 +235,7 @@ class ReceiveScreen extends Component {
                             <GradientView style={styles.qr__content}  array={styles.qr__bg.array} start={styles.qr__bg.start} end={styles.qr__bg.end}>
                                 <TouchableOpacity style={{ alignItems: "center" }} onPress={() => this.copyToClip()}>
                                     <QRCode
+                                        getRef={ref => this.refSvg = ref}
                                         value={this.getAddressForQR()}
                                         size={230}
                                         color='#404040'

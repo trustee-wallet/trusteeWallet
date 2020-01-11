@@ -61,7 +61,7 @@ class WalletCreateScreen extends Component {
         setFlowType(data)
         setCallback({
             callback: async () => {
-                NavStore.goNext('InitScreen')
+                NavStore.reset('InitScreen')
             }
         })
         NavStore.goNext('EnterNameScreen')

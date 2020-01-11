@@ -86,7 +86,7 @@ const styles_ = {
 }
 
 const checkBox = {
-    array: ["#fff","#fff"],
+    array: ["#f9f9f9","#f9f9f9"],
     array_: ["#43156d","#7027aa"],
     start: { x: 0.0, y: 0 },
     end: { x: 0, y: 1 },

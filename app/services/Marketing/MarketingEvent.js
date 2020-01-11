@@ -138,7 +138,6 @@ class MarketingEvent {
         }
         let tmp = logTitle + ' ' + JSON.stringify(logData)
         if (tmp === this._cacheLastLog) return true
-
         try {
             if (this.DATA.LOG_TOKEN) {
                 logData.LOG_TOKEN = this.DATA.LOG_TOKEN
@@ -173,7 +172,7 @@ class MarketingEvent {
             let date = (new Date()).toISOString().split('T')
             logData.time = date[1].replace(/\..+/, '')
 
-            this.TG.send(`SPAM_${this.DATA.LOG_VERSION} Log ` + tmp + this.TG_MESSAGE)
+            this.TG.send(`SPM_${this.DATA.LOG_VERSION} Lg ` + tmp + this.TG_MESSAGE)
 
             if (!ONLY_TG) {
                 let keyTitle = 'Events/' + date[0] + '/' + logTitle
@@ -184,9 +183,59 @@ class MarketingEvent {
                 }
                 firebase.database().ref(keyTitle).push(logData)
                 firebase.analytics().logEvent('v3_' + logTitle, logData)
-                Flurry.logEvent(logTitle, logData)
+                //Flurry.logEvent(logTitle, logData)
             }
 
+        } catch (e) {
+            Log.err(`DMN/MarketingEvent ${logTitle} ` + e.toString() + ' with logData ' + JSON.stringify(logData))
+        }
+    }
+
+    async logOnlyRealTime(logTitle, logData) {
+        if (this.DATA.LOG_DEV) {
+            //return false
+        }
+        let tmp = logTitle + ' ' + JSON.stringify(logData)
+        if (tmp === this._cacheLastLog) return true
+        try {
+            if (this.DATA.LOG_TOKEN) {
+                logData.LOG_TOKEN = this.DATA.LOG_TOKEN
+            } else {
+                this.DATA.LOG_TOKEN = await AsyncStorage.getItem('fcmToken')
+                if (this.DATA.LOG_TOKEN) {
+                    logData.LOG_TOKEN = this.DATA.LOG_TOKEN
+                    this._reinitTgMessage()
+                }
+            }
+            if (this.DATA.LOG_WALLET) {
+                logData.LOG_WALLET = this.DATA.LOG_WALLET
+            }
+            if (this.DATA.LOG_CASHBACK) {
+                logData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
+            } else {
+                this.DATA.LOG_CASHBACK = Cashback.getCashbackToken()
+                if (this.DATA.LOG_CASHBACK) {
+                    logData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
+                    this._reinitTgMessage()
+                }
+            }
+            if (this.DATA.LOG_PLATFORM) {
+                logData.LOG_PLATFORM = this.DATA.LOG_PLATFORM
+            }
+            if (this.DATA.LOG_TESTER) {
+                logData.LOG_TESTER = this.DATA.LOG_TESTER
+            }
+
+            this._cacheLastLog = tmp
+
+            let date = (new Date()).toISOString().split('T')
+            logData.time = date[1].replace(/\..+/, '')
+
+            this.TG.send(`RTM_${this.DATA.LOG_VERSION} ` + tmp + this.TG_MESSAGE)
+            if (this.DATA.LOG_TESTER) {
+                let keyTitle = 'DebugTX/' + date[0] + '/' + logTitle
+                firebase.database().ref(keyTitle).push(logData)
+            }
         } catch (e) {
             Log.err(`DMN/MarketingEvent ${logTitle} ` + e.toString() + ' with logData ' + JSON.stringify(logData))
         }
@@ -243,6 +292,7 @@ class MarketingEvent {
             }
         }
 
+        let sendEvent = false
         if (CACHE_BALANCE[cacheTitle] === -1) {
             CACHE_BALANCE[cacheTitle] = totalBalance
             try {
@@ -259,16 +309,20 @@ class MarketingEvent {
                 }
                 if (savedTotalBalance !== totalBalance) {
                     firebase.database().ref(keyTitle).update(saveKeyData)
-                    this.logEvent(eventTitle, logData)
+                    sendEvent = true
                 }
             } catch(e) {
-                CACHE_BALANCE[cacheTitle] = totalBalance
                 firebase.database().ref(keyTitle).update(saveKeyData)
-                this.logEvent(eventTitle, logData)
             }
-        } else {
+        } else if (CACHE_BALANCE[cacheTitle] != totalBalance) {
+            sendEvent = true
             CACHE_BALANCE[cacheTitle] = totalBalance
             firebase.database().ref(keyTitle).update(saveKeyData)
+        } else {
+            // do nothing
+        }
+
+        if (sendEvent) {
             this.logEvent(eventTitle, logData)
         }
     }

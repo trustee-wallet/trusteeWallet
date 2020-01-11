@@ -1,3 +1,7 @@
+/**
+ * @author Ksu
+ * @version 0.5
+ */
 const Web3 = require('web3')
 
 function stripHexPrefix(value) {
@@ -7,7 +11,6 @@ function stripHexPrefix(value) {
 function stripHexPrefixAndLower(value) {
     return stripHexPrefix(value).toLowerCase()
 }
-
 
 class BlocksoftKeysForRefServerSide {
 
@@ -50,7 +53,7 @@ class BlocksoftKeysForRefServerSide {
         if (signedDataHash !== signedData.messageHash) {
             return false
         }
-        if (typeof (clonedData.v) === 'undefined' || typeof (clonedData.r) === 'undefined' || typeof (clonedData.s) === 'undefined') {
+        if (typeof clonedData.v === 'undefined' || typeof clonedData.r === 'undefined' || typeof clonedData.s === 'undefined') {
             const sigb = new Buffer(stripHexPrefixAndLower(clonedData.signature), 'hex')
             if (sigb.length !== 65) {
                 return false
@@ -74,5 +77,4 @@ class BlocksoftKeysForRefServerSide {
 }
 
 const singleBlocksoftKeysForRefServerSide = new BlocksoftKeysForRefServerSide()
-
 export default singleBlocksoftKeysForRefServerSide

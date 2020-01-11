@@ -99,7 +99,7 @@ export default {
         let now = Math.round(new Date().getTime() / 1000) - 30 // 30 seconds before 0x
         let where = [`(account.transactions_scan_time IS NULL OR account.transactions_scan_time LIKE '%Z%' OR account.transactions_scan_time < ${now})`]
 
-        // where.push(`account.currency_code='ETH_ROPSTEN' `)
+        //where.push(`account.currency_code='BCH' `)
 
         where.push(`currency.is_hidden=0`)
         if (params.derivation_type) {
@@ -149,11 +149,11 @@ export default {
                 for (let i = 0, ic = res.array.length; i <ic; i++) {
                     logData.push(res.array[i].currencyCode + ' ' + res.array[i].address)
                     res.array[i].balance = fixBalance(res.array[i])
-                    if (res.array[i].accountJSON) {
-                        let string = dbInterface.unEscapeString(res.array[i].accountJSON)
+                    if (res.array[i].accountJson) {
+                        let string = dbInterface.unEscapeString(res.array[i].accountJson)
                         try {
                             Log.daemon('DS/Account getAccountsForScanTransactions will parse ' + string)
-                            res.array[i].accountJSON = JSON.parse(string)
+                            res.array[i].accountJson = JSON.parse(string)
                         } catch (e) {
                             Log.errDaemon('DS/Account getAccountsForScanTransactions json error ' + string + ' ' + e.message)
                         }
@@ -284,7 +284,15 @@ export default {
 
         Log.daemon('DS/Account getAccountData called')
 
-        const res = await dbInterface.setQueryString(`SELECT * FROM account, account_balance WHERE account.wallet_hash = '${walletHash}' AND  account.currency_code = '${currencyCode}' AND account_balance.account_id = account.id`).query()
+        const res = await dbInterface.setQueryString(`SELECT 
+            account.id, account_balance.account_id, 
+            account.address, account.name, account.derivation_path, account.currency_code, account.wallet_hash, account.account_json,
+            account_balance.balance_fix, account_balance.balance_txt, account_balance.balance_provider, account_balance.balance_scan_time
+            FROM account 
+            LEFT JOIN account_balance ON account_balance.account_id = account.id
+            WHERE account.wallet_hash = '${walletHash}' 
+            AND account.currency_code = '${currencyCode}' 
+        `).query()
 
         if (res && res.array && res.array.length) {
             for (let i = 0, ic = res.array.length; i <ic; i++) {

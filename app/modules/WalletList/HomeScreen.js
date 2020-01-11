@@ -42,6 +42,7 @@ import SendActions from '../../appstores/Actions/SendActions'
 import Theme from '../../themes/Themes'
 import { setLoaderStatus } from '../../appstores/Actions/MainStoreActions'
 import FiatRatesActions from '../../appstores/Actions/FiatRatesActions'
+import Snow from 'react-native-snow'
 
 let styles
 
@@ -55,12 +56,13 @@ class HomeScreen extends Component {
         this.state = {
             refreshing: false,
             isHeaderTransparent: false,
-            opacity: new Animated.Value(0)
+            opacity: new Animated.Value(0),
+            isSnow: false,
+            isSnowEnable: false
         }
     }
 
     componentWillMount() {
-
         SendActions.handleInitialURL()
         styles = Theme.getStyles().homeScreenStyles
         // this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
@@ -70,8 +72,25 @@ class HomeScreen extends Component {
         // })
     }
 
-    componentDidMount() {
+    async componentDidMount() {
+
         setLoaderStatus(false)
+
+        const { selectedWallet } = this.props.main
+
+        const isSnow = selectedWallet.wallet_is_backed_up != null || new Date().getFullYear() > 2019
+
+        if(!isSnow){
+            await AsyncStorage.setItem("isSnowEnable", JSON.stringify(null))
+            this.setState({ isSnowEnable: false, isSnow: false })
+        } else if(isSnow){
+            let isSnowEnable = await AsyncStorage.getItem("isSnowEnable")
+            isSnowEnable = JSON.parse(isSnowEnable)
+
+            isSnowEnable == null ? await AsyncStorage.setItem("isSnowEnable", JSON.stringify(true)) : null
+
+            this.setState({ isSnowEnable: isSnowEnable == null ? true : isSnowEnable, isSnow: true })
+        }
     }
 
     onPress = () => {
@@ -195,12 +214,21 @@ class HomeScreen extends Component {
         this.refHomeScreenSV.scrollTo({x: 0, y: 0, animated: true})
     }
 
+    toggleSnow = async () => {
+        await AsyncStorage.setItem("isSnowEnable", JSON.stringify(!this.state.isSnow))
+
+        this.setState({
+            isSnowEnable: !this.state.isSnowEnable
+        })
+    }
+
     render() {
         firebase.analytics().setCurrentScreen('WalletList.HomeScreen')
 
         Log.log('WalletList.HomeScreen is rendered')
 
         const currencies = this.props.currencies
+        const { selectedWallet } = this.props.main
 
         return (
             <View style={{ flex: 1 }}>
@@ -244,14 +272,14 @@ class HomeScreen extends Component {
                                     onRefresh={this.handleRefresh}
                                 />
                             }>
-                            <WalletInfo/>
+                            <WalletInfo isSnow={this.state.isSnow} toggleSnow={this.toggleSnow} />
                             <View style={{ flex: 1, paddingBottom: 30,  backgroundColor: '#f5f5f5' }}>
                                 <Text style={{
                                     marginLeft: 31,
                                     fontFamily: "Montserrat-Bold",
                                     color: "#404040",
                                     fontSize: 14
-                                }}>Accounts</Text>
+                                }}>{ strings('homeScreen.assets') }</Text>
                                 <View style={styles.cryptoList}>
                                     {
                                         currencies.map((item, index) => {
@@ -278,6 +306,9 @@ class HomeScreen extends Component {
                         </ScrollView>
                         <BottomNavigation />
                     </GradientView>
+                    {
+                        this.state.isSnowEnable ? <Snow snowfall={'medium'} /> : null
+                    }
                 </SafeAreaView>
             </View>
         )
@@ -286,15 +317,17 @@ class HomeScreen extends Component {
 
 const mapStateToProps = (state) => {
     return {
+        main: state.mainStore,
         toolTipsStore: state.toolTipsStore,
         account: state.mainStore.selectedAccount,
         selectedWallet: state.mainStore.selectedWallet,
         currencies: state.mainStore.currencies,
-        fiatRatesStore: state.fiatRatesStore
+        fiatRatesStore: state.fiatRatesStore,
     }
 }
 
 export default connect(mapStateToProps, {})(HomeScreen)
+
 
 const styles_ = {
     cryptoList__icoWrap_bitcoin: {

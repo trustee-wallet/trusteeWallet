@@ -1,4 +1,4 @@
- {
+{
   "appName": "Trustee",
   "auth": {
     "navigation": {
@@ -7,131 +7,132 @@
     },
     "logOut": "Выйти"
   },
-   "finishTradeScreen": {
-     "title": "Успех!",
-     "description": "Ваш ордер был создан. \n Как только Ваша транзакция получит необходимые подтверждения, она будет выполнена соответствующим образом. \n Вы можете отслеживать статус Вашего ордера в истории ордеров.",
-     "orderHistoryBtn": "История ордеров"
-   },
-   "tooltips": {
-     "HOME_SCREEN_BUY_BTN_TIP": {
-       "title": "",
-       "description": "Тут ты можешь купить крипту с карты - Ваш Капитан Очевидность :)"
-     },
-     "HOME_SCREEN_EXCHANGE_BTN_TIP": {
-       "title": "",
-       "description": "Не обязательно менять на биржах - меняй крипту на крипту у нас в 2 клика!"
-     },
-     "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
-       "title": "",
-       "description": "Добавляй нужные монеты и зарабатывай - вперед!"
-     },
-     "HOME_SCREEN_CRYPTO_BTN_TIP": {
-       "title": "",
-       "description": "Это - твой уникальный Биткоин кошелек - начинай отправлять и принимать биткоины!"
-     },
-     "ACCOUNT_SCREEN_ADDRESS_TIP": {
-       "title": "",
-       "description": "А это твой личный %{currencyName} адрес - аналог номера карточки для продвинутых пользователей!"
-     },
-     "ACCOUNT_SCREEN_TRANSACTION_TIP": {
-       "title": "",
-       "description": "Тут можешь найти всю информацию о своих транзакциях - вперед!"
-     },
-     "ACCOUNT_SCREEN_ORDERS_TIP": {
-       "title": "",
-       "description": "Тут найдешь информацию обо всех своих ордерах - ничего сложного :)"
-     },
-     "buttons": {
-       "next": "Далее",
-       "skip": "Пропустить",
-       "close": "Закрыть"
-     }
-   },
-   "homeScreen": {
-     "balance": "Баланс",
-     "today": "Сегодня",
-     "changedLastDay": "За последние 24 часа"
-   },
-   "walletCreateScreen": {
-     "title": "ПОКУПАЙ ПРОДАВАЙ ОБМЕНИВАЙ АНОНИМНО",
-     "createWallet": "Создать кошелёк",
-     "importWallet": "Импортировать кошелёк"
-   },
-   "exchangeScreen": {
-     "title": "Обмен",
-     "pickProvider": "Выберите провайдера",
-     "providerInformation": "Информация о провайдере",
-     "fee": "Комиссия",
-     "equivalent": "Эквивалент: ~",
-     "exchangeAll": "Обменять всё",
-     "min": "минимально:",
-     "max": "максимально:",
-     "exchangeBtn": "Обменять"
-   },
-   "exchangeConfirmScreen": {
-     "title": "Подтверждение",
-     "youWantToExchange": "Вы хотите обменять",
-     "exchangeDetails": "Детали обмена",
-     "exchangeBtn": "Обменять"
-   },
-   "tradeScreen": {
-     "youGet": "Получаете:",
-     "youGive": "Отдаете:",
-     "crypto": "Криптовалюта",
-     "fiat": "Фиат",
-     "pickPaySys": "Выберите способ оплаты",
-     "only": "только",
-     "worldwide": "Другие страны",
-     "fee": "Комиссия банка",
-     "selectSum": "Эквивалентная сумма",
-     "custom": "Другая",
-     "limitsTitle": "Есть некоторые ограничения",
-     "minPurchase": "минимально:",
-     "maxPurchase": "максимально:",
-     "selectCrypto": "Выберите криптовалюту",
-     "selectFiat": "Выберите валюту",
-     "submit": "Дальше",
-     "modalError": {
-       "selectCryptocurrency": "Выберите криптовалюту",
-       "selectWhatYouGet": "Выберите, что Вы получаете",
-       "selectWhatYouGive": "Выберите, что Вы отдаете",
-       "selectPaymentSystem": "Выберите способ оплаты",
-       "selectFiatTemplate": "Select fiat template error",
-       "limit": "Вы вышли за допустимые пределы",
-       "selectCard": "Выберите карту",
-       "takePhoto": "Пожалуйста, сделайте фото карты",
-       "additionalData": "Пожалуйста, заполните данные"
-     },
-     "paymentInformation": "Информация об оплате",
-     "urkCardOnly": "Только украинские карты!",
-     "rusCardOnly": "Только русские карты!",
-     "worldwideOnly": "Карты других стран!",
-     "minAmount": "Минимально",
-     "maxAmount": "Максимально",
-     "RUB": "Россия",
-     "UAH": "Украина",
-     "QIWI": "QIWI кошелек"
-   },
-   "confirmScreen": {
-     "title": "Подтверждение",
-     "rate": "Курс",
-     "fees": "Детали сделки",
-     "youWantToBuy": "Покупаете",
-     "youWantToSell": "Продаете",
-     "providerFee": "Комиссия банка",
-     "outputFee": "Комиссия сети",
-     "trusteeFee": "Комиссия Trustee",
-     "networkFee": "комиссия сети",
-     "info": "Info",
-     "withdrawAddress": "Адрес для получения",
-     "withdrawCardNumber": "Номер карты для выплаты",
-     "total": "Сумма:",
-     "submitBtnBuy": "Купить",
-     "submitBtnSell": "Продать",
-     "edit": "Изменить",
-     "confirmScreenBuy": "Выбраный платежный метод в настоящее время недоступен. Пожалуйста, попробуйте другой.",
-     "confirmScreenSell": "Выбраный платежный метод в настоящее время недоступен. Пожалуйста, попробуйте другой."
-   },
+  "finishTradeScreen": {
+    "title": "Успех!",
+    "description": "Ваш ордер был создан. \n Как только Ваша транзакция получит необходимые подтверждения, она будет выполнена соответствующим образом. \n Вы можете отслеживать статус Вашего ордера в истории ордеров.",
+    "orderHistoryBtn": "История ордеров"
+  },
+  "tooltips": {
+    "HOME_SCREEN_BUY_BTN_TIP": {
+      "title": "",
+      "description": "Тут ты можешь купить крипту с карты - Ваш Капитан Очевидность :)"
+    },
+    "HOME_SCREEN_EXCHANGE_BTN_TIP": {
+      "title": "",
+      "description": "Не обязательно менять на биржах - меняй крипту на крипту у нас в 2 клика!"
+    },
+    "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
+      "title": "",
+      "description": "Добавляй нужные монеты и зарабатывай - вперед!"
+    },
+    "HOME_SCREEN_CRYPTO_BTN_TIP": {
+      "title": "",
+      "description": "Это - твой уникальный Биткоин кошелек - начинай отправлять и принимать биткоины!"
+    },
+    "ACCOUNT_SCREEN_ADDRESS_TIP": {
+      "title": "",
+      "description": "А это твой личный %{currencyName} адрес - аналог номера карточки для продвинутых пользователей!"
+    },
+    "ACCOUNT_SCREEN_TRANSACTION_TIP": {
+      "title": "",
+      "description": "Тут можешь найти всю информацию о своих транзакциях - вперед!"
+    },
+    "ACCOUNT_SCREEN_ORDERS_TIP": {
+      "title": "",
+      "description": "Тут найдешь информацию обо всех своих ордерах - ничего сложного :)"
+    },
+    "buttons": {
+      "next": "Далее",
+      "skip": "Пропустить",
+      "close": "Закрыть"
+    }
+  },
+  "homeScreen": {
+    "balance": "Баланс",
+    "today": "Сегодня",
+    "changedLastDay": "За последние 24 часа",
+    "assets": "Активы"
+  },
+  "walletCreateScreen": {
+    "title": "ПОКУПАЙ ПРОДАВАЙ ОБМЕНИВАЙ АНОНИМНО",
+    "createWallet": "Создать кошелёк",
+    "importWallet": "Импортировать кошелёк"
+  },
+  "exchangeScreen": {
+    "title": "Обмен",
+    "pickProvider": "Выберите провайдера",
+    "providerInformation": "Информация о провайдере",
+    "fee": "Комиссия",
+    "equivalent": "Эквивалент: ~",
+    "exchangeAll": "Обменять всё",
+    "min": "минимально:",
+    "max": "максимально:",
+    "exchangeBtn": "Обменять"
+  },
+  "exchangeConfirmScreen": {
+    "title": "Подтверждение",
+    "youWantToExchange": "Вы хотите обменять",
+    "exchangeDetails": "Детали обмена",
+    "exchangeBtn": "Обменять"
+  },
+  "tradeScreen": {
+    "youGet": "Получаете:",
+    "youGive": "Отдаете:",
+    "crypto": "Криптовалюта",
+    "fiat": "Фиат",
+    "pickPaySys": "Выберите способ оплаты",
+    "only": "только",
+    "worldwide": "Другие страны",
+    "fee": "Комиссия банка",
+    "selectSum": "Эквивалентная сумма",
+    "custom": "Другая",
+    "limitsTitle": "Есть некоторые ограничения",
+    "minPurchase": "минимально:",
+    "maxPurchase": "максимально:",
+    "selectCrypto": "Выберите криптовалюту",
+    "selectFiat": "Выберите валюту",
+    "submit": "Дальше",
+    "modalError": {
+      "selectCryptocurrency": "Выберите криптовалюту",
+      "selectWhatYouGet": "Выберите, что Вы получаете",
+      "selectWhatYouGive": "Выберите, что Вы отдаете",
+      "selectPaymentSystem": "Выберите способ оплаты",
+      "selectFiatTemplate": "Select fiat template error",
+      "limit": "Вы вышли за допустимые пределы",
+      "selectCard": "Выберите карту",
+      "takePhoto": "Пожалуйста, сделайте фото карты",
+      "additionalData": "Пожалуйста, заполните данные"
+    },
+    "paymentInformation": "Информация об оплате",
+    "urkCardOnly": "Только украинские карты!",
+    "rusCardOnly": "Только русские карты!",
+    "worldwideOnly": "Карты других стран!",
+    "minAmount": "Минимально",
+    "maxAmount": "Максимально",
+    "RUB": "Россия",
+    "UAH": "Украина",
+    "QIWI": "QIWI кошелек"
+  },
+  "confirmScreen": {
+    "title": "Подтверждение",
+    "rate": "Курс",
+    "fees": "Детали сделки",
+    "youWantToBuy": "Покупаете",
+    "youWantToSell": "Продаете",
+    "providerFee": "Комиссия банка",
+    "outputFee": "Комиссия сети",
+    "trusteeFee": "Комиссия Trustee",
+    "networkFee": "комиссия сети",
+    "info": "Info",
+    "withdrawAddress": "Адрес для получения",
+    "withdrawCardNumber": "Карта для выплаты",
+    "total": "Сумма:",
+    "submitBtnBuy": "Купить",
+    "submitBtnSell": "Продать",
+    "edit": "Изменить",
+    "confirmScreenBuy": "Выбраный платежный метод в настоящее время недоступен. Пожалуйста, попробуйте другой.",
+    "confirmScreenSell": "Выбраный платежный метод в настоящее время недоступен. Пожалуйста, попробуйте другой."
+  },
   "settings": {
     "title": "Настройки",
     "walletManagement": {
@@ -215,9 +216,9 @@
     "confirmations": "Подтверждений:",
     "showMore": "Показать еще",
     "transactionStatuses": {
-      "paid" : "Оплачена",
-      "pay_waiting" : "Ждет оплаты",
-      "pay_expired" : "Время для оплаты закончилось",
+      "paid": "Оплачена",
+      "pay_waiting": "Ждет оплаты",
+      "pay_expired": "Время для оплаты закончилось",
       "success": "Успешная",
       "pending": "В ожидании",
       "new": "Новая",
@@ -228,7 +229,7 @@
       "description": "Ваш %{currency} адрес:",
       "clickToCopy": "Нажмите, чтобы скопировать",
       "receiveAmount": "Указать сумму",
-      "share": "Поделится",
+      "share": "Поделиться",
       "copy": "Копировать"
     },
     "addAccount": {
@@ -256,7 +257,7 @@
     "ordersStatus": {
       "exchange": {
         "pending_payin": "Пополнение ожидается",
-        "canceled_payin":  "Пополнение отменено",
+        "canceled_payin": "Пополнение отменено",
         "done_payin": "Пополнение прошло успешно",
         "wait_trade": "Ожидается конвертация",
         "done_trade": "Конвертация прошла успешно",
@@ -269,7 +270,7 @@
       },
       "sell": {
         "pending_payin": "Пополнение ожидается",
-        "canceled_payin":  "Пополнение отменено",
+        "canceled_payin": "Пополнение отменено",
         "done_payin": "Пополнение прошло успешно",
         "wait_trade": "Ожидается конвертация",
         "done_trade": "Конвертация прошла успешно",
@@ -282,7 +283,7 @@
       },
       "buy": {
         "pending_payin": "Пополнение ожидается",
-        "canceled_payin":  "Пополнение отменено",
+        "canceled_payin": "Пополнение отменено",
         "done_payin": "Пополнение прошло успешно",
         "wait_trade": "Ожидается конвертация",
         "done_trade": "Конвертация прошла успешно",
@@ -298,7 +299,6 @@
       "selectCurrency": "Выбор криптовалюты",
       "selectPayment": "Select type of payment",
       "estimateAmount": "Введите сумму",
-
       "addCard": "Добавить карточку",
       "address": "Адрес зачисления криптовалюты:",
       "titleBuy": "Покупка",
@@ -316,7 +316,7 @@
       "minAmountToSell": "Минимальная сумма для продажи криптовалюты:",
       "minExchange": "%{fiat}",
       "maxAmountBuy": "Максимальная сумма покупки с одной карты %{maxAmountToBuy} %{fiatSymbol} в день частями по %{maxAmountToBuyPart} %{fiatSymbol}",
-      "maxAmountSell":"Максимальная сумма продажи на одну карту %{maxAmountToBuy} %{fiatSymbol} в день",
+      "maxAmountSell": "Максимальная сумма продажи на одну карту %{maxAmountToBuy} %{fiatSymbol} в день",
       "maxFiat": "",
       "next": "Дальше",
       "blockedCard": "Эта карточка не может быть использована.\nПожалуйста, выберите другую",
@@ -327,7 +327,7 @@
       "moreInformation": "Больше информации"
     }
   },
-  "card" : {
+  "card": {
     "title": "Новая карточка",
     "description": "Чтобы добавить новую карточку сканируйте её или введите номер карточки вручную",
     "instructions": "Разместите карточку \n внутри прямоугольника.",
@@ -340,17 +340,18 @@
     "noName": "Без названия",
     "country": "Страна:"
   },
-  "qrScanner" : {
+  "qrScanner": {
     "line1": "Разместите QR-код",
     "line2": "в области камеры"
   },
   "send": {
     "title": "Перевод %{currency}",
-    "description": "Вставте адрес кошелька получателя или сканируйте QR-код",
+    "description": "Вставьте адрес кошелька получателя или сканируйте QR-код",
     "descriptionExchange": "Адрес кошелька получателя задан автоматически. Это адрес поставщика обменов. Обмен актива и зачисление будет осуществелено после успешной транзакции",
     "address": "Адрес получателя",
     "value": "Сумма",
     "send": "Отправить",
+    "xrp_memo": "Тег назначения",
     "useAllFunds": "Использовать все средства",
     "equivalent": "Эквивалент: ~ %{amount} %{symbol}",
     "notEnough": "У Вас недостаточно средств для отправки",
@@ -368,27 +369,31 @@
         "eth_speed_slow": "Медленно",
         "eth_speed_medium": "Средне",
         "eth_speed_fast": "Быстро",
-
         "btc_speed_blocks_12": "Медленно",
         "btc_speed_blocks_6": "Средне",
         "btc_speed_blocks_2": "Быстро",
-
+        "bch_speed_blocks_12": "Медленно",
+        "bch_speed_blocks_6": "Средне",
+        "bch_speed_blocks_2": "Быстро",
         "ltc_speed_blocks_12": "Медленно",
         "ltc_speed_blocks_6": "Средне",
-        "ltc_speed_blocks_2": "Быстро"
+        "ltc_speed_blocks_2": "Быстро",
+        "xrp_speed_one" : "Быстро"
       },
       "time": {
         "eth_speed_slow": "~ 30 минут",
         "eth_speed_medium": "~ 5 минут",
         "eth_speed_fast": "~ 1 минута",
-
         "btc_speed_blocks_12": "~ 120 минут",
         "btc_speed_blocks_6": "~ 60 минут",
         "btc_speed_blocks_2": "~ 15 минут",
-
+        "bch_speed_blocks_12": "~ 120 минут",
+        "bch_speed_blocks_6": "~ 60 минут",
+        "bch_speed_blocks_2": "~ 20* минут",
         "ltc_speed_blocks_12": "~ 120 минут",
         "ltc_speed_blocks_6": "~ 20 минут",
-        "ltc_speed_blocks_2": "~ 5 минут"
+        "ltc_speed_blocks_2": "~ 5 минут",
+        "xrp_speed_one" : "~ 1 минута"
       },
       "customFee": {
         "fixedFeeTitle": "ФИКСИРОВАННАЯ\nКОМИССИЯ",
@@ -408,7 +413,13 @@
     "errors": {
       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Недостаточно средств нативной монеты %{symbol} для отправки",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Слишком маленькая сумма транзакции",
-      "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Недостаточно средств для транзакции"
+      "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "Недостаточно средств для транзакции",
+      "SERVER_RESPONSE_NO_RESPONSE": "Сервер не принимает транзакцию - пожайлуста, подождите пока другие транзакции будут подтверждены",
+      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Недостаточно подтвержденных средств нативной монеты %{symbol} для отправки - пожайлуста, подождите пока другие транзакции будут подтверждены",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Слишком маленькая плата за транзакцию",
+      "SERVER_RESPONSE_NOT_CONNECTED": "Сервер не отвечает - пожайлуста, попробуйте через несколько секунд",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостаточно средств для транзакции и минимальной платы",
+      "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Пожайлуста, подождите пока другие транзакции будут подтверждены или включите использование неподтвержденных транзакций "
     }
   },
   "walletBackup": {
@@ -546,17 +557,14 @@
       "added": "Карточка добавлена"
     },
     "qrScanner": {
-
       "success": {
         "title": "Успех!",
         "description": "Кошелек успешно скопирован в буфер обмена!"
       },
-
       "error": {
         "title": "Извините...",
         "description": "Неверный кошелек. Попробуйте еще раз."
       },
-
       "sorry": "Извините..."
     },
     "send": {
@@ -617,216 +625,216 @@
   },
   "currencyList": {
     "AUD": {
-      "currencyCode":"AUD",
-      "currency":"Австралийский доллар"
+      "currencyCode": "AUD",
+      "currency": "Австралийский доллар"
     },
     "CAD": {
-      "currencyCode":"CAD",
-      "currency":"Канадский доллар"
+      "currencyCode": "CAD",
+      "currency": "Канадский доллар"
     },
     "CNY": {
-      "currencyCode":"CNY",
-      "currency":"Китайский юань"
+      "currencyCode": "CNY",
+      "currency": "Китайский юань"
     },
     "HRK": {
-      "currencyCode":"HRK",
-      "currency":"Хорватская куна"
+      "currencyCode": "HRK",
+      "currency": "Хорватская куна"
     },
     "CZK": {
-      "currencyCode":"CZK",
-      "currency":"Чешская Республика крона"
+      "currencyCode": "CZK",
+      "currency": "Чешская Республика крона"
     },
     "DKK": {
-      "currencyCode":"DKK",
-      "currency":"Датская крона"
+      "currencyCode": "DKK",
+      "currency": "Датская крона"
     },
     "HKD": {
-      "currencyCode":"HKD",
-      "currency":"Гонконгский доллар"
+      "currencyCode": "HKD",
+      "currency": "Гонконгский доллар"
     },
     "HUF": {
-      "currencyCode":"HUF",
-      "currency":"Венгерский форинт"
+      "currencyCode": "HUF",
+      "currency": "Венгерский форинт"
     },
     "INR": {
-      "currencyCode":"INR",
-      "currency":"Индийская рупия"
+      "currencyCode": "INR",
+      "currency": "Индийская рупия"
     },
     "IDR": {
-      "currencyCode":"IDR",
-      "currency":"Индонезийская рупия"
+      "currencyCode": "IDR",
+      "currency": "Индонезийская рупия"
     },
     "IRR": {
-      "currencyCode":"IRR",
-      "currency":"Иранский риал"
+      "currencyCode": "IRR",
+      "currency": "Иранский риал"
     },
     "ILS": {
-      "currencyCode":"ILS",
-      "currency":"Новый Израильский Шекель"
+      "currencyCode": "ILS",
+      "currency": "Новый Израильский Шекель"
     },
     "JPY": {
-      "currencyCode":"JPY",
-      "currency":"Японская иена"
+      "currencyCode": "JPY",
+      "currency": "Японская иена"
     },
     "KZT": {
-      "currencyCode":"KZT",
-      "currency":"Казахстанский тенге"
+      "currencyCode": "KZT",
+      "currency": "Казахстанский тенге"
     },
     "KRW": {
-      "currencyCode":"KRW",
-      "currency":"Южнокорейский вон"
+      "currencyCode": "KRW",
+      "currency": "Южнокорейский вон"
     },
     "MXN": {
-      "currencyCode":"MXN",
-      "currency":"Мексиканское песо"
+      "currencyCode": "MXN",
+      "currency": "Мексиканское песо"
     },
     "MDL": {
-      "currencyCode":"MDL",
-      "currency":"Молдавский лей"
+      "currencyCode": "MDL",
+      "currency": "Молдавский лей"
     },
     "NZD": {
-      "currencyCode":"NZD",
-      "currency":"Новозеландский доллар"
+      "currencyCode": "NZD",
+      "currency": "Новозеландский доллар"
     },
     "NOK": {
-      "currencyCode":"NOK",
-      "currency":"Норвежская крона"
+      "currencyCode": "NOK",
+      "currency": "Норвежская крона"
     },
     "RUB": {
-      "currencyCode":"RUB",
-      "currency":"Русский рубль"
+      "currencyCode": "RUB",
+      "currency": "Русский рубль"
     },
     "SAR": {
-      "currencyCode":"SAR",
-      "currency":"Саудовский риал"
+      "currencyCode": "SAR",
+      "currency": "Саудовский риал"
     },
     "SGD": {
-      "currencyCode":"SGD",
-      "currency":"Сингапурский доллар"
+      "currencyCode": "SGD",
+      "currency": "Сингапурский доллар"
     },
     "ZAR": {
-      "currencyCode":"ZAR",
-      "currency":"Южноафриканский рэнд"
+      "currencyCode": "ZAR",
+      "currency": "Южноафриканский рэнд"
     },
     "SEK": {
-      "currencyCode":"SEK",
-      "currency":"Шведская крона"
+      "currencyCode": "SEK",
+      "currency": "Шведская крона"
     },
     "CHF": {
-      "currencyCode":"CHF",
-      "currency":"Швейцарский франк"
+      "currencyCode": "CHF",
+      "currency": "Швейцарский франк"
     },
     "EGP": {
-      "currencyCode":"EGP",
-      "currency":"Египетский фунт"
+      "currencyCode": "EGP",
+      "currency": "Египетский фунт"
     },
     "GBP": {
-      "currencyCode":"GBP",
-      "currency":"Британский фунт стерлингов"
+      "currencyCode": "GBP",
+      "currency": "Британский фунт стерлингов"
     },
     "USD": {
-      "currencyCode":"USD",
-      "currency":"Доллар США"
+      "currencyCode": "USD",
+      "currency": "Доллар США"
     },
     "AZN": {
-      "currencyCode":"AZN",
-      "currency":"Азербайджанский манат"
+      "currencyCode": "AZN",
+      "currency": "Азербайджанский манат"
     },
     "RON": {
-      "currencyCode":"RON",
-      "currency":"Румынский лей"
+      "currencyCode": "RON",
+      "currency": "Румынский лей"
     },
     "TRY": {
-      "currencyCode":"TRY",
-      "currency":"Турецкая лира"
+      "currencyCode": "TRY",
+      "currency": "Турецкая лира"
     },
     "BGN": {
-      "currencyCode":"BGN",
-      "currency":"Болгарский лев"
+      "currencyCode": "BGN",
+      "currency": "Болгарский лев"
     },
     "EUR": {
-      "currencyCode":"EUR",
-      "currency":"Евро"
+      "currencyCode": "EUR",
+      "currency": "Евро"
     },
     "PLN": {
-      "currencyCode":"PLN",
-      "currency":"Польский злотый"
+      "currencyCode": "PLN",
+      "currency": "Польский злотый"
     },
     "DZD": {
-      "currencyCode":"DZD",
-      "currency":"Алжирский динар"
+      "currencyCode": "DZD",
+      "currency": "Алжирский динар"
     },
     "BDT": {
-      "currencyCode":"BDT",
-      "currency":"Бангладешский така"
+      "currencyCode": "BDT",
+      "currency": "Бангладешский така"
     },
     "AMD": {
-      "currencyCode":"AMD",
-      "currency":"Армянский драм"
+      "currencyCode": "AMD",
+      "currency": "Армянский драм"
     },
     "IQD": {
-      "currencyCode":"IQD",
-      "currency":"Иракский динар"
+      "currencyCode": "IQD",
+      "currency": "Иракский динар"
     },
     "LBP": {
-      "currencyCode":"LBP",
-      "currency":"Ливанский фунт"
+      "currencyCode": "LBP",
+      "currency": "Ливанский фунт"
     },
     "LYD": {
-      "currencyCode":"LYD",
-      "currency":"Ливийский динар"
+      "currencyCode": "LYD",
+      "currency": "Ливийский динар"
     },
     "MYR": {
-      "currencyCode":"MYR",
-      "currency":"Малазийский ринггит"
+      "currencyCode": "MYR",
+      "currency": "Малазийский ринггит"
     },
     "MAD": {
-      "currencyCode":"MAD",
-      "currency":"Марокканский дирхам"
+      "currencyCode": "MAD",
+      "currency": "Марокканский дирхам"
     },
     "PKR": {
-      "currencyCode":"PKR",
-      "currency":"Пакистанская рупия"
+      "currencyCode": "PKR",
+      "currency": "Пакистанская рупия"
     },
     "VND": {
-      "currencyCode":"VND",
-      "currency":"Вьетнамский донг"
+      "currencyCode": "VND",
+      "currency": "Вьетнамский донг"
     },
     "THB": {
-      "currencyCode":"THB",
-      "currency":"Тайский бат"
+      "currencyCode": "THB",
+      "currency": "Тайский бат"
     },
     "AED": {
-      "currencyCode":"AED",
-      "currency":"Объединенные Арабские Эмираты дирхам"
+      "currencyCode": "AED",
+      "currency": "Объединенные Арабские Эмираты дирхам"
     },
     "TND": {
-      "currencyCode":"TND",
-      "currency":"Тунисский динар"
+      "currencyCode": "TND",
+      "currency": "Тунисский динар"
     },
     "UZS": {
-      "currencyCode":"UZS",
-      "currency":"Узбекистанский сом"
+      "currencyCode": "UZS",
+      "currency": "Узбекистанский сом"
     },
     "TWD": {
-      "currencyCode":"TWD",
-      "currency":"Новый тайваньский доллар"
+      "currencyCode": "TWD",
+      "currency": "Новый тайваньский доллар"
     },
     "GHS": {
-      "currencyCode":"GHS",
-      "currency":"Гибралтарский фунт"
+      "currencyCode": "GHS",
+      "currency": "Гибралтарский фунт"
     },
     "RSD": {
-      "currencyCode":"RSD",
-      "currency":"Сербский динар"
+      "currencyCode": "RSD",
+      "currency": "Сербский динар"
     },
     "GEL": {
-      "currencyCode":"GEL",
-      "currency":"Грузинский лари"
+      "currencyCode": "GEL",
+      "currency": "Грузинский лари"
     },
     "UAH": {
-      "currencyCode":"UAH",
-      "currency":"Украинская гривна"
+      "currencyCode": "UAH",
+      "currency": "Украинская гривна"
     }
   }
 }

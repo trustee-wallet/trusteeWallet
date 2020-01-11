@@ -116,19 +116,27 @@ class SettingsMainScreen extends Component {
     }
 
 
-    handleLogs = () => {
+    logIsDoing = false
+
+    handleLogs = async () => {
+
+        let deviceToken = ''
+        try {
+            deviceToken = await AsyncStorage.getItem("fcmToken")
+        } catch (e) {
+            //do nothing
+        }
+
         Log.err('USER INIT GET LOGS', 'User clicked on "getLogs"', 'ALL', true)
         BlocksoftCryptoLog.err('USER INIT GET LOGS', 'User clicked on "getLogs"', 'ALL', true)
         DBExport.getSql().then((sql) => {
-
             const shareOptions = {
                 title: "Trustee. Support",
-                social: Share.Social.EMAIL,
                 subject: "Trustee. Support",
-                url: `
+                message: `
             
  ↑↑↑ Send to: contact@trustee.deals ↑↑↑
-
+${deviceToken} 
 --LOG-- 
 ${Log.getHeaders()} 
 
@@ -137,14 +145,23 @@ ${Log.getHeaders()}
 ${sql}
 `,
                 email: "contact@trustee.deals",
-            };
-            Share.open(shareOptions).catch(err => {
-                if(err.error.indexOf("No Activity") !== -1){
+            }
+            Share.open(shareOptions)
+                .then((res) => { console.log(res) })
+                .catch(err => {
+                if(typeof (err.error) !== 'undefined' && err.error.indexOf("No Activity") !== -1){
                     showModal({
                         type: 'INFO_MODAL',
                         icon: false,
                         title: "Sorry...",
                         description: "No mail apps found"
+                    })
+                } else {
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: false,
+                        title: "Sorry...",
+                        description: err.message
                     })
                 }
             })
@@ -153,6 +170,15 @@ ${sql}
                 //todo files logs as attachment
                 //+ '\n\n\n\nAPP LOGS\n\n' + Log.getLogs()
                 //+ '\n\n\n\nCRYPTO LOGS\n\n' + BlocksoftCryptoLog.getLogs()
+        }).catch(function(e) {
+            Log.err('SettingsMain.handleLogs error ' + e.message)
+            BlocksoftCryptoLog.err('SettingsMain.handleLogs error ' + e.message)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: false,
+                title: "Sorry...",
+                description: e.message
+            })
         })
     }
 
@@ -311,7 +337,7 @@ ${sql}
                     <View style={styles.wrapper__content}>
                         <View style={{...styles.block, marginTop: 35}}>
                             <Text style={styles.block__title}>{ strings('settings.walletManagement.title') }</Text>
-                            <View style={styles.block__content}>
+                            <View style={styles.block__content} >
                                 <TouchableOpacity style={{...styles.block__item}} onPress={() => this.handleBackup()}>
                                     <Icon name="export" size={20} style={styles.icon} />
                                     <View style={styles.block__item__content}>
@@ -356,7 +382,7 @@ ${sql}
 
                         <View style={{...styles.block}}>
                             <Text style={styles.block__title}>{ strings('settings.assets.title') }</Text>
-                            <View style={styles.block__content}>
+                            <View style={styles.block__content} >
                                 <TouchableOpacity style={{...styles.block__item}} onPress={() => this.handleAddAsset()}>
                                     <FontAwesome5 name="coins" size={20} style={styles.icon} />
                                     <View style={styles.block__item__content}>
@@ -415,7 +441,7 @@ ${sql}
                         <View style={styles.block}>
                             <Text style={styles.block__title}>{ strings('settings.other.title') }</Text>
                             <View style={styles.block__content}>
-                                {
+                            {
                                     this.state.devMode ?
                                         <View>
                                             <TouchableOpacity style={{...styles.block__item}} onLongPress={this.handleToggleConfig} delayLongPress={1000}>
@@ -544,10 +570,10 @@ const mapDispatchToProps = (dispatch) => {
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsMainScreen)
 
-const styles = StyleSheet.create({
+const styles = {
     wrapper: {
         flex: 1,
-        backgroundColor: '#fff'
+        backgroundColor: '#f5f5f5'
     },
     wrapper__top: {
         height: 145,
@@ -583,15 +609,15 @@ const styles = StyleSheet.create({
         shadowRadius: 2.62,
 
         elevation: 4,
-        backgroundColor: '#fff',
-        borderRadius: 15,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 16,
     },
     block__title: {
         paddingLeft: 15,
-        marginBottom: 5,
-        fontSize: 16,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#7127ac'
+        marginBottom: 10,
+        fontSize: 14,
+        fontFamily: "Montserrat-Bold",
+        color: '#404040'
     },
     block__item: {
         flexDirection: 'row',
@@ -640,4 +666,4 @@ const styles = StyleSheet.create({
         marginLeft: 15,
         color: '#999999'
     }
-})
+}

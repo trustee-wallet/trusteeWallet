@@ -14,9 +14,6 @@ const PER_PAGE = 500
 const PER_PAGE_TXS = 50
 
 class BtcLightProvider {
-    constructor() {
-
-    }
 
     async create() {
         let url = NODE_URL + '/create'
@@ -63,7 +60,7 @@ class BtcLightProvider {
         }
 
         let loginData = false
-        if (typeof (CACHED_PUBKEY_TO_LOGINS[pubKey]) !== 'undefined') {
+        if (typeof CACHED_PUBKEY_TO_LOGINS[pubKey] !== 'undefined') {
             loginData = CACHED_PUBKEY_TO_LOGINS[pubKey]
         } else {
             loginData = await BlocksoftKeysStorage.getLoginCache(pubKey)
@@ -176,10 +173,10 @@ class BtcLightProvider {
                 }
             })
         } catch (e) {
-            if (typeof (res.response.data) != 'undefined') {
+            if (typeof res.response.data != 'undefined') {
                 e = new Error(res.response.data)
             }
-            if (typeof (e.response.data) != 'undefined') {
+            if (typeof e.response.data != 'undefined') {
                 e = new Error(e.response.data)
             }
             e.code = 'USER_ERROR'
@@ -201,10 +198,10 @@ class BtcLightProvider {
                 }
             })
         } catch (e) {
-            if (typeof (res.response.data) != 'undefined') {
+            if (typeof res.response.data != 'undefined') {
                 e = new Error(res.response.data)
             }
-            if (typeof (e.response.data) != 'undefined') {
+            if (typeof e.response.data != 'undefined') {
                 e = new Error(e.response.data)
             }
             e.code = 'USER_ERROR'
@@ -230,7 +227,7 @@ class BtcLightProvider {
                 }
             })
         } catch (e) {
-            if (typeof (res.response.data) != 'undefined') {
+            if (typeof res.response.data != 'undefined') {
                 e.message = res.response.data
             }
             e.code = 'USER_ERROR'
@@ -309,7 +306,5 @@ class BtcLightProvider {
     }
 }
 
-let single = new BtcLightProvider()
-module.exports.init = function(settings) {
-    return single //as no settings actually used
-}
+const singleBtcLightProvider = new BtcLightProvider()
+export default singleBtcLightProvider

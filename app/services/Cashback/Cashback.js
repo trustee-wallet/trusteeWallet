@@ -11,6 +11,7 @@ import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWall
 import BlocksoftKeysForRef from '../../../crypto/actions/BlocksoftKeysForRef/BlocksoftKeysForRef'
 import BlocksoftKeysForRefStorage from '../../../crypto/actions/BlocksoftKeysForRef/BlocksoftKeysForRefStorage'
 
+import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import Log from '../Log/Log'
 
 import config from '../../config/config'
@@ -287,6 +288,8 @@ export default new class Cashback {
             const tmpPublicAndPrivateResult = await this._getByAuth(tmpAuthHash)
             let { cashbackToken, privateKey } = tmpPublicAndPrivateResult
 
+            MarketingEvent.logEvent('get_cashback_token', { cashbackToken })
+
             const {
                 _baseURL,
                 _middleURL,
@@ -303,6 +306,8 @@ export default new class Cashback {
                 .ios.setAppStoreId(_appStoreID)
 
             const tmpLink = await firebase.links().createShortDynamicLink(dynamicLink, _dynamicLinkType)
+
+            MarketingEvent.logEvent('get_cashback_token_short', { cashbackToken, tmpLink })
 
             const signature = await BlocksoftKeysForRef.signDataForApi(new Date().toString(), privateKey)
 
@@ -321,9 +326,19 @@ export default new class Cashback {
             const res = await axios.post(link, getStatisticsReqData)
             Log.log('Cashback.getCashbackData result ', res.data)
 
+
             if (typeof (res.data.status) != 'undefined' && res.data.status === 'failed') {
                 Log.err('Cashback.api error ' + JSON.stringify(res.data))
                 throw new Error('Cashback api error')
+            } else {
+                MarketingEvent.logEvent('get_cashback_token_result', {
+                    cashbackToken, tmpLink,
+                    cashbackLink : res.data.data.cashbackLink,
+                    cashbackBalance: res.data.data.cashbackBalance + '',
+                    invitedUsers: res.data.data.invitedUsers + '',
+                    overalVolume: res.data.data.overalVolume + '',
+                    weeklyVolume: res.data.data.weeklyVolume + '',
+                })
             }
 
             dispatch({

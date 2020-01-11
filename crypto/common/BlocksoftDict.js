@@ -10,7 +10,6 @@ const Currencies = {
         addressProcessor: 'ETH',
         scannerProcessor: 'ETH',
         extendsProcessor: 'ETH',
-        txProcessor: 'ETH',
         prettyNumberProcessor: 'ETH',
         network: 'mainnet', // network also used as mark of rate scanning
         decimals: 18,
@@ -25,7 +24,6 @@ const Currencies = {
         addressProcessor: 'TRX',
         scannerProcessor: 'TRX',
         extendsProcessor: 'TRX',
-        txProcessor: 'TRX',
         prettyNumberProcessor: 'UNIFIED',
         network: 'mainnet', // network also used as mark of rate scanning
         decimals: 6,
@@ -40,7 +38,6 @@ const Currencies = {
         addressProcessor: 'BTC',
         scannerProcessor: 'BTC',
         extendsProcessor: 'BTC',
-        txProcessor: 'BTC',
         prettyNumberProcessor: 'BTC',
         network: 'mainnet',
         decimals: 8,
@@ -48,25 +45,36 @@ const Currencies = {
         currencyExplorerLink: 'https://live.blockcypher.com/btc/address/',
         currencyExplorerTxLink: 'https://live.blockcypher.com/btc/tx/'
     },
-    'BTC_LIGHT': {
-        currencyName: 'Bitcoin Lightning',
-        currencyCode: 'BTC_LIGHT',
+
+    'BTC_SEGWIT': {
+        currencyName: 'Bitcoin Segwit',
+        currencyCode: 'BTC_SEGWIT',
         currencySymbol: 'BTC',
-        addressProcessor: 'BTC_LIGHT',
-        scannerProcessor: 'BTC_LIGHT',
+        addressProcessor: 'BTC_SEGWIT',
+        extendsProcessor: 'BTC',
         ratesCurrencyCode: 'BTC',
-        txProcessor: 'BTC_LIGHT',
-        network: 'mainnet',
-        prettyNumberProcessor: 'BTC',
-        decimals: 8,
-        buyable: 0,
-        currencyExplorerLink: '?',
-        currencyExplorerTxLink: '?'
     },
+
+    // 'BTC_LIGHT': {
+    //     currencyName: 'Bitcoin Lightning',
+    //     currencyCode: 'BTC_LIGHT',
+    //     currencySymbol: 'BTC',
+    //     addressProcessor: 'BTC_LIGHT',
+    //     scannerProcessor: 'BTC_LIGHT',
+    //     ratesCurrencyCode: 'BTC',
+    //     network: 'mainnet',
+    //     prettyNumberProcessor: 'BTC',
+    //     decimals: 8,
+    //     buyable: 0,
+    //     currencyExplorerLink: '?',
+    //     currencyExplorerTxLink: '?'
+    // },
+
     'BTC_TEST': {
         currencyName: 'Bitcoin (Testnet)',
         currencyCode: 'BTC_TEST',
         currencySymbol: 'BTC TEST',
+        scannerProcessor: 'BTC_TEST',
         extendsProcessor: 'BTC',
         network: 'testnet',
         decimals: 8,
@@ -74,14 +82,59 @@ const Currencies = {
         currencyExplorerLink: 'https://live.blockcypher.com/btc-testnet/address/',
         currencyExplorerTxLink: 'https://live.blockcypher.com/btc-testnet/tx/'
     },
+
+    'BCH': {
+        currencyName: 'Bitcoin Cash',
+        currencyCode: 'BCH',
+        currencySymbol: 'BCH',
+        addressProcessor: 'BCH',
+        scannerProcessor: 'BCH',
+        extendsProcessor: 'BTC',
+        addressUiChecker: 'BTC_BY_NETWORK',
+        rateUiScanner: 'BCH', // if network != mainnet, set how is scanned
+        network: 'bitcoincash',
+        decimals: 8,
+        buyable: 1,
+        currencyExplorerLink: 'https://explorer.bitcoin.com/bch/address/bitcoincash:',
+        currencyExplorerTxLink: 'https://explorer.bitcoin.com/bch/tx/'
+    },
+    'BSV': {
+        currencyName: 'BitcoinSV',
+        currencyCode: 'BSV',
+        currencySymbol: 'BSV',
+        scannerProcessor: 'BSV',
+        extendsProcessor: 'BTC',
+        addressUiChecker: 'BTC_BY_NETWORK',
+        rateUiScanner: 'BSV', // if network != mainnet, set how is scanned
+        network: 'bitcoinsv',
+        decimals: 8,
+        buyable: 1,
+        currencyExplorerLink: 'https://explorer.viabtc.com/bsv/address/',
+        currencyExplorerTxLink: 'https://explorer.viabtc.com/bsv/tx/'
+    },
+    'BTG': {
+        currencyName: 'Bitcoin Gold',
+        currencyCode: 'BTG',
+        currencySymbol: 'BTG',
+        scannerProcessor: 'BTG',
+        extendsProcessor: 'BTC',
+        addressUiChecker: 'BTC_BY_NETWORK',
+        rateUiScanner: 'BTG', // if network != mainnet, set how is scanned
+        network: 'bitcoingold',
+        decimals: 8,
+        buyable: 1,
+        currencyExplorerLink: 'https://explorer.bitcoingold.org/insight/address/',
+        currencyExplorerTxLink: 'https://explorer.bitcoingold.org/insight/tx/'
+    },
+
     'LTC': {
         currencyName: 'Litecoin',
         currencyCode: 'LTC',
         currencySymbol: 'LTC',
+        scannerProcessor: 'LTC',
         extendsProcessor: 'BTC',
         addressUiChecker: 'BTC_BY_NETWORK',
         rateUiScanner: 'LTC', // if network != mainnet, set how is scanned
-        txProcessor: 'LTC',
         network: 'litecoin',
         decimals: 8,
         buyable: 1,
@@ -96,7 +149,6 @@ const Currencies = {
         scannerProcessor: 'DOGE',
         addressUiChecker: 'BTC_BY_NETWORK',
         rateUiScanner: 'DOGE', // if network != mainnet, set how is scanned
-        txProcessor: 'DOGE',
         network: 'dogecoin',
         decimals: 8,
         buyable: 0,
@@ -111,7 +163,6 @@ const Currencies = {
         scannerProcessor: 'XVG',
         addressUiChecker: 'BTC_BY_NETWORK',
         rateUiScanner: 'XVG', // if network != mainnet, set how is scanned
-        txProcessor: 'XVG',
         network: 'verge',
         prettyNumberProcessor: 'UNIFIED',
         decimals: 6,
@@ -129,7 +180,7 @@ const Currencies = {
         decimals: 6,
         buyable: 1,
         tokenAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-        currencyExplorerLink: 'https://etherscan.io/token/0xdac17f958d2ee523a2444406994597c13d831ec7?a='
+        currencyExplorerLink: 'https://etherscan.io/token/0xdac17f958d2ee523a2206206994597c13d831ec7?a='
     },
     'USDT': {
         currencyName: 'Tether',
@@ -138,7 +189,6 @@ const Currencies = {
         extendsProcessor: 'BTC',
         addressCurrencyCode: 'BTC', // use btc addresses as main
         scannerProcessor: 'USDT',
-        txProcessor: 'USDT',
         prettyNumberProcessor: 'USDT',
         feesCurrencyCode: 'BTC',
         network: 'mainnet',
@@ -147,12 +197,27 @@ const Currencies = {
         currencyExplorerLink: 'https://omniexplorer.info/address/',
         currencyExplorerTxLink: 'https://omniexplorer.info/tx/'
     },
+    'XRP': {
+        currencyName: 'Ripple',
+        currencyCode: 'XRP',
+        currencySymbol: 'XRP',
+        addressProcessor: 'XRP',
+        scannerProcessor: 'XRP',
+        extendsProcessor: 'XRP',
+        prettyNumberProcessor: 'USDT',
+        network: 'mainnet',
+        decimals: 8,
+        buyable: 1,
+        currencyExplorerLink: 'https://livenet.xrpl.org/accounts/',
+        currencyExplorerTxLink: 'https://livenet.xrpl.org/transactions/'
+    },
     'ETH_ROPSTEN': {
         currencyName: 'Ethereum Ropsten',
         currencyCode: 'ETH_ROPSTEN',
         currencySymbol: 'ETH',
         currencyIcon: 'ETH',
         extendsProcessor: 'ETH',
+        transferProcessor: 'ETH',
         network: 'ropsten',
         decimals: 18,
         buyable: 0,
@@ -166,7 +231,7 @@ const Currencies = {
         currencySymbol: 'TUSD',
         addressProcessor: 'ETH',
         scannerProcessor: 'ETH_ERC_20',
-        txProcessor: 'ETH_ERC_20',
+        transferProcessor: 'ETH_ERC_20',
         prettyNumberProcessor: 'ETH_ERC_20',
         addressCurrencyCode: 'ETH',
         addressUiChecker: 'ETH',
@@ -176,17 +241,17 @@ const Currencies = {
         decimals: 18,
         buyable: 0,
         tokenAddress: '0x0000000000085d4780B73119b644AE5ecd22b376',
-        currencyExplorerLink: 'https://etherscan.io/token/0x0000000000085d4780B72222b644AE5ecd22b376?a=',
+        currencyExplorerLink: 'https://etherscan.io/token/0x0000000000085d4780B73119b644AE5ecd22b376?a=',
         currencyExplorerTxLink: 'https://etherscan.io/tx/'
     },
     'TRX_USDT': {
-        currencyName: 'Tether TRX',
+        transferProcessor: 'TRX',
+        currencyName: 'Tether',
         currencyCode: 'TRX_USDT',
         currencyIcon: 'TRX',
         currencySymbol: 'USDT',
         addressProcessor: 'TRX',
         scannerProcessor: 'TRX',
-        txProcessor: 'TRX',
         prettyNumberProcessor: 'UNIFIED',
         addressCurrencyCode: 'TRX',
         addressUiChecker: 'TRX',
@@ -195,11 +260,11 @@ const Currencies = {
         decimals: 6,
         buyable: 0,
         tokenName: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
-        currencyExplorerLink: 'https://tronscan.org/#/token/TR7NHqjeKQxGTCi8q8ZY1111otSzgjLj6t/holders',
+        currencyExplorerLink: 'https://tronscan.org/#/address/',
         currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
     },
     'TRX_BTT': {
-        currencyName: 'BitTorrent TRX',
+        currencyName: 'BitTorrent',
         currencyCode: 'TRX_BTT',
         currencySymbol: 'BTT',
         extendsProcessor: 'TRX_USDT',
@@ -209,7 +274,8 @@ const Currencies = {
         decimals: 6,
         buyable: 0,
         tokenName: '1002000',
-        currencyExplorerLink: 'https://tronscan.org/#/token/1002099'
+        currencyExplorerLink: 'https://tronscan.org/#/address/',
+        currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
     },
     'ETH_BNB': {
         currencyName: 'BNB',
@@ -220,8 +286,8 @@ const Currencies = {
         ratesCurrencyCode: 'BNB', // if code in rates should be different, else - used currencyCode
         decimals: 18,
         buyable: 0,
-        tokenAddress: '0xB8c77482e45F1F44dE1749999C74426C631bDD52',
-        currencyExplorerLink: 'https://etherscan.io/token/0xB8c77482e45F1F44dE1749999C74426C631bDD52?a='
+        tokenAddress: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        currencyExplorerLink: 'https://etherscan.io/token/0xB8c77482e45F1F44dE1745F52C74426C631bDD52?a='
     },
     'ETH_USDC': {
         currencyName: 'USD Coin',
@@ -232,8 +298,8 @@ const Currencies = {
         ratesCurrencyCode: 'USDC',
         decimals: 6,
         buyable: 0,
-        tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606e3e3',
-        currencyExplorerLink: 'https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606e3e3?a=',
+        tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        currencyExplorerLink: 'https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48?a=',
         currencyExplorerTxLink: 'https://etherscan.io/tx/'
     },
     'ETH_PAX': {
@@ -245,8 +311,8 @@ const Currencies = {
         ratesCurrencyCode: 'PAX', // if code in rates should be different, else - used currencyCode
         decimals: 18,
         buyable: 0,
-        tokenAddress: '0x8e870d67f660d95d5be530380d0ec0bd388234e1',
-        currencyExplorerLink: 'https://etherscan.io/token/0x8e870d67f660d95d5be530380d0ec0bd388234e1?a='
+        tokenAddress: '0x8e870d67f660d95d5be530380d0ec0bd388289e1',
+        currencyExplorerLink: 'https://etherscan.io/token/0x8e870d67f660d95d5be530380d0ec0bd388289e1?a='
     },
     'ETH_DAI': {
         currencyName: 'Dai Stablecoin v1.0',
@@ -257,8 +323,8 @@ const Currencies = {
         ratesCurrencyCode: 'DAI', // if code in rates should be different, else - used currencyCode
         decimals: 18,
         buyable: 0,
-        tokenAddress: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23555559',
-        currencyExplorerLink: 'https://etherscan.io/token/0x89d24a6b4ccb1b6faa2625fe562bdd9a23555559?a='
+        tokenAddress: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359',
+        currencyExplorerLink: 'https://etherscan.io/token/0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359?a='
     },
     'ETH_SOUL': {
         currencyName: 'CryptoSoul',
@@ -270,27 +336,34 @@ const Currencies = {
         ratesCurrencyCode: 'SOUL', // if code in rates should be different, else - used currencyCode
         decimals: 18,
         buyable: 0,
-        tokenAddress: '0xbb1f24c0c1554b9990222f036b0aad6ee4caec',
-        currencyExplorerLink: 'https://etherscan.io/token/0xbb1f24c0c1554b9990222f036b0aad6ee4caec?a='
+        tokenAddress: '0xbb1f24c0c1554b9990222f036b0aad6ee4caec29',
+        currencyExplorerLink: 'https://etherscan.io/token/0xbb1f24c0c1554b9990222f036b0aad6ee4caec29?a='
     },
     'ETH_ONE': {
         currencyName: 'Harmony',
         currencyCode: 'ETH_ONE',
         currencySymbol: 'ONE',
         extendsProcessor: 'ETH_TRUE_USD',
-        scannerProcessor: 'ETH',
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'ONE', // if code in rates should be different, else - used currencyCode
         decimals: 18,
         buyable: 0,
-        tokenAddress: '0x799a4202c12ca952cb311598a024c80ed123441e',
-        currencyExplorerLink: 'https://etherscan.io/token/0x799a4202c12ca952cb311598a024c80ed123441e?a='
+        tokenAddress: '0x799a4202c12ca952cb311598a024c80ed371a41e',
+        currencyExplorerLink: 'https://etherscan.io/token/0x799a4202c12ca952cb311598a024c80ed371a41e?a='
     }
 
 
 }
 
 const CurrenciesForTests = {
+    'BTC_SEGWIT_COMPATIBLE': {
+        currencyName: 'Bitcoin Compatible Segwit',
+        currencyCode: 'BTC_SEGWIT_COMPATIBLE',
+        currencySymbol: 'BTC',
+        addressProcessor: 'BTC_SEGWIT_COMPATIBLE',
+        extendsProcessor: 'BTC',
+        ratesCurrencyCode: 'BTC',
+    },
     'ETH_ROPSTEN_KSU_TOKEN': {
         currencyName: 'Some ERC-20 Ropsten',
         currencyCode: 'ETH_ROPSTEN_KSU_TOKEN',
@@ -315,11 +388,22 @@ const CurrenciesForTests = {
         decimals: 6,
         buyable: 0,
         tokenName: '1002742',
-        currencyExplorerLink: 'https://tronscan.org/#/token/1002742/holders',
+        currencyExplorerLink: 'https://tronscan.org/#/address/',
         currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
     },
 }
 
+/**
+ * @param {int} currencyObject.id
+ * @param {int} currencyObject.is_hidden
+ * @param {string} currencyObject.token_json
+ * @param {string} currencyObject.token_decimals 18
+ * @param {string} currencyObject.token_address '0xd26114cd6EE289AccF82350c8d8487fedB8A0C07'
+ * @param {string} currencyObject.token_type 'ETH_ERC_20'
+ * @param {string} currencyObject.currency_name 'OMG Token'
+ * @param {string} currencyObject.currency_symbol 'OMG'
+ * @param {string} currencyObject.currency_code 'OMG'
+ */
 function addAndUnifyCustomCurrency(currencyObject) {
     let tmp = {
         currencyName: currencyObject.currency_name,
@@ -340,7 +424,8 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.addressUiChecker = 'TRX'
         tmp.currencyIcon = 'TRX'
         tmp.tokenName = currencyObject.token_address
-        tmp.currencyExplorerLink = 'https://tronscan.org/#/token/' + currencyObject.token_address + '/holders'
+        tmp.currencyExplorerLink = 'https://tronscan.org/#/address/'
+        tmp.currencyExplorerTxLink = 'https://tronscan.org/#/transaction/'
     } else {
         return false
     }

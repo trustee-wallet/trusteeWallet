@@ -56,7 +56,7 @@
   {
     "symbol_native":"AU$",
     "currency":"Australian Dollar",
-    "symbol":"$",
+    "symbol":"AU$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"AUD",
@@ -65,7 +65,7 @@
   {
     "symbol_native":"CA$",
     "currency":"Canadian Dollar",
-    "symbol":"$",
+    "symbol":"CA$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"CAD",
@@ -110,7 +110,7 @@
   {
     "symbol_native":"HK$",
     "currency":"Hong Kong Dollar",
-    "symbol":"$",
+    "symbol":"HK$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"HKD",
@@ -191,7 +191,7 @@
   {
     "symbol_native":"MX$",
     "currency":"Mexican Peso",
-    "symbol":"$",
+    "symbol":"MX$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"MXN",
@@ -207,9 +207,9 @@
     "name":"Moldovan lei"
   },
   {
-    "symbol_native":"NZ$",
+    "symbol_native":"MX$",
     "currency":"New Zealand Dollar",
-    "symbol":"$",
+    "symbol":"MX$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"NZD",
@@ -236,7 +236,7 @@
   {
     "symbol_native":"S$",
     "currency":"Singapore Dollar",
-    "symbol":"$",
+    "symbol":"S$",
     "decimal_digits":2,
     "rounding":0,
     "currencyCode":"SGD",

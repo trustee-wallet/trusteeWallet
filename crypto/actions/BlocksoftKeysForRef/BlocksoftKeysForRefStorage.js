@@ -1,8 +1,12 @@
+/**
+ * @author Ksu
+ * @version 0.5
+ */
 import { BlocksoftKeysStorage } from '../BlocksoftKeysStorage/BlocksoftKeysStorage'
 
 class BlocksoftKeysForRefStorage extends BlocksoftKeysStorage {
 
-    constructor(_serviceName = 'BlocksoftKeysRefStorage'){
+    constructor(_serviceName = 'BlocksoftKeysRefStorage') {
         super(_serviceName)
     }
 
@@ -19,5 +23,4 @@ class BlocksoftKeysForRefStorage extends BlocksoftKeysStorage {
 }
 
 let singleBlocksoftKeysRefStorage = new BlocksoftKeysForRefStorage()
-
 export default singleBlocksoftKeysRefStorage

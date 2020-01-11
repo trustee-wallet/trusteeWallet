@@ -10,11 +10,14 @@ import GradientView from "../../components/elements/GradientView";
 
 import firebase from "react-native-firebase"
 import config from "../../config/config"
+
 import { MaterialIndicator, UIActivityIndicator } from 'react-native-indicators'
-import App from '../../appstores/Actions/App/App'
 import NavStore from '../../components/navigation/NavStore'
 import Log from '../../services/Log/Log'
 import { connect } from 'react-redux'
+
+import App from "../../appstores/Actions/App/App"
+
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -147,7 +150,7 @@ const styles = {
         justifyContent: 'center',
         paddingLeft: 30,
         paddingRight: 30,
-        backgroundColor: '#fff'
+        backgroundColor: '#f2f2f2'
     },
     title: {
         textAlign: 'center',

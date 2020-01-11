@@ -423,7 +423,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(CashbackScreen)
 const styles = {
     wrapper: {
         flex: 1,
-        backgroundColor: '#fff'
+        backgroundColor: '#f9f9f9'
     },
     wrapper__scrollView: {
         flex: 1,

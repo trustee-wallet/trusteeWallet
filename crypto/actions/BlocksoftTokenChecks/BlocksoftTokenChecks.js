@@ -1,8 +1,10 @@
 /**
  * @author Ksu
- * @version 0.4
+ * @version 0.5
  */
-const Dispatcher = require('../../blockchains/Dispatcher').init()
+import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
+
+const Dispatcher = new BlocksoftDispatcher()
 
 class BlocksoftTokenChecks {
 
@@ -52,5 +54,4 @@ class BlocksoftTokenChecks {
 }
 
 const singleBlocksoftTokenChecks = new BlocksoftTokenChecks()
-
 export default singleBlocksoftTokenChecks

@@ -2,12 +2,13 @@ import React, { Component } from 'react'
 
 import {
     View,
-    Platform
+    Platform,
+    Text
 } from "react-native"
 
 import { WebView } from 'react-native-webview'
 
-export default class Text extends Component {
+export default class TextView extends Component {
 
     constructor(props){
         super(props)
@@ -30,7 +31,7 @@ export default class Text extends Component {
 
         const source = {
             html: `
-                <html>
+                <html style="background-color: #f9f9f9;">
                     <head>
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <meta charset="utf-8">
@@ -50,21 +51,26 @@ export default class Text extends Component {
         }
 
         return (
-            <View style={{ height: +this.state.height == 0 ? this.props.style.height: +this.state.height, marginBottom: 5 }}>
-                <WebView
-                    ref={r => (this.webref = r)}
-                    javaScriptEnabled={true}
-                    onLoadEnd={() => this.webref.injectJavaScript(this.state.script)}
-                    showsVerticalScrollIndicator={false}
-                    onMessage={event => {
-                        this.setState({
-                            height: event.nativeEvent.data
-                        })
-                    }}
-                    source={source}
-                    useWebKit={true}
-                />
-            </View>
+            <Text style={{ fontFamily: "SFUIDisplay-Regular", color: "#999", fontSize: 16, textAlign: "justify", marginBottom: 5 }}>
+                {this.props.children}
+            </Text>
         )
     }
 }
+
+// return (
+//     <View style={{ height: +this.state.height == 0 ? this.props.style.height: +this.state.height, marginBottom: 5 }}>
+//         <WebView
+//             ref={r => (this.webref = r)}
+//             javaScriptEnabled={true}
+//             onLoadEnd={() => this.webref.injectJavaScript(this.state.script)}
+//             showsVerticalScrollIndicator={false}
+//             onMessage={event => {
+//                 this.setState({
+//                     height: event.nativeEvent.data
+//                 })
+//             }}
+//             source={source}
+//             useWebKit={true}
+//         />
+//     </View>

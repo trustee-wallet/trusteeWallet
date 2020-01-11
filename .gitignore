@@ -27,6 +27,7 @@ DerivedData
 *.ipa
 *.xcuserstate
 project.xcworkspace
+wallettests
 
 # CocoaPods
 ios/Podfile.lock

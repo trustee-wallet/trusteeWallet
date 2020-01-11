@@ -1,3 +1,7 @@
+/**
+ * @author Ksu
+ * @version 0.5
+ */
 const createHash = require('create-hash')
 // noinspection NpmUsedModulesInstalled
 const createHmac = require('create-hmac')
@@ -14,9 +18,8 @@ const createHmacPDFK2Sizes = {
 }
 
 const DEFAULT_WORDS = require('./_words/english.json')
-
 const TON_ITERATIONS = 390
-const TON_SALT = "TON seed version"
+const TON_SALT = 'TON seed version'
 
 class BlocksoftKeysUtils {
 
@@ -92,9 +95,11 @@ class BlocksoftKeysUtils {
         if (!mnemonic) {
             throw new Error('bip39MnemonicToSeed is empty')
         }
+
         function salt(password) {
             return 'mnemonic' + (password || '')
         }
+
         const mnemonicBuffer = Buffer.from((mnemonic || ''), 'utf8')
         const saltBuffer = Buffer.from(salt(password || ''), 'utf8')
         return BlocksoftKeysUtils._pbkdf2(mnemonicBuffer, saltBuffer, 2048, 64, 'sha512')

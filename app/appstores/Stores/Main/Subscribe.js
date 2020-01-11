@@ -239,24 +239,16 @@ async function afterAccountTransactionsDaemonData(accounts) {
 
     const account = JSON.parse(JSON.stringify(state.mainStore.selectedAccount))
 
-    const isOpened = accounts.find((item) => item.id == account.id)
+    const isOpened = accounts.find((item) => item.id == account.account_id)
 
     if (!isOpened) {
-        Log.log('')
-        Log.log('')
-        Log.log('')
-        Log.log('!!! MAIN STORE UPDATE NOT OPENED !!!')
-        Log.log('')
-        Log.log('')
-        Log.log('')
-        Log.log('')
-
         return false
     }
 
-    const { array: transactions } = await transactionDS.getTransactions({ account_id: account.id })
+    const { array: transactions } = await transactionDS.getTransactions({ account_id: account.account_id })
     account.transactions = transactions
-    account.balance = await accountDS.getAccountBalance(account.id)
+   
+    account.balance = await accountDS.getAccountBalance(account.account_id)
     account.balancePretty = BlocksoftPrettyNumbers.setCurrencyCode(account.currency_code).makePrettie(account.balance)
 
     Log.log('')
@@ -270,7 +262,8 @@ async function afterAccountTransactionsDaemonData(accounts) {
 
     dispatch({
         type: 'SET_SELECTED_ACCOUNT',
-        selectedAccount: account
+        selectedAccount: account,
+        source : 'Subscribe.afterAccountTransactionsDaemonData'
     })
 
     /*const account = JSON.parse(JSON.stringify(state.mainStore.account))

@@ -59,7 +59,7 @@ class PaymentSystem extends Component {
                 paymentSystemList
             })
         } catch (e) {
-            Log.err('PaymentSystem.reInit error', e)
+            Log.err('PaymentSystem.reInit error ' + e.message)
         }
     }
 

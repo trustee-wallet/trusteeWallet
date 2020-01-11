@@ -19,8 +19,7 @@ import CustomFee from './customfee/CustomFee'
 import { setLoaderStatus } from '../../../appstores/Actions/MainStoreActions'
 import { setDataModal, showModal } from '../../../appstores/Actions/ModalActions'
 
-import BlocksoftTransaction from '../../../../crypto/actions/BlocksoftTransaction/BlocksoftTransaction'
-import BlocksoftBalances from '../../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import BlocksoftTransfer from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 
 import { strings } from '../../../services/i18n'
@@ -29,7 +28,7 @@ import Log from '../../../services/Log/Log'
 import FiatRatesActions from '../../../appstores/Actions/FiatRatesActions'
 
 import Theme from '../../../themes/Themes'
-import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
+import utils from '../../../services/utils'
 let styles
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
@@ -99,31 +98,37 @@ class Fee extends Component {
 
         try {
 
-            let tmpSetAmount = 0
-            if (sendData.useAllFunds) {
-                const tmp = await BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).getBalance()
-                tmpSetAmount = BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) // to think show this as option or no
-                Log.log(`Fee.componentWillMount balance ${currencyCode} ${address} data`, tmp)
-            } else {
-                tmpSetAmount = sendData.amountRaw
-            }
-
             const addressTo = sendData.address ? sendData.address : address
-            const fees = await (
-                BlocksoftTransaction.setCurrencyCode(currencyCode)
-                    .setWalletHash(walletHash)
-                    .setDerivePath(derivationPathTmp)
-                    .setAddressFrom(address)
-                    .setAddressTo(addressTo)
-                    .setAmount(tmpSetAmount)
-            ).getFeeRate()
+            let fees
+            if (sendData.useAllFunds) {
+                fees = await (
+                    BlocksoftTransfer.setCurrencyCode(currencyCode)
+                        .setWalletHash(walletHash)
+                        .setDerivePath(derivationPathTmp)
+                        .setAddressFrom(address)
+                        .setAddressTo(addressTo)
+                        .setMemo(sendData.memo)
+                        .setAmount(sendData.amountRaw)
+                        .setTransferAll(true)
+                ).getFeeRate()
+            } else {
+                fees = await (
+                    BlocksoftTransfer.setCurrencyCode(currencyCode)
+                        .setWalletHash(walletHash)
+                        .setDerivePath(derivationPathTmp)
+                        .setAddressFrom(address)
+                        .setAddressTo(addressTo)
+                        .setMemo(sendData.memo)
+                        .setAmount(sendData.amountRaw)
+                ).getFeeRate()
+            }
 
             Log.log('Send.Fee.componentWillMount fees', fees)
 
             if (fees) {
                 this.setState({
                     feeList: fees,
-                    fee: fees[2],
+                    fee: fees[fees.length - 1],
                     status: 'success'
                 })
             }
@@ -160,10 +165,10 @@ class Fee extends Component {
         try {
 
             let amountRaw = await (
-                BlocksoftBalances
+                BlocksoftTransfer
                     .setCurrencyCode(currencyCode)
-                    .setAddress(address)
-                    .setFee(fee.feeForTx)
+                    .setAddressFrom(address)
+                    .setFee(fee)
             ).getTransferAllBalance()
 
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePrettie(amountRaw)
@@ -310,7 +315,7 @@ class Fee extends Component {
                         {
                             status == 'success' ? feeList.map((item, index) => {
                                 let prettieFee = BlocksoftPrettyNumbers.setCurrencyCode(feeCurrencyCode).makePrettie(item.feeForTx)
-                                let feeInUsd = (prettieFee * feeRate).toFixed(3)
+                                let feeInUsd = prettieFee * feeRate
                                 return (
                                     <View style={styles.fee__wrap} key={index}>
                                         <TouchableOpacity
@@ -333,7 +338,7 @@ class Fee extends Component {
                                                     {strings(`send.fee.time.${item.langMsg}`)}
                                                 </Text>
                                                 <Text style={{ ...styles.fee__item__top__text, color: fee.langMsg == item.langMsg ? '#efa1ae' : '#e3e3e3' }}>
-                                                    {prettieFee} {feeSymbol} ({ localCurrencySymbol } { FiatRatesActions.toLocalCurrency(feeInUsd) } )
+                                                    {prettieFee} {feeSymbol} ({ localCurrencySymbol } { utils.prettierNumber(FiatRatesActions.toLocalCurrency(feeInUsd, false), 2) } )
                                                 </Text>
                                             </View>
                                         </TouchableOpacity>

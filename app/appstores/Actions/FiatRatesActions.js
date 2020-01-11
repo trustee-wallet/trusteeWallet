@@ -38,6 +38,7 @@ export default new class FiatRatesActions {
             await AsyncStorage.setItem('fiatRates', JSON.stringify(nbuRatesTmp))
 
             this.setNBURates(nbuRatesTmp)
+            this.tryCounter = 0
             return
         } catch (e) {
             if (Log.isNetworkError(e.message) && this.tryCounter < 10) {
@@ -56,11 +57,30 @@ export default new class FiatRatesActions {
             try {
                 nbuRates = await AsyncStorage.getItem('fiatRates')
                 nbuRates = JSON.parse(nbuRates)
-                this.setNBURates(nbuRates)
+
+                if(nbuRates === null){
+                    dispatch({
+                        type: 'SET_INIT_DATA',
+                        fiatRates: [
+                            {
+                                cc: "USD",
+                                rate: 1,
+                                symbol: "$"
+                            }
+                        ],
+                        uahRate: 1,
+                        localCurrencyRate: 1,
+                        localCurrencySymbol: "$"
+                    })
+                } else {
+                    this.setNBURates(nbuRates)
+                }
             } catch (e) {
                 Log.err('ACT/FiatRates init second try error ' + e.message)
             }
         }
+
+
     }
 
     convertFromCurrencyTo = (fromCurrency, toCurrency, amount) => {
@@ -93,11 +113,11 @@ export default new class FiatRatesActions {
 
     }
 
-    toLocalCurrency = (amount, fixed = true) => {
+    toLocalCurrency = (amount, fixed = true, fractionDigits = 2) => {
         const { fiatRatesStore } = store.getState()
 
         let toLocal = (amount * fiatRatesStore.uahRate) / fiatRatesStore.localCurrencyRate
-        toLocal = fixed ? toLocal.toFixed(2) : toLocal
+        toLocal = fixed ? toLocal.toFixed(fractionDigits) : toLocal
 
         return toLocal
     }

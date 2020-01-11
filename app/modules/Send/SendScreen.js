@@ -16,6 +16,7 @@ import firebase from "react-native-firebase"
 import TextView from '../../components/elements/Text'
 import AddressInput from '../../components/elements/Input'
 import AmountInput from '../../components/elements/Input'
+import MemoInput from '../../components/elements/Input'
 import Navigation from '../../components/navigation/Navigation'
 import GradientView from '../../components/elements/GradientView'
 import Button from '../../components/elements/Button'
@@ -28,7 +29,7 @@ import { showModal } from '../../appstores/Actions/ModalActions'
 
 import { strings } from '../../services/i18n'
 
-import BlocksoftTransaction from '../../../crypto/actions/BlocksoftTransaction/BlocksoftTransaction'
+import BlocksoftTransfer from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import BlocksoftBalances from '../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
@@ -42,12 +43,18 @@ import Theme from '../../themes/Themes'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import BlocksoftInvoice from '../../../crypto/actions/BlocksoftInvoice/BlocksoftInvoice'
+import utils from '../../services/utils'
 
 let styles
 
 const addressInput = {
     id: 'address',
     type: 'ETH_ADDRESS'
+}
+
+const memoInput = {
+    id: 'memo',
+    type: 'string'
 }
 
 const amountInput = {
@@ -84,6 +91,7 @@ class SendScreen extends Component {
             inputType: 'CRYPTO'
         }
         this.addressInput = React.createRef()
+        this.memoInput = React.createRef()
         this.valueInput = React.createRef()
         this.fee = React.createRef()
     }
@@ -112,7 +120,7 @@ class SendScreen extends Component {
                 useAllFunds
             } = this.props.send.data;
 
-            this.transactionPrices(account)
+            this.transferPrecache(account)
 
             this.setState({
                 disabled,
@@ -150,12 +158,16 @@ class SendScreen extends Component {
                 this.amountInputCallback()
             });
 
-            this.transactionPrices(account)
+            this.transferPrecache(account)
         }
     }
 
-    transactionPrices = (account) => {
-        (BlocksoftTransaction.setWalletHash(account.wallet_hash).setAddressFrom(account.address).setDerivePath(account.derivation_path).setCurrencyCode(account.currency_code)).getNetworkPrices()
+    transferPrecache = (account) => {
+        try {
+            (BlocksoftTransfer.setCurrencyCode(account.currency_code).setWalletHash(account.wallet_hash).setAddressFrom(account.address).setDerivePath(account.derivation_path)).getTransferPrecache()
+        } catch (e) {
+            //do nothing but actually could be shown!
+        }
     }
 
     handleChangeEquivalentType = () => {
@@ -204,41 +216,41 @@ class SendScreen extends Component {
         try {
 
             const tmp = await BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).getBalance()
-            const balanceRaw = BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) // to think show this as option or no
+            const balanceRaw = tmp ? BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) : 0 // to think show this as option or no
             Log.log(`SendScreen.handleTransferAll balance ${currencyCode} ${address} data`, tmp)
 
-            const addressToForTransferAll = (BlocksoftBalances.setCurrencyCode(currencyCode)).getAddressToForTransferAll(address)
+            const addressToForTransferAll = (BlocksoftTransfer.setCurrencyCode(currencyCode)).getAddressToForTransferAll(address)
 
             let fees = await (
-                BlocksoftTransaction
+                BlocksoftTransfer
                     .setCurrencyCode(currencyCode)
                     .setWalletHash(walletHash)
                     .setDerivePath(derivationPathTmp)
                     .setAddressFrom(address)
                     .setAddressTo(addressToForTransferAll)
-                    .setTransferAll(true)
                     .setAmount(balanceRaw)
+                    .setTransferAll(true)
             ).getFeeRate()
 
             let current = false
 
             // try fast
-            let currentFee = fees ? fees[2].feeForTx : 0
+            let currentFee = fees ? fees[fees.length - 1] : 0
             try {
                 try {
                     current = await (
-                        BlocksoftBalances
+                        BlocksoftTransfer
                             .setCurrencyCode(currencyCode)
-                            .setAddress(address)
+                            .setAddressFrom(address)
                             .setFee(currentFee)
                     ).getTransferAllBalance(balanceRaw)
                 } catch (e) {
                     if (typeof e.code != 'undefined' && e.code === 'ERROR_BALANCE_MINUS_FEE' && fees) {
-                        currentFee = fees[0].feeForTx
+                        currentFee = fees[0]
                         current = await (
-                            BlocksoftBalances
+                            BlocksoftTransfer
                                 .setCurrencyCode(currencyCode)
-                                .setAddress(address)
+                                .setAddressFrom(address)
                                 .setFee(currentFee)
                         ).getTransferAllBalance(balanceRaw)
                     } else {
@@ -255,31 +267,12 @@ class SendScreen extends Component {
 
             // try slow if not enough for fast
             if (current === false) {
-                currentFee = fees[0].feeForTx
+                currentFee = fees[0]
                 try {
                     current = await (
-                        BlocksoftBalances
+                        BlocksoftTransfer
                             .setCurrencyCode(currencyCode)
-                            .setAddress(address)
-                            .setFee(currentFee)
-                    ).getTransferAllBalance(balanceRaw)
-                } catch (e) {
-                    if (typeof e.code != 'undefined' && e.code === 'ERROR_BALANCE') {
-                        current = false
-                        currentFee = currentFee - e.diff
-                    } else {
-                        throw e
-                    }
-                }
-            }
-
-            // try suggested
-            if (current === false) {
-                try {
-                    current = await (
-                        BlocksoftBalances
-                            .setCurrencyCode(currencyCode)
-                            .setAddress(address)
+                            .setAddressFrom(address)
                             .setFee(currentFee)
                     ).getTransferAllBalance(balanceRaw)
                 } catch (e) {
@@ -333,6 +326,12 @@ class SendScreen extends Component {
         Log.log('addressValidation', addressValidation)
         Log.log('valueValidation', valueValidation)
 
+        let memoValidation = { value: false }
+        if (cryptocurrency.currencyCode === 'XRP') {
+            memoValidation = await this.memoInput.handleValidate() //@misha todo validation empty or 0-4294967295
+        }
+
+
         if (addressValidation.status == 'success' && valueValidation.status == 'success' && valueValidation.value != 0) {
 
             Keyboard.dismiss()
@@ -363,6 +362,7 @@ class SendScreen extends Component {
             setLoaderStatus(true)
 
             const amount = this.state.inputType === 'FIAT' ? this.state.amountEquivalent : valueValidation.value
+            const memo = memoValidation.value
 
             try {
 
@@ -371,7 +371,7 @@ class SendScreen extends Component {
                 let balanceRaw = amountRaw * 2
                 try {
                     let tmp = await BlocksoftBalances.setCurrencyCode(account.currency_code).setAddress(account.address).getBalance()
-                    balanceRaw = BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) // to think show this as option or no
+                    balanceRaw = tmp ? BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) : 0 // to think show this as option or no
                     Log.log(`SendScreen.handleSendTransaction balance ${account.currency_code} ${account.address} data`, tmp)
                 } catch (e) {
                     if (e.message === 'node.is.out') {
@@ -385,7 +385,7 @@ class SendScreen extends Component {
                 let mainAddressBalanceRaw = null
                 if (typeof cryptocurrency.feesCurrencyCode != 'undefined') {
                     let tmp = await BlocksoftBalances.setCurrencyCode(cryptocurrency.feesCurrencyCode).setAddress(account.address).getBalance()
-                    mainAddressBalanceRaw = tmp.balance
+                    mainAddressBalanceRaw = tmp ? tmp.balance : 0
                     Log.log(`SendScreen.handleSendTransaction fees balance ${account.feesCurrencyCode} ${account.address} data`, tmp)
                 }
 
@@ -423,6 +423,7 @@ class SendScreen extends Component {
 
                 setTimeout(() => {
                     let data = {
+                        memo,
                         amount: amount.toString(),
                         amountRaw,
                         address: addressValidation.value,
@@ -437,8 +438,8 @@ class SendScreen extends Component {
                         data
                     })
 
-
                     MarketingEvent.checkSellConfirm({
+                        memo : memo.toString(),
                         currency_code: cryptocurrency.currencyCode,
                         address_from : account.address,
                         address_to : data.address,
@@ -502,7 +503,7 @@ class SendScreen extends Component {
             })
         }
 
-        const amount = this.state.inputType === 'CRYPTO' ? FiatRatesActions.toLocalCurrency(1 * (currency_rate_usd * (!value ? 0 : value)).toFixed(10)) : 1 * ((!value ? 0 : value) / FiatRatesActions.toLocalCurrency(currency_rate_usd)).toFixed(10)
+        const amount = this.state.inputType === 'CRYPTO' ? utils.prettierNumber(FiatRatesActions.toLocalCurrency(1 * (currency_rate_usd * (!value ? 0 : value)), false), 2) : 1 * ((!value ? 0 : value) / FiatRatesActions.toLocalCurrency(currency_rate_usd)).toFixed(10)
         const symbol = this.state.inputType === 'CRYPTO' ? local_currency : currencySymbol
 
         this.setState({
@@ -636,6 +637,19 @@ class SendScreen extends Component {
                                 </Button>
                                 : <Text/>
                             }
+                            {currencyCode === 'XRP'
+                                ? <View style={{ flexDirection: 'row' }}>
+                                    <MemoInput
+                                        ref={component => this.memoInput = component}
+                                        id={memoInput.id}
+                                        name={strings('send.xrp_memo')}
+                                        type={'text'}
+                                        autoFocus={true}
+                                        onFocus={() => this.onFocus()}
+                                    />
+                                </View>
+                                : <Text/>
+                            }
                             <View style={{ flexDirection: 'row' }}>
                                 <AmountInput
                                     ref={component => this.valueInput = component}
@@ -692,7 +706,7 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps, {})(SendScreen)
 
 const styles_ = {
-    array: ['#fff', '#fff'],
+    array: ['#f9f9f9', '#f9f9f9'],
     start: { x: 0.0, y: 0 },
     end: { x: 0, y: 1 }
 }

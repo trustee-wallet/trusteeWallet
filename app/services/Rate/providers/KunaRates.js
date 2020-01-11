@@ -15,9 +15,8 @@ export default class KunaRates {
     /**
      * could be changed to some our proxy later
      * @type {string}
-     * @private
      */
-    _URL = 'https://api.kuna.io/v3/exchange-rates'
+    URL = 'https://api.kuna.io/v3/exchange-rates'
 
     /**
      * time to store cached response not to ask twice (ms)
@@ -48,7 +47,7 @@ export default class KunaRates {
         const now = new Date().getTime()
         let provider = 'kuna'
         if (now - this._cachedTime > this._CACHE_VALID_TIME) {
-            Log.log('DMN/KunaRates link ' + this._URL)
+            Log.log('DMN/KunaRates link ' + this.URL)
             /**
              * @param {string} resData.data[].currency
              * @param {string} resData.data[].usd
@@ -58,7 +57,7 @@ export default class KunaRates {
              * @param {string} resData.data[].eur
              * @param {string} resData.data[].rub
              */
-            const resData = await axios.get(this._URL)
+            const resData = await axios.get(this.URL)
             if (!resData.data || !resData.data[0] || !resData.data[0].currency) {
                 throw new Error(resData.data)
             }
@@ -73,14 +72,14 @@ export default class KunaRates {
         }
 
         if (typeof this._cachedData[params.currencyCode] === 'undefined') {
-            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' doesnt exists ' + JSON.stringify(Object.keys(this._cachedData)))
+            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' wrong code = doesnt exists ' + JSON.stringify(Object.keys(this._cachedData)))
         }
         const rate = this._cachedData[params.currencyCode]
         if (!rate) {
-            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' is null ' + JSON.stringify(Object.keys(this._cachedData)))
+            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' wrong code = is null ' + JSON.stringify(Object.keys(this._cachedData)))
         }
         if (!rate.usd) {
-            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' doesnt trade with usd ' + JSON.stringify(rate))
+            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' wrong code = doesnt trade with usd ' + JSON.stringify(rate))
         }
         return { amount: rate.usd, provider }
     }

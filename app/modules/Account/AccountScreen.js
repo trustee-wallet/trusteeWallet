@@ -20,8 +20,9 @@ import Orders from './elements/Orders'
 import MaterialCommunity from 'react-native-vector-icons/MaterialCommunityIcons'
 import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import AntDesign from 'react-native-vector-icons/AntDesign'
 
-import { capitalize, copyToClipboard, normalizeWithDecimals } from '../../services/utils'
+import utils, { capitalize, copyToClipboard, normalizeWithDecimals } from '../../services/utils'
 
 import { clearSendData, setSendData } from '../../appstores/Actions/SendActions'
 import { setLoaderStatus, setSelectedAccount } from '../../appstores/Actions/MainStoreActions'
@@ -32,7 +33,7 @@ import { showModal } from '../../appstores/Actions/ModalActions'
 
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
-import BlocksoftInvoice from '../../../crypto/actions/BlocksoftInvoice/BlocksoftInvoice'
+//import BlocksoftInvoice from '../../../crypto/actions/BlocksoftInvoice/BlocksoftInvoice'
 
 import firebase from 'react-native-firebase'
 
@@ -51,6 +52,8 @@ import FiatRatesActions from '../../appstores/Actions/FiatRatesActions'
 import Theme from '../../themes/Themes'
 import AccountActions from '../../appstores/Actions/AccountActions'
 import BlocksoftBalances from '../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import CurrencyIcon from '../../components/elements/CurrencyIcon'
+import LetterSpacing from '../../components/elements/LetterSpacing'
 let styles
 
 class Account extends Component {
@@ -443,7 +446,7 @@ class Account extends Component {
                                                                     { ' | '}
                                                                 </Text>
                                                                 <View style={{ marginRight: 3, marginTop: 1 }}>
-                                                                    <MaterialCommunity name="progress-check" size={12} color={"#999999"} />
+                                                                    <MaterialCommunity name="progress-check" size={12} color={"#808080"} />
                                                                 </View>
                                                                 <Text style={styles.transaction__subtext}>
                                                                     { blockConfirmations }
@@ -465,7 +468,9 @@ class Account extends Component {
                                                         </View>
                                                         <View>
                                                             <Text style={[styles.transaction__expand, styles.textAlign_right, !blockConfirmations ? styles.transaction__new : null]}>- {prettieAmount} {cryptocurrency.currencySymbol}</Text>
-                                                            <Text style={{ ...styles.transaction__subtext, ...styles.textAlign_right }}>{ localCurrencySymbol } { FiatRatesActions.toLocalCurrency(prettieAmount * cryptocurrency.currency_rate_usd) }</Text>
+                                                            <Text style={{ ...styles.transaction__subtext, ...styles.textAlign_right }}>
+                                                                { localCurrencySymbol } { utils.prettierNumber(FiatRatesActions.toLocalCurrency(prettieAmount * cryptocurrency.currency_rate_usd, false),2) }
+                                                            </Text>
                                                         </View>
                                                     </TouchableOpacity>
                                                 </View>
@@ -504,7 +509,7 @@ class Account extends Component {
                                                                 </Text>
                                                                 <View style={{ marginRight: 3, marginTop: 1 }}>
                                                                     <MaterialCommunity name="progress-check" size={12}
-                                                                                       color={"#999999"}/>
+                                                                                       color={"#808080"}/>
                                                                 </View>
                                                                 <Text style={styles.transaction__subtext}>
                                                                     {blockConfirmations}
@@ -561,9 +566,9 @@ class Account extends Component {
 
     renderAddressTooltip = (props) => {
         return (
-            <Text style={styles.topContent__address}>
-                { props.address.slice(0, 10) + '...' + props.address.slice(props.address.length - 8, props.address.length) }
-            </Text>
+            <View style={styles.topContent__address}>
+                <LetterSpacing text={props.address.slice(0, 10) + '...' + props.address.slice(props.address.length - 8, props.address.length)} textStyle={styles.topContent__address} letterSpacing={1} />
+            </View>
         )
     }
 
@@ -587,13 +592,13 @@ class Account extends Component {
         const contentHeight = dataLength ? (Platform.OS === 'android' ? 62.3 : 58.7) * dataLength + ((Platform.OS === 'android' ? 62.3 : 58.7) * dataLength < SCREEN_HEIGHT - 450 ? SCREEN_HEIGHT - 450 : 40) : SCREEN_HEIGHT - 450
 
         let prettieUsdBalance = (cryptocurrency.currency_rate_usd * prettieBalance).toFixed(5) == 0.00000 ? 0 : (cryptocurrency.currency_rate_usd * prettieBalance).toFixed(5)
-        
-        console.log({
+
+        /*console.log({
             currency_code : this.props.account.currency_code,
             address : this.props.account.address,
             state_balance :  this.state.balance,
             props_balance : this.props.account.balance
-        })
+        })*/
 
         prettieUsdBalance = +prettieUsdBalance
 
@@ -626,50 +631,19 @@ class Account extends Component {
                         <View style={styles.topContent}>
                             <View style={stl.topContent__content}>
                                 <View style={styles.topContent__top}>
-                                    <View style={{ position: 'absolute', width: '100%', height: 140, zIndex: 1 }}>
-                                        <View style={{
-                                            position: 'relative',
-                                            width: '100%',
-                                            height: '100%',
-                                            backgroundColor: '#f6f6f6',
-                                            borderRadius: 15,
-                                            shadowColor: '#000',
-                                            shadowOffset: {
-                                                width: 0,
-                                                height: 2
-                                            },
-                                            shadowOpacity: 0.23,
-                                            shadowRadius: 2.62,
-
-                                            elevation: 4
-                                        }}>
-                                            <Image
-                                                style={styles.topBlock__top_bg}
-                                                resizeMode='stretch'
-                                                source={require('../../assets/images/accountBg.png')}/>
-                                        </View>
-                                    </View>
-                                    <View style={{ position: 'absolute', alignItems: 'center', left: 0, top: 0, width: '100%', height: '100%', zIndex: 2 }}>
-                                        <View style={styles.topContent__title}>
-                                            <Text style={styles.topContent__title_first}>
-                                                {
-                                                    typeof prettieBalance.toString().split('.')[1] != 'undefined' ? prettieBalance.toString().split('.')[0] + '.' : prettieBalance.toString().split('.')[0]
-                                                }
-                                            </Text>
-                                            <Text style={styles.topContent__title_last}>
-                                                {
-                                                    typeof prettieBalance.toString().split('.')[1] != 'undefined' ? prettieBalance.toString().split('.')[1].slice(0, 7) + ' ' + cryptocurrency.currencySymbol : ' ' + cryptocurrency.currencySymbol
-                                                }
-                                            </Text>
-                                        </View>
-                                        <Text style={styles.topContent__subtitle}>
-                                            { localCurrencySymbol } { FiatRatesActions.toLocalCurrency(prettieUsdBalance) }
+                                    <View style={styles.topContent__title}>
+                                        <Text style={styles.topContent__title_first}>
+                                            {
+                                                typeof prettieBalance.toString().split('.')[1] != 'undefined' ? prettieBalance.toString().split('.')[0] + '.' : prettieBalance.toString().split('.')[0]
+                                            }
                                         </Text>
-                                        <ButtonIcon
-                                            style={styles.topContent__buttonLine}
-                                            icon={cryptocurrency.currencyCode}
-                                            callback={() => this.handleOpenLink()}/>
+                                        <Text style={styles.topContent__title_last}>
+                                            {
+                                                typeof prettieBalance.toString().split('.')[1] != 'undefined' ? prettieBalance.toString().split('.')[1].slice(0, 7) + ' ' + cryptocurrency.currencySymbol : ' ' + cryptocurrency.currencySymbol
+                                            }
+                                        </Text>
                                     </View>
+                                    <LetterSpacing text={localCurrencySymbol + " " + utils.prettierNumber(FiatRatesActions.toLocalCurrency(prettieUsdBalance, false), 2)} textStyle={styles.topContent__subtitle} letterSpacing={.5} />
                                 </View>
                                 <View style={styles.topContent__middle}>
                                     <ToolTips showAfterRender={true} height={100} type={'ACCOUNT_SCREEN_ADDRESS_TIP'} cryptocurrency={cryptocurrency} mainComponentProps={{ address }} MainComponent={this.renderAddressTooltip} />
@@ -677,25 +651,68 @@ class Account extends Component {
                                         <Text style={styles.copyBtn__text}>
                                             {strings('account.copy')}
                                         </Text>
-                                        <View style={styles.copyBtn__icon} >
-                                            <Copy name="content-copy" size={18} color="#8040bf"/>
+                                        <View style={styles.copyBtn__icon}>
+                                            <Copy name="content-copy" size={15} color="#8040bf"/>
                                         </View>
                                     </TouchableOpacity>
                                 </View>
                                 <View style={styles.topContent__bottom}>
-                                    <Button onPress={this.handleReceive} styles={{ flex: 1 }}>
-                                        { strings('account.receive', { receive: strings('repeat.receive') } )}
-                                    </Button>
-                                    <View style={styles.topContent__whiteBox}/>
-                                    <Button onPress={this.handleSend} styles={{ flex: 1 }}>
-                                        { strings('account.send') }
-                                    </Button>
+                                    <TouchableOpacity style={{ padding: 20, alignItems: "center", }} onPress={this.handleReceive}>
+                                        <View style={{ position: "relative", alignItems: "center", width: 50, height: 50 }}>
+                                            <GradientView style={stl.topContent__bottom__btn__wrap} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end} >
+                                                <View style={stl.topContent__bottom__btn}>
+                                                    <AntDesign name={"arrowdown"} size={18} color="#864DD9" />
+                                                    <View style={stl.topContent__bottom__btn__line} />
+                                                </View>
+                                            </GradientView>
+                                            <View style={stl.topContent__bottom__btn__shadow}>
+                                                <View style={stl.topContent__bottom__btn__shadow__item} />
+                                            </View>
+                                            <View style={stl.topContent__bottom__btn__white} />
+                                        </View>
+                                        <Text style={stl.topContent__bottom__btn__text}>
+                                            { strings('account.receive', { receive: strings('repeat.receive') } )}
+                                        </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={{ position: "relative", padding: 20, alignItems: "center", }} onPress={() => this.handleOpenLink()}>
+                                        <View style={{ position: "relative", alignItems: "center", width: 50, height: 50 }}>
+                                            <GradientView style={stl.topContent__icon} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end} />
+                                            <View style={{ position: "absolute", alignItems: "center", justifyContent: "center", top: 0, left: 0, bottom: 0, right: 0, zIndex: 3 }}>
+                                                <CurrencyIcon currencyCode={cryptocurrency.currencyCode}
+                                                              containerStyle={{ borderWidth: 0 }}
+                                                              markStyle={{ top: 30 }}
+                                                              textContainerStyle={{ bottom: -19 }}
+                                                              textStyle={{ backgroundColor: "transparent" }}/>
+                                            </View>
+                                            <View style={{...stl.topContent__bottom__btn__shadow}}>
+                                                <View style={stl.topContent__bottom__btn__shadow__item} />
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={{ padding: 20, alignItems: "center", }} onPress={this.handleSend}>
+                                        <View style={{ position: "relative", alignItems: "center", width: 50, height: 50  }}>
+                                            <View style={{ position: "relative", zIndex: 2 }}>
+                                                <GradientView style={stl.topContent__bottom__btn__wrap} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end} >
+                                                    <View style={stl.topContent__bottom__btn}>
+                                                        <AntDesign name={"arrowup"} size={18} color="#864DD9" />
+                                                        <View style={stl.topContent__bottom__btn__line} />
+                                                    </View>
+                                                </GradientView>
+                                            </View>
+                                            <View style={stl.topContent__bottom__btn__shadow}>
+                                                <View style={stl.topContent__bottom__btn__shadow__item} />
+                                            </View>
+                                            <View style={stl.topContent__bottom__btn__white} />
+                                        </View>
+                                        <Text style={stl.topContent__bottom__btn__text}>
+                                            { strings('account.send') }
+                                        </Text>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
+                            <GradientView style={stl.bg} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end} />
                             <View style={stl.topContent__bg}>
-                                <View style={styles.shadow}>
-
-                                </View>
+                                <View style={styles.shadow} />
                             </View>
                         </View>
                         <View style={styles.dots}>
@@ -735,7 +752,7 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(mapStateToProps, mapDispatchToProps)(Account)
 
 const styles_ = {
-    array: ['#fff', '#fff'],
+    array: ['#f9f9f9', '#f9f9f9'],
     start: { x: 0.0, y: 0 },
     end: { x: 0, y: 1 }
 }
@@ -756,17 +773,123 @@ const line = {
 }
 
 const stl = StyleSheet.create({
+    bg: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+
+        width: "100%",
+        height: 220,
+
+        zIndex: 1,
+
+        borderRadius: 16
+    },
     topContent__content: {
         position: 'relative',
         //justifyContent: 'flex-end',
-        zIndex: 1
+        zIndex: 2,
+        borderRadius: 16,
     },
     topContent__bg: {
         position: 'absolute',
         top: 0,
-        left: -15,
-        right: -15,
-        bottom: 20,
+        left: 0,
+        width: "100%",
+        height: 210,
+        borderRadius: 16,
+
         zIndex: 0
+    },
+    topContent__icon: {
+        position: "relative",
+
+        width: 50,
+        height: 50,
+
+        backgroundColor: "#fff",
+        borderRadius: 30,
+
+        zIndex: 1,
+    },
+    topContent__bottom__btn: {
+
+        justifyContent: "center",
+        alignItems: "center",
+
+        width: 50,
+        height: 50,
+
+        borderRadius: 50,
+    },
+    topContent__bottom__btn__white: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+
+        width: 50,
+        height: 50,
+
+        backgroundColor: "#fff",
+        borderRadius: 50,
+
+        zIndex: 1,
+    },
+    topContent__bottom__btn__wrap: {
+        position: "relative",
+
+        width: 50,
+        height: 50,
+
+        borderRadius: 50,
+
+        zIndex: 2
+    },
+    topContent__bottom__btn__line: {
+        width: 16,
+        height: 1.5,
+
+        marginTop: 2,
+
+        backgroundColor: "#864DD9"
+    },
+    topContent__bottom__btn__shadow: {
+        position: "absolute",
+        top: 10,
+        left: 3,
+
+        width: 44,
+        height: 44,
+
+        zIndex: 0,
+
+        borderRadius: 30
+    },
+    topContent__bottom__btn__shadow__item: {
+        width: 44,
+        height: 40,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+
+        elevation: 5,
+
+        backgroundColor: "#fff",
+        borderRadius: 50,
+
+        zIndex: 0
+    },
+    topContent__bottom__btn__text: {
+        marginTop: 5,
+
+        fontSize: 12,
+        color: "#999",
+        textAlign: "center",
+        fontFamily: "SFUIDisplay-Regular"
     }
 })

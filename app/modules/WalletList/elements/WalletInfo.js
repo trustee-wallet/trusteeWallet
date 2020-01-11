@@ -16,8 +16,11 @@ import {
 } from 'react-native'
 
 import AsyncStorage from "@react-native-community/async-storage"
+import DeviceInfo from "react-native-device-info"
+import Snow from "react-native-snow"
 
 import Entypo from "react-native-vector-icons/Entypo"
+import Fontisto from "react-native-vector-icons/Fontisto"
 import Feather from "react-native-vector-icons/Feather"
 import moment from "moment"
 import "moment/min/locales.min"
@@ -42,6 +45,8 @@ import LetterSpacing from '../../../components/elements/LetterSpacing'
 
 import currencyDS from "../../../appstores/DataSource/Currency/Currency"
 
+const hasNotch = DeviceInfo.hasNotch()
+
 
 class WalletInfo extends Component {
 
@@ -63,8 +68,15 @@ class WalletInfo extends Component {
 
         moment.locale(i18n.locale.split("-")[0])
 
-        let isViolet = await AsyncStorage.getItem("isViolet")
-        isViolet = isViolet !== null ? JSON.parse(isViolet) : false
+        AsyncStorage.getItem("isViolet").then(res => {
+            let isViolet = res
+            isViolet = isViolet !== null ? JSON.parse(isViolet) : false
+
+            this.setState(({
+                isViolet,
+                styles: isViolet ? styles_violet : styles
+            }))
+        })
 
         const { currencies } = this.props.main
         const tmpCurrencies = currencies.filter(item => item.is_hidden == 0 )
@@ -98,8 +110,6 @@ class WalletInfo extends Component {
             iconName,
             balanceChange,
             totalBalance,
-            isViolet,
-            styles: isViolet ? styles_violet : styles
         })
     }
 
@@ -245,7 +255,6 @@ class WalletInfo extends Component {
 
         return (
             <View style={{...styles.wrapper}}>
-
                 <View style={styles.top}>
                     <View style={{ width: 48, height: 25 }}>
                         {
@@ -262,7 +271,6 @@ class WalletInfo extends Component {
                                     onValueChange = {this.toggleViolet}
                                     value = {this.state.isViolet}/>
                         }
-
                     </View>
                     <View>
                         <LetterSpacing text={selectedWallet.wallet_name} textStyle={styles.top__title} letterSpacing={0.5} />
@@ -291,12 +299,19 @@ class WalletInfo extends Component {
                                 <Text style={{...styles.walletInfo__text_small, ...styles.walletInfo__text_small_first}}>{ localCurrencySymbol } </Text>
                                 <Text style={styles.walletInfo__text_middle}>{typeof totalBalance.split('.')[1] != 'undefined' ? totalBalance.split('.')[0] : totalBalance.split('.')[0]}</Text>
                                 <Text style={styles.walletInfo__text_small}>{typeof totalBalance.split('.')[1] != 'undefined' ? '.' + totalBalance.split('.')[1].substr(0, 5) : ''}</Text>
-                                <Feather name={iconName} style={styles.walletInfo__icon} />
+                                {/*<Feather name={iconName} style={styles.walletInfo__icon} />*/}
                             </View>
                             <View style={styles.container__text}>
-                                <LetterSpacing text={changedLastDay} textStyle={styles.container__text} letterSpacing={1} />
+                                {/*<LetterSpacing text={changedLastDay} textStyle={styles.container__text} letterSpacing={1} />*/}
                             </View>
                         </GradientView>
+                        {
+                            this.props.isSnow ?
+                                <TouchableOpacity style={{ position: "absolute", bottom: 0, right: 0, padding: 16 }} onPress={this.props.toggleSnow}>
+                                    <Fontisto style={styles.snowBtn__icon} name="snowflake-8" size={20} />
+                                </TouchableOpacity> : null
+                        }
+
                     </View>
                     <View style={styles.shadow}>
                         <View style={styles.shadow__item} />
@@ -354,7 +369,7 @@ const styles = {
         alignItems: 'center',
 
         marginHorizontal: 16,
-        marginTop: Platform.OS === 'android' ? 20 : 0
+        marginTop: Platform.OS === 'android' ? 35 : 0
     },
     top__title: {
         fontFamily: "Montserrat-Bold",
@@ -371,7 +386,7 @@ const styles = {
         left: 0,
 
         width: '100%',
-        height: 134,
+        height: 127,
 
         zIndex: 1
     },
@@ -379,7 +394,7 @@ const styles = {
 
         marginHorizontal: 22,
         marginTop: 18,
-        height: 129,
+        height: 122,
 
         backgroundColor: "#fff",
 
@@ -398,7 +413,7 @@ const styles = {
     container: {
         position: 'relative',
 
-        height: 147,
+        height: 140,
         marginHorizontal: 16,
 
         // shadowOffset: {
@@ -565,7 +580,9 @@ const styles = {
 
         color: '#864DD9'
     },
-
+    snowBtn__icon: {
+        color: "#864DD9"
+    }
 }
 
 const styles_violet = {
@@ -578,7 +595,7 @@ const styles_violet = {
         alignItems: 'center',
 
         marginHorizontal: 16,
-        marginTop: Platform.OS === 'android' ? 20 : 0
+        marginTop: Platform.OS === 'android' ? 35 : 0
     },
     top__title: {
         fontFamily: "Montserrat-Bold",
@@ -595,7 +612,7 @@ const styles_violet = {
         left: 0,
 
         width: '100%',
-        height: 134,
+        height: 127,
 
         zIndex: 1
     },
@@ -603,7 +620,7 @@ const styles_violet = {
 
         marginHorizontal: 22,
         marginTop: 18,
-        height: 129,
+        height: 122,
 
         backgroundColor: "#fff",
 
@@ -622,7 +639,7 @@ const styles_violet = {
     container: {
         position: 'relative',
 
-        height: 147,
+        height: 140,
         marginHorizontal: 16,
 
         // shadowOffset: {
@@ -788,5 +805,8 @@ const styles_violet = {
         marginTop: 1,
 
         color: '#F3E6FF'
+    },
+    snowBtn__icon: {
+        color: "#F3E6FF"
     }
 }

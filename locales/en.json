@@ -50,7 +50,8 @@
    "homeScreen": {
      "balance": "Balance",
      "today": "Today",
-     "changedLastDay": "In the last 24 hours"
+     "changedLastDay": "In the last 24 hours",
+     "assets": "Assets"
    },
    "walletCreateScreen": {
      "title": "BUY SELL EXCHANGE ANONYMOUSLY",
@@ -124,7 +125,7 @@
      "networkFee": "network fee",
      "info": "Info",
      "withdrawAddress": "Destination address",
-     "withdrawCardNumber": "Card number for payout",
+     "withdrawCardNumber": "Card for payout",
      "total": "Total:",
      "submitBtnBuy": "Buy",
      "submitBtnSell": "Sell",
@@ -207,7 +208,7 @@
   },
   "account": {
     "title": "Account",
-    "copy": "CLICK TO COPY",
+    "copy": "Click to copy",
     "receive": "%{receive}",
     "send": "Send",
     "history": "Transaction history",
@@ -350,6 +351,7 @@
     "descriptionExchange": "The recipient's wallet address is set automatically. This is the address of the exchange provider. Assets exchange and payout will be executed after a successful transaction",
     "address": "Destination address",
     "value": "value",
+    "xrp_memo": "Destination tag",
     "send": "Send",
     "useAllFunds": "Use all funds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
@@ -373,9 +375,15 @@
         "btc_speed_blocks_6": "Medium",
         "btc_speed_blocks_2": "Fast",
 
+        "bch_speed_blocks_12": "Slow",
+        "bch_speed_blocks_6": "Medium",
+        "bch_speed_blocks_2": "Fast",
+
         "ltc_speed_blocks_12": "Slow",
         "ltc_speed_blocks_6": "Medium",
-        "ltc_speed_blocks_2": "Fast"
+        "ltc_speed_blocks_2": "Fast",
+
+        "xrp_speed_one" : "Fast"
       },
       "time": {
         "eth_speed_slow": "~ 30 minutes",
@@ -386,9 +394,15 @@
         "btc_speed_blocks_6": "~ 60 minutes",
         "btc_speed_blocks_2": "~ 15 minutes",
 
+        "bch_speed_blocks_12": "~ 120 minutes",
+        "bch_speed_blocks_6": "~ 60 minutes",
+        "bch_speed_blocks_2": "~ 20* minutes",
+
         "ltc_speed_blocks_12": "~ 120 minutes",
         "ltc_speed_blocks_6": "~ 20 minutes",
-        "ltc_speed_blocks_2": "~ 5 minutes"
+        "ltc_speed_blocks_2": "~ 5 minutes",
+
+        "xrp_speed_one" : "~ 1 minutes"
       },
       "customFee": {
         "fixedFeeTitle": "FIXED FEE",
@@ -407,8 +421,14 @@
     },
     "errors": {
       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Not enough balance in native coin %{symbol} to send",
+      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Not enough confirmed balance in native coin %{symbol} to send - please wait for other transactions to be mined",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Transaction fee too small",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Transaction amount too small",
-      "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Nothing to transfer"
+      "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Nothing to transfer",
+      "SERVER_RESPONSE_NO_RESPONSE" : "Server not accepting transaction - please wait for other transactions to be mined",
+      "SERVER_RESPONSE_NOT_CONNECTED" : "Server not connected - please wait a little bit",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Transaction amount too small for any fee",
+      "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Please wait for other transactions to be mined or turn on usage of unconfirmed transactions"
     }
   },
   "walletBackup": {

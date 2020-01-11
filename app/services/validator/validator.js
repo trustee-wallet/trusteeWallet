@@ -9,8 +9,7 @@
 
 import { strings } from '../i18n'
 import BlocksoftKeys from '../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
-import Console from '../../services/Log/Log'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import BtcCashUtils from '../../../crypto/blockchains/bch/ext/BtcCashUtils'
 
 const networksConstants = require('../../../crypto/common/ext/networks-constants')
 
@@ -101,6 +100,7 @@ async function _userDataValidation(obj) {
             break
 
         case 'WALLET_ADDRESS':
+            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (value.length !== 42) {
@@ -109,6 +109,7 @@ async function _userDataValidation(obj) {
             break
 
         case 'TRX_ADDRESS':
+            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^T[0-9a-zA-Z]{33}$/.test(value)) {
@@ -117,6 +118,7 @@ async function _userDataValidation(obj) {
             break
 
         case 'ETH_ADDRESS':
+            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^0x+[0-9a-fA-F]{40}$/.test(value)) {
@@ -126,22 +128,34 @@ async function _userDataValidation(obj) {
 
         // unified LTC XVG DOGE
         case 'BTC_BY_NETWORK_ADDRESS':
+            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else {
                 if (typeof networksConstants[subtype].network === 'undefined') {
                     Log.err('validator not found network for' + subtype)
                 }
-                try {
-                    let output = bitcoin.address.toOutputScript(value, networksConstants[subtype].network)
-                } catch (e) {
-                    error.msg = strings('validator.invalidFormat', { name: name })
+                let checkValues = [value]
+                if (value.indexOf(';') !== -1) {
+                    checkValues = value.split(';')
+                }
+                for (let checkValue of checkValues) {
+                    checkValue = checkValue.trim()
+                    if (subtype === 'bitcoincash') { //clone not to overwrite
+                        checkValue = BtcCashUtils.toLegacyAddress(checkValue)
+                    }
+                    try {
+                        let output = bitcoin.address.toOutputScript(checkValue, networksConstants[subtype].network)
+                    } catch (e) {
+                        error.msg = strings('validator.invalidFormat', { name: name })
+                    }
                 }
             }
             break
         // actually could be unified to prev ones (as its the same)
         case 'BTC_ADDRESS':
         case 'BITCOIN_ADDRESS':
+            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else {
@@ -200,7 +214,7 @@ async function _userDataValidation(obj) {
             }
             break
 
-        case 'UNEFINED':
+        case 'UNDEFINED':
             if (typeof value === 'undefined') {
                 error.msg = strings('validator.empty', { name: name })
             }

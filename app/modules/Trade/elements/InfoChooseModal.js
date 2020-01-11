@@ -27,17 +27,29 @@ export class CongratsModal extends Component {
     }
 
     handleHide = () => {
-        hideModal();
-    };
+        const { data } = this.props;
+        const { declineCallback } = data.data
+
+        typeof declineCallback != "undefined" ? declineCallback() : null
+        hideModal()
+    }
 
     render() {
         const { show, data } = this.props;
-        const { title, description, declineCallback, acceptCallback } = data.data;
+        const { title, description, declineCallback, acceptCallback, hideBottom } = data.data;
 
         return (
             <Modal style={styles.modal} hasBackdrop={false} isVisible={show}>
                 <View style={styles.content}>
-                    <GradientView style={styles.bg} array={styles_.array} start={styles_.start} end={styles_.end}>
+                    <GradientView style={[styles.bg, typeof hideBottom != "undefined" && hideBottom ? { borderRadius: 15, shadowColor: "#000",
+                        shadowOffset: {
+                            width: 0,
+                            height: 2,
+                        },
+                        shadowOpacity: 0.23,
+                        shadowRadius: 2.62,
+
+                        elevation: 4, } : null ]} array={styles_.array} start={styles_.start} end={styles_.end}>
                         <Text style={styles.title}>
                             { title }
                         </Text>
@@ -48,15 +60,17 @@ export class CongratsModal extends Component {
                             <Cross name={'cross'} size={30} color={'#fff'} />
                         </TouchableOpacity>
                     </GradientView>
-
-                    <View style={styles.bottom}>
-                        <Button press={() => declineCallback()} styles={styles.btn}>
-                            { strings('modal.infoChoose.decline') }
-                        </Button>
-                        <ButtonLine press={() => acceptCallback()} styles={styles.btn}>
-                            { strings('modal.infoChoose.accept') }
-                        </ButtonLine>
-                    </View>
+                    {
+                        typeof hideBottom != "undefined" && hideBottom ? null :
+                            <View style={styles.bottom}>
+                                <Button press={() => declineCallback()} styles={styles.btn}>
+                                    { strings('modal.infoChoose.decline') }
+                                </Button>
+                                <ButtonLine press={() => acceptCallback()} styles={styles.btn}>
+                                    { strings('modal.infoChoose.accept') }
+                                </ButtonLine>
+                            </View>
+                    }
                 </View>
             </Modal>
         )

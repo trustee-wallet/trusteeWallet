@@ -50,7 +50,8 @@
    "homeScreen": {
      "balance": "Баланс",
      "today": "Сьогодні",
-     "changedLastDay": "За останні 24 години"
+     "changedLastDay": "За останні 24 години",
+     "assets": "Активи"
    },
    "walletCreateScreen": {
      "title": "КУПУЙ ПРОДАВАЙ ОБМІНЮЙ АНОНІМНО",
@@ -124,7 +125,7 @@
      "networkFee": "комісія мережі",
      "info": "Info",
      "withdrawAddress": "Адреса до зарахування",
-     "withdrawCardNumber": "Номер картки для виплати",
+     "withdrawCardNumber": "Картка для виплати",
      "total": "Сума:",
      "submitBtnBuy": "Покупка",
      "submitBtnSell": "Продаж",
@@ -351,6 +352,7 @@
     "address": "Адреса отримувача",
     "value": "Сума",
     "send": "Відправити",
+    "xrp_memo": "Тег призначення",
     "useAllFunds": "Відправити все",
     "equivalent": "Еквівалент: ~ %{amount} %{symbol}",
     "notEnough": "У Вас недостатньо коштів для відправки",
@@ -373,9 +375,14 @@
         "btc_speed_blocks_6": "Середньо",
         "btc_speed_blocks_2": "Швидко",
 
+        "bch_speed_blocks_12": "Повільно",
+        "bch_speed_blocks_6": "Середньо",
+        "bch_speed_blocks_2": "Швидко",
+
         "ltc_speed_blocks_12": "Повільно",
         "ltc_speed_blocks_6": "Середньо",
-        "ltc_speed_blocks_2": "Швидко"
+        "ltc_speed_blocks_2": "Швидко",
+        "xrp_speed_one" : "Швидко"
       },
       "time": {
         "eth_speed_slow": "~ 30 хвилин",
@@ -386,9 +393,15 @@
         "btc_speed_blocks_6": "~ 60 хвилин",
         "btc_speed_blocks_2": "~ 15 хвилин",
 
+        "bch_speed_blocks_12": "~ 120 хвилин",
+        "bch_speed_blocks_6": "~ 60 хвилин",
+        "bch_speed_blocks_2": "~ 20* хвилин",
+
         "ltc_speed_blocks_12": "~ 120 хвилин",
         "ltc_speed_blocks_6": "~ 20 хвилин",
-        "ltc_speed_blocks_2": "~ 5 хвилин"
+        "ltc_speed_blocks_2": "~ 5 хвилин",
+
+        "xrp_speed_one" : "1 хвилина"
       },
       "customFee": {
         "fixedFeeTitle": "ФІКСОВАНА\nКОМІСІЯ",
@@ -408,7 +421,13 @@
     "errors": {
       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Недостатньо коштів нативної монети %{symbol} для надсилання",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Занадто мала сума транзакції",
-      "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Недостатньо коштів для транзакції"
+      "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Недостатньо коштів для транзакції",
+      "SERVER_RESPONSE_NO_RESPONSE" : "Сервер не прийняв транзакцію - будь ласка, зачекайте поки замайняться iншi транзакції",
+      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Недостатньо пiдтверджених коштів нативної монети %{symbol} для надсилання -  будь ласка, зачекайте поки замайняться iншi транзакції",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Занадто мала сума платнi за транзакцію",
+      "SERVER_RESPONSE_NOT_CONNECTED": "Сервер не прийняв запит - будь ласка, спробуйте через хвилину",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостатньо коштів для транзакції та мiнiмальної платнi",
+      "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Будь ласка, зачекайте поки замайняться iншi транзакції або ввiмкнiть використання непiдтвердженних транзакцій"
     }
   },
   "walletBackup": {

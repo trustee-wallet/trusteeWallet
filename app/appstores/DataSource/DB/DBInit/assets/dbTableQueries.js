@@ -178,6 +178,19 @@ export default {
             )`,
         },
         {
+            tableName: 'transactions_created_inputs',
+            queryString: `CREATE TABLE IF NOT EXISTS transactions_created_inputs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                currency_code VARCHAR(256) NULL,                
+                input_address VARCHAR(256) NULL,
+                input_amount INTEGER NULL,
+                input_index INTEGER NULL,
+                from_address VARCHAR(256) NULL,
+                use_tx_id VARCHAR(256) NULL,                
+                created_at DATETIME NULL
+            )`,
+        },
+        {
             tableName: 'transactions_in_trustee_wallet',
             queryString: `CREATE TABLE IF NOT EXISTS transactions_of_trustee_wallet (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -189,6 +202,18 @@ export default {
                 
                 created_at DATETIME NULL,
                 updated_at DATETIME NULL
+            )`,
+        },
+        {
+            tableName: 'transactions_scanners_tmp',
+            queryString: `CREATE TABLE IF NOT EXISTS transactions_scanners_tmp (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                currency_code VARCHAR(256) NULL,     
+                address VARCHAR(256) NULL,           
+                tmp_key VARCHAR(256) NULL,
+                tmp_sub_key VARCHAR(256) NULL,
+                tmp_val TEXT,
+                created_at DATETIME NULL
             )`,
         },
         {

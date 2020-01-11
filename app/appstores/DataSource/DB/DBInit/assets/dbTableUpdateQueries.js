@@ -6,7 +6,7 @@ import BlocksoftDict from '../../../../../../crypto/common/BlocksoftDict'
 import currencyActions from '../../../../Actions/CurrencyActions'
 
 export default {
-    maxVersion: 18,
+    maxVersion: 20,
     updateQuery: {
         1: {
             queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -239,6 +239,35 @@ export default {
 
         18: {
             queryString: `ALTER TABLE wallet ADD COLUMN wallet_is_subscribed_json TEXT NULL`,
+        },
+
+        19 : {
+            queryString : `
+            CREATE TABLE IF NOT EXISTS transactions_created_inputs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                currency_code VARCHAR(256) NULL,                
+                input_address VARCHAR(256) NULL,
+                input_amount INTEGER NULL,
+                input_index INTEGER NULL,
+                from_address VARCHAR(256) NULL,
+                use_tx_id VARCHAR(256) NULL,                
+                created_at DATETIME NULL
+            )
+            `
+        },
+
+        20 : {
+            queryString : `
+            CREATE TABLE IF NOT EXISTS transactions_scanners_tmp (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                currency_code VARCHAR(256) NULL,     
+                address VARCHAR(256) NULL,           
+                tmp_key VARCHAR(256) NULL,
+                tmp_sub_key VARCHAR(256) NULL,
+                tmp_val TEXT,
+                created_at DATETIME NULL
+            )
+            `
         },
 }
 }

@@ -1,43 +1,22 @@
+/**
+ * @version 0.5
+ */
 import BlocksoftUtils from '../../common/BlocksoftUtils'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import EthBasic from './basic/EthBasic'
 
-const Web3 = require('web3')
-
-const CACHE_ERRORS_VALID_TIME = 60000 // 1 minute
-
-const CACHE_ERRORS_BY_LINKS = {}
-
-class EthScannerProcessor {
-
-    constructor(settings) {
-        if (typeof settings === 'undefined' || !settings) {
-            throw new Error('EthScannerProcessor requires settings')
-        }
-        if (typeof settings.network === 'undefined') {
-            throw new Error('EthScannerProcessor requires settings.network')
-        }
-        BlocksoftCryptoLog.log('EthScannerProcessor init started', settings.currencyCode)
-        switch (settings.network) {
-            case 'mainnet':
-            case 'ropsten':
-            case 'kovan' :
-            case 'rinkeby' :
-            case 'goerli' :
-                // noinspection JSUnresolvedVariable
-                this._web3 = new Web3(new Web3.providers.HttpProvider(`https://${settings.network}.infura.io/v3/478e48mushyfgsdfryumlrynh`))
-                this._etherscanSuffix = (settings.network === 'mainnet') ? '' : ('-' + settings.network)
-                this._etherscanApiPath = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&action=txlist&apikey=YourApiKeyToken`
-                break
-            default:
-                throw new Error('while retrieving Ethereum address - unknown Ethereum network specified. Proper values are "mainnet", "ropsten", "kovan", rinkeby". Got : ' + settings.network)
-        }
-        BlocksoftCryptoLog.log('EthScannerProcessor inited')
-    }
+const CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL = {}
+export default class EthScannerProcessor extends EthBasic {
+    /**
+     * @type {number}
+     * @private
+     */
+    _blocksToConfirm = 10
 
     /**
      * @param {string} address
-     * @return {Promise<{int:balance, int:provider}>}
+     * @return {Promise<{balance, unconfirmed, provider}>}
      */
     async getBalance(address) {
         // noinspection JSUnresolvedVariable
@@ -47,63 +26,99 @@ class EthScannerProcessor {
     }
 
     /**
+     * https://etherscan.io/apis#accounts
+     * https://api.etherscan.io/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken&address=0x8b661361Be29E688Dda65b323526aD536c8B3997
+     * https://api.etherscan.io/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken&address=0x8b661361Be29E688Dda65b323526aD536c8B3997
      * @param {string} address
      * @return {Promise<[UnifiedTransaction]>}
      */
     async getTransactions(address) {
-        address = address.trim()
         BlocksoftCryptoLog.log('EthScannerProcessor.getTransactions started', address)
-        let link = `${this._etherscanApiPath}&address=${address}`
-        let tmp = ''
-        try {
-            // noinspection JSUnresolvedFunction
-            tmp = await BlocksoftAxios.get(link)
-        } catch (e) {
-            let now = new Date().getTime()
-            if (typeof CACHE_ERRORS_BY_LINKS[link] === 'undefined' || CACHE_ERRORS_BY_LINKS[link] === 0 || (now - CACHE_ERRORS_BY_LINKS[link] > CACHE_ERRORS_VALID_TIME)) {
-                e.code = 'ERROR_SILENT'
-            } else {
-                e.code = 'ERROR_PROVIDER'
-            }
-            CACHE_ERRORS_BY_LINKS[link] = now
-            throw e
-        }
-        CACHE_ERRORS_BY_LINKS[link] = 0
 
-        if (typeof (tmp.data.result) === 'undefined') {
-            throw new Error('Undefined txs ' + link + ' ' + JSON.stringify(tmp.data))
+        let link = this._etherscanApiPath
+        let logTitle = 'EthScannerProcessor.getTransactions'
+        let isInternal = false
+        if (typeof CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL[address] === 'undefined' || CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL[address] == 2) {
+            CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL[address] = 1
+        } else {
+            CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL[address] = 2
+            link = this._etherscanApiPathInternal
+            logTitle = 'EthScannerProcessor.getTransactions forInternal'
+            isInternal = true
         }
-        if (typeof (tmp.data.result) === 'string') {
-            throw new Error('Undefined txs ' + link + ' ' + tmp.data.res)
+        link += '&address='+ address
+        let tmp = await BlocksoftAxios.getWithoutBraking(link)
+        if (!tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.result === 'undefined') {
+            return []
+        }
+        if (typeof tmp.data.result === 'string') {
+            throw new Error('Undefined txs ' + link + ' ' + tmp.data.result)
         }
 
-        let transactions = await this._unifyTransactions(address, tmp.data.result)
-        BlocksoftCryptoLog.log('EthScannerProcessor.getTransactions finished', address)
+        let transactions = await this._unifyTransactions(address, tmp.data.result, isInternal)
+        
+        BlocksoftCryptoLog.log(logTitle + ' finished', address)
         return transactions
     }
 
-    async _unifyTransactions(address, result) {
+
+    /**
+     * @param {string} address
+     * @param {*} result[]
+     * @param {boolean} isInternal
+     * @returns {Promise<[{UnifiedTransaction}]>}
+     * @private
+     */
+    async _unifyTransactions(address, result, isInternal) {
         let transactions = []
         for (let tx of result) {
-            let transaction = await this._unifyTransaction(address, tx)
-            transactions.push(transaction)
+            let transaction = await this._unifyTransaction(address, tx, isInternal)
+            if (transaction) {
+                transactions.push(transaction)
+            }
         }
         return transactions
     }
 
 
-    async _unifyTransaction(address, transaction) {
+    /**
+     * @param {string} address
+     * @param {Object} transaction
+     * @param {string} transaction.blockNumber 4673230
+     * @param {string} transaction.timeStamp 1512376529
+     * @param {string} transaction.hash
+     * @param {string} transaction.nonce
+     * @param {string} transaction.blockHash
+     * @param {string} transaction.transactionIndex
+     * @param {string} transaction.from
+     * @param {string} transaction.to
+     * @param {string} transaction.value
+     * @param {string} transaction.gas
+     * @param {string} transaction.gasPrice
+     * @param {string} transaction.isError
+     * @param {string} transaction.txreceipt_status
+     * @param {string} transaction.input
+     * @param {string} transaction.type
+     * @param {string} transaction.contractAddress
+     * @param {string} transaction.cumulativeGasUsed
+     * @param {string} transaction.gasUsed
+     * @param {string} transaction.confirmations
+     * @param {boolean} isInternal
+     * @return {UnifiedTransaction}
+     * @protected
+     */
+    async _unifyTransaction(address, transaction, isInternal = false) {
         let confirmations = transaction.confirmations;
         let transaction_status = 'new'
-        if (typeof (transaction.txreceipt_status) === 'undefined' || transaction.txreceipt_status === '1') {
-            if (confirmations > 10) {
+        if (typeof transaction.txreceipt_status === 'undefined' || transaction.txreceipt_status === '1') {
+            if (confirmations > this._blocksToConfirm) {
                 transaction_status = 'success'
             }
         } else if (transaction.isError !== '0') {
             transaction_status = 'fail'
         }
 
-        if (typeof (transaction.timeStamp) === "undefined") {
+        if (typeof transaction.timeStamp === "undefined") {
             new Error(' no transaction.timeStamp error transaction data ' + JSON.stringify(transaction))
         }
         let formattedTime = transaction.timeStamp
@@ -113,7 +128,15 @@ class EthScannerProcessor {
             e.message += ' timestamp error transaction data ' + JSON.stringify(transaction)
             throw e
         }
-        return {
+        if (isInternal) {
+            if (transaction.contractAddress !== '') {
+                return false
+            }
+            if (transaction.type !== 'call') {
+                return false
+            }
+        }
+        let tx = {
             transaction_hash: transaction.hash,
             block_hash: transaction.blockHash,
             block_number: +transaction.blockNumber,
@@ -124,23 +147,19 @@ class EthScannerProcessor {
             address_to: transaction.to,
             address_amount: transaction.value,
             transaction_status,
-            transaction_fee: transaction.cumulativeGasUsed,
-
             contract_address: transaction.contractAddress,
             input_value: transaction.input,
-
-            transaction_json: JSON.stringify({
+        }
+        if (!isInternal) {
+            let additional = {
                 nonce: transaction.nonce,
                 cumulativeGasUsed: transaction.cumulativeGasUsed,
                 gasUsed: transaction.gasUsed,
                 transactionIndex: transaction.transactionIndex
-            })
+            }
+            tx.transaction_json = JSON.stringify(additional)
+            tx.transaction_fee = transaction.cumulativeGasUsed
         }
+        return tx
     }
-}
-
-module.exports.EthScannerProcessor = EthScannerProcessor
-
-module.exports.init = function (settings) {
-    return new EthScannerProcessor(settings)
 }

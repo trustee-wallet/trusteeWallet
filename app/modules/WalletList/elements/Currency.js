@@ -12,6 +12,7 @@ import ToolTips from '../../../components/elements/ToolTips'
 
 import { setSelectedAccount, setSelectedCryptocurrency } from '../../../appstores/Actions/MainStoreActions'
 import FiatRatesActions from '../../../appstores/Actions/FiatRatesActions'
+import utils from '../../../services/utils'
 
 class Currency extends Component {
 
@@ -79,12 +80,12 @@ class Currency extends Component {
                                         {cryptocurrency.currencyName}
                                     </Text>
                                     <Text style={styles.cryptoList__text}>
-                                        { localCurrencySymbol } {cryptocurrency.currency_rate_usd === 0 ? 0 : ((FiatRatesActions.toLocalCurrency(cryptocurrency.currency_rate_usd, false).toFixed(5)).replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/,'$1')).toString().split('').join('\u200A'.repeat(1)) }
+                                        { localCurrencySymbol } {cryptocurrency.currency_rate_usd === 0 ? 0 : utils.prettierNumber(FiatRatesActions.toLocalCurrency(cryptocurrency.currency_rate_usd, false), 2).toString().split('').join('\u200A'.repeat(1)) }
                                     </Text>
                                 </View>
                                 <View style={{ flex: 1 }}>
                                     <Text style={styles.cryptoList__title}>
-                                        { localCurrencySymbol } {cryptocurrency.currency_rate_usd * cryptocurrency.currencyBalanceAmount === 0 ? 0 : FiatRatesActions.toLocalCurrency(fiatEquivalent)}
+                                        { localCurrencySymbol } {cryptocurrency.currency_rate_usd * cryptocurrency.currencyBalanceAmount === 0 ? 0 : utils.prettierNumber(FiatRatesActions.toLocalCurrency(fiatEquivalent, false), 2)}
                                     </Text>
                                     <Text style={styles.cryptoList__text}>
                                         { amount.toString().split('').join('\u200A'.repeat(1)) } { cryptocurrency.currencySymbol }

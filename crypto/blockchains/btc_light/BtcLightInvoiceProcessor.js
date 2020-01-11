@@ -1,7 +1,9 @@
-class BtcLightInvoiceProcessor {
-    constructor(settings) {
-        this.provider = require('./providers/BtcLightProvider').init(settings)
-    }
+/**
+ * @version 0.5
+ */
+import BtcLightProvider from './providers/BtcLightProvider'
+
+export default class BtcLightInvoiceProcessor {
 
     /**
      * @param {string} data.currencyCode
@@ -11,9 +13,9 @@ class BtcLightInvoiceProcessor {
      * @param {string} data.jsonData
      */
     async createInvoice(data) {
-        await this.provider.setLoginByAddressORJsonData(data.address, data.jsonData)
-        let result = await this.provider.createInvoice(data.amount, data.memo)
-        return {hash : result.payment_request}
+        await BtcLightProvider.setLoginByAddressORJsonData(data.address, data.jsonData)
+        let result = await BtcLightProvider.createInvoice(data.amount, data.memo)
+        return { hash: result.payment_request }
     }
 
     /**
@@ -24,32 +26,27 @@ class BtcLightInvoiceProcessor {
      * @param {string} data.jsonData
      */
     async checkInvoice(hash, data) {
-        await this.provider.setLoginByAddressORJsonData(data.address, data.jsonData)
-        let invoice = await this.provider.checkInvoice(hash)
+        await BtcLightProvider.setLoginByAddressORJsonData(data.address, data.jsonData)
+        let invoice = await BtcLightProvider.checkInvoice(hash)
 
         if (typeof invoice.error != 'undefined') {
             if (invoice.error) {
-                let e = new Error(invoice.message)
-                throw e
+                throw new Error(invoice.message)
             }
         }
         let now = new Date().getTime()
         let block_time = invoice.timestamp * 1000
-        let timed = (now - block_time)/1000
+        let timed = (now - block_time) / 1000
         let could_pay = false
         if (timed < invoice.expiry) {
             could_pay = true
         }
         return {
-            amount : invoice.num_satoshis,
-            created : block_time,
-            memo : invoice.description,
+            amount: invoice.num_satoshis,
+            created: block_time,
+            memo: invoice.description,
             timed,
             could_pay
         }
     }
-}
-
-module.exports.init = function(settings) {
-    return new BtcLightInvoiceProcessor(settings)
 }

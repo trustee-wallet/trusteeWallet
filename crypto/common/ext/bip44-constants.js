@@ -4,16 +4,30 @@
  * [ constant, coinSymbol, coinName ]
  */
 module.exports = [
-    [ 0x80044401, "BTC_LIGHT", "Bitcoin Light" ],
-    [ 0x8000003c, "ROPSTEN", "Ropsten Ether" ],
-    [ 0x800000c8, "USDT", "USDT Omni" ],
-    [ 0x80000001, "ETH_ROPSTEN", "Testnet (all coins)" ],
-    [ 0x80000001, "BTC_TEST", "Testnet (all coins)" ],
 
-    [ 0x80000000, "BTC", "Bitcoin" ],
-    [ 0x80000001, "", "Testnet (all coins)" ],
-    [ 0x80000002, "LTC", "Litecoin" ],
-    [ 0x80000003, "DOGE", "Dogecoin" ],
+    [ `44'/0`, "BTC", "Bitcoin" ],
+    [ `44'/1`, "BTC_TEST", "Testnet (all coins)" ],
+    [ `84'/0`, "BTC_SEGWIT", "Bitcoin" ],
+    [ `49'/0`, "BTC_SEGWIT_COMPATIBLE", "Bitcoin" ],
+    [ `44'/0`, "USDT", "USDT Omni" ], //actual = 200
+    [ `44'/279553`, "BTC_LIGHT", "Bitcoin Light" ],
+
+    [ `44'/145`, "BCH", "Bitcoin Cash" ],
+    [ `44'/156`, "BTG", "Bitcoin Gold" ],
+    [ `44'/236`, "BSV", "Bitcoin SV" ],
+
+    [ `44'/60`, "ETH", "Ether" ],
+    [ `44'/1`, "ETH_ROPSTEN", "Ropsten Ether" ],
+
+    [ `44'/2`, "LTC", "Litecoin" ],
+    [ `44'/3`, "DOGE", "Dogecoin" ],
+    [ `44'/77`, "XVG", "Verge" ],
+    [ `44'/195`, "TRX", "Tron" ],
+
+    [ `44'/144`, "XRP", "Ripple" ],
+
+
+    /*
     [ 0x80000004, "RDD", "Reddcoin" ],
     [ 0x80000005, "DASH", "Dash (ex Darkcoin)" ],
     [ 0x80000006, "PPC", "Peercoin" ],
@@ -70,7 +84,7 @@ module.exports = [
     [ 0x80000039, "SYS", "Syscoin" ],
     [ 0x8000003a, "SLR", "Solarcoin" ],
     [ 0x8000003b, "SMLY", "Smileycoin" ],
-    [ 0x8000003c, "ETH", "Ether" ],
+
     [ 0x8000003d, "ETC", "Ether Classic" ],
     [ 0x8000003e, "PSB", "Pesobit" ],
     [ 0x8000003f, "LDCN", "Landcoin" ],
@@ -87,7 +101,6 @@ module.exports = [
     [ 0x8000004a, "ICX", "ICON" ],
     [ 0x8000004b, "FJC", "FujiCoin" ],
     [ 0x8000004c, "MIX", "MIX" ],
-    [ 0x8000004d, "XVG", "Verge" ],
     [ 0x8000004e, "EFL", "Electronic Gulden" ],
     [ 0x8000004f, "CLUB", "ClubCoin" ],
     [ 0x80000050, "RICHX", "RichCoin" ],
@@ -486,5 +499,5 @@ module.exports = [
     [ 0x83adbc39, "AQUA", "Aquachain" ],
     [ 0x857ab1e1, "kUSD", "kUSD" ],
     [ 0x85f5e0fe, "FLUID", "Fluid Chains" ],
-    [ 0x85f5e0ff, "QKC", "QuarkChain" ]
+    [ 0x85f5e0ff, "QKC", "QuarkChain" ]*/
 ]

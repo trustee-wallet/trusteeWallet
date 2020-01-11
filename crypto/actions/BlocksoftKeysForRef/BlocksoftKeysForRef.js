@@ -1,11 +1,15 @@
+/**
+ * @author Ksu
+ * @version 0.5
+ */
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
-import BlocksoftKeysUtils from '../BlocksoftKeys/BlocksoftKeysUtils'
-import BlocksoftKeysForRefServerSide from  './BlocksoftKeysForRefServerSide'
-import BlocksoftKeys from  '../BlocksoftKeys/BlocksoftKeys'
+import BlocksoftKeysForRefServerSide from './BlocksoftKeysForRefServerSide'
+import BlocksoftKeys from '../BlocksoftKeys/BlocksoftKeys'
+import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
 
 const bip32 = require('bip32')
 
-const Dispatcher = require('../../blockchains/Dispatcher').init()
+const Dispatcher = new BlocksoftDispatcher()
 
 const CACHE = {}
 
@@ -17,7 +21,7 @@ class BlocksoftKeysForRef {
      * @return {Promise<{currencyCode:[{address, privateKey, path, index, type}]}>}
      */
     async discoverPublicAndPrivate(data) {
-        let logData = {...data}
+        let logData = { ...data }
         let mnemonicCache = data.mnemonic.toLowerCase()
 
         if (typeof logData.mnemonic !== 'undefined') logData.mnemonic = '***'
@@ -37,7 +41,7 @@ class BlocksoftKeysForRef {
             let child = root.derivePath(path)
 
             let processor = await Dispatcher.getAddressProcessor('ETH')
-            result = processor.getAddress(child.privateKey)
+            result = await processor.getAddress(child.privateKey)
             result.index = index
             result.path = path
             BlocksoftCryptoLog.log(`BlocksoftKeysForRef discoverPublicAndPrivate finished no cache`, logData)
@@ -50,7 +54,7 @@ class BlocksoftKeysForRef {
 
     async signDataForApi(msg, privateKey) {
         let processor = await Dispatcher.getAddressProcessor('ETH')
-        if (privateKey.substr(0,2) !== '0x') {
+        if (privateKey.substr(0, 2) !== '0x') {
             privateKey = '0x' + privateKey
         }
         let signedData = await processor.signMessage(msg, privateKey)
@@ -61,6 +65,5 @@ class BlocksoftKeysForRef {
     }
 }
 
-const singleBlocksoftKeysForRef = new BlocksoftKeysForRef ()
-
+const singleBlocksoftKeysForRef = new BlocksoftKeysForRef()
 export default singleBlocksoftKeysForRef

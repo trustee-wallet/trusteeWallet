@@ -9,7 +9,6 @@ class TransactionController extends EventEmitter {
     constructor(opts) {
         super(opts)
         this.provider = new HttpProvider(opts.provider)
-        // console.log(this.provider)
         this.getGasPrice = opts.getGasPrice
 
         this.query = new EthQuery(this.provider)
@@ -34,7 +33,6 @@ class TransactionController extends EventEmitter {
         // noinspection JSCheckFunctionSignatures
         txParams.gasPrice = ethUtil.addHexPrefix(gasPrice.toString(16))
         // set gasLimit
-        // console.log(txParams.gasPrice);
         return this.txGasUtil.analyzeGasUsage(txMeta)
     }
 }

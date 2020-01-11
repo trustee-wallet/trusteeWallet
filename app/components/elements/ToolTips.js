@@ -29,19 +29,23 @@ class ToolTips extends Component {
     componentDidMount() {
 
         const { showAfterRender, prevToggleCallback, nextToggleCallback } = this.props
+        const { tipsRef } = this.props.toolTipsStore
 
-        ToolTipsActions.setToolTipRef({
-            ref: {
-                toggleTooltip: () => {
-                    typeof prevToggleCallback != 'undefined' ? prevToggleCallback() : null
-                    setTimeout(() => {
-                        this.refTooltip.toggleTooltip()
-                    }, 300)
-                    typeof nextToggleCallback != 'undefined' ? nextCallback() : null
-                }
-            },
-            name: this.props.type
-        })
+        if(typeof tipsRef[this.props.type] == "undefined"){
+            ToolTipsActions.setToolTipRef({
+                ref: {
+                    toggleTooltip: () => {
+                        typeof prevToggleCallback != 'undefined' ? prevToggleCallback() : null
+                        setTimeout(() => {
+                            this.refTooltip.toggleTooltip()
+                        }, 300)
+                        typeof nextToggleCallback != 'undefined' ? nextCallback() : null
+                    },
+                    isCanBeShowed: true
+                },
+                name: this.props.type,
+            })
+        }
 
         setTimeout(() => {
             try {
@@ -80,59 +84,92 @@ class ToolTips extends Component {
                 // isVisible = tipsStates.homeScreen.sellBuyBtn
                 nextBtnText = strings(`tooltips.buttons.next`)
                 isSkip = true
-                nextBtnCallback = () => {
+                nextBtnCallback = (showNext = true) => {
                     this.state.canShowNext = true
-                    this.refTooltip.toggleTooltip()
+                    showNext ? this.refTooltip.toggleTooltip() : null
                     tipsRef['HOME_SCREEN_EXCHANGE_BTN_TIP'].toggleTooltip()
                     setTimeout(() => {
                         this.state.canShowNext = false
                         this.setState({ isCanBeShowed: false })
                     }, 0)
+
+                    ToolTipsActions.setToolTipRef({
+                        ref: { isCanBeShowed: false },
+                        name: this.props.type,
+                    })
                 }
+
+                this.nextBtnCallback = nextBtnCallback
+
                 content = this.renderTemplateTip(strings(`tooltips.HOME_SCREEN_BUY_BTN_TIP.title`), strings(`tooltips.HOME_SCREEN_BUY_BTN_TIP.description`), nextBtnCallback, nextBtnText, isSkip)
                 break
             case 'HOME_SCREEN_EXCHANGE_BTN_TIP':
                 // isVisible = tipsStates.homeScreen.sellBuyBtn
                 nextBtnText = strings(`tooltips.buttons.next`)
                 isSkip = true
-                nextBtnCallback = () => {
+                nextBtnCallback = (showNext = true) => {
                     this.state.canShowNext = true
-                    this.refTooltip.toggleTooltip()
+                    showNext ? this.refTooltip.toggleTooltip() : null
                     tipsRef['HOME_SCREEN_CRYPTO_BTN_TIP'].toggleTooltip()
                     setTimeout(() => {
                         this.state.canShowNext = false
                         this.setState({ isCanBeShowed: false })
                     }, 0)
+
+                    ToolTipsActions.setToolTipRef({
+                        ref: { isCanBeShowed: false },
+                        name: this.props.type,
+                    })
                 }
+
+                this.nextBtnCallback = nextBtnCallback
+
                 content = this.renderTemplateTip(strings(`tooltips.HOME_SCREEN_EXCHANGE_BTN_TIP.title`), strings(`tooltips.HOME_SCREEN_EXCHANGE_BTN_TIP.description`), nextBtnCallback, nextBtnText, isSkip)
                 break
             case 'HOME_SCREEN_CRYPTO_BTN_TIP':
                 // isVisible = tipsStates.homeScreen.sellBuyBtn
                 nextBtnText = strings(`tooltips.buttons.next`)
                 isSkip = true
-                nextBtnCallback = () => {
+                nextBtnCallback = (showNext = true) => {
                     this.state.canShowNext = true
-                    this.refTooltip.toggleTooltip()
+                    showNext ? this.refTooltip.toggleTooltip() : null
                     tipsRef['HOME_SCREEN_ADD_CRYPTO_BTN_TIP'].toggleTooltip()
                     setTimeout(() => {
                         this.state.canShowNext = false
                         this.setState({ isCanBeShowed: false })
                     }, 0)
+
+                    ToolTipsActions.setToolTipRef({
+                        ref: { isCanBeShowed: false },
+                        name: this.props.type,
+                    })
                 }
+
+                this.nextBtnCallback = nextBtnCallback
+
                 content = this.renderTemplateTip(strings(`tooltips.HOME_SCREEN_CRYPTO_BTN_TIP.title`), strings('tooltips.HOME_SCREEN_CRYPTO_BTN_TIP.description'), nextBtnCallback, nextBtnText, isSkip)
                 break
             case 'HOME_SCREEN_QR_BTN_TIP':
                 // isVisible = tipsStates.homeScreen.sellBuyBtn
                 nextBtnText = strings(`tooltips.buttons.close`)
                 isSkip = false
-                nextBtnCallback = () => {
+                nextBtnCallback = (showNext = true) => {
                     this.state.canShowNext = true
-                    this.refTooltip.toggleTooltip()
+                    showNext ? this.refTooltip.toggleTooltip() : null
                     setTimeout(() => {
                         this.state.canShowNext = false
                     }, 0)
+
+                    ToolTipsActions.setToolTipRef({
+                        ref: { isCanBeShowed: false },
+                        name: this.props.type,
+                    })
+
                     settingsActions.setSettings('tool_tips_state', 0)
                 }
+
+                this.nextBtnCallback = nextBtnCallback
+
                 content = this.renderTemplateTip(strings(`tooltips.HOME_SCREEN_QR_BTN_TIP.title`), strings('tooltips.HOME_SCREEN_QR_BTN_TIP.description'), nextBtnCallback, nextBtnText, isSkip)
                 break
             case 'ACCOUNT_SCREEN_ADDRESS_TIP':
@@ -143,24 +180,32 @@ class ToolTips extends Component {
 
                 nextBtnText = nextBtnText = strings(`tooltips.buttons.next`)
                 isSkip = true
-                nextBtnCallback = () => {
+                nextBtnCallback = (showNext = true) => {
                     this.state.canShowNext = true
-                    this.refTooltip.toggleTooltip()
+                    showNext ? this.refTooltip.toggleTooltip() : null
                     tipsRef['ACCOUNT_SCREEN_TRANSACTION_TIP'].toggleTooltip()
                     setTimeout(() => {
                         this.state.canShowNext = false
                         this.setState({ isCanBeShowed: false })
                     }, 0)
+
+                    ToolTipsActions.setToolTipRef({
+                        ref: { isCanBeShowed: false },
+                        name: this.props.type,
+                    })
                 }
+
+                this.nextBtnCallback = nextBtnCallback
+
                 content = this.renderTemplateTip(strings(`tooltips.ACCOUNT_SCREEN_ADDRESS_TIP.title`), strings('tooltips.ACCOUNT_SCREEN_ADDRESS_TIP.description', { currencyName: currencyName }), nextBtnCallback, nextBtnText, isSkip)
                 break
             case 'ACCOUNT_SCREEN_TRANSACTION_TIP':
                 // isVisible = tipsStates.homeScreen.sellBuyBtn
                 nextBtnText = nextBtnText = strings(`tooltips.buttons.next`)
                 isSkip = true
-                nextBtnCallback = () => {
+                nextBtnCallback = (showNext = true) => {
                     this.state.canShowNext = true
-                    this.refTooltip.toggleTooltip()
+                    showNext ? this.refTooltip.toggleTooltip() : null
                     nextCallback()
                     setTimeout(() => {
                         tipsRef['ACCOUNT_SCREEN_ORDERS_TIP'].toggleTooltip()
@@ -169,36 +214,61 @@ class ToolTips extends Component {
                             this.setState({ isCanBeShowed: false })
                         }, 0)
                     }, 500)
+
+                    ToolTipsActions.setToolTipRef({
+                        ref: { isCanBeShowed: false },
+                        name: this.props.type,
+                    })
                 }
+
+                this.nextBtnCallback = nextBtnCallback
+
                 content = this.renderTemplateTip(strings(`tooltips.ACCOUNT_SCREEN_TRANSACTION_TIP.title`), strings('tooltips.ACCOUNT_SCREEN_TRANSACTION_TIP.description'), nextBtnCallback, nextBtnText, isSkip)
                 break
             case 'ACCOUNT_SCREEN_ORDERS_TIP':
                 // isVisible = tipsStates.homeScreen.sellBuyBtn
                 nextBtnText = nextBtnText = strings(`tooltips.buttons.close`)
                 isSkip = false
-                nextBtnCallback = () => {
+                nextBtnCallback = (showNext = true) => {
                     this.state.canShowNext = true
-                    this.refTooltip.toggleTooltip()
+                    showNext ? this.refTooltip.toggleTooltip() : null
                     setTimeout(() => {
                         this.state.canShowNext = false
                         this.setState({ isCanBeShowed: false })
                     }, 0)
+
+                    ToolTipsActions.setToolTipRef({
+                        ref: { isCanBeShowed: false },
+                        name: this.props.type,
+                    })
+
                     settingsActions.setSettings('tool_tips_state', 0)
                 }
+
+                this.nextBtnCallback = nextBtnCallback
+
                 content = this.renderTemplateTip(strings(`tooltips.ACCOUNT_SCREEN_ORDERS_TIP.title`), strings('tooltips.ACCOUNT_SCREEN_ORDERS_TIP.description'), nextBtnCallback, nextBtnText, isSkip)
                 break
             case 'HOME_SCREEN_ADD_CRYPTO_BTN_TIP':
                 // isVisible = tipsStates.homeScreen.sellBuyBtn
                 nextBtnText = strings(`tooltips.buttons.close`)
                 isSkip = false
-                nextBtnCallback = () => {
+                nextBtnCallback = (showNext = true) => {
                     this.state.canShowNext = true
-                    this.refTooltip.toggleTooltip()
+                    showNext ? this.refTooltip.toggleTooltip() : null
                     setTimeout(() => {
                         this.setState({ isCanBeShowed: false })
                         this.state.canShowNext = false
                     }, 0)
+
+                    ToolTipsActions.setToolTipRef({
+                        ref: { isCanBeShowed: false },
+                        name: this.props.type,
+                    })
                 }
+
+                this.nextBtnCallback = nextBtnCallback
+
                 content = this.renderTemplateTip(strings(`tooltips.HOME_SCREEN_ADD_CRYPTO_BTN_TIP.title`), strings(`tooltips.HOME_SCREEN_ADD_CRYPTO_BTN_TIP.description`), nextBtnCallback, nextBtnText, isSkip)
                 break
             default:
@@ -251,7 +321,7 @@ class ToolTips extends Component {
 
     handleClose = () => {
         if(!this.state.canShowNext)
-            this.refTooltip.toggleTooltip()
+            this.nextBtnCallback(false)
     }
 
     skip = () => {
@@ -263,12 +333,13 @@ class ToolTips extends Component {
 
     renderTooltips = () => {
         const { isCanBeShowed } = this.state
-        const { height, settingsStore, MainComponent, mainComponentProps, animatePress } = this.props
+        const { height, settingsStore, MainComponent, mainComponentProps, animatePress, toolTipsStore } = this.props
+
+        const { tipsRef } = this.props.toolTipsStore
 
         const isShow = typeof settingsStore.data.tool_tips_state == 'undefined' || +settingsStore.data.tool_tips_state
 
-
-        if(isShow && isCanBeShowed){
+        if(isShow && typeof tipsRef[this.props.type] != "undefined" && tipsRef[this.props.type].isCanBeShowed && isCanBeShowed){
             if(typeof animatePress == 'undefined'){
                 return (
                     <Tooltip ref={ref => this.refTooltip = ref}

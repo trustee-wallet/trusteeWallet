@@ -1,6 +1,11 @@
+/**
+ * @author Ksu
+ * @version 0.5
+ */
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
 
-const Dispatcher = require('../../blockchains/Dispatcher').init()
+const Dispatcher = new BlocksoftDispatcher()
 
 class BlocksoftInvoice {
 
@@ -10,7 +15,7 @@ class BlocksoftInvoice {
      */
     _processor = {}
     /**
-     * @type {{privateKey, addressFrom, addressTo, amount, feeForTx, currencyCode, addressForChange, replacingTransaction, nSequence}}
+     * @type {{privateKey, address, amount, feeForTx, currencyCode, addressForChange, replacingTransaction, nSequence, jsonData, memo}}
      * @private
      */
     _data = {}
@@ -100,7 +105,7 @@ class BlocksoftInvoice {
             res = await this._processor[currencyCode].checkInvoice(hash, this._data)
             BlocksoftCryptoLog.log(`BlocksoftInvoice.checkInvoice ${currencyCode} finished`, res)
         } catch (e) {
-            if (e.message != 'not a valid invoice') {
+            if (e.message.indexOf('not a valid invoice') === -1) {
                 // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.err(`BlocksoftInvoice.checkInvoice ${currencyCode} error ` + e.message, e.data ? e.data : e)
             }

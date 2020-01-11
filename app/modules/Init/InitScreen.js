@@ -129,7 +129,7 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps, {})(InitScreen)
 
 const styles_ = {
-    array: ['#fff', '#fff'],
+    array: ['#f2f2f2', '#f2f2f2'],
     start: { x: 0.0, y: 0 },
     end: { x: 0, y: 1 }
 }

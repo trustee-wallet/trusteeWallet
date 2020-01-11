@@ -171,7 +171,8 @@ class AddAssetScreen extends Component {
                                                 <View
                                                     key={index}
                                                     style={styles.availableCurrencies__item}>
-                                                    <CurrencyIcon currencyCode={item.currencyCode} />
+                                                    <CurrencyIcon currencyCode={item.currencyCode}
+                                                                  markStyle={{ top: 30 }}/>
                                                     <View style={styles.availableCurrencies__text}>
                                                         <Text style={styles.availableCurrencies__text_name} numberOfLines={1}>{ item.currencyName }</Text>
                                                         <Text style={styles.availableCurrencies__text_symbol}>{ item.currencySymbol }</Text>

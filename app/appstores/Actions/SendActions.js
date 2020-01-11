@@ -55,23 +55,25 @@ export default new class SendActions {
         Log.log('SendActions.handleInitialURL decode success', res.data)
 
         try {
-            const { currencies, selectedWallet } = store.getState().mainStore
-            let currency = _.find(currencies, { currencyCode: res.data.currencyCode })
-            let { array: accounts } = await accountDS.getAccountData(selectedWallet.wallet_hash, res.data.currencyCode)
+            if(initialURL.indexOf("trustee.page.link") === -1){
+                const { currencies, selectedWallet } = store.getState().mainStore
+                let currency = _.find(currencies, { currencyCode: res.data.currencyCode })
+                let { array: accounts } = await accountDS.getAccountData(selectedWallet.wallet_hash, res.data.currencyCode)
 
-            setSendData({
-                disabled: false,
-                address: res.data.address,
-                value: res.data.amount ? res.data.amount.toString() : '0',
+                setSendData({
+                    disabled: false,
+                    address: res.data.address,
+                    value: res.data.amount ? res.data.amount.toString() : '0',
 
-                account: accounts[0],
-                cryptocurrency: currency,
+                    account: accounts[0],
+                    cryptocurrency: currency,
 
-                description: strings('send.description'),
-                useAllFunds: false
-            })
+                    description: strings('send.description'),
+                    useAllFunds: false
+                })
 
-            NavStore.goNext('SendScreen')
+                NavStore.goNext('SendScreen')
+            }
         } catch (e) {
             Log.err('SendActions.handleInitialURL process error ' + e.message)
         }

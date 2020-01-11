@@ -8,7 +8,7 @@ import { setLoaderStatus } from '../../../appstores/Actions/MainStoreActions'
 import { showModal } from '../../../appstores/Actions/ModalActions'
 
 import BlocksoftBalances from '../../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
-import BlocksoftTransaction from '../../../../crypto/actions/BlocksoftTransaction/BlocksoftTransaction'
+import BlocksoftTransfer from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 
 import Log from '../../../services/Log/Log'
@@ -112,25 +112,25 @@ class AmountInput extends Component {
 
 
             const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address)).getBalance()
-            const balanceRaw = BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) // to think show this as option or no
+            const balanceRaw = tmp ? BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) : 0 // to think show this as option or no
             console.log(currencyCode, walletHash, derivationPathTmp, address, tmpAddressForEstimate, balanceRaw)
 
             const fees = await (
-                BlocksoftTransaction
+                BlocksoftTransfer
                     .setCurrencyCode(currencyCode)
                     .setWalletHash(walletHash)
                     .setDerivePath(derivationPathTmp)
                     .setAddressFrom(address)
                     .setAddressTo(tmpAddressForEstimate)
-                    .setTransferAll(true)
                     .setAmount(balanceRaw)
+                    .setTransferAll(true)
             ).getFeeRate()
 
             const current = await (
-                BlocksoftBalances
+                BlocksoftTransfer
                     .setCurrencyCode(currencyCode)
-                    .setAddress(address)
-                    .setFee(fees[2].feeForTx)
+                    .setAddressFrom(address)
+                    .setFee(fees[fees.length - 1])
             ).getTransferAllBalance(balanceRaw)
 
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePrettie(current)

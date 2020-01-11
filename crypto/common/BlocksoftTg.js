@@ -17,7 +17,7 @@ const axios = require('axios')
 
 class BlocksoftTg {
     constructor(key) {
-        if (typeof (key) !== 'undefined' && key) {
+        if (typeof key !== 'undefined' && key) {
             this.API_KEY = key
         } else {
             this.API_KEY = config.tg.appDefaultTg

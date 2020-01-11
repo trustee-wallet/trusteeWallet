@@ -2,7 +2,43 @@ import BlocksoftCryptoLog from './BlocksoftCryptoLog'
 
 const axios = require('axios')
 
+const CACHE_ERRORS_VALID_TIME = 60000 // 1 minute
+const CACHE_ERRORS_BY_LINKS_TRY = {}
+const CACHE_ERRORS_BY_LINKS_TIME = {}
+
 class BlocksoftAxios {
+
+    async getWithoutBraking(link, maxTry = 5) {
+        let tmp
+        try {
+            tmp = await this.get(link)
+            CACHE_ERRORS_BY_LINKS_TRY[link] = 0
+            CACHE_ERRORS_BY_LINKS_TIME[link] = 0
+        } catch (e) {
+            let now = new Date().getTime()
+            if (typeof CACHE_ERRORS_BY_LINKS_TRY[link] === 'undefined') {
+                // first time
+                CACHE_ERRORS_BY_LINKS_TRY[link] = 1
+            } else if (
+                now - CACHE_ERRORS_BY_LINKS_TIME[link] < CACHE_ERRORS_VALID_TIME
+            ) {
+                // no plus as too fast
+            } else if (
+                CACHE_ERRORS_BY_LINKS_TRY[link] < maxTry
+            ) {
+                // plus as time passed
+                CACHE_ERRORS_BY_LINKS_TRY[link]++
+            } else {
+                // only here will error actual
+                e.code = 'ERROR_PROVIDER'
+                CACHE_ERRORS_BY_LINKS_TIME[link] = now
+                throw e
+            }
+            CACHE_ERRORS_BY_LINKS_TIME[link] = now
+            BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + CACHE_ERRORS_BY_LINKS_TRY[link] + ' ' + e.message.substr(0, 200))
+        }
+        return tmp
+    }
     async post(link, data) {
         return this._request(link, 'post', data, false)
     }
@@ -40,7 +76,7 @@ class BlocksoftAxios {
             }
 
         } catch (e) {
-            if (typeof (e.response) === 'undefined' || typeof (e.response.data) === 'undefined') {
+            if (typeof e.response === 'undefined' || typeof e.response.data === 'undefined') {
                 // do nothing
             } else if (e.response.data) {
                 e.message = JSON.stringify(e.response.data) + ' ' + e.message
@@ -61,8 +97,11 @@ class BlocksoftAxios {
                 // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link, e.message)
                 customError.code = 'ERROR_NOTICE'
-            } else {
+            } else if (link.indexOf('/api/v2/sendtx/') !== -1) {
                 // noinspection ES6MissingAwait
+                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link, e.message, 'GET EXTERNAL LINK ERROR')
+                customError.code = 'ERROR_SYSTEM'
+            } else {
                 BlocksoftCryptoLog.err('BlocksoftAxios.' + method + ' ' + link, e.message, 'GET EXTERNAL LINK ERROR')
                 customError.code = 'ERROR_SYSTEM'
             }
