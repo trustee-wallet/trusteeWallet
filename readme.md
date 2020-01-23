@@ -1,65 +1,72 @@
-# How to
+## Trustee Wallet
 
-(but first install - its after run as should be done once)
-
-## Run Android
-
-START /MIN emulator @Pixel_2_API_Q 
-
-(if problems - do not load current state)
-
-START /MIN emulator @Pixel_2_API_Q -no-snapshot-load
-
-react-native run-android
-
-react-native log-android
-
-## Run IOS
-
-react-native run-ios
-
-react-native log-ios
+[Trustee Wallet](https://trustee.deals/) is the secure and simple way to create and manage crypto accounts. Quick and safe buy and sell bitcoin directly with your Visa or MasterCard
 
 
-## How to install to check application and start develop
+### Building for Android 
 
-After first download / git clone, please do Preinstall, 
-if any problem with current instance that couldnt be solved - 
-remove node_modules and do again
+All building steps are tested with Ubuntu 16.04
 
-### Preinstall
+#### Build Dependencies
 
-#### Step 0
+For successful build it's reqired to have build tools installed
+```
+sudo apt-get install build-essential
+```
 
+nodejs version 10.x 
+```
+curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+sudo apt-get install nodejs
+```
+
+and openjdk-8
+```
+sudo apt-get install openjdk-8-jdk
+echo "JAVA_HOME=$(which java)" | sudo tee -a /etc/environment
+source /etc/environment
+```
+
+#### System preparation
+For successful build it's need to increase the number of files that OS can monitor
+```
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+```
+Prepare folder and licence for Android SDK
+```
+mkdir ~/androidsdk
+export ANDROID_HOME=~/androidsdk
+
+mkdir ~/androidsdk/licenses 
+echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >  ~/androidsdk/licenses/android-sdk-license
+```
+Please note: by creating `~/androidsdk/licenses/android-sdk-license` file you are accepting Android SDK licence. 
+
+#### Android build
+Download code from Github
+```
+git clone https://github.com/trustee-wallet/trusteeWallet.git
+```
+
+Build preparation
+```
+cd ./trusteeWallet
 npm install
-
-#### Step 1
-
-rn-nodeify --hack --install
-
-or
-
-./node_modules/.bin/rn-nodeify --hack --install
-
-#### Step 2
-
 python ./__hacks__/makeX.py
+rm -f shim.js
+./node_modules/.bin/rn-nodeify --hack --install
+```
 
-do step2 any time when some AndroidX errors (classes not found etc)
+Building APK
+```
+cd ./android
+./gradlew assembleRelease
+```
 
-if not solves - call Ksu - and we will add needed lib to the list
+After successful build APK file `app-release.apk` can be found in `./app/build/outputs/apk/release/`
 
-### Add your own google services settings (for Firebase etc)
+### Contacts
+For proposals and bug reports feel free to open and issue [HERE](https://github.com/trustee-wallet/trusteeWallet/issues)
 
-here is file
-
-./android/app/google-services.json
-
-here is docs
-
-https://developers.google.com/android/guides/google-services-plugin
-
-
-
-
+If you have any questions please contact us by email <contact@trustee.deals> or join our community in [Telegram](https://t.me/trustee_wallet)
 

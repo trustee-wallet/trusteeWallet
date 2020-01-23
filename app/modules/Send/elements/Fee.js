@@ -134,7 +134,11 @@ class Fee extends Component {
             }
 
         } catch (e) {
-            Log.err('Send.Fee.componentWillMount error ' + e.message)
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                Log.err('Send.Fee.componentWillMount error ' + e.message)
+            } else {
+                e.message = strings('send.errors.' + e.message)
+            }
 
             this.setState({
                 status: 'fail'

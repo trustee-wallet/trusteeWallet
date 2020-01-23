@@ -2,8 +2,10 @@
  * @version 0.5
  *
  * https://bsv.btc.com/api-doc#Unspent
+ * https://bsv-chain.api.btc.com/v3/address/15urYnyeJe3gwbGJ74wcX89Tz7ZtsFDVew/unspent
  *
  * @typedef {Object} UnifiedUnspent
+ * @property {*} txid '1885a8fc772be4704cbdbaf84b39956cbb4eb69e5eef0a3d35ba5cb29b0af333',
  * @property {*} vout 1
  * @property {*} value 9998331800
  * @property {*} valueBN 9998331800
@@ -37,13 +39,17 @@ export default class BsvUnspentsProvider {
 
         let link = `${this._apiPath}/address/${address}/unspent`
         let res = await BlocksoftAxios.getWithoutBraking(link)
-        if (!res || !res.data || typeof res.data === 'undefined') {
+        if (!res || typeof res.data === 'undefined') {
             throw new Error(this._settings.currencyCode + ' BsvUnspentsProvider.getUnspents nothing loaded for address')
         }
-        if (!res || typeof res.data === 'undefined' || !res.data || typeof res.data.data.list === 'undefined' || !res.data.data.list) return []
+        if (!res.data || typeof res.data.data === 'undefined' || !res.data.data || typeof res.data.data.list === 'undefined' || !res.data.data.list) {
+            return []
+        }
         let sortedUnspents = []
         /**
+         * https://bsv-chain.api.btc.com/v3/address/15urYnyeJe3gwbGJ74wcX89Tz7ZtsFDVew/unspent
          * @param {*} res.data.data.list[]
+         * @param {string} res.data.data.list[].tx_hash "04ffa9c3875b15ceb65c2dd4ee2654c5fb65374123692362e32fac566a6b16aa"
          * @param {string} res.data.data.list[].tx_output_n 0
          * @param {string} res.data.data.list[].tx_output_n2
          * @param {string} res.data.data.list[].value 100000000

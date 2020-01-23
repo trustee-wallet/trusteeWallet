@@ -16,14 +16,26 @@ export default class BsvScannerProcessor {
      */
     _blocksToConfirm = 10
 
+    /**
+     * https://bsv-chain.api.btc.com/v3/address/18SZd38c139X7z8UCCnZHSAnzYhUhrSR7k
+     * @param {string} address
+     * @return {Promise<{int:balance, int:provider}>}
+     */
     async getBalance(address) {
-        let res = await BlocksoftAxios.getWithoutBraking(API_PATH + address)
-        if (!res || !res.data || typeof(res.data.data.balance) === 'undefined') {
-            return {balance : 0, unconfirmed: 0, provider: 'btc.com' }
+        let link = API_PATH + address
+        let res = await BlocksoftAxios.getWithoutBraking(link)
+        if (!res || !res.data || typeof res.data.data === 'undefined' || !res.data.data || typeof res.data.data.balance === 'undefined') {
+            return false
         }
         return {balance: res.data.data.balance, unconfirmed: 0, provider: 'btc.com' }
     }
 
+    /**
+     * https://explorer.viabtc.com/res/bsv/transactions/addressv2?address=1KiTAxJQJ2cv4hTZsJXtCgc3ZaaqZCF7Un
+     * https://bsv-chain.api.btc.com/v3/address/1KiTAxJQJ2cv4hTZsJXtCgc3ZaaqZCF7Un/tx
+     * @param {string} address
+     * @return {Promise<UnifiedTransaction[]>}
+     */
     async getTransactions(address) {
         BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions started', address)
         let tmp = await BlocksoftAxios.getWithoutBraking(API_TX_PATH + address + '/tx')

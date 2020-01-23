@@ -6,6 +6,8 @@
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import XvgTmpDS from './stores/XvgTmpDS'
+import BlocksoftUtils from '../../common/BlocksoftUtils'
+import XvgFindAddressFunction from './basic/XvgFindAddressFunction'
 
 const API_PATH = 'https://api.vergecurrency.network/node/api/XVG/mainnet'
 const CACHE_VALID_TIME = 30000 // 30 seconds
@@ -26,8 +28,11 @@ export default class XvgScannerProcessor {
     async getBalance(address) {
         let link = `${API_PATH}/address/${address}/balance`
         let res = await BlocksoftAxios.getWithoutBraking(link)
-        if (!res || !res.data || typeof res.data.confirmed === 'undefined') {
+        if (!res || !res.data) {
             return false
+        }
+        if (typeof res.data.confirmed === 'undefined') {
+            throw new Error('XvgScannerProcessor.getBalance nothing loaded for address ' + link)
         }
         let balance = res.data.confirmed
         return { balance, unconfirmed: 0, provider: 'api.vergecurrency' }
@@ -118,58 +123,39 @@ export default class XvgScannerProcessor {
         }
 
         let tmp
+
+        let link = `${API_PATH}/tx/${transaction.transaction_hash}/coins`
+        BlocksoftCryptoLog.log('XvgScannerProcessor._unifyTransactionStep2 call for outputs should be ' + link)
+
         if (typeof CACHE_FROM_DB[transaction.transaction_hash + '_coins'] !== 'undefined') {
             tmp = CACHE_FROM_DB[transaction.transaction_hash + '_coins']
         } else {
-            let link = `${API_PATH}/tx/${transaction.transaction_hash}/coins`
-            BlocksoftCryptoLog.log('XvgScannerProcessor._unifyTransactionStep2 call for outputs ' + link)
+            BlocksoftCryptoLog.log('XvgScannerProcessor._unifyTransactionStep2 called ' + link)
             tmp = await BlocksoftAxios.get(link)
             tmp = tmp.data
             XvgTmpDS.saveCache(address, transaction.transaction_hash, 'coins', tmp)
             CACHE_FROM_DB[transaction.transaction_hash + '_coins'] = tmp
         }
-        if (transaction.transaction_direction === 'income') {
-            let self = false
-            for (let input of tmp.inputs) {
-                if (input.address) {
-                    if (input.address !== address) {
-                        transaction.address_from = input.address
-                        break
-                    } else {
-                        self = true
-                    }
-                }
-            }
-            if (transaction.address_from === '?' && self) {
-                transaction.address_from = address
-            }
-        } else {
-            for (let input of tmp.inputs) {
-                if (input.address && input.address === address) {
-                    transaction.address_amount = input.value
-                    break
-                }
-            }
-            for (let output of tmp.outputs) {
-                if (output.address) {
-                    if (output.address !== address) {
-                        transaction.address_to = output.address
-                    }
-                }
-            }
+
+
+        let output
+        try {
+            output = await XvgFindAddressFunction(address, tmp)
+        } catch (e) {
+            e.message += ' while XvgFindAddressFunction'
+            throw e
         }
-        if (transaction.address_from === address) {
-            transaction.transaction_direction = 'outcome'
-        }
-        if (transaction.address_to === address) {
-            transaction.transaction_direction = 'income'
-        }
+
+        transaction.transaction_direction = output.direction
+        transaction.address_from = output.from
+        transaction.address_to = output.to
+        transaction.address_amount = output.value
+
 
         let link2 = `${API_PATH}/tx/${transaction.transaction_hash}`
         BlocksoftCryptoLog.log('XvgScannerProcessor._unifyTransactionStep2 call for details ' + link2)
         let tmp2 = await BlocksoftAxios.get(link2)
         tmp2 = tmp2.data
-        BlocksoftCryptoLog.log('XvgScannerProcessor._unifyTransactionStep2 call for details result ', tmp2)
         transaction.block_hash = tmp2.blockHash
         transaction.block_time = tmp2.blockTimeNormalized
         transaction.block_confirmations = tmp2.confirmations * 1
@@ -181,6 +167,7 @@ export default class XvgScannerProcessor {
             XvgTmpDS.saveCache(address, transaction.transaction_hash, 'data', tmp2)
             CACHE_FROM_DB[transaction.transaction_hash + '_data'] = 1 //no need all - just mark
         }
+        BlocksoftCryptoLog.log('XvgScannerProcessor._unifyTransactionStep2 call for details result ', transaction)
         CACHE[transaction.transaction_hash] = {}
         CACHE[transaction.transaction_hash]['time'] = new Date().getTime()
         CACHE[transaction.transaction_hash]['data'] = transaction
@@ -220,7 +207,7 @@ export default class XvgScannerProcessor {
                 transaction_direction: 'outcome',
                 address_from: transaction.address,
                 address_to: '?',
-                address_amount: '?',
+                address_amount: '0',
                 transaction_status: '?'
             }
         }
@@ -234,7 +221,7 @@ export default class XvgScannerProcessor {
                 transaction_direction: 'income',
                 address_from: '?',
                 address_to: transaction.address,
-                address_amount: transaction.value,
+                address_amount: '0', //transaction.value
                 transaction_status: '?'
             }
         }

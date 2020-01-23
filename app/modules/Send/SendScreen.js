@@ -221,6 +221,8 @@ class SendScreen extends Component {
 
             const addressToForTransferAll = (BlocksoftTransfer.setCurrencyCode(currencyCode)).getAddressToForTransferAll(address)
 
+            Log.log(`SendScreen.handleTransferAll balance ${currencyCode} ${address} addressToForTransferAll`, addressToForTransferAll)
+
             let fees = await (
                 BlocksoftTransfer
                     .setCurrencyCode(currencyCode)

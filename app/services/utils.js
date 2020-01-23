@@ -96,14 +96,18 @@ export async function decodeTransactionQrCode(param) {
 
     if (res.status !== 'success') {
         try {
+
             let tmp = param.data.split(':')
             let network = tmp[0].toLowerCase()
             if (!tmp[1] || tmp[1].length < 5) {
                 throw new Error('no network ' + JSON.stringify(tmp))
             }
-            delete(tmp[0])
+            tmp.shift()
 
-            tmp = tmp.join(':').split('?')
+            tmp = tmp.join(':')
+            !tmp.includes('?') ? tmp += "?amount=" : null
+            tmp = tmp.split('?')
+
             res.data.address = tmp[0];
             res.status = 'success';
 
@@ -125,6 +129,7 @@ export async function decodeTransactionQrCode(param) {
 
             tmp = tmp[1].split('&')
             res.data.amount = ''
+
             for (let sub of tmp) {
                 let tmp2 = sub.split('=')
                 if (tmp2[0].toLowerCase() === 'amount') {

@@ -38,7 +38,7 @@ class BlocksoftUtils {
 
     static toUnified(val, decimals = 8) {
         if (typeof val === 'undefined' || val === 'undefined') {
-            throw new Error('toUnified val is undefined')
+            return 0
         }
         if (typeof val === 'number') {
             val += ''

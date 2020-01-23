@@ -7,12 +7,20 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import EthBasic from './basic/EthBasic'
 
 const CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL = {}
+const CACHE_GET_MAX_BLOCK = {max_block_number: 0, confirmations : 0}
+const CACHE_BLOCK_NUMBER_TO_HASH = {}
 export default class EthScannerProcessor extends EthBasic {
     /**
      * @type {number}
      * @private
      */
     _blocksToConfirm = 10
+
+    /**
+     * @type {boolean}
+     * @private
+     */
+    _useInternal = true
 
     /**
      * @param {string} address
@@ -38,15 +46,18 @@ export default class EthScannerProcessor extends EthBasic {
         let link = this._etherscanApiPath
         let logTitle = 'EthScannerProcessor.getTransactions'
         let isInternal = false
-        if (typeof CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL[address] === 'undefined' || CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL[address] == 2) {
-            CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL[address] = 1
-        } else {
-            CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL[address] = 2
-            link = this._etherscanApiPathInternal
-            logTitle = 'EthScannerProcessor.getTransactions forInternal'
-            isInternal = true
+        if (this._useInternal) {
+            if (typeof CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL[address] === 'undefined' || CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL[address] == 2) {
+                CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL[address] = 1
+            } else {
+                CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL[address] = 2
+                link = this._etherscanApiPathInternal
+                logTitle = 'EthScannerProcessor.getTransactions forInternal'
+                isInternal = true
+            }
         }
         link += '&address='+ address
+        BlocksoftCryptoLog.log(logTitle + ' started', link)
         let tmp = await BlocksoftAxios.getWithoutBraking(link)
         if (!tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.result === 'undefined') {
             return []
@@ -56,7 +67,7 @@ export default class EthScannerProcessor extends EthBasic {
         }
 
         let transactions = await this._unifyTransactions(address, tmp.data.result, isInternal)
-        
+
         BlocksoftCryptoLog.log(logTitle + ' finished', address)
         return transactions
     }
@@ -108,16 +119,6 @@ export default class EthScannerProcessor extends EthBasic {
      * @protected
      */
     async _unifyTransaction(address, transaction, isInternal = false) {
-        let confirmations = transaction.confirmations;
-        let transaction_status = 'new'
-        if (typeof transaction.txreceipt_status === 'undefined' || transaction.txreceipt_status === '1') {
-            if (confirmations > this._blocksToConfirm) {
-                transaction_status = 'success'
-            }
-        } else if (transaction.isError !== '0') {
-            transaction_status = 'fail'
-        }
-
         if (typeof transaction.timeStamp === "undefined") {
             new Error(' no transaction.timeStamp error transaction data ' + JSON.stringify(transaction))
         }
@@ -135,7 +136,34 @@ export default class EthScannerProcessor extends EthBasic {
             if (transaction.type !== 'call') {
                 return false
             }
+
+            if (typeof CACHE_BLOCK_NUMBER_TO_HASH[transaction.blockNumber] === 'undefined') {
+                let data = await this._web3.eth.getTransaction(transaction.hash)
+                CACHE_BLOCK_NUMBER_TO_HASH[transaction.blockNumber] = data.blockHash
+            }
+            transaction.blockHash = CACHE_BLOCK_NUMBER_TO_HASH[transaction.blockNumber]
+            transaction.confirmations = CACHE_GET_MAX_BLOCK.max_block_number - transaction.blockNumber + 1*CACHE_GET_MAX_BLOCK.confirmations
+        } else {
+            CACHE_BLOCK_NUMBER_TO_HASH[transaction.blockNumber] = transaction.blockHash
         }
+
+        let confirmations = transaction.confirmations;
+        if (confirmations > 0 && transaction.blockNumber > CACHE_GET_MAX_BLOCK.max_block_number) {
+            CACHE_GET_MAX_BLOCK.max_block_number = transaction.blockNumber
+            CACHE_GET_MAX_BLOCK.confirmations = confirmations
+        }
+        let transaction_status = 'new'
+        if (typeof transaction.txreceipt_status === 'undefined' || transaction.txreceipt_status === '1') {
+            if (confirmations > this._blocksToConfirm) {
+                transaction_status = 'success'
+            }
+        } else if (transaction.isError !== '0') {
+            transaction_status = 'fail'
+        }
+        if (isInternal) {
+            transaction_status = 'internal_' + transaction_status
+        }
+
         let tx = {
             transaction_hash: transaction.hash,
             block_hash: transaction.blockHash,

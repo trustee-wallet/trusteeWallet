@@ -106,8 +106,8 @@ android {
         applicationId "com.trusteewallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.29.347"
+        versionCode 362
+        versionName "1.29.362"
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
 
@@ -133,7 +133,12 @@ android {
                 storePassword MYAPP_RELEASE_STORE_PASSWORD
                 keyAlias MYAPP_RELEASE_KEY_ALIAS
                 keyPassword MYAPP_RELEASE_KEY_PASSWORD
-            }
+            } else {
+                storeFile file('debug.keystore')
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
+              }
         }
     }
     buildTypes {

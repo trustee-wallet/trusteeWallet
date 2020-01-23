@@ -84,6 +84,7 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
             await this.getTransferPrecache(data)
         }
 
+        let correctedAmountFrom = data.amount //USDT FIX!!!!
         let preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'sendTx')
         let logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.sendTx')
 
@@ -96,13 +97,13 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
                 // can do something here to try more
                 logInputsOutputs['error'] = e.basicMessage
                 logInputsOutputs['userError'] = e.message
-                MarketingEvent.logOnlyRealTime('prepared_inputs_outputs_user_error ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+                MarketingEvent.logOnlyRealTime('usdt_error_1_1 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
 
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx basicMessage', e.basicMessage)
                 throw e
             } else {
                 logInputsOutputs['userError'] = e.message
-                MarketingEvent.logOnlyRealTime('prepared_inputs_outputs_system_error ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+                MarketingEvent.logOnlyRealTime('usdt_error_1_2 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
 
                 // noinspection JSUndefinedPropertyAssignment
                 data.rawTxHex = rawTxHex
@@ -110,15 +111,15 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
             }
         }
         if (!result) {
-            MarketingEvent.logOnlyRealTime('prepared_inputs_outputs_empty_result ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+            MarketingEvent.logOnlyRealTime('usdt_error_1_3 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
             throw new Error('no result')
         }
         //start prepare for next transactions
         this._precached.time = 0
 
         logInputsOutputs['hash'] = result
-        MarketingEvent.logOnlyRealTime('prepared_inputs_outputs_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+        MarketingEvent.logOnlyRealTime('usdt_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
 
-        return { hash: result, correctedAmountFrom: preparedInputsOutputs.correctedAmountFrom }
+        return { hash: result, correctedAmountFrom: correctedAmountFrom }
     }
 }

@@ -77,6 +77,27 @@ export default class UsdtScannerProcessor {
         return transactions
     }
 
+    /**
+     *
+     * @param {string} address
+     * @param {Object} transaction
+     * @param {string} transaction.block_number: 467352,
+     * @param {string} transaction.transaction_block_hash: '0000000000000000018e86423804e917c75348090419a46e506bc2d4818c2827',
+     * @param {string} transaction.transaction_hash: '7daaa478c829445c967d4607345227286a23acd20f5bc80709e418d0e286ecf1',
+     * @param {string} transaction.transaction_txid: '7daaa478c829445c967d4607345227286a23acd20f5bc80709e418d0e286ecf1',
+     * @param {string} transaction.from_address: '1GYmxyavRvjCMsmfDR2uZLMsCPoFNYw9zM',
+     * @param {string} transaction.to_address: '1Po1oWkD2LmodfkBYiAktwh76vkF93LKnh',
+     * @param {string} transaction.amount: 0.744019,
+     * @param {string} transaction.fee: 0.0008,
+     * @param {string} transaction.custom_type: '',
+     * @param {string} transaction.custom_valid: '',
+     * @param {string} transaction.created_time: '2017-05-20T22:28:15.000Z',
+     * @param {string} transaction.updated_time: null,
+     * @param {string} transaction.removed_time: null,
+     * @param {string} transaction._removed: 0,
+     * @return {UnifiedTransaction}
+     * @private
+     */
     async _unifyTransaction(address, transaction) {
         let confirmations = this.lastBlock - transaction.block_number
         let transaction_status = confirmations > this._blocksToConfirm ? 'success' : 'new'

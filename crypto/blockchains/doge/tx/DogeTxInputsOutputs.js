@@ -20,6 +20,24 @@ export default class DogeTxInputsOutputs {
     _minFee = 1000
 
     /**
+     * @type {number}
+     * @private
+     */
+    _minOutputToBeDusted = 100000000 // 1 doge
+
+    /**
+     * @type {number}
+     * @private
+     */
+    _minChangeToUseAsFeePlus = 500000 // 0.005 doge
+
+    /**
+     * @type {number}
+     * @private
+     */
+    _minChangeThreshold = 500000 // 0.005 doge
+
+    /**
      * @param {string} data.addressFrom
      * @param {string} data.addressTo
      * @param {string|number} data.amount
@@ -29,7 +47,7 @@ export default class DogeTxInputsOutputs {
      * @param {string} precached.blocks_2
      * @param {UnifiedUnspent[]} precached.unspents
      * @param {string} subtitle
-     * @returns {{outputs: [], inputs: [], correctedAmountFrom: string, feeForByte: (number|string)}}
+     * @returns {{outputs: [], inputs: [], correctedAmountFrom: string, feeForByte: (number|string), msg: string}}
      */
     getInputsOutputs(data, precached, subtitle) {
         if (typeof data.privateKey === 'undefined') {
@@ -105,12 +123,18 @@ export default class DogeTxInputsOutputs {
 
         let ic = filteredUnspents.length
         let msg = 'totalInputs ' + ic + ' for wishedAmount ' + wishedAmountBN.toString() + ' = ' + BlocksoftUtils.toUnified(wishedAmountBN.toString(), this._settings.decimals)
+        if (autocalculateFee) {
+            msg += ' and autocalculate fee'
+        } else {
+            msg += ' and fee ' + data.feeForTx.feeForTx + ' = ' + BlocksoftUtils.toUnified(data.feeForTx.feeForTx.toString(), this._settings.decimals)
+        }
 
         let inputs = []
         let inputsBalanceBN = BlocksoftUtils.toBigNumber(0)
         let leftBalanceBN = totalBalanceBN
 
 
+        let someUnusedOutput = false
         for (let i = 0; i < ic; i++) {
             if (data.addressForChange !== 'TRANSFER_ALL' && wishedAmountBN.sub(inputsBalanceBN) < 0) {
                 msg += ' finished by collectedAmount ' + inputsBalanceBN.toString()
@@ -131,11 +155,14 @@ export default class DogeTxInputsOutputs {
             } else {
                 msg += ' ' + i + ') skipped ' + unspent.value
                 leftBalanceBN = leftBalanceBN.sub(unspent.valueBN)
+                if (unspent.value > this._minOutputToBeDusted) {
+                    someUnusedOutput = unspent
+                }
             }
         }
 
         let inputsMinusWishedBN = inputsBalanceBN.sub(wishedAmountBN)
-        if (inputsMinusWishedBN > 100000) {
+        if (inputsMinusWishedBN > this._minChangeThreshold) {
             if (autocalculateFee) {
                 let size = 192
                 let sizeMsg = ' basic 192'
@@ -147,17 +174,36 @@ export default class DogeTxInputsOutputs {
                 if (fee < this._minFee) {
                     fee = this._minFee
                 }
-                let change = inputsBalanceBN.sub(wishedAmountBN).sub(BlocksoftUtils.toBigNumber(fee)).toString()
-                if (change > 10000) {
-                    outputs.push({
-                        'to': addressForChange,
-                        'amount': change
-                    })
-                    msg += ' change will be ' + change
-                    msg += ' fee will be ' + fee
+                let changeBN = inputsBalanceBN.sub(wishedAmountBN).sub(BlocksoftUtils.toBigNumber(fee))
+                let change = changeBN.toString()
+                if (change > this._minChangeToUseAsFeePlus) {
+                    if (addressForChange === outputs[0].to) {
+                        outputs[0].amount = outputs[0].amount * 1 + change * 1
+                        msg += ' change is added to first output '
+                    } else {
+                        if (change < this._minOutputToBeDusted) {
+                            if (someUnusedOutput) {
+                                outputs.push({
+                                    'to': addressForChange,
+                                    'amount': someUnusedOutput.valueBN.add(changeBN).toString()
+                                })
+                                inputs.push(someUnusedOutput)
+                                msg += ' change will be ' + change + ' + one input ' + someUnusedOutput.value
+                            } else {
+                                msg += ' change will go also to the fee as no more inputs to use'
+                            }
+                        } else {
+                            outputs.push({
+                                'to': addressForChange,
+                                'amount': change
+                            })
+                            msg += ' change will be ' + change
+                        }
+                    }
+                    msg += ' fee [1.1.1] will be ' + fee
                     msg += ' feeAutoCalculate: size' + sizeMsg + ' = ' + size + ' bytes = ' + fee + ' satoshi '
                 } else {
-                    msg += ' fee will be ' + (fee + change)
+                    msg += ' fee [1.1.2] will be ' + (fee + change)
                     msg += ' feeAutoCalculate: size' + sizeMsg + ' = ' + size + ' bytes = ' + fee + ' satoshi '
                 }
                 if (change < 0) {
@@ -166,13 +212,32 @@ export default class DogeTxInputsOutputs {
                     return this._tryToFind(data, size, precached, 'autofee 1.1 => fixed' )
                 }
             } else {
+                let changeBN = inputsMinusWishedBN
                 let change = inputsMinusWishedBN.toString()
-                outputs.push({
-                    'to': addressForChange,
-                    'amount': change
-                })
-                msg += ' change will be ' + change
-                msg += ' fee will be ' + data.feeForTx.feeForTx
+                if (addressForChange === outputs[0].to) {
+                    outputs[0].amount = outputs[0].amount * 1 + change * 1
+                    msg += ' change is added to first output '
+                } else {
+                    if (change < this._minOutputToBeDusted) {
+                        if (someUnusedOutput) {
+                            outputs.push({
+                                'to': addressForChange,
+                                'amount': someUnusedOutput.valueBN.add(changeBN).toString()
+                            })
+                            inputs.push(someUnusedOutput)
+                            msg += ' change will be ' + change + ' + one input ' + someUnusedOutput.value
+                        } else {
+                            msg += ' change will go also to the fee as no more inputs to use'
+                        }
+                    } else {
+                        outputs.push({
+                            'to': addressForChange,
+                            'amount': change
+                        })
+                        msg += ' change will be ' + change
+                    }
+                }
+                msg += ' fee [1.2] will be ' + data.feeForTx.feeForTx
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxInputsOutputs.getInputsOutputs ' + subtitle + ' 1.2 with change ' + change + ' ' + msg)
             }
         } else {
@@ -185,7 +250,7 @@ export default class DogeTxInputsOutputs {
                 if (fee < this._minFee) {
                     fee = this._minFee
                 }
-                msg += ' fee will be ' + fee
+                msg += ' fee [2.1] will be ' + fee
                 msg += ' feeAutoCalculate: size' + sizeMsg + ' = ' + size + ' bytes = ' + fee + ' satoshi '
                 if (data.addressForChange === 'TRANSFER_ALL') {
                     outputs[0].amount = inputsBalanceBN.sub(BlocksoftUtils.toBigNumber(fee)).toString()
@@ -204,29 +269,50 @@ export default class DogeTxInputsOutputs {
                     if (data.addressForChange === 'TRANSFER_ALL') {
                         outputs[0].amount = inputsBalanceBN.sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).toString()
                     } else {
-                        let canWait = (useOnlyConfirmed && unconfirmedBN.add(inputsMinusWishedBN).toString() > 0)
-                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.2 with leftSmallChange ' + change + ' ' + msg)
-                        let e = new Error((useOnlyConfirmed && unconfirmedBN.add(inputsMinusWishedBN).toString() > 0) ? 'SERVER_RESPONSE_WAIT_FOR_CONFIRM' : 'SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+                        let canWait = 0
+                        let e
+                        if (useOnlyConfirmed) canWait = unconfirmedBN.add(inputsMinusWishedBN).toString()
+                        if (canWait > 0) {
+                            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.2.1 with leftSmallChange ' + change + ' ' + msg + ' canWait ' + canWait)
+                            e = new Error('SERVER_RESPONSE_WAIT_FOR_CONFIRM')
+                        } else {
+                            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.2.2 with leftSmallChange ' + change + ' ' + msg + ' canWait ' + canWait)
+                            if (data.feeForTx.feeForTx >= -1 * change) {
+                                e = new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
+                            } else {
+                                e = new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+                            }
+
+                        }
                         e.code = 'ERROR_USER'
                         throw e
                     }
                 }
-                msg += ' fees will be ' + change
+                msg += ' fees [2.2] will be ' + change
                 msg += ' fees started ' + data.feeForTx.feeForTx
             }
         }
 
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxInputsOutputs.getInputsOutputs ' + subtitle + ' ' + msg)
         if (outputs[0].amount < 0) {
-            let e = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE')
-            e.code = 'ERROR_USER'
-            throw e
+            let canWait = 0
+            if (useOnlyConfirmed) canWait = unconfirmedBN.toString()
+            if (canWait > 0) {
+                let e = new Error('SERVER_RESPONSE_WAIT_FOR_CONFIRM')
+                e.code = 'ERROR_USER'
+                throw e
+            } else {
+                let e = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE')
+                e.code = 'ERROR_USER'
+                throw e
+            }
         }
         return {
             inputs,
             outputs,
             correctedAmountFrom,
-            feeForByte
+            feeForByte,
+            msg
         }
     }
 

@@ -173,7 +173,10 @@ export default {
         return fromHashToAddress(hash)
     },
     toLegacyAddress(address) {
-        if (address.substr(0, 2) !== 'qz') {
+        if (address.indexOf('bitcoincash:') === 0) {
+            address = address.substr(12)
+        }
+        if (address.substr(0, 1) !== 'q') {
             return address
         }
         let payloadBack = base32decode(address)

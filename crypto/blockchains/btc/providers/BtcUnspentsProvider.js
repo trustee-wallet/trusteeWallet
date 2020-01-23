@@ -36,8 +36,11 @@ export default class BtcUnspentsProvider {
 
         let link = this._trezorPath + address //?confirmed=true
         let res = await BlocksoftAxios.getWithoutBraking(link)
-        if (!res || !res.data || typeof res.data[0] === 'undefined') {
+        if (!res || typeof res.data === 'undefined') {
             throw new Error(this._settings.currencyCode + ' BtcUnspentsProvider.getUnspents nothing loaded for address')
+        }
+        if (!res.data || typeof res.data[0] === 'undefined') {
+            return []
         }
         let sortedUnspents = []
         for (let unspent of res.data) {

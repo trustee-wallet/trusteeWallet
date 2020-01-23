@@ -61,8 +61,11 @@ export default class DogeScannerProcessor {
         }
         let link = this._trezorPath + address + '?details=txs'
         let res = await BlocksoftAxios.getWithoutBraking(link)
-        if (!res || !res.data || typeof res.data.balance === 'undefined') {
-            throw new Error(this._settings.currencyCode + ' DogeScannerProcessor._get nothing loaded for address')
+        if (!res || !res.data) {
+            return false
+        }
+        if (typeof res.data.balance === 'undefined') {
+            throw new Error(this._settings.currencyCode + ' DogeScannerProcessor._get nothing loaded for address ' + link)
         }
         CACHE[address] = {
             data: res.data,
@@ -78,6 +81,9 @@ export default class DogeScannerProcessor {
     async getBalance(address) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeScannerProcessor.getBalance started', address)
         let res = await this._get(address)
+        if (!res) {
+            return false
+        }
         return { balance: res.balance, unconfirmed: res.unconfirmedBalance, provider: 'trezor' }
     }
 
@@ -89,7 +95,7 @@ export default class DogeScannerProcessor {
         address = address.trim()
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeScannerProcessor.getTransactions started', address)
         let res = await this._get(address)
-        if (typeof res.transactions === 'undefined' || !res.transactions) return []
+        if (!res || typeof res.transactions === 'undefined' || !res.transactions) return []
         let transactions = []
         for (let tx of res.transactions) {
             let transaction = await this._unifyTransaction(address, tx)

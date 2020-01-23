@@ -17,10 +17,10 @@ export default class XrpAddressProcessor {
         //}
         let keyPair = bitcoin.ECPair.fromPrivateKey(privateKey, {network: this._currentBitcoinNetwork})
         let btcPrivateKey = keyPair.toWIF()
-        let ripplePrivateKey = basex('').decode(btcPrivateKey).toString("hex").slice(2,66)
+        let ripplePrivateKey = basex('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz').decode(btcPrivateKey).toString("hex").slice(2,66)
         let btcAddress = bitcoin.payments.p2pkh({pubkey: keyPair.publicKey, network: bitcoin.networks.bitcoin}).address
-        let rippleAddress = basex('').encode(
-            basex('').decode(btcAddress)
+        let rippleAddress = basex('rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz').encode(
+            basex('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz').decode(btcAddress)
         )
         return {address: rippleAddress, privateKey: ripplePrivateKey, addedData : {publicKey : data.publicKey.toString('hex')}}
     }

@@ -86,7 +86,10 @@ class BlocksoftAxios {
                 || e.message.indexOf('timeout of 0ms exceeded') !== -1
                 || e.message.indexOf('Forbidden: Access is denied') !== -1
                 || e.message.indexOf('500 Internal') !== -1
+                || e.message.indexOf('502 Bad Gateway') !== -1
                 || e.message.indexOf('504 Gateway') !== -1
+                || e.message.indexOf('403 Forbidden') !== -1
+                || e.message.indexOf('Webservice currently unavailable') !== -1
             ) {
                 // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link, e.message)
@@ -100,7 +103,11 @@ class BlocksoftAxios {
             } else if (link.indexOf('/api/v2/sendtx/') !== -1) {
                 // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link, e.message, 'GET EXTERNAL LINK ERROR')
-                customError.code = 'ERROR_SYSTEM'
+                customError.code = 'ERROR_NOTICE'
+            } else if (e.message.indexOf('account not found') !== -1) {
+                // noinspection ES6MissingAwait
+                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link, e.message) // just nothing found
+                return false
             } else {
                 BlocksoftCryptoLog.err('BlocksoftAxios.' + method + ' ' + link, e.message, 'GET EXTERNAL LINK ERROR')
                 customError.code = 'ERROR_SYSTEM'

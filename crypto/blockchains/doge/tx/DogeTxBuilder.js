@@ -2,12 +2,20 @@
  * @version 0.5
  */
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+import BlocksoftUtils from '../../../common/BlocksoftUtils'
 
 const networksConstants = require('../../../common/ext/networks-constants')
 
 let bitcoin = require('bitcoinjs-lib')
 
 export default class DogeTxBuilder {
+
+    /**
+     * @type {number}
+     * @private
+     */
+    _minFeeLimit  = 10000000 // 0.1 doge
+
     constructor(settings) {
         this._settings = settings
         this._bitcoinNetwork = networksConstants[settings.network].network
@@ -58,9 +66,14 @@ export default class DogeTxBuilder {
      * @param {string} preparedInputsOutputs.inputs].valueBN
      * @param {string} preparedInputsOutputs.outputs[].to
      * @param {string} preparedInputsOutputs.outputs[].amount
-     * @return {Promise<string>}
+     * @param {string} logInputsOutputs.msg
+     * @param {string} logInputsOutputs.totalIn
+     * @param {string} logInputsOutputs.diffInOutReadable
+     * @param {string} logInputsOutputs.diffInOut
+     * @param {string} logInputsOutputs.totalOut
+     * @private
      */
-    getRawTx(data, preparedInputsOutputs) {
+    getRawTx(data, preparedInputsOutputs, logInputsOutputs) {
         if (typeof data.privateKey === 'undefined') {
             throw new Error('DogeTxBuilder.getRawTx requires privateKey')
         }
@@ -71,13 +84,21 @@ export default class DogeTxBuilder {
         this._getRawTxValidateKeyPair(data.privateKey, data.addressFrom, data)
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx validated address private key')
 
-        let txb
-        if (preparedInputsOutputs.feeForByte <= 250 ) {
-            txb = new bitcoin.TransactionBuilder(this._bitcoinNetwork)
-        } else {
-            BlocksoftCryptoLog.log('preparedInputsOutputs.feeForByte', preparedInputsOutputs.feeForByte)
-            txb = new bitcoin.TransactionBuilder(this._bitcoinNetwork, preparedInputsOutputs.feeForByte * 10)
+        let feeLimit = preparedInputsOutputs.feeForByte * 10000
+        BlocksoftCryptoLog.log('preparedInputsOutputs.feeLimit_1', feeLimit)
+        if (feeLimit < logInputsOutputs.diffInOut) {
+            feeLimit = logInputsOutputs.diffInOut * 1
+            BlocksoftCryptoLog.log('preparedInputsOutputs.feeLimit_2', feeLimit)
         }
+        if (feeLimit < this._minFeeLimit) {
+            feeLimit = this._minFeeLimit
+            BlocksoftCryptoLog.log('preparedInputsOutputs.feeLimit_3', feeLimit)
+        }
+        let txb = new bitcoin.TransactionBuilder(this._bitcoinNetwork, feeLimit)
+        BlocksoftCryptoLog.log('preparedInputsOutputs.feeForByte', preparedInputsOutputs.feeForByte)
+
+
+
         txb.setVersion(1)
 
         let log = { inputs: [], outputs: [] }

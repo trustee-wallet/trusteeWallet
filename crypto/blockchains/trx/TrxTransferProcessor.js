@@ -12,6 +12,7 @@ import TrxTrongridProvider from './basic/TrxTrongridProvider'
 
 export default class TrxTransferProcessor {
     constructor(settings) {
+        this._settings = settings
         this._tronNodePath = 'https://api.trongrid.io'
         this._tronscanProvider = new TrxTronscanProvider()
         this._trongridProvider = new TrxTrongridProvider()
@@ -89,8 +90,13 @@ export default class TrxTransferProcessor {
         if (typeof data.addressTo === 'undefined') {
             throw new Error('TRX transaction required addressTo')
         }
+        if (data.addressFrom === data.addressTo) {
+            let e = new Error('SERVER_RESPONSE_SELF_TX_FORBIDDEN')
+            e.code = 'ERROR_USER'
+            throw e
+        }
 
-        BlocksoftCryptoLog.log('TrxTxProcessor.sendTx started')
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx started')
 
         let to_address, owner_address
 
@@ -160,19 +166,45 @@ export default class TrxTransferProcessor {
             }
         }
 
-        BlocksoftCryptoLog.log('TrxTxProcessor.sendTx tx', tx)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx tx', tx)
 
         tx.signature = [TronUtils.ECKeySign(Buffer.from(tx.txID, 'hex'), Buffer.from(data.privateKey, 'hex'))]
-        BlocksoftCryptoLog.log('TrxTxProcessor.sendTx signed', tx)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx signed', tx)
 
         let send = await BlocksoftAxios.post(this._tronNodePath + '/wallet/broadcasttransaction', tx)
-        BlocksoftCryptoLog.log('TrxTxProcessor.sendTx broadcast', send.data)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx broadcast', send.data)
 
+        if (!send.data) {
+            let e = new Error('SERVER_RESPONSE_NOT_CONNECTED')
+            e.code = 'ERROR_USER'
+            throw e
+        }
         if (typeof send.data.Error != 'undefined') {
             throw new Error(send.data.Error)
         }
         if (typeof send.data.result === 'undefined') {
-            throw new Error('transaction result is undefined ' + JSON.stringify(send.data))
+            if (typeof (send.data.message) !== 'undefined') {
+                let msg = false
+                try {
+                    let buf = Buffer.from(send.data.message, 'hex')
+                    msg = buf.toString('')
+                } catch (e) {
+
+                }
+                if (msg) {
+                    send.data.decoded = msg
+                    if (msg.indexOf('balance is not sufficient') !== -1) {
+                        let e = new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+                        e.code = 'ERROR_USER'
+                        throw e
+                    } else if (msg.indexOf('Amount must greater than 0') !== -1) {
+                        let e = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
+                        e.code = 'ERROR_USER'
+                        throw e
+                    }
+                }
+            }
+            throw new Error('no transaction result ' + JSON.stringify(send.data))
         }
         if (send.data.result !== true) {
             throw new Error('transaction result is false ' + JSON.stringify(send.data))

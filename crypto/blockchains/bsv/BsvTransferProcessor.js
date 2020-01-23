@@ -8,7 +8,7 @@ import BsvSendProvider from './providers/BsvSendProvider'
 
 import DogeTxInputsOutputs from '../doge/tx/DogeTxInputsOutputs'
 
-import DogeTxBuilder from '../doge/tx/DogeTxBuilder'
+import BsvTxBuilder from './tx/BsvTxBuilder'
 
 export default class BsvTransferProcessor extends DogeTransferProcessor {
 
@@ -20,7 +20,7 @@ export default class BsvTransferProcessor extends DogeTransferProcessor {
         this.unspentsProvider = new BsvUnspentsProvider(this._settings)
         this.sendProvider = new BsvSendProvider(this._settings)
         this.txPrepareInputsOutputs = new DogeTxInputsOutputs(this._settings)
-        this.txBuilder = new DogeTxBuilder(this._settings)
+        this.txBuilder = new BsvTxBuilder(this._settings)
         this._initedProviders = true
     }
 }

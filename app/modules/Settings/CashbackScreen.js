@@ -33,7 +33,7 @@ import Cashback from '../../services/Cashback/Cashback'
 import { strings } from '../../services/i18n'
 import authDS from '../../appstores/DataSource/Auth/Auth'
 import QRCode from 'react-native-qrcode'
-import { copyToClipboard } from '../../services/utils'
+import utils, { copyToClipboard } from '../../services/utils'
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window")
 
@@ -195,16 +195,13 @@ class CashbackScreen extends Component {
 
     handleWithdraw = () => {
         const { data: cashbackData} = this.props.cashbackStore
-        const { localCurrencySymbol, localCurrencyRate, uahRate } = this.props.fiatRatesStore
 
-        const minWithdraw = ((2 * uahRate) / localCurrencyRate).toFixed(2)
-
-        if(cashbackData.cashbackBalance < 2 * uahRate){
+        if(cashbackData.cashbackBalance < 2){
             showModal({
                 type: 'INFO_MODAL',
                 icon: false,
                 title: strings('modal.exchange.sorry'),
-                description: strings('cashback.minWithdraw') + ' ' + minWithdraw + ' ' + localCurrencySymbol,
+                description: strings('cashback.minWithdraw') + ' ' + 2 + ' ' + "USDT",
             })
         } else {
             showModal({
@@ -307,7 +304,7 @@ class CashbackScreen extends Component {
                                                 </Text>
                                                 <Text style={[styles.cashbackInfo__title]}>
                                                     {': '}
-                                                    { 1 * (cashbackData.overalVolume / localCurrencyRate).toFixed(2) }{ localCurrencySymbol }
+                                                    { 1 * utils.prettierNumber(cashbackData.overalVolume, 6) } USDT
                                                 </Text>
                                             </View>
                                             <View style={styles.cashbackInfo__item}>
@@ -316,7 +313,7 @@ class CashbackScreen extends Component {
                                                 </Text>
                                                 <Text style={[styles.cashbackInfo__title]}>
                                                     {': '}
-                                                    { 1 * (cashbackData.cashbackBalance / localCurrencyRate).toFixed(cashbackData.cashbackBalance / localCurrencyRate > 1 ? 2 : 5) }{ localCurrencySymbol }
+                                                    { 1 * utils.prettierNumber(cashbackData.cashbackBalance, 6)  } USDT
                                                 </Text>
                                             </View>
                                             <View style={styles.cashbackInfo__item}>
@@ -550,8 +547,8 @@ const styles = {
         right: 5,
         top: 0,
 
-        minWidth: 70,
-        maxWidth: 70,
+        minWidth: 100,
+        maxWidth: 100,
 
         fontSize: 11,
         color: '#fefdfd',
@@ -559,7 +556,7 @@ const styles = {
     },
     cashbackInfo__text: {
         marginRight: 5,
-        paddingRight: 70,
+        paddingRight: 100,
 
         fontSize: 11,
         color: '#fefdfd',

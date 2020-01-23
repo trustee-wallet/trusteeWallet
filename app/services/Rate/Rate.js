@@ -120,16 +120,16 @@ class Rate {
         if (res) {
             this.tryCounter = 0
             this.tryLogs = ''
-        } else {
+        } else if (totalError !== '') {
             if (Log.isNetworkError(totalError) && this.tryCounter < 100) {
                 this.tryCounter++
                 let date = (new Date()).toISOString().replace(/T/, ' ').replace(/\..+/, '')
                 this.tryLogs += ' [' + date + '] ' + totalError
                 Log.log('DMN/Rate network try ' + this.tryCounter + ' ' + totalError)
             } else if (totalError.indexOf('wrong code') === -1) {
-                Log.err('DMN/Rate error ' + totalError + ' prev try ' + this.tryLogs)
+                Log.err('DMN/Rate error2 ' + totalError + ' tryCounter: ' + this.tryCounter + ' prev try ' + this.tryLogs)
             } else {
-                Log.err(`DMN/Rate error ` + this._data.currencyCode + ' ' + totalError + (this.tryLogs ? (' prev try ' + this.tryLogs) : ''))
+                Log.err(`DMN/Rate error1 ` + this._data.currencyCode + ' ' + totalError + (this.tryLogs ? (' prev try ' + this.tryLogs) : ''))
             }
         }
 

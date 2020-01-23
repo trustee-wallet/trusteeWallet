@@ -49,7 +49,7 @@ export default class EthBasic {
             case 'mainnet':
             case 'ropsten':
             //case 'kovan' : case 'rinkeby' : case 'goerli' :
-                this._web3Link = `https://${settings.network}.infura.io/v3/e69df96932bd4e9db74514788d6e0c85`
+                this._web3Link = `https://${settings.network}.infura.io/v3/e69df96932bd4e9db7451fab8d6e0c85`
                 break
             default:
                 throw new Error('while retrieving Ethereum address - unknown Ethereum network specified. Proper values are "mainnet", "ropsten", "kovan", rinkeby". Got : ' + settings.network)

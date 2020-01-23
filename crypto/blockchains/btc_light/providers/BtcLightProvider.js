@@ -179,7 +179,7 @@ class BtcLightProvider {
             if (typeof e.response.data != 'undefined') {
                 e = new Error(e.response.data)
             }
-            e.code = 'USER_ERROR'
+            e.code = 'ERROR_USER'
             throw e
         }
         return res.data
@@ -204,7 +204,7 @@ class BtcLightProvider {
             if (typeof e.response.data != 'undefined') {
                 e = new Error(e.response.data)
             }
-            e.code = 'USER_ERROR'
+            e.code = 'ERROR_USER'
             throw e
         }
 
@@ -230,7 +230,7 @@ class BtcLightProvider {
             if (typeof res.response.data != 'undefined') {
                 e.message = res.response.data
             }
-            e.code = 'USER_ERROR'
+            e.code = 'ERROR_USER'
             throw e
         }
         return res.data

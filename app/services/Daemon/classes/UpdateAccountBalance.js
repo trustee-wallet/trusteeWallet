@@ -71,10 +71,11 @@ class UpdateAccountBalance extends Update {
                         Log.daemon('DMN/UpdateAccountBalance changing address ' + account.currencyCode + ' ' + account.address + ' => ' + addressToScan)
                     }
                     newBalance = await ( BlocksoftBalances.setCurrencyCode(account.currencyCode).setAddress(addressToScan).setAdditional(account.accountJSON) ).getBalance()
-                    if (typeof newBalance.balance === 'undefined') {
-                        Log.err('DMN/UpdateAccountBalance something wrong with balance ' + account.currencyCode + ' ' + addressToScan + ' => ' + JSON.stringify(newBalance))
+                    if (!newBalance || typeof newBalance.balance === 'undefined') {
+                        Log.log('DMN/UpdateAccountBalance something wrong with balance ' + account.currencyCode + ' ' + addressToScan + ' => ' + JSON.stringify(newBalance))
+                    } else {
+                        balanceIsOk = true
                     }
-                    balanceIsOk = true
                 } catch (e) {
                     // actually we need to update scan time even for error addresses thats why
                 }

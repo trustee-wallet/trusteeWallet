@@ -222,7 +222,10 @@
       "success": "Success",
       "pending": "Pending",
       "new": "New",
-      "fail": "Fail"
+      "fail": "Fail",
+      "internal_success": "Success from Contract",
+      "internal_new": "New from Contract",
+      "internal_fail": "Fail from Contract"
     },
     "receiveScreen": {
       "title": "%{receive}",
@@ -425,10 +428,15 @@
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Transaction fee too small",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Transaction amount too small",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Nothing to transfer",
+      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE" : "Nothing left to pay for fee - please, use Send All button",
       "SERVER_RESPONSE_NO_RESPONSE" : "Server not accepting transaction - please wait for other transactions to be mined",
       "SERVER_RESPONSE_NOT_CONNECTED" : "Server not connected - please wait a little bit",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Transaction amount too small for any fee",
-      "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Please wait for other transactions to be mined or turn on usage of unconfirmed transactions"
+      "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Please wait for other transactions to be mined or turn on usage of unconfirmed transactions",
+      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Transaction fee too big - please, select less fee manually or enter bigger amount to transfer",
+      "SERVER_RESPONSE_SELF_TX_FORBIDDEN" : "Transaction to the same address are forbidden",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP" : "Not enough balance - 20 XRP should be left on account balance",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP" : "Not enough amount - send 20 XRP or more to the destination address as it has no transactions yet"
     }
   },
   "walletBackup": {

@@ -8,6 +8,12 @@ const abi = require('./ext/erc20.js')
 
 export default class EthScannerProcessorErc20 extends EthScannerProcessor {
 
+    /**
+     * @type {boolean}
+     * @private
+     */
+    _useInternal = false
+
     constructor(settings) {
         super(settings)
         // noinspection JSUnusedGlobalSymbols

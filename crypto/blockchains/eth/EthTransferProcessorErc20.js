@@ -8,6 +8,11 @@ import BlocksoftUtils from '../../common/BlocksoftUtils'
 const abi = require('./ext/erc20.js')
 
 export default class EthTransferProcessorErc20 extends EthTransferProcessor {
+    /**
+     * @type {boolean}
+     * @private
+     */
+    _checkBalance = false
 
     constructor(settings) {
         super(settings)

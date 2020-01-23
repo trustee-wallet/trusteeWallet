@@ -19,12 +19,17 @@ export default class BchScannerProcessor {
      */
     _blocksToConfirm = 5
 
+    /**
+     * https://rest.bitcoin.com/v2/address/details/bitcoincash:qz648fxef095dynxte9kyr5na04cfhpkvsrr3cqme2
+     * @param {string} address
+     * @return {Promise<{int:balance, int:provider}>}
+     */
     async getBalance(address) {
         BlocksoftCryptoLog.log('BchScannerProcessor.getBalance started', address)
         let link = API_PATH + address
         let res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || typeof res.data === 'undefined' || !res.data || typeof res.data.balanceSat === 'undefined') {
-            return {balance : 0, unconfirmed: 0, provider: 'bitcoin.com' }
+            return false
         }
         return {balance: res.data.balanceSat, unconfirmed: res.data.unconfirmedBalanceSat, provider: 'bitcoin.com' }
     }

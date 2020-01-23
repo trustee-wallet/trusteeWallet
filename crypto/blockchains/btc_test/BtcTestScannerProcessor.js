@@ -27,7 +27,7 @@ export default class BtcTestScannerProcessor {
         let link = API_PATH + address
         let res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || !res.data || typeof(res.data.balanceSat) === 'undefined') {
-            return {balance : 0, unconfirmed: 0, provider: 'blockexplorer.com' }
+            return false
         }
         return {balance: res.data.balanceSat, unconfirmed: res.data.unconfirmedBalanceSat, provider: 'blockexplorer.com' }
     }

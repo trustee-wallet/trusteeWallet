@@ -17,6 +17,11 @@ export default class XrpScannerProcessor {
 
     }
 
+    /**
+     * https://data.ripple.com/v2/accounts/rL2SpzwrCZ4N2BaPm88pNGGHkPLzejZgB8/balances
+     * @param {string} address
+     * @return {Promise<{balance, unconfirmed, provider}>}
+     */
     async getBalance(address) {
         let link = `${API_PATH}/accounts/${address}/balances`
         let res = false
@@ -35,6 +40,8 @@ export default class XrpScannerProcessor {
         } catch (e) {
             if (e.message.indexOf('account not found') === -1) {
                 throw e
+            } else {
+                return false
             }
         }
         return { balance: balance, unconfirmed: 0, provider: 'ripple.com' }
@@ -50,18 +57,29 @@ export default class XrpScannerProcessor {
         let action = 'payments'
         BlocksoftCryptoLog.log('XrpScannerProcessor.getTransactions ' + action + ' started', address)
         let link = `${API_PATH}/accounts/${address}/payments`
-        let tmp = await BlocksoftAxios.getWithoutBraking(link)
-        if (!tmp || !tmp.data) {
+        let res = false
+        try {
+            res = await BlocksoftAxios.getWithoutBraking(link)
+        } catch (e) {
+            if (e.message.indexOf('account not found') === -1
+                && e.message.indexOf('to retrieve payments') === -1
+            ) {
+                throw e
+            } else {
+                return false
+            }
+        }
+        if (!res || !res.data) {
             return false
         }
-        if (typeof tmp.data[action] === 'undefined') {
-            throw new Error('Undefined txs ' + link + ' ' + JSON.stringify(tmp.data))
+        if (typeof res.data[action] === 'undefined') {
+            throw new Error('Undefined txs ' + link + ' ' + JSON.stringify(res.data))
         }
-        if (typeof tmp.data[action] === 'string') {
-            throw new Error('Undefined txs ' + link + ' ' + tmp.data[action])
+        if (typeof res.data[action] === 'string') {
+            throw new Error('Undefined txs ' + link + ' ' + res.data[action])
         }
 
-        let transactions = await this._unifyTransactions(address, tmp.data[action], action)
+        let transactions = await this._unifyTransactions(address, res.data[action], action)
         BlocksoftCryptoLog.log('XrpScannerProcessor.getTransactions ' + action + ' finished', address)
         return transactions
     }

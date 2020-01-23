@@ -41,10 +41,12 @@ export default class BtcTestUnspentsProvider {
 
         let link = `${this._apiPath}/blockchain/address/${address}/unspent?limit=100`
         let res = await BlocksoftAxios.getWithoutBraking(link)
-        if (!res || !res.data || typeof res.data === 'undefined') {
+        if (!res || typeof res.data === 'undefined') {
             throw new Error(this._settings.currencyCode + ' BtcTestUnspentsProvider.getUnspents nothing loaded for address')
         }
-        if (!res || typeof res.data === 'undefined' || !res.data || typeof res.data.unspent === 'undefined' || !res.data.unspent) return []
+        if (!res.data || typeof res.data.unspent === 'undefined' || !res.data.unspent) {
+            return []
+        }
         let sortedUnspents = []
         /**
          * https://testnet-api.smartbit.com.au/v1/blockchain/address/mggtxjLhuWM8zWCxY7DXE3UWNXWdEjjs51/unspent?limit=100

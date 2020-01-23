@@ -222,7 +222,10 @@
       "success": "Успішна",
       "pending": "В очікуванні",
       "new": "Нова",
-      "fail": "Помилка"
+      "fail": "Помилка",
+      "internal_success": "З контракту",
+      "internal_new": "Нова з контракту",
+      "internal_fail": "Помилка з контракту"
     },
     "receiveScreen": {
       "title": "%{receive}",
@@ -422,12 +425,17 @@
       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Недостатньо коштів нативної монети %{symbol} для надсилання",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Занадто мала сума транзакції",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Недостатньо коштів для транзакції",
+      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE" : "Недостатньо коштів залишиться на балансi для оплати транзакції - будь ласка, спробуйте опцiю Вiдправити Все",
       "SERVER_RESPONSE_NO_RESPONSE" : "Сервер не прийняв транзакцію - будь ласка, зачекайте поки замайняться iншi транзакції",
       "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Недостатньо пiдтверджених коштів нативної монети %{symbol} для надсилання -  будь ласка, зачекайте поки замайняться iншi транзакції",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Занадто мала сума платнi за транзакцію",
       "SERVER_RESPONSE_NOT_CONNECTED": "Сервер не прийняв запит - будь ласка, спробуйте через хвилину",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостатньо коштів для транзакції та мiнiмальної платнi",
-      "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Будь ласка, зачекайте поки замайняться iншi транзакції або ввiмкнiть використання непiдтвердженних транзакцій"
+      "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Будь ласка, зачекайте поки замайняться iншi транзакції або ввiмкнiть використання непiдтвердженних транзакцій",
+      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Занадто велика сума платнi за транзакцію - будь ласка, оберіть іншу платню вручну або введіть більшу сумму для транзакції",
+      "SERVER_RESPONSE_SELF_TX_FORBIDDEN" : "Транзакції на ту саму адресу заборонені",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP" : "Недостатньо балансу - 20 XRP має залишитися на адресi",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP" : "Недостатня сума - вiдправьте 20 XRP чи бiльше так як адрес отримувача ще не була в жоднiй транзакції"
     }
   },
   "walletBackup": {

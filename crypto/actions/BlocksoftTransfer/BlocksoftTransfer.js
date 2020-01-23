@@ -50,6 +50,17 @@ class BlocksoftTransfer {
         this._data.privateKey = false
         return this
     }
+
+    /**
+     * @param {string} key
+     * @return {BlocksoftTransfer}
+     */
+    setPrivateKey(key) {
+        this._private.walletHash = ''
+        this._data.privateKey = key
+        return this
+    }
+
     /**
      * @param {string} derivePath
      * @return {BlocksoftTransfer}
@@ -235,6 +246,11 @@ class BlocksoftTransfer {
     getAddressToForTransferAll(addressTo) {
         if (this._data.currencyCode === 'BTC_TEST') {
             return 'mjojEgUSi68PqNHoAyjhVkwdqQyLv9dTfV'
+        }
+        if (this._data.currencyCode === 'XRP') {
+            let tmp1 = 'rEAgA9B8U8RCkwn6MprHqE1ZfXoeGQxz4P'
+            let tmp2 = 'rnyWPfJ7dk2X15N7jqwmqo3Nspu1oYiRZ3'
+            return addressTo === tmp1 ? tmp2 : tmp1
         }
         return addressTo
     }

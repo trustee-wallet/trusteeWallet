@@ -10,6 +10,7 @@
 import { strings } from '../i18n'
 import BlocksoftKeys from '../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
 import BtcCashUtils from '../../../crypto/blockchains/bch/ext/BtcCashUtils'
+import { sub } from 'react-native-reanimated'
 
 const networksConstants = require('../../../crypto/common/ext/networks-constants')
 
@@ -141,7 +142,7 @@ async function _userDataValidation(obj) {
                 }
                 for (let checkValue of checkValues) {
                     checkValue = checkValue.trim()
-                    if (subtype === 'bitcoincash') { //clone not to overwrite
+                    if (subtype === 'bitcoincash' || subtype === 'bitcoinsv') { //clone not to overwrite
                         checkValue = BtcCashUtils.toLegacyAddress(checkValue)
                     }
                     try {

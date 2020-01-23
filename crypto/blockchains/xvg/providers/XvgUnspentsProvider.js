@@ -38,8 +38,11 @@ export default class XvgUnspentsProvider {
         let link = this._apiPath + address + '/txs/?unspent=true'
         let res = await BlocksoftAxios.getWithoutBraking(link)
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XvgUnspentsProvider.getUnspents link', link)
-        if (!res || !res.data || typeof res.data[0] === 'undefined') {
+        if (!res || typeof res.data === 'undefined') {
             throw new Error(this._settings.currencyCode + ' XvgUnspentsProvider.getUnspents nothing loaded for address')
+        }
+        if (!res.data || typeof res.data[0] === 'undefined') {
+            return []
         }
         let sortedUnspents = []
         /**
@@ -59,15 +62,19 @@ export default class XvgUnspentsProvider {
          * @param {string} res.data[].value 91523000
          * @param {string} res.data[].confirmations -1
          */
+        let already = {}
         for (let unspent of res.data) {
-            sortedUnspents.push({
-                txid: unspent.mintTxid,
-                vout: unspent.mintIndex,
-                value: unspent.value.toString(),
-                height: unspent.mintHeight,
-                confirmations : 1,
-                valueBN : BlocksoftUtils.toBigNumber(unspent.value.toString())
-            })
+            if (typeof already[unspent.mintTxid] === 'undefined' || already[unspent.mintTxid] > unspent.value) {
+                sortedUnspents.push({
+                    txid: unspent.mintTxid,
+                    vout: unspent.mintIndex,
+                    value: unspent.value.toString(),
+                    height: unspent.mintHeight,
+                    confirmations: 1,
+                    valueBN: BlocksoftUtils.toBigNumber(unspent.value.toString())
+                })
+                already[unspent.mintTxid] = unspent.value
+            }
         }
         return sortedUnspents
     }

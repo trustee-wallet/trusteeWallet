@@ -2,6 +2,8 @@
  * @version 0.5
  */
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import BlocksoftUtils from '../../common/BlocksoftUtils'
+
 import BtcNetworkPrices from './basic/BtcNetworkPrices'
 import BtcUnspentsProvider from './providers/BtcUnspentsProvider'
 import BtcTxInputsOutputs from './tx/BtcTxInputsOutputs'
@@ -10,6 +12,7 @@ import BtcSegwitTxBuilder from './tx/BtcSegwitTxBuilder'
 import BtcSegwitCompatibleTxBuilder from './tx/BtcSegwitCompatibleTxBuilder'
 import BtcSendProvider from './providers/BtcSendProvider'
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
+
 
 const CACHE_VALID_TIME = 1000
 
@@ -121,20 +124,51 @@ export default class BtcTransferProcessor {
         if (data.replacingTransaction !== 'undefined' && data.replacingTransaction) {
             throw new Error('PLZ CODE BACK REPLACING TX LOGIC')
         }
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx ' + data.addressFrom + ' started')
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate ' + data.addressFrom + ' started')
 
-
-        if (this._precached.unspentsAddress !== data.addressFrom || (!this._precached.blocks_2 && !this._precached.unspents)) {
+        const now = new Date().getTime()
+        if (this._precached.unspentsAddress !== data.addressFrom || !this._precached.blocks_2 || !this._precached.unspents || now - this._precached.time > CACHE_VALID_TIME) {
             await this.getTransferPrecache(data)
         }
 
-        let result, rawTxHex
+        let result, rawTxHex, preparedInputsOutputs, logInputsOutputs
 
-        let preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getFeeRate')
-        this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate')
+        try {
+            preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getFeeRate')
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate preparedInputsOutputs', preparedInputsOutputs)
+        } catch (e) {
+            let tmp = {unspents : this._precached.unspents, error : e.message}
+            MarketingEvent.logOnlyRealTime('btc_error_1 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, tmp)
+            if (data.addressForChange === 'TRANSFER_ALL' && e.message === 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE') {
+                return 0
+            }
+            throw e
+        }
 
-        rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs)
+        logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate')
+
+        try {
+            rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs)
+        } catch (e) {
+            if (typeof e.code !== 'undefined' && e.code === 'ERROR_USER') {
+                // can do something here to try more
+                if (typeof e.basicMessage !== 'undefined') {
+                    logInputsOutputs['error'] = e.basicMessage
+                }
+                logInputsOutputs['userError'] = e.message
+                MarketingEvent.logOnlyRealTime('btc_error_2_1 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
+            } else {
+                logInputsOutputs['userError'] = e.message
+                MarketingEvent.logOnlyRealTime('btc_error_2_2 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
+            }
+            if (data.addressForChange !== 'TRANSFER_ALL') {
+                throw e
+            }
+        }
+
         let txSize = Math.ceil(rawTxHex.length / 2)
+        let maxPrice = txSize * this._precached.blocks_2
+        let maxFeePerByte = this._precached.blocks_2
         result = [
             {
                 langMsg: this._langPrefix + '_speed_blocks_12',
@@ -150,8 +184,8 @@ export default class BtcTransferProcessor {
             },
             {
                 langMsg: this._langPrefix + '_speed_blocks_2',
-                feeForByte: this._precached.blocks_2,
-                feeForTx: txSize * this._precached.blocks_2,
+                feeForByte: maxFeePerByte,
+                feeForTx: maxPrice,
                 txSize
             }
         ]
@@ -184,8 +218,20 @@ export default class BtcTransferProcessor {
             await this.getTransferPrecache(data)
         }
 
+        let preparedInputsOutputs
         data.addressForChange = 'TRANSFER_ALL'
-        let preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getTransferAllBalance')
+        try {
+            preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getTransferAllBalance')
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferAllBalance preparedInputsOutputs', preparedInputsOutputs)
+        } catch (e) {
+            let tmp = {unspents : this._precached.unspents, error : e.message}
+            MarketingEvent.logOnlyRealTime('btc_error_3 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, tmp)
+            if (e.message === 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE') {
+                return 0
+            }
+            throw e
+        }
+
         this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.getTransferAllBalance')
 
         return preparedInputsOutputs.outputs[0].amount
@@ -220,6 +266,13 @@ export default class BtcTransferProcessor {
         let preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'sendTx')
         let logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.sendTx')
 
+        if (preparedInputsOutputs.diffInOut > data.amount * 0.1 || preparedInputsOutputs.diffInOutReadable > 0.01 ) {
+            let e = new Error('SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION')
+            e.code = 'ERROR_USER'
+            MarketingEvent.logOnlyRealTime('btc_error_4_0 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+            throw e
+        }
+
         let rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs)
         let result
         try {
@@ -229,13 +282,13 @@ export default class BtcTransferProcessor {
                 // can do something here to try more
                 logInputsOutputs['error'] = e.basicMessage
                 logInputsOutputs['userError'] = e.message
-                MarketingEvent.logOnlyRealTime('prepared_inputs_outputs_user_error ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+                MarketingEvent.logOnlyRealTime('btc_error_4_1 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
 
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx basicMessage', e.basicMessage)
                 throw e
             } else {
                 logInputsOutputs['userError'] = e.message
-                MarketingEvent.logOnlyRealTime('prepared_inputs_outputs_system_error ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+                MarketingEvent.logOnlyRealTime('btc_error_4_2 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
 
                 // noinspection JSUndefinedPropertyAssignment
                 data.rawTxHex = rawTxHex
@@ -243,20 +296,22 @@ export default class BtcTransferProcessor {
             }
         }
         if (!result) {
-            MarketingEvent.logOnlyRealTime('prepared_inputs_outputs_empty_result ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+            MarketingEvent.logOnlyRealTime('btc_error_4_3 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
             throw new Error('no result')
         }
         //start prepare for next transactions will not work as it will give the same outputs
         this._precached.time = 0
 
         logInputsOutputs['hash'] = result
-        MarketingEvent.logOnlyRealTime('prepared_inputs_outputs_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+        MarketingEvent.logOnlyRealTime('btc_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
 
         return { hash: result, correctedAmountFrom: preparedInputsOutputs.correctedAmountFrom }
     }
 
     _logInputsOutputs(data, preparedInputsOutputs, title) {
-        let logInputsOutputs = { inputs: [], outputs: [], totalIn: 0, totalOut: 0, diffInOut: 0 }
+        let logInputsOutputs = { inputs: [], outputs: [], totalIn: 0, totalOut: 0, diffInOut: 0, msg: preparedInputsOutputs.msg }
+        let totalIn = BlocksoftUtils.toBigNumber(0)
+        let totalOut = BlocksoftUtils.toBigNumber(0)
         for (let input of preparedInputsOutputs.inputs) {
             logInputsOutputs.inputs.push({
                 txid: input.txid,
@@ -264,20 +319,23 @@ export default class BtcTransferProcessor {
                 value: input.value,
                 confirmations: input.confirmations
             })
-            logInputsOutputs.totalIn += input.value * 1
+            totalIn = totalIn.add(input.valueBN)
         }
         for (let output of preparedInputsOutputs.outputs) {
             logInputsOutputs.outputs.push(output)
-            logInputsOutputs.totalOut += output.amount * 1
+            totalOut = totalOut.add(BlocksoftUtils.toBigNumber(output.amount))
         }
-        logInputsOutputs.diffInOut = logInputsOutputs.totalIn - logInputsOutputs.totalOut
+        logInputsOutputs.totalIn = totalIn.toString()
+        logInputsOutputs.totalOut = totalOut.toString()
+        logInputsOutputs.diffInOut = totalIn.sub(totalOut).toString()
+        logInputsOutputs.diffInOutReadable = BlocksoftUtils.toUnified(logInputsOutputs.diffInOut, this._settings.decimals)
         logInputsOutputs.feeForByte = preparedInputsOutputs.feeForByte
         if (typeof data.feeForTx === 'undefined' || typeof data.feeForTx.feeForByte === 'undefined' || data.feeForTx.feeForByte < 0) {
             BlocksoftCryptoLog.log(title + ' preparedInputsOutputs with autofee ', logInputsOutputs)
         } else {
             BlocksoftCryptoLog.log(title + ' preparedInputsOutputs with fee ' + data.feeForTx.feeForTx, logInputsOutputs)
         }
-        MarketingEvent.logOnlyRealTime('prepared_inputs_outputs ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+        MarketingEvent.logOnlyRealTime('btc_info ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
         return logInputsOutputs
     }
 }
