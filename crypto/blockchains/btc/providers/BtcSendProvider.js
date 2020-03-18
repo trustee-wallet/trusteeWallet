@@ -29,23 +29,23 @@ export default class BtcSendProvider {
     async sendTx(hex, subtitle) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcSendProvider.sendTx ' + subtitle + ' started ' + subtitle)
 
-        let link = this._trezorPath + hex
+        const link = this._trezorPath + hex
         let res
         try {
             res = await BlocksoftAxios.get(link)
         } catch (e) {
             if (e.message.indexOf('dust') !== -1) {
-                let e2 = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
+                const e2 = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
                 e2.code = 'ERROR_USER'
                 e2.basicMessage = e.message
                 throw e2
             } else if (e.message.indexOf('bad-txns-inputs-spent') !== -1 || e.message.indexOf('txn-mempool-conflict') !== -1) {
-                let e2 = new Error('SERVER_RESPONSE_NO_RESPONSE')
+                const e2 = new Error('SERVER_RESPONSE_NO_RESPONSE')
                 e2.code = 'ERROR_USER'
                 e2.basicMessage = e.message
                 throw e2
-            } else if (e.message.indexOf('fee for relay') !== -1 || e.message.indexOf('insufficient priority') !== -1) {
-                let e2 = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+            } else if (e.message.indexOf('min relay fee not met') !== -1 || e.message.indexOf('fee for relay') !== -1 || e.message.indexOf('insufficient priority') !== -1) {
+                const e2 = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
                 e2.code = 'ERROR_USER'
                 e2.basicMessage = e.message
                 throw e2
@@ -54,7 +54,7 @@ export default class BtcSendProvider {
             }
         }
         if (typeof res.data.result === 'undefined' || !res.data.result) {
-            let e = new Error('SERVER_RESPONSE_NOT_CONNECTED')
+            const e = new Error('SERVER_RESPONSE_NOT_CONNECTED')
             e.code = 'ERROR_USER'
             throw e
         }

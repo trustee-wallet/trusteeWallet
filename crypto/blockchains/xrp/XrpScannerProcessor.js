@@ -12,25 +12,21 @@ const CACHE_VALID_TIME = 60000 // 1 minute
 const CACHE_BLOCK_DATA = {}
 
 export default class XrpScannerProcessor {
-
-    constructor(settings) {
-
-    }
-
     /**
      * https://data.ripple.com/v2/accounts/rL2SpzwrCZ4N2BaPm88pNGGHkPLzejZgB8/balances
      * @param {string} address
      * @return {Promise<{balance, unconfirmed, provider}>}
      */
     async getBalance(address) {
-        let link = `${API_PATH}/accounts/${address}/balances`
+        const link = `${API_PATH}/accounts/${address}/balances`
         let res = false
         let balance = 0
 
         try {
             res = await BlocksoftAxios.getWithoutBraking(link)
-            if (res && res.data && typeof res.data.balances !== 'undefined') {
-                for (let row of res.data.balances) {
+            if (res && typeof res.data !== 'undefined' && res.data && typeof res.data.balances !== 'undefined') {
+                let row
+                for (row of res.data.balances) {
                     if (row.currency === 'XRP') {
                         balance = row.value
                         break
@@ -54,22 +50,24 @@ export default class XrpScannerProcessor {
      */
     async getTransactions(address) {
         address = address.trim()
-        let action = 'payments'
+        const action = 'payments'
         BlocksoftCryptoLog.log('XrpScannerProcessor.getTransactions ' + action + ' started', address)
-        let link = `${API_PATH}/accounts/${address}/payments`
+        const link = `${API_PATH}/accounts/${address}/payments`
         let res = false
         try {
             res = await BlocksoftAxios.getWithoutBraking(link)
         } catch (e) {
             if (e.message.indexOf('account not found') === -1
                 && e.message.indexOf('to retrieve payments') === -1
+                && e.message.indexOf('limit exceeded') === -1
             ) {
                 throw e
             } else {
                 return false
             }
         }
-        if (!res || !res.data) {
+
+        if (!res || typeof res.data === 'undefined' || !res.data) {
             return false
         }
         if (typeof res.data[action] === 'undefined') {
@@ -79,15 +77,16 @@ export default class XrpScannerProcessor {
             throw new Error('Undefined txs ' + link + ' ' + res.data[action])
         }
 
-        let transactions = await this._unifyTransactions(address, res.data[action], action)
+        const transactions = await this._unifyTransactions(address, res.data[action], action)
         BlocksoftCryptoLog.log('XrpScannerProcessor.getTransactions ' + action + ' finished', address)
         return transactions
     }
 
-    async _unifyTransactions(address, result, action = 'payments') {
-        let transactions = []
-        for (let tx of result) {
-            let transaction = await this._unifyPayment(address, tx)
+    async _unifyTransactions(address, result) {
+        const transactions = []
+        let tx
+        for (tx of result) {
+            const transaction = await this._unifyPayment(address, tx)
             if (transaction) {
                 transactions.push(transaction)
             }
@@ -122,20 +121,20 @@ export default class XrpScannerProcessor {
             if (transaction.source_currency === 'XRP') {
                 direction = (address === transaction.source) ? 'outcome' : 'income'
             } else if (transaction.destination === address) {
-                direction = 'income' //USDT any => XRP my
+                direction = 'income' // USDT any => XRP my
             } else {
-                //USDT my => XRP not my
+                // USDT my => XRP not my
                 return false // do nothing
             }
         } else if (transaction.source_currency === 'XRP') {
             if (transaction.source === address) {
-                direction = 'outcome' //XRP my => USDT any
+                direction = 'outcome' // XRP my => USDT any
             } else {
-                //XRP not my => USDT my
-                return false //do nothing
+                // XRP not my => USDT my
+                return false // do nothing
             }
         } else {
-            return false //USDT => USDT
+            return false // USDT => USDT
         }
 
         if (direction === 'income') {
@@ -144,47 +143,46 @@ export default class XrpScannerProcessor {
             amount = transaction.amount
         }
 
-        let transaction_status = 'new'
-        let transaction_confirmations = 0
+        let transactionStatus = 'new'
+        let transactionConfirmations = 0
         let ledger = false
         if (typeof transaction.ledger_index !== 'undefined' && transaction.ledger_index > 0) {
             ledger = await this._getLedger(transaction.ledger_index)
             if (ledger) {
-                let now = new Date().getTime()
-                transaction_confirmations = Math.round((now - ledger.close_time * 1000) / (60 * 1000)) //minutes
-                if (transaction_confirmations > 5) {
-                    transaction_status = 'success'
+                const now = new Date().getTime()
+                transactionConfirmations = Math.round((now - ledger.close_time * 1000) / (60 * 1000)) // minutes
+                if (transactionConfirmations > 5) {
+                    transactionStatus = 'success'
                 }
             }
         }
 
         if (typeof transaction.executed_time === 'undefined') {
             transaction.executed_time = ''
-            new Error(' no transaction.date error transaction data ' + JSON.stringify(transaction))
         }
-        let tx = {
+        const tx = {
             transaction_hash: transaction.tx_hash,
             block_hash: ledger ? ledger.ledger_hash : '',
             block_number: transaction.ledger_index,
             block_time: transaction.executed_time,
-            block_confirmations: transaction_confirmations,
+            block_confirmations: transactionConfirmations,
             transaction_direction: direction,
             address_from: transaction.source,
             address_to: transaction.destination,
             address_amount: amount,
-            transaction_status,
+            transaction_status: transactionStatus,
             transaction_fee: transaction.transaction_cost
         }
-        if (typeof transaction.destination_tag != 'undefined') {
+        if (typeof transaction.destination_tag !== 'undefined') {
             tx.transaction_json = { memo: transaction.destination_tag }
         }
         return tx
     }
 
     async _getLedger(index) {
-        let now = new Date().getTime()
+        const now = new Date().getTime()
         BlocksoftCryptoLog.log('XrpScannerProcessor._getLedger started', index)
-        let link = `${API_PATH}/ledgers/${index}`
+        const link = `${API_PATH}/ledgers/${index}`
         let res = false
         if (typeof CACHE_BLOCK_DATA[index] === 'undefined' || (now - CACHE_BLOCK_DATA[index].time > CACHE_VALID_TIME)) {
             res = await BlocksoftAxios.getWithoutBraking(link)

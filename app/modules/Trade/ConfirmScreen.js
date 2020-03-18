@@ -2,22 +2,25 @@ import React, { Component } from 'react'
 
 import { View, Text } from 'react-native'
 import { connect } from 'react-redux'
+import AsyncStorage from '@react-native-community/async-storage'
 
 import ButtonLine from '../../components/elements/ButtonLine'
 import Button from '../../components/elements/Button'
 import Navigation from '../../components/navigation/Navigation'
 import NavStore from '../../components/navigation/NavStore'
 
-import { showModal } from '../../appstores/Actions/ModalActions'
-import { strings } from '../../services/i18n'
-import AsyncStorage from '@react-native-community/async-storage'
-import { setLoaderStatus, setSelectedAccount } from '../../appstores/Actions/MainStoreActions'
-import api from '../../services/api'
 import { setExchangeData } from '../../appstores/Actions/ExchangeStorage'
-import Log from '../../services/Log/Log'
+import { setLoaderStatus } from '../../appstores/Actions/MainStoreActions'
+import { showModal } from '../../appstores/Actions/ModalActions'
 import { setSendData } from '../../appstores/Actions/SendActions'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
+import updateExchangeOrdersDaemon from '../../services/Daemon/classes/UpdateExchangeOrders'
+import Log from '../../services/Log/Log'
+import { strings } from '../../services/i18n'
+import api from '../../services/api'
+
+import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 
 
 class ConfirmScreen extends Component {
@@ -29,8 +32,13 @@ class ConfirmScreen extends Component {
         }
     }
 
-    componentWillMount() {
+    // eslint-disable-next-line camelcase
+    UNSAFE_componentWillMount() {
         const orderData = this.props.navigation.getParam('orderData')
+
+        console.log('orderData')
+        console.log(orderData)
+
         this.setState({
             ...orderData,
             visible: true
@@ -68,6 +76,8 @@ class ConfirmScreen extends Component {
 
     handleBuySubmit = async () => {
 
+        AsyncStorage.setItem("TRADE_BUY_DATA", JSON.stringify({ lastBuyCache: this.state }))
+
         const {
             selectedCard,
             selectedCryptocurrency,
@@ -97,9 +107,6 @@ class ConfirmScreen extends Component {
             uniqueParams
         }
 
-        console.log('1111111')
-        console.log(dataToSend)
-
         try {
 
             setLoaderStatus(true)
@@ -120,10 +127,15 @@ class ConfirmScreen extends Component {
                 uniqueParams
             })
 
+            if(selectedCryptocurrency.currencyCode !== "BTC"){
+                delete dataToSend.uniqueParams.segwitOutDestination
+            }
+
             MarketingEvent.startBuy({
                 order_id : res.data.orderId + '',
                 currency_code: selectedCryptocurrency.currencyCode,
                 address_to : dataToSend.outDestination,
+                address_to_short : dataToSend.outDestination ? dataToSend.outDestination.slice(0,10) : 'none',
                 address_amount : dataToSend.outAmount + '',
                 in_amount : dataToSend.inAmount + '',
                 in_currency_code: tradeWay.inCurrencyCode + '',
@@ -141,6 +153,8 @@ class ConfirmScreen extends Component {
         } catch (e) {
             setLoaderStatus(false)
 
+
+
             setTimeout(() => {
                 showModal({
                     type: 'INFO_MODAL',
@@ -153,9 +167,14 @@ class ConfirmScreen extends Component {
             console.log(e.message)
             Log.err('MainDataScreen.handleBuySubmit error ' + e.message)
         }
+
+        updateExchangeOrdersDaemon.forceDaemonUpdate()
     }
 
     handleSellSubmit = async () => {
+
+        AsyncStorage.setItem("TRADE_SELL_DATA", JSON.stringify({ lastSellCache: this.state }))
+
         const {
             selectedCryptocurrency,
             selectedCard,
@@ -170,7 +189,7 @@ class ConfirmScreen extends Component {
             settingsStore
         } = this.props
 
-        const { amountEquivalentInCryptoToApi, amountEquivalentInFiatToApi, equivalent, useAllFunds } = amount
+        const { amountEquivalentInCryptoToApi, amountEquivalentInFiatToApi, useAllFunds } = amount
 
 
         const dataToSend = {
@@ -206,18 +225,21 @@ class ConfirmScreen extends Component {
                 type: 'TRADE_SEND'
             }
 
+            if(typeof res.data.memo !== "undefined"){
+                dataToScreen.destinationTag = res.data.memo
+            }
+
             MarketingEvent.startSell({
                 order_id : res.data.orderId + '',
                 currency_code: dataToScreen.cryptocurrency.currencyCode,
                 address_from : dataToScreen.account.address,
+                address_from_short : dataToScreen.account.address ? dataToScreen.account.address.slice(0, 10) : 'none',
                 address_to : dataToScreen.address,
                 address_amount : dataToScreen.value,
                 walletHash : dataToScreen.account.wallet_hash
             })
 
             setSendData(dataToScreen)
-
-            //console.log('TradeConfirmScreen.handleSellSubmit dataToScreen', dataToScreen)
 
             NavStore.goNext('SendScreen')
 
@@ -239,6 +261,7 @@ class ConfirmScreen extends Component {
             Log.err(`MainDataScreen.handleSellSubmit error ` + e.message)
         }
 
+        updateExchangeOrdersDaemon.forceDaemonUpdate()
     }
 
     renderProviderFee = () => {
@@ -293,11 +316,11 @@ class ConfirmScreen extends Component {
 
         return (
             <View style={styles.wrapper__bottom}>
-                {/*<View style={[styles.wrapper__row, styles.wrapper__row_title]}>*/}
-                {/*    /!*<Text style={styles.wrapper__title}>*!/*/}
-                {/*    /!*    { strings('confirmScreen.title') }*!/*/}
-                {/*    /!*</Text>*!/*/}
-                {/*</View>*/}
+                {/* <View style={[styles.wrapper__row, styles.wrapper__row_title]}> */}
+                {/*    /!*<Text style={styles.wrapper__title}>*!/ */}
+                {/*    /!*    { strings('confirmScreen.title') }*!/ */}
+                {/*    /!*</Text>*!/ */}
+                {/* </View> */}
                 {
                     exchangeStore.tradeType === 'BUY' ?
                         <View style={styles.wrapper__row}>
@@ -367,17 +390,17 @@ class ConfirmScreen extends Component {
                                 </View>
                             </View>
                             <View style={styles.line} />
-                            {/*<View style={styles.wrapper__middle}>*/}
-                            {/*    <View style={[styles.wrapper__row, styles.wrapper__row_title]}>*/}
-                            {/*        <Text style={styles.wrapper__title}>*/}
-                            {/*            Payment*/}
-                            {/*        </Text>*/}
-                            {/*    </View>*/}
-                            {/*    <View style={styles.wrapper__middle__content}>*/}
+                            {/* <View style={styles.wrapper__middle}> */}
+                            {/*    <View style={[styles.wrapper__row, styles.wrapper__row_title]}> */}
+                            {/*        <Text style={styles.wrapper__title}> */}
+                            {/*            Payment */}
+                            {/*        </Text> */}
+                            {/*    </View> */}
+                            {/*    <View style={styles.wrapper__middle__content}> */}
 
-                            {/*    </View>*/}
-                            {/*</View>*/}
-                            {/*<View style={styles.line} />*/}
+                            {/*    </View> */}
+                            {/* </View> */}
+                            {/* <View style={styles.line} /> */}
                             <View>
                                 <View style={[styles.wrapper__row, styles.wrapper__row_title]}>
                                     <Text style={styles.wrapper__title}>

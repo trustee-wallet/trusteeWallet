@@ -27,7 +27,7 @@ export class PaymentSystemInfo extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.initTitle()
         this.initLimits()
     }

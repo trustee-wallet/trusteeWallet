@@ -3,9 +3,12 @@
  * @version 0.5
  */
 import BlocksoftKeysStorage from '../BlocksoftKeysStorage/BlocksoftKeysStorage'
-import BlocksoftKeys from '../BlocksoftKeys/BlocksoftKeys'
+import BlocksoftPrivateKeysUtils from '../../common/BlocksoftPrivateKeysUtils'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftTransferDispatcher from '../../blockchains/BlocksoftTransferDispatcher'
+import walletDS from '../../../app/appstores/DataSource/Wallet/Wallet'
+import walletPubDS from '../../../app/appstores/DataSource/WalletPub/WalletPub'
+import accountDS from '../../../app/appstores/DataSource/Account/Account'
 
 const Dispatcher = new BlocksoftTransferDispatcher()
 
@@ -17,19 +20,19 @@ class BlocksoftTransfer {
      */
     _processor = {}
     /**
-     * @type {{privateKey, addressFrom, addressTo, amount, feeForTx, currencyCode, addressForChange, replacingTransaction, nSequence, jsonData, memo}}
+     * @type {{privateKey, addressFrom, addressFromXpub, privateKeyLegacy, addressFromLegacy, addressFromLegacyXpub, addressTo, amount, feeForTx, currencyCode, addressForChange, addressForChangeHD, nSequence, jsonData, memo, walletUseUnconfirmed}}
      * @private
      */
     _data = {}
 
     /**
-     * @type {{privateKey, addressFrom, addressTo, amount, feeForTx, currencyCode, addressForChange, replacingTransaction, nSequence, memo}}
+     * @type {{privateKey, addressFrom, addressFromXpub, addressFromLegacy, addressFromLegacyXpub, addressTo, amount, feeForTx, currencyCode, addressForChange, addressForChangeHD, nSequence, memo, walletUseUnconfirmed}}
      * @private
      */
     _logData = {}
 
     /**
-     * @type {{walletHash, derivePath}}
+     * @type {{walletHash, derivePath, walletIsHd}}
      * @private
      */
     _private = {}
@@ -47,6 +50,8 @@ class BlocksoftTransfer {
      */
     setWalletHash(hash) {
         this._private.walletHash = hash
+        this._private.walletIsHd = -1
+        this._data.walletUseUnconfirmed = -1
         this._data.privateKey = false
         return this
     }
@@ -57,6 +62,8 @@ class BlocksoftTransfer {
      */
     setPrivateKey(key) {
         this._private.walletHash = ''
+        this._private.walletIsHd = -1
+        this._data.walletUseUnconfirmed = -1
         this._data.privateKey = key
         return this
     }
@@ -84,27 +91,88 @@ class BlocksoftTransfer {
             throw new Error('no mnemonic for hash ' + this._private.walletHash)
         }
 
-        let discoverFor = {mnemonic, path : this._private.derivePath, currencyCode : this._data.currencyCode}
-        let discoverForKey = BlocksoftKeysStorage.getAddressCacheKey(this._private.walletHash, discoverFor.path.replace(/[']/g, "quote"), discoverFor.currencyCode)
+        let wallet = false
+        if (this._data.walletUseUnconfirmed === -1) {
+            wallet = await walletDS.getWalletByHash(this._private.walletHash)
+            this._data.walletUseUnconfirmed = wallet.wallet_use_unconfirmed > 0
+            this._logData.walletUseUnconfirmed = wallet.wallet_use_unconfirmed
+        }
 
-        let result = this._privateCache[discoverForKey]
-        if (!result) {
-            result = await BlocksoftKeysStorage.getAddressCache(discoverForKey)
-            if (!result) {
-                try {
-                    result = await BlocksoftKeys.discoverOne(discoverFor)
-                    BlocksoftKeysStorage.setAddressCache(discoverForKey, result)
-                } catch (e) {
-                    throw new Error('private key not discovered this._data=' + JSON.stringify(this._logData))
-                }
+
+        if (this._data.currencyCode === 'BTC' || this._data.currencyCode === 'USDT') {
+            BlocksoftCryptoLog.log('BlocksoftTransfer._initPrivate started for BTC/USDT', this._logData)
+            const resultBtc = await BlocksoftPrivateKeysUtils.getPrivateKey({
+                mnemonic,
+                addressToCheck: false,
+                walletHash: this._private.walletHash,
+                path: 'm/44' + this._private.derivePath.substr(4),
+                currencyCode: 'BTC'
+            })
+            const resultSegwit = await BlocksoftPrivateKeysUtils.getPrivateKey({
+                mnemonic,
+                addressToCheck: false,
+                walletHash: this._private.walletHash,
+                path: 'm/84' + this._private.derivePath.substr(4),
+                currencyCode: 'BTC_SEGWIT'
+            })
+
+            if (resultBtc.address !== this._data.addressFrom && resultSegwit.address !== this._data.addressFrom) {
+                throw new Error('BlocksoftTransfer._initPrivate private key discovered is not for address you set ' + resultBtc.address + '!=' + resultSegwit.address + '!=' + this._data.addressFrom)
             }
-            this._privateCache[discoverForKey] = result
+
+            this._data.addressFrom = resultSegwit.address
+            this._data.privateKey = resultSegwit.privateKey
+            this._data.addressFromLegacy = resultBtc.address
+            this._data.privateKeyLegacy = resultBtc.privateKey
+            this._logData.addressFrom = resultSegwit.address
+            this._logData.addressFromLegacy = resultBtc.address
+            this._logData.privateKey = '***'
+
+            if (this._private.walletIsHd === -1) {
+                if (!wallet) {
+                    wallet = await walletDS.getWalletByHash(this._private.walletHash)
+                }
+                this._private.walletIsHd = wallet.wallet_is_hd > 0
+            }
+
+            if (this._private.walletIsHd) {
+                const xpubs = await walletPubDS.getOrGenerate({ walletHash: this._private.walletHash, currencyCode: 'BTC' })
+                let change = await accountDS.getAccountForChange({wallet_pub_id : xpubs['btc.84'].id})
+                if (!change) {
+                    await walletPubDS.discoverMoreAccounts({currencyCode : 'BTC', walletHash : this._private.walletHash, needSegwit : true, needLegacy : false})
+                    change = await accountDS.getAccountForChange({wallet_pub_id : xpubs['btc.84'].id})
+                }
+                if (change) {
+                    this._data.addressForChangeHD = change
+                    this._logData.addressForChangeHD = this._data.addressForChangeHD
+                }
+                this._data.addressFromXpub = xpubs['btc.84'].walletPubValue
+                this._data.addressFromLegacyXpub = xpubs['btc.44'].walletPubValue
+                this._data.walletHash = this._private.walletHash
+                this._data.mnemonic = mnemonic
+                this._logData.addressFromXpub = this._data.addressFromXpub
+                this._logData.addressFromLegacyXpub = this._data.addressFromLegacyXpub
+            } else {
+                this._data.addressFromXpub = false
+                this._data.addressFromLegacyXpub = false
+            }
+
+            this._logData.addressFrom = this._data.addressFrom
+            this._logData.addressFromLegacy = this._data.addressFromLegacy
+            BlocksoftCryptoLog.log('BlocksoftTransfer._initPrivate finished for BTC/USDT', this._logData)
+        } else {
+            const discoverFor = {
+                mnemonic,
+                addressToCheck: this._data.addressFrom,
+                walletHash: this._private.walletHash,
+                path: this._private.derivePath,
+                currencyCode: this._data.currencyCode
+            }
+            const result = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor)
+            this._data.privateKey = result.privateKey
+            this._logData.privateKey = '***'
+            BlocksoftCryptoLog.log('BlocksoftTransfer._initPrivate finished for ' + this._data.currencyCode, this._logData)
         }
-        if (result.address !== this._data.addressFrom) {
-            throw new Error('private key is not for address you set ' + result.address + '!=' + this._data.addressFrom + ' this._data=' + JSON.stringify(this._logData))
-        }
-        this._data.privateKey = result.privateKey
-        this._logData.privateKey = '***'
         return true
     }
 
@@ -113,8 +181,19 @@ class BlocksoftTransfer {
      * @return {BlocksoftTransfer}
      */
     setAddressFrom(address) {
+        if (address === this._data.addressFromLegacy || address === this._data.addressFrom) {
+            return this
+        }
         this._data.addressFrom = address.trim()
+        this._data.addressFromLegacy = false
+        this._data.addressFromXpub = false
+        this._data.addressFromLegacyXpub = false
+        this._data.addressForChangeHD = false
         this._logData.addressFrom = address.trim()
+        this._logData.addressFromLegacy = false
+        this._logData.addressFromXpub = false
+        this._logData.addressFromLegacyXpub = false
+        this._logData.addressForChangeHD = false
         return this
     }
 
@@ -203,21 +282,6 @@ class BlocksoftTransfer {
     }
 
     /**
-     * @param {string|null|boolean} hash
-     * @return {BlocksoftTransfer}
-     */
-    setReplacingTransaction(hash) {
-        if(!hash || typeof hash === 'undefined') {
-            this._data.replacingTransaction = false
-        } else {
-            this._data.replacingTransaction = hash
-        }
-        this._logData.replacingTransaction = hash
-
-        return this
-    }
-
-    /**
      * @param {string|number|null} prevSequence
      * @return {BlocksoftTransfer}
      */
@@ -248,16 +312,48 @@ class BlocksoftTransfer {
             return 'mjojEgUSi68PqNHoAyjhVkwdqQyLv9dTfV'
         }
         if (this._data.currencyCode === 'XRP') {
-            let tmp1 = 'rEAgA9B8U8RCkwn6MprHqE1ZfXoeGQxz4P'
-            let tmp2 = 'rnyWPfJ7dk2X15N7jqwmqo3Nspu1oYiRZ3'
+            const tmp1 = 'rEAgA9B8U8RCkwn6MprHqE1ZfXoeGQxz4P'
+            const tmp2 = 'rnyWPfJ7dk2X15N7jqwmqo3Nspu1oYiRZ3'
             return addressTo === tmp1 ? tmp2 : tmp1
         }
         return addressTo
     }
 
+    async checkTransferHasError() {
+        const currencyCode = this._data.currencyCode
+        if (!currencyCode) {
+            throw new Error('plz set currencyCode before calling')
+        }
+        if (currencyCode !== 'XRP') {
+            return false // ksu will do other if needed
+        }
+        let isError
+        try {
+            BlocksoftCryptoLog.log(`BlocksoftTransfer.checkTransferHasError ${currencyCode} started ${this._data.addressFrom} `)
+            isError = await this._processor[currencyCode].checkTransferHasError(this._data)
+            BlocksoftCryptoLog.log(`BlocksoftTransfer.checkTransferHasError ${currencyCode} got ${this._data.addressFrom} data`)
+        } catch (e) {
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                // noinspection ES6MissingAwait
+                BlocksoftCryptoLog.err(`BlocksoftTransfer.checkTransferHasError ${currencyCode} ` + e.message)
+            } else {
+                e.code = 'ERROR_USER'
+            }
+            if (e.code && e.code === 'ERROR_USER') {
+                throw e
+            } else {
+                const newError = new Error('server.not.responding.check.transfer.has.error.' + currencyCode)
+                newError.log = `BlocksoftTransfer.checkTransferHasError ${currencyCode} error ` + e.message
+                throw newError
+            }
+        }
+        return isError
+
+    }
+
     async getTransferAllBalance(balanceRaw) {
         await this._initPrivate()
-        let currencyCode = this._data.currencyCode
+        const currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
@@ -267,23 +363,30 @@ class BlocksoftTransfer {
             balanceUpdated = await this._processor[currencyCode].getTransferAllBalance(this._data, balanceRaw)
             BlocksoftCryptoLog.log(`BlocksoftTransfer.getTransferAllBalance ${currencyCode} got ${this._data.addressFrom} data`, balanceUpdated)
         } catch (e) {
-            e.message = `BlocksoftTransfer.getTransferAllBalance ${currencyCode} error ` + e.message
-            // noinspection ES6MissingAwait
-            BlocksoftCryptoLog.err(`BlocksoftTransfer.getTransferAllBalance ${currencyCode} ${this._data.addressFrom} `, e)
-            let newError = new Error('server.not.responding.all.balance')
-            newError.log = e.message
-            throw newError
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                // noinspection ES6MissingAwait
+                BlocksoftCryptoLog.err(`BlocksoftTransfer.getTransferAllBalance  ${currencyCode} ` + e.message)
+            } else {
+                e.code = 'ERROR_USER'
+            }
+            if (e.code && e.code === 'ERROR_USER') {
+                throw e
+            } else {
+                const newError = new Error('server.not.responding.all.balance.' + currencyCode)
+                newError.log = `BlocksoftTransfer.getTransferAllBalance ${currencyCode} error ` + e.message
+                throw newError
+            }
         }
 
         return balanceUpdated
     }
 
     async getTransferPrecache() {
-        let newTransferPrecache = this._data.currencyCode + '_' + this._data.addressFrom
+        const newTransferPrecache = this._data.currencyCode + '_' + this._data.addressFrom
         if (this._onceTransferPrecache === newTransferPrecache) return false
         this._onceTransferPrecache = newTransferPrecache
         await this._initPrivate()
-        let currencyCode = this._data.currencyCode
+        const currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
@@ -293,16 +396,15 @@ class BlocksoftTransfer {
             res = await this._processor[currencyCode].getTransferPrecache(this._data)
             BlocksoftCryptoLog.log(`BlocksoftTransfer.getTransferPrecache ${currencyCode} finished`, JSON.stringify(res))
         } catch (e) {
-            e.message = `BlocksoftTransfer.getTransferPrecache ${currencyCode} error ` + e.message
-            // noinspection ES6MissingAwait
             if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.err(`BlocksoftTransfer.getTransferPrecache ${currencyCode} ` + e.message)
             }
             if (e.code && e.code === 'ERROR_USER') {
                 throw e
             } else {
-                let newError = new Error('server.not.responding.network.prices.' + currencyCode)
-                newError.log = e.message
+                const newError = new Error('server.not.responding.network.prices.' + currencyCode)
+                newError.log = `BlocksoftTransfer.getTransferPrecache ${currencyCode} error ` + e.message
                 throw newError
             }
         }
@@ -314,7 +416,7 @@ class BlocksoftTransfer {
      */
     async getFeeRate() {
         await this._initPrivate()
-        let currencyCode = this._data.currencyCode
+        const currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
@@ -324,14 +426,14 @@ class BlocksoftTransfer {
             res = await this._processor[currencyCode].getFeeRate(this._data)
             BlocksoftCryptoLog.log(`BlocksoftTransfer.getFeeRate ${currencyCode} finished`, res)
         } catch (e) {
-            // noinspection ES6MissingAwait
             if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.err(`BlocksoftTransfer.getFeeRate ${currencyCode}` + ' ' + e.message)
             }
             if (e.code && e.code === 'ERROR_USER') {
                 throw e
             } else {
-                let newError = new Error('server.not.responding.fee.rates.' + currencyCode + ' ' + e.message)
+                const newError = new Error('server.not.responding.fee.rates.' + currencyCode + ' ' + e.message)
                 newError.log = e.message
                 throw newError
             }
@@ -345,7 +447,7 @@ class BlocksoftTransfer {
      */
     async sendTx() {
         await this._initPrivate()
-        let currencyCode = this._data.currencyCode
+        const currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
@@ -354,8 +456,14 @@ class BlocksoftTransfer {
             BlocksoftCryptoLog.log(`BlocksoftTransfer.sendTx ${currencyCode} started`, this._logData)
             res = await this._processor[currencyCode].sendTx(this._data)
             BlocksoftCryptoLog.log(`BlocksoftTransfer.sendTx ${currencyCode} finished`, res)
+            if (this._data.currencyCode === 'BTC' || this._data.currencyCode === 'USDT') {
+                if (this._data.addressForChangeHD) {
+                   await accountDS.massUpdateAccount([`'` + this._data.addressForChangeHD + `'`, `'` + this._data.addressTo + `'`], 'address', 'already_shown=1')
+                }
+            }
         } catch (e) {
             if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.err(`BlocksoftTransfer.sendTx ${currencyCode} error ` + e.message, e.data ? e.data : e)
             }
             throw e
@@ -367,5 +475,5 @@ class BlocksoftTransfer {
     }
 }
 
-let singleBlocksoftTransaction = new BlocksoftTransfer()
+const singleBlocksoftTransaction = new BlocksoftTransfer()
 export default singleBlocksoftTransaction

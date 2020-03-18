@@ -26,7 +26,7 @@ class FiatCurrencies extends Component {
         })
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         try {
             const tradeApiConfig = JSON.parse(JSON.stringify(this.props.exchangeStore.tradeApiConfig))
             const { extendsFields } = this.props
@@ -77,7 +77,7 @@ class FiatCurrencies extends Component {
             //     }
             // }
         } catch (e) {
-            Log.err('FiatCurrencies.componentWillReceiveProps error ' + e)
+            Log.err('FiatCurrencies.UNSAFE_componentWillReceiveProps error ' + e)
         }
     }
 
@@ -133,7 +133,7 @@ class FiatCurrencies extends Component {
             }
 
         } catch (e) {
-            Log.err('FiatCurrencies.componentWillReceiveProps error ' + e)
+            Log.err('FiatCurrencies.UNSAFE_componentWillReceiveProps error ' + e)
         }
     }
 

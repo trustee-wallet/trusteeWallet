@@ -14,53 +14,53 @@ const SettingsStack = createStackNavigator(
         SettingsMain: {
             screen: SettingsMain,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
         AboutScreen: {
             screen: AboutScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
         WalletList: {
             screen: WalletList,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         LocalCurrencyScreen: {
             screen: LocalCurrencyScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         LanguageListScreen: {
             screen: LanguageListScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
         CashbackScreen: {
             screen: CashbackScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         TermsOfUseScreen: {
             screen: TermsOfUseScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         PrivacyPolicyScreen: {
             screen: PrivacyPolicyScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
     },

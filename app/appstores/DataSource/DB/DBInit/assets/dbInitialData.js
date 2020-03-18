@@ -6,6 +6,7 @@ export default {
         lock_screen_status: 0,
         touchID_status: 0,
         language: locales[0].languageTag,
-        local_currency: 'USD'
+        local_currency: 'USD',
+        btc_legacy_or_segwit : 'segwit'
     },
 }

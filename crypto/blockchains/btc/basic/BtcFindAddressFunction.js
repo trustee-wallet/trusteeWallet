@@ -21,27 +21,26 @@
  */
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 
-export default async function BtcFindAddressFunction(addresses, transaction) {
+export default async function BtcFindAddressFunction(indexedAddresses, transaction) {
 
     let inputMy = BlocksoftUtils.toBigNumber(0)
     let inputOthers = BlocksoftUtils.toBigNumber(0)
     let inputMaxValue = 0
     let inputMaxAddress = ''
-
-    let address1 = addresses[0]
-    let address2 = addresses[addresses.length - 1] //two is max for now
+    let inputMyAddress = ''
     if (transaction.vin) {
         for (let i = 0, ic = transaction.vin.length; i < ic; i++) {
             let vinAddress
-            let vinValue = transaction.vin[i].value
-            let vinBN = BlocksoftUtils.toBigNumber(vinValue)
+            const vinValue = transaction.vin[i].value
+            const vinBN = BlocksoftUtils.toBigNumber(vinValue)
             if (typeof transaction.vin[i].addresses !== 'undefined') {
                 vinAddress = transaction.vin[i].addresses[0]
             } else if (typeof transaction.vin[i].addr !== 'undefined') {
                 vinAddress = transaction.vin[i].addr
             }
-            if (vinAddress === address1 || vinAddress === address2) {
+            if (typeof indexedAddresses[vinAddress] !== 'undefined') {
                 inputMy = inputMy.add(vinBN)
+                inputMyAddress = vinAddress
             } else {
                 if (inputMaxValue < vinValue * 1 && vinAddress) {
                     inputMaxAddress = vinAddress
@@ -57,19 +56,23 @@ export default async function BtcFindAddressFunction(addresses, transaction) {
     let outputMaxValue = 0
     let outputMaxAddress = ''
 
+    let outputMyAddress = ''
+    const allMyAddresses = []
     if (transaction.vout) {
         for (let j = 0, jc = transaction.vout.length; j < jc; j++) {
             let voutAddress
-            let voutValue = transaction.vout[j].value
-            let voutBN = BlocksoftUtils.toBigNumber(voutValue)
+            const voutValue = transaction.vout[j].value
+            const voutBN = BlocksoftUtils.toBigNumber(voutValue)
             if (typeof transaction.vout[j].addresses !== 'undefined') {
                 voutAddress = transaction.vout[j].addresses[0]
             } else if (typeof transaction.vout[j].scriptPubKey !== 'undefined' && typeof transaction.vout[j].scriptPubKey.addresses !== 'undefined') {
                 voutAddress = transaction.vout[j].scriptPubKey.addresses[0]
             }
 
-            if (voutAddress === address1 || voutAddress === address2) {
+            if (typeof indexedAddresses[voutAddress] !== 'undefined') {
                 outputMy = outputMy.add(voutBN)
+                outputMyAddress = voutAddress
+                allMyAddresses.push(outputMyAddress)
             } else {
                 if (outputMaxValue < voutValue * 1 && voutAddress) {
                     outputMaxAddress = voutAddress
@@ -81,17 +84,17 @@ export default async function BtcFindAddressFunction(addresses, transaction) {
     }
 
     let output
-    if (inputMy.toString() === '0') { //my only in output
+    if (inputMy.toString() === '0') { // my only in output
         output = {
             direction: 'income',
-            from: inputMaxAddress ? inputMaxAddress : 'mining',
-            to: address1,
+            from: inputMaxAddress || 'mining',
+            to: outputMyAddress,
             value: outputMy.toString()
         }
-    } else if (outputMy.toString() === '0') { //my only in input
+    } else if (outputMy.toString() === '0') { // my only in input
         output = {
             direction: 'outcome',
-            from: address1,
+            from: inputMyAddress,
             to: outputMaxAddress,
             value: (inputOthers.toString() === '0') ? outputOthers.toString() : inputMy.toString()
         }
@@ -99,19 +102,19 @@ export default async function BtcFindAddressFunction(addresses, transaction) {
         if (outputMaxAddress) {// there are other address
             output = {
                 direction: 'outcome',
-                from: address1,
+                from: inputMyAddress,
                 to: outputMaxAddress,
                 value: outputOthers.toString()
             }
         } else {
             output = {
                 direction: 'outcome',
-                from: address1,
-                to: address1,
+                from: inputMyAddress,
+                to: outputMyAddress,
                 value: inputMy.sub(outputMy).toString()
             }
         }
     }
-
+    output.allMyAddresses = allMyAddresses
     return output
 }

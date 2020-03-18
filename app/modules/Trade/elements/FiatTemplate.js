@@ -1,71 +1,156 @@
 import React, { Component } from 'react'
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, ScrollView, Text, TouchableOpacity } from 'react-native'
 
 import { connect } from 'react-redux'
 import { strings } from '../../../services/i18n'
 
+const { width: SCREEN_WIDTH } = Dimensions.get("window")
+
+const fiatTemplateList = [
+    {
+        title: '100',
+        value: '100',
+        key: 1
+    },
+    {
+        title: '200',
+        value: '200',
+        key: 2
+    },
+    {
+        title: '300',
+        value: '300',
+        key: 3
+    },
+    {
+        title: strings('tradeScreen.custom').toUpperCase(),
+        value: '',
+        key: 4
+    },
+]
+
+const fiatTemplateListQIWI = [
+    {
+        title: '500',
+        value: '500',
+        key: 1
+    },
+    {
+        title: '700',
+        value: '700',
+        key: 2
+    },
+    {
+        title: '900',
+        value: '900',
+        key: 3
+    },
+    {
+        title: strings('tradeScreen.custom').toUpperCase(),
+        value: '',
+        key: 4
+    },
+]
 
 class FiatTemplate extends Component {
 
     constructor(props){
         super(props)
         this.state = {
-            fiatTemplateList: [
-                {
-                    title: '100',
-                    value: '100',
-                    key: '100'
-                },
-                {
-                    title: '200',
-                    value: '200',
-                    key: '200'
-                },
-                {
-                    title: '300',
-                    value: '300',
-                    key: '300'
-                },
-                {
-                    title: strings('tradeScreen.custom').toUpperCase(),
-                    value: '',
-                    key: 'CUSTOM'
-                },
-            ]
+            fiatTemplateList: fiatTemplateList
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    // eslint-disable-next-line camelcase
+    UNSAFE_componentWillReceiveProps(nextProps) {
 
         const { selectedFiatCurrency, selectedPaymentSystem, selectedCryptocurrency, selectedFiatTemplate } = nextProps
 
-        if(
-            selectedFiatCurrency && typeof selectedPaymentSystem.currencyCode != 'undefined' && typeof selectedCryptocurrency.currencyCode != 'undefined' && selectedFiatTemplate && selectedFiatTemplate.value
-        ){
+        if(selectedFiatCurrency && typeof selectedFiatCurrency.cc !== 'undefined' && typeof selectedPaymentSystem.currencyCode != 'undefined' && typeof selectedCryptocurrency.currencyCode != 'undefined' && selectedFiatTemplate && selectedFiatTemplate.value){
             this.handleSetFiatTemplateFromProps(selectedFiatTemplate, selectedPaymentSystem, selectedCryptocurrency, selectedFiatCurrency)
+        } else if(selectedFiatCurrency && typeof selectedPaymentSystem.currencyCode != 'undefined' && typeof selectedCryptocurrency.currencyCode != 'undefined' && selectedFiatTemplate && !selectedFiatTemplate.value) {
+            if(selectedPaymentSystem.paymentSystem === "QIWI"){
+                this.setState({
+                    fiatTemplateList: fiatTemplateListQIWI
+                })
+            } else {
+                this.setState({
+                    fiatTemplateList: fiatTemplateList
+                })
+            }
         }
 
-        if(!this.props.selectedPaymentSystem && selectedPaymentSystem){
-            this.handleSetFiatTemplateFromProps({
-                title: '200',
-                value: '200',
-                key: '200'
-            }, selectedPaymentSystem, selectedCryptocurrency, selectedFiatTemplate)
+        if(!this.props.selectedPaymentSystem && selectedPaymentSystem && typeof selectedFiatCurrency.cc !== 'undefined'){
+
+            if(selectedPaymentSystem.paymentSystem === "QIWI"){
+                this.setState({
+                    fiatTemplateList: fiatTemplateListQIWI
+                }, () => {
+
+                    const selectedFT = this.state.fiatTemplateList.find(item => item.key === 4)
+
+                    this.handleSetFiatTemplateFromProps({
+                        ...selectedFT
+                    }, selectedPaymentSystem, selectedCryptocurrency, selectedFiatCurrency)
+                })
+            } else {
+                this.setState({
+                    fiatTemplateList: fiatTemplateList
+                }, () => {
+
+                    const selectedFT = this.state.fiatTemplateList.find(item => item.key === 4)
+
+                    this.handleSetFiatTemplateFromProps({
+                        ...selectedFT
+                    }, selectedPaymentSystem, selectedCryptocurrency, selectedFiatCurrency)
+                })
+            }
         }
     }
 
     handleSetFiatTemplateFromProps = (selectedFiatTemplate, selectedPaymentSystem, selectedCryptocurrency, selectedFiatCurrency) => {
 
-        const selectedTradeWay = this.props.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
+        console.log('selectedPaymentSystem.paymentSystem')
+        console.log(selectedPaymentSystem.paymentSystem)
 
-        const amount = this.props.handleConvertToPaymentCurrency('USD', selectedFiatTemplate.value)
+        if(selectedPaymentSystem.paymentSystem === "QIWI"){
 
-        this.props.refAmount.calculateEquivalent(selectedTradeWay, selectedFiatCurrency, amount)
+            this.setState({
+                fiatTemplateList: fiatTemplateListQIWI
+            }, () => {
 
-        this.props.handleSetState(
-            'selectedFiatTemplate',
-            selectedFiatTemplate
-        )
+                const selectedFT = this.state.fiatTemplateList.find(item => item.key === selectedFiatTemplate.key)
+
+                const selectedTradeWay = this.props.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
+
+                const amount = this.props.handleConvertToPaymentCurrency('USD', selectedFT.value)
+
+                this.props.refAmount.calculateEquivalent(selectedTradeWay, selectedFiatCurrency, amount)
+
+                this.props.handleSetState(
+                    'selectedFiatTemplate',
+                    selectedFT
+                )
+            })
+        } else {
+            this.setState({
+                fiatTemplateList: fiatTemplateList
+            }, () => {
+
+                const selectedFT = this.state.fiatTemplateList.find(item => item.key === selectedFiatTemplate.key)
+
+                const selectedTradeWay = this.props.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
+
+                const amount = this.props.handleConvertToPaymentCurrency('USD', selectedFT.value)
+
+                this.props.refAmount.calculateEquivalent(selectedTradeWay, selectedFiatCurrency, amount)
+
+                this.props.handleSetState(
+                    'selectedFiatTemplate',
+                    selectedFT
+                )
+            })
+        }
     }
 
     handleSetFiatTemplate = (selectedFiatTemplate) => {
@@ -133,8 +218,8 @@ const styles = {
     box: {
         justifyContent: 'center',
 
-        height: 44,
-        paddingHorizontal: 15,
+        height: SCREEN_WIDTH < 370 ? 36 : 44,
+        paddingHorizontal: SCREEN_WIDTH < 370 ? 8: 15,
         marginHorizontal: 4,
 
         backgroundColor: '#F9F2FF',
@@ -153,7 +238,7 @@ const styles = {
         opacity: 0.5
     },
     box__item: {
-        fontSize: 19,
+        fontSize: SCREEN_WIDTH < 370 ? 16 : 19,
         fontFamily: 'SFUIDisplay-Regular',
         color: '#7127AC'
     },
@@ -161,7 +246,7 @@ const styles = {
         color: '#fff'
     },
     box__item_custom: {
-        fontSize: 12,
+        fontSize: SCREEN_WIDTH < 370 ? 10 : 12,
         fontFamily: 'SFUIDisplay-Semibold',
     }
 }

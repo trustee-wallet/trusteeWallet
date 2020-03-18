@@ -12,13 +12,13 @@ import Loader from '../components/elements/Loader'
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 import Router from './Router'
-import GradientView from '../components/elements/GradientView'
 
 let MainRouter = null
 
+
 class MainStack extends Component {
 
-    // componentWillReceiveProps(nextProps, nextContext) {
+    // UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
     //
     //     if(!this.props.navigationStore.initialRouteName != nextProps.navigationStore.initialRouteName){
     //         MainRouter = Router(nextProps.navigationStore)

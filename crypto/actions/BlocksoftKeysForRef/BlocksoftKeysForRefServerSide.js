@@ -43,18 +43,18 @@ class BlocksoftKeysForRefServerSide {
             throw new Error('BlocksoftKeysForRefServerSide.checkDataByApi no messageHash ' + JSON.stringify(signedData))
         }
 
-        let clonedData = {
+        const clonedData = {
             signature : signedData.signature,
             messageHash : signedData.messageHash
         }
 
         // noinspection JSUnresolvedFunction,JSUnresolvedVariable
-        let signedDataHash = await this._web3.eth.accounts.hashMessage(signedData.message)
+        const signedDataHash = await this._web3.eth.accounts.hashMessage(signedData.message)
         if (signedDataHash !== signedData.messageHash) {
             return false
         }
         if (typeof clonedData.v === 'undefined' || typeof clonedData.r === 'undefined' || typeof clonedData.s === 'undefined') {
-            const sigb = new Buffer(stripHexPrefixAndLower(clonedData.signature), 'hex')
+            const sigb = Buffer.from(stripHexPrefixAndLower(clonedData.signature), 'hex')
             if (sigb.length !== 65) {
                 return false
             }
@@ -66,7 +66,7 @@ class BlocksoftKeysForRefServerSide {
         }
 
         // noinspection JSUnresolvedVariable
-        let signedBy = await this._web3.eth.accounts.recover(clonedData)
+        const signedBy = await this._web3.eth.accounts.recover(clonedData)
         return cashbackToken === this.addressToToken(signedBy)
     }
 

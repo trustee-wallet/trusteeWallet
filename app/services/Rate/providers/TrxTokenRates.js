@@ -77,7 +77,8 @@ export default class TrxTokenRates {
 
         if (typeof this._cachedData[params.currencyCode] === 'undefined') {
             const resData = await axios.get(this._URL_ONE + params.currencyCode)
-            for(let row of resData.data.data) {
+            let row
+            for(row of resData.data.data) {
                 row.priceInTrx = BlocksoftUtils.toUnified(row.price, 3)
                 this._cachedData[row.abbr] = row
                 if (typeof (row.id) !== 'undefined') {
@@ -89,11 +90,15 @@ export default class TrxTokenRates {
 
 
         if (typeof this._cachedData[params.currencyCode] === 'undefined') {
-            throw new Error('TrxTokenRates ' + params.currencyCode + ' ' + provider + ' doesnt exists ' + JSON.stringify(Object.keys(this._cachedData)))
+            let tmp = JSON.stringify(Object.keys(this._cachedData))
+            tmp = tmp.substr(0, 30)
+            throw new Error('TrxTokenRates ' + params.currencyCode + ' ' + provider + ' doesnt exists ' + tmp)
         }
         const rate = this._cachedData[params.currencyCode]
         if (!rate) {
-            throw new Error('TrxTokenRates ' + params.currencyCode + ' ' + provider + ' is null ' + JSON.stringify(Object.keys(this._cachedData)))
+            let tmp = JSON.stringify(Object.keys(this._cachedData))
+            tmp = tmp.substr(0, 30)
+            throw new Error('TrxTokenRates ' + params.currencyCode + ' ' + provider + ' is null ' + tmp)
         }
         if (!rate.priceInTrx) {
             throw new Error('TrxTokenRates ' + params.currencyCode + ' doesnt trade with trx')

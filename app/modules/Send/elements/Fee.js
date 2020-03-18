@@ -7,7 +7,9 @@ import {
     Text,
     TouchableOpacity,
     View,
-    Animated, Keyboard
+    Animated,
+    Keyboard,
+    ScrollView
 } from 'react-native'
 
 import AntDesing from 'react-native-vector-icons/AntDesign'
@@ -17,7 +19,7 @@ import GradientView from '../../../components/elements/GradientView'
 import CustomFee from './customfee/CustomFee'
 
 import { setLoaderStatus } from '../../../appstores/Actions/MainStoreActions'
-import { setDataModal, showModal } from '../../../appstores/Actions/ModalActions'
+import { showModal } from '../../../appstores/Actions/ModalActions'
 
 import BlocksoftTransfer from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
@@ -56,18 +58,20 @@ class Fee extends Component {
 
     }
 
-    async componentWillMount() {
+    // eslint-disable-next-line camelcase
+    async UNSAFE_componentWillMount() {
 
         styles = Theme.getStyles().sendScreenStyles.feeStyles
 
         // setLoaderStatus(true)
 
+        // maybe from ratesService as its already cached
         let rateBTC = 0
         let rateETH = 0
-        if (typeof this.props.daemonStore.currencyRateDaemonData != 'undefined'
-            && typeof this.props.daemonStore.currencyRateDaemonData.rates != 'undefined'
-            && typeof this.props.daemonStore.currencyRateDaemonData.rates.allData != 'undefined'
-            && typeof this.props.daemonStore.currencyRateDaemonData.rates.allData['BTC'] != 'undefined') {
+        if (typeof this.props.daemonStore.currencyRateDaemonData !== 'undefined'
+            && typeof this.props.daemonStore.currencyRateDaemonData.rates !== 'undefined'
+            && typeof this.props.daemonStore.currencyRateDaemonData.rates.allData !== 'undefined'
+            && typeof this.props.daemonStore.currencyRateDaemonData.rates.allData['BTC'] !== 'undefined') {
             if (this.props.daemonStore.currencyRateDaemonData.rates.allData['BTC']) {
                 rateBTC = this.props.daemonStore.currencyRateDaemonData.rates.allData['BTC']
             }
@@ -112,6 +116,7 @@ class Fee extends Component {
                         .setTransferAll(true)
                 ).getFeeRate()
             } else {
+
                 fees = await (
                     BlocksoftTransfer.setCurrencyCode(currencyCode)
                         .setWalletHash(walletHash)
@@ -123,7 +128,7 @@ class Fee extends Component {
                 ).getFeeRate()
             }
 
-            Log.log('Send.Fee.componentWillMount fees', fees)
+            Log.log('Send.Fee.UNSAFE_componentWillMount fees', fees)
 
             if (fees) {
                 this.setState({
@@ -134,11 +139,7 @@ class Fee extends Component {
             }
 
         } catch (e) {
-            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
-                Log.err('Send.Fee.componentWillMount error ' + e.message)
-            } else {
-                e.message = strings('send.errors.' + e.message)
-            }
+            Log.errorTranslate(e, 'Send.Fee.UNSAFE_componentWillMount', currencyCode)
 
             this.setState({
                 status: 'fail'
@@ -162,7 +163,7 @@ class Fee extends Component {
             currency_code: currencyCode
         } = this.props.account
 
-        const { sendData } = this.props
+        const { sendData, setParentState } = this.props
 
         const tmpData = JSON.parse(JSON.stringify(sendData))
 
@@ -180,19 +181,11 @@ class Fee extends Component {
             tmpData.amount = amount
             tmpData.amountRaw = amountRaw
 
-            setDataModal({
-                data: {
-                    type: 'CONFIRM_TRANSACTION_MODAL',
-                    data: tmpData
-                }
-            })
+
+            setParentState("data", tmpData)
 
         } catch (e) {
-            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
-                Log.err('Send.Fee.handleTransferAll error ' + e.message)
-            } else {
-                e.message = strings('send.errors.' + e.message)
-            }
+            Log.errorTranslate(e, 'Send.Fee.handleTransferAll', currencyCode)
 
             Keyboard.dismiss()
 
@@ -236,9 +229,9 @@ class Fee extends Component {
 
         const { ifCustomFee } = this.state
 
-        const position = !ifCustomFee ? -WINDOW_WIDTH + 60 : 0
+        const position = !ifCustomFee ? -WINDOW_WIDTH : 0
 
-        this.state.customFeeAnimation.setValue(!ifCustomFee ? 0 : -WINDOW_WIDTH + 60)
+        this.state.customFeeAnimation.setValue(!ifCustomFee ? 0 : -WINDOW_WIDTH)
         Animated.timing( this.state.customFeeAnimation, { toValue: position, duration: 99}).start();
 
         this.setState({ ifCustomFee: !ifCustomFee })
@@ -254,7 +247,7 @@ class Fee extends Component {
 
         const { feeList, fee, status } = this.state
         const { currencySymbol, currency_rate_usd, currencyCode } = this.props.cryptocurrency
-        const { localCurrencySymbol } = this.props.fiatRatesStore
+        const { localCurrencySymbol, localCurrencyRate } = this.props.fiatRatesStore
 
         let feeSymbol = currencySymbol
         let feeCurrencyCode = currencyCode
@@ -262,7 +255,7 @@ class Fee extends Component {
         if (this.props.cryptocurrency.feesCurrencyCode) {
             feeSymbol = this.props.cryptocurrency.feesCurrencyCode
             feeCurrencyCode = this.props.cryptocurrency.feesCurrencyCode
-            if ( typeof(this.state['rate' +  feeCurrencyCode]) !== 'undefined' ) { //rateBTC, rateETH etc
+            if ( typeof(this.state['rate' +  feeCurrencyCode]) !== 'undefined' ) { // rateBTC, rateETH etc
                 feeRate = this.state['rate' +  feeCurrencyCode]
             } else {
                 feeRate = 0
@@ -317,36 +310,57 @@ class Fee extends Component {
                 <View style={!this.state.ifShowFee ? styles.fee__content__wrap_hidden : styles.fee__content__wrap}>
                     <Animated.View style={{...styles.fee__content, transform: [{ translateX: this.state.customFeeAnimation }]}}>
                         {
-                            status == 'success' ? feeList.map((item, index) => {
-                                let prettieFee = BlocksoftPrettyNumbers.setCurrencyCode(feeCurrencyCode).makePrettie(item.feeForTx)
-                                let feeInUsd = prettieFee * feeRate
+                            status === 'success' ? feeList.map((item, index) => {
+
+                                let prettieFee
+                                let prettieFeeLocalCurrency = false
+                                let prettieFeeSymbol = feeSymbol
+
+                                let feeInUsd
+                                if (typeof item.feeForTxDelegated !== 'undefined') {
+                                    prettieFee = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePrettie(item.feeForTxDelegated)
+                                    feeInUsd = item.feeForTxUsd
+                                    prettieFeeSymbol = currencySymbol
+                                    if (localCurrencyRate === 1 && currencyCode === 'ETH_UAX') {
+                                        prettieFeeLocalCurrency = prettieFee
+                                    }
+                                } else {
+                                    prettieFee = BlocksoftPrettyNumbers.setCurrencyCode(feeCurrencyCode).makePrettie(item.feeForTx)
+                                    feeInUsd = prettieFee * feeRate
+                                }
+
+                                if (prettieFeeLocalCurrency === false) {
+                                    // dont replace here on general plz
+                                    prettieFeeLocalCurrency = FiatRatesActions.toLocalCurrency(feeInUsd, false)
+                                }
+
                                 return (
                                     <View style={styles.fee__wrap} key={index}>
                                         <TouchableOpacity
                                             onPress={() => this.handleSelect(item)}
-                                            disabled={fee.langMsg == item.langMsg ? true : false}
+                                            disabled={fee.langMsg === item.langMsg}
                                             style={styles.fee__item}>
                                             <GradientView
                                                 style={styles.fee__circle}
-                                                array={fee.langMsg == item.langMsg ? styles_active.array : styles_.array}
+                                                array={fee.langMsg === item.langMsg ? stylesActive.array : styles_.array}
                                                 start={styles_.start}
                                                 end={styles_.end}>
                                             </GradientView>
                                             <View style={styles.fee__item__content}>
                                                 <View style={styles.fee__item__top}>
-                                                    <Text style={{ ...styles.fee__item__title, color: fee.langMsg == item.langMsg ? '#efa1ae' : '#f4f4f4' }}>
-                                                        {strings(`send.fee.text.${item.langMsg}`)}
+                                                    <Text style={{ ...styles.fee__item__title, color: fee.langMsg === item.langMsg ? '#efa1ae' : '#f4f4f4' }}>
+                                                        {strings(`send.fee.text.${item.langMsg}`, { symbol: prettieFeeSymbol})}
                                                     </Text>
                                                 </View>
-                                                <Text style={{ ...styles.fee__item__top__text, color: fee.langMsg == item.langMsg ? '#efa1ae' : '#f4f4f4' }}>
-                                                    {strings(`send.fee.time.${item.langMsg}`)}
+                                                <Text style={{ ...styles.fee__item__top__text, color: fee.langMsg === item.langMsg ? '#efa1ae' : '#f4f4f4' }}>
+                                                    {strings(`send.fee.time.${item.langMsg}`, { symbol: prettieFeeSymbol })}
                                                 </Text>
-                                                <Text style={{ ...styles.fee__item__top__text, color: fee.langMsg == item.langMsg ? '#efa1ae' : '#e3e3e3' }}>
-                                                    {prettieFee} {feeSymbol} ({ localCurrencySymbol } { utils.prettierNumber(FiatRatesActions.toLocalCurrency(feeInUsd, false), 2) } )
+                                                <Text style={{ ...styles.fee__item__top__text, color: fee.langMsg === item.langMsg ? '#efa1ae' : '#e3e3e3' }}>
+                                                    {prettieFee} {prettieFeeSymbol} ({ localCurrencySymbol } { utils.prettierNumber(prettieFeeLocalCurrency, 2) } )
                                                 </Text>
                                             </View>
                                         </TouchableOpacity>
-                                        {feeList.length - 1 != index ? <View style={styles.fee__divider}/> : null}
+                                        {feeList.length - 1 !== index ? <View style={styles.fee__divider}/> : null}
                                     </View>
                                 )
                             }) : null
@@ -384,7 +398,7 @@ const styles_ = {
     end: { x: 1, y: 0.5 }
 }
 
-const styles_active = {
+const stylesActive = {
     array: ['#b95f94', '#eba0ae'],
     start: { x: 0.0, y: 0.5 },
     end: { x: 1, y: 0.5 }

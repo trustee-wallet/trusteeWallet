@@ -2,11 +2,8 @@ import React, { Component } from 'react'
 import { View, TouchableOpacity, Dimensions, Text, TextInput } from 'react-native'
 
 import Modal from 'react-native-modal'
-import QRCode from 'react-native-qrcode-svg'
 
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
-
-import { strings } from '../../../services/i18n'
 
 import { hideModal } from '../../../appstores/Actions/ModalActions'
 import CurrencyIcon from '../../../components/elements/CurrencyIcon'
@@ -23,7 +20,7 @@ export default class SelectTradeCryptocurrencyModal extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
 
     }
 

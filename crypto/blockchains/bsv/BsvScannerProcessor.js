@@ -22,8 +22,8 @@ export default class BsvScannerProcessor {
      * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalance(address) {
-        let link = API_PATH + address
-        let res = await BlocksoftAxios.getWithoutBraking(link)
+        const link = API_PATH + address
+        const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || !res.data || typeof res.data.data === 'undefined' || !res.data.data || typeof res.data.data.balance === 'undefined') {
             return false
         }
@@ -38,13 +38,14 @@ export default class BsvScannerProcessor {
      */
     async getTransactions(address) {
         BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions started', address)
-        let tmp = await BlocksoftAxios.getWithoutBraking(API_TX_PATH + address + '/tx')
+        const tmp = await BlocksoftAxios.getWithoutBraking(API_TX_PATH + address + '/tx')
         if (!tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.data === 'undefined' || !tmp.data.data || typeof tmp.data.data.list === 'undefined' || !tmp.data.data.list) {
              return []
         }
-        let transactions = []
-        for (let tx of tmp.data.data.list) {
-            let transaction = await this._unifyTransaction(address, tx)
+        const transactions = []
+        let tx
+        for (tx of tmp.data.data.list) {
+            const transaction = await this._unifyTransaction(address, tx)
             transactions.push(transaction)
         }
         BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions finished', address + ' total: ' + transactions.length)
@@ -52,15 +53,16 @@ export default class BsvScannerProcessor {
     }
 
     async _unifyTransaction(address, transaction) {
-        let showAddresses = {
+        const showAddresses = {
             to : address,
             from : address
         }
         if (transaction.balance_diff < 0) {
             transaction.balance_diff = Math.abs(transaction.balance_diff)
             showAddresses.direction = 'outcome'
-            if (typeof transaction.outputs != 'undefined') {
-                for (let vout of transaction.outputs) {
+            if (typeof transaction.outputs !== 'undefined') {
+                let vout
+                for (vout of transaction.outputs) {
                     if (vout.addresses[0] && vout.addresses[0] !== address) {
                         showAddresses.to = vout.addresses[0]
                     }
@@ -68,8 +70,9 @@ export default class BsvScannerProcessor {
             }
         } else {
             showAddresses.direction = 'income'
-            if (typeof transaction.inputs != 'undefined') {
-                for (let vin of transaction.inputs) {
+            if (typeof transaction.inputs !== 'undefined') {
+                let vin
+                for (vin of transaction.inputs) {
                     if (vin.prev_addresses[0] && vin.prev_addresses[0] !== address) {
                         showAddresses.from = vin.prev_addresses[0]
                     }
@@ -79,7 +82,7 @@ export default class BsvScannerProcessor {
         showAddresses.value = transaction.balance_diff
 
         if (typeof transaction.block_time === "undefined") {
-            new Error(' no transaction.time error transaction data ' + JSON.stringify(transaction))
+            throw new Error(' no transaction.time error transaction data ' + JSON.stringify(transaction))
         }
         let formattedTime = transaction.block_time
         try {
@@ -88,7 +91,13 @@ export default class BsvScannerProcessor {
             e.message += ' timestamp error transaction data ' + JSON.stringify(transaction)
             throw e
         }
-        let confirmations = transaction.confirmations * 1;
+        const confirmations = transaction.confirmations * 1
+        let transactionStatus = 'new'
+        if (confirmations > this._blocksToConfirm) {
+            transactionStatus = 'success'
+        } else if (confirmations > 0) {
+            transactionStatus = 'confirming'
+        }
         return {
             transaction_hash: transaction.hash,
             block_hash: transaction.block_hash,
@@ -99,7 +108,7 @@ export default class BsvScannerProcessor {
             address_from: showAddresses.from,
             address_to: showAddresses.to,
             address_amount: showAddresses.value,
-            transaction_status: confirmations > this._blocksToConfirm ? 'success' : 'new',
+            transaction_status: transactionStatus,
             transaction_fee: BlocksoftUtils.toSatoshi(transaction.fee),
             lock_time: +transaction.lock_time,
             vin: JSON.stringify(transaction.inputs),

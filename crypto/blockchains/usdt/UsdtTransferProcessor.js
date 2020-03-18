@@ -31,10 +31,15 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
         this.txPrepareInputsOutputs = new UsdtTxInputsOutputs(this._settings, this._trezorServer)
         this.txBuilder = new UsdtTxBuilder(this._settings, this._trezorServer)
         this._initedProviders = true
+        this.usdtScannerProcessor = false
     }
+
     /**
+     * @param {Object} data
      * @param {string} data.privateKey
      * @param {string} data.addressFrom
+     * @param {string} data.privateKeyLegacy
+     * @param {string} data.addressFromLegacy
      * @param {string} data.currencyCode
      * @param {string} data.addressTo
      * @param {string} data.amount
@@ -42,7 +47,6 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
-     * @param {string} data.replacingTransaction
      * @param {number} data.nSequence
      * @param {string} balanceRaw
      * @returns {Promise<string>}
@@ -51,8 +55,8 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
         if (balanceRaw) return balanceRaw
         BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ' + data.addressFrom + ' started')
 
-        let balanceProvider = Dispatcher.getScannerProcessor(this._settings)
-        let current = await balanceProvider.getBalance(data.addressFrom)
+        const balanceProvider = Dispatcher.getScannerProcessor(this._settings)
+        const current = await balanceProvider.getBalance(data.addressFromLegacy)
 
         BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + current.balance)
         return current.balance
@@ -61,6 +65,8 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
     /**
      * @param {string} data.privateKey
      * @param {string} data.addressFrom
+     * @param {string} data.privateKeyLegacy
+     * @param {string} data.addressFromLegacy
      * @param {string} data.currencyCode
      * @param {string} data.addressTo
      * @param {string} data.amount
@@ -68,15 +74,11 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
-     * @param {string} data.replacingTransaction
      * @param {number} data.nSequence
      * @returns {Promise<{correctedAmountFrom: string, hash: string}>}
      */
     async sendTx(data) {
         this._initProviders()
-        if (data.replacingTransaction !== 'undefined' && data.replacingTransaction) {
-            throw new Error('PLZ CODE BACK REPLACING TX LOGIC')
-        }
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTransferProcessor.sendTx ' + data.addressFrom + ' started')
 
         const now = new Date().getTime()
@@ -84,25 +86,30 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
             await this.getTransferPrecache(data)
         }
 
-        let correctedAmountFrom = data.amount //USDT FIX!!!!
-        let preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'sendTx')
-        let logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.sendTx')
+        const correctedAmountFrom = data.amount // USDT FIX!!!!
+        const preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'sendTx')
+        const logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.sendTx')
+        if (preparedInputsOutputs.inputs[0].address !== data.addressFromLegacy) {
+            throw new Error('!!!!something is wrong with USDT tx builder!!!!')
+        }
 
-        let rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs)
+        const rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs)
         let result
         try {
             result = await this.sendProvider.sendTx(rawTxHex, 'usual first try')
         } catch (e) {
             if (typeof e.code !== 'undefined' && e.code === 'ERROR_USER') {
                 // can do something here to try more
-                logInputsOutputs['error'] = e.basicMessage
-                logInputsOutputs['userError'] = e.message
+                logInputsOutputs.error = e.basicMessage
+                logInputsOutputs.userError = e.message
+                // noinspection ES6MissingAwait
                 MarketingEvent.logOnlyRealTime('usdt_error_1_1 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
 
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx basicMessage', e.basicMessage)
                 throw e
             } else {
-                logInputsOutputs['userError'] = e.message
+                logInputsOutputs.userError = e.message
+                // noinspection ES6MissingAwait
                 MarketingEvent.logOnlyRealTime('usdt_error_1_2 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
 
                 // noinspection JSUndefinedPropertyAssignment
@@ -111,13 +118,15 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
             }
         }
         if (!result) {
+            // noinspection ES6MissingAwait
             MarketingEvent.logOnlyRealTime('usdt_error_1_3 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
             throw new Error('no result')
         }
-        //start prepare for next transactions
+        // start prepare for next transactions
         this._precached.time = 0
 
-        logInputsOutputs['hash'] = result
+        logInputsOutputs.hash = result
+        // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('usdt_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
 
         return { hash: result, correctedAmountFrom: correctedAmountFrom }

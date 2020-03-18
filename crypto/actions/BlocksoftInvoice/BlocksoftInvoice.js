@@ -15,7 +15,7 @@ class BlocksoftInvoice {
      */
     _processor = {}
     /**
-     * @type {{privateKey, address, amount, feeForTx, currencyCode, addressForChange, replacingTransaction, nSequence, jsonData, memo}}
+     * @type {{privateKey, address, amount, feeForTx, currencyCode, addressForChange, nSequence, jsonData, memo}}
      * @private
      */
     _data = {}
@@ -76,7 +76,7 @@ class BlocksoftInvoice {
      * @return {Promise<{hash}>}
      */
     async createInvoice() {
-        let currencyCode = this._data.currencyCode
+        const currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
@@ -95,7 +95,7 @@ class BlocksoftInvoice {
     }
 
     async checkInvoice(hash) {
-        let currencyCode = this._data.currencyCode
+        const currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
@@ -116,6 +116,6 @@ class BlocksoftInvoice {
     }
 }
 
-let singleBlocksoftInvoice = new BlocksoftInvoice()
+const singleBlocksoftInvoice = new BlocksoftInvoice()
 
 export default singleBlocksoftInvoice

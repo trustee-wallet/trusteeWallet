@@ -7,7 +7,7 @@ class BlocksoftPrettyNumbers {
      * @return {BlocksoftPrettyNumbers}
      */
     setCurrencyCode(currencyCode) {
-        let settings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+        const settings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
         if (settings.prettyNumberProcessor) {
             this._processorCode = settings.prettyNumberProcessor
         } else {
@@ -44,14 +44,19 @@ class BlocksoftPrettyNumbers {
      * @return {string}
      */
     makeUnPrettie(number) {
-        if (this._processorCode === 'USDT') {
-            return number
-        } else if (this._processorCode === 'ETH') {
-            return BlocksoftUtils.toWei(number)
-        } else if (this._processorCode === 'BTC') {
-            return BlocksoftUtils.toSatoshi(number)
-        } else if (this._processorCode === 'ETH_ERC_20' || this._processorCode === 'UNIFIED') {
-            return BlocksoftUtils.fromUnified(number, this._decimals)
+        try {
+            if (this._processorCode === 'USDT') {
+                return number
+            } else if (this._processorCode === 'ETH') {
+                return BlocksoftUtils.toWei(number)
+            } else if (this._processorCode === 'BTC') {
+                return BlocksoftUtils.toSatoshi(number)
+            } else if (this._processorCode === 'ETH_ERC_20' || this._processorCode === 'UNIFIED') {
+                return BlocksoftUtils.fromUnified(number, this._decimals)
+            }
+        } catch (e) {
+            e.message += 'in makeUnPrettie'
+            throw e
         }
         throw new Error('undefined BlocksoftPrettyNumbers processor to makeUnPrettie')
     }

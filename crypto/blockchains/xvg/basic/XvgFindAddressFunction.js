@@ -17,10 +17,11 @@ export default async function XvgFindAddressFunction(address, tmp) {
     let inputOthers = BlocksoftUtils.toBigNumber(0)
     let inputMaxValue = 0
     let inputMaxAddress = ''
-    
-    for (let input of tmp.inputs) {
+
+    let input
+    for (input of tmp.inputs) {
         if (input.address) {
-            let vinBN = BlocksoftUtils.toBigNumber(input.value)
+            const vinBN = BlocksoftUtils.toBigNumber(input.value)
             if (input.address === address) {
                 inputMy = inputMy.add(vinBN)
             } else {
@@ -38,9 +39,10 @@ export default async function XvgFindAddressFunction(address, tmp) {
     let outputMaxValue = 0
     let outputMaxAddress = ''
 
-    for (let output of tmp.outputs) {
+    let output
+    for (output of tmp.outputs) {
         if (output.address) {
-            let voutBN = BlocksoftUtils.toBigNumber(output.value)
+            const voutBN = BlocksoftUtils.toBigNumber(output.value)
             if (output.address === address) {
                 outputMy = outputMy.add(voutBN)
             } else {
@@ -53,15 +55,14 @@ export default async function XvgFindAddressFunction(address, tmp) {
         }
     }
 
-    let output
-    if (inputMy.toString() === '0') { //my only in output
+    if (inputMy.toString() === '0') { // my only in output
         output = {
             direction: 'income',
-            from: inputMaxAddress ? inputMaxAddress : 'mining',
+            from: inputMaxAddress || 'mining',
             to: address,
             value: outputMy.toString()
         }
-    } else if (outputMy.toString() === '0') { //my only in input
+    } else if (outputMy.toString() === '0') { // my only in input
         output = {
             direction: 'outcome',
             from: address,

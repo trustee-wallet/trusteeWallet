@@ -108,7 +108,7 @@ class UpdateCurrencyRate extends Update {
                         BALANCE_CACHE[toSaveCurrencyCode] = amount
                     }
                     if (
-                        toSaveCurrencyCode != toScanCurrencyCode && // if was replaced in the dict
+                        toSaveCurrencyCode !== toScanCurrencyCode && // if was replaced in the dict
                         (!BALANCE_CACHE[toScanCurrencyCode] || BALANCE_CACHE[toScanCurrencyCode] !== amount)
                     ) {
                         cacheUpdated = true

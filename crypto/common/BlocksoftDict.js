@@ -1,5 +1,5 @@
 const Codes = [
-    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'TRX'   // add code here for autocreation the wallet address with the currency
+    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'TRX'   // add code here for autocreation the wallet address with the currency
 ]
 
 const Currencies = {
@@ -42,17 +42,8 @@ const Currencies = {
         network: 'mainnet',
         decimals: 8,
         buyable: 1,
-        currencyExplorerLink: 'https://live.blockcypher.com/btc/address/',
-        currencyExplorerTxLink: 'https://live.blockcypher.com/btc/tx/'
-    },
-
-    'BTC_SEGWIT': {
-        currencyName: 'Bitcoin Segwit',
-        currencyCode: 'BTC_SEGWIT',
-        currencySymbol: 'BTC',
-        addressProcessor: 'BTC_SEGWIT',
-        extendsProcessor: 'BTC',
-        ratesCurrencyCode: 'BTC',
+        currencyExplorerLink: 'https://blockchair.com/bitcoin/address/',
+        currencyExplorerTxLink: 'https://blockchair.com/bitcoin/transaction/'
     },
 
     // 'BTC_LIGHT': {
@@ -95,8 +86,8 @@ const Currencies = {
         network: 'bitcoincash',
         decimals: 8,
         buyable: 1,
-        currencyExplorerLink: 'https://explorer.bitcoin.com/bch/address/bitcoincash:',
-        currencyExplorerTxLink: 'https://explorer.bitcoin.com/bch/tx/'
+        currencyExplorerLink: 'https://blockchair.com/bitcoin-cash/address/',
+        currencyExplorerTxLink: 'https://blockchair.com/bitcoin-cash/transaction/'
     },
     'BSV': {
         currencyName: 'BitcoinSV',
@@ -109,8 +100,8 @@ const Currencies = {
         network: 'bitcoinsv',
         decimals: 8,
         buyable: 1,
-        currencyExplorerLink: 'https://explorer.viabtc.com/bsv/address/',
-        currencyExplorerTxLink: 'https://explorer.viabtc.com/bsv/tx/'
+        currencyExplorerLink: 'https://blockchair.com/bitcoin-sv/address/',
+        currencyExplorerTxLink: 'https://blockchair.com/bitcoin-sv/transaction/'
     },
     'BTG': {
         currencyName: 'Bitcoin Gold',
@@ -138,8 +129,8 @@ const Currencies = {
         network: 'litecoin',
         decimals: 8,
         buyable: 1,
-        currencyExplorerLink: 'https://live.blockcypher.com/ltc/address/',
-        currencyExplorerTxLink: 'https://live.blockcypher.com/ltc/tx/'
+        currencyExplorerLink: 'https://blockchair.com/litecoin/address/',
+        currencyExplorerTxLink: 'https://blockchair.com/litecoin/transaction/'
     },
     'DOGE': {
         currencyName: 'Dogecoin',
@@ -152,8 +143,8 @@ const Currencies = {
         network: 'dogecoin',
         decimals: 8,
         buyable: 0,
-        currencyExplorerLink: 'https://dogechain.info/address/',
-        currencyExplorerTxLink: 'https://dogechain.info/tx/'
+        currencyExplorerLink: 'https://blockchair.com/dogecoin/address/',
+        currencyExplorerTxLink: 'https://blockchair.com/dogecoin/transaction/'
     },
     'XVG': {
         currencyName: 'Verge',
@@ -174,7 +165,7 @@ const Currencies = {
         currencyName: 'Tether',
         currencyCode: 'ETH_USDT',
         currencySymbol: 'USDT',
-        extendsProcessor: 'ETH_TRUE_USD', //also get all settings extended, not only processor
+        extendsProcessor: 'ETH_TRUE_USD', // also get all settings extended, not only processor
         addressUiChecker: 'ETH', // use for address check on ui (
         ratesCurrencyCode: 'USDT', // if code in rates should be different, else - used currencyCode
         decimals: 6,
@@ -190,12 +181,27 @@ const Currencies = {
         addressCurrencyCode: 'BTC', // use btc addresses as main
         scannerProcessor: 'USDT',
         prettyNumberProcessor: 'USDT',
+        addressUiChecker: 'BTC_LEGACY',
         feesCurrencyCode: 'BTC',
         network: 'mainnet',
         decimals: 8,
         buyable: 0,
-        currencyExplorerLink: 'https://omniexplorer.info/address/',
-        currencyExplorerTxLink: 'https://omniexplorer.info/tx/'
+        currencyExplorerLink: 'https://blockchair.com/bitcoin/address/',
+        currencyExplorerTxLink: 'https://blockchair.com/bitcoin/transaction/'
+    },
+    'ETH_UAX' : {
+        currencyName : 'Crypto UAX',
+        currencyCode : 'ETH_UAX',
+        currencySymbol: 'UAX',
+        extendsProcessor: 'ETH_TRUE_USD',
+        transferProcessor: 'ETH_UAX',
+        delegatedTransfer : true,
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'UAH',
+        decimals: 2,
+        buyable: 0,
+        tokenAddress: '0x1Fc31488f28ac846588FFA201cDe0669168471bD',
+        currencyExplorerLink: 'https://etherscan.io/token/0x1Fc31488f28ac846588FFA201cDe0669168471bD?a='
     },
     'XRP': {
         currencyName: 'Ripple',
@@ -356,13 +362,21 @@ const Currencies = {
 }
 
 const CurrenciesForTests = {
+    'BTC_SEGWIT': {
+        currencyName: 'Bitcoin Segwit',
+        currencyCode: 'BTC_SEGWIT',
+        currencySymbol: 'BTC',
+        addressProcessor: 'BTC_SEGWIT',
+        extendsProcessor: 'BTC',
+        ratesCurrencyCode: 'BTC'
+    },
     'BTC_SEGWIT_COMPATIBLE': {
         currencyName: 'Bitcoin Compatible Segwit',
         currencyCode: 'BTC_SEGWIT_COMPATIBLE',
         currencySymbol: 'BTC',
         addressProcessor: 'BTC_SEGWIT_COMPATIBLE',
         extendsProcessor: 'BTC',
-        ratesCurrencyCode: 'BTC',
+        ratesCurrencyCode: 'BTC'
     },
     'ETH_ROPSTEN_KSU_TOKEN': {
         currencyName: 'Some ERC-20 Ropsten',
@@ -390,7 +404,7 @@ const CurrenciesForTests = {
         tokenName: '1002742',
         currencyExplorerLink: 'https://tronscan.org/#/address/',
         currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
-    },
+    }
 }
 
 /**
@@ -405,7 +419,7 @@ const CurrenciesForTests = {
  * @param {string} currencyObject.currency_code 'OMG'
  */
 function addAndUnifyCustomCurrency(currencyObject) {
-    let tmp = {
+    const tmp = {
         currencyName: currencyObject.currency_name,
         currencyCode: 'CUSTOM_' + currencyObject.currency_code,
         currencySymbol: currencyObject.currency_symbol,
@@ -433,17 +447,22 @@ function addAndUnifyCustomCurrency(currencyObject) {
     Currencies['CUSTOM_' + currencyObject.currency_code] = tmp
 }
 
-function getCurrencyAllSettings(currencyCode) {
+function getCurrencyAllSettings(currencyCodeOrObject) {
+    let currencyCode = currencyCodeOrObject
+    if (typeof currencyCodeOrObject.currencyCode !== 'undefined') {
+        currencyCode = currencyCodeOrObject.currencyCode
+    }
     let settings = Currencies[currencyCode]
     if (!settings) {
         settings = CurrenciesForTests[currencyCode]
     }
     if (!settings) {
-        throw new Error('Currency code not found in dict ' + currencyCode)
+        throw new Error('Currency code not found in dict ' + JSON.stringify(currencyCode))
     }
     if (settings.extendsProcessor && Currencies[settings.extendsProcessor]) {
-        let settingsParent = Currencies[settings.extendsProcessor]
-        for (let newKey of Object.keys(settingsParent)) {
+        const settingsParent = Currencies[settings.extendsProcessor]
+        let newKey
+        for (newKey of Object.keys(settingsParent)) {
             if (!settings[newKey]) {
                 settings[newKey] = settingsParent[newKey]
             }

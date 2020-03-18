@@ -26,7 +26,7 @@ export default class CustomReceiveAmountModal extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const dataForQr = this.getDataForQR(this.state.value)
 
         this.setState({

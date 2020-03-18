@@ -44,9 +44,10 @@ export class BlocksoftKeysStorage {
      */
     publicSelectedWallet = ''
 
-    constructor(_serviceName = 'BlocksoftKeysStorage3'){
+    constructor(_serviceName = 'BlocksoftKeysStorage3') {
         this._serviceName = _serviceName
     }
+
     /**
      * @private
      */
@@ -62,7 +63,7 @@ export class BlocksoftKeysStorage {
      * @private
      */
     async _getKeyValue(key) {
-        let res = await Keychain.getInternetCredentials(this._serviceName + '_' + key)
+        const res = await Keychain.getInternetCredentials(this._serviceName + '_' + key)
         if (!res) return false
         return { 'pub': res.username, 'priv': res.password }
     }
@@ -114,7 +115,7 @@ export class BlocksoftKeysStorage {
         }
         BlocksoftCryptoLog.log('BlocksoftKeysStorage init started')
 
-        let count = await this._getKeyValue('wallets_counter')
+        const count = await this._getKeyValue('wallets_counter')
 
         this._serviceWalletsCounter = count && count.priv ? count.priv * 1 : 0
         this._serviceWallets = {}
@@ -124,7 +125,7 @@ export class BlocksoftKeysStorage {
         BlocksoftCryptoLog.log('BlocksoftKeysStorage countMnemonics', this._serviceWalletsCounter)
         if (this._serviceWalletsCounter > 0) {
             for (let i = 1; i <= this._serviceWalletsCounter; i++) {
-                let wallet = await this._getKeyValue('wallet_' + i)
+                const wallet = await this._getKeyValue('wallet_' + i)
                 this._serviceWallets[wallet.pub] = wallet.priv
                 this._serviceWallets[i - 1] = wallet.priv
                 this.publicWallets.push(wallet.pub)
@@ -134,7 +135,7 @@ export class BlocksoftKeysStorage {
             }
             BlocksoftCryptoLog.log('BlocksoftKeysStorage savedMnemonics', JSON.stringify(this.publicWallets))
         }
-        let tmp = await this._getKeyValue('selected_hash')
+        const tmp = await this._getKeyValue('selected_hash')
         if (tmp && tmp.pub) {
             this.publicSelectedWallet = tmp.pub
         }
@@ -221,6 +222,7 @@ export class BlocksoftKeysStorage {
         }
         return true
     }
+
     /**
      * @param {string} newMnemonic.mnemonic
      * @param {string} newMnemonic.hash
@@ -229,7 +231,7 @@ export class BlocksoftKeysStorage {
     async saveMnemonic(newMnemonic) {
         await this._init()
 
-        let logData = {...newMnemonic}
+        const logData = { ...newMnemonic }
         if (typeof logData.mnemonic !== 'undefined') logData.mnemonic = '***'
         BlocksoftCryptoLog.log('BlocksoftKeysStorage saveMnemonic', logData)
 
@@ -244,7 +246,7 @@ export class BlocksoftKeysStorage {
         }
         this._serviceWalletsCounter++
 
-        let unique = newMnemonic.hash
+        const unique = newMnemonic.hash
 
         /*
         hash should give unique values for different mnemonics
@@ -274,9 +276,9 @@ export class BlocksoftKeysStorage {
     }
 
     async getAddressCache(hashOrId) {
-        let res = await this._getKeyValue('ar4_' + hashOrId)
+        const res = await this._getKeyValue('ar4_' + hashOrId)
         if (!res) return false
-        return {address : res.pub, privateKey : res.priv}
+        return { address: res.pub, privateKey: res.priv }
     }
 
     async setAddressCache(hashOrId, res) {
@@ -284,9 +286,9 @@ export class BlocksoftKeysStorage {
     }
 
     async getLoginCache(hashOrId) {
-        let res = await this._getKeyValue('login_' + hashOrId)
+        const res = await this._getKeyValue('login_' + hashOrId)
         if (!res) return false
-        return {login : res.pub, pass : res.priv}
+        return { login: res.pub, pass: res.priv }
     }
 
     async setLoginCache(hashOrId, res) {
@@ -295,5 +297,5 @@ export class BlocksoftKeysStorage {
 
 }
 
-let singleBlocksoftKeysStorage = new BlocksoftKeysStorage()
+const singleBlocksoftKeysStorage = new BlocksoftKeysStorage()
 export default singleBlocksoftKeysStorage

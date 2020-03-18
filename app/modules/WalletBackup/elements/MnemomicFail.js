@@ -10,7 +10,7 @@ import ButtonWrap from '../../../components/elements/modal/ButtonWrap';
 
 import { hideModal } from "../../../appstores/Actions/ModalActions";
 
-import { strings } from 'root/app/services/i18n';
+import { strings } from '../../../../app/services/i18n';
 
 export default class MnemomicFail extends Component {
 

@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         fontSize: 14,
         textAlign: 'center',
-        //fontFamily: 'SanFran-Regular',
+        fontFamily: 'SFUIDisplay-Regular',
         color: '#252742'
     }
 });

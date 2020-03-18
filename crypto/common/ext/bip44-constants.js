@@ -9,7 +9,7 @@ module.exports = [
     [ `44'/1`, "BTC_TEST", "Testnet (all coins)" ],
     [ `84'/0`, "BTC_SEGWIT", "Bitcoin" ],
     [ `49'/0`, "BTC_SEGWIT_COMPATIBLE", "Bitcoin" ],
-    [ `44'/0`, "USDT", "USDT Omni" ], //actual = 200
+    [ `44'/0`, "USDT", "USDT Omni" ], // actual = 200
     [ `44'/279553`, "BTC_LIGHT", "Bitcoin Light" ],
 
     [ `44'/145`, "BCH", "Bitcoin Cash" ],
@@ -499,5 +499,5 @@ module.exports = [
     [ 0x83adbc39, "AQUA", "Aquachain" ],
     [ 0x857ab1e1, "kUSD", "kUSD" ],
     [ 0x85f5e0fe, "FLUID", "Fluid Chains" ],
-    [ 0x85f5e0ff, "QKC", "QuarkChain" ]*/
+    [ 0x85f5e0ff, "QKC", "QuarkChain" ] */
 ]

@@ -5,6 +5,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Image, View, Text, Platform } from 'react-native'
 import firebase from 'react-native-firebase'
+
 import {
     UIActivityIndicator,
     MaterialIndicator
@@ -33,7 +34,7 @@ class InitScreen extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         Log.log('InitScreen is mounted')
         styles = Theme.getStyles().initScreenStyles
     }
@@ -48,7 +49,7 @@ class InitScreen extends Component {
         }
     }
 
-    componentWillReceiveProps(props) {
+    UNSAFE_componentWillReceiveProps(props) {
         Log.log('InitScreen is receiving props')
         // @debug for raw testing
         // NavStore.reset('WalletCreateScreen')

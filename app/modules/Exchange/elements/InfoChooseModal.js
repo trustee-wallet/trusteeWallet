@@ -15,7 +15,7 @@ import GradientView from "../../../components/elements/GradientView";
 
 import Cross from "react-native-vector-icons/Entypo";
 
-import { strings } from 'root/app/services/i18n';
+import { strings } from '../../../../app/services/i18n';
 
 const width = Dimensions.get('window').width;
 const { width: WIDTH } = Dimensions.get("window");

@@ -5,16 +5,16 @@ import { connect } from 'react-redux'
 import {
     View,
     Text,
-    StyleSheet,
     ScrollView,
     TouchableOpacity,
-    TouchableWithoutFeedback,
     Linking,
     Switch,
-    Vibration
+    Vibration,
+    Platform
 } from 'react-native'
 
 import firebase from "react-native-firebase"
+
 import Share from "react-native-share"
 
 import NavStore from "../../components/navigation/NavStore"
@@ -34,7 +34,6 @@ import { setFlowType } from "../../appstores/Actions/CreateWalletActions"
 import { strings } from '../../services/i18n'
 
 import Cashback from '../../services/Cashback/Cashback'
-import { copyToClipboard } from '../../services/utils'
 
 import Log from '../../services/Log/Log'
 
@@ -44,9 +43,12 @@ import Toast from '../../services/Toast/Toast'
 import AsyncStorage from '@react-native-community/async-storage'
 
 import DBExport from "../../appstores/DataSource/DB/DBExport/DBExport"
+import walletActions from '../../appstores/Actions/WalletActions'
 
 import MarketingEvent from "../../services/Marketing/MarketingEvent"
-import BlocksoftCryptoLog from "../../../crypto/common/BlocksoftCryptoLog";
+import BlocksoftCryptoLog from "../../../crypto/common/BlocksoftCryptoLog"
+import FileSystem from "../../services/FileSystem"
+import { setLoaderStatus } from '../../appstores/Actions/MainStoreActions'
 
 class SettingsMainScreen extends Component {
 
@@ -59,12 +61,13 @@ class SettingsMainScreen extends Component {
         }
     }
 
-    async componentWillMount() {
+    // eslint-disable-next-line camelcase
+    async UNSAFE_componentWillMount() {
 
         const devMode = await AsyncStorage.getItem('devMode')
         const testerMode = await AsyncStorage.getItem('testerMode')
 
-        console.log('SettingsMainScreen.componentWillMount.devMode')
+        console.log('SettingsMainScreen.UNSAFE_componentWillMount.devMode')
         console.log(devMode)
 
         if(devMode != null){
@@ -112,7 +115,7 @@ class SettingsMainScreen extends Component {
     }
 
     handleSupport = () => {
-        Linking.openURL('https://t.me/trustee_wallet')
+        Linking.openURL('https://t.me/trustee_support_bot')
     }
 
 
@@ -127,28 +130,45 @@ class SettingsMainScreen extends Component {
             //do nothing
         }
 
+        setLoaderStatus(true)
+
         Log.err('USER INIT GET LOGS', 'User clicked on "getLogs"', 'ALL', true)
         BlocksoftCryptoLog.err('USER INIT GET LOGS', 'User clicked on "getLogs"', 'ALL', true)
-        DBExport.getSql().then((sql) => {
+        DBExport.getSql().then(async (sql) => {
+
+            const logs = `    
+          
+                ↑↑↑ Send to: contact@trustee.deals ↑↑↑
+                ${deviceToken} 
+                --LOG-- 
+                ${Log.getHeaders()} 
+                
+                
+                --SQL-- 
+                ${sql}
+            `
+            const fs = new FileSystem()
+            await (fs.setFileEncoding("utf8").setFileName("Logs").setFileExtension("txt")).writeFile(logs)
+
+            const urls = [
+                await fs.getPathOrBase64(),
+                await Log.FS.getPathOrBase64(),
+                await BlocksoftCryptoLog.FS.getPathOrBase64()
+            ]
+
             const shareOptions = {
                 title: "Trustee. Support",
                 subject: "Trustee. Support",
-                message: `
-            
- ↑↑↑ Send to: contact@trustee.deals ↑↑↑
-${deviceToken} 
---LOG-- 
-${Log.getHeaders()} 
-
-
---SQL-- 
-${sql}
-`,
                 email: "contact@trustee.deals",
+                message: "↑↑↑ Send to: contact@trustee.deals ↑↑↑",
+                urls
             }
+
             Share.open(shareOptions)
-                .then((res) => { console.log(res) })
+                .then((res) => { setLoaderStatus(false) })
                 .catch(err => {
+                    setLoaderStatus(false)
+
                 if(typeof (err.error) !== 'undefined' && err.error.indexOf("No Activity") !== -1){
                     showModal({
                         type: 'INFO_MODAL',
@@ -171,6 +191,7 @@ ${sql}
                 //+ '\n\n\n\nAPP LOGS\n\n' + Log.getLogs()
                 //+ '\n\n\n\nCRYPTO LOGS\n\n' + BlocksoftCryptoLog.getLogs()
         }).catch(function(e) {
+            setLoaderStatus(false)
             Log.err('SettingsMain.handleLogs error ' + e.message)
             BlocksoftCryptoLog.err('SettingsMain.handleLogs error ' + e.message)
             showModal({
@@ -319,16 +340,13 @@ ${sql}
         let {
             lock_screen_status,
             touchID_status,
-            local_currency: localCurrency,
-            tool_tips_state
+            local_currency: localCurrency
         } = this.props.settings.data
 
         const { mainStore } = this.props
 
         lock_screen_status = +lock_screen_status
         touchID_status = +touchID_status
-
-        const toolTipsState = typeof tool_tips_state == 'undefined' ? true : tool_tips_state === '0' ? false : true
 
         return (
             <View style={styles.wrapper}>

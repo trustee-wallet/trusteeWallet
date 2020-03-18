@@ -26,7 +26,7 @@ export class ExchangeProviderInfoModal extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.initLimits()
     }
 

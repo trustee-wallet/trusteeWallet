@@ -3,8 +3,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, Dimensions, Text, ScrollView, Image, TouchableOpacity, Animated } from 'react-native'
-import LottieView from 'lottie-react-native'
+import { View, Text, Image, Animated } from 'react-native'
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import PINCode, { hasUserSetPinCode, deleteUserPinCode } from '@haskkor/react-native-pincode'
@@ -20,8 +19,8 @@ import settingsActions from '../../appstores/Actions/SettingsActions'
 
 import Navigation from '../../components/navigation/Navigation'
 
-import navigationActions from '../../appstores/Actions/NavigationActions'
 import firebase from "react-native-firebase"
+
 
 class LockScreen extends Component {
 
@@ -56,7 +55,6 @@ class LockScreen extends Component {
     finishProcess = () => {
 
         const { flowType } = this.props.lockScreen
-        const { lock_screen_status } = this.props.settings.data
 
         if (flowType === 'CREATE_PINCODE') {
 
@@ -101,7 +99,8 @@ class LockScreen extends Component {
         }
     }
 
-    async componentWillMount() {
+    // eslint-disable-next-line camelcase
+    async UNSAFE_componentWillMount() {
 
         this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
             let res = await hasUserSetPinCode()
@@ -121,34 +120,6 @@ class LockScreen extends Component {
 
     renderSubtitle = () => {
         return (
-            /*<View style={{
-                position: 'relative',
-                width: 200
-            }}>
-                <View style={{
-                    width: 200,
-                    height: 30,
-                    marginBottom: -50,
-                    paddingLeft: 40,
-                    paddingRight: 40,
-                    paddingBottom: 11,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    borderBottomWidth: 2,
-                    borderBottomColor: '#7229ae'
-                }}>
-                    <View style={{
-                        width: 26,
-                        height: 26,
-                        borderWidth: 2,
-                        borderColor: '#752eb0',
-                        borderRadius: 25
-                    }} />
-                    <View></View>
-                    <View></View>
-                    <View></View>
-                </View>
-            </View>*/
             <View></View>
         )
     }
@@ -178,8 +149,8 @@ class LockScreen extends Component {
     render() {
         firebase.analytics().setCurrentScreen('LockScreen.index')
         const { flowType } = this.props.lockScreen
-        let { touchID_status } = this.props.settings.data
-        touchID_status = +touchID_status
+        let { touchID_status: touchIDStatus } = this.props.settings.data
+        touchIDStatus = +touchIDStatus
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 { flowType !== '' ?  <Navigation /> : null }
@@ -188,33 +159,18 @@ class LockScreen extends Component {
 
                         <View style={{ flex: 1 }}>
                             <View style={[styles.top, flowType !== '' ? styles.top__navigation : null]}>
-                                {/*<Image*/}
-                                {/*    style={styles.top__bg}*/}
-                                {/*    resizeMode='stretch'*/}
-                                {/*    source={require('../../assets/images/lockScreenBg.png')}/>*/}
-                                {/*<LottieView style={{*/}
-                                {/*    width: 100,*/}
-                                {/*    height: 100,*/}
-                                {/*    marginRight: 10*/}
-                                {/*}} source={require('../../assets/jsons/animations/dotsLeft.json')} progress={this.state.progress}/>*/}
                                 <Image
                                     style={styles.top__logo}
                                     resizeMode='stretch'
                                     source={require('../../assets/images/logo.png')}/>
-                                {/*<LottieView style={{*/}
-                                {/*    width: 100,*/}
-                                {/*    height: 100,*/}
-                                {/*    marginLeft: 10*/}
-                                {/*}} source={require('../../assets/jsons/animations/dotsRight.json')} progress={this.state.progress}/>*/}
                             </View>
                             <PINCode
-                                //pinStatus={'locked'}
                                 status={this.state.passwordState}
                                 finishProcess={this.finishProcess}
                                 passwordLength={6}
                                 timeLocked={300000}
                                 maxAttempts={3}
-                                touchIDDisabled={!touchID_status}
+                                touchIDDisabled={!touchIDStatus}
                                 colorCircleButtons={'rgb(255, 255, 255)'}
                                 styleMainContainer={!this.state.show ? { height: 0, overflow: 'hidden' } : undefined}
                                 stylePinCodeButtonCircle={{
@@ -244,10 +200,6 @@ class LockScreen extends Component {
                                 textDescriptionLockedPage={' '}
                                 textSubDescriptionLockedPage={' '}
                                 styleLockScreenColorIcon={'#000'}
-                                //titleComponentLockedPage={this.titleComponentLockPage}
-                                //handleResultEnterPin={(data, data1) => this.handlePinStatus(data, data1)}
-                                //pinStatus={(data) => console.log(data)}
-                                //textTitleLockedPage={'Maximum attempts reached'}
 
                                 colorPassword={'#864dd9'}
                                 subtitleComponent={() => this.renderSubtitle()}
@@ -258,10 +210,7 @@ class LockScreen extends Component {
                                     fontSize: 34,
                                     fontFamily: 'SFUIDisplay-Regular'
                                 }}
-                                stylePinCodeChooseContainer={{
-                                    //borderWidth: 2,
-                                    //borderColor: '#000'
-                                }}
+                                stylePinCodeChooseContainer={{}}
                                 numbersButtonOverlayColor={'#9969df'}
                                 stylePinCodeDeleteButtonColorShowUnderlay={'#9969df'}
                                 stylePinCodeColumnDeleteButton={{
@@ -272,8 +221,6 @@ class LockScreen extends Component {
                                     marginLeft: -5,
 
                                     height: 54,
-                                    //borderWidth: 2,
-                                    //borderColor: '#000'
                                 }}
                                 styleLockScreenTitle={{
                                     marginBottom: 35,
@@ -299,9 +246,6 @@ class LockScreen extends Component {
                                     marginTop: -10,
                                     width: 250,
                                     height: 75,
-
-                                    //borderWidth: 2,
-                                    //borderColor: '#000'
                                 }}
                                 stylePinCodeColumnButtons={{
                                     alignItems: 'center',
@@ -323,14 +267,8 @@ class LockScreen extends Component {
                                     elevation: 7,
 
                                     borderRadius: 40
-
-                                    //borderWidth: 2,
-                                    //borderColor: '#000'
                                 }}
-                                stylePinCodeEmptyColumn={{
-                                    //borderWidth: 2,
-                                    //borderColor: '#000'
-                                }}
+                                stylePinCodeEmptyColumn={{}}
                                 iconComponentLockedPage={this.renderIconComponentLockedPage}
                                 buttonComponentLockedPage={this.renderButtonComponentLockedPage}
                                 styleLockScreenTextTimer={{
@@ -347,12 +285,6 @@ class LockScreen extends Component {
                                     borderWidth: 1,
                                     borderColor: '#7229AE'
                                 }}
-                                //textButtonLockedPage={'Quit'}
-                                //styleLockScreenButton
-                                //styleLockScreenViewIcon={{
-                                //    backgroundColor: '#000'
-                                //}}
-                                //titleComponent={() => this.renderPasswordComponent()}
                             />
                         </View>
                         : null
@@ -432,7 +364,6 @@ const styles = {
         alignItems: 'center',
         width: 50,
         height: 50,
-        //backgroundColor: '#CD6A8D',
         borderWidth: 1,
         borderColor: '#7229AE',
         borderRadius: 45

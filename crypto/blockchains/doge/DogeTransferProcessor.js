@@ -30,6 +30,16 @@ export default class DogeTransferProcessor {
     _maxDiffInOutReadable = 2
 
     /**
+     * @type {{minOutputToBeDustedReadable: number, minChangeThresholdReadable: number, minFee: number}}
+     * @private
+     */
+    _inputsOutputsSettings = {
+        minFee: 1000000,
+        minOutputToBeDustedReadable: 0.5,
+        minChangeThresholdReadable: 0.5
+    }
+
+    /**
      * @type {boolean}
      * @private
      */
@@ -46,10 +56,11 @@ export default class DogeTransferProcessor {
             blocks_2: 0,
             unspents: [],
             unspentsAddress: '',
-            time : 0
+            time: 0
         }
         this._langPrefix = networksConstants[settings.network].langPrefix
         this.networkPrices = new DogeNetworkPrices()
+        this._minOutputToBeDusted = BlocksoftUtils.fromUnified(this._inputsOutputsSettings.minOutputToBeDustedReadable * 2, settings.decimals)
     }
 
     /**
@@ -59,8 +70,8 @@ export default class DogeTransferProcessor {
         if (this._initedProviders) return false
         this.unspentsProvider = new DogeUnspentsProvider(this._settings, this._trezorServer)
         this.sendProvider = new DogeSendProvider(this._settings, this._trezorServer)
-        this.txPrepareInputsOutputs = new DogeTxInputsOutputs(this._settings)
-        this.txBuilder = new DogeTxBuilder(this._settings)
+        this.txPrepareInputsOutputs = new DogeTxInputsOutputs(this._settings, this._inputsOutputsSettings)
+        this.txBuilder = new DogeTxBuilder(this._settings, this._maxDiffInOutReadable)
         this._initedProviders = true
     }
 
@@ -72,16 +83,14 @@ export default class DogeTransferProcessor {
         this._initProviders()
         try {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getTransferPrecache ' + data.addressFrom + ' started')
-            let tmp = await Promise.all([
+            const tmp = await Promise.all([
                 this.networkPrices.getNetworkPrices(12, this._settings.currencyCode),
-                this.networkPrices.getNetworkPrices(6, this._settings.currencyCode),
-                this.networkPrices.getNetworkPrices(2, this._settings.currencyCode),
                 this.unspentsProvider.getUnspents(data.addressFrom)
             ])
             this._precached.blocks_12 = tmp[0]
-            this._precached.blocks_6 = tmp[1]
-            this._precached.blocks_2 = tmp[2]
-            this._precached.unspents = tmp[3]
+            this._precached.blocks_6 = await this.networkPrices.getNetworkPrices(6, this._settings.currencyCode)
+            this._precached.blocks_2 = await this.networkPrices.getNetworkPrices(2, this._settings.currencyCode),
+                this._precached.unspents = tmp[1]
             if (this._precached.unspents) {
                 if (this._precached.unspents.length > 1) {
                     this._precached.unspents.sort((a, b) => {
@@ -113,14 +122,10 @@ export default class DogeTransferProcessor {
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
-     * @param {string} data.replacingTransaction
      * @param {number} data.nSequence
      */
     async getFeeRate(data) {
         this._initProviders()
-        if (data.replacingTransaction !== 'undefined' && data.replacingTransaction) {
-            throw new Error('PLZ CODE BACK REPLACING TX LOGIC')
-        }
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate ' + data.addressFrom + ' started')
 
         const now = new Date().getTime()
@@ -128,13 +133,14 @@ export default class DogeTransferProcessor {
             await this.getTransferPrecache(data)
         }
 
-        let result, rawTxHex, preparedInputsOutputs, logInputsOutputs
+        let rawTxHex, preparedInputsOutputs, txSize
 
         try {
             preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getFeeRate')
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate preparedInputsOutputs', preparedInputsOutputs)
         } catch (e) {
-            let tmp = {unspents : this._precached.unspents, error : e.message}
+            const tmp = { unspents: this._precached.unspents, error: e.message }
+            // noinspection ES6MissingAwait
             MarketingEvent.logOnlyRealTime('doge_error_1 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, tmp)
             if (data.addressForChange === 'TRANSFER_ALL' && e.message === 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE') {
                 return 0
@@ -142,35 +148,73 @@ export default class DogeTransferProcessor {
             throw e
         }
 
-        logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate')
+        const logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate')
 
         try {
             rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs, logInputsOutputs)
+            txSize = Math.ceil(rawTxHex.length / 2)
         } catch (e) {
             if (typeof e.code !== 'undefined' && e.code === 'ERROR_USER') {
                 // can do something here to try more
                 if (typeof e.basicMessage !== 'undefined') {
-                    logInputsOutputs['error'] = e.basicMessage
+                    logInputsOutputs.error = e.basicMessage
                 }
-                logInputsOutputs['userError'] = e.message
+                logInputsOutputs.userError = e.message
+                // noinspection ES6MissingAwait
                 MarketingEvent.logOnlyRealTime('doge_error_2_1 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
             } else {
-                logInputsOutputs['userError'] = e.message
+                logInputsOutputs.userError = e.message
+                // noinspection ES6MissingAwait
                 MarketingEvent.logOnlyRealTime('doge_error_2_2 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
             }
             if (data.addressForChange !== 'TRANSFER_ALL') {
                 throw e
+            } else {
+                txSize = 400
             }
         }
 
-        let txSize = Math.ceil(rawTxHex.length / 2)
-        let maxPrice = txSize * this._precached.blocks_2
+        const mediumPrice = txSize * this._precached.blocks_6
+        const slowPrice = txSize * this._precached.blocks_12
+        const fastestPrice =  txSize * this._precached.blocks_2
+
+        let maxPrice = fastestPrice
         let maxFeePerByte = this._precached.blocks_2
-        if (maxPrice < logInputsOutputs.diffInOut && logInputsOutputs.diffInOut < data.amount * 1.1 && logInputsOutputs.diffInOut < this._maxDiffInOutReadable) {
-            maxPrice = logInputsOutputs.diffInOut
-            maxFeePerByte = Math.ceil(maxPrice / txSize)
+        let maxLang = this._langPrefix + '_speed_blocks_2'
+
+        const leftBalanceBN = BlocksoftUtils.toBigNumber(logInputsOutputs.leftBalanceAndChange)
+        const tmp = leftBalanceBN.sub(BlocksoftUtils.toBigNumber(maxPrice))
+        if (tmp.toString() < 0) {
+            maxPrice = leftBalanceBN.toString()
+            if (maxPrice <= 0) {
+                maxPrice = logInputsOutputs.diffInOut
+            }
+            maxFeePerByte = BlocksoftUtils.toBigNumber(maxPrice).div(BlocksoftUtils.toBigNumber(txSize)).toString()
+            if (maxPrice < slowPrice) {
+                maxLang = 'ltc_corrected_speed_blocks_12'
+            } else if (maxPrice < mediumPrice) {
+                maxLang = 'ltc_corrected_speed_blocks_6'
+            } else if (maxPrice < fastestPrice) {
+                maxLang = 'ltc_corrected_speed_blocks_2'
+            }
         }
-        result = [
+
+        const amountBN = BlocksoftUtils.toBigNumber(data.amount)
+        const div = amountBN.div(BlocksoftUtils.toBigNumber(maxPrice)).toString()
+        if (div < 1 && logInputsOutputs.diffInOut > 0) {
+            const tmp2 = BlocksoftUtils.toBigNumber(logInputsOutputs.diffInOut)
+            maxPrice = logInputsOutputs.diffInOut
+            maxFeePerByte = tmp2.div(BlocksoftUtils.toBigNumber(txSize)).toString()
+            if (maxPrice < slowPrice) {
+                maxLang = 'ltc_corrected_speed_blocks_12_protection'
+            } else if (maxPrice < mediumPrice) {
+                maxLang = 'ltc_corrected_speed_blocks_6_protection'
+            } else if (maxPrice < fastestPrice ) {
+                maxLang = 'ltc_corrected_speed_blocks_2_protection'
+            }
+        }
+
+        const result = [
             {
                 langMsg: this._langPrefix + '_speed_blocks_12',
                 feeForByte: this._precached.blocks_12,
@@ -180,11 +224,11 @@ export default class DogeTransferProcessor {
             {
                 langMsg: this._langPrefix + '_speed_blocks_6',
                 feeForByte: this._precached.blocks_6,
-                feeForTx: txSize * this._precached.blocks_6,
+                feeForTx: mediumPrice,
                 txSize
             },
             {
-                langMsg: this._langPrefix + '_speed_blocks_2',
+                langMsg: maxLang,
                 feeForByte: maxFeePerByte,
                 feeForTx: maxPrice,
                 txSize
@@ -196,6 +240,7 @@ export default class DogeTransferProcessor {
     }
 
     /**
+     * @param {Object} data
      * @param {string} data.privateKey
      * @param {string} data.addressFrom
      * @param {string} data.currencyCode
@@ -205,7 +250,6 @@ export default class DogeTransferProcessor {
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
-     * @param {string} data.replacingTransaction
      * @param {number} data.nSequence
      * @param {string} balanceRaw
      * @returns {Promise<string>}
@@ -225,14 +269,16 @@ export default class DogeTransferProcessor {
             preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getTransferAllBalance')
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferAllBalance preparedInputsOutputs', preparedInputsOutputs)
         } catch (e) {
-            let tmp = {unspents : this._precached.unspents, error : e.message}
+            const tmp = { unspents: this._precached.unspents, error: e.message }
+            // noinspection ES6MissingAwait
             MarketingEvent.logOnlyRealTime('doge_error_3 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, tmp)
             if (e.message === 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE') {
                 return 0
             }
             throw e
         }
-        return preparedInputsOutputs.outputs[0].amount
+        const logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' DogeTransferProcessor.getTransferAllBalance')
+        return logInputsOutputs.totalOut
     }
 
     /**
@@ -245,15 +291,11 @@ export default class DogeTransferProcessor {
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
-     * @param {string} data.replacingTransaction
      * @param {number} data.nSequence
      * @returns {Promise<{correctedAmountFrom: string, hash: string}>}
      */
     async sendTx(data) {
         this._initProviders()
-        if (data.replacingTransaction !== 'undefined' && data.replacingTransaction) {
-            throw new Error('PLZ CODE BACK REPLACING TX LOGIC')
-        }
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx ' + data.addressFrom + ' started')
 
         const now = new Date().getTime()
@@ -261,66 +303,123 @@ export default class DogeTransferProcessor {
             await this.getTransferPrecache(data)
         }
 
-        let preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'sendTx')
+        const preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'sendTx')
         let logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.sendTx')
 
-        if (preparedInputsOutputs.diffInOut > data.amount * 1.1 || preparedInputsOutputs.diffInOutReadable > this._maxDiffInOutReadable ) {
-            let e = new Error('SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION')
+        if (logInputsOutputs.diffInOut > data.amount * 1.1 || logInputsOutputs.diffInOutReadable > this._maxDiffInOutReadable) {
+            const e = new Error('SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION')
             e.code = 'ERROR_USER'
-            MarketingEvent.logOnlyRealTime('doge_error_4_0 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+            // noinspection ES6MissingAwait
+            MarketingEvent.logOnlyRealTime('doge_error_4_0 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
             throw e
         }
 
         let rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs, logInputsOutputs)
-        let result
+        let error = false
+        let result = false
         try {
             result = await this.sendProvider.sendTx(rawTxHex, 'usual first try')
-        } catch (e) {
-            if (typeof e.code !== 'undefined' && e.code === 'ERROR_USER') {
-                // can do something here to try more
-                logInputsOutputs['error'] = e.basicMessage
-                logInputsOutputs['userError'] = e.message
-                MarketingEvent.logOnlyRealTime('doge_error_4_1 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+        } catch (e1) {
+            let lengthOutputs = preparedInputsOutputs.outputs.length
+            if (e1.message === 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST' && lengthOutputs > 1) {
+                lengthOutputs = lengthOutputs - 1
+                const lastOutput = preparedInputsOutputs.outputs[lengthOutputs]
+                if (lastOutput.amount < this._minOutputToBeDusted && lastOutput.to === data.addressTo) {
+                    MarketingEvent.logOnlyRealTime('doge_error_4_will_resend ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx will resend without lastOutput', logInputsOutputs)
 
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx basicMessage', e.basicMessage)
-                throw e
+                    const newOutputs = []
+                    for (let i = 0; i < lengthOutputs; i++) {
+                        newOutputs.push(preparedInputsOutputs.outputs[i])
+                    }
+                    preparedInputsOutputs.outputs = newOutputs
+
+                    logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.sendTx')
+
+                    if (logInputsOutputs.diffInOut > data.amount * 1.1 || logInputsOutputs.diffInOutReadable > this._maxDiffInOutReadable) {
+                        const e = new Error('SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION')
+                        e.code = 'ERROR_USER'
+                        // noinspection ES6MissingAwait
+                        MarketingEvent.logOnlyRealTime('doge_error_4_0_on_resend ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
+                        throw e
+                    }
+                    rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs, logInputsOutputs)
+                    try {
+                        result = await this.sendProvider.sendTx(rawTxHex, 'resend without last output')
+                    } catch (e2) {
+                        error = e2
+                    }
+                } else {
+                    error = e1
+                }
             } else {
-                logInputsOutputs['userError'] = e.message
-                MarketingEvent.logOnlyRealTime('doge_error_4_2 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+                error = e1
+            }
+        }
+
+        if (error) {
+            if (typeof error.code !== 'undefined' && error.code === 'ERROR_USER') {
+                // can do something here to try more
+                logInputsOutputs.error = error.basicMessage
+                logInputsOutputs.userError = error.message
+                // noinspection ES6MissingAwait
+                MarketingEvent.logOnlyRealTime('doge_error_4_1 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
+
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx basicMessage', error.basicMessage)
+                throw error
+            } else {
+                logInputsOutputs.userError = error.message
+                // noinspection ES6MissingAwait
+                MarketingEvent.logOnlyRealTime('doge_error_4_2 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
 
                 // noinspection JSUndefinedPropertyAssignment
                 data.rawTxHex = rawTxHex
-                throw e
+                throw error
             }
         }
+
         if (!result) {
-            MarketingEvent.logOnlyRealTime('doge_error_4_3 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+            // noinspection ES6MissingAwait
+            MarketingEvent.logOnlyRealTime('doge_error_4_3 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
             throw new Error('no result')
         }
-        //start prepare for next transactions will not work as it will give the same outputs
+        // start prepare for next transactions will not work as it will give the same outputs
         this._precached.time = 0
 
-        logInputsOutputs['hash'] = result
-        MarketingEvent.logOnlyRealTime('doge_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+        logInputsOutputs.hash = result
+        // noinspection ES6MissingAwait
+        MarketingEvent.logOnlyRealTime('doge_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
 
         return { hash: result, correctedAmountFrom: preparedInputsOutputs.correctedAmountFrom }
     }
 
 
     _logInputsOutputs(data, preparedInputsOutputs, title) {
-        let logInputsOutputs = { inputs: [], outputs: [], totalIn: 0, totalOut: 0, diffInOut: 0, diffInOutReadable:0, msg: preparedInputsOutputs.msg }
+        const logInputsOutputs = { inputs: [], outputs: [], totalIn: 0, totalOut: 0, diffInOut: 0, msg: preparedInputsOutputs.msg }
         let totalIn = BlocksoftUtils.toBigNumber(0)
         let totalOut = BlocksoftUtils.toBigNumber(0)
-        for (let input of preparedInputsOutputs.inputs) {
+        let totalBalance = BlocksoftUtils.toBigNumber(0)
+
+        let unspent
+        for (unspent of this._precached.unspents) {
+            totalBalance = totalBalance.add(unspent.valueBN)
+        }
+
+        let leftBalance = totalBalance
+        let input
+        for (input of preparedInputsOutputs.inputs) {
             logInputsOutputs.inputs.push({
                 txid: input.txid,
                 vout: input.vout,
                 value: input.value,
-                confirmations: input.confirmations
+                confirmations: input.confirmations,
+                address : input.address
             })
             totalIn = totalIn.add(input.valueBN)
+            leftBalance = leftBalance.sub(input.valueBN)
         }
-        for (let output of preparedInputsOutputs.outputs) {
+        let output
+        for (output of preparedInputsOutputs.outputs) {
             logInputsOutputs.outputs.push(output)
             totalOut = totalOut.add(BlocksoftUtils.toBigNumber(output.amount))
         }
@@ -328,13 +427,23 @@ export default class DogeTransferProcessor {
         logInputsOutputs.totalOut = totalOut.toString()
         logInputsOutputs.diffInOut = totalIn.sub(totalOut).toString()
         logInputsOutputs.diffInOutReadable = BlocksoftUtils.toUnified(logInputsOutputs.diffInOut, this._settings.decimals)
+        let tmp = totalOut.sub(BlocksoftUtils.toBigNumber(data.amount))
+        if (logInputsOutputs.diffInOut > 0) {
+            tmp = tmp.add(BlocksoftUtils.toBigNumber(logInputsOutputs.diffInOut))
+        }
+        logInputsOutputs.totalOutMinusAmount = tmp.toString()
+        logInputsOutputs.totalBalance = totalBalance.toString()
+        logInputsOutputs.leftBalance = leftBalance.toString()
+        logInputsOutputs.leftBalanceAndChange = leftBalance.add(tmp).toString()
+
         logInputsOutputs.feeForByte = preparedInputsOutputs.feeForByte
         if (typeof data.feeForTx === 'undefined' || typeof data.feeForTx.feeForByte === 'undefined' || data.feeForTx.feeForByte < 0) {
             BlocksoftCryptoLog.log(title + ' preparedInputsOutputs with autofee ', logInputsOutputs)
         } else {
             BlocksoftCryptoLog.log(title + ' preparedInputsOutputs with fee ' + data.feeForTx.feeForTx, logInputsOutputs)
         }
-        MarketingEvent.logOnlyRealTime('doge_info ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+        // noinspection JSIgnoredPromiseFromCall
+        MarketingEvent.logOnlyRealTime('doge_info ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
         return logInputsOutputs
     }
 }

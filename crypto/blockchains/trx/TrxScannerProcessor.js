@@ -3,16 +3,14 @@
  * https://github.com/tronscan/tronscan-frontend/wiki/TRONSCAN-API
  */
 import TronUtils from './ext/TronUtils'
-import TrxBasic from './basic/TrxBasic'
 import TrxTronscanProvider from './basic/TrxTronscanProvider'
 import TrxTrongridProvider from './basic/TrxTrongridProvider'
 import TrxTransactionsProvider from './basic/TrxTransactionsProvider'
 import TrxTransactionsTrc20Provider from './basic/TrxTransactionsTrc20Provider'
 
-export default class TrxScannerProcessor extends TrxBasic {
+export default class TrxScannerProcessor {
 
     constructor(settings) {
-        super()
         this._tokenName = '_'
         if (typeof settings.tokenName !== 'undefined') {
             this._tokenName = settings.tokenName

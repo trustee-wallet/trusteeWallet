@@ -22,8 +22,8 @@ function byte2hexStr(byte) {
     return str
 }
 
-// noinspection JSConstructorReturnsPrimitive
 export default {
+    // noinspection JSConstructorReturnsPrimitive
     ECKeySign : function(hashBytes, privateBytes) {
         const key = ec.keyFromPrivate(privateBytes, 'bytes')
         const signature = key.sign(hashBytes)
@@ -70,7 +70,7 @@ export default {
         return `04${xHex}${yHex}`
     },
 
-    pubHexToAddressHex: function(pubHex) { //actually the same as direct but better code
+    pubHexToAddressHex: function(pubHex) { // actually the same as direct but better code
         if (pubHex.substr(0, 2) === '04') {
             pubHex = '0x' + pubHex.substr(2)
         }
@@ -80,9 +80,9 @@ export default {
     addressHexToStr: function(addressHex) {
         const one = createHash('sha256').update(addressHex, 'hex').digest('hex')
         const hash = createHash('sha256').update(one, 'hex').digest()
-        const checksum = hash.slice(0, 4) //checkSum = the first 4 bytes of hash
+        const checksum = hash.slice(0, 4) // checkSum = the first 4 bytes of hash
         const checkSummed = addressHex + checksum.toString('hex')
         const bs58 = require('bs58')
-        return bs58.encode(new Buffer(checkSummed, 'hex'))
+        return bs58.encode(Buffer.from(checkSummed, 'hex'))
     }
 }

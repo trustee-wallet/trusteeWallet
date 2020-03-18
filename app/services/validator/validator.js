@@ -127,6 +127,24 @@ async function _userDataValidation(obj) {
             }
             break
 
+        case 'XRP_ADDRESS':
+            value = value.trim()
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else if (!/^r[0-9a-zA-Z]{24,34}$/.test(value)) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
+        case 'XRP_DESTINATION_TAG':
+            value = value.trim()
+            if (!value) {
+                return
+            } else if (value > 4294967295) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
         // unified LTC XVG DOGE
         case 'BTC_BY_NETWORK_ADDRESS':
             value = value.trim()
@@ -177,6 +195,25 @@ async function _userDataValidation(obj) {
                 } catch (e) {
                     error.msg = strings('validator.invalidFormat', { name: name })
                 }
+            }
+            break
+        case 'BTC_LEGACY_ADDRESS':
+            value = value.trim()
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else {
+                let firstOne = value[0]
+                if (firstOne === '1' || firstOne === '3') {
+                    let network = bitcoin.networks.mainnet
+                    try {
+                        let output = bitcoin.address.toOutputScript(value, network)
+                    } catch (e) {
+                        error.msg = strings('validator.invalidFormat', { name: name })
+                    }
+                } else {
+                    error.msg = strings('validator.invalidFormat', { name: name })
+                }
+
             }
             break
 

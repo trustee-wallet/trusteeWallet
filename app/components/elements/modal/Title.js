@@ -5,7 +5,7 @@ export default class Title extends Component {
     render() {
         return (
             <View style={this.props.style}>
-                <Text style={styles.text}>{this.props.children}</Text>
+                <Text style={[styles.text, this.props.textStyles]}>{this.props.children}</Text>
             </View>
         )
     }
@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
         width: 250,
         fontSize: 18,
         textAlign: 'center',
-        //fontFamily: 'SanFran-Semibold',
+        fontFamily: 'SFUIDisplay-Semibold',
         color: '#252742'
     }
 });

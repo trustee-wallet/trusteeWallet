@@ -1,9 +1,7 @@
 import { Dimensions, Platform, TouchableOpacity, View } from 'react-native'
-import DeviceInfo from 'react-native-device-info'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get("window")
 
-const hasNotch = DeviceInfo.hasNotch()
 
 export default {
     initScreenStyles: {
@@ -158,7 +156,8 @@ export default {
         notch: {
             position: 'absolute',
             width: '100%',
-            height: hasNotch ? 40 : 26,
+            // height: hasNotch ? 40 : 26,
+            height: 40,
             zIndex: 100,
         }
     },
@@ -167,6 +166,8 @@ export default {
             flex: 1
         },
         wrapper__scrollView: {
+            flex: 1,
+
             marginTop: 60,
         },
         wrapper__content: {
@@ -175,7 +176,7 @@ export default {
             paddingTop: 20,
         },
         containerBG: {
-            array: ['#fff', '#f2f2f2'],
+            array: ['#fff', '#f6f6f6'],
             start: { x: 1, y: 0 },
             end: { x: 1, y: 1 }
         },
@@ -236,7 +237,7 @@ export default {
             flexDirection: 'row',
             justifyContent: 'center',
 
-            marginTop: Platform.OS === "ios" ? -10 : -20,
+            marginTop: Platform.OS === "ios" ? -20 : -30,
 
             overflow: 'visible'
         },
@@ -249,6 +250,14 @@ export default {
             fontFamily: 'SFUIDisplay-Bold',
             fontSize: 12,
             color: '#939393'
+        },
+        segwitBtn: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            height: 74,
+            paddingLeft: 50,
+            paddingRight: 50,
+            marginTop: -35
         },
         copyBtn: {
             flexDirection: 'row',
@@ -287,21 +296,21 @@ export default {
             elevation: 10,
         },
         transaction_title: {
-            marginLeft: 30,
+            marginLeft: 31,
             marginBottom: 10,
             color: '#404040',
-            fontSize: 22,
-            fontFamily: 'SFUIDisplay-Regular'
+            fontSize: 16,
+            fontFamily: 'Montserrat-Bold',
         },
         transaction__new: {
             color: '#EA751D'
         },
         transaction__empty_text: {
-            marginTop: -10,
+            marginTop: -5,
             marginLeft: 30,
-            color: '#404040',
-            fontSize: 16,
-            fontFamily: 'SFUIDisplay-Regular'
+            color: '#999999',
+            fontSize: 12,
+            fontFamily: 'SFUIDisplay-Semibold'
         },
         transaction__item: {
             position: 'relative',
@@ -576,12 +585,30 @@ export default {
 
             position: "relative",
 
-            padding: 41,
-            paddingBottom: 0,
-
             borderRadius: 16,
 
+            overflow: "hidden",
+
             zIndex: 2
+        },
+        qr__content__top: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+
+        },
+        qr__content__top__item: {
+            flex: 1,
+            alignItems: "center",
+
+            padding: 20,
+        },
+        qr__content__top__item__text: {
+            fontSize: 14,
+            fontFamily: 'Montserrat-Semibold',
+            color: "#404040"
+        },
+        qr__content__top__item__text_active: {
+            color: "#864dd9"
         },
         qr__shadow: {
             position: "absolute",
@@ -593,8 +620,7 @@ export default {
             zIndex: 1
         },
         qr__shadow__item: {
-
-            height: 360,
+            height: Platform.OS === "android" ? 365 : 360,
             marginTop: 12,
             marginHorizontal: 5,
 
@@ -610,7 +636,6 @@ export default {
 
             backgroundColor: "#fff",
             borderRadius: 16,
-
         },
         qr__bg: {
             array: ['#fff', '#f2f2f2'],
@@ -632,7 +657,7 @@ export default {
             flexDirection: "row",
 
             width: "100%",
-            marginTop: 24,
+            marginTop: 14,
         },
         line__item: {
             flex: 1,
@@ -695,12 +720,14 @@ export default {
             alignItems: "center",
             justifyContent: "space-between",
 
-            width: 312,
+            width: 290,
             marginTop: 32,
             marginBottom: 30
         },
         options__item: {
-            alignItems: "center"
+            alignItems: "center",
+
+            width: 74
         },
         options__wrap: {
             position: "relative",
@@ -763,19 +790,14 @@ export default {
             flexDirection: "row",
 
             marginLeft: 16,
-            marginTop: 15,
         },
         accountDetail__title: {
-            marginBottom: 5,
-
             fontFamily: 'Montserrat-Bold',
             fontSize: 18,
             color: "#404040"
         },
         accountDetail__text: {
-            marginBottom: 5,
-
-            fontSize: 14,
+            fontSize: 12,
             fontFamily: 'SFUIDisplay-Semibold',
             color: "#939393"
         }
@@ -783,7 +805,6 @@ export default {
     sendScreenStyles: {
         wrapper: {
             flex: 1
-            //paddingBottom: 120,
         },
         wrapper__scrollView: {
             marginTop: 80,
@@ -935,16 +956,9 @@ export default {
             transform: [{ rotate: '180deg'}]
         },
         confirmModalStyles: {
-            modal: {
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                // width: WIDTH - 40,
-                height: '100%',
-                paddingLeft: 10,
-                paddingRight: 10,
-                justifyContent: 'center',
-                zIndex: 10000
+            wrapper__content: {
+                minHeight: WINDOW_HEIGHT - 100,
+                backgroundColor: "#7127ab"
             },
             content: {
                 flex: 1,
@@ -952,7 +966,7 @@ export default {
             top: {
                 flexDirection: 'row',
                 justifyContent: 'center',
-                marginTop: 12
+                marginTop: Platform.OS === "ios" ? 12 : 40
             },
             title: {
                 marginBottom: 5,
@@ -966,13 +980,11 @@ export default {
                 flex: 1,
                 position: 'relative',
                 alignItems: 'center',
-                borderTopLeftRadius: 14,
-                borderTopRightRadius: 14,
                 zIndex: 100
             },
             cross: {
                 position: 'absolute',
-                top: -10,
+                top: Platform.OS === "ios" ? -12 : 15,
                 right: -10,
                 padding: 20
             },
@@ -991,12 +1003,15 @@ export default {
                 color: '#f4f4f4'
             },
             bottom: {
+                position: "absolute",
+                bottom: 0,
+
                 flexDirection: 'row',
                 justifyContent: 'space-between',
+
+                width: "100%",
                 marginTop: 'auto',
                 backgroundColor: '#fff',
-                borderBottomLeftRadius: 14,
-                borderBottomRightRadius: 14
             },
             btn: {
                 width: 157,
@@ -1012,7 +1027,7 @@ export default {
                 width: 200,
                 height: 1,
                 marginBottom: 15,
-                backgroundColor: '#6B3CA7'
+                backgroundColor: '#f4f4f4'
             },
             content__title: {
                 marginTop: 20,
@@ -1067,6 +1082,7 @@ export default {
         feeStyles: {
             wrapper: {
                 width: '100%',
+                paddingBottom: 86,
                 alignItems: 'flex-start'
             },
             fee__top: {
@@ -1107,7 +1123,7 @@ export default {
                 alignContent: 'flex-start',
                 paddingLeft: 15,
                 paddingRight: 15,
-                minWidth: SCREEN_WIDTH - 60,
+                minWidth: SCREEN_WIDTH,
                 marginBottom: 5,
                 marginLeft: 0,
             },
@@ -1127,6 +1143,8 @@ export default {
                 color: '#f4f4f4'
             },
             fee__item__top__text: {
+                width: SCREEN_WIDTH - 50,
+
                 bottom: 2,
                 fontSize: 12,
                 fontFamily: 'SFUIDisplay-Regular',

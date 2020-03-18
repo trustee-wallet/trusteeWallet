@@ -1,6 +1,14 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+import {
+    Text,
+    View,
+    ScrollView,
+    Keyboard,
+    TouchableWithoutFeedback
+} from 'react-native'
+
 import AsyncStorage from '@react-native-community/async-storage'
 
 import Cards from './elements/Cards'
@@ -14,19 +22,18 @@ import Cryptocurrencies from './elements/Cryptocurrencies'
 
 import NavigationTitleComponent from './elements/NavigationTitleComponent'
 
-import { TextInput, Image, Text, TouchableOpacity, View, ScrollView, Dimensions, Platform, Keyboard, Clipboard, TouchableWithoutFeedback } from 'react-native'
-
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
 
 import firebase from 'react-native-firebase'
+
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
-const { width: WIDTH } = Dimensions.get('window')
 
 import NavStore from '../../components/navigation/NavStore'
 import { showModal } from '../../appstores/Actions/ModalActions'
 import { strings } from '../../services/i18n'
+import { setLoaderStatus } from '../../appstores/Actions/MainStoreActions'
 
 
 class MainDataScreen extends Component {
@@ -47,15 +54,16 @@ class MainDataScreen extends Component {
             fieldForPaywayCode: '',
 
             deviceToken: null,
-            show: true
+            show: false
         }
 
     }
 
-    componentWillMount() {
+    // eslint-disable-next-line camelcase
+    UNSAFE_componentWillMount() {
         const { tradeType } = this.props.exchangeStore
 
-        this.handleSetTradeWay(tradeType)
+        this.handleSetTradeWay(tradeType, "STORAGE_CACHE")
     }
 
     handleConvertToPaymentCurrency = (fromCurrency, amount) => {
@@ -71,22 +79,61 @@ class MainDataScreen extends Component {
         return (amount * fromCurrencyRate.rate) / toCurrencyRate.rate
     }
 
-    handleSetTradeWay = (tradeType) => {
+    handleSetTradeWay = async (tradeType, cacheType) => {
+
+        setLoaderStatus(true)
+
+        let cacheState = JSON.parse(JSON.stringify(this.state))
+
+        if(cacheType === "STATE_CACHE"){
+            cacheState = JSON.parse(JSON.stringify(this.state))
+        } else if(cacheType === "STORAGE_CACHE") {
+            if(tradeType === "BUY"){
+                const lastBuyCache = await AsyncStorage.getItem("TRADE_BUY_DATA")
+
+                if(lastBuyCache !== null){
+                    cacheState = JSON.parse(lastBuyCache)
+                    cacheState = cacheState.lastBuyCache
+                }
+            } else {
+                const lastSellCache = await AsyncStorage.getItem("TRADE_SELL_DATA")
+                if(lastSellCache !== null){
+                    cacheState = JSON.parse(lastSellCache)
+                    cacheState = cacheState.lastSellCache
+                }
+            }
+        }
+
+        let initState = {
+            selectedCryptocurrency: {},
+            selectedAccount: {},
+            selectedPaymentSystem: '',
+            selectedFiatCurrency: {},
+            selectedFiatTemplate: '',
+            selectedCard: {},
+            uniqueParams: {},
+
+            selectedTradeWay: {},
+            fieldForFiatCurrency: '',
+            fieldForPaywayCode: '',
+
+            deviceToken: null
+        }
+
+        let preparedCachedData = {}
 
         if(tradeType === 'BUY'){
-            this.setState({
-                selectedCryptocurrency: {},
-                selectedAccount: {},
-                selectedPaymentSystem: '',
-                selectedFiatCurrency: {},
-                selectedFiatTemplate: '',
-                selectedCard: {},
 
-                selectedTradeWay: {},
-                fieldForFiatCurrency: '',
-                fieldForPaywayCode: '',
+            // preparedCachedData = this.prepareDataBetweenTradeType(cacheState, "outCurrencyCode", "inCurrencyCode")
+            // preparedCachedData = preparedCachedData === null ? {} : preparedCachedData
 
-                deviceToken: null,
+            // delete preparedCachedData.selectedAccount
+
+            delete preparedCachedData.uniqueParams
+            delete preparedCachedData.selectedAccount
+
+            initState = {
+                ...initState,
                 extendsFields: {
                     fieldForCryptocurrency: 'outCurrencyCode',
                     fieldForFiatCurrency: 'inCurrencyCode',
@@ -94,25 +141,20 @@ class MainDataScreen extends Component {
                     fieldForWayId: 'IN',
                     fieldForWayId2: 'OUT',
                 }
-            }, () => {
-                this.setState({
-                    show: true
-                })
-            })
+            }
+
         } else {
-            this.setState({
-                selectedCryptocurrency: {},
-                selectedAccount: {},
-                selectedPaymentSystem: '',
-                selectedFiatCurrency: {},
-                selectedFiatTemplate: '',
-                selectedCard: {},
 
-                selectedTradeWay: {},
-                fieldForFiatCurrency: '',
-                fieldForPaywayCode: '',
+            // preparedCachedData = this.prepareDataBetweenTradeType(cacheState, "inCurrencyCode", "outCurrencyCode")
+            // preparedCachedData = preparedCachedData === null ? {} : preparedCachedData
 
-                deviceToken: null,
+            // delete preparedCachedData.selectedAccount
+
+            delete preparedCachedData.uniqueParams
+            delete preparedCachedData.selectedAccount
+
+            initState = {
+                ...initState,
                 extendsFields: {
                     fieldForCryptocurrency: 'inCurrencyCode',
                     fieldForFiatCurrency: 'outCurrencyCode',
@@ -120,13 +162,47 @@ class MainDataScreen extends Component {
                     fieldForWayId: 'OUT',
                     fieldForWayId2: 'IN',
                 }
-            }, () => {
+            }
+        }
+
+        this.setState({
+                ...initState
+            }, () =>
                 this.setState({
                     show: true
+                }, () => {
+                    setTimeout(() => {
+                        this.setState({...preparedCachedData})
+                        setLoaderStatus(false)
+                    }, 500)
                 })
-            })
+        )
 
+    }
+
+    prepareDataBetweenTradeType = (cacheState, fieldForCryptocurrency, fieldForFiatCurrency) => {
+
+        let data = null
+
+        let tradeWays = JSON.parse(JSON.stringify(this.props.exchangeStore.tradeApiConfig.exchangeWays))
+
+        if(typeof cacheState.selectedCryptocurrency.currencyCode !== "undefined" && typeof cacheState.selectedFiatCurrency.cc !== "undefined"){
+            tradeWays = tradeWays.filter(item => item[fieldForCryptocurrency] === cacheState.selectedCryptocurrency.currencyCode && item[fieldForFiatCurrency] === cacheState.selectedFiatCurrency.cc)
+            if(tradeWays.length){
+                data = {}
+                data.selectedCryptocurrency = cacheState.selectedCryptocurrency
+                data.selectedAccount = cacheState.selectedAccount
+                data.selectedFiatCurrency = cacheState.selectedFiatCurrency
+            }
+        } else {
+            tradeWays = tradeWays.filter(item => item[fieldForFiatCurrency] === cacheState.selectedFiatCurrency.cc)
+            if(tradeWays.length){
+                data = {}
+                data.selectedFiatCurrency = cacheState.selectedFiatCurrency
+            }
         }
+
+        return data
     }
 
     handleSetState = (field, state) => this.setState({ [field]: state })
@@ -148,8 +224,7 @@ class MainDataScreen extends Component {
             selectedCryptocurrency,
             selectedFiatTemplate,
             selectedPaymentSystem,
-            selectedFiatCurrency,
-            selectedCard
+            selectedFiatCurrency
         } = this.state
 
         const { exchangeStore } = this.props
@@ -185,20 +260,14 @@ class MainDataScreen extends Component {
             selectedAccount,
         } = this.state
 
-
         const deviceToken = await AsyncStorage.getItem('fcmToken')
         const cashbackToken = await AsyncStorage.getItem('cashbackToken')
         const tradeWay = this.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
         const amount = this.refAmount.handleGetAmountEquivalent()
 
-        console.log('log amount')
-        console.log(amount)
-
         try {
             await this.handleValidateSubmit()
 
-            console.log('state')
-            console.log(this.state)
         } catch (e) {
             showModal({
                 type: 'INFO_MODAL',
@@ -256,8 +325,13 @@ class MainDataScreen extends Component {
         return (
             <View style={styles.wrapper}>
                 <Navigation
+                    self={this}
+                    handleSetState={this.handleSetState}
                     navigation={this.props.navigation}
-                    titleComponent={<NavigationTitleComponent handleSetTradeWay={this.handleSetTradeWay} handleSetState={this.handleSetState} exchangeStore={exchangeStore}/>}
+                    titleComponent={<NavigationTitleComponent
+                    handleSetTradeWay={this.handleSetTradeWay}
+                    handleSetState={this.handleSetState}
+                    exchangeStore={exchangeStore} />}
                 />
                 <KeyboardAwareView>
                         {
@@ -290,6 +364,7 @@ class MainDataScreen extends Component {
                                                             { strings('tradeScreen.youGet') }
                                                         </Text>
                                                         <Cryptocurrencies
+                                                            self={this}
                                                             ref={ref => this.refCryptocurrencies = ref}
                                                             refFiatCurrencies={this.refFiatCurrencies}
                                                             selectedCryptocurrency={selectedCryptocurrency}
@@ -350,19 +425,21 @@ class MainDataScreen extends Component {
                                             selectedFiatTemplate={selectedFiatTemplate} />
                                     </View>
                                     <View style={styles.box}>
-                                        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                                            <Text style={[styles.titleText, { textAlign: 'center' }]}>{ strings('tradeScreen.selectSum') }</Text>
-                                        </TouchableWithoutFeedback>
-                                        <FiatTemplate
-                                            refLimits={this.refLimits}
-                                            refAmount={this.refAmount}
-                                            selectedPaymentSystem={selectedPaymentSystem}
-                                            selectedCryptocurrency={selectedCryptocurrency}
-                                            selectedFiatCurrency={selectedFiatCurrency}
-                                            selectedFiatTemplate={selectedFiatTemplate}
-                                            handleSetState={this.handleSetState}
-                                            handleGetTradeWay={this.handleGetTradeWay}
-                                            handleConvertToPaymentCurrency={this.handleConvertToPaymentCurrency}/>
+                                        {/*<TouchableWithoutFeedback onPress={Keyboard.dismiss}>*/}
+                                        {/*    <Text style={[styles.titleText, { textAlign: 'center' }]}>{ strings('tradeScreen.selectSum') }</Text>*/}
+                                        {/*</TouchableWithoutFeedback>*/}
+                                        <View style={{ height: 0, maxHeight: 0, overflow: 'hidden' }}>
+                                            <FiatTemplate
+                                                refLimits={this.refLimits}
+                                                refAmount={this.refAmount}
+                                                selectedPaymentSystem={selectedPaymentSystem}
+                                                selectedCryptocurrency={selectedCryptocurrency}
+                                                selectedFiatCurrency={selectedFiatCurrency}
+                                                selectedFiatTemplate={selectedFiatTemplate}
+                                                handleSetState={this.handleSetState}
+                                                handleGetTradeWay={this.handleGetTradeWay}
+                                                handleConvertToPaymentCurrency={this.handleConvertToPaymentCurrency}/>
+                                        </View>
                                         <AmountInput
                                             ref={ref => this.refAmount = ref}
                                             selectedFiatTemplate={selectedFiatTemplate}

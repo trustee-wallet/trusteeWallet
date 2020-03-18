@@ -6,7 +6,7 @@ import BlocksoftDict from '../../../../../../crypto/common/BlocksoftDict'
 import currencyActions from '../../../../Actions/CurrencyActions'
 
 export default {
-    maxVersion: 20,
+    maxVersion: 33,
     updateQuery: {
         1: {
             queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -14,10 +14,10 @@ export default {
             checkQueryField : false
         },
         3: {
-            queryString: `ALTER TABLE currency ADD COLUMN is_hidden INTEGER NOT NULL DEFAULT 0`, //if = 1 - removed
+            queryString: `ALTER TABLE currency ADD COLUMN is_hidden INTEGER NOT NULL DEFAULT 0`, // if = 1 - removed
         },
         4: {
-            queryString: `ALTER TABLE card ADD COLUMN country_code VARCHAR(32) NULL`, //if = 'ua' - ukraine
+            queryString: `ALTER TABLE card ADD COLUMN country_code VARCHAR(32) NULL`, // if = 'ua' - ukraine
             afterFunction: async (dbInterface) => {
                 try {
                     const { array: cards } = await dbInterface.setQueryString('SELECT * FROM card').query()
@@ -164,13 +164,14 @@ export default {
                 try {
 
                     const { array: cryptocurrencies } = await dbInterface.setQueryString(`SELECT * FROM currency`).query()
-                    let addedCryptocurrencies = []
+                    const addedCryptocurrencies = []
 
-                    for(let item of cryptocurrencies){
+                    let item, currencyCode
+                    for(item of cryptocurrencies){
                         addedCryptocurrencies.push(item.currency_code)
                     }
 
-                    for(let currencyCode of BlocksoftDict.Codes) {
+                    for(currencyCode of BlocksoftDict.Codes) {
                         if(addedCryptocurrencies.indexOf(currencyCode) === -1){
                             await currencyActions.addCurrency({ currencyCode: currencyCode }, 1, 0)
                         }
@@ -269,5 +270,87 @@ export default {
             )
             `
         },
-}
+
+        21: {
+            queryString: `ALTER TABLE account ADD COLUMN already_shown INTEGER NULL`,
+            afterFunction: async (dbInterface) => {
+                try {
+                    await dbInterface.setQueryString(`UPDATE account SET currency_code='BTC' WHERE currency_code='BTC_SEGWIT'`).query()
+                    await dbInterface.setQueryString(`UPDATE account_balance SET currency_code='BTC' WHERE currency_code='BTC_SEGWIT'`).query()
+                    await dbInterface.setQueryString(`UPDATE transactions SET currency_code='BTC' WHERE currency_code='BTC_SEGWIT'`).query()
+                    Log.log('DB/Update afterFunction - Migration 21 finish')
+                } catch (e) {
+                    Log.err('DB/Update afterFunction - Migration 21 error', e)
+                }
+            }
+        },
+
+        22: {
+            queryString: `ALTER TABLE account ADD COLUMN wallet_pub_id INTEGER NULL`,
+        },
+
+        23: {
+            queryString: `CREATE TABLE IF NOT EXISTS wallet_pub (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                currency_code VARCHAR(256) NOT NULL,
+                wallet_hash VARCHAR(256) NOT NULL,
+               
+                wallet_pub_type VARCHAR(256) NOT NULL,
+                wallet_pub_value VARCHAR(256) NOT NULL,                
+                wallet_pub_last_index INTEGER NULL,
+                
+                status INTEGER NULL,
+                
+                balance_fix DECIMAL(50,20) NULL,
+                balance_txt VARCHAR(256) NULL,
+                balance_provider VARCHAR(256) NULL,
+                balance_scan_time INTEGER NOT NULL,   
+                             
+                transactions_scan_time INTEGER NULL,
+                
+                FOREIGN KEY(wallet_hash) REFERENCES wallet(wallet_hash)
+            )`
+        },
+
+        24: {
+            queryString: `ALTER TABLE wallet ADD COLUMN wallet_is_hd INTEGER NULL`
+        },
+
+        25: {
+            queryString: `ALTER TABLE transactions_used_outputs ADD COLUMN account_id INTEGER NULL`
+        },
+
+        26: {
+            queryString: `ALTER TABLE transactions_used_outputs ADD COLUMN wallet_hash VARCHAR(256) NULL`
+        },
+
+        27: {
+            queryString: `DELETE FROM transactions WHERE currency_code = 'ETH' OR currency_code LIKE 'ETH_%'`
+        },
+
+        28: {
+            queryString: `ALTER TABLE wallet ADD COLUMN wallet_use_unconfirmed INTEGER NULL`
+        },
+
+        29: {
+            queryString: `ALTER TABLE account_balance ADD COLUMN balance_scan_log TEXT NULL`
+        },
+
+        30: {
+            queryString: `ALTER TABLE wallet_pub ADD COLUMN balance_scan_log TEXT NULL`
+        },
+
+        31: {
+            queryString: `ALTER TABLE account ADD COLUMN transactions_scan_log TEXT NULL`
+        },
+
+        32: {
+            queryString: `ALTER TABLE transactions ADD COLUMN transactions_scan_time INTEGER NULL`
+        },
+
+        33: {
+            queryString: `ALTER TABLE transactions ADD COLUMN transactions_scan_log TEXT NULL`
+        }
+
+    }
 }

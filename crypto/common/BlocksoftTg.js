@@ -5,11 +5,10 @@ http://t.me/trusteeDevErrorsBot
 
 import config from '../../app/config/config'
 import changeableProd from '../../app/config/changeable.prod'
-import changeableTester from '../../app/config/changeable.tester'
 
 const MAX_LENGTH = 4090
 
-const IN_TEST = (process && process.env && process.env['JEST_WORKER_ID'])
+const IN_TEST = (process && process.env && process.env.JEST_WORKER_ID)
 
 const BAD_CHATS = {}
 
@@ -23,11 +22,12 @@ class BlocksoftTg {
             this.API_KEY = config.tg.appDefaultTg
         }
         this.CHAT_IDS = []
-        for (let chat of config.tg.trusteeCore) {
+        let chat
+        for (chat of config.tg.trusteeCore) {
             this.CHAT_IDS.push(chat)
             BAD_CHATS[chat] = {}
         }
-        for (let chat of config.tg.trusteeTeam) {
+        for (chat of config.tg.trusteeTeam) {
             this.CHAT_IDS.push(chat)
             BAD_CHATS[chat] = {}
             BAD_CHATS[chat][changeableProd.tg.info.spamBot] = 1
@@ -41,10 +41,13 @@ class BlocksoftTg {
         if (IN_TEST) {
             return false
         }
-        let promises = []
-        if (text.length > MAX_LENGTH) text = text.substring(0, MAX_LENGTH)
-        for (let chat of this.CHAT_IDS) {
-            if (typeof BAD_CHATS[chat][API_KEY]  != "undefined") continue
+        const promises = []
+        if (text.length > MAX_LENGTH) {
+            text = text.substring(0, MAX_LENGTH)
+        }
+        let chat
+        for (chat of this.CHAT_IDS) {
+            if (typeof BAD_CHATS[chat][API_KEY]  !== "undefined") continue
             promises.push(
                 this._request('sendMessage', {
                     text: text,
@@ -73,6 +76,7 @@ class BlocksoftTg {
      * @param {object} qs
      * @param {string} qs.text
      * @param {string} qs.chat_id
+     * @param {string} API_KEY
      * @return {Promise<*>}
      * @private
      */
@@ -80,7 +84,7 @@ class BlocksoftTg {
         if (API_KEY === false) {
             API_KEY = this.API_KEY
         }
-        let link = `https://api.telegram.org/bot${API_KEY}/${method}`
+        const link = `https://api.telegram.org/bot${API_KEY}/${method}`
         let response
         try {
             // noinspection JSUnresolvedFunction

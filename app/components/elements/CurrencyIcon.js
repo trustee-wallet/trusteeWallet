@@ -11,25 +11,12 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import CustomIcon from './CustomIcon'
 
-import GradientView from '../../components/elements/GradientView'
-
-import EthBnbIcon from '../../assets/images/ethBnb.svg'
-import EthUsdCoin from '../../assets/images/ethUsdCoin.svg'
-import EthTrueUsd from '../../assets/images/ethTrueUsd.svg'
-import EthPax from '../../assets/images/ethPax.svg'
-import EthDai from '../../assets/images/ethDai.svg'
-import EthErc20 from '../../assets/images/ethErc20.svg'
-
 
 export default class ButtonLine extends Component {
 
-    constructor(props){
-        super(props)
-    }
-
     renderIcon = () => {
 
-        const { currencyCode, containerStyle, markStyle, markTextStyle, iconStyle, textContainerStyle, textStyle } = this.props
+        const { currencyCode, containerStyle, markStyle, iconStyle, textContainerStyle, textStyle } = this.props
 
         const fontSize = typeof iconStyle != 'undefined' ? iconStyle.fontSize : 24
 
@@ -37,13 +24,20 @@ export default class ButtonLine extends Component {
 
         const tmpMarkStyle = typeof markStyle != 'undefined' ? markStyle : null
 
-        const tmpMarkTextStyle = typeof markTextStyle != 'undefined' ? markTextStyle : null
-
-        const {
-            position,
-        } = styles.icons
-
         switch (currencyCode) {
+
+            case 'ETH_UAX':
+                return (
+                    <View style={{...styles.icon, borderColor: "#2965FF", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('../../assets/images/ethUAX.png')} />
+                            <View style={{...styles.icon__mark, ...tmpMarkStyle}}>
+                                <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
+                            </View>
+                        </View>
+                    </View>
+                )
+
             case 'ETH_ONE':
                 return (
                     <View style={{...styles.icon, borderColor: "#35D4D3", ...tmpContainerStyle}}>
@@ -289,11 +283,20 @@ export default class ButtonLine extends Component {
                         </View>
                     </View>
                 )
+            case 'XRP':
+                return (
+                    <View style={{...styles.icon, borderColor: "#1B1818", ...tmpContainerStyle}}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="XRP" style={{ color: '#1B1818', fontSize: fontSize }}/>
+                        </View>
+                    </View>
+                )
             default:
                 return (
                     <View style={{...styles.icon, ...tmpContainerStyle}}>
                         <View style={styles.icon__item}>
-                            <Text>New</Text>
+                            <Text>No</Text>
+                            <Text>icon</Text>
                         </View>
                     </View>
                 )

@@ -26,14 +26,11 @@ class UpdateExchangeOrders extends Update {
         try {
             const res = await api.getExchangeOrders()
 
-            //console.log('updateExchangeOrders')
-            //console.log(res)
-
             let exchangeOrders = res.data
 
             if ( exchangeOrders) {
 
-                //INFO: prepare orders
+                // INFO: prepare orders
 
                 exchangeOrders = exchangeOrders.sort((a, b) => b.createdAt - a.createdAt)
 
@@ -49,6 +46,7 @@ class UpdateExchangeOrders extends Update {
             }
 
         } catch (e) {
+
             if (Log.isNetworkError(e.message) && this.tryCounter < 10) {
                 this.tryCounter++
                 Log.daemon('DMN/UpdateExchangeOrders network try ' + this.tryCounter + ' ' + e.message)

@@ -16,7 +16,6 @@ import NavStore from '../../../components/navigation/NavStore'
 import Templates from './templates'
 import Log from '../../../services/Log/Log'
 
-import axios from 'axios'
 import api from '../../../services/api'
 
 
@@ -78,7 +77,7 @@ class Cards extends Component {
         })
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.init()
     }
 
@@ -118,7 +117,7 @@ class Cards extends Component {
         })
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         try {
             const tradeApiConfig = JSON.parse(JSON.stringify(this.props.exchangeStore.tradeApiConfig))
             const { selectedCryptocurrency, extendsFields } = this.props
@@ -159,7 +158,7 @@ class Cards extends Component {
             }
 
         } catch (e) {
-            Log.err('Cards.componentWillReceiveProps error ' + e)
+            Log.err('Cards.UNSAFE_componentWillReceiveProps error ' + e)
         }
     }
 
@@ -172,7 +171,10 @@ class Cards extends Component {
             let finded = false
 
             supportedCountries.forEach(item2 => {
-                if(item1.country_code === item2.toString()) finded = true
+
+                // TODO: remove support cards for kazakhstan (#RESHENIE)
+
+                if(item1.country_code === item2.toString() || (tradeType === "BUY" && this.props.selectedPaymentSystem.currencyCode === "RUB" && item1.country_code === "398")) finded = true
             })
 
             if(finded){
@@ -304,7 +306,6 @@ class Cards extends Component {
     // }
 
     validateCard = async (photoSource) => {
-
         try {
             const { cards } = this.state
             const { selectedCard } = this.props
@@ -322,59 +323,64 @@ class Cards extends Component {
             tmpCards[selectedCardIndex] = { ...tmpCards[selectedCardIndex], uniqueParams: false }
             this.props.self.state.selectedCard = tmpCards[selectedCardIndex]
 
-
             this.setState({
                 cards: tmpCards,
                 firstItem: selectedCardIndex,
             }, async () => {
 
-                let res = await api.validateCard(data)
+                try {
+                    let res = await api.validateCard(data)
 
-                res = await res.json()
+                    res = await res.json()
 
-                if(typeof res.errorMsg != 'undefined' && res.errorMsg.includes('No file was uploaded')){
-                    tmpCards[selectedCardIndex] = { ...tmpCards[selectedCardIndex], uniqueParams: null }
-                    this.props.self.state.selectedCard = tmpCards[selectedCardIndex]
-                    this.setState({
-                        cards: tmpCards,
-                        firstItem: selectedCardIndex,
-                    })
+                    if(typeof res.errorMsg != 'undefined' && res.errorMsg.includes('No file was uploaded')){
+                        tmpCards[selectedCardIndex] = { ...tmpCards[selectedCardIndex], uniqueParams: null }
+                        this.props.self.state.selectedCard = tmpCards[selectedCardIndex]
+                        this.setState({
+                            cards: tmpCards,
+                            firstItem: selectedCardIndex,
+                        })
 
-                    if(Platform.OS === 'ios'){
-                        const res = await check(PERMISSIONS.IOS.CAMERA)
+                        if(Platform.OS === 'ios'){
+                            const res = await check(PERMISSIONS.IOS.CAMERA)
 
-                        if(res === 'blocked'){
-                            showModal({
-                                type: 'OPEN_SETTINGS_MODAL',
-                                icon: false,
-                                title: strings('modal.openSettingsModal.title'),
-                                description: strings('modal.openSettingsModal.description'),
-                                btnSubmitText: strings('modal.openSettingsModal.btnSubmitText')
-                            }, () => {
-                                Linking.openURL('app-settings:')
-                            })
-                            return
+                            if(res === 'blocked'){
+                                showModal({
+                                    type: 'OPEN_SETTINGS_MODAL',
+                                    icon: false,
+                                    title: strings('modal.openSettingsModal.title'),
+                                    description: strings('modal.openSettingsModal.description'),
+                                    btnSubmitText: strings('modal.openSettingsModal.btnSubmitText')
+                                }, () => {
+                                    Linking.openURL('app-settings:')
+                                })
+                                return
+                            }
                         }
+
+                        request(
+                            Platform.select({
+                                android: PERMISSIONS.ANDROID.CAMERA,
+                                ios: PERMISSIONS.IOS.CAMERA,
+                            }),
+                        ).then((res) => {
+                            ImagePicker.launchCamera(imagePickerOptions, (response) => {
+                                this.prepareImageUrl(response)
+                            })
+                        })
+                    } else {
+                        tmpCards[selectedCardIndex] = { ...tmpCards[selectedCardIndex], uniqueParams: { firstName: res.firstName, lastName: res.lastName } }
+                        this.props.self.state.selectedCard = tmpCards[selectedCardIndex]
+
+                        this.setState({
+                            cards: tmpCards,
+                            firstItem: selectedCardIndex,
+                        })
                     }
 
-                    request(
-                        Platform.select({
-                            android: PERMISSIONS.ANDROID.CAMERA,
-                            ios: PERMISSIONS.IOS.CAMERA,
-                        }),
-                    ).then((res) => {
-                        ImagePicker.launchCamera(imagePickerOptions, (response) => {
-                            this.prepareImageUrl(response)
-                        })
-                    })
-                } else {
-                    tmpCards[selectedCardIndex] = { ...tmpCards[selectedCardIndex], uniqueParams: { firstName: res.firstName, lastName: res.lastName } }
-                    this.props.self.state.selectedCard = tmpCards[selectedCardIndex]
-
-                    this.setState({
-                        cards: tmpCards,
-                        firstItem: selectedCardIndex,
-                    })
+                } catch (e) {
+                    console.log(e)
+                    Log.err('Cards.validateCard error ' + e)
                 }
             })
         } catch (e) {

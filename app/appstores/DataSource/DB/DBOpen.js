@@ -1,11 +1,13 @@
 import Log from '../../../services/Log/Log'
 
-import SQLiteStorage from 'react-native-sqlite-storage';
+import SQLiteStorage1 from 'react-native-sqlite-storage'
+import SQLiteStorage2 from 'react-native-sqlite-helper/node_modules/react-native-sqlite-storage'
 import SQLiteHelper from 'react-native-sqlite-helper'
 
 import config from '../../../config/config'
 
-SQLiteStorage.DEBUG(config.debug.appDBLogs)
+SQLiteStorage1.DEBUG(config.debug.appDBLogs)
+SQLiteStorage2.DEBUG(config.debug.appDBLogs)
 
 const SQLiteHelperDB = new SQLiteHelper('TrusteeWalletDB.db')
 SQLiteHelperDB.successInfo = (text, absolutely) => {

@@ -51,18 +51,17 @@ const transactionActions = {
 
 
     /**
-     * @param accountId
+     * @param {string} account.wallet_hash
+     * @param {string} account.currency_code
      * @return {Promise<Array>}
      */
-    getTransactions: async (accountId) => {
+    getTransactions: async (account) => {
 
         let transactions = []
 
         try {
 
-            const {array} = await transactionDS.getTransactions({account_id: accountId})
-
-            transactions = array
+            transactions = await transactionDS.getTransactions({ wallet_hash: account.wallet_hash, currency_code: account.currency_code })
 
         } catch (e) {
 

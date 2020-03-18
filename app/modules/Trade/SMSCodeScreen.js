@@ -1,26 +1,21 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Animated, Dimensions, Image, StatusBar, View, Aler, Clipboard } from 'react-native'
+import { Animated, Dimensions, View } from 'react-native'
 
 import LottieView from 'lottie-react-native'
 
-const { height: WINDOW_HEIGHT } = Dimensions.get('window')
-
 import { WebView } from 'react-native-webview'
-import { showModal } from '../../appstores/Actions/ModalActions'
 import NavStore from '../../components/navigation/NavStore'
-import axios from 'axios'
 
-import { strings } from 'root/app/services/i18n'
 import firebase from 'react-native-firebase'
+
 import Log from '../../services/Log/Log'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 import Navigation from '../../components/navigation/Navigation'
 
-import config from '../../config/config'
+const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
-let baseUrl, exchangeMode, apiEndpoints
 
 class SMSCodeScreen extends Component {
 
@@ -38,13 +33,6 @@ class SMSCodeScreen extends Component {
             url: ''
         }
         this.webref = React.createRef()
-    }
-
-    componentWillMount() {
-        exchangeMode = config.exchange.mode
-        apiEndpoints = config.exchange.apiEndpoints
-
-        baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest: apiEndpoints.baseURL
     }
 
     handleStartAnimation = () => {
@@ -76,7 +64,7 @@ class SMSCodeScreen extends Component {
         } = this.props.exchange
 
         const expirationDateTmp = typeof expirationDate != 'undefined' ? expirationDate.split('/') : null
-        let easybitsCardNumber = typeof cardNumber != 'undefined' ?  cardNumber.match(/.{1,4}/g) : null
+        const easybitsCardNumber = typeof cardNumber != 'undefined' ?  cardNumber.match(/.{1,4}/g) : null
         let xPayCardNumber = typeof cardNumber != 'undefined' ?  cardNumber.match(/.{1,4}/g) : []
         xPayCardNumber = xPayCardNumber.join(' ')
 
@@ -115,15 +103,48 @@ class SMSCodeScreen extends Component {
                             }
                             currentNode.parentNode.innerHTML = '';
                         }
+                        
+                        var kunaIcon = document.getElementsByClassName('kuna-icon')[0];
+                        if(typeof kunaIcon !== 'undefined') {
+                            kunaIcon.remove();
+                        }
                     }
                     
                     setTimeout(() => {
-                        findAndReplace('(kuna|Kuna|KUNA)', '')
+                        findAndReplace('(kuna|Kuna|KUNA|powered)', '')
                     }, 3000)
+                    
+                    setTimeout(() => {
+                        findAndReplace('(kuna|Kuna|KUNA|powered)', '')
+                    }, 1000)
+                    
+                    setTimeout(() => {
+                        findAndReplace('(kuna|Kuna|KUNA|powered)', '')
+                    }, 700)
+                    
+                    setTimeout(() => {
+                        findAndReplace('(kuna|Kuna|KUNA|powered)', '')
+                    }, 500)
+                    
+                    setTimeout(() => {
+                        findAndReplace('(kuna|Kuna|KUNA|powered)', '')
+                    }, 400)
+                    
+                    setTimeout(() => {
+                        findAndReplace('(kuna|Kuna|KUNA|powered)', '')
+                    }, 300)
+                    
+                    setTimeout(() => {
+                        findAndReplace('(kuna|Kuna|KUNA|powered)', '')
+                    }, 200)
+                    
+                    setTimeout(() => {
+                        findAndReplace('(kuna|Kuna|KUNA|powered)', '')
+                    }, 100)
             
                      if((window.location.href).indexOf('pay.receipt-pay.com') !== -1){
                         document.getElementsByName("card_number")[0].value = '${cardNumber}';
-                        document.getElementsByName("expire_date")[0].value = '${expirationDateTmp[0]} / ${expirationDateTmp[1]}';
+                        document.getElementsByName("expire_date")[0].value = '${expirationDateTmp !== null ? expirationDateTmp[0] : 0} / ${expirationDateTmp !== null ? expirationDateTmp[1] : 0}';
                         //document.getElementsByName("cvv")[0].value = '${'000'}';
                         //var form = document.getElementsByTagName("form")[0];
                         //document.getElementById(form.id).submit();
@@ -139,12 +160,12 @@ class SMSCodeScreen extends Component {
                             var input6 = document.getElementById("year");
                         
                    
-                            input1.value = '${typeof easybitsCardNumber != null ? easybitsCardNumber[0].toString() : ''}';
-                            input2.value = '${typeof easybitsCardNumber != null ? easybitsCardNumber[1].toString() : ''}';
-                            input3.value = '${typeof easybitsCardNumber != null ? easybitsCardNumber[2].toString() : ''}';
-                            input4.value = '${typeof easybitsCardNumber != null ? easybitsCardNumber[3].toString() : ''}';
-                            input5.value = '${typeof expirationDateTmp != null ? expirationDateTmp[0].toString() : ''}';
-                            input6.value = '${typeof expirationDateTmp != null ? expirationDateTmp[1].toString() : ''}';
+                            input1.value = '${easybitsCardNumber != null ? easybitsCardNumber[0].toString() : ''}';
+                            input2.value = '${easybitsCardNumber != null ? easybitsCardNumber[1].toString() : ''}';
+                            input3.value = '${easybitsCardNumber != null ? easybitsCardNumber[2].toString() : ''}';
+                            input4.value = '${easybitsCardNumber != null ? easybitsCardNumber[3].toString() : ''}';
+                            input5.value = '${expirationDateTmp != null ? expirationDateTmp[0].toString() : ''}';
+                            input6.value = '${expirationDateTmp != null ? expirationDateTmp[1].toString() : ''}';
                              
                             var ev = new Event('input');
                             input1.dispatchEvent(ev);
@@ -169,11 +190,11 @@ class SMSCodeScreen extends Component {
                      if((window.location.href).includes('cardgate.paycore.io')){
                         
                      
-                        var input1 = document.getElementById("card-number");
-                        var input2 = document.getElementById("card-date");
+                        var input1 = document.getElementsByName("number")[0];
+                        var input2 = document.getElementsByName("date")[0];
                         
                         input1.value = '${xPayCardNumber.length ? xPayCardNumber.toString() : ''}';
-                        input2.value = '${expirationDateTmp[0]} / ${expirationDateTmp[1]}';
+                        input2.value = '${expirationDateTmp !== null ? expirationDateTmp[0] : 0} / ${expirationDateTmp !== null ? expirationDateTmp[1] : 0}';
                      
                         var ev = new Event('input');
                         input1.dispatchEvent(ev);
@@ -184,8 +205,8 @@ class SMSCodeScreen extends Component {
                         document.getElementById("hdr").remove()
                       
                         document.getElementsByName("create[n]")[0].value = '${xPayCardNumber}';
-                        document.getElementsByName("create[m]")[0].value = '${expirationDateTmp[0]}';
-                        document.getElementsByName("create[y]")[0].value = '${expirationDateTmp[1]}'; 
+                        document.getElementsByName("create[m]")[0].value = '${expirationDateTmp !== null ? expirationDateTmp[0] : 0}';
+                        document.getElementsByName("create[y]")[0].value = '${expirationDateTmp !== null ? expirationDateTmp[1] : 0}'; 
                         
                         var elem = document.querySelector(".btnGrp");
                         elem.removeChild(elem.firstElementChild)
@@ -259,7 +280,7 @@ class SMSCodeScreen extends Component {
                      
                      if((window.location.href).includes('pay.4bill.io/cards')){
                         document.getElementsByName("card_number")[0].value = '${cardNumber}';
-                        document.getElementsByName("expire_date")[0].value = '${expirationDateTmp[0]} / ${expirationDateTmp[1]}';
+                        document.getElementsByName("expire_date")[0].value = '${expirationDateTmp !== null ? expirationDateTmp[0] : 0} / ${expirationDateTmp !== null ? expirationDateTmp[1] : 0}';
                      }
                      
                      setTimeout(function() {
@@ -269,7 +290,6 @@ class SMSCodeScreen extends Component {
         
                     true;
                  }
-     
             `,
             status: 'pending'
         })
@@ -279,7 +299,7 @@ class SMSCodeScreen extends Component {
         Log.log('Exchange.SMSCodeScreen.componentDidMount created payin')
 
 
-        let data = {
+        const data = {
             link: this.props.exchange.link,
             id: this.props.exchange.id,
         }
@@ -306,13 +326,28 @@ class SMSCodeScreen extends Component {
     handleWebViewNavigationStateChange = async newNavState => {
 
         const { url } = newNavState
+
         if (!url) return
+
+        console.log('url')
+        console.log(url)
 
         this.setState({
             url
         })
 
         Log.log('Exchange.SMSCodeScreen.handleWebViewNavigationStateChange started', url)
+
+        if(url.includes('acs') && url != 'about:blank'){
+            this.setState({
+                status: 'pending'
+            })
+            setTimeout(() => {
+                this.setState({
+                    status: 'success'
+                })
+            }, 5000)
+        }
 
         if ((url.includes('pay.receipt-pay.com/cards') && url != 'about:blank') || (url.includes('cardgate.paycore.io') && url != 'about:blank') || (url.includes('mapi.xpay.com') && url != 'about:blank') || (url.includes('easybits.io') && url != 'about:blank')) {
             setTimeout(() => {
@@ -325,7 +360,8 @@ class SMSCodeScreen extends Component {
             }, 10000)
         }
 
-        if ((url.includes('kuna.io/') || url.includes('trustee.deals')) && url != 'about:blank' && this.state.lastStep) {
+
+        if ((url.includes('kuna.io/') || url.includes('cardgate.paycore.io/hpp/status') || url.includes('cb1.xpay.com.ua/') || (url.includes('trustee.deals') && !url.includes('redirectUrl=https://trustee.deals/') && !url.includes('successUrl=https://trustee.deals/')) || (url.includes('https://blocksoftlab.com/') && !url.includes('successUrl=https://blocksoftlab.com/') && !url.includes('redirectUrl=https://blocksoftlab.com/'))) && url != 'about:blank' && this.state.lastStep) {
 
             this.handleStartAnimation()
 

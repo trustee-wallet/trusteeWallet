@@ -53,10 +53,11 @@ export default class CoinMarketProRates {
                 throw new Error(resData.data.data)
             }
             this._cachedData = {}
-            for(let row of resData.data.data) {
-                let price_usd = row.quote.USD.price
-                this._cachedData[row.name] = {price_usd}
-                this._cachedData[row.symbol.toLowerCase()] = {price_usd}
+            let row
+            for(row of resData.data.data) {
+                const priceUsd = row.quote.USD.price
+                this._cachedData[row.name] = {price_usd : priceUsd}
+                this._cachedData[row.symbol.toLowerCase()] = {price_usd : priceUsd}
             }
             this._cachedTime = now
         } else {
@@ -65,11 +66,15 @@ export default class CoinMarketProRates {
         }
 
         if (typeof this._cachedData[params.currencyCode] === 'undefined') {
-            throw new Error('CoinMarketProRates ' + params.currencyCode + ' ' + provider + ' wrong code = doesnt exists ' + JSON.stringify(Object.keys(this._cachedData)))
+            let tmp = JSON.stringify(Object.keys(this._cachedData))
+            tmp = tmp.substr(0, 30)
+            throw new Error('CoinMarketProRates ' + params.currencyCode + ' ' + provider + ' wrong code = doesnt exists ' + tmp)
         }
         const rate = this._cachedData[params.currencyCode]
         if (!rate) {
-            throw new Error('CoinMarketProRates ' + params.currencyCode + ' ' + provider + ' wrong code = is null ' + JSON.stringify(Object.keys(this._cachedData)))
+            let tmp = JSON.stringify(Object.keys(this._cachedData))
+            tmp = tmp.substr(0, 30)
+            throw new Error('CoinMarketProRates ' + params.currencyCode + ' ' + provider + ' wrong code = is null ' + tmp)
         }
         if (!rate.price_usd) {
             throw new Error('CoinMarketProRates ' + params.currencyCode + ' ' + provider + 'wrong code =  doesnt trade with usd ' + JSON.stringify(rate))

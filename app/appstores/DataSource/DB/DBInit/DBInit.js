@@ -176,7 +176,7 @@ class DBInit {
      */
     _initCurrency = async () => {
 
-        const visibleCurrencies = ['BTC', 'ETH', 'ETH_USDT', 'ETH_SOUL']
+        const visibleCurrencies = ['BTC', 'ETH', 'ETH_USDT', 'ETH_SOUL', 'ETH_UAX']
 
         Log.log('DB/Init initCurrency called')
 

@@ -19,6 +19,7 @@ import SettingsScreenStack from './SettingsStack'
 
 import AddCardScreen from '../modules/Card'
 import SendScreen from '../modules/Send/SendScreen'
+import ConfirmSendScreen from '../modules/Send/ConfirmSendScreen'
 
 import LoadScreen from '../modules/Load'
 
@@ -34,60 +35,67 @@ const MainNavigator = createStackNavigator({
         InitScreen: {
             screen: InitScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
+            }
+        },
+
+        ConfirmSendScreen: {
+            screen: ConfirmSendScreen,
+            navigationOptions: {
+                headerShown: false
             }
         },
 
         PreloaderScreen: {
             screen: PreloaderScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         SendScreen: {
             screen: SendScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         AccountScreen: {
             screen: AccountScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         ReceiveScreen: {
             screen: ReceiveScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         QRCodeScannerScreen: {
             screen: QRCodeScannerScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
         EnterMnemonicPhrase: {
             screen: EnterMnemonicPhrase,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
         WalletCreateScreen: {
             screen: WalletCreateScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
         WalletCryptoStack: {
             screen: WalletCryptoStack,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
@@ -95,81 +103,81 @@ const MainNavigator = createStackNavigator({
             // HomeScreenStack
             screen: HomeScreenStack,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         HomeScreenStack: {
             screen: HomeScreenStack,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         TradeScreenStack: {
             screen: TradeScreenStack,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         ExchangeScreenStack: {
             screen: ExchangeScreenStack,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         SettingsScreenStack: {
             screen: SettingsScreenStack,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         AddAssetScreen: {
             screen: AddAssetScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         WalletCreateStack: {
             screen: WalletCreateStack,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         WalletBackupStack: {
             screen: WalletBackupStack,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         LockScreen: {
             screen: LockScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
         AboutScreen: {
             screen: AboutScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
         AddCardScreen: {
             screen: AddCardScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
         LoadScreen: {
             screen: LoadScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
     },

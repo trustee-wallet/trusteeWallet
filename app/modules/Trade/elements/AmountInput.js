@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, Keyboard, TouchableWithoutFeedback } from 'react-native'
+import { View, Keyboard, TouchableWithoutFeedback, Text } from 'react-native'
 
 import Input from '../../../components/elements/Input'
 
@@ -30,7 +30,7 @@ class AmountInput extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
 
         const { selectedFiatCurrency, selectedPaymentSystem, selectedCryptocurrency, selectedFiatTemplate } = nextProps
 
@@ -71,6 +71,7 @@ class AmountInput extends Component {
     handleSellAll = async () => {
         setLoaderStatus(true)
 
+        let errorCurrencyCode = ''
         try {
 
             const {
@@ -90,6 +91,7 @@ class AmountInput extends Component {
                 currency_code: currencyCode,
                 derivation_path: derivationPath
             } = this.props.selectedAccount
+            errorCurrencyCode = currencyCode
 
             const { addressForEstimateSellAll } = this.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
             const tmpAddressForEstimate = addressForEstimateSellAll != null ? addressForEstimateSellAll : address
@@ -117,6 +119,7 @@ class AmountInput extends Component {
                 BlocksoftTransfer
                     .setCurrencyCode(currencyCode)
                     .setAddressFrom(address)
+                    .setAddressTo(tmpAddressForEstimate)
                     .setFee(fees[fees.length - 1])
             ).getTransferAllBalance()
 
@@ -133,11 +136,7 @@ class AmountInput extends Component {
             })
 
         } catch (e) {
-            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
-                Log.err('Exchange.MainDataScreen.handleSellAll error ' + e.message)
-            } else {
-                e.message = strings('send.errors.' + e.message)
-            }
+            Log.errorTranslate(e, 'Trade.AmountInput.handleSellAll', errorCurrencyCode)
 
             showModal({
                 type: 'INFO_MODAL',
@@ -152,6 +151,7 @@ class AmountInput extends Component {
     }
 
     prepareAndCallEquivalentFunction = (selectedExchangeWay, side, amount) => {
+
         let equivalentFunctionPrepare = JSON.parse(JSON.stringify(selectedExchangeWay.equivalentFunction))
 
         for(let item of equivalentFunctionPrepare){
@@ -188,13 +188,14 @@ class AmountInput extends Component {
         const { moneyType } = this.state
         const { extendsFields } = this.props
 
-
         if(moneyType === 'FIAT'){
             if(selectedFiatCurrency.cc !== selectedExchangeWay[extendsFields.fieldForFiatCurrency]){
 
                 let amountEquivalentInCryptoTmp = this.prepareAndCallEquivalentFunction(selectedExchangeWay, this.getEquivalentSide(), amount * selectedFiatCurrency.rate)
 
+                console.log('selectedExchangeWay, this.getEquivalentSide(), amount * selectedFiatCurrency.rate')
                 console.log(selectedExchangeWay, this.getEquivalentSide(), amount * selectedFiatCurrency.rate)
+                console.log(selectedFiatCurrency.rate)
                 console.log(amountEquivalentInCryptoTmp)
 
                 this.setState({
@@ -204,7 +205,7 @@ class AmountInput extends Component {
                     amountEquivalentInFiat: amount,
                     fee: {
                         providerFee: {
-                            in: amountEquivalentInCryptoTmp.providerFee.in ,
+                            in: amountEquivalentInCryptoTmp.providerFee.in,
                             out: amountEquivalentInCryptoTmp.providerFee.out
                         },
                         trusteeFee: {
@@ -368,45 +369,50 @@ class AmountInput extends Component {
         console.log(selectedFiatTemplate)
 
         return (
-            <View style={styles.container}>
+            <View>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={styles.container__to} />
                 </TouchableWithoutFeedback>
-                {
-                    typeof selectedFiatTemplate.value != 'undefined' && !selectedFiatTemplate.value ?
-                        <Input
-                            ref={component => this.amountInput = component}
-                            id={'amountInput'}
-                            name={this.renderInputText()}
-                            type={'EMPTY'}
-                            decimals={10}
-                            additional={'NUMBER'}
-                            tapText={moneyType === 'FIAT' ? selectedFiatCurrency.cc : selectedCryptocurrency.currencySymbol}
-                            tapCallback={this.handleSetMoneyType}
-                            tapWrapperStyles={{ top: 6, right: 20, padding: 15, backgroundColor: '#fff' }}
-                            tapContentStyles={{ padding: 0, paddingHorizontal: 8, height: 30, borderRadius: 6, backgroundColor: '#F9F2FF' }}
-                            tapTextStyles={{ fontSize: 12 }}
-                            style={{ marginRight: 2, marginLeft: 30,  paddingRight: 108 }}
-                            bottomLeftText={bottomLeftText}
-                            keyboardType={'numeric'}
-                            onFocus={onFocus}
-                            onSubmitEditing={this.onSubmitEditing}
-                            action={exchangeStore.tradeType === 'SELL' ? {
-                                title: strings('exchange.mainData.sellAll').toUpperCase(),
-                                callback: () => {
-                                    this.setState({
-                                        useAllFunds: !useAllFunds
-                                    })
-                                    this.handleSellAll()
-                                }
-                            } : undefined}
-                            actionBtnStyles={{ top: -10, paddingTop: 10, paddingHorizontal: 30, marginRight: 5 }}
-                            disabled={false}
-                            callback={(value) => this.amountInputCallback(value, true)}/> : null
-                }
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    <View style={styles.container__bot} />
-                </TouchableWithoutFeedback>
+                <View style={[styles.container, { height: typeof selectedFiatTemplate.value != 'undefined' && !selectedFiatTemplate.value ? 'auto' : 0 }]}>
+                    {
+                        typeof selectedFiatTemplate.value != 'undefined' && !selectedFiatTemplate.value ?
+                            <View>
+                                <Text style={[styles.titleText, { textAlign: 'center' }]}>{ strings('tradeScreen.selectSum') }</Text>
+                                <Input
+                                    ref={component => this.amountInput = component}
+                                    id={'amountInput'}
+                                    name={this.renderInputText()}
+                                    type={'EMPTY'}
+                                    decimals={10}
+                                    additional={'NUMBER'}
+                                    tapText={moneyType === 'FIAT' ? selectedFiatCurrency.cc : selectedCryptocurrency.currencySymbol}
+                                    tapCallback={this.handleSetMoneyType}
+                                    tapWrapperStyles={{ top: 6, right: 20, padding: 15, backgroundColor: '#fff' }}
+                                    tapContentStyles={{ padding: 0, paddingHorizontal: 8, height: 30, borderRadius: 6, backgroundColor: '#F9F2FF' }}
+                                    tapTextStyles={{ fontSize: 12 }}
+                                    style={{ marginRight: 2, marginLeft: 30,  paddingRight: 108 }}
+                                    bottomLeftText={bottomLeftText}
+                                    keyboardType={'numeric'}
+                                    onFocus={onFocus}
+                                    onSubmitEditing={this.onSubmitEditing}
+                                    action={exchangeStore.tradeType === 'SELL' ? {
+                                        title: strings('exchange.mainData.sellAll').toUpperCase(),
+                                        callback: () => {
+                                            this.setState({
+                                                useAllFunds: !useAllFunds
+                                            })
+                                            this.handleSellAll()
+                                        }
+                                    } : undefined}
+                                    actionBtnStyles={{ top: -10, paddingTop: 10, paddingHorizontal: 30, marginRight: 5 }}
+                                    disabled={false}
+                                    callback={(value) => this.amountInputCallback(value, true)}/>
+                            </View> : null
+                    }
+                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                        <View style={styles.container__bot} />
+                    </TouchableWithoutFeedback>
+                </View>
             </View>
         )
     }
@@ -429,12 +435,23 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(AmountInput)
 
 const styles = {
+    container: {
+        overflow: 'hidden'
+    },
     container__to: {
         width: '100%',
-        height: 30
+        height: 30,
+
     },
     container__bot: {
         width: '100%',
         height: 20
-    }
+    },
+    titleText: {
+        marginLeft: 15,
+        paddingBottom: 8,
+
+        fontSize: 16,
+        color: '#999999'
+    },
 }

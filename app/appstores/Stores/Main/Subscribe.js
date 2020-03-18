@@ -245,9 +245,9 @@ async function afterAccountTransactionsDaemonData(accounts) {
         return false
     }
 
-    const { array: transactions } = await transactionDS.getTransactions({ account_id: account.account_id })
+    const transactions = await transactionDS.getTransactions({ wallet_hash: account.wallet_hash, currency_code: account.currency_code })
     account.transactions = transactions
-   
+
     account.balance = await accountDS.getAccountBalance(account.account_id)
     account.balancePretty = BlocksoftPrettyNumbers.setCurrencyCode(account.currency_code).makePrettie(account.balance)
 

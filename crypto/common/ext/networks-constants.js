@@ -1,5 +1,5 @@
-//https://github.com/iancoleman/bip39/blob/0a23f51792722f094328d695242556c4c0195a8b/src/js/bitcoinjs-extensions.js
-let bitcoin = require('bitcoinjs-lib')
+// https://github.com/iancoleman/bip39/blob/0a23f51792722f094328d695242556c4c0195a8b/src/js/bitcoinjs-extensions.js
+const bitcoin = require('bitcoinjs-lib')
 
 module.exports = {
     'mainnet': {
@@ -53,7 +53,7 @@ module.exports = {
     'bitcoincash': {
         network: {
 
-            /*messagePrefix: 'unused',
+            /* messagePrefix: 'unused',
             bip32: {
                 public: 0x0488b21e,
                 private: 0x0488ade4

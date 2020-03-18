@@ -6,13 +6,11 @@
  */
 
 #import "AppDelegate.h"
-
-#import "Orientation.h"
-
-#import <Firebase/Firebase.h>
+#import <Firebase.h>
 #import "RNFirebaseNotifications.h"
 #import "RNFirebaseMessaging.h"
 #import "RNFirebaseLinks.h"
+
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
@@ -37,7 +35,6 @@
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
-  [[UNUserNotificationCenter currentNotificationCenter] setDelegate:self];
   return YES;
 }
 
@@ -53,19 +50,6 @@ continueUserActivity:(NSUserActivity *)userActivity
      return [[RNFirebaseLinks instance] application:application continueUserActivity:userActivity restorationHandler:restorationHandler];
 }
 
-- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
-  return [Orientation getOrientation];
-}
-
-- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
-{
-  #if DEBUG
-    return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
-  #else
-    return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
-  #endif
-}
-
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
   [[RNFirebaseNotifications instance] didReceiveLocalNotification:notification];
 }
@@ -75,6 +59,15 @@ fetchCompletionHandler:(nonnull void (^)(UIBackgroundFetchResult))completionHand
 }
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
   [[RNFirebaseMessaging instance] didRegisterUserNotificationSettings:notificationSettings];
+}
+
+- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
+{
+#if DEBUG
+  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
+#else
+  return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+#endif
 }
 
 @end

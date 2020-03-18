@@ -21,6 +21,7 @@ export default {
             prepare.push({
                 balance_fix: 0,
                 balance_scan_time: 0,
+                balance_scan_log: '',
                 status: 0,
                 currency_code,
                 wallet_hash,

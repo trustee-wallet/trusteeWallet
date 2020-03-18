@@ -26,13 +26,13 @@ class Orders extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         styles = Theme.getStyles().accountScreenStyles.orders
     }
 
     getExchangeOrdersLength = () => this.state.exchangeOrders.length
 
-    handleShowMore = () => this.setState({ amountToView: this.state.amountToView + 10 })
+    handleShowMore = () => this.setState({ amountToView: this.state.amountToView + 5 })
 
     setAmountToView = () => { this.setState({ amountToView: 10 }) }
 
@@ -103,7 +103,7 @@ class Orders extends Component {
                                                                       { strings(`exchange.ordersStatus.sell.${item.status}`) }
                                                                   </Text>
                                                                   <Text style={{ ...styles.transaction__subtext, ...styles.textAlign_right }}>
-                                                                      { localCurrencySymbol } {(fiatRatesActions.convertFromCurrencyTo(item.requestedOutAmount.currencyCode, settingsStore.data.local_currency, item.requestedOutAmount.amount)).toFixed(2)}
+                                                                      {/* { localCurrencySymbol } {(fiatRatesActions.convertFromCurrencyTo(item.requestedOutAmount.currencyCode, settingsStore.data.local_currency, item.requestedOutAmount.amount)).toFixed(2)} */}
                                                                   </Text>
                                                               </View>
                                                           </View>
@@ -137,7 +137,7 @@ class Orders extends Component {
                                                                   { strings(`exchange.ordersStatus.buy.${item.status}`) }
                                                               </Text>
                                                               <Text style={{ ...styles.transaction__subtext, ...styles.textAlign_right }}>
-                                                                  { localCurrencySymbol } { (fiatRatesActions.convertFromCurrencyTo(item.requestedInAmount.currencyCode, settingsStore.data.local_currency, item.requestedInAmount.amount)).toFixed(2)}
+                                                                  {/* { localCurrencySymbol } { (fiatRatesActions.convertFromCurrencyTo(item.requestedInAmount.currencyCode, settingsStore.data.local_currency, item.requestedInAmount.amount)).toFixed(2)} */}
                                                               </Text>
                                                           </View>
                                                       </View>

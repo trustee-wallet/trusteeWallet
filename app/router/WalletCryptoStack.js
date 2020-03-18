@@ -6,7 +6,7 @@ const WalletCryptoStack = createStackNavigator(
         SelectCrypto: {
             screen: SelectCrypto,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         }
     },

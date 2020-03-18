@@ -29,22 +29,27 @@ class OptionalData extends Component {
         const { selectedPaymentSystem, selectedCard, self } = this.props
 
         if(selectedPaymentSystem.paymentSystem === 'VISA_MC_P2P' && selectedPaymentSystem.currencyCode === 'RUB' && selectedPaymentSystem.provider === '365cash'){
+
             self.state.uniqueParams = {
+                ...self.state.uniqueParams,
                 cardNumber: selectedCard.number
             }
-        }
 
-        if(selectedPaymentSystem.paymentSystem === 'QIWI'){
+            delete self.state.uniqueParams.phone
+
+        } else if(selectedPaymentSystem.paymentSystem === 'QIWI'){
 
             const refPhoneNumber = this.refPhoneNumber.validate()
 
             if(!refPhoneNumber){
                 throw new Error(strings('tradeScreen.modalError.additionalData'))
             } else {
-
                 self.state.uniqueParams = {
+                    ...self.state.uniqueParams,
                     phone: this.refPhoneNumber.getPhoneNumber()
                 }
+
+                delete self.state.uniqueParams.cardNumber
             }
         }
     }

@@ -4,9 +4,7 @@
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 
-
 const DUST_FIRST_TRY = 546
-const DUST_SECOND_TRY = 600
 
 export default class UsdtTxInputsOutputs {
     /**
@@ -24,21 +22,23 @@ export default class UsdtTxInputsOutputs {
     _minFee = 1000
 
     /**
+     * @param {Object} data
      * @param {string} data.addressFrom
+     * @param {string} data.addressFromLegacy
      * @param {string} data.addressTo
      * @param {string|number} data.amount
      * @param {string|boolean} data.addressForChange
+     * @param {string|boolean} data.addressForChangeHD.id
+     * @param {string|boolean} data.addressForChangeHD.address
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
+     * @param {Object} precached
      * @param {string} precached.blocks_2
      * @param {UnifiedUnspent[]} precached.unspents
      * @param {string} subtitle
      * @returns {{outputs: [], inputs: [], correctedAmountFrom: string, feeForByte: (number|string)}}
      */
     getInputsOutputs(data, precached, subtitle) {
-        if (typeof data.privateKey === 'undefined') {
-            throw new Error('UsdtTxInputsOutputs.getInputsOutputs requires privateKey')
-        }
         if (typeof data.addressFrom === 'undefined') {
             throw new Error('UsdtTxInputsOutputs.getInputsOutputs requires addressFrom')
         }
@@ -48,19 +48,23 @@ export default class UsdtTxInputsOutputs {
         if (typeof data.amount === 'undefined') {
             throw new Error('UsdtTxInputsOutputs.getInputsOutputs requires amount')
         }
-        let addressForChange = (typeof data.addressForChange != 'undefined' && data.addressForChange !== 'TRANSFER_ALL' && data.addressForChange) ? data.addressForChange : data.addressFrom
-        let useOnlyConfirmed = true //take from DB
+        let addressForChange = (typeof data.addressForChange !== 'undefined' && data.addressForChange !== 'TRANSFER_ALL' && data.addressForChange) ? data.addressForChange : data.addressFrom
+        if (typeof data.addressForChangeHD !== 'undefined' && data.addressForChangeHD) {
+            addressForChange = data.addressForChangeHD
+        }
+        const useOnlyConfirmed = true // take from DB
         let autocalculateFee = true
         let feeForByte = precached.blocks_2
-        if (typeof data.feeForTx !== 'undefined' && typeof data.feeForTx.feeForTx !== 'undefined') {
+        if (subtitle.indexOf('getFeeRate') === -1 && typeof data.feeForTx !== 'undefined' && typeof data.feeForTx.feeForTx !== 'undefined') {
             autocalculateFee = false
             feeForByte = data.feeForTx.feeForByte
         }
 
         let filteredUnspents = []
         let uncomfirmedInputs = 0
+        let unspent
         if (useOnlyConfirmed) {
-            for (let unspent of precached.unspents) {
+            for (unspent of precached.unspents) {
                 if (unspent.confirmations > 0) {
                     filteredUnspents.push(unspent)
                 } else {
@@ -72,13 +76,12 @@ export default class UsdtTxInputsOutputs {
         }
 
         let totalBalanceBN = BlocksoftUtils.toBigNumber(0)
-        for (let unspent of filteredUnspents) {
+        for (unspent of filteredUnspents) {
             totalBalanceBN = totalBalanceBN.add(unspent.valueBN)
         }
-        let basicWishedAmountBN = BlocksoftUtils.toBigNumber(DUST_FIRST_TRY)
-        let wishedAmountBN = basicWishedAmountBN
+        let wishedAmountBN = BlocksoftUtils.toBigNumber(DUST_FIRST_TRY)
 
-        let outputs = [{
+        const outputs = [{
             'to': data.addressTo,
             'amount': '0',
             'usdt': data.amount.toString()
@@ -87,13 +90,13 @@ export default class UsdtTxInputsOutputs {
             'amount': (DUST_FIRST_TRY).toString()
         }]
 
-        let correctedAmountFrom = wishedAmountBN.toString()
+        const correctedAmountFrom = wishedAmountBN.toString()
 
         if (!autocalculateFee) {
             wishedAmountBN = wishedAmountBN.add(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx))
         }
 
-        let ic = filteredUnspents.length
+        const ic = filteredUnspents.length
         let msg = 'totalInputs ' + ic + ' for wishedAmount ' + wishedAmountBN.toString() + ' = ' + BlocksoftUtils.toUnified(wishedAmountBN.toString(), this._settings.decimals)
 
         let inputs = []
@@ -103,28 +106,74 @@ export default class UsdtTxInputsOutputs {
         if (autocalculateFee) {
             wishedAmountForOneBN = wishedAmountForOneBN.add(BlocksoftUtils.toBigNumber(precached.blocks_2 * 128))
         }
-        for (let i = 0; i < ic; i++) {
 
-            let unspent = filteredUnspents[i]
+        let legacyTotal = 0
+        let legacyInputed = 0
+        let legacyAnyInput = false
+        for (let i = 0; i < ic; i++) {
+            const unspent = filteredUnspents[i]
+            if (unspent.address !== data.addressFromLegacy) continue
+            legacyTotal++
+            legacyAnyInput = unspent
             if (
                 inputsBalanceBN.sub(wishedAmountForOneBN) < 1000
             ) {
                 inputs.push(unspent)
                 inputsBalanceBN = inputsBalanceBN.add(unspent.valueBN)
-                msg += ' ' + i + ') added as only one ' + unspent.value + ' for ' + wishedAmountForOneBN
+                msg += ' ' + i + ') added as only one Legacy ' + unspent.value + ' for ' + wishedAmountForOneBN
                 foundOnlyOne = true
+                legacyInputed++
+            }
+        }
+        msg += ' legacyInputed ' + legacyInputed + ' legacyTotal = ' + legacyTotal
+        if (legacyTotal === 0 || !legacyAnyInput) {
+            const e = new Error('SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT')
+            e.code = 'ERROR_USER'
+            throw e
+        }
+
+        if (legacyTotal < 2) {
+            foundOnlyOne = false
+            legacyInputed = 0
+            inputs = []
+            inputsBalanceBN = BlocksoftUtils.toBigNumber(0)
+            msg += ' reset only one by legacyTotal ]]]] '
+        }
+
+        if (legacyInputed === 0) {
+            inputs.push(legacyAnyInput)
+            inputsBalanceBN = inputsBalanceBN.add(legacyAnyInput.valueBN)
+            msg += ' added as first Legacy ' + legacyAnyInput.value
+        }
+
+        if (!foundOnlyOne) {
+            for (let i = 0; i < ic; i++) {
+                const unspent = filteredUnspents[i]
+                if (unspent.address === data.addressFromLegacy) continue
+                if (
+                    inputsBalanceBN.sub(wishedAmountForOneBN) < 1000
+                ) {
+                    inputs.push(unspent)
+                    inputsBalanceBN = inputsBalanceBN.add(unspent.valueBN)
+                    msg += ' ' + i + ') added as only one ' + unspent.value + ' for ' + wishedAmountForOneBN
+                    foundOnlyOne = true
+                }
             }
         }
 
         if (!foundOnlyOne) {
             let leftBalanceBN = totalBalanceBN
             for (let i = 0; i < ic; i++) {
+
                 if (wishedAmountBN.sub(inputsBalanceBN) < 0) {
                     msg += ' finished by collectedAmount ' + inputsBalanceBN.toString()
                     break
                 }
 
-                let unspent = filteredUnspents[i]
+                const unspent = filteredUnspents[i]
+                if (legacyAnyInput && unspent.txid === legacyAnyInput.txid) {
+                    continue
+                }
                 if (
                     (inputsBalanceBN.add(unspent.valueBN).sub(wishedAmountBN) <= 0)
                     ||
@@ -140,8 +189,8 @@ export default class UsdtTxInputsOutputs {
             }
         }
 
-        let inputsMinusWishedBN = inputsBalanceBN.sub(wishedAmountBN)
-        if (inputsMinusWishedBN > 10000) {
+        const inputsMinusWishedBN = inputsBalanceBN.sub(wishedAmountBN)
+        if (inputsMinusWishedBN.toString() - 10000 > 0) {
             if (autocalculateFee) {
                 let size = 257
                 let sizeMsg = ' basic 257'
@@ -153,33 +202,78 @@ export default class UsdtTxInputsOutputs {
                 if (fee < this._minFee) {
                     fee = this._minFee
                 }
-                let change = inputsBalanceBN.sub(wishedAmountBN).sub(BlocksoftUtils.toBigNumber(fee)).toString()
-                if (change > 10000) {
+                const changeBasic = inputsBalanceBN.sub(wishedAmountBN).sub(BlocksoftUtils.toBigNumber(fee))
+                const change = changeBasic.toString()
+                if (legacyTotal === 1) {
+                    const change2 = changeBasic.sub(legacyAnyInput.valueBN).toString()
+                    if (change2 - 1000 > 0) {
+                        outputs.push({
+                            'to': data.addressFromLegacy,
+                            'amount': legacyAnyInput.value
+                        })
+                        outputs.push({
+                            'to': addressForChange,
+                            'amount': change2
+                        })
+                        msg += ' with legacy1.1 ' + legacyAnyInput.value
+                        msg += ' change1.1 will be ' + change2
+                        msg += ' fee1.1 will be ' + fee
+                    } else {
+                        outputs.push({
+                            'to': data.addressFromLegacy,
+                            'amount': change // all change will go to legacy to make new input for next txs
+                        })
+                        msg += ' with legacy1.2 ' + change
+                        msg += ' fee1.2 will be ' + fee
+                    }
+                    msg += ' feeAutoCalculate 1.1: size' + sizeMsg + ' = ' + size + ' bytes = ' + fee + ' satoshi '
+                } else if (change - 10000 > 0) {
                     outputs.push({
                         'to': addressForChange,
                         'amount': change
                     })
-                    msg += ' change will be ' + change
-                    msg += ' fee will be ' + fee
-                    msg += ' feeAutoCalculate: size' + sizeMsg + ' = ' + size + ' bytes = ' + fee + ' satoshi '
+                    msg += ' change1.2 will be ' + change
+                    msg += ' fee1.2 will be ' + fee
+                    msg += ' feeAutoCalculate 1.2: size' + sizeMsg + ' = ' + size + ' bytes = ' + fee + ' satoshi '
                 } else {
-                    msg += ' fee will be ' + (fee + change)
-                    msg += ' feeAutoCalculate: size' + sizeMsg + ' = ' + size + ' bytes = ' + fee + ' satoshi '
+                    msg += ' fee1.3 will be ' + (fee + change)
+                    msg += ' feeAutoCalculate 1.3: size' + sizeMsg + ' = ' + size + ' bytes = ' + fee + ' satoshi '
                 }
                 if (change < 0) {
-                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' 1.1 with leftChange ' + change + ' ' + msg)
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' 1.01 with leftChange ' + change + ' ' + msg)
                     data.feeForTx = { feeForTx: fee, feeForByte: feeForByte }
                     return this._tryToFind(data, size, precached, 'autofee 1.1 => fixed' )
                 }
-            } else {
-                let change = inputsMinusWishedBN.toString()
+            } else if (legacyTotal === 1) {
+                const change = inputsMinusWishedBN.sub(legacyAnyInput.valueBN).toString()
                 outputs.push({
-                    'to': addressForChange,
-                    'amount': change
+                    'to': data.addressFromLegacy,
+                    'amount': legacyAnyInput.value
                 })
-                msg += ' change will be ' + change
-                msg += ' fee will be ' + data.feeForTx.feeForTx
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' 1.2 with change ' + change + ' ' + msg)
+                if (change > 0) {
+                    outputs.push({
+                        'to': addressForChange,
+                        'amount': change
+                    })
+                    msg += ' change1.02 will be ' + change
+                } else {
+                    msg += ' change1.02 will be skipped ' + change
+                }
+                msg += ' fee1.02 will be ' + data.feeForTx.feeForTx
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' 1.02 with legacy ' + legacyAnyInput.value + ' change ' + change + ' ' + msg)
+            } else {
+                const change = inputsMinusWishedBN.toString()
+                if (change > 0) {
+                    outputs.push({
+                        'to': addressForChange,
+                        'amount': change
+                    })
+                    msg += ' change1.03 will be ' + change
+                } else {
+                    msg += ' change1.03 will be skipped ' + change
+                }
+                msg += ' fee1.03 will be ' + data.feeForTx.feeForTx
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' 1.03 with change ' + change + ' ' + msg)
             }
         } else {
             if (autocalculateFee) {
@@ -191,42 +285,85 @@ export default class UsdtTxInputsOutputs {
                 if (fee < this._minFee) {
                     fee = this._minFee
                 }
-                msg += ' fee will be ' + fee
+                msg += ' fee2.1 will be ' + fee
                 msg += ' feeAutoCalculate: size' + sizeMsg + ' = ' + size + ' bytes = ' + fee + ' satoshi '
 
                 let leftAfterFee = inputsMinusWishedBN.sub(BlocksoftUtils.toBigNumber(fee))
-                let minusLimit = -1 * Math.round(fee / 5) //20 %
-                if (leftAfterFee < minusLimit || leftAfterFee > 10000) {
-                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.1 with inputsBalanceBN ' + inputsBalanceBN + ' minusLimit ' + minusLimit + ' leftAfterAutoFee ' + leftAfterFee + ' ' + msg)
+                const minusLimit = -1 * Math.round(fee / 5) // 20 %
+                if (leftAfterFee - minusLimit < 0 || leftAfterFee - 10000 > 0) {
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.1.1 with inputsBalanceBN ' + inputsBalanceBN + ' minusLimit ' + minusLimit + ' leftAfterAutoFee ' + leftAfterFee + ' ' + msg)
                     data.feeForTx = { feeForTx: fee, feeForByte: feeForByte }
-                    return this._tryToFind(data, size, precached, 'autofee 2.1 => fixed' )
+                    return this._tryToFind(data, size, precached, 'autofee 2.1.1 => fixed' )
+                } else if (legacyTotal === 1) {
+                    outputs.push({
+                        'to': data.addressFromLegacy,
+                        'amount': legacyAnyInput.value
+                    })
+                    leftAfterFee = leftAfterFee.sub(legacyAnyInput.valueBN)
+                    if (leftAfterFee.toString() < 0) {
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.1.2 with legacy ' + legacyAnyInput.value + ' inputsBalanceBN ' + inputsBalanceBN + ' minusLimit ' + minusLimit + ' leftAfterAutoFee ' + leftAfterFee + ' ' + msg)
+                        data.feeForTx = { feeForTx: fee, feeForByte: feeForByte }
+                        return this._tryToFind(data, size, precached, 'autofee 2.1.2 => fixed' )
+                    } else {
+                        msg += ' legacy2.1 ' + legacyAnyInput.value
+                    }
                 }
             } else {
+
                 let change = inputsMinusWishedBN.toString()
-                let fee = data.feeForTx.feeForTx
-                let leftAfterFee = inputsMinusWishedBN.sub(BlocksoftUtils.toBigNumber(fee))
-                let minusLimit = -1 * Math.round(fee / 5) //20 %
-                if (leftAfterFee < minusLimit || leftAfterFee > 10000) {
-                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.2 with inputsBalanceBN ' + inputsBalanceBN + ' minusLimit ' + minusLimit + ' leftAfterFee ' + leftAfterFee + ' ' + msg)
+                const fee = data.feeForTx.feeForTx*1
+                const minusLimit = -1 * Math.round(fee / 5) // 20 %
+                if (change < 0 && fee + change < minusLimit) {
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.2.1 ' + (fee+change) + '<' + minusLimit + ' with inputsBalanceBN ' + inputsBalanceBN + ' minusLimit ' + minusLimit + ' change ' + change + ' fee ' + fee + ' ' + msg)
+
                     if (uncomfirmedInputs > 0) {
-                        let e = new Error('SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE')
+                        const e = new Error('SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE')
                         e.code = 'ERROR_USER'
                         throw e
                     } else {
-                        let e = new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+                        const e = new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
                         e.code = 'ERROR_USER'
                         throw e
                     }
+                } else if (legacyTotal === 1) {
+                    const change2 = inputsMinusWishedBN.sub(legacyAnyInput.valueBN).toString()
+                    if (change2 < 0) {
+                        outputs.push({
+                            'to': data.addressFromLegacy,
+                            'amount': 546
+                        })
+                        msg += ' legacy2.2.1 546'
+                    } else if (change < 0) {
+                        outputs.push({
+                            'to': data.addressFromLegacy,
+                            'amount': change2
+                        })
+                        change = 0
+                        msg += ' legacy2.2.2 ' + change2
+                    } else {
+                        outputs.push({
+                            'to': data.addressFromLegacy,
+                            'amount': legacyAnyInput.value
+                        })
+                        change = change2
+                        msg += ' legacy2.2.3 ' + legacyAnyInput.value
+                    }
                 }
-
-                msg += ' fees will be ' + change
-                msg += ' fees started ' + data.feeForTx.feeForTx
+                msg += ' change2.2 will be added to fee ' + change
+                msg += ' fees2.2 started ' + data.feeForTx.feeForTx
             }
         }
 
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' ' + msg)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTxInputsOutputs.getInputsOutputs outputs[0].amount ' + outputs[0].amount)
+
+        if (inputs.length === 0) {
+            const e = new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+            e.code = 'ERROR_USER'
+            throw e
+        }
         if (outputs[0].amount < 0) {
-            let e = new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+            const e = new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
             e.code = 'ERROR_USER'
             throw e
         }
@@ -234,7 +371,52 @@ export default class UsdtTxInputsOutputs {
             inputs,
             outputs,
             correctedAmountFrom,
-            feeForByte
+            feeForByte,
+            msg
         }
+    }
+
+    _tryToFind(data, size, precached, subtitle) {
+        let tryToFind
+        let error = false
+
+        try {
+            tryToFind = this.getInputsOutputs(data, precached, subtitle)
+        } catch (e) {
+            error = e
+        }
+
+        if (!tryToFind) {
+            const fee = precached.blocks_6 * size / 2
+            data.feeForTx = { feeForTx: fee, feeForByte: precached.blocks_6 }
+            try {
+                tryToFind = this.getInputsOutputs(data, precached, subtitle)
+            } catch (e) {
+                error = e
+            }
+        }
+
+
+        if (!tryToFind && data.amount < 10) {
+            const fee = precached.blocks_12 * size / 2
+            data.feeForTx = { feeForTx: fee, feeForByte: precached.blocks_12 }
+            try {
+                tryToFind = this.getInputsOutputs(data, precached, subtitle)
+            } catch (e) {
+                error = e
+            }
+        }
+
+        if (!tryToFind) {
+            if (error) {
+                throw error
+            } else {
+                const e = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE')
+                e.code = 'ERROR_USER'
+                throw e
+            }
+        }
+
+        return tryToFind
     }
 }

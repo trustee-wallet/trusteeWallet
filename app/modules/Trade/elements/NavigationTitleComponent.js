@@ -13,11 +13,12 @@ export default class NavigationTitleComponent extends Component {
     }
 
     handleSetTradeType = tradeTypeObj => {
+
         this.props.handleSetState('show', false)
 
         ExchangeActions.handleSetTradeType(tradeTypeObj)
 
-        this.props.handleSetTradeWay(tradeTypeObj.tradeType)
+        this.props.handleSetTradeWay(tradeTypeObj.tradeType, "STATE_CACHE")
     }
 
     render() {

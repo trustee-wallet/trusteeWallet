@@ -29,24 +29,57 @@ export default class BtcUnspentsProvider {
 
     /**
      * @param address
+     * @param addressLegacy
      * @returns {Promise<UnifiedUnspent[]>}
      */
-    async getUnspents(address) {
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider.getUnspents started', address)
+    async getUnspents(address, addressLegacy) {
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider.getUnspents started ' + address + ' ' + addressLegacy)
 
-        let link = this._trezorPath + address //?confirmed=true
-        let res = await BlocksoftAxios.getWithoutBraking(link)
+        const tmp = await Promise.all([
+            this._getUnspents(address),
+            this._getUnspents(addressLegacy)
+        ])
+
+        const sortedUnspents = []
+        let unspent
+        if (tmp[0]) {
+            for (unspent of tmp[0]) {
+                unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
+                if (typeof unspent.address === 'undefined') {
+                    unspent.address = address
+                }
+                unspent.isSegwit = true
+                sortedUnspents.push(unspent)
+            }
+        }
+        if (tmp[1]) {
+            for (unspent of tmp[1]) {
+                unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
+                if (typeof unspent.address === 'undefined') {
+                    unspent.address = addressLegacy
+                }
+                unspent.isSegwit = false
+                sortedUnspents.push(unspent)
+            }
+        }
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider.getUnspents result ' + address + ' ' + addressLegacy, sortedUnspents)
+        return sortedUnspents
+    }
+
+    /**
+     * @param address
+     * @returns {Promise<*[]|*>}
+     * @private
+     */
+    async _getUnspents(address) {
+        const link = this._trezorPath + address + '?gap=9999'// ?confirmed=true
+        const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || typeof res.data === 'undefined') {
-            throw new Error(this._settings.currencyCode + ' BtcUnspentsProvider.getUnspents nothing loaded for address')
+            throw new Error(this._settings.currencyCode + ' BtcUnspentsProvider._getUnspents nothing loaded for address ' + address)
         }
         if (!res.data || typeof res.data[0] === 'undefined') {
-            return []
+            return false
         }
-        let sortedUnspents = []
-        for (let unspent of res.data) {
-            unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
-            sortedUnspents.push(unspent)
-        }
-        return sortedUnspents
+        return res.data
     }
 }

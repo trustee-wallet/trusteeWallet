@@ -1,20 +1,25 @@
-/**
- * @version 0.2
- */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Clipboard, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import {
+    Clipboard,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native'
+
 import { TextField } from 'react-native-material-textfield'
 import QR from 'react-native-vector-icons/FontAwesome'
-
 import Paste from 'react-native-vector-icons/MaterialCommunityIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import GradientView from '../../components/elements/GradientView'
 
-import { getArrayItem, capitalize, normalizeWithDecimals, checkQRPermission } from '../../services/utils'
+import { getArrayItem, capitalize, normalizeWithDecimals } from '../../services/utils'
+import { checkQRPermission } from '../../services/Qr/QrPermissions'
 
 import validator from '../../services/validator/validator'
+
 
 class Input extends Component {
 
@@ -38,7 +43,7 @@ class Input extends Component {
         }, 200)
     }
 
-    componentWillReceiveProps(props) {
+    UNSAFE_componentWillReceiveProps(props) {
         const { qr, qrCodeScanner } = this.props
         if (qr && props.qrCodeScanner.value && props.qrCodeScanner.value !== qrCodeScanner.value) {
             this.setState({
@@ -142,6 +147,7 @@ class Input extends Component {
 
         const placeholder = capitalize(name)
         const error = getArrayItem(id, errors)
+        const isDisabled = typeof disabled !== 'undefined' ? disabled : false
 
         return (
             <View style={{ ...styles.wrapper, ...style }}>
@@ -163,8 +169,8 @@ class Input extends Component {
                         //  returnKeyLabel={'Buy'}
                         // returnKeyType={'done'}
                         onSubmitEditing={typeof onSubmitEditing != 'undefined' ? onSubmitEditing : () => {}}
-                        autoFocus={typeof autoFocus !== 'undefined' ? autoFocus : false}
-                        disabled={typeof disabled !== 'undefined' ? disabled : false}
+                        autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
+                        disabled={isDisabled}
                         error={error ? error.toString() : ''}
                         onChangeText={(value) => this.handleInput(value)}
                         style={styles.fontFamily}
@@ -179,18 +185,19 @@ class Input extends Component {
                         <TextInput
                             style={[styles.validPlaceholder, !this.state.errors.length && value !== '' && focus === false ? styles.validPlaceholder_active : null]}
                             value={value.slice(0, 8) + '...' + value.slice(value.length - 8, value.length)}
+                            editable={!isDisabled}
                             onFocus={() => { this.inputRef.focus() }}
                         /> : null
                 }
                 {
-                    typeof tapText != 'undefined' && typeof disabled != 'undefined' && disabled !== true ?
-                        <TouchableOpacity style={[styles.tap, tapWrapperStyles]} onPress={() => { tapCallback(); this.setState({ tap: !this.state.tap })}}>
-                            <View style={[styles.tap__content, tapContentStyles]}>
+                    typeof tapText !== 'undefined' ?
+                        <TouchableOpacity disabled={typeof disabled !== "undefined" ? disabled : false} style={[styles.tap, tapWrapperStyles]} onPress={() => { tapCallback(); this.setState({ tap: !this.state.tap })}}>
+                            <View style={[styles.tap__content, typeof disabled !== "undefined" && disabled ? styles.tap__content_disabled : null, tapContentStyles]}>
                                 <View style={{
                                     height: 12, transform: [
                                         { rotateX: `${this.state.tap ? '0' : '180'}deg`},
                                     ], }}>
-                                    <Ionicons size={12} name='ios-swap' color='#7127ac' />
+                                    { typeof disabled !== "undefined" && !disabled ?  <Ionicons size={12} name='ios-swap' color='#7127ac' /> : null }
                                 </View>
                                 <Text style={[styles.tap__text, tapTextStyles]}>{ tapText }</Text>
                             </View>
@@ -282,7 +289,7 @@ const styles = {
     },
     line: {
         position: 'absolute',
-        top: 49,
+        top: 50,
         width: '100%',
         height: 2,
         borderRadius: 2
@@ -390,4 +397,7 @@ const styles = {
         fontFamily: 'SFUIDisplay-Regular',
         color: '#7127ac'
     },
+    tap__content_disabled: {
+        backgroundColor: '#f9f9f9'
+    }
 }

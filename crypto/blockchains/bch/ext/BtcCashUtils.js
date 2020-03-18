@@ -29,14 +29,14 @@ function getType(versionByte) {
         case 8:
             return 'P2SH';
         default:
-            throw new ValidationError('Invalid address type in version byte: ' + versionByte + '.');
+            throw new Error('Invalid address type in version byte: ' + versionByte + '.');
     }
 }
 
 function base32decode(string) {
-    let data = new Uint8Array(string.length)
+    const data = new Uint8Array(string.length)
     for (let i = 0; i < string.length; ++i) {
-        let value = string[i]
+        const value = string[i]
         data[i] = CHARSET_INVERSE_INDEX[value]
     }
     return data
@@ -55,7 +55,7 @@ const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
 function base32encode(data) {
     let base32 = ''
     for (let i = 0; i < data.length; i++) {
-        let value = data[i]
+        const value = data[i]
         base32 += CHARSET[value]
     }
     return base32
@@ -64,8 +64,10 @@ function base32encode(data) {
 
 function polymod(data) {
     // Treat c as 8 bits + 32 bits
-    var c0 = 0, c1 = 1, C = 0
-    for (var j = 0; j < data.length; j++) {
+    let c0 = 0
+    let c1 = 1
+    let C = 0
+    for (let j = 0; j < data.length; j++) {
         // Set C to c shifted by 35
         C = c0 >>> 3
         // 0x[07]ffffffff
@@ -78,7 +80,7 @@ function polymod(data) {
         c1 <<= 5
         // xor the last 5 bits
         c1 ^= data[j]
-        for (var i = 0; i < GENERATOR1.length; ++i) {
+        for (let i = 0; i < GENERATOR1.length; ++i) {
             if (C & (1 << i)) {
                 c0 ^= GENERATOR1[i]
                 c1 ^= GENERATOR2[i]
@@ -99,8 +101,8 @@ function polymod(data) {
 }
 
 function checksumToArray(checksum) {
-    var result = []
-    for (var i = 0; i < 8; ++i) {
+    const result = []
+    for (let i = 0; i < 8; ++i) {
         result.push(checksum & 31)
         checksum /= 32
     }
@@ -132,12 +134,12 @@ function getHashSizeBits(hash) {
 
 function convertBits(data, from, to, strict) {
     strict = strict || false
-    var accumulator = 0
-    var bits = 0
-    var result = []
-    var mask = (1 << to) - 1
-    for (var i = 0; i < data.length; i++) {
-        var value = data[i]
+    let accumulator = 0
+    let bits = 0
+    const result = []
+    const mask = (1 << to) - 1
+    for (let i = 0; i < data.length; i++) {
+        const value = data[i]
         accumulator = (accumulator << from) | value
         bits += from
         while (bits >= to) {
@@ -154,22 +156,22 @@ function convertBits(data, from, to, strict) {
 }
 
 function fromHashToAddress(hash) {
-    let eight0 = [0, 0, 0, 0, 0, 0, 0, 0]
+    const eight0 = [0, 0, 0, 0, 0, 0, 0, 0]
     // noinspection PointlessArithmeticExpressionJS
-    let versionByte = 0 + getHashSizeBits(hash) //getTypeBits(this.type)
-    let arr = Array.prototype.slice.call(hash, 0)
-    let payloadData = convertBits([versionByte].concat(arr), 8, 5)
+    const versionByte = 0 + getHashSizeBits(hash) // getTypeBits(this.type)
+    const arr = Array.prototype.slice.call(hash, 0)
+    const payloadData = convertBits([versionByte].concat(arr), 8, 5)
 
-    let prefixData = [2, 9, 20, 3, 15, 9, 14, 3, 1, 19, 8, 0]
-    let checksumData = prefixData.concat(payloadData).concat(eight0)
-    let payload = payloadData.concat(checksumToArray(polymod(checksumData)))
+    const prefixData = [2, 9, 20, 3, 15, 9, 14, 3, 1, 19, 8, 0]
+    const checksumData = prefixData.concat(payloadData).concat(eight0)
+    const payload = payloadData.concat(checksumToArray(polymod(checksumData)))
     return base32encode(payload)
 }
 
 export default {
     fromPublicKeyToAddress(publicKey) {
-        let one = createHash('sha256').update(publicKey, 'hex').digest()
-        let hash = createHash('ripemd160').update(one).digest()
+        const one = createHash('sha256').update(publicKey, 'hex').digest()
+        const hash = createHash('ripemd160').update(one).digest()
         return fromHashToAddress(hash)
     },
     toLegacyAddress(address) {
@@ -179,18 +181,18 @@ export default {
         if (address.substr(0, 1) !== 'q') {
             return address
         }
-        let payloadBack = base32decode(address)
-        let payloadDataBack = fromUint5Array(payloadBack.subarray(0, -8));
-        let versionByteBack = payloadDataBack[0];
-        let hashBack = payloadDataBack.slice(1);
-        let typeBack = getType(versionByteBack);
-        let buffer = Buffer.alloc(1 + hashBack.length)
+        const payloadBack = base32decode(address)
+        const payloadDataBack = fromUint5Array(payloadBack.subarray(0, -8));
+        const versionByteBack = payloadDataBack[0];
+        const hashBack = payloadDataBack.slice(1);
+        const typeBack = getType(versionByteBack);
+        const buffer = Buffer.alloc(1 + hashBack.length)
         buffer[0] = VERSION_BYTE[typeBack]
         buffer.set(hashBack, 1)
         return bs58check.encode(buffer)
     },
     fromLegacyAddress(address) {
-        if (address.substr(0, 2) === 'qz') {
+        if (address.substr(0, 1) === 'q') {
             return address
         }
         let hash = bs58check.decode(address)

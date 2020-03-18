@@ -1,7 +1,7 @@
 /**
  * @version 0.5
  */
-let bitcoin = require('bitcoinjs-lib')
+const bitcoin = require('bitcoinjs-lib')
 
 const networksConstants = require('../../../common/ext/networks-constants')
 
@@ -25,8 +25,8 @@ export default class BtcAddressProcessor {
      * @returns {Promise<{privateKey: string, address: string, addedData: *}>}
      */
     async getAddress(privateKey, data = {}) {
-        let keyPair = bitcoin.ECPair.fromPrivateKey(privateKey, { network: this._currentBitcoinNetwork })
-        let address = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey,  network: this._currentBitcoinNetwork}).address
+        const keyPair = bitcoin.ECPair.fromPrivateKey(privateKey, { network: this._currentBitcoinNetwork })
+        const address = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey,  network: this._currentBitcoinNetwork}).address
         return { address, privateKey: keyPair.toWIF() }
     }
 }

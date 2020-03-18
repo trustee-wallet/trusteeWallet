@@ -13,47 +13,17 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Trustee</string>
+	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.29.362</string>
+	<string>1.30.398</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>Trustee</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.trusteewallet</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>bitcoin</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>bitcoin</string>
-			</array>
-		</dict>
-	</array>
 	<key>CFBundleVersion</key>
-	<string>362</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>whatsapp</string>
-		<string>mailto</string>
-		<string>twitter</string>
-		<string>facebook</string>
-	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -69,35 +39,34 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>Message</string>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>App would like to use your bluetooth for communication purposes</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Message</string>
-	<key>NSCalendarsUsageDescription</key>
-	<string>Message</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Enabling camera allows you scann qr-codes and cards.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Enabling Face ID allows you quick and secure access to your account.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Message</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Message</string>
+	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>$(PRODUCT_NAME) would like to use your microphone (for videos)</string>
-	<key>NSMotionUsageDescription</key>
-	<string>Message</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>$(PRODUCT_NAME) would like to save photos to your photo gallery</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Message</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Message</string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>CREDC___.ttf</string>
 		<string>icomoon.ttf</string>
+		<string>Montserrat-Bold.ttf</string>
+		<string>Montserrat-Light.ttf</string>
+		<string>Montserrat-Medium.ttf</string>
+		<string>Montserrat-Regular.ttf</string>
+		<string>Montserrat-SemiBold.ttf</string>
+		<string>Montserrat-Thin.ttf</string>
+		<string>OCR A Std Regular.ttf</string>
+		<string>OCRA-Regular.ttf</string>
+		<string>Roboto-Black.ttf</string>
+		<string>SFUIDisplay-Bold.ttf</string>
+		<string>SFUIDisplay-Regular.ttf</string>
+		<string>SFUIDisplay-Semibold.ttf</string>
 		<string>AntDesign.ttf</string>
 		<string>Entypo.ttf</string>
 		<string>EvilIcons.ttf</string>
@@ -106,6 +75,7 @@
 		<string>FontAwesome5_Brands.ttf</string>
 		<string>FontAwesome5_Regular.ttf</string>
 		<string>FontAwesome5_Solid.ttf</string>
+		<string>Fontisto.ttf</string>
 		<string>Foundation.ttf</string>
 		<string>Ionicons.ttf</string>
 		<string>MaterialCommunityIcons.ttf</string>
@@ -113,22 +83,10 @@
 		<string>Octicons.ttf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
-		<string>SFUIDisplay-Bold.ttf</string>
-		<string>SFUIDisplay-Regular.ttf</string>
-		<string>SFUIDisplay-Semibold.ttf</string>
-		<string>Fontisto.ttf</string>
-		<string>OCR A Std Regular.ttf</string>
-		<string>OCRA-Regular.ttf</string>
-		<string>Roboto-Black.ttf</string>
-		<string>Montserrat-Bold.ttf</string>
-		<string>Montserrat-Light.ttf</string>
-		<string>Montserrat-Medium.ttf</string>
-		<string>Montserrat-Regular.ttf</string>
-		<string>Montserrat-SemiBold.ttf</string>
-		<string>Montserrat-Thin.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

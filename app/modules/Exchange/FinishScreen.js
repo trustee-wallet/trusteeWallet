@@ -24,7 +24,7 @@ class FinishScreen extends Component {
         }
     }
 
-    componentWillMount(){
+    UNSAFE_componentWillMount(){
 
         let currencies = JSON.parse(JSON.stringify(this.props.mainStore.currencies))
 
@@ -39,16 +39,7 @@ class FinishScreen extends Component {
 
 
     handleOrderHistory = async () => {
-
-        setSelectedCryptocurrency(this.state.selectedCryptocurrency)
-
-        await setSelectedAccount()
-
-        NavStore.reset('AccountScreen', {
-            accountScreenParam: {
-                isOrdersActive: true
-            }
-        })
+        NavStore.reset('ExchangeScreenStack')
     }
 
     handleClose = () => {

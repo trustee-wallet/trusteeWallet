@@ -14,7 +14,7 @@ export default class EthTokenProcessorErc20 extends EthBasic {
         let token, name, symbol, decimals
         try {
             // noinspection JSUnresolvedVariable
-            token = new this._web3.eth.Contract(abi.ERC20, tokenAddress)
+            token = new this._web3.eth.Contract(abi.ERC20, tokenAddress.toLowerCase())
         } catch (e) {
             e.message = 'erc20 init token ' + e.message
             throw e
@@ -44,7 +44,7 @@ export default class EthTokenProcessorErc20 extends EthBasic {
             currencyCode: symbol,
             currencyName: name,
             tokenType : 'ETH_ERC_20',
-            tokenAddress: tokenAddress,
+            tokenAddress: tokenAddress.toLowerCase(),
             tokenDecimals: decimals,
             icon: false,
             description: false,

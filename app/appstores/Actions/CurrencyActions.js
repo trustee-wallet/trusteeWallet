@@ -1,10 +1,3 @@
-import store from '../../store'
-
-const { dispatch } = store
-
-import BlocksoftKeys from '../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
-import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
-
 import accountDS from '../DataSource/Account/Account'
 import currencyDS from '../DataSource/Currency/Currency'
 import accountBalanceDS from '../DataSource/AccountBalance/AccountBalance'
@@ -28,15 +21,15 @@ const currencyActions = {
         try {
             errorStepMsg = 'BlocksoftKeysStorage.getWallets started'
 
-            let { array: wallets } = await walletDS.getWallets()
+            const { array: wallets } = await walletDS.getWallets()
 
-            let accountBalanceInsertObjs = []
+            const accountBalanceInsertObjs = []
             for (let wallet of wallets) {
 
                 const wallet_hash = wallet.wallet_hash
 
                 errorStepMsg = 'BlocksoftKeys.discoverAddresses started'
-                await accountDS.discoverAccounts(wallet_hash, [currencyToAdd.currencyCode])
+                await accountDS.discoverAccounts({walletHash : wallet_hash, currencyCode : [currencyToAdd.currencyCode]}, 'CREATE_CURRENCY')
 
                 errorStepMsg = 'BlocksoftKeys.discoverAddresses got new accounts'
                 const { array: dbAccounts } = await accountDS.getAccountsByWalletHashAndCurrencyCode(wallet_hash, currencyToAdd.currencyCode)
@@ -46,6 +39,7 @@ const currencyActions = {
                 accountBalanceInsertObjs.push({
                     balance_fix: 0,
                     balance_scan_time: 0,
+                    balance_scan_log: '',
                     status: 0,
                     currency_code: currencyToAdd.currencyCode,
                     wallet_hash,

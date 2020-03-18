@@ -5,14 +5,14 @@ import Log from '../Log/Log'
 
 import TrxTokenRates from './providers/TrxTokenRates'
 import KunaRates from './providers/KunaRates'
-import CoinMarketRates from './providers/CoinMarketRates'
+import GeckoRates from './providers/GeckoRates'
 import CoinMarketProRates from './providers/CoinMarketProRates'
 
 const ratesProviderTrxTokens = new TrxTokenRates()
 
-const ratesProvider1 = new CoinMarketRates()
-const ratesProvider2 = new KunaRates()
-const ratesProvider3 = new CoinMarketProRates()
+const ratesProvider1 = new GeckoRates()
+const ratesProvider2 = new CoinMarketProRates()
+const ratesProvider3 = new KunaRates()
 
 class Rate {
 
@@ -64,7 +64,7 @@ class Rate {
             } catch (e) {
                 if (Log.isNetworkError(e.message) && this.trxTryCounter < 20) {
                     this.trxTryCounter++
-                    let date = (new Date()).toISOString().replace(/T/, ' ').replace(/\..+/, '')
+                    const date = (new Date()).toISOString().replace(/T/, ' ').replace(/\..+/, '')
                     this.trxTryLogs += ' [' + date + '] ' + e.message
                     Log.log('DMN/Rate trx network try ' + this.trxTryCounter + ' ' + e.message)
                 } else {
@@ -113,7 +113,7 @@ class Rate {
                     this.tryCounter3++
                     this.tryTimer3 = new Date().getTime()
                 }
-                totalError += '\n 3: ' + e.message + ' ' + ratesProvider3.URL
+                totalError += '\n 3: ' + JSON.stringify(e.message) + ' ' + ratesProvider3.URL
             }
         }
 
@@ -123,7 +123,7 @@ class Rate {
         } else if (totalError !== '') {
             if (Log.isNetworkError(totalError) && this.tryCounter < 100) {
                 this.tryCounter++
-                let date = (new Date()).toISOString().replace(/T/, ' ').replace(/\..+/, '')
+                const date = (new Date()).toISOString().replace(/T/, ' ').replace(/\..+/, '')
                 this.tryLogs += ' [' + date + '] ' + totalError
                 Log.log('DMN/Rate network try ' + this.tryCounter + ' ' + totalError)
             } else if (totalError.indexOf('wrong code') === -1) {

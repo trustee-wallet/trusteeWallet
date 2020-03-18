@@ -1,21 +1,22 @@
 import firebase from 'react-native-firebase'
+
+
 import AsyncStorage from '@react-native-community/async-storage'
 import { Platform } from 'react-native'
 
-import Flurry from 'react-native-flurry-sdk'
 import Cashback from '../Cashback/Cashback'
 import Log from '../Log/Log'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import BlocksoftTg from '../../../crypto/common/BlocksoftTg'
 import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
-const CACHED = {}
-const CACHED_BUY = {}
-const CACHE_BALANCE = {}
-
 
 import changeableProd from '../../config/changeable.prod'
 import changeableTester from '../../config/changeable.tester'
+
+const CACHED = {}
+const CACHED_BUY = {}
+const CACHE_BALANCE = {}
 
 class MarketingEvent {
     /**
@@ -54,7 +55,7 @@ class MarketingEvent {
         this._reinitTgMessage(testerMode)
 
 
-        let date = (new Date()).toISOString().split('T')
+        const date = (new Date()).toISOString().split('T')
         this.DATA.date = date[0]
         this.DATA.time = date[1].replace(/\..+/, '')
 
@@ -65,15 +66,6 @@ class MarketingEvent {
         firebase.database().ref('Inits/' + date[0] + '/' + token).push(this.DATA)
         if (token) {
             firebase.database().ref('Installs/' + token.substr(0, 20) + '/' + this.DATA.LOG_VERSION).update(this.DATA)
-        }
-
-        if (!this.DATA.LOG_DEV) {
-            new Flurry.Builder()
-                .withCrashReporting(true)
-                .withLogEnabled(true)
-                .withLogLevel(Flurry.LogLevel.DEBUG)
-                .build('CNCBDF2SR5QSPSHDNZ23', 'YC9F5DGP46JM6MDC22MC'
-                )
         }
 
     }
@@ -100,28 +92,28 @@ class MarketingEvent {
             firebase.analytics().setUserProperty('LOG_TESTER', this.DATA.LOG_TESTER)
         }
 
-        if (typeof (this.DATA.LOG_WALLET) != 'undefined' && this.DATA.LOG_WALLET) {
+        if (typeof (this.DATA.LOG_WALLET) !== 'undefined' && this.DATA.LOG_WALLET) {
             if (firebase.crashlytics()) {
                 firebase.crashlytics().setStringValue('LOG_WALLET', this.DATA.LOG_WALLET)
             }
             firebase.analytics().setUserProperty('LOG_WALLET', this.DATA.LOG_WALLET)
             this.TG_MESSAGE += '\nWALLET ' + this.DATA.LOG_WALLET
         }
-        if (typeof (this.DATA.LOG_CASHBACK) != 'undefined' && this.DATA.LOG_CASHBACK) {
+        if (typeof (this.DATA.LOG_CASHBACK) !== 'undefined' && this.DATA.LOG_CASHBACK) {
             if (firebase.crashlytics()) {
                 firebase.crashlytics().setStringValue('LOG_CASHBACK', this.DATA.LOG_CASHBACK)
             }
             firebase.analytics().setUserProperty('LOG_CASHBACK', this.DATA.LOG_CASHBACK)
             this.TG_MESSAGE += '\nCASHBACK ' + this.DATA.LOG_CASHBACK.substr(0, 20)
         }
-        if (typeof (this.DATA.LOG_TOKEN) != 'undefined' && this.DATA.LOG_TOKEN) {
+        if (typeof (this.DATA.LOG_TOKEN) !== 'undefined' && this.DATA.LOG_TOKEN) {
             if (firebase.crashlytics()) {
                 firebase.crashlytics().setStringValue('LOG_TOKEN', this.DATA.LOG_TOKEN)
             }
             firebase.analytics().setUserProperty('LOG_TOKEN', this.DATA.LOG_TOKEN)
             this.TG_MESSAGE += '\nTOKEN ' + this.DATA.LOG_TOKEN.substr(0, 20)
         }
-        if (typeof (this.DATA.LOG_PLATFORM) != 'undefined' && this.DATA.LOG_PLATFORM) {
+        if (typeof (this.DATA.LOG_PLATFORM) !== 'undefined' && this.DATA.LOG_PLATFORM) {
             if (firebase.crashlytics()) {
                 firebase.crashlytics().setStringValue('LOG_PLATFORM', this.DATA.LOG_PLATFORM)
             }
@@ -136,7 +128,7 @@ class MarketingEvent {
         if (this.DATA.LOG_DEV) {
             return false
         }
-        let tmp = logTitle + ' ' + JSON.stringify(logData)
+        const tmp = logTitle + ' ' + JSON.stringify(logData)
         if (tmp === this._cacheLastLog) return true
         try {
             if (this.DATA.LOG_TOKEN) {
@@ -169,9 +161,10 @@ class MarketingEvent {
 
             this._cacheLastLog = tmp
 
-            let date = (new Date()).toISOString().split('T')
+            const date = (new Date()).toISOString().split('T')
             logData.time = date[1].replace(/\..+/, '')
 
+            // noinspection ES6MissingAwait
             this.TG.send(`SPM_${this.DATA.LOG_VERSION} Lg ` + tmp + this.TG_MESSAGE)
 
             if (!ONLY_TG) {
@@ -183,19 +176,19 @@ class MarketingEvent {
                 }
                 firebase.database().ref(keyTitle).push(logData)
                 firebase.analytics().logEvent('v3_' + logTitle, logData)
-                //Flurry.logEvent(logTitle, logData)
             }
 
         } catch (e) {
+            // noinspection ES6MissingAwait
             Log.err(`DMN/MarketingEvent ${logTitle} ` + e.toString() + ' with logData ' + JSON.stringify(logData))
         }
     }
 
     async logOnlyRealTime(logTitle, logData) {
         if (this.DATA.LOG_DEV) {
-            //return false
+            // return false
         }
-        let tmp = logTitle + ' ' + JSON.stringify(logData)
+        const tmp = logTitle + ' ' + JSON.stringify(logData)
         if (tmp === this._cacheLastLog) return true
         try {
             if (this.DATA.LOG_TOKEN) {
@@ -228,15 +221,17 @@ class MarketingEvent {
 
             this._cacheLastLog = tmp
 
-            let date = (new Date()).toISOString().split('T')
+            const date = (new Date()).toISOString().split('T')
             logData.time = date[1].replace(/\..+/, '')
 
+            // noinspection ES6MissingAwait
             this.TG.send(`RTM_${this.DATA.LOG_VERSION} ` + tmp + this.TG_MESSAGE)
             if (this.DATA.LOG_TESTER) {
-                let keyTitle = 'DebugTX/' + date[0] + '/' + logTitle
+                const keyTitle = 'DebugTX/' + date[0] + '/' + logTitle
                 firebase.database().ref(keyTitle).push(logData)
             }
         } catch (e) {
+            // noinspection ES6MissingAwait
             Log.err(`DMN/MarketingEvent ${logTitle} ` + e.toString() + ' with logData ' + JSON.stringify(logData))
         }
     }
@@ -260,7 +255,7 @@ class MarketingEvent {
         }
      */
     async setBalance(walletHash, currencyCode, totalBalance, logData) {
-        let cacheTitle = walletHash + '_' + currencyCode
+        const cacheTitle = walletHash + '_' + currencyCode
         if (typeof(CACHE_BALANCE[cacheTitle]) === 'undefined') {
             CACHE_BALANCE[cacheTitle] = -1
         }
@@ -269,13 +264,13 @@ class MarketingEvent {
         }
 
 
-        let now = new Date()
-        let date = now.toISOString().replace(/T/, ' ').replace(/\..+/, '')
+        const now = new Date()
+        const date = now.toISOString().replace(/T/, ' ').replace(/\..+/, '')
         let token = this.DATA.LOG_TOKEN
         if (typeof (this.DATA.LOG_TOKEN) === 'undefined') {
             token = 'NOTOKEN'
         }
-        let saveKeyData = { totalBalance, date, token, subtoken : token ? token.substr(0, 20) : ''}
+        const saveKeyData = { totalBalance, date, token, subtoken : token ? token.substr(0, 20) : ''}
 
         let eventTitle = 'slava_update_balance'
         let keyTitle = 'DATA/' + saveKeyData.subtoken + '/' + walletHash + '/balance/' + currencyCode
@@ -296,14 +291,13 @@ class MarketingEvent {
         if (CACHE_BALANCE[cacheTitle] === -1) {
             CACHE_BALANCE[cacheTitle] = totalBalance
             try {
-                let resFB = await new Promise((resolve, reject) => {
+                let savedTotalBalance = await new Promise((resolve, reject) => {
                     firebase.database().ref(keyTitle).once('value').then((snapshot) => {
                         resolve(snapshot.val())
                     }).catch((err) => {
                         reject(err)
                     });
                 })
-                let savedTotalBalance = resFB
                 if (savedTotalBalance) {
                     savedTotalBalance = savedTotalBalance.totalBalance
                 }
@@ -314,7 +308,7 @@ class MarketingEvent {
             } catch(e) {
                 firebase.database().ref(keyTitle).update(saveKeyData)
             }
-        } else if (CACHE_BALANCE[cacheTitle] != totalBalance) {
+        } else if (CACHE_BALANCE[cacheTitle] !== totalBalance) {
             sendEvent = true
             CACHE_BALANCE[cacheTitle] = totalBalance
             firebase.database().ref(keyTitle).update(saveKeyData)
@@ -340,10 +334,11 @@ class MarketingEvent {
         if (CACHED_BUY === {} || typeof buys === 'undefined' || buys.length === 0) return false
 
         try {
-            for (let buy of buys) {
+            let buy
+            for (buy of buys) {
                 if (!(buy.status === 'done' || buy.status === 'done_payin' || buy.status === 'done_convert' || buy.status === 'done_withdraw')) continue // only good one we need
                 if (typeof CACHED_BUY[buy.orderId] === 'undefined') continue
-                let updatedData = JSON.parse(JSON.stringify(CACHED_BUY[buy.orderId]))
+                const updatedData = JSON.parse(JSON.stringify(CACHED_BUY[buy.orderId]))
                 updatedData.created_ts = buy.createdAt + ''
                 updatedData.created_date = (new Date(buy.createdAt)).toISOString().replace(/T/, ' ').replace(/\..+/, '')
                 this.logEvent('slava_exchange_buy_step_last', updatedData)
@@ -368,8 +363,8 @@ class MarketingEvent {
 
     checkSellConfirm(logData) {
         if (typeof CACHED[logData.address_to] === 'undefined') return false
-        let type = CACHED[logData.address_to].TYPE
-        let tmp = {...logData}
+        const type = CACHED[logData.address_to].TYPE
+        const tmp = {...logData}
         CACHED[logData.address_to + '_confirm'] = tmp
         tmp.order_id = CACHED[logData.address_to].order_id
         this.logEvent('slava_exchange_' + type + '_step_2', tmp)
@@ -380,13 +375,13 @@ class MarketingEvent {
             typeof CACHED[logData.address_to] === 'undefined'
             || typeof CACHED[logData.address_to + '_confirm'] === 'undefined'
         ) {
-            logData['TYPE_OF_TX'] = 'usual_outcome'
+            logData.TYPE_OF_TX = 'usual_outcome'
             this.logEvent('slava_send_tx', logData)
             return false
         }
-        let tmp = { ...CACHED[logData.address_to]}
-        let type  = CACHED[logData.address_to].TYPE
-        logData['TYPE_OF_TX'] = type + '_outcome'
+        const tmp = { ...CACHED[logData.address_to]}
+        const type  = CACHED[logData.address_to].TYPE
+        logData.TYPE_OF_TX = type + '_outcome'
         this.logEvent('slava_exchange_' + type + '_step_last', tmp)
         this.logEvent('slava_send_tx', logData)
     }

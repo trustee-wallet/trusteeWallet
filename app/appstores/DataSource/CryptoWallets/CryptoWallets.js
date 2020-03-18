@@ -138,11 +138,11 @@ const cryptoWallets = {
     async setSelectedWallet(walletHash) {
         let storedSelectedWallet = []
         try {
-            Log.log('DS/cryptoWallets setSelectedWallet called')
+            Log.log('DS/cryptoWallets setSelectedWallet called ' + walletHash)
 
             storedSelectedWallet = await BlocksoftKeysStorage.setSelectedWallet(walletHash)
 
-            Log.log('DS/cryptoWallets setSelectedWallet finished')
+            Log.log('DS/cryptoWallets setSelectedWallet finished ' + walletHash)
         } catch (e) {
             Log.err('DS/cryptoWallets setSelectedWallet error' + e.message)
         }

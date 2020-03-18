@@ -30,7 +30,7 @@ class ConfirmScreen extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const orderData = this.props.navigation.getParam('orderData')
         this.setState({
             ...orderData,

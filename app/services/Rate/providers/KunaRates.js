@@ -62,7 +62,8 @@ export default class KunaRates {
                 throw new Error(resData.data)
             }
             this._cachedData = {}
-            for(let row of resData.data) {
+            let row
+            for(row of resData.data) {
                 this._cachedData[row.currency] = row
             }
             this._cachedTime = now
@@ -72,14 +73,22 @@ export default class KunaRates {
         }
 
         if (typeof this._cachedData[params.currencyCode] === 'undefined') {
-            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' wrong code = doesnt exists ' + JSON.stringify(Object.keys(this._cachedData)))
+            let tmp = JSON.stringify(Object.keys(this._cachedData))
+            tmp = tmp.substr(0, 30)
+            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' wrong code = doesnt exists ' + tmp)
         }
         const rate = this._cachedData[params.currencyCode]
         if (!rate) {
-            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' wrong code = is null ' + JSON.stringify(Object.keys(this._cachedData)))
+            let tmp = JSON.stringify(Object.keys(this._cachedData))
+            tmp = tmp.substr(0, 30)
+            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' wrong code = is null ' + tmp)
         }
-        if (!rate.usd) {
-            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' wrong code = doesnt trade with usd ' + JSON.stringify(rate))
+        if (!rate.usd && !rate.uah) {
+            throw new Error('KunaRates ' + params.currencyCode + ' ' + provider + ' wrong code = doesnt trade with usd/uah ' + JSON.stringify(rate))
+        }
+
+        if (typeof this._cachedData.usd !== 'undefined' && this._cachedData.usd && rate.uah) {
+            return {amount: Math.round(rate.uah / this._cachedData.usd.uah * 100) / 100, provider}
         }
         return { amount: rate.usd, provider }
     }

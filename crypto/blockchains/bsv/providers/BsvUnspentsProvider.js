@@ -37,15 +37,15 @@ export default class BsvUnspentsProvider {
     async getUnspents(address) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BsvUnspentsProvider.getUnspents started', address)
 
-        let link = `${this._apiPath}/address/${address}/unspent`
-        let res = await BlocksoftAxios.getWithoutBraking(link)
+        const link = `${this._apiPath}/address/${address}/unspent`
+        const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || typeof res.data === 'undefined') {
             throw new Error(this._settings.currencyCode + ' BsvUnspentsProvider.getUnspents nothing loaded for address')
         }
         if (!res.data || typeof res.data.data === 'undefined' || !res.data.data || typeof res.data.data.list === 'undefined' || !res.data.data.list) {
             return []
         }
-        let sortedUnspents = []
+        const sortedUnspents = []
         /**
          * https://bsv-chain.api.btc.com/v3/address/15urYnyeJe3gwbGJ74wcX89Tz7ZtsFDVew/unspent
          * @param {*} res.data.data.list[]
@@ -55,7 +55,8 @@ export default class BsvUnspentsProvider {
          * @param {string} res.data.data.list[].value 100000000
          * @param {string} res.data.data.list[].confirmations 147916
          */
-        for (let unspent of res.data.data.list) {
+        let unspent
+        for (unspent of res.data.data.list) {
             sortedUnspents.push({
                 txid: unspent.tx_hash,
                 vout: unspent.tx_output_n,

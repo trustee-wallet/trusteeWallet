@@ -8,6 +8,7 @@ import BlocksoftTg from './BlocksoftTg'
 import config from '../../app/config/config'
 import changeableProd from '../../app/config/changeable.prod'
 import changeableTester from '../../app/config/changeable.tester'
+import FileSystem from '../../app/services/FileSystem'
 
 const DEBUG = config.debug.cryptoLogs // set true to see usual logs in console
 
@@ -21,6 +22,10 @@ class BlocksoftCryptoLog {
 
     constructor() {
         this.TG = new BlocksoftTg(changeableProd.tg.info.cryptoBot)
+        this.FS = new FileSystem()
+        this.FS.setFileEncoding('utf8').setFileName('CryptoLog').setFileExtension('txt')
+        // noinspection JSIgnoredPromiseFromCall
+        this.FS.checkOverflow()
     }
 
     _reinitTgMessage(testerMode, obj) {
@@ -52,9 +57,9 @@ class BlocksoftCryptoLog {
         }
         if (txtOrObj2 && typeof txtOrObj2 !== 'undefined') {
             if (typeof txtOrObj2 === 'string') {
-                line += ' ' + txtOrObj2
+                line += '\n\t\t\t' + txtOrObj2
             } else if (typeof txtOrObj2.sourceURL === 'undefined') {
-                line += ' ' + JSON.stringify(txtOrObj2, null, '\t')
+                line += '\n\t\t\t' + JSON.stringify(txtOrObj2, null, '\t\t\t')
             }
         }
 
@@ -64,15 +69,19 @@ class BlocksoftCryptoLog {
 
         // noinspection JSUnresolvedFunction
         firebase.crashlytics().log(line)
+        // noinspection JSIgnoredPromiseFromCall
+        this.FS.writeLine(line)
 
         if (txtOrObj3 && typeof txtOrObj3 !== 'undefined') {
             if (typeof txtOrObj3 === 'string') {
-                line2 += '\n\t\t\t\t\t\t' + txtOrObj3
+                line2 += '\t\t\t' + txtOrObj3
             } else {
-                line2 += '\n\t\t\t\t\t\t' + JSON.stringify(txtOrObj3, null, '\t')
+                line2 += '\t\t\t' + JSON.stringify(txtOrObj3, null, '\t\t\t')
             }
             // noinspection JSUnresolvedFunction
-            firebase.crashlytics().log(line2)
+            firebase.crashlytics().log('\n', line2)
+            // noinspection JSIgnoredPromiseFromCall
+            this.FS.writeLine(line2)
         }
 
         LOGS_TXT = line + line2 + '\n' + LOGS_TXT
@@ -89,8 +98,8 @@ class BlocksoftCryptoLog {
     }
 
     async err(errorObjectOrText, errorObject2, errorTitle = 'ERROR', USE_FULL = false) {
-        let now = new Date()
-        let date = now.toISOString().replace(/T/, ' ').replace(/\..+/, '')
+        const now = new Date()
+        const date = now.toISOString().replace(/T/, ' ').replace(/\..+/, '')
         let line = ''
         if (errorObjectOrText && typeof errorObjectOrText !== 'undefined') {
             if (typeof errorObjectOrText === 'string') {
@@ -121,66 +130,72 @@ class BlocksoftCryptoLog {
         LOGS_TXT = '\n\n\n\n==========' + errorTitle + '==========\n\n\n\n' + LOGS_TXT
         // noinspection JSUnresolvedFunction
         firebase.crashlytics().log('==========' + errorTitle + '==========')
+        // noinspection ES6MissingAwait
+        this.FS.writeLine('==========' + errorTitle + '==========')
 
 
         if (errorObject2 && typeof errorObject2.code !== 'undefined' && errorObject2.code === 'ERROR_USER') {
             return true
         }
 
-        let msg = `CRPT_jan_${this.LOG_VERSION}` + '\n' + date + line + '\n'
-        if (typeof this.LOG_TESTER != 'undefined' && this.LOG_TESTER) {
+        let msg = `CRPT_march_${this.LOG_VERSION}` + '\n' + date + line + '\n'
+        if (typeof this.LOG_TESTER !== 'undefined' && this.LOG_TESTER) {
             msg += '\nTESTER ' + this.LOG_TESTER
         }
-        if (typeof this.LOG_DEV != 'undefined' && this.LOG_DEV) {
+        if (typeof this.LOG_DEV !== 'undefined' && this.LOG_DEV) {
             msg += '\nDEV ' + this.LOG_DEV
         }
-        if (typeof this.LOG_WALLET != 'undefined' && this.LOG_WALLET) {
+        if (typeof this.LOG_WALLET !== 'undefined' && this.LOG_WALLET) {
             msg += '\nWALLET ' + this.LOG_WALLET
         }
-        if (typeof this.LOG_CASHBACK != 'undefined' && this.LOG_CASHBACK) {
+        if (typeof this.LOG_CASHBACK !== 'undefined' && this.LOG_CASHBACK) {
             msg += '\nCASHBACK ' + this.LOG_CASHBACK
         }
-        if (typeof this.LOG_TOKEN != 'undefined' && this.LOG_TOKEN) {
+        if (typeof this.LOG_TOKEN !== 'undefined' && this.LOG_TOKEN) {
             msg += '\nTOKEN ' + this.LOG_TOKEN.substr(0, 20)
         }
-        if (typeof this.LOG_PLATFORM != 'undefined' && this.LOG_PLATFORM) {
+        if (typeof this.LOG_PLATFORM !== 'undefined' && this.LOG_PLATFORM) {
             msg += '\nPLATFORM ' + this.LOG_PLATFORM
         }
 
         try {
-            if (typeof this.LOG_VERSION != 'undefined' && this.LOG_VERSION) {
-                // noinspection JSUnresolvedFunction
-                firebase.crashlytics().setStringValue('LOG_VERSION', this.LOG_VERSION)
-            }
-            if (typeof this.LOG_TESTER != 'undefined' && this.LOG_TESTER) {
-                // noinspection JSUnresolvedFunction
-                firebase.crashlytics().setStringValue('LOG_TESTER', this.LOG_TESTER)
-            }
-            if (typeof this.LOG_DEV != 'undefined' && this.LOG_TESTER) {
-                // noinspection JSUnresolvedFunction
-                firebase.crashlytics().setStringValue('LOG_DEV', this.LOG_TESTER)
-            }
-            if (typeof this.LOG_WALLET != 'undefined' && this.LOG_WALLET) {
-                // noinspection JSUnresolvedFunction
-                firebase.crashlytics().setStringValue('LOG_WALLET', this.LOG_WALLET)
-            }
-            if (typeof this.LOG_CASHBACK != 'undefined' && this.LOG_CASHBACK) {
-                // noinspection JSUnresolvedFunction
-                firebase.crashlytics().setStringValue('LOG_CASHBACK', this.LOG_CASHBACK)
-            }
-            if (typeof this.LOG_TOKEN != 'undefined' && this.LOG_TOKEN) {
-                // noinspection JSUnresolvedFunction
-                firebase.crashlytics().setStringValue('LOG_TOKEN', this.LOG_TOKEN)
-            }
-            if (typeof this.LOG_PLATFORM != 'undefined' && this.LOG_PLATFORM) {
-                // noinspection JSUnresolvedFunction
-                firebase.crashlytics().setStringValue('LOG_PLATFORM', this.LOG_PLATFORM)
+            if (typeof firebase.crashlytics().setStringValue !== 'undefined') {
+                if (typeof this.LOG_VERSION !== 'undefined' && this.LOG_VERSION) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_VERSION', this.LOG_VERSION)
+                }
+                if (typeof this.LOG_TESTER !== 'undefined' && this.LOG_TESTER) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_TESTER', this.LOG_TESTER)
+                }
+                if (typeof this.LOG_DEV !== 'undefined' && this.LOG_TESTER) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_DEV', this.LOG_TESTER)
+                }
+                if (typeof this.LOG_WALLET !== 'undefined' && this.LOG_WALLET) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_WALLET', this.LOG_WALLET)
+                }
+                if (typeof this.LOG_CASHBACK !== 'undefined' && this.LOG_CASHBACK) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_CASHBACK', this.LOG_CASHBACK)
+                }
+                if (typeof this.LOG_TOKEN !== 'undefined' && this.LOG_TOKEN) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_TOKEN', this.LOG_TOKEN)
+                }
+                if (typeof this.LOG_PLATFORM !== 'undefined' && this.LOG_PLATFORM) {
+                    // noinspection JSUnresolvedFunction
+                    firebase.crashlytics().setStringValue('LOG_PLATFORM', this.LOG_PLATFORM)
+                }
             }
             // noinspection JSUnresolvedFunction
             if (typeof firebase.crashlytics().recordCustomError !== 'undefined') {
                 firebase.crashlytics().recordCustomError('CRPT', line, [])
             } else {
                 firebase.crashlytics().log('CRPT ' + line)
+                // noinspection ES6MissingAwait
+                this.FS.writeLine('CRPT ' + line)
                 firebase.crashlytics().crash()
             }
         } catch (firebaseError) {

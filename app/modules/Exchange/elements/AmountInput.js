@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, TouchableOpacity, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native'
+import { View, Keyboard, TouchableWithoutFeedback } from 'react-native'
 
 import Input from '../../../components/elements/Input'
 
@@ -14,6 +14,7 @@ import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNum
 import Log from '../../../services/Log/Log'
 import { strings } from '../../../services/i18n'
 import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
+import NavStore from '../../../components/navigation/NavStore'
 
 
 class AmountInput extends Component {
@@ -31,7 +32,8 @@ class AmountInput extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    // eslint-disable-next-line camelcase
+    UNSAFE_componentWillReceiveProps(nextProps) {
 
         const { selectedInCryptocurrency, selectedPaymentSystem, selectedOutCryptocurrency, selectedFiatTemplate } = nextProps
 
@@ -62,7 +64,7 @@ class AmountInput extends Component {
 
     handleSetMoneyType = () => {
 
-        let { calculateWay, amountEquivalent } = this.state
+        const { calculateWay, amountEquivalent } = this.state
 
         this.setState({
             calculateWay: calculateWay === 'IN' ? 'OUT' : 'IN'
@@ -82,6 +84,7 @@ class AmountInput extends Component {
     handleSellAll = async () => {
         setLoaderStatus(true)
 
+        let errorCurrencyCode = ''
         try {
 
             const {
@@ -102,6 +105,8 @@ class AmountInput extends Component {
                 derivation_path: derivationPath
             } = this.props.selectedInAccount
 
+            errorCurrencyCode = currencyCode
+
             const { addressForEstimateSellAll } = this.props.handleGetExchangeWay(selectedInCryptocurrency, selectedOutCryptocurrency)
             const tmpAddressForEstimate = addressForEstimateSellAll != null ? addressForEstimateSellAll : address
 
@@ -113,7 +118,7 @@ class AmountInput extends Component {
 
             const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address)).getBalance()
             const balanceRaw = tmp ? BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) : 0 // to think show this as option or no
-            console.log(currencyCode, walletHash, derivationPathTmp, address, tmpAddressForEstimate, balanceRaw)
+            console.log('AmountInput', currencyCode, walletHash, derivationPathTmp, address, tmpAddressForEstimate, balanceRaw)
 
             const fees = await (
                 BlocksoftTransfer
@@ -130,6 +135,7 @@ class AmountInput extends Component {
                 BlocksoftTransfer
                     .setCurrencyCode(currencyCode)
                     .setAddressFrom(address)
+                    .setAddressTo(tmpAddressForEstimate)
                     .setFee(fees[fees.length - 1])
             ).getTransferAllBalance(balanceRaw)
 
@@ -146,12 +152,7 @@ class AmountInput extends Component {
             })
 
         } catch (e) {
-            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
-                Log.err('Exchange.MainDataScreen.handleExchangeAll error ' + e.message)
-            } else {
-                e.message = strings('send.errors.' + e.message)
-            }
-
+            Log.errorTranslate(e, 'Exchange.MainDataScreen.handleExchangeAll', errorCurrencyCode)
 
             showModal({
                 type: 'INFO_MODAL',
@@ -166,31 +167,34 @@ class AmountInput extends Component {
     }
 
     prepareAndCallEquivalentFunction = (selectedExchangeWay, side, amount) => {
-        let equivalentFunctionPrepare = JSON.parse(JSON.stringify(selectedExchangeWay.equivalentFunction))
+        try {
+            let equivalentFunctionPrepare = JSON.parse(JSON.stringify(selectedExchangeWay.equivalentFunction))
 
-        for(let item of equivalentFunctionPrepare){
-            if(item !== '{')
-                equivalentFunctionPrepare = equivalentFunctionPrepare.substr(1)
-            else
-                break
+            for(let item of equivalentFunctionPrepare){
+                if(item !== '{')
+                    equivalentFunctionPrepare = equivalentFunctionPrepare.substr(1)
+                else
+                    break
+            }
+
+            equivalentFunctionPrepare = equivalentFunctionPrepare.substr(1)
+            equivalentFunctionPrepare = equivalentFunctionPrepare.substring(0, equivalentFunctionPrepare.length - 1)
+
+            const equivalentFunction = new Function('amount', 'side', 'exchangeWayObj', equivalentFunctionPrepare)
+
+            return equivalentFunction(amount, side, selectedExchangeWay)
+        } catch (e) {
+            Log.err('Exchange/AmountInput.prepareAndCallEquivalentFunction error', e)
         }
-
-        equivalentFunctionPrepare = equivalentFunctionPrepare.substr(1)
-        equivalentFunctionPrepare = equivalentFunctionPrepare.substring(0, equivalentFunctionPrepare.length - 1)
-
-        const equivalentFunction = new Function('amount', 'side', 'exchangeWayObj', equivalentFunctionPrepare)
-
-        return equivalentFunction(amount, side, selectedExchangeWay)
     }
 
     calculateEquivalent = (selectedInCryptocurrency, selectedOutCryptocurrency, amount) => {
+
         const { calculateWay } = this.state
 
         const exchangeWay = this.props.handleGetExchangeWay(selectedInCryptocurrency, selectedOutCryptocurrency)
 
-
-
-        let amountEquivalent = this.prepareAndCallEquivalentFunction(exchangeWay, calculateWay, amount)
+        const amountEquivalent = this.prepareAndCallEquivalentFunction(exchangeWay, calculateWay, amount)
 
         console.log(amountEquivalent)
 
@@ -223,32 +227,29 @@ class AmountInput extends Component {
     }
 
     renderInputBottomText = () => {
-        // const { amountEquivalent } = this.state
-        const { selectedInCryptocurrency, selectedOutCryptocurrency } = this.props
-        // const { tradeType } = this.props.exchangeStore
-        const { calculateWay } = this.state
-        //
-        // // let bottomLeftText = strings(`${'exchange.mainData.equivalentCryptoBuy' : 'exchange.mainData.equivalentCryptoSell'}`) : strings('exchange.mainData.equivalentFiat')
-        // let bottomLeftText = strings(`${'exchange.mainData.equivalentCryptoBuy'}`)
-        // const selectedEquivalent = 1 * (+amountEquivalent).toFixed(2)
-        // const symbol = selectedInCryptocurrency.currencySymbol
+        try {
 
-        // return `${bottomLeftText} ${selectedEquivalent} ${symbol}`
+            const { selectedInCryptocurrency, selectedOutCryptocurrency } = this.props
 
-        const { amountEquivalent } = this.state
+            const { calculateWay } = this.state
 
-        const amount = calculateWay === 'IN' ? amountEquivalent.outAmount : amountEquivalent.inAmount
-        const symbol = calculateWay === 'IN' ? selectedOutCryptocurrency.currencySymbol : selectedInCryptocurrency.currencySymbol
-        const string = calculateWay === 'IN' ? strings('tradeScreen.youGet') : strings('tradeScreen.youGive')
+            const { amountEquivalent } = this.state
 
-        return string + ' ' + amount + ' ' + symbol
+            const amount = calculateWay === 'IN' ? amountEquivalent.outAmount : amountEquivalent.inAmount
+            const symbol = calculateWay === 'IN' ? selectedOutCryptocurrency.currencySymbol : selectedInCryptocurrency.currencySymbol
+            const string = calculateWay === 'IN' ? strings('tradeScreen.youGet') : strings('tradeScreen.youGive')
+
+            return string + ' ' + amount + ' ' + symbol
+        } catch (e) {
+            Log.err('Exchange/AmountInput.renderInputBottomText error ' + e.message)
+        }
     }
 
 
     render() {
 
         const { calculateWay, useAllFunds } = this.state
-        const { onFocus, selectedInCryptocurrency, selectedOutCryptocurrency, selectedFiatTemplate, exchangeStore } = this.props
+        const { onFocus, selectedInCryptocurrency, selectedOutCryptocurrency } = this.props
         const tapText = calculateWay === 'IN' ? selectedInCryptocurrency.currencySymbol : selectedOutCryptocurrency.currencySymbol
         const bottomLeftText = this.renderInputBottomText()
 

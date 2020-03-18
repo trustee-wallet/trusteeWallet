@@ -6,26 +6,27 @@ import BlocksoftUtils from '../../../common/BlocksoftUtils'
 
 const networksConstants = require('../../../common/ext/networks-constants')
 
-let bitcoin = require('bitcoinjs-lib')
+const bitcoin = require('bitcoinjs-lib')
 
 export default class DogeTxBuilder {
 
     /**
-     * @type {number}
-     * @private
+     * @param {Object} settings
+     * @param {int} settings.decimals
+     * @param {string} settings.network
+     * @param {int} minFeeLimitReadable
      */
-    _minFeeLimit  = 10000000 // 0.1 doge
-
-    constructor(settings) {
+    constructor(settings, minFeeLimitReadable) {
         this._settings = settings
         this._bitcoinNetwork = networksConstants[settings.network].network
+        this._minFeeLimit = BlocksoftUtils.fromUnified(minFeeLimitReadable, settings.decimals)
     }
 
-    _getRawTxValidateKeyPair(privateKey, addressFrom, data) {
+    _getRawTxValidateKeyPair(privateKey, addressFrom) {
         this.keyPair = false
         try {
             this.keyPair = bitcoin.ECPair.fromWIF(privateKey, this._bitcoinNetwork)
-            let address = bitcoin.payments.p2pkh({
+            const address = bitcoin.payments.p2pkh({
                 pubkey: this.keyPair.publicKey,
                 network: this._bitcoinNetwork
             }).address
@@ -34,7 +35,7 @@ export default class DogeTxBuilder {
                 throw new Error('not valid signing address ' + addressFrom + ' != ' + address)
             }
         } catch (e) {
-            e.message += ' in privateKey signature check '
+            e.message += ' in privateKey DOGE signature check '
             throw e
         }
     }
@@ -94,22 +95,23 @@ export default class DogeTxBuilder {
             feeLimit = this._minFeeLimit
             BlocksoftCryptoLog.log('preparedInputsOutputs.feeLimit_3', feeLimit)
         }
-        let txb = new bitcoin.TransactionBuilder(this._bitcoinNetwork, feeLimit)
+        const txb = new bitcoin.TransactionBuilder(this._bitcoinNetwork, feeLimit)
         BlocksoftCryptoLog.log('preparedInputsOutputs.feeForByte', preparedInputsOutputs.feeForByte)
 
 
 
         txb.setVersion(1)
 
-        let log = { inputs: [], outputs: [] }
+        const log = { inputs: [], outputs: [] }
         for (let i = 0, ic = preparedInputsOutputs.inputs.length; i < ic; i++) {
-            let input = preparedInputsOutputs.inputs[i]
+            const input = preparedInputsOutputs.inputs[i]
             this._getRawTxAddInput(txb, i, input.txid, input.vout, data.nSequence)
             log.inputs.push({ txid: input.txid, vout: input.vout, nSequence : data.nSequence })
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx input added', input)
         }
 
-        for (let output of preparedInputsOutputs.outputs) {
+        let output
+        for (output of preparedInputsOutputs.outputs) {
             this._getRawTxAddOutput(txb, output.to, output.amount * 1)
             log.outputs.push({ addressTo: output.to, amount: output.amount})
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx output added ', output )
@@ -117,12 +119,11 @@ export default class DogeTxBuilder {
 
         for (let i = 0, ic = preparedInputsOutputs.inputs.length; i < ic; i++) {
             try {
-                let input = preparedInputsOutputs.inputs[i]
+                const input = preparedInputsOutputs.inputs[i]
                 this._getRawTxSign(txb, i, input.value * 1)
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx sign added')
             } catch (e) {
-                alert(e.message)
-                e.message = ' transaction sign error: ' + e.message
+                e.message = ' transaction DOGE sign error: ' + e.message
                 throw e
             }
         }
@@ -132,7 +133,7 @@ export default class DogeTxBuilder {
             hex = txb.build().toHex()
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx size ' + hex.length, log)
         } catch (e) {
-            e.message = ' transaction build error: ' + e.message
+            e.message = ' transaction DOGE build error: ' + e.message
             throw e
         }
 

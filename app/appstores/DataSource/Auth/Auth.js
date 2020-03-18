@@ -80,11 +80,9 @@ const authDS = {
 
             const settingsDS = new SettingsDS()
 
-            const { array: settings } = await settingsDS.getSettings()
+            const tmpAuthHash = await settingsDS.getSetting( 'auth_mnemonic_hash')
 
-            const tmpAuthHash = settings.find(item => item.paramKey === 'auth_mnemonic_hash')
-
-            if(typeof tmpAuthHash == 'undefined' || tmpAuthHash.paramValue === '')
+            if(typeof tmpAuthHash === 'undefined' || tmpAuthHash.paramValue === '')
                 storedAuthHash = false
             else
                 storedAuthHash = tmpAuthHash.paramValue

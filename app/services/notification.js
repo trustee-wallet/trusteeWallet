@@ -1,11 +1,10 @@
 import React, {Component} from 'react'
-import { Platform, View } from 'react-native'
+import { Platform, View, Clipboard } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 import firebase from 'react-native-firebase'
 import { hideModal, showModal } from '../appstores/Actions/ModalActions'
 import i18n, { strings } from './i18n'
-import { set } from 'react-native-reanimated'
-import { deleteCard, setLoaderStatus } from '../appstores/Actions/MainStoreActions'
+
 
 export default class App extends Component {
 
@@ -21,17 +20,21 @@ export default class App extends Component {
 ////////////////////// Add these methods //////////////////////
 
     //Remove listeners allocated in createNotificationListeners()
-    componentWillUnmount() {
-        this.notificationListener()
-        this.notificationOpenedListener()
-    }
+    // UNSAFE_componentWillMount() {
+    //     // this.notificationListener()
+    //     // this.notificationOpenedListener()
+    // }
 
     async checkPermission() {
-        const enabled = await firebase.messaging().hasPermission()
-        if (enabled) {
-            this.getToken()
-        } else {
-            this.requestPermission()
+        try {
+            const enabled = await firebase.messaging().hasPermission()
+            if (enabled) {
+                this.getToken()
+            } else {
+                this.requestPermission()
+            }
+        } catch (e) {
+            console.log(e)
         }
     }
 
@@ -41,6 +44,7 @@ export default class App extends Component {
             fcmToken = await firebase.messaging().getToken()
             if (fcmToken) {
                 // user has a device token
+
                 await AsyncStorage.setItem('fcmToken', fcmToken)
             }
         }
@@ -67,6 +71,7 @@ export default class App extends Component {
 
             this.notificationListener = firebase.notifications().onNotification((notification) => {
 
+                console.log(notification)
 
                     const channel = new firebase.notifications.Android.Channel(
                         'trusteeWalletChannel',
@@ -119,8 +124,6 @@ export default class App extends Component {
                 //this.showAlert(title, body)
             })
 
-
-
             /*
             * If your app is in background, you can listen for when a notification is clicked / tapped / opened as follows:
             * */
@@ -168,6 +171,8 @@ export default class App extends Component {
             * Triggered for data only payload in foreground
             * */
             this.messageListener = firebase.messaging().onMessage((message) => {
+
+                console.log(message)
                 //process data message
 
                 // console.log(JSON.stringify(message))

@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { View, Text, TouchableOpacity } from 'react-native'
 import firebase from 'react-native-firebase'
 
+
 //import { setSelectedCrypto } from "../../../AppStores/Actions/MainStoreActions";
 
 class CryptoListScreen extends Component {

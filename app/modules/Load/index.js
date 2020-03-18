@@ -2,13 +2,14 @@ import React, { Component } from "react"
 
 import {
     Animated,
-    Dimensions, Image, Platform,
+    Image,
+    Platform,
     Text,
     View
 } from 'react-native'
-import GradientView from "../../components/elements/GradientView";
 
 import firebase from "react-native-firebase"
+
 import config from "../../config/config"
 
 import { MaterialIndicator, UIActivityIndicator } from 'react-native-indicators'
@@ -18,8 +19,6 @@ import { connect } from 'react-redux'
 
 import App from "../../appstores/Actions/App/App"
 
-
-const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 class LoadScreen extends Component {
 
@@ -41,16 +40,16 @@ class LoadScreen extends Component {
         } catch (e) {}
     }
 
-    componentWillUnmount() {
+    UNSAFE_componentWillMount() {
         try {
             clearTimeout(this.statusTimeout)
         } catch (e) {}
     }
 
-    componentWillReceiveProps(props) {
+    UNSAFE_componentWillReceiveProps(props) {
         Log.log('LoadScreen is receiving props')
 
-        if (props.data.init === true) { //this one is making "freezing"//&& this.props.data.init !== props.data.init) {
+        if (props.data.init === true) {
             if (+props.settings.data.lock_screen_status) {
                 Log.log('InitScreen navigated to LockScreen')
                 NavStore.reset('LockScreen')

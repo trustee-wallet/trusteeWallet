@@ -1,47 +1,18 @@
 package com.trusteewallet;
 
 import android.app.Application;
-import java.security.Security;
-import androidx.multidex.MultiDexApplication;
-import com.zyu.ReactNativeWheelPickerPackage;
+import android.content.Context;
 
-import com.reactnativecommunity.rnpermissions.RNPermissionsPackage;
+import androidx.multidex.MultiDexApplication;
+
+import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
-import com.swmansion.rnscreens.RNScreensPackage;
-import com.imagepicker.ImagePickerPackage;
-import com.wheelpicker.WheelPickerPackage;
-import com.flurry.android.reactnative.FlurryPackage;
-import com.swmansion.reanimated.ReanimatedPackage;
-import com.bluroverly.SajjadBlurOverlayPackage;
-import com.github.wumke.RNExitApp.RNExitAppPackage;
-import com.cmcewen.blurview.BlurViewPackage;
-import com.bitgo.randombytes.RandomBytesPackage;
-import com.reactnativecommunity.netinfo.NetInfoPackage;
-import cl.json.RNSharePackage;
-import com.ocetnik.timer.BackgroundTimerPackage;
-import com.reactcommunity.rnlocalize.RNLocalizePackage;
-import com.rnfingerprint.FingerprintAuthPackage;
-import com.oblador.keychain.KeychainPackage;
-import com.airbnb.android.react.lottie.LottiePackage;
-import com.reactnativecommunity.webview.RNCWebViewPackage;
-import com.horcrux.svg.SvgPackage;
-import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
-import com.cardio.RNCardIOPackage;
-import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
-import com.oblador.vectoricons.VectorIconsPackage;
-import com.github.yamill.orientation.OrientationPackage;
-import org.reactnative.camera.RNCameraPackage;
-import com.tradle.react.UdpSocketsModule;
-import com.peel.react.TcpSocketsModule;
-import com.peel.react.rnos.RNOSModule;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
-import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
-import org.pgsqlite.SQLitePluginPackage;
-import com.BV.LinearGradient.LinearGradientPackage;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
-import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
 import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
 import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
@@ -50,76 +21,35 @@ import io.invertase.firebase.database.RNFirebaseDatabasePackage;
 import io.invertase.firebase.fabric.crashlytics.RNFirebaseCrashlyticsPackage;
 import io.invertase.firebase.links.RNFirebaseLinksPackage;
 
-import com.learnium.RNDeviceInfo.RNDeviceInfo;
-import com.reactlibrary.RNBlocksoftRandomPackage;
-
-import java.util.Arrays;
-import java.util.List;
-
 public class MainApplication extends MultiDexApplication implements ReactApplication {
 
-  private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
-    @Override
-    public boolean getUseDeveloperSupport() {
-      return BuildConfig.DEBUG;
-    }
+  private final ReactNativeHost mReactNativeHost =
+      new ReactNativeHost(this) {
+        @Override
+        public boolean getUseDeveloperSupport() {
+          return BuildConfig.DEBUG;
+        }
 
-    @Override
-    protected List<ReactPackage> getPackages() {
-      return Arrays.<ReactPackage>asList(
-          new MainReactPackage(),
-            new RNScreensPackage(),
-            new RNPermissionsPackage(),
-            new ImagePickerPackage(),
-            new WheelPickerPackage(),
-            new FlurryPackage(),
-            new ReanimatedPackage(),
-            new SajjadBlurOverlayPackage(),
-            new RNExitAppPackage(),
-            new BlurViewPackage(),
-            new RandomBytesPackage(),
-            new NetInfoPackage(),
-            new RNSharePackage(),
-            new BackgroundTimerPackage(),
-            new RNLocalizePackage(),
-            new FingerprintAuthPackage(),
-            new KeychainPackage(),
-            new RNDeviceInfo(),
-            new LottiePackage(),
-            new RNCWebViewPackage(),
-            new SvgPackage(),
+        @Override
+        protected List<ReactPackage> getPackages() {
+          @SuppressWarnings("UnnecessaryLocalVariable")
+          List<ReactPackage> packages = new PackageList(this).getPackages();
+          // Packages that cannot be autolinked yet can be added manually here, for example:
+          packages.add(new RNFirebaseMessagingPackage());
+          packages.add(new RNFirebaseNotificationsPackage());
+          packages.add(new RNFirebaseAnalyticsPackage());
+          packages.add(new RNFirebaseStoragePackage());
+          packages.add(new RNFirebaseDatabasePackage());
+          packages.add(new RNFirebaseCrashlyticsPackage());
+          packages.add(new RNFirebaseLinksPackage());
+          return packages;
+        }
 
-            new AsyncStoragePackage(),
-            new RNCardIOPackage(),
-            new RNGestureHandlerPackage(),
-
-            new RNFirebasePackage(),
-            new RNFirebaseMessagingPackage(),
-            new RNFirebaseNotificationsPackage(),
-            new RNFirebaseAnalyticsPackage(),
-            new RNFirebaseStoragePackage(),
-            new RNFirebaseDatabasePackage(),
-            new RNFirebaseCrashlyticsPackage(),
-            new RNFirebaseLinksPackage(),
-
-            new ReactNativeWheelPickerPackage(),
-            new VectorIconsPackage(),
-            new OrientationPackage(),
-            new RNCameraPackage(),
-            new SQLitePluginPackage(),
-            new LinearGradientPackage(),
-            new UdpSocketsModule(),
-            new TcpSocketsModule(),
-            new RNOSModule(),
-            new RNBlocksoftRandomPackage()
-      );
-    }
-
-    @Override
-    protected String getJSMainModuleName() {
-      return "index";
-    }
-  };
+        @Override
+        protected String getJSMainModuleName() {
+          return "index";
+        }
+      };
 
   @Override
   public ReactNativeHost getReactNativeHost() {
@@ -130,7 +60,32 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
-    Security.insertProviderAt(new org.conscrypt.OpenSSLProvider(), 1);
+    initializeFlipper(this); // Remove this line if you don't want Flipper enabled
+  }
 
+  /**
+   * Loads Flipper in React Native templates.
+   *
+   * @param context
+   */
+  private static void initializeFlipper(Context context) {
+    if (BuildConfig.DEBUG) {
+      try {
+        /*
+         We use reflection here to pick up the class that initializes Flipper,
+        since Flipper library is not available in release mode
+        */
+        Class<?> aClass = Class.forName("com.facebook.flipper.ReactNativeFlipper");
+        aClass.getMethod("initializeFlipper", Context.class).invoke(null, context);
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+      } catch (NoSuchMethodException e) {
+        e.printStackTrace();
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      } catch (InvocationTargetException e) {
+        e.printStackTrace();
+      }
+    }
   }
 }

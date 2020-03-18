@@ -18,6 +18,7 @@ import SelectModal from './elements/SelectModal'
 import CustomReceiveAmountModal from './elements/CustomReceiveAmountModal'
 import ExchangeProviderInfoModal from './elements/ExchangeProviderInfoModal'
 import OpenSettingsModal from './elements/OpenSettingsModal'
+import YesNoModal from './elements/YesNoModal'
 
 import PaymentSystemInfo from './elements/PaymentSystemInfo'
 import { setLoaderStatus } from '../../appstores/Actions/MainStoreActions'
@@ -36,7 +37,7 @@ class SettingsMain extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps, nextContext) {
+    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
         if(this.props.modal.show != nextProps.modal.show){
             if(nextProps.modal.show){
 
@@ -66,6 +67,8 @@ class SettingsMain extends Component {
         } = this.props.modal
 
         switch(data.type){
+            case 'YES_NO_MODAL':
+                return <YesNoModal show={show} data={data} callback={callback} />
             case 'CUSTOM_RECEIVE_AMOUNT_MODAL':
                 return <CustomReceiveAmountModal show={show} data={data} callback={callback} />
             case 'MNEMONIC_FAIL_MODAL':

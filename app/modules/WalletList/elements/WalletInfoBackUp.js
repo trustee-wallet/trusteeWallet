@@ -20,9 +20,7 @@ import { strings } from '../../../services/i18n'
 import Log from '../../../services/Log/Log'
 import FiatRatesActions from '../../../appstores/Actions/FiatRatesActions'
 import MarketingEvent from '../../../services/Marketing/MarketingEvent'
-import { check, PERMISSIONS, request } from 'react-native-permissions'
-import { showModal } from '../../../appstores/Actions/ModalActions'
-import { checkQRPermission } from '../../../services/utils'
+import { checkQRPermission } from '../../../services/Qr/QrPermissions'
 
 const { width: WINDOW_WIDTH } = Dimensions.get("window")
 
@@ -38,7 +36,7 @@ class WalletInfo extends Component {
         }
     }
 
-    async componentWillMount() {
+    async UNSAFE_componentWillMount() {
         const { currencies } = this.props.main
         const tmpCurrencies = currencies.filter(item => item.is_hidden == 0 )
 
@@ -62,7 +60,7 @@ class WalletInfo extends Component {
         })
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
 
         const { currencies } = nextProps.main
 

@@ -55,12 +55,12 @@ export default class DogeScannerProcessor {
      * @private
      */
     async _get(address) {
-        let now = new Date().getTime()
+        const now = new Date().getTime()
         if (typeof CACHE[address] !== 'undefined' && (now - CACHE[address].time < CACHE_VALID_TIME)) {
             return CACHE[address].data
         }
-        let link = this._trezorPath + address + '?details=txs'
-        let res = await BlocksoftAxios.getWithoutBraking(link)
+        const link = this._trezorPath + address + '?details=txs'
+        const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || !res.data) {
             return false
         }
@@ -80,7 +80,7 @@ export default class DogeScannerProcessor {
      */
     async getBalance(address) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeScannerProcessor.getBalance started', address)
-        let res = await this._get(address)
+        const res = await this._get(address)
         if (!res) {
             return false
         }
@@ -94,11 +94,12 @@ export default class DogeScannerProcessor {
     async getTransactions(address) {
         address = address.trim()
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeScannerProcessor.getTransactions started', address)
-        let res = await this._get(address)
+        const res = await this._get(address)
         if (!res || typeof res.transactions === 'undefined' || !res.transactions) return []
-        let transactions = []
-        for (let tx of res.transactions) {
-            let transaction = await this._unifyTransaction(address, tx)
+        const transactions = []
+        let tx
+        for (tx of res.transactions) {
+            const transaction = await this._unifyTransaction(address, tx)
             if (transaction) {
                 transactions.push(transaction)
             }
@@ -144,7 +145,12 @@ export default class DogeScannerProcessor {
             throw e
         }
 
-        let transaction_status = transaction.confirmations > this._blocksToConfirm ? 'success' : 'new'
+        let transactionStatus = 'new'
+        if (transaction.confirmations > this._blocksToConfirm) {
+            transactionStatus = 'success'
+        } else if (transaction.confirmations > 0) {
+            transactionStatus = 'confirming'
+        }
 
         let formattedTime
         try {
@@ -164,7 +170,7 @@ export default class DogeScannerProcessor {
             address_from: showAddresses.from,
             address_to: showAddresses.to,
             address_amount: showAddresses.value,
-            transaction_status: transaction_status,
+            transaction_status: transactionStatus,
             transaction_fee: transaction.fees
         }
     }

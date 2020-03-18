@@ -1,30 +1,19 @@
-/**
- * @version 0.2
- */
 import React, { Component } from 'react'
-import { Text, TouchableOpacity, SafeAreaView } from 'react-native'
-
-import AsyncStorage from '@react-native-community/async-storage'
-
-import { connect } from 'react-redux'
-
 import {
+    Text,
+    TouchableOpacity,
+    SafeAreaView,
     View,
-    StyleSheet,
     Animated,
     ScrollView,
-    RefreshControl,
-    Dimensions,
-    Image,
-    Platform
-} from 'react-native'
+    RefreshControl} from 'react-native'
+import { connect } from 'react-redux'
 
+import AsyncStorage from '@react-native-community/async-storage'
 import firebase from 'react-native-firebase'
-import DeviceInfo from 'react-native-device-info'
-
+import Snow from 'react-native-snow'
 import Feather from 'react-native-vector-icons/Feather'
 
-import ToolTips from '../../components/elements/ToolTips'
 import GradientView from '../../components/elements/GradientView'
 import NavStore from '../../components/navigation/NavStore'
 
@@ -42,11 +31,9 @@ import SendActions from '../../appstores/Actions/SendActions'
 import Theme from '../../themes/Themes'
 import { setLoaderStatus } from '../../appstores/Actions/MainStoreActions'
 import FiatRatesActions from '../../appstores/Actions/FiatRatesActions'
-import Snow from 'react-native-snow'
+import VersionControl from '../../services/VersionControl'
 
 let styles
-
-const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get("window")
 
 
 class HomeScreen extends Component {
@@ -62,7 +49,9 @@ class HomeScreen extends Component {
         }
     }
 
-    componentWillMount() {
+    // eslint-disable-next-line camelcase
+    UNSAFE_componentWillMount() {
+
         SendActions.handleInitialURL()
         styles = Theme.getStyles().homeScreenStyles
         // this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
@@ -76,9 +65,7 @@ class HomeScreen extends Component {
 
         setLoaderStatus(false)
 
-        const { selectedWallet } = this.props.main
-
-        const isSnow = selectedWallet.wallet_is_backed_up != null || new Date().getFullYear() > 2019
+        const isSnow = true
 
         if(!isSnow){
             await AsyncStorage.setItem("isSnowEnable", JSON.stringify(null))
@@ -87,9 +74,9 @@ class HomeScreen extends Component {
             let isSnowEnable = await AsyncStorage.getItem("isSnowEnable")
             isSnowEnable = JSON.parse(isSnowEnable)
 
-            isSnowEnable == null ? await AsyncStorage.setItem("isSnowEnable", JSON.stringify(true)) : null
+            isSnowEnable == null ? await AsyncStorage.setItem("isSnowEnable", JSON.stringify(false)) : null
 
-            this.setState({ isSnowEnable: isSnowEnable == null ? true : isSnowEnable, isSnow: true })
+            this.setState({ isSnowEnable: isSnowEnable == null ? false : isSnowEnable, isSnow: true })
         }
     }
 
@@ -140,7 +127,7 @@ class HomeScreen extends Component {
 
     renderHeaderTransparent = () => {
 
-        const { opacity } = this.state
+        // const { opacity } = this.state
 
         // return (
         //     <Animated.View style={{...styles.notch, opacity }}>
@@ -210,10 +197,6 @@ class HomeScreen extends Component {
         this.refHomeScreenSV.scrollToEnd({ animated: true })
     }
 
-    scrollToTop = () => {
-        this.refHomeScreenSV.scrollTo({x: 0, y: 0, animated: true})
-    }
-
     toggleSnow = async () => {
         await AsyncStorage.setItem("isSnowEnable", JSON.stringify(!this.state.isSnow))
 
@@ -222,13 +205,14 @@ class HomeScreen extends Component {
         })
     }
 
+
+
     render() {
         firebase.analytics().setCurrentScreen('WalletList.HomeScreen')
 
         Log.log('WalletList.HomeScreen is rendered')
 
         const currencies = this.props.currencies
-        const { selectedWallet } = this.props.main
 
         return (
             <View style={{ flex: 1 }}>
@@ -239,24 +223,7 @@ class HomeScreen extends Component {
                         array={styles_.bg.array}
                         start={styles_.bg.start}
                         end={styles_.bg.end}>
-                        { this.renderHeaderTransparent() }
-                        {/*{*/}
-                        {/*    Platform.OS === 'ios' ?*/}
-                        {/*        <View style={{*/}
-                        {/*            position: 'absolute',*/}
-                        {/*            top: 0,*/}
-                        {/*            left: 0,*/}
-                        {/*            width: '100%',*/}
-                        {/*            height: WINDOW_HEIGHT,*/}
-                        {/*            backgroundColor: '#000',*/}
-                        {/*            zIndex: 1 }}>*/}
-                        {/*            <Image*/}
-                        {/*                style={styles.imgBackground}*/}
-                        {/*                resizeMode='stretch'*/}
-                        {/*                source={require('../../assets/images/walletCard2.png')}/>*/}
-                        {/*        </View> : null*/}
-                        {/*}*/}
-
+                            { this.renderHeaderTransparent() }
                         <ScrollView
                             ref={ref => this.refHomeScreenSV = ref}
                             style={{ flex: 1, position: 'relative', marginBottom: -20, zIndex: 2 }}
@@ -287,28 +254,13 @@ class HomeScreen extends Component {
                                         })
                                     }
                                 </View>
-
-                                {/*<ToolTips type={'HOME_SCREEN_ADD_CRYPTO_BTN_TIP'} height={100} MainComponent={this.renderTooltip} prevToggleCallback={this.scrollToEnd} nextCallback={this.scrollToTop} />*/}
-                                {/*<Image*/}
-                                {/*    style={ styles.topBlock__btn_icon }*/}
-                                {/*    resizeMode='stretch'*/}
-                                {/*    source={require('../../assets/images/circles.png')}*/}
-                                {/*/>*/}
                             </View>
-                            {/*<View style={{*/}
-                            {/*    position: 'absolute',*/}
-                            {/*    bottom: -WINDOW_HEIGHT,*/}
-                            {/*    left: 0,*/}
-                            {/*    width: '100%',*/}
-                            {/*    height: WINDOW_HEIGHT,*/}
-                            {/*    backgroundColor: '#f5f5f5',*/}
-                            {/*    zIndex: 1 }} />*/}
                         </ScrollView>
                         <BottomNavigation />
                     </GradientView>
-                    {
-                        this.state.isSnowEnable ? <Snow snowfall={'medium'} /> : null
-                    }
+                     {
+                        // this.state.isSnowEnable ? <Snow snowfall={'medium'} /> : null
+                     }
                 </SafeAreaView>
             </View>
         )

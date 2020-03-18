@@ -20,7 +20,7 @@ class CustomFee extends Component {
         this.gasLimitInput = React.createRef()
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         if (Object.keys(nextProps.fee).length != 0 && (JSON.stringify(nextProps.fee) != JSON.stringify(this.props.fee))) {
             this.gasPriceInput.handleInput(BlocksoftUtils.toGwei(nextProps.fee.gasPrice), false)
             this.gasLimitInput.handleInput(nextProps.fee.gasLimit.toString(), false)
@@ -47,11 +47,10 @@ class CustomFee extends Component {
     }
 
     handleGasPriceCallback = async (gasPrice) => {
-
         const gasLimitInputValidate = await this.gasLimitInput.handleValidate()
 
         this.props.callTransferAll({
-            feeForTx: BlocksoftUtils.toWei(gasPrice, 'gwei') * gasLimitInputValidate.value
+            feeForTx: BlocksoftUtils.toWei(gasPrice === "" ? 0 : gasPrice, 'gwei') * gasLimitInputValidate.value
         })
     }
 
@@ -59,7 +58,7 @@ class CustomFee extends Component {
         const gasPriceInputValidate = await this.gasPriceInput.handleValidate()
 
         this.props.callTransferAll({
-            feeForTx: BlocksoftUtils.toWei(gasPriceInputValidate.value, 'gwei') * gasLimit
+            feeForTx: BlocksoftUtils.toWei(gasPriceInputValidate.value === "" ? 0 : gasPriceInputValidate.value, 'gwei') * gasLimit
         })
     }
 

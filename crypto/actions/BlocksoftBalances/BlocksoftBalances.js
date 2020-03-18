@@ -3,6 +3,7 @@
  * @version 0.5
  */
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
+import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 
 const Dispatcher = new BlocksoftDispatcher()
 
@@ -71,7 +72,8 @@ class BlocksoftBalances {
      * @return {Promise<{balance:*, provider:*, unconfirmed:*}>}
      */
     async getBalance() {
-        let currencyCode = this._data.currencyCode
+        BlocksoftCryptoLog.log('BlocksoftBalances.getBalance ' + this._data.currencyCode + ' ' + this._data.address + ' started')
+        const currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
@@ -80,11 +82,12 @@ class BlocksoftBalances {
         }
         let res
         try {
-            res = this._processor[currencyCode].getBalance(this._data.address, this._data.jsonData)
+            res = await this._processor[currencyCode].getBalance(this._data.address, this._data.jsonData)
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
             throw e
         }
+        BlocksoftCryptoLog.log('BlocksoftBalances.getBalance ' + this._data.currencyCode + ' ' + this._data.address + ' ended ' + JSON.stringify(res))
         return res
     }
 }

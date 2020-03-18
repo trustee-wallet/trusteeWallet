@@ -39,15 +39,15 @@ export default class BtcTestUnspentsProvider {
     async getUnspents(address) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTestUnspentsProvider.getUnspents started', address)
 
-        let link = `${this._apiPath}/blockchain/address/${address}/unspent?limit=100`
-        let res = await BlocksoftAxios.getWithoutBraking(link)
+        const link = `${this._apiPath}/blockchain/address/${address}/unspent?limit=100`
+        const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || typeof res.data === 'undefined') {
             throw new Error(this._settings.currencyCode + ' BtcTestUnspentsProvider.getUnspents nothing loaded for address')
         }
         if (!res.data || typeof res.data.unspent === 'undefined' || !res.data.unspent) {
             return []
         }
-        let sortedUnspents = []
+        const sortedUnspents = []
         /**
          * https://testnet-api.smartbit.com.au/v1/blockchain/address/mggtxjLhuWM8zWCxY7DXE3UWNXWdEjjs51/unspent?limit=100
          * @param {*} res.data.unspent[]
@@ -62,8 +62,11 @@ export default class BtcTestUnspentsProvider {
          * @param {string} res.data.unspent[].confirmations 6304
          * @param {string} res.data.unspent[].id 142654157
          */
-        for (let unspent of res.data.unspent) {
+        let unspent
+        for (unspent of res.data.unspent) {
             sortedUnspents.push({
+                address : address,
+                isSegwit : false,
                 txid: unspent.txid,
                 vout: unspent.n,
                 value: unspent.value_int.toString(),

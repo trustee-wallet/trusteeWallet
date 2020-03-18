@@ -1,15 +1,12 @@
-/*
-@todo Ksu
- */
-import React, { Component } from "react";
-import { connect } from 'react-redux';
-
+import React, { Component } from "react"
+import { connect } from 'react-redux'
 import {
     View,
     Dimensions,
     Text,
-    Clipboard, Platform, Linking
+    Clipboard
 } from 'react-native'
+
 import QRCodeScanner from "react-native-qrcode-scanner";
 
 import Navigation from '../../components/navigation/Navigation';
@@ -19,16 +16,15 @@ import { showModal } from "../../appstores/Actions/ModalActions";
 import { strings } from '../../services/i18n';
 import { setSendData } from "../../appstores/Actions/SendActions";
 import _ from "lodash";
-import { decodeTransactionQrCode } from '../../services/utils'
+import { decodeTransactionQrCode } from '../../services/Qr/QrScan'
 import accountDS from "../../appstores/DataSource/Account/Account";
 import firebase from "react-native-firebase"
-import { check, PERMISSIONS, request } from 'react-native-permissions'
-import ImagePicker from 'react-native-image-picker'
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
 console.disableYellowBox = true;
+
 
 class QRCodeScannerScreen extends Component {
 
@@ -49,14 +45,14 @@ class QRCodeScannerScreen extends Component {
             type
         } = this.props.qrCodeScanner.config;
 
-        const res = await decodeTransactionQrCode(param);
+        const res = await decodeTransactionQrCode(param, currencyCode);
 
         const { currencies, selectedWallet } = this.props.main;
-        let currency = _.find(currencies, { currencyCode: res.data.currencyCode });
-        let { array: accounts } = await accountDS.getAccountData(selectedWallet.wallet_hash, res.data.currencyCode);
+        const currency = _.find(currencies, { currencyCode: res.data.currencyCode });
+        const accounts = await accountDS.getAccountData({wallet_hash : selectedWallet.wallet_hash, currency_code : res.data.currencyCode});
 
         if(type === 'MAIN_SCANNER'){
-            if(res.status == 'success'){
+            if(res.status === 'success'){
                 setSendData({
                     disabled: false,
                     address: res.data.address,
@@ -129,9 +125,7 @@ class QRCodeScannerScreen extends Component {
         firebase.analytics().setCurrentScreen('QRCodeScannerScreen.index')
         return (
             <View style={{flex: 1, backgroundColor: 'transparent'}}>
-                <Navigation
-                    style={{color: '#fff'}}
-                />
+                <Navigation />
                 <QRCodeScanner
                     ref={(node) => { this.scanner = node }}
                     showMarker

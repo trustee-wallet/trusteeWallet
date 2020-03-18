@@ -22,12 +22,13 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import CardNameInput from '../../components/elements/Input'
+import CardNumberInput from '../../components/elements/Input'
+import CardDateInput from '../../components/elements/Input'
 import GradientView from '../../components/elements/GradientView'
 import Navigation from '../../components/navigation/Navigation'
 import TextView from '../../components/elements/Text'
 import Button from '../../components/elements/Button'
 import NavStore from '../../components/navigation/NavStore'
-import Picker from '../../components/elements/Picker'
 
 import { setCards, setLoaderStatus } from '../../appstores/Actions/MainStoreActions'
 import cardDS from '../../appstores/DataSource/Card/Card'
@@ -42,6 +43,7 @@ import currenciesDict from '../../assets/jsons/other/country-by-currency-code'
 import Log from '../../services/Log/Log'
 import { connect } from 'react-redux'
 import firebase from "react-native-firebase"
+
 import { showModal } from '../../appstores/Actions/ModalActions'
 
 const { height: HEIGHT } = Dimensions.get('window')
@@ -53,8 +55,8 @@ class Card extends Component {
         super()
         this.state = {
             number: '',
-            numberPlaceholderPattern: '0000000000000000',
-            numberPlaceholder: '0000-0000-0000-0000',
+            numberPlaceholderPattern: '',
+            numberPlaceholder: '',
             datePlaceholder: '0000',
             date: '',
             type: '',
@@ -70,7 +72,7 @@ class Card extends Component {
         this.cardNameInput = React.createRef()
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
 
         let countries = []
 
@@ -274,7 +276,7 @@ class Card extends Component {
             }
 
             this.setState({
-                numberPlaceholder: ((value.replace(' ', '')).concat(this.state.numberPlaceholderPattern)).substring(0, 20)
+                numberPlaceholder: value.replace(' ', '')
             })
 
             if((value.replace(/\s+/g, '')).length === 16){
@@ -299,7 +301,7 @@ class Card extends Component {
 
         if(name == 'date'){
             this.setState({
-                datePlaceholder: ((value.replace(' ', '')).concat(this.state.numberPlaceholderPattern)).substring(0, 5)
+                datePlaceholder: ((value.replace(' ', '')).concat('00000000')).substring(0, 5)
             })
         }
 
@@ -336,10 +338,10 @@ class Card extends Component {
                 </Text>
                 {
                     this.state.show ? <TextInputMask
-                        type={'credit-card'}
+                        type={'custom'}
+                        selectionColor={'#fff'}
                         options={{
-                            obfuscated: false,
-                            issuer: 'visa-or-mastercard'
+                            mask: '9999 9999 9999 9999 9999'
                         }}
                         value={this.state.numberPlaceholder}
                         style={[styles.card__number, styles.card__number_placeholder, { color: renderError('number', errors) ? '#e77ca3' : '#f4f4f4'  }]}
@@ -347,10 +349,10 @@ class Card extends Component {
                 }
                 {
                     this.state.show ? <TextInputMask
-                        type={'credit-card'}
+                        type={'custom'}
+                        selectionColor={'#fff'}
                         options={{
-                            obfuscated: false,
-                            issuer: 'visa-or-mastercard'
+                            mask: '9999 9999 9999 9999 9999'
                         }}
                         value={this.state.numberPlaceholder}
                         style={{...styles.card__number, ...styles.card__number_shadow}}
@@ -358,10 +360,10 @@ class Card extends Component {
                 }
                 {
                     this.state.show ? <TextInputMask
-                        type={'credit-card'}
+                        selectionColor={'#fff'}
+                        type={'custom'}
                         options={{
-                            obfuscated: false,
-                            issuer: 'visa-or-mastercard'
+                            mask: '9999 9999 9999 9999 9999'
                         }}
                         value={number}
                         style={{...styles.card__number }}
@@ -369,19 +371,22 @@ class Card extends Component {
                 }
                 {
                     this.state.show ? <TextInputMask
-                        type={'credit-card'}
+                        selectionColor={'#fff'}
+                        type={'custom'}
                         options={{
-                            obfuscated: false,
-                            issuer: 'visa-or-mastercard'
+                            mask: '9999 9999 9999 9999 9999'
                         }}
                         onFocus={ () => this.onFocus() }
                         autoFocus={true}
+                        placeholder={strings('card.dateTitleInput')}
                         placeholderTextColor={renderError('number', errors) ? 'transparent' : 'transparent'}
                         value={number}
+                        // editable={false}
                         onChangeText={value => this.handleNumberInput({ value, name: 'number' }) }
                         style={{...styles.card__number, ...styles.card__number_transparent}}
                     /> : null
                 }
+                <View style={{ position: "absolute", bottom: 20, left: 0, height: 1, width: '100%', backgroundColor: "#f4f4f4" }} />
             </View>
         )
     }
@@ -427,8 +432,10 @@ class Card extends Component {
                     options={{
                         format: 'MM/YY'
                     }}
+                    placeholder={strings('card.dateTitleInput')}
                     placeholderTextColor={renderError('date', errors) ? 'transparent' : 'transparent'}
                     value={date}
+                    // editable={false}
                     onChangeText={value => this.handleNumberInput({ value, name: 'date' }) }
                     style={{...styles.card__date, ...styles.card__date_transparent}}
                 />
@@ -513,15 +520,30 @@ class Card extends Component {
                             {/*<Picker ref={ref => this.currenciesPicker = ref}*/}
                             {/*        items={countriesList}*/}
                             {/*        placeholder={strings('card.cardCurrency')} />*/}
-                            <View style={{ marginTop: 10 }}>
-                                <CardNameInput
-                                    ref={component => this.cardNameInput = component}
-                                    id={'cardName'}
-                                    name={strings('card.cardName')}
-                                    type={'OPTIONAL'}
-                                    style={{ marginRight: 2 }} />
-                            </View>
 
+                            {/*<CardNumberInput*/}
+                            {/*    ref={component => this.cardNameInput = component}*/}
+                            {/*    id={'cardNumberInput'}*/}
+                            {/*    name={strings('card.numberTitleInput')}*/}
+                            {/*    style={{ marginRight: 2, marginTop: 10 }}*/}
+                            {/*    onChange={value => this.handleNumberInput({ value, name: 'number' }) }*/}
+                            {/*    keyboardType={'numeric'}*/}
+                            {/*    additional={'NUMBER'}*/}
+                            {/*    callback={(value) => { this.handleNumberInput({ value, name: 'number' }) }}/>*/}
+                            {/*<CardDateInput*/}
+                            {/*    ref={component => this.cardNameInput = component}*/}
+                            {/*    id={'cardDate'}*/}
+                            {/*    name={strings('card.dateTitleInput')}*/}
+                            {/*    type={'OPTIONAL'}*/}
+                            {/*    additional={'NUMBER'}*/}
+                            {/*    style={{ marginRight: 2 }}*/}
+                            {/*    onChange={(value) => { this.handleNumberInput({ value, name: 'date' }) }}/>*/}
+                            <CardNameInput
+                                ref={component => this.cardNameInput = component}
+                                id={'cardName'}
+                                name={strings('card.cardName')}
+                                type={'OPTIONAL'}
+                                style={{ marginRight: 2 }} />
                             {/*<WarningText style={styles.warningText}>*/}
                             {/*    { strings('card.attention') }*/}
                             {/*</WarningText>*/}
@@ -631,8 +653,10 @@ const styles = {
     card__item: {
         position: 'relative',
         top: 40,
-        width: '100%',
+        width: '90%',
         height: 80,
+
+        overflow: "hidden"
     },
     card__bg: {
         position: 'absolute',

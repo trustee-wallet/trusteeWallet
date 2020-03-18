@@ -20,6 +20,7 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
         this._etherscanApiPath = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&action=tokentx&sort=desc&contractaddress=${settings.tokenAddress}&apikey=YourApiKeyToken`
         // noinspection JSUnresolvedVariable
         this._token = new this._web3.eth.Contract(abi.ERC20, settings.tokenAddress)
+        this._tokenAddress = settings.tokenAddress.toLowerCase()
     }
 
     /**
@@ -28,8 +29,8 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
      */
     async getBalance(address) {
         // noinspection JSUnresolvedVariable
-        let balance = await this._token.methods.balanceOf(address).call()
+        const balance = await this._token.methods.balanceOf(address).call()
         BlocksoftCryptoLog.log('EthScannerProcessorErc20.getBalance finished', address + ' => ' + balance)
-        return {balance, unconfirmed : 0, provider : 'etherscan'}
+        return {balance, unconfirmed : 0, provider : 'web3'}
     }
 }

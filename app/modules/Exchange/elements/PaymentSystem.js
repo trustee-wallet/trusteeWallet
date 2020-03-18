@@ -51,7 +51,7 @@ class PaymentSystem extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.init()
     }
 
@@ -91,7 +91,7 @@ class PaymentSystem extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
 
         const { selectedInCryptocurrency: sc1, selectedOutCryptocurrency: sc2 } = nextProps
 

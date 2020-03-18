@@ -10,6 +10,7 @@ import Log from '../../services/Log/Log'
 const { dispatch } = store
 
 import currencies from '../../assets/jsons/other/country-by-currency-code'
+import utils from '../../services/utils'
 
 export default new class FiatRatesActions {
 
@@ -37,10 +38,17 @@ export default new class FiatRatesActions {
 
             await AsyncStorage.setItem('fiatRates', JSON.stringify(nbuRatesTmp))
 
+            if(nbuRatesTmp.length < 5){
+                throw new Error("NBU rates less than 5!!!! Check api!!!")
+            }
+
             this.setNBURates(nbuRatesTmp)
             this.tryCounter = 0
             return
         } catch (e) {
+
+            nbuRates = null
+
             if (Log.isNetworkError(e.message) && this.tryCounter < 10) {
                 this.tryCounter++
                 Log.log('ACT/FiatRates.init network try ' + this.tryCounter + ' ' + e.message)
@@ -120,6 +128,23 @@ export default new class FiatRatesActions {
         toLocal = fixed ? toLocal.toFixed(fractionDigits) : toLocal
 
         return toLocal
+    }
+
+    /**
+     * @param {string} params.localCurrency = 'UAH'
+     * @param {string} params.currencyCode = 'ETH'
+     * @param {int} params.currencyBalanceAmount
+     * @param {int} params.currencyRateUsd
+     * @returns {string|number}
+     */
+    toGeneralLocalCurrency = (params) => {
+        if (params.currencyCode === 'ETH_UAX') {
+            if (typeof params.localCurrency !== 'undefined' && params.localCurrency === 'UAH') {
+                return params.currencyBalanceAmount
+            }
+        }
+        const fiatEquivalent = params.currencyRateUsd * params.currencyBalanceAmount
+        return utils.prettierNumber(this.toLocalCurrency(fiatEquivalent, false), 2)
     }
 
     setLocalCurrency = async (localCurrency) => {

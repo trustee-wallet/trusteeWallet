@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { TextInput, StyleSheet } from 'react-native';
 
-import { strings } from 'root/app/services/i18n';
+import { strings } from '../../../../app/services/i18n';
 
 export default class Input extends Component {
 

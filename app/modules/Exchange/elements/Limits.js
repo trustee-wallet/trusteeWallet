@@ -16,7 +16,7 @@ class Limits extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
 
         const { selectedInCryptocurrency, selectedOutCryptocurrency, selectedFiatTemplate, selectedPaymentSystem } = nextProps
 

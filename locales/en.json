@@ -35,11 +35,7 @@
      },
      "ACCOUNT_SCREEN_TRANSACTION_TIP": {
        "title": "",
-       "description": "Here you can find all the info about your transactions - let’s go!"
-     },
-     "ACCOUNT_SCREEN_ORDERS_TIP": {
-       "title": "",
-       "description": "Here you can find the info about your orders - nothing complicated :)"
+       "description": "Here you can find all the info about your transactions and orders - let’s go!"
      },
      "buttons": {
        "next": "Next",
@@ -56,7 +52,10 @@
    "walletCreateScreen": {
      "title": "BUY SELL EXCHANGE ANONYMOUSLY",
      "createWallet": "Create wallet",
-     "importWallet": "Import wallet"
+     "importWallet": "Import wallet",
+     "acceptTerms": "You don`t agree with Term of Service and Privacy Policy",
+     "terms1": "I agree with ",
+     "terms2": "Term of Service and Privacy Policy"
    },
    "exchangeScreen": {
      "title": "Exchange",
@@ -67,7 +66,15 @@
      "exchangeAll": "Exchange all",
      "min": "minimum:",
      "max": "maximum:",
-     "exchangeBtn": "Exchange"
+     "exchangeBtn": "Exchange",
+     "payinAddress": "Sending address",
+     "payoutAddress": "Receiving address",
+     "date": "Date:",
+     "receiveAddressModal": {
+       "title": "Exchange for your own wallet?",
+       "description1": "Wallet",
+       "description2": "address"
+     }
    },
    "exchangeConfirmScreen": {
      "title": "Confirm",
@@ -140,7 +147,8 @@
       "backup": "Backup wallet",
       "import": "Import wallet",
       "create": "Create new wallet",
-      "select": "Select wallet"
+      "select": "Select wallet",
+      "turnOnHD" : "Turn on HD"
     },
     "security": {
       "title": "Security",
@@ -155,7 +163,7 @@
     "other": {
       "title": "Other",
       "support": "Support",
-      "supportSubtitle": "Our telegram support group",
+      "supportSubtitle": "Our telegram support bot",
       "lock": "Lock screen",
       "bio": "Biometrics",
       "about": "About Trustee",
@@ -171,7 +179,22 @@
       "testerMode": "Tester"
     },
     "walletList": {
-      "title": "Wallet list"
+      "title": "Wallet list",
+      "addedAssets": "Added assets",
+      "balance": "Balance",
+      "backup": "Backup",
+      "off": "Off",
+      "on": "On",
+      "totalBalance": "Total balance",
+      "useUnconfirmed": "Use unconfirmed transactions",
+      "backupModal": {
+        "title": "Mnemonic phrase not saved!",
+        "description": "The mnemonic phrase (seed phrase) is the only key to your assets! In case of failure of the phone or other similar situations, it will be impossible to restore access to your assets without this phrase! We recommend that you save the phrase in a safe place right now!"
+      },
+      "hdEnableModal": {
+        "title": "Switch wallet to HD mode?",
+        "description": "HD mode implies rotation of addresses for each transaction. The switching operation is irreversible."
+      }
     },
     "about": {
       "title": "About",
@@ -193,7 +216,7 @@
   "cashback": {
     "pageTitle": "Cashback",
     "mainTitle": "Refer your friends - earn cashback!",
-    "mainDescription": "Invite five friends and start earning 10%cashback from the commission of your exchanges! Trustee returns up to 30%commission to its users!",
+    "mainDescription": "Invite five friends and start earning 10% cashback from the commission of your exchanges! Trustee returns up to 30% commission to its users!",
     "shareText": "Share",
     "more": "More",
     "shareTitle": "",
@@ -213,15 +236,31 @@
     "send": "Send",
     "history": "Transaction history",
     "noTransactions": "You don’t have any transaction yet.",
-    "confirmations": "Confirmations:",
     "showMore": "Show more",
+    "transaction": {
+      "destinationTag": "Destination tag",
+      "fee": "Fee",
+      "txHash": "Transaction hash",
+      "from": "From",
+      "to": "To",
+      "status": "Status",
+      "outcome": "Outcome",
+      "income": "Income",
+      "exchange": "Exchange",
+      "buy": "Buy",
+      "sell": "Sell",
+      "date": "Date",
+      "confirmations": "Confirmations:",
+      "moreInformation": "More information"
+    },
     "transactionStatuses": {
       "paid" : "Paid",
       "pay_waiting" : "Waiting payment",
       "pay_expired" : "Expired payment",
       "success": "Success",
       "pending": "Pending",
-      "new": "New",
+      "new": "new",
+      "confirming": "Confirming",
       "fail": "Fail",
       "internal_success": "Success from Contract",
       "internal_new": "New from Contract",
@@ -253,6 +292,7 @@
     "buy": "Buy",
     "sell": "Sell",
     "exchange": "Exchange",
+    "to": "to",
     "providerChanged": {
       "title": "Provider changed",
       "description": "Start the transaction again"
@@ -373,6 +413,7 @@
         "eth_speed_slow": "Slow",
         "eth_speed_medium": "Medium",
         "eth_speed_fast": "Fast",
+        "eth_speed_delegated" : "Delegated ERC865",
 
         "btc_speed_blocks_12": "Slow",
         "btc_speed_blocks_6": "Medium",
@@ -386,12 +427,29 @@
         "ltc_speed_blocks_6": "Medium",
         "ltc_speed_blocks_2": "Fast",
 
+        "btc_corrected_speed_blocks_2": "Auto",
+        "btc_corrected_speed_blocks_6": "Auto",
+        "btc_corrected_speed_blocks_12": "Auto",
+
+        "btc_corrected_speed_blocks_2_protection": "Auto (overpay protection)",
+        "btc_corrected_speed_blocks_6_protection": "Auto (overpay protection)",
+        "btc_corrected_speed_blocks_12_protection": "Auto (overpay protection)",
+
+        "ltc_corrected_speed_blocks_2": "Auto",
+        "ltc_corrected_speed_blocks_6": "Auto",
+        "ltc_corrected_speed_blocks_12": "Auto",
+
+        "ltc_corrected_speed_blocks_2_protection": "Auto (overpay protection)",
+        "ltc_corrected_speed_blocks_6_protection": "Auto (overpay protection)",
+        "ltc_corrected_speed_blocks_12_protection": "Auto (overpay protection)",
+
         "xrp_speed_one" : "Fast"
       },
       "time": {
         "eth_speed_slow": "~ 30 minutes",
         "eth_speed_medium": "~ 5 minutes",
         "eth_speed_fast": "~ 1 minute",
+        "eth_speed_delegated" : "The transaction will be sent at the expense of a third party. Commission is charged in %{symbol} according to ERC865",
 
         "btc_speed_blocks_12": "~ 120 minutes",
         "btc_speed_blocks_6": "~ 60 minutes",
@@ -404,6 +462,22 @@
         "ltc_speed_blocks_12": "~ 120 minutes",
         "ltc_speed_blocks_6": "~ 20 minutes",
         "ltc_speed_blocks_2": "~ 5 minutes",
+
+        "btc_corrected_speed_blocks_2": "~ 35 minutes",
+        "btc_corrected_speed_blocks_6": "~ 95 minutes",
+        "btc_corrected_speed_blocks_12": "~ 135+ minutes",
+
+        "btc_corrected_speed_blocks_2_protection": "~ 35 minutes",
+        "btc_corrected_speed_blocks_6_protection": "~ 95 minutes",
+        "btc_corrected_speed_blocks_12_protection": "~ 135+ minutes",
+
+        "ltc_corrected_speed_blocks_2": "~ 15 minutes",
+        "ltc_corrected_speed_blocks_6": "~ 35 minutes",
+        "ltc_corrected_speed_blocks_12": "~ 135+ minutes",
+
+        "ltc_corrected_speed_blocks_2_protection": "~ 15 minutes",
+        "ltc_corrected_speed_blocks_6_protection": "~ 35 minutes",
+        "ltc_corrected_speed_blocks_12_protection": "~ 135+ minutes",
 
         "xrp_speed_one" : "~ 1 minutes"
       },
@@ -428,6 +502,7 @@
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Transaction fee too small",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Transaction amount too small",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Nothing to transfer",
+      "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE" : "Nothing left to pay for delegated fee - please, use usual ERC20 transfer",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE" : "Nothing left to pay for fee - please, use Send All button",
       "SERVER_RESPONSE_NO_RESPONSE" : "Server not accepting transaction - please wait for other transactions to be mined",
       "SERVER_RESPONSE_NOT_CONNECTED" : "Server not connected - please wait a little bit",
@@ -436,7 +511,10 @@
       "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Transaction fee too big - please, select less fee manually or enter bigger amount to transfer",
       "SERVER_RESPONSE_SELF_TX_FORBIDDEN" : "Transaction to the same address are forbidden",
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP" : "Not enough balance - 20 XRP should be left on account balance",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP" : "Not enough amount - send 20 XRP or more to the destination address as it has no transactions yet"
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP" : "Not enough amount - send 20 XRP or more to the destination address as it has no transactions yet",
+      "SERVER_RESPONSE_TAG_NEEDED_XRP" : "Not valid destination tag - please enter destination tag for correct transaction",
+      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT" : "Not enough balance on USDT bitcoin address - please transfer some satoshis to this address",
+      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Server not accepting transaction - please wait for other transactions to be mined or use usual ERC20 transfer"
     }
   },
   "walletBackup": {
@@ -458,7 +536,8 @@
       "title": "Are you really sure?",
       "description": "Backup phrase is very important. You will not have access to your founds. Do you want to skip this step?",
       "cancel": "Cancel",
-      "yes": "Yes"
+      "yes": "Yes",
+      "no": "No"
     }
   },
   "walletCreate": {
@@ -530,6 +609,16 @@
       "description": "Go to settings and allow access for camera",
       "btnSubmitText": "Go to settings"
     },
+    "checkTransferHasError": {
+      "XRP": {
+        "title": "Please pay attention!",
+        "description": "Your Ripple wallet is not activated. Activation requires to stake 20 XRP. According to Ripple protocol, this amount cannot be unlocked and will remain frozen in your account."
+      }
+    },
+    "infoUpdateModal": {
+      "title": "Attention!",
+      "description": "A new version is available, please update your wallet!"
+    },
     "infoBuyModal": {
       "currencyNotAvailable": "Currently %{currencySymbol} not available for purchase",
       "notAvailable": "Not available for purchase"
@@ -543,7 +632,7 @@
     },
     "login": {
       "title": "Login/SignUp",
-      "description": "Get a special link, invite your friends and earn! 10%cashback from the commission of your exchanges and 10%from friends exchanges!",
+      "description": "Get a special link, invite your friends and earn! 10% cashback from the commission of your exchanges and 10% from friends exchanges!",
       "btn": {
         "login": "Login",
         "back": "Back"

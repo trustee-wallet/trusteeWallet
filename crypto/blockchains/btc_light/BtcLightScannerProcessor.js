@@ -13,7 +13,7 @@ export default class BtcLightScannerProcessor {
      */
     async getBalance(address, jsonData) {
         await BtcLightProvider.setLoginByAddressORJsonData(address, jsonData)
-        let balance = await BtcLightProvider.getBalance()
+        const balance = await BtcLightProvider.getBalance()
         return { balance: balance.BTC.AvailableBalance, unconfirmed: 0, provider: 'light' }
     }
 
@@ -25,16 +25,17 @@ export default class BtcLightScannerProcessor {
     async getTransactions(address, jsonData) {
         BlocksoftCryptoLog.log('BtcLightScannerProcessor.getTransactions started')
         await BtcLightProvider.setLoginByAddressORJsonData(address, jsonData)
-        let transactions = []
+        const transactions = []
 
-        let userInvoices = {}
-        let needMore, offset = 0
+        const userInvoices = {}
+        let needMore; let offset = 0
         do {
             needMore = false
-            let { invoices, PER_PAGE } = await BtcLightProvider.getUserInvoices(offset)
+            const { invoices, PER_PAGE } = await BtcLightProvider.getUserInvoices(offset)
             if (invoices) {
                 this._parseAndSave(invoices, transactions, address)
-                for (let invoice of invoices) {
+                let invoice
+                for (invoice of invoices) {
                     userInvoices[invoice.timestamp] = 1
                 }
                 if (invoices.length === PER_PAGE) {
@@ -47,16 +48,17 @@ export default class BtcLightScannerProcessor {
         offset = 0
         do {
             needMore = false
-            let { txs, PER_PAGE } = await BtcLightProvider.getTransactions(offset)
+            const { txs, PER_PAGE } = await BtcLightProvider.getTransactions(offset)
             if (txs) {
-                for (let tx of txs) {
+                let tx
+                for (tx of txs) {
                     if (tx.type !== 'paid_invoice') {
                         continue
                     }
                     if (typeof userInvoices[tx.timestamp] !== 'undefined') continue
-                    let transaction = {
+                    const transaction = {
                         transaction_hash: 'paid_invoice_' + tx.timestamp,
-                        block_hash: tx.type, //'paid_invoice'
+                        block_hash: tx.type, // 'paid_invoice'
                         block_number: '0',
                         block_time: tx.timestamp * 1000,
                         block_confirmations: '0',
@@ -80,38 +82,39 @@ export default class BtcLightScannerProcessor {
     }
 
     _parseAndSave(invoices, transactions, address) {
-        let now = new Date().getTime()
-        for (let invoice of invoices) {
+        const now = new Date().getTime()
+        let invoice
+        for (invoice of invoices) {
             try {
-                let block_time = invoice.timestamp * 1000
-                let timed = (now - block_time) / 1000
-                let transaction_status = 'new'
+                const blockTime = invoice.timestamp * 1000
+                const timed = (now - blockTime) / 1000
+                let transactionStatus = 'new'
                 if (invoice.ispaid === true) {
-                    transaction_status = 'paid'
+                    transactionStatus = 'paid'
                 } else if (timed < invoice.expire_time) {
-                    transaction_status = 'pay_waiting'
+                    transactionStatus = 'pay_waiting'
                 } else {
-                    transaction_status = 'pay_expired'
+                    transactionStatus = 'pay_expired'
                 }
-                let transaction = {
+                const transaction = {
                     transaction_hash: invoice.payment_request,
-                    block_hash: invoice.type, //user_invoice
+                    block_hash: invoice.type, // user_invoice
                     block_number: '0',
-                    block_time,
+                    block_time : blockTime,
                     block_confirmations: '0',
                     transaction_direction: 'income',
                     transaction_json: { memo: invoice.description },
                     address_from: '',
                     address_to: address,
                     address_amount: invoice.amt,
-                    transaction_status
+                    transaction_status : transactionStatus
                 }
 
-                /*if (timed < 72000000) { // 20 hours
+                /* if (timed < 72000000) { // 20 hours
                     let now2 = new Date(block_time)
                     let date2 = now2.toISOString().replace(/T/, ' ').replace(/\..+/, '')
                     console.log('desc', date2, timed, invoice.expire_time, invoice.payment_request, invoice.description)
-                }*/
+                } */
 
                 transactions.push(transaction)
             } catch (e) {

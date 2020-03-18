@@ -60,7 +60,7 @@ export default class BlocksoftDispatcher {
      * @return {EthAddressProcessor|BtcAddressProcessor}
      */
     getAddressProcessor(currencyCode) {
-        let currencyDictSettings = this._getSettings(currencyCode)
+        const currencyDictSettings = this._getSettings(currencyCode)
         return this.innerGetAddressProcessor(currencyDictSettings)
     }
 
@@ -96,7 +96,7 @@ export default class BlocksoftDispatcher {
      * @returns {BsvScannerProcessor|BtcScannerProcessor|UsdtScannerProcessor|EthScannerProcessorErc20|BchScannerProcessor|LtcScannerProcessor|XvgScannerProcessor|BtcTestScannerProcessor|DogeScannerProcessor|EthScannerProcessorSoul|EthScannerProcessor|BtgScannerProcessor|TrxScannerProcessor|BtcLightScannerProcessor}
      */
     getScannerProcessor(currencyCode) {
-        let currencyDictSettings = this._getSettings(currencyCode)
+        const currencyDictSettings = this._getSettings(currencyCode)
         switch (currencyDictSettings.scannerProcessor) {
             case 'BCH':
                 return new BchScannerProcessor()
@@ -153,12 +153,10 @@ export default class BlocksoftDispatcher {
      * @return {BtcLightInvoiceProcessor}
      */
     getInvoiceProcessor(currencyCode) {
-        let currencyDictSettings = this._getSettings(currencyCode)
-        switch (currencyDictSettings.currencyCode) {
-            case 'BTC_LIGHT':
-                return new BtcLightInvoiceProcessor()
-            default:
-                throw new Error('Unknown transferProcessor ' + currencyDictSettings.transferProcessor)
+        const currencyDictSettings = this._getSettings(currencyCode)
+        if (currencyDictSettings.currencyCode !== 'BTC_LIGHT') {
+            throw new Error('Unknown transferProcessor ' + currencyDictSettings.transferProcessor)
         }
+        return new BtcLightInvoiceProcessor()
     }
 }

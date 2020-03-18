@@ -39,7 +39,9 @@ export default new class Templates {
         let country = countriesDict.filter(item => item.iso === card.country_code)
         country = country[0]
 
-        const needValidation = photoValidationCurrencies.indexOf(country.currencyCode) !== -1
+        // TODO: remove support cards for kazakhstan (#RESHENIE)
+
+        const needValidation = photoValidationCurrencies.indexOf(country.currencyCode) !== -1 || card.country_code === "398"
 
         return (
             <View style={{ paddingLeft: 15, paddingTop: 15, position: 'relative'}}>

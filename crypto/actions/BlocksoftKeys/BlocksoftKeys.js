@@ -6,13 +6,14 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftDict from '../../common/BlocksoftDict'
 import BlocksoftKeysUtils from './BlocksoftKeysUtils'
 
-import * as BlocksoftRandom from '../../../crypto-native/react-native-blocksoft-random'
+import * as BlocksoftRandom from 'react-native-blocksoft-random'
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
 
 const bip32 = require('bip32')
 const bip39 = require('bip39')
 const bip44Constants = require('../../common/ext/bip44-constants')
 const networksConstants = require('../../common/ext/networks-constants')
+const bs58check = require('bs58check')
 
 const Dispatcher = new BlocksoftDispatcher()
 
@@ -23,7 +24,8 @@ class BlocksoftKeys {
 
     constructor() {
         this._bipHex = {}
-        for (let currency of bip44Constants) {
+        let currency
+        for (currency of bip44Constants) {
             this._bipHex[currency[1]] = currency[0]
         }
         this._getRandomBytesFunction = BlocksoftRandom.getRandomBytes
@@ -34,10 +36,10 @@ class BlocksoftKeys {
      * @param {int} size
      * @return {Promise<{mnemonic: string, hash: string}>}
      */
-    async newMnemonic(size = 256, USE_TON = false) {
+    async newMnemonic(size = 256) {
         BlocksoftCryptoLog.log(`BlocksoftKeys newMnemonic called`)
 
-        /*let mnemonic = false
+        /* let mnemonic = false
         if (USE_TON) {
             for (let i = 0; i < 10000; i++) {
                 let random = await this._getRandomBytesFunction(size / 8)
@@ -56,11 +58,11 @@ class BlocksoftKeys {
             let random = await this._getRandomBytesFunction(size / 8)
             random = Buffer.from(random, 'base64')
             mnemonic = bip39.entropyToMnemonic(random)
-        }*/
+        } */
         let random = await this._getRandomBytesFunction(size / 8)
         random = Buffer.from(random, 'base64')
-        let mnemonic = bip39.entropyToMnemonic(random)
-        let hash = BlocksoftKeysUtils.hashMnemonic(mnemonic)
+        const mnemonic = bip39.entropyToMnemonic(random)
+        const hash = BlocksoftKeysUtils.hashMnemonic(mnemonic)
         BlocksoftCryptoLog.log(`BlocksoftKeys newMnemonic finished`)
         return { mnemonic, hash }
     }
@@ -71,7 +73,7 @@ class BlocksoftKeys {
      */
     async validateMnemonic(mnemonic) {
         BlocksoftCryptoLog.log(`BlocksoftKeys validateMnemonic called`)
-        let result = await bip39.validateMnemonic(mnemonic)
+        const result = await bip39.validateMnemonic(mnemonic)
         if (!result) {
             throw new Error('invalid mnemonic for bip39')
         }
@@ -85,17 +87,17 @@ class BlocksoftKeys {
      * @param {int} data.fromIndex = 0
      * @param {int} data.toIndex = 100
      * @param {boolean} data.fullTree = false
+     * @param {array} data.derivations.BTC
+     * @param {array} data.derivations.BTC_SEGWIT
      * @return {Promise<{currencyCode:[{address, privateKey, path, index, type}]}>}
      */
     async discoverAddresses(data) {
 
-        let logData = { ...data }
+        const logData = { ...data }
         if (typeof logData.mnemonic !== 'undefined') logData.mnemonic = '***'
 
         BlocksoftCryptoLog.log(`BlocksoftKeys discoverAddresses called`, logData)
-        if (typeof data.fullTree === 'undefined') {
-            data.fullTree = false
-        }
+
         let toDiscover = BlocksoftDict.Codes
         if (data.currencyCode) {
             if (typeof data.currencyCode === 'string') {
@@ -104,16 +106,20 @@ class BlocksoftKeys {
                 toDiscover = data.currencyCode
             }
         }
+        const fromIndex = data.fromIndex ? data.fromIndex : 0
+        const toIndex = data.toIndex ? data.toIndex : 10
+        const fullTree = data.fullTree ? data.fullTree : false
 
-        let results = {}
 
-        let fromIndex = data.fromIndex ? data.fromIndex : 0
-        let toIndex = data.toIndex ? data.toIndex : 10
-        let mnemonicCache = data.mnemonic.toLowerCase()
+        const results = {}
+
+
+        const mnemonicCache = data.mnemonic.toLowerCase()
         let bitcoinRoot = false
-        for (let currencyCode of toDiscover) {
+        let currencyCode
+        for (currencyCode of toDiscover) {
             results[currencyCode] = []
-            let settings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+            const settings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
             let hexes = []
             if (settings.addressCurrencyCode) {
@@ -135,27 +141,11 @@ class BlocksoftKeys {
 
             let isAlreadyMain = false
 
-            let suffixes
-            if (data.fullTree) {
-                suffixes = [
-                    { 'type': 'main', 'suffix': '0/0' },
-                    { 'type': 'second', 'suffix': '0/1' },
-                    { 'type': 'change', 'suffix': '1/0' },
-                    { 'type': 'change', 'suffix': '1/1' }
-                ]
-            } else {
-                suffixes = [
-                    { 'type': 'main', 'suffix': '0/0' }
-                ]
-                if (currencyCode === 'BTC_SEGWIT_COMPATIBLE') {
-                    suffixes = [
-                        { 'type': 'main', 'suffix': '0/1' } // heh
-                    ]
-                }
+            if (!data.fullTree) {
                 hexes = [hexes[0]]
             }
 
-            let hexesCache = mnemonicCache + '_' + settings.addressProcessor + '_' + JSON.stringify(hexes)
+            const hexesCache = mnemonicCache + '_' + settings.addressProcessor + '_fromINDEX_' + fromIndex + '_' + JSON.stringify(hexes)
 
             if (typeof CACHE[hexesCache] === 'undefined') {
                 BlocksoftCryptoLog.log(`BlocksoftKeys will discover ${settings.addressProcessor}`)
@@ -175,31 +165,100 @@ class BlocksoftKeys {
                 /**
                  * @type {EthAddressProcessor|BtcAddressProcessor}
                  */
-                let processor = await Dispatcher.innerGetAddressProcessor(settings)
+                const processor = await Dispatcher.innerGetAddressProcessor(settings)
 
-                for (let hex of hexes) {
+                let currentFromIndex = fromIndex
+                let currentToIndex = toIndex
+                let currentFullTree = fullTree
+
+                BlocksoftCryptoLog.log(`BlocksoftKeys discoverAddresses ${currencyCode} currentFromIndex.1 ${currentFromIndex}`)
+                if (typeof data.derivations[currencyCode] !== 'undefined' && data.derivations[currencyCode]) {
+                    let derivation = {path : '', already_shown : 0}
+                    let maxIndex = 0
+                    for (derivation of data.derivations[currencyCode]) {
+                        const child = root.derivePath(derivation.path)
+                        const tmp = derivation.path.split('/')
+                        /**
+                         * @type {privateKey: string, address: *, basicPrivateKey:*, basicPublicKey:*, path:*, index:*, addedData: {pubKey: string}}
+                         */
+                        const result = await processor.getAddress(child.privateKey, {
+                            publicKey: child.publicKey,
+                            walletHash: data.walletHash
+                        })
+                        result.basicPrivateKey = child.privateKey.toString('hex')
+                        result.basicPublicKey = child.publicKey.toString('hex')
+                        result.path = derivation.path
+                        result.alreadyShown = derivation.already_shown
+                        result.index = tmp[5]
+                        if (maxIndex < result.index) {
+                            maxIndex = result.index*1
+                        }
+                        result.type = 'main'
+                        results[currencyCode].push(result)
+                    }
+                    if (maxIndex > 0) {
+                        // noinspection PointlessArithmeticExpressionJS
+                        currentFromIndex = maxIndex*1 + 1
+                        currentToIndex = currentFromIndex*1+ 10
+                        currentFullTree = true
+                        BlocksoftCryptoLog.log(`BlocksoftKeys ${currencyCode} discoverAddresses currentFromIndex.2 ${currentFromIndex}`)
+                    }
+                }
+
+
+                let suffixes
+                if (currentFullTree) {
+                    suffixes = [
+                        { 'type': 'main', 'suffix': `0'/0` },
+                        { 'type': 'change', 'suffix': `0'/1` }
+                        // { 'type': 'second', 'suffix': `1'/0` },
+                        // { 'type': 'secondchange', 'suffix': `1'/1` }
+                    ]
+                } else {
+                    suffixes = [
+                        { 'type': 'main', 'suffix': `0'/0` }
+                    ]
+                    if (currencyCode === 'BTC_SEGWIT_COMPATIBLE') {
+                        suffixes = [
+                            { 'type': 'main', 'suffix': '0/1' } // heh
+                        ]
+                    }
+                    hexes = [hexes[0]]
+                }
+
+
+                let hex
+                for (hex of hexes) {
                     if (isAlreadyMain) {
                         suffixes[0].type = 'second'
                     }
                     isAlreadyMain = true
 
-                    for (let index = fromIndex; index < toIndex; index++) {
-                        for (let suffix of suffixes) {
-                            let path = `m/${hex}'/${index}'/${suffix.suffix}`
-                            let child = root.derivePath(path)
-                            let result = await processor.getAddress(child.privateKey, {
-                                publicKey: child.publicKey,
-                                walletHash: data.walletHash
-                            })
-                            result.basicPrivateKey = child.privateKey.toString('hex')
-                            result.basicPublicKey = child.publicKey.toString('hex')
-                            result.path = path
-                            result.index = index
-                            result.type = suffix.type
-                            results[currencyCode].push(result)
+                    if (currentFromIndex >= 0 && currentToIndex >= 0) {
+                        for (let index = currentFromIndex; index < currentToIndex; index++) {
+                            let suffix
+                            for (suffix of suffixes) {
+                                const path = `m/${hex}'/${suffix.suffix}/${index}`
+                                const child = root.derivePath(path)
+                                /**
+                                 * @type {privateKey: string, address: *, basicPrivateKey:*, basicPublicKey:*, path:*, index:*, addedData: {pubKey: string}}
+                                 */
+                                const result = await processor.getAddress(child.privateKey, {
+                                    publicKey: child.publicKey,
+                                    walletHash: data.walletHash
+                                })
+                                result.basicPrivateKey = child.privateKey.toString('hex')
+                                result.basicPublicKey = child.publicKey.toString('hex')
+                                result.path = path
+                                result.index = index
+                                result.alreadyShown = 0
+                                result.type = suffix.type
+                                results[currencyCode].push(result)
+                            }
                         }
                     }
                 }
+
                 CACHE[hexesCache] = results[currencyCode]
                 if (currencyCode === 'ETH') {
                     ETH_CACHE[mnemonicCache] = results[currencyCode][0]
@@ -207,18 +266,22 @@ class BlocksoftKeys {
             } else {
                 BlocksoftCryptoLog.log(`BlocksoftKeys will be from cache ${settings.addressProcessor}`)
                 results[currencyCode] = CACHE[hexesCache]
+                if (currencyCode === 'USDT') {
+                    results[currencyCode] = [results[currencyCode][0]]
+                }
             }
         }
+        BlocksoftCryptoLog.log(`BlocksoftKeys discoverAddresses finished`)
         return results
     }
 
     getSeedCached(mnemonic) {
         BlocksoftCryptoLog.log(`BlocksoftKeys bip39MnemonicToSeed started`)
-        let mnemonicCache = mnemonic.toLowerCase()
+        const mnemonicCache = mnemonic.toLowerCase()
         if (typeof CACHE[mnemonicCache] === 'undefined') {
             CACHE[mnemonicCache] = BlocksoftKeysUtils.bip39MnemonicToSeed(mnemonic.toLowerCase())
         }
-        let seed = CACHE[mnemonicCache] // will be rechecked on saving
+        const seed = CACHE[mnemonicCache] // will be rechecked on saving
         BlocksoftCryptoLog.log(`BlocksoftKeys bip39MnemonicToSeed ended`)
         return seed
     }
@@ -235,16 +298,55 @@ class BlocksoftKeys {
      * @return {Promise<{address, privateKey}>}
      */
     async discoverOne(data) {
-        let seed = BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase())
-        let root = bip32.fromSeed(seed)
-        let child = root.derivePath(data.path)
+        const seed = BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase())
+        const root = bip32.fromSeed(seed)
+        const child = root.derivePath(data.path)
         /**
          * @type {EthAddressProcessor|BtcAddressProcessor}
          */
-        let processor = await Dispatcher.getAddressProcessor(data.currencyCode)
+        const processor = await Dispatcher.getAddressProcessor(data.currencyCode)
         return processor.getAddress(child.privateKey)
+    }
+
+    /**
+     * @param {string} data.mnemonic
+     * @param {string} data.currencyCode
+     * @return {Promise<{address, privateKey}>}
+     */
+    async discoverXpub(data) {
+        const seed = BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase())
+        const root = bip32.fromSeed(seed)
+        let path = `m/44'/0'/0'`
+        let version = 0x0488B21E // xpub
+        if (data.currencyCode === 'BTC_SEGWIT') {
+            path = `m/84'/0'/0'`
+            version = 0x04b24746 // https://github.com/satoshilabs/slips/blob/master/slip-0132.md
+        }
+        BlocksoftCryptoLog.log('BlocksoftKeys.discoverXpub derive started ' + JSON.stringify(path))
+        const rootWallet = root.derivePath(path)
+        BlocksoftCryptoLog.log('BlocksoftKeys.discoverXpub derived, bs58 started ' + JSON.stringify(path))
+        const res = bs58check.encode(serialize(rootWallet, version, rootWallet.publicKey))
+        BlocksoftCryptoLog.log('BlocksoftKeys.discoverXpub res ' + JSON.stringify(path), res)
+        return res
     }
 }
 
-let singleBlocksoftKeys = new BlocksoftKeys()
+function serialize(hdkey, version, key, LEN = 78) {
+    // => version(4) || depth(1) || fingerprint(4) || index(4) || chain(32) || key(33)
+    const buffer = Buffer.allocUnsafe(LEN)
+
+    buffer.writeUInt32BE(version, 0)
+    buffer.writeUInt8(hdkey.depth, 4)
+
+    const fingerprint = hdkey.depth ? hdkey.parentFingerprint : 0x00000000
+    buffer.writeUInt32BE(fingerprint, 5)
+    buffer.writeUInt32BE(hdkey.index, 9)
+
+    hdkey.chainCode.copy(buffer, 13)
+    key.copy(buffer, 45)
+
+    return buffer
+}
+
+const singleBlocksoftKeys = new BlocksoftKeys()
 export default singleBlocksoftKeys

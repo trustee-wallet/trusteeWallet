@@ -1,6 +1,3 @@
-/**
- * @version 0.2
- */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { View, TouchableOpacity, Text, Platform } from 'react-native'
@@ -35,10 +32,10 @@ class Currency extends Component {
     renderTooltip = (props) => {
 
         if(typeof props == 'undefined'){
-            return <View></View>
+            return <View />
         }
 
-        const { cryptocurrency } = props
+        const { cryptocurrency, settingsStore } = props
         const { localCurrencySymbol } = props.fiatRatesStore
         const tmpCurrency = JSON.parse(JSON.stringify(cryptocurrency))
 
@@ -46,8 +43,13 @@ class Currency extends Component {
         amount = amount.toFixed(5)
         amount = amount * 1
 
-        let fiatEquivalent = cryptocurrency.currency_rate_usd * cryptocurrency.currencyBalanceAmount
 
+        const prettyEquivalent = FiatRatesActions.toGeneralLocalCurrency({
+            localCurrency :  settingsStore.data.local_currency,
+            currencyCode : cryptocurrency.currencyCode,
+            currencyBalanceAmount :  cryptocurrency.currencyBalanceAmount,
+            currencyRateUsd : cryptocurrency.currency_rate_usd
+        })
         return (
             <View style={styles.container}>
                 <View style={{ position: 'relative' }}>
@@ -85,7 +87,7 @@ class Currency extends Component {
                                 </View>
                                 <View style={{ flex: 1 }}>
                                     <Text style={styles.cryptoList__title}>
-                                        { localCurrencySymbol } {cryptocurrency.currency_rate_usd * cryptocurrency.currencyBalanceAmount === 0 ? 0 : utils.prettierNumber(FiatRatesActions.toLocalCurrency(fiatEquivalent, false), 2)}
+                                        { localCurrencySymbol } {cryptocurrency.currency_rate_usd * cryptocurrency.currencyBalanceAmount === 0 ? 0 : prettyEquivalent }
                                     </Text>
                                     <Text style={styles.cryptoList__text}>
                                         { amount.toString().split('').join('\u200A'.repeat(1)) } { cryptocurrency.currencySymbol }
@@ -104,13 +106,14 @@ class Currency extends Component {
 
     render() {
         const { currency } = this.props
-        const { fiatRatesStore } = this.props
-        return currency.currencyCode === 'BTC' ? <ToolTips animatePress={true} height={100} mainComponentProps={{ cryptocurrency: currency, fiatRatesStore }} disabled={true} MainComponent={this.renderTooltip} type={'HOME_SCREEN_CRYPTO_BTN_TIP'} nextCallback={this.handleCurrencySelect} /> : this.renderTooltip({ cryptocurrency: currency, fiatRatesStore })
+        const { fiatRatesStore, settingsStore } = this.props
+        return currency.currencyCode === 'BTC' ? <ToolTips animatePress={true} height={100} mainComponentProps={{ cryptocurrency: currency, fiatRatesStore, settingsStore }} disabled={true} MainComponent={this.renderTooltip} type={'HOME_SCREEN_CRYPTO_BTN_TIP'} nextCallback={this.handleCurrencySelect} /> : this.renderTooltip({ cryptocurrency: currency, fiatRatesStore, settingsStore })
     }
 }
 
 const mapStateToProps = (state) => {
     return {
+        settingsStore: state.settingsStore,
         account: state.mainStore.selectedAccount,
         fiatRatesStore: state.fiatRatesStore
     }

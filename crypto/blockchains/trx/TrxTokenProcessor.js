@@ -18,9 +18,9 @@ export default class TrxTokenProcessor {
      */
     async getTokenDetails(tokenAddress) {
         if (tokenAddress[0] === 'T') {
-            let res = await BlocksoftAxios.get(this._tokenTronscanPath20 + tokenAddress)
-            if (typeof res.data.trc20_tokens[0] != 'undefined') {
-                let tmp = res.data.trc20_tokens[0]
+            const res = await BlocksoftAxios.get(this._tokenTronscanPath20 + tokenAddress)
+            if (typeof res.data.trc20_tokens[0] !== 'undefined') {
+                const tmp = res.data.trc20_tokens[0]
                 return {
                     currencyCode: tmp.symbol,
                     currencyName: tmp.name,
@@ -33,9 +33,9 @@ export default class TrxTokenProcessor {
                 }
             }
         } else {
-            let res = await BlocksoftAxios.get(this._tokenTronscanPath10 + tokenAddress)
-            if (typeof res.data.data[0] != 'undefined') {
-                let tmp = res.data.data[0]
+            const res = await BlocksoftAxios.get(this._tokenTronscanPath10 + tokenAddress)
+            if (typeof res.data.data[0] !== 'undefined') {
+                const tmp = res.data.data[0]
                 return {
                     currencyCode: tmp.abbr,
                     currencyName: tmp.name,

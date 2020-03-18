@@ -7,7 +7,7 @@ import BlocksoftAxios from '../../../common/BlocksoftAxios'
 const API_PATH = 'https://microscanners.trustee.deals/fees'
 const CACHE_VALID_CUSTOM_TIME = 120000 // 2 minutes
 
-let CACHE_FEES_CUSTOM = {
+const CACHE_FEES_CUSTOM = {
     'BCH': { '2': 2, '6': 1, '12': 1 },
     'BSV': { '2': 2, '6': 1, '12': 1 },
     'BTG': { '2': 10, '6': 5, '12': 2 },
@@ -27,20 +27,23 @@ export default class DogeNetworkPrices {
 
         if (now - CACHE_FEES_CUSTOM_TIME > CACHE_VALID_CUSTOM_TIME) {
             try {
-                let tmp = await BlocksoftAxios.getWithoutBraking(API_PATH)
+                const tmp = await BlocksoftAxios.getWithoutBraking(API_PATH)
                 if (tmp && typeof tmp.data !== 'undefined' && tmp.data) {
                     CACHE_FEES_CUSTOM_TIME = now
-                    CACHE_FEES_CUSTOM = tmp.data.data
+                    let key
+                    for (key in tmp.data.data) {
+                        CACHE_FEES_CUSTOM[key] = tmp.data.data[key]
+                    }
                 }
             } catch (e) {
-                //do nothing
+                // do nothing
             }
         }
 
         if (!CACHE_FEES_CUSTOM || typeof CACHE_FEES_CUSTOM[currencyCode] === 'undefined') {
             throw new Error('DogeNetworkPricesProvider ' + currencyCode + ' not defined')
         }
-        if (typeof CACHE_FEES_CUSTOM[currencyCode][blocks] != 'undefined') {
+        if (typeof CACHE_FEES_CUSTOM[currencyCode][blocks] !== 'undefined') {
             return CACHE_FEES_CUSTOM[currencyCode][blocks]
         } else if (blocks <= 2) {
             return CACHE_FEES_CUSTOM[currencyCode][2]

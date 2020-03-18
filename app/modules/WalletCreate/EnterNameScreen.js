@@ -33,6 +33,7 @@ import { setMnemonicLength, setWalletName } from '../../appstores/Actions/Create
 import Log from '../../services/Log/Log'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import firebase from "react-native-firebase"
+
 import { setLoaderStatus } from '../../appstores/Actions/MainStoreActions'
 
 const data = {

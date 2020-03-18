@@ -140,6 +140,8 @@ export default {
         for(let row of res.array) {
             data.push(row.currencyCode)
         }
+        data.push('BTC_SEGWIT')
+
         return data
 
     },
@@ -164,18 +166,26 @@ export default {
     /**
      * @namespace Flow.updateAccountBalance
      */
-    getCurrencyBalanceAmount: async (walletHash) => {
+    getCurrencyBalanceAmount: async (walletHash, currencyCode) => {
 
         Log.daemon('DS/Currency getCurrencyBalanceAmount called')
 
         const dbInterface = new DBInterface()
+
+        let accountBalanceWhere = []
+
+        if (walletHash) accountBalanceWhere.push(`wallet_hash='${walletHash}'`)
+
+        if (currencyCode) accountBalanceWhere.push(`currency_code='${currencyCode}'`)
+
+        accountBalanceWhere = accountBalanceWhere.length > 0 ? ` WHERE ${accountBalanceWhere.join(' AND ')}` : ''
 
         let res
         try {
 
             res = await dbInterface.setQueryString(`SELECT currency_code, sum(balance_fix) AS currencyBalanceAmount
             FROM account_balance
-            WHERE wallet_hash = '${walletHash}'
+            ${accountBalanceWhere}
             AND id IN (
                 SELECT MIN(id) AS minId FROM account_balance  
                 WHERE wallet_hash = '${walletHash}' 
@@ -205,6 +215,7 @@ export default {
 
             Log.daemon('DS/Currency getCurrencyBalanceAmount error (full data inside + account) ' + e.message)
         }
+
         return res
     }
 

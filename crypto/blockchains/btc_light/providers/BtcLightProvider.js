@@ -16,8 +16,8 @@ const PER_PAGE_TXS = 50
 class BtcLightProvider {
 
     async create() {
-        let url = NODE_URL + '/create'
-        let res = await axios.post(url, { partnerid: 'bluewallet', accounttype: 'common' }, {
+        const url = NODE_URL + '/create'
+        const res = await axios.post(url, { partnerid: 'bluewallet', accounttype: 'common' }, {
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Content-Type': 'application/json'
@@ -34,9 +34,9 @@ class BtcLightProvider {
     async setLoginByAddressORJsonData(address, jsonData) {
 
         let pubKey = false
-        if (typeof CACHED_ADDRESS_TO_PUBKEY[address] != 'undefined') {
+        if (typeof CACHED_ADDRESS_TO_PUBKEY[address] !== 'undefined') {
             pubKey = CACHED_ADDRESS_TO_PUBKEY[address]
-        } else if (typeof jsonData != 'undefined' && typeof jsonData.pubKey != 'undefined' && jsonData.pubKey) {
+        } else if (typeof jsonData !== 'undefined' && typeof jsonData.pubKey !== 'undefined' && jsonData.pubKey) {
             pubKey = jsonData.pubKey
             CACHED_ADDRESS_TO_PUBKEY[address] = jsonData.pubKey
         } else {
@@ -59,7 +59,7 @@ class BtcLightProvider {
             throw new Error('BtcLightProvider.setLoginByAddressORJsonData noPubKey for ' + address + ' ' + JSON.stringify(jsonData))
         }
 
-        let loginData = false
+        let loginData
         if (typeof CACHED_PUBKEY_TO_LOGINS[pubKey] !== 'undefined') {
             loginData = CACHED_PUBKEY_TO_LOGINS[pubKey]
         } else {
@@ -86,14 +86,14 @@ class BtcLightProvider {
     }
 
     async login() {
-        let now = +new Date()
+        const now = +new Date()
         if (this._accessToken && this._accessTs) {
             if (now - this._accessTs < 7200000) { // 2 hours
                 return true
             }
         }
         if (this._refreshToken) {
-            let url1 = NODE_URL + '/auth?type=refresh_token'
+            const url1 = NODE_URL + '/auth?type=refresh_token'
             let res1 = false
             try {
                 res1 = await axios.post(url1, { refresh_token: this._refreshToken }, {
@@ -114,8 +114,8 @@ class BtcLightProvider {
             }
         }
 
-        let url2 = NODE_URL + '/auth?type=auth'
-        let res2 = await axios.post(url2, { login: this._login, password: this._pass }, {
+        const url2 = NODE_URL + '/auth?type=auth'
+        const res2 = await axios.post(url2, { login: this._login, password: this._pass }, {
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Content-Type': 'application/json'
@@ -131,8 +131,8 @@ class BtcLightProvider {
 
     async getBtcAddress() {
         await this.login()
-        let url = NODE_URL + '/getbtc'
-        let res = await axios.get(url, {
+        const url = NODE_URL + '/getbtc'
+        const res = await axios.get(url, {
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ class BtcLightProvider {
     }
 
     async getBalance() {
-        let url = NODE_URL + '/balance'
+        const url = NODE_URL + '/balance'
         let res = { data: false }
         try {
             await this.login()
@@ -161,7 +161,7 @@ class BtcLightProvider {
     }
 
     async createInvoice(amt, memo) {
-        let url = NODE_URL + '/addinvoice'
+        const url = NODE_URL + '/addinvoice'
         let res = { data: false }
         try {
             await this.login()
@@ -173,11 +173,15 @@ class BtcLightProvider {
                 }
             })
         } catch (e) {
-            if (typeof res.response.data != 'undefined') {
-                e = new Error(res.response.data)
+            if (typeof res.response.data !== 'undefined') {
+                const e2 = new Error(res.response.data)
+                e2.code = 'ERROR_USER'
+                throw e2
             }
-            if (typeof e.response.data != 'undefined') {
-                e = new Error(e.response.data)
+            if (typeof e.response.data !== 'undefined') {
+                const e2 = new Error(e.response.data)
+                e2.code = 'ERROR_USER'
+                throw e2
             }
             e.code = 'ERROR_USER'
             throw e
@@ -186,7 +190,7 @@ class BtcLightProvider {
     }
 
     async checkInvoice(hash) {
-        let url = NODE_URL + '/checkrouteinvoice?invoice=' + hash
+        const url = NODE_URL + '/checkrouteinvoice?invoice=' + hash
         let res = { data: false }
         try {
             await this.login()
@@ -198,11 +202,15 @@ class BtcLightProvider {
                 }
             })
         } catch (e) {
-            if (typeof res.response.data != 'undefined') {
-                e = new Error(res.response.data)
+            if (typeof res.response.data !== 'undefined') {
+                const e2 = new Error(res.response.data)
+                e2.code = 'ERROR_USER'
+                throw e2
             }
-            if (typeof e.response.data != 'undefined') {
-                e = new Error(e.response.data)
+            if (typeof e.response.data !== 'undefined') {
+                const e2 = new Error(e.response.data)
+                e2.code = 'ERROR_USER'
+                throw e2
             }
             e.code = 'ERROR_USER'
             throw e
@@ -212,8 +220,8 @@ class BtcLightProvider {
     }
 
     async payInvoice(hash, amount) {
-        let url = NODE_URL + '/payinvoice'
-        let data = {
+        const url = NODE_URL + '/payinvoice'
+        const data = {
             invoice: hash, amount: amount
         }
         let res = { data: false }
@@ -227,7 +235,7 @@ class BtcLightProvider {
                 }
             })
         } catch (e) {
-            if (typeof res.response.data != 'undefined') {
+            if (typeof res.response.data !== 'undefined') {
                 e.message = res.response.data
             }
             e.code = 'ERROR_USER'
@@ -261,9 +269,9 @@ class BtcLightProvider {
 
     async getPending(offset) {
         if (offset > 1) {
-            return { txs: false } //when i will fork
+            return { txs: false } // when i will fork
         }
-        let url = NODE_URL + '/getpending'
+        const url = NODE_URL + '/getpending'
         BlocksoftCryptoLog.log('BtcLightProcessor.getPendings started ')
         let res = { data: false }
         try {
@@ -284,10 +292,10 @@ class BtcLightProvider {
 
     async getUserInvoices(offset) {
         if (offset > 1) {
-            return { invoices: false } //when i will fork
+            return { invoices: false } // when i will fork
         }
         BlocksoftCryptoLog.log('BtcLightProcessor.getUserInvoices started ')
-        let url = NODE_URL + '/getuserinvoices?limit=' + PER_PAGE
+        const url = NODE_URL + '/getuserinvoices?limit=' + PER_PAGE
         let res = { data: false }
         try {
             await this.login()

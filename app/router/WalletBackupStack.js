@@ -7,13 +7,13 @@ const WalletBackupStack = createStackNavigator(
         BackupStep0Screen: {
             screen: BackupStep0Screen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
         BackupStep1Screen: {
             screen: BackupStep1Screen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         }
     },

@@ -353,8 +353,5 @@ export default new class Cashback {
         }
 
     }
-
-    getCashbackToken = () => this._cashbackToken
-
 }
 

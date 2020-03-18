@@ -34,16 +34,17 @@ export default class DogeUnspentsProvider {
     async getUnspents(address) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents started', address)
 
-        let link = this._trezorPath + address //?confirmed=true
-        let res = await BlocksoftAxios.getWithoutBraking(link)
+        const link = this._trezorPath + address // ?confirmed=true
+        const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || typeof res.data === 'undefined') {
             throw new Error(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents nothing loaded for address')
         }
         if (!res.data || typeof res.data[0] === 'undefined') {
             return []
         }
-        let sortedUnspents = []
-        for (let unspent of res.data) {
+        const sortedUnspents = []
+        let unspent
+        for (unspent of res.data) {
             unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
             sortedUnspents.push(unspent)
         }

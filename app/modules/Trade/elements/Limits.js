@@ -23,7 +23,7 @@ class Limits extends Component {
         })
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
 
         const { selectedCryptocurrency, selectedFiatCurrency, selectedPaymentSystem, selectedFiatTemplate } = nextProps
 
@@ -32,9 +32,9 @@ class Limits extends Component {
             this.prepareLimits(selectedCryptocurrency, selectedFiatCurrency, selectedPaymentSystem)
         }
 
-        if(selectedFiatTemplate && selectedFiatTemplate.value){
-            this.setState({ isValid: true })
-        }
+        // if(selectedFiatTemplate && selectedFiatTemplate.value){
+        //     this.setState({ isValid: true })
+        // }
     }
 
     prepareLimits = (selectedCryptocurrency, selectedFiatCurrency, selectedPaymentSystem) => {
@@ -59,12 +59,16 @@ class Limits extends Component {
         const { limits } = this.state
 
         if(typeof refAmount == 'undefined'){
+
             return (
                 <View />
             )
         }
 
         const amount = refAmount.handleGetAmountEquivalent()
+
+        console.log('amount')
+        console.log(amount)
 
         let isValid = true
 

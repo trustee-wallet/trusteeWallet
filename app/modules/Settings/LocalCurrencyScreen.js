@@ -11,6 +11,7 @@ import {
 
 import firebase from 'react-native-firebase'
 
+
 import IoniconsIcons from 'react-native-vector-icons/Ionicons'
 
 import GradientView from '../../components/elements/GradientView'
@@ -32,7 +33,7 @@ class LocalCurrencyScreen extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
 
         const { fiatRates } = this.props.fiatRatesStore
         let currencies = []

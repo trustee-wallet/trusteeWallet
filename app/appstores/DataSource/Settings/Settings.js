@@ -34,7 +34,20 @@ class Settings {
 
         Log.log('DS/Settings getSettings finished')
 
-        return res
+        return res.array
+    }
+
+    getSetting = async (key) => {
+
+        Log.log('DS/Settings getSetting called')
+
+        const dbInterface = new DBInterface()
+
+        const res = await dbInterface.setQueryString(`SELECT * FROM settings WHERE [paramKey]='${key}'`).query()
+
+        Log.log('DS/Settings getSetting finished')
+
+        return res.array[0]
     }
 }
 

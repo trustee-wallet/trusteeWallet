@@ -36,7 +36,7 @@ export class LoginModal extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.setState({
             selectedWallet: this.props.mainStore.selectedWallet
         })

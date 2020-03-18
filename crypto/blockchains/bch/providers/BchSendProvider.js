@@ -31,17 +31,17 @@ export default class BchSendProvider {
             res = await BlocksoftAxios.get(this._apiPath + hex)
         } catch (e) {
             if (e.message.indexOf('dust') !== -1) {
-                let e2 = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
+                const e2 = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
                 e2.code = 'ERROR_USER'
                 e2.basicMessage = e.message
                 throw e2
             } else if (e.message.indexOf('bad-txns-inputs-spent') !== -1 || e.message.indexOf('txn-mempool-conflict') !== -1) {
-                let e2 = new Error('SERVER_RESPONSE_NO_RESPONSE')
+                const e2 = new Error('SERVER_RESPONSE_NO_RESPONSE')
                 e2.code = 'ERROR_USER'
                 e2.basicMessage = e.message
                 throw e2
             } else if (e.message.indexOf('fee for relay') !== -1 || e.message.indexOf('insufficient priority') !== -1) {
-                let e2 = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+                const e2 = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
                 e2.code = 'ERROR_USER'
                 e2.basicMessage = e.message
                 throw e2
@@ -50,7 +50,7 @@ export default class BchSendProvider {
             }
         }
         if (typeof res.data === 'undefined' || !res.data) {
-            let e = new Error('SERVER_RESPONSE_NOT_CONNECTED')
+            const e = new Error('SERVER_RESPONSE_NOT_CONNECTED')
             e.code = 'ERROR_USER'
             throw e
         }

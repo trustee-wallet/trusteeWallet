@@ -10,28 +10,28 @@ const TradeScreenStack = createStackNavigator(
         MainDataScreen: {
             screen: MainDataScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         ConfirmScreen: {
             screen: ConfirmScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         FinishScreen: {
             screen: FinishScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         SMSCodeScreen: {
             screen: SMSCodeScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
     },

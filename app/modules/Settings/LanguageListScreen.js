@@ -20,6 +20,7 @@ import { strings } from '../../services/i18n';
 
 import Navigation from "../../components/navigation/Navigation";
 import firebase from "react-native-firebase"
+
 import NavStore from '../../components/navigation/NavStore'
 
 import config from '../../config/config'

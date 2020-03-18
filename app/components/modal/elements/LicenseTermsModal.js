@@ -28,6 +28,9 @@ import PRIVACY_POLICY from '../../../../__terms__/PRIVACY_POLICY.js'
 import TERMS_OF_USE_1 from '../../../../__terms__/TERMS_OF_USE_1.js'
 import TERMS_OF_USE_2 from '../../../../__terms__/TERMS_OF_USE_2.js'
 import DO_YOU_AGREE from '../../../../__terms__/DO_YOU_AGREE.js'
+import AntDesignIcon from 'react-native-vector-icons/AntDesign'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import Entypo from 'react-native-vector-icons/Entypo'
 
 const width = Dimensions.get('window').width
 
@@ -62,6 +65,9 @@ export class LicenseTermsModal extends Component {
             <Modal style={styles.modal} hasBackdrop={false} isVisible={show}>
                 <View style={styles.content}>
                     <GradientView style={styles.bg} array={styles_.array} start={styles_.start} end={styles_.end}>
+                        <TouchableOpacity onPress={hideModal} style={styles.cross}>
+                            <Entypo style={styles.cross} name="cross" size={22} color={'#f4f4f4'}/>
+                        </TouchableOpacity>
                         <Text style={styles.title}>
                             { strings('modal.licenseTerms.title') }
                         </Text>
@@ -106,14 +112,6 @@ export class LicenseTermsModal extends Component {
                         {/*    </TouchableOpacity>*/}
                         {/*</View>*/}
                     </GradientView>
-                    <View style={styles.bottom}>
-                        <Button press={() => this.handleDecline()} styles={styles.btn}>
-                            { strings('modal.licenseTerms.decline') }
-                        </Button>
-                        <ButtonLine press={() => this.handleAccept()} styles={styles.btn} disabled={!this.state.licenseAccepted}>
-                            { strings('modal.licenseTerms.accept') }
-                        </ButtonLine>
-                    </View>
                 </View>
             </Modal>
         )
@@ -164,13 +162,13 @@ const styles = {
         paddingTop: 15,
 
         alignItems: 'center',
-        borderTopLeftRadius: 14,
-        borderTopRightRadius: 14
+        borderRadius: 15,
     },
     cross: {
         position: 'absolute',
-        top: 10,
-        right: 10
+        top: 0,
+        right: 0,
+        padding: 14
     },
     icon: {
         width: 230,

@@ -40,10 +40,26 @@ export default class TrxTransferProcessor {
      * @returns {Promise<boolean>}
      */
     async getFeeRate(data, alreadyEstimatedGas = false) {
+        if (data.addressTo && data.addressTo !== data.addressFrom) {
+            try {
+                const res = await BlocksoftAxios.get('https://apilist.tronscan.org/api/account?address=' + data.addressTo)
+                if (res.data.bandwidth.freeNetRemaining.toString() === '0') {
+                    return [
+                        {
+                            langMsg: 'xrp_speed_one',
+                            feeForTx: 100000
+                        }
+                    ]
+                }
+            } catch (e) {
+                // do nothing
+            }
+        }
         return false
     }
 
     /**
+     * @param {Object} data
      * @param {string} data.privateKey
      * @param {string} data.addressFrom
      * @param {string} data.currencyCode
@@ -53,13 +69,29 @@ export default class TrxTransferProcessor {
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
-     * @param {string} data.replacingTransaction
      * @param {number} data.nSequence
      * @param {string} balanceRaw
      * @returns {Promise<string>}
      */
     async getTransferAllBalance(data, balanceRaw) {
-        if (balanceRaw) return balanceRaw
+        let feeForTx = 0
+        if (data.addressTo && data.addressTo !== data.addressFrom) {
+            try {
+                const res = await BlocksoftAxios.get('https://apilist.tronscan.org/api/account?address=' + data.addressTo)
+                if (res.data.bandwidth.freeNetRemaining.toString() === '0') {
+                    feeForTx = 100000
+                }
+            } catch (e) {
+                // do nothing
+            }
+        }
+        if (balanceRaw) {
+            if (feeForTx > 0) {
+                return BlocksoftUtils.toBigNumber(balanceRaw).sub(BlocksoftUtils.toBigNumber(feeForTx)).toString()
+            } else {
+                return balanceRaw
+            }
+        }
 
         let address = data.addressFrom.trim()
         let addressHex = address
@@ -71,6 +103,9 @@ export default class TrxTransferProcessor {
         let result = await this._tronscanProvider.get(address, this._tokenName)
         if (result === false) {
             result = await this._trongridProvider.get(addressHex, this._tokenName)
+        }
+        if (this._tokenName === '_' && feeForTx > 0) {
+            return BlocksoftUtils.toBigNumber(result.balance).sub(BlocksoftUtils.toBigNumber(feeForTx)).toString()
         }
         return result.balance
     }
@@ -91,44 +126,44 @@ export default class TrxTransferProcessor {
             throw new Error('TRX transaction required addressTo')
         }
         if (data.addressFrom === data.addressTo) {
-            let e = new Error('SERVER_RESPONSE_SELF_TX_FORBIDDEN')
+            const e = new Error('SERVER_RESPONSE_SELF_TX_FORBIDDEN')
             e.code = 'ERROR_USER'
             throw e
         }
 
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx started')
 
-        let to_address, owner_address
+        let toAddress, ownerAddress
 
         try {
-            to_address = TronUtils.addressToHex(data.addressTo)
+            toAddress = TronUtils.addressToHex(data.addressTo)
         } catch (e) {
             e.message += ' inside TronUtils.addressToHex to_address ' + data.addressTo
             throw e
         }
 
         try {
-            owner_address = TronUtils.addressToHex(data.addressFrom)
+            ownerAddress = TronUtils.addressToHex(data.addressFrom)
         } catch (e) {
             e.message += ' inside TronUtils.addressToHex owner_address ' + data.addressFrom
             throw e
         }
 
-        let params = {
-            owner_address
+        const params = {
+            owner_address : ownerAddress
         }
         let link
         if (this._tokenName[0] === 'T') {
-            //https://developers.tron.network/docs/trc20-introduction#section-8usdt-transfer
+            // https://developers.tron.network/docs/trc20-introduction#section-8usdt-transfer
             link = this._tronNodePath + '/wallet/triggersmartcontract'
             params.contract_address = TronUtils.addressToHex(this._tokenName)
             params.function_selector = 'transfer(address,uint256)'
             // noinspection PointlessArithmeticExpressionJS
-            params.parameter = '0000000000000000000000' + to_address.toUpperCase() + '00000000000000000000000000000000000000000000' + BlocksoftUtils.decimalToHex(data.amount * 1, 20)
+            params.parameter = '0000000000000000000000' + toAddress.toUpperCase() + '00000000000000000000000000000000000000000000' + BlocksoftUtils.decimalToHex(data.amount * 1, 20)
             params.fee_limit = 100000000
             params.call_value = 0
         } else {
-            params.to_address = to_address
+            params.to_address = toAddress
             // noinspection PointlessArithmeticExpressionJS
             params.amount = data.amount * 1
 
@@ -141,25 +176,25 @@ export default class TrxTransferProcessor {
         }
 
 
-        let res = await BlocksoftAxios.post(link, params)
+        const res = await BlocksoftAxios.post(link, params)
 
 
-        if (typeof res.data.Error != 'undefined') {
+        if (typeof res.data.Error !== 'undefined') {
             throw new Error(res.data.Error)
         }
 
         let tx = res.data
         if (this._tokenName[0] === 'T') {
-            if (typeof res.data.transaction == 'undefined' || typeof res.data.result == 'undefined') {
-                if (typeof res.data.result.message != 'undefined') {
+            if (typeof res.data.transaction === 'undefined' || typeof res.data.result === 'undefined') {
+                if (typeof res.data.result.message !== 'undefined') {
                     res.data.result.message = BlocksoftUtils.hexToUtf('0x' + res.data.result.message)
                 }
                 throw new Error('No tx in contract data ' + JSON.stringify(res.data))
             }
             tx = res.data.transaction
         } else {
-            if (typeof res.data.txID == 'undefined') {
-                if (typeof res.data.result.message != 'undefined') {
+            if (typeof res.data.txID === 'undefined') {
+                if (typeof res.data.result.message !== 'undefined') {
                     res.data.result.message = BlocksoftUtils.hexToUtf('0x' + res.data.result.message)
                 }
                 throw new Error('No txID in data ' + JSON.stringify(res.data))
@@ -171,22 +206,22 @@ export default class TrxTransferProcessor {
         tx.signature = [TronUtils.ECKeySign(Buffer.from(tx.txID, 'hex'), Buffer.from(data.privateKey, 'hex'))]
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx signed', tx)
 
-        let send = await BlocksoftAxios.post(this._tronNodePath + '/wallet/broadcasttransaction', tx)
+        const send = await BlocksoftAxios.post(this._tronNodePath + '/wallet/broadcasttransaction', tx)
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx broadcast', send.data)
 
         if (!send.data) {
-            let e = new Error('SERVER_RESPONSE_NOT_CONNECTED')
+            const e = new Error('SERVER_RESPONSE_NOT_CONNECTED')
             e.code = 'ERROR_USER'
             throw e
         }
-        if (typeof send.data.Error != 'undefined') {
+        if (typeof send.data.Error !== 'undefined') {
             throw new Error(send.data.Error)
         }
         if (typeof send.data.result === 'undefined') {
             if (typeof (send.data.message) !== 'undefined') {
                 let msg = false
                 try {
-                    let buf = Buffer.from(send.data.message, 'hex')
+                    const buf = Buffer.from(send.data.message, 'hex')
                     msg = buf.toString('')
                 } catch (e) {
 
@@ -194,11 +229,11 @@ export default class TrxTransferProcessor {
                 if (msg) {
                     send.data.decoded = msg
                     if (msg.indexOf('balance is not sufficient') !== -1) {
-                        let e = new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+                        const e = new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE') // when sell all will be working - add SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE
                         e.code = 'ERROR_USER'
                         throw e
                     } else if (msg.indexOf('Amount must greater than 0') !== -1) {
-                        let e = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
+                        const e = new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
                         e.code = 'ERROR_USER'
                         throw e
                     }

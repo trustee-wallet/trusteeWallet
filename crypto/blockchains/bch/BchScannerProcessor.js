@@ -26,8 +26,8 @@ export default class BchScannerProcessor {
      */
     async getBalance(address) {
         BlocksoftCryptoLog.log('BchScannerProcessor.getBalance started', address)
-        let link = API_PATH + address
-        let res = await BlocksoftAxios.getWithoutBraking(link)
+        const link = API_PATH + address
+        const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || typeof res.data === 'undefined' || !res.data || typeof res.data.balanceSat === 'undefined') {
             return false
         }
@@ -41,20 +41,21 @@ export default class BchScannerProcessor {
      */
     async getTransactions(address, jsonData = {}) {
         BlocksoftCryptoLog.log('BchScannerProcessor.getTransactions started ', address)
-        let link = API_TX_PATH + address
-        let tmp = await BlocksoftAxios.getWithoutBraking(link)
+        const link = API_TX_PATH + address
+        const tmp = await BlocksoftAxios.getWithoutBraking(link)
         if (!tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.txs === 'undefined' || !tmp.data.txs) {
             return []
         }
-        let transactions = []
-        let legacyAddress = ''
-        if (typeof jsonData.legacyAddress != 'undefined') {
+        const transactions = []
+        let legacyAddress
+        if (typeof jsonData.legacyAddress !== 'undefined') {
             legacyAddress = jsonData.legacyAddress
         } else {
             legacyAddress = BtcCashUtils.toLegacyAddress(address)
         }
-        for (let tx of tmp.data.txs) {
-            let transaction = await  this._unifyTransaction(address, legacyAddress, tx)
+        let tx
+        for (tx of tmp.data.txs) {
+            const transaction = await  this._unifyTransaction(address, legacyAddress, tx)
             transactions.push(transaction)
         }
         BlocksoftCryptoLog.log('BchScannerProcessor.getTransactions finished', address + ' total: ' + transactions.length)
@@ -64,6 +65,7 @@ export default class BchScannerProcessor {
     /**
      * @param {string} address
      * @param {string} legacyAddress
+     * @param {Object} transaction
      * @param {string} transaction.txid '5be83026d82b56e8df7fa309e0b50132cb5cac228f83103532b20e0c991a3f9b'
      * @param {string} transaction.version 1
      * @param {string} transaction.locktime 0
@@ -118,12 +120,18 @@ export default class BchScannerProcessor {
         }
         let formattedTime
         try {
-            formattedTime = BlocksoftUtils.toDate(typeof transaction.blocktime != 'undefined' ? transaction.blocktime : transaction.time)
+            formattedTime = BlocksoftUtils.toDate(typeof transaction.blocktime !== 'undefined' ? transaction.blocktime : transaction.time)
         } catch (e) {
             e.message += ' timestamp error transaction data ' + JSON.stringify(transaction)
             throw e
         }
-        let confirmations = transaction.confirmations * 1;
+        const confirmations = transaction.confirmations * 1
+        let transactionStatus = 'new'
+        if (confirmations > this._blocksToConfirm) {
+            transactionStatus = 'success'
+        } else if (confirmations > 0) {
+            transactionStatus = 'confirming'
+        }
         return {
             transaction_hash: transaction.txid,
             block_hash: transaction.blockhash,
@@ -134,7 +142,7 @@ export default class BchScannerProcessor {
             address_from: BtcCashUtils.fromLegacyAddress(showAddresses.from),
             address_to: BtcCashUtils.fromLegacyAddress(showAddresses.to),
             address_amount: showAddresses.value,
-            transaction_status: confirmations > this._blocksToConfirm ? 'success' : 'new',
+            transaction_status: transactionStatus,
             transaction_fee: BlocksoftUtils.toSatoshi(transaction.fees),
             lock_time: +transaction.locktime,
             vin: JSON.stringify(transaction.vin),

@@ -35,32 +35,33 @@ export default class TrxTransactionsProvider {
      * @returns {Promise<boolean|UnifiedTransaction[]>}
      */
     async get(address, tokenName) {
-        let now = new Date().getTime()
-        if (typeof CACHE_OF_TRANSACTIONS[address] !== 'undefined' && (now - CACHE_OF_TRANSACTIONS[address]['time']) < CACHE_VALID_TIME) {
-            if (typeof CACHE_OF_TRANSACTIONS[address][tokenName] != 'undefined') {
+        const now = new Date().getTime()
+        if (typeof CACHE_OF_TRANSACTIONS[address] !== 'undefined' && (now - CACHE_OF_TRANSACTIONS[address].time) < CACHE_VALID_TIME) {
+            if (typeof CACHE_OF_TRANSACTIONS[address][tokenName] !== 'undefined') {
                 BlocksoftCryptoLog.log(' TrxTransactionsProvider.get from cache', address + ' => ' + tokenName)
                 return CACHE_OF_TRANSACTIONS[address][tokenName]
             }
         }
 
-        let res = await BlocksoftAxios.getWithoutBraking(this._tronscanLink + address, TXS_MAX_TRY)
+        const res = await BlocksoftAxios.getWithoutBraking(this._tronscanLink + address, TXS_MAX_TRY)
         if (!res || !res.data || typeof res.data.data === 'undefined' || res.data.data.length === 0) return false
 
         this._lastBlock = await this._nodeInfo.getLastBlock()
 
         CACHE_OF_TRANSACTIONS[address] = {}
-        CACHE_OF_TRANSACTIONS[address]['time'] = new Date().getTime()
+        CACHE_OF_TRANSACTIONS[address].time = new Date().getTime()
         CACHE_OF_TRANSACTIONS[address][tokenName] = []
-        for (let tx of res.data.data) {
-            let transaction = await this._unifyTransaction(address, tx)
+        let tx
+        for (tx of res.data.data) {
+            const transaction = await this._unifyTransaction(address, tx)
             if (!transaction) continue
 
             let txTokenName = '_'
             if (typeof tx.contractData === 'undefined') {
                 txTokenName = tokenName
-            }  else if (typeof tx.contractData.contract_address != 'undefined') {
+            }  else if (typeof tx.contractData.contract_address !== 'undefined') {
                 txTokenName = tx.contractData.contract_address
-            } else if (typeof tx.contractData.asset_name != 'undefined') {
+            } else if (typeof tx.contractData.asset_name !== 'undefined') {
                 txTokenName = tx.contractData.asset_name
             }
             if (typeof CACHE_OF_TRANSACTIONS[address][txTokenName] === 'undefined') {
@@ -88,21 +89,21 @@ export default class TrxTransactionsProvider {
      * @private
      */
     async _unifyTransaction(address, transaction) {
-        let transaction_status = 'new'
+        let transactionStatus = 'new'
         if (transaction.confirmed) {
             if (typeof transaction.contractRet === 'undefined') {
-                transaction_status = 'success'
+                transactionStatus = 'success'
             } else if (transaction.contractRet === 'SUCCESS') {
-                transaction_status = 'success'
+                transactionStatus = 'success'
             } else {
-                transaction_status = 'fail'
+                transactionStatus = 'fail'
             }
         } else if (transaction.block > 0) {
-            transaction_status = 'fail'
+            transactionStatus = 'fail'
         }
 
         if (typeof transaction.timestamp === 'undefined') {
-            new Error(' no transaction.timeStamp error transaction data ' + JSON.stringify(transaction))
+            throw new Error(' no transaction.timeStamp error transaction data ' + JSON.stringify(transaction))
         }
         let formattedTime = transaction.timestamp
         try {
@@ -111,12 +112,16 @@ export default class TrxTransactionsProvider {
             e.message += ' timestamp error transaction data ' + JSON.stringify(transaction)
             throw e
         }
-        if (typeof transaction.contractData.amount == 'undefined') {
-            if (typeof transaction.contractType != 'undefined' && transaction.contractType === 31) {
-                //skip here
+        if (typeof transaction.contractData.amount === 'undefined') {
+            if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 31) {
+                // skip here
             } else {
-                // noinspection ES6MissingAwait
-                BlocksoftCryptoLog.err('TrxTransactionsProvider._unifyTransaction buggy tx ' + JSON.stringify(transaction))
+                if (transaction.contractType === 11 || transaction.contractType === 4 || transaction.contractType === 13) {
+                    // freeze = 11, vote = 4, claim = 13
+                } else {
+                    // noinspection ES6MissingAwait
+                    BlocksoftCryptoLog.err('TrxTransactionsProvider._unifyTransaction buggy tx ' + JSON.stringify(transaction))
+                }
             }
             return false
         }
@@ -130,7 +135,7 @@ export default class TrxTransactionsProvider {
             address_from: transaction.ownerAddress,
             address_to: transaction.toAddress,
             address_amount: typeof transaction.contractData.amount !== 'undefined' ? transaction.contractData.amount : 0,
-            transaction_status,
+            transaction_status : transactionStatus,
             transaction_fee: 0,
             input_value: transaction.data
         }

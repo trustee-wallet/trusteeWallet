@@ -1,12 +1,8 @@
-import store from '../../store'
-
 import cryptoWalletDS from '../DataSource/CryptoWallets/CryptoWallets'
 
 import App from './App/App'
 
 import { setLoaderStatus } from './MainStoreActions'
-
-import NavStore from '../../components/navigation/NavStore'
 
 import Log from '../../services/Log/Log'
 
@@ -32,9 +28,9 @@ const cryptoWalletActions = {
 
         }
 
-        NavStore.reset('DashboardStack')
-
-        setLoaderStatus(false)
+        setTimeout(() => {
+            setLoaderStatus(false)
+        }, 1000)
     },
 
 }

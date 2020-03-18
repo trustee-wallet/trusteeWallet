@@ -1,34 +1,42 @@
 import { createStackNavigator } from 'react-navigation-stack'
 
+import StartScreen from '../modules/Exchange/StartScreen'
 import MainDataScreen from '../modules/Exchange/MainDataScreen'
 import ConfirmScreen from '../modules/Exchange/ConfirmScreen'
 import FinishScreen from '../modules/Exchange/FinishScreen'
 
 const exchangeScreenStack = createStackNavigator(
     {
+        StartScreen: {
+            screen: StartScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
         MainDataScreen: {
             screen: MainDataScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         ConfirmScreen: {
             screen: ConfirmScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         FinishScreen: {
             screen: FinishScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         }
     },
     {
-        initialRouteName: 'MainDataScreen',
+        initialRouteName: 'StartScreen',
     }
 )
 

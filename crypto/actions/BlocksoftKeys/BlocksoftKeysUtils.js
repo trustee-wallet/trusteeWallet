@@ -3,7 +3,6 @@
  * @version 0.5
  */
 const createHash = require('create-hash')
-// noinspection NpmUsedModulesInstalled
 const createHmac = require('create-hmac')
 
 const createHmacPDFK2Sizes = {
@@ -27,19 +26,19 @@ class BlocksoftKeysUtils {
 
         digest = digest || 'sha1'
 
-        let DK = Buffer.allocUnsafe(keylen)
-        let block1 = Buffer.allocUnsafe(salt.length + 4)
+        const DK = Buffer.allocUnsafe(keylen)
+        const block1 = Buffer.allocUnsafe(salt.length + 4)
         salt.copy(block1, 0, 0, salt.length)
 
         let destPos = 0
-        let hLen = createHmacPDFK2Sizes[digest]
-        let l = Math.ceil(keylen / hLen)
+        const hLen = createHmacPDFK2Sizes[digest]
+        const l = Math.ceil(keylen / hLen)
 
         for (let i = 1; i <= l; i++) {
             block1.writeUInt32BE(i, salt.length)
 
             // noinspection JSUnresolvedFunction
-            let T = createHmac(digest, password).update(block1).digest()
+            const T = createHmac(digest, password).update(block1).digest()
             let U = T
 
             for (let j = 1; j < iterations; j++) {
@@ -64,12 +63,13 @@ class BlocksoftKeysUtils {
 
 
     static recheckMnemonic(mnemonic) {
-        let words = mnemonic.trim().toLowerCase().split(/\s+/g)
-        let checked = []
-        for (let word of words) {
+        const words = mnemonic.trim().toLowerCase().split(/\s+/g)
+        const checked = []
+        let word
+        for (word of words) {
             if (!word || word.length < 2) continue
             // noinspection JSUnresolvedFunction
-            let index = DEFAULT_WORDS.indexOf(word)
+            const index = DEFAULT_WORDS.indexOf(word)
             if (index === -1) {
                 throw new Error('BlocksoftKeysStorage invalid word ' + word)
             }

@@ -15,6 +15,8 @@ export default {
 
         return fetch(`${baseUrl}/validate-card`, {
             method: "POST",
+            credentials: 'same-origin',
+            mode: 'same-origin',
             headers: {
                 'Accept': 'multipart/form-data',
                 'Content-Type': 'multipart/form-data',
@@ -39,6 +41,9 @@ export default {
         const signedData = await Cashback.createSignature()
 
         const cashbackToken = Cashback.getCashbackToken()
+
+        console.log('cashbackToken')
+        console.log(cashbackToken)
 
         if (!cashbackToken) {
             throw new Error('No cashbackToken')

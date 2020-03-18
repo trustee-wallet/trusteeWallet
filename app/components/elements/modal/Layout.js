@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import Modal from 'react-native-modal';
-import { View, StyleSheet, ImageBackground } from 'react-native';
-
-import DeviceInfo from 'react-native-device-info';
-const hasNotch = DeviceInfo.hasNotch();
+import { View, StyleSheet, ImageBackground, SafeAreaView, Platform } from 'react-native';
 
 export default class ModalLayout extends Component {
 
@@ -14,13 +11,28 @@ export default class ModalLayout extends Component {
     render() {
         return (
             <Modal style={styles.modal} hasBackdrop={false} isVisible={this.props.visible}>
-                <View style={styles.container}>
-                    <ImageBackground style={styles.img} source={require('../../../assets/images/modalBg.png')}  resizeMode="stretch">
-                        <View style={{ paddingBottom: hasNotch ? 20 : 0 }}>
-                            { this.props.children }
+                {
+                    Platform.OS === "ios" ?
+                        <SafeAreaView style={{ position: "relative", flex: 1, justifyContent: "flex-end", zIndex: 1 }}>
+                            <View style={styles.container}>
+                                <ImageBackground style={styles.img} source={require('../../../assets/images/modalBg.png')}  resizeMode="stretch">
+                                    <View style={{ paddingBottom: 0 }}>
+                                        { this.props.children }
+                                    </View>
+                                </ImageBackground>
+                            </View>
+                        </SafeAreaView>
+                        :
+                        <View style={styles.container}>
+                            <ImageBackground style={styles.img} source={require('../../../assets/images/modalBg.png')}  resizeMode="stretch">
+                                <View style={{ paddingBottom: 0 }}>
+                                    { this.props.children }
+                                </View>
+                            </ImageBackground>
                         </View>
-                    </ImageBackground>
-                </View>
+                }
+
+                <View style={{ position: "absolute", bottom: 0, left: 0, zIndex: 0, width: "100%", height: 60, backgroundColor: "#FCFCFC" }} />
             </Modal>
         )
     }
@@ -36,7 +48,10 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: 'flex-end',
         position: 'relative',
-        width: '100%'
+        width: '100%',
+        marginBottom: -1,
+
+        zIndex: 1
     },
     img: {
         width: '100%',

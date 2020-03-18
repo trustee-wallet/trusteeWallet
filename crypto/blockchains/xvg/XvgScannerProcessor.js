@@ -5,8 +5,8 @@
  */
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+
 import XvgTmpDS from './stores/XvgTmpDS'
-import BlocksoftUtils from '../../common/BlocksoftUtils'
 import XvgFindAddressFunction from './basic/XvgFindAddressFunction'
 
 const API_PATH = 'https://api.vergecurrency.network/node/api/XVG/mainnet'
@@ -26,15 +26,15 @@ export default class XvgScannerProcessor {
      * @return {Promise<{balance:*, unconfirmed:*, provider:string}>}
      */
     async getBalance(address) {
-        let link = `${API_PATH}/address/${address}/balance`
-        let res = await BlocksoftAxios.getWithoutBraking(link)
+        const link = `${API_PATH}/address/${address}/balance`
+        const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || !res.data) {
             return false
         }
         if (typeof res.data.confirmed === 'undefined') {
             throw new Error('XvgScannerProcessor.getBalance nothing loaded for address ' + link)
         }
-        let balance = res.data.confirmed
+        const balance = res.data.confirmed
         return { balance, unconfirmed: 0, provider: 'api.vergecurrency' }
     }
 
@@ -45,7 +45,7 @@ export default class XvgScannerProcessor {
     async getTransactions(address) {
         address = address.trim()
         BlocksoftCryptoLog.log('XvgScannerProcessor.getTransactions started', address)
-        let link = `${API_PATH}/address/${address}/txs`
+        const link = `${API_PATH}/address/${address}/txs`
         BlocksoftCryptoLog.log('XvgScannerProcessor.getTransactions call ' + link)
         let tmp = await BlocksoftAxios.get(link)
         if (tmp.status < 200 || tmp.status >= 300) {
@@ -61,12 +61,13 @@ export default class XvgScannerProcessor {
             tmp = tmp.data // wtf but ok to support old wallets
         }
 
-        let transactions = []
-        let already = {}
+        const transactions = []
+        const already = {}
         CACHE_FROM_DB = await XvgTmpDS.getCache(address)
 
-        for (let tx of tmp) { //ASC order is important
-            let tmp2 = await this._unifyTransactionStep1(address, tx, already)
+        let tx
+        for (tx of tmp) { // ASC order is important
+            const tmp2 = await this._unifyTransactionStep1(address, tx, already)
             if (tmp2) {
                 if (tmp2.outcoming) {
                     if (typeof CACHE_FROM_DB[tmp2.outcoming.transaction_hash + '_data'] === 'undefined') {
@@ -113,18 +114,18 @@ export default class XvgScannerProcessor {
         if (!transaction) return false
 
         if (typeof CACHE[transaction.transaction_hash] !== 'undefined') {
-            if (CACHE[transaction.transaction_hash]['data'].block_confirmations > 100) {
-                return CACHE[transaction.transaction_hash]['data']
+            if (CACHE[transaction.transaction_hash].data.block_confirmations > 100) {
+                return CACHE[transaction.transaction_hash].data
             }
-            let now = new Date().getTime()
-            if (now - CACHE[transaction.transaction_hash]['time'] < CACHE_VALID_TIME) {
-                return CACHE[transaction.transaction_hash]['data']
+            const now = new Date().getTime()
+            if (now - CACHE[transaction.transaction_hash].time < CACHE_VALID_TIME) {
+                return CACHE[transaction.transaction_hash].data
             }
         }
 
         let tmp
 
-        let link = `${API_PATH}/tx/${transaction.transaction_hash}/coins`
+        const link = `${API_PATH}/tx/${transaction.transaction_hash}/coins`
         BlocksoftCryptoLog.log('XvgScannerProcessor._unifyTransactionStep2 call for outputs should be ' + link)
 
         if (typeof CACHE_FROM_DB[transaction.transaction_hash + '_coins'] !== 'undefined') {
@@ -133,6 +134,7 @@ export default class XvgScannerProcessor {
             BlocksoftCryptoLog.log('XvgScannerProcessor._unifyTransactionStep2 called ' + link)
             tmp = await BlocksoftAxios.get(link)
             tmp = tmp.data
+            // noinspection ES6MissingAwait
             XvgTmpDS.saveCache(address, transaction.transaction_hash, 'coins', tmp)
             CACHE_FROM_DB[transaction.transaction_hash + '_coins'] = tmp
         }
@@ -152,7 +154,7 @@ export default class XvgScannerProcessor {
         transaction.address_amount = output.value
 
 
-        let link2 = `${API_PATH}/tx/${transaction.transaction_hash}`
+        const link2 = `${API_PATH}/tx/${transaction.transaction_hash}`
         BlocksoftCryptoLog.log('XvgScannerProcessor._unifyTransactionStep2 call for details ' + link2)
         let tmp2 = await BlocksoftAxios.get(link2)
         tmp2 = tmp2.data
@@ -162,15 +164,21 @@ export default class XvgScannerProcessor {
         if (transaction.block_confirmations < 0) transaction.block_confirmations = transaction.block_confirmations * -1
 
         transaction.transaction_fee = tmp2.fee
-        transaction.transaction_status = transaction.block_confirmations > this._blocksToConfirm ? 'success' : 'new'
+        transaction.transaction_status = 'new'
+        if (transaction.block_confirmations > this._blocksToConfirm) {
+            transaction.transaction_status = 'success'
+        } else if (transaction.block_confirmations > 0) {
+            transaction.transaction_status = 'confirming'
+        }
         if (transaction.transaction_status === 'success') {
+            // noinspection ES6MissingAwait
             XvgTmpDS.saveCache(address, transaction.transaction_hash, 'data', tmp2)
-            CACHE_FROM_DB[transaction.transaction_hash + '_data'] = 1 //no need all - just mark
+            CACHE_FROM_DB[transaction.transaction_hash + '_data'] = 1 // no need all - just mark
         }
         BlocksoftCryptoLog.log('XvgScannerProcessor._unifyTransactionStep2 call for details result ', transaction)
         CACHE[transaction.transaction_hash] = {}
-        CACHE[transaction.transaction_hash]['time'] = new Date().getTime()
-        CACHE[transaction.transaction_hash]['data'] = transaction
+        CACHE[transaction.transaction_hash].time = new Date().getTime()
+        CACHE[transaction.transaction_hash].data = transaction
         return transaction
     }
 
@@ -191,12 +199,13 @@ export default class XvgScannerProcessor {
      * @param {string} transaction.script 76a914a3d43334ff9ea4c257a1796b63e4fa8330747d2e88ac
      * @param {string} transaction.value 95000000
      * @param {string} transaction.confirmations
+     * @param {*} already
      * @return {UnifiedTransaction}
      * @private
      */
     async _unifyTransactionStep1(address, transaction, already) {
         if (transaction.chain !== 'XVG' || transaction.network !== 'mainnet') return false
-        let res = { incoming: false, outcoming: false }
+        const res = { incoming: false, outcoming: false }
         if (transaction.spentTxid && typeof already[transaction.spentTxid] === 'undefined') {
             res.outcoming = {
                 transaction_hash: transaction.spentTxid,
@@ -221,7 +230,7 @@ export default class XvgScannerProcessor {
                 transaction_direction: 'income',
                 address_from: '?',
                 address_to: transaction.address,
-                address_amount: '0', //transaction.value
+                address_amount: '0', // transaction.value
                 transaction_status: '?'
             }
         }

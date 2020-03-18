@@ -10,9 +10,9 @@ export default class TrxAddressProcessor {
      * @returns {Promise<{privateKey: string, address: string, addedData: *}>}
      */
     async getAddress(privateKey, data = {}) {
-        let pubKey = TronUtils.privHexToPubHex(privateKey)
-        let addressHex = TronUtils.pubHexToAddressHex(pubKey)
-        let address = TronUtils.addressHexToStr(addressHex)
+        const pubKey = TronUtils.privHexToPubHex(privateKey)
+        const addressHex = TronUtils.pubHexToAddressHex(pubKey)
+        const address = TronUtils.addressHexToStr(addressHex)
         return { address, privateKey : privateKey.toString('hex'), addedData: {addressHex, pubKey} }
     }
 }

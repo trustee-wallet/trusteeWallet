@@ -201,24 +201,22 @@ class ToolTips extends Component {
                 break
             case 'ACCOUNT_SCREEN_TRANSACTION_TIP':
                 // isVisible = tipsStates.homeScreen.sellBuyBtn
-                nextBtnText = nextBtnText = strings(`tooltips.buttons.next`)
-                isSkip = true
+                nextBtnText = nextBtnText = strings(`tooltips.buttons.close`)
+                isSkip = false
                 nextBtnCallback = (showNext = true) => {
                     this.state.canShowNext = true
                     showNext ? this.refTooltip.toggleTooltip() : null
-                    nextCallback()
                     setTimeout(() => {
-                        tipsRef['ACCOUNT_SCREEN_ORDERS_TIP'].toggleTooltip()
-                        setTimeout(() => {
-                            this.state.canShowNext = false
-                            this.setState({ isCanBeShowed: false })
-                        }, 0)
-                    }, 500)
+                        this.state.canShowNext = false
+                        this.setState({ isCanBeShowed: false })
+                    }, 0)
 
                     ToolTipsActions.setToolTipRef({
                         ref: { isCanBeShowed: false },
                         name: this.props.type,
                     })
+
+                    settingsActions.setSettings('tool_tips_state', 0)
                 }
 
                 this.nextBtnCallback = nextBtnCallback

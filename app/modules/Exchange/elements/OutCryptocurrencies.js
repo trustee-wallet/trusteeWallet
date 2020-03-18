@@ -11,8 +11,6 @@ import accountDS from '../../../appstores/DataSource/Account/Account'
 import { showModal } from '../../../appstores/Actions/ModalActions'
 import { strings } from '../../../services/i18n'
 
-import _ from 'lodash'
-
 
 class OutCryptocurrencies extends Component {
 
@@ -23,13 +21,15 @@ class OutCryptocurrencies extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps){
+    // eslint-disable-next-line camelcase
+    UNSAFE_componentWillReceiveProps(nextProps){
         if(typeof nextProps.selectedOutCryptocurrency.currencyCode != 'undefined' && this.props.selectedInCryptocurrency.currencyCode === nextProps.selectedOutCryptocurrency.currencyCode && this.props.selectedOutCryptocurrency.currencyCode !== nextProps.selectedOutCryptocurrency.currencyCode){
             this.props.refInCryptocurrencies.setCryptocurrency({ key: this.props.selectedOutCryptocurrency.currencyCode, value: this.getValueForSelected(this.props.selectedOutCryptocurrency) })
         }
     }
 
-    componentWillMount() {
+    // eslint-disable-next-line camelcase
+    UNSAFE_componentWillMount() {
         this.init()
     }
 
@@ -38,9 +38,7 @@ class OutCryptocurrencies extends Component {
         const { extendsFields } = this.props
         const exchangeApiConfig = JSON.parse(JSON.stringify(this.props.exchangeStore.exchangeApiConfig))
 
-        let cryptocurrenciesList
-
-        cryptocurrenciesList = exchangeApiConfig.map(item => item[extendsFields.inCryptocurrency])
+        let cryptocurrenciesList = exchangeApiConfig.map(item => item[extendsFields.outCryptocurrency])
 
         cryptocurrenciesList = cryptocurrencies.map(item => {
             if(cryptocurrenciesList.includes(item.currencyCode)){
@@ -51,6 +49,10 @@ class OutCryptocurrencies extends Component {
         cryptocurrenciesList = cryptocurrenciesList.filter((el) => {
             return el != null
         })
+
+
+
+
 
         const param = this.props.navigation.getParam('exchangeScreenParam')
 
@@ -99,17 +101,49 @@ class OutCryptocurrencies extends Component {
     // }
 
     handleSelectCryptocurrency = async (cryptocurrency) => {
-        const { selectedWallet } = this.props.mainStore
+        const { selectedWallet, currencies } = this.props.mainStore
+        const { selectedInCryptocurrency, handleGetExchangeWay, extendsFields } = this.props
         const availableOutCryptocurrencies = JSON.parse(JSON.stringify(this.state.availableOutCryptocurrencies))
 
         let selectedOutCryptocurrency = availableOutCryptocurrencies.filter(item => item.currencyCode === cryptocurrency.key)
         selectedOutCryptocurrency = selectedOutCryptocurrency[0]
 
-        let selectedAccount = await accountDS.getAccountData(selectedWallet.wallet_hash, selectedOutCryptocurrency.currencyCode)
-        selectedAccount = selectedAccount.array[0]
+        let selectedOutAccount = await accountDS.getAccountData({wallet_hash : selectedWallet.wallet_hash, currency_code : selectedOutCryptocurrency.currencyCode})
+        selectedOutAccount = selectedOutAccount[0]
 
-        this.props.handleSetState('selectedOutCryptocurrency', selectedOutCryptocurrency)
-        this.props.handleSetState('selectedOutAccount', selectedAccount)
+        const exchangeWay = handleGetExchangeWay(selectedInCryptocurrency, selectedOutCryptocurrency)
+
+        if(typeof exchangeWay === "undefined"){
+            let exchangeApiConfig = JSON.parse(JSON.stringify(this.props.exchangeStore.exchangeApiConfig))
+
+            exchangeApiConfig = exchangeApiConfig.filter(item => item[extendsFields.outCryptocurrency] === selectedOutCryptocurrency.currencyCode)
+
+            let cryptocurrenciesList = exchangeApiConfig.map(item => item[extendsFields.inCryptocurrency])
+
+            cryptocurrenciesList = currencies.map(item => {
+                if(cryptocurrenciesList.includes(item.currencyCode)){
+                    return item
+                }
+            })
+
+            cryptocurrenciesList = cryptocurrenciesList.filter((el) => {
+                return el != null
+            })
+
+            let selectedInAccount = await accountDS.getAccountData({wallet_hash : selectedWallet.wallet_hash, currency_code : cryptocurrenciesList[0].currencyCode})
+            selectedInAccount = selectedInAccount[0]
+
+            const selectedInCryptocurrency = currencies.find(item => item.currencyCode === cryptocurrenciesList[0].currencyCode)
+
+            this.props.handleSetState('selectedInCryptocurrency', selectedInCryptocurrency)
+            this.props.handleSetState('selectedInAccount', selectedInAccount)
+
+            this.props.handleSetState('selectedOutCryptocurrency', selectedOutCryptocurrency)
+            this.props.handleSetState('selectedOutAccount', selectedOutAccount)
+        } else {
+            this.props.handleSetState('selectedOutCryptocurrency', selectedOutCryptocurrency)
+            this.props.handleSetState('selectedOutAccount', selectedOutAccount)
+        }
     }
 
     getValueForSelected = (selectedCryptocurrency) => {
@@ -126,13 +160,12 @@ class OutCryptocurrencies extends Component {
         const availableOutCryptocurrencies = JSON.parse(JSON.stringify(this.state.availableOutCryptocurrencies))
         const selectedOutCryptocurrency = JSON.parse(JSON.stringify(this.props.selectedOutCryptocurrency))
 
-        let listForSelect
-        let selectedItem = {
+        const selectedItem = {
             key: selectedOutCryptocurrency.currencySymbol,
             value: this.getValueForSelected(selectedOutCryptocurrency)
         }
 
-        listForSelect = availableOutCryptocurrencies.map(item => {
+        const listForSelect = availableOutCryptocurrencies.map(item => {
             if(item.currencyCode === 'USDT')
                 return { key: item.currencyCode, value : `USDT - Tether OMNI`}
             else if(item.currencyCode === 'ETH_USDT')
@@ -173,7 +206,7 @@ class OutCryptocurrencies extends Component {
             return (
                 <TouchableOpacity style={[styles.select, styles.select_active]} onPress={this.handleOpenSelectTradeCryptocurrency}>
                     <CustomIcon style={styles.select__currencyIcon} name={selectedOutCryptocurrency.currencyCode} />
-                    <Text style={styles.select__text}>{ this.renderSelectedCryptocurrency(selectedOutCryptocurrency) }</Text>
+                    <Text style={styles.select__text} numberOfLines={1}>{ this.renderSelectedCryptocurrency(selectedOutCryptocurrency) }</Text>
                     <View style={styles.select__icon__wrap}>
                         <Ionicons style={styles.select__icon} name='ios-arrow-down' />
                     </View>
@@ -242,6 +275,8 @@ const styles = {
         backgroundColor: '#A168F2',
     },
     select__text: {
+        flex: 1,
+
         marginRight: 'auto',
 
         fontSize: 19,

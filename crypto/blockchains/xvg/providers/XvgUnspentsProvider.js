@@ -35,8 +35,8 @@ export default class XvgUnspentsProvider {
     async getUnspents(address) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XvgUnspentsProvider.getUnspents started', address)
 
-        let link = this._apiPath + address + '/txs/?unspent=true'
-        let res = await BlocksoftAxios.getWithoutBraking(link)
+        const link = this._apiPath + address + '/txs/?unspent=true'
+        const res = await BlocksoftAxios.getWithoutBraking(link)
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XvgUnspentsProvider.getUnspents link', link)
         if (!res || typeof res.data === 'undefined') {
             throw new Error(this._settings.currencyCode + ' XvgUnspentsProvider.getUnspents nothing loaded for address')
@@ -44,7 +44,7 @@ export default class XvgUnspentsProvider {
         if (!res.data || typeof res.data[0] === 'undefined') {
             return []
         }
-        let sortedUnspents = []
+        const sortedUnspents = []
         /**
          * https://api.vergecurrency.network/node/api/XVG/mainnet/address/DL5LtSf7wztH45VuYunL8oaQHtJbKLCHyw/txs/?unspent=true
          * @param {*} res.data[]
@@ -62,8 +62,9 @@ export default class XvgUnspentsProvider {
          * @param {string} res.data[].value 91523000
          * @param {string} res.data[].confirmations -1
          */
-        let already = {}
-        for (let unspent of res.data) {
+        const already = {}
+        let unspent
+        for (unspent of res.data) {
             if (typeof already[unspent.mintTxid] === 'undefined' || already[unspent.mintTxid] > unspent.value) {
                 sortedUnspents.push({
                     txid: unspent.mintTxid,

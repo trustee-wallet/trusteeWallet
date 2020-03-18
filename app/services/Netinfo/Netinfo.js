@@ -16,6 +16,12 @@ export default new class NetInfo {
      */
 
     isInternetReachable = async (toastPosition) => {
+        await NetInfoModule.fetch()
+
+        await new Promise((resolve,reject) => {
+            setTimeout(() => { resolve() }, 200)
+        })
+
         const { isInternetReachable } = await NetInfoModule.fetch()
 
         if(isInternetReachable) return

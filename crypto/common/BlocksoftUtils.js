@@ -9,7 +9,7 @@ class BlocksoftUtils {
 
     /**
      * @param val
-     * @returns BigNumber
+     * @returns BN
      */
     static toBigNumber(val) {
         // noinspection JSCheckFunctionSignatures,JSUnresolvedVariable
@@ -24,7 +24,7 @@ class BlocksoftUtils {
         if (val.indexOf('e+') === -1) {
             return val
         }
-        let parts = val.split('e+')
+        const parts = val.split('e+')
         return this.fromUnified(parts[0], parts[1])
     }
 
@@ -45,7 +45,7 @@ class BlocksoftUtils {
         }
         // noinspection JSUnresolvedVariable,JSCheckFunctionSignatures
         let added = ''
-        let till = 18 - decimals
+        const till = 18 - decimals
         if (till < 0) {
             throw new Error('toUnified till is less then 0, decimals = ' + decimals)
         }
@@ -58,12 +58,12 @@ class BlocksoftUtils {
 
     static fromUnified(val, decimals = 8) {
         val = val.toString()
-        let parts = val.split('.')
+        const parts = val.split('.')
         let number = parts[0]
         if (!parts[1] || !parts[1].length) return (number + '0'.repeat(decimals))
 
         // fill the letters after point
-        let letters = parts[1].split('')
+        const letters = parts[1].split('')
         let needToFill = decimals
         for (let i = 0, ic = letters.length; i < ic; i++) {
             needToFill--
@@ -145,6 +145,7 @@ class BlocksoftUtils {
     static hexToUtf(hex) {
         return Web3.utils.hexToUtf8(hex)
     }
+
     static decimalToHex(decimal, len = 0) {
         let str = Web3.utils.toHex(decimal).substr(2)
         if (len > 0) {

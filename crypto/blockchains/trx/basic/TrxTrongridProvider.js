@@ -20,29 +20,30 @@ export default class TrxTrongridProvider {
      * @returns {Promise<boolean|{unconfirmed: number, balance: *, provider: string}>}
      */
     async get(address, tokenName) {
-        let now = new Date().getTime()
-        if (typeof CACHE_TRONGRID[address] !== 'undefined' && (now - CACHE_TRONGRID[address]['time']) < CACHE_VALID_TIME) {
+        const now = new Date().getTime()
+        if (typeof CACHE_TRONGRID[address] !== 'undefined' && (now - CACHE_TRONGRID[address].time) < CACHE_VALID_TIME) {
             if (typeof CACHE_TRONGRID[address][tokenName] !== 'undefined') {
                 BlocksoftCryptoLog.log('TrxTrongridProvider.get from cache', address + ' => ' + tokenName + ' : ' + CACHE_TRONGRID[address][tokenName])
                 return { balance: CACHE_TRONGRID[address][tokenName], unconfirmed: 0, provider: 'trongrid-cache' }
             }
         }
 
-        let res = await BlocksoftAxios.getWithoutBraking(BALANCE_PATH + address, BALANCE_MAX_TRY)
+        const res = await BlocksoftAxios.getWithoutBraking(BALANCE_PATH + address, BALANCE_MAX_TRY)
         if (!res || !res.data || typeof res.data.balance === 'undefined') return false
 
         CACHE_TRONGRID[address] = {}
-        CACHE_TRONGRID[address]['time'] = now
-        CACHE_TRONGRID[address]['_'] = res.data.balance
+        CACHE_TRONGRID[address].time = now
+        CACHE_TRONGRID[address]._ = res.data.balance
         if (res.data.assetV2) {
-            for (let token of res.data.assetV2) {
+            let token
+            for (token of res.data.assetV2) {
                 CACHE_TRONGRID[address][token.key] = token.value
             }
         }
 
         if (typeof CACHE_TRONGRID[address][tokenName] === 'undefined') return false
 
-        let balance = CACHE_TRONGRID[address][tokenName]
+        const balance = CACHE_TRONGRID[address][tokenName]
         return { balance, unconfirmed: 0, provider: 'trongrid' }
     }
 }

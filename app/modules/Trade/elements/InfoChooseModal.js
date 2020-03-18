@@ -15,7 +15,7 @@ import GradientView from "../../../components/elements/GradientView";
 
 import Cross from "react-native-vector-icons/Entypo";
 
-import { strings } from 'root/app/services/i18n';
+import { strings } from '../../../../app/services/i18n';
 
 const width = Dimensions.get('window').width;
 const { width: WIDTH } = Dimensions.get("window");
@@ -63,12 +63,12 @@ export class CongratsModal extends Component {
                     {
                         typeof hideBottom != "undefined" && hideBottom ? null :
                             <View style={styles.bottom}>
-                                <Button press={() => declineCallback()} styles={styles.btn}>
+                                <ButtonLine press={() => declineCallback()} styles={styles.btn}>
                                     { strings('modal.infoChoose.decline') }
-                                </Button>
-                                <ButtonLine press={() => acceptCallback()} styles={styles.btn}>
-                                    { strings('modal.infoChoose.accept') }
                                 </ButtonLine>
+                                <Button press={() => acceptCallback()} styles={styles.btn}>
+                                    { strings('modal.infoChoose.accept') }
+                                </Button>
                             </View>
                     }
                 </View>

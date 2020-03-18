@@ -3,7 +3,7 @@
  */
 import BtcAddressProcessor from './BtcAddressProcessor'
 
-let bitcoin = require('bitcoinjs-lib')
+const bitcoin = require('bitcoinjs-lib')
 
 export default class BtcSegwitAddressProcessor extends BtcAddressProcessor {
     /**
@@ -12,8 +12,8 @@ export default class BtcSegwitAddressProcessor extends BtcAddressProcessor {
      * @returns {Promise<{privateKey: string, address: string, addedData: *}>}
      */
     async getAddress(privateKey, data = {}) {
-        let keyPair = bitcoin.ECPair.fromPrivateKey(privateKey, { network: this._currentBitcoinNetwork })
-        let address = bitcoin.payments.p2wpkh({pubkey: keyPair.publicKey, network: this._currentBitcoinNetwork}).address
+        const keyPair = bitcoin.ECPair.fromPrivateKey(privateKey, { network: this._currentBitcoinNetwork })
+        const address = bitcoin.payments.p2wpkh({pubkey: keyPair.publicKey, network: this._currentBitcoinNetwork}).address
         return { address, privateKey: keyPair.toWIF() }
     }
 }

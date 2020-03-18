@@ -1,14 +1,9 @@
-/**
- * @version 0.2
- */
-
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {
     View,
     Text,
     Animated,
-    Dimensions,
     TouchableOpacity,
     Image,
     Switch,
@@ -16,12 +11,10 @@ import {
 } from 'react-native'
 
 import AsyncStorage from "@react-native-community/async-storage"
-import DeviceInfo from "react-native-device-info"
-import Snow from "react-native-snow"
 
 import Entypo from "react-native-vector-icons/Entypo"
 import Fontisto from "react-native-vector-icons/Fontisto"
-import Feather from "react-native-vector-icons/Feather"
+
 import moment from "moment"
 import "moment/min/locales.min"
 
@@ -31,21 +24,18 @@ import ToolTips from '../../../components/elements/ToolTips'
 import { setQRConfig, setQRValue } from '../../../appstores/Actions/QRCodeScannerActions'
 import i18n, { strings } from '../../../services/i18n'
 
-import { capitalize } from '../../../services/utils'
-
 import Log from '../../../services/Log/Log'
 import FiatRatesActions from '../../../appstores/Actions/FiatRatesActions'
 import MarketingEvent from '../../../services/Marketing/MarketingEvent'
-import { checkQRPermission } from '../../../services/utils'
+import { capitalize } from '../../../services/utils'
+import { checkQRPermission } from '../../../services/Qr/QrPermissions'
 import GradientView from '../../../components/elements/GradientView'
 
-import QRCodeBtn from "../../../assets/images/qrCodeBtn.svg"
+import QRCodeBtn from "../../../assets/images/qrCodeBtn"
 
 import LetterSpacing from '../../../components/elements/LetterSpacing'
 
 import currencyDS from "../../../appstores/DataSource/Currency/Currency"
-
-const hasNotch = DeviceInfo.hasNotch()
 
 
 class WalletInfo extends Component {
@@ -64,93 +54,104 @@ class WalletInfo extends Component {
         }
     }
 
-    async componentWillMount() {
+    // eslint-disable-next-line camelcase
+    async UNSAFE_componentWillMount() {
 
-        moment.locale(i18n.locale.split("-")[0])
+        try {
+            moment.locale(i18n.locale.split("-")[0])
 
-        AsyncStorage.getItem("isViolet").then(res => {
-            let isViolet = res
-            isViolet = isViolet !== null ? JSON.parse(isViolet) : false
+            AsyncStorage.getItem("isViolet").then(res => {
+                let isViolet = res
+                isViolet = isViolet !== null ? JSON.parse(isViolet) : false
 
-            this.setState(({
-                isViolet,
-                styles: isViolet ? styles_violet : styles
-            }))
-        })
+                this.setState(({
+                    isViolet,
+                    styles: isViolet ? stylesViolet : styles
+                }))
+            })
 
-        const { currencies } = this.props.main
-        const tmpCurrencies = currencies.filter(item => item.is_hidden == 0 )
-        const balanceHistory = await currencyDS.getHistory()
+            const { currencies } = this.props.main
+            const tmpCurrencies = currencies.filter(item => item.is_hidden == 0 )
+            const balanceHistory = await currencyDS.getHistory()
 
-        let walletHash = this.props.main.selectedWallet.wallet_hash
-        let totalBalance = 0
-        let balanceHistoryTotalBalance = 0
-        let totalBalanceString = ''
-        for (let i = 0, ic = tmpCurrencies.length; i < ic; i++) {
-            let item = tmpCurrencies[i]
-            if (item.currencyCode === 'BTC') {
-                walletHash = item.walletHash
+            let walletHash = this.props.main.selectedWallet.wallet_hash
+            let totalBalance = 0
+            let balanceHistoryTotalBalance = 0
+            let totalBalanceString = ''
+
+            for (let i = 0, ic = tmpCurrencies.length; i < ic; i++) {
+                const item = tmpCurrencies[i]
+                if (item.currencyCode === 'BTC') {
+                    walletHash = item.walletHash
+                }
+                totalBalance += item.currencyBalanceAmount * item.currency_rate_usd
+                balanceHistoryTotalBalance += typeof balanceHistory[item.currencyCode] != "undefined" ? item.currencyBalanceAmount * balanceHistory[item.currencyCode] : 0
+                totalBalanceString += item.currencyBalanceAmount + ' ' + item.currencyCode + ', '
             }
-            totalBalance += item.currencyBalanceAmount * item.currency_rate_usd
-            balanceHistoryTotalBalance += typeof balanceHistory[item.currencyCode] != "undefined" ? item.currencyBalanceAmount * balanceHistory[item.currencyCode] : 0
-            totalBalanceString += item.currencyBalanceAmount + ' ' + item.currencyCode + ', '
+
+            totalBalance += ''
+            MarketingEvent.setBalance(walletHash, 'TOTAL', totalBalanceString, { totalBalance, totalBalanceString, walletHash })
+
+            let balanceChange = totalBalance - balanceHistoryTotalBalance
+            balanceChange = Math.abs((balanceChange * 100) / totalBalance)
+            balanceChange = totalBalance > balanceHistoryTotalBalance ? "+ " :  "- " + balanceChange.toFixed(3).replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/,'$1') + "%"
+            balanceChange = balanceHistoryTotalBalance == 0 ? "0" + "%" : balanceChange
+
+            const iconName = balanceHistoryTotalBalance == 0 ? "" : totalBalance > balanceHistoryTotalBalance ? "arrow-up-right" : "arrow-down-left"
+
+            this.setState({
+                iconName,
+                balanceChange,
+                totalBalance,
+            })
+        } catch (e) {
+            console.log(e)
         }
-
-        totalBalance += ''
-        MarketingEvent.setBalance(walletHash, 'TOTAL', totalBalanceString, { totalBalance, totalBalanceString, walletHash })
-
-        let balanceChange = totalBalance - balanceHistoryTotalBalance
-        balanceChange = Math.abs((balanceChange * 100) / totalBalance)
-        balanceChange = totalBalance > balanceHistoryTotalBalance ? "+ " :  "- " + balanceChange.toFixed(3).replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/,'$1') + "%"
-        balanceChange = balanceHistoryTotalBalance == 0 ? "0" + "%" : balanceChange
-
-        const iconName = balanceHistoryTotalBalance == 0 ? "" : totalBalance > balanceHistoryTotalBalance ? "arrow-up-right" : "arrow-down-left"
-
-        this.setState({
-            iconName,
-            balanceChange,
-            totalBalance,
-        })
     }
 
-    async componentWillReceiveProps(nextProps) {
+    // eslint-disable-next-line camelcase
+    async UNSAFE_componentWillReceiveProps(nextProps) {
 
-        const { currencies } = nextProps.main
+        try {
+            const { currencies } = nextProps.main
 
-        const tmpCurrencies = currencies.filter(item => item.is_hidden == 0 )
-        const balanceHistory = await currencyDS.getHistory()
+            const tmpCurrencies = currencies.filter(item => item.is_hidden == 0 )
+            const balanceHistory = await currencyDS.getHistory()
 
-        let walletHash = nextProps.main.selectedWallet.wallet_hash
-        let totalBalance = 0
-        let balanceHistoryTotalBalance = 0
-        let totalBalanceString = ''
-        for (let i = 0, ic = tmpCurrencies.length; i < ic; i++) {
-            let item = tmpCurrencies[i]
-            if (item.currencyCode === 'BTC') {
-                walletHash = item.walletHash
+            let walletHash = nextProps.main.selectedWallet.wallet_hash
+            let totalBalance = 0
+            let balanceHistoryTotalBalance = 0
+            let totalBalanceString = ''
+            for (let i = 0, ic = tmpCurrencies.length; i < ic; i++) {
+                const item = tmpCurrencies[i]
+                if (item.currencyCode === 'BTC') {
+                    walletHash = item.walletHash
+                }
+                totalBalance += item.currencyBalanceAmount * item.currency_rate_usd
+                balanceHistoryTotalBalance += typeof balanceHistory[item.currencyCode] != "undefined" ? item.currencyBalanceAmount * balanceHistory[item.currencyCode] : 0
+                totalBalanceString += item.currencyBalanceAmount + ' ' + item.currencyCode + ', '
             }
-            totalBalance += item.currencyBalanceAmount * item.currency_rate_usd
-            balanceHistoryTotalBalance += typeof balanceHistory[item.currencyCode] != "undefined" ? item.currencyBalanceAmount * balanceHistory[item.currencyCode] : 0
-            totalBalanceString += item.currencyBalanceAmount + ' ' + item.currencyCode + ', '
+
+            totalBalance += ''
+            MarketingEvent.setBalance(walletHash, 'TOTAL', totalBalanceString, { totalBalance, totalBalanceString, walletHash })
+
+            let balanceChange = totalBalance - balanceHistoryTotalBalance
+            balanceChange = Math.abs((balanceChange * 100) / totalBalance)
+            balanceChange = totalBalance > balanceHistoryTotalBalance ? "+ " : "- " + balanceChange.toFixed(3).replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/,'$1') + "%"
+            balanceChange = balanceHistoryTotalBalance == 0 ? '0' + "%" : balanceChange
+
+            const iconName = balanceHistoryTotalBalance == 0 ? "" : totalBalance > balanceHistoryTotalBalance ? "arrow-up-right" : "arrow-down-left"
+
+            this.setState({
+                iconName,
+                balanceChange,
+                totalBalance
+            })
+
+            this.handleStartAnimation(nextProps)
+        } catch (e) {
+            console.log(e)
         }
-
-        totalBalance += ''
-        MarketingEvent.setBalance(walletHash, 'TOTAL', totalBalanceString, { totalBalance, totalBalanceString, walletHash })
-
-        let balanceChange = totalBalance - balanceHistoryTotalBalance
-        balanceChange = Math.abs((balanceChange * 100) / totalBalance)
-        balanceChange = totalBalance > balanceHistoryTotalBalance ? "+ " : "- " + balanceChange.toFixed(3).replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/,'$1') + "%"
-        balanceChange = balanceHistoryTotalBalance == 0 ? '0' + "%" : balanceChange
-
-        const iconName = balanceHistoryTotalBalance == 0 ? "" : totalBalance > balanceHistoryTotalBalance ? "arrow-up-right" : "arrow-down-left"
-
-        this.setState({
-            iconName,
-            balanceChange,
-            totalBalance
-        })
-
-        this.handleStartAnimation(nextProps)
     }
 
     handleStartAnimation = (nextProps) => {
@@ -205,7 +206,7 @@ class WalletInfo extends Component {
         }).start(() => {
             this.setState({
                 isViolet: !this.state.isViolet,
-                styles: !this.state.isViolet ? styles_violet : styles
+                styles: !this.state.isViolet ? stylesViolet : styles
             }, () => {
                 Animated.timing(this.state.opacity, {
                     toValue: 1,
@@ -244,14 +245,14 @@ class WalletInfo extends Component {
     render() {
         const { selectedWallet } = this.props.main
         const { localCurrencySymbol } = this.props.fiatRatesStore
-        let { styles, totalBalance, balanceChange, iconName } = this.state
+        let { styles, totalBalance } = this.state
 
         totalBalance = FiatRatesActions.toLocalCurrency(totalBalance)
         totalBalance = totalBalance.toString()
 
         const date = new Date()
 
-        const changedLastDay = `${balanceChange} ${strings('homeScreen.changedLastDay')}`
+        // const changedLastDay = `${balanceChange} ${strings('homeScreen.changedLastDay')}`
 
         return (
             <View style={{...styles.wrapper}}>
@@ -260,7 +261,7 @@ class WalletInfo extends Component {
                         {
                             Platform.OS === 'android' ?
                                 <Switch
-                                    thumbTintColor="#fff"
+                                    thumbColor="#fff"
                                     trackColor={{true: '#864DD9', false: '#dadada'}}
                                     onValueChange = {this.toggleViolet}
                                     value = {this.state.isViolet}/>
@@ -273,7 +274,7 @@ class WalletInfo extends Component {
                         }
                     </View>
                     <View>
-                        <LetterSpacing text={selectedWallet.wallet_name} textStyle={styles.top__title} letterSpacing={0.5} />
+                        <LetterSpacing text={selectedWallet.wallet_name.length > 20 ? selectedWallet.wallet_name.slice(0, 8) + "..." : selectedWallet.wallet_name} textStyle={styles.top__title} letterSpacing={0.5} />
                     </View>
                     <TouchableOpacity style={styles.qr} onPress={this.handleScanQr}>
                         <QRCodeBtn width={18} height={18} />
@@ -299,18 +300,18 @@ class WalletInfo extends Component {
                                 <Text style={{...styles.walletInfo__text_small, ...styles.walletInfo__text_small_first}}>{ localCurrencySymbol } </Text>
                                 <Text style={styles.walletInfo__text_middle}>{typeof totalBalance.split('.')[1] != 'undefined' ? totalBalance.split('.')[0] : totalBalance.split('.')[0]}</Text>
                                 <Text style={styles.walletInfo__text_small}>{typeof totalBalance.split('.')[1] != 'undefined' ? '.' + totalBalance.split('.')[1].substr(0, 5) : ''}</Text>
-                                {/*<Feather name={iconName} style={styles.walletInfo__icon} />*/}
+                                {/* <Feather name={iconName} style={styles.walletInfo__icon} /> */}
                             </View>
                             <View style={styles.container__text}>
-                                {/*<LetterSpacing text={changedLastDay} textStyle={styles.container__text} letterSpacing={1} />*/}
+                                {/* <LetterSpacing text={changedLastDay} textStyle={styles.container__text} letterSpacing={1} /> */}
                             </View>
                         </GradientView>
-                        {
-                            this.props.isSnow ?
-                                <TouchableOpacity style={{ position: "absolute", bottom: 0, right: 0, padding: 16 }} onPress={this.props.toggleSnow}>
-                                    <Fontisto style={styles.snowBtn__icon} name="snowflake-8" size={20} />
-                                </TouchableOpacity> : null
-                        }
+                         {
+                            // this.props.isSnow ?
+                            //     <TouchableOpacity style={{ position: "absolute", bottom: 0, right: 0, padding: 16 }} onPress={this.props.toggleSnow}>
+                            //         <Fontisto style={styles.snowBtn__icon} name="snowflake-8" size={20} />
+                            //     </TouchableOpacity> : null
+                         }
 
                     </View>
                     <View style={styles.shadow}>
@@ -318,23 +319,23 @@ class WalletInfo extends Component {
                     </View>
                 </Animated.View>
 
-                    {/*<View style={styles.container}>*/}
-                    {/*    <View style={styles.top}>*/}
-                    {/*        <Text style={styles.walletInfo__title}>*/}
-                    {/*            { selectedWallet.wallet_name }*/}
-                    {/*        </Text>*/}
-                    {/*    </View>*/}
+                    {/* <View style={styles.container}> */}
+                    {/*    <View style={styles.top}> */}
+                    {/*        <Text style={styles.walletInfo__title}> */}
+                    {/*            { selectedWallet.wallet_name } */}
+                    {/*        </Text> */}
+                    {/*    </View> */}
 
-                    {/*    {*/}
+                    {/*    { */}
                     {/*        /**/}
-                    {/*            <View style={{...styles.containerRow, marginTop: -20}}>*/}
-                    {/*                <Text style={styles.bottomText}>- $ { +this.state.minus } ({ ((this.state.minus * 100) / totalBalance).toFixed(3) }%)</Text>*/}
-                    {/*                <View style={styles.iconArrow}>*/}
-                    {/*                    <Icon name="ios-arrow-round-down" size={18} color="#fc5088" />*/}
-                    {/*                </View>*/}
-                    {/*            </View>*/}
+                    {/*            <View style={{...styles.containerRow, marginTop: -20}}> */}
+                    {/*                <Text style={styles.bottomText}>- $ { +this.state.minus } ({ ((this.state.minus * 100) / totalBalance).toFixed(3) }%)</Text> */}
+                    {/*                <View style={styles.iconArrow}> */}
+                    {/*                    <Icon name="ios-arrow-round-down" size={18} color="#fc5088" /> */}
+                    {/*                </View> */}
+                    {/*            </View> */}
                     {/*        */}
-                    {/*    }*/}
+                    {/*    } */}
 
             </View>
         )
@@ -585,7 +586,7 @@ const styles = {
     }
 }
 
-const styles_violet = {
+const stylesViolet = {
     wrapper: {
         position: 'relative',
     },

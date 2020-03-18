@@ -24,7 +24,7 @@ class FinishScreen extends Component {
         }
     }
 
-    componentWillMount(){
+    UNSAFE_componentWillMount(){
 
         let currencies = JSON.parse(JSON.stringify(this.props.mainStore.currencies))
 
@@ -62,7 +62,7 @@ class FinishScreen extends Component {
                     <AntDesignIcon style={styles.close__icon} name='close' />
                 </TouchableOpacity>
                 <View style={styles.wrapper__content}>
-                    <Feather style={styles.wrapper__icon} name='check-circle' />
+                    <Feather style={styles.wrapper__icon} name='info' />
                     <Text style={styles.wrapper__title}>
                         { strings('finishTradeScreen.title') }
                     </Text>

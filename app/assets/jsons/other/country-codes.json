@@ -540,6 +540,11 @@
     "currencyCode":"KGS"
   },
   {
+    "country":"Kazakhstan",
+    "iso":"398",
+    "currencyCode":"KZ"
+  },
+  {
     "country":"Laos",
     "iso":"418",
     "currencyCode":"LAK"

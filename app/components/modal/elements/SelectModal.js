@@ -4,11 +4,12 @@ import {View, TouchableOpacity, Text, Platform, Vibration} from 'react-native'
 import Modal from 'react-native-modal'
 import { WheelPicker } from 'react-native-wheel-picker-android'
 import Picker from 'react-native-wheel-picker'
-const PickerItem = Picker.Item
 
 import { hideModal } from '../../../appstores/Actions/ModalActions'
 
 import { strings } from '../../../services/i18n'
+
+const PickerItem = Picker.Item
 
 
 export default class SelectModal extends Component {
@@ -30,12 +31,6 @@ export default class SelectModal extends Component {
         const selectedItem = JSON.parse(JSON.stringify(this.props.data.data.selectedItem))
 
         const itemList = itemListForSelect.map(item => item.value)
-
-        console.log(itemList)
-        console.log(itemListForSelect)
-        console.log(itemList.indexOf(selectedItem.value) === -1 ? 0 : itemList.indexOf(selectedItem.value))
-        console.log(itemList.indexOf(selectedItem.value) === -1 ? itemListForSelect[0] : itemListForSelect[itemList.indexOf(selectedItem.value)])
-
 
         this.setState({
             itemList,
@@ -70,9 +65,6 @@ export default class SelectModal extends Component {
     renderPicker = () => {
 
         const { itemList } = this.state
-
-        console.log(itemList)
-        console.log(this.state.selectedItemIndex)
 
         if(Platform.OS === 'ios'){
             return <Picker style={styles.picker}
@@ -110,7 +102,7 @@ export default class SelectModal extends Component {
 
     render() {
 
-        const { itemList, pickerVisible } = this.state
+        const { pickerVisible } = this.state
         const { title } = this.props.data.data
 
         return (
@@ -132,7 +124,6 @@ export default class SelectModal extends Component {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.content__main}>
-                        {/*<View style={styles.content__pickerItemSelect} />*/}
                         <View style={styles.pickerWrap}>
                             {
                                 pickerVisible ? this.renderPicker() : null

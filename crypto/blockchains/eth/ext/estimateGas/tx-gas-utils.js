@@ -78,13 +78,7 @@ class TxGasUtil {
             if (codeIsEmpty) {
                 // if there's data in the params, but there's no contract code, it's not a valid transaction
                 if (txParams.data) {
-                    const err = new Error('TxGasUtil - Trying to call a function on a non-contract address')
-                    // set error key so ui can display localized error message
-                    err.errorKey = TRANSACTION_NO_CONTRACT_ERROR_KEY
-
-                    // set the response on the error so that we can see in logs what the actual response was
-                    err.getCodeResponse = code
-                    throw err
+                    throw new Error('TxGasUtil - Trying to call a function on a non-contract address')
                 }
 
                 // This is a standard ether simple send, gas requirement is exactly 21k

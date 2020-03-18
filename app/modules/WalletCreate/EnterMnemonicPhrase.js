@@ -43,6 +43,7 @@ import firebase from "react-native-firebase"
 
 
 
+
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 const data = {
@@ -73,7 +74,7 @@ class EnterMnemonicPhrase extends Component {
             return false
         }
 
-        if (result.status == 'success' && await walletDS.walletExist(result.value)){
+        if (result.status === 'success' && await walletDS.walletExist(result.value)){
             this.setState({
                 walletExist: true
             })
@@ -92,8 +93,8 @@ class EnterMnemonicPhrase extends Component {
 
             await proceedSaveGeneratedWallet({
                 walletName,
-                walletMnemonic
-            })
+                walletMnemonic,
+            }, 'IMPORT', 1)
 
             setLoaderStatus(false)
 
@@ -114,6 +115,17 @@ class EnterMnemonicPhrase extends Component {
 
         } catch (e) {
             Log.err('WalletCreate.EnterMnemonicPhrase error ' + e.message)
+
+            setLoaderStatus(false)
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: false,
+                title: strings('modal.send.fail'),
+                description: e.message
+            })
+
+            console.log(Log.getLogs())
         }
 
     }

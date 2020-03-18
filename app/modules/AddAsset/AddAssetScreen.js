@@ -25,6 +25,7 @@ import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import firebase from "react-native-firebase"
 
 
+
 class AddAssetScreen extends Component {
 
     constructor(props) {
@@ -36,7 +37,7 @@ class AddAssetScreen extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.setAvailableCurrencies()
     }
 

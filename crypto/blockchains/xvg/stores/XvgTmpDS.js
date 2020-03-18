@@ -18,9 +18,10 @@ class XvgTmpDS {
                 AND address='${address}'
                 AND (tmp_sub_key='coins' OR tmp_sub_key='data')
                 `).query()
-        let tmp = {}
+        const tmp = {}
         if (res.array) {
-            for (let row of res.array) {
+            let row
+            for (row of res.array) {
                 let val = 1
                 if (row.tmp_sub_key !== 'data') {
                     val = JSON.parse(dbInterface.unEscapeString(row.tmp_val))
@@ -33,8 +34,8 @@ class XvgTmpDS {
 
     async saveCache(address, key, subKey, value) {
         const dbInterface = new DBInterface()
-        let now = new Date().toISOString()
-        let prepared = [{
+        const now = new Date().toISOString()
+        const prepared = [{
             currency_code : this._currencyCode,
             address : address,
             tmp_key : key,

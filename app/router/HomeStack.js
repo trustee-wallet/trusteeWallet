@@ -12,21 +12,21 @@ const HomeStack = createStackNavigator(
         HomeScreen: {
             screen: HomeScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
 
         /* CryptoListScreen: {
             screen: CryptoListScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },*/
 
         /*AccountListScreen: {
             screen: AccountListScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         } */
     },

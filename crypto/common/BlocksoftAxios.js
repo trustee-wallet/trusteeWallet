@@ -8,6 +8,11 @@ const CACHE_ERRORS_BY_LINKS_TIME = {}
 
 class BlocksoftAxios {
 
+    /**
+     * @param link
+     * @param maxTry
+     * @returns {Promise<boolean|{data:*}>}
+     */
     async getWithoutBraking(link, maxTry = 5) {
         let tmp
         try {
@@ -15,7 +20,7 @@ class BlocksoftAxios {
             CACHE_ERRORS_BY_LINKS_TRY[link] = 0
             CACHE_ERRORS_BY_LINKS_TIME[link] = 0
         } catch (e) {
-            let now = new Date().getTime()
+            const now = new Date().getTime()
             if (typeof CACHE_ERRORS_BY_LINKS_TRY[link] === 'undefined') {
                 // first time
                 CACHE_ERRORS_BY_LINKS_TRY[link] = 1
@@ -39,6 +44,7 @@ class BlocksoftAxios {
         }
         return tmp
     }
+
     async post(link, data) {
         return this._request(link, 'post', data, false)
     }
@@ -62,7 +68,7 @@ class BlocksoftAxios {
             }
             let txt = tmp.data
             if (typeof txt === 'string') {
-                let newTxt = txt.split('<body')
+                const newTxt = txt.split('<body')
                 if (newTxt.length > 1) {
                     txt = newTxt[1].substr(0, 600)
                 }
@@ -70,7 +76,7 @@ class BlocksoftAxios {
                 txt = JSON.stringify(tmp.data).substr(0, 300)
             }
             if (txt.length > 100) {
-                BlocksoftCryptoLog.log('BlocksoftAxios.' + method, link, txt) //separate line for txt
+                BlocksoftCryptoLog.log('BlocksoftAxios.' + method, link, txt) // separate line for txt
             } else {
                 BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link, txt)
             }
@@ -81,7 +87,7 @@ class BlocksoftAxios {
             } else if (e.response.data) {
                 e.message = JSON.stringify(e.response.data) + ' ' + e.message
             }
-            let customError = new Error(link + ' ' + e.message)
+            const customError = new Error(link + ' ' + e.message)
             if (e.message.indexOf('Network Error') !== -1
                 || e.message.indexOf('timeout of 0ms exceeded') !== -1
                 || e.message.indexOf('Forbidden: Access is denied') !== -1
@@ -109,6 +115,7 @@ class BlocksoftAxios {
                 BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link, e.message) // just nothing found
                 return false
             } else {
+                // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.err('BlocksoftAxios.' + method + ' ' + link, e.message, 'GET EXTERNAL LINK ERROR')
                 customError.code = 'ERROR_SYSTEM'
             }

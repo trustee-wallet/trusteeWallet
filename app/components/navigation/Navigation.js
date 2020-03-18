@@ -29,7 +29,8 @@ class Navigation extends Component {
         }
     }
 
-    componentWillMount() {
+    // eslint-disable-next-line camelcase
+    UNSAFE_componentWillMount() {
         try {
             if(typeof this.props.isBack != 'undefined')
                 this.setState({ isBack: this.props.isBack })
@@ -75,8 +76,8 @@ class Navigation extends Component {
                         }
                         {
                             typeof title != 'undefined' ?
-                                <View numberOfLines={1} style={{...styles.title, alignItems: "center", flex: 1}}>
-                                    { title ? <LetterSpacing text={title} textStyle={{...styles.title, justifyContent: "center"}} containerStyle={{ justifyContent: "center" }} letterSpacing={0.5} /> : null }
+                                <View numberOfLines={1} style={{...styles.title, flexDirection: "row", alignItems: "center", flex: 2}}>
+                                    { title ? <LetterSpacing text={title} textStyle={{...styles.title, justifyContent: "center"}} containerStyle={{ flex: 1, justifyContent: "center" }} letterSpacing={0.5} /> : null }
                                 </View> : null
                         }
                         {

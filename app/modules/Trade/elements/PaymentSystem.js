@@ -63,7 +63,7 @@ class PaymentSystem extends Component {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.reInit()
     }
 
@@ -104,7 +104,7 @@ class PaymentSystem extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
 
         const { selectedCryptocurrency: sc2, selectedFiatCurrency: sfc2 } = nextProps
 
@@ -132,8 +132,6 @@ class PaymentSystem extends Component {
             this.props.refCards.enableCards().disableCardValidation()
         }
 
-
-        console.log(selectedPaymentSystem)
 
         this.props.handleSetState('selectedPaymentSystem', {
             ...selectedPaymentSystem
@@ -192,6 +190,7 @@ class PaymentSystem extends Component {
 
         switch(item.paymentSystem){
             case "VISA_MC_P2P":
+            case "VISA_MC":
                 title = strings(`tradeScreen.${item.currencyCode}`) + ' ' + strings('tradeScreen.only')
                 Icon = () => <View style={styles.paymentSystem__medium}>
                                 <Visa fill={ ifSelectStyle ? '#fff' : '#1A1F71'} />

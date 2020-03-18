@@ -29,7 +29,7 @@ export default class XrpTransferProcessor {
         this._api.on('connected', () => {
 
         })
-        this._api.on('disconnected', (code) => {
+        this._api.on('disconnected', () => {
 
         })
     }
@@ -53,22 +53,19 @@ export default class XrpTransferProcessor {
      * @returns {Promise<boolean>}
      */
     async getFeeRate(data, alreadyEstimatedGas = false) {
+
         if (data.amount <= 0) {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XrpTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' skipped as zero amount' )
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XrpTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' skipped as zero amount')
             return false
         }
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XrpTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount )
 
-        let fee = 0
-        try {
-            let txJSON = JSON.parse(await this._getPrepared(data))
-            fee = BlocksoftUtils.toUnified(txJSON.Fee, 6)
-        } catch (e) {
-            //if (data.addressForChange !== 'TRANSFER_ALL') {
-                throw e
-            //}
-        }
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XrpTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' finished amount: ' + data.amount  + ' fee: ' + fee)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XrpTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
+
+        const txJSON = JSON.parse(await this._getPrepared(data))
+
+        const fee = BlocksoftUtils.toUnified(txJSON.Fee, 6)
+
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XrpTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' finished amount: ' + data.amount + ' fee: ' + fee)
         return [
             {
                 langMsg: 'xrp_speed_one',
@@ -77,7 +74,21 @@ export default class XrpTransferProcessor {
         ]
     }
 
+    async checkTransferHasError(data) {
+        /**
+         * @type {XrpScannerProcessor}
+         */
+        const balanceProvider = Dispatcher.getScannerProcessor(this._settings.currencyCode)
+        const balanceRaw = await balanceProvider.getBalance(data.addressTo)
+        if (balanceRaw && typeof balanceRaw.balance !== 'undefined' && balanceRaw.balance > 20) {
+            return false
+        } else {
+            return 'send.errors.XRP_NEED_MORE'
+        }
+    }
+
     /**
+     * @param {Object} data
      * @param {string} data.privateKey
      * @param {string} data.addressFrom
      * @param {string} data.currencyCode
@@ -88,17 +99,19 @@ export default class XrpTransferProcessor {
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
-     * @param {string} data.replacingTransaction
      * @param {number} data.nSequence
      * @param {string} balanceRaw
      * @returns {Promise<string>}
      */
     async getTransferAllBalance(data, balanceRaw) {
         if (!balanceRaw) {
-            let balanceProvider = Dispatcher.getScannerProcessor(this._settings.currencyCode)
+            /**
+             * @type {XrpScannerProcessor}
+             */
+            const balanceProvider = Dispatcher.getScannerProcessor(this._settings.currencyCode)
             balanceRaw = await balanceProvider.getBalance(data.addressFrom)
             if (balanceRaw && typeof balanceRaw.balance !== 'undefined' && balanceRaw.balance > 20) {
-                balanceRaw = balanceRaw.balance
+                balanceRaw = this._amountPrep(balanceRaw.balance)
             } else {
                 return 0
             }
@@ -108,14 +121,28 @@ export default class XrpTransferProcessor {
 
         BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ' + data.addressFrom + ' started')
 
-        let txJSON = JSON.parse(await this._getPrepared(data))
-        let fee = BlocksoftUtils.toUnified(txJSON.Fee, 6)
-        let current = balanceRaw - fee - 20
+        const txJSON = JSON.parse(await this._getPrepared(data))
+        const fee = BlocksoftUtils.toUnified(txJSON.Fee, 6)
+
+        const current = this._amountPrep(balanceRaw - fee - 20)
 
         BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + current)
         return current
     }
 
+
+    /**
+     * @param current
+     * @returns {XrpTransferProcessor._amountPrep.props}
+     * @private
+     */
+    _amountPrep(current) {
+        const tmp = current.toString().split('.')
+        if (typeof tmp[1] !== 'undefined' && tmp[1].length > 6) {
+            current = tmp[0] + '.' + tmp[1].substr(0, 6)
+        }
+        return current
+    }
 
     /**
      * @param {string} data.privateKey
@@ -126,32 +153,33 @@ export default class XrpTransferProcessor {
      * @param {string} data.memo
      */
     async _getPrepared(data) {
+
         const payment = {
             'source': {
                 'address': data.addressFrom,
                 'maxAmount': {
-                    'value': data.amount,
+                    'value': this._amountPrep(data.amount),
                     'currency': 'XRP'
                 }
             },
             'destination': {
                 'address': data.addressTo,
                 'amount': {
-                    'value': data.amount,
+                    'value': this._amountPrep(data.amount),
                     'currency': 'XRP'
                 }
             }
         }
 
         if (data.addressFrom === data.addressTo) {
-            let e = new Error('SERVER_RESPONSE_SELF_TX_FORBIDDEN')
+            const e = new Error('SERVER_RESPONSE_SELF_TX_FORBIDDEN')
             e.code = 'ERROR_USER'
             throw e
         }
 
-        //https://xrpl.org/rippleapi-reference.html#payment
+        // https://xrpl.org/rippleapi-reference.html#payment
         if (typeof data.memo !== 'undefined' && data.memo.trim().length > 0) {
-            let int = data.memo.trim() * 1
+            const int = data.memo.trim() * 1
             if (int.toString() !== data.memo) {
                 throw new Error('Destination tag type validation error')
             }
@@ -162,22 +190,22 @@ export default class XrpTransferProcessor {
         }
         BlocksoftCryptoLog.log('XrpTransferProcessor._getPrepared payment', payment)
 
-        let api = this._api
+        const api = this._api
 
         return new Promise((resolve, reject) => {
             api.connect().then(() => {
                 api.preparePayment(data.addressFrom, payment).then(prepared => {
-                    //https://xrpl.org/rippleapi-reference.html#preparepayment
-                    let txJSON = prepared.txJSON
+                    // https://xrpl.org/rippleapi-reference.html#preparepayment
+                    const txJSON = prepared.txJSON
                     BlocksoftCryptoLog.log('XrpTransferProcessor._getPrepared prepared', txJSON)
                     resolve(txJSON)
                 }).catch(error => {
-                    MarketingEvent.logOnlyRealTime('prepared_rippled_prepare_error ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, {payment, msg : error.toString()})
+                    MarketingEvent.logOnlyRealTime('prepared_rippled_prepare_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, { payment, msg: error.toString() })
                     BlocksoftCryptoLog.log('XrpTransferProcessor._getPrepared error ' + error.toString())
                     reject(error)
                 })
             }).catch(error => {
-                MarketingEvent.logOnlyRealTime('prepared_rippled_prepare_no_connection ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, {payment, msg : error.toString()})
+                MarketingEvent.logOnlyRealTime('prepared_rippled_prepare_no_connection ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, { payment, msg: error.toString() })
                 BlocksoftCryptoLog.log('XrpTransferProcessor._getPrepared connect error ' + error.toString())
 
                 reject(error)
@@ -196,6 +224,7 @@ export default class XrpTransferProcessor {
      * @param {string} data.jsonData.publicKey
      */
     async sendTx(data) {
+
         if (typeof data.privateKey === 'undefined') {
             throw new Error('TRX transaction required privateKey')
         }
@@ -204,17 +233,17 @@ export default class XrpTransferProcessor {
         }
 
 
-        let txJSON = await this._getPrepared(data)
+        const txJSON = await this._getPrepared(data)
 
-        let api = this._api
+        const api = this._api
 
         let result
         try {
             result = await new Promise((resolve, reject) => {
-                //https://xrpl.org/rippleapi-reference.html#preparepayment
+                // https://xrpl.org/rippleapi-reference.html#preparepayment
                 BlocksoftCryptoLog.log('XrpTransferProcessor.sendTx prepared', txJSON)
 
-                //https://xrpl.org/rippleapi-reference.html#sign
+                // https://xrpl.org/rippleapi-reference.html#sign
                 if (typeof data.jsonData.publicKey === 'undefined') {
                     data.jsonData = JSON.parse(data.jsonData)
                 }
@@ -223,11 +252,11 @@ export default class XrpTransferProcessor {
                     publicKey: data.jsonData.publicKey.toUpperCase()
                 }
 
-                let signed = api.sign(txJSON, keypair)
+                const signed = api.sign(txJSON, keypair)
                 BlocksoftCryptoLog.log('XrpTransferProcessor.sendTx signed', signed)
 
                 api.connect().then(() => {
-                    //https://xrpl.org/rippleapi-reference.html#submit
+                    // https://xrpl.org/rippleapi-reference.html#submit
                     api.submit(signed.signedTransaction).then(result => {
                         MarketingEvent.logOnlyRealTime('prepared_rippled_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {
                             txJSON,
@@ -252,7 +281,8 @@ export default class XrpTransferProcessor {
                 })
             })
         } catch (e) {
-            MarketingEvent.logOnlyRealTime('prepared_rippled_send2_error ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, {txJSON, msg : e.toString()})
+            // noinspection ES6MissingAwait
+            MarketingEvent.logOnlyRealTime('prepared_rippled_send2_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, { txJSON, msg: e.toString() })
             BlocksoftCryptoLog.log('XrpTransferProcessor.send2 error ' + e.toString())
             if (typeof e.resultMessage !== 'undefined') {
                 throw new Error(e.resultMessage.toString())
@@ -264,22 +294,30 @@ export default class XrpTransferProcessor {
 
         }
 
-        MarketingEvent.logOnlyRealTime('prepared_rippled_any_result ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, {txJSON, result})
+        // noinspection ES6MissingAwait
+        MarketingEvent.logOnlyRealTime('prepared_rippled_any_result ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, { txJSON, result })
         BlocksoftCryptoLog.log('XrpTransferProcessor.sendTx result', result)
 
         if (result.resultCode === 'tecNO_DST_INSUF_XRP') {
-            let e = new Error(result.resultMessage) // not enough - could be replaced by translated
+            const e = new Error(result.resultMessage) // not enough - could be replaced by translated
             e.code = 'ERROR_USER'
             throw e
         } else if (result.resultCode === 'tecUNFUNDED_PAYMENT') {
-            let e = new Error('SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP') // not enough to pay
+            const e = new Error('SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP') // not enough to pay
             e.code = 'ERROR_USER'
             throw e
         } else if (result.resultCode === 'tecNO_DST_INSUF_XRP') {
-            let e = new Error('SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP') // not enough to create account
+            const e = new Error('SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP') // not enough to create account
             e.code = 'ERROR_USER'
             throw e
-
+        } else if (result.resultCode === 'tefBAD_AUTH') {
+            const e = new Error(result.resultMessage) // not valid key
+            e.code = 'ERROR_USER'
+            throw e
+        } else if (result.resultCode === 'tecDST_TAG_NEEDED') {
+            const e = new Error('SERVER_RESPONSE_TAG_NEEDED_XRP')
+            e.code = 'ERROR_USER'
+            throw e
         }
 
         if (typeof result.tx_json === 'undefined' || typeof result.tx_json.hash === 'undefined') {

@@ -36,6 +36,19 @@ export default class EthBasic {
     _etherscanApiPathInternal
 
     /**
+     * @type {string}
+     * @public
+     */
+    _trezorPath
+
+    /**
+     * @type {string}
+     * @public
+     */
+    _tokenAddress
+
+
+    /**
      * @param {string} settings.network
      */
     constructor(settings) {
@@ -48,7 +61,7 @@ export default class EthBasic {
         switch (settings.network) {
             case 'mainnet':
             case 'ropsten':
-            //case 'kovan' : case 'rinkeby' : case 'goerli' :
+            // case 'kovan' : case 'rinkeby' : case 'goerli' :
                 this._web3Link = `https://${settings.network}.infura.io/v3/e69df96932bd4e9db7451fab8d6e0c85`
                 break
             default:
@@ -60,5 +73,8 @@ export default class EthBasic {
         this._etherscanSuffix = (settings.network === 'mainnet') ? '' : ('-' + settings.network)
         this._etherscanApiPath = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
         this._etherscanApiPathInternal = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
+
+        this._trezorPath = settings.network === 'mainnet' ? 'https://eth1.trezor.io/api/v2/address/' : false
+        this._tokenAddress = false
     }
 }

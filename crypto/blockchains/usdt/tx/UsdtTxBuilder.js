@@ -4,7 +4,7 @@
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BtcTxBuilder from '../../btc/tx/BtcTxBuilder'
 
-let bitcoin = require('bitcoinjs-lib')
+const bitcoin = require('bitcoinjs-lib')
 
 const USDT_TOKEN_ID = 31
 
@@ -16,7 +16,7 @@ function toPaddedHexString(num, len) {
 
 function createOmniSimpleSend(amountInUSD, propertyID = USDT_TOKEN_ID) {
     BlocksoftCryptoLog.log('UsdtTxBuilder.createOmniSimpleSend started')
-    let simpleSend = [
+    const simpleSend = [
         '6f6d6e69', // omni
         '0000',     // tx type
         '0000',     // version
@@ -33,8 +33,8 @@ function createOmniSimpleSend(amountInUSD, propertyID = USDT_TOKEN_ID) {
 export default class UsdtTxBuilder extends BtcTxBuilder {
 
     _getRawTxAddOutput(txb, to, amount, output) {
-        if (typeof output.usdt != 'undefined') {
-            let omniOutput = createOmniSimpleSend(output.usdt)
+        if (typeof output.usdt !== 'undefined') {
+            const omniOutput = createOmniSimpleSend(output.usdt)
             txb.addOutput(omniOutput, 0)
         } else {
             txb.addOutput(to, amount)

@@ -6,7 +6,8 @@ import {
     Image,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    Vibration
+    Vibration,
+    Clipboard
 } from 'react-native'
 
 import GradientView from '../../components/elements/GradientView'
@@ -21,6 +22,7 @@ import Cashback from '../../services/Cashback/Cashback'
 
 import config from '../../config/config'
 import firebase from 'react-native-firebase'
+
 import Snow from 'react-native-snow'
 import { connect } from 'react-redux'
 
@@ -39,6 +41,11 @@ class AboutScreen extends Component {
         Cashback.reInit()
 
         Vibration.vibrate(100)
+    }
+
+    copyVersion = () => {
+        Clipboard.setString(`${config.version.code} | #${config.version.hash}`)
+        Toast.setMessage(strings('toast.copied')).show(-100)
     }
 
     render() {
@@ -63,10 +70,10 @@ class AboutScreen extends Component {
                                         source={require('../../assets/images/logoAbout.png')}/>
                                 </TouchableWithoutFeedback>
                                 {/*<Text style={styles.header__title}>{  strings('settings.about.header', { OS: Platform.OS === 'android' ? 'Android' : 'IOS' } ) }</Text>*/}
-                                <View style={styles.header__description}>
+                                <TouchableOpacity style={styles.header__description} onPress={this.copyVersion}>
                                     <Text style={styles.header__title}>{ strings('settings.about.version') } { config.version.code }</Text>
                                     <Text style={styles.header__hash}>#{ config.version.hash }</Text>
-                                </View>
+                                </TouchableOpacity>
                             </View>
                         </View>
                         <View style={styles.block}>

@@ -7,6 +7,23 @@ import Log from '../../services/Log/Log'
 const { dispatch } = store
 
 const settingsActions = {
+    getSetting: async (key) => {
+
+        Log.log('ACT/Settings getSetting ' + key + ' called')
+
+        const settingsDS = new SettingsDS()
+
+        try {
+
+            const tmp = await settingsDS.getSetting(key)
+            Log.log('ACT/Settings getSetting ' + key + ' finished')
+            return tmp ? tmp.paramValue : false
+
+        } catch (e) {
+            Log.err('ACT/Settings getSetting ' + key + ' error ' + e.message)
+        }
+    },
+
     getSettings: async () => {
 
         Log.log('ACT/Settings getSettings called')
@@ -14,10 +31,12 @@ const settingsActions = {
         const settingsDS = new SettingsDS()
 
         try {
-            const { array: tmpSettings } = await settingsDS.getSettings()
+            const tmpSettings = await settingsDS.getSettings()
             const settings = {}
 
-            for (const setting of tmpSettings) settings[`${setting.paramKey}`] = setting.paramValue
+            for (const setting of tmpSettings) {
+                settings[setting.paramKey] = setting.paramValue
+            }
 
             dispatch({
                 type: 'UPDATE_SETTINGS',

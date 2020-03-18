@@ -2,12 +2,11 @@ import store from '../../store'
 
 import WalletDS from '../DataSource/Wallet/Wallet'
 
-import App from './/App/App'
+import App from './App/App'
 
-import { setLoaderStatus } from './/MainStoreActions'
+import { setLoaderStatus, setAvailableWallets, setSelectedWallet } from './MainStoreActions'
 
 import Log from '../../services/Log/Log'
-import currencyDS from '../DataSource/Currency/Currency'
 
 const { dispatch } = store
 
@@ -39,6 +38,23 @@ const walletActions = {
         }
 
         setLoaderStatus(false)
+    },
+
+    turnOnHD : async (walletHash) => {
+        await WalletDS.updateWallet({walletHash, walletIsHd : 1})
+
+        await setSelectedWallet()
+
+        await setAvailableWallets()
+    },
+
+    setUseUnconfirmed : async (walletHash, walletUseUnconfirmed) => {
+
+        await WalletDS.updateWallet({walletHash, walletUseUnconfirmed})
+
+        await setAvailableWallets()
+
+        await setSelectedWallet()
     },
 
     setWalletBackedUpStatus: async (walletHash, status) => {

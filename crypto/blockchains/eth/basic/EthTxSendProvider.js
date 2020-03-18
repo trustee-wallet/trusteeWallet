@@ -59,7 +59,7 @@ export default class EthTxSendProvider {
      * @private
      */
     async _getTxCount(address) {
-        let _this = this
+        const _this = this
         return new Promise((resolve) => {
             // noinspection JSUnresolvedVariable
             _this._web3.eth.getTransactionCount(address).then(resolve)
@@ -80,7 +80,7 @@ export default class EthTxSendProvider {
             data.privateKey = '0x' + data.privateKey
         }
         // noinspection JSUnresolvedVariable
-        let signData = await this._web3.eth.accounts.signTransaction(tx, data.privateKey)
+        const signData = await this._web3.eth.accounts.signTransaction(tx, data.privateKey)
         BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx signed', tx)
 
         return new Promise((resolve, reject) => {

@@ -1,28 +1,23 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, Image, Vibration, Platform } from 'react-native'
+import { View, Text, TouchableOpacity, Vibration } from 'react-native'
 import { connect } from 'react-redux'
 
-import DeviceInfo from 'react-native-device-info'
-
-import EntypoItem from 'react-native-vector-icons/Entypo'
 import IconAwesome from 'react-native-vector-icons/FontAwesome'
 import FontistoIcon from 'react-native-vector-icons/Fontisto'
-import CustomIcon from '../../../components/elements/CustomIcon'
 
 import NavStore from '../../../components/navigation/NavStore'
 import ToolTips from '../../../components/elements/ToolTips'
 
 import { strings } from '../../../services/i18n'
-import { showModal } from '../../../appstores/Actions/ModalActions'
+
 import Toast from '../../../services/Toast/Toast'
 import ToolTipsActions from '../../../appstores/Actions/ToolTipsActions'
 import ExchangeActions from '../../../appstores/Actions/ExchangeActions'
-import settingsActions from '../../../appstores/Actions/SettingsActions'
+
 import Log from '../../../services/Log/Log'
 import Netinfo from '../../../services/Netinfo/Netinfo'
 import { setLoaderStatus } from '../../../appstores/Actions/MainStoreActions'
-
-const deviceModel = DeviceInfo.getModel()
+import CustomIcon from '../../../components/elements/CustomIcon'
 
 
 class BottomNavigation extends Component {
@@ -102,15 +97,13 @@ class BottomNavigation extends Component {
     renderExchangeTooltip = () => {
         return (
             <View style={{ alignItems: 'center' }}>
-                <EntypoItem size={20} name="cycle" color={`${'#404040'}`} />
-                <Text style={styles.navigation__item__text}>{ strings('dashboardStack.exchange') }</Text>
+                <CustomIcon name="exchangeMain" style={{ marginTop: 2, color: '#404040', fontSize: 18 }}/>
+                <Text style={{...styles.navigation__item__text, marginTop: 3}}>{ strings('dashboardStack.exchange') }</Text>
             </View>
         )
     }
 
     render() {
-
-        const { btnType } = this.state
 
         return (
             <View style={styles.wrapper}>

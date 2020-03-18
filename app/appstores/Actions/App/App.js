@@ -1,8 +1,5 @@
 import { Text } from 'react-native'
 
-if (Text.defaultProps == null) Text.defaultProps = {}
-Text.defaultProps.allowFontScaling = false
-
 import Orientation from 'react-native-orientation'
 
 import '../../SubcribeIndex'
@@ -30,8 +27,6 @@ import DBInit from '../../DataSource/DB/DBInit/DBInit'
 
 import LockScreenIdleTime from '../../../services/LockScreenIdleTime'
 
-const { dispatch, getState } = store
-
 import NavStore from '../../../components/navigation/NavStore'
 
 import updateCurrencyRateDaemon from '../../../services/Daemon/classes/UpdateCurrencyRate'
@@ -47,6 +42,13 @@ import FiatRatesActions from '../FiatRatesActions'
 import ExchangeActions from '../ExchangeActions'
 
 import customCurrencyActions from '../CustomCurrencyActions'
+import VersionControl from '../../../services/VersionControl'
+
+const { dispatch, getState } = store
+
+if (Text.defaultProps == null) Text.defaultProps = {}
+Text.defaultProps.allowFontScaling = false
+
 
 class App {
 
@@ -84,13 +86,15 @@ class App {
 
                 if (!(await walletDS.hasWallet())) {
 
+                    // await proceedGenerateWallet()
+
                     this.initStatus = '!(await walletDS.hasWallet())'
                     console.log('!(await walletDS.hasWallet())')
 
                     Log.log('ACT/App no wallets found')
-                    // await proceedGenerateWallet()
 
                     NavStore.reset('WalletCreateScreen')
+                    // NavStore.reset('InitScreen')
 
                     this.initStatus = 'NavStore.reset(\'WalletCreateScreen\')'
                     console.log('NavStore.reset(\'WalletCreateScreen\')')
@@ -213,11 +217,10 @@ class App {
             }
 
             this.initStatus = 'updateExchangeOrdersDaemon.updateEventHandler'
-
             updateAccountTransactionsDaemon.setTime(daemon.updateTimes.updateAccountTransactions).start()
             updateAccountBalanceDaemon.setTime(daemon.updateTimes.updateAccountBalance).start()
             updateCurrencyRateDaemon.setTime(daemon.updateTimes.updateCurrencyRate).start()
-            // updateExchangeOrdersDaemon.setTime(daemon.updateTimes.updateExchangeOrders).start()
+            updateExchangeOrdersDaemon.setTime(daemon.updateTimes.updateExchangeOrders).start()
 
             this.initStatus = 'updateExchangeOrdersDaemon.updateEventHandler'
 
@@ -228,6 +231,9 @@ class App {
             setCards()
 
             this.initStatus = 'setCards()'
+
+            VersionControl.init()
+
         } catch (e) {
             Log.err('ACT/App init application error ' + e.message)
             console.log(e)

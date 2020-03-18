@@ -17,6 +17,7 @@ export default {
 
         const dbInterface = new DBInterface()
 
+        data.updateObj.balanceScanLog = dbInterface.escapeString(data.updateObj.balanceScanLog)
         const {array : find} = await dbInterface.setQueryString(`SELECT account_id FROM ${tableName} WHERE account_id=${data.key.account_id}`).query()
         if (find.length > 0) {
             await dbInterface.setTableName(tableName).setUpdateData(data).update()

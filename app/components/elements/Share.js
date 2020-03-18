@@ -15,7 +15,9 @@ export default class Share extends Component {
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <meta charset="utf-8">
                     </head>
-                    <body></body>
+                    <body>
+                        <a href="tel:+38033113332">
+                    </body>
                 </html>
             `,
             show: false,
@@ -23,7 +25,7 @@ export default class Share extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps, nextContext) {
+    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
         if(typeof nextProps.link != 'undefined' && nextProps.link && nextProps.link !== '...'){
             this.setState({
                 show: true,

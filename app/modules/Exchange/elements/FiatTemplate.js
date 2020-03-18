@@ -30,7 +30,7 @@ class FiatTemplate extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
 
         // const { selectedPaymentSystem, selectedInCryptocurrency, selectedOutCryptocurrency } = nextProps
         //

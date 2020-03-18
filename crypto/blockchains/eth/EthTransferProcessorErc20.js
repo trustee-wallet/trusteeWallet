@@ -3,7 +3,6 @@
  */
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import EthTransferProcessor from './EthTransferProcessor'
-import BlocksoftUtils from '../../common/BlocksoftUtils'
 
 const abi = require('./ext/erc20.js')
 
@@ -18,7 +17,7 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
         super(settings)
         // noinspection JSUnresolvedVariable
         this._token = new this._web3.eth.Contract(abi.ERC20, settings.tokenAddress)
-        this._tokenAddress = settings.tokenAddress
+        this._tokenAddress = settings.tokenAddress.toLowerCase()
     }
 
     /**
@@ -31,13 +30,13 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
      * @return {Promise<{feeForTx, langMsg, gasPrice, gasLimit}[]>}
      */
     async getFeeRate(data, alreadyEstimatedGas = false) {
-        let tmpData = {...data}
-        let logData = { tokenAddress: this._tokenAddress, addressTo: data.addressTo, amount: data.amount, addressFrom: data.addressFrom }
+        const tmpData = {...data}
+        const logData = { tokenAddress: this._tokenAddress, addressTo: data.addressTo, amount: data.amount, addressFrom: data.addressFrom }
         BlocksoftCryptoLog.log('EthTxProcessorErc20 estimateGas started', logData)
         let estimatedGas
         if (data.addressTo === data.addressFrom) {
-            let tmp1 = '0xA09fe17Cb49D7c8A7858C8F9fCac954f82a9f487'
-            let tmp2 = '0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99'
+            const tmp1 = '0xA09fe17Cb49D7c8A7858C8F9fCac954f82a9f487'
+            const tmp2 = '0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99'
             BlocksoftCryptoLog.log('EthTxProcessorErc20 estimateGas addressToChanged', logData)
             estimatedGas = await this._token.methods.transfer(data.addressFrom === tmp1 ? tmp2 : tmp1, data.amount).estimateGas({ from: data.addressFrom })
         } else {
@@ -48,6 +47,7 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
     }
 
     /**
+     * @param {Object} data
      * @param {string} data.privateKey
      * @param {string} data.addressFrom
      * @param {string} data.currencyCode
@@ -57,7 +57,6 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
-     * @param {string} data.replacingTransaction
      * @param {number} data.nSequence
      * @param {string} balanceRaw
      * @returns {Promise<string>}
@@ -65,7 +64,7 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
     async getTransferAllBalance(data, balanceRaw) {
         if (balanceRaw) return balanceRaw
         BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ' + data.addressFrom + ' started')
-        let balance = await this._token.methods.balanceOf(data.addressFrom).call()
+        const balance = await this._token.methods.balanceOf(data.addressFrom).call()
         BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
         return balance
     }
@@ -81,13 +80,13 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
      * @param {string} data.data
      */
     async sendTx(data) {
-        let tmpData = {...data}
-        let logData = { tokenAddress: this._tokenAddress, addressTo: data.addressTo, amount: data.amount, addressFrom: data.addressFrom }
+        const tmpData = {...data}
+        const logData = { tokenAddress: this._tokenAddress, addressTo: data.addressTo, amount: data.amount, addressFrom: data.addressFrom }
         BlocksoftCryptoLog.log('EthTxProcessorErc20 encodeABI started', logData)
         tmpData.data = this._token.methods.transfer(data.addressTo, data.amount).encodeABI()
         BlocksoftCryptoLog.log('EthTxProcessorErc20 encodeABI finished', tmpData.data)
         tmpData.amount = 0
         tmpData.addressTo = this._tokenAddress
-        return super.sendTx(tmpData)
+        return super.sendTx(tmpData, true)
     }
 }

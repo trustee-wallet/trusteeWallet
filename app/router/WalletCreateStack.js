@@ -9,19 +9,19 @@ const WalletCreateStack = createStackNavigator(
         WalletCreateScreen: {
             screen: WalletCreateScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
         EnterNameScreen: {
             screen: EnterNameScreen,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         },
         EnterMnemonicPhrase: {
             screen: EnterMnemonicPhrase,
             navigationOptions: {
-                header: null
+                headerShown: false
             }
         }
     },

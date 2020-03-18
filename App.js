@@ -4,8 +4,6 @@
 
 import React, { Component } from 'react'
 
-import { Platform } from 'react-native'
-
 import { Provider } from 'react-redux'
 
 import store from './app/store'
@@ -18,10 +16,10 @@ import Themes from './app/themes/Themes'
 import Application from './app/appstores/Actions/App/App'
 
 
-
 export default class App extends Component {
 
-    componentWillMount() {
+    // eslint-disable-next-line camelcase
+    UNSAFE_componentWillMount() {
         Themes.init()
     }
 

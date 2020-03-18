@@ -15,7 +15,7 @@ export default class EthAddressProcessor extends EthBasic{
         // noinspection JSCheckFunctionSignatures
         privateKey = '0x' + privateKey.toString('hex')
         // noinspection JSUnresolvedVariable
-        let account = this._web3.eth.accounts.privateKeyToAccount(privateKey)
+        const account = this._web3.eth.accounts.privateKeyToAccount(privateKey)
         return { address: account.address, privateKey, addedData : false}
     }
 
@@ -31,7 +31,7 @@ export default class EthAddressProcessor extends EthBasic{
             privateKey = '0x' + privateKey
         }
         // noinspection JSUnresolvedVariable
-        let signData = await this._web3.eth.accounts.sign(msg, privateKey)
+        const signData = await this._web3.eth.accounts.sign(msg, privateKey)
         BlocksoftCryptoLog.log('EthAddressProcessor.signMessage signed', signData)
         return signData
     }

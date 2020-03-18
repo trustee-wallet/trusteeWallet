@@ -37,49 +37,55 @@ export default class EthTransferProcessor extends EthBasic {
     async getFeeRate(data, alreadyEstimatedGas = false) {
         BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate started')
 
-        let gasPrice = await EthPricesCache.get()
+        const gasPrice = await EthPricesCache.get()
 
         let gasLimit
         if (typeof alreadyEstimatedGas === 'undefined' || !alreadyEstimatedGas) {
-            gasLimit = await EthEstimateGas(this._web3Link, BlocksoftUtils.toWei(gasPrice.fast), data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
+            try {
+                gasLimit = await EthEstimateGas(this._web3Link, gasPrice.price2, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
+            } catch (e) {
+                e.message += ' in EthEstimateGas in getFeeRate'
+                throw e
+            }
         } else {
             gasLimit = alreadyEstimatedGas
         }
         if (!gasLimit) {
-            let e = new Error('invalid transaction (no gas limit)')
+            const e = new Error('invalid transaction (no gas limit)')
             e.code = 'ERROR_USER'
             throw e
         }
 
-        let gasLimitBN = BlocksoftUtils.toBigNumber(gasLimit)
+        const gasLimitBN = BlocksoftUtils.toBigNumber(gasLimit)
         BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate prefinished')
 
-        BlocksoftCryptoLog.log('gasPrice ' + gasPrice.price_2.toString())
+        BlocksoftCryptoLog.log('gasPrice ' + gasPrice.price2.toString())
         BlocksoftCryptoLog.log('gatLimit ' + gasLimitBN.toString())
-        BlocksoftCryptoLog.log('feeForTx ' + gasPrice.price_2.mul(gasLimitBN).toString())
+        BlocksoftCryptoLog.log('feeForTx ' + gasPrice.price2.mul(gasLimitBN).toString())
         return [
             {
                 langMsg: 'eth_speed_slow',
-                gasPrice: gasPrice.price_0.toString(),
+                gasPrice: gasPrice.price0.toString(),
                 gasLimit: gasLimit, // in wei
-                feeForTx: gasPrice.price_0.mul(gasLimitBN).toString()
+                feeForTx: gasPrice.price0.mul(gasLimitBN).toString()
             },
             {
                 langMsg: 'eth_speed_medium',
-                gasPrice: gasPrice.price_1.toString(),
+                gasPrice: gasPrice.price1.toString(),
                 gasLimit: gasLimit,
-                feeForTx: gasPrice.price_1.mul(gasLimitBN).toString()
+                feeForTx: gasPrice.price1.mul(gasLimitBN).toString()
             },
             {
                 langMsg: 'eth_speed_fast',
-                gasPrice: gasPrice.price_2.toString(),
+                gasPrice: gasPrice.price2.toString(),
                 gasLimit: gasLimit,
-                feeForTx: gasPrice.price_2.mul(gasLimitBN).toString()
+                feeForTx: gasPrice.price2.mul(gasLimitBN).toString()
             }
         ]
     }
 
     /**
+     * @param {Object} data
      * @param {string} data.privateKey
      * @param {string} data.addressFrom
      * @param {string} data.currencyCode
@@ -89,26 +95,44 @@ export default class EthTransferProcessor extends EthBasic {
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
-     * @param {string} data.replacingTransaction
      * @param {number} data.nSequence
      * @param {string} balanceRaw
      * @returns {Promise<string>}
      */
     async getTransferAllBalance(data, balanceRaw) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ' + data.addressFrom + ' started')
-        let balance = await this._web3.eth.getBalance(data.addressFrom)
+        const balance = await this._web3.eth.getBalance(data.addressFrom)
         BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
-        if (balance == 0) {
+        // noinspection EqualityComparisonWithCoercionJS
+        if (balance.toString() === '0') {
             return 0
         }
-        if (typeof data.feeForTx === 'undefined' || typeof data.feeForTx.feeForTx === 'undefined' || data.feeForTx.feeForTx == 0) {
-            let fees = await this.getFeeRate(data)
-            data.feeForTx = fees[2]
+        let res
+        if (typeof data.feeForTx !== 'undefined' && typeof data.feeForTx.feeForTx !== 'undefined' && data.feeForTx.feeForTx.toString() !== '0') {
+            res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).toString()
+            BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.0', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' = ' + res)
         }
-        let res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).toString()
-        BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' = ' + res)
+
+        if (res < 0) {
+            const fees = await this.getFeeRate(data)
+            data.feeForTx = fees[2]
+            res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).toString()
+            BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.1', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' = ' + res)
+            if (res < 0) {
+                data.feeForTx = fees[1]
+                res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
+                BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.2 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+            }
+            if (res < 0) {
+                data.feeForTx = fees[0]
+                res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
+                BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.3 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+            }
+        }
+
         return res
     }
+
     /**
      * @param {string} data.privateKey
      * @param {string} data.addressFrom
@@ -120,7 +144,7 @@ export default class EthTransferProcessor extends EthBasic {
      * @param {string} data.data
      * @return {Promise<{hash}>}
      */
-    async sendTx(data) {
+    async sendTx(data, forceCheckBalance) {
         if (typeof data.privateKey === 'undefined') {
             throw new Error('ETH transaction required privateKey')
         }
@@ -130,28 +154,53 @@ export default class EthTransferProcessor extends EthBasic {
 
         BlocksoftCryptoLog.log('EthTxProcessor.sendTx started')
 
-        if (this._checkBalance === true){
+        if (forceCheckBalance || this._checkBalance === true){
             // check usual
-            let balance = await this._web3.eth.getBalance(data.addressFrom)
-            if (balance == 0) {
-                let e = new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+            const balance = await this._web3.eth.getBalance(data.addressFrom)
+            // noinspection EqualityComparisonWithCoercionJS
+            if (balance.toString() === '0') {
+                const e = new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
                 e.code = 'ERROR_USER'
                 throw e
             }
-            if (typeof data.feeForTx === 'undefined' || typeof data.feeForTx.feeForTx === 'undefined' || data.feeForTx.feeForTx == 0) {
-                let fees = await this.getFeeRate(data)
-                data.feeForTx = fees[2]
+            // noinspection EqualityComparisonWithCoercionJS
+            let res
+            if (typeof data.feeForTx !== 'undefined' && typeof data.feeForTx.feeForTx !== 'undefined' && data.feeForTx.feeForTx.toString() !== '0') {
+                res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
+                BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check balance 1.0 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
             }
-            let res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
-            BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check balance ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
             if (res < 0) {
-                let e = new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
-                e.code = 'ERROR_USER'
-                throw e
+                const fees = await this.getFeeRate(data)
+                data.feeForTx = fees[2]
+                res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
+                BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check balance 1.1 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+                if (res < 0) {
+                    data.feeForTx = fees[1]
+                    res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check balance 1.2 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+                }
+                if (res < 0) {
+                    data.feeForTx = fees[0]
+                    res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check balance 1.3 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+                }
+            }
+            if (res < 0) {
+                if (data.amount > 0) {
+                    const e = new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
+                    e.code = 'ERROR_USER'
+                    throw e
+                } else {
+                    const e = new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+                    e.code = 'ERROR_USER'
+                    throw e
+                }
             }
         }
 
-        let tx = {
+        BlocksoftCryptoLog.log('feeForTx', data.feeForTx)
+
+        const tx = {
             from: data.addressFrom,
             to: data.addressTo,
             gasPrice: data.feeForTx.gasPrice * 1,
@@ -160,22 +209,24 @@ export default class EthTransferProcessor extends EthBasic {
         }
         BlocksoftCryptoLog.log(tx)
         if (typeof data.data !== 'undefined') {
-            tx.data = data.data //actual value for erc20 etc
+            tx.data = data.data // actual value for erc20 etc
         }
 
-        let sender = new EthTxSendProvider(this._web3)
-        let logData = tx
+        const sender = new EthTxSendProvider(this._web3)
+        const logData = tx
         let result
         try {
             result = await sender.send(tx, data)
         } catch (e) {
             delete (data.privateKey)
             logData.error = e.message
-            MarketingEvent.logOnlyRealTime('eth_error ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logData)
+            // noinspection ES6MissingAwait
+            MarketingEvent.logOnlyRealTime('eth_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logData)
             throw e
         }
         logData.result = result
-        MarketingEvent.logOnlyRealTime('eth_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logData)
+        // noinspection ES6MissingAwait
+        MarketingEvent.logOnlyRealTime('eth_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logData)
 
         return result
     }

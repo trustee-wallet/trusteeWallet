@@ -12,6 +12,7 @@ import {
 } from 'react-native'
 
 import firebase from 'react-native-firebase'
+
 import Share from 'react-native-share'
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
@@ -32,7 +33,7 @@ import Netinfo from '../../services/Netinfo/Netinfo'
 import Cashback from '../../services/Cashback/Cashback'
 import { strings } from '../../services/i18n'
 import authDS from '../../appstores/DataSource/Auth/Auth'
-import QRCode from 'react-native-qrcode'
+import QRCode from 'react-native-qrcode-svg'
 import utils, { copyToClipboard } from '../../services/utils'
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window")
@@ -57,7 +58,7 @@ class CashbackScreen extends Component {
         this.shareScrollView = React.createRef()
     }
 
-    async componentWillMount() {
+    async UNSAFE_componentWillMount() {
 
         const { logged } = this.props.authStore
 
@@ -268,8 +269,8 @@ class CashbackScreen extends Component {
                                 <QRCode
                                     value={cashbackData.cashbackLink}
                                     size={200}
-                                    bgColor='#5e2092'
-                                    fgColor='white'/>
+                                    color='#404040'
+                                    logoBackgroundColor='transparent' />
                             </View>
                             <Image
                                 style={styles.wrapper__img}

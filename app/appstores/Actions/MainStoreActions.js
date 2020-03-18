@@ -1,7 +1,3 @@
-/**
- * @todo Misha review
- */
-
 import currencyDS from '../DataSource/Currency/Currency'
 import store from '../../store'
 
@@ -18,24 +14,52 @@ import transactionDS from '../DataSource/Transaction/Transaction'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
+import settingsActions from './SettingsActions'
+import BlocksoftPrettyLocalize from '../../../crypto/common/BlocksoftPrettyLocalize'
+import walletPubDS from '../DataSource/WalletPub/WalletPub'
+
 const { dispatch } = store
 
+export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION', walletIsBackedUp = 0) {
 
-export async function proceedSaveGeneratedWallet(wallet) {
+    let storedKey
 
-    Log.log('ACT/MStore proceedSaveGeneratedWallet called')
+    const prevWallet = await cryptoWalletsDS.getSelectedWallet()
 
-    const storedKey = await cryptoWalletsDS.saveWallet(wallet)
+    try {
+        Log.log('ACT/MStore proceedSaveGeneratedWallet called prevWallet ' + prevWallet)
 
-    await cryptoWalletsDS.setSelectedWallet(storedKey)
+        storedKey = await cryptoWalletsDS.saveWallet(wallet)
 
-    await walletDS.saveWallet(storedKey, wallet.walletName, '')
+        await cryptoWalletsDS.setSelectedWallet(storedKey)
 
-    await accountDS.discoverAccounts(storedKey)
+        await walletDS.saveWallet(storedKey, wallet.walletName, '', walletIsBackedUp)
 
-    await accountBalanceActions.initBalances(storedKey)
+        let derivations = false
+        if (source === 'IMPORT') {
+            derivations = await walletPubDS.discoverOnImport({ walletHash: storedKey, derivations })
+        }
+        console.log(source, derivations)
+        await accountDS.discoverAccounts({ walletHash: storedKey, fullTree: false, source, derivations }, source)
 
-    Log.log('ACT/MStore proceedSaveGeneratedWallet finished', storedKey)
+        await accountBalanceActions.initBalances(storedKey)
+
+        Log.log('ACT/MStore proceedSaveGeneratedWallet finished storedWallet ' + storedKey)
+
+    } catch (e) {
+
+        await accountDS.clearAccounts({ walletHash: storedKey })
+
+        await walletDS.clearWallet({ walletHash: storedKey })
+
+        if (prevWallet && prevWallet !== storedKey) {
+            await cryptoWalletsDS.setSelectedWallet(prevWallet)
+        }
+
+        Log.log('ACT/MStore proceedSaveGeneratedWallet tryWallet ' + storedKey + ' prevWallet ' + prevWallet + ' error ' + e.message)
+
+        throw e
+    }
 
     return storedKey
 }
@@ -50,7 +74,7 @@ export async function proceedGenerateWallet() {
 
     await walletDS.saveWallet(storedKey, 'TRUSTEE', '')
 
-    await accountDS.discoverAccounts(storedKey)
+    await accountDS.discoverAccounts({ walletHash: storedKey }, 'CREATE_WALLET')
 
     await accountBalanceActions.initBalances(storedKey)
 
@@ -92,38 +116,40 @@ export function setLoaderStatus(visible) {
 
 export async function setCurrencies() {
 
-    const { fiatRatesStore, settingsStore } = store.getState()
     const { wallet_hash: walletHash } = store.getState().mainStore.selectedWallet
 
     Log.log('ACT/MStore setCurrencies called')
 
-    let prepare = []
+    const prepare = []
 
     const { array: currencies } = await currencyDS.getCurrencies()
 
-    for (let currencyDBTmp of currencies) {
+    let currencyDBTmp
+    for (currencyDBTmp of currencies) {
 
-        let settings = BlocksoftDict.Currencies[currencyDBTmp.currency_code]
+        const settings = BlocksoftDict.Currencies[currencyDBTmp.currency_code]
 
         if (typeof settings === 'undefined') continue
 
         currencyDBTmp.currencyBalanceAmount = ''
 
+        let one
         if (typeof settings.extendsProcessor === 'undefined') {
-            prepare.push({
+            one = {
                 ...settings,
                 ...currencyDBTmp
-            })
-
+            }
         } else {
-            let extendsSettings = BlocksoftDict.Currencies[settings.extendsProcessor]
-            prepare.push({
+            const extendsSettings = BlocksoftDict.Currencies[settings.extendsProcessor]
+            one = {
                 ...extendsSettings,
                 ...settings,
                 ...currencyDBTmp
-            })
+            }
         }
-
+        one.currencyExplorerLink = BlocksoftPrettyLocalize.makeLink(one.currencyExplorerLink)
+        one.currencyExplorerTxLink = BlocksoftPrettyLocalize.makeLink(one.currencyExplorerTxLink)
+        prepare.push(one)
     }
 
     try {
@@ -131,7 +157,8 @@ export async function setCurrencies() {
         const { array: currenciesBalanceAmount } = await currencyDS.getCurrencyBalanceAmount(walletHash)
 
         if (currenciesBalanceAmount) {
-            for (let obj of prepare) {
+            let obj
+            for (obj of prepare) {
                 Log.log('ACT/MStore setCurrencies obj', JSON.stringify(obj).substr(0, 100))
                 obj.walletHash = walletHash
                 const tmpObj = currenciesBalanceAmount.find((item) => item.currency_code == obj.currency_code)
@@ -167,19 +194,100 @@ export function setSelectedCryptocurrency(data) {
     })
 }
 
-export async function setSelectedAccount() {
+
+export async function setSelectedSegwitOrNot() {
+    Log.log('ACT/MStore setSelectedSegwitOrNot called')
+    let setting = await settingsActions.getSetting('btc_legacy_or_segwit')
+    setting = setting === 'segwit' ? 'legacy' : 'segwit'
+    await settingsActions.setSettings('btc_legacy_or_segwit', setting)
+    Log.log('ACT/MStore setSelectedSegwitOrNot finished ' + setting)
+    return setting
+}
+
+export async function setSelectedAccountAsUsed(address) {
+    Log.log('ACT/MStore setSelectedAccountAsUsed called ' + address)
+    const wallet = store.getState().mainStore.selectedWallet
+    const count = await accountDS.countUsed({wallet_hash : wallet.wallet_hash, currency_code : 'BTC'})
+    if (count > 9000) {
+        return 'error.too.much.addresses'
+    }
+    await accountDS.massUpdateAccount([`'${address}'`], 'address', 'already_shown=1')
+    const account = store.getState().mainStore.selectedAccount
+    if (account) {
+        if (account.address === address) {
+            setSelectedAccount()
+        }
+    }
+    Log.log('ACT/MStore setSelectedAccountAsUsed finished ' + address)
+    return count > 8900 ? 'error.near.too.much.addresses' : false
+}
+
+export async function setSelectedAccount(setting) {
     Log.log('ACT/MStore setSelectedAccount called')
 
     const wallet = store.getState().mainStore.selectedWallet
     const currency = store.getState().mainStore.selectedCryptoCurrency
 
-    Log.log('ACT/MStore setSelectedAccount', { wallet, currency })
+    let accounts
+    if (currency.currency_code === 'BTC') {
+        if (typeof setting === 'undefined') {
+            setting = await settingsActions.getSetting('btc_legacy_or_segwit')
+            if (!setting) {
+                setting = 'legacy'
+            }
+        }
 
-    const { array: accounts } = await accountDS.getAccountData(wallet.wallet_hash, currency.currency_code)
+        Log.log('ACT/MStore setSelectedAccount BTC', { wallet, currency, setting })
 
-    const { array: transactions } = await transactionDS.getTransactions({ account_id: accounts[0].id })
+        accounts = await accountDS.getAccountData({ wallet_hash: wallet.wallet_hash, currency_code: currency.currency_code, segwit: setting, not_already_shown: wallet.wallet_is_hd })
+        if (wallet.wallet_is_hd) {
+            let needSegwit = false
+            let needLegacy = false
+            if (typeof accounts.segwit === 'undefined' || !accounts.segwit || accounts.segwit.length === 0) {
+                needSegwit = true
+            }
+            if (typeof accounts.legacy === 'undefined' || !accounts.legacy || accounts.legacy.length === 0) {
+                needLegacy = true
+            }
+            if (needSegwit || needLegacy) {
+                await walletPubDS.discoverMoreAccounts({ walletHash: wallet.wallet_hash, currencyCode: currency.currency_code, needSegwit, needLegacy })
+                accounts = await accountDS.getAccountData({ wallet_hash: wallet.wallet_hash, currency_code: currency.currency_code, segwit: setting, not_already_shown: wallet.wallet_is_hd })
+            }
+            if (!accounts) {
+                accounts = await accountDS.getAccountData({ wallet_hash: wallet.wallet_hash, currency_code: currency.currency_code, segwit: setting})
+            }
+        }
+        if (setting === 'segwit') {
+            if (typeof accounts.segwit === 'undefined' || !accounts.segwit || accounts.segwit.length === 0) {
+                Log.log('ACT/MStore setSelectedAccount GENERATE SEGWIT')
+                accounts.segwit = await accountDS.discoverAccounts({ walletHash: wallet.wallet_hash, currencyCode: ['BTC_SEGWIT'] })
+            }
+            accounts[0] = accounts.segwit[0]
+            accounts[0].addressType = 'SegWit'
+        } else {
+            accounts[0] = accounts.legacy[0]
+            accounts[0].addressType = 'Legacy'
+        }
 
-    accounts[0].transactions = transactions
+
+        if (!accounts || !accounts[0]) {
+            throw new Error('ACT/MStore setSelectedAccount NOTHING SET BTC ' + setting)
+            // here could be more generation
+        }
+    } else {
+
+        Log.log('ACT/MStore setSelectedAccount OTHER', { wallet, currency })
+
+        accounts = await accountDS.getAccountData({ wallet_hash: wallet.wallet_hash, currency_code: currency.currency_code })
+
+        if (!accounts || !accounts[0]) {
+            throw new Error('ACT/MStore setSelectedAccount NOTHING SET OTHER')
+        }
+
+    }
+
+    accounts[0].transactions = await transactionDS.getTransactions({ wallet_hash: wallet.wallet_hash, currency_code: currency.currency_code })
+    //console.log('tx', accounts[0].transactions)
     accounts[0].balancePretty = 0
     try {
         accounts[0].balancePretty = BlocksoftPrettyNumbers.setCurrencyCode(accounts[0].currency_code).makePrettie(accounts[0].balance)
@@ -213,7 +321,7 @@ export function setInitError(data) {
     Log.log('ACT/MStore setInitError called', data)
     return {
         type: 'SET_INIT_ERROR',
-        initError : data
+        initError: data
     }
 }
 

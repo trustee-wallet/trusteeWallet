@@ -27,9 +27,13 @@ export default {
                 derivation_index INTEGER NOT NULL,
                 derivation_type VARCHAR(32) NOT NULL,
                 
+                already_shown INTEGER NULL,
+                wallet_pub_id INTEGER NULL,
+                
                 status INTEGER NULL,
                 
                 transactions_scan_time INTEGER NULL,
+                transactions_scan_log TEXT NULL,
                 
                 currency_code VARCHAR(32) NOT NULL,
                 
@@ -51,6 +55,7 @@ export default {
                 balance_provider VARCHAR(256) NULL,
 
                 balance_scan_time INTEGER NOT NULL, 
+                balance_scan_log TEXT NULL,
                 
                 status INTEGER NOT NULL,              
               
@@ -126,9 +131,38 @@ export default {
                 wallet_hash VARCHAR(256) NOT NULL PRIMARY KEY,
                 wallet_name VARCHAR(256) NOT NULL,
                 wallet_is_backed_up INTEGER NULL,
+
+                wallet_is_hd INTEGER NULL,
+                wallet_use_unconfirmed INTEGER NULL,
+                
                 wallet_json TEXT NULL,
                 wallet_is_subscribed INTEGER NULL,
                 wallet_is_subscribed_json TEXT NULL
+            )`
+        },
+
+        {
+            tableName: 'wallet_pub',
+            queryString: `CREATE TABLE IF NOT EXISTS wallet_pub (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                currency_code VARCHAR(256) NOT NULL,
+                wallet_hash VARCHAR(256) NOT NULL,
+               
+                wallet_pub_type VARCHAR(256) NOT NULL,
+                wallet_pub_value VARCHAR(256) NOT NULL,                
+                wallet_pub_last_index INTEGER NULL,
+                
+                status INTEGER NULL,
+                
+                balance_fix DECIMAL(50,20) NULL,
+                balance_txt VARCHAR(256) NULL,
+                balance_provider VARCHAR(256) NULL,
+                balance_scan_time INTEGER NOT NULL,
+                balance_scan_log TEXT NULL,
+                             
+                transactions_scan_time INTEGER NULL,
+                
+                FOREIGN KEY(wallet_hash) REFERENCES wallet(wallet_hash)
             )`
         },
         {
@@ -159,6 +193,9 @@ export default {
                 input_value INTEGER NULL,
                 transaction_json VARCHAR(256) NULL,
                 
+                transactions_scan_time INTEGER NULL,
+                transactions_scan_log TEXT NULL,
+                
                 lock_time DATETIME NULL,
                 block_time DATETIME NULL,
                 created_at DATETIME NULL,
@@ -169,7 +206,11 @@ export default {
             tableName: 'transactions_used_outputs',
             queryString: `CREATE TABLE IF NOT EXISTS transactions_used_outputs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                currency_code VARCHAR(256) NULL,                
+                
+                currency_code VARCHAR(256) NULL,
+                wallet_hash VARCHAR(256) NOT NULL,                
+                account_id INTEGER NOT NULL,
+                            
                 output_tx_id VARCHAR(256) NULL,
                 output_vout VARCHAR(256) NULL,
                 output_address VARCHAR(256) NULL,

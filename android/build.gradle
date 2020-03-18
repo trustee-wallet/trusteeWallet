@@ -2,12 +2,10 @@
 
 buildscript {
     ext {
-        googlePlayServicesVersion = "+"
         buildToolsVersion = "28.0.3"
         minSdkVersion = 16
         compileSdkVersion = 28
         targetSdkVersion = 28
-        supportLibVersion = '1.0.0'
     }
     repositories {
         google()
@@ -17,9 +15,10 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.0'
-        classpath 'com.google.gms:google-services:3.2.1'
-        classpath 'io.fabric.tools:gradle:1.28.1'
+        classpath("com.android.tools.build:gradle:3.4.2")
+        classpath 'com.google.gms:google-services:4.2.0'
+        classpath 'io.fabric.tools:gradle:1.25.4'
+
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -28,23 +27,27 @@ buildscript {
 allprojects {
     repositories {
         mavenLocal()
-        google()
-        jcenter()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url "$rootDir/../node_modules/react-native/android"
+            url("$rootDir/../node_modules/react-native/android")
         }
-        maven { url "https://jitpack.io" }
-        maven { url "https://maven.google.com" }
+        maven {
+            // Android JSC is installed from npm
+            url("$rootDir/../node_modules/jsc-android/dist")
+        }
+
+        google()
+        jcenter()
+        maven { url 'https://jitpack.io' }
     }
 }
 
 subprojects {
-    afterEvaluate { project ->
+    afterEvaluate {project ->
         if (project.hasProperty("android")) {
             android {
-                compileSdkVersion 28        // version of compile sdk used for project
-                buildToolsVersion '28.0.3'    // version of build tool used for project
+                compileSdkVersion rootProject.ext.compileSdkVersion
+                buildToolsVersion rootProject.ext.buildToolsVersion
             }
         }
     }

@@ -2,14 +2,16 @@
  * @version 0.2
  */
 import React, { Component } from 'react'
-import { View, Image, Animated, Text, Platform } from 'react-native'
+import { View, Image, Animated, Text, Platform, TouchableOpacity } from 'react-native'
 import { connect } from 'react-redux'
 
 import firebase from "react-native-firebase"
+
 import LottieView from "lottie-react-native"
 
 import Button from '../../components/elements/Button'
 import ButtonLine from '../../components/elements/ButtonLine'
+import CheckBox from '../../components/elements/CheckBox'
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -17,7 +19,8 @@ import { setCallback, setFlowType } from "../../appstores/Actions/CreateWalletAc
 
 import Log from "../../services/Log/Log"
 import { strings } from "../../services/i18n"
-import OtherActions from '../../appstores/Actions/OtherActions'
+import { showModal } from '../../appstores/Actions/ModalActions'
+
 
 class WalletCreateScreen extends Component {
 
@@ -26,21 +29,13 @@ class WalletCreateScreen extends Component {
         this.state = {
             logoAnim: new Animated.Value(0),
             logoShow: new Animated.Value(0),
+            checked: false
         }
-    }
-
-    componentWillMount() {
-        OtherActions.licenceTermsCheck()
     }
 
     componentDidMount() {
+        this.startAnim()
         Log.log('WalletCreateScreen is mounted')
-    }
-
-    componentWillReceiveProps(nextProps, nextContext) {
-        if(typeof nextProps.settingsStore.data.licence_terms_accepted != 'undefined' && +nextProps.settingsStore.data.licence_terms_accepted){
-            this.startAnim()
-        }
     }
 
     startAnim = () => {
@@ -68,20 +63,64 @@ class WalletCreateScreen extends Component {
     }
 
     handleCreate = () => {
+
+        const { checked } = this.state
+
+        if(!checked){
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: strings('walletCreateScreen.acceptTerms')
+            })
+
+            return
+        }
+
         this.handleSelect({
             flowType: 'CREATE_NEW_WALLET'
         })
     }
 
     handleImport = () => {
+
+        const { checked } = this.state
+
+        if(!checked){
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: strings('walletCreateScreen.acceptTerms')
+            })
+
+            return
+        }
+
         this.handleSelect({
             flowType: 'IMPORT_WALLET'
         })
     }
 
+    showLicenceModal = () => {
+        showModal({
+            type: 'LICENSE_TERMS_MODAL'
+        })
+    }
+
+    changeCheckState = () => {
+        this.termsCheckboxRef.changeValue()
+    }
+
+    changeCallback = () => {
+        this.setState({
+            checked: !this.state.checked
+        })
+    }
+
     render() {
 
-        const { logoShow } = this.state
+        const { logoShow, checked } = this.state
 
         firebase.analytics().setCurrentScreen('WalletCreate.WalletCreateScreen')
 
@@ -107,29 +146,32 @@ class WalletCreateScreen extends Component {
                                     { strings("walletCreateScreen.title") }
                                 </Text>
                             </View>
-                            {/*<View>*/}
-                            {/*    <Text style={styles.content__title}>*/}
-                            {/*        { strings("walletCreateScreen.title2") } { strings("walletCreateScreen.title3") }*/}
-                            {/*    </Text>*/}
-                            {/*</View>*/}
-                            {/*<View>*/}
-                            {/*    <Text style={styles.content__title}>*/}
-                            {/*    </Text>*/}
-                            {/*</View>*/}
                         </View>
-                        {/*<Text style={styles.content__description}>*/}
-                        {/*    { strings("walletCreateScreen.description") }*/}
-                        {/*</Text>*/}
                     </View>
-                    <View style={styles.item}>
-                        <Button styleText={{ color: '#7127AC' }} backgroundColorArray={['#fff', '#fff']} press={this.handleCreate} styles={styles.button}>
-                            { strings("walletCreateScreen.createWallet") }
-                        </Button>
+                    <View style={styles.terms}>
+                        <CheckBox ref={ref => this.termsCheckboxRef = ref} changeCallback={this.changeCallback} />
+                        <TouchableOpacity style={styles.terms__btn} onPress={this.showLicenceModal}>
+                            <Text>
+                                <Text style={styles.terms__text1}>
+                                    { strings("walletCreateScreen.terms1") }
+                                </Text>
+                                <Text numberOfLines={2} style={styles.terms__text2}>
+                                    { strings("walletCreateScreen.terms2") }
+                                </Text>
+                            </Text>
+                        </TouchableOpacity>
                     </View>
-                    <View style={styles.item}>
-                        <ButtonLine press={this.handleImport} styles={styles.button__line} styleText={{ color: '#fff' }} innerStyle={{ borderColor: '#fff' }}>
-                            { strings("walletCreateScreen.importWallet") }
-                        </ButtonLine>
+                    <View style={{ paddingHorizontal: 20, marginBottom: 10 }}>
+                        <View style={styles.item}>
+                            <Button styleText={{ color: '#7127AC' }} backgroundColorArray={['#fff', '#fff']} press={this.handleCreate} styles={styles.button}>
+                                { strings("walletCreateScreen.createWallet") }
+                            </Button>
+                        </View>
+                        <View style={styles.item}>
+                            <ButtonLine press={this.handleImport} styles={styles.button__line} styleText={{ color: '#fff' }} innerStyle={{ borderColor: '#fff' }}>
+                                { strings("walletCreateScreen.importWallet") }
+                            </ButtonLine>
+                        </View>
                     </View>
                 </View>
             </View>
@@ -154,8 +196,6 @@ const styles = {
         flex: 1,
         // alignItems: 'center',
         justifyContent: 'center',
-
-        paddingHorizontal: 15
     },
     content__title: {
         marginTop: Platform.OS === 'android' ? -10 : 0,
@@ -219,4 +259,31 @@ const styles = {
 
         backgroundColor: '#7127AC'
     },
+    terms: {
+
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 10,
+    },
+    terms__text1: {
+        fontSize: 14,
+        fontFamily: 'SFUIDisplay-Semibold',
+        color: "#f4f4f4"
+    },
+    terms__text2: {
+        flex: 1,
+
+        fontSize: 14,
+        fontFamily: 'SFUIDisplay-Semibold',
+        color: "#f4f4f4",
+        textDecorationLine: 'underline',
+    },
+    terms__btn: {
+        flex: 1,
+
+        flexDirection: "row",
+
+        paddingVertical: 20
+
+    }
 }

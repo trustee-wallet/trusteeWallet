@@ -17,6 +17,7 @@ import TrxTransferProcessor from './trx/TrxTransferProcessor'
 import UsdtTransferProcessor from './usdt/UsdtTransferProcessor'
 import XrpTransferProcessor from './xrp/XrpTransferProcessor'
 import XvgTransferProcessor from './xvg/XvgTransferProcessor'
+import EthTransferProcessorUAX from './eth/EthTransferProcessorUAX'
 
 
 export default class BlocksoftTransferDispatcher {
@@ -33,10 +34,10 @@ export default class BlocksoftTransferDispatcher {
 
     /**
      * @param {string} currencyCode
-     * @returns {BchTransferProcessor|BtcLightTransferProcessor|BtcTransferProcessor|UsdtTransferProcessor|XvgTransferProcessor|BtcTestTransferProcessor|EthTransferProcessorErc20|BtcSegwitTransferProcessor|BsvTransferProcessor|EthTransferProcessor|BtgTransferProcessor|TrxTransferProcessor|LtcTransferProcessor|DogeTransferProcessor|BtcSegwitCompatibleTransferProcessor}
+     * @returns {BchTransferProcessor|BtcLightTransferProcessor|BtcTransferProcessor|UsdtTransferProcessor|XvgTransferProcessor|BtcTestTransferProcessor|EthTransferProcessorErc20|BsvTransferProcessor|EthTransferProcessor|BtgTransferProcessor|TrxTransferProcessor|LtcTransferProcessor|DogeTransferProcessor}
      */
     getTransferProcessor(currencyCode) {
-        let currencyDictSettings = this._getSettings(currencyCode)
+        const currencyDictSettings = this._getSettings(currencyCode)
         let transferProcessor = currencyCode
         if (typeof currencyDictSettings.transferProcessor !== 'undefined') {
             transferProcessor = currencyDictSettings.transferProcessor
@@ -60,6 +61,8 @@ export default class BlocksoftTransferDispatcher {
                 return new EthTransferProcessor(currencyDictSettings)
             case 'ETH_ERC_20':
                 return new EthTransferProcessorErc20(currencyDictSettings)
+            case 'ETH_UAX':
+                return new EthTransferProcessorUAX(currencyDictSettings)
             case 'LTC':
                 return new LtcTransferProcessor(currencyDictSettings)
             case 'TRX':

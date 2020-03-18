@@ -5,19 +5,24 @@ import BlocksoftKeysStorage from '../../actions/BlocksoftKeysStorage/BlocksoftKe
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 
 import BtcLightProvider from './providers/BtcLightProvider'
+import firebase from 'react-native-firebase'
 
 const crypto = require('crypto')
-import firebase from 'react-native-firebase'
 
 export default class BtcLightAddressProcessor {
 
+    /**
+     * @param privateKey
+     * @param params
+     * @returns {Promise<{privateKey: string, address: *, addedData: {pubKey: string}}>}
+     */
     async getAddress(privateKey, params) {
         BlocksoftCryptoLog.log('BtcLightAddressProcessor started')
-        let PUB = params.publicKey.toString('hex')
-        let PRIV = typeof privateKey === 'string' ? Buffer.from(privateKey, 'hex') : privateKey
-        let IV = Buffer.from(PRIV).subarray(0, 16)
+        const PUB = params.publicKey.toString('hex')
+        const PRIV = typeof privateKey === 'string' ? Buffer.from(privateKey, 'hex') : privateKey
+        const IV = Buffer.from(PRIV).subarray(0, 16)
 
-        let cached = await BlocksoftKeysStorage.getLoginCache(PUB)
+        const cached = await BlocksoftKeysStorage.getLoginCache(PUB)
         if (cached) {
             BlocksoftCryptoLog.log('BtcLightAddressProcessor got from cached')
             await BtcLightProvider.setLogin(cached.login, cached.pass)
@@ -27,7 +32,7 @@ export default class BtcLightAddressProcessor {
                 e.message = 'CACHED/' + PUB + ' login error ' + e.message
                 throw e
             }
-            let btc = await BtcLightProvider.getBtcAddress()
+            const btc = await BtcLightProvider.getBtcAddress()
             BlocksoftCryptoLog.log('CACHED/' + PUB + ' checked all is ok -> btc address ' + btc)
             return { address: btc, privateKey: privateKey.toString('hex'), addedData: { pubKey: PUB } }
         }
@@ -66,7 +71,7 @@ export default class BtcLightAddressProcessor {
                 throw e
             }
 
-            let btc = await BtcLightProvider.getBtcAddress()
+            const btc = await BtcLightProvider.getBtcAddress()
             if (btc !== alreadySaved.btc) {
                 BlocksoftCryptoLog.log('DATA_LIGHT/' + PUB + ' btc addresses not equal, storage: ' + alreadySaved.btc + ', provider: ' + btc)
             }
@@ -77,27 +82,28 @@ export default class BtcLightAddressProcessor {
         }
 
         BlocksoftCryptoLog.log('BtcLightAddressProcessor generation started')
-        let dataToSave = await BtcLightProvider.create()
+        const dataToSave = await BtcLightProvider.create()
 
         await BtcLightProvider.login()
 
         const cipher = crypto.createCipheriv('aes-256-cbc', PRIV, IV)
         cipher.update(Buffer.from(dataToSave.pass, 'hex'))
-        let encryptedPass = cipher.final('hex')
+        const encryptedPass = cipher.final('hex')
 
         try {
             decipher.update(Buffer.from(encryptedPass, 'hex'))
-            let pass = decipher.final('hex')
+            const pass = decipher.final('hex')
             if (pass !== dataToSave.pass) {
+                // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.err('DATA_LIGHT INVALID checking ' + dataToSave.pass + ' => ' + encryptedPass + ' => ' + pass)
             }
         } catch (e) {
             e.message = 'DATA_LIGHT/' + PUB + ' recheck pass decipher error ' + e.message
         }
 
-        let date = (new Date()).toISOString().replace(/T/, ' ').replace(/\..+/, '')
+        const date = (new Date()).toISOString().replace(/T/, ' ').replace(/\..+/, '')
 
-        let btc = await BtcLightProvider.getBtcAddress()
+        const btc = await BtcLightProvider.getBtcAddress()
 
         try {
             await firebase.database().ref('DATA_LIGHT/' + PUB).update({

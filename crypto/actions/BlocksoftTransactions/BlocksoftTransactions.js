@@ -57,7 +57,7 @@ class BlocksoftTransactions {
      * @return {{transaction_status, block_confirmations, transaction_direction, address_to, block_hash, block_number, transaction_fee, address_from, vout, block_time, lock_time, vin, transaction_hash, address_amount, contract_address, input_value, transaction_json}}
      */
     async getTransactions() {
-        let currencyCode = this._data.currencyCode
+        const currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
@@ -74,6 +74,6 @@ class BlocksoftTransactions {
     }
 }
 
-let singleBlocksoftTransactions = new BlocksoftTransactions()
+const singleBlocksoftTransactions = new BlocksoftTransactions()
 
 export default singleBlocksoftTransactions

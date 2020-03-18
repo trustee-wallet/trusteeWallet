@@ -38,15 +38,15 @@ export default class BchUnspentsProvider {
     async getUnspents(address) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BchUnspentsProvider.getUnspents started', address)
         address = BtcCashUtils.fromLegacyAddress(address)
-        let link = this._apiPath + address
-        let res = await BlocksoftAxios.getWithoutBraking(link)
+        const link = this._apiPath + address
+        const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || !res.data || typeof res.data === 'undefined') {
             throw new Error(this._settings.currencyCode + ' BchUnspentsProvider.getUnspents nothing loaded for address')
         }
         if (!res.data || typeof res.data.utxos === 'undefined' || !res.data.utxos) {
             return []
         }
-        let sortedUnspents = []
+        const sortedUnspents = []
         /**
          * https://rest.bitcoin.com/v2/address/utxo/bitcoincash:qz6qh4304stgwpqxp6gwsucma30fewp7z5cs4yuvdf
          * @param {*} res.data.utxos[]
@@ -57,7 +57,8 @@ export default class BchUnspentsProvider {
          * @param {string} res.data.utxos[].height 615754
          * @param {string} res.data.utxos[].confirmations
          */
-        for (let unspent of res.data.utxos) {
+        let unspent
+        for (unspent of res.data.utxos) {
             sortedUnspents.push({
                 txid: unspent.txid,
                 vout: unspent.vout,

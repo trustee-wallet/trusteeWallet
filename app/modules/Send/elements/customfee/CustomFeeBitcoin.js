@@ -24,7 +24,7 @@ class CustomFee extends Component {
      *
      * @param {object} nextProps
      */
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         if (Object.keys(nextProps.fee).length != 0 && (JSON.stringify(nextProps.fee) != JSON.stringify(this.props.fee))) {
             this.feeForTxInput.handleInput(nextProps.fee.feeForTx.toString(), false)
             this.feeForByteInput.handleInput(nextProps.fee.feeForByte.toString(), false)

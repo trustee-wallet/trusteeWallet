@@ -30,11 +30,11 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
      */
     async _unifyTransaction(address, transaction) {
 
-        let transaction_status = 'new'
+        let transactionStatus = 'new'
         if (transaction.confirmed) {
-            transaction_status = 'success'
+            transactionStatus = 'success'
         } else if (transaction.block > 0) {
-            transaction_status = 'fail'
+            transactionStatus = 'fail'
         }
 
         let formattedTime
@@ -44,9 +44,9 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
             e.message += ' timestamp error transaction data ' + JSON.stringify(transaction)
             throw e
         }
-        if (typeof transaction.amount == 'undefined') {
+        if (typeof transaction.amount === 'undefined') {
             // noinspection ES6MissingAwait
-            BlocksoftCryptoLog.err('TrxTransactionsTrc20Provider._unifyTransaction buggy tx ' + JSON.stringify(tx))
+            BlocksoftCryptoLog.err('TrxTransactionsTrc20Provider._unifyTransaction buggy tx ' + JSON.stringify(transaction))
         }
         return {
             transaction_hash: transaction.transactionHash,
@@ -58,7 +58,7 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
             address_from: transaction.transferFromAddress,
             address_to: transaction.transferToAddress,
             address_amount: typeof transaction.amount !== 'undefined' ? transaction.amount : 0,
-            transaction_status,
+            transaction_status : transactionStatus,
             transaction_fee: 0,
             input_value: transaction.data
         }

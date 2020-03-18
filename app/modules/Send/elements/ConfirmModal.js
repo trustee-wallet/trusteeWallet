@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, StyleSheet, Keyboard, TouchableOpacity, WebView, Image, ScrollView, Dimensions } from 'react-native'
+import { View, Text, Keyboard, TouchableOpacity, ScrollView, Dimensions } from 'react-native'
 import Cross from 'react-native-vector-icons/Entypo'
 import Modal from 'react-native-modal'
 
@@ -24,12 +24,12 @@ import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import FiatRatesActions from '../../../appstores/Actions/FiatRatesActions'
 
-const { height: WINDOW_HEIGHT } = Dimensions.get('window')
-
 import Theme from '../../../themes/Themes'
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import utils from '../../../services/utils'
+
 let styles
+const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 
 export class ConfirmModal extends Component {
@@ -41,7 +41,8 @@ export class ConfirmModal extends Component {
         }
     }
 
-    componentWillMount() {
+    // eslint-disable-next-line camelcase
+    UNSAFE_componentWillMount() {
         styles = Theme.getStyles().sendScreenStyles.confirmModalStyles
     }
 
@@ -162,11 +163,7 @@ export class ConfirmModal extends Component {
 
             hideModal()
 
-            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
-                Log.err('Send.ConfirmModal.handleSend ' + e.message)
-            } else {
-                Log.log('Send.ConfirmModal.handleSend ' + e.message)
-            }
+            Log.errorTranslate(e, 'Send.ConfirmModal.handleSend', typeof extend.addressCurrencyCode === "undefined" ? extend.currencySymbol : extend.addressCurrencyCode,  JSON.stringify(extend))
 
             Keyboard.dismiss()
 
@@ -174,7 +171,7 @@ export class ConfirmModal extends Component {
                 type: 'INFO_MODAL',
                 icon: false,
                 title: strings('modal.send.fail'),
-                description: typeof e.code != 'undefined' ? strings(`send.errors.${e.message}`, { symbol: typeof extend.addressCurrencyCode == "undefined" ? extend.currencySymbol : extend.addressCurrencyCode }) : e.message,
+                description: e.message,
                 error: e
             })
         }

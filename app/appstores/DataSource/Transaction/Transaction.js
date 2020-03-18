@@ -141,16 +141,14 @@ class Transaction {
             if (typeof(shownTx[tx.transaction_hash]) !== 'undefined') continue
             shownTx[tx.transaction_hash] = 1
             tx.address_amount = BlocksoftUtils.fromENumber(tx.address_amount)
-            if (typeof (tx.transaction_json) != 'undefined') {
+            if (typeof tx.transaction_json !== 'undefined') {
                 tx.transaction_json = JSON.parse(tx.transaction_json)
             }
             txArray.push(tx)
         }
 
         Log.daemon('DS/Transaction getTransactions finished ' + where + ' ' + order)
-
-        res.array = txArray
-        return res
+        return txArray
     }
 
 }

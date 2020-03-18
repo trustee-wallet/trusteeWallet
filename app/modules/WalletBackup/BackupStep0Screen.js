@@ -13,7 +13,7 @@ import TextView from '../../components/elements/Text'
 import Navigation from '../../components/navigation/Navigation'
 import NavStore from '../../components/navigation/NavStore'
 
-import { strings } from 'root/app/services/i18n'
+import { strings } from '../../../app/services/i18n'
 
 import { showModal } from '../../appstores/Actions/ModalActions'
 import { setWalletMnemonic } from '../../appstores/Actions/CreateWalletActions'
@@ -25,6 +25,7 @@ import Log from '../../services/Log/Log'
 import { copyToClipboard } from '../../services/utils'
 import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
 import firebase from "react-native-firebase"
+
 
 class BackupStep0Screen extends Component {
 

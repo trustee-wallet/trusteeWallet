@@ -12,7 +12,7 @@ import TextView from '../../components/elements/Text'
 import NavStore from '../../components/navigation/NavStore'
 import Navigation from '../../components/navigation/Navigation'
 
-import {strings} from 'root/app/services/i18n'
+import {strings} from '../../../app/services/i18n'
 
 import {showModal} from '../../appstores/Actions/ModalActions'
 import { setLoaderStatus, proceedSaveGeneratedWallet } from '../../appstores/Actions/MainStoreActions'
@@ -20,6 +20,7 @@ import { setLoaderStatus, proceedSaveGeneratedWallet } from '../../appstores/Act
 import App from "../../appstores/Actions/App/App"
 import Log from '../../services/Log/Log'
 import firebase from "react-native-firebase"
+
 import { setCallback } from '../../appstores/Actions/CreateWalletActions'
 import settingsActions from '../../appstores/Actions/SettingsActions'
 import walletActions from '../../appstores/Actions/WalletActions'

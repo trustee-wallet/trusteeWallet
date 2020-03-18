@@ -11,7 +11,7 @@ class BlocksoftKeysForRefStorage extends BlocksoftKeysStorage {
     }
 
     async getPublicAndPrivateResultForHash(hash) {
-        let res = await this._getKeyValue('cd_' + hash)
+        const res = await this._getKeyValue('cd_' + hash)
         if (!res && !res.priv) return false
         return JSON.parse(res.priv)
     }
@@ -22,5 +22,5 @@ class BlocksoftKeysForRefStorage extends BlocksoftKeysStorage {
 
 }
 
-let singleBlocksoftKeysRefStorage = new BlocksoftKeysForRefStorage()
+const singleBlocksoftKeysRefStorage = new BlocksoftKeysForRefStorage()
 export default singleBlocksoftKeysRefStorage

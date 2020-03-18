@@ -1,112 +1,96 @@
-import React, { Component } from 'react'
+import React, { Component } from "react"
+import { connect } from "react-redux"
+import {
+    View,
+    Text,
+    ScrollView,
+    TouchableOpacity
+} from "react-native"
 
-import { connect } from 'react-redux'
-
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native'
-
-import GradientView from "../../components/elements/GradientView"
-
-import AntDesign from "react-native-vector-icons/MaterialCommunityIcons"
-import IoniconsIcons from "react-native-vector-icons/Ionicons"
-
-import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
-
-import { strings } from '../../services/i18n'
+import firebase from "react-native-firebase"
 
 import Navigation from "../../components/navigation/Navigation"
-import firebase from "react-native-firebase"
+import LightButton from "../../components/elements/LightButton"
+import LetterSpacing from "../../components/elements/LetterSpacing"
+import NavStore from "../../components/navigation/NavStore"
+import CustomIcon from "../../components/elements/CustomIcon"
+
+import Wallet from "./elements/Wallet"
+
+import { setFlowType } from "../../appstores/Actions/CreateWalletActions"
+
+import utils from "../../services/utils"
+import { strings } from "../../services/i18n"
+
 
 class WalletListScreen extends Component {
 
     constructor(props){
         super(props)
-        this.state = {}
+        this.state = {
+            totalBalance: 0
+        }
     }
 
-    componentDidMount() {
-        console.log(' WalletListScreen.props.settings')
-        console.log(this.props.settings)
-    }
+    setTotalBalance = (balance) => this.setState((state) => { return { totalBalance: state.totalBalance + (+balance) }})
 
-    setCryptoWallet = async (item) => {
-
-        const { wallet_hash: walletHash } = item
-
-        cryptoWalletActions.setSelectedWallet(walletHash)
-
+    handleImport = () => {
+        setFlowType({
+            flowType: "IMPORT_WALLET"
+        })
+        NavStore.goNext("EnterNameScreen")
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.WalletListScreen')
+        firebase.analytics().setCurrentScreen("Settings.WalletListScreen")
 
-        const { selectedWallet } = this.props.main
+        const { totalBalance } = this.state
+        const { fiatRatesStore } = this.props
+        const { selectedWallet, wallets } = this.props.mainStore
 
         return (
-            <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
+            <View style={styles.wrapper}>
                 <Navigation
-                    title={ strings('settings.walletList.title') }
+                    title={ strings("settings.walletList.title") }
                 />
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     style={styles.wrapper__scrollView}>
+                    <View style={styles.wrapper__top}>
+                        <View style={styles.wrapper__top__content}>
+                            <LetterSpacing text={strings("settings.walletList.totalBalance")} textStyle={styles.wrapper__top__content__title} letterSpacing={0.5} />
+                            <Text style={styles.wrapper__top__content__text}>
+                                { fiatRatesStore.localCurrencySymbol } { utils.prettierNumber(totalBalance, 2) }
+                            </Text>
+                        </View>
+                        <TouchableOpacity onPress={this.handleImport}>
+                            <LightButton Icon={(props) => <CustomIcon size={10} name={"receive"} {...props} /> } iconStyle={{ marginHorizontal: 3 }} title={strings("walletCreateScreen.importWallet").split(" ")[0]} />
+                        </TouchableOpacity>
+                    </View>
                     <View style={styles.wrapper__content}>
                         <View style={styles.block}>
                                 {
-                                    this.props.main.wallets.map((item, index) => {
+                                    wallets.map((item, index) => {
                                         return (
-                                            <View style={styles.block__content} key={index}>
-                                                <TouchableOpacity
-                                                    style={{...styles.block__item}}
-                                                    onPress={() => this.setCryptoWallet(item)}
+                                            <Wallet selectedWallet={selectedWallet}
+                                                    wallet={item}
                                                     key={index}
-                                                    disabled={item.wallet_hash === selectedWallet.wallet_hash}>
-                                                    <View style={styles.block__item__content}>
-                                                        <Text style={styles.block__text}>{ item.wallet_name }</Text>
-                                                    </View>
-                                                    <View style={checkBox.styleBox}>
-                                                        { item.wallet_hash === selectedWallet.wallet_hash ?  <View style={{ position: 'relative', top: Platform.OS === 'ios' ? 0 : 0 }}><IoniconsIcons name='ios-checkmark' size={30} color='#7127ac' /></View>: null }
-                                                    </View>
-                                                </TouchableOpacity>
-                                            </View>
+                                                    setTotalBalance={this.setTotalBalance} />
                                         )
                                     })
                                 }
                         </View>
                     </View>
                 </ScrollView>
-            </GradientView>
+            </View>
         )
-    }
-}
-
-const styles_ = {
-    array: ["#fff","#F8FCFF"],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
-}
-
-const checkBox = {
-    array: ["#f9f9f9","#f9f9f9"],
-    array_: ["#43156d","#7027aa"],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 },
-    styleBox: {
-        alignItems: 'center',
-
-        width: 30,
-        height: 30,
-    },
-    styleGradient: {
-        width: 20,
-        height: 20,
-        borderRadius: 4
     }
 }
 
 const mapStateToProps = (state) => {
     return {
-        main: state.mainStore,
-        settings: state.settingsStore
+        mainStore: state.mainStore,
+        fiatRatesStore: state.fiatRatesStore
     }
 }
 
@@ -118,16 +102,13 @@ const mapDispatchToProps = (dispatch) => {
 
 export default connect(mapStateToProps, mapDispatchToProps)(WalletListScreen)
 
-const styles = StyleSheet.create({
+const styles = {
     wrapper: {
-        flex: 1
+        flex: 1,
+        backgroundColor: "#f5f5f5"
     },
     wrapper__scrollView: {
         marginTop: 80,
-    },
-    wrapper__top: {
-        height: 145,
-        marginBottom: 35
     },
     wrapper__bg: {
         width: '100%',
@@ -147,65 +128,27 @@ const styles = StyleSheet.create({
         color: '#f4f4f4',
         textAlign: 'center'
     },
-    block__content: {
-        paddingLeft: 5,
-        paddingRight: 5,
-        marginBottom: 14,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
+    wrapper__top: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
 
-        elevation: 3,
-        backgroundColor: '#fff',
-        borderRadius: 40,
+        paddingHorizontal: 31,
+        marginTop: 16
     },
-    block__title: {
-        paddingLeft: 15,
-        marginBottom: 5,
+    wrapper__top__content: {
+
+    },
+    wrapper__top__content__title: {
+        marginBottom: 6,
+
         fontSize: 14,
         fontFamily: 'SFUIDisplay-Semibold',
-        color: '#7127ac'
+        color: "#999"
     },
-    block__item: {
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        height: 40,
-        paddingLeft: 8,
-        paddingRight: 8,
+    wrapper__top__content__text: {
+        fontSize: 18,
+        fontFamily: 'Montserrat-Bold',
+        color: "#404040"
     },
-    block__item__content: {
-        paddingTop: 5,
-        paddingBottom: 5
-    },
-    block__text: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#404040'
-    },
-    block__subtext: {
-        marginTop: -6,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 11,
-        color: '#999999'
-    },
-    block__text__right: {
-        marginLeft: 'auto',
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#999999'
-    },
-    divider: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#e3e6e9'
-    },
-    icon: {
-        marginRight: 15,
-        marginBottom: 1,
-        color: '#999999'
-    },
-})
+}

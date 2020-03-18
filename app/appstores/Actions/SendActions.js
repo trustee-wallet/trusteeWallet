@@ -4,7 +4,7 @@ import store from '../../store'
 
 import NavStore from '../../components/navigation/NavStore'
 
-import { decodeTransactionQrCode } from '../../services/utils'
+import { decodeTransactionQrCode } from '../../services/Qr/QrScan'
 import { strings } from '../../services/i18n'
 
 import _ from 'lodash'
@@ -58,7 +58,7 @@ export default new class SendActions {
             if(initialURL.indexOf("trustee.page.link") === -1){
                 const { currencies, selectedWallet } = store.getState().mainStore
                 let currency = _.find(currencies, { currencyCode: res.data.currencyCode })
-                let { array: accounts } = await accountDS.getAccountData(selectedWallet.wallet_hash, res.data.currencyCode)
+                let accounts = await accountDS.getAccountData({wallet_hash : selectedWallet.wallet_hash, currency_code : res.data.currencyCode})
 
                 setSendData({
                     disabled: false,

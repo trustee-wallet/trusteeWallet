@@ -1,6 +1,5 @@
 const ethUtil = require('ethereumjs-util')
 const assert = require('assert')
-// noinspection NpmUsedModulesInstalled
 const BN = require('bn.js')
 const {
     ENVIRONMENT_TYPE_POPUP,

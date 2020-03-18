@@ -21,43 +21,47 @@ class BlocksoftKeysForRef {
      * @return {Promise<{currencyCode:[{address, privateKey, path, index, type}]}>}
      */
     async discoverPublicAndPrivate(data) {
-        let logData = { ...data }
-        let mnemonicCache = data.mnemonic.toLowerCase()
+        const logData = { ...data }
+        const mnemonicCache = data.mnemonic.toLowerCase()
 
         if (typeof logData.mnemonic !== 'undefined') logData.mnemonic = '***'
         if (typeof CACHE[mnemonicCache] !== 'undefined') return CACHE[mnemonicCache]
-        BlocksoftCryptoLog.log(`BlocksoftKeysForRef discoverPublicAndPrivate called`, logData)
+        BlocksoftCryptoLog.log(`BlocksoftKeysForRef discoverPublicAndPrivate called ` + JSON.stringify(logData))
 
         let result = BlocksoftKeys.getEthCached(mnemonicCache)
         if (!result) {
-            BlocksoftCryptoLog.log(`BlocksoftKeysForRef discoverPublicAndPrivate no cache`, logData)
+            BlocksoftCryptoLog.log(`BlocksoftKeysForRef discoverPublicAndPrivate no cache ` + JSON.stringify(logData))
             let index = 0
             if (typeof data.index !== 'undefined') {
                 index = data.index
             }
-            let seed = BlocksoftKeys.getSeedCached(data.mnemonic)
-            let root = bip32.fromSeed(seed)
-            let path = `m/44'/60'/${index}'/0/0`
-            let child = root.derivePath(path)
+            const seed = BlocksoftKeys.getSeedCached(data.mnemonic)
+            const root = bip32.fromSeed(seed)
+            const path = `m/44'/60'/${index}'/0/0`
+            const child = root.derivePath(path)
 
-            let processor = await Dispatcher.getAddressProcessor('ETH')
+            const processor = await Dispatcher.getAddressProcessor('ETH')
+            /**
+             * @type {privateKey: string, address: *, basicPrivateKey:*, basicPublicKey:*, path:*, index:*, addedData: {pubKey: string}}
+             */
             result = await processor.getAddress(child.privateKey)
             result.index = index
             result.path = path
-            BlocksoftCryptoLog.log(`BlocksoftKeysForRef discoverPublicAndPrivate finished no cache`, logData)
+            BlocksoftCryptoLog.log(`BlocksoftKeysForRef discoverPublicAndPrivate finished no cache ` + JSON.stringify(logData))
         }
+        // noinspection JSPrimitiveTypeWrapperUsage
         result.cashbackToken = BlocksoftKeysForRefServerSide.addressToToken(result.address)
-        BlocksoftCryptoLog.log(`BlocksoftKeysForRef discoverPublicAndPrivate finished`, logData)
+        BlocksoftCryptoLog.log(`BlocksoftKeysForRef discoverPublicAndPrivate finished ` + JSON.stringify(logData))
         CACHE[mnemonicCache] = result
         return result
     }
 
     async signDataForApi(msg, privateKey) {
-        let processor = await Dispatcher.getAddressProcessor('ETH')
+        const processor = await Dispatcher.getAddressProcessor('ETH')
         if (privateKey.substr(0, 2) !== '0x') {
             privateKey = '0x' + privateKey
         }
-        let signedData = await processor.signMessage(msg, privateKey)
+        const signedData = await processor.signMessage(msg, privateKey)
         delete signedData.v
         delete signedData.r
         delete signedData.s
