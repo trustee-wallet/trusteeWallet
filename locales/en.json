@@ -1,0 +1,1087 @@
+ {
+  "appName": "Trustee",
+  "auth": {
+    "navigation": {
+      "title": "You are logged using: %{authMnemonicName}",
+      "description": "Passwordless authorization"
+    },
+    "logOut": "Log out"
+  },
+  "finishTradeScreen": {
+    "title": "Success!",
+    "description": "Your order was created. \n Once your transaction will get required confirmations it will be fulfilled accordingly.  \n You can monitor your order status in the orders history.",
+    "orderHistoryBtn": "Orders history"
+  },
+   "tooltips": {
+     "HOME_SCREEN_BUY_BTN_TIP": {
+       "title": "",
+       "description": "Here you can buy crypto with card - your Captain Obvious :)"
+     },
+     "HOME_SCREEN_EXCHANGE_BTN_TIP": {
+       "title": "",
+       "description": "Now you don’t need to use exchanges - change crypto to crypto with us in 2 clicks!"
+     },
+     "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
+       "title": "",
+       "description": "Add important assets and start earning - let’s go!"
+     },
+     "HOME_SCREEN_CRYPTO_BTN_TIP": {
+       "title": "",
+       "description": "This is your unique bitcoin wallet - start sending and accepting bitcoins!"
+     },
+     "ACCOUNT_SCREEN_ADDRESS_TIP": {
+       "title": "",
+       "description": "This is your %{currencyName} address - analog of card number for advanced users! "
+     },
+     "ACCOUNT_SCREEN_TRANSACTION_TIP": {
+       "title": "",
+       "description": "Here you can find all the info about your transactions and orders - let’s go!"
+     },
+     "buttons": {
+       "next": "Next",
+       "skip": "Skip",
+       "close": "Close"
+     }
+   },
+   "homeScreen": {
+     "balance": "Balance",
+     "today": "Today",
+     "changedLastDay": "In the last 24 hours",
+     "assets": "Assets",
+     "synchronizing": "Synchronization"
+   },
+   "walletCreateScreen": {
+     "title": "BUY SELL EXCHANGE ANONYMOUSLY",
+     "createWallet": "Create wallet",
+     "importWallet": "Import wallet",
+     "acceptTerms": "You don`t agree with Term of Service and Privacy Policy",
+     "terms1": "I agree with ",
+     "terms2": "Term of Service and Privacy Policy"
+   },
+   "exchangeScreen": {
+     "title": "Exchange",
+     "pickProvider": "Pick a provider",
+     "providerInformation": "Provider info",
+     "fee": "Fee",
+     "equivalent": "Equivalent: ~",
+     "exchangeAll": "Exchange all",
+     "min": "minimum:",
+     "max": "maximum:",
+     "exchangeBtn": "Exchange",
+     "payinAddress": "Sending address",
+     "payoutAddress": "Receiving address",
+     "date": "Date:",
+     "receiveAddressModal": {
+       "title": "Exchange for your own wallet?",
+       "description1": "Wallet",
+       "description2": "address"
+     }
+   },
+   "exchangeConfirmScreen": {
+     "title": "Confirm",
+     "youWantToExchange": "You want to exchange",
+     "exchangeDetails": "Exchange details",
+     "exchangeBtn": "Exchange"
+   },
+   "tradeScreen": {
+     "youGet": "You get:",
+     "youGive": "You give:",
+     "crypto": "Crypto",
+     "fiat": "Fiat",
+     "pickPaySys": "Pick a payment method",
+     "pickPaySysSell": "Select a receipt method",
+     "only": "only",
+     "worldwide": "Worldwide",
+     "fee": "Banking fee",
+     "selectSum": "Equivalent amount",
+     "custom": "Custom",
+     "limitsTitle": "Sorry, but there are some limits",
+     "minPurchase": "min purchase sum:",
+     "maxPurchase": "max purchase sum:",
+     "selectCrypto": "Select cryptocurrency",
+     "selectFiat": "Select fiat currency",
+     "submit": "Submit",
+     "modalError": {
+        "selectCryptocurrency": "Please, select cryptocurrency",
+        "selectWhatYouGet": "Please, select what you get",
+        "selectWhatYouGive": "Please, select what you give",
+        "selectPaymentSystem": "Please, select payment method",
+        "selectFiatTemplate": "Select fiat template",
+        "limit": "You are out of allowed limits",
+        "selectCard": "Please, select card",
+        "takePhoto": "Please, take a photo of card",
+        "waitValidation": "Please, wait. Photo is checking",
+        "canceledValidation": "Card verification failed. Please, try again",
+        "additionalData": "Please, fill additional data",
+        "notSupported": "This phone format is not supported.",
+        "serviceUnavailable": "Service unavailable. Please, try again later"
+     },
+     "paymentInformation": "Payment method info",
+     "urkCardOnly": "Ukranian cards only!",
+     "rusCardOnly": "Russian cards only!",
+     "worldwideOnly": "Worldwide",
+     "minAmount": "Min amount",
+     "maxAmount": "Max amount",
+     "RUB": "Russia",
+     "UAH": "Ukraine",
+     "QIWI": "QIWI wallet"
+   },
+   "confirmScreen": {
+     "title": "Confirm",
+     "rate": "Rate",
+     "fees": "Trade details",
+     "youWantToBuy": "You want to buy",
+     "youWantToSell": "You want to sell",
+     "providerFee": "Banking fee",
+     "outputFee": "Network fee",
+     "trusteeFee": "Trustee fee",
+     "networkFee": "network fee",
+     "info": "Info",
+     "withdrawAddress": "Destination address",
+     "withdrawCardNumber": "Card for payout",
+     "withdrawPhoneNumber": "Phone for payout",
+     "total": "Total:",
+     "submitBtnBuy": "Buy",
+     "submitBtnSell": "Sell",
+     "edit": "Edit",
+     "confirmScreenBuy": "This payment method currently unavailable. Please, try another one.",
+     "confirmScreenSell": "This payment method currently unavailable. Please, try another one.",
+     "bottomInformation": "Please, pay attention, exchange rate is not fixed and might be changed following the market."
+   },
+  "settings": {
+    "title": "General settings",
+    "walletManagement": {
+      "title": "Wallets management",
+      "backup": "Backup wallet",
+      "import": "Import wallet",
+      "create": "Create new wallet",
+      "select": "Select wallet",
+      "turnOnHD" : "Turn on HD"
+    },
+    "security": {
+      "title": "Security",
+      "change": "Change PIN-code",
+      "lock": "PIN-code",
+      "touch": "FaceID/TouchID",
+      "askPINCodeToSend": "Ask when sending"
+    },
+    "assets": {
+      "title": "Assets management",
+      "addAsset": "Add asset"
+    },
+    "other": {
+      "title": "Other",
+      "support": "Support",
+      "supportSubtitle": "Our telegram support bot",
+      "lock": "Lock screen",
+      "bio": "Biometrics",
+      "about": "About Trustee",
+      "lang": "Change language",
+      "copyLogs": "Copy logs",
+      "cashback": {
+        "title": "Cashback",
+        "description": "Invite friends and make money"
+      },
+      "localCurrency": "Local currency",
+      "scannerSettings" : "Scanning",
+      "toolTips": "Tooltips",
+      "configMode": "Config",
+      "testerMode": "Tester"
+    },
+    "walletList": {
+      "title": "Wallet list",
+      "addedAssets": "Added assets",
+      "balance": "Balance",
+      "backup": "Backup",
+      "off": "Off",
+      "on": "On",
+      "totalBalance": "Total balance",
+      "useUnconfirmed": "Use unconfirmed transactions",
+      "useLegacy": "Use legacy address as main for change",
+      "showLegacy": "Show legacy",
+      "showSegWit": "Show SegWit",
+      "accountSetting": "Account settings",
+      "showSegWitAndLegacy": "Show SegWit and Legacy",
+      "hideCommissionTrans": "Hide commission payment transactions",
+      "backupModal": {
+        "title": "Mnemonic phrase not saved!",
+        "description": "The mnemonic phrase (seed phrase) is the only key to your assets! In case of failure of the phone or other similar situations, it will be impossible to restore access to your assets without this phrase! We recommend that you save the phrase in a safe place right now! \n \n If you are asked for a seed phrase, then you are dealing with scammers! \n Do not tell the seed phrase under any circumstances!"
+      },
+      "hdEnableModal": {
+        "title": "Switch wallet to HD mode?",
+        "description": "HD mode implies rotation of addresses for each transaction. The switching operation is irreversible."
+      }
+    },
+    "about": {
+      "title": "About",
+      "header": "Trustee for %{OS}",
+      "version": "Version",
+      "privacy": "Privacy policy",
+      "terms": "Terms of use"
+    },
+    "config": "Config changed to: %{config}",
+    "tester": "Tester/user changed to: %{testerMode}"
+  },
+  "assets": {
+    "mainTitle": "Add asset",
+    "addCustomAsset": "Add custom asset",
+    "addAsset": "Add",
+    "showAsset": "Show",
+    "hideAsset": "Hide"
+  },
+   "AddCustomToken": {
+     "mainTitle": "Add asset",
+     "tokenInputTitle": "Asset address",
+     "description": "Ethereum (ETH) and Tron (TRX) token/asset addresses are supported",
+     "add": "Add"
+   },
+  "cashback": {
+    "pageTitle": "Cashback",
+    "mainTitle": "Refer your friends - earn cashback!",
+    "mainDescription": "Invite five friends and start earning 10% cashback from the commission of your exchanges! Trustee returns up to 30% commission to its users!",
+    "shareText": "Share",
+    "more": "More",
+    "shareTitle": "",
+    "shareMessage": "",
+    "friendsJoined": "Your friends",
+    "transAmount": "Transaction amount",
+    "level2UsersAmount": "Friends of friends",
+    "cashbackAmount": "Cashback amount",
+    "setParentToken": "Link in to your friend structure",
+    "inputParentCashBackLink": "https://trustee.deals/link/example",
+    "withdraw": "Withdraw",
+    "minWithdraw": "Minimal amount to withdraw",
+    "performWithdraw": "To perform withdraw, please, write to telegram to nickname @TrusteeWallet"
+  },
+  "account": {
+    "title": "Account",
+    "copy": "Click to copy",
+    "refresh": "Refresh",
+    "receive": "%{receive}",
+    "send": "Send",
+    "history": "Transaction history",
+    "noTransactions": "You don’t have any transaction yet.",
+    "showMore": "Show more",
+    "assetSettings": "Asset settings",
+    "transaction": {
+      "pay": "Pay",
+      "destinationTag": "Destination tag",
+      "nonce": "Nonce",
+      "empty": "(empty)",
+      "fee": "Fee",
+      "txHash": "Transaction hash",
+      "from": "From",
+      "to": "To",
+      "status": "Status",
+      "outcome": "Outcome",
+      "income": "Income",
+      "self" : "Self",
+      "exchange": "Exchange",
+      "buy": "Buy",
+      "sell": "Sell",
+      "mobile_phone": "Mobile phone",
+      "date": "Date",
+      "confirmations": "Confirmations:",
+      "moreInformation": "More information",
+      "cardNumberDestination": "Withdraw card number",
+      "phoneDestination": "Withdraw phone number",
+      "orderId": "Order ID",
+      "replaceByFeeBtn": "Update tx fee"
+    },
+    "transactionStatuses": {
+      "paid" : "Paid",
+      "pay_waiting" : "Waiting payment",
+      "pay_expired" : "Expired payment",
+      "success": "Success",
+      "pending": "Pending",
+      "new": "new",
+      "delegated" : "delegated",
+      "confirming": "Confirming",
+      "fail": "Fail",
+      "internal_success": "Success from Contract",
+      "internal_new": "New from Contract",
+      "internal_fail": "Fail from Contract"
+    },
+    "receiveScreen": {
+      "title": "%{receive}",
+      "description": "Your current %{currency} address:",
+      "clickToCopy": "Click to copy",
+      "receiveAmount": "Receive an Amount",
+      "share": "Share",
+      "copy": "Copy"
+    },
+    "addAccount": {
+      "list": "Crypto list"
+    },
+    "accountList": {
+      "list": "Account list"
+    }
+  },
+  "exchangeInit": {
+    "ordersHistory": "Orders history",
+    "ordersNull": "You don`t have any orders yet."
+  },
+  "exchange": {
+    "title": "Exchange",
+    "description": "This is the easiest way to buy or sell your cryptocurrency, you just have to select the crypto, its amount and the card that will be responsible for sending or receiving the UAH. Total amount you need to pay will contain some fee for using product, it will be calculated automatically. Please, note that the service is provided by means of integration with third-party partner services.",
+    "attention": "",
+    "buy": "Buy",
+    "sell": "Sell",
+    "exchange": "Exchange",
+    "to": "to",
+    "providerChanged": {
+      "title": "Provider changed",
+      "description": "Start the transaction again"
+    },
+    "ordersStatus": {
+      "exchange": {
+        "pending_payin": "Replenishment expected",
+        "canceled_payin": "Replenishment canceled",
+        "done_payin": "Replenishment was successful",
+        "wait_trade": "Exchange pending",
+        "done_trade": "Exchange done successful",
+        "wait_payout": "Payout pending",
+        "canceled_payout": "Payout failure",
+        "done_payout": "Payout was successful",
+        "wait_kyc": "KYC expected",
+        "stopped_order": "Order stopped on provider side",
+        "error_order": "An error occurred while execution. The order was processed manually."
+      },
+      "sell": {
+        "pending_payin": "Replenishment expected",
+        "canceled_payin": "Replenishment canceled",
+        "done_payin": "Replenishment was successful",
+        "wait_trade": "Exchange pending",
+        "done_trade": "Exchange done successful",
+        "wait_payout": "Payout pending",
+        "canceled_payout": "Payout failure",
+        "done_payout": "Payout was successful",
+        "wait_kyc": "KYC expected",
+        "stopped_order": "Order stopped on provider side",
+        "error_order": "An error occurred while execution. The order was processed manually."
+      },
+      "buy": {
+        "pending_payin": "Replenishment expected",
+        "canceled_payin": "Replenishment canceled",
+        "done_payin": "Replenishment was successful",
+        "wait_trade": "Exchange pending",
+        "done_trade": "Exchange done successful",
+        "wait_payout": "Payout pending",
+        "canceled_payout": "Payout failure",
+        "done_payout": "Payout was successful",
+        "wait_kyc": "KYC expected",
+        "stopped_order": "Order stopped on provider side",
+        "error_order": "An error occurred while execution. The order was processed manually."
+      }
+    },
+    "mainData": {
+      "selectCurrency": "Select a cryptocurrency",
+      "selectPayment": "Select type of payment",
+      "estimateAmount": "Enter the amount",
+
+      "addCard": "ADD NEW CARD",
+      "address": "Your address:",
+      "titleBuy": "Buy crypto",
+      "titleSell": "Sell crypto",
+      "amount": "Enter amount",
+      "buyCrypto": "Buy in ETH",
+      "sellCrypto": "Sell in ETH",
+      "buyFiat": "Buy in UAH",
+      "sellFiat": "Sell in UAH",
+      "sellAll": "Sell all",
+      "equivalentCryptoBuy": "Purchase amount: ~",
+      "equivalentCryptoSell": "Sell amount:",
+      "equivalentFiat": "Amount: ~",
+      "minAmountToBuy": "Min amount to buy crypto:",
+      "minAmountToSell": "Min amount to sell crypto:",
+      "minExchange": "%{fiat}",
+      "maxAmountBuy": "The maximum amount of purchase from one card is %{maxAmountToBuy} %{fiatSymbol} per day in parts of %{maxAmountToBuyPart} %{fiatSymbol}",
+      "maxAmountSell": "Maximum amount of sale per card %{maxAmountToBuy} %{fiatSymbol} per day",
+      "maxFiat": "",
+      "next": "Next",
+      "blockedCard": "This card can`t be used.\nPlease, select another one",
+      "networkFee": "Network fee",
+      "paySystemFee": "Trustee fee",
+      "totalBuy": "Total to be paid",
+      "totalSell": "Total to be receive",
+      "moreInformation": "More information"
+    }
+  },
+  "card" : {
+    "title": "Add new card",
+    "description": "To add new card, please, scan it or enter number manually",
+    "instructions": "Hold card here. It will scan automatically.",
+    "attention": "Please, be attentive and try to avoid errors.",
+    "add": "Add",
+    "numberTitleInput": "Card number",
+    "dateTitleInput": "MM/YY",
+    "cardCurrency": "Select card country...",
+    "cardName": "Set a name to the card",
+    "noName": "NO NAME",
+    "country": "Country:"
+  },
+  "qrScanner" : {
+    "line1": "Please, place the QR-code inside the",
+    "line2": "rectangle to scan it"
+  },
+  "send": {
+    "title": "Send %{currency}",
+    "description": "Paste the recipient's wallet address or scan the QR-code.",
+    "descriptionExchange": "The recipient's wallet address is set automatically. This is the address of the exchange provider. Assets exchange and payout will be executed after a successful transaction",
+    "address": "Destination address",
+    "value": "value",
+    "comment": "Comment",
+    "xrp_memo": "Destination tag",
+    "send": "Next",
+    "useAllFunds": "Use all funds",
+    "equivalent": "Equivalent: ~ %{amount} %{symbol}",
+    "notEnough": "You don't have enough funds for send.",
+    "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}",
+    "confirmModal": {
+      "title": "Do you confirm sending?",
+      "amount": "Amount",
+      "recipient": "Recipient",
+      "edit": "Back",
+      "confirm": "Send"
+    },
+    "fee": {
+      "title": "Change fee",
+      "text": {
+        "eth_speed_slow": "Slow",
+        "eth_speed_medium": "Medium",
+        "eth_speed_fast": "Fast",
+        "eth_speed_delegated" : "Delegated ERC865",
+
+        "btc_speed_blocks_12": "Slow",
+        "btc_speed_blocks_6": "Medium",
+        "btc_speed_blocks_2": "Fast",
+
+        "bch_speed_blocks_12": "Slow",
+        "bch_speed_blocks_6": "Medium",
+        "bch_speed_blocks_2": "Fast",
+
+        "ltc_speed_blocks_12": "Slow",
+        "ltc_speed_blocks_6": "Medium",
+        "ltc_speed_blocks_2": "Fast",
+
+        "btc_corrected_speed_blocks_2": "Auto",
+        "btc_corrected_speed_blocks_6": "Auto",
+        "btc_corrected_speed_blocks_12": "Auto",
+
+        "btc_corrected_speed_blocks_2_protection": "Auto (overpay protection)",
+        "btc_corrected_speed_blocks_6_protection": "Auto (overpay protection)",
+        "btc_corrected_speed_blocks_12_protection": "Auto (overpay protection)",
+
+        "ltc_corrected_speed_blocks_2": "Auto",
+        "ltc_corrected_speed_blocks_6": "Auto",
+        "ltc_corrected_speed_blocks_12": "Auto",
+
+        "ltc_corrected_speed_blocks_2_protection": "Auto (overpay protection)",
+        "ltc_corrected_speed_blocks_6_protection": "Auto (overpay protection)",
+        "ltc_corrected_speed_blocks_12_protection": "Auto (overpay protection)",
+
+        "xrp_speed_one" : "Fast"
+      },
+      "time": {
+        "eth_speed_slow": "~ 30 minutes",
+        "eth_speed_medium": "~ 5 minutes",
+        "eth_speed_fast": "~ 1 minute",
+        "eth_speed_delegated" : "The transaction will be sent at the expense of a third party. Commission is charged in %{symbol} according to ERC865",
+
+        "btc_speed_blocks_12": "~ 120 minutes",
+        "btc_speed_blocks_6": "~ 60 minutes",
+        "btc_speed_blocks_2": "~ 15 minutes",
+
+        "bch_speed_blocks_12": "~ 120 minutes",
+        "bch_speed_blocks_6": "~ 60 minutes",
+        "bch_speed_blocks_2": "~ 20 minutes",
+
+        "ltc_speed_blocks_12": "~ 120 minutes",
+        "ltc_speed_blocks_6": "~ 20 minutes",
+        "ltc_speed_blocks_2": "~ 5 minutes",
+
+        "btc_corrected_speed_blocks_2": "~ 35 minutes",
+        "btc_corrected_speed_blocks_6": "~ 95 minutes",
+        "btc_corrected_speed_blocks_12": "~ 135+ minutes",
+
+        "btc_corrected_speed_blocks_2_protection": "~ 35 minutes",
+        "btc_corrected_speed_blocks_6_protection": "~ 95 minutes",
+        "btc_corrected_speed_blocks_12_protection": "~ 135+ minutes",
+
+        "ltc_corrected_speed_blocks_2": "~ 15 minutes",
+        "ltc_corrected_speed_blocks_6": "~ 35 minutes",
+        "ltc_corrected_speed_blocks_12": "~ 135+ minutes",
+
+        "ltc_corrected_speed_blocks_2_protection": "~ 15 minutes",
+        "ltc_corrected_speed_blocks_6_protection": "~ 35 minutes",
+        "ltc_corrected_speed_blocks_12_protection": "~ 135+ minutes",
+
+        "xrp_speed_one" : "~ 1 minute"
+      },
+      "customFee": {
+        "fixedFeeTitle": "FIXED FEE",
+        "customFeeTitle": "CUSTOM FEE",
+        "eth": {
+          "gasPrice": "Gas price",
+          "gasLimit": "Gas limit",
+          "gwei": "GWEI"
+        },
+        "btc": {
+          "feeForTx": "Fee for transaction",
+          "feeForByte": "Fee for byte",
+          "satoshi": "SATOSHI"
+        }
+      }
+    },
+    "errors": {
+      "UI_CONFIRM_DOUBLE_SEND" : "Transaction to this address has been already sent few moments ago, are you sure to repeat?",
+      "SERVER_RESPONSE_BAD_INTERNET" : "No internet access",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Not enough balance in native coin %{symbol} to send",
+      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Not enough confirmed balance in native coin %{symbol} to send - please, wait for other transactions to be mined",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Transaction fee too small",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Transaction amount too small",
+      "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Nothing to transfer",
+      "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE" : "Nothing left to pay for delegated fee - please, use usual ERC20 transfer",
+      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE" : "Nothing left to pay for fee - please, use Send All button",
+      "SERVER_RESPONSE_NO_RESPONSE" : "Server not accepting transaction - please, wait for other transactions to be mined",
+      "SERVER_RESPONSE_NOT_CONNECTED" : "Server not connected - please, wait a little bit",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Transaction amount too small for any fee",
+      "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Please, wait for other transactions to be mined or turn on usage of unconfirmed transactions",
+      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Transaction fee too big - please, select less fee manually or enter bigger amount to transfer",
+      "SERVER_RESPONSE_SELF_TX_FORBIDDEN" : "Transaction to the same address are forbidden",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP" : "Not enough balance - 20 XRP should be left on account balance",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP" : "Not enough amount - send 20 XRP or more to the destination address as it has no transactions yet",
+      "SERVER_RESPONSE_TAG_NEEDED_XRP" : "Not valid destination tag - please, enter destination tag for correct transaction",
+      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT" : "Not enough balance on USDT bitcoin address - please, transfer some satoshis to this address",
+      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Server not accepting transaction - please, wait for other transactions to be mined or use usual ERC20 transfer"
+    }
+  },
+  "walletBackup": {
+    "title": "Backup recovery phrase",
+    "titleNewWallet": "Create new wallet",
+    "skip": "Skip",
+    "description": "Anyone with your recovery phrase can access or spend your coins. Please, carefully write down these %{mnemonicLength} %{words}.\nDo not tell the seed phrase under any circumstances!",
+    "attention": "You will confirm this phrase on the next step",
+    "written": "I`ve written it down",
+    "words": "words",
+    "secondStep": {
+      "description": "Let`s verify your recovery phrase. Please, tap each word in the correct order. To delete word from field tap on it again."
+    },
+    "mnemonicFail": {
+      "title": "Oh no...",
+      "description": "You have done a mistake in recovery phrase. Please, try again."
+    },
+    "skipElement": {
+      "title": "Are you really sure?",
+      "description": "Backup phrase is very important. You will not have access to your founds. Do you want to skip this step?",
+      "cancel": "Cancel",
+      "yes": "Yes",
+      "no": "No"
+    }
+  },
+  "walletCreate": {
+    "walletExist": "The wallet has been already imported.",
+    "createTitle": "Create new wallet",
+    "importTitle": "Import wallet",
+    "name": "wallet name",
+    "submit": "Submit",
+    "words12": "words",
+    "words24": "words",
+    "description": "Choose recovery phrase length",
+    "optional": "optional",
+    "enterMnemonic": {
+      "description": "Insert the entire recovery phrase or enter all words manually (usually 12 or 24 words)",
+      "mnemonic": "mnemonic phrase"
+    },
+    "congratsModal": {
+      "title": "Congratulations!",
+      "description": "Trustee has generated you a new wallet. Backup the recovery phrase later in the settings menu - “Skip” button. Or now, it will take a few minutes - \"Copy\" button.",
+      "backup": "Copy",
+      "skip": "Skip"
+    }
+  },
+  "walletList": {
+    "elements": {
+      "cryptoCurrency": {
+        "coins": "coins"
+      }
+    }
+  },
+  "components": {
+    "elements": {
+      "modal": {
+        "input": {
+          "placeholder": "Enter ..."
+        }
+      },
+      "input": {
+        "qrName": "wallet address",
+        "qrSuccess": "The wallet has been successfully scanned!"
+      },
+      "picker": {
+        "label": "Select a currency..."
+      },
+      "phoneInput": {
+        "phoneNumber": "Phone number",
+        "invalidFormat": "Invalid phone number"
+      }
+    },
+    "navigation": {
+      "back": "Back",
+      "search": "Search..."
+    }
+  },
+  "dashboardStack": {
+    "buy": "Buy",
+    "sell": "Sell",
+    "wallet": "Wallet",
+    "exchange": "Exchange",
+    "settings": "Settings"
+  },
+  "modal": {
+    "titles": {
+      "attention": "Attention!"
+    },
+    "close": "Close",
+    "ok": "OK",
+    "pleaseWaitModal": {
+      "title": "Please, wait...",
+      "description": "Card checking will take some time"
+    },
+    "waitModal": {
+      "description": "You have already tried to execute an order. Please, wait"
+    },
+    "featureExpectedModal": {
+      "title": "Feature expected",
+      "description": "Technology allows transactions that have 0 confirmations to be updated. This feature will allow you to modify published transactions that are in the process of being verified by miners. Can be updated both the transaction fee size and address of recepient. More details following the link."
+    },
+    "enterCashBackTokenLink": {
+      "title": "Connect with Comrade!",
+      "description": "Please, enter the anonymous invitation link of the friend, who invited you to connect your anonymous wallet to his structure. Note that the operation cannot be undone or changed."
+    },
+    "cashBackTokenLinkModal": {
+      "success": {
+        "description": "Congratulations, your wallet successfully connected to your friend's structure. Wallets are linked using anonymous identifiers."
+      }
+    },
+    "cashBackLinkEqualModal": {
+      "description": "Sorry, it is not allowed to specify your own invitation link!"
+    },
+    "walletCreateSettingsModal": {
+      "title": "Wallet settings"
+    },
+    "sorryYourDeviceDoesntSupportModal": {
+      "description": "Sorry your phone doesn't support this feature"
+    },
+    "cryptocurrencySynchronizing": {
+      "title": "Sorry...",
+      "description": "Data is syncing, please, wait..."
+    },
+    "openSettingsModal": {
+      "title": "Camera permission is required",
+      "description": "Go to settings and allow access for camera",
+      "btnSubmitText": "Go to settings"
+    },
+    "checkTransferHasError": {
+      "XRP": {
+        "title": "Please, pay attention!",
+        "description": "Your Ripple wallet is not activated. Activation requires to stake 20 XRP. According to Ripple protocol, this amount cannot be unlocked and will remain frozen in your account."
+      },
+      "TOKEN": {
+        "title": "Please, pay attention!",
+        "description": "Token %{currencySymbol} works on %{parentBlockchain} blockchain and for usage you had to have positive %{parentCurrency} balance to pay for miners fee. So far, there is zero balance in your wallet %{parentCurrency}"
+      }
+    },
+    "tokenNotAdded": {
+      "description": "Asset not added. Go to the add asset page?"
+    },
+    "tokenHidden": {
+      "description": "Asset is hidden. Go to the asset control page?"
+    },
+    "useAgainAddresses": {
+      "title": "Attention!",
+      "description": "Use again addresses without transactions?"
+    },
+    "cashbackDontWork": {
+      "description": "Your device does not support cashback"
+    },
+    "infoUpdateModal": {
+      "title": "Attention!",
+      "description": "A new version is available, please, update your wallet!"
+    },
+    "infoPayOrder": {
+      "error": {
+        "title": "Sorry...",
+        "description": "Some error occurred. Please, create new order"
+      }
+    },
+    "toggleBitcoinTypeAddressModal": {
+      "info": {
+        "title": "Info...",
+        "description": "Bitcoin view address type changed"
+      }
+    },
+    "infoBuyModal": {
+      "currencyNotAvailable": "Currently %{currencySymbol} not available for purchase",
+      "notAvailable": "Not available for purchase"
+    },
+    "disabledLockScreenModal": {
+      "description": "You have unbacked up wallets, so a pincode setup is not allowed."
+    },
+    "disabledSkipModal": {
+      "description": "You have a pincode, so you can't skip this step."
+    },
+    "infoAddCustomAssetModal": {
+      "success": {
+        "title": "Success",
+        "description": "Asset was successfully added"
+      },
+      "error": {
+        "title": "Sorry can`t find asset",
+        "description": "Please check asset address and try again"
+      },
+      "catch": {
+        "title": "Sorry can`t add asset",
+        "description": "Please, check internet connection and try again"
+      },
+      "attention": {
+        "title": "The asset has already been added",
+        "description": "Please, check asset in previous screen"
+      }
+    },
+    "licenseTerms": {
+      "title": "Legal documents",
+      "description": "    Please, read this so you know what you`re agreeing to.",
+      "accept": "Agree",
+      "decline": "Decline",
+      "checkboxText": "I accept the license terms"
+    },
+    "login": {
+      "title": "Login/SignUp",
+      "description": "Get a special link, invite your friends and earn! 10% cashback from the commission of your exchanges and 10% from friends exchanges!",
+      "btn": {
+        "login": "Login",
+        "back": "Back"
+      }
+    },
+    "exchange": {
+      "sorry": "Sorry....",
+      "descriptionCard": "Please, select an existing card or add a new one.",
+      "failed": "Failed...",
+      "txCanceled": "Transaction has been canceled",
+      "success": "Success!",
+      "txSuccess": "Transaction was successfully sent.",
+      "errors": {
+        "UI_ERROR_CASHBACK_NETWORK_ERROR": "Bad internet access"
+      }
+    },
+    "settings": {
+      "soon": "Coming soon",
+      "soonDescription": "This functionality will be added soon."
+    },
+    "infoDeleteCard": {
+      "title": "Do you really want to remove the credit card?",
+      "description": ""
+    },
+    "infoChoose": {
+      "decline": "Back",
+      "accept": "Ok"
+    },
+    "card": {
+      "success": "Success!",
+      "added": "Card was added."
+    },
+    "qrScanner": {
+
+      "success": {
+        "title": "Success!",
+        "description": "The wallet has been successfully copied to clipboard!"
+      },
+
+      "error": {
+        "title": "Sorry....",
+        "description": "Invalid wallet. You can try again."
+      },
+
+      "sorry": "Sorry...."
+    },
+    "send": {
+      "success": "Success!",
+      "txSuccess": "Your transaction has been successfully sent!",
+      "fail": "Fail..."
+    },
+    "walletBackup": {
+      "success": "Success!",
+      "seedConfirm": "Seed phrase was confirmed!",
+      "walletCreated": "Your wallet was created!",
+      "mnemonicCopied": "The recovery phrase has been successfully copied to clipboard!"
+    },
+    "walletCreate": {
+      "success": "Success!",
+      "walletImported": "Your wallet was imported!"
+    },
+    "receive": {
+      "success": "Success!",
+      "addressCopiedSuccess": "Wallet address was copied!"
+    }
+  },
+  "lockScreen": {
+    "maximumAttempts": "Maximum attempts reached",
+    "enter": "Enter your PIN Code",
+    "create": "Create new PIN code",
+    "confirm": "Confirm your PIN code",
+    "incorrect": "Incorrect PIN Code"
+  },
+  "languageList": {
+    "title": "Language list",
+    "languages": {
+      "ru-RU": "Русский",
+      "en-US": "English",
+      "uk-UA": "Українська",
+      "ru-UA": "Українська"
+    }
+  },
+   "scannerSettings" : {
+     "title" : "Scanner settings",
+     "codes" : {
+       "none" : "No auto",
+       "10min" : "10 minutes",
+       "1min" : "1 minute"
+     },
+     "lastScan" : "Last scanned: %{time}"
+   },
+  "repeat": {
+    "receive": "Receive"
+  },
+  "validator": {
+    "empty": "Please, fill in the %{name} field",
+    "invalidFormat": "Inappropriate format",
+    "moreThanMax": "The %{name} must be less 255 characters"
+  },
+  "toast": {
+    "copied": "Copied to clipboard",
+    "noInternet": "No internet access"
+  },
+  "tips": {
+    "homeScreen": {
+      "sellBuyBtn": {
+        "title": "Hey, Friend!",
+        "description": "Hold the button to switch between sell and buy crypto."
+      }
+    }
+  },
+  "currencyList": {
+    "AUD": {
+      "currencyCode":"AUD",
+      "currency":"Australian Dollar"
+    },
+    "CAD": {
+      "currencyCode":"CAD",
+      "currency":"Canadian Dollar"
+    },
+    "CNY": {
+      "currencyCode":"CNY",
+      "currency":"Chinese Yuan"
+    },
+    "HRK": {
+      "currencyCode":"HRK",
+      "currency":"Croatian Kuna"
+    },
+    "CZK": {
+      "currencyCode":"CZK",
+      "currency":"Czech Republic Koruna"
+    },
+    "DKK": {
+      "currencyCode":"DKK",
+      "currency":"Danish Krone"
+    },
+    "HKD": {
+      "currencyCode":"HKD",
+      "currency":"Hong Kong Dollar"
+    },
+    "HUF": {
+      "currencyCode":"HUF",
+      "currency":"Hungarian Forint"
+    },
+    "INR": {
+      "currencyCode":"INR",
+      "currency":"Indian Rupee"
+    },
+    "IDR": {
+      "currencyCode":"IDR",
+      "currency":"Indonesian Rupiah"
+    },
+    "IRR": {
+      "currencyCode":"IRR",
+      "currency":"Iranian Rial"
+    },
+    "ILS": {
+      "currencyCode":"ILS",
+      "currency":"Israeli New Sheqel"
+    },
+    "JPY": {
+      "currencyCode":"JPY",
+      "currency":"Japanese Yen"
+    },
+    "KZT": {
+      "currencyCode":"KZT",
+      "currency":"Kazakhstani Tenge"
+    },
+    "KRW": {
+      "currencyCode":"KRW",
+      "currency":"South Korean Won"
+    },
+    "MXN": {
+      "currencyCode":"MXN",
+      "currency":"Mexican Peso"
+    },
+    "MDL": {
+      "currencyCode":"MDL",
+      "currency":"Moldovan Leu"
+    },
+    "NZD": {
+      "currencyCode":"NZD",
+      "currency":"New Zealand Dollar"
+    },
+    "NOK": {
+      "currencyCode":"NOK",
+      "currency":"Norwegian Krone"
+    },
+    "RUB": {
+      "currencyCode":"RUB",
+      "currency":"Russian Ruble"
+    },
+    "SAR": {
+      "currencyCode":"SAR",
+      "currency":"Saudi Riyal"
+    },
+    "SGD": {
+      "currencyCode":"SGD",
+      "currency":"Singapore Dollar"
+    },
+    "ZAR": {
+      "currencyCode":"ZAR",
+      "currency":"South African Rand"
+    },
+    "SEK": {
+      "currencyCode":"SEK",
+      "currency":"Swedish Krona"
+    },
+    "CHF": {
+      "currencyCode":"CHF",
+      "currency":"Swiss Franc"
+    },
+    "EGP": {
+      "currencyCode":"EGP",
+      "currency":"Egyptian Pound"
+    },
+    "GBP": {
+      "currencyCode":"GBP",
+      "currency":"British Pound Sterling"
+    },
+    "USD": {
+      "currencyCode":"USD",
+      "currency":"US Dollar"
+    },
+    "AZN": {
+      "currencyCode":"AZN",
+      "currency":"Azerbaijani Manat"
+    },
+    "RON": {
+      "currencyCode":"RON",
+      "currency":"Romanian Leu"
+    },
+    "TRY": {
+      "currencyCode":"TRY",
+      "currency":"Turkish Lira"
+    },
+    "BGN": {
+      "currencyCode":"BGN",
+      "currency":"Bulgarian Lev"
+    },
+    "EUR": {
+      "currencyCode":"EUR",
+      "currency":"Euro"
+    },
+    "PLN": {
+      "currencyCode":"PLN",
+      "currency":"Polish Zloty"
+    },
+    "DZD": {
+      "currencyCode":"DZD",
+      "currency":"Algerian Dinar"
+    },
+    "BDT": {
+      "currencyCode":"BDT",
+      "currency":"Bangladeshi Taka"
+    },
+    "AMD": {
+      "currencyCode":"AMD",
+      "currency":"Armenian Dram"
+    },
+    "IQD": {
+      "currencyCode":"IQD",
+      "currency":"Iraqi Dinar"
+    },
+    "LBP": {
+      "currencyCode":"LBP",
+      "currency":"Lebanese Pound"
+    },
+    "LYD": {
+      "currencyCode":"LYD",
+      "currency":"Libyan Dinar"
+    },
+    "MYR": {
+      "currencyCode":"MYR",
+      "currency":"Malaysian Ringgit"
+    },
+    "MAD": {
+      "currencyCode":"MAD",
+      "currency":"Moroccan Dirham"
+    },
+    "PKR": {
+      "currencyCode":"PKR",
+      "currency":"Pakistani Rupee"
+    },
+    "VND": {
+      "currencyCode":"VND",
+      "currency":"Vietnamese Dong"
+    },
+    "THB": {
+      "currencyCode":"THB",
+      "currency":"Thai Baht"
+    },
+    "AED": {
+      "currencyCode":"AED",
+      "currency":"United Arab Emirates Dirham"
+    },
+    "TND": {
+      "currencyCode":"TND",
+      "currency":"Tunisian Dinar"
+    },
+    "UZS": {
+      "currencyCode":"UZS",
+      "currency":"Uzbekistan Som"
+    },
+    "TWD": {
+      "currencyCode":"TWD",
+      "currency":"New Taiwan Dollar"
+    },
+    "GHS": {
+      "currencyCode":"GHS",
+      "currency":"Gibraltar Pound"
+    },
+    "RSD": {
+      "currencyCode":"RSD",
+      "currency":"Serbian Dinar"
+    },
+    "GEL": {
+      "currencyCode":"GEL",
+      "currency":"Georgian Lari"
+    },
+    "UAH": {
+      "currencyCode":"UAH",
+      "currency":"Ukrainian Hryvnia"
+    }
+  }
+}

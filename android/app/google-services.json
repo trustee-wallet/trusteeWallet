@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "315819154886",
+    "firebase_url": "https://fir-4ca48.firebaseio.com",
+    "project_id": "fir-4ca48",
+    "storage_bucket": "fir-4ca48.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:315819154886:android:c0bbda14ce32468041e6c7",
+        "android_client_info": {
+          "package_name": "com.trusteewallet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "315819154886-livb5oegs7pvprs7cbja42e8is88r181.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKdI2lKJnmJppU1i9GFHORaQGYkni3-yg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "315819154886-livb5oegs7pvprs7cbja42e8is88r181.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

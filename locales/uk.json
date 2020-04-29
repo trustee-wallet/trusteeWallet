@@ -1,0 +1,1082 @@
+ {
+  "appName": "Trustee",
+  "auth": {
+    "navigation": {
+      "title": "Ви увійшли з використанням: %{authMnemonicName}",
+      "description": "Безпарольна авторизація"
+    },
+    "logOut": "Вийти"
+  },
+   "finishTradeScreen": {
+     "title": "Вітаємо!",
+     "description": "Ваш ордер був створений. \n Щойно транзакція отримає необхідні підтвердження, вона буде виконана відповідно. \n Ви можете відстежувати стан ордеру в історії ордерів.",
+     "orderHistoryBtn": "Історія ордерів"
+   },
+   "tooltips": {
+     "HOME_SCREEN_BUY_BTN_TIP": {
+       "title": "",
+       "description": "Тут ти можеш купити крипту з карти - Ваш Капітан Очевидність :)"
+     },
+     "HOME_SCREEN_EXCHANGE_BTN_TIP": {
+       "title": "",
+       "description": "Не обов’язково міняти на біржах - міняй крипту на крипту у нас у 2 кліки!"
+     },
+     "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
+       "title": "",
+       "description": "Додавай необхідні монети та заробляй - вперед!"
+     },
+     "HOME_SCREEN_CRYPTO_BTN_TIP": {
+       "title": "",
+       "description": "Це - твій унікальний біткоїн гаманець - починай відправляти та приймати біткоїни!"
+     },
+     "ACCOUNT_SCREEN_ADDRESS_TIP": {
+       "title": "",
+       "description": "А це твоя особиста %{currencyName} адреса - аналог номеру картки для просунутих користувачів!"
+     },
+     "ACCOUNT_SCREEN_TRANSACTION_TIP": {
+       "title": "",
+       "description": "Тут можеш знайти інформацію про свої транзакції та ордери - вперед!"
+     },
+     "buttons": {
+       "next": "Далі",
+       "skip": "Пропустити",
+       "close": "Закрити"
+     }
+   },
+   "homeScreen": {
+     "balance": "Баланс",
+     "today": "Сьогодні",
+     "changedLastDay": "За останні 24 години",
+     "assets": "Активи",
+     "synchronizing": "Синхронізація"
+   },
+   "walletCreateScreen": {
+     "title": "КУПУЙ ПРОДАВАЙ ОБМІНЮЙ АНОНІМНО",
+     "createWallet": "Створити гаманець",
+     "importWallet": "Імпортувати гаманець",
+     "acceptTerms": "Ви не погодились з Умовами надання послуг та Політикою конфіденційності",
+     "terms1": "Погоджуюсь з ",
+     "terms2": "Умовами надання послуг та Політикою конфіденційності"
+   },
+   "exchangeScreen": {
+     "title": "Обмін",
+     "pickProvider": "Оберіть провайдера",
+     "providerInformation": "Інформація про провайдера",
+     "fee": "Комісія",
+     "equivalent": "Еквівалент: ~",
+     "exchangeAll": "Обміняти все",
+     "min": "мінімально:",
+     "max": "максимально:",
+     "exchangeBtn": "Обміняти",
+     "payinAddress": "Адреса відправника",
+     "payoutAddress": "Адреса отримувача",
+     "date": "Дата:",
+     "receiveAddressModal": {
+       "title": "Обмін на власний гаманець?",
+       "description1": "Активний гаманець",
+       "description2": "адреса"
+     }
+   },
+   "exchangeConfirmScreen": {
+     "title": "Підтвердження",
+     "youWantToExchange": "Ви хочете обміняти",
+     "exchangeDetails": "Деталі обміну",
+     "exchangeBtn": "Обміняти"
+   },
+   "tradeScreen": {
+     "youGet": "Отримуєте:",
+     "youGive": "Віддаєте:",
+     "crypto": "Криптовалюта",
+     "fiat": "Фіат",
+     "pickPaySys": "Оберіть спосіб оплати",
+     "pickPaySysSell": "Оберіть спосіб отримання",
+     "only": "тільки",
+     "worldwide": "Інші країни",
+     "fee": "Комісія банку",
+     "selectSum": "Еквівалентна сума",
+     "custom": "Інша",
+     "limitsTitle": "Є деякі обмеження",
+     "minPurchase": "мінімально:",
+     "maxPurchase": "максимально:",
+     "selectCrypto": "Оберіть криптовалюту",
+     "selectFiat": "Оберіть валюту",
+     "submit": "Далі",
+     "modalError": {
+       "selectCryptocurrency": "Оберіть криптовалюту",
+       "selectWhatYouGet": "Оберіть, що Ви отримуєте",
+       "selectWhatYouGive": "Оберіть, що Ви віддаєте",
+       "selectPaymentSystem": "Оберіть спосіб оплати",
+       "selectFiatTemplate": "Select fiat template error",
+       "limit": "Ви вийшли за допустимі межі",
+       "selectCard": "Оберіть картку",
+       "takePhoto": "Будь ласка, зробіть фото картки",
+       "waitValidation": "Будь ласка, зачекайте. Фото перевіряється",
+       "canceledValidation": "Перевірку картки не пройдено. Будь ласка, спробуйте ще раз",
+       "additionalData": "Будь ласка, заповніть дані",
+       "notSupported": "На жаль, цей формат телефону не підтримується.",
+       "serviceUnavailable": "Послуга недоступна. Будь-ласка, спробуйте пізніше"
+     },
+     "paymentInformation": "Інформація про оплату",
+     "urkCardOnly": "Тільки українські картки!",
+     "rusCardOnly": "Тільки російські картки!",
+     "worldwideOnly": "Картки інших країн!",
+     "minAmount": "Мінімально",
+     "maxAmount": "Максимально",
+     "RUB": "Росія",
+     "UAH": "Україна",
+     "QIWI": "QIWI гаманець"
+   },
+   "confirmScreen": {
+     "title": "Підтвердження",
+     "rate": "Курс",
+     "fees": "Деталі угоди",
+     "youWantToBuy": "Купуєте",
+     "youWantToSell": "Продаєте",
+     "providerFee": "Комісія банку",
+     "outputFee": "Комісія мережі",
+     "trusteeFee": "Комісія Trustee",
+     "networkFee": "комісія мережі",
+     "info": "Info",
+     "withdrawAddress": "Адреса до зарахування",
+     "withdrawCardNumber": "Картка для виплати",
+     "withdrawPhoneNumber": "Телефон для виплати",
+     "total": "Сума:",
+     "submitBtnBuy": "Покупка",
+     "submitBtnSell": "Продаж",
+     "edit": "Змінити",
+     "confirmScreenBuy": "Цей спосіб оплати наразі недоступний. Будь-ласка, спробуйте інший.",
+     "confirmScreenSell": "Цей спосіб оплати наразі недоступний. Будь-ласка, спробуйте інший.",
+     "bottomInformation": "Будь ласка, зверніть увагу, обмінний курс не є фіксованим і може змінитись в процесі в залежності від ринку."
+   },
+  "settings": {
+    "title": "Налаштування",
+    "walletManagement": {
+      "title": "Керування гаманцями",
+      "backup": "Резервувати гаманець",
+      "import": "Імпортувати гаманець",
+      "create": "Створити новий гаманець",
+      "select": "Обрати гаманець",
+      "turnOnHD" : "Увiмкнути деревовиднi адреси BTC"
+    },
+    "security": {
+      "title": "Безпека",
+      "change": "Змінити PIN-код",
+      "lock": "PIN-код",
+      "touch": "FaceID/TouchID",
+      "askPINCodeToSend": "Запитувати при відправці"
+    },
+    "assets": {
+      "title": "Керування активами",
+      "addAsset": "Додати актив"
+    },
+    "other": {
+      "title": "Підтримка та довідка",
+      "support": "Підтримка",
+      "supportSubtitle": "Наш бот в telegram",
+      "lock": "Блокування екрану",
+      "bio": "Biometrics",
+      "about": "Про гаманець Trustee",
+      "lang": "Change language",
+      "copyLogs": "Скопiювати логи",
+      "cashback": {
+        "title": "Кешбек",
+        "description": "Запрошуйте друзів та заробляйте гроші!"
+      },
+      "localCurrency": "Локальна валюта",
+      "scannerSettings" : "Сканування",
+      "toolTips": "Підказки",
+      "configMode": "Конфіг",
+      "testerMode": "Тестувальник"
+    },
+    "walletList": {
+      "title": "Список гаманців",
+      "addedAssets": "Додані активи",
+      "balance": "Баланс",
+      "backup": "Резервувати",
+      "off": "Вимкнений",
+      "on": "Увімкнений",
+      "totalBalance": "Загальний баланс",
+      "useUnconfirmed": "Використовувати непідтверджені транзакції",
+      "useLegacy": "Використовувати Legacy адресу як основну для решти",
+      "showLegacy": "Показувати legacy",
+      "showSegWit": "Показувати SegWit",
+      "accountSetting": "Налаштування аккаунту",
+      "showSegWitAndLegacy": "Показувати SegWit і Legacy",
+      "hideCommissionTrans": "Сховати транзакції оплати за комісію",
+      "backupModal": {
+        "title": "Мнемонічна фраза не збережена!",
+        "description": "Мнемонічна фраза (Seed-фраза) це єдиний ключ до Ваших активів! У разі виходу з ладу телефону або в інших подібних ситуаціях, відновити доступ без цієї фрази до Ваших активів буде неможливо! Рекомендуємо зберегти фразу в безпечному місці прямо зараз! \n \n  Якщо у Вас просять сід-фразу, то Ви маєте справу з шахраями! \n Нікому і ні за яких обставин, не повідомляйте сід-фразу!"
+      },
+      "hdEnableModal": {
+        "title": "Переключити гаманець у режим HD?",
+        "description": "Режим HD означає ротацію адрес для кожної транзакції. Операція перемикання є незворотньою."
+      }
+    },
+    "about": {
+      "title": "Про гаманець",
+      "header": "Trustee для %{OS}",
+      "version": "Версія",
+      "privacy": "Політика конфіденційності",
+      "terms": "Умови користування"
+    },
+    "config": "Конфіг змінений на: %{config}",
+    "tester": "Тестувальник/користувач змінений на: %{testerMode}"
+  },
+  "assets": {
+    "mainTitle": "Додати актив",
+    "addCustomAsset": "Додати актив не із списку",
+    "addAsset": "Додати",
+    "showAsset": "Показати",
+    "hideAsset": "Приховати"
+  },
+   "AddCustomToken": {
+     "mainTitle": "Додати актив",
+     "tokenInputTitle": "Адреса активу",
+     "description": "Підтримуються Ethereum (ETH) и Tron (TRX) адреси токенів/активів",
+     "add": "Додати"
+   },
+  "cashback": {
+    "pageTitle": "Кешбек",
+    "mainTitle": "Приведи друзів - зароби кешбек!",
+    "mainDescription": "Приведи п'ять друзів та почни заробляти 10% кешбеку з комісії своїх обмінів! Trustee повертає до 30% комісії своїм користувачам!",
+    "shareText": "Поділитись",
+    "more": "Ще",
+    "shareTitle": "",
+    "shareMessage": "",
+    "friendsJoined": "Ваші друзі",
+    "transAmount": "Сума транзакцій",
+    "level2UsersAmount": "Друзі друзів",
+    "cashbackAmount": "Сума кешбеку",
+    "setParentToken": "Задати посилання-запрошення Вашого друга",
+    "inputParentCashBackLink": "https://trustee.deals/link/example",
+    "minWithdraw": "Мінімальна сума для виводу",
+    "withdraw": "Вивести",
+    "performWithdraw": "Щоб здійснити вивід, будь-ласка, напишіть в telegram на нікнейм @TrusteeWallet"
+  },
+  "account": {
+    "title": "Рахунок",
+    "copy": "Копіювати",
+    "refresh": "Оновити",
+    "receive": "%{receive}",
+    "send": "Відправити",
+    "history": "Історія транзакцій",
+    "noTransactions": "У Вас ще немає транзакцій",
+    "showMore": "Показати ще",
+    "assetSettings": "Налаштування активу",
+    "transaction": {
+      "pay": "Оплатити",
+      "destinationTag": "Тег призначення",
+      "nonce": "Nonce",
+      "empty": "(пусто)",
+      "fee": "Комісія",
+      "txHash": "Хеш транзакції",
+      "from": "Відправник",
+      "to": "Отримувач",
+      "status": "Статус",
+      "outcome": "Вихідна",
+      "income": "Вхідна",
+      "self" : "Собі",
+      "exchange": "Обмін",
+      "buy": "Покупка",
+      "sell": "Продаж",
+      "mobile_phone": "Поповнення мобільного",
+      "date": "Дата",
+      "confirmations": "Підтверджень:",
+      "moreInformation": "Більше інформації",
+      "cardNumberDestination": "Номер картки для виводу",
+      "phoneDestination": "Номер телефону для виводу",
+      "orderId": "ID ордеру",
+      "replaceByFeeBtn": "Збільшити комісію"
+    },
+    "transactionStatuses": {
+      "paid" : "Оплачена",
+      "pay_waiting" : "Чекає на оплату",
+      "pay_expired" : "Час на оплату скінчився",
+      "success": "Успішна",
+      "pending": "В очікуванні",
+      "new": "нова",
+      "delegated" : "делегована",
+      "confirming": "Підтверджується",
+      "fail": "Помилка",
+      "internal_success": "З контракту",
+      "internal_new": "Нова з контракту",
+      "internal_fail": "Помилка з контракту"
+    },
+    "receiveScreen": {
+      "title": "%{receive}",
+      "description": "Ваша %{currency} адреса:",
+      "clickToCopy": "Натисніть, щоб скопіювати",
+      "receiveAmount": "Вказати суму",
+      "share": "Поділитись",
+      "copy": "Копіювати"
+    },
+    "addAccount": {
+      "list": "Список криптовалют"
+    },
+    "accountList": {
+      "list": "Облікові записи"
+    }
+  },
+  "exchangeInit": {
+    "ordersHistory": "Історія ордерів",
+    "ordersNull": "У Вас немає ордерів."
+  },
+  "exchange": {
+    "title": "Обмін",
+    "description": "Найпростіший спосіб купити або продати криптовалюту. Оберіть криптовалюту, суму та картку. Загальна сума включає комісію, яка розраховується автоматично. Зверніть увагу, що послуга надається по засобам інтеграції зі стороніми сервісами партнерів.",
+    "attention": "",
+    "buy": "Купити",
+    "sell": "Продати",
+    "exchange": "Обмін",
+    "to": "на",
+    "providerChanged": {
+      "title": "Провайдер змінився",
+      "description": "Почніть транзакцію спочатку"
+    },
+    "ordersStatus": {
+      "exchange": {
+        "pending_payin": "Поповнення очікується",
+        "canceled_payin":  "Поповнення відмінене",
+        "done_payin": "Поповнення пройшло успішно",
+        "wait_trade": "Очікується конвертація",
+        "done_trade": "Конвертація пройшла успішно",
+        "wait_payout": "Очікується виплата",
+        "canceled_payout": "Помилка виплати",
+        "done_payout": "Виплата пройшла успішно",
+        "wait_kyc": "KYC очікується",
+        "stopped_order": "Ордер зупинено на стороні провайдера",
+        "error_order": "Помилка під час виконання. Ордер оброблявся вручну."
+      },
+      "sell": {
+        "pending_payin": "Поповнення очікується",
+        "canceled_payin":  "Поповнення відмінене",
+        "done_payin": "Поповнення пройшло успішно",
+        "wait_trade": "Очікується конвертація",
+        "done_trade": "Конвертація пройшла успішно",
+        "wait_payout": "Очікується виплата",
+        "canceled_payout": "Помилка виплати",
+        "done_payout": "Виплата пройшла успішно",
+        "wait_kyc": "KYC очікується",
+        "stopped_order": "Ордер зупинено на стороні провайдера",
+        "error_order": "Помилка під час виконання. Ордер оброблявся вручну."
+      },
+      "buy": {
+        "pending_payin": "Поповнення очікується",
+        "canceled_payin":  "Поповнення відмінене",
+        "done_payin": "Поповнення пройшло успішно",
+        "wait_trade": "Очікується конвертація",
+        "done_trade": "Конвертація пройшла успішно",
+        "wait_payout": "Очікується виплата",
+        "canceled_payout": "Помилка виплати",
+        "done_payout": "Виплата пройшла успішно",
+        "wait_kyc": "KYC очікується",
+        "stopped_order": "Ордер зупинено на стороні провайдера",
+        "error_order": "Помилка під час виконання. Ордер оброблявся вручну."
+      }
+    },
+    "mainData": {
+      "selectCurrency": "Вибір криптовалюти",
+      "selectPayment": "Select type of payment",
+      "estimateAmount": "Введіть суму",
+
+      "addCard": "Додати картку",
+      "address": "Адреса зарахування криптовалюти:",
+      "titleBuy": "Купівля",
+      "titleSell": "Продаж",
+      "amount": "Сума",
+      "buyCrypto": "Купити в ETH",
+      "sellCrypto": "Продати в ETH",
+      "buyFiat": "Купити в UAH",
+      "sellFiat": "Продати в UAH",
+      "sellAll": "Продати все",
+      "equivalentCryptoBuy": "Сума покупки: ~",
+      "equivalentCryptoSell": "Сума продажу:",
+      "equivalentFiat": "Кількість: ~",
+      "minAmountToBuy": "Мінімальна сума для купівлі криптовалюти:",
+      "minAmountToSell": "Мінімальна сума для продажу криптовалюти:",
+      "minExchange": "%{fiat}",
+      "maxAmountBuy": "Максимальна сума покупки з однієї картки %{maxAmountToBuy} %{fiatSymbol} в день частинами по %{maxAmountToBuyPart} %{fiatSymbol}",
+      "maxAmountSell": "Максимальна сума продажу на одну картку %{maxAmountToBuy} %{fiatSymbol} в день",
+      "maxFiat": "",
+      "next": "Далі",
+      "blockedCard": "Ця картка не може бути використана.\nБудь ласка, оберіть іншу",
+      "networkFee": "Комісія мережі",
+      "paySystemFee": "Комісія Trustee",
+      "totalBuy": "Всього до сплати",
+      "totalSell": "Всього до виплати",
+      "moreInformation": "Більше інформації"
+    }
+  },
+  "card" : {
+    "title": "Нова картка",
+    "description": "Щоб додати нову картку скануйте її або введіть номер картки вручну",
+    "instructions": "Розмістіть картку \n всередині прямокутника.",
+    "attention": "Будь ласка, будьте уважні, намагайтесь уникати помилок.",
+    "add": "Додати",
+    "numberTitleInput": "Номер картки",
+    "dateTitleInput": "ММ/РР",
+    "cardCurrency": "Оберіть країну картки...",
+    "cardName": "Назвіть картку",
+    "noName": "Без назви",
+    "country": "Країна:"
+  },
+  "qrScanner" : {
+    "line1": "Розмістіть QR-код",
+    "line2": "в області камери"
+  },
+  "send": {
+    "title": "Переказ %{currency}",
+    "description": "Введіть адресу гаманця отримувача або скануйте QR-код",
+    "descriptionExchange": "Адресу гаманця отримувача задано автоматично. Це адреса постачальника обмінів. Обмін активу та зарахування буде здійснено після успішної транзакції",
+    "address": "Адреса отримувача",
+    "value": "Сума",
+    "comment": "Коментар",
+    "send": "Далі",
+    "xrp_memo": "Тег призначення",
+    "useAllFunds": "Відправити все",
+    "equivalent": "Еквівалент: ~ %{amount} %{symbol}",
+    "notEnough": "У Вас недостатньо коштів для відправки",
+    "notEnoughForFee": "Для надсилання токенів потрібно мати позитивний баланс у нативній монеті %{symbol}",
+    "confirmModal": {
+      "title": "Підтвердження відправлення",
+      "amount": "",
+      "recipient": "Отримувач",
+      "edit": "Назад",
+      "confirm": "Відправити"
+    },
+    "fee": {
+      "title": "Змінити\nкомісію",
+      "text": {
+        "eth_speed_slow": "Повільно",
+        "eth_speed_medium": "Середньо",
+        "eth_speed_fast": "Швидко",
+        "eth_speed_delegated" : "Делегована ERC865",
+
+        "btc_speed_blocks_12": "Повільно",
+        "btc_speed_blocks_6": "Середньо",
+        "btc_speed_blocks_2": "Швидко",
+        "corrected_speed_blocks_2": "Авто",
+
+        "bch_speed_blocks_12": "Повільно",
+        "bch_speed_blocks_6": "Середньо",
+        "bch_speed_blocks_2": "Швидко",
+
+        "ltc_speed_blocks_12": "Повільно",
+        "ltc_speed_blocks_6": "Середньо",
+        "ltc_speed_blocks_2": "Швидко",
+
+        "btc_corrected_speed_blocks_2": "Авто",
+        "btc_corrected_speed_blocks_6": "Авто",
+        "btc_corrected_speed_blocks_12": "Авто",
+        "btc_corrected_speed_blocks_2_protection": "Авто (захист вiд переплати)",
+        "btc_corrected_speed_blocks_6_protection": "Авто (захист вiд переплати)",
+        "btc_corrected_speed_blocks_12_protection": "Авто (захист вiд переплати)",
+        "ltc_corrected_speed_blocks_2": "Авто",
+        "ltc_corrected_speed_blocks_6": "Авто",
+        "ltc_corrected_speed_blocks_12": "Авто",
+        "ltc_corrected_speed_blocks_2_protection": "Авто (захист вiд переплати)",
+        "ltc_corrected_speed_blocks_6_protection": "Авто (захист вiд переплати)",
+        "ltc_corrected_speed_blocks_12_protection": "Авто (захист вiд переплати)",
+
+        "xrp_speed_one" : "Швидко"
+      },
+      "time": {
+        "eth_speed_slow": "~ 30 хвилин",
+        "eth_speed_medium": "~ 5 хвилин",
+        "eth_speed_fast": "~ 1 хвилина",
+        "eth_speed_delegated" : "Транзакція буде відправлена за рахунок третьої сторони. Комісія стягується в %{symbol} згідно ERC865",
+
+        "btc_speed_blocks_12": "~ 120 хвилин",
+        "btc_speed_blocks_6": "~ 60 хвилин",
+        "btc_speed_blocks_2": "~ 15 хвилин",
+
+        "bch_speed_blocks_12": "~ 120 хвилин",
+        "bch_speed_blocks_6": "~ 60 хвилин",
+        "bch_speed_blocks_2": "~ 20 хвилин",
+
+        "ltc_speed_blocks_12": "~ 120 хвилин",
+        "ltc_speed_blocks_6": "~ 20 хвилин",
+        "ltc_speed_blocks_2": "~ 5 хвилин",
+
+        "btc_corrected_speed_blocks_2": "~ 35 хвилин",
+        "btc_corrected_speed_blocks_6": "~ 95 хвилин",
+        "btc_corrected_speed_blocks_12": "~ 135+ хвилин",
+        "btc_corrected_speed_blocks_2_protection": "~ 35 хвилин",
+        "btc_corrected_speed_blocks_6_protection": "~ 95 хвилин",
+        "btc_corrected_speed_blocks_12_protection": "~ 135+ хвилин",
+        "ltc_corrected_speed_blocks_2": "~ 15 хвилин",
+        "ltc_corrected_speed_blocks_6": "~ 35 хвилин",
+        "ltc_corrected_speed_blocks_12": "~ 135+ хвилин",
+        "ltc_corrected_speed_blocks_2_protection": "~ 15 хвилин",
+        "ltc_corrected_speed_blocks_6_protection": "~ 35 хвилин",
+        "ltc_corrected_speed_blocks_12_protection": "~ 135+ хвилин",
+
+        "xrp_speed_one" : "1 хвилина"
+      },
+      "customFee": {
+        "fixedFeeTitle": "ФІКСОВАНА\nКОМІСІЯ",
+        "customFeeTitle": "КАСТОМНА\nКОМІСІЯ",
+        "eth": {
+          "gasPrice": "Ціна за газ",
+          "gasLimit": "Ліміт газу",
+          "gwei": "GWEI"
+        },
+        "btc": {
+          "feeForTx": "Ціна за транзакцію",
+          "feeForByte": "Ціна за байт",
+          "satoshi": "SATOSHI"
+        }
+      }
+    },
+    "errors": {
+      "UI_CONFIRM_DOUBLE_SEND" : "Транзакція на цю адресу була щойно відправлена, Ви певні, що хочете повторити?",
+      "SERVER_RESPONSE_BAD_INTERNET" : "Немає доступу до інтернету",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Недостатньо коштів нативної монети %{symbol} для надсилання",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Занадто мала сума транзакції",
+      "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Недостатньо коштів для транзакції",
+      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE" : "Недостатньо коштів залишиться на балансi для оплати транзакції - будь ласка, спробуйте опцiю Вiдправити Все",
+      "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE" : "Недостатньо коштів залишиться на балансi для оплати делегованої транзакції - будь ласка, спробуйте вiдправити як ERC20",
+      "SERVER_RESPONSE_NO_RESPONSE" : "Сервер не прийняв транзакцію - будь ласка, зачекайте поки замайняться iншi транзакції",
+      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Недостатньо пiдтверджених коштів нативної монети %{symbol} для надсилання -  будь ласка, зачекайте поки замайняться iншi транзакції",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Занадто мала сума платнi за транзакцію",
+      "SERVER_RESPONSE_NOT_CONNECTED": "Сервер не прийняв запит - будь ласка, спробуйте через хвилину",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостатньо коштів для транзакції та мiнiмальної платнi",
+      "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Будь ласка, зачекайте поки замайняться iншi транзакції або ввiмкнiть використання непiдтверджених транзакцій",
+      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Занадто велика сума платнi за транзакцію - будь ласка, оберіть інший розмір платні вручну або введіть більшу суму для транзакції",
+      "SERVER_RESPONSE_SELF_TX_FORBIDDEN" : "Транзакції на ту ж саму адресу заборонені",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP" : "Недостатньо балансу - 20 XRP має залишитися на адресi",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP" : "Недостатня сума - вiдправьте 20 XRP або бiльше, оскільки адреса отримувача ще не була в жоднiй транзакції",
+      "SERVER_RESPONSE_TAG_NEEDED_XRP" : "Невiрний тег призначення - будь ласка, введiть тег призначення в поле для вiрної транзакції",
+      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT" : "Недостатній баланс на пов`язанiй з USDT бiткоїн адресi - будь ласка, переведiть на неї трохи сатоші",
+      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Сервер не прийняв транзакцію - будь ласка, зачекайте поки замайняться iншi транзакції або спробуйте вiдправити як ERC20"
+    }
+  },
+  "walletBackup": {
+    "title": "Резервне копіювання",
+    "titleNewWallet": "Генерація гаманця",
+    "skip": "Пропустити",
+    "description": "Будь хто, маючи Вашу фразу відновлення, може отримати доступ до гаманця. Будь ласка, уважно запишіть ці %{mnemonicLength} %{words}.\nНікому і ні за яких обставин, не повідомляйте сід-фразу!",
+    "attention": "Цю фразу потрібно буде підтвердити на наступному кроці",
+    "written": "Фразу записано",
+    "words": "слова",
+    "secondStep": {
+      "description": "Перевірка записаної фрази відновлення. Натисніть слова у правильному порядку. Щоб видалити слово з поля, натисніть на нього ще раз."
+    },
+    "mnemonicFail": {
+      "title": "Ой, ні...",
+      "description": "Ви зробили помилку у фразі відновлення. Спробуйте ще раз."
+    },
+    "skipElement": {
+      "title": "Ви впевнені?",
+      "description": "Фраза резервного копіювання дуже важлива. Ви не матимете доступ до власних коштів. Пропустити цей крок?",
+      "cancel": "Відмінити",
+      "yes": "Так",
+      "no": "Ні"
+    }
+  },
+  "walletCreate": {
+    "walletExist": "Гаманець вже імпортований у додаток.",
+    "createTitle": "Генерація гаманця",
+    "importTitle": "Імпорт гаманця",
+    "name": "Назвіть гаманець",
+    "submit": "Далі",
+    "words12": "слів",
+    "words24": "слова",
+    "description": "Оберіть довжину фрази відновлення",
+    "optional": "необов’язково",
+    "enterMnemonic": {
+      "description": "Вставте фразу відновлення повністю або введіть її вручну (звичайно це 12 або 24 слова).",
+      "mnemonic": "Мнемонічна фраза"
+    },
+    "congratsModal": {
+      "title": "Вітаємо!",
+      "description": "Trustee згенерував для Вас новий гаманець. Зробіть резервну копію фрази відновлення пізніше в меню налаштувань - кнопка \"Пропустити\". Або зараз, це займе кілька хвилин - кнопка \"Копіювати\".",
+      "backup": "Копіювати",
+      "skip": "Пропустити"
+    }
+  },
+  "walletList": {
+    "elements": {
+      "cryptoCurrency": {
+        "coins": "монет"
+      }
+    }
+  },
+  "components": {
+    "elements": {
+      "modal": {
+        "input": {
+          "placeholder": "Увійти ..."
+        }
+      },
+      "input": {
+        "qrName": "Адреса гаманця",
+        "qrSuccess": "Гаманець успішно сканований!"
+      },
+      "picker": {
+        "label": "Оберіть валюту..."
+      },
+      "phoneInput": {
+        "phoneNumber": "Номер телефону",
+        "invalidFormat": "Номер телефону невірний"
+      }
+    },
+    "navigation": {
+      "back": "Назад",
+      "search": "Пошук..."
+    }
+  },
+  "dashboardStack": {
+    "buy": "Купити",
+    "sell": "Продати",
+    "wallet": "Гаманець",
+    "exchange": "Обмін",
+    "settings": "Налаштування"
+  },
+  "modal": {
+    "titles": {
+      "attention": "Увага!"
+    },
+    "close": "Закрити",
+    "ok": "OK",
+    "pleaseWaitModal": {
+      "title": "Будь ласка, зачекайте...",
+      "description": "Перевірка картки займе деякий час"
+    },
+    "waitModal": {
+      "description": "Ви вже намагалися виконати ордер. Будь ласка, зачекайте."
+    },
+    "featureExpectedModal": {
+      "title": "Функція очікується",
+      "description": "Технологічно транзакції, які мають 0 підтверджень, можуть бути оновлені. Дана функція дозволить модифікувати опубліковані транзакції, які знаходяться в процесі підтвердження майнерами. Тобто може бути оновлено як розмір комісії за транзакцію, так і адреса отримувача. Більше деталей за посиланням."
+    },
+    "enterCashBackTokenLink": {
+      "title": "Зв'язати з Другом!",
+      "description": "Будь ласка, введіть анонімне посилання-запрошення друга, який Вас запросив для підключення Вашого анонімного гаманця в його структуру. Зверніть увагу, операцію неможливо скасувати або змінити."
+    },
+    "cashBackTokenLinkModal": {
+      "success": {
+        "description": "Вітаємо, Ваш гаманець додано в структуру Вашого друга! Гаманці пов'язані за допомогою анонімних ідентифікаторів."
+      }
+    },
+    "cashBackLinkEqualModal": {
+      "description": "Вибачте, вказувати власне посилання-запрошення не дозволено!"
+    },
+    "walletCreateSettingsModal": {
+      "title": "Налаштування гаманця"
+    },
+    "sorryYourDeviceDoesntSupportModal": {
+      "description": "Вибачте ваш телефон не підтримує дану функцію"
+    },
+    "cryptocurrencySynchronizing": {
+      "title": "Вибачте...",
+      "description": "Дані синхронізуються, будь ласка, зачекайте..."
+    },
+    "openSettingsModal": {
+      "title": "Потрібний доступ до камери",
+      "description": "Дайте дозвіл для використання камери в меню налашутвань",
+      "btnSubmitText": "Перейти в налаштування"
+    },
+    "checkTransferHasError": {
+      "XRP": {
+        "title": "Будь ласка, зверніть увагу!",
+        "description": "Ваш гаманець Ripple не активований. Активація вимагає блокування 20 XRP. Згідно протоколу Ripple, ця сума не може бути розблокована і залишиться замороженою на рахунку."
+      },
+      "TOKEN": {
+        "title": "Будь ласка, зверніть увагу!",
+        "description": "Токен %{currencySymbol} працює на блокчейн %{parentBlockchain} та для обігу потребує позитивного балансу у %{parentCurrency} для оплати комісії майнерам. Поки що на Вашому гаманці нульовий баланс %{parentCurrency}"
+      }
+    },
+    "tokenNotAdded": {
+      "description": "Актив не додано. Перейти на сторінку додавання?"
+    },
+    "tokenHidden": {
+      "description": "Актив прихований. Перейти на сторінку керування активами?"
+    },
+    "useAgainAddresses": {
+      "title": "Увага!",
+      "description": "Використовувати знову адреси без транзакцій?"
+    },
+    "cashbackDontWork": {
+      "description": "Ваш пристрій не підтримує кешбек"
+    },
+    "infoUpdateModal": {
+      "title": "Увага!",
+      "description": "Доступна нова версія, будь ласка, оновіть гаманець!"
+    },
+    "infoPayOrder": {
+      "error": {
+        "title": "Вибачте...",
+        "description": "Виникла проблема. Будь ласка, створіть новий ордер"
+      }
+    },
+    "toggleBitcoinTypeAddressModal": {
+      "info": {
+        "title": "Інформація...",
+        "description": "Змінений тип адреси відображення Bitcoin"
+      }
+    },
+    "infoBuyModal": {
+      "currencyNotAvailable": "Валюта %{currencySymbol} недоступна для покупки",
+      "notAvailable": "Недоступна для покупки"
+    },
+    "disabledLockScreenModal": {
+      "description": "У Вас є незарезервовані гаманці, тому налаштування PIN-коду не дозволене."
+    },
+    "disabledSkipModal": {
+      "description": "У Вас встановлений PIN-код, тому Ви не можете пропустити цей етап."
+    },
+    "infoAddCustomAssetModal": {
+      "success": {
+        "title": "Актив додано!",
+        "description": "Тепер Ви можете його знайти на сторінці активів та головному екрані"
+      },
+      "error": {
+        "title": "Вибачте, актив не знайдено",
+        "description": "Будь ласка, перевірте адресу та спробуйте ще раз"
+      },
+      "catch": {
+        "title": "Вибачте, актив не додано",
+        "description": "Будь ласка, перевірте інтернет та спробуйте ще раз"
+      },
+      "attention": {
+        "title": "Актив вже доданий",
+        "description": "Перевірте його на попередньому екрані"
+      }
+    },
+    "licenseTerms": {
+      "title": "Legal documents",
+      "description": "    Please read this so you know what you`re agreeing to.",
+      "accept": "Agree",
+      "decline": "Decline",
+      "checkboxText": "I accept the license terms"
+    },
+    "login": {
+      "title": "Вхід/Реєстрація",
+      "description": "Отримай спеціальне посилання, запроси друзів та заробляй! 10% кешбек з комісії своїх обмінів та 10% з обмінів друзів!",
+      "btn": {
+        "login": "Увійти",
+        "back": "Назад"
+      }
+    },
+    "exchange": {
+      "sorry": "Вибачте...",
+      "descriptionCard": "Оберіть справжню картку або додайте нову",
+      "failed": "Помилка...",
+      "txCanceled": "Транзакція відхилена",
+      "success": "Успіх!",
+      "txSuccess": "Транзакція успішно відправлена",
+      "errors": {
+        "UI_ERROR_CASHBACK_NETWORK_ERROR": "Немає доступу до інтернету"
+      }
+    },
+    "settings": {
+      "soon": "Очікується",
+      "soonDescription": "Ця опція буде додана найближчим часом"
+    },
+    "infoDeleteCard": {
+      "title": "Ви дійсно хочете видалити картку?",
+      "description": ""
+    },
+    "infoChoose": {
+      "decline": "Назад",
+      "accept": "Видалити"
+    },
+    "card": {
+      "success": "Успіх!",
+      "added": "Картка додана"
+    },
+    "qrScanner": {
+
+      "success": {
+        "title": "Успіх!",
+        "description": "Гаманець успішно скопійовано в буфер обміну!"
+      },
+
+      "error": {
+        "title": "Вибачте...",
+        "description": "Недійсний гаманець. Повторіть спробу."
+      },
+
+      "sorry": "Вибачте..."
+    },
+    "send": {
+      "success": "Успіх!",
+      "txSuccess": "Ваша транзакція успішно відправлена!",
+      "fail": "Помилка..."
+    },
+    "walletBackup": {
+      "success": "Успіх!",
+      "seedConfirm": "Фразу резервного копіювання підтверджено!",
+      "walletCreated": "Гаманець створено!",
+      "mnemonicCopied": "Фраза відновлення скопійована в буфер обміну!"
+    },
+    "walletCreate": {
+      "success": "Успіх!",
+      "walletImported": "Гаманець імпортовано!"
+    },
+    "receive": {
+      "success": "Успіх!",
+      "addressCopiedSuccess": "Адресу гаманця скопійовано!"
+    }
+  },
+  "lockScreen": {
+    "maximumAttempts": "Досягнуто максимальної кількості спроб",
+    "enter": "Введіть PIN-код",
+    "create": "Введіть новий PIN-код",
+    "confirm": "Підтвердіть PIN-код",
+    "incorrect": "Невірний PIN-код"
+  },
+  "languageList": {
+    "title": "Мова",
+    "languages": {
+      "ru-RU": "Русский",
+      "en-US": "English",
+      "uk-UA": "Українська",
+      "ru-UA": "Українська"
+    }
+  },
+   "scannerSettings" : {
+     "title" : "Сканування",
+     "codes" : {
+       "none" : "Без авто",
+       "10min" : "10 хвилин",
+       "1min" : "1 хвилина"
+     },
+     "lastScan" : "Останнє сканування: %{time}"
+   },
+  "repeat": {
+    "receive": "Отримати"
+  },
+  "validator": {
+    "empty": "Заповніть поле",
+    "invalidFormat": "Невірний формат",
+    "moreThanMax": "Ліміт можливої довжини перевищено"
+  },
+  "toast": {
+    "copied": "Скопійовано в буфер",
+    "noInternet": "Немає доступу до інтернету"
+  },
+   "tips": {
+     "homeScreen": {
+       "sellBuyBtn": {
+         "title": "Привіт, Друже!",
+         "description": "Утримуй кнопку для переключення між покупкою та продажем криптовалюти."
+       }
+     }
+   },
+  "currencyList": {
+    "AUD": {
+      "currencyCode":"AUD",
+      "currency":"Австралійський долар"
+    },
+    "CAD": {
+      "currencyCode":"CAD",
+      "currency":"Канадський долар"
+    },
+    "CNY": {
+      "currencyCode":"CNY",
+      "currency":"Китайський юань"
+    },
+    "HRK": {
+      "currencyCode":"HRK",
+      "currency":"Хорватська куна"
+    },
+    "CZK": {
+      "currencyCode":"CZK",
+      "currency":"Чеська Республіка коруна"
+    },
+    "DKK": {
+      "currencyCode":"DKK",
+      "currency":"Датська крона"
+    },
+    "HKD": {
+      "currencyCode":"HKD",
+      "currency":"Гонконгський долар"
+    },
+    "HUF": {
+      "currencyCode":"HUF",
+      "currency":"Угорський форинт"
+    },
+    "INR": {
+      "currencyCode":"INR",
+      "currency":"Індійська рупія"
+    },
+    "IDR": {
+      "currencyCode":"IDR",
+      "currency":"Індонезійська рупія"
+    },
+    "IRR": {
+      "currencyCode":"IRR",
+      "currency":"Іранський ріал"
+    },
+    "ILS": {
+      "currencyCode":"ILS",
+      "currency":"Новий ізраїльський шекель"
+    },
+    "JPY": {
+      "currencyCode":"JPY",
+      "currency":"Японська єна"
+    },
+    "KZT": {
+      "currencyCode":"KZT",
+      "currency":"Казахстанський тенге"
+    },
+    "KRW": {
+      "currencyCode":"KRW",
+      "currency":"Південнокорейський вон"
+    },
+    "MXN": {
+      "currencyCode":"MXN",
+      "currency":"Мексиканське песо"
+    },
+    "MDL": {
+      "currencyCode":"MDL",
+      "currency":"Молдавський лев"
+    },
+    "NZD": {
+      "currencyCode":"NZD",
+      "currency":"Новозеландський долар"
+    },
+    "NOK": {
+      "currencyCode":"NOK",
+      "currency":"Норвезька крона"
+    },
+    "RUB": {
+      "currencyCode":"RUB",
+      "currency":"Російський рубль"
+    },
+    "SAR": {
+      "currencyCode":"SAR",
+      "currency":"Саудівський Ріал"
+    },
+    "SGD": {
+      "currencyCode":"SGD",
+      "currency":"Сінгапурський долар"
+    },
+    "ZAR": {
+      "currencyCode":"ZAR",
+      "currency":"Південноафриканський ренд"
+    },
+    "SEK": {
+      "currencyCode":"SEK",
+      "currency":"Шведська крона"
+    },
+    "CHF": {
+      "currencyCode":"CHF",
+      "currency":"Швейцарський франк"
+    },
+    "EGP": {
+      "currencyCode":"EGP",
+      "currency":"Єгипетський фунт"
+    },
+    "GBP": {
+      "currencyCode":"GBP",
+      "currency":"Британський фунт стерлінгів"
+    },
+    "USD": {
+      "currencyCode":"USD",
+      "currency":"Долар США"
+    },
+    "AZN": {
+      "currencyCode":"AZN",
+      "currency":"Азербайджанський манат"
+    },
+    "RON": {
+      "currencyCode":"RON",
+      "currency":"Румунський лей"
+    },
+    "TRY": {
+      "currencyCode":"TRY",
+      "currency":"Турецька ліра"
+    },
+    "BGN": {
+      "currencyCode":"BGN",
+      "currency":"Болгарський лев"
+    },
+    "EUR": {
+      "currencyCode":"EUR",
+      "currency":"Євро"
+    },
+    "PLN": {
+      "currencyCode":"PLN",
+      "currency":"Польськй злотий"
+    },
+    "DZD": {
+      "currencyCode":"DZD",
+      "currency":"Алжирський динар"
+    },
+    "BDT": {
+      "currencyCode":"BDT",
+      "currency":"Бангладешський така"
+    },
+    "AMD": {
+      "currencyCode":"AMD",
+      "currency":"Вірменський драм"
+    },
+    "IQD": {
+      "currencyCode":"IQD",
+      "currency":"Іракський динар"
+    },
+    "LBP": {
+      "currencyCode":"LBP",
+      "currency":"Ліванський фунт"
+    },
+    "LYD": {
+      "currencyCode":"LYD",
+      "currency":"Лівійський динар"
+    },
+    "MYR": {
+      "currencyCode":"MYR",
+      "currency":"Малазійський рінггіт"
+    },
+    "MAD": {
+      "currencyCode":"MAD",
+      "currency":"Марокканський дирхам"
+    },
+    "PKR": {
+      "currencyCode":"PKR",
+      "currency":"Пакистанська рупія"
+    },
+    "VND": {
+      "currencyCode":"VND",
+      "currency":"В'єтнамський донг"
+    },
+    "THB": {
+      "currencyCode":"THB",
+      "currency":"Тайський бат"
+    },
+    "AED": {
+      "currencyCode":"AED",
+      "currency":"Об'єднані Арабські Емірати Дірхам"
+    },
+    "TND": {
+      "currencyCode":"TND",
+      "currency":"Туніський динар"
+    },
+    "UZS": {
+      "currencyCode":"UZS",
+      "currency":"Узбекистанський сом"
+    },
+    "TWD": {
+      "currencyCode":"TWD",
+      "currency":"Новий тайваньський долар"
+    },
+    "GHS": {
+      "currencyCode":"GHS",
+      "currency":"Гібралтарський фунт"
+    },
+    "RSD": {
+      "currencyCode":"RSD",
+      "currency":"Сербський динар"
+    },
+    "GEL": {
+      "currencyCode":"GEL",
+      "currency":"Грузинський ларі"
+    },
+    "UAH": {
+      "currencyCode":"UAH",
+      "currency":"Українська гривня"
+    }
+  }
+}
