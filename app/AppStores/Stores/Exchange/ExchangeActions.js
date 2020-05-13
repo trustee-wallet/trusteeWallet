@@ -23,17 +23,19 @@ export default new class ExchangeActions {
         try {
             const res = await Api.getExchangeData()
 
-            const tradeApiConfig = res.data.exchangeWays.buy.concat(res.data.exchangeWays.sell)
-            const exchangeApiConfig = res.data.exchangeWays.exchange
+            if (res && typeof res.data !== 'undefined' && typeof res.data.exchangeWays !== 'undefined') {
+                const tradeApiConfig = res.data.exchangeWays.buy.concat(res.data.exchangeWays.sell)
+                const exchangeApiConfig = res.data.exchangeWays.exchange
 
-            dispatch({
-                type: 'SET_TRADE_API_CONFIG',
-                tradeApiConfig: { exchangeWays: tradeApiConfig }
-            })
-            dispatch({
-                type: 'SET_EXCHANGE_API_CONFIG',
-                exchangeApiConfig
-            })
+                dispatch({
+                    type: 'SET_TRADE_API_CONFIG',
+                    tradeApiConfig: { exchangeWays: tradeApiConfig }
+                })
+                dispatch({
+                    type: 'SET_EXCHANGE_API_CONFIG',
+                    exchangeApiConfig
+                })
+            }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('ACT/Exchange InitialScreen error 1 ' + e.message)

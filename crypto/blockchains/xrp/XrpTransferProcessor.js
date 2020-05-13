@@ -15,6 +15,7 @@ const Dispatcher = new BlocksoftDispatcher()
 
 const API_PATH = 'wss://s1.ripple.com'
 const RippleAPI = require('ripple-lib').RippleAPI
+const FEE_DECIMALS = 6
 
 
 export default class XrpTransferProcessor {
@@ -66,8 +67,7 @@ export default class XrpTransferProcessor {
             throw new Error('SERVER_RESPONSE_BAD_INTERNET')
         }
         const txJson = JSON.parse(tmp)
-
-        const fee = BlocksoftUtils.toUnified(txJson.Fee, 6)
+        const fee = BlocksoftUtils.toUnified(txJson.Fee, FEE_DECIMALS)
 
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XrpTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' finished amount: ' + data.amount + ' fee: ' + fee)
         return [
@@ -87,7 +87,7 @@ export default class XrpTransferProcessor {
         if (balanceRaw && typeof balanceRaw.balance !== 'undefined' && balanceRaw.balance > 20) {
             return false
         } else {
-            return {code : 'XRP'}
+            return { code: 'XRP' }
         }
     }
 
@@ -126,7 +126,7 @@ export default class XrpTransferProcessor {
         BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ' + data.addressFrom + ' started')
 
         const txJson = JSON.parse(await this._getPrepared(data))
-        const fee = BlocksoftUtils.toUnified(txJson.Fee, 6)
+        const fee = BlocksoftUtils.toUnified(txJson.Fee, FEE_DECIMALS)
 
         const current = this._amountPrep(balanceRaw - fee - 20)
 
@@ -145,7 +145,7 @@ export default class XrpTransferProcessor {
         if (typeof tmp[1] !== 'undefined' && tmp[1].length > 6) {
             current = tmp[0] + '.' + tmp[1].substr(0, 6)
         }
-        return current
+        return current.toString()
     }
 
     /**
@@ -238,21 +238,24 @@ export default class XrpTransferProcessor {
             throw new Error('TRX transaction required addressTo')
         }
 
-
         const txJson = await this._getPrepared(data)
+
+
+        // https://xrpl.org/rippleapi-reference.html#preparepayment
+        BlocksoftCryptoLog.log('XrpTransferProcessor.sendTx prepared', txJson)
+
+        // https://xrpl.org/rippleapi-reference.html#sign
+        if (typeof data.jsonData.publicKey === 'undefined') {
+            BlocksoftCryptoLog.err('XrpTransferProcessor.sendTx no public key ' + JSON.stringify(data.jsonData))
+            throw new Error('SERVER_RESPONSE_BAD_CODE')
+        }
+
 
         const api = this._api
 
         let result
         try {
             result = await new Promise((resolve, reject) => {
-                // https://xrpl.org/rippleapi-reference.html#preparepayment
-                BlocksoftCryptoLog.log('XrpTransferProcessor.sendTx prepared', txJson)
-
-                // https://xrpl.org/rippleapi-reference.html#sign
-                if (typeof data.jsonData.publicKey === 'undefined') {
-                    data.jsonData = JSON.parse(data.jsonData)
-                }
                 const keypair = {
                     privateKey: data.privateKey,
                     publicKey: data.jsonData.publicKey.toUpperCase()

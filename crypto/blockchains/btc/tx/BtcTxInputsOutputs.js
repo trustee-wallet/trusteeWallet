@@ -48,12 +48,18 @@ export default class BtcTxInputsOutputs {
      * @returns {{outputs: [], inputs: [], correctedAmountFrom: string, feeForByte: (number|string), msg: string}}
      */
     getInputsOutputs(data, precached, subtitle) {
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxInputsOutputs.getInputsOutputs ' + subtitle + ' stared', {addressFrom : data.addressFrom, addressFromLegacy : data.addressFromLegacy, walletUseUnconfirmed : data.walletUseUnconfirmed})
+
         if (typeof data.addressFrom === 'undefined') {
             throw new Error('BtcTxInputsOutputs.getInputsOutputs requires addressFrom')
         }
         if (typeof data.addressTo === 'undefined') {
             throw new Error('BtcTxInputsOutputs.getInputsOutputs requires addressTo')
+        } else if (data.addressTo.indexOf(',') !== -1) {
+            const tmp = data.addressTo.split(',')
+            data.addressTo = tmp[1]
         }
+
         if (typeof data.amount === 'undefined') {
             throw new Error('BtcTxInputsOutputs.getInputsOutputs requires amount')
         }
@@ -103,12 +109,12 @@ export default class BtcTxInputsOutputs {
         let unspent
         if (useOnlyConfirmed) {
             for (unspent of precached.unspents) {
+                if (usdtAddress && usdtAddress === unspent.address) {
+                    usdtInputsTotal++
+                }
                 if (skipAddress && skipAddress === unspent.address) {
                     skippedBN = unconfirmedBN.add(unspent.valueBN)
                 } else if (unspent.confirmations > 0) {
-                    if (usdtAddress && usdtAddress === unspent.address) {
-                        usdtInputsTotal++
-                    }
                     filteredUnspents.push(unspent)
                 } else {
                     unconfirmedBN = unconfirmedBN.add(unspent.valueBN)
@@ -116,12 +122,12 @@ export default class BtcTxInputsOutputs {
             }
         } else {
             for (unspent of precached.unspents) {
+                if (usdtAddress && usdtAddress === unspent.address) {
+                    usdtInputsTotal++
+                }
                 if (skipAddress && skipAddress === unspent.address) {
                     skippedBN = unconfirmedBN.add(unspent.valueBN)
                 } else {
-                    if (usdtAddress && usdtAddress === unspent.address) {
-                        usdtInputsTotal++
-                    }
                     filteredUnspents.push(unspent)
                 }
             }
@@ -147,6 +153,9 @@ export default class BtcTxInputsOutputs {
 
         const ic = filteredUnspents.length
         let msg = 'totalInputs ' + ic + ' for wishedAmount ' + wishedAmountBN.toString() + ' = ' + BlocksoftUtils.toUnified(wishedAmountBN.toString(), this._settings.decimals)
+        if (usdtAddress) {
+            msg += ' usdtInputsTotal ' + usdtInputsTotal
+        }
 
         const inputs = []
         let inputsBalanceBN = BlocksoftUtils.toBigNumber(0)
@@ -162,6 +171,8 @@ export default class BtcTxInputsOutputs {
 
             const unspent = filteredUnspents[i]
             if (
+                unspent.isRequired
+                ||
                 isTransferAll
                 ||
                 (inputsBalanceBN.add(unspent.valueBN).sub(wishedAmountBN) <= 0)
@@ -187,9 +198,10 @@ export default class BtcTxInputsOutputs {
         let size = 192
         let usdtAmount = 0
         if (usdtAddress && usdtInputsUsed >= usdtInputsTotal) {
+            msg += ' added output for usdt ' + usdtInputsUsed + '' + usdtInputsTotal
             usdtAmount = 546
             if (inputsMinusWishedBN.toString() - this._minChangeThreshold > 0) {
-                usdtAmount = 1546
+                usdtAmount = 2546
             }
             const usdtAmountBN = BlocksoftUtils.toBigNumber(usdtAmount + '')
             outputs.push({
@@ -220,7 +232,8 @@ export default class BtcTxInputsOutputs {
                     } else {
                         outputs.push({
                             'to': addressForChange,
-                            'amount': change
+                            'amount': change,
+                            'type' : 'change'
                         })
                         msg += ' change1.1.1.2 will be ' + change
                     }
@@ -246,7 +259,8 @@ export default class BtcTxInputsOutputs {
                 } else {
                     outputs.push({
                         'to': addressForChange,
-                        'amount': change
+                        'amount': change,
+                        'type' : 'change'
                     })
                     msg += ' change1.2.2 will be ' + change
                 }

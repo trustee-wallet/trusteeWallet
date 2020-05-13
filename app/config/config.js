@@ -51,7 +51,7 @@ const config = {
             updateCard: 30000,
         },
         delayTimes: {
-            updateCurrencyRate : 5000,
+            updateCurrencyRate : 500,
             updateAccountBalanceAndTransactions: 10000,
             updateAccounts: 15000,
             updateAppTasks : 20000,
@@ -76,7 +76,8 @@ const config = {
         cryptoLogs: false, // set false to see crypto logs in console
         cryptoErrors: false, // set false to get crypto errors in console
         appErrors: false, // set false to get errors in console
-        appDBLogs: false // set false to get db query in console
+        appDBLogs: false, // set false to get db query in console
+        firebaseLogs: false // set false not to collect data to firebase live db
     },
     tg: {
         appDefaultTg: '', // bot id for app errors https://t.me/trusteeAppErrorsBot

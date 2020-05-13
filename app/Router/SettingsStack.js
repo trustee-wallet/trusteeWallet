@@ -12,6 +12,7 @@ import AboutScreen from '../modules/About/AboutScreen'
 import TermsOfUseScreen from '../modules/About/screens/TermsOfUseScreen'
 import PrivacyPolicyScreen from '../modules/About/screens/PrivacyPolicyScreen'
 import LocalCurrencyScreen from '../modules/Settings/LocalCurrencyScreen'
+import AppNewsScreen from '../modules/Settings/AppNewsScreen'
 
 const SettingsStack = createStackNavigator(
     {
@@ -54,6 +55,14 @@ const SettingsStack = createStackNavigator(
                 headerShown: false
             }
         },
+
+        AppNewsScreen: {
+            screen: AppNewsScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
 
         CashbackScreen: {
             screen: CashbackScreen,

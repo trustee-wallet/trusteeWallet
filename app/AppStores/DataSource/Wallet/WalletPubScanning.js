@@ -52,7 +52,8 @@ export default {
             
             wallet_pub.balance_provider AS balanceProvider,
             wallet_pub.balance_scan_time AS balanceScanTime,
-            wallet_pub.balance_scan_log AS balanceScanLog
+            wallet_pub.balance_scan_log AS balanceScanLog,
+            wallet_pub.balance_scan_block AS balanceScanBlock
             
             FROM wallet_pub
             LEFT JOIN currency ON currency.currency_code=wallet_pub.currency_code
@@ -71,6 +72,9 @@ export default {
             for (let i = 0, ic = res.length; i < ic; i++) {
                 res[i].balance = BlocksoftFixBalance(res[i], 'balance')
                 res[i].unconfirmed = BlocksoftFixBalance(res[i], 'unconfirmed')
+                res[i].balanceScanBlock = typeof res[i].balanceScanBlock !== 'undefined' ? (res[i].balanceScanBlock * 1) : 0
+                res[i].balanceScanLog = res[i].balanceScanLog || ''
+                res[i].transactionsScanLog = res[i].transactionsScanLog || ''
             }
             Log.daemon('DS/WalletPubScanning getWalletPubsForScan finished')
         } catch (e) {
@@ -91,6 +95,9 @@ export default {
     updateBalance: async (data, walletPub) => {
         Log.daemon('DS/WalletPub updateBalance called')
         const dbInterface = new DBInterface()
+        if (data.updateObj.balanceScanLog.length > 1000) {
+            data.updateObj.balanceScanLog = data.updateObj.balanceScanLog.substr(0,1000)
+        }
         data.updateObj.balanceScanLog = dbInterface.escapeString(data.updateObj.balanceScanLog)
         data.key = { id: walletPub.id }
         await dbInterface.setTableName('wallet_pub').setUpdateData(data).update()
@@ -109,6 +116,9 @@ export default {
     updateTransactions: async (data, walletPub) => {
         Log.daemon('DS/WalletPub updateTransactions called')
         const dbInterface = new DBInterface()
+        if (data.updateObj.transactionsScanLog.length > 1000) {
+            data.updateObj.transactionsScanLog = data.updateObj.transactionsScanLog.substr(0, 1000)
+        }
         data.updateObj.transactionsScanLog = dbInterface.escapeString(data.updateObj.transactionsScanLog)
         data.key = { id: walletPub.id }
         await dbInterface.setTableName('wallet_pub').setUpdateData(data).update()

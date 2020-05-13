@@ -5,8 +5,7 @@
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
-
-let TREZOR_INDEX = 0
+import config from '../../../../app/config/config'
 
 export default class BtcSendProvider {
     /**
@@ -19,6 +18,11 @@ export default class BtcSendProvider {
      * @private
      */
     _trezorServer = false
+
+    /**
+     * @type {text}
+     */
+    lastError = false
 
     /**
      * @param {*} settings
@@ -34,37 +38,36 @@ export default class BtcSendProvider {
      * @param {string} subtitle
      * @returns {Promise<string>}
      */
-    async sendTx(hex, subtitle) {
+    async sendTx(hex, subtitle, preparedInputsOutputs) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcSendProvider.sendTx ' + subtitle + ' started ' + subtitle)
+        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'BTC.Send.sendTx')
 
-        if (!this._trezorServer) {
-            this._trezorServer = await BlocksoftExternalSettings.get(this._trezorServerCode)
-        }
-
-        const link = this._trezorServer[TREZOR_INDEX] + '/api/v2/sendtx/'
+        const link = this._trezorServer + '/api/v2/sendtx/'
         let res
         try {
             res = await BlocksoftAxios.post(link, hex)
         } catch (e) {
+            this.lastError = e.message
+            if (config.debug.cryptoErrors) {
+                console.log('BTC Send error ' + e.message, JSON.parse(JSON.stringify(preparedInputsOutputs)))
+            }
             if (e.message.indexOf('dust') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
             } else if (e.message.indexOf('bad-txns-inputs-spent') !== -1 || e.message.indexOf('txn-mempool-conflict') !== -1) {
                 throw new Error('SERVER_RESPONSE_NO_RESPONSE')
             } else if (e.message.indexOf('min relay fee not met') !== -1 || e.message.indexOf('fee for relay') !== -1 || e.message.indexOf('insufficient priority') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+            } else if (e.message.indexOf('insufficient fee, rejecting replacement') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT')
             } else {
-                TREZOR_INDEX++
-                if (TREZOR_INDEX >= this._trezorServer.length) {
-                    TREZOR_INDEX = 0
-                }
+                await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
                 e.message += ' link: ' + link
                 throw e
             }
         }
         if (typeof res.data.result === 'undefined' || !res.data.result) {
-            const e = new Error('SERVER_RESPONSE_NOT_CONNECTED')
-            e.code = 'ERROR_USER'
-            throw e
+            this.lastError = res.data
+            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
         }
         return res.data.result
 

@@ -19,6 +19,8 @@ export async function decodeTransactionQrCode(param, currencyCode) {
 
         MarketingEvent.logOnlyRealTime('qr_scan', param.data)
 
+
+
         let tmp = param.data.split(':')
         if (!tmp[1] || tmp[1].length < 2) {
             if (!currencyCode) {
@@ -152,11 +154,17 @@ export async function decodeTransactionQrCode(param, currencyCode) {
 
 
     if (_.isEmpty(res.data)) {
-    Log.err('Utils.QR is empty ', res.data)
-    res.status = 'fail'
-    res.data.parsedUrl = param.data
+        Log.err('Utils.QR is empty ', res.data)
+        res.status = 'fail'
+        res.data.parsedUrl = param.data
     } else {
-    Log.log('Utils.QR is ok ', res)
+        if (currencyCode && currencyCode !== res.data.currencyCode) {
+            res.data.parsedCurrencyCode = res.data.currencyCode
+            res.data.currencyCode = currencyCode
+            Log.log('Utils.QR is ok with updated currencyCode', res)
+        } else {
+            Log.log('Utils.QR is ok ', res)
+        }
     }
 
     return res

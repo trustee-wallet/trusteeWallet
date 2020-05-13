@@ -22,7 +22,9 @@ export default {
         Log.daemon('DS/AccountBalance updateAccountBalance called')
 
         const dbInterface = new DBInterface()
-
+        if (data.updateObj.balanceScanLog.length > 1000) {
+            data.updateObj.balanceScanLog = data.updateObj.balanceScanLog.substr(0, 1000)
+        }
         data.updateObj.balanceScanLog = dbInterface.escapeString(data.updateObj.balanceScanLog)
         const {array : find} = await dbInterface.setQueryString(`SELECT account_id FROM ${tableName} WHERE account_id=${account.id}`).query()
         if (find.length > 0) {

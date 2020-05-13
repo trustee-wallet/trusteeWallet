@@ -37,7 +37,7 @@ export default class UsdtScannerProcessor {
         }
         const link = `${USDT_API}/${address}`
         const res = await BlocksoftAxios.getWithoutBraking(link)
-        if (!res && typeof res.data === 'undefined' || !res.data) {
+        if (!res || typeof res.data === 'undefined' || !res.data) {
             return false
         }
         if (typeof res.data.status === 'undefined') {
@@ -45,6 +45,11 @@ export default class UsdtScannerProcessor {
         }
         if (typeof res.data.data === 'undefined' || typeof res.data.data.balance === 'undefined') {
             throw new Error(' UsdtScannerProcessor._get nothing loaded for address ' + link)
+        }
+        if (typeof CACHE[address] !== 'undefined') {
+            if (CACHE[address].data.block > res.data.data.block) {
+                return false
+            }
         }
         CACHE[address] = {
             data: res.data.data,
@@ -59,14 +64,14 @@ export default class UsdtScannerProcessor {
      * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalanceBlockchain(address) {
-        BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance started', address)
+        BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance started ' + address)
         const tmp  = await this._get(address)
-        if (!tmp || typeof tmp.data === 'undefined' || !tmp.data) {
+        if (typeof tmp === 'undefined' || !tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.balance === 'undefined' || !tmp.data.balance) {
             return false
         }
         const balance = tmp.data.balance
         BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance finished', address + ' => ' + balance)
-        return {balance, provider: tmp.provider, time: tmp.time, unconfirmed : 0}
+        return {balance, provider: tmp.provider, time: tmp.time, unconfirmed : 0, balanceScanBlock : tmp.data.block}
     }
 
     /**
@@ -93,9 +98,11 @@ export default class UsdtScannerProcessor {
             this.lastBlock = tmp.block
         }
         let tx
-        for (tx of tmp.txs) {
-            const transaction = await this._unifyTransaction(address, tx)
-            transactions.push(transaction)
+        if (tmp.txs && tmp.txs.length > 0) {
+            for (tx of tmp.txs) {
+                const transaction = await this._unifyTransaction(address, tx)
+                transactions.push(transaction)
+            }
         }
         BlocksoftCryptoLog.log('UsdtScannerProcessor.getTransactions finished', address)
         return transactions

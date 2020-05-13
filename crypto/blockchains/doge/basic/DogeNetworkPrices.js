@@ -10,7 +10,7 @@ export default class DogeNetworkPrices {
 
         BlocksoftCryptoLog.log('DogeNetworkPricesProvider ' + currencyCode + ' ' + blocks)
 
-        const externalSettings = await BlocksoftExternalSettings.getAll()
+        const externalSettings = await BlocksoftExternalSettings.getAll('DOGE.getNetworkPrices')
 
         if (!externalSettings || typeof externalSettings[currencyCode] === 'undefined') {
             throw new Error('DogeNetworkPricesProvider ' + currencyCode + ' not defined')

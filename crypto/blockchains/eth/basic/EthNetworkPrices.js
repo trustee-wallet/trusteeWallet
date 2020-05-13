@@ -93,7 +93,7 @@ class EthNetworkPrices {
         CACHE_FEES_ETH[6] = json.average * 1
         CACHE_FEES_ETH[12] = json.safeLow * 1
 
-        const externalSettings = await BlocksoftExternalSettings.getAll()
+        const externalSettings = await BlocksoftExternalSettings.getAll('ETH.getNetworkPrices')
         addMultiply(2, externalSettings)
         addMultiply(6, externalSettings)
         addMultiply(12, externalSettings)

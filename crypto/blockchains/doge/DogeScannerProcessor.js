@@ -30,7 +30,6 @@ import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {}
 
-let TREZOR_INDEX = 0
 
 export default class DogeScannerProcessor {
 
@@ -66,16 +65,13 @@ export default class DogeScannerProcessor {
             CACHE[address].provider = 'trezor-cache'
             return CACHE[address]
         }
-        if (!this._trezorServer) {
-            this._trezorServer = await BlocksoftExternalSettings.get(this._trezorServerCode)
-        }
-        const link = this._trezorServer[TREZOR_INDEX] + '/api/v2/address/' + address + '?details=txs'
+
+        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'DOGE.Scanner._get')
+
+        const link = this._trezorServer + '/api/v2/address/' + address + '?details=txs'
         const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || !res.data) {
-            TREZOR_INDEX++
-            if (TREZOR_INDEX >= this._trezorServer.length) {
-                TREZOR_INDEX = 0
-            }
+            await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
             return false
         }
         if (typeof res.data.balance === 'undefined') {

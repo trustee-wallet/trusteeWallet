@@ -133,7 +133,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.30.409"
+        versionName "1.30.414"
 
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
@@ -204,6 +204,7 @@ dependencies {
     def multidex_version = "2.0.1"
     implementation 'androidx.multidex:multidex:$multidex_version'
 
+    implementation 'org.conscrypt:conscrypt-android:2.1.0'
     implementation 'androidx.appcompat:appcompat:1.2.0-beta01'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0-alpha02'
 

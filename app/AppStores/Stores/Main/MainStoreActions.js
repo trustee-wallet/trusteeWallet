@@ -26,11 +26,10 @@ const { dispatch } = store
 // @misha rething this selected wallet chain
 export async function setSelectedWallet() {
     Log.log('ACT/MStore setSelectedWallet called')
-    const wallets = await walletDS.getWallets()
 
     const walletHash = await cryptoWalletsDS.getSelectedWallet()
 
-    const wallet = _.find(wallets, { walletHash })
+    const wallet = await walletDS.getWalletByHash(walletHash)
 
     Log.log('ACT/MStore setSelectedWallet found', wallet)
     dispatch({
@@ -48,6 +47,16 @@ export function setLoaderStatus(visible) {
 
 }
 
+export function setCurrentScreen(screen) {
+    // for now only back and forward
+    if (screen) {
+        screen.changed = new Date().getTime()
+    }
+    dispatch({
+        type: 'SET_NAV_CURRENT_SCREEN',
+        screen
+    })
+}
 
 export function setSelectedCryptoCurrency(data) {
     Log.log('ACT/MStore setSelectedCryptoCurrency called', data)
@@ -173,7 +182,12 @@ export async function setSelectedAccount(setting) {
     account.transactionsScanTime = basic.transactionsScanTime
     account.balance = basic.balance
     account.unconfirmed = basic.unconfirmed
-    account.balanceRaw = wallet.walletUseUnconfirmed === 1 ? BlocksoftUtils.add(account.balance, account.unconfirmed).toString() : account.balance
+    account.balanceRaw = account.balance
+    if (wallet.walletUseUnconfirmed === 1) {
+        if (account.unconfirmed && account.unconfirmed.toString().indexOf('-') === -1) {
+            account.balanceRaw = BlocksoftUtils.add(account.balance, account.unconfirmed).toString()
+        }
+    }
 
 
     const extendCurrencyCode = BlocksoftDict.getCurrencyAllSettings(currency.currencyCode)

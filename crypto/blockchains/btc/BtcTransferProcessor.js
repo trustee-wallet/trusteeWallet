@@ -15,7 +15,7 @@ import BtcSendProvider from './providers/BtcSendProvider'
 import UsdtScannerProcessor from '../usdt/UsdtScannerProcessor'
 
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
-
+import UpdateAccountsDaemon from '../../../app/services/Daemon/elements/UpdateAccountsDaemon'
 
 
 const CACHE_VALID_TIME = 1000
@@ -46,9 +46,10 @@ export default class BtcTransferProcessor {
             blocks_6: 0,
             blocks_2: 0,
             unspents: [],
-            unspentsAddress: '',
-            usdtBalance : 0,
-            time : 0
+            unspentsKey: '',
+            addressTo: '',
+            usdtBalance: 0,
+            time: 0
         }
         this._langPrefix = networksConstants[settings.network].langPrefix
         this.networkPrices = new BtcNetworkPrices()
@@ -73,70 +74,113 @@ export default class BtcTransferProcessor {
         this._initedProviders = true
     }
 
+    _unspentsKeyFromData(data) {
+        const txHash = data.txHash || false
+        const txIn = data.txInput || false
+        let key
+        if (txHash) {
+            key = txHash
+        } else {
+            key = data.addressFrom
+        }
+        if (txIn) {
+            key += txIn
+        }
+        return key
+    }
+
     /**
+     * @param {string} data.txHash
+     * @param {string} data.txInput
      * @param {string} data.addressFrom
      * @param {string} data.addressFromLegacy
      * @param {string} data.addressFromXpub
+     * @param {string} data.addressFromCompatibleXpub
      * @param {string} data.addressFromLegacyXpub
      * @returns {Promise<*>}
      */
     async getTransferPrecache(data) {
         this._initProviders()
         try {
+            const txHash = data.txHash || false
+            const txIn = data.txInput || false
+            const address = data.addressFromXpub ? data.addressFromXpub : data.addressFrom
+            const addressLegacy = data.addressFromLegacyXpub ? data.addressFromLegacyXpub : data.addressFromLegacy
+            const addressCompatible = data.addressFromCompatibleXpub ? data.addressFromCompatibleXpub : false
 
-            const tx = data.txHash || false
-            let key, promises
-            let address, addressLegacy
-            if (tx) {
-                address = ''
-                addressLegacy = ''
-                key = tx
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferPrecache ' + tx)
-                promises = [
-                    this.networkPrices.getNetworkPrices(12, this._settings.currencyCode),
-                    this.unspentsProvider.getTx(tx)
-                ]
-            } else {
-                address = data.addressFromXpub ? data.addressFromXpub : data.addressFrom
-                addressLegacy = data.addressFromLegacyXpub ? data.addressFromLegacyXpub : data.addressFromLegacy
-                key = data.addressFrom
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferPrecache ' + data.addressFrom + ' started ' + address + ' ' + addressLegacy)
 
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferPrecache ' + data.addressFrom + ' started ' + address + ' ' + addressLegacy)
-                promises = [
-                    this.networkPrices.getNetworkPrices(12, this._settings.currencyCode),
-                    this.unspentsProvider.getUnspents(address, addressLegacy)
-                ]
-                if (this.usdtScannerProcessor) {
-                    promises.push(this.usdtScannerProcessor.getBalanceBlockchain(data.addressFromLegacy))
+            this._precached.unspents = await this.unspentsProvider.getUnspents(address, addressLegacy, addressCompatible)
+
+            if (txHash) {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferPrecache for TX ' + txHash)
+
+                const tmp = await this.unspentsProvider.getTx(txHash, this._precached.unspents)
+                if (tmp && typeof tmp !== 'undefined' && typeof tmp.sortedUnspents !== 'undefined') {
+                    this._precached.unspents = tmp.sortedUnspents
+                    if (tmp.addressTo !== 'undefined') {
+                        this._precached.addressTo = tmp.addressTo
+                    }
+                } else {
+                    throw new Error('SERVER_RESPONSE_BAD_TX_TO_REPLACE')
                 }
+
             }
-            const tmp = await Promise.all(promises)
-            this._precached.blocks_12 = tmp[0] // actually next is cached too
+
+
+            this._precached.blocks_12 = await this.networkPrices.getNetworkPrices(12, this._settings.currencyCode)
             this._precached.blocks_6 = await this.networkPrices.getNetworkPrices(6, this._settings.currencyCode)
             this._precached.blocks_2 = await this.networkPrices.getNetworkPrices(2, this._settings.currencyCode)
-            this._precached.unspents = tmp[1]
-            if (this.usdtScannerProcessor && tmp[2] && typeof tmp[2].balance !== 'undefined') {
-                this._precached.usdtBalance = tmp[2].balance * 1
+
+
+            if (this.usdtScannerProcessor) {
+                let tmp = await UpdateAccountsDaemon.getCacheAccount(data.walletHash, 'USDT')
+                this._precached.usdtBalance = 0
+                // this._precached.usdtBalance = await this.usdtScannerProcessor.getBalanceBlockchain(data.addressFromLegacy)
+                if (tmp && typeof tmp.balanceRaw !== 'undefined' && tmp.balanceRaw) {
+                    this._precached.usdtBalance = tmp.balanceRaw
+                }
+
             } else {
                 this._precached.usdtBalance = 0
             }
             if (this._precached.unspents) {
+                if (txIn) {
+                    let unspent = false
+                    for (unspent of this._precached.unspents) {
+                        if (unspent.txid !== txIn) continue
+                        unspent.isRequired = true
+                        unspent.confirmations = 12
+                    }
+                }
                 if (this._precached.unspents.length > 1) {
                     this._precached.unspents.sort((a, b) => {
-                        return b.valueBN.sub(a.valueBN).toString() > 0
+                        if (a.isRequired) {
+                            if (b.isRequired) {
+                                return b.valueBN.sub(a.valueBN).toString()
+                            } else {
+                                return false
+                            }
+                        } else {
+                            return b.valueBN.sub(a.valueBN).toString()
+                        }
                     })
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferPrecache unspents sorted', this._precached.unspents)
                 } else {
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferPrecache unspents returned', this._precached.unspents)
                 }
-                MarketingEvent.logOnlyRealTime('btc_unspents_scanned ' + this._settings.currencyCode + ' ' + data.addressFrom, { address, addressLegacy, unspents : this._precached.unspents })
+                MarketingEvent.logOnlyRealTime('btc_unspents_scanned ' + this._settings.currencyCode + ' ' + data.addressFrom, {
+                    address,
+                    addressLegacy,
+                    unspents: this._precached.unspents
+                })
             }
-            this._precached.unspentsAddress = key
+            this._precached.unspentsKey = this._unspentsKeyFromData(data)
             this._precached.time = new Date().getTime()
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferPrecache finished', tmp)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferPrecache finished', this._precached)
         } catch (e) {
             if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
-                e.message += ' in getTransferPrecache'
+                e.message += ' in getTransferPrecache BTC '
             }
             throw e
         }
@@ -163,8 +207,9 @@ export default class BtcTransferProcessor {
         this._initProviders()
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate ' + data.addressFrom + ' started')
 
+        const txHash = data.txHash || false
         const now = new Date().getTime()
-        if (this._precached.unspentsAddress !== data.addressFrom || !this._precached.blocks_2 || !this._precached.unspents || now - this._precached.time > CACHE_VALID_TIME) {
+        if (this._precached.unspentsKey !== this._unspentsKeyFromData(data) || !this._precached.blocks_2 || !this._precached.unspents || now - this._precached.time > CACHE_VALID_TIME) {
             await this.getTransferPrecache(data)
         }
 
@@ -174,7 +219,7 @@ export default class BtcTransferProcessor {
             preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getFeeRate')
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate preparedInputsOutputs', preparedInputsOutputs)
         } catch (e) {
-            const tmp = {unspents : this._precached.unspents, error : e.message}
+            const tmp = { unspents: this._precached.unspents, error: e.message }
             // noinspection ES6MissingAwait
             MarketingEvent.logOnlyRealTime('btc_error_1 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, tmp)
             if (data.addressForChange === 'TRANSFER_ALL' && e.message === 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE') {
@@ -213,9 +258,15 @@ export default class BtcTransferProcessor {
             }
         }
 
-        const mediumPrice = txSize * this._precached.blocks_6
-        const slowPrice = txSize * this._precached.blocks_12
-        const fastestPrice =  txSize * this._precached.blocks_2
+        let slowPrice = txSize * this._precached.blocks_12
+        let mediumPrice = txSize * this._precached.blocks_6
+        let fastestPrice = txSize * this._precached.blocks_2
+
+        if (txHash) {
+            slowPrice = slowPrice * 2
+            mediumPrice = mediumPrice * 2
+            fastestPrice = fastestPrice * 2
+        }
 
         let maxPrice = fastestPrice
         let maxFeePerByte = this._precached.blocks_2
@@ -258,10 +309,11 @@ export default class BtcTransferProcessor {
                 txSize
             }
         ]
+
         if (isPrecount) {
             return this._recheckFees(result, data, isPrecount)
-         }
-        if (this._settings.currencyCode !== 'USDT') {
+        }
+        if (this._settings.currencyCode !== 'USDT' && !txHash) {
             const amountBN = BlocksoftUtils.toBigNumber(data.amount)
             const div = amountBN.div(BlocksoftUtils.toBigNumber(maxPrice)).toString()
             if (div < 5) {
@@ -310,6 +362,7 @@ export default class BtcTransferProcessor {
                 const preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getFeeRecheckTrAll')
                 const logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.getFeeRecheckTrAll')
                 fee.preparedInputsOutputs = preparedInputsOutputs
+                fee.txAllowReplaceByFee = data.txAllowReplaceByFee
                 // console.log('')
                 // console.log('tr fee corrected ', fee.feeForTx + ' / ' + fee.feeForByte + ' => ' + logInputsOutputs.diffInOut, logInputsOutputs)
                 // console.log('')
@@ -322,6 +375,7 @@ export default class BtcTransferProcessor {
                 const preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getFeeRecheck')
                 const logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.getFeeRecheck')
                 fee.preparedInputsOutputs = preparedInputsOutputs
+                fee.txAllowReplaceByFee = data.txAllowReplaceByFee
                 // console.log('')
                 // console.log('fee corrected ', fee.feeForTx + ' / ' + fee.feeForByte + ' => ' + logInputsOutputs.diffInOut, logInputsOutputs)
                 // console.log('')
@@ -331,7 +385,7 @@ export default class BtcTransferProcessor {
 
         const tested = []
         const already = {}
-        for (let i = fees.length - 1; i>= 0; i--) {
+        for (let i = fees.length - 1; i >= 0; i--) {
             fee = fees[i]
             if (typeof already[fee.feeForTx] === 'undefined') {
                 tested.push(fee)
@@ -364,7 +418,7 @@ export default class BtcTransferProcessor {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' started')
 
         const now = new Date().getTime()
-        if (this._precached.unspentsAddress !== data.addressFrom || !this._precached.blocks_2 || !this._precached.unspents || now - this._precached.time > CACHE_VALID_TIME) {
+        if (this._precached.unspentsKey !== this._unspentsKeyFromData(data) || !this._precached.blocks_2 || !this._precached.unspents || now - this._precached.time > CACHE_VALID_TIME) {
             await this.getTransferPrecache(data)
         }
 
@@ -374,7 +428,7 @@ export default class BtcTransferProcessor {
             preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getTransferAllBalance')
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferAllBalance preparedInputsOutputs', preparedInputsOutputs)
         } catch (e) {
-            const tmp = {unspents : this._precached.unspents, error : e.message}
+            const tmp = { unspents: this._precached.unspents, error: e.message }
             // noinspection ES6MissingAwait
             MarketingEvent.logOnlyRealTime('btc_error_3 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, tmp)
             if (e.message === 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE') {
@@ -397,7 +451,9 @@ export default class BtcTransferProcessor {
      * @param {string} data.currencyCode
      * @param {string} data.addressTo
      * @param {string} data.amount
+     * @param {string} data.walletAllowReplaceByFee
      * @param {string} data.txHash
+     * @param {string} data.txInput
      * @param {string} data.jsonData
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
@@ -406,67 +462,69 @@ export default class BtcTransferProcessor {
      * @returns {Promise<{correctedAmountFrom: string, hash: string}>}
      */
     async sendTx(data) {
-        const tx = data.txHash || false
-
+        const txHash = data.txHash || false
         this._initProviders()
-        console.log('done init')
 
-        let key
-        if (tx) {
-            key = tx
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx resendTx ' + tx + ' started')
+        if (txHash) {
+            data.txAllowReplaceByFee = true
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx ' + data.addressFrom + ' resend started', {
+                txHash: data.txHash,
+                txInput: data.txInput,
+                amount: data.amount
+            })
         } else {
-            key = data.addressFrom
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx ' + data.addressFrom + ' started')
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx ' + data.addressFrom + ' started', {
+                txHash: data.txHash,
+                txInput: data.txInput,
+                amount: data.amount
+            })
         }
 
         const now = new Date().getTime()
-        if (this._precached.unspentsAddress !== key  || !this._precached.blocks_2 || !this._precached.unspents || now - this._precached.time > CACHE_VALID_TIME) {
+        if (this._precached.unspentsKey !== this._unspentsKeyFromData(data) || !this._precached.blocks_2 || !this._precached.unspents || now - this._precached.time > CACHE_VALID_TIME) {
             await this.getTransferPrecache(data)
         }
-        console.log('done precached')
+
+        if (txHash && (!data.addressTo || data.addressTo === '')) {
+            data.addressTo = this._precached.addressTo
+        }
 
         let preparedInputsOutputs, subtitle
+
         if (typeof data.feeForTx !== 'undefined' && typeof data.feeForTx.preparedInputsOutputs !== 'undefined' && data.feeForTx.preparedInputsOutputs) {
             preparedInputsOutputs = data.feeForTx.preparedInputsOutputs
             subtitle = ' BtcTransferProcessor.sendTxPrefee'
         } else {
             preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'sendTx')
-            subtitle = ' BtcTransferProcessor.sendTxPrefee'
+            subtitle = ' BtcTransferProcessor.sendTxFee'
         }
-        const logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + subtitle)
-        console.log('log', logInputsOutputs)
 
-        if (logInputsOutputs.diffInOutReadable > 0.05 ) {
+        const logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + subtitle)
+
+        if (logInputsOutputs.diffInOutReadable > 0.05) {
             const e = new Error('SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION')
             e.code = 'ERROR_USER'
             // noinspection ES6MissingAwait
-            MarketingEvent.logOnlyRealTime('btc_error_4_0 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
-            console.log('btc_error_4_0 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+            MarketingEvent.logOnlyRealTime('btc_error_4_0 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
             throw e
         }
 
         const rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs)
         let result
         try {
-            result = await this.sendProvider.sendTx(rawTxHex, 'usual first try')
+            result = await this.sendProvider.sendTx(rawTxHex, 'usual first try', preparedInputsOutputs)
         } catch (e) {
-            if (typeof e.code !== 'undefined' && e.code === 'ERROR_USER') {
+            if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
                 // can do something here to try more
-                logInputsOutputs.error = e.basicMessage
                 logInputsOutputs.userError = e.message
+                logInputsOutputs.serverError = this.sendProvider.lastError
                 // noinspection ES6MissingAwait
-                MarketingEvent.logOnlyRealTime('btc_error_4_1 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
-                console.log('btc_error_4_1 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
-
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx basicMessage', e.basicMessage)
+                MarketingEvent.logOnlyRealTime('btc_error_4_1 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx serverError ' + logInputsOutputs.serverError)
                 throw e
             } else {
                 logInputsOutputs.userError = e.message
-                // noinspection ES6MissingAwait
-                MarketingEvent.logOnlyRealTime('btc_error_4_2 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
-                console.log('btc_error_4_2 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
-
+                MarketingEvent.logOnlyRealTime('btc_error_4_2 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
                 // noinspection JSUndefinedPropertyAssignment
                 data.rawTxHex = rawTxHex
                 throw e
@@ -474,8 +532,7 @@ export default class BtcTransferProcessor {
         }
         if (!result) {
             // noinspection ES6MissingAwait
-            MarketingEvent.logOnlyRealTime('btc_error_4_3 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
-            console.log('btc_error_4_3 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+            MarketingEvent.logOnlyRealTime('btc_error_4_3 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
             throw new Error('no result')
         }
         // start prepare for next transactions will not work as it will give the same outputs
@@ -483,14 +540,27 @@ export default class BtcTransferProcessor {
 
         logInputsOutputs.HASH = result
         // noinspection ES6MissingAwait
-        MarketingEvent.logOnlyRealTime('btc_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
-        console.log('btc_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+        MarketingEvent.logOnlyRealTime('btc_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
 
-        return { hash: result, correctedAmountFrom: preparedInputsOutputs.correctedAmountFrom }
+        return {
+            hash: result,
+            correctedAmountFrom: preparedInputsOutputs.correctedAmountFrom,
+            transactionJson: {
+                nSequence: data.nSequence,
+                allowReplaceByFee: data.txAllowReplaceByFee
+            }
+        }
     }
 
     _logInputsOutputs(data, preparedInputsOutputs, title) {
-        const logInputsOutputs = { inputs: [], outputs: [], totalIn: 0, totalOut: 0, diffInOut: 0, msg: preparedInputsOutputs.msg }
+        const logInputsOutputs = {
+            inputs: [],
+            outputs: [],
+            totalIn: 0,
+            totalOut: 0,
+            diffInOut: 0,
+            msg: preparedInputsOutputs.msg
+        }
         let totalIn = BlocksoftUtils.toBigNumber(0)
         let totalOut = BlocksoftUtils.toBigNumber(0)
         let totalBalance = BlocksoftUtils.toBigNumber(0)
@@ -508,7 +578,7 @@ export default class BtcTransferProcessor {
                 vout: input.vout,
                 value: input.value,
                 confirmations: input.confirmations,
-                address : input.address
+                address: input.address
             })
             totalIn = totalIn.add(input.valueBN)
             leftBalance = leftBalance.sub(input.valueBN)
@@ -548,7 +618,7 @@ export default class BtcTransferProcessor {
         }
         // console.log('btc_info ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
         // noinspection JSIgnoredPromiseFromCall
-        MarketingEvent.logOnlyRealTime('btc_info ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+        MarketingEvent.logOnlyRealTime('btc_info ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
         return logInputsOutputs
     }
 }

@@ -11,7 +11,7 @@ import BlocksoftDict from '../../../../../../crypto/common/BlocksoftDict'
 import currencyActions from '../../../../Stores/Currency/CurrencyActions'
 
 export default {
-    maxVersion: 53,
+    maxVersion: 65,
     updateQuery: {
         1: {
             queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -493,6 +493,54 @@ export default {
                     Log.err('DB/Update afterFunction - Migration 53', e)
                 }
             }
+        },
+
+        54: {
+            queryString: `ALTER TABLE wallet ADD COLUMN wallet_allow_replace_by_fee INTEGER NULL`
+        },
+
+        55: {
+            queryString: `ALTER TABLE transactions ADD COLUMN  transactions_other_hashes TEXT NULL`
+        },
+
+        56: {
+            queryString: `DELETE FROM app_news`
+        },
+
+        57: {
+            queryString: `DROP TABLE IF EXISTS wallet_backup`
+        },
+
+        58 : {
+            queryString : `DROP TABLE IF EXISTS currency_history`
+        },
+
+        59 : {
+            queryString : `UPDATE account SET transactions_scan_log=''`
+        },
+
+        60 : {
+            queryString : `UPDATE account_balance SET balance_scan_log=''`
+        },
+
+        61 : {
+            queryString : `UPDATE wallet_pub SET transactions_scan_log='', balance_scan_log=''`
+        },
+
+        62: {
+            queryString: `ALTER TABLE account_balance ADD COLUMN balance_scan_block VARCHAR(32) NULL`
+        },
+
+        63: {
+            queryString: `ALTER TABLE wallet_pub ADD COLUMN balance_scan_block VARCHAR(32) NULL`
+        },
+
+        64: {
+            queryString: `ALTER TABLE transactions ADD COLUMN hidden_at DATETIME NULL`
+        },
+
+        65 : {
+            queryString : `UPDATE transactions SET transactions_scan_log=''`
         }
 
     }

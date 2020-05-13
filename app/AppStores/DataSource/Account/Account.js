@@ -45,7 +45,7 @@ export default {
         let toIndex = 1
         let fullTree = false
         let currencyCode = params.currencyCode
-        let derivations = { 'BTC': [], 'BTC_SEGWIT': [] }
+        let derivations = { 'BTC': [], 'BTC_SEGWIT': [], 'BTC_SEGWIT_COMPATIBLE' : [] }
 
         if (params.fromIndex) {
             fromIndex = params.fromIndex
@@ -101,7 +101,7 @@ export default {
             }
             const keyCode = code
             const tmp = accounts[code]
-            if (code === 'BTC_SEGWIT') {
+            if (code === 'BTC_SEGWIT' || code === 'BTC_SEGWIT_COMPATIBLE') {
                 code = 'BTC'
             }
             Log.daemon('DS/Account discoverAddresses ' + source + ' accounts ' + code + ' length ' + tmp.length + ' fromIndex ' + fromIndex + ' firstAddress ' + tmp[0].address + ' ' + tmp[0].path + ' index ' + tmp[0].index)
@@ -203,7 +203,10 @@ export default {
             Log.daemon('DS/Account insert account by privateKey already in cache')
             return false
         }
-        const currencyCode = account.currencyCode === 'BTC_SEGWIT' ? 'BTC' : account.currencyCode
+        let currencyCode =  account.currencyCode
+        if (account.currencyCode === 'BTC_SEGWIT' || account.currencyCode === 'BTC_SEGWIT_COMPATIBLE') {
+            currencyCode = 'BTC'
+        }
         const findSql = `
                 SELECT
                     id, address,
@@ -237,7 +240,7 @@ export default {
 
         const find2 = await dbInterface.setQueryString(findSql).query()
         if (!find2 || find2.array.length === 0) {
-            Log.log('!!!DS/Account insert account by privateKey not found after insert')
+            Log.log('!!!DS/Account insert account by privateKey not found after insert error ' + findSql, tmp)
         } else {
             const tmp2 = {
                 balanceFix: 0,
@@ -501,6 +504,9 @@ export default {
         const dbInterface = new DBInterface()
 
         if (typeof data.updateObj.transactionsScanLog !== 'undefined') {
+            if (data.updateObj.transactionsScanLog.length > 1000) {
+                data.updateObj.transactionsScanLog = data.updateObj.transactionsScanLog.substr(0, 1000)
+            }
             data.updateObj.transactionsScanLog = dbInterface.escapeString(data.updateObj.transactionsScanLog)
         }
 

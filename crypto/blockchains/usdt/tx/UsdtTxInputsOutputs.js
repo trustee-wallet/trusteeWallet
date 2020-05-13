@@ -41,6 +41,16 @@ export default class UsdtTxInputsOutputs {
      * @returns {{outputs: [], inputs: [], correctedAmountFrom: string, feeForByte: (number|string)}}
      */
     getInputsOutputs(data, precached, subtitle) {
+        BlocksoftCryptoLog.log('UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' stared ', {addressFrom : data.addressFrom, addressFromLegacy : data.addressFromLegacy, walletUseUnconfirmed : data.walletUseUnconfirmed})
+
+        if (!data.addressFromLegacy && data.addressFrom) {
+            if (data.addressFrom.substr(0, 1) === '1') {
+                data.addressFromLegacy = data.addressFrom
+                BlocksoftCryptoLog.log('UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' fixed addressFromLegacy=' + data.addressFrom)
+            } else {
+                BlocksoftCryptoLog.err('UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' could not fix addressFromLegacy=' + data.addressFrom)
+            }
+        }
         if (typeof data.addressFrom === 'undefined') {
             throw new Error('UsdtTxInputsOutputs.getInputsOutputs requires addressFrom')
         }
@@ -71,12 +81,16 @@ export default class UsdtTxInputsOutputs {
 
         let filteredUnspents = []
         let uncomfirmedInputs = 0
+        let uncomfirmedLegacyInputs = 0
         let unspent
         if (useOnlyConfirmed) {
             for (unspent of precached.unspents) {
                 if (unspent.confirmations > 0) {
                     filteredUnspents.push(unspent)
                 } else {
+                    if (unspent.address === data.addressFromLegacy) {
+                        uncomfirmedLegacyInputs++
+                    }
                     uncomfirmedInputs++
                 }
             }
@@ -125,7 +139,7 @@ export default class UsdtTxInputsOutputs {
             legacyTotal++
             legacyAnyInput = unspent
             if (
-                inputsBalanceBN.sub(wishedAmountForOneBN) < 1000
+                inputsBalanceBN.sub(wishedAmountForOneBN).toString() - 1000 < 0
             ) {
                 inputs.push(unspent)
                 inputsBalanceBN = inputsBalanceBN.add(unspent.valueBN)
@@ -136,10 +150,14 @@ export default class UsdtTxInputsOutputs {
         }
         msg += ' legacyInputed ' + legacyInputed + ' legacyTotal = ' + legacyTotal
         if (legacyTotal === 0 || !legacyAnyInput) {
-            const e = new Error('SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT')
-            e.code = 'ERROR_USER'
-            throw e
+            BlocksoftCryptoLog.log('UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' error SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT ', {useOnlyConfirmed, legacyTotal, legacyAnyInput, uncomfirmedLegacyInputs, filteredUnspents})
+            if (useOnlyConfirmed && uncomfirmedLegacyInputs > 0) {
+                throw new Error('SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM')
+            } else {
+                throw new Error('SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT')
+            }
         }
+        BlocksoftCryptoLog.log('UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' checked ok SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT ', {useOnlyConfirmed, legacyTotal, legacyAnyInput, filteredUnspents})
 
         if (legacyTotal < 2) {
             foundOnlyOne = false
@@ -222,7 +240,8 @@ export default class UsdtTxInputsOutputs {
                         })
                         outputs.push({
                             'to': addressForChange,
-                            'amount': change2
+                            'amount': change2,
+                            'type' : 'change'
                         })
                         msg += ' with legacy1.1 ' + legacyAnyInput.value
                         msg += ' change1.1 will be ' + change2
@@ -230,7 +249,8 @@ export default class UsdtTxInputsOutputs {
                     } else {
                         outputs.push({
                             'to': data.addressFromLegacy,
-                            'amount': change // all change will go to legacy to make new input for next txs
+                            'amount': change, // all change will go to legacy to make new input for next txs
+                            'type' : 'change'
                         })
                         msg += ' with legacy1.2 ' + change
                         msg += ' fee1.2 will be ' + fee
@@ -239,7 +259,8 @@ export default class UsdtTxInputsOutputs {
                 } else if (change - 10000 > 0) {
                     outputs.push({
                         'to': addressForChange,
-                        'amount': change
+                        'amount': change,
+                        'type' : 'change'
                     })
                     msg += ' change1.2 will be ' + change
                     msg += ' fee1.2 will be ' + fee
@@ -263,7 +284,8 @@ export default class UsdtTxInputsOutputs {
                     if (change > 1000) {
                         outputs.push({
                             'to': addressForChange,
-                            'amount': change
+                            'amount': change,
+                            'type' : 'change'
                         })
                         msg += ' change1.02.1 will be ' + change
                     } else {
@@ -283,7 +305,8 @@ export default class UsdtTxInputsOutputs {
                 if (change > 0) {
                     outputs.push({
                         'to': addressForChange,
-                        'amount': change
+                        'amount': change,
+                        'type' : 'change'
                     })
                     msg += ' change1.03 will be ' + change
                 } else {

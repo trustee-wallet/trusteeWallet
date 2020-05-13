@@ -42,6 +42,19 @@ class AppTask {
         await dbInterface.setQueryString(sql).query()
         Log.daemon('DS/AppTask clear wallet finished ' + params.walletHash)
     }
+
+    /**
+     * @param {Object} params
+     * @param {string} params.currencyCode
+     * @returns {Promise<void>}
+     */
+    clearTasksByCurrencyAdd = async (params) => {
+        Log.daemon('DS/AppTask clear currency called ' + params.currencyCode)
+        const dbInterface = new DBInterface()
+        const sql = `DELETE FROM app_task WHERE currency_code='${params.currencyCode}' AND task_name IN ('DAEMON_HAS_FOUND_BALANCE_NOT_ADDED', 'DAEMON_HAS_FOUND_BALANCE')`
+        await dbInterface.setQueryString(sql).query()
+        Log.daemon('DS/AppTask clear currency finished ' + params.currencyCode)
+    }
 }
 
 export default new AppTask()

@@ -179,7 +179,8 @@ export default class DogeTxInputsOutputs {
                             if (someUnusedOutput) {
                                 outputs.push({
                                     'to': addressForChange,
-                                    'amount': someUnusedOutput.valueBN.add(changeBN).toString()
+                                    'amount': someUnusedOutput.valueBN.add(changeBN).toString(),
+                                    'type' : 'change'
                                 })
                                 inputs.push(someUnusedOutput)
                                 msg += ' change will be ' + change + ' + one input ' + someUnusedOutput.value
@@ -189,7 +190,8 @@ export default class DogeTxInputsOutputs {
                         } else {
                             outputs.push({
                                 'to': addressForChange,
-                                'amount': change
+                                'amount': change,
+                                'type' : 'change'
                             })
                             msg += ' change will be ' + change
                         }
@@ -220,7 +222,8 @@ export default class DogeTxInputsOutputs {
                         if (someUnusedOutput) {
                             outputs.push({
                                 'to': addressForChange,
-                                'amount': someUnusedOutput.valueBN.add(changeBN).toString()
+                                'amount': someUnusedOutput.valueBN.add(changeBN).toString(),
+                                'type' : 'change'
                             })
                             inputs.push(someUnusedOutput)
                             msg += ' change will be ' + change + ' + one input ' + someUnusedOutput.value
@@ -230,7 +233,8 @@ export default class DogeTxInputsOutputs {
                     } else {
                         outputs.push({
                             'to': addressForChange,
-                            'amount': change
+                            'amount': change,
+                            'type' : 'change'
                         })
                         msg += ' change will be ' + change
                     }

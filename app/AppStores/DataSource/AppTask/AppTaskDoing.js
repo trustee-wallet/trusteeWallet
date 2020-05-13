@@ -26,7 +26,7 @@ export default {
     setFinished : async (appTask) => {
         const dbInterface = new DBInterface()
         const now = Math.round(new Date().getTime() / 1000)
-        appTask.taskLog = dbInterface.escapeString(appTask.taskLog)
+        appTask.taskLog = dbInterface.escapeString(new Date().toISOString() + ' ' + appTask.taskLog.substr(0, 1000))
         const sql = `UPDATE app_task SET task_finished=${now}, task_log='${appTask.taskLog}' WHERE id = ${appTask.id}`
         await dbInterface.setQueryString(sql).query()
     },

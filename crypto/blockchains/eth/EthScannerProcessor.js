@@ -15,7 +15,6 @@ const CACHE_BLOCK_NUMBER_TO_HASH = {}
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {}
 
-let TREZOR_INDEX = 0
 export default class EthScannerProcessor extends EthBasic {
     /**
      * @type {number}
@@ -39,32 +38,29 @@ export default class EthScannerProcessor extends EthBasic {
         if (!this._trezorServer) {
             return false
         }
-        if (this._trezorServer === 'to_load') {
-            this._trezorServer = await BlocksoftExternalSettings.get('ETH_TREZOR_SERVER')
-        }
+        address = address.toLowerCase()
+
+        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Scanner._get')
+
         const now = new Date().getTime()
         if (typeof CACHE[address] !== 'undefined' && (now - CACHE[address].time < CACHE_VALID_TIME)) {
             CACHE[address].provider = 'trezor-cache'
             return CACHE[address]
         }
-        let link = this._trezorServer[TREZOR_INDEX] + '/api/v2/address/' + address + '?details=txs'
+        let link = this._trezorServer + '/api/v2/address/' + address + '?details=txs'
         let res = await BlocksoftAxios.getWithoutBraking(link)
-        if (!res || !res.data) {
-            TREZOR_INDEX++
-            if (TREZOR_INDEX >= this._trezorServer.length) {
-                TREZOR_INDEX = 0
-            }
-            link = this._trezorServer[TREZOR_INDEX] + '/api/v2/address/' + address + '?details=txs'
-            res = await BlocksoftAxios.getWithoutBraking(link)
 
+        if (!res || !res.data) {
+            BlocksoftExternalSettings.setTrezorServerInvalid('ETH_TREZOR_SERVER', this._trezorServer)
+            this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Scanner._get')
+            link = this._trezorServer + '/api/v2/address/' + address + '?details=txs'
+            res = await BlocksoftAxios.getWithoutBraking(link)
             if (!res || !res.data) {
-                TREZOR_INDEX++
-                if (TREZOR_INDEX >= this._trezorServer.length) {
-                    TREZOR_INDEX = 0
-                }
+                BlocksoftExternalSettings.setTrezorServerInvalid('ETH_TREZOR_SERVER', this._trezorServer)
                 return false
             }
         }
+
         if (typeof res.data.balance === 'undefined') {
             throw new Error('EthScannerProcessor._get nothing loaded for address ' + link)
         }
@@ -76,6 +72,11 @@ export default class EthScannerProcessor extends EthBasic {
             let token
             for (token of data.tokens) {
                 data.formattedTokens[token.contract.toLowerCase()] = token
+            }
+        }
+        if (typeof CACHE[address] !== 'undefined') {
+            if (CACHE[address].data.nonce > res.data.nonce) {
+                return false
             }
         }
         CACHE[address] = {
@@ -105,11 +106,12 @@ export default class EthScannerProcessor extends EthBasic {
                 unconfirmed = res.data.unconfirmedBalance || 0
                 provider = res.provider
                 time = res.time
-            } else {
-                balance = await this._web3.eth.getBalance(address)
-                provider = 'web3'
-                time = 'now()'
+                return { balance, unconfirmed, provider, time, balanceScanBlock : res.data.nonce}
             }
+
+            balance = await this._web3.eth.getBalance(address)
+            provider = 'web3'
+            time = 'now()'
             return { balance, unconfirmed, provider, time }
         } catch (e) {
             BlocksoftCryptoLog.log('EthScannerProcessor.getBalance ' + address + ' error ' + e.message)
@@ -354,7 +356,7 @@ export default class EthScannerProcessor extends EthBasic {
             tx.addressAmount = 0
         }
         if (additional) {
-            tx.transactionJson = JSON.stringify(additional)
+            tx.transactionJson = additional
         }
         return tx
     }
@@ -457,7 +459,7 @@ export default class EthScannerProcessor extends EthBasic {
                 gasUsed: transaction.gasUsed,
                 transactionIndex: transaction.transactionIndex
             }
-            tx.transactionJson = JSON.stringify(additional)
+            tx.transactionJson = additional
             tx.transactionFee = BlocksoftUtils.toBigNumber(transaction.gasUsed).mul(BlocksoftUtils.toBigNumber(transaction.gasPrice)).toString()
         }
         if (tx.addressFrom === '' && tx.addressTo === '') {

@@ -24,6 +24,7 @@ import Log from '../../../services/Log/Log'
 
 import Theme from '../../../themes/Themes'
 import prettyNumber from '../../../services/UI/PrettyNumber/PrettyNumber'
+import AsyncStorage from '@react-native-community/async-storage'
 
 let styles
 
@@ -70,7 +71,35 @@ class Fee extends Component {
 
             const addressTo = sendData.address ? sendData.address : address
             let fees
-            if (sendData.useAllFunds) {
+            if (typeof sendData.transactionReplaceByFee !== 'undefined') {
+                fees = await (
+                    BlocksoftTransfer.setCurrencyCode(currencyCode)
+                        .setWalletHash(walletHash)
+                        .setDerivePath(derivationPathTmp)
+                        .setAddressFrom(address)
+                        .setAddressTo(addressTo)
+                        .setMemo(sendData.memo)
+                        .setAmount(sendData.amountRaw)
+                        .setTxHash(sendData.transactionReplaceByFee)
+                        .setAdditional(sendData.toTransactionJSON)
+                ).getFeeRate()
+
+                this.setState({
+                    ifShowFee: true
+                })
+
+            } else if (typeof sendData.transactionSpeedUp !== 'undefined') {
+                fees = await (
+                    BlocksoftTransfer.setCurrencyCode(currencyCode)
+                        .setWalletHash(walletHash)
+                        .setDerivePath(derivationPathTmp)
+                        .setAddressFrom(address)
+                        .setAddressTo(addressTo)
+                        .setMemo(sendData.memo)
+                        .setAmount(sendData.amountRaw)
+                        .setTxInput(sendData.transactionSpeedUp)
+                ).getFeeRate()
+            } else if (sendData.useAllFunds) {
                 fees = await (
                     BlocksoftTransfer.setCurrencyCode(currencyCode)
                         .setWalletHash(walletHash)
@@ -180,13 +209,18 @@ class Fee extends Component {
 
         const { useAllFunds } = this.props.sendData
 
+        const { setParentState } = this.props
+
         if (useAllFunds) {
 
             setLoaderStatus(true)
 
             await this.handleTransferAll(fee)
+            setParentState('selectedFee', fee)
 
             setLoaderStatus(false)
+        } else {
+            setParentState('selectedFee', fee)
         }
 
         this.setState({
@@ -194,14 +228,26 @@ class Fee extends Component {
         })
     }
 
+    handleSelectLongPress = async (fee) => {
+        showModal({
+            type: 'INFO_MODAL',
+            icon: 'INFO',
+            title: 'SYSTEM_LOG',
+            description: JSON.stringify(fee)
+        })
+    }
+
     toggleCustomFee = () => {
 
         const { ifCustomFee } = this.state
+        const { setParentState } = this.props
 
         const position = !ifCustomFee ? -WINDOW_WIDTH : 0
 
         this.state.customFeeAnimation.setValue(!ifCustomFee ? 0 : -WINDOW_WIDTH)
         Animated.timing(this.state.customFeeAnimation, { toValue: position, duration: 99 }).start()
+
+        setParentState('selectedCustomFee', !ifCustomFee)
 
         this.setState({ ifCustomFee: !ifCustomFee })
     }
@@ -288,6 +334,7 @@ class Fee extends Component {
                                     <View style={styles.fee__wrap} key={index}>
                                         <TouchableOpacity
                                             onPress={() => this.handleSelect(item)}
+                                            onLongPress={() => this.handleSelectLongPress(item)} delayLongPress={5000}
                                             disabled={fee.langMsg === item.langMsg}
                                             style={styles.fee__item}>
                                             <GradientView

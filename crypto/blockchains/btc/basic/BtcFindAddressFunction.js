@@ -111,7 +111,7 @@ export default async function BtcFindAddressFunction(indexedAddresses, transacti
                 direction: 'self',
                 from: '', // inputMyAddress,
                 to: '', // outputMyAddress,
-                value: inputMy.sub(outputMy).toString()
+                value: Math.abs(inputMy.sub(outputMy).toString())
             }
         }
     }

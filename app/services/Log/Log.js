@@ -223,7 +223,6 @@ class Log {
         if (config.debug.appErrors || DEBUG) {
             console.log(`----------------ERROR ${LOG_SUBTYPE}-----------------`)
             console.log(date + line)
-            console.log(errorObjectOrText)
             if (errorObject2) {
                 console.log(errorObject2)
             }
@@ -308,7 +307,7 @@ class Log {
         let canSend = true
         const tmp = this.LOG_VERSION.split(' ')
         if (typeof tmp[1] !== 'undefined') {
-            const minVersion = await BlocksoftExternalSettings.get('minAppErrorsVersion')
+            const minVersion = await BlocksoftExternalSettings.get('minAppErrorsVersion', 'Log.error')
             if (minVersion * 1 > tmp[1] * 1) {
                 canSend = false
             }

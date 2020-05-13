@@ -75,6 +75,22 @@
       "title": "Обмен на собственный кошелек?",
       "description1": "Активный кошелек",
       "description2": "адрес"
+    },
+    "expiredModal" : {
+      "title" : "Истек",
+      "description" : "20-минутный интервал для создания транзакции прошел, пожайлуста, создайте новую заявку"
+    },
+    "noAddressModal" : {
+      "title" : "Внешний актив",
+      "description" : "Выбранный актив не включен в Trustee - пожайлуста, включите его или совершите транзакцию самостоятельно"
+    },
+    "resendModal" : {
+      "title" : "Обмен не завершен",
+      "description" : "Отправить транзакцию на этот адрес?"
+    },
+    "waitConfirmModal" : {
+      "title" : "Обмен почти завершен",
+      "description" : "Транзакция %{txHash} уже создана, пожайлуста, подождите подтверждений сети"
     }
   },
   "exchangeConfirmScreen": {
@@ -163,7 +179,8 @@
       "change": "Изменить PIN-код",
       "lock": "PIN-код",
       "touch": "FaceID/TouchID",
-      "askPINCodeToSend": "Спрашивать при отправке"
+      "askPINCodeToSend": "Запрос авторизации",
+      "askPINCodeSubtitle": "При отправке активов"
     },
     "assets": {
       "title": "Управление активами",
@@ -175,6 +192,7 @@
       "supportSubtitle": "Наш бот в telegram",
       "lock": "Блокирование экрана",
       "bio": "Biometrics",
+      "appnews" : "Технические сообщения",
       "about": "О кошельке Trustee",
       "lang": "Change language",
       "copyLogs": "Скопировать логи",
@@ -197,8 +215,11 @@
       "on": "Включён",
       "totalBalance": "Общий баланс",
       "useUnconfirmed": "Использовать неподтвержденные транзакции",
-      "useLegacy": "Использовать Legacy адрес как основной для сдачи",
-      "showLegacy": "Показывать legacy",
+      "allowReplaceByFee" : "Редактирование транзакции до подтверждения майнерами",
+      "changeSetting" : "Адрес для сдачи",
+      "useLegacy": "Использовать Legacy",
+      "useSegWit": "Использовать Segwit",
+      "showLegacy": "Показывать Legacy",
       "showSegWit": "Показывать SegWit",
       "accountSetting": "Настройки аккаунта",
       "showSegWitAndLegacy": "Показывать SegWit и Legacy",
@@ -218,6 +239,11 @@
       "version": "Версия",
       "privacy": "Политика конфиденциальности",
       "terms": "Условия пользования"
+    },
+    "error": {
+      "title": "Системная ошибка",
+      "contactSupport": "Написать в Поддержку",
+      "tryAgain": "Перегрузить"
     },
     "config": "Конфиг изменен на: %{config}",
     "tester": "Тестировщик/пользователь изменен на: %{testerMode}"
@@ -267,9 +293,11 @@
       "pay": "Оплатить",
       "destinationTag": "Тег назначения",
       "nonce": "Nonce",
+      "delegatedNonce": "Делегированный Nonce",
       "empty": "(пусто)",
       "fee": "Комиссия",
       "txHash": "Хэш транзакции",
+      "replacedTxHash": "Замененный хэш",
       "from": "Отправитель",
       "to": "Получатель",
       "status": "Статус",
@@ -436,12 +464,16 @@
     "equivalent": "Эквивалент: ~ %{amount} %{symbol}",
     "notEnough": "У Вас недостаточно средств для отправки",
     "notEnoughForFee": "Для отправки токенов необходимо иметь положительный баланс в нативной монете %{symbol}",
+    "notEnoughForFeeConfirmed": "Для отправки токенов необходимо иметь положительный подтвержденный баланс в нативной монете %{symbol}, подождите подтверждения или включите использование неподтвержденных транзакций",
     "confirmModal": {
       "title": "Подтверждение отправки",
       "amount": "",
       "recipient": "Получатель",
+      "change" : "Сдача %{amount} %{currencySymbol} пойдет на",
+      "rbf_on" : "Замена до подтверждения будет разрешена",
       "edit": "Назад",
-      "confirm": "Отправить"
+      "confirm": "Отправить",
+      "force" : "Отправить принудительно?"
     },
     "fee": {
       "title": "Изменить\nкомиссию",
@@ -522,7 +554,9 @@
     },
     "errors": {
       "UI_CONFIRM_DOUBLE_SEND" : "Транзакция на этот адрес была только что отправлена, Вы уверены что хотите повторить?",
+      "SERVER_RESPONSE_BAD_CODE" : "Системная ошибка, пожайлуста свяжитесь с поддержкой для помощи",
       "SERVER_RESPONSE_BAD_INTERNET" : "Нет доступа к интернету",
+      "SERVER_RESPONSE_BAD_TX_TO_REPLACE" : "Транзакция не найдена, возможно проблемы с интернетом или задержки на мемпуле",
       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Недостаточно средств нативной монеты %{symbol} для отправки",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Слишком маленькая сумма транзакции",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "Недостаточно средств для транзакции",
@@ -531,6 +565,7 @@
       "SERVER_RESPONSE_NO_RESPONSE": "Сервер не принимает транзакцию - пожалуйста, подождите пока другие транзакции будут подтверждены",
       "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Недостаточно подтвержденных средств нативной монеты %{symbol} для отправки - пожалуйста, подождите пока другие транзакции будут подтверждены",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Слишком маленькая плата за транзакцию",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Слишком маленькая плата за транзакцию для замены",
       "SERVER_RESPONSE_NOT_CONNECTED": "Сервер не отвечает - пожалуйста, попробуйте через несколько секунд",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостаточно средств для транзакции и минимальной платы",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Пожалуйста, подождите пока другие транзакции будут подтверждены или включите использование неподтвержденных транзакций ",
@@ -540,7 +575,9 @@
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP" : "Недостаточная сумма - отправьте 20 XRP или больше, так как адрес получателя еще не участвовал ни в одной транзакции",
       "SERVER_RESPONSE_TAG_NEEDED_XRP" : "Неверный тег назначения - пожалуйста, введите тег назначения в поле для правильной транзакции",
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT" : "Недостаточный баланс на связанном с USDT биткоин адресе - пожалуйста, переведите на него немного сатоши",
-      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Недостаточно подтвержденных средств нативной монеты %{symbol} для отправки - пожалуйста, подождите пока другие транзакции будут подтверждены или используйте обычную отправку ERC20"
+      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM" : "Недостаточный или неподтвержденный баланс на связанном с USDT биткоин адресе - пожалуйста, подождите или включите использование неподтвержденных транзакций",
+      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Сервер не принял транзакцию - пожалуйста, подождите пока другие транзакции будут подтверждены или используйте обычную отправку ERC20",
+      "SERVER_RESPONSE_NO_SSL" : "SSL библиотека не найдена - пожайлуста, попробуйте обновить систему"
     }
   },
   "walletBackup": {
@@ -644,7 +681,7 @@
     },
     "enterCashBackTokenLink": {
       "title": "Связать с Другом!",
-      "description": "Пожалуйста, введите анонимную ссылку-приглашение друга, который Вас пригласил для подключения Вашего анонимного кошелька в его структуру. Обратите внимание, операцию невозможно отменить или изменить."
+      "description": "Пожалуйста, введите анонимную ссылку-приглашение друга для подключения Вашего анонимного кошелька в его структуру. Обратите внимание, операцию невозможно отменить или изменить."
     },
     "cashBackTokenLinkModal": {
       "success": {
@@ -658,7 +695,7 @@
       "title": "Настройки кошелька"
     },
     "sorryYourDeviceDoesntSupportModal": {
-      "description": "Простите, Ваш телефон не поддерживает данную функцию"
+      "description": "Простите, Ваш телефон %{agent} не поддерживает данную функцию"
     },
     "cryptocurrencySynchronizing": {
       "title": "Извините...",
@@ -683,7 +720,7 @@
       "description": "Актив не добавлен. Перейти на страницу добавления?"
     },
     "tokenHidden": {
-      "description": "Актив скрытый. Перейти на страницу управления активами?"
+      "description": "Актив скрыт. Перейти на страницу управления активами?"
     },
     "useAgainAddresses": {
       "title": "Внимание!",
@@ -713,7 +750,7 @@
       "notAvailable": "Недоступна для покупки"
     },
     "disabledLockScreenModal": {
-      "description": "У Вас есть незарезервированные кошельки, поэтому настройка  PIN-кода не разрешена."
+      "description": "У Вас есть незарезервированные кошельки, поэтому установка PIN-кода не разрешена в целях безопасности хранения Ваших активов."
     },
     "disabledSkipModal": {
       "description": "У Вас установлен PIN-код, поэтому Вы не можете пропустить это этап."
@@ -794,6 +831,11 @@
       "txSuccess": "Ваша транзакция успешно отправлена!",
       "fail": "Ошибка..."
     },
+    "walletLog" : {
+      "sorry" : "Ошибка....",
+      "noMailApp" : "Нет доступного приложения для отправки email",
+      "notComplited" : "Пожайлуста, выберите какой либо канал для отправки"
+    },
     "walletBackup": {
       "success": "Успех!",
       "seedConfirm": "Фраза резервного копирования подтверждена!",
@@ -852,6 +894,47 @@
         "title": "Привет, Друг!",
         "description": "Удерживай кнопку для переключения между покупкой и продажей криптовалюты."
       }
+    }
+  },
+  "appNews" : {
+    "title" : "Технические сообщения",
+    "subtitle" : "Все нотификации и сообщения",
+    "clearAll" : "Очистить все",
+    "newsNull" : "В Вашем кошельке ничего нового"
+
+  },
+  "pushNotifications":  {
+    "FOUND_OUT_TX_STATUS_FAIL": {
+      "title": "%{currencyName} исходящая транзакция отклонена",
+      "description": "%{walletName} транзакция %{amountPretty} %{currencySymbol}, хэш %{transactionHash}"
+    },
+    "FOUND_OUT_TX_STATUS_SUCCESS": {
+      "title": "%{currencyName} исходящая транзакция успешна",
+      "description": "%{walletName} транзакция %{amountPretty} %{currencySymbol}, хэш %{transactionHash}"
+    },
+    "FOUND_OUT_TX_STATUS_CONFIRMING": {
+      "title": "%{currencyName} исходящая транзакция подтверждается",
+      "description": "%{walletName} транзакция %{amountPretty} %{currencySymbol}, хэш %{transactionHash}"
+    },
+    "FOUND_OUT_TX_STATUS_DELEGATED": {
+      "title": "%{currencyName} исходящая транзакция делегирована",
+      "description": "%{walletName} транзакция %{amountPretty} %{currencySymbol}, хэш %{transactionHash}"
+    },
+    "FOUND_IN_TX": {
+      "title": "%{currencyName} входящая транзакция",
+      "description": "%{walletName} входящие %{amountPretty} %{currencySymbol}, хэш %{transactionHash}"
+    },
+    "DAEMON_HAS_FOUND_HD": {
+      "title": "%{currencyName} HD обнаружен",
+      "description": "%{walletName} использовались древовидные адреса, поэтому HD режим включен автоматически"
+    },
+    "DAEMON_HAS_FOUND_BALANCE_NOT_ADDED": {
+      "title": "%{currencyName} не добавлен, но есть баланс",
+      "description": "%{walletName} на адресе %{address} есть %{amountPretty} %{currencySymbol}"
+    },
+    "DAEMON_HAS_FOUND_BALANCE": {
+      "title": "%{currencyName} не показан, но есть баланс",
+      "description": "%{walletName} на адресе %{address} есть %{amountPretty} %{currencySymbol}"
     }
   },
   "currencyList": {

@@ -39,8 +39,6 @@ import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 import UIDict from '../../../services/UIDict/UIDict'
 import UpdateExchangeOrders from '../../../services/Daemon/elements/UpdateTradeOrdersDaemon'
-import walletHDActions from '../../../appstores/Actions/WalletHDActions'
-import BlocksoftTransfer from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 
 class Transaction extends Component {
 
@@ -109,11 +107,17 @@ class Transaction extends Component {
             const transactionNonce = this.prepareTransactionNonce(transaction.transactionJson, cryptoCurrency.currencyCode)
             transactionNonce ? subContent.push(transactionNonce) : null
 
+            const transactionDelegatedNonce = this.prepareTransactionDelegatedNonce(transaction.transactionJson, cryptoCurrency.currencyCode)
+            transactionDelegatedNonce ? subContent.push(transactionDelegatedNonce) : null
+
             const transactionFeeToView = this.prepareTransactionFeeToView(transaction)
             transactionFeeToView ? subContent.push(transactionFeeToView) : null
 
             const transactionHashToView = this.prepareTransactionHashToView(cryptoCurrency, transaction)
             transactionHashToView ? subContent.push(transactionHashToView) : null
+
+            const transactionsOtherHashesToView = this.prepareTransactionsOtherHashesToView(cryptoCurrency, transaction)
+            transactionsOtherHashesToView ? subContent.push(transactionsOtherHashesToView) : null
 
             const direction = this.prepareType(transaction.transactionDirection)
 
@@ -261,6 +265,16 @@ class Transaction extends Component {
         return null
     }
 
+    prepareTransactionDelegatedNonce = (transactionJson, currencyCode) => {
+        if (typeof transactionJson !== 'undefined' && transactionJson !== null && typeof transactionJson.delegatedNonce !== 'undefined') {
+            return {
+                title: strings(`account.transaction.delegatedNonce`),
+                description: transactionJson.delegatedNonce.toString()
+            }
+        }
+
+        return null
+    }
 
     prepareStatusToView = (status, transaction) => {
 
@@ -288,6 +302,25 @@ class Transaction extends Component {
         return {
             title: strings(`account.transaction.txHash`),
             description: transaction.transactionHash,
+            isLink: true,
+            linkUrl
+        }
+    }
+
+    prepareTransactionsOtherHashesToView = (cryptoCurrency, transaction) => {
+
+        if (!transaction.transactionsOtherHashes) return null
+
+        let tmp = transaction.transactionsOtherHashes.split(',')
+        tmp = tmp[0]
+
+        let linkUrl = cryptoCurrency.currencyExplorerTxLink + tmp
+        if (linkUrl.indexOf('?') === -1) {
+            linkUrl += '?from=trustee'
+        }
+        return {
+            title: strings(`account.transaction.replacedTxHash`),
+            description: tmp,
             isLink: true,
             linkUrl
         }
@@ -413,7 +446,7 @@ class Transaction extends Component {
                 comment = item.description.length > 255 ? item.description.slice(0, 255) : item.description
             }
             const transaction = {
-                transactioJson: {
+                transactionJson: {
                     ...transactionJson,
                     comment
                 }
@@ -506,6 +539,14 @@ class Transaction extends Component {
 
         if ((cryptoCurrency.currencyCode === 'BTC' || cryptoCurrency.currencyCode === 'USDT' || cryptoCurrency.currencyCode === 'ETH') && transaction.transactionStatus === 'new') {
 
+            if (cryptoCurrency.currencyCode === 'BTC' && transaction.addressTo.indexOf('OMNI') !== -1) {
+                return
+            }
+
+            if (cryptoCurrency.currencyCode === 'ETH' && transaction.transactionDirection === 'income') {
+                return
+            }
+
             const icon = (props) => <Feather name='refresh-ccw' {...props} />
 
             return (
@@ -547,32 +588,90 @@ class Transaction extends Component {
         }
 
 
-        if (devMode != null) {
-            console.log(account)
-            showModal({
-                type: 'YES_NO_MODAL',
-                icon: 'WARNING',
-                title: strings(`modal.featureExpectedModal.title`),
-                description: strings(`modal.featureExpectedModal.description`),
-            }, async (res) => {
-                const tx = await (
-                    BlocksoftTransfer.setCurrencyCode(cryptoCurrency.currencyCode)
-                        .setWalletHash(transaction.walletHash)
-                        .setDerivePath(account.derivationPath)
-                        .setAddressFrom(account.address)
-                        .setAddressTo(transaction.addressTo)
-                        .setAmount(transaction.addressAmount)
-                        .setTxHash(transaction.transactionHash)
-                ).sendTx()
-            })
-        } else {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: 'INFO',
-                title: strings(`modal.featureExpectedModal.title`),
-                description: strings(`modal.featureExpectedModal.description`),
-                component: TmpComponent
-            })
+        try {
+            if (devMode != null) {
+                if (transaction.transactionDirection === 'outcome' || transaction.transactionDirection === 'self') {
+                    if (cryptoCurrency.currencyCode === 'ETH' || (typeof transaction.transactionJson !== 'undefined' &&  transaction.transactionJson && typeof transaction.transactionJson.allowReplaceByFee !== 'undefined' && transaction.transactionJson.allowReplaceByFee)) {
+                        showModal({
+                            type: 'YES_NO_MODAL',
+                            icon: 'WARNING',
+                            title: strings(`modal.featureExpectedModal.title`),
+                            description: 'WILL_REPLACE_WITH_NEW_FEE'
+                        }, async (res) => {
+
+                            try {
+                                let memo = ''
+                                if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson) {
+                                    memo = transaction.transactionJson.memo || ''
+                                }
+                                const data = {
+                                    memo,
+                                    amount: transaction.addressAmountPretty.toString(),
+                                    amountRaw: transaction.addressAmount,
+                                    address: transaction.addressTo || account.address,
+                                    wallet: { walletHash: transaction.walletHash },
+                                    cryptoCurrency,
+                                    account,
+                                    useAllFunds: false,
+                                    toTransactionJSON: transaction.transactionJson,
+                                    transactionReplaceByFee: transaction.transactionHash,
+                                    type: false
+                                }
+
+                                NavStore.goNext('ConfirmSendScreen', {
+                                    confirmSendScreenParam: data
+                                })
+                            } catch (e) {
+                                Log.err('SendScreen.Transaction.RBF dialog error ' + e.message)
+                            }
+
+                        })
+                    } else {
+                        showModal({
+                            type: 'INFO_MODAL',
+                            icon: 'INFO',
+                            title: strings(`modal.featureExpectedModal.title`),
+                            description: 'WILL_NOT_REPLACE_AS_NOT_ALLOWED',
+                            component: TmpComponent
+                        })
+                    }
+                } else {
+                    showModal({
+                        type: 'YES_NO_MODAL',
+                        icon: 'WARNING',
+                        title: strings(`modal.featureExpectedModal.title`),
+                        description: 'WILL_USE_AS_INPUT'
+                    }, async (res) => {
+
+                        const data = {
+                            memo: '',
+                            amount: transaction.addressAmountPretty.toString(),
+                            amountRaw: transaction.addressAmount,
+                            address: account.address,
+                            wallet: { walletHash: transaction.walletHash },
+                            cryptoCurrency,
+                            account,
+                            useAllFunds: false,
+                            transactionSpeedUp: transaction.transactionHash,
+                            type: false
+                        }
+
+                        NavStore.goNext('ConfirmSendScreen', {
+                            confirmSendScreenParam: data
+                        })
+                    })
+                }
+            } else {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: 'INFO',
+                    title: strings(`modal.featureExpectedModal.title`),
+                    description: strings(`modal.featureExpectedModal.description`),
+                    component: TmpComponent
+                })
+            }
+        } catch (e) {
+            Log.err('SendScreen.Transaction.handleReplaceByFeeBtn predialog error ' + e.message)
         }
 
     }

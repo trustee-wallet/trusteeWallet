@@ -37,6 +37,9 @@ const customCurrencyActions = {
             Log.log('ACT/CustomCurrency checkCustomCurrency finished ', JSON.stringify(res))
         } catch (e) {
             Log.log('ACT/CustomCurrency checkCustomCurrency error ' + e.message)
+            if (e.message.indexOf('SSL') !== -1) {
+                throw new Error('SERVER_RESPONSE_NO_SSL')
+            }
         }
         return res
     },

@@ -69,7 +69,7 @@ class BlocksoftBalances {
     }
 
     /**
-     * @return {Promise<{balance:*, provider:*, unconfirmed:*, addresses : *}>}
+     * @return {Promise<{balance:*, provider:*, unconfirmed:*, addresses : *, balanceScanBlock : *}>}
      */
     async getBalance() {
         BlocksoftCryptoLog.log('BlocksoftBalances.getBalance ' + this._data.currencyCode + ' ' + this._data.address + ' started')

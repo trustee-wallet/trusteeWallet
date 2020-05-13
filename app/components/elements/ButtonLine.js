@@ -15,8 +15,6 @@ export default class ButtonLine extends Component {
 
         const { styleText, touchableOpacityStyle, disabled } = this.props
 
-        console.log(this.props.styles)
-
         return (
             <View style={{ backgroundColor: '#fff', ...this.props.styles }}>
                 <TouchableOpacity onPress={this.props.press} style={touchableOpacityStyle} disabled={typeof disabled != 'undefined' ? disabled : false}>

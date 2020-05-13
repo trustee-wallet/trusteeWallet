@@ -27,6 +27,8 @@ import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+
 let styles
 
 class ConfirmSendScreen extends Component {
@@ -37,6 +39,8 @@ class ConfirmSendScreen extends Component {
             isSendDisabled: false,
             data: {},
             feeList: null,
+            selectedFee : false,
+            selectedCustomFee : false,
             needPasswordConfirm: false
         }
     }
@@ -105,7 +109,9 @@ class ConfirmSendScreen extends Component {
             wallet,
             useAllFunds,
             memo,
-            toTransactionJSON
+            toTransactionJSON,
+            transactionSpeedUp,
+            transactionReplaceByFee
         } = this.state.data
 
         const {
@@ -124,74 +130,119 @@ class ConfirmSendScreen extends Component {
         const derivationPathTmp = derivationPath.replace(/quote/g, '\'')
 
         try {
+            let tx
+            if (typeof transactionReplaceByFee !== 'undefined' && transactionReplaceByFee) {
+                tx = await (
+                    BlocksoftTransfer.setCurrencyCode(currencyCode)
+                        .setWalletHash(walletHash)
+                        .setDerivePath(derivationPathTmp)
+                        .setAddressFrom(addressFrom)
+                        .setAddressTo(addressTo)
+                        .setMemo(memo)
+                        .setAmount(amountRaw)
+                        .setAdditional(accountJson, toTransactionJSON)
+                        .setTransferAll(false)
+                        .setTxHash(transactionReplaceByFee)
+                        .setFee(fee)
+                ).sendTx(uiErrorConfirmed)
+            } else if (typeof transactionSpeedUp !== 'undefined') {
+                tx = await (
+                    BlocksoftTransfer.setCurrencyCode(currencyCode)
+                        .setWalletHash(walletHash)
+                        .setDerivePath(derivationPathTmp)
+                        .setAddressFrom(addressFrom)
+                        .setAddressTo(addressTo)
+                        .setMemo(memo)
+                        .setAmount(amountRaw)
+                        .setAdditional(accountJson, toTransactionJSON)
+                        .setTransferAll(false)
+                        .setTxInput(transactionSpeedUp)
+                        .setFee(fee)
+                ).sendTx(uiErrorConfirmed)
+            } else {
+                tx = await (
+                    BlocksoftTransfer.setCurrencyCode(currencyCode)
+                        .setWalletHash(walletHash)
+                        .setDerivePath(derivationPathTmp)
+                        .setAddressFrom(addressFrom)
+                        .setAddressTo(addressTo)
+                        .setMemo(memo)
+                        .setAmount(amountRaw)
+                        .setAdditional(accountJson, toTransactionJSON)
+                        .setTransferAll(useAllFunds)
+                        .setFee(fee)
+                ).sendTx(uiErrorConfirmed)
+            }
 
-            const tx = await (
-                BlocksoftTransfer.setCurrencyCode(currencyCode)
-                    .setWalletHash(walletHash)
-                    .setDerivePath(derivationPathTmp)
-                    .setAddressFrom(addressFrom)
-                    .setAddressTo(addressTo)
-                    .setMemo(memo)
-                    .setAmount(amountRaw)
-                    .setAdditional(accountJson)
-                    .setTransferAll(useAllFunds)
-                    .setFee(fee)
-            ).sendTx(uiErrorConfirmed)
-
-            const transactionJson =  { memo: '', ...toTransactionJSON }
-            if (typeof tx.nonce !== 'undefined') {
-                transactionJson.nonce = tx.nonce
-            }
-            const transaction = {
-                currencyCode: currencyCode,
-                accountId: accountId,
-                walletHash: walletHash,
-                transactionHash: tx.hash,
-                transactionStatus: 'new',
-                addressTo: addressTo,
-                addressFrom: '',
-                addressAmount: amountRaw,
-                transactionFee: tx.transactionFee || fee.feeForTx,
-                transactionFeeCurrencyCode : tx.currencyCode || '',
-                transactionOfTrusteeWallet: 1,
-                transactionJson,
-                blockConfirmations : 0,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                transactionDirection: 'outcome'
-            }
-            if (typeof tx.correctedAmountFrom !== 'undefined') {
-                transaction.addressAmount = tx.correctedAmountFrom
-            }
-            if (typeof tx.blockHash !== 'undefined') {
-                transaction.blockHash = tx.blockHash
-            }
-            if (typeof tx.transactionStatus !== 'undefined') {
-                transaction.transactionStatus = tx.transactionStatus
-            }
+            const transactionJson = { memo: '', ...toTransactionJSON }
             if (typeof tx.transactionJson !== 'undefined') {
-                transaction.transactionJson = tx.transactionJson
-            }
-            if (transaction.addressTo === addressFrom) {
-                transaction.addressTo = ''
-                transaction.transactionDirection = 'self'
-            }
-            if (typeof tx.timestamp !== 'undefined' && tx.timestamp) {
-                transaction.createdAt = new Date(tx.timestamp).toISOString()
-                transaction.updatedAt = new Date(tx.timestamp).toISOString()
+                let key
+                for (key in tx.transactionJson) {
+                    transactionJson[key] = tx.transactionJson[key]
+                }
             }
 
+            if (transactionReplaceByFee) {
 
-            MarketingEvent.checkSellSendTx({
-                walletHash: walletHash,
-                currencyCode: currencyCode,
-                transactionHash: tx.hash,
-                addressTo: addressTo,
-                addressFrom: addressFrom,
-                addressAmount: amountRaw
-            })
+                const transaction = {
+                    accountId: accountId,
+                    transactionHash: tx.hash,
+                    transactionUpdateHash : transactionReplaceByFee,
+                    transactionsOtherHashes: transactionReplaceByFee,
+                    transactionJson
+                }
 
-            transactionActions.saveTransaction(transaction)
+                await transactionActions.updateTransaction(transaction)
+
+            } else {
+                const transaction = {
+                    currencyCode: currencyCode,
+                    accountId: accountId,
+                    walletHash: walletHash,
+                    transactionHash: tx.hash,
+                    transactionStatus: 'new',
+                    addressTo: addressTo,
+                    addressFrom: '',
+                    addressAmount: amountRaw,
+                    transactionFee: tx.transactionFee || fee.feeForTx,
+                    transactionFeeCurrencyCode: tx.currencyCode || '',
+                    transactionOfTrusteeWallet: 1,
+                    transactionJson,
+                    blockConfirmations: 0,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    transactionDirection: 'outcome'
+                }
+                if (typeof tx.correctedAmountFrom !== 'undefined') {
+                    transaction.addressAmount = tx.correctedAmountFrom
+                }
+                if (typeof tx.blockHash !== 'undefined') {
+                    transaction.blockHash = tx.blockHash
+                }
+                if (typeof tx.transactionStatus !== 'undefined') {
+                    transaction.transactionStatus = tx.transactionStatus
+                }
+                if (transaction.addressTo === addressFrom) {
+                    transaction.addressTo = ''
+                    transaction.transactionDirection = 'self'
+                }
+                if (typeof tx.timestamp !== 'undefined' && tx.timestamp) {
+                    transaction.createdAt = new Date(tx.timestamp).toISOString()
+                    transaction.updatedAt = new Date(tx.timestamp).toISOString()
+                }
+
+
+                MarketingEvent.checkSellSendTx({
+                    walletHash: walletHash,
+                    currencyCode: currencyCode,
+                    transactionHash: tx.hash,
+                    addressTo: addressTo,
+                    addressFrom: addressFrom,
+                    addressAmount: amountRaw
+                })
+
+                transactionActions.saveTransaction(transaction)
+            }
 
             hideModal()
 
@@ -216,8 +267,13 @@ class ConfirmSendScreen extends Component {
                     })
                 } else {
                     BlocksoftTransfer.getTransferPrecache()
-                    NavStore.goBack(null)
-                    NavStore.goBack(null)
+
+                    if (transactionReplaceByFee) {
+                        NavStore.goBack(null)
+                    } else {
+                        NavStore.goBack(null)
+                        NavStore.goBack(null)
+                    }
                 }
             })
 
@@ -295,7 +351,7 @@ class ConfirmSendScreen extends Component {
 
     render() {
 
-        const { isSendDisabled, feeList } = this.state
+        const { isSendDisabled, feeList, selectedFee, selectedCustomFee } = this.state
         const { isBottomFunctionEnabled, amount, address, account, cryptoCurrency, wallet, type } = this.state.data
         const { currencySymbol } = cryptoCurrency
         const basicCurrencySymbol = account.basicCurrencySymbol
@@ -304,6 +360,33 @@ class ConfirmSendScreen extends Component {
         const equivalent = prettyNumber(RateEquivalent.mul({ value: amount, currencyCode: account.currencyCode, basicCurrencyRate: account.basicCurrencyRate }), 2)
         let extendCurrencyCode = BlocksoftDict.getCurrencyAllSettings(cryptoCurrency.currencyCode)
         extendCurrencyCode = typeof extendCurrencyCode.addressCurrencyCode === 'undefined' ? extendCurrencyCode.currencySymbol : extendCurrencyCode.addressCurrencyCode
+
+        let changeAddress = ''
+        let changePretty = ''
+        let changeCurrencySymbol = ''
+        let allowReplaceByFee = ''
+        if ( feeList || selectedFee) {
+            const lastFee = selectedFee || feeList[feeList.length - 1]
+            if (lastFee) {
+                if (typeof lastFee.preparedInputsOutputs !== 'undefined' && typeof lastFee.preparedInputsOutputs.outputs !== 'undefined' && lastFee.preparedInputsOutputs.outputs.length > 0) {
+                    const lastOutput = lastFee.preparedInputsOutputs.outputs[lastFee.preparedInputsOutputs.outputs.length - 1]
+                    if (typeof lastOutput.type !== 'undefined' && lastOutput.type === 'change') {
+                        changeAddress = lastOutput.to
+                        if (selectedCustomFee) {
+                            changePretty = ''
+                        } else if (cryptoCurrency.currencyCode === 'USDT') {
+                            changeCurrencySymbol = 'BTC'
+                            changePretty = BlocksoftPrettyNumbers.setCurrencyCode('BTC').makePretty(lastOutput.amount)
+                        } else {
+                            changePretty = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makePretty(lastOutput.amount)
+                        }
+                    }
+                }
+                if (typeof lastFee.txAllowReplaceByFee !== 'undefined') {
+                    allowReplaceByFee = lastFee.txAllowReplaceByFee ? 'on' : ''
+                }
+            }
+        }
 
         return (
             <GradientView style={styles.bg} array={styles_.array} start={styles_.start} end={styles_.end}>
@@ -350,6 +433,37 @@ class ConfirmSendScreen extends Component {
                                         </Text>
                                     </View>
                                 </View>
+                                {changeAddress || allowReplaceByFee?
+                                    <View style={styles.description}>
+                                        <View style={styles.description__item}>
+                                            <Text style={styles.description__text}>
+                                                {''}
+                                            </Text>
+                                        </View>
+                                    </View> : null
+                                }
+                                {changeAddress ?
+                                    <View style={styles.description}>
+                                        <View style={styles.description__item}>
+                                            <Text style={styles.description__text}>
+                                                {strings('send.confirmModal.change', {amount : changePretty, currencySymbol : changeCurrencySymbol})}
+                                            </Text>
+                                            <Text style={styles.description__text}>
+                                                {changeAddress.slice(0, 10) + '...' + changeAddress.slice(changeAddress.length - 10, changeAddress.length)}
+                                            </Text>
+                                        </View>
+                                    </View> : null
+                                }
+                                {allowReplaceByFee ?
+                                    <View style={styles.description}>
+                                        <View style={styles.description__item}>
+                                            <Text style={styles.description__text}>
+                                                { strings('send.confirmModal.rbf_' + allowReplaceByFee)}
+                                            </Text>
+                                        </View>
+                                    </View> : null
+                                }
+
                                 <TouchableOpacity onPress={() => this.handleHide()} style={styles.cross}>
                                     <Cross name={'cross'} size={30} color={'#fff'}/>
                                 </TouchableOpacity>

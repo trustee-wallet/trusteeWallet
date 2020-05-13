@@ -63,7 +63,7 @@ class WalletInfo extends Component {
                 ratesWithoutZero++
 
                 totalBalance =  BlocksoftUtils.add(totalBalance, account.basicCurrencyBalance).toString()
-                totalBalanceString += account.balance + ' ' + account.currencyCode + ', '
+                totalBalanceString += account.balancePretty + ' ' + account.currencyCode + ', '
             }
 
             if (selectedBasicCurrency.currencyCode !== 'USD' && ratesWithoutZero === 0) {

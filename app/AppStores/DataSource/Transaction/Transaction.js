@@ -26,7 +26,7 @@ class Transaction {
      */
     saveTransaction = async (transaction, updateId = false) => {
 
-        Log.daemon('Transaction saveTransaction called', transaction.transactionHash)
+        Log.daemon('Transaction saveTransaction called ' + transaction.transactionHash)
 
         const dbInterface = new DBInterface()
 
@@ -45,6 +45,14 @@ class Transaction {
                 copy.transactionJson = dbInterface.escapeString(JSON.stringify(copy.transactionJson))
             }
         }
+
+        if (typeof copy.transactionsScanLog !== 'undefined') {
+            if (copy.transactionsScanLog.length > 1000) {
+                copy.transactionsScanLog = copy.transactionsScanLog.substr(0, 1000)
+            }
+            copy.transactionsScanLog = dbInterface.escapeString(copy.transactionsScanLog)
+        }
+
 
         if (updateId) {
             if (copy.addressTo === '') {
@@ -75,6 +83,40 @@ class Transaction {
     }
 
     /**
+     *
+     * @param transaction.accountId
+     * @param transaction.transactionHash
+     * @param transaction.transactionsOtherHashes
+     * @param transaction.transactionUpdateHash
+     * @param transaction.transactionJson
+     * @returns {Promise<void>}
+     */
+    updateTransaction = async (transaction) => {
+        Log.log('Transaction updateTransaction called ' + transaction.transactionHash, transaction)
+
+        const dbInterface = new DBInterface()
+
+        let transactionJson = ''
+        if (typeof transaction.transactionJson !== 'undefined') {
+            if (typeof transaction.transactionJson !== 'string') {
+                transactionJson = dbInterface.escapeString(JSON.stringify(transaction.transactionJson))
+            }
+        }
+        if (transactionJson.length > 1) {
+            transactionJson = `, transaction_json='${transactionJson}'`
+        }
+
+        const sql = `UPDATE transactions 
+                        SET transaction_hash='${transaction.transactionHash}', 
+                        transactions_other_hashes='${transaction.transactionsOtherHashes}'
+                        ${transactionJson}
+                        WHERE transaction_hash='${transaction.transactionUpdateHash}' 
+                     `
+        await dbInterface.setQueryString(sql).query()
+
+    }
+
+    /**
      * @param {Object} params
      * @param {string} params.walletHash
      * @param {string} params.currencyCode
@@ -99,16 +141,19 @@ class Transaction {
             where.push(`account_id='${params.accountId}'`)
         }
 
+        let order = ' ORDER BY created_at DESC, id DESC'
+        if (params.noOrder) {
+            order = ''
+        } else {
+            where.push(`hidden_at IS NULL`)
+        }
+
         if (where.length > 0) {
             where = ' WHERE ' + where.join(' AND ')
         } else {
             where = ''
         }
 
-        let order = ' ORDER BY created_at DESC, id DESC'
-        if (params.noOrder) {
-            order = ''
-        }
 
         const sql = ` 
             SELECT id, 
@@ -131,7 +176,8 @@ class Transaction {
             currency_code AS currencyCode, 
             transaction_of_trustee_wallet AS transactionOfTrusteeWallet, 
             transaction_json AS transactionJson,
-            transactions_scan_log AS transactionsScanLog
+            transactions_scan_log AS transactionsScanLog,
+            transactions_other_hashes AS transactionsOtherHashes
             FROM transactions 
             ${where}
             ${order}
@@ -161,10 +207,22 @@ class Transaction {
             }
             shownTx[tx.transactionHash] = 1
             tx.addressAmount = BlocksoftUtils.fromENumber(tx.addressAmount)
-            if (typeof tx.transactionJson !== 'undefined' && tx.transactionJson !== null) {
-                tx.transactionJson = JSON.parse(tx.transactionJson)
-                if(typeof tx.transactionJson !== 'object') {
+            if (typeof tx.transactionJson !== 'undefined' && tx.transactionJson !== null && tx.transactionJson !== 'undefined') {
+
+                try {
                     tx.transactionJson = JSON.parse(tx.transactionJson)
+                } catch (e) {
+                    e.message += ' while parsing tx 1 ' + tx.transactionJson
+                    throw e
+                }
+
+                if (typeof tx.transactionJson !== 'object') {
+                    try {
+                        tx.transactionJson = JSON.parse(tx.transactionJson)
+                    } catch (e) {
+                        e.message += ' while parsing tx 2 ' + tx.transactionJson
+                        throw e
+                    }
                 }
             }
             txArray.push(tx)

@@ -45,7 +45,7 @@ class Input extends Component {
 
         setTimeout(() => {
             const { autoFocus } = this.props
-            if(typeof autoFocus !== 'undefined') {
+            if (typeof autoFocus !== 'undefined') {
                 this.setState({
                     autoFocus,
                     show: false
@@ -86,15 +86,15 @@ class Input extends Component {
 
         value === '' && !this.state.focus ? value = this.state.value : value
 
-        const { id, name, type, subtype, additional, decimals, callback } = this.props
+        const { id, name, type, subtype, cuttype, additional, decimals, callback } = this.props
 
         if (additional === 'NUMBER') {
-            value = normalizeWithDecimals(value, typeof decimals != 'undefined' ? decimals : 5)
+            value = normalizeWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
             this.setState({
                 value
             })
         } else {
-            const validation = await Validator.arrayValidation([{ id, name, type, subtype, value }])
+            const validation = await Validator.arrayValidation([{ id, name, type, subtype, cuttype, value }])
             this.setState({
                 value,
                 errors: validation.errorArr
@@ -113,10 +113,23 @@ class Input extends Component {
     }
 
     handleValidate = async () => {
-        const { id, name, type, subtype } = this.props
-        const { value } = this.state
+        const { id, name, type, subtype, cuttype } = this.props
+        let { value } = this.state
 
         let validation
+        if (cuttype) {
+            let valueNew = value.trim().replace(/\n/g, " ")
+            const tmpIndex = valueNew.lastIndexOf('[ Photo ]')
+            if (tmpIndex !== -1) {
+                valueNew = valueNew.slice(tmpIndex + 9).trim()
+            }
+            if (valueNew.indexOf(cuttype) === 0) {
+                valueNew = valueNew.substr(cuttype.length).trim()
+            }
+            if (valueNew) {
+                value = valueNew
+            }
+        }
 
         if (Array.isArray(type)) {
 
@@ -129,6 +142,7 @@ class Input extends Component {
                         name,
                         type: tmp,
                         subtype,
+                        cuttype,
                         value
                     }
                 )
@@ -147,6 +161,7 @@ class Input extends Component {
                 name,
                 type,
                 subtype,
+                cuttype,
                 value
             }])
         }
@@ -264,7 +279,7 @@ class Input extends Component {
                                         { rotateX: `${this.state.tap ? '0' : '180'}deg` }
                                     ]
                                 }}>
-                                    {typeof disabled !== 'undefined' && !disabled ? <Ionicons size={12} name='ios-swap' style={[{ color: '#7127ac', ...tapIconStyle }]} /> : null}
+                                    {typeof disabled !== 'undefined' && !disabled ? <Ionicons size={12} name='ios-swap' style={[{ color: '#7127ac', ...tapIconStyle }]}/> : null}
                                 </View>
                                 <Text style={[styles.tap__text, tapTextStyles]}>{tapText}</Text>
                             </View>

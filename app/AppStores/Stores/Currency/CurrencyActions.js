@@ -5,6 +5,7 @@
 import store from '../../../store'
 
 import currencyDS from '../../DataSource/Currency/Currency'
+import appTaskDS from '../../DataSource/AppTask/AppTask'
 import accountDS from '../../DataSource/Account/Account'
 import accountBalanceDS from '../../DataSource/AccountBalance/AccountBalance'
 import walletDS from '../../DataSource/Wallet/Wallet'
@@ -165,6 +166,8 @@ const currencyActions = {
 
             await accountBalanceDS.insertAccountBalance({ insertObjs: accountBalanceInsertObjs })
 
+            await appTaskDS.clearTasksByCurrencyAdd({currencyCode: currencyToAdd.currencyCode})
+
             const currencyInsertObjs = {
                 currencyCode: currencyToAdd.currencyCode,
                 currencyRateScanTime: 0,
@@ -213,6 +216,8 @@ const currencyActions = {
                     isHidden: params.isHidden ? 0 : 1
                 }
             })
+
+            await appTaskDS.clearTasksByCurrencyAdd({currencyCode: params.currencyCode})
 
             await currencyActions.setCryptoCurrencies()
 

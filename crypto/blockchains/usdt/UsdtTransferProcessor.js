@@ -92,7 +92,7 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTransferProcessor.sendTx ' + data.addressFrom + ' started')
 
         const now = new Date().getTime()
-        if (this._precached.unspentsAddress !== data.addressFrom || !this._precached.blocks_2 || !this._precached.unspents || now - this._precached.time > CACHE_VALID_TIME) {
+        if (this._precached.unspentsKey !== this._unspentsKeyFromData(data) || !this._precached.blocks_2 || !this._precached.unspents || now - this._precached.time > CACHE_VALID_TIME) {
             await this.getTransferPrecache(data)
         }
 
@@ -106,16 +106,15 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
         const rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs)
         let result
         try {
-            result = await this.sendProvider.sendTx(rawTxHex, 'usual first try')
+            result = await this.sendProvider.sendTx(rawTxHex, 'usual first try', preparedInputsOutputs)
         } catch (e) {
-            if (typeof e.code !== 'undefined' && e.code === 'ERROR_USER') {
+            if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
                 // can do something here to try more
-                logInputsOutputs.error = e.basicMessage
                 logInputsOutputs.userError = e.message
+                logInputsOutputs.serverError = this.sendProvider.lastError
                 // noinspection ES6MissingAwait
                 MarketingEvent.logOnlyRealTime('usdt_error_1_1 ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
-
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx basicMessage', e.basicMessage)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx serverError ' + logInputsOutputs.serverError)
                 throw e
             } else {
                 logInputsOutputs.userError = e.message
@@ -139,6 +138,13 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
         // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('usdt_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
 
-        return { hash: result, correctedAmountFrom: correctedAmountFrom }
+        return {
+            hash: result,
+            correctedAmountFrom: correctedAmountFrom,
+            transactionJson: {
+                nSequence: data.nSequence,
+                allowReplaceByFee: data.txAllowReplaceByFee
+            }
+        }
     }
 }

@@ -28,11 +28,12 @@ import Log from '../../../services/Log/Log'
 import Cashback from '../../../services/Cashback/Cashback'
 import AppLockScreenIdleTime from '../../../services/AppLockScreenIdleTime/AppLockScreenIdleTime'
 import AppVersionControl from '../../../services/AppVersionControl/AppVersionControl'
-import AppNotification from '../../../services/AppNotification/AppNotification'
+import AppNotification from '../../../services/AppNotification/AppNotificationListener'
 
 import Daemon from '../../../services/Daemon/Daemon'
 import updateAccountsDaemon from '../../../services/Daemon/elements/UpdateAccountsDaemon'
 import updateAppNewsDaemon from '../../../services/Daemon/elements/UpdateAppNewsDaemon'
+import appNewsActions from '../../Stores/AppNews/AppNewsActions'
 
 const { dispatch, getState } = store
 
@@ -133,14 +134,17 @@ class App {
 
             this.initStatus = 'setCards()'
 
-            // noinspection ES6MissingAwait
-            AppVersionControl.init()
-
         } catch (e) {
             Log.err('ACT/App init application error ' + this.initStatus + ' ' + e.message)
             console.log(e)
             this.initError = e.message
             dispatch(setInitError(e.message))
+        }
+        try {
+            // noinspection ES6MissingAwait
+            AppVersionControl.init()
+        } catch (e) {
+            // do nothing
         }
     }
 
@@ -159,6 +163,8 @@ class App {
         await updateAccountsDaemon.forceDaemonUpdate()
 
         updateAppNewsDaemon.forceDaemonUpdate()
+
+        appNewsActions.displayPush()
 
         Log.log('ACT/App appRefreshWalletsStates CashBack.init ' + (firstTimeCall ? ' first time ' : ''))
 

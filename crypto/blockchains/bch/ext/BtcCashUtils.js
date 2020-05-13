@@ -192,6 +192,9 @@ export default {
         return bs58check.encode(buffer)
     },
     fromLegacyAddress(address) {
+        if (!address || address === '') {
+            return ''
+        }
         if (address.substr(0, 1) === 'q') {
             return address
         }

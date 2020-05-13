@@ -15,6 +15,9 @@ export default class {
      * @returns {*}
      */
     static mul(params) {
+        if (typeof params.basicCurrencyRate === 'undefined' || !params.basicCurrencyRate || params.basicCurrencyRate === 0) {
+            return 0
+        }
         if (params.basicCurrencyRate === 1 || params.basicCurrencyRate === '1') {
             return params.value
         }
@@ -45,6 +48,9 @@ export default class {
      * @returns {*}
      */
     static div(params) {
+        if (typeof params.basicCurrencyRate === 'undefined' || !params.basicCurrencyRate || params.basicCurrencyRate === 0) {
+            return 0
+        }
         if (params.basicCurrencyRate === 1 || params.basicCurrencyRate === '1') {
             return params.value
         }

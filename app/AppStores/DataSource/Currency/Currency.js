@@ -134,6 +134,7 @@ export default {
             data.push(row.currencyCode)
         }
         data.push('BTC_SEGWIT')
+        data.push('BTC_SEGWIT_COMPATIBLE')
 
         return data
     }

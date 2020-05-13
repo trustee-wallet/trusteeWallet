@@ -28,7 +28,7 @@ export default {
             where.push(`(account_balance.balance_scan_time IS NULL OR account_balance.balance_scan_time < ${now} OR account.transactions_scan_time IS NULL OR account.transactions_scan_time < ${now})`)
         }
         where.push(`currency.is_hidden=0`)
-        where.push(`(account.currency_code!='BTC' OR wallet.wallet_is_hd NOT IN (1, '1') OR wallet.wallet_is_hd IS NULL)`)
+        where.push(`(account.currency_code!='BTC' OR wallet.wallet_is_hd NOT IN (1, '1') OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub) OR wallet.wallet_is_hd IS NULL)`)
         if (params.walletHash) {
             where.push(`account.wallet_hash='${params.walletHash}'`)
         }
@@ -60,6 +60,7 @@ export default {
             account_balance.balance_provider AS balanceProvider,
             account_balance.balance_scan_time AS balanceScanTime,
             account_balance.balance_scan_log AS balanceScanLog,
+            account_balance.balance_scan_block AS balanceScanBlock,
             
             account.account_json AS accountJson
             FROM account 
@@ -70,6 +71,7 @@ export default {
             ORDER BY account_balance.balance_scan_time ASC
             LIMIT 10
         `
+
         let res = []
         const uniqueAddresses = {}
         const idsToRemove = []
@@ -90,6 +92,8 @@ export default {
                 uniqueAddresses[key] = 1
                 res[i].balance = BlocksoftFixBalance(res[i], 'balance')
                 res[i].unconfirmed = BlocksoftFixBalance(res[i], 'unconfirmed')
+                res[i].balanceScanBlock = typeof res[i].balanceScanBlock !== 'undefined' ? (res[i].balanceScanBlock * 1) : 0
+                res[i].balanceScanLog = res[i].balanceScanLog || ''
                 if (!res[i].accountJson || res[i].accountJson === 'false') continue
 
                 const string = dbInterface.unEscapeString(res[i].accountJson)

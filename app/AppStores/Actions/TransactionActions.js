@@ -59,6 +59,49 @@ const transactionActions = {
 
     },
 
+    /**
+     *
+     * @param transaction.accountId
+     * @param transaction.transactionHash
+     * @param transaction.transactionUpdateHash
+     * @param transaction.transactionsOtherHashes
+     * @param transaction.transactionJson
+     * @returns {Promise<void>}
+     */
+    updateTransaction: async (transaction) => {
+        try {
+
+            await transactionDS.updateTransaction(transaction)
+
+            const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
+
+            console.log('transaction updated', transaction)
+
+            if (transaction.accountId === account.accountId) {
+
+                const prepared = { ...account }
+
+                let tx
+                for (tx of prepared.transactions) {
+                    if (tx.transactionHash === transaction.transactionUpdateHash) {
+                        tx.transactionHash = transaction.transactionUpdateHash
+                        tx.transactionsOtherHashes = transaction.transactionsOtherHashes
+                        tx.transactionJson = transaction.transactionJson
+                    }
+                }
+
+                dispatch({
+                    type: 'SET_SELECTED_ACCOUNT',
+                    selectedAccount: prepared
+                })
+            }
+
+        } catch (e) {
+
+            Log.err('ACT/Transaction updateTransaction ' + e.message)
+        }
+    },
+
     preformat(transaction, account) {
         if (!transaction) return
         // @misha review plz all like this to add in one place like here and unified
@@ -146,7 +189,10 @@ const transactionActions = {
 
         try {
 
-            transactions = await transactionDS.getTransactions({ walletHash: account.walletHash, currencyCode: account.currencyCode })
+            transactions = await transactionDS.getTransactions({
+                walletHash: account.walletHash,
+                currencyCode: account.currencyCode
+            })
 
         } catch (e) {
 

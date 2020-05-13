@@ -17,7 +17,6 @@ import {
 
 import firebase from 'react-native-firebase'
 import Share from 'react-native-share'
-import QRCode from 'react-native-qrcode-svg'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-community/async-storage'
@@ -27,6 +26,7 @@ import ButtonIcon from '../../components/elements/ButtonIcon'
 import Navigation from '../../components/navigation/Navigation'
 import CustomShare from '../../components/elements/Share'
 import GradientView from '../../components/elements/GradientView'
+import QrCodeBox from '../../components/elements/QrCodeBox'
 
 import AuthActions from '../../appstores/Stores/Auth/AuthActions'
 import { hideModal, showModal } from '../../appstores/Stores/Modal/ModalActions'
@@ -40,6 +40,7 @@ import { strings } from '../../services/i18n'
 import authDS from '../../appstores/DataSource/Auth/Auth'
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 import prettyNumber from '../../services/UI/PrettyNumber/PrettyNumber'
+
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -56,7 +57,8 @@ class CashbackScreen extends Component {
                 message: strings('cashback.shareMessage'),
                 url: ''
             },
-            cashbackStatistics: {}
+            cashbackStatistics: {},
+            init : false
         }
 
         this.customShare = React.createRef()
@@ -64,6 +66,8 @@ class CashbackScreen extends Component {
     }
 
     async UNSAFE_componentWillMount() {
+
+        this.init()
 
         const { logged } = this.props.authStore
 
@@ -86,7 +90,30 @@ class CashbackScreen extends Component {
             }
         }
 
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+            this.init()
+        })
+
         setLoaderStatus(false)
+    }
+
+    init = async () => {
+
+        if (Object.keys(this.props.send.data).length !== 0) {
+            const {
+                isCashBackLink,
+                qrCashBackLink
+            } = this.props.send.data
+
+            if (isCashBackLink) {
+                this.handleSetParentToken(qrCashBackLink)
+            }
+        }
+
+        this.setState({
+            init: true
+        })
+
     }
 
     handleRefresh = async () => {
@@ -237,18 +264,18 @@ class CashbackScreen extends Component {
         Toast.setMessage(strings('toast.copied')).show()
     }
 
-    handleSetParentToken = () => {
+    handleSetParentToken = (value) => {
         const {
             cashBackToken,
             cashBackLinkPrefix,
         } = this.props.cashBackStore
 
-
         showModal({
             type: 'INPUT_MODAL',
             title: strings('modal.enterCashBackTokenLink.title'),
             description: strings('modal.enterCashBackTokenLink.description'),
-            cashBackLink: cashBackLinkPrefix + cashBackToken
+            cashBackLink: cashBackLinkPrefix + cashBackToken,
+            qrCashBackLink : value
         }, async (cashBackParentToken) => {
                 try {
                     await AsyncStorage.setItem('parentToken', cashBackParentToken)
@@ -309,11 +336,14 @@ class CashbackScreen extends Component {
                     <View style={styles.wrapper__top}>
                         <TouchableOpacity style={{ position: 'relative', width: '100%' }} onPress={() => this.copyToClip(cashBackLink)}>
                             <View style={styles.wrapper__qr}>
-                                <QRCode
+                                <QrCodeBox
                                     value={cashBackLink}
                                     size={200}
                                     color='#404040'
-                                    logoBackgroundColor='transparent'/>
+                                    onError={(e) => {
+                                        Log.err('CashbackScreen QRCode error ' + e.message)
+                                    }}
+                                />
                             </View>
                             <Image
                                 style={styles.wrapper__img}
@@ -420,7 +450,7 @@ class CashbackScreen extends Component {
                                         <Text style={styles.sharing__text}>Telegram</Text>
                                     </View>
                                     <View style={styles.sharing__item}>
-                                        <ButtonIcon style={{ backgroundColor: '#1877f2' }} icon="FACEBOOK" callback={(cashBackLink) => this.handleShare('facebook', cashBackLink)}/>
+                                        <ButtonIcon style={{ backgroundColor: '#1877f2' }} icon="FACEBOOK" callback={() => this.handleShare('facebook', cashBackLink)}/>
                                         <Text style={styles.sharing__text}>Facebook</Text>
                                     </View>
                                     <View style={styles.sharing__item}>
@@ -428,7 +458,7 @@ class CashbackScreen extends Component {
                                         <Text style={styles.sharing__text}>Viber</Text>
                                     </View>
                                     <View style={styles.sharing__item}>
-                                        <ButtonIcon style={{ backgroundColor: '#f55499' }} icon="DOTS" callback={(cashBackLink) => this.handleSimpleShare(cashBackLink)}/>
+                                        <ButtonIcon style={{ backgroundColor: '#f55499' }} icon="DOTS" callback={() => this.handleSimpleShare(cashBackLink)}/>
                                         <Text style={styles.sharing__text}>{strings('cashback.more')}</Text>
                                     </View>
                                 </ScrollView>
@@ -446,7 +476,8 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         cashBackStore: state.cashBackStore,
         authStore: state.authStore,
-        walletStore: state.walletStore
+        walletStore: state.walletStore,
+        send: state.sendStore
     }
 }
 

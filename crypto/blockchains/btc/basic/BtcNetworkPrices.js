@@ -38,7 +38,7 @@ export default class BtcNetworkPrices {
             let tmp = false
             try {
                 tmp = await BlocksoftAxios.getWithoutBraking(link)
-                if (tmp.data) {
+                if (tmp && tmp.data) {
                     logData.source = 'reloaded'
                     CACHE_PREV_DATA = tmp.data
                 } else {
@@ -73,7 +73,7 @@ export default class BtcNetworkPrices {
         // noinspection PointlessArithmeticExpressionJS
         CACHE_FEES_BTC[12] = json.hourFee * 1
 
-        const externalSettings = await BlocksoftExternalSettings.getAll()
+        const externalSettings = await BlocksoftExternalSettings.getAll('BTC.getNetworkPrices')
         addMultiply(2, externalSettings)
         addMultiply(6, externalSettings)
         addMultiply(12, externalSettings)

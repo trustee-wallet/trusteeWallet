@@ -16,9 +16,14 @@ import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/B
 import changeableProd from '../../config/changeable.prod'
 import changeableTester from '../../config/changeable.tester'
 
+import config from '../../config/config'
+
+const SAVE_FIREBASE = config.debug.firebaseLogs // set true to save firebase
+
 const CACHED = {}
 const CACHED_BUY = {}
-const CACHE_BALANCE = {}
+
+let CACHE_BALANCE = {}
 
 class MarketingEvent {
     /**
@@ -61,15 +66,26 @@ class MarketingEvent {
         this.DATA.date = date[0]
         this.DATA.time = date[1].replace(/\..+/, '')
 
-        let token = this.DATA.LOG_TOKEN
-        if (typeof (this.DATA.LOG_TOKEN) === 'undefined') {
-            token = 'NOTOKEN'
-        }
-        firebase.database().ref('Inits/' + date[0] + '/' + token).push(this.DATA)
-        if (token) {
-            firebase.database().ref('Installs/' + token.substr(0, 20) + '/' + this.DATA.LOG_VERSION).update(this.DATA)
+        if (SAVE_FIREBASE) {
+            let token = this.DATA.LOG_TOKEN
+            if (typeof (this.DATA.LOG_TOKEN) === 'undefined') {
+                token = 'NOTOKEN'
+            }
+            firebase.database().ref('Inits/' + date[0] + '/' + token).push(this.DATA)
+            if (token) {
+                firebase.database().ref('Installs/' + token.substr(0, 20) + '/' + this.DATA.LOG_VERSION).update(this.DATA)
+            }
         }
 
+        let tmp = await AsyncStorage.getItem('CACHE_BALANCE')
+        if (tmp) {
+            try {
+                tmp = JSON.parse(tmp)
+                CACHE_BALANCE = tmp
+            } catch (e) {
+                // do nothing
+            }
+        }
     }
 
     /**
@@ -176,7 +192,9 @@ class MarketingEvent {
                 } else {
                     keyTitle += '/NO_CASHBACK'
                 }
-                firebase.database().ref(keyTitle).push(logData)
+                if (SAVE_FIREBASE) {
+                    firebase.database().ref(keyTitle).push(logData)
+                }
                 firebase.analytics().logEvent('v3_' + logTitle, logData)
             }
 
@@ -257,6 +275,9 @@ class MarketingEvent {
         }
      */
     async setBalance(walletHash, currencyCode, totalBalance, logData) {
+        if (totalBalance === "" || totalBalance === "undefined" || !totalBalance) {
+            return false
+        }
         const cacheTitle = walletHash + '_' + currencyCode
         if (typeof(CACHE_BALANCE[cacheTitle]) === 'undefined') {
             CACHE_BALANCE[cacheTitle] = -1
@@ -291,29 +312,14 @@ class MarketingEvent {
 
         let sendEvent = false
         if (CACHE_BALANCE[cacheTitle] === -1) {
+            sendEvent = true
             CACHE_BALANCE[cacheTitle] = totalBalance
-            try {
-                let savedTotalBalance = await new Promise((resolve, reject) => {
-                    firebase.database().ref(keyTitle).once('value').then((snapshot) => {
-                        resolve(snapshot.val())
-                    }).catch((err) => {
-                        reject(err)
-                    });
-                })
-                if (savedTotalBalance) {
-                    savedTotalBalance = savedTotalBalance.totalBalance
-                }
-                if (savedTotalBalance !== totalBalance) {
-                    firebase.database().ref(keyTitle).update(saveKeyData)
-                    sendEvent = true
-                }
-            } catch(e) {
-                firebase.database().ref(keyTitle).update(saveKeyData)
-            }
+            await AsyncStorage.setItem('CACHE_BALANCE', JSON.stringify(CACHE_BALANCE))
+
         } else if (CACHE_BALANCE[cacheTitle] !== totalBalance) {
             sendEvent = true
             CACHE_BALANCE[cacheTitle] = totalBalance
-            firebase.database().ref(keyTitle).update(saveKeyData)
+            await AsyncStorage.setItem('CACHE_BALANCE', JSON.stringify(CACHE_BALANCE))
         } else {
             // do nothing
         }

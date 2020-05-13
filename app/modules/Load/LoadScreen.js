@@ -68,6 +68,9 @@ class LoadScreen extends Component {
 
     render() {
         firebase.analytics().setCurrentScreen('LoadScreen.index')
+        if (App.initStatus === 'resetError') {
+            App.init()
+        }
         return (
             <View style={styles.wrapper}>
                 <View style={{ position: 'absolute', top: 20, left: 20 }}>

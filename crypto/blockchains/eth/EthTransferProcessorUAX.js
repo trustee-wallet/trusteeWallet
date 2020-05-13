@@ -6,6 +6,7 @@ import EthTransferProcessorErc20 from './EthTransferProcessorErc20'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
 import UpdateAccountsDaemon from '../../../app/services/Daemon/elements/UpdateAccountsDaemon'
+import DBInterface from '../../../app/appstores/DataSource/DB/DBInterface'
 
 const axios = require('axios')
 const ethUtil = require('ethereumjs-util')
@@ -265,7 +266,6 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
                     }
                 })
                 if (result && result.data) {
-                    console.log('RESULT', result.data)
                     if (typeof result.data.txid !== 'undefined') {
                         hash = result.data.txid.toLowerCase()
                         MarketingEvent.logOnlyRealTime('uax_tx_success ' + ' ' + data.addressFrom + ' => ' + data.addressTo, { amount: data.amount, fee: data.feeForTx })
@@ -306,12 +306,14 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
                     BlocksoftCryptoLog.err('UAX request error1 ' + e.message)
                 }
 
+
                 try {
                     const link2 = TXS_PATH + data.addressFrom
                     const txs = await BlocksoftAxios.get(link2)
                     MarketingEvent.logOnlyRealTime('kuna_txs res2 ' + data.addressFrom, txs)
                     let found = false
                     let found2 = false
+                    let found3 = false
                     if (txs && typeof txs.data !=='undefined' && txs.data.length > 0) {
                         for (let tx of txs.data) {
                             tx.txid = tx.txid.toLowerCase()
@@ -321,12 +323,15 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
                                 } else {
                                     found2 = tx
                                 }
+                            } else if (tx.nonce == nonce) {
+                                found3 = tx
                             }
                         }
                     }
-                    MarketingEvent.logOnlyRealTime('kuna_txs found ' + data.addressFrom, {found, found2})
+                    MarketingEvent.logOnlyRealTime('kuna_txs found ' + data.addressFrom, {found, found2, found3})
                     if (found) {
-                        return { hash: found.txid, nonce : found.nonce, currencyCode: 'ETH_UAX', transactionFee: found.fee }
+                        await this._saveDelegatedNonce(found.txid, found.nonce, data.addressFrom)
+                        return { hash: found.txid, currencyCode: 'ETH_UAX', transactionFee: found.fee, transactionJson : {delegatedNonce : found.nonce} }
                     }
                 } catch (e2) {
                     if (badBad || e.message.indexOf('Node error') !== -1) {
@@ -342,8 +347,8 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
                 }
                 throw e
             }
-
-            return { hash, currencyCode: 'ETH_UAX', transactionFee: fee, nonce }
+            await this._saveDelegatedNonce(hash, nonce, data.addressFrom)
+            return { hash, currencyCode: 'ETH_UAX', transactionFee: fee, transactionJson : {delegatedNonce : nonce} }
 
         } else {
 
@@ -357,5 +362,10 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
 
             return super.sendTx(data, true)
         }
+    }
+
+    async _saveDelegatedNonce(hash, nonce, fromAddress) {
+        const dbInterface = new DBInterface()
+        await dbInterface.setQueryString(`INSERT INTO transactions_scanners_tmp (currency_code, address, tmp_key, tmp_sub_key, tmp_val) VALUES ('ETH_UAX', '${fromAddress}', 'nonce', '${nonce}', '${hash}')`).query()
     }
 }

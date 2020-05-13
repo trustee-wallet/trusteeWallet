@@ -4,6 +4,7 @@
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import EthTransferProcessor from './EthTransferProcessor'
 import BlocksoftDispatcher from '../BlocksoftDispatcher'
+import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
 
 const Dispatcher = new BlocksoftDispatcher()
 
@@ -41,10 +42,27 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
             if (data.addressTo === data.addressFrom) {
                 const tmp1 = '0xA09fe17Cb49D7c8A7858C8F9fCac954f82a9f487'
                 const tmp2 = '0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99'
+                const to = data.addressFrom === tmp1 ? tmp2 : tmp1
                 BlocksoftCryptoLog.log('EthTxProcessorErc20 estimateGas addressToChanged', logData)
-                estimatedGas = await this._token.methods.transfer(data.addressFrom === tmp1 ? tmp2 : tmp1, data.amount).estimateGas({ from: data.addressFrom })
+                estimatedGas = await this._token.methods.transfer(to, data.amount).estimateGas({ from: data.addressFrom })
+                const estimatedGas2 = await this._token.methods.transfer(data.addressTo, data.amount).estimateGas({ from: data.addressFrom })
+                if (estimatedGas2 > estimatedGas) {
+                    estimatedGas = estimatedGas2
+                }
+                if (estimatedGas < 41200) {
+                    estimatedGas = 41200
+                }
+                MarketingEvent.logOnlyRealTime('eth_gas_limit_token1 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {amount : data.amount + '', estimatedGas})
             } else {
                 estimatedGas = await this._token.methods.transfer(data.addressTo, data.amount).estimateGas({ from: data.addressFrom })
+                const estimatedGas2 = await this._token.methods.transfer(data.addressTo, data.amount).estimateGas({ from: data.addressFrom })
+                if (estimatedGas2 > estimatedGas) {
+                    estimatedGas = estimatedGas2
+                }
+                if (estimatedGas < 41200) {
+                    estimatedGas = 41200
+                }
+                MarketingEvent.logOnlyRealTime('eth_gas_limit_token2 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {amount : data.amount + '', estimatedGas})
             }
         } catch (e) {
             this.checkError(e)

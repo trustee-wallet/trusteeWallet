@@ -486,6 +486,7 @@ class Account extends Component {
 
         const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
 
+        const shownAddress = cryptoCurrency.currencyCode === 'BTC' ? btcAddress : address
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <Navigation
@@ -509,9 +510,9 @@ class Account extends Component {
                                 {this.renderBalance(cryptoCurrency, mainStore.selectedAccount)}
                                 {
                                     account.currencyCode !== 'BTC' || (account.currencyCode === 'BTC' && !(+btcShowTwoAddress))  ?
-                                        <TouchableOpacity style={styles.topContent__middle} onPress={() => this.handleCopyAddress()}>
-                                            <ToolTips showAfterRender={true} height={150} type={'ACCOUNT_SCREEN_ADDRESS_TIP'} cryptoCurrency={cryptoCurrency} mainComponentProps={{ address: cryptoCurrency.currencyCode === 'BTC' ? btcAddress : address }} MainComponent={this.renderAddressTooltip}/>
-                                            <View onPress={() => this.handleCopyAddress()} style={styles.copyBtn}>
+                                        <TouchableOpacity style={styles.topContent__middle} onPress={() => this.handleBtcAddressCopy(shownAddress)}>
+                                            <ToolTips showAfterRender={true} height={150} type={'ACCOUNT_SCREEN_ADDRESS_TIP'} cryptoCurrency={cryptoCurrency} mainComponentProps={{ address: shownAddress }} MainComponent={this.renderAddressTooltip}/>
+                                            <View onPress={() => this.handleBtcAddressCopy(shownAddress)} style={styles.copyBtn}>
                                                 <Copy name="content-copy" size={15} color={'#939393'}/>
                                             </View>
                                         </TouchableOpacity> : null

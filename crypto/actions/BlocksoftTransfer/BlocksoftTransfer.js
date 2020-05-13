@@ -24,19 +24,19 @@ class BlocksoftTransfer {
      */
     _processor = {}
     /**
-     * @type {{privateKey, txHash, addressFrom, addressFromXpub, privateKeyLegacy, addressFromLegacy, addressFromLegacyXpub, addressTo, amount, feeForTx, currencyCode, addressForChange, addressForChangeHD, nSequence, jsonData, memo, walletUseUnconfirmed, walletUseLegacy}}
+     * @type {{walletHash, privateKey, txHash, txInput, addressFrom, addressFromXpub, privateKeyLegacy, addressFromLegacy, addressFromLegacyXpub, addressTo, amount, feeForTx, currencyCode, addressForChange, addressForChangeHD, jsonData, memo, walletAllowReplaceByFee, walletUseUnconfirmed, walletUseLegacy}}
      * @private
      */
     _data = {}
 
     /**
-     * @type {{privateKey, txHash, addressFrom, addressFromXpub, addressFromLegacy, addressFromLegacyXpub, addressTo, amount, feeForTx, currencyCode, addressForChange, addressForChangeHD, nSequence, memo, walletUseUnconfirmed, walletUseLegacy}}
+     * @type {{walletHash, privateKey, txHash, txInput, addressFrom, addressFromXpub, addressFromLegacy, addressFromLegacyXpub, addressTo, amount, feeForTx, currencyCode, addressForChange, addressForChangeHD, memo, walletAllowReplaceByFee, walletUseUnconfirmed, walletUseLegacy}}
      * @private
      */
     _logData = {}
 
     /**
-     * @type {{walletHash, derivePath, walletIsHd}}
+     * @type {{derivePath, walletIsHd}}
      * @private
      */
     _private = {}
@@ -47,16 +47,16 @@ class BlocksoftTransfer {
      */
     _privateCache = {}
 
-
     /**
      * @param {string} hash
      * @return {BlocksoftTransfer}
      */
     setWalletHash(hash) {
-        this._private.walletHash = hash
+        this._data.walletHash = hash
         this._private.walletIsHd = -1
         this._data.walletUseUnconfirmed = -1
         this._data.walletUseLegacy = -1
+        this._data.walletAllowReplaceByFee = -1
         this._data.privateKey = false
         return this
     }
@@ -66,10 +66,11 @@ class BlocksoftTransfer {
      * @return {BlocksoftTransfer}
      */
     setPrivateKey(key) {
-        this._private.walletHash = ''
+        this._data.walletHash = ''
         this._private.walletIsHd = -1
         this._data.walletUseUnconfirmed = -1
         this._data.walletUseLegacy = -1
+        this._data.walletAllowReplaceByFee = -1
         this._data.privateKey = key
         return this
     }
@@ -84,24 +85,26 @@ class BlocksoftTransfer {
     }
 
     async _initPrivate() {
-        if (!this._private.walletHash || !this._data.addressFrom) {
+        if (!this._data.walletHash || !this._data.addressFrom) {
             return false
         }
 
-        let mnemonic = this._privateCache[this._private.walletHash]
+        let mnemonic = this._privateCache[this._data.walletHash]
         if (!mnemonic) {
-            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(this._private.walletHash)
-            this._privateCache[this._private.walletHash] = mnemonic
+            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(this._data.walletHash)
+            this._privateCache[this._data.walletHash] = mnemonic
         }
         if (!mnemonic) {
-            throw new Error('no mnemonic for hash ' + this._private.walletHash)
+            throw new Error('no mnemonic for hash ' + this._data.walletHash)
         }
 
         let wallet = false
         if (this._data.walletUseUnconfirmed === -1 || this._data.walletUseLegacy === -1) {
-            wallet = await walletDS.getWalletByHash(this._private.walletHash)
+            wallet = await walletDS.getWalletByHash(this._data.walletHash)
             this._data.walletUseUnconfirmed = wallet.walletUseUnconfirmed > 0
             this._logData.walletUseUnconfirmed = wallet.walletUseUnconfirmed
+            this._data.walletAllowReplaceByFee = wallet.walletAllowReplaceByFee > 0
+            this._logData.walletAllowReplaceByFee = wallet.walletAllowReplaceByFee > 0
             this._data.walletUseLegacy = wallet.walletUseLegacy > 0
             this._logData.walletUseLegacy = wallet.walletUseLegacy
         }
@@ -112,14 +115,14 @@ class BlocksoftTransfer {
             const resultBtc = await BlocksoftPrivateKeysUtils.getPrivateKey({
                 mnemonic,
                 addressToCheck: false,
-                walletHash: this._private.walletHash,
+                walletHash: this._data.walletHash,
                 path: 'm/44' + this._private.derivePath.substr(4),
                 currencyCode: 'BTC'
             })
             const accountSegwit = {
                 mnemonic,
                 addressToCheck: false,
-                walletHash: this._private.walletHash,
+                walletHash: this._data.walletHash,
                 path: 'm/84' + this._private.derivePath.substr(4),
                 currencyCode: 'BTC_SEGWIT'
             }
@@ -143,17 +146,17 @@ class BlocksoftTransfer {
 
             if (this._private.walletIsHd === -1) {
                 if (!wallet) {
-                    wallet = await walletDS.getWalletByHash(this._private.walletHash)
+                    wallet = await walletDS.getWalletByHash(this._data.walletHash)
                 }
                 this._private.walletIsHd = wallet.walletIsHd > 0
             }
 
             if (this._private.walletIsHd) {
-                const xpubs = await walletPubDS.getOrGenerate({ walletHash: this._private.walletHash, currencyCode: 'BTC' })
+                const xpubs = await walletPubDS.getOrGenerate({ walletHash: this._data.walletHash, currencyCode: 'BTC' })
                 const code = this._data.walletUseLegacy > 0 ? 'btc.44' : 'btc.84'
                 let change = await accountHdDS.getAccountForChange({ walletPubId: xpubs[code].id })
                 if (!change) {
-                    await walletPubDS.discoverMoreAccounts({ currencyCode: 'BTC', walletHash: this._private.walletHash, needSegwit: true, needLegacy: false })
+                    await walletPubDS.discoverMoreAccounts({ currencyCode: 'BTC', walletHash: this._data.walletHash, needSegwit: true, needLegacy: false })
                     change = await accountHdDS.getAccountForChange({ walletPubId: xpubs[code].id })
                 }
                 if (change) {
@@ -162,23 +165,30 @@ class BlocksoftTransfer {
                 }
                 this._data.addressFromXpub = xpubs['btc.84'].walletPubValue
                 this._data.addressFromLegacyXpub = xpubs['btc.44'].walletPubValue
-                this._data.walletHash = this._private.walletHash
+                this._data.addressFromCompatibleXpub = ''
+                if (typeof xpubs['btc.49'] !== 'undefined') {
+                    this._data.addressFromCompatibleXpub = xpubs['btc.49'].walletPubValue
+                }
                 this._data.mnemonic = mnemonic
-                this._logData.addressFromXpub = this._data.addressFromXpub
-                this._logData.addressFromLegacyXpub = this._data.addressFromLegacyXpub
             } else {
                 this._data.addressFromXpub = false
                 this._data.addressFromLegacyXpub = false
+                this._data.addressFromCompatibleXpub = false
             }
 
             this._logData.addressFrom = this._data.addressFrom
             this._logData.addressFromLegacy = this._data.addressFromLegacy
+
+            this._logData.addressFromXpub = this._data.addressFromXpub
+            this._logData.addressFromLegacyXpub = this._data.addressFromLegacyXpub
+            this._logData.addressFromCompatibleXpub = this._data.addressFromCompatibleXpub
+
             BlocksoftCryptoLog.log('BlocksoftTransfer._initPrivate finished for BTC/USDT', this._logData)
         } else {
             const discoverFor = {
                 mnemonic,
                 addressToCheck: this._data.addressFrom,
-                walletHash: this._private.walletHash,
+                walletHash: this._data.walletHash,
                 path: this._private.derivePath,
                 currencyCode: this._data.currencyCode
             }
@@ -196,19 +206,29 @@ class BlocksoftTransfer {
      */
     setAddressFrom(address) {
         if (address === this._data.addressFromLegacy || address === this._data.addressFrom) {
+
+            this._data.txHash = false
+            this._logData.txHash = false
+            this._data.txInput = false
+            this._logData.txInput = false
+
             return this
         }
         this._data.txHash = false
         this._logData.txHash = false
+        this._data.txInput = false
+        this._logData.txInput = false
         this._data.addressFrom = address.trim()
         this._data.addressFromLegacy = false
         this._data.addressFromXpub = false
         this._data.addressFromLegacyXpub = false
+        this._data.addressFromCompatibleXpub = false
         this._data.addressForChangeHD = false
         this._logData.addressFrom = address.trim()
         this._logData.addressFromLegacy = false
         this._logData.addressFromXpub = false
         this._logData.addressFromLegacyXpub = false
+        this._logData.addressFromCompatibleXpub = false
         this._logData.addressForChangeHD = false
         return this
     }
@@ -230,7 +250,7 @@ class BlocksoftTransfer {
      */
     setMemo(memo) {
         this._data.memo = memo
-        this._logData.amount = memo
+        this._logData.memo = memo
         return this
     }
 
@@ -241,6 +261,16 @@ class BlocksoftTransfer {
     setTxHash(hash) {
         this._data.txHash = hash
         this._logData.txHash = hash
+        return this
+    }
+
+    /**
+     * @param {string} hash
+     * @return {BlocksoftTransfer}
+     */
+    setTxInput(hash) {
+        this._data.txInput = hash
+        this._logData.txInput = hash
         return this
     }
 
@@ -290,10 +320,21 @@ class BlocksoftTransfer {
 
     /**
      * @param jsonData
+     * @param secondData
      * @return {BlocksoftTransfer}
      */
-    setAdditional(jsonData) {
-        this._data.jsonData = jsonData
+    setAdditional(jsonData, secondData) {
+        this._data.jsonData = {}
+        if (typeof jsonData !== 'undefined' && jsonData && jsonData !== 'false') {
+            if (typeof jsonData === 'string') {
+                jsonData = JSON.parse(jsonData)
+            }
+            if (typeof secondData !== 'undefined' && secondData) {
+                this._data.jsonData = { ...jsonData, ...secondData }
+            }
+        } else {
+            this._data.jsonData = secondData
+        }
         return this
     }
 
@@ -304,32 +345,6 @@ class BlocksoftTransfer {
     setFee(feeForTx) {
         this._data.feeForTx = feeForTx
         this._logData.feeForTx = feeForTx
-        return this
-    }
-
-    /**
-     * @param {string|number|null} prevSequence
-     * @return {BlocksoftTransfer}
-     */
-    setSequence(prevSequence) {
-        if (typeof prevSequence === 'undefined') {
-            // noinspection JSValidateTypes
-            prevSequence = null
-        }
-
-        switch (prevSequence) {
-            case null:
-                this._data.nSequence = 0xffffffff
-                this._logData.nSequence = 0xffffffff
-                break
-            case 0xfffffffe:
-            case 0xffffffff:
-                break
-            default:
-                this._data.nSequence = prevSequence + 1
-                this._logData.nSequence = prevSequence + 1
-        }
-
         return this
     }
 
@@ -443,13 +458,12 @@ class BlocksoftTransfer {
      * @return {Promise<{hash, correctedAmountFrom}>}
      */
     async sendTx(uiErrorConfirmed = false) {
-        console.log('data', this._data)
         await this._initPrivate()
         const currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
-        if (!uiErrorConfirmed && typeof CACHE_DOUBLE_TO[currencyCode] !== 'undefined') {
+        if (!this._data.txHash && !uiErrorConfirmed && typeof CACHE_DOUBLE_TO[currencyCode] !== 'undefined') {
             if (CACHE_DOUBLE_TO[currencyCode].to === this._data.addressTo) {
                 const diff = new Date().getTime() - CACHE_DOUBLE_TO[currencyCode].time
                 if (diff < CACHE_VALID_TIME) {
@@ -479,8 +493,6 @@ class BlocksoftTransfer {
             }
             throw e
         }
-
-        this.setSequence(this._data.nSequence)
 
         return res
     }

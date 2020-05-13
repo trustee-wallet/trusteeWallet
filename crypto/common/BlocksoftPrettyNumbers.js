@@ -23,14 +23,14 @@ class BlocksoftPrettyNumbers {
     }
 
     /**
-     * @param {string} number
+     * @param {string|number} number
      * @return {string}
      */
     makePretty(number) {
         if (this._processorCode === 'USDT') {
             return number
         }
-        let str = number.toString()
+        const str = number.toString()
         if (str.indexOf('.') !== -1 || str.indexOf(',') !== -1) {
             number = str.split('.')[0]
         }

@@ -22,6 +22,7 @@ import io.invertase.firebase.storage.RNFirebaseStoragePackage;
 import io.invertase.firebase.database.RNFirebaseDatabasePackage;
 import io.invertase.firebase.fabric.crashlytics.RNFirebaseCrashlyticsPackage;
 import io.invertase.firebase.links.RNFirebaseLinksPackage;
+import java.security.Security;
 import android.webkit.WebView;
 
 public class MainApplication extends MultiDexApplication implements ReactApplication {
@@ -62,6 +63,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
   @Override
   public void onCreate() {
     super.onCreate();
+    Security.insertProviderAt(new org.conscrypt.OpenSSLProvider(), 1);
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this); // Remove this line if you don't want Flipper enabled
     WebView.setWebContentsDebuggingEnabled(true);

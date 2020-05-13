@@ -15,6 +15,9 @@ import Line from '../../elements/modal/Line'
 
 import { hideModal, showModal } from '../../../appstores/Stores/Modal/ModalActions'
 import { strings } from '../../../services/i18n'
+import { setQRConfig, setQRValue } from '../../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import NavStore from '../../navigation/NavStore'
+import AddressInput from '../../elements/Input'
 
 export default class InputModal extends Component {
 
@@ -33,22 +36,30 @@ export default class InputModal extends Component {
 
         const res = await this.cashBackInput.handleValidate()
 
-        if(cashBackLink === res.value) {
+        if (cashBackLink === res.value) {
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
                 title: strings('modal.exchange.sorry'),
-                description: strings('modal.cashBackLinkEqualModal.description'),
+                description: strings('modal.cashBackLinkEqualModal.description')
             })
             return
         }
 
-        if(res.status === 'success') {
+        if (res.status === 'success') {
             let cashBackParentToken = res.value.split('/')
             cashBackParentToken = cashBackParentToken[cashBackParentToken.length - 1]
-            if(callback) {
+            if (callback) {
                 callback(cashBackParentToken)
             }
+        }
+    }
+
+
+    componentDidMount() {
+        const { qrCashBackLink } = this.props.data
+        if (qrCashBackLink && this.cashBackInput) {
+            this.cashBackInput.handleInput(qrCashBackLink)
         }
     }
 
@@ -60,10 +71,10 @@ export default class InputModal extends Component {
             <Layout visible={show}>
                 <View>
                     <Title style={styles.title}>
-                        { title }
+                        {title}
                     </Title>
                     <Text style={styles.text}>
-                        { description }
+                        {description}
                     </Text>
                     <View style={{ height: 60, paddingHorizontal: 20 }}>
                         <Input
@@ -71,8 +82,16 @@ export default class InputModal extends Component {
                             id={'cashBackInput'}
                             name={strings('cashback.inputParentCashBackLink')}
                             paste={true}
+                            qr={true}
+                            qrCallback={() => {
+                                setQRConfig({
+                                    type: 'CASH_BACK_LINK'
+                                })
+                                this.handleHide()
+                                NavStore.goNext('QRCodeScannerScreen')
+                            }}
                             isCapitalize={false}
-                            type={'CASH_BACK_LINK'} />
+                            type={'CASH_BACK_LINK'}/>
                     </View>
                     <ButtonWrap>
                         <Button onPress={() => this.handleHide()}>

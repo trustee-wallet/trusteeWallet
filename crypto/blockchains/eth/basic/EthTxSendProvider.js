@@ -5,6 +5,7 @@ import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 
 const CACHE_NONCE = {}
+const LAST_SEND = {}
 
 export default class EthTxSendProvider {
     constructor(web3) {
@@ -17,6 +18,14 @@ export default class EthTxSendProvider {
      * @returns {Promise<{hash: string}>}
      */
     async send(tx, data) {
+        if (typeof LAST_SEND[data.addressFrom] !== 'undefined') {
+            const now = new Date().getTime()
+            const diff = now - LAST_SEND[data.addressFrom]
+            if (diff < 60000) {
+                tx.nonce = await this._getNonce(data.addressFrom)
+            }
+        }
+
         let result
 
         let steps = 0
@@ -25,7 +34,8 @@ export default class EthTxSendProvider {
         do {
             doStep = false
             try {
-                result = await this._innerSendTx(tx, data)
+                result = await this.innerSendTx(tx, data)
+                LAST_SEND[data.addressFrom] = new Date().getTime()
             } catch(e) {
                 if (steps > 3) {
                     throw e
@@ -50,9 +60,9 @@ export default class EthTxSendProvider {
         if (result && typeof result.hash !== 'undefined') {
             if (currentNonce !== false) {
                 CACHE_NONCE[data.addressFrom] = currentNonce
-                result.nonce = currentNonce
+                result.transactionJson = {nonce : currentNonce}
             } else {
-                result.nonce = BlocksoftUtils.hexToDecimal(tx.nonce)
+                result.transactionJson = {nonce : BlocksoftUtils.hexToDecimal(tx.nonce)}
                 delete CACHE_NONCE[data.addressFrom]
             }
         } else {
@@ -81,9 +91,8 @@ export default class EthTxSendProvider {
      * @param tx
      * @param data
      * @returns {Promise<{hash : string}>}
-     * @private
      */
-    async _innerSendTx(tx, data) {
+    async innerSendTx(tx, data) {
         BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx tx', tx)
         // noinspection JSUnresolvedVariable
         if (data.privateKey.substr(0,2) !== '0x') {

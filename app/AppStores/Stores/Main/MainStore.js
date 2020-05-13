@@ -8,6 +8,7 @@ const INITIAL_STATE = {
     selectedBasicCurrency : {},
     selectedAccount: {},
     loaderVisibility: false,
+    currentScreen : {}
 }
 
 const mainStoreReducer = (state = INITIAL_STATE, action) => {
@@ -41,6 +42,11 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
             return new Object({
                 ...state,
                 selectedBasicCurrency: action.selectedBasicCurrency
+            })
+        case 'SET_NAV_CURRENT_SCREEN':
+            return new Object({
+                ...state,
+                currentScreen: action.screen
             })
         case 'SET_LOADER_STATUS':
             return new Object({

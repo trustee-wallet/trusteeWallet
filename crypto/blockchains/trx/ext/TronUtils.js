@@ -1,5 +1,5 @@
 /**
- * @todo review
+ * @version 0.9
  */
 const elliptic = require('elliptic')
 const ec = new elliptic.ec('secp256k1')

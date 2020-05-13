@@ -131,7 +131,6 @@ class BlocksoftCryptoLog {
         if (config.debug.cryptoErrors || DEBUG) {
             console.log('==========CRPT ' + errorTitle + '==========')
             console.log(date + line)
-            console.log('errorObjectOrText', errorObjectOrText)
             if (errorObject2) {
                 console.log('error', errorObject2)
             }
@@ -219,7 +218,7 @@ class BlocksoftCryptoLog {
         let canSend = true
         const tmp = this.LOG_VERSION.split(' ')
         if (typeof tmp[1] !== 'undefined') {
-            const minVersion = await BlocksoftExternalSettings.get('minCryptoErrorsVersion')
+            const minVersion = await BlocksoftExternalSettings.get('minCryptoErrorsVersion', 'BlocksoftCryptoLog.error')
             if (minVersion * 1 > tmp[1] * 1) {
                 canSend = false
             }

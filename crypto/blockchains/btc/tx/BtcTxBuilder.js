@@ -3,6 +3,7 @@
  */
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftPrivateKeysUtils from '../../../common/BlocksoftPrivateKeysUtils'
+import BlocksoftUtils from '../../../common/BlocksoftUtils'
 
 const networksConstants = require('../../../common/ext/networks-constants')
 
@@ -15,6 +16,7 @@ export default class BtcTxBuilder {
         this._bitcoinNetwork = networksConstants[settings.network].network
         this.keyPair = {}
         this.p2wpkh = {}
+        this.p2sh = {}
     }
 
     /**
@@ -38,15 +40,24 @@ export default class BtcTxBuilder {
         }
         for (let i = 0, ic = inputs.length; i < ic; i++ ) {
             const input = inputs[i]
+            if (typeof input === 'undefined' || !input) {
+                throw new Error('nothing to discover in input ' + JSON.stringify(input))
+            }
+            if (typeof input.path === 'undefined' || !input.path) {
+                throw new Error('no path to discover in input ' + JSON.stringify(input))
+            }
             discoverFor.path = input.path
             discoverFor.addressToCheck = input.address
-            discoverFor.currencyCode = input.isSegwit ? 'BTC_SEGWIT' : 'BTC'
+            discoverFor.currencyCode = 'BTC'
+            if (input.isSegwit) {
+                discoverFor.currencyCode = 'BTC' + input.isSegwit
+            }
             const tmp = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor)
             this._getRawTxValidateKeyPair(tmp.privateKey, input.address, input.isSegwit)
         }
     }
 
-    _getRawTxValidateKeyPair(privateKey, addressFrom, isSegwit = true) {
+    _getRawTxValidateKeyPair(privateKey, addressFrom, isSegwit = false) {
         if (this.keyPair[addressFrom]) return true
         this.keyPair[addressFrom] = false
         if (!privateKey) {
@@ -55,7 +66,7 @@ export default class BtcTxBuilder {
         try {
             this.keyPair[addressFrom] = bitcoin.ECPair.fromWIF(privateKey, this._bitcoinNetwork)
             let address
-            if (isSegwit) {
+            if (isSegwit === '_SEGWIT') {
                 try {
                     this.p2wpkh[addressFrom] = bitcoin.payments.p2wpkh({
                         pubkey: this.keyPair[addressFrom].publicKey,
@@ -72,6 +83,20 @@ export default class BtcTxBuilder {
                     throw new Error('not valid segwit p2sh')
                 }
                 address = this.p2wpkh[addressFrom].address
+            } else if (isSegwit === '_SEGWIT_COMPATIBLE') {
+                try {
+                    this.p2wpkh[addressFrom] = bitcoin.payments.p2wpkh({ pubkey: this.keyPair[addressFrom].publicKey, network: this._bitcoinNetwork })
+                    this.p2sh[addressFrom] = bitcoin.payments.p2sh({ redeem: this.p2wpkh[addressFrom], network: this._bitcoinNetwork })
+                } catch (e) {
+                    e.message += ' in privateKey SegwitCompatible signature create'
+                    // noinspection ExceptionCaughtLocallyJS
+                    throw e
+                }
+                if (typeof this.p2sh[addressFrom].address === 'undefined') {
+                    // noinspection ExceptionCaughtLocallyJS
+                    throw new Error('not valid segwit compatible p2sh')
+                }
+                address = this.p2sh[addressFrom].address
             } else {
                 address = bitcoin.payments.p2pkh({
                     pubkey: this.keyPair[addressFrom].publicKey,
@@ -81,7 +106,7 @@ export default class BtcTxBuilder {
 
             if (address !== addressFrom) {
                 // noinspection ExceptionCaughtLocallyJS
-                throw new Error('not valid signing address ' + addressFrom + ' != ' + address)
+                throw new Error('not valid signing address ' + addressFrom + ' != ' + address + ' segwit type = ' + JSON.stringify(isSegwit))
             }
         } catch (e) {
             e.message += ' in privateKey BTC signature check '
@@ -92,13 +117,22 @@ export default class BtcTxBuilder {
     _getRawTxAddInput(txb, i, txId, vout, nSequence, address) {
         if (typeof (this.p2wpkh[address]) === 'undefined') {
             txb.addInput(txId, vout, nSequence)
-        } else {
+        } else if (typeof (this.p2sh[address]) === 'undefined') {
             txb.addInput(txId, vout, nSequence, this.p2wpkh[address].output)
+        } else {
+            txb.addInput(txId, vout, nSequence)
         }
     }
 
     _getRawTxSign(txb, i, value, address) {
-        txb.sign(i, this.keyPair[address], null, null, value)
+        if (typeof (this.p2wpkh[address]) === 'undefined') {
+            txb.sign(i, this.keyPair[address], null, null, value)
+        } else if (typeof (this.p2sh[address]) === 'undefined') {
+            txb.sign(i, this.keyPair[address], null, null, value)
+        } else {
+            txb.sign(i, this.keyPair[address], this.p2sh[address].redeem.output, null, value)
+        }
+
     }
 
     _getRawTxAddOutput(txb, to, amount) {
@@ -115,7 +149,10 @@ export default class BtcTxBuilder {
      * @param {string} data.privateKeyLegacy
      * @param {string} data.addressFromLegacy
      * @param {string} data.addressFromLegacyXpub
+     * @param {string} data.txAllowReplaceByFee
+     * @param {string} data.walletAllowReplaceByFee
      * @param {string} data.feeForTx.feeForByte
+     * @param {number} data.jsonData.nSequence
      * @param {number} data.nSequence
      * @param {string} preparedInputsOutputs.feeForByte
      * @param {string} preparedInputsOutputs.inputs[].txid
@@ -134,14 +171,37 @@ export default class BtcTxBuilder {
         if (typeof data.privateKey === 'undefined') {
             throw new Error('BtcTxBuilder.getRawTx requires privateKey')
         }
-        if (typeof data.nSequence === 'undefined') {
-            data.nSequence = 0xfffffffe
+
+        const MAX_SEQ = 4294967294 // 0xfffffffe // no replace by fee
+        const MIN_SEQ = 4294960000 // for RBF
+
+        if (typeof data.jsonData === 'undefined' || !data.jsonData || typeof data.jsonData.nSequence === 'undefined') {
+            if (data.walletAllowReplaceByFee) {
+                data.nSequence = MIN_SEQ
+                data.txAllowReplaceByFee = true
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx allow RBF ' + data.nSequence)
+            } else {
+                data.nSequence = MAX_SEQ
+                data.txAllowReplaceByFee = false
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx no RBF ' + data.nSequence)
+            }
+        } else {
+            data.nSequence = data.jsonData.nSequence*1 + 1
+            data.txAllowReplaceByFee = true
+
+            if (data.nSequence >= MAX_SEQ) {
+                data.nSequence = MAX_SEQ
+                data.txAllowReplaceByFee = false
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx no RBF by old nSeq ' + data.jsonData.nSequence + ' +1 => ' + data.nSequence)
+            } else {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx allow RBF by old nSeq ' + data.jsonData.nSequence + ' +1 => ' + data.nSequence)
+            }
         }
 
         if (data.addressFromXpub) {
             await this._getRawTxValidateKeyPairByInputs(data, preparedInputsOutputs.inputs)
         } else if (typeof data.privateKeyLegacy !== 'undefined') {
-            this._getRawTxValidateKeyPair(data.privateKey, data.addressFrom, true)
+            this._getRawTxValidateKeyPair(data.privateKey, data.addressFrom, '_SEGWIT')
             this._getRawTxValidateKeyPair(data.privateKeyLegacy, data.addressFromLegacy, false)
         } else {
             this._getRawTxValidateKeyPair(data.privateKey, data.addressFrom, false)
@@ -161,16 +221,28 @@ export default class BtcTxBuilder {
         const log = { inputs: [], outputs: [] }
         for (let i = 0, ic = preparedInputsOutputs.inputs.length; i < ic; i++) {
             const input = preparedInputsOutputs.inputs[i]
-            this._getRawTxAddInput(txb, i, input.txid, input.vout, data.nSequence, input.address)
-            log.inputs.push({ txid: input.txid, vout: input.vout, nSequence : data.nSequence })
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx input added', input)
+            const tmp = { txid: input.txid, vout: input.vout, nSequence: data.nSequence }
+            try {
+                this._getRawTxAddInput(txb, i, input.txid, input.vout, data.nSequence, input.address)
+                log.inputs.push(tmp)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx input added', input)
+            } catch (e) {
+                e.message = ' transaction BTC add input error: ' + e.message + ' ' + JSON.stringify(tmp)
+                throw e
+            }
         }
 
         let output
         for (output of preparedInputsOutputs.outputs) {
-            this._getRawTxAddOutput(txb, output.to, output.amount * 1, output)
-            log.outputs.push({ addressTo: output.to, amount: output.amount})
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx output added ', output )
+            const tmp = { addressTo: output.to, amount: output.amount}
+            try {
+                this._getRawTxAddOutput(txb, output.to, output.amount * 1, output)
+                log.outputs.push(tmp)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx output added ', output )
+            } catch (e) {
+                e.message = ' transaction BTC add output error: ' + e.message + ' ' + JSON.stringify(tmp)
+                throw e
+            }
         }
 
         for (let i = 0, ic = preparedInputsOutputs.inputs.length; i < ic; i++) {

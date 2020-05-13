@@ -320,6 +320,9 @@ class BlocksoftKeys {
         if (data.currencyCode === 'BTC_SEGWIT') {
             path = `m/84'/0'/0'`
             version = 0x04b24746 // https://github.com/satoshilabs/slips/blob/master/slip-0132.md
+        } else if (data.currencyCode === 'BTC_SEGWIT_COMPATIBLE') {
+            path = `m/49'/0'/0'`
+            version = 0x049d7cb2
         }
         BlocksoftCryptoLog.log('BlocksoftKeys.discoverXpub derive started ' + JSON.stringify(path))
         const rootWallet = root.derivePath(path)

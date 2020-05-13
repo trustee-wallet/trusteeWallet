@@ -12,7 +12,6 @@ import {
 } from 'react-native'
 
 import firebase from 'react-native-firebase'
-import QRCode from 'react-native-qrcode-svg'
 import Share from 'react-native-share'
 
 import Fontisto from 'react-native-vector-icons/Fontisto'
@@ -56,6 +55,7 @@ import UIDict from '../../services/UIDict/UIDict'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import prettyNumber from '../../services/UI/PrettyNumber/PrettyNumber'
 import AppSupport from '../../services/AppSupport/AppSupport'
+import QrCodeBox from '../../components/elements/QrCodeBox'
 
 let styles
 
@@ -77,18 +77,44 @@ class ReceiveScreen extends Component {
     }
 
     copyToClip = () => {
-        const { address } = this.props.account
+        const { settingAddressType } = this.state
 
-        copyToClipboard(address)
+        try {
+            let { address, legacyAddress, segwitAddress } = this.props.account
+            if (settingAddressType === 'legacy' && legacyAddress) {
+                address = legacyAddress
+            } else if (segwitAddress) {
+                address = segwitAddress
+            }
 
-        Toast.setMessage(strings('toast.copied')).show()
+            copyToClipboard(address)
+
+            Toast.setMessage(strings('toast.copied')).show()
+        } catch (e) {
+            Log.err('ReceiveScreen.copyToClip error', e.message)
+        }
+
+    }
+
+    getAddress = () => {
+        const { settingAddressType } = this.state
+        let { address, legacyAddress, segwitAddress } = this.props.account
+        if (settingAddressType === 'legacy' && legacyAddress) {
+            address = legacyAddress
+        } else if (segwitAddress) {
+            address = segwitAddress
+        }
+        Log.log('ReceiveScreen.getAddress ' + address, {address, legacyAddress, segwitAddress, settingAddressType})
+        return address
     }
 
     getAddressForQR = () => {
-        const { address, currencyCode } = this.props.account
         const { currencySymbol } = this.props.cryptoCurrency
+        const { currencyCode } = this.props.account
 
         try {
+
+            const address = this.getAddress()
 
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
             let linkForQR = ''
@@ -107,10 +133,9 @@ class ReceiveScreen extends Component {
             } else {
                 linkForQR = `${extend.currencyName.toLowerCase().replace(' ', '')}:${address}`
             }
-
             return linkForQR
         } catch (e) {
-            Log.err('CustomReceiveAmountModal/getDataForQR error', e.message)
+            Log.err('ReceiveScreen.getDataForQR error', e.message)
         }
 
     }
@@ -206,15 +231,16 @@ class ReceiveScreen extends Component {
                         type: 'CREATE_NEW_ORDER'
                     }
                 })
-        } catch {
+        } catch (e) {
+            // noinspection ES6MissingAwait
+            Log.err('ReceiveScreen.handleExchange error ' + e.message)
             setLoaderStatus(false)
         }
     }
 
     handleCustomReceiveAmount = () => {
-
         const { currencyCode, currencySymbol } = this.props.cryptoCurrency
-        const { address } = this.props.account
+        const address = this.getAddress()
 
         showModal({
             type: 'CUSTOM_RECEIVE_AMOUNT_MODAL',
@@ -228,21 +254,25 @@ class ReceiveScreen extends Component {
     }
 
     shareAddress = () => {
-        const { address } = this.props.account
+        const { currencySymbol } = this.props.cryptoCurrency
+
+        const address = this.getAddress()
 
         try {
             this.refSvg.toDataURL(async (data) => {
 
+                const message = `${currencySymbol}
+                ${address}`
                 if (Platform.OS === 'android') {
                     // noinspection ES6MissingAwait
-                    Share.open({ message: address, url: `data:image/png;base64,${data}` })
+                    Share.open({ message, url: `data:image/png;base64,${data}` })
                 } else {
 
                     const fs = new FileSystem()
 
                     await (fs.setFileEncoding('base64').setFileName('QR').setFileExtension('jpg')).writeFile(data)
                     // noinspection ES6MissingAwait
-                    Share.open({ message: address, url: await fs.getPathOrBase64() })
+                    Share.open({ message, url: await fs.getPathOrBase64() })
                 }
             })
         } catch (e) {
@@ -349,7 +379,7 @@ class ReceiveScreen extends Component {
         setLoaderStatus(true)
 
         try {
-            const { address } = this.props.account
+            const address = this.getAddress()
             const res = await walletHDActions.setSelectedAccountAsUsed(address)
             if (res) {
                 showModal({
@@ -383,6 +413,12 @@ class ReceiveScreen extends Component {
 
         const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? this.props.account.segwitAddress : this.props.account.legacyAddress
 
+        let platform = Platform.OS + ' v' + Platform.Version
+        platform = platform.toLowerCase()
+        let oldIos = false
+        if (platform.indexOf('ios v10.') === 0 || platform.indexOf('ios v9.') === 0) {
+            oldIos = true
+        }
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <Navigation
@@ -395,20 +431,24 @@ class ReceiveScreen extends Component {
                             <GradientView style={[styles.qr__content, currencyCode === 'BTC' && +btcShowTwoAddress ? null : { paddingTop: 22 }]}
                                           array={styles.qr__bg.array} start={styles.qr__bg.start}
                                           end={styles.qr__bg.end}>
-                                { currencyCode === 'BTC' && +btcShowTwoAddress ? this.renderSegWitLegacy() : null}
+                                {currencyCode === 'BTC' && +btcShowTwoAddress ? this.renderSegWitLegacy() : null}
                                 <TouchableOpacity style={{
                                     position: 'relative',
                                     paddingHorizontal: 20,
                                     alignItems: currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd ? 'flex-start' : 'center'
                                 }} onPress={() => this.copyToClip()}>
-                                    <QRCode
+                                    <QrCodeBox
                                         getRef={ref => this.refSvg = ref}
                                         value={this.getAddressForQR()}
                                         size={230}
                                         color='#404040'
                                         logo={qrLogo}
                                         logoSize={70}
-                                        logoBackgroundColor='transparent'/>
+                                        logoBackgroundColor='transparent'
+                                        onError={(e) => {
+                                            Log.err('ReceiveScreen QRCode error ' + e.message)
+                                        }}
+                                    />
                                     <View style={{ width: 200, marginTop: 20 }}>
                                         <LetterSpacing text={currencyCode === 'BTC' ? btcAddress : address} numberOfLines={2} containerStyle={{
                                             flexWrap: 'wrap',
@@ -425,13 +465,13 @@ class ReceiveScreen extends Component {
                                                 padding: 10
                                             }}>
                                                 <FontAwesome color="#F79E1B" size={20} name={'refresh'}/>
-                                            </TouchableOpacity> : <View style={{ position: 'absolute', bottom: 7, right: 18 }}><MaterialIcons color="#999999" size={14} name={"content-copy"} /></View>
+                                            </TouchableOpacity> : <View style={{ position: 'absolute', bottom: 7, right: 18 }}><MaterialIcons color="#999999" size={14} name={'content-copy'}/></View>
                                     }
                                 </TouchableOpacity>
                                 <View style={styles.line}>
                                     <View style={styles.line__item}/>
                                 </View>
-                                <View style={{
+                                {oldIos ? null : <View style={{
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                     justifyContent: 'space-between'
@@ -443,7 +483,7 @@ class ReceiveScreen extends Component {
                                                      title={strings('account.receiveScreen.receiveAmount')}
                                                      iconStyle={{ marginHorizontal: 3 }}/>
                                     </TouchableOpacity>
-                                </View>
+                                </View> }
                             </GradientView>
                             <View style={styles.qr__shadow}>
                                 <View

@@ -99,8 +99,11 @@ class BlocksoftUtils {
     }
 
     static toUnified(val, decimals = 8) {
-        if (typeof val === 'undefined' || val === 'undefined') {
+        if (typeof val === 'undefined' || val === 'undefined' || !val) {
             return 0
+        }
+        if (typeof val === 'object') {
+            val = val.toString()
         }
         if (typeof val === 'number') {
             val += ''
@@ -114,8 +117,10 @@ class BlocksoftUtils {
         for (let i = 0; i < till; i++) {
             added += '0'
         }
+        const parts = val.split('.')
         // noinspection JSUnresolvedVariable
-        return Web3.utils.fromWei(val + added, 'ether')
+        const tmp = parts[0] + added
+        return Web3.utils.fromWei(tmp, 'ether')
     }
 
     static fromUnified(val, decimals = 8) {

@@ -44,8 +44,18 @@ class QRCodeScannerScreen extends Component {
                 account: oldAccount,
                 cryptoCurrency: oldCurrency,
                 currencyCode,
-                type
+                type,
+                inputType
             } = this.props.qrCodeScanner.config
+
+            if (type === 'CASH_BACK_LINK') {
+                setSendData({
+                    isCashBackLink : true,
+                    qrCashBackLink : param.data
+                })
+                NavStore.goNext('CashbackScreen')
+                return
+            }
 
             const res = await decodeTransactionQrCode(param, currencyCode)
 
@@ -135,6 +145,12 @@ class QRCodeScannerScreen extends Component {
 
                 NavStore.goNext('SendScreen')
 
+            } else if (type === 'ADD_CUSTOM_TOKEN_SCANNER') {
+                setSendData({
+                    isToken : true,
+                    address: res.data.address || res.data.parsedUrl
+                })
+                NavStore.goNext('AddCustomTokenScreen')
             } else if (type === 'SEND_SCANNER') {
                 if (res.status === 'success' && res.data.currencyCode === currencyCode) {
 
@@ -145,6 +161,7 @@ class QRCodeScannerScreen extends Component {
 
                         account: oldAccount,
                         cryptoCurrency: oldCurrency,
+                        inputType,
 
                         comment: res.data.label,
                         description: strings('send.description'),
@@ -172,6 +189,7 @@ class QRCodeScannerScreen extends Component {
 
                         account: oldAccount,
                         cryptoCurrency: oldCurrency,
+                        inputType,
 
                         description: strings('send.description'),
                         useAllFunds: false

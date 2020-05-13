@@ -16,6 +16,7 @@ import firebase from 'react-native-firebase'
 
 import { strings, sublocale } from '../../services/i18n'
 import Log from '../../services/Log/Log'
+import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -58,8 +59,9 @@ class MainDataScreen extends Component {
 
                 this.setState({ orders: res })
             }
+            Log.log('Exchange.StartScreen.UNSAFE_componentWillMount res ' + res)
         } catch (e) {
-            Log.err('Exchange/StartScreen.UNSAFE_componentWillMount error ' + e.message)
+            Log.err('Exchange.StartScreen.UNSAFE_componentWillMount error ' + e.message)
         }
 
         this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
@@ -73,9 +75,21 @@ class MainDataScreen extends Component {
 
                     this.setState({ orders: res })
                 }
+
+                Log.log('Exchange.StartScreen.UNSAFE_componentWillMount didFocus res ' + res)
             } catch (e) {
-                Log.err('Exchange/StartScreen.UNSAFE_componentWillMount error ' + e.message)
+                Log.err('Exchange.StartScreen.UNSAFE_componentWillMount didFocus error ' + e.message)
             }
+        })
+    }
+
+    handleOpenLinkLongPress = async () => {
+        const res = await AsyncStorage.getItem('EXCHANGE_ORDERS')
+        showModal({
+            type: 'INFO_MODAL',
+            icon: 'INFO',
+            title: 'SYSTEM_LOG',
+            description: 'DATA: ' + res
         })
     }
 
@@ -115,9 +129,11 @@ class MainDataScreen extends Component {
                 <View style={styles.wrapper__content}>
                     <ScrollView>
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Text style={styles.title}>
-                                {strings('exchangeInit.ordersHistory')}
-                            </Text>
+                            <TouchableOpacity style={styles.title} onLongPress={() => this.handleOpenLinkLongPress()} delayLongPress={5000}>
+                                <Text>
+                                    {strings('exchangeInit.ordersHistory')}
+                                </Text>
+                            </TouchableOpacity>
                             <TouchableOpacity style={styles.addAsset} onPress={() => this.createNewOrder()}>
                                 <View style={styles.addAsset__content}>
                                     <Entypo style={styles.addAsset__icon} size={13} name="plus"/>

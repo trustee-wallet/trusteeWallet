@@ -166,34 +166,42 @@ class SettingsMainScreen extends Component {
                 .then((res) => {
                     setLoaderStatus(false)
                 })
-                .catch(err => {
+                .catch(e => {
                     setLoaderStatus(false)
 
-                    if (typeof (err.error) !== 'undefined' && err.error.indexOf('No Activity') !== -1) {
-                        showModal({
-                            type: 'INFO_MODAL',
-                            icon: false,
-                            title: 'Sorry...',
-                            description: 'No mail apps found'
-                        })
-                    } else {
-                        showModal({
-                            type: 'INFO_MODAL',
-                            icon: false,
-                            title: 'Sorry...',
-                            description: err.message
-                        })
+                    let text = e.message
+                    if (typeof (e.error) !== 'undefined' && e.error.indexOf('No Activity') !== -1) {
+                        text = strings('modal.walletLog.noMailApp')
                     }
+                    if (text.indexOf('User did not share') !== -1) {
+                        text = strings('modal.walletLog.notComplited')
+                    }
+                        showModal({
+                            type: 'INFO_MODAL',
+                            icon: false,
+                            title: strings('modal.walletLog.sorry'),
+                            description: text
+                        })
+
                 })
         }).catch(function(e) {
             setLoaderStatus(false)
-            Log.err('SettingsMain.handleLogs error ' + e.message)
-            BlocksoftCryptoLog.err('SettingsMain.handleLogs error ' + e.message)
+            let text = e.message
+            let log = e.message
+            if (typeof (e.error) !== 'undefined' && e.error.indexOf('No Activity') !== -1) {
+                text = strings('modal.walletLog.noMailApp')
+                log += ' ' + e.error
+            }
+            if (text.indexOf('User did not share') !== -1) {
+                text = strings('modal.walletLog.notComplited')
+            }
+            Log.err('SettingsMain.handleLogs error ' + log)
+            BlocksoftCryptoLog.err('SettingsMain.handleLogs error ' + log)
             showModal({
                 type: 'INFO_MODAL',
                 icon: false,
-                title: 'Sorry...',
-                description: e.message
+                title:  strings('modal.walletLog.sorry'),
+                description: text
             })
         })
     }
@@ -486,6 +494,7 @@ class SettingsMainScreen extends Component {
                                                 <MaterialIcon name="lock-question" size={20} style={styles.icon}/>
                                                 <View style={styles.block__item__content}>
                                                     <Text style={styles.block__text}>{strings('settings.security.askPINCodeToSend')}</Text>
+                                                    <Text style={styles.block__subtext}>{strings('settings.security.askPINCodeSubtitle')}</Text>
                                                 </View>
                                                 <Switch
                                                     style={styles.block__switch}
@@ -546,6 +555,17 @@ class SettingsMainScreen extends Component {
                                     <View style={styles.block__item__arrow}>
                                         <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
                                     </View>
+                                </TouchableOpacity>
+                                <View style={styles.divider}/>
+                                <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('AppNewsScreen')}>
+                                    <Icon name="info" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('settings.other.appnews')}</Text>
+                                    </View>
+                                    <Text style={styles.block__text__right}>
+                                        [{this.props.appNews.length > 0 ? this.props.appNews.length : 0}]
+                                    </Text>
+                                    <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
                                 </TouchableOpacity>
                                 <View style={styles.divider}/>
                                 <TouchableOpacity style={{ ...styles.block__item }} onPress={() => this.handleChangeLocalCurrency()}>
@@ -615,7 +635,8 @@ const mapStateToProps = (state) => {
     return {
         mainStore: state.mainStore,
         walletStore: state.walletStore,
-        settings: state.settingsStore
+        settings: state.settingsStore,
+        appNews: state.appNewsStore.appNews
     }
 }
 

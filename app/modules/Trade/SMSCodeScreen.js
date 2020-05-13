@@ -59,7 +59,7 @@ class SMSCodeScreen extends Component {
 
     async componentDidMount() {
 
-        Log.log('Exchange.SMSCodeScreen.componentDidMount started')
+        Log.log('Trade.SMSCodeScreen.componentDidMount started')
 
         const {
             cardNumber,
@@ -67,9 +67,9 @@ class SMSCodeScreen extends Component {
             uniqueParams
         } = this.props.exchange
 
-        const expirationDateTmp = typeof expirationDate != 'undefined' ? expirationDate.split('/') : null
-        const easybitsCardNumber = typeof cardNumber != 'undefined' ?  cardNumber.match(/.{1,4}/g) : null
-        let xPayCardNumber = typeof cardNumber != 'undefined' ?  cardNumber.match(/.{1,4}/g) : []
+        const expirationDateTmp = typeof expirationDate !== 'undefined' ? expirationDate.split('/') : null
+        const easybitsCardNumber = typeof cardNumber !== 'undefined' ? cardNumber.match(/.{1,4}/g) : null
+        let xPayCardNumber = typeof cardNumber !== 'undefined' ? cardNumber.match(/.{1,4}/g) : []
         xPayCardNumber = xPayCardNumber.join(' ')
 
         const phoneNumber = typeof uniqueParams !== 'undefined' && typeof uniqueParams.phone !== 'undefined' ? uniqueParams.phone : ''
@@ -85,6 +85,11 @@ class SMSCodeScreen extends Component {
             // var form = document.getElementsByTagName("form")[0];
             // document.getElementById(form.id).submit();
             scriptLoadEnd: `
+            try {
+              window.ReactNativeWebView.postMessage('WebView Loaded ' + window.location + ' webview ' +  document.body.innerHTML.toString().substr(0, 500));
+            } catch(error) {
+              window.ReactNativeWebView.postMessage('Debug Error ' + window.location + ' webview ' + error.toString());
+            }
             try {
                  
        
@@ -127,18 +132,24 @@ class SMSCodeScreen extends Component {
                      }*/
 
                      if((window.location.href).includes('cardgate.paycore.io')){
-                        
-                     
-                        var input1 = document.getElementsByName("number")[0];
-                        input1.disabled = true;
-                        var input2 = document.getElementsByName("date")[0];
-                        
-                        input1.value = '${xPayCardNumber.length ? xPayCardNumber.toString() : ''}';
-                        input2.value = '${expirationDateTmp !== null ? expirationDateTmp[0] : ''} / ${expirationDateTmp !== null ? expirationDateTmp[1] : ''}';
-                     
                         var ev = new Event('input');
-                        input1.dispatchEvent(ev);
-                        input2.dispatchEvent(ev);
+                        var input1 = document.getElementsByName("number")[0];
+                        if (typeof input1 !== 'undefined') {
+                          input1.disabled = true;
+                          input1.value = '${xPayCardNumber.length ? xPayCardNumber.toString() : ''}';
+                          input1.dispatchEvent(ev);
+                        } else {
+                          var s = document.createElement('h1');
+                          var agent = typeof window.navigator.userAgent !== 'undefined' ? window.navigator.userAgent : 'none';
+                          s.innerHTML = 'WebView need to be <a href="https://www.apkmirror.com/apk/google-inc/android-system-webview/">updated</a> as current version ' + agent + ' is not supported';
+                          document.body.appendChild(s);
+                          window.ReactNativeWebView.postMessage('WebView Agent Error ' + window.location + ' agent ' + agent);
+                        }
+                        var input2 = document.getElementsByName("date")[0];
+                        if (typeof input2 !== 'undefined') {
+                           input2.value = '${expirationDateTmp !== null ? expirationDateTmp[0] : ''} / ${expirationDateTmp !== null ? expirationDateTmp[1] : ''}';
+                           input2.dispatchEvent(ev);
+                        }
                      }
                      
                       if((window.location.href).includes('mapi.xpay.com.ua')){
@@ -256,7 +267,7 @@ class SMSCodeScreen extends Component {
                         typeof window != 'undefined' ? window.scrollTo( 0, 0 ) : null;
                      }, 2000);
                      
-                                           function findAndReplace(searchText, replacement, searchNode) {
+                     function findAndReplace(searchText, replacement, searchNode) {
                         if (!searchText || typeof replacement === 'undefined') {
                             // Throw error here if you want...
                             return;
@@ -324,7 +335,7 @@ class SMSCodeScreen extends Component {
                             //document.getElementById(form.id).submit();
                          }  
                  } catch(error) {
-
+                    window.ReactNativeWebView.postMessage('Inner Error ' + window.location + ' webview ' + error.toString());
                     true;
                  }
             `,
@@ -333,23 +344,27 @@ class SMSCodeScreen extends Component {
 
         this.handleStartAnimation()
 
-        Log.log('Exchange.SMSCodeScreen.componentDidMount created payin')
+        Log.log('Trade.SMSCodeScreen.componentDidMount created payin')
 
 
         const data = {
             link: this.props.exchange.link,
-            id: this.props.exchange.id,
+            id: this.props.exchange.id
         }
 
-        MarketingEvent.logEvent('exchange_main_screen_buy_goto', {link : data.link, id: data.id + ''})
+        MarketingEvent.logEvent('exchange_main_screen_buy_goto', { link: data.link, id: data.id + '' })
 
-        Log.log('Exchange.SMSCodeScreen.handleSubmit.BUY goto', data)
+        Log.log('Trade.SMSCodeScreen.handleSubmit.BUY goto', data)
         this.setState(data)
 
         try {
+            Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be created')
             setTimeout(() => {
+                Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be finished', this.state)
                 if (!this.state.url.includes('pay.receipt-pay.com/cards') && !this.state.url.includes('mapi.xpay.com') && !this.state.url.includes('easybits.io') && !this.state.url.includes('kuna.io/')) {
+                    Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be in1')
                     if (this.state.receiptPay) {
+                        Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be in2')
                         this.setState({
                             receiptPay: false,
                             status: 'success'
@@ -357,7 +372,9 @@ class SMSCodeScreen extends Component {
                     }
                 }
             }, 30000)
-        } catch(e) {}
+        } catch (e) {
+            Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 error ' + e.message)
+        }
     }
 
     handleWebViewNavigationStateChange = async newNavState => {
@@ -366,27 +383,34 @@ class SMSCodeScreen extends Component {
 
         if (!url) return
 
-        console.log('url')
-        console.log(url)
+        Log.log('Trade.SMSCodeScreen.handleWebViewNavigationStateChange url', url)
 
         this.setState({
             url
         })
 
-        Log.log('Exchange.SMSCodeScreen.handleWebViewNavigationStateChange started', url)
+        Log.log('Trade.SMSCodeScreen.handleWebViewNavigationStateChange started', url)
 
-        if(url.includes('acs') && url != 'about:blank'){
+        if (url.includes('acs') && url !== 'about:blank') {
+            Log.log('Trade.SMSCodeScreen.handleWebViewNavigationStateChange timeout0 will be created')
             this.setState({
                 status: 'pending'
             })
             setTimeout(() => {
+                Log.log('Trade.SMSCodeScreen.handleWebViewNavigationStateChange timeout0 finished', this.state)
                 this.setState({
                     status: 'success'
                 })
             }, 5000)
         }
 
-        if ((url.includes('pay.receipt-pay.com/cards') && url != 'about:blank') || (url.includes('cardgate.paycore.io') && url != 'about:blank') || (url.includes('mapi.xpay.com') && url != 'about:blank') || (url.includes('easybits.io') && url != 'about:blank')) {
+        if (
+            (url.includes('pay.receipt-pay.com/cards') && url !== 'about:blank')
+            || (url.includes('cardgate.paycore.io') && url !== 'about:blank')
+            || (url.includes('mapi.xpay.com') && url !== 'about:blank')
+            || (url.includes('easybits.io') && url !== 'about:blank')
+        ) {
+            Log.log('Trade.SMSCodeScreen.handleWebViewNavigationStateChange timeout1 will be created')
             setTimeout(() => {
                 if (this.state.receiptPay) {
                     this.setState({
@@ -398,8 +422,15 @@ class SMSCodeScreen extends Component {
         }
 
 
-        if ((url.includes('kuna.io/') || url.includes('cardgate.paycore.io/hpp/status') || url.includes('cb1.xpay.com.ua/') || (url.includes('trustee.deals') && !url.includes('redirectUrl=https://trustee.deals/') && !url.includes('successUrl=https://trustee.deals/')) || (url.includes('https://blocksoftlab.com/') && !url.includes('successUrl=https://blocksoftlab.com/') && !url.includes('redirectUrl=https://blocksoftlab.com/'))) && url != 'about:blank' && this.state.lastStep) {
-
+        if (
+            (
+                url.includes('kuna.io/') || url.includes('cardgate.paycore.io/hpp/status') || url.includes('cb1.xpay.com.ua/')
+                || (url.includes('trustee.deals') && !url.includes('redirectUrl=https://trustee.deals/') && !url.includes('successUrl=https://trustee.deals/'))
+                || (url.includes('https://blocksoftlab.com/') && !url.includes('successUrl=https://blocksoftlab.com/') && !url.includes('redirectUrl=https://blocksoftlab.com/'))
+            )
+            && url !== 'about:blank' && this.state.lastStep
+        ) {
+            Log.log('Trade.SMSCodeScreen.handleWebViewNavigationStateChange timeout2 will be created')
             this.handleStartAnimation()
 
             this.setState({
@@ -417,7 +448,7 @@ class SMSCodeScreen extends Component {
             //     const { data: res } = await axios.post(`${baseUrl}/get-payin-status`, data)
             //
             //
-            //     Log.log('Exchange.SMSCodeScreen.handleWebViewNavigationStateChange check', res.data)
+            //     Log.log('Trade.SMSCodeScreen.handleWebViewNavigationStateChange check', res.data)
             //
             //     if (res.data.status == 'failed') {
             //         NavStore.goNext('MainDataScreen')
@@ -447,23 +478,26 @@ class SMSCodeScreen extends Component {
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('Exchange.SMSCodeScreen')
-        Log.log(`Exchange.SMSCodeScreen is rendered`)
+        firebase.analytics().setCurrentScreen('Trade.SMSCodeScreen')
+        Log.log(`Trade.SMSCodeScreen is rendered`)
 
         const { scriptLoadEnd, status, link } = this.state
 
+        Log.log('Trade.SMSCodeScreen.link', link, status)
+
         return (
             <View style={{ ...styles.wrapper }}>
-                <Navigation />
+                <Navigation/>
                 <View style={styles.wrapper__content}>
                     {
-                        status != 'success' ?
+                        status !== 'success' ?
                             <View style={styles.img}>
                                 <LottieView style={{
                                     width: 200,
                                     height: 200,
                                     marginTop: -50
-                                }} source={require('../../assets/jsons/animations/loaderBlue.json')} progress={this.state.progress}/>
+                                }} source={require('../../assets/jsons/animations/loaderBlue.json')}
+                                            progress={this.state.progress}/>
                             </View> : null
                     }
                     <WebView
@@ -471,12 +505,35 @@ class SMSCodeScreen extends Component {
                         javaScriptEnabled={true}
                         onNavigationStateChange={this.handleWebViewNavigationStateChange}
                         source={{ uri: link }}
-                        style={{ flex: 1, maxHeight: status != 'success' ? 0 : 10000 }}
-                        onLoadEnd={() => this.webref.injectJavaScript(scriptLoadEnd)}
-                        onMessage={event => {
-
+                        style={{ flex: 1, maxHeight: status !== 'success' ? 0 : 10000 }}
+                        onLoadEnd={(e) => {
+                            Log.log('Trade.SMSCodeScreen.load end ' + e.nativeEvent.title + ' ' + e.nativeEvent.description)
+                            this.webref.injectJavaScript(scriptLoadEnd)
+                        }}
+                        renderError={(e) => {
+                            Log.log('Trade.SMSCodeScreen.render error ' + e)
+                        }}
+                        onError={(e) => {
+                            Log.log('Trade.SMSCodeScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.description)
+                        }}
+                        onHttpError={(e) => {
+                            Log.log('Trade.SMSCodeScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
+                        }}
+                        onMessage={(e) => {
+                            Log.log('Trade.SMSCodeScreen.on message ' + e.nativeEvent.data)
+                        }}
+                        onLoadProgress={(e) => {
+                            Log.log('Trade.SMSCodeScreen.on load progress ' + e.nativeEvent.title + ' ' + e.nativeEvent.progress)
+                        }}
+                        onContentProcessDidTerminate={(e) => {
+                            Log.log('Trade.SMSCodeScreen.on content terminate ' + e.nativeEvent.title)
+                        }}
+                        onShouldStartLoadWithRequest={(e) => {
+                            Log.log('Trade.SMSCodeScreen.on start load with request ' + e.navigationType);
+                            return true
                         }}
                         useWebKit={true}
+                        startInLoadingState={true}
                     />
                 </View>
             </View>

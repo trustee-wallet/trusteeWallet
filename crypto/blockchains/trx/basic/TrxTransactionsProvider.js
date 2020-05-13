@@ -59,7 +59,7 @@ export default class TrxTransactionsProvider {
             let txTokenName = '_'
             if (typeof tx.contractData === 'undefined') {
                 txTokenName = tokenName
-            }  else if (typeof tx.contractData.contract_address !== 'undefined') {
+            } else if (typeof tx.contractData.contract_address !== 'undefined') {
                 txTokenName = tx.contractData.contract_address
             } else if (typeof tx.contractData.asset_name !== 'undefined') {
                 txTokenName = tx.contractData.asset_name
@@ -70,6 +70,7 @@ export default class TrxTransactionsProvider {
             CACHE_OF_TRANSACTIONS[address][txTokenName].push(transaction)
         }
         return CACHE_OF_TRANSACTIONS[address][tokenName]
+
     }
 
     /**
@@ -90,6 +91,8 @@ export default class TrxTransactionsProvider {
      */
     async _unifyTransaction(address, transaction) {
         let transactionStatus = 'new'
+        const now = new Date().getTime()
+        transaction.diffSeconds = Math.round((now - transaction.timestamp) / 1000)
         if (transaction.confirmed) {
             if (typeof transaction.contractRet === 'undefined') {
                 transactionStatus = 'success'
@@ -99,7 +102,19 @@ export default class TrxTransactionsProvider {
                 transactionStatus = 'fail'
             }
         } else if (transaction.block > 0) {
-            transactionStatus = 'fail'
+            if (transaction.diffSeconds > 120) {
+                transactionStatus = 'fail'
+            } else {
+                transactionStatus = 'confirming'
+            }
+        }
+        if (transaction.block > this._lastBlock) {
+            this._lastBlock = transaction.block
+        }
+
+        let blockConfirmations = this._lastBlock - transaction.block
+        if (blockConfirmations > 100 && transaction.diffSeconds < 600) {
+            blockConfirmations = transaction.diffSeconds
         }
 
         if (typeof transaction.timestamp === 'undefined') {
@@ -125,19 +140,20 @@ export default class TrxTransactionsProvider {
             }
             return false
         }
-        return {
+        const res = {
             transactionHash: transaction.hash,
             blockHash: '',
             blockNumber: transaction.block,
             blockTime: formattedTime,
-            blockConfirmations: this._lastBlock - transaction.block,
+            blockConfirmations: blockConfirmations,
             transactionDirection: (address.toLowerCase() === transaction.ownerAddress.toLowerCase()) ? 'outcome' : 'income',
             addressFrom: (address.toLowerCase() === transaction.ownerAddress.toLowerCase()) ? '' : transaction.ownerAddress,
             addressTo: (address.toLowerCase() === transaction.toAddress.toLowerCase()) ? '' : transaction.toAddress,
             addressAmount: typeof transaction.contractData.amount !== 'undefined' ? transaction.contractData.amount : 0,
-            transactionStatus : transactionStatus,
+            transactionStatus: transactionStatus,
             transactionFee: 0,
             inputValue: transaction.data
         }
+        return res
     }
 }

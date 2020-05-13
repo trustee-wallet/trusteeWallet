@@ -16,8 +16,6 @@ import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
 
-let TREZOR_INDEX = 0
-
 export default class DogeUnspentsProvider {
     /**
      * @type {string}
@@ -42,17 +40,12 @@ export default class DogeUnspentsProvider {
     async getUnspents(address) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents started', address)
 
-        if (!this._trezorServer) {
-            this._trezorServer = await BlocksoftExternalSettings.get(this._trezorServerCode)
-        }
+        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'DOGE.Scanner._get')
 
-        const link = this._trezorServer[TREZOR_INDEX] + '/api/v2/utxo/' + address
+        const link = this._trezorServer + '/api/v2/utxo/' + address
         const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || typeof res.data === 'undefined') {
-            TREZOR_INDEX++
-            if (TREZOR_INDEX >= this._trezorServer.length) {
-                TREZOR_INDEX = 0
-            }
+            await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
             BlocksoftCryptoLog.err(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents nothing loaded for address ' + address + ' link ' + link)
             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
         }

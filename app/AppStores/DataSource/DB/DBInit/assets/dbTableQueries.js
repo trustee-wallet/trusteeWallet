@@ -105,6 +105,7 @@ export default {
                 balance_provider VARCHAR(256) NULL,
                 balance_scan_time INTEGER NOT NULL, 
                 balance_scan_log TEXT NULL,
+                balance_scan_block VARCHAR(32) NULL,
                 
                 status INTEGER NOT NULL,              
               
@@ -182,6 +183,7 @@ export default {
                 wallet_is_hd INTEGER NULL,
                 wallet_use_unconfirmed INTEGER NULL,
                 wallet_use_legacy INTEGER NULL,
+                wallet_allow_replace_by_fee INTEGER NULL,
                 
                 wallet_json TEXT NULL,
                 wallet_is_subscribed INTEGER NULL,
@@ -213,6 +215,7 @@ export default {
                 balance_provider VARCHAR(256) NULL,
                 balance_scan_time INTEGER NOT NULL,
                 balance_scan_log TEXT NULL,
+                balance_scan_block VARCHAR(32) NULL,
                              
                 transactions_scan_time INTEGER NULL,
                 transactions_scan_log TEXT NULL,
@@ -251,11 +254,13 @@ export default {
                 
                 transactions_scan_time INTEGER NULL,
                 transactions_scan_log TEXT NULL,
+                transactions_other_hashes TEXT NULL,
                 
                 lock_time DATETIME NULL,
                 block_time DATETIME NULL,
                 created_at DATETIME NULL,
-                updated_at DATETIME NULL
+                updated_at DATETIME NULL,
+                hidden_at DATETIME NULL
             )`
         },
         {

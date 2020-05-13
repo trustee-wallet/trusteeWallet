@@ -5,6 +5,9 @@ import Log from '../Log/Log'
 import BackgroundFetch from 'react-native-background-fetch'
 
 import updateAccountBalanceAndTransactionsDaemon from './elements/UpdateAccountBalanceAndTransactionsDaemon'
+import appNewsActions from '../../appstores/Stores/AppNews/AppNewsActions'
+import DBOpen from '../../appstores/DataSource/DB/DBOpen'
+import DBInit from '../../appstores/DataSource/DB/DBInit/DBInit'
 
 class BackgroundDaemon {
 
@@ -16,8 +19,10 @@ class BackgroundDaemon {
 
         console.log('BACKGROUND EVENT INIT')
         Log.daemon('BACKGROUND EVENT INIT')
-
+        await DBOpen.open()
+        await DBInit.init()
         await updateAccountBalanceAndTransactionsDaemon.updateAccountBalanceAndTransactions({ force: true, source: 'BACK' })
+        await appNewsActions.displayPush()
 
         console.log('BACKGROUND EVENT FINISH')
         Log.daemon('BACKGROUND EVENT FINISH')
@@ -26,6 +31,7 @@ class BackgroundDaemon {
     }
 
     init = () => {
+
         BackgroundFetch.configure({
             minimumFetchInterval: 1,     // <-- minutes (15 is minimum allowed)
             stopOnTerminate: false,
@@ -36,8 +42,8 @@ class BackgroundDaemon {
             requiresDeviceIdle: false,    // Default
             requiresBatteryNotLow: false, // Default
             requiresStorageNotLow: false  // Default
-        }, this.taskToRegister, (error) => {
-            console.log("[js] RNBackgroundFetch failed to start")
+        }, this.taskToRegister, (e) => {
+            Log.daemon('BackgroundDaemon denied' + e)
         })
 
         BackgroundFetch.status((status) => {

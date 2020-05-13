@@ -75,6 +75,22 @@
        "title": "Exchange for your own wallet?",
        "description1": "Wallet",
        "description2": "address"
+     },
+     "expiredModal" : {
+       "title" : "Expired",
+       "description" : "20-minute interval for creating a transaction expired, please, create new order"
+     },
+     "noAddressModal" : {
+       "title" : "External Asset",
+       "description" : "Your have selected asset not turned on in Trustee, please, turn it on or make transaction yourself"
+     },
+     "resendModal" : {
+       "title" : "Exchange not finished",
+       "description" : "Send transaction to this address?"
+     },
+     "waitConfirmModal" : {
+       "title" : "Exchange is almost finished",
+       "description" : "Transaction %{txHash} is already created, please, wait for network confirmations"
      }
    },
    "exchangeConfirmScreen": {
@@ -163,7 +179,8 @@
       "change": "Change PIN-code",
       "lock": "PIN-code",
       "touch": "FaceID/TouchID",
-      "askPINCodeToSend": "Ask when sending"
+      "askPINCodeToSend": "Ask confirmation",
+      "askPINCodeSubtitle": "When sending assets"
     },
     "assets": {
       "title": "Assets management",
@@ -175,6 +192,7 @@
       "supportSubtitle": "Our telegram support bot",
       "lock": "Lock screen",
       "bio": "Biometrics",
+      "appnews" : "Technical Messages",
       "about": "About Trustee",
       "lang": "Change language",
       "copyLogs": "Copy logs",
@@ -197,8 +215,11 @@
       "on": "On",
       "totalBalance": "Total balance",
       "useUnconfirmed": "Use unconfirmed transactions",
-      "useLegacy": "Use legacy address as main for change",
-      "showLegacy": "Show legacy",
+      "allowReplaceByFee" : "Edit the transaction before confirmation by miners",
+      "changeSetting" : "Collect Change to",
+      "useLegacy": "Use Legacy",
+      "useSegWit": "Use SegWit",
+      "showLegacy": "Show Legacy",
       "showSegWit": "Show SegWit",
       "accountSetting": "Account settings",
       "showSegWitAndLegacy": "Show SegWit and Legacy",
@@ -218,6 +239,11 @@
       "version": "Version",
       "privacy": "Privacy policy",
       "terms": "Terms of use"
+    },
+    "error": {
+      "title": "System Error",
+      "contactSupport": "Contact Support",
+      "tryAgain": "Reload"
     },
     "config": "Config changed to: %{config}",
     "tester": "Tester/user changed to: %{testerMode}"
@@ -267,9 +293,11 @@
       "pay": "Pay",
       "destinationTag": "Destination tag",
       "nonce": "Nonce",
+      "delegatedNonce": "Delegated Nonce",
       "empty": "(empty)",
       "fee": "Fee",
       "txHash": "Transaction hash",
+      "replacedTxHash": "Replaced hash",
       "from": "From",
       "to": "To",
       "status": "Status",
@@ -437,12 +465,16 @@
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
     "notEnough": "You don't have enough funds for send.",
     "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}",
+    "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations or turn on usage of unconfirmed transactions",
     "confirmModal": {
       "title": "Do you confirm sending?",
       "amount": "Amount",
       "recipient": "Recipient",
+      "change" : "Change %{amount} %{currencySymbol} will go to",
+      "rbf_on" : "Replace by Fee will be allowed",
       "edit": "Back",
-      "confirm": "Send"
+      "confirm": "Send",
+      "force" : "Do anyway?"
     },
     "fee": {
       "title": "Change fee",
@@ -535,10 +567,13 @@
     },
     "errors": {
       "UI_CONFIRM_DOUBLE_SEND" : "Transaction to this address has been already sent few moments ago, are you sure to repeat?",
+      "SERVER_RESPONSE_BAD_CODE" : "System error, please contact support for help",
       "SERVER_RESPONSE_BAD_INTERNET" : "No internet access",
+      "SERVER_RESPONSE_BAD_TX_TO_REPLACE" : "Transaction not found, could be internet problem or mempool delay",
       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Not enough balance in native coin %{symbol} to send",
       "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Not enough confirmed balance in native coin %{symbol} to send - please, wait for other transactions to be mined",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Transaction fee too small",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Transaction fee too small for replacement",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Transaction amount too small",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Nothing to transfer",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE" : "Nothing left to pay for delegated fee - please, use usual ERC20 transfer",
@@ -553,7 +588,9 @@
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP" : "Not enough amount - send 20 XRP or more to the destination address as it has no transactions yet",
       "SERVER_RESPONSE_TAG_NEEDED_XRP" : "Not valid destination tag - please, enter destination tag for correct transaction",
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT" : "Not enough balance on USDT bitcoin address - please, transfer some satoshis to this address",
-      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Server not accepting transaction - please, wait for other transactions to be mined or use usual ERC20 transfer"
+      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM" : "Not enough confirmed balance on USDT bitcoin address - please, wait a little bit or turn on usage of unconfirmed transactions",
+      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Server not accepting transaction - please, wait for other transactions to be mined or use usual ERC20 transfer",
+      "SERVER_RESPONSE_NO_SSL" : "SSL library not found - please, try to update the system"
     }
   },
   "walletBackup": {
@@ -657,7 +694,7 @@
     },
     "enterCashBackTokenLink": {
       "title": "Connect with Comrade!",
-      "description": "Please, enter the anonymous invitation link of the friend, who invited you to connect your anonymous wallet to his structure. Note that the operation cannot be undone or changed."
+      "description": "Please, enter the anonymous invitation link of the friend to connect your anonymous wallet to his structure. Note that the operation cannot be undone or changed."
     },
     "cashBackTokenLinkModal": {
       "success": {
@@ -671,7 +708,7 @@
       "title": "Wallet settings"
     },
     "sorryYourDeviceDoesntSupportModal": {
-      "description": "Sorry your phone doesn't support this feature"
+      "description": "Sorry your phone %{agent} doesn't support this feature"
     },
     "cryptocurrencySynchronizing": {
       "title": "Sorry...",
@@ -726,10 +763,10 @@
       "notAvailable": "Not available for purchase"
     },
     "disabledLockScreenModal": {
-      "description": "You have unbacked up wallets, so a pincode setup is not allowed."
+      "description": "You have unreserved wallets, so setting a PIN code is not allowed for the security of your assets."
     },
     "disabledSkipModal": {
-      "description": "You have a pincode, so you can't skip this step."
+      "description": "You have a PIN-code, so you can't skip this step."
     },
     "infoAddCustomAssetModal": {
       "success": {
@@ -810,6 +847,11 @@
       "txSuccess": "Your transaction has been successfully sent!",
       "fail": "Fail..."
     },
+    "walletLog" : {
+      "sorry" : "Sorry....",
+      "noMailApp" : "No mail apps found",
+      "notComplited" : "Please, select some channel to complete share"
+    },
     "walletBackup": {
       "success": "Success!",
       "seedConfirm": "Seed phrase was confirmed!",
@@ -868,6 +910,47 @@
         "title": "Hey, Friend!",
         "description": "Hold the button to switch between sell and buy crypto."
       }
+    }
+  },
+   "appNews" : {
+     "title" : "Technical messages",
+     "subtitle" : "All notifications and messages",
+     "clearAll" : "Clear All",
+     "newsNull" : "Nothing new in your wallet"
+
+   },
+  "pushNotifications":  {
+    "FOUND_OUT_TX_STATUS_FAIL": {
+      "title": "%{currencyName} outcoming transaction fail",
+      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol}, hash %{transactionHash}"
+    },
+    "FOUND_OUT_TX_STATUS_SUCCESS": {
+      "title": "%{currencyName} outcoming transaction mined",
+      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol}, hash %{transactionHash}"
+    },
+    "FOUND_OUT_TX_STATUS_CONFIRMING": {
+      "title": "%{currencyName} outcoming transaction confirming",
+      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol}, hash %{transactionHash}"
+    },
+    "FOUND_OUT_TX_STATUS_DELEGATED": {
+      "title": "%{currencyName} outcoming transaction delegated",
+      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol}, hash %{transactionHash}"
+    },
+    "FOUND_IN_TX": {
+      "title": "%{currencyName} incoming transaction",
+      "description": "%{walletName} got %{amountPretty} %{currencySymbol}, hash %{transactionHash}"
+    },
+    "DAEMON_HAS_FOUND_HD": {
+      "title": "%{currencyName} HD wallet found",
+      "description": "%{walletName} has used more than one address, so HD is turned on automatically"
+    },
+    "DAEMON_HAS_FOUND_BALANCE_NOT_ADDED": {
+      "title": "%{currencyName} not added, but has balance",
+      "description": "%{walletName} address %{address} has %{amountPretty} %{currencySymbol}"
+    },
+    "DAEMON_HAS_FOUND_BALANCE": {
+      "title": "%{currencyName} not shown, but has balance",
+      "description": "%{walletName} address %{address} has %{amountPretty} %{currencySymbol}"
     }
   },
   "currencyList": {

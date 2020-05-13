@@ -8,11 +8,15 @@ import firebase from 'react-native-firebase'
 
 import Navigation from '../../../components/navigation/Navigation'
 
-import { strings } from '../../../services/i18n'
+import i18n, { strings } from '../../../services/i18n'
 
 import TERMS_OF_USE_1 from '../../../../__terms__/TERMS_OF_USE_1'
 
 import TERMS_OF_USE_2 from '../../../../__terms__/TERMS_OF_USE_2'
+
+import TERMS_OF_USE_1_RU from '../../../../__terms__/TERMS_OF_USE_1_RU'
+
+import TERMS_OF_USE_2_RU from '../../../../__terms__/TERMS_OF_USE_2_RU'
 
 
 class TermsOfUseScreen extends Component {
@@ -20,6 +24,7 @@ class TermsOfUseScreen extends Component {
     render() {
         firebase.analytics().setCurrentScreen('Settings.TermsOfUseScreen')
 
+        const isRu = i18n.locale === 'ru-RU'
         return (
             <View style={styles.wrapper}>
                 <Navigation
@@ -30,13 +35,13 @@ class TermsOfUseScreen extends Component {
                     style={styles.wrapper__scrollView}>
                     <View style={styles.wrapper__content}>
                         <Text style={styles.title}>
-                            Terms of Use
+                            {strings('settings.about.terms')}
                         </Text>
                         <Text style={styles.text}>
-                            {TERMS_OF_USE_1}
+                            {isRu ? TERMS_OF_USE_1_RU : TERMS_OF_USE_1}
                         </Text>
                         <Text style={styles.text}>
-                            {TERMS_OF_USE_2}
+                            {isRu ? TERMS_OF_USE_2_RU : TERMS_OF_USE_2}
                         </Text>
                     </View>
                 </ScrollView>

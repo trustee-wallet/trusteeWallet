@@ -19,12 +19,16 @@ import GradientView from '../../../components/elements/GradientView'
 
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
-import { strings } from '../../../services/i18n'
+import i18n, { strings } from '../../../services/i18n'
 
 import PRIVACY_POLICY from '../../../../__terms__/PRIVACY_POLICY.js'
+import PRIVACY_POLICY_RU from '../../../../__terms__/PRIVACY_POLICY_RU.js'
 import TERMS_OF_USE_1 from '../../../../__terms__/TERMS_OF_USE_1.js'
 import TERMS_OF_USE_2 from '../../../../__terms__/TERMS_OF_USE_2.js'
+import TERMS_OF_USE_1_RU from '../../../../__terms__/TERMS_OF_USE_1_RU.js'
+import TERMS_OF_USE_2_RU from '../../../../__terms__/TERMS_OF_USE_2_RU.js'
 import DO_YOU_AGREE from '../../../../__terms__/DO_YOU_AGREE.js'
+import DO_YOU_AGREE_RU from '../../../../__terms__/DO_YOU_AGREE_RU.js'
 
 import Entypo from 'react-native-vector-icons/Entypo'
 
@@ -49,6 +53,8 @@ export class LicenseTermsModal extends Component {
     render() {
         const { show } = this.props
 
+        const isRu = i18n.locale === 'ru-RU'
+
         return (
             <Modal style={styles.modal} hasBackdrop={false} isVisible={show}>
                 <View style={styles.content}>
@@ -64,13 +70,13 @@ export class LicenseTermsModal extends Component {
                         </Text>
                         <ScrollView style={{ width: '100%', maxHeight: WINDOW_HEIGHT - 350 }}>
                             <Text style={styles.subtitle}>
-                                Terms of Use
+                                {strings('settings.about.terms')}
                             </Text>
                             <Text style={styles.text}>
-                                {TERMS_OF_USE_1}
+                                {isRu ? TERMS_OF_USE_1_RU : TERMS_OF_USE_1}
                             </Text>
                             <Text style={styles.text}>
-                                {TERMS_OF_USE_2}
+                                {isRu ? TERMS_OF_USE_2_RU : TERMS_OF_USE_2}
                             </Text>
                             <TouchableOpacity onPress={() => Linking.openURL(this.state.referralProgramLink)}>
                                 <Text style={styles.link}>
@@ -80,13 +86,13 @@ export class LicenseTermsModal extends Component {
                                 </Text>
                             </TouchableOpacity>
                             <Text style={styles.subtitle}>
-                                Privacy Policy
+                                {strings('settings.about.privacy')}
                             </Text>
                             <Text style={styles.text}>
-                                {PRIVACY_POLICY}
+                                {isRu ? PRIVACY_POLICY_RU : PRIVACY_POLICY}
                             </Text>
                             <Text style={styles.text}>
-                                {DO_YOU_AGREE}
+                                {isRu ? DO_YOU_AGREE_RU : DO_YOU_AGREE}
                             </Text>
                         </ScrollView>
                         {/*<View>*/}

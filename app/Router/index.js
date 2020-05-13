@@ -10,9 +10,16 @@ import Modal from '../components/modal/MainModal'
 import NavStore from '../components/navigation/NavStore.js'
 import Loader from '../components/elements/Loader'
 
+import Router from './Router'
+import ErrorBoundary from 'react-native-error-boundary'
+import ErrorScreen from './ErrorScreen'
+import Log from '../services/Log/Log'
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
-import Router from './Router'
+const myErrorHandler = (err) => {
+    Log.err('myErrorHandler error ' + err.message)
+}
 
 class MainStack extends Component {
 
@@ -32,17 +39,19 @@ class MainStack extends Component {
         // }
 
         return (
-            <View style={{ flex: 1 }}>
-                <Router
-                    //onNavigationStateChange={(prev, next) => NavStore.onNavigationStateChange(prev, next)}
-                    ref={(ref) => {
-                        NavStore.navigator = ref
-                    }}
-                />
-                <Modal/>
-                <StatusBar translucent={true} backgroundColor={'transparent'} barStyle="dark-content"/>
-                <Loader/>
-            </View>
+            <ErrorBoundary onError={myErrorHandler} FallbackComponent={ErrorScreen}>
+                <View style={{ flex: 1 }}>
+                    <Router
+                        // onNavigationStateChange={(prev, next) => NavStore.onNavigationStateChange(prev, next)}
+                        ref={(ref) => {
+                            NavStore.navigator = ref
+                        }}
+                    />
+                    <Modal/>
+                    <StatusBar translucent={true} backgroundColor={'transparent'} barStyle="dark-content"/>
+                    <Loader/>
+                </View>
+            </ErrorBoundary>
         )
     }
 }

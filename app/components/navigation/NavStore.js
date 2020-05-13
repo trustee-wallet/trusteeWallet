@@ -4,6 +4,7 @@
 import { NavigationActions, StackActions } from 'react-navigation'
 
 import navigationActions from '../../appstores/Stores/Navigation/NavigationActions'
+import { setCurrentScreen } from '../../appstores/Stores/Main/MainStoreActions'
 
 class ObservableNavStore {
     navigator = null
@@ -27,9 +28,19 @@ class ObservableNavStore {
     goBack = () => {
         try {
             this.navigator.dispatch(NavigationActions.back())
+            setCurrentScreen(this.getCurrentRoute())
         } catch (e) {
         }
     }
+
+    getCurrentRoute = () => {
+        let route = this.navigator.state.nav
+        while (route.routes) {
+            route = route.routes[route.index]
+        }
+        return route
+    }
+
 
     goNext = (routeName, params = null, reset = false) => {
         try {

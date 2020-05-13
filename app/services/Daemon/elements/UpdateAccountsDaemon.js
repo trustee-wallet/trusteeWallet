@@ -16,6 +16,7 @@ import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNum
 import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import DBInterface from '../../../appstores/DataSource/DB/DBInterface'
+import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
 
 const CACHE_WALLET_SUMS = {}
 const CACHE_WALLET_TOTAL = { balance: 0, unconfirmed: 0 }
@@ -56,12 +57,30 @@ class UpdateAccountsDaemon extends Update {
         return CACHE_RATES[currencyCode]
     }
 
-    getCacheAccount(walletHash, currencyCode) {
-        if (typeof CACHE_ALL_ACCOUNTS[walletHash] === 'undefined') {
-            return false
+    async _getFromDB(walletHash, currencyCode) {
+        const dbInterface = new DBInterface()
+        const sql = ` SELECT balance_fix AS balanceFix, balance_txt AS balanceTxt FROM account_balance   WHERE currency_code='${currencyCode}' AND wallet_hash='${walletHash}'`
+        const res = await dbInterface.setQueryString(sql).query()
+        if (!res || !res.array || res.array.length === 0) {
+            return {balance : 0}
         }
-        if (typeof  CACHE_ALL_ACCOUNTS[walletHash][currencyCode] === 'undefined') {
-            return false
+        let account
+        let totalBalance = 0
+        for (account of res.array) {
+            const balance = BlocksoftFixBalance(account, 'balance')
+            if (balance > 0) {
+                totalBalance += balance
+            }
+        }
+        return {balance : totalBalance}
+    }
+
+    async getCacheAccount(walletHash, currencyCode) {
+        if (typeof CACHE_ALL_ACCOUNTS[walletHash] === 'undefined') {
+            return this._getFromDB(walletHash, currencyCode)
+        }
+        if (typeof CACHE_ALL_ACCOUNTS[walletHash][currencyCode] === 'undefined') {
+            return this._getFromDB(walletHash, currencyCode)
         }
         return CACHE_ALL_ACCOUNTS[walletHash][currencyCode]
     }
@@ -115,14 +134,67 @@ class UpdateAccountsDaemon extends Update {
                     }
                     const pub = walletPub[tmpCurrency.walletHash]
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode] = tmpCurrency
-                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceScanTime = pub['btc.44'].balanceScanTime && pub['btc.84'].balanceScanTime ? Math.min(pub['btc.44'].balanceScanTime, pub['btc.84'].balanceScanTime) : 0
-                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].transactionsScanTime = pub['btc.44'].transactionsScanTime && pub['btc.84'].transactionsScanTime ? Math.min(pub['btc.44'].transactionsScanTime, pub['btc.84'].transactionsScanTime) : 0
-                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balance = BlocksoftUtils.add(pub['btc.44'].balance, pub['btc.84'].balance).toString()
-                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmed = BlocksoftUtils.add(pub['btc.44'].unconfirmed, pub['btc.84'].unconfirmed).toString()
+
+                    let tmpBalanceScanTime = 0
+                    let tmpTransactionsScanTime = 0
+                    let tmpBalance = 0
+                    let tmpUnconfirmed = 0
+                    let keys = ['btc.44', 'btc.49', 'btc.84']
+                    let tmpBalanceLog = ''
+                    for (let key of keys) {
+                        if (typeof pub[key] === 'undefined') {
+                            continue
+                        }
+                        if (tmpBalanceScanTime > 0) {
+                            if (pub[key].balanceScanTime * 1 > 0) {
+                                tmpBalanceScanTime = Math.min(tmpBalanceScanTime, pub[key].balanceScanTime)
+                            }
+                        } else {
+                            tmpBalanceScanTime = pub[key].balanceScanTime * 1
+                        }
+                        if (tmpTransactionsScanTime > 0) {
+                            if (pub[key].transactionsScanTime * 1 > 0) {
+                                tmpTransactionsScanTime = Math.min(tmpTransactionsScanTime, pub[key].transactionsScanTime)
+                            }
+                        } else {
+                            tmpTransactionsScanTime = pub[key].transactionsScanTime * 1
+                        }
+                        if (tmpBalance > 0) {
+                            if (pub[key].balance) {
+                                tmpBalance = BlocksoftUtils.add(tmpBalance, pub[key].balance)
+                                tmpBalanceLog += ' ' + pub[key].balance + '(' + key + ')'
+                            }
+                        } else {
+                            tmpBalance = pub[key].balance
+                            tmpBalanceLog = pub[key].balance + '(' + key + ')'
+                        }
+                        if (tmpUnconfirmed > 0) {
+                            if (pub[key].unconfirmed) {
+                                tmpUnconfirmed = BlocksoftUtils.add(tmpUnconfirmed, pub[key].unconfirmed)
+                            }
+                        } else {
+                            tmpUnconfirmed = pub[key].unconfirmed
+                        }
+                    }
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balance = tmpBalance
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmed = tmpUnconfirmed
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceTxt = ""
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceFix = ""
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmedTxt = ""
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmedFix = ""
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceAddingLog = tmpBalanceLog
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceScanTime = tmpBalanceScanTime
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].transactionsScanTime = tmpTransactionsScanTime
+
                 } else if (typeof reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode] !== 'undefined') {
                     if (typeof alreadyCounted[tmpCurrency.walletHash][tmpCurrency.currencyCode][tmpCurrency.address] === 'undefined') {
                         reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balance = BlocksoftUtils.add(reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balance, tmpCurrency.balance).toString()
                         reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmed = BlocksoftUtils.add(reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmed, tmpCurrency.unconfirmed).toString()
+                        reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceTxt = ""
+                        reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceFix = ""
+                        reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmedTxt = ""
+                        reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmedFix = ""
+                        reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceAddingLog += ' ' + tmpCurrency.balance + ' (' + tmpCurrency.address + ')'
                         alreadyCounted[tmpCurrency.walletHash][tmpCurrency.currencyCode][tmpCurrency.address] = 1
                     }
                     continue
@@ -130,6 +202,7 @@ class UpdateAccountsDaemon extends Update {
                     alreadyCounted[tmpCurrency.walletHash][tmpCurrency.currencyCode] = {}
                     alreadyCounted[tmpCurrency.walletHash][tmpCurrency.currencyCode][tmpCurrency.address] = 1
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode] = tmpCurrency
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceAddingLog = tmpCurrency.balance + ' (' +  tmpCurrency.address + ')'
                 }
             }
 

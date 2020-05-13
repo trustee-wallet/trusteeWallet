@@ -15,6 +15,7 @@ import accountDS from '../../../appstores/DataSource/Account/Account'
 
 import AccountTransactionsRecheck from './apputils/AccountTransactionsRecheck'
 import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
+import config from '../../../config/config'
 
 const CACHE_SCANNING = {}
 const CACHE_VALID_TIME = 60000 // 1 minute
@@ -59,17 +60,25 @@ export class UpdateAccountBalanceAndTransactions {
             }
         }
 
+        let tmpAction = ''
         try {
             const params = {
-                walletHash: await BlocksoftKeysStorage.getSelectedWallet(),
                 force
             }
-            if (typeof callParams.currencyCode !== 'undefined') {
+
+            if (source !== 'BACK') {
+                params.walletHash =  await BlocksoftKeysStorage.getSelectedWallet()
+            }
+
+            tmpAction = 'params init'
+            if (typeof callParams !== 'undefined' && callParams && typeof callParams.currencyCode !== 'undefined') {
                 params.currencyCode = callParams.currencyCode
             }
 
+
             Log.daemon('UpdateAccountBalance called ' + source, JSON.stringify(params))
 
+            tmpAction = 'accounts init'
             const accounts = await accountScanningDS.getAccountsForScan(params)
 
             if (!accounts || accounts.length === 0) {
@@ -77,20 +86,24 @@ export class UpdateAccountBalanceAndTransactions {
                 return false
             }
 
+            tmpAction = 'accounts log'
             let account
             for (account of accounts) {
                 Log.daemon('UpdateAccountBalance called - todo account ' + account.id + ' ' + account.currencyCode + ' ' + account.address)
             }
 
+            tmpAction = 'accounts run main'
             let running = 0
             for (account of accounts) {
                 if (typeof CACHE_CUSTOM_TIME[account.currencyCode] !== 'undefined') {
                     continue
                 }
+                tmpAction = 'account run ' + JSON.stringify(account)
                 await this._accountRun(account, source, CACHE_VALID_TIME)
                 running++
             }
 
+            tmpAction = 'accounts run custom'
             for (account of accounts) {
                 if (typeof CACHE_CUSTOM_TIME[account.currencyCode] !== 'undefined') {
                     // if its the only ones not updated - lets do them faster
@@ -101,7 +114,7 @@ export class UpdateAccountBalanceAndTransactions {
             CACHE_LAST_TIME = new Date().getTime()
 
         } catch (e) {
-            Log.errDaemon('UpdateAccountBalance balanceError ' + source + ' ' + e.message)
+            Log.errDaemon('UpdateAccountBalance balanceError ' + source + ' ' + e.message + ' ' + tmpAction)
         }
     }
 
@@ -141,14 +154,22 @@ export class UpdateAccountBalanceAndTransactions {
         const updateObj = {
             balanceScanTime: Math.round(new Date().getTime() / 1000)
         }
+        let continueWithTx = true
         if (newBalance) {
-            if (newBalance.balance * 1 !== account.balance * 1 || newBalance.unconfirmed * 1 !== account.unconfirmed * 1) {
+            if (typeof newBalance.balanceScanBlock !== 'undefined' && newBalance.balanceScanBlock * 1 < account.balanceScanBlock * 1 ) {
+                continueWithTx = false
+                updateObj.balanceProvider = newBalance.provider
+                updateObj.balanceScanLog = 'block error, ignored new ' + newBalance.balance + ' block ' + newBalance.balanceScanBlock + ', old balance ' + account.balance + ' block ' + account.balanceScanBlock
+            } else if (newBalance.balance * 1 !== account.balance * 1 || newBalance.unconfirmed * 1 !== account.unconfirmed * 1) {
                 updateObj.balanceFix = newBalance.balance // lets send to db totally not changed big number string
                 updateObj.balanceTxt = newBalance.balance // and string for any case
                 updateObj.unconfirmedFix = newBalance.unconfirmed || 0 // lets send to db totally not changed big number string
                 updateObj.unconfirmedTxt = newBalance.unconfirmed || '' // and string for any case
                 updateObj.balanceProvider = newBalance.provider
-                updateObj.balanceScanLog = 'all ok, new balance ' + newBalance.balance + ', old balance ' + account.balance + ', ' + balanceError + ' ' + updateObj.balanceScanLog
+                if (typeof newBalance.balanceScanBlock !== 'undefined') {
+                    updateObj.balanceScanBlock = newBalance.balanceScanBlock
+                }
+                updateObj.balanceScanLog = 'all ok, new balance ' + newBalance.balance + ', old balance ' + account.balance + ', ' + balanceError
 
                 const logData = {}
                 logData.walletHash = account.walletHash
@@ -162,15 +183,19 @@ export class UpdateAccountBalanceAndTransactions {
                 logData.newBalance = account.newBalance + ''
                 MarketingEvent.setBalance(logData.walletHash, logData.currency, logData.newBalance, logData)
             } else {
-                updateObj.balanceScanLog = 'not changed, old balance ' + account.balance + ', ' + balanceError + ' ' + updateObj.balanceScanLog
+                updateObj.balanceScanLog = 'not changed, old balance ' + account.balance + ', ' + balanceError
                 if (typeof newBalance.provider !== 'undefined') {
                     updateObj.balanceProvider = newBalance.provider
                 }
             }
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance okPrepared ' + account.currencyCode + ' ' + account.address + ' new balance ' + newBalance.balance + ' provider ' + newBalance.provider + ' old balance ' + account.balance, JSON.stringify(updateObj))
         } else {
-            updateObj.balanceScanLog = 'no balance, old balance ' + account.balance + ', ' + balanceError + ' ' + updateObj.balanceScanLog
+            updateObj.balanceScanLog = 'no balance, old balance ' + account.balance + ', ' + balanceError
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance notPrepared ' + account.currencyCode + ' ' + account.address + ' old balance ' + account.balance, JSON.stringify(updateObj))
+        }
+
+        if (account.balanceScanLog) {
+            updateObj.balanceScanLog += ' ' + account.balanceScanLog
         }
 
         try {
@@ -179,6 +204,10 @@ export class UpdateAccountBalanceAndTransactions {
         } catch (e) {
             e.message += ' while accountBalanceDS.updateAccountBalance'
             throw e
+        }
+
+        if (!continueWithTx) {
+            return true // balance error - tx will not be good also
         }
 
         let transactionsError = ' '
@@ -201,15 +230,26 @@ export class UpdateAccountBalanceAndTransactions {
                 transactionsError = ' found transactions ' + newTransactions.length
             }
         } catch (e) {
+            if (config.debug.appErrors) {
+                Log.errDaemon('UpdateAccountBalanceAndTransactions newTransactions something wrong ' + account.currencyCode + ' ' + account.address + ' => transactionsError ' + e.message)
+            }
             transactionsError = ' found transactionsError ' + e.message
         }
 
         Log.daemon('UpdateAccountBalanceAndTransactions newTransactions loaded ' + account.currencyCode + ' ' + addressToScan)
 
-        const transactionUpdateObj = await AccountTransactionsRecheck(newTransactions, account, source)
-
+        let transactionUpdateObj
         try {
-            transactionUpdateObj.transactionsScanLog += transactionsError
+            transactionUpdateObj = await AccountTransactionsRecheck(newTransactions, account, source)
+        } catch (e) {
+            e.message += ' while AccountTransactionsRecheck'
+            throw e
+        }
+        try {
+            transactionUpdateObj.transactionsScanLog = new Date().toISOString() + ' ' +  transactionsError + ', ' + transactionUpdateObj.transactionsScanLog
+            if (account.transactionsScanLog) {
+                transactionUpdateObj.transactionsScanLog += ' ' + account.transactionsScanLog
+            }
             await accountDS.updateAccount({ updateObj: transactionUpdateObj }, account)
         } catch (e) {
             e.message += ' while accountDS.updateAccount'

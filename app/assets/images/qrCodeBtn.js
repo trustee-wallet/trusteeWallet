@@ -1,7 +1,18 @@
-import React from "react"
-import Svg, { LinearGradient, Stop, Path } from "react-native-svg"
+import React from 'react'
+import Svg, { LinearGradient, Stop, Path } from 'react-native-svg'
+import { Image, Platform } from 'react-native'
 
 function SvgComponent(props) {
+	let platform = Platform.OS + ' v' + Platform.Version
+	platform = platform.toLowerCase()
+	if (platform.indexOf('ios v10.') === 0 || platform.indexOf('ios v9.') === 0) {
+		return (
+			<Image
+				width={24} height={24}
+				resizeMode='stretch'
+				source={require('../../assets/images/qrCodeBtn.png')}/>
+		)
+	}
 	return (
 		<Svg width={64} height={64} viewBox="0 0 64 64" {...props}>
 			<LinearGradient

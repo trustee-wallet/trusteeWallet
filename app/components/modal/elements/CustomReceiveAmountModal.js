@@ -6,7 +6,6 @@ import { View, TouchableOpacity, Dimensions, Text, Platform, ImageBackground, Sc
 
 import { connect } from 'react-redux'
 import Modal from 'react-native-modal'
-import QRCode from 'react-native-qrcode-svg'
 
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 
@@ -28,6 +27,7 @@ import FileSystem from '../../../services/FileSystem/FileSystem'
 import Fontisto from 'react-native-vector-icons/Fontisto'
 import qrLogo from '../../../assets/images/logoWithWhiteBG.png'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
+import QrCodeBox from '../../../components/elements/QrCodeBox'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -67,21 +67,22 @@ class CustomReceiveAmountModal extends Component {
     }
 
     handleShare = () => {
-        const { address } = this.props.mainStore.selectedAccount
-
+        const { address, currencySymbol } = this.props.data.data
         try {
             this.refSvg.toDataURL(async (data) => {
+                const message = `${currencySymbol}
+                ${address}`
 
                 if (Platform.OS === 'android') {
                     // noinspection ES6MissingAwait
-                    Share.open({ message: address, url: `data:image/png;base64,${data}` })
+                    Share.open({ message, url: `data:image/png;base64,${data}` })
                 } else {
 
                     const fs = new FileSystem()
 
                     await (fs.setFileEncoding('base64').setFileName('QR').setFileExtension('jpg')).writeFile(data)
                     // noinspection ES6MissingAwait
-                    Share.open({ message: address, url: await fs.getPathOrBase64() })
+                    Share.open({ message, url: await fs.getPathOrBase64() })
                 }
             })
         } catch (e) {
@@ -117,8 +118,6 @@ class CustomReceiveAmountModal extends Component {
     }
 
     createDataForQr = (amount, label) => {
-
-        console.log(amount, label)
 
         const tmpValue = normalizeWithDecimals(amount, 10)
 
@@ -255,12 +254,15 @@ class CustomReceiveAmountModal extends Component {
                                             <View style={{ width: '100%', height: 1, marginTop: -30, marginBottom: 10, backgroundColor: '#8e96b5' }} />
                                         </View>
                                         <View>
-                                            <QRCode
+                                            <QrCodeBox
                                                 getRef={ref => this.refSvg = ref}
                                                 size={140}
                                                 logo={qrLogo}
                                                 logoSize={30}
                                                 value={this.createDataForQr(this.state.amountForQr, this.state.labelForQr)}
+                                                onError={(e) => {
+                                                    Log.err('SendScreen QRCode error ' + e.message)
+                                                }}
                                             />
                                         </View>
                                     </View>
@@ -315,12 +317,15 @@ class CustomReceiveAmountModal extends Component {
                                     <View style={{ width: '100%', height: 1, marginTop: -30, marginBottom: 10, backgroundColor: '#8e96b5' }} />
                                 </View>
                                 <View>
-                                    <QRCode
+                                    <QrCodeBox
                                         getRef={ref => this.refSvg = ref}
                                         size={140}
                                         logo={qrLogo}
                                         logoSize={30}
                                         value={this.createDataForQr(this.state.amountForQr, this.state.labelForQr)}
+                                        onError={(e) => {
+                                            Log.err('SendScreen QRCode error2 ' + e.message)
+                                        }}
                                     />
                                 </View>
                             </View>

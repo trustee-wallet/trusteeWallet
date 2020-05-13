@@ -20,7 +20,7 @@ class Wallet extends Component {
 
     hideCommissionTrans = () => {
         const { walletHash, walletIsHideTransactionForFee } = this.props.wallet
-        walletActions.toggleWalletIsHideTransactionForFee({ walletHash, walletIsHideTransactionForFee })
+        walletActions.setUse({ walletHash, walletIsHideTransactionForFee : walletIsHideTransactionForFee > 0 ? 0 : 1 })
     }
 
     render() {

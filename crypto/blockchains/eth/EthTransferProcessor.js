@@ -43,6 +43,7 @@ export default class EthTransferProcessor extends EthBasic {
         if (typeof alreadyEstimatedGas === 'undefined' || !alreadyEstimatedGas) {
             try {
                 gasLimit = await EthEstimateGas(this._web3Link, gasPrice.price2, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
+                MarketingEvent.logOnlyRealTime('eth_gas_limit ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {amount : data.amount + '', gasLimit})
             } catch (e) {
                 e.message += ' in EthEstimateGas in getFeeRate'
                 throw e
@@ -148,9 +149,12 @@ export default class EthTransferProcessor extends EthBasic {
      * @param {string} data.feeForTx.feeForTx
      * @param {string} data.amount
      * @param {string} data.data
+     * @param {string} data.txHash
+     * @param {string} data.jsonData.nonce
      * @return {Promise<{hash}>}
      */
     async sendTx(data, forceCheckBalance) {
+        const txHash = data.txHash || false
         if (typeof data.privateKey === 'undefined') {
             throw new Error('ETH transaction required privateKey')
         }
@@ -158,9 +162,13 @@ export default class EthTransferProcessor extends EthBasic {
             throw new Error('ETH transaction required addressTo')
         }
 
-        BlocksoftCryptoLog.log('EthTxProcessor.sendTx started')
+        if (txHash) {
+            BlocksoftCryptoLog.log('EthTxProcessor.sendTx resend started ' + txHash)
+        } else {
+            BlocksoftCryptoLog.log('EthTxProcessor.sendTx started')
+        }
 
-        if (forceCheckBalance || this._checkBalance === true){
+        if (!txHash && (forceCheckBalance || this._checkBalance === true)) {
             // check usual
             let balance = '0'
             try {
@@ -225,18 +233,28 @@ export default class EthTransferProcessor extends EthBasic {
         const logData = tx
         let result = false
         try {
-            result = await sender.send(tx, data)
+            if (txHash) {
+                const nonce = data.jsonData.nonce || false
+                if (!nonce) {
+                    throw new Error('System error: no nonce for ' + txHash)
+                }
+                tx.nonce = nonce
+                result = await sender.innerSendTx(tx, data)
+                result.transactionJson = {nonce}
+            } else {
+                result = await sender.send(tx, data)
+            }
             BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sent ' + data.addressFrom + ' done with nonce ' + result.nonce)
         } catch (e) {
             delete (data.privateKey)
             logData.error = e.message
             // noinspection ES6MissingAwait
-            MarketingEvent.logOnlyRealTime('eth_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logData)
+            MarketingEvent.logOnlyRealTime('eth_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
             throw e
         }
         logData.result = result
         // noinspection ES6MissingAwait
-        MarketingEvent.logOnlyRealTime('eth_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logData)
+        MarketingEvent.logOnlyRealTime('eth_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
         return result
     }
 }

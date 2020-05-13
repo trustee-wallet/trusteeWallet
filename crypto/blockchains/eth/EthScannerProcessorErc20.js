@@ -34,6 +34,7 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
         try {
             let balance = 0
             let provider = ''
+            let time = 0
 
             const res = await this._get(address)
             if (!res || typeof res.data === 'undefined') return []
@@ -42,12 +43,14 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
 
             if (data && this._tokenAddress && typeof data.formattedTokens[this._tokenAddress] !== 'undefined' && typeof typeof data.formattedTokens[this._tokenAddress].balance !== 'undefined') {
                 balance = data.formattedTokens[this._tokenAddress].balance
-                provider = 'trezor'
-            } else {
-                balance = await this._token.methods.balanceOf(address).call()
-                provider = 'web3'
+                provider = res.provider
+                time = res.time
+                return { balance, unconfirmed : 0, provider, time, balanceScanBlock : res.data.nonce}
             }
-            return { balance, unconfirmed: 0, provider }
+            balance = await this._token.methods.balanceOf(address).call()
+            provider = 'web3'
+            time = 'now()'
+            return { balance, unconfirmed: 0, provider, time }
 
         } catch (e) {
             BlocksoftCryptoLog.log('EthScannerProcessorErc20.getBalance ' + this._settings.currencyCode + ' ' + address + ' error ' + e.message)

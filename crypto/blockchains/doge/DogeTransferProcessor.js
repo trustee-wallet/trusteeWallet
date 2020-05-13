@@ -83,18 +83,14 @@ export default class DogeTransferProcessor {
         this._initProviders()
         try {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getTransferPrecache ' + data.addressFrom + ' started')
-            const tmp = await Promise.all([
-                this.networkPrices.getNetworkPrices(12, this._settings.currencyCode),
-                this.unspentsProvider.getUnspents(data.addressFrom)
-            ])
-            this._precached.blocks_12 = tmp[0]
+            this._precached.blocks_12 = await this.networkPrices.getNetworkPrices(12, this._settings.currencyCode)
             this._precached.blocks_6 = await this.networkPrices.getNetworkPrices(6, this._settings.currencyCode)
             this._precached.blocks_2 = await this.networkPrices.getNetworkPrices(2, this._settings.currencyCode)
-            this._precached.unspents = tmp[1]
+            this._precached.unspents = await this.unspentsProvider.getUnspents(data.addressFrom)
             if (this._precached.unspents) {
                 if (this._precached.unspents.length > 1) {
                     this._precached.unspents.sort((a, b) => {
-                        return b.valueBN.sub(a.valueBN).toString() > 0
+                        return b.valueBN.sub(a.valueBN).toString()
                     })
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getTransferPrecache unspents sorted', this._precached.unspents)
                 } else {
@@ -103,7 +99,7 @@ export default class DogeTransferProcessor {
             }
             this._precached.unspentsAddress = data.addressFrom
             this._precached.time = new Date().getTime()
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getTransferPrecache finished', tmp)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getTransferPrecache finished')
         } catch (e) {
             if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
                 e.message += ' in getTransferPrecache'

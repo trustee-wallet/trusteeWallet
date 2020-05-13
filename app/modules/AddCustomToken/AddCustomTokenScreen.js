@@ -19,6 +19,7 @@ import Button from '../../components/elements/Button'
 import customCurrencyActions from '../../appstores/Actions/CustomCurrencyActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import { setQRConfig, setQRValue } from '../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import { strings } from '../../services/i18n'
 
@@ -26,13 +27,41 @@ import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import Log from '../../services/Log/Log'
 
 
+
 class AddCustomTokenScreen extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            tokenType: ''
+            tokenType: '',
+            init : false
         }
+        this.addressInput = React.createRef()
+    }
+
+    // eslint-disable-next-line camelcase
+    UNSAFE_componentWillMount() {
+        this.init()
+
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+            this.init()
+        })
+    }
+
+    init = async () => {
+        if (Object.keys(this.props.send.data).length !== 0) {
+            const {
+                isToken,
+                address
+            } = this.props.send.data
+
+            if (isToken) {
+                this.addressInput.handleInput(address)
+            }
+        }
+        this.setState({
+            init: true
+        })
     }
 
     addToken = async () => {
@@ -84,7 +113,7 @@ class AddCustomTokenScreen extends Component {
                 type: 'INFO_MODAL',
                 icon: 'INFO',
                 title: strings('modal.infoAddCustomAssetModal.catch.title'),
-                description: strings('modal.infoAddCustomAssetModal.catch.description')
+                description: e.message.indexOf('SERVER_RESPONSE_') === -1 ? strings('modal.infoAddCustomAssetModal.catch.description') : strings('send.errors.' + e.message)
             })
 
             setLoaderStatus(false)
@@ -164,6 +193,16 @@ class AddCustomTokenScreen extends Component {
                                     type={['ETH_ADDRESS', 'TRX_ADDRESS', 'TRX_TOKEN']}
                                     validPlaceholder={true}
                                     paste={true}
+                                    qr={true}
+                                    qrCallback={() => {
+                                        setQRConfig({
+                                            title: strings('modal.qrScanner.success.title'),
+                                            description: strings('modal.qrScanner.success.description'),
+                                            type: 'ADD_CUSTOM_TOKEN_SCANNER'
+                                        })
+                                        setQRValue('')
+                                        NavStore.goNext('QRCodeScannerScreen')
+                                    }}
                                 />
                             </View>
                         </View>
@@ -181,7 +220,8 @@ class AddCustomTokenScreen extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore
+        mainStore: state.mainStore,
+        send: state.sendStore
     }
 }
 

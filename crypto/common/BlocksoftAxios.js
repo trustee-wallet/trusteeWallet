@@ -3,9 +3,10 @@ import BlocksoftCryptoLog from './BlocksoftCryptoLog'
 import axios from 'axios'
 import config from '../../app/config/config'
 
+const CancelToken = axios.CancelToken
+
 const CACHE_ERRORS_VALID_TIME = 60000 // 1 minute
-const CACHE_ERRORS_BY_LINKS_TRY = {}
-const CACHE_ERRORS_BY_LINKS_TIME = {}
+const CACHE_ERRORS_BY_LINKS = {}
 
 const CACHE_STARTED = {}
 
@@ -17,65 +18,68 @@ class BlocksoftAxios {
      * @returns {Promise<boolean|{data:*}>}
      */
     async getWithoutBraking(link, maxTry = 5) {
-        let tmp
+        let tmp = false
         try {
+            BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' start ' + link)
             tmp = await this.get(link, false, false)
-            CACHE_ERRORS_BY_LINKS_TRY[link] = 0
-            CACHE_ERRORS_BY_LINKS_TIME[link] = 0
+            BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' success ' + link)
+            CACHE_ERRORS_BY_LINKS[link] = { time: 0, tries: 0 }
         } catch (e) {
             const now = new Date().getTime()
-            if (typeof CACHE_ERRORS_BY_LINKS_TRY[link] === 'undefined') {
+            if (typeof CACHE_ERRORS_BY_LINKS[link] === 'undefined') {
                 // first time
-                CACHE_ERRORS_BY_LINKS_TRY[link] = 1
+                CACHE_ERRORS_BY_LINKS[link] = { time: now, tries: 1 }
             } else if (
-                now - CACHE_ERRORS_BY_LINKS_TIME[link] < CACHE_ERRORS_VALID_TIME
+                now - CACHE_ERRORS_BY_LINKS[link].time < CACHE_ERRORS_VALID_TIME
             ) {
                 // no plus as too fast
             } else if (
-                CACHE_ERRORS_BY_LINKS_TRY[link] < maxTry
+                CACHE_ERRORS_BY_LINKS[link].tries < maxTry
             ) {
                 // plus as time passed
-                CACHE_ERRORS_BY_LINKS_TRY[link]++
+                CACHE_ERRORS_BY_LINKS[link].tries++
+                CACHE_ERRORS_BY_LINKS[link].time = now
             } else {
                 // only here will error actual
                 e.code = 'ERROR_PROVIDER'
-                CACHE_ERRORS_BY_LINKS_TIME[link] = now
+                CACHE_ERRORS_BY_LINKS[link].time = now
                 throw e
             }
-            CACHE_ERRORS_BY_LINKS_TIME[link] = now
-            BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + CACHE_ERRORS_BY_LINKS_TRY[link] + ' ' + e.message.substr(0, 200))
+            BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' error ' + e.message.substr(0, 200))
         }
+
         return tmp
     }
 
     async postWithoutBraking(link, data, maxTry = 5) {
-        let tmp
+        let tmp = false
         try {
+            BlocksoftCryptoLog.log('BlocksoftAxios.postWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' start ' + link)
             tmp = await this.post(link, data, false)
-            CACHE_ERRORS_BY_LINKS_TRY[link] = 0
-            CACHE_ERRORS_BY_LINKS_TIME[link] = 0
+            BlocksoftCryptoLog.log('BlocksoftAxios.postWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' success ' + link)
+            CACHE_ERRORS_BY_LINKS[link] = { time: 0, tries: 0 }
         } catch (e) {
             const now = new Date().getTime()
-            if (typeof CACHE_ERRORS_BY_LINKS_TRY[link] === 'undefined') {
+            if (typeof CACHE_ERRORS_BY_LINKS[link] === 'undefined') {
                 // first time
-                CACHE_ERRORS_BY_LINKS_TRY[link] = 1
+                CACHE_ERRORS_BY_LINKS[link] = { time: now, tries: 1 }
             } else if (
-                now - CACHE_ERRORS_BY_LINKS_TIME[link] < CACHE_ERRORS_VALID_TIME
+                now - CACHE_ERRORS_BY_LINKS[link].time < CACHE_ERRORS_VALID_TIME
             ) {
                 // no plus as too fast
             } else if (
-                CACHE_ERRORS_BY_LINKS_TRY[link] < maxTry
+                CACHE_ERRORS_BY_LINKS[link].tries < maxTry
             ) {
                 // plus as time passed
-                CACHE_ERRORS_BY_LINKS_TRY[link]++
+                CACHE_ERRORS_BY_LINKS[link].tries++
+                CACHE_ERRORS_BY_LINKS[link].time = now
             } else {
                 // only here will error actual
                 e.code = 'ERROR_PROVIDER'
-                CACHE_ERRORS_BY_LINKS_TIME[link] = now
+                CACHE_ERRORS_BY_LINKS[link].time = now
                 throw e
             }
-            CACHE_ERRORS_BY_LINKS_TIME[link] = now
-            BlocksoftCryptoLog.log('BlocksoftAxios.postWithoutBraking try ' + CACHE_ERRORS_BY_LINKS_TRY[link] + ' ' + e.message.substr(0, 200))
+            BlocksoftCryptoLog.log('BlocksoftAxios.postWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' error ' + e.message.substr(0, 200))
         }
         return tmp
     }
@@ -92,9 +96,27 @@ class BlocksoftAxios {
         let tmp
         try {
             // noinspection JSUnresolvedFunction
-            CACHE_STARTED[link] = new Date().getTime()
             const instance = axios.create()
-            instance.defaults.timeout = config.request.timeout
+
+            const cancelSource = CancelToken.source()
+            let timeOut = config.request.timeout
+            if (typeof CACHE_ERRORS_BY_LINKS[link] !== 'undefined') {
+                if (CACHE_ERRORS_BY_LINKS[link].tries > 2) {
+                    timeOut = Math.round(config.request.timeout / 10)
+                } else {
+                    timeOut = Math.round(config.request.timeout / 5)
+                }
+            }
+            if (link.indexOf('/fees') !== -1) {
+                timeOut = Math.round(timeOut / 10)
+            }
+            if (typeof CACHE_STARTED[link] !== 'undefined') {
+                BlocksoftCryptoLog.log('PREV CALL WILL BE CANCELED ' + JSON.stringify(CACHE_STARTED[link]))
+                await CACHE_STARTED[link].cancelSource.cancel('PREV CALL CANCELED ' + JSON.stringify(CACHE_STARTED[link]))
+            }
+            instance.defaults.timeout = timeOut
+            instance.defaults.cancelToken = cancelSource.token
+            CACHE_STARTED[link] = { time: new Date().getTime(), timeOut, cancelSource }
             BlocksoftCryptoLog.log('STARTED ' + JSON.stringify(CACHE_STARTED))
             if (method === 'get') {
                 tmp = await instance.get(link)
@@ -119,9 +141,9 @@ class BlocksoftAxios {
                 BlocksoftCryptoLog.log('FINISHED OK, LEFT ' + JSON.stringify(CACHE_STARTED))
             }
             if (txt.length > 100) {
-                BlocksoftCryptoLog.log(new Date().toISOString() + ' BlocksoftAxios.' + method + ' finish ' + link, txt) // separate line for txt
+                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' finish ' + link, txt) // separate line for txt
             } else {
-                BlocksoftCryptoLog.log(new Date().toISOString() + ' BlocksoftAxios.' + method + ' finish ' + link + ' ' + JSON.stringify(txt))
+                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' finish ' + link + ' ' + JSON.stringify(txt))
             }
 
         } catch (e) {
@@ -151,14 +173,19 @@ class BlocksoftAxios {
                 || e.message.indexOf('rate limit') !== -1
                 || e.message.indexOf('offline') !== -1
             ) {
-                // noinspection ES6MissingAwait
-                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link, e.message)
+                if (link.indexOf('trustee.deals') !== -1) {
+                    // noinspection ES6MissingAwait
+                    BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' NOTICE INNER CONNECTION ' + e.message)
+                } else {
+                    // noinspection ES6MissingAwait
+                    BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' NOTICE OUTER CONNECTION ' + e.message)
+                }
                 customError.code = 'ERROR_NOTICE'
             } else if (e.message.indexOf('request failed with status code 525') !== -1
                 || e.message.indexOf('api calls limits have been reached') !== -1
                 || e.message.indexOf('loudflare') !== -1) {
                 // noinspection ES6MissingAwait
-                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link, e.message)
+                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' NOTICE TOO MUCH ' + e.message)
                 customError.code = 'ERROR_NOTICE'
             } else if (link.indexOf('/api/v2/sendtx/') !== -1) {
                 // noinspection ES6MissingAwait

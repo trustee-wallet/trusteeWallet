@@ -6,8 +6,6 @@ import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
 
-let TREZOR_INDEX = 0
-
 export default class DogeSendProvider {
     /**
      * @type {string}
@@ -38,11 +36,9 @@ export default class DogeSendProvider {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' started ' + subtitle)
 
 
-        if (!this._trezorServer) {
-            this._trezorServer = await BlocksoftExternalSettings.get(this._trezorServerCode)
-        }
+        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'DOGE.Send.sendTx')
 
-        const link = this._trezorServer[TREZOR_INDEX] + '/api/v2/sendtx/'
+        const link = this._trezorServer + '/api/v2/sendtx/'
         let res
         try {
             res = await BlocksoftAxios.post(link, hex)
@@ -54,10 +50,7 @@ export default class DogeSendProvider {
             } else if (e.message.indexOf('min relay fee not met') !== -1 || e.message.indexOf('fee for relay') !== -1 || e.message.indexOf('insufficient priority') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
             } else {
-                TREZOR_INDEX++
-                if (TREZOR_INDEX >= this._trezorServer.length) {
-                    TREZOR_INDEX = 0
-                }
+                await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
                 e.message += ' link: ' + link
                 throw e
             }

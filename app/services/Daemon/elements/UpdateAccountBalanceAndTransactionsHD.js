@@ -46,8 +46,10 @@ class UpdateAccountBalanceAndTransactionsHD {
 
         try {
             const params = {
-                walletHash: await BlocksoftKeysStorage.getSelectedWallet(),
                 force
+            }
+            if (source !== 'BACK') {
+                params.walletHash =  await BlocksoftKeysStorage.getSelectedWallet()
             }
 
             Log.daemon('UpdateAccountBalanceHD called ' + source, JSON.stringify(params))
@@ -118,7 +120,7 @@ class UpdateAccountBalanceAndTransactionsHD {
                 updateObj.unconfirmedFix = newBalance.unconfirmed || 0 // lets send to db totally not changed big number string
                 updateObj.unconfirmedTxt = newBalance.unconfirmed || '' // and string for any case
                 updateObj.balanceProvider = newBalance.provider
-                updateObj.balanceScanLog = 'all ok, new balance ' + newBalance.balance + ', old balance ' + walletPub.balance + ', ' + balanceError + ' ' + updateObj.balanceScanLog
+                updateObj.balanceScanLog = 'all ok, new balance ' + newBalance.balance + ', old balance ' + walletPub.balance + ', ' + balanceError
 
                 const logData = {}
                 logData.walletHash = walletPub.walletHash
@@ -132,19 +134,22 @@ class UpdateAccountBalanceAndTransactionsHD {
                 logData.newBalance = walletPub.newBalance + ''
                 MarketingEvent.setBalance(logData.walletHash, logData.currency, logData.newBalance, logData)
             } else {
-                updateObj.balanceScanLog = 'not changed, old balance ' + walletPub.balance + ', ' + balanceError + ' ' + updateObj.balanceScanLog
+                updateObj.balanceScanLog = 'not changed, old balance ' + walletPub.balance + ', ' + balanceError
                 if (typeof newBalance.provider !== 'undefined') {
                     updateObj.balanceProvider = newBalance.provider
                 }
             }
             Log.daemon('UpdateAccountBalanceAndTransactionsHD newBalance okPrepared ' +  walletPub.currencyCode + ' ' + walletPub.walletPubValue + ' new balance ' + newBalance.balance + ' provider ' + newBalance.provider + ' old balance ' + walletPub.balance, JSON.stringify(updateObj))
         } else {
-            updateObj.balanceScanLog = 'no balance, old balance ' + walletPub.balance + ', ' + balanceError + ' ' + updateObj.balanceScanLog
+            updateObj.balanceScanLog = 'no balance, old balance ' + walletPub.balance + ', ' + balanceError
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance notPrepared ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue + ' old balance ' + walletPub.balance, JSON.stringify(updateObj))
         }
 
         try {
-            updateObj.balanceScanLog = new Date().toISOString() + ' ' + updateObj.balanceScanLog.substr(0, 1000)
+            updateObj.balanceScanLog = new Date().toISOString() + ' ' + updateObj.balanceScanLog
+            if (walletPub.balanceScanLog) {
+                updateObj.balanceScanLog += ' ' + walletPub.balanceScanLog.substr(0, 1000)
+            }
             await walletPubScanningDS.updateBalance({ updateObj }, walletPub)
         } catch (e) {
             e.message += ' while accountBalanceDS.updateAccountBalance'
@@ -213,7 +218,10 @@ class UpdateAccountBalanceAndTransactionsHD {
         const transactionUpdateObj = await AccountTransactionsRecheck(newTransactions, walletPub, source)
 
         try {
-            transactionUpdateObj.transactionsScanLog += transactionsError
+            transactionUpdateObj.transactionsScanLog = new Date().toISOString() + ' ' +  transactionsError + ' ' + transactionUpdateObj.transactionsScanLog
+            if (walletPub.transactionsScanLog) {
+                transactionUpdateObj.transactionsScanLog += ' ' + walletPub.transactionsScanLog
+            }
             await walletPubScanningDS.updateTransactions({ updateObj: transactionUpdateObj }, walletPub)
         } catch (e) {
             e.message += ' while walletPubScanningDS.updateWalletPub'

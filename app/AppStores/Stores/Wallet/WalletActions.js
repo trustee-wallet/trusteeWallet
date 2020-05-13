@@ -41,19 +41,6 @@ const walletActions = {
     /**
      * @param {string} wallet.walletHash
      * @param {string} wallet.walletIsHideTransactionForFee
-     * @returns {Promise<void>}
-     */
-    toggleWalletIsHideTransactionForFee: async (wallet) => {
-        await walletDS.toggleWalletIsHideTransactionForFee(wallet)
-
-        await walletActions.setAvailableWallets()
-
-        await setSelectedWallet()
-    },
-
-
-    /**
-     * @param {string} wallet.walletHash
      * @param {string} wallet.walletUseUnconfirmed
      * @param {string} wallet.walletUseLegacy
      * @returns {Promise<void>}
@@ -74,6 +61,7 @@ const walletActions = {
         await App.refreshWalletsStore()
 
     },
+
     getNewWalletName: async () => {
         const wallets = await walletDS.getWallets()
 

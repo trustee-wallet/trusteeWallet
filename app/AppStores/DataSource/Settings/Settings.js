@@ -21,8 +21,9 @@ class Settings {
             SET paramValue='${paramValue}'
             WHERE paramKey='${paramKey}';
         )`).query()
-        if(!updateRes.rowsAffected)
+        if(!updateRes.rowsAffected) {
             await dbInterface.setQueryString(`INSERT INTO settings ([paramKey], [paramValue]) VALUES ('${paramKey}', '${paramValue}')`).query()
+        }
 
         Log.log('DS/Settings setSettings finished')
     }
@@ -37,10 +38,24 @@ class Settings {
 
         Log.log('DS/Settings getSettings finished')
 
-        let tmps = res.array
-        for (let tmp of tmps) {
+        const tmps = res.array
+        const unique = {}
+        let tmp
+        for (tmp of tmps) {
+            unique[tmp.paramKey] = tmp.id
             tmp.paramValue = dbInterface.unEscapeString(tmp.paramValue)
         }
+
+        const toRemove = []
+        for (tmp of tmps) {
+            if (unique[tmp.paramKey] !== tmp.id) {
+                toRemove.push(tmp.id)
+            }
+        }
+        if (toRemove && toRemove.length > 0) {
+            await dbInterface.setQueryString(`DELETE FROM settings WHERE id IN (${toRemove.join(',')})`).query()
+        }
+
         return tmps
     }
 

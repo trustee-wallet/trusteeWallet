@@ -42,7 +42,7 @@ const walletHDActions = {
         await accountDS.massUpdateAccount(`address='${address}'`, 'already_shown=2')
         const account = store.getState().mainStore.selectedAccount
         if (account) {
-            if (account.address === address) {
+            if (account.address === address || account.legacyAddress === address || account.segwitAddress === address) {
                 await setSelectedAccount()
             }
         }
