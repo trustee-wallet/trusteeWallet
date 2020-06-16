@@ -52,7 +52,6 @@ Build preparation
 ```
 cd ./trusteeWallet
 npm install
-python ./__hacks__/makeX.py
 rm -f shim.js
 ./node_modules/.bin/rn-nodeify --hack --install
 ```
