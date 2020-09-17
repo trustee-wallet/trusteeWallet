@@ -27,6 +27,7 @@ import LoadScreen from '../modules/Load/LoadScreen'
 import LockScreen from '../modules/LockScreen/LockScreen'
 
 import AboutScreen from '../modules/About/AboutScreen'
+import FIOScreen from '../modules/FIO/FIOScreen'
 import AccountScreen from '../modules/Account/AccountScreen'
 import ReceiveScreen from '../modules/Account/ReceiveScreen'
 import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
@@ -51,6 +52,13 @@ const MainNavigator = createStackNavigator({
 
         SendScreen: {
             screen: SendScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        FIOScreen: {
+            screen: FIOScreen,
             navigationOptions: {
                 headerShown: false
             }

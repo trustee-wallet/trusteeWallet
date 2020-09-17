@@ -25,6 +25,8 @@ import SendActions from '../../appstores/Stores/Send/SendActions'
 import Theme from '../../themes/Themes'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 
+import Button from '../../components/elements/Button'
+
 let styles
 
 
@@ -166,13 +168,21 @@ class HomeScreen extends Component {
                                 />
                             }>
                             <WalletInfo/>
+
+                            <View style={{ flex: 1, padding: 30, backgroundColor: '#f5f5f5' }}>
+                                <Button press={() =>  NavStore.goNext('FIOScreen')}>
+                                    go to FIO screen 3
+                                </Button>
+                            </View>
+
+                            
                             <View style={{ flex: 1, paddingBottom: 30, backgroundColor: '#f5f5f5' }}>
-                                <Text style={{
-                                    marginLeft: 31,
-                                    fontFamily: 'Montserrat-Bold',
-                                    color: '#404040',
-                                    fontSize: 14
-                                }}>{strings('homeScreen.assets')}</Text>
+                                    <Text style={{
+                                        marginLeft: 31,
+                                        fontFamily: 'Montserrat-Bold',
+                                        color: '#404040',
+                                        fontSize: 14
+                                    }}>{strings('homeScreen.assets')}</Text>
                                 <View style={styles.cryptoList}>
                                     {
                                         cryptoCurrencies.map((item, index) => {

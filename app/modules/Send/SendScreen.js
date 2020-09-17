@@ -736,6 +736,7 @@ class SendScreen extends Component {
                             <TextView style={{ height: 70 }}>
                                 {description}
                             </TextView>
+
                             <AddressInput
                                 ref={component => this.addressInput = component}
                                 id={addressInput.id}

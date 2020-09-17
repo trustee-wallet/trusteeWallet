@@ -9,6 +9,7 @@ import ScannerSettingsScreen from '../modules/Settings/ScannerSettingsScreen'
 import CashbackScreen from '../modules/Settings/CashbackScreen'
 
 import AboutScreen from '../modules/About/AboutScreen'
+import FIOScreen from '../modules/FIO/FIOScreen'
 import TermsOfUseScreen from '../modules/About/screens/TermsOfUseScreen'
 import PrivacyPolicyScreen from '../modules/About/screens/PrivacyPolicyScreen'
 import LocalCurrencyScreen from '../modules/Settings/LocalCurrencyScreen'
@@ -24,6 +25,12 @@ const SettingsStack = createStackNavigator(
         },
         AboutScreen: {
             screen: AboutScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+        FIOScreen: {
+            screen: FIOScreen,
             navigationOptions: {
                 headerShown: false
             }
