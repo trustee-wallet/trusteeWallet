@@ -70,7 +70,12 @@ const config = {
     tg: {
         appDefaultTg: '', // bot id for app errors https://t.me/trusteeAppErrorsBot
         trusteeCore: ''
-    }
+    },
+    fio: {
+        apiEndpoints: {
+            registrationSiteURL: 'https://giveaway.fio.foundation/?referrer=edge&fpk=',
+        },
+    },
 }
 
 // eslint-disable-next-line no-undef

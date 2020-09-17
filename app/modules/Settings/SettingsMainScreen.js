@@ -84,7 +84,6 @@ class SettingsMainScreen extends Component {
         return typeof tmpLanguage === 'undefined' ? 'en-US' : tmpLanguage.code
     }
 
-
     getScannerCode = () => {
         let { scannerCode } = this.props.settings.data
         if (!scannerCode) scannerCode = '1min'
@@ -113,6 +112,11 @@ class SettingsMainScreen extends Component {
         setWalletName({ walletName: '' })
         setMnemonicLength({ mnemonicLength: 128 })
         NavStore.goNext('BackupStep0Screen')
+    }
+
+    handleRegisterFIOAddress = async () => {
+        const { apiEndpoints } = config.fio
+        Linking.openURL(`${apiEndpoints.registrationSiteURL}`)
     }
 
     handleSupport = async () => {
@@ -403,6 +407,16 @@ class SettingsMainScreen extends Component {
                                     <Icon name="selectWallet" size={20} style={styles.icon}/>
                                     <View style={styles.block__item__content}>
                                         <Text style={styles.block__text}>{strings('settings.walletManagement.select')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
+                                    </View>
+                                </TouchableOpacity>
+                                <View style={styles.divider}/>
+                                <TouchableOpacity style={{ ...styles.block__item }} onPress={() => this.handleRegisterFIOAddress()}>
+                                    <Icon name="info" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('settings.walletManagement.registerFioAddress')}</Text>
                                     </View>
                                     <View style={styles.block__item__arrow}>
                                         <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>

@@ -208,6 +208,7 @@
       "import": "Import wallet",
       "create": "Create new wallet",
       "select": "Select wallet",
+      "registerFioAddress": "Register FIO Address",
       "turnOnHD": "Turn on HD"
     },
     "security": {
@@ -862,7 +863,7 @@
       "title": "Replace by fee",
       "description": "The function of editing a transaction before confirmation by miners (Replace-by-Fee) is ",
       "statusEnable": "enabled.",
-      "statusDisable": "disabled.", 
+      "statusDisable": "disabled.",
       "descriptionAdd": "You can enable it for BTC, ETH, DOGE and ERC20 tokens!",
       "cancel": "Cancel"
     },
