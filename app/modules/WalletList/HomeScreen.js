@@ -26,6 +26,7 @@ import Theme from '../../themes/Themes'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 
 import Button from '../../components/elements/Button'
+import NavStore from '../../components/navigation/NavStore'
 
 let styles
 
@@ -171,7 +172,7 @@ class HomeScreen extends Component {
 
                             <View style={{ flex: 1, padding: 30, backgroundColor: '#f5f5f5' }}>
                                 <Button press={() =>  NavStore.goNext('FIOScreen')}>
-                                    go to FIO screen 3
+                                    go to FIO screen
                                 </Button>
                             </View>
 
