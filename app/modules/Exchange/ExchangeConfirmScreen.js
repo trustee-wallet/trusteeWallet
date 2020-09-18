@@ -30,6 +30,7 @@ import {capitalize} from '../../services/UI/Capitalize/Capitalize'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
+import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -262,7 +263,7 @@ class ExchangeConfirmScreen extends Component {
                         {strings('confirmScreen.withdrawAddress')}
                     </Text>
                     <Text style={[styles.wrapper__text, styles.wrapper__text_40]}>
-                        {selectedOutAccount.address.slice(0, 6) + '...' + selectedOutAccount.address.slice(selectedOutAccount.address.length - 4, selectedOutAccount.address.length)}
+                        { BlocksoftPrettyStrings.makeCut(selectedOutAccount.address, 6, 4) }
                     </Text>
                 </View>
 

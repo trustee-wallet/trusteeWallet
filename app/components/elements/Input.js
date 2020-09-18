@@ -19,6 +19,7 @@ import Validator from '../../services/UI/Validator/Validator'
 import Toast from '../../services/UI/Toast/Toast'
 import { strings } from '../../services/i18n'
 import { normalizeInputWithDecimals } from '../../services/UI/Normalize/NormalizeInput'
+import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 
 
 class Input extends Component {
@@ -297,7 +298,7 @@ class Input extends Component {
                     validPlaceholder ?
                         <TextInput
                             style={[styles.validPlaceholder, !this.state.errors.length && value !== '' && focus === false ? styles.validPlaceholder_active : null, {color: noEdit ? '#999999' : '#0D0D0D'}]}
-                            value={value.slice(0, 8) + '...' + value.slice(value.length - 8, value.length)}
+                            value={BlocksoftPrettyStrings.makeCut(value, 8)}
                             editable={!isDisabled}
                             autoCorrect={false}
                             spellCheck={false}

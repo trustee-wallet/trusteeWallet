@@ -4,6 +4,7 @@
 import { createStackNavigator } from 'react-navigation-stack'
 
 import MainDataScreen from '../modules/Exchange/MainDataScreen'
+import MainV3DataScreen from '../modules/Exchange/MainV3DataScreen'
 import ExchangeConfirmScreen from '../modules/Exchange/ExchangeConfirmScreen'
 import FinishScreen from '../modules/Exchange/FinishScreen'
 
@@ -11,6 +12,13 @@ const ExchangeScreenStack = createStackNavigator(
     {
         MainDataScreen: {
             screen: MainDataScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        MainV3DataScreen: {
+            screen: MainV3DataScreen,
             navigationOptions: {
                 headerShown: false
             }

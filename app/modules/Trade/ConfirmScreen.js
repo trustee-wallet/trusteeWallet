@@ -31,6 +31,7 @@ import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 import TmpConstants from './elements/TmpConstants'
+import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 
 class ConfirmScreen extends Component {
 
@@ -223,7 +224,7 @@ class ConfirmScreen extends Component {
             const dataToScreen = {
                 disabled: true,
                 address: res.data.address,
-                value: res.data.amount.toString(),
+                value: res.data.amount || res.data.amount.toString(),
                 account: selectedAccount,
                 cryptoCurrency: selectedCryptocurrency,
                 description: strings('send.descriptionExchange'),
@@ -339,7 +340,7 @@ class ConfirmScreen extends Component {
         if (exchangeStore.tradeType === 'BUY') {
             outTitle = strings('confirmScreen.withdrawAddress')
             const address = typeof selectedAccount.showAddress === 'undefined' ? selectedAccount.address : selectedAccount.showAddress
-            outValue = address.slice(0, 6) + '...' + address.slice(address.length - 4, address.length)
+            outValue = BlocksoftPrettyStrings.makeCut(address, 6, 4)
         } else if (tradeWay.outPaywayCode === 'MOBILE_PHONE') {
             outTitle = strings('confirmScreen.withdrawPhoneNumber')
             outValue = uniqueParams.phone

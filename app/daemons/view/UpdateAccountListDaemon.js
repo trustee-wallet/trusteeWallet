@@ -287,6 +287,14 @@ class UpdateAccountListDaemon extends Update {
                         continue
                     }
                     const accountWallet = allWallets.find(item => item.walletHash === tmpWalletHash)
+                    if (typeof accountWallet !== 'undefined' && accountWallet) {
+                        DaemonCache.CACHE_WALLET_NAMES_AND_CB[tmpWalletHash] = {
+                            walletName: accountWallet.walletName,
+                            walletCashback: accountWallet.walletCashback,
+                            walletIsHd: accountWallet.walletIsHd,
+                            walletUseUnconfirmed: accountWallet.walletUseUnconfirmed
+                        }
+                    }
                     const account = reformatted[tmpWalletHash][currencyCode]
 
                     const extendCurrencyCode = BlocksoftDict.getCurrencyAllSettings(account.currencyCode)

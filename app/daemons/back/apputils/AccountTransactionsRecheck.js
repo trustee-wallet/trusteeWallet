@@ -28,6 +28,7 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
         const tmps = await transactionDS.getTransactions({
             currencyCode: account.currencyCode,
             walletHash: account.walletHash,
+            accountId: account.id,
             noOrder: true,
             noOld : true
         })
@@ -285,8 +286,10 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
         if (old && old.transactionsScanLog) {
             transactionPart.transactionsScanLog += ' ' + old.transactionsScanLog
         }
+        if (old.transactionDirection !== transaction.transactionDirection) {
+            Log.daemon('UpdateAccountTransactions ' + account.currencyCode + ' by TWALLET DIRECTION id ' + old.id + ' address ' + account.address + ' hash ' + transaction.transactionHash + ' OLD ' + old.transactionDirection + ' NEW ' + transaction.transactionDirection)
+        }
         await transactionDS.saveTransaction(transactionPart, old.id, 'old trustee ' + tmpMsg)
-        // Log.daemon('UpdateAccountTransactions ' + account.currencyCode + ' old 1', tmpMsg, transactionPart)
 
         if (old.transactionStatus !== transaction.transactionStatus && source !== 'FIRST' && transaction.addressAmount > 0) {
             await addNews(transaction, account, source, 'old')
@@ -314,6 +317,10 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
 
     if (!old.createdAt) {
         transaction.createdAt = transaction.blockTime
+    }
+    if (old.transactionDirection !== transaction.transactionDirection) {
+        Log.daemon('UpdateAccountTransactions ' + account.currencyCode + ' by DIRECTION id ' + old.id + ' address ' + account.address + ' hash ' + transaction.transactionHash + ' OLD ' + old.transactionDirection + ' NEW ' + transaction.transactionDirection)
+        delete transaction.transactionDirection
     }
     transaction.transactionsScanTime = Math.round(new Date().getTime() / 1000)
     transaction.transactionsScanLog = line + ' ' + tmpMsg + ' '

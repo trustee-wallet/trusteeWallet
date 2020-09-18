@@ -122,7 +122,7 @@ class PaymentSystem extends Component {
                 }
                 if (selectedFiatCurrency && typeof selectedFiatCurrency !== 'undefined' && typeof selectedFiatCurrency.iso !== 'undefined') {
                     if (typeof paymentSystem.supportedByCurrency === 'undefined' && paymentSystem.supportedCountries) {
-                        item.available = paymentSystem.supportedCountries.indexOf(selectedFiatCurrency.iso.toString()) !== -1
+                        item.available = paymentSystem.supportedCountries.indexOf(selectedFiatCurrency.iso ? selectedFiatCurrency.iso.toString() : '') !== -1
                     } else {
                         if (paymentSystem.inCurrencyCode === selectedFiatCurrency.cc || paymentSystem.outCurrencyCode === selectedFiatCurrency.cc) {
                             item.available = true

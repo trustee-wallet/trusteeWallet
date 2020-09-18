@@ -50,7 +50,10 @@ export default class UsdtTxInputsOutputs {
         }
 
 
-        const targets = [{ address: data.addressTo, value: 0 }]
+        const targets = [
+            { address: data.addressTo, value: 0 },
+            { address: data.addressTo, value: DUST_FIRST_TRY }
+        ]
         if (addressForChange !== usdtAddress && usdtInputsTotal <= 1) {
             targets.push({ address: usdtAddress, value: DUST_FIRST_TRY })
         }
@@ -92,6 +95,7 @@ export default class UsdtTxInputsOutputs {
         }
         for (output of outputs) {
             if (output.value.toString() === '0') continue
+            if (output.address === data.addressTo && output.address !== addressForChange) continue
             formatted.outputs.push({
                 'to': output.address || addressForChange,
                 'amount': output.value.toString()

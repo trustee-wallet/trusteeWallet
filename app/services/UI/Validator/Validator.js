@@ -193,22 +193,30 @@ async function _userDataValidation(obj) {
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else {
-                let network = null
-                let firstOne = value[0]
-                let firstThree = value.slice(0, 3)
-                if (firstOne === '1' || firstOne === '3') {
-                    network = bitcoin.networks.mainnet
-                } else if (firstThree === 'bc1') {
-                    network = bitcoin.networks.mainnet
-                } else if (firstOne === '2' || firstOne === 'm' || firstOne === 'n') {
-                    network = bitcoin.networks.testnet
-                } else if (firstThree === 'tb1') {
-                    network = bitcoin.networks.testnet
+                let checkValues = [value]
+                if (value.indexOf(';') !== -1) {
+                    checkValues = value.replace(/\s+/g, ';').split(';')
                 }
-                try {
-                    let output = bitcoin.address.toOutputScript(value, network)
-                } catch (e) {
-                    error.msg = strings('validator.invalidFormat', { name: name })
+                for (let checkValue of checkValues) {
+                    checkValue = checkValue.trim()
+                    if (!checkValue) continue
+                    let network = null
+                    let firstOne = checkValue[0]
+                    let firstThree = checkValue.slice(0, 3)
+                    if (firstOne === '1' || firstOne === '3') {
+                        network = bitcoin.networks.mainnet
+                    } else if (firstThree === 'bc1') {
+                        network = bitcoin.networks.mainnet
+                    } else if (firstOne === '2' || firstOne === 'm' || firstOne === 'n') {
+                        network = bitcoin.networks.testnet
+                    } else if (firstThree === 'tb1') {
+                        network = bitcoin.networks.testnet
+                    }
+                    try {
+                        let output = bitcoin.address.toOutputScript(checkValue, network)
+                    } catch (e) {
+                        error.msg = strings('validator.invalidFormat', { name: name })
+                    }
                 }
             }
             break

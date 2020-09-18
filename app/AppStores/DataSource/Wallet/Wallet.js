@@ -5,6 +5,8 @@ import DBInterface from '../DB/DBInterface'
 
 import BlocksoftKeysUtils from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeysUtils'
 import Log from '../../../services/Log/Log'
+import CashBackUtils from '../../Stores/CashBack/CashBackUtils'
+import DaemonCache from '../../../daemons/DaemonCache'
 
 const CACHE = []
 
@@ -13,6 +15,7 @@ class Wallet {
     /**
      * @param {Object} wallet
      * @param {string} wallet.walletHash
+     * @param {string} wallet.walletCashback
      * @param {string} wallet.walletName
      * @param {string} wallet.walletJson
      * @param {integer} wallet.walletIsBackedUp
@@ -50,6 +53,7 @@ class Wallet {
 
     /**
      * @param {string} wallet.walletHash
+     * @param {string} wallet.walletCashback
      * @param {string} wallet.walletIsHd
      * @param {string} wallet.walletUseUnconfirmed
      * @param {string} wallet.walletUseLegacy
@@ -98,6 +102,7 @@ class Wallet {
         const res = await dbInterface.setQueryString(`
                 SELECT
                 wallet_hash AS walletHash,
+                wallet_cashback AS walletCashback,
                 wallet_name AS walletName,
                 wallet_is_hd AS walletIsHd,
                 wallet_is_backed_up AS walletIsBackedUp,
@@ -112,8 +117,21 @@ class Wallet {
         }
         for (let i = 0, ic = res.array.length; i < ic; i++) {
             res.array[i] = this._prepWallet(res.array[i])
+            this._redoCashback(res.array[i])
         }
         return res.array
+    }
+
+    async _redoCashback(wallet) {
+        if (wallet.walletCashback && wallet.walletCashback !== '') {
+            return wallet
+        }
+        const dbInterface = new DBInterface()
+        const { cashbackToken } = await CashBackUtils.getByHash(wallet.walletHash, 'DS/Wallet getWallets redo')
+        await dbInterface.setQueryString(`UPDATE wallet SET wallet_cashback='${cashbackToken}' WHERE wallet_hash='${wallet.walletHash}'`).query()
+        wallet.walletCashback = cashbackToken
+        DaemonCache.CACHE_WALLET_NAMES_AND_CB[wallet.walletHash] = wallet
+        return wallet
     }
 
     _prepWallet(wallet) {

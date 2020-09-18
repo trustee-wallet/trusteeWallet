@@ -22,7 +22,7 @@ class BlocksoftBalances {
     _allSettings = {}
 
     /**
-     * @type {{currencyCode, address, fee, jsonData}}
+     * @type {{currencyCode, address, fee, jsonData, walletHash}}
      * @private
      */
     _data = {}
@@ -47,6 +47,11 @@ class BlocksoftBalances {
             this._allSettings[currencyCode] = Dispatcher._getSettings(currencyCode)
         }
         this._currencySettings = this._allSettings[currencyCode]
+        return this
+    }
+
+    setWalletHash(walletHash) {
+        this._data.walletHash = walletHash
         return this
     }
 
@@ -83,7 +88,7 @@ class BlocksoftBalances {
         }
         let res
         try {
-            res = await this._processor[currencyCode].getBalanceBlockchain(this._data.address, this._data.jsonData)
+            res = await this._processor[currencyCode].getBalanceBlockchain(this._data.address, this._data.jsonData, this._data.walletHash)
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
             throw e

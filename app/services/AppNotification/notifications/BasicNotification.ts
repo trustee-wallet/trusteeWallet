@@ -61,12 +61,12 @@ export default class BasicNotification {
             // @ts-ignore
             const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.addressAmount) * 1
             // @ts-ignore
-            data.amountPretty = parseFloat(tmp.toFixed(5)) === 0 ? parseFloat(tmp.toFixed(10)) : parseFloat(tmp.toFixed(5))
+            data.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
         } else if (typeof data.balance !== 'undefined' && data.balance * 1 > 0) {
             // @ts-ignore
             const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.balance) * 1
             // @ts-ignore
-            data.amountPretty = parseFloat(tmp.toFixed(5)) === 0 ? parseFloat(tmp.toFixed(10)) : parseFloat(tmp.toFixed(5))
+            data.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
         }
         if (!title || title.length < 10) {
             title = strings('pushNotifications.' + item.newsName + '.title', data)

@@ -314,13 +314,13 @@ class Transaction extends Component {
         if (transaction.exchangeWayType) {
             return {
                 title: strings(`account.transaction.status`),
-                description: strings(`exchange.ordersStatus.${transaction.exchangeWayType.toLowerCase()}.${transaction.status}`)
+                description: strings(`exchange.ordersStatus.${transaction.exchangeWayType.toLowerCase()}.${transaction.status.toLowerCase()}`)
             }
         }
 
         return {
             title: strings(`account.transaction.status`),
-            description: strings(`account.transactionStatuses.${status}`)
+            description: strings(`account.transactionStatuses.${status.toLowerCase()}`)
 
             // description: strings(`exchange.ordersStatus.error_order`)
         }
@@ -619,8 +619,10 @@ class Transaction extends Component {
         const {cryptoCurrency, transaction} = this.props
 
         const isETH = cryptoCurrency.currencyCode === 'ETH' || cryptoCurrency.currencyCode.indexOf('ETH_') === 0
-        if ((cryptoCurrency.currencyCode === 'BTC' || cryptoCurrency.currencyCode === 'USDT' || isETH) && transaction.transactionStatus === 'new') {
-
+        if ((cryptoCurrency.currencyCode === 'BTC' || cryptoCurrency.currencyCode === 'USDT' || isETH)
+            && transaction.transactionHash !== 'undefined' && transaction.transactionHash
+            && (transaction.transactionStatus === 'new' || transaction.transactionStatus === 'pending_payin')
+        ) {
             if (cryptoCurrency.currencyCode === 'BTC' && transaction.addressTo.indexOf('OMNI') !== -1) {
                 return
             }

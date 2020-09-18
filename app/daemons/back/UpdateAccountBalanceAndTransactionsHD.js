@@ -109,7 +109,7 @@ class UpdateAccountBalanceAndTransactionsHD {
         const addressToScan = walletPub.walletPubValue
         try {
             Log.daemon('UpdateAccountBalanceAndTransactionsHD newBalance ' + walletPub.currencyCode + ' ' + addressToScan)
-            newBalance = await (BlocksoftBalances.setCurrencyCode(walletPub.currencyCode).setAddress(addressToScan)).getBalance()
+            newBalance = await (BlocksoftBalances.setCurrencyCode(walletPub.currencyCode).setAddress(addressToScan).setWalletHash(walletPub.walletHash)).getBalance()
             if (!newBalance || typeof newBalance.balance === 'undefined') {
                 balanceError = ' something wrong with balance ' + walletPub.currencyCode + ' ' + addressToScan + ' => ' + JSON.stringify(newBalance)
                 Log.daemon('UpdateAccountBalanceAndTransactionsHD newBalance something wrong ' + walletPub.currencyCode + ' ' + addressToScan + ' => ' + JSON.stringify(newBalance))
@@ -220,7 +220,7 @@ class UpdateAccountBalanceAndTransactionsHD {
         }
         try {
             Log.daemon('UpdateAccountBalanceAndTransactionsHD newTransactions ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue)
-            newTransactions = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue).setAdditional({ addresses })).getTransactions()
+            newTransactions = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue).setAdditional({ addresses }).setWalletHash(walletPub.walletHash)).getTransactions()
 
             if (!newTransactions || newTransactions.length === 0) {
                 transactionsError += ' something wrong with balance ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue + ' => ' + JSON.stringify(newTransactions)

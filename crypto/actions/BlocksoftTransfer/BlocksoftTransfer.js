@@ -128,19 +128,19 @@ class BlocksoftTransfer {
                 mnemonic,
                 addressToCheck: false,
                 walletHash: this._data.walletHash,
-                path: 'm/44' + this._private.derivePath.substr(4),
+                derivationPath: 'm/44' + this._private.derivePath.substr(4),
                 currencyCode: 'BTC'
             })
             const accountSegwit = {
                 mnemonic,
                 addressToCheck: false,
                 walletHash: this._data.walletHash,
-                path: 'm/84' + this._private.derivePath.substr(4),
+                derivationPath: 'm/84' + this._private.derivePath.substr(4),
                 currencyCode: 'BTC_SEGWIT'
             }
             const resultSegwit = await BlocksoftPrivateKeysUtils.getPrivateKey(accountSegwit)
             accountSegwit.address = resultSegwit.address
-            accountSegwit.index = accountSegwit.path.split(`'/`)[2]
+            accountSegwit.index = accountSegwit.derivationPath.split(`'/`)[2]
 
             await accountDS.insertAccountByPrivateKey(accountSegwit)
 
@@ -201,7 +201,7 @@ class BlocksoftTransfer {
                 mnemonic,
                 addressToCheck: this._data.addressFrom,
                 walletHash: this._data.walletHash,
-                path: this._private.derivePath,
+                derivationPath: this._private.derivePath,
                 currencyCode: this._data.currencyCode
             }
             const result = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor)
@@ -355,6 +355,8 @@ class BlocksoftTransfer {
             }
             if (typeof secondData !== 'undefined' && secondData) {
                 this._data.jsonData = { ...jsonData, ...secondData }
+            } else {
+                this._data.jsonData = jsonData
             }
         } else {
             this._data.jsonData = secondData

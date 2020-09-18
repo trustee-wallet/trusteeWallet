@@ -43,7 +43,7 @@ export default class EthTransferProcessor extends EthBasic {
         const gasPrice = await EthNetworkPrices.get(typeof data.addressTo !== 'undefined' ? data.addressTo : 'none')
 
         let gasLimit
-        if (typeof additionalData.estimatedGas === 'undefined' || !additionalData.estimatedGas) {
+        if (typeof additionalData === 'undefined' || typeof additionalData.estimatedGas === 'undefined' || !additionalData.estimatedGas) {
             try {
                 let ok = false
                 let i = 0
@@ -131,7 +131,13 @@ export default class EthTransferProcessor extends EthBasic {
 
         if (fees.length === 0) {
             const index = 0
-            const fee = Math.ceil(BlocksoftUtils.div(balance, gasLimit) * 1)
+            let fee = BlocksoftUtils.div(balance, gasLimit)
+            if (fee) {
+                const tmp = fee.split('.')
+                if (tmp) {
+                    fee = tmp[0]
+                }
+            }
             const tmp = {
                 langMsg: 'eth_speed_slowest',
                 gasPrice: fee.toString(),
@@ -245,9 +251,9 @@ export default class EthTransferProcessor extends EthBasic {
             finalGasLimit = Math.ceil(data.feeForTx.gasLimit * 1)
         }
 
+        let balance = '0'
         if (!txHash && (forceCheckBalance || this._checkBalance === true || finalGasPrice === 0 || finalGasLimit === null || finalGasLimit === 0 || finalGasLimit === null)) {
             // check usual
-            let balance = '0'
             try {
                 balance = await this._web3.eth.getBalance(data.addressFrom)
             } catch (e) {

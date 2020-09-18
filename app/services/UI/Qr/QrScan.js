@@ -85,10 +85,21 @@ export async function decodeTransactionQrCode(param, currencyCode) {
         let sub
         let contract = false
         let symbol = false
+        let coinbaseAddress = false
+
+        if (res.data.address.length > 9 && res.data.address.substring(res.data.address.length - 9) === '/transfer') {
+            // ethereum:0x6b175474e89094c44da98b954eedeac495271d0f/transfer?address=0x84071465e0eabae8bbf589b8338a1345ac0040b4
+            contract = res.data.address.substring(0, res.data.address.length - 9).toUpperCase()
+            Log.log('Utils.QR coinbaseContract ' + contract)
+        }
+
         for (sub of tmp) {
             const tmp2 = sub.split('=')
 
-            if (tmp2[0].toLowerCase() === 'contractaddress') {
+            if (tmp2[0].toLowerCase() === 'address') {
+                coinbaseAddress = typeof tmp2[1] !== 'undefined' ? tmp2[1].toUpperCase() : ''
+                Log.log('Utils.QR coinbaseAddress ' + coinbaseAddress)
+            } else if (tmp2[0].toLowerCase() === 'contractaddress') {
                 contract = typeof tmp2[1] !== 'undefined' ? tmp2[1].toUpperCase() : ''
                 Log.log('Utils.QR contract ' + contract)
             } else if (tmp2[0].toLowerCase() === 'symbol') {
@@ -142,6 +153,9 @@ export async function decodeTransactionQrCode(param, currencyCode) {
                 }
             }
         }
+        if (found && coinbaseAddress) {
+            res.data.address = coinbaseAddress
+        }
         if (!found && symbol) {
             const long = res.data.currencyCode + '_' + symbol
             if (typeof BlocksoftDict.Currencies[long] !== 'undefined') {
@@ -155,7 +169,7 @@ export async function decodeTransactionQrCode(param, currencyCode) {
         }
 
     } catch (err) {
-        Log.err('Utils.QR error ' + err.message.toString())
+        Log.err('Utils.QR error ' + err.message)
     }
 
 

@@ -61,7 +61,7 @@ class CustomFee extends Component {
                     gasLimit: gasLimitInputValidate.value,
                     isCustomFee: true
                 }
-                res.feeForTx = BlocksoftUtils.mul(res.gasLimit, gasPriceInputValidate.value)
+                res.feeForTx = BlocksoftUtils.mul(res.gasLimit, res.gasPrice)
                 return res
             }
         }

@@ -83,24 +83,6 @@ class MarketingEvent {
         this.DATA.LOG_CASHBACK = cbToken()
         this._reinitTgMessage(testerMode)
 
-
-        const date = (new Date()).toISOString().split('T')
-        this.DATA.date = date[0]
-        this.DATA.time = date[1].replace(/\..+/, '')
-
-        if (SAVE_FIREBASE) {
-            let token = ''
-            if (typeof this.DATA.LOG_TOKEN === 'undefined' && this.DATA.LOG_TOKEN) {
-                token = 'NOTOKEN'
-            } else {
-                token = this.DATA.LOG_TOKEN
-            }
-            firebase.database().ref('Inits/' + date[0] + '/' + token).push(this.DATA)
-            if (token) {
-                firebase.database().ref('Installs/' + token.substr(0, 20) + '/' + this.DATA.LOG_VERSION).update(this.DATA)
-            }
-        }
-
         let tmp = await AsyncStorage.getItem('CACHE_BALANCE')
         if (tmp) {
             try {
@@ -219,15 +201,6 @@ class MarketingEvent {
             this.TG.send(`SPM_june_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
 
             if (!ONLY_TG) {
-                let keyTitle = 'Events/' + date[0] + '/' + logTitle
-                if (this.DATA.LOG_CASHBACK) {
-                    keyTitle += '/' + this.DATA.LOG_CASHBACK
-                } else {
-                    keyTitle += '/NO_CASHBACK'
-                }
-                if (SAVE_FIREBASE) {
-                    firebase.database().ref(keyTitle).push(logData)
-                }
                 firebase.analytics().logEvent('v3_' + logTitle, logData)
             }
 
@@ -284,10 +257,6 @@ class MarketingEvent {
             // noinspection ES6MissingAwait
             this.TG.send(`RTM_june_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
 
-            if (this.DATA.LOG_TESTER) {
-                const keyTitle = 'DebugTX/' + date[0] + '/' + logTitle
-                firebase.database().ref(keyTitle).push(logData)
-            }
         } catch (e) {
             // noinspection ES6MissingAwait
             Log.err(`DMN/MarketingEvent ${logTitle} ` + e.toString() + ' with logData ' + JSON.stringify(logData))

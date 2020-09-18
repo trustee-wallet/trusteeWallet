@@ -6,6 +6,10 @@ import EthBasic from './basic/EthBasic'
 
 export default class EthAddressProcessor extends EthBasic{
 
+    async setBasicRoot(root) {
+
+    }
+    
     /**
      * @param {string|Buffer} privateKey
      * @param {*} data

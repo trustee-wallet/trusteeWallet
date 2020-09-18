@@ -92,10 +92,10 @@ class AppNewsScreen extends Component {
                                 data.amountPretty = ''
                                 if (typeof data.addressAmount !== 'undefined') {
                                     const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.addressAmount) * 1
-                                    data.amountPretty = parseFloat(tmp.toFixed(5)) === 0 ? parseFloat(tmp.toFixed(10)) : parseFloat(tmp.toFixed(5))
+                                    data.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
                                 } else if (typeof data.balance !== 'undefined') {
                                     const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.balance) * 1
-                                    data.amountPretty = parseFloat(tmp.toFixed(5)) === 0 ? parseFloat(tmp.toFixed(10)) : parseFloat(tmp.toFixed(5))
+                                    data.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
                                 }
                                 if (!title) {
                                     title = strings('pushNotifications.' + item.newsName + '.title', data)

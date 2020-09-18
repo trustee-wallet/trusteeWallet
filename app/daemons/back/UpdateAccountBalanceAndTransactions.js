@@ -153,7 +153,7 @@ class UpdateAccountBalanceAndTransactions {
         let balanceError
         try {
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance ' + account.currencyCode + ' ' + addressToScan)
-            newBalance = await (BlocksoftBalances.setCurrencyCode(account.currencyCode).setAddress(addressToScan).setAdditional(account.accountJson)).getBalance()
+            newBalance = await (BlocksoftBalances.setCurrencyCode(account.currencyCode).setAddress(addressToScan).setAdditional(account.accountJson).setWalletHash(account.walletHash)).getBalance()
             if (!newBalance || typeof newBalance.balance === 'undefined') {
                 if (account.balanceScanBlock === 0 && account.balanceScanTime === 0) {
                     updateObj.balanceScanLog = account.address + ' empty response, old balance ' + account.balance + ', ' + JSON.stringify(newBalance)
@@ -240,9 +240,9 @@ class UpdateAccountBalanceAndTransactions {
                     currencyCode: account.currencyCode,
                     walletHash: account.walletHash
                 })
-                newTransactions = await (BlocksoftTransactions.setCurrencyCode(account.currencyCode).setAddress(account.address).setAdditional({ addresses })).getTransactions()
+                newTransactions = await (BlocksoftTransactions.setCurrencyCode(account.currencyCode).setAddress(account.address).setAdditional({ addresses }).setWalletHash(account.walletHash)).getTransactions()
             } else {
-                newTransactions = await (BlocksoftTransactions.setCurrencyCode(account.currencyCode).setAddress(account.address).setAdditional(account.accountJson)).getTransactions()
+                newTransactions = await (BlocksoftTransactions.setCurrencyCode(account.currencyCode).setAddress(account.address).setAdditional(account.accountJson).setWalletHash(account.walletHash)).getTransactions()
             }
             if (!newTransactions || newTransactions.length === 0) {
                 transactionsError = ' empty transactions ' + account.currencyCode + ' ' + account.address

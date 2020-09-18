@@ -135,6 +135,14 @@ export default class ButtonLine extends Component {
                         </View>
                     </View>
                 )
+            case 'XMR':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#E51A31', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="XMR" style={{ color: '#E51A31', fontSize: fontSize }}/>
+                        </View>
+                    </View>
+                )
             case 'TRX':
                 return (
                     <View style={{ ...styles.icon, borderColor: '#E51A31', ...tmpContainerStyle }}>

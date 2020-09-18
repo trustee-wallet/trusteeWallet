@@ -24,6 +24,7 @@ import Log from '../../services/Log/Log'
 import { setSendData } from '../../appstores/Stores/Send/SendActions'
 import NavStore from '../../components/navigation/NavStore'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
+import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -374,7 +375,8 @@ class MainDataScreen extends Component {
                         type: 'YES_NO_MODAL',
                         icon: 'WARNING',
                         title: strings('exchangeScreen.receiveAddressModal.title'),
-                        description: strings('exchangeScreen.receiveAddressModal.description1') + ' "' + selectedWallet.walletName + '" ' + strings('exchangeScreen.receiveAddressModal.description2') + ' "' + accounts[0].address.slice(0, 6) + '...' + accounts[0].address.slice(accounts[0].address.length - 4, accounts[0].address.length) + '"',
+                        description: strings('exchangeScreen.receiveAddressModal.description1') + ' "' + selectedWallet.walletName + '" ' + strings('exchangeScreen.receiveAddressModal.description2') + ' "'
+                            + BlocksoftPrettyStrings.makeCut(accounts[0].address, 6, 4) + '"',
                         noCallback: () => {
                             Log.log('Exchange.MainDataScreen.on message selectAccount noCallback')
                             this.webRef.postMessage(JSON.stringify({ type: 'SCROLL_TO_BOTTOM' }))

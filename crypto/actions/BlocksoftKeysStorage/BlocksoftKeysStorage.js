@@ -196,7 +196,11 @@ export class BlocksoftKeysStorage {
 
         if (!hashOrId || typeof hashOrId === 'undefined' || hashOrId === 'first') {
             if (typeof this.publicWallets[0] === 'undefined') {
-                throw new Error('System error on setSelectedWallet')
+                this._serviceWasInited = false
+                await this._init()
+                if (typeof this.publicWallets[0] === 'undefined') {
+                    throw new Error('System empty second try on setSelectedWallet')
+                }
             }
             if (!this.publicSelectedWallet || typeof this.publicSelectedWallet === 'undefined') {
                 hashOrId = this.publicWallets[0]

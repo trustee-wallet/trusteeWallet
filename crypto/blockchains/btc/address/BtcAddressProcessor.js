@@ -19,6 +19,10 @@ export default class BtcAddressProcessor {
         this._currentBitcoinNetwork = networksConstants[settings.network].network
     }
 
+    setBasicRoot(root) {
+
+    }
+
     /**
      * @param {string|Buffer} privateKey
      * @param {*} data

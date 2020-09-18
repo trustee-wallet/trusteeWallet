@@ -104,6 +104,8 @@
      "exchangeBtn": "Обміняти"
    },
    "tradeScreen": {
+     "tryV3" : "Спробувати новий інтерфейс",
+     "titleV3" : "Новий обмін",
      "youGet": "Отримуєте:",
      "youGive": "Віддаєте:",
      "crypto": "Криптовалюта",
@@ -150,11 +152,11 @@
      },
      "paymentInformation": "Інформація про оплату",
      "urkCardOnly": "Тільки українські картки!",
-     "rusCardOnly": "Тільки російські картки!",
+     "rusCardOnly": "Російські та Білоруські картки!",
      "worldwideOnly": "Картки інших країн!",
      "minAmount": "Мінімально",
      "maxAmount": "Максимально",
-     "RUB": "Росія",
+     "RUB": "Росія та Білорусь",
      "KZ": "Казахстан",
      "UAH": "Україна",
      "QIWI": "QIWI гаманець",
@@ -272,7 +274,13 @@
       "hdEnableModal": {
         "title": "Переключити гаманець у режим HD?",
         "description": "Режим HD означає ротацію адрес для кожної транзакції. Операція перемикання є незворотньою."
-      }
+      },
+      "serverInputXMR" : "Сервер з даними (наприклад, api.mymonero.com)",
+      "serverInputTitleXMR" : "api.mymonero.com:8443",
+      "serverSendInputXMR" : "Сервер для відправки транзакцій (наприклад, api.mymonero.com)",
+      "serverSendInputTitleXMR" : "або node.moneroworld.com:18089",
+      "saveSettings" : "Зберегти налаштування",
+      "getMnemonicXMR" : "Переглянути секрети"
     },
     "about": {
       "title": "Про гаманець",
@@ -536,6 +544,8 @@
     "notEnoughForFeeConfirmed": "Для надсилання токенів потрібно мати позитивний підтверджений баланс у нативній монеті %{symbol}, зачекайте на підтвердження або ввімкніть використання непідтвердженних транзакцій",
     "confirmModal": {
       "title": "Підтвердження відправлення",
+      "titleSpeedUp": "Підтвердження прискорення вхідної транзакції %{hash}",
+      "titleReplaceByFee": "Підтвердження заміни транзакції %{hash}",
       "amount": "",
       "recipient": "Отримувач",
       "multiRecipient" : "Мультивідправка на %{total} адрес",
@@ -554,6 +564,11 @@
         "eth_speed_medium": "Середньо",
         "eth_speed_fast": "Швидко",
         "eth_speed_delegated" : "Делегована ERC865",
+
+        "xmr_speed_1": "Повільно",
+        "xmr_speed_2" : "Середньо",
+        "xmr_speed_3" : "Швидко",
+        "xmr_speed_4" : "Дуже швидко",
 
         "btc_speed_blocks_24": "Мінімально",
         "btc_speed_blocks_12": "Повільно",
@@ -591,10 +606,15 @@
         "eth_speed_fast": "~ 1 хвилина",
         "eth_speed_delegated" : "Транзакція буде відправлена за рахунок третьої сторони. Комісія стягується в %{symbol} згідно ERC865",
 
-        "btc_speed_blocks_24": "> 120 хвилин",
-        "btc_speed_blocks_12": "~ 120 хвилин",
-        "btc_speed_blocks_6": "~ 60 хвилин",
-        "btc_speed_blocks_2": "~ 15 хвилин",
+        "xmr_speed_1": "",
+        "xmr_speed_2" : "",
+        "xmr_speed_3" : "",
+        "xmr_speed_4" : "",
+
+        "btc_speed_blocks_24": "",
+        "btc_speed_blocks_12": "",
+        "btc_speed_blocks_6": "",
+        "btc_speed_blocks_2": "",
 
         "bch_speed_blocks_12": "~ 120 хвилин",
         "bch_speed_blocks_6": "~ 60 хвилин",
@@ -649,7 +669,7 @@
       "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "Мережа не приймає транзакцію - будь ласка, зачекайте доки замайняться інші транзакції або використовуйте більшу комісію",
       "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Недостатньо коштів нативной монети %{symbol} для сплати комісії - будь ласка, зачекайте доки інші транзакції замайняться",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Занадто мала комісія за транзакцію",
-      "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Занадто мала комісія за транзакцію для заміни - якщо Ви згодні що комісію можна взяти з суми отримувача - то на наступному кроці побачите перераховану транзакцію",
+      "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Занадто мала комісія за транзакцію для заміни - якщо Ви згодні, що комісію можна взяти із суми отримувача - то на наступному кроці побачите перераховані дані транзакції",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Занадто мала комісія за транзакцію для заміни",
       "SERVER_RESPONSE_NOT_CONNECTED": "Мережа не відповідає - будь ласка, повторіть операцію пізніше",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостатньо коштів для транзакції і сплати мінімальної комісії",
@@ -663,8 +683,11 @@
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM" : "Недостатній або непідтверджений баланс на пов'язаній з USDT біткоін адресі - будь ласка, зачекайте або увімкніть функцію \"Використовувати непідтверджені транзакції\" ",
       "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Мережа не прийняла транзакцію - будь ласка, зачекайте доки інші транзакції замайняться або використовуйте звичайну відправку ERC20",
       "SERVER_RESPONSE_NO_SSL" : "SSL бібліотека не знайдена - будь ласка, спробуйте оновити систему",
-      "SERVER_RESPONSE_PLEASE_SELECT_FEE": "Будь ласка оберіть вартість комісії зі списку",
-      "SERVER_RESPONSE_MIN_GAS_ETH" : "Мінімальний ліміт газу рівен 21000"
+      "SERVER_RESPONSE_PLEASE_SELECT_FEE": "Будь ласка, оберіть вартість комісії зі списку",
+      "SERVER_RESPONSE_MIN_GAS_ETH" : "Мінімальний ліміт газу дорівнює 21000",
+      "SERVER_RESPONSE_BAD_DESTINATION" : "Адреса отримувача невалідна",
+      "SERVER_RESPONSE_BAD_SEND_NODE" :  "Немає доступу до сервера відправки",
+      "SERVER_RESPONSE_DOUBLE_SPEND" : "Будь ласка, створіть повторно транзакцію, оскільки ця використовує вже застарілі входи"
     }
   },
   "walletBackup": {
@@ -690,7 +713,8 @@
       "cancel": "Відмінити",
       "yes": "Так",
       "no": "Ні"
-    }
+    },
+    "descriptionXMR": "Будь хто, маючи Вашу фразу відновлення, може отримати доступ до гаманця. Ці слова отримано із основної фрази, тому їх можна використовувати тільки для бекапу Monero"
   },
   "walletCreate": {
     "walletExist": "Гаманець вже імпортований у додаток.",

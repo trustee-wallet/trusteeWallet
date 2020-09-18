@@ -9,6 +9,7 @@ import BtcSendProvider from '../btc/providers/BtcSendProvider'
 import UsdtTxInputsOutputs from './tx/UsdtTxInputsOutputs'
 import UsdtTxBuilder from './tx/UsdtTxBuilder'
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
+import UsdtScannerProcessor from './UsdtScannerProcessor'
 
 const Dispatcher = new BlocksoftDispatcher()
 
@@ -31,7 +32,7 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
         this.txPrepareInputsOutputs = new UsdtTxInputsOutputs(this._settings, this._trezorServerCode)
         this.txBuilder = new UsdtTxBuilder(this._settings, this._trezorServerCode)
         this._initedProviders = true
-        this.usdtScannerProcessor = false
+        this.usdtScannerProcessor = new UsdtScannerProcessor()
     }
 
     /**

@@ -21,7 +21,8 @@ class AppTasksDiscoverBalancesHidden {
         SELECT 
             currency_code AS currencyCode,
             address, 
-            account_json AS accountJson
+            account_json AS accountJson,
+            wallet_hash AS walletHash
             FROM account
             WHERE currency_code='${appTask.currencyCode}' 
         LIMIT 1`
@@ -42,7 +43,7 @@ class AppTasksDiscoverBalancesHidden {
         }
         let newBalance
         try {
-            newBalance = await (BlocksoftBalances.setCurrencyCode(appTask.currencyCode).setAddress(addressToScan).setAdditional(account.accountJson)).getBalance()
+            newBalance = await (BlocksoftBalances.setCurrencyCode(appTask.currencyCode).setAddress(addressToScan).setAdditional(account.accountJson).setWalletHash(account.walletHash)).getBalance()
             Log.daemon('AppTasksDiscoverBalancesHidden loaded address ' + appTask.currencyCode + ' ' + addressToScan, newBalance)
         } catch (e) {
             e.message += ' scanning ' + appTask.currencyCode + ' address ' + addressToScan

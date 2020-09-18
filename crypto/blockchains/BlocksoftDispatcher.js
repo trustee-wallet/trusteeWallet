@@ -45,6 +45,10 @@ import XrpScannerProcessor from './xrp/XrpScannerProcessor'
 
 import XvgScannerProcessor from './xvg/XvgScannerProcessor'
 
+import XmrAddressProcessor from './xmr/XmrAddressProcessor'
+import XmrScannerProcessor from './xmr/XmrScannerProcessor'
+import XmrSecretsProcessor from './xmr/XmrSecretsProcessor'
+
 export default class BlocksoftDispatcher {
 
     _settings = {}
@@ -87,6 +91,8 @@ export default class BlocksoftDispatcher {
                 return new TrxAddressProcessor()
             case 'XRP':
                 return new XrpAddressProcessor()
+            case 'XMR':
+                return new XmrAddressProcessor()
             default:
                 throw new Error('Unknown addressProcessor ' + currencyDictSettings.addressProcessor)
         }
@@ -131,6 +137,8 @@ export default class BlocksoftDispatcher {
                 return new XrpScannerProcessor(currencyDictSettings)
             case 'XVG':
                 return new XvgScannerProcessor(currencyDictSettings)
+            case 'XMR':
+                return new XmrScannerProcessor(currencyDictSettings)
             default:
                 throw new Error('Unknown scannerProcessor ' + currencyDictSettings.scannerProcessor)
         }
@@ -158,8 +166,20 @@ export default class BlocksoftDispatcher {
     getInvoiceProcessor(currencyCode) {
         const currencyDictSettings = this._getSettings(currencyCode)
         if (currencyDictSettings.currencyCode !== 'BTC_LIGHT') {
-            throw new Error('Unknown transferProcessor ' + currencyDictSettings.transferProcessor)
+            throw new Error('Unknown invoiceProcessor ' + currencyDictSettings.currencyCode)
         }
         return new BtcLightInvoiceProcessor()
+    }
+
+    /**
+     * @param {string} currencyCode
+     * @return {XmrSecretsProcessor}
+     */
+    getSecretsProcessor(currencyCode) {
+        const currencyDictSettings = this._getSettings(currencyCode)
+        if (currencyDictSettings.currencyCode !== 'XMR') {
+            throw new Error('Unknown invoiceProcessor ' + currencyDictSettings.currencyCode)
+        }
+        return new XmrSecretsProcessor()
     }
 }

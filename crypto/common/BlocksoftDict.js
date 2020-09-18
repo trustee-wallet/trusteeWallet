@@ -4,7 +4,7 @@ const VisibleCodes = [
     'BTC', 'ETH', 'ETH_USDT', 'ETH_SOUL' // add code here to show on start screen
 ]
 const Codes = [
-    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'ETH_DAIM', 'ETH_OKB', 'TRX'   // add code here for autocreation the wallet address with the currency
+    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'ETH_DAIM', 'TRX'   // add code here for autocreation the wallet address with the currency
 ]
 
 const Currencies = {
@@ -50,6 +50,21 @@ const Currencies = {
         currencyExplorerLink: 'https://blockchair.com/bitcoin/address/',
         currencyExplorerTxLink: 'https://blockchair.com/bitcoin/transaction/'
     },
+
+    /*'XMR': {
+        currencyName: 'Monero',
+        currencyCode: 'XMR',
+        currencySymbol: 'XMR',
+        addressProcessor: 'XMR',
+        scannerProcessor: 'XMR',
+        extendsProcessor: 'XMR',
+        prettyNumberProcessor: 'UNIFIED',
+        network: 'mainnet',
+        decimals: 12,
+        buyable: 1,
+        currencyExplorerLink: 'https://livenet.xrpl.org/accounts/',
+        currencyExplorerTxLink: 'https://blockchair.com/monero/transaction/'
+    },*/
 
     // 'BTC_LIGHT': {
     //     currencyName: 'Bitcoin Lightning',

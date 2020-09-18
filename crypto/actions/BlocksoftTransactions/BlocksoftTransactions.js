@@ -14,7 +14,7 @@ class BlocksoftTransactions {
      */
     _processor = {}
     /**
-     * @type {{currencyCode, address, jsonData}}
+     * @type {{currencyCode, address, jsonData, walletHash}}
      * @private
      */
     _data = {}
@@ -44,6 +44,15 @@ class BlocksoftTransactions {
     }
 
     /**
+     * @param {string} walletHash
+     * @return {BlocksoftTransactions}
+     */
+    setWalletHash(walletHash) {
+        this._data.walletHash = walletHash
+        return this
+    }
+
+    /**
      * @param {*} jsonData
      * @return {BlocksoftTransactions}
      */
@@ -63,7 +72,7 @@ class BlocksoftTransactions {
         }
         let resultData = []
         try {
-            resultData = await this._processor[currencyCode].getTransactionsBlockchain(this._data.address, this._data.jsonData)
+            resultData = await this._processor[currencyCode].getTransactionsBlockchain(this._data.address, this._data.jsonData, this._data.walletHash)
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
             e.message += ' on actual getTransactions step '

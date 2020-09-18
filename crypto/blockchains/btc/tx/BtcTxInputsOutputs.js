@@ -33,6 +33,7 @@ export default class BtcTxInputsOutputs {
 
 
     coinSelect(data, filteredUnspents, feeForByte, addressForChange, usdtAddress, usdtInputsTotal, isTransferAll) {
+
         const utxos = []
         let unspent
         let usdtAdded = 0
@@ -58,16 +59,37 @@ export default class BtcTxInputsOutputs {
         }
 
         let targets, res
+        let multiAddress = false
         if (isTransferAll) {
             targets = [{
                 address: data.addressTo
             }]
             res = coinSplit(utxos, targets, feeForByte)
         } else {
-            targets = [{
-                address: data.addressTo,
-                value: data.amount * 1
-            }]
+
+            if (data.addressTo.indexOf(';') === -1) {
+                targets = [{
+                    address: data.addressTo,
+                    value: data.amount * 1
+                }]
+            } else {
+                const addresses = data.addressTo.replace(/\s+/g, ';').split(';')
+                multiAddress = []
+                let total = 0
+                for (let i = 0, ic = addresses.length; i < ic; i++) {
+                    const address = addresses[i].trim()
+                    if (!address) continue
+                    targets = [{
+                        address: address,
+                        value: data.amount * 1
+                    }]
+                    multiAddress.push(address)
+                    total++
+                }
+                if (multiAddress.length <= 1) {
+                    multiAddress = false
+                }
+            }
             res = coinSelect(utxos, targets, feeForByte)
         }
         const { inputs, outputs, fee } = res
@@ -85,7 +107,8 @@ export default class BtcTxInputsOutputs {
             inputs: [],
             outputs: [],
             feeForByte: feeForByte,
-            msg: ' coinselect for ' + feeForByte + ' fee ' + fee + ' ' + msg + ' all data ' + JSON.stringify(inputs) + ' ' + JSON.stringify(outputs)
+            msg: ' coinselect for ' + feeForByte + ' fee ' + fee + ' ' + msg + ' all data ' + JSON.stringify(inputs) + ' ' + JSON.stringify(outputs),
+            multiAddress
         }
 
         let input, output
@@ -227,13 +250,39 @@ export default class BtcTxInputsOutputs {
             totalBalanceBN.add(unspent.value)
         }
 
-        const wishedAmountBN = new BlocksoftBN(data.amount)
+        let multiAddress = false
+        const basicWishedAmountBN = new BlocksoftBN(data.amount)
+        const wishedAmountBN = new BlocksoftBN(basicWishedAmountBN)
 
         const outputs = []
-        outputs.push({
-            'to': data.addressTo,
-            'amount': data.amount.toString()
-        })
+        let plus = 0
+        if (data.addressTo.indexOf(';') === -1) {
+            outputs.push({
+                'to': data.addressTo,
+                'amount': data.amount.toString()
+            })
+        } else {
+            const addresses = data.addressTo.replace(/\s+/g, ';').split(';')
+            multiAddress = []
+            let total = 0
+            for (let i = 0, ic = addresses.length; i < ic; i++) {
+                const address = addresses[i].trim()
+                if (!address) continue
+                outputs.push({
+                    'to': address,
+                    'amount': data.amount.toString()
+                })
+                multiAddress.push(address)
+                if (total > 0) {
+                    wishedAmountBN.add(basicWishedAmountBN)
+                    plus += data.amount * 1
+                }
+                total++
+            }
+            if (multiAddress.length <= 1) {
+                multiAddress = false
+            }
+        }
 
         if (!autocalculateFee) {
             wishedAmountBN.add(data.feeForTx.feeForTx)
@@ -446,6 +495,7 @@ export default class BtcTxInputsOutputs {
             inputs,
             outputs,
             correctedAmountFrom: outputs[0].amount,
+            multiAddress,
             feeForByte,
             msg
         }

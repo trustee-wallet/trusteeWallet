@@ -18,6 +18,7 @@ import accountHdDS from '../../../appstores/DataSource/Account/AccountHd'
 import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaemon'
 import Log from '../../../services/Log/Log'
 import UpdateAccountBalanceAndTransactions from '../../../daemons/back/UpdateAccountBalanceAndTransactions'
+import BlocksoftPrettyStrings from '../../../../crypto/common/BlocksoftPrettyStrings'
 
 class SettingsUSDT extends Component {
 
@@ -117,7 +118,7 @@ class SettingsUSDT extends Component {
                     currentBalancesChecked ?
                         currentBalances.map((item, index) => {
                             const address = item.address
-                            const addressPrep = address.slice(0, 10) + '...' + address.slice(address.length - 8, address.length)
+                            const addressPrep = BlocksoftPrettyStrings.makeCut(address, 10, 8)
                             return <View style={styles.settings__row} key={index}>
                                 <View style={styles.settings__content}>
                                     <View style={{ flex: 1, paddingLeft: 15, paddingRight: 5 }}>

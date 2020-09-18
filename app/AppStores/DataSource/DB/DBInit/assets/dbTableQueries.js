@@ -180,6 +180,7 @@ export default {
             tableName: 'wallet',
             queryString: `CREATE TABLE IF NOT EXISTS wallet (
                 wallet_hash VARCHAR(256) NOT NULL PRIMARY KEY,
+                wallet_cashback VARCHAR(256) NULL,
                 wallet_name VARCHAR(256) NOT NULL,
                 wallet_is_backed_up INTEGER NULL,
 

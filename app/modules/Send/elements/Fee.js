@@ -67,7 +67,7 @@ class Fee extends Component {
         // maybe from ratesService as its already cached
         const { walletHash } = this.props.wallet
 
-        const { address, currencyCode, derivationPath } = this.props.account
+        const { address, currencyCode, derivationPath, accountJson } = this.props.account
 
         const { sendData } = this.props
 
@@ -94,11 +94,11 @@ class Fee extends Component {
                             .setMemo(sendData.memo)
                             .setAmount(feesAmountRaw)
                             .setTxHash(sendData.transactionReplaceByFee)
-                            .setAdditional(sendData.toTransactionJSON)
+                            .setAdditional(accountJson, sendData.toTransactionJSON)
                             .setMultiply(multiply || 0)
                     ).getFeeRate()
                 } catch (e) {
-                    if (e.message.indexOf('SERVER_RESPONSE') === -1) {
+                    if (e.message.indexOf('SERVER_') === -1) {
                         e.message += ' while getFeeRate RBF ' + currencyCode + ' address ' + address + ' amountRaw ' + sendData.amountRaw
                     }
                     throw e
@@ -115,10 +115,11 @@ class Fee extends Component {
                             .setMemo(sendData.memo)
                             .setAmount(feesAmountRaw)
                             .setTxInput(sendData.transactionSpeedUp)
+                            .setAdditional(accountJson)
                             .setMultiply(multiply || 0)
                     ).getFeeRate()
                 } catch (e) {
-                    if (e.message.indexOf('SERVER_RESPONSE') === -1) {
+                    if (e.message.indexOf('SERVER_') === -1) {
                         e.message += ' while SpeedUp getFeeRate ' + currencyCode + ' address ' + address + ' amountRaw ' + sendData.amountRaw
                     }
                     throw e
@@ -135,6 +136,7 @@ class Fee extends Component {
                             .setMemo(sendData.memo)
                             .setAmount(feesAmountRaw)
                             .setTransferAll(true)
+                            .setAdditional(accountJson)
                             .setMultiply(multiply || 0)
                     ).getFeeRate()
                 } catch (e) {
@@ -153,6 +155,7 @@ class Fee extends Component {
                             .setAddressTo(addressTo)
                             .setMemo(sendData.memo)
                             .setAmount(feesAmountRaw)
+                            .setAdditional(accountJson)
                             .setMultiply(multiply || 0)
                     ).getFeeRate()
                 } catch (e) {
@@ -200,6 +203,7 @@ class Fee extends Component {
             }
 
         } catch (e) {
+
             Log.errorTranslate(e, 'Send.Fee.UNSAFE_componentWillMount', currencyCode)
 
             this.setState({
@@ -221,7 +225,8 @@ class Fee extends Component {
 
         const {
             address,
-            currencyCode
+            currencyCode,
+            accountJson
         } = this.props.account
 
         const { sendData, setParentState } = this.props
@@ -236,6 +241,7 @@ class Fee extends Component {
                     .setAddressFrom(address)
                     .setFee(fee)
                     .setTransferAll(true)
+                    .setAdditional(accountJson)
             ).getTransferAllBalance()
 
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(amountRaw)
@@ -443,6 +449,7 @@ class Fee extends Component {
                                 // console.log('p ' + prettyFee + ' * ' + feeRates.basicCurrencyRate + ' => ' + feeBasicAmount )
 
 
+                                let timeMsg = strings(`send.fee.time.${item.langMsg}`, { symbol: prettyFeeSymbol })
                                 return (
                                     <View style={styles.fee__wrap} key={index}>
                                         <TouchableOpacity
@@ -465,12 +472,13 @@ class Fee extends Component {
                                                         {strings(`send.fee.text.${item.langMsg}`, { symbol: prettyFeeSymbol })}
                                                     </Text>
                                                 </View>
+                                                {timeMsg && timeMsg !== '' ?
                                                 <Text style={{
                                                     ...styles.fee__item__top__text,
                                                     color: fee.langMsg === item.langMsg ? '#efa1ae' : '#f4f4f4'
                                                 }}>
-                                                    {strings(`send.fee.time.${item.langMsg}`, { symbol: prettyFeeSymbol })}
-                                                </Text>
+                                                    {timeMsg}
+                                                </Text> : null }
                                                 <Text style={{
                                                     ...styles.fee__item__top__text,
                                                     color: fee.langMsg === item.langMsg ? '#efa1ae' : '#e3e3e3'

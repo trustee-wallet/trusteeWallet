@@ -267,6 +267,14 @@ export default class BtcTransferProcessor {
             await this.getTransferPrecache(data, 'btc getFeeRate')
         }
 
+        if (this._settings.currencyCode === 'USDT' && typeof this._precached.usdtBalance !== 'undefined' && this._precached.usdtBalance && this._precached.usdtBalance > 0) {
+            const diff = BlocksoftUtils.diff(data.amount, this._precached.usdtBalance)
+            if (diff > 0) {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate ' + data.addressFrom + ' amount ' + data.amount + ' usdtBalance ' + this._precached.usdtBalance + ' diff ' + diff)
+                throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+            }
+        }
+
         const startBlocks = ['blocks_2', 'blocks_6', 'blocks_12']
         const startOptions = ['usual', 'usual minus', 'usual plus1', 'usual plus2']
         const preparedInputsOutputsBlocks = { blocks_2: false, blocks_6: false, blocks_12: false }
@@ -470,7 +478,9 @@ export default class BtcTransferProcessor {
                 this.setCacheFees(cacheFees, data)
                 return cacheFees
             } catch (e) {
-                e.message += ' on _recheckFees1'
+                if (e.message.indexOf('SERVER_') === -1) {
+                    e.message += ' on _recheckFees1'
+                }
                 throw e
             }
         }
@@ -509,7 +519,13 @@ export default class BtcTransferProcessor {
     }
 
     async _recheckFees(fees, dataMain) {
-        if (!fees || !fees.length) return false
+        if (!fees || !fees.length) {
+            if (this._precached.unspents) {
+                throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
+            } else {
+                return false
+            }
+        }
         let fee
         const data = JSON.parse(JSON.stringify(dataMain))
 
@@ -636,9 +652,12 @@ export default class BtcTransferProcessor {
             if (showSmallFeeNotice) {
                 tested[tested.length - 1].showSmallFeeNotice = true
             }
+        } else if (this._precached.unspents) {
+            throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
+        } else {
+            return false
         }
         // console.log('result5', JSON.parse(JSON.stringify(tested)))
-
         return tested
     }
 

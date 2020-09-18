@@ -5,6 +5,7 @@ import Log from '../../services/Log/Log'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 import Api from '../../services/Api/Api'
+import ApiV3 from '../../services/Api/ApiV3'
 
 import Settings from '../../appstores/DataSource/Settings/Settings'
 import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
@@ -86,12 +87,25 @@ class UpdateTradeOrdersDaemon {
                 return false
             }
         }
-
-
-
+        
         try {
             const tradeOrdersToMarketingEvent = []
             let tmpTradeOrders = await Api.getExchangeOrders()
+            const tmpTradeOrdersV3 = await ApiV3.getExchangeOrders()
+            if (typeof tmpTradeOrdersV3 !== 'undefined' && tmpTradeOrdersV3 && tmpTradeOrdersV3.length > 0) {
+                if (tmpTradeOrders && typeof tmpTradeOrders.length !== 'undefined' && tmpTradeOrders.length > 0) {
+                    try {
+                        for (let one of tmpTradeOrdersV3) {
+                            one.orderId = one.orderHash
+                            tmpTradeOrders.push(one)
+                        }
+                    } catch (e) {
+                        Log.log('UpdateTradeOrders tmpTradeOrders error ' + e.message, tmpTradeOrders)
+                    }
+                } else {
+                    tmpTradeOrders = tmpTradeOrdersV3
+                }
+            }
 
             let walletToken = CashBackUtils.getWalletToken()
             if (!walletToken || typeof walletToken === 'undefined') {

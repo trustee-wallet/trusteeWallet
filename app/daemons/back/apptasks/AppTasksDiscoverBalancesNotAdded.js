@@ -34,7 +34,7 @@ class AppTasksDiscoverBalancesNotAdded {
         }
         let newBalance
         try {
-            newBalance = await (BlocksoftBalances.setCurrencyCode(appTask.currencyCode).setAddress(addressToScan).setAdditional(account.addedData)).getBalance()
+            newBalance = await (BlocksoftBalances.setCurrencyCode(appTask.currencyCode).setAddress(addressToScan).setAdditional(account.addedData).setWalletHash(appTask.walletHash)).getBalance()
             Log.daemon('AppTasksDiscoverBalanceNotAdded loaded address ' + appTask.currencyCode + ' ' + addressToScan, newBalance)
         } catch (e) {
             e.message += ' scanning ' + appTask.currencyCode + ' address ' + addressToScan

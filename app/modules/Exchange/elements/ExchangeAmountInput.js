@@ -90,7 +90,7 @@ class ExchangeAmountInput extends Component {
 
             const { selectedInCurrency, selectedPaymentSystem } = this.props
 
-            const { address, currencyCode, derivationPath } = this.props.selectedInAccount
+            const { address, currencyCode, derivationPath, accountJson } = this.props.selectedInAccount
             errorCurrencyCode = currencyCode
 
             const { addressForEstimateSellAll } = this.handleGetTradeWay(selectedInCurrency, selectedPaymentSystem)
@@ -100,9 +100,9 @@ class ExchangeAmountInput extends Component {
 
             Log.log('EXC/AmountInput.handleSellAll start')
 
-            balancesData = await BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).getBalance()
+            balancesData = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash)).getBalance()
             if (typeof balancesData.balance === 'undefined' || !balancesData.balance) {
-                balancesData = await BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).getBalance()
+                balancesData = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash)).getBalance()
             }
             const balanceRaw = balancesData ? BlocksoftUtils.add(balancesData.balance, balancesData.unconfirmed) : 0 // to think show this as option or no
             Log.log(`EXC/AmountInput.handleSellAll balance ${currencyCode} ${address} data`, balancesData)
@@ -116,6 +116,7 @@ class ExchangeAmountInput extends Component {
                     .setAddressTo(tmpAddressForEstimate)
                     .setAmount(balanceRaw)
                     .setTransferAll(true)
+                    .setAdditional(accountJson)
             ).getFeeRate(true)
 
             const current = await (
@@ -125,6 +126,7 @@ class ExchangeAmountInput extends Component {
                     .setAddressTo(tmpAddressForEstimate)
                     .setFee(fees[fees.length - 1])
                     .setTransferAll(true)
+                    .setAdditional(accountJson)
             ).getTransferAllBalance()
 
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(current)

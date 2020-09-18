@@ -11,7 +11,9 @@ const config = {
         mode: 'PROD', // INFO: DEV or PROD
         apiEndpoints: {
             baseURL: 'https://api.v2.trustee.deals',
-            baseURLTest: 'https://testapi.v2.blocksoftlab.com'
+            baseURLTest: 'https://testapi.v2.blocksoftlab.com',
+            entryURL: 'https://exchange.trustee.deals',
+            entryURLTest: 'https://testexchange.trustee.deals'
         }
     },
     language: {
@@ -27,23 +29,23 @@ const config = {
             }
         ]
     },
-    scanner : {
-        scannerSettings : [
+    scanner: {
+        scannerSettings: [
             {
-                code : 'none'
+                code: 'none'
             },
             {
-                code : '10min'
+                code: '10min'
             },
             {
-                code : '1min'
+                code: '1min'
             }
         ]
     },
     daemon: {
         updateTimes: {
-            oneByOne : 5000, // 5 seconds
-            view : 10000, // 10 second
+            oneByOne: 5000, // 5 seconds
+            view: 10000 // 10 second
         }
     },
     request: {
@@ -57,12 +59,12 @@ const config = {
         }
     },
     debug: {
-        appLogs: false, // set false to see usual logs in console
-        appDaemonLogs: false, // set false to see cron jobs logs in console,
-        cryptoLogs: false, // set false to see crypto logs in console
-        cryptoErrors: false, // set false to get crypto errors in console
-        appErrors: false, // set false to get errors in console
-        appDBLogs: false, // set false to get db query in console
+        appLogs: false, // set false to see usual logs in files only
+        appDaemonLogs: false, // set false to see cron jobs logs in files only
+        cryptoLogs: false, // set false to see crypto logs in files only
+        cryptoErrors: false, // set false to get crypto errors  in tg only
+        appErrors: false, // set false to get errors in tg only
+        appDBLogs: false, // set false to get db query in files only
         firebaseLogs: true // set false not to collect data to firebase live db
     },
     tg: {

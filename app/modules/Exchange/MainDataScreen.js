@@ -182,6 +182,12 @@ class MainDataScreen extends Component {
         }
     }
 
+    handleTryV3 = async () => {
+        Log.log('EXC/Main.handleTryV3 init')
+        Keyboard.dismiss()
+        NavStore.goNext('MainV3DataScreen')
+    }
+
     handleRefresh = async () => {
 
         this.setState({
@@ -303,8 +309,14 @@ class MainDataScreen extends Component {
                                         onRefresh={this.handleRefresh}
                                     />
                                 }>
-                                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 
+                                <View style={styles.btnTop}>
+                                    <Button press={this.handleTryV3}>
+                                        {strings('tradeScreen.tryV3')}
+                                    </Button>
+                                </View>
+
+                                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 
                                     <View style={styles.top}>
                                         <View style={styles.top__item}>
@@ -451,6 +463,11 @@ const styles = {
     },
     titleText_disabled: {
         color: '#DADADA'
+    },
+    btnTop: {
+        marginTop: 40,
+        marginHorizontal: 30,
+        marginBottom: 10
     },
     btn: {
         marginTop: 10,

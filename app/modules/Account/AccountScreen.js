@@ -23,6 +23,7 @@ import Loader from '../../components/elements/LoaderItem'
 import Transaction from './elements/Transaction'
 import SettingsBTC from './elements/SettingsBTC'
 import SettingsUSDT from './elements/SettingsUSDT'
+import SettingsXMR from './elements/SettingsXMR'
 
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
@@ -50,6 +51,8 @@ import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumber
 import CustomIcon from "../../components/elements/CustomIcon"
 import UIDict from "../../services/UIDict/UIDict"
 import AsyncStorage from '@react-native-community/async-storage'
+import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
+
 
 
 let CACHE_ASKED = false
@@ -441,8 +444,7 @@ class Account extends Component {
 
     renderAddressTooltip = (props) => {
         const address = props.address || ''
-        // @misha could be unified
-        const addressPrep = address.slice(0, 10) + '...' + address.slice(address.length - 8, address.length)
+        const addressPrep = BlocksoftPrettyStrings.makeCut(address, 10, 8)
         return (
             <View style={styles.topContent__address}>
                 <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1}/>
@@ -511,10 +513,10 @@ class Account extends Component {
         let segwitPrep = ''
         let legacyPrep = ''
         if (typeof account.segwitAddress !== 'undefined' && account.segwitAddress) {
-            segwitPrep = account.segwitAddress.substr(0, 5) + '...' + account.segwitAddress.substr(- 5)
+            segwitPrep = BlocksoftPrettyStrings.makeCut(account.segwitAddress, 5)
         }
         if (typeof account.legacyAddress !== 'undefined' && account.legacyAddress) {
-            legacyPrep = account.legacyAddress.substr(0, 5) + '...' + account.legacyAddress.substr(-5)
+            legacyPrep = BlocksoftPrettyStrings.makeCut(account.legacyAddress,5)
         }
         return (
             <View style={{ position: 'relative', flexDirection: 'row', alignItems: 'center', marginBottom: 30, marginTop:20 }}>
@@ -622,6 +624,9 @@ class Account extends Component {
         } else if (account.currencyCode === 'USDT') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.handleSetMode}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
             settingsComponent = <SettingsUSDT containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }} wallet={mainStore.selectedWallet} account={account}/>
+        } else if (account.currencyCode === 'XMR') {
+            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.handleSetMode}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
+            settingsComponent = <SettingsXMR containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }} wallet={mainStore.selectedWallet} account={account}/>
         }
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor

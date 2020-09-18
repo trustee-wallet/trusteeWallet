@@ -22,6 +22,7 @@ import UIDict from '../../../services/UIDict/UIDict'
 
 import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '../../../services/UI/Toast/Toast'
+import BlocksoftPrettyStrings from '../../../../crypto/common/BlocksoftPrettyStrings'
 
 class SettingsBTC extends Component {
 
@@ -141,13 +142,13 @@ class SettingsBTC extends Component {
             }
             let val3S = ''
             if (val1) {
-                val1S = val1.slice(0, 14) + '...' + val1.slice(-14)
+                val1S = BlocksoftPrettyStrings.makeCut(val1, 14)
             }
             if (val2) {
-                val2S = val2.slice(0, 14) + '...' + val2.slice(-14)
+                val2S = BlocksoftPrettyStrings.makeCut(val2, 14)
             }
             if (val3) {
-                val3S = val3.slice(0, 14) + '...' + val3.slice(-14)
+                val3S = BlocksoftPrettyStrings.makeCut(val3, 14)
             }
             xpubsHtml =
                 <View>

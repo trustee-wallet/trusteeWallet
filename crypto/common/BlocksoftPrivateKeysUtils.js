@@ -6,6 +6,9 @@ const CACHE = []
 class BlocksoftPrivateKeysUtils {
     /**
      * @param discoverFor.mnemonic
+     * @param discoverFor.derivationPath
+     * @param discoverFor.derivationIndex
+     * @param discoverFor.derivationType
      * @param discoverFor.path
      * @param discoverFor.currencyCode
      * @param discoverFor.walletHash
@@ -13,13 +16,17 @@ class BlocksoftPrivateKeysUtils {
      * @returns {Promise<void>}
      */
     async getPrivateKey(discoverFor) {
-        const discoverForKey = BlocksoftKeysStorage.getAddressCacheKey(discoverFor.walletHash, discoverFor.path.replace(/[']/g, "quote"), discoverFor.currencyCode)
-        BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover.getPrivateKey actually inited ', {address : discoverFor.addressToCheck, path : discoverFor.path, discoverForKey})
+        const path = typeof discoverFor.path !== 'undefined' ? discoverFor.path : discoverFor.derivationPath
+        const discoverForKey = BlocksoftKeysStorage.getAddressCacheKey(discoverFor.walletHash, path.replace(/[']/g, "quote"), discoverFor.currencyCode)
+        BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover.getPrivateKey actually inited ', {address : discoverFor.addressToCheck, path, discoverForKey})
         let result = CACHE[discoverForKey]
         if (!result) {
             result = await BlocksoftKeysStorage.getAddressCache(discoverForKey)
             if (!result) {
                 try {
+                    if (typeof discoverFor.mnemonic === 'undefined' || !discoverFor.mnemonic) {
+                        discoverFor.mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(discoverFor.walletHash)
+                    }
                     result = await BlocksoftKeys.discoverOne(discoverFor)
                     if (discoverFor.addressToCheck && discoverFor.addressToCheck !== result.address) {
                         // noinspection ExceptionCaughtLocallyJS

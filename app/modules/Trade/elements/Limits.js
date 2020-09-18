@@ -89,7 +89,9 @@ class Limits extends Component {
         // const selectedTradeWay = this.props.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
 
         this.props.refAmount.handleSetState('moneyType', 'FIAT', () => {
-            this.props.refAmount.setInputData(amount.toString())
+            if (amount) {
+                this.props.refAmount.setInputData(amount.toString())
+            }
             // this.props.refAmount.calculateEquivalent(selectedTradeWay, selectedFiatCurrency, amount)
         })
         this.setState({

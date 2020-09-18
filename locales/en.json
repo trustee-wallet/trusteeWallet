@@ -104,6 +104,8 @@
     "exchangeBtn": "Exchange"
   },
   "tradeScreen": {
+    "tryV3" : "Try new interface",
+    "titleV3" : "New exchange",
     "youGet": "You get:",
     "youGive": "You give:",
     "crypto": "Crypto",
@@ -151,11 +153,11 @@
     },
     "paymentInformation": "Payment method info",
     "urkCardOnly": "Ukranian cards only!",
-    "rusCardOnly": "Russian cards only!",
+    "rusCardOnly": "Russian & Belorussian cards!",
     "worldwideOnly": "Worldwide",
     "minAmount": "Min amount",
     "maxAmount": "Max amount",
-    "RUB": "Russia",
+    "RUB": "Russia & Belorussia",
     "KZ" : "Kazakhstan",
     "UAH": "Ukraine",
     "QIWI": "QIWI wallet",
@@ -273,7 +275,13 @@
       "hdEnableModal": {
         "title": "Switch wallet to HD mode?",
         "description": "HD mode implies rotation of addresses for each transaction. The switching operation is irreversible."
-      }
+      },
+      "serverInputXMR" : "Server (default api.mymonero.com)",
+      "serverInputTitleXMR" : "api.mymonero.com:8443",
+      "serverSendInputXMR" : "Server for Send TX (default api.mymonero.com)",
+      "serverSendInputTitleXMR" : "or node.moneroworld.com:18089",
+      "saveSettings" : "Save settings",
+      "getMnemonicXMR" : "View secrets"
     },
     "about": {
       "title": "About",
@@ -531,11 +539,13 @@
     "send": "Next",
     "useAllFunds": "Use all funds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
-    "notEnough": "You don't have enough funds for send.",
+    "notEnough": "You don't have enough funds to send",
     "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}",
     "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations or turn on usage of unconfirmed transactions",
     "confirmModal": {
       "title": "Do you confirm sending?",
+      "titleSpeedUp": "Do you confirm speeding up incoming transaction %{hash}?",
+      "titleReplaceByFee": "Do you confirm replacing transaction %{hash}?",
       "amount": "Amount",
       "recipient": "Recipient",
       "multiRecipient" : "Multisend to %{total} addresses",
@@ -554,6 +564,10 @@
         "eth_speed_medium": "Medium",
         "eth_speed_fast": "Fast",
         "eth_speed_delegated": "Delegated ERC865",
+        "xmr_speed_1": "Slow",
+        "xmr_speed_2" : "Medium",
+        "xmr_speed_3" : "High",
+        "xmr_speed_4" : "Very High",
         "btc_speed_blocks_24": "Slowest",
         "btc_speed_blocks_12": "Slow",
         "btc_speed_blocks_6": "Medium",
@@ -584,10 +598,14 @@
         "eth_speed_medium": "~ 5 minutes",
         "eth_speed_fast": "~ 1 minute",
         "eth_speed_delegated": "The transaction will be sent at the expense of a third party. Commission is charged in %{symbol} according to ERC865",
-        "btc_speed_blocks_24": "> 120 minutes",
-        "btc_speed_blocks_12": "~ 120 minutes",
-        "btc_speed_blocks_6": "~ 60 minutes",
-        "btc_speed_blocks_2": "~ 15 minutes",
+        "xmr_speed_1": "",
+        "xmr_speed_2" : "",
+        "xmr_speed_3" : "",
+        "xmr_speed_4" : "",
+        "btc_speed_blocks_24": "",
+        "btc_speed_blocks_12": "",
+        "btc_speed_blocks_6": "",
+        "btc_speed_blocks_2": "",
         "bch_speed_blocks_12": "~ 120 minutes",
         "bch_speed_blocks_6": "~ 60 minutes",
         "bch_speed_blocks_2": "~ 20 minutes",
@@ -610,7 +628,7 @@
       },
       "customFee": {
         "fixedFeeTitle": "FIXED FEE",
-        "customFeeTitle": "INSTALL\nMANUALLY",
+        "customFeeTitle": "SET\nMANUALLY",
         "eth": {
           "gasPrice": "Gas price",
           "gasLimit": "Gas limit",
@@ -638,7 +656,7 @@
      "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "The transaction has not received a network confirmation - please wait for the other transactions to be mined or place higher fee",
      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Insufficient balance of native currency %{symbol} to pay the network fee - please wait for the other transactions to be mined",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Transaction fee is too small",
-     "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Transaction replacement fee is too small - click yes to take some fee from amount",
+     "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Transaction replacement fee is too small - click yes to take some fee from the recipient's amount, then in the next step you will see the recalculated transaction data",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Transaction replacement fee is too small",
      "SERVER_RESPONSE_NOT_CONNECTED": "Network is unreachable - please repeat the operation later",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "Insufficient balance to make the transaction and to pay the minimal fee",
@@ -652,8 +670,11 @@
      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM": "Insufficient or unconfirmed BTC balance on linked USDT address - please wait or turn ON an option \"Use unconfirmed transactions\" ",
      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH": "The transaction has not received a network confirmation - please wait for the other transactions to be mined or use ERC20 standard transaction",
      "SERVER_RESPONSE_NO_SSL": "SSL library was not found - please update the system",
-     "SERVER_RESPONSE_PLEASE_SELECT_FEE": "Please select the available fee from the list",
-     "SERVER_RESPONSE_MIN_GAS_ETH": "Minimal gas limit is 21000"
+     "SERVER_RESPONSE_PLEASE_SELECT_FEE": "Please, select the available fee from the list",
+     "SERVER_RESPONSE_MIN_GAS_ETH": "Minimal gas limit is 21000",
+      "SERVER_RESPONSE_BAD_DESTINATION" : "Destination address is invalid",
+      "SERVER_RESPONSE_BAD_SEND_NODE" : "No access to sending server",
+      "SERVER_RESPONSE_DOUBLE_SPEND" : "Please, regenerate transaction as outputs are changed"
     }
   },
   "walletBackup": {
@@ -679,7 +700,8 @@
       "cancel": "Cancel",
       "yes": "Yes",
       "no": "No"
-    }
+    },
+    "descriptionXMR": "Anyone with your recovery phrase can access or spend your coins. This words are derived from main recovery phrase, so you could use it only to backup Monero"
   },
   "walletCreate": {
     "walletExist": "The wallet has been already imported.",

@@ -2,6 +2,7 @@ import BlocksoftDict from './BlocksoftDict'
 import BlocksoftUtils from './BlocksoftUtils'
 
 class BlocksoftPrettyNumbers {
+
     /**
      * @param {string} currencyCode
      * @return {BlocksoftPrettyNumbers}
@@ -45,10 +46,13 @@ class BlocksoftPrettyNumbers {
     }
 
     makeCut(tmp, size = 5, source = false) {
+        if (this._decimals <= 6 && size === 5) {
+            size = this._decimals
+        }
         let cutted = 0
         let isSatoshi = false
         if (typeof tmp === 'undefined' || !tmp) {
-            return {cutted, isSatoshi, justCutted : cutted, separated: '0'}
+            return { cutted, isSatoshi, justCutted: cutted, separated: '0' }
         }
         const splitted = tmp.toString().split('.')
         const def = '0.' + '0'.repeat(size)
@@ -59,7 +63,7 @@ class BlocksoftPrettyNumbers {
                 cutted = splitted[0] + '.' + splitted[1].substr(0, size)
                 if (cutted === def) {
                     cutted = splitted[0] + '.' + splitted[1].substr(0, size * 2)
-                    const def2 = '0.' + '0'.repeat(size*2)
+                    const def2 = '0.' + '0'.repeat(size * 2)
                     if (cutted !== def2) {
                         secondPart = splitted[1].substr(0, size * 2)
                     }
@@ -109,7 +113,7 @@ class BlocksoftPrettyNumbers {
             separated = '0.' + secondPart
         }
 
-        return {cutted, isSatoshi, justCutted, separated : separated.toString()}
+        return { cutted, isSatoshi, justCutted, separated: separated.toString() }
     }
 
     /**

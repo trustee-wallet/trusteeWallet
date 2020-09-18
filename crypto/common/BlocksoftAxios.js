@@ -5,7 +5,7 @@ import config from '../../app/config/config'
 import { showModal } from '../../app/appstores/Stores/Modal/ModalActions'
 import { strings } from '../../app/services/i18n'
 
-const CancelToken = axios.CancelToken
+const CancelToken = axios && typeof axios.CancelToken !== 'undefined' ? axios.CancelToken : function () {}
 
 const CACHE_ERRORS_VALID_TIME = 60000 // 1 minute
 const CACHE_ERRORS_BY_LINKS = {}

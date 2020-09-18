@@ -15,6 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import Theme from '../../../themes/Themes'
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import ToolTips from '../../../components/elements/ToolTips'
+import BlocksoftPrettyStrings from '../../../../crypto/common/BlocksoftPrettyStrings'
 
 let styles
 
@@ -85,7 +86,7 @@ class Orders extends Component {
                                                             {date[1] + ' ' + date[2]}
                                                         </Text>
                                                         <Text style={styles.transaction__subtext}>
-                                                            {item.depositAddress.slice(0, 3) + '...' + item.depositAddress.slice(item.depositAddress.length - 2, item.depositAddress.length)}
+                                                            {BlocksoftPrettyStrings.makeCut(item.depositAddress, 3, 2)}
                                                         </Text>
                                                     </View>
                                                     <GradientView style={styles.circle}
@@ -119,7 +120,7 @@ class Orders extends Component {
                                                         {date[1] + ' ' + date[2]}
                                                     </Text>
                                                     <Text style={[styles.transaction__subtext]}>
-                                                        {item.outDestination.slice(0, 3) + '...' + item.outDestination.slice(item.outDestination.length - 2, item.outDestination.length)}
+                                                        {BlocksoftPrettyStrings.makeCut(item.outDestination, 3, 2)}
                                                     </Text>
                                                 </View>
                                                 <GradientView style={styles.circle}
@@ -152,7 +153,7 @@ class Orders extends Component {
                                                         {date[1] + ' ' + date[2]}
                                                     </Text>
                                                     <Text style={[styles.transaction__subtext]}>
-                                                        {item.outDestination.slice(0, 3) + '...' + item.outDestination.slice(item.outDestination.length - 2, item.outDestination.length)}
+                                                        {BlocksoftPrettyStrings.makeCut(item.outDestination, 3, 2)}
                                                     </Text>
                                                 </View>
                                                 <GradientView style={styles.circle}

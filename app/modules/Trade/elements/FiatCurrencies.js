@@ -103,7 +103,7 @@ class FiatCurrencies extends Component {
                 }
                 if (item.supportedCountries && item.supportedCountries.length > 0) {
                     for (tmp of item.supportedCountries) {
-                        const iso = tmp.toString()
+                        const iso = tmp ? tmp.toString() : ''
                         if (typeof CACHE_ISO[iso] === 'undefined') continue
                         if (typeof availableFiatCurrencies[iso] === 'undefined') {
                             availableFiatCurrencies[CACHE_ISO[iso].currencyCode] = CACHE_ISO[iso]
@@ -162,7 +162,7 @@ class FiatCurrencies extends Component {
                 }
                 if (item.supportedCountries && item.supportedCountries.length > 0) {
                     for (tmp of item.supportedCountries) {
-                        const iso = tmp.toString()
+                        const iso = tmp ? tmp.toString() : ''
                         if (typeof CACHE_ISO[iso] === 'undefined') continue
                         if (typeof availableFiatCurrencies[iso] === 'undefined') {
                             availableFiatCurrencies[CACHE_ISO[iso].currencyCode] = CACHE_ISO[iso]

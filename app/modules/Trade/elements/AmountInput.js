@@ -85,7 +85,7 @@ class AmountInput extends Component {
 
             const { selectedCryptocurrency, selectedPaymentSystem } = this.props
 
-            const { address, currencyCode, derivationPath } = this.props.selectedAccount
+            const { address, currencyCode, derivationPath, accountJson } = this.props.selectedAccount
             errorCurrencyCode = currencyCode
 
             const { addressForEstimateSellAll } = this.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
@@ -95,7 +95,7 @@ class AmountInput extends Component {
 
             Log.log('TRADE/AmountInput.handleSellAll start')
 
-            const tmp = await BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).getBalance()
+            const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash)).getBalance()
             let balanceRaw = 0
             if (tmp) {
                 try {
@@ -116,6 +116,7 @@ class AmountInput extends Component {
                     .setAddressTo(tmpAddressForEstimate)
                     .setAmount(balanceRaw)
                     .setTransferAll(true)
+                    .setAdditional(accountJson)
             ).getFeeRate(true)
 
             const fee = fees[fees.length - 1]
@@ -126,6 +127,7 @@ class AmountInput extends Component {
                     .setAddressTo(tmpAddressForEstimate)
                     .setFee(fee)
                     .setTransferAll(true)
+                    .setAdditional(accountJson)
             ).getTransferAllBalance()
 
             const amount = BlocksoftPrettyNumbers.makeCut(BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(current), 14).justCutted
@@ -134,7 +136,7 @@ class AmountInput extends Component {
                 moneyType: 'CRYPTO'
             }, () => {
                 try {
-                    this.amountInput.handleInput(amount.toString())
+                this.amountInput.handleInput(amount.toString())
                 } catch (e) {
                     throw new Error(e.message + ' in Trade.AmountInput.handleSellAll', {current, amount, fee})
                 }

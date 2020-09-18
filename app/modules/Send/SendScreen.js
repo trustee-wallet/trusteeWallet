@@ -268,7 +268,7 @@ class SendScreen extends Component {
 
         const { walletHash, walletUseUnconfirmed } = this.props.wallet
 
-        const { address, derivationPath, currencyCode, balance, unconfirmed } = this.state.account
+        const { address, derivationPath, currencyCode, balance, unconfirmed, accountJson } = this.state.account
 
         const derivationPathTmp = derivationPath.replace(/quote/g, '\'')
 
@@ -300,6 +300,7 @@ class SendScreen extends Component {
                     .setAmount(balanceRaw)
                     .setFee(false)
                     .setTransferAll(true)
+                    .setAdditional(accountJson)
             ).getFeeRate(true)
 
             let current = false
@@ -315,6 +316,7 @@ class SendScreen extends Component {
                             .setAddressFrom(address)
                             .setAddressTo(addressToForTransferAll)
                             .setFee(currentFee)
+                            .setAdditional(accountJson)
                     ).getTransferAllBalance(balanceRaw)
                 } catch (e) {
                     if (fees) {
@@ -325,6 +327,7 @@ class SendScreen extends Component {
                                 .setAddressFrom(address)
                                 .setAddressTo(addressToForTransferAll)
                                 .setFee(currentFee)
+                                .setAdditional(accountJson)
                         ).getTransferAllBalance(balanceRaw)
                     } else {
                         throw e
@@ -348,6 +351,7 @@ class SendScreen extends Component {
                         .setAddressFrom(address)
                         .setAddressTo(addressToForTransferAll)
                         .setFee(currentFee)
+                        .setAdditional(accountJson)
                 ).getTransferAllBalance(balanceRaw)
 
                 if (current === false || current === 0) {
@@ -358,6 +362,7 @@ class SendScreen extends Component {
                             .setAddressFrom(address)
                             .setAddressTo(addressToForTransferAll)
                             .setFee(currentFee)
+                            .setAdditional(accountJson)
                     ).getTransferAllBalance(balanceRaw)
                 }
             }
@@ -752,6 +757,7 @@ class SendScreen extends Component {
             currencyCode,
             extendsProcessor,
             addressUiChecker,
+            decimals,
             network
         } = this.state.cryptoCurrency
 
@@ -838,7 +844,7 @@ class SendScreen extends Component {
                                 // autoFocus={true}
                                 name={strings('send.value')}
                                 type={amountInput.type}
-                                decimals={10}
+                                decimals={decimals || 10}
                                 additional={amountInput.additional}
                                 tapText={this.state.inputType === 'FIAT' ? basicCurrencyCode : currencySymbol}
                                 tapCallback={this.handleChangeEquivalentType}

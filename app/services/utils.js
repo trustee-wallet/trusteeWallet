@@ -11,6 +11,7 @@ import BlocksoftTransfer from '../../crypto/actions/BlocksoftTransfer/BlocksoftT
 import React from 'react'
 
 
+// to split
 export function renderError(field, array) {
     if (array.length > 0) {
         let result = array.find((array) => {
@@ -24,35 +25,7 @@ export function renderError(field, array) {
 
 const utils = {
 
-    /**
-     * @param {string} currencyCode
-     * @param {string} currencySymbol
-     * @param {string} address
-     * @returns {Promise<boolean>}
-     */
-    checkTransferHasError: async (currencyCode, currencySymbol, address) => {
-        const checked = await (
-            BlocksoftTransfer
-                .setCurrencyCode(currencyCode)
-                .setAddressTo(address)
-        ).checkTransferHasError()
-
-        if (checked) {
-
-            checked.currencySymbol = currencySymbol
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings(`modal.checkTransferHasError.${checked.code}.title`, checked),
-                description: strings(`modal.checkTransferHasError.${checked.code}.description`, checked)
-            })
-
-            return true
-        }
-
-        return false
-    },
-
+    // to remove ?
     isArrayEqual: (x, y) => _(x).xorWith(y, _.isEqual).isEmpty()
 }
 

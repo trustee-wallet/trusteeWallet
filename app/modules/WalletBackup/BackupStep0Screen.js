@@ -1,19 +1,9 @@
 /**
- * @version 0.9
+ * @version 0.11
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    Image,
-    TouchableOpacity,
-    Platform,
-    Dimensions,
-    PixelRatio
-} from 'react-native'
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Platform, Dimensions, PixelRatio } from 'react-native'
 import Icon from 'react-native-vector-icons/AntDesign'
 import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -26,7 +16,7 @@ import NavStore from '../../components/navigation/NavStore'
 
 import { strings } from '../../../app/services/i18n'
 
-import { hideModal, showModal } from '../../appstores/Stores/Modal/ModalActions'
+import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { setWalletMnemonic } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
 
 import BlocksoftKeys from '../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
@@ -36,12 +26,10 @@ import Log from '../../services/Log/Log'
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 
 import firebase from 'react-native-firebase'
-import ButtonLine from '../../components/elements/ButtonLine'
 import IconAwesome from 'react-native-vector-icons/FontAwesome'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
+import BlocksoftSecrets from '../../../crypto/actions/BlocksoftSecrets/BlocksoftSecrets'
 
 const { height: WINDOW_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -72,7 +60,7 @@ class BackupStep0Screen extends Component {
             let walletMnemonic = ''
             let mnemonic = ''
             let needPasswordConfirm = false
-            if (flowType === 'BACKUP_WALLET') {
+            if (flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR') {
                 const { settingsStore } = this.props
                 const selectedWallet = this.props.selectedWallet
                 if (selectedWallet && selectedWallet.walletHash) {
@@ -82,7 +70,11 @@ class BackupStep0Screen extends Component {
                         Log.log('WalletBackup.BackupStep0Screen error mnemonic for ' + selectedWallet.walletHash)
                     }
                 }
-                walletMnemonic = mnemonic
+                if (flowType === 'BACKUP_WALLET_XMR') {
+                    walletMnemonic = await (BlocksoftSecrets.setCurrencyCode('XMR').setMnemonic(mnemonic)).getWords()
+                } else {
+                    walletMnemonic = mnemonic
+                }
                 if (+settingsStore.lock_screen_status) {
                     needPasswordConfirm = true
                 }
@@ -160,23 +152,6 @@ class BackupStep0Screen extends Component {
         NavStore.goNext('BackupStep1Screen')
     }
 
-    handleSkip = () => {
-
-        const { settingsStore } = this.props
-
-        if (+settingsStore.lock_screen_status) {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: 'INFO',
-                title: strings('modal.exchange.sorry'),
-                description: strings('modal.disabledSkipModal.description')
-            })
-            return
-        }
-
-        showModal({ type: 'BACKUP_SKIP_MODAL' })
-    }
-
     renderSettingsIcon = () => {
         return (
             <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.openWalletSettings}>
@@ -209,7 +184,7 @@ class BackupStep0Screen extends Component {
 
         const { flowType, mnemonicLength } = this.props.createWalletStore
 
-        if (flowType === 'BACKUP_WALLET') {
+        if (flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR') {
             const {
                 needPasswordConfirm
             } = this.state
@@ -251,10 +226,15 @@ class BackupStep0Screen extends Component {
             }
         }
 
+        let totalWords = 12
+        if (mnemonicLength === 256 || (typeof this.state.walletMnemonicArray !== 'undefined' && this.state.walletMnemonicArray.length > 12)) {
+            totalWords = 24
+        }
+
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 {
-                    flowType === 'BACKUP_WALLET' ?
+                    flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR' ?
                         <Navigation
                             title={strings('walletBackup.title')}
                             isClose={false}
@@ -272,10 +252,14 @@ class BackupStep0Screen extends Component {
                     style={styles.wrapper__scrollView}>
                     <View style={styles.wrapper__content}>
                         <TextView style={{ height: 90 }}>
-                            {strings('walletBackup.description', {
-                                mnemonicLength: mnemonicLength === 256 ? 24 : 12,
-                                words: mnemonicLength === 256 ? strings('walletCreate.words24') : strings('walletCreate.words12')
-                            })}
+                            {
+
+                                flowType === 'BACKUP_WALLET' ? strings('walletBackup.description', {
+                                    mnemonicLength: totalWords,
+                                    words: totalWords === 24 ? strings('walletCreate.words24') : strings('walletCreate.words12')
+                                }) : strings('walletBackup.descriptionXMR')
+
+                            }
                         </TextView>
                         <Image
                             style={styles.img}
@@ -302,13 +286,18 @@ class BackupStep0Screen extends Component {
                             </Text>
                             <Copy name="content-copy" size={18} color="#946288"/>
                         </TouchableOpacity>
-                        <View style={styles.warning}>
-                            <Icon style={styles.warning__icon} name="warning" size={20} color="#946288"/>
-                            <Text style={styles.warning__text}>{strings('walletBackup.attention')}</Text>
-                        </View>
-                        <Button press={this.onPress} styles={{ marginBottom: 50 }}>
-                            {strings('walletBackup.written')}
-                        </Button>
+
+                        {flowType !== 'BACKUP_WALLET_XMR' ?
+                            <View style={styles.warning}>
+                                <Icon style={styles.warning__icon} name="warning" size={20} color="#946288"/>
+                                <Text style={styles.warning__text}>{strings('walletBackup.attention')}</Text>
+                            </View> : null}
+
+                        {flowType !== 'BACKUP_WALLET_XMR' ?
+                            <Button press={this.onPress} styles={{ marginBottom: 50 }}>
+                                {strings('walletBackup.written')}
+                            </Button> : null}
+
                     </View>
                 </ScrollView>
             </GradientView>
