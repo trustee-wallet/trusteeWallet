@@ -51,13 +51,14 @@ class BlocksoftBalances {
     }
 
     /**
-     * @param {string} address
+     * @param {string|string[]} address
      * @return {BlocksoftBalances}
      */
     setAddress(address) {
-        this._data.address = address.trim()
+        this._data.address = typeof address.trim !== 'undefined' ? address.trim() : address
         return this
     }
+
 
     /**
      * @param {*} jsonData

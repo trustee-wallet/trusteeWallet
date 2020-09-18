@@ -1,7 +1,18 @@
 import * as React from "react"
 import Svg, { Path, G } from "react-native-svg"
+import OldPhone from '../../services/UI/OldPhone/OldPhone'
+import { Image } from "react-native"
 
 function SvgComponent(props) {
+    const ifSelectStyle = props.ifSelectStyle || false
+    if (OldPhone.isOldPhone()) {
+        return (
+            <Image
+                width={34} height={34}
+                resizeMode='stretch'
+                source={ifSelectStyle ? require('./vodafone_2.png') : require('./vodafone.png')}/>
+        )
+    }
         return (
             <Svg width={34} height={34} viewBox="0 0 40 40" {...props}>
                     <Path

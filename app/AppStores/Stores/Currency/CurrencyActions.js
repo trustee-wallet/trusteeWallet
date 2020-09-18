@@ -13,14 +13,14 @@ import walletDS from '../../DataSource/Wallet/Wallet'
 import { setLoaderStatus } from '../Main/MainStoreActions'
 import Log from '../../../services/Log/Log'
 
-import updateAccountsDaemon from '../../../services/Daemon/elements/UpdateAccountsDaemon'
-
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import BlocksoftPrettyLocalize from '../../../../crypto/common/BlocksoftPrettyLocalize'
 
 import countries from '../../../assets/jsons/other/country-by-currency-code'
 import settingsActions from '../Settings/SettingsActions'
 import ApiRates from '../../../services/Api/ApiRates'
+import UpdateCurrencyRateDaemon from '../../../daemons/back/UpdateCurrencyRateDaemon'
+import UpdateAccountBalanceAndTransactions from '../../../daemons/back/UpdateAccountBalanceAndTransactions'
 
 const { dispatch } = store
 
@@ -29,13 +29,13 @@ const BASIC_CURRENCIES_DICTS = {}
 const currencyActions = {
 
     init: async function() {
+        await currencyActions.reloadDict()
         await currencyActions.setCryptoCurrencies()
-        currencyActions.reloadDict()
         const currencyCode = await settingsActions.getSetting('local_currency')
         currencyActions.setSelectedBasicCurrencyCode(currencyCode)
     },
 
-    reloadDict : async function() {
+    reloadDict: async function() {
         const basicCurrencies = await ApiRates.getBasicCurrencies()
         const basicCountries = {}
         let tmp
@@ -52,7 +52,6 @@ const currencyActions = {
     },
 
     setSelectedBasicCurrencyCode: function(currencyCode) {
-
         if (typeof BASIC_CURRENCIES_DICTS[currencyCode] === 'undefined') {
             currencyCode = 'USD'
         }
@@ -68,7 +67,6 @@ const currencyActions = {
     },
 
     setCryptoCurrencies: async function() {
-
         const { walletHash } = store.getState().mainStore.selectedWallet
 
         Log.log('ACT/Currency setCryptoCurrencies called ' + walletHash)
@@ -149,24 +147,30 @@ const currencyActions = {
                 errorStepMsg = 'accountsDS.discoverAddresses finished'
 
                 const dbAccounts = await accountDS.getAccounts({ walletHash, currencyCode: currencyToAdd.currencyCode })
+                if (dbAccounts && typeof dbAccounts[0] !== 'undefined' && typeof dbAccounts[0].id !== 'undefined') {
 
-                const { id: insertID } = dbAccounts[0]
+                    const { id: insertID } = dbAccounts[0]
 
-                accountBalanceInsertObjs.push({
-                    balanceFix: 0,
-                    unconfirmedFix: 0,
-                    balanceScanTime: 0,
-                    balanceScanLog: '',
-                    status: 0,
-                    currencyCode: currencyToAdd.currencyCode,
-                    walletHash: walletHash,
-                    accountId: insertID
-                })
+                    accountBalanceInsertObjs.push({
+                        balanceFix: 0,
+                        unconfirmedFix: 0,
+                        balanceScanTime: 0,
+                        balanceScanLog: '',
+                        status: 0,
+                        currencyCode: currencyToAdd.currencyCode,
+                        walletHash: walletHash,
+                        accountId: insertID
+                    })
+                }
+            }
+            if (accountBalanceInsertObjs && accountBalanceInsertObjs.length > 0) {
+                errorStepMsg = 'accountBalanceDS.insertAccountBalance started'
+                await accountBalanceDS.insertAccountBalance({ insertObjs: accountBalanceInsertObjs })
+                errorStepMsg = 'accountBalanceDS.insertAccountBalance finished'
             }
 
-            await accountBalanceDS.insertAccountBalance({ insertObjs: accountBalanceInsertObjs })
 
-            await appTaskDS.clearTasksByCurrencyAdd({currencyCode: currencyToAdd.currencyCode})
+            await appTaskDS.clearTasksByCurrencyAdd({ currencyCode: currencyToAdd.currencyCode })
 
             const currencyInsertObjs = {
                 currencyCode: currencyToAdd.currencyCode,
@@ -177,7 +181,8 @@ const currencyActions = {
             await currencyDS.insertCurrency({ insertObjs: [currencyInsertObjs] })
 
             await currencyActions.setCryptoCurrencies()
-            await updateAccountsDaemon.forceDaemonUpdate()
+            await UpdateCurrencyRateDaemon.updateCurrencyRate({source: 'ACT/Currency addCurrency'})
+            await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({force : true, currencyCode : currencyToAdd.currencyCode})
 
             Log.log('ACT/Currency addCurrency finished')
         } catch (e) {
@@ -217,7 +222,7 @@ const currencyActions = {
                 }
             })
 
-            await appTaskDS.clearTasksByCurrencyAdd({currencyCode: params.currencyCode})
+            await appTaskDS.clearTasksByCurrencyAdd({ currencyCode: params.currencyCode })
 
             await currencyActions.setCryptoCurrencies()
 

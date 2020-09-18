@@ -1,6 +1,5 @@
 /**
- * @version todo
- * @misha to review
+ * @version 0.11
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -26,6 +25,11 @@ import Api from '../../../services/Api/Api'
 import cardDS from '../../../appstores/DataSource/Card/Card'
 import utils from '../../../services/utils'
 import FileSystem from '../../../services/FileSystem/FileSystem'
+import CashBackUtils from '../../../appstores/Stores/CashBack/CashBackUtils'
+import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
+
+let CACHE_RUB_COUNTRIES = {}
+let CACHE_RUB_COUNTRIES_SET = false
 
 class Cards extends Component {
 
@@ -49,10 +53,16 @@ class Cards extends Component {
         }
     }
 
-    init = () => {
-        let cards = JSON.parse(JSON.stringify(this.props.cardStore.cards))
+    async init() {
+        if (!CACHE_RUB_COUNTRIES_SET) {
+            CACHE_RUB_COUNTRIES = await BlocksoftExternalSettings.get('rubCardsCountries', 'Trade/Cards')
+            CACHE_RUB_COUNTRIES_SET = true
+        }
+    }
 
-        console.log(this.props.cardStore.cards)
+    initCards = () => {
+
+        let cards = JSON.parse(JSON.stringify(this.props.cardStore.cards))
 
         cards = cards.map(item => {
             return { ...item, supported: true }
@@ -108,7 +118,7 @@ class Cards extends Component {
     }
 
     UNSAFE_componentWillMount() {
-        this.init()
+        this.initCards()
     }
 
     componentDidMount() {
@@ -149,26 +159,17 @@ class Cards extends Component {
 
     UNSAFE_componentWillReceiveProps(nextProps) {
         try {
-            const tradeApiConfig = JSON.parse(JSON.stringify(this.props.exchangeStore.tradeApiConfig))
-            const { selectedCryptocurrency, extendsFields } = this.props
             const { selectedPaymentSystem, selectedCard } = nextProps
 
-            let exchangeWayForCountries = tradeApiConfig.exchangeWays.filter(
-                item =>
-                    item[extendsFields.fieldForFiatCurrency] === selectedPaymentSystem.currencyCode &&
-                    item[extendsFields.fieldForPaywayCode] === selectedPaymentSystem.paymentSystem &&
-                    item[extendsFields.fieldForCryptocurrency] === selectedCryptocurrency.currencyCode
-            )
-
-            if (exchangeWayForCountries.length) {
-                this.handleFilterCards(exchangeWayForCountries[0].supportedCountries, selectedCard)
+            if (selectedPaymentSystem && selectedPaymentSystem.supportedCountries) {
+                this.handleFilterCards(selectedPaymentSystem.supportedCountries, selectedCard)
 
                 if (nextProps.cardStore.cards.length !== this.props.cardStore.cards.length) {
                     this.setState({
                         showCards: false,
                         cards: nextProps.cardStore.cards
                     }, () => {
-                        this.handleFilterCards(exchangeWayForCountries[0].supportedCountries, nextProps.cardStore.cards[nextProps.cardStore.cards.length - 1])
+                        this.handleFilterCards(selectedPaymentSystem.supportedCountries, nextProps.cardStore.cards[nextProps.cardStore.cards.length - 1])
                     })
                 }
             }
@@ -196,41 +197,75 @@ class Cards extends Component {
     }
 
     handleFilterCards = (supportedCountries, selectedCard) => {
-        let cards = JSON.parse(JSON.stringify(this.state.cards))
-        let cardsTmp = []
-        const { tradeType } = this.props.exchangeStore
+        const cards = JSON.parse(JSON.stringify(this.state.cards))
+        const cardsTmp = []
 
-        cards.forEach(item1 => {
-            let finded = false
+        let updateSelectedCard = false
+        let firstFoundCard = false
 
+        const indexedSupportedCountries = {}
+        if (supportedCountries) {
             supportedCountries.forEach(item2 => {
-
-                // TODO: remove support cards for kazakhstan (#RESHENIE)
-
-                if (item1.countryCode === item2.toString() || (tradeType === 'BUY' && this.props.selectedPaymentSystem.currencyCode === 'RUB' && (item1.countryCode === '398' || item1.countryCode === '112'))) finded = true
+              indexedSupportedCountries[item2] = 1
             })
 
-            if (finded) {
-                cardsTmp.push({ ...item1, supported: true })
-            } else {
-                cardsTmp.push({ ...item1, supported: false })
-            }
-        })
+            if (cards) {
+                for (let i = 0, ic = cards.length; i < ic; i++) {
+                    const item = cards[i]
+                    let found = false
+                    if (typeof indexedSupportedCountries[item.countryCode] !== 'undefined') {
+                        found = true
+                    } else if (this.props.selectedPaymentSystem.currencyCode === 'RUB') {
+                        if (typeof CACHE_RUB_COUNTRIES[item.countryCode] !== 'undefined') {
+                            found = true
+                        }
+                    }
+                    const tmp = { ...item, supported: found, index: i }
+                    if (found) {
+                        if (firstFoundCard === false) {
+                            firstFoundCard = tmp
+                        }
+                        if (selectedCard && item.id === selectedCard.id) {
+                            updateSelectedCard = tmp
+                        }
+                    }
 
-        if (tradeType === 'SELL') {
-            //TODO: fix this sort buy native currency and custom
+                    cardsTmp.push(tmp)
+                }
+            }
+
+            if (updateSelectedCard === false) {
+                if (firstFoundCard === false) {
+                    if (typeof cardsTmp[0] !== 'undefined') {
+                        updateSelectedCard = cardsTmp[0]
+                    }
+                } else {
+                    updateSelectedCard = firstFoundCard
+                }
+            }
+
+        } else {
+            if (cards) {
+                for (let i = 0, ic = cards.length; i < ic; i++) {
+                    const item = cards[i]
+                    const tmp = { ...item, supported: true, index: i }
+                    cardsTmp.push(tmp)
+                    if (selectedCard && item.id === selectedCard.id) {
+                        updateSelectedCard = tmp
+                    }
+                }
+            }
         }
+
 
         this.setState({
             showCards: true,
             cards: cardsTmp
         })
 
-        let updateSelectedCard = JSON.parse(JSON.stringify(cardsTmp))
-
-        updateSelectedCard = updateSelectedCard.filter(item => item.id === selectedCard.id)
-
-        this.props.self.state.selectedCard = updateSelectedCard[0]
+        if (updateSelectedCard !== false) {
+            this.props.self.state.selectedCard = updateSelectedCard
+        }
     }
 
     handleAddCard = () => NavStore.goNext('AddCardScreen')
@@ -278,7 +313,7 @@ class Cards extends Component {
 
             let path = response.uri
 
-            if (typeof response.uri == 'undefined')
+            if (typeof response.uri === 'undefined')
                 return
 
             if (Platform.OS === 'ios') {
@@ -286,20 +321,21 @@ class Cards extends Component {
             }
 
             if (response.didCancel) {
-                console.log('User cancelled image picker')
+                Log.log('Cards.prepareImageUrl User cancelled image picker')
             } else if (response.error) {
-                console.log('ImagePicker Error: ', response.error)
+                Log.log('Cards.prepareImageUrl ImagePicker error ', response.error)
             } else {
                 this.validateCard(path)
             }
         } catch (e) {
-            Log.err('Cards.prepareImageUrl error ' + e)
+            Log.err('Cards.prepareImageUrl error ' + e.message)
         }
     }
 
     validateCard = async (photoSource) => {
         try {
-            const deviceToken = await AsyncStorage.getItem('fcmToken')
+            const deviceToken = await AsyncStorage.getItem('pushToken')
+            const cashbackToken = CashBackUtils.getWalletToken()
             const locale = i18n.locale.split('-')[0]
 
             const { cards } = this.state
@@ -320,6 +356,9 @@ class Cards extends Component {
 
             typeof deviceToken !== 'undefined' && deviceToken !== null ?
                 data.append('deviceToken', deviceToken) : null
+
+            typeof cashbackToken !== 'undefined' && cashbackToken !== null ?
+                data.append('cashbackToken', cashbackToken) : null
 
             typeof locale !== 'undefined' && locale !== null ?
                 data.append('locale', locale) : null
@@ -358,21 +397,30 @@ class Cards extends Component {
                             }
                         }
 
-                        request(
-                            Platform.select({
-                                android: PERMISSIONS.ANDROID.CAMERA,
-                                ios: PERMISSIONS.IOS.CAMERA
+                        try {
+                            request(
+                                Platform.select({
+                                    android: PERMISSIONS.ANDROID.CAMERA,
+                                    ios: PERMISSIONS.IOS.CAMERA
+                                })
+                            ).then((res) => {
+                                setLoaderStatus(true)
+                                ImagePicker.launchCamera(imagePickerOptions, (response) => {
+                                    if (typeof response.error === 'undefined') {
+                                        this.prepareImageUrl(response)
+                                    } else {
+                                        setLoaderStatus(false)
+                                    }
+                                })
                             })
-                        ).then((res) => {
-                            setLoaderStatus(true)
-                            ImagePicker.launchCamera(imagePickerOptions, (response) => {
-                                if (typeof response.error === 'undefined') {
-                                    this.prepareImageUrl(response)
-                                } else {
-                                    setLoaderStatus(false)
-                                }
+                        } catch (e) {
+                            showModal({
+                                type: 'INFO_MODAL',
+                                icon: 'INFO',
+                                title: strings('modal.openSettingsModal.title'),
+                                description: strings('modal.openSettingsModal.description')
                             })
-                        })
+                        }
                     } else if (res.verificationStatus === 'pending') {
                         await cardDS.updateCard({
                             key: {
@@ -392,8 +440,7 @@ class Cards extends Component {
                         })
 
                         setLoaderStatus(false)
-                    }
-                    else if (res.verificationStatus === 'success') {
+                    } else if (res.verificationStatus === 'success') {
                         await cardDS.updateCard({
                             key: {
                                 id: tmpCards[selectedCardIndex].id
@@ -412,15 +459,29 @@ class Cards extends Component {
                     } else {
                         Log.err('Cards.validateCard 21 error ' + e.message)
                     }
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: 'INFO',
+                        title: strings('modal.exchange.sorry'),
+                        description: strings('tradeScreen.modalError.serviceUnavailable')
+                    })
                 }
                 setLoaderStatus(false)
             })
         } catch (e) {
+
             if (Log.isNetworkError(e.message)) {
                 Log.log('Cards.validateCard error 11 error ' + e.message)
             } else {
                 Log.err('Cards.validateCard error 11 error ' + e.message)
             }
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('tradeScreen.modalError.serviceUnavailable')
+            })
         }
     }
 
@@ -430,18 +491,18 @@ class Cards extends Component {
         const { selectedCard } = this.props.self.state
 
         if (typeof selectedCard.number === 'undefined' || !selectedCard.supported) {
-            throw new Error(strings('tradeScreen.modalError.selectCard'))
+            throw new Error('UI_ERROR_CARD_NEEDED')
         }
 
         const selectedCardStatus = JSON.parse(selectedCard.cardVerificationJson)
 
         if (isPhotoValidation) {
             if (selectedCardStatus == null && isPhotoValidation) {
-                throw new Error(strings('tradeScreen.modalError.takePhoto'))
+                throw new Error('UI_ERROR_CARD_NEED_TAKE_PHOTO')
             } else if (selectedCardStatus.verificationStatus === 'pending') {
-                throw new Error(strings('tradeScreen.modalError.waitValidation'))
+                throw new Error('UI_ERROR_CARD_WAIT_VERIFICATION')
             } else if (selectedCardStatus.verificationStatus === 'canceled') {
-                throw new Error(strings('tradeScreen.modalError.canceledValidation'))
+                throw new Error('UI_ERROR_CARD_CANCELED_VERIFICATION')
             }
 
             this.props.self.state.uniqueParams = { ...this.props.self.state.uniqueParams, firstName: selectedCardStatus.firstName, lastName: selectedCardStatus.lastName }
@@ -454,11 +515,13 @@ class Cards extends Component {
     }
 
     render() {
+        this.init()
 
         const { cards, enabled, showCards } = this.state
         const { selectedCard } = this.props
 
         const selectedCardIndex = cards.findIndex(item => item.id === selectedCard.id)
+
 
         return (
             <View style={{ width: '100%', maxHeight: !enabled ? 0 : 500, overflow: !enabled ? 'hidden' : 'visible' }}>

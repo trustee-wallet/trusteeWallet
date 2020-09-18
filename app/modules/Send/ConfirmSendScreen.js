@@ -19,15 +19,20 @@ import Cross from 'react-native-vector-icons/Entypo'
 import Fee from './elements/Fee'
 import ButtonLine from '../../components/elements/ButtonLine'
 import Button from '../../components/elements/Button'
-import utils from '../../services/utils'
 import Theme from '../../themes/Themes'
-import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
-import prettyNumber from '../../services/UI/PrettyNumber/PrettyNumber'
+
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import {
+    setLoaderStatus,
+    setSelectedAccount,
+    setSelectedCryptoCurrency
+} from '../../appstores/Stores/Main/MainStoreActions'
 
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import AntDesing from 'react-native-vector-icons/AntDesign'
+import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 
 let styles
 
@@ -232,14 +237,19 @@ class ConfirmSendScreen extends Component {
                 }
 
 
-                MarketingEvent.checkSellSendTx({
+                const logData = {
                     walletHash: walletHash,
                     currencyCode: currencyCode,
                     transactionHash: tx.hash,
                     addressTo: addressTo,
                     addressFrom: addressFrom,
-                    addressAmount: amountRaw
-                })
+                    addressAmount: amountRaw,
+                    fee : JSON.stringify(fee)
+                }
+                if (transactionReplaceByFee) {
+                    logData.transactionReplaceByFee = transactionReplaceByFee
+                }
+                MarketingEvent.checkSellSendTx(logData)
 
                 transactionActions.saveTransaction(transaction)
             }
@@ -259,14 +269,18 @@ class ConfirmSendScreen extends Component {
 
                 const { type } = this.props.sendStore.data
 
-                if (type === 'TRADE_SEND') {
+                if (type === 'MAIN_SCANNER') {
+                    NavStore.goNext('DashboardStack')
+                } else if (type === 'SEND_SCANNER') {
+                    NavStore.goNext('AccountScreen')
+                } else if (type === 'TRADE_SEND') {
                     NavStore.goNext('FinishScreen', {
                         finishScreenParam: {
                             selectedCryptoCurrency: this.props.sendStore.data.cryptoCurrency
                         }
                     })
                 } else {
-                    BlocksoftTransfer.getTransferPrecache()
+                    BlocksoftTransfer.getTransferPrecache('confirmScreenOk')
 
                     if (transactionReplaceByFee) {
                         NavStore.goBack(null)
@@ -302,15 +316,31 @@ class ConfirmSendScreen extends Component {
                     type: 'INFO_MODAL',
                     icon: null,
                     title: strings('modal.exchange.sorry'),
-                    description: e.message,
-                    error: e
+                    description: e.message
                 })
+
+                if (typeof e.needFees !== 'undefined') {
+                    await this.fee.multiplyFee()
+                }
             }
             this.setState({ isSendDisabled: false })
         }
 
 
         setLoaderStatus(false)
+    }
+
+    showMultiAddresses = (multiShow) => {
+        let description = ''
+        for (let i = 0, ic = multiShow.length; i < ic; i++) {
+            description += (i+1) + ': ' + multiShow[i].slice(0, 10) + '...' + multiShow[i].slice(-10) + '\n'
+        }
+        showModal({
+            type: 'INFO_MODAL',
+            icon: null,
+            title: strings('send.confirmModal.multiRecipient', {total : multiShow.length}),
+            description
+        })
     }
 
     renderBottom = (feeList, extendCurrencyCode) => {
@@ -340,51 +370,38 @@ class ConfirmSendScreen extends Component {
             )
         }
 
+        Log.log('ConfirmSendScreen.renderBottom ' + extendCurrencyCode, feeList)
         return (
             <View style={{ position: 'relative', width: '100%', zIndex: 1 }}>
                 <Text style={{ paddingHorizontal: 20, textAlign: 'center', paddingVertical: 10, fontFamily: 'SFUIDisplay-Semibold', fontSize: 14, color: '#404040', zIndex: 1 }}>
-                    {strings('send.errors.SERVER_RESPONSE_NOT_ENOUGH_FEE', { symbol: extendCurrencyCode })}
+                    {strings('send.errors.SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET', { symbol: extendCurrencyCode })}
                 </Text>
             </View>
         )
     }
 
     render() {
-
+        UpdateOneByOneDaemon.pause()
+        UpdateAccountListDaemon.pause()
         const { isSendDisabled, feeList, selectedFee, selectedCustomFee } = this.state
-        const { isBottomFunctionEnabled, amount, address, account, cryptoCurrency, wallet, type } = this.state.data
+        let { isBottomFunctionEnabled, amount, address, account, cryptoCurrency, wallet, type } = this.state.data
         const { currencySymbol } = cryptoCurrency
         const basicCurrencySymbol = account.basicCurrencySymbol
 
 
-        const equivalent = prettyNumber(RateEquivalent.mul({ value: amount, currencyCode: account.currencyCode, basicCurrencyRate: account.basicCurrencyRate }), 2)
+        const equivalent = BlocksoftPrettyNumbers.makeCut(RateEquivalent.mul({ value: amount, currencyCode: account.currencyCode, basicCurrencyRate: account.basicCurrencyRate }), 2).justCutted
         let extendCurrencyCode = BlocksoftDict.getCurrencyAllSettings(cryptoCurrency.currencyCode)
         extendCurrencyCode = typeof extendCurrencyCode.addressCurrencyCode === 'undefined' ? extendCurrencyCode.currencySymbol : extendCurrencyCode.addressCurrencyCode
 
-        let changeAddress = ''
-        let changePretty = ''
-        let changeCurrencySymbol = ''
-        let allowReplaceByFee = ''
+        let multiShow = false
         if ( feeList || selectedFee) {
             const lastFee = selectedFee || feeList[feeList.length - 1]
             if (lastFee) {
-                if (typeof lastFee.preparedInputsOutputs !== 'undefined' && typeof lastFee.preparedInputsOutputs.outputs !== 'undefined' && lastFee.preparedInputsOutputs.outputs.length > 0) {
-                    const lastOutput = lastFee.preparedInputsOutputs.outputs[lastFee.preparedInputsOutputs.outputs.length - 1]
-                    if (typeof lastOutput.type !== 'undefined' && lastOutput.type === 'change') {
-                        changeAddress = lastOutput.to
-                        if (selectedCustomFee) {
-                            changePretty = ''
-                        } else if (cryptoCurrency.currencyCode === 'USDT') {
-                            changeCurrencySymbol = 'BTC'
-                            changePretty = BlocksoftPrettyNumbers.setCurrencyCode('BTC').makePretty(lastOutput.amount)
-                        } else {
-                            changePretty = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makePretty(lastOutput.amount)
-                        }
-                    }
+                if (typeof lastFee.preparedInputsOutputs !== 'undefined' && typeof lastFee.preparedInputsOutputs.multiAddress !== 'undefined' &&  lastFee.preparedInputsOutputs.multiAddress) {
+                    address = lastFee.preparedInputsOutputs.multiAddress[0]
+                    multiShow = lastFee.preparedInputsOutputs.multiAddress
                 }
-                if (typeof lastFee.txAllowReplaceByFee !== 'undefined') {
-                    allowReplaceByFee = lastFee.txAllowReplaceByFee ? 'on' : ''
-                }
+
             }
         }
 
@@ -428,41 +445,29 @@ class ConfirmSendScreen extends Component {
                                         <Text style={styles.description__text}>
                                             {strings('send.confirmModal.recipient')}
                                         </Text>
-                                        <Text style={styles.description__text}>
-                                            {address.slice(0, 10) + '...' + address.slice(address.length - 10, address.length)}
-                                        </Text>
+                                            {
+                                                multiShow
+                                                ?
+                                                    (
+                                                        <TouchableOpacity
+                                                            style={{ flex: 1, height: 30, paddingLeft: 0, justifyContent: 'center' }}
+                                                            onPress={() => this.showMultiAddresses(multiShow)}>
+                                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                <Text style={styles.description__text}>{strings('send.confirmModal.multiRecipient', {total : multiShow.length})}</Text>
+                                                                <View style={{ marginLeft: 5, marginBottom: 0 }}>
+                                                                    <AntDesing name={'caretdown'} size={13} color="#f4f4f4"/>
+                                                                </View>
+                                                            </View>
+                                                        </TouchableOpacity>
+                                                    )
+                                                :  (
+                                                        <Text style={styles.description__text}>
+                                                            {(address.slice(0, 10) + '...' + address.slice(-10))}
+                                                        </Text>
+                                                    )
+                                            }
                                     </View>
                                 </View>
-                                {changeAddress || allowReplaceByFee?
-                                    <View style={styles.description}>
-                                        <View style={styles.description__item}>
-                                            <Text style={styles.description__text}>
-                                                {''}
-                                            </Text>
-                                        </View>
-                                    </View> : null
-                                }
-                                {changeAddress ?
-                                    <View style={styles.description}>
-                                        <View style={styles.description__item}>
-                                            <Text style={styles.description__text}>
-                                                {strings('send.confirmModal.change', {amount : changePretty, currencySymbol : changeCurrencySymbol})}
-                                            </Text>
-                                            <Text style={styles.description__text}>
-                                                {changeAddress.slice(0, 10) + '...' + changeAddress.slice(changeAddress.length - 10, changeAddress.length)}
-                                            </Text>
-                                        </View>
-                                    </View> : null
-                                }
-                                {allowReplaceByFee ?
-                                    <View style={styles.description}>
-                                        <View style={styles.description__item}>
-                                            <Text style={styles.description__text}>
-                                                { strings('send.confirmModal.rbf_' + allowReplaceByFee)}
-                                            </Text>
-                                        </View>
-                                    </View> : null
-                                }
 
                                 <TouchableOpacity onPress={() => this.handleHide()} style={styles.cross}>
                                     <Cross name={'cross'} size={30} color={'#fff'}/>

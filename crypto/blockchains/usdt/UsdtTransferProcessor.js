@@ -93,7 +93,7 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
 
         const now = new Date().getTime()
         if (this._precached.unspentsKey !== this._unspentsKeyFromData(data) || !this._precached.blocks_2 || !this._precached.unspents || now - this._precached.time > CACHE_VALID_TIME) {
-            await this.getTransferPrecache(data)
+            await this.getTransferPrecache(data, 'usdt sendTx')
         }
 
         const correctedAmountFrom = data.amount // USDT FIX!!!!

@@ -35,6 +35,7 @@ export default {
      * @param {Object} params
      * @param {string} params.walletHash
      * @param {string} params.taskStatus
+     * @param {string} params.taskName
      * @return {Promise<{id, currencyCode, walletHash, taskGroup, taskName, taskJson, taskStatus, taskLog}[]>}
      */
     getTasksForRun: async (params) => {
@@ -48,6 +49,9 @@ export default {
 
         if (params && params.walletHash) {
             where.push(`app_task.wallet_hash='${params.walletHash}'`)
+        }
+        if (params && typeof params.taskName !== 'undefined') {
+            where.push(`app_task.task_name='${params.taskName}'`)
         }
 
         if (where.length > 0) {

@@ -24,9 +24,9 @@ class Transaction {
      * @param {string} transaction.updatedAt: new Date().toISOString()
      * @param {integer} updateId
      */
-    saveTransaction = async (transaction, updateId = false) => {
+    saveTransaction = async (transaction, updateId = false, source = '') => {
 
-        Log.daemon('Transaction saveTransaction called ' + transaction.transactionHash)
+        // console.log('Transaction saveTransaction called ' + transaction.transactionHash + ' ' + source, transaction)
 
         const dbInterface = new DBInterface()
 
@@ -35,10 +35,6 @@ class Transaction {
         if (!transaction.updatedAt) {
             transaction.updatedAt = new Date().toISOString()
         }
-        if (!transaction.transactionDirection) {
-            transaction.transactionDirection = 'outcome'
-        }
-
         const copy = JSON.parse(JSON.stringify(transaction))
         if (typeof copy.transactionJson !== 'undefined') {
             if (typeof copy.transactionJson !== 'string') {
@@ -62,7 +58,7 @@ class Transaction {
                 delete copy.addressFrom
             }
             await dbInterface.setUpdateData({ key: { id: updateId }, updateObj: copy }).update()
-            Log.daemon('Transaction saveTransaction finished updated')
+            // Log.daemon('Transaction saveTransaction finished updated')
             return true
         }
 
@@ -76,9 +72,9 @@ class Transaction {
                 copy.createdAt = new Date().toISOString()
             }
             await dbInterface.setInsertData({ insertObjs: [copy] }).insert()
-            Log.daemon('Transaction saveTransaction finished inserted')
+            // Log.daemon('Transaction saveTransaction finished inserted')
         } else {
-            Log.daemon('Transaction saveTransaction finished skipped')
+            // Log.daemon('Transaction saveTransaction finished skipped')
         }
     }
 
@@ -92,7 +88,8 @@ class Transaction {
      * @returns {Promise<void>}
      */
     updateTransaction = async (transaction) => {
-        Log.log('Transaction updateTransaction called ' + transaction.transactionHash, transaction)
+
+        // console.log('Transaction updateTransaction called ' + transaction.transactionHash, transaction)
 
         const dbInterface = new DBInterface()
 
@@ -128,7 +125,7 @@ class Transaction {
 
         const dbInterface = new DBInterface()
 
-        Log.daemon('DS/Transaction getTransactions called')
+        // Log.daemon('DS/Transaction getTransactions called')
 
         let where = []
         if (params.walletHash) {
@@ -193,7 +190,7 @@ class Transaction {
         }
 
         if (!res || res.length === 0) {
-            Log.daemon('DS/Transaction getTransactions finished empty ' + where + ' ' + order)
+            // Log.daemon('DS/Transaction getTransactions finished empty ' + where + ' ' + order)
             return false
         }
 
@@ -207,6 +204,19 @@ class Transaction {
             }
             shownTx[tx.transactionHash] = 1
             tx.addressAmount = BlocksoftUtils.fromENumber(tx.addressAmount)
+
+            if (typeof params.noOld !== 'undefined' || params.noOld) {
+                if ((tx.blockConfirmations > 30 && tx.transactionStatus === 'success') || tx.blockConfirmations > 300) {
+                    txArray.push({
+                        id : tx.id,
+                        transactionHash : tx.transactionHash,
+                        transactionsOtherHashes : tx.transactionsOtherHashes,
+                        updateSkip : true
+                    })
+                    continue
+                }
+            }
+
             if (typeof tx.transactionJson !== 'undefined' && tx.transactionJson !== null && tx.transactionJson !== 'undefined') {
 
                 try {
@@ -228,7 +238,7 @@ class Transaction {
             txArray.push(tx)
         }
 
-        Log.daemon('DS/Transaction getTransactions finished ' + where + ' ' + order)
+        // Log.daemon('DS/Transaction getTransactions finished ' + where + ' ' + order)
         return txArray
     }
 

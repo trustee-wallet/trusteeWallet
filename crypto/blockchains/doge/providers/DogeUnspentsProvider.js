@@ -46,7 +46,7 @@ export default class DogeUnspentsProvider {
         const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || typeof res.data === 'undefined') {
             await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
-            BlocksoftCryptoLog.err(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents nothing loaded for address ' + address + ' link ' + link)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents nothing loaded for address ' + address + ' link ' + link)
             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
         }
         if (!res.data || typeof res.data[0] === 'undefined') {

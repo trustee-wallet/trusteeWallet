@@ -77,9 +77,12 @@ export default {
                 wallet_pub_id INTEGER NULL,
                 
                 status INTEGER NULL,
+                is_main INTEGER NULL DEFAULT 1,
                 
                 transactions_scan_time INTEGER NULL,
                 transactions_scan_log TEXT NULL,
+                
+                changes_log TEXT_NULL,
                 
                 currency_code VARCHAR(32) NOT NULL,
                 

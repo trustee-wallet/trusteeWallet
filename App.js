@@ -26,7 +26,7 @@ export default class App extends Component {
     }
 
     componentDidMount() {
-        Application.init()
+        Application.init({source : 'App.mount'})
         Linking.addEventListener('url', (data) => SendActions.handleInitialURL(data.url))
     }
 

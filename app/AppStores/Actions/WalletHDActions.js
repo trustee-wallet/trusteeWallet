@@ -24,7 +24,7 @@ const walletHDActions = {
         await walletActions.setAvailableWallets()
 
         try {
-            await walletHDActions.hdFromTrezor({ walletHash, force : true, currencyCode: 'BTC' }, 'TURN_ON')
+            await walletHDActions.hdFromTrezor({ walletHash, force: true, currencyCode: 'BTC' }, 'TURN_ON')
             Log.log('ACT/WalletHD manual turnOn finished ' + walletHash)
         } catch (e) {
             Log.log('ACT/WalletHD manual turnOn error ' + e.message)
@@ -70,11 +70,23 @@ const walletHDActions = {
     hdFromTrezor: async function(params, source) {
         let derivations = false
 
-        const check = await walletPubDS.getWalletPubs({ walletHash: params.walletHash, currencyCode: params.currencyCode })
-        if (check) {
-            throw new Error('already derived hd wallet pubs')
+        try {
+            const check = await walletPubDS.getWalletPubs({ walletHash: params.walletHash, currencyCode: params.currencyCode })
+            if (check) {
+                throw new Error('already derived hd wallet pubs')
+            }
+        } catch (e) {
+            e.message += ' while walletPubDS.getWalletPubs'
+            throw e
         }
-        derivations = await walletPubDS.discoverFromTrezor({ walletHash: params.walletHash, force : params.force }, source)
+
+        try {
+            derivations = await walletPubDS.discoverFromTrezor({ walletHash: params.walletHash, force: params.force }, source)
+        } catch (e) {
+            e.message += ' while  walletPubDS.discoverFromTrezor'
+            throw e
+        }
+
         if (!params.force) {
             if (!derivations) {
                 throw new Error('no derivations 1 found')
@@ -83,6 +95,7 @@ const walletHDActions = {
                 throw new Error('no derivations 2 found')
             }
         }
+
         try {
             await accountDS.discoverAccounts({ walletHash: params.walletHash, fullTree: false, source, derivations }, source)
         } catch (e) {
@@ -100,6 +113,7 @@ const walletHDActions = {
         } catch (e) {
             Log.daemon('ACT/WalletHd hdFromTrezor massUpdateAccount error ' + e.message, derivations)
         }
+
         return derivations
     }
 

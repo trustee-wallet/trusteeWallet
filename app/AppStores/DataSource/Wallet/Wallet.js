@@ -27,8 +27,11 @@ class Wallet {
         const dbInterface = new DBInterface()
         const tmpWalletName = dbInterface.escapeString(wallet.walletName)
         const tmpWalletJSON = dbInterface.escapeString(wallet.walletJson)
+
+        const walletUseLegacy = 2
+        const walletUseUnconfirmed = 1
         await dbInterface.setQueryString(`INSERT INTO wallet (wallet_hash, wallet_name, wallet_json, wallet_is_hd, wallet_use_legacy, wallet_use_unconfirmed, wallet_allow_replace_by_fee, wallet_is_backed_up, wallet_is_hide_transaction_for_fee) 
-        VALUES ('${wallet.walletHash}', '${tmpWalletName}','${tmpWalletJSON}', 0, 0, 0, 0, ${wallet.walletIsBackedUp || 0}, ${wallet.walletIsHideTransactionForFee || 1})`).query(true)
+        VALUES ('${wallet.walletHash}', '${tmpWalletName}','${tmpWalletJSON}', 0, ${walletUseLegacy}, ${walletUseUnconfirmed}, 1, ${wallet.walletIsBackedUp || 0}, ${wallet.walletIsHideTransactionForFee || 1})`).query(true)
     }
 
     /**
@@ -82,7 +85,8 @@ class Wallet {
      */
     changeWalletName = async (walletHash, newWalletName) => {
         const dbInterface = new DBInterface()
-        await dbInterface.setQueryString(`UPDATE wallet SET wallet_name='${newWalletName}' WHERE wallet_hash='${walletHash}'`).query()
+        await dbInterface.setQueryString(`UPDATE wallet SET wallet_name='${dbInterface.escapeString(newWalletName)}' WHERE wallet_hash='${walletHash}'`).query()
+        CACHE[walletHash] = false
     }
 
     /**

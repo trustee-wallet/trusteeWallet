@@ -70,7 +70,9 @@ export async function decodeTransactionQrCode(param, currencyCode) {
         tmp = tmp.split('?')
 
         if (!tmp[0] || tmp[0].length < 5) {
-            throw new Error('no address ' + JSON.stringify(tmp))
+            if (tmp[1].indexOf('bitpay') === -1) {
+                throw new Error('no address ' + JSON.stringify(tmp))
+            }
         }
 
         res.data.address = tmp[0]
@@ -94,6 +96,7 @@ export async function decodeTransactionQrCode(param, currencyCode) {
                 Log.log('Utils.QR symbol ' + symbol)
             } else if (tmp2[0].toLowerCase() === 'amount') {
                 res.data.amount = typeof tmp2[1] !== 'undefined' ? tmp2[1].toLowerCase() : ''
+                res.data.inputType = 'CRYPTO'
                 Log.log('Utils.QR amount ' + res.data.amount)
             } else if (tmp2[0].toLowerCase() === 'needtodisable') {
                 res.data.needToDisable = typeof tmp2[1] !== 'undefined' ? tmp2[1].toLowerCase() : ''
@@ -112,6 +115,9 @@ export async function decodeTransactionQrCode(param, currencyCode) {
                 if (typeof bitpay.data.outputs !== 'undefined' && typeof bitpay.data.outputs[0] !== 'undefined') {
                     res.data.currencyCode = bitpay.data.currency
                     res.data.amount = bitpay.data.outputs[0].amount
+                    if (res.data.amount) {
+                        res.data.inputType = 'CRYPTO'
+                    }
                     res.data.address = bitpay.data.outputs[0].address
                     res.data.memo = bitpay.data.memo
                 }

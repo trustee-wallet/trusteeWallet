@@ -8,6 +8,8 @@ import { createStackNavigator } from 'react-navigation-stack'
 import WalletCreateStack from './WalletCreateStack'
 import WalletBackupStack from './WalletBackupStack'
 
+import ErrorScreen from './ErrorScreen'
+
 import InitScreen from '../modules/Init/InitScreen'
 import WalletCreateScreen from '../modules/WalletCreate/WalletCreateScreen'
 import EnterMnemonicPhrase from '../modules/WalletCreate/EnterMnemonicPhrase'
@@ -37,6 +39,13 @@ import SMSCodeScreen from '../modules/Trade/SMSCodeScreen'
 const MainNavigator = createStackNavigator({
         InitScreen: {
             screen: InitScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        ErrorScreen: {
+            screen: ErrorScreen,
             navigationOptions: {
                 headerShown: false
             }

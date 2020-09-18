@@ -41,16 +41,31 @@ class Skip extends Component {
 
             let tmpWalletName = walletName
 
-            if(!tmpWalletName) {
-                tmpWalletName = await walletActions.getNewWalletName()
+            try {
+                if (!tmpWalletName) {
+                    tmpWalletName = await walletActions.getNewWalletName()
+                }
+            } catch (e) {
+                e.message += ' while getNewWalletName'
+                throw e
             }
 
-            await proceedSaveGeneratedWallet({
-                walletName: tmpWalletName,
-                walletMnemonic
-            })
+            try {
+                await proceedSaveGeneratedWallet({
+                    walletName: tmpWalletName,
+                    walletMnemonic
+                })
+            } catch (e) {
+                e.message += ' while proceedSaveGeneratedWallet'
+                throw e
+            }
 
-            await App.refreshWalletsStore()
+            try {
+                await App.refreshWalletsStore({ firstTimeCall: false, source: 'WalletBackup.handleSkip' })
+            } catch (e) {
+                e.message += ' while refreshWalletsStore'
+                throw e
+            }
 
             setLoaderStatus(false)
 

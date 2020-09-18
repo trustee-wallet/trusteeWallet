@@ -18,6 +18,7 @@ import AddressInput from '../../components/elements/Input'
 import AmountInput from '../../components/elements/Input'
 import MemoInput from '../../components/elements/Input'
 import Input from '../../components/elements/Input'
+import TextareaInput from '../../components/elements/Input'
 import Navigation from '../../components/navigation/Navigation'
 import GradientView from '../../components/elements/GradientView'
 import Button from '../../components/elements/Button'
@@ -31,6 +32,10 @@ import { strings } from '../../services/i18n'
 
 import BlocksoftTransfer from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
+
+import DaemonCache from '../../daemons/DaemonCache'
 
 import Log from '../../services/Log/Log'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
@@ -38,14 +43,14 @@ import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import Theme from '../../themes/Themes'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
 import LetterSpacing from '../../components/elements/LetterSpacing'
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
-import prettyNumber from '../../services/UI/PrettyNumber/PrettyNumber'
-import UpdateAccountsDaemon from '../../services/Daemon/elements/UpdateAccountsDaemon'
+
 import config from '../../config/config'
+import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
+import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 
 let styles
 
@@ -129,7 +134,8 @@ class SendScreen extends Component {
 
     init = async () => {
         if (Object.keys(this.props.send.data).length !== 0) {
-            const {
+            // Log.log('INIT SEND DATA', this.props.send.data)
+            let {
                 sendType,
                 account,
                 address,
@@ -142,8 +148,13 @@ class SendScreen extends Component {
                 useAllFunds,
                 toTransactionJSON,
                 copyAddress,
-                inputType
+                inputType,
+                type
             } = this.props.send.data
+            if (type === 'TRADE_SEND') {
+                inputType = 'CRYPTO'
+            }
+            // Log.log(inputType, type)
 
             this.transferPrecache(account)
 
@@ -264,8 +275,8 @@ class SendScreen extends Component {
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            //const tmp = await BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).getBalance()
-            //const balanceRaw = tmp ? BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) : 0 // to think show this as option or no
+            // const tmp = await BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).getBalance()
+            // const balanceRaw = tmp ? BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) : 0 // to think show this as option or no
             const balanceRaw = walletUseUnconfirmed ? BlocksoftUtils.add(balance, unconfirmed).toString() : balance
             Log.log(`SendScreen.handleTransferAll balance ${currencyCode} ${address} data ${balance} + ${unconfirmed} => ${balanceRaw}`)
 
@@ -291,10 +302,10 @@ class SendScreen extends Component {
                     .setTransferAll(true)
             ).getFeeRate(true)
 
-
             let current = false
 
             // try fast
+            // Log.log('fees1', JSON.parse(JSON.stringify(fees)))
             let currentFee = fees ? fees[fees.length - 1] : 0
             try {
                 try {
@@ -306,7 +317,7 @@ class SendScreen extends Component {
                             .setFee(currentFee)
                     ).getTransferAllBalance(balanceRaw)
                 } catch (e) {
-                    if (typeof e.code !== 'undefined' && e.code === 'ERROR_BALANCE_MINUS_FEE' && fees) {
+                    if (fees) {
                         currentFee = fees[0]
                         current = await (
                             BlocksoftTransfer
@@ -320,7 +331,7 @@ class SendScreen extends Component {
                     }
                 }
             } catch (e) {
-                if (typeof e.code !== 'undefined' && e.code === 'ERROR_BALANCE' && fees) {
+                if (fees) {
                     current = false
                 } else {
                     throw e
@@ -328,9 +339,19 @@ class SendScreen extends Component {
             }
 
             // try slow if not enough for fast
-            if (current === false) {
+            // Log.log('fees', JSON.parse(JSON.stringify(fees)))
+            if (fees && typeof fees[0] !== 'undefined' && (current === false || current === 0)) {
                 currentFee = fees[0]
-                try {
+                current = await (
+                    BlocksoftTransfer
+                        .setCurrencyCode(currencyCode)
+                        .setAddressFrom(address)
+                        .setAddressTo(addressToForTransferAll)
+                        .setFee(currentFee)
+                ).getTransferAllBalance(balanceRaw)
+
+                if (current === false || current === 0) {
+                    currentFee.feeForTx = currentFee.feeForTx / 2
                     current = await (
                         BlocksoftTransfer
                             .setCurrencyCode(currencyCode)
@@ -338,11 +359,9 @@ class SendScreen extends Component {
                             .setAddressTo(addressToForTransferAll)
                             .setFee(currentFee)
                     ).getTransferAllBalance(balanceRaw)
-                } catch (e) {
-                    e.code = 'ERROR_USER'
-                    throw e
                 }
             }
+
 
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(current)
 
@@ -351,9 +370,18 @@ class SendScreen extends Component {
                 useAllFunds: true
             })
 
-            if (handleInput) {
-                this.valueInput.handleInput((1 * Math.abs(amount)).toString(), false)
-                this.amountInputCallback((1 * Math.abs(amount)).toString(), false)
+            try {
+                if (handleInput
+                    && typeof this.valueInput !== 'undefined' && this.valueInput
+                    && typeof this.valueInput.handleInput !== 'undefined' && this.valueInput.handleInput
+                    && typeof amount !== 'undefined' && amount !== null
+                ) {
+                    this.valueInput.handleInput((1 * Math.abs(amount)).toString(), false)
+                    this.amountInputCallback((1 * Math.abs(amount)).toString(), false)
+                }
+            } catch (e) {
+                e.message += ' while this.valueInput.handleInput amount ' + amount
+                throw e
             }
 
             setLoaderStatus(false)
@@ -361,7 +389,7 @@ class SendScreen extends Component {
             return { currencyBalanceAmount: amount, currencyBalanceAmountRaw: current }
 
         } catch (e) {
-
+            // console.error(e)
             Log.errorTranslate(e, 'Send.SendScreen.handleTransferAll', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
 
             Keyboard.dismiss()
@@ -434,9 +462,8 @@ class SendScreen extends Component {
             messages: []
         }
 
-
-        if (!force && typeof extend.delegatedTransfer === 'undefined' && typeof extend.feesCurrencyCode !== 'undefined') {
-            const parentCurrency = await UpdateAccountsDaemon.getCacheAccount(account.walletHash, extend.feesCurrencyCode)
+        if (!force && typeof extend.delegatedTransfer === 'undefined' && typeof extend.feesCurrencyCode !== 'undefined' && typeof extend.skipParentBalanceCheck === 'undefined') {
+            const parentCurrency = await DaemonCache.getCacheAccount(account.walletHash, extend.feesCurrencyCode)
             if (parentCurrency) {
                 const parentBalance = parentCurrency.balance * 1
                 if (parentBalance === 0) {
@@ -450,7 +477,7 @@ class SendScreen extends Component {
                     enoughFunds.messages.push(msg)
                     Log.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
                     if (config.debug.appErrors) {
-                        console.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
+                        Log.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
                     }
                 } else if (cryptoCurrency.currencyCode === 'USDT' && parentBalance < 550) {
                     let msg
@@ -463,7 +490,7 @@ class SendScreen extends Component {
                     enoughFunds.messages.push(msg)
                     Log.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
                     if (config.debug.appErrors) {
-                        console.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
+                        Log.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
                     }
                 } else {
                     Log.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance is ok ' + parentBalance, parentCurrency)
@@ -490,6 +517,9 @@ class SendScreen extends Component {
             toTransactionJSON.comment = comment
 
             const amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makeUnPretty(amount)
+            if (typeof amountRaw === 'undefined') {
+                Log.err('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' not ok amountRaw ', {'eq' : this.state.amountEquivalent, 'vaL' :valueValidation.value, amount, amountRaw})
+            }
             const balanceRaw = account.balanceRaw
 
             if (!force) {
@@ -519,9 +549,10 @@ class SendScreen extends Component {
             })
 
             setTimeout(() => {
+                Log.log('amount', amount)
                 const data = {
                     memo,
-                    amount: amount.toString(),
+                    amount: typeof amount === 'undefined' ? '0' : amount.toString(),
                     amountRaw,
                     address: addressValidation.value,
                     wallet,
@@ -607,6 +638,7 @@ class SendScreen extends Component {
     renderEnoughFundsError = () => {
         const { enoughFunds } = this.state
 
+        Log.log('SendScreen renderEnoughFundsError', enoughFunds)
         if (!enoughFunds.isAvailable) {
             return (
                 <View>
@@ -640,11 +672,28 @@ class SendScreen extends Component {
     renderAccountDetail = () => {
 
         const { currencySymbol, currencyName, currencyCode } = this.state.cryptoCurrency
-        const { balancePretty, unconfirmedPretty } = this.state.account
+        const { basicCurrencyRate, balancePretty, unconfirmedPretty } = this.state.account
         const { walletUseUnconfirmed } = this.state.wallet
 
         const amount = walletUseUnconfirmed === 1 ? BlocksoftUtils.add(balancePretty, unconfirmedPretty).toString() : balancePretty
-        const amountPrep = prettyNumber(amount, 5, false).toString()
+        const amountPrep = BlocksoftPrettyNumbers.makeCut(amount).cutted
+
+        let sumPrep = amountPrep + ' ' + currencySymbol
+
+        if (amount && currencyCode && basicCurrencyRate) {
+            try {
+                const basicCurrencyCode = this.state.account.basicCurrencyCode || 'USD'
+                const basicAmount = RateEquivalent.mul({ value: amount, currencyCode, basicCurrencyRate })
+                const basicAmountPrep = BlocksoftPrettyNumbers.makeCut(basicAmount, 2).cutted
+                if (this.state.inputType === 'CRYPTO') {
+                    sumPrep += ' / ' + basicAmountPrep + ' ' + basicCurrencyCode
+                } else {
+                    sumPrep = basicAmountPrep + ' ' + basicCurrencyCode + ' / ' + sumPrep
+                }
+            } catch (e) {
+                Log.log('SendScreen renderAccountDetail error ' + e.message)
+            }
+        }
 
         return (
             <View style={styles.accountDetail}>
@@ -659,7 +708,7 @@ class SendScreen extends Component {
                                 {currencyName}
                             </Text>
                             <View style={{ alignItems: 'flex-start' }}>
-                                <LetterSpacing text={amountPrep + ' ' + currencySymbol} textStyle={styles.accountDetail__text} letterSpacing={1}/>
+                                <LetterSpacing text={sumPrep} textStyle={styles.accountDetail__text} letterSpacing={1}/>
                             </View>
                         </View>
                     </View>
@@ -669,6 +718,8 @@ class SendScreen extends Component {
     }
 
     render() {
+        UpdateOneByOneDaemon.pause()
+        UpdateAccountListDaemon.pause()
         firebase.analytics().setCurrentScreen('Send.SendScreen')
 
         const route = NavStore.getCurrentRoute()
@@ -676,7 +727,7 @@ class SendScreen extends Component {
             if (!IS_CALLED_BACK) {
                 if (typeof this.state.amountEquivalent === 'undefined' || this.state.amountEquivalent.toString() === '0') {
                     if (typeof this.valueInput !== 'undefined' && typeof this.valueInput.getValue !== 'undefined') {
-                        let value = this.valueInput.getValue()
+                        const value = this.valueInput.getValue()
                         if (value) {
                             IS_CALLED_BACK = true
                             this.amountInputCallback(value)
@@ -716,6 +767,7 @@ class SendScreen extends Component {
 
         const { type } = this.props.send.data
 
+        const prev = NavStore.getPrevRoute().routeName
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <Navigation
@@ -737,9 +789,10 @@ class SendScreen extends Component {
                                 {description}
                             </TextView>
                             <AddressInput
+                                style={{marginTop: 20}}
                                 ref={component => this.addressInput = component}
                                 id={addressInput.id}
-                                onFocus={() => this.onFocus()}
+                                // onFocus={() => this.onFocus()}
                                 name={strings('send.address')}
                                 type={extendedAddressUiChecker.toUpperCase() + '_ADDRESS'}
                                 subtype={network}
@@ -762,6 +815,7 @@ class SendScreen extends Component {
                                 }}
                                 disabled={disabled}
                                 validPlaceholder={true}
+                                noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' ? true : 0}
                             />
                             {
                                 currencyCode === 'XRP' ?
@@ -780,8 +834,8 @@ class SendScreen extends Component {
                             <AmountInput
                                 ref={component => this.valueInput = component}
                                 id={amountInput.id}
-                                onFocus={() => this.onFocus()}
-                                autoFocus={true}
+                                // onFocus={() => this.onFocus()}
+                                // autoFocus={true}
                                 name={strings('send.value')}
                                 type={amountInput.type}
                                 decimals={10}
@@ -801,15 +855,17 @@ class SendScreen extends Component {
                                     }
                                 }}
                                 disabled={disabled}
+                                noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' ? true : 0}
                                 callback={(value) => this.amountInputCallback(value, true)}/>
 
                             <View style={{ flexDirection: 'row' }}>
                                 <Input
                                     ref={component => this.commentInput = component}
                                     id={'comment'}
-                                    onFocus={() => this.onFocus()}
+                                    // onFocus={() => this.onFocus()}
                                     name={strings('send.comment')}
                                     type={'OPTIONAL'}
+                                    isTextarea={true}
                                     style={{ marginRight: 2 }}/>
                             </View>
                             {this.renderEnoughFundsError()}

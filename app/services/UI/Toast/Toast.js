@@ -26,7 +26,7 @@ class Toast {
      *
      * @param {number} position
      */
-    show = (position) => {
+    show = (position = -80) => {
 
         const { _message } = this
 
@@ -34,7 +34,7 @@ class Toast {
 
         this._toast = ToastModule.show(_message, {
             duration: ToastModule.durations.SHORT,
-            position: typeof position != 'undefined' ? position : -80,
+            position: typeof position !== 'undefined' ? position : -80,
             shadow: true,
             animation: true,
             hideOnPress: true,

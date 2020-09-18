@@ -2,7 +2,7 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { Text, SafeAreaView, View, Animated, ScrollView, RefreshControl, Platform } from 'react-native'
+import {Text, SafeAreaView, View, Animated, ScrollView, RefreshControl, Platform, TouchableOpacity} from 'react-native'
 import { connect } from 'react-redux'
 
 import firebase from 'react-native-firebase'
@@ -16,17 +16,16 @@ import WalletInfo from './elements/WalletInfo'
 import Log from '../../services/Log/Log'
 import { strings } from '../../services/i18n'
 
-import updateCurrencyRateDaemon from '../../services/Daemon/elements/UpdateCurrencyRateDaemon'
-import updateAccountBalanceAndTransactionsDaemon from '../../services/Daemon/elements/UpdateAccountBalanceAndTransactionsDaemon'
-import updateAccountsDaemon from '../../services/Daemon/elements/UpdateAccountsDaemon'
-
 import SendActions from '../../appstores/Stores/Send/SendActions'
 
 import Theme from '../../themes/Themes'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import UpdateCurrencyRateDaemon from '../../daemons/back/UpdateCurrencyRateDaemon'
+import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
+import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAccountBalanceAndTransactionsHD'
+import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 
 let styles
-
 
 class HomeScreen extends Component {
 
@@ -61,28 +60,32 @@ class HomeScreen extends Component {
                 isHeaderTransparent: false
             })
 
-            Log.log('WalletList.HomeScreen is refreshing')
-
             this.setState({
                 refreshing: true
             })
 
             try {
-                await updateCurrencyRateDaemon.forceDaemonUpdate()
+                await UpdateCurrencyRateDaemon.updateCurrencyRate({force : true, source: 'HomeScreen.handleRefresh'})
             } catch (e) {
                 Log.errDaemon('WalletList.HomeScreen handleRefresh error updateCurrencyRateDaemon ' + e.message)
             }
 
             try {
-                await updateAccountBalanceAndTransactionsDaemon.forceDaemonUpdate()
+                await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({force : true})
             } catch (e) {
                 Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountBalanceAndTransactionsDaemon ' + e.message)
             }
 
             try {
-                await updateAccountsDaemon.forceDaemonUpdate()
+                await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({force : true})
             } catch (e) {
-                Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountsDaemon ' + e.message)
+                Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountBalanceAndTransactionsHDDaemon ' + e.message)
+            }
+
+            try {
+                await UpdateAccountListDaemon.forceDaemonUpdate()
+            } catch (e) {
+                Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountListDaemon ' + e.message)
             }
 
             this.setState({
@@ -132,12 +135,58 @@ class HomeScreen extends Component {
         this.refHomeScreenSV.scrollToEnd({ animated: true })
     }
 
+    // handleSend = () => {
+    //     const cryptoCurrency = this.props.cryptoCurrenciesStore.cryptoCurrencies[0]
+    //     const walletHash = this.props.mainStore.selectedWallet.walletHash
+    //     const account = this.props.accountStore.accountList[walletHash][0]
+    //     console.log(account)
+    //
+    //     const isSynchronized = currencyActions.checkIsCurrencySynchronized({ cryptoCurrency, account })
+    //
+    //     if (isSynchronized) {
+    //
+    //         clearSendData()
+    //
+    //         NavStore.goNext('SendScreen')
+    //
+    //     } else {
+    //         showModal({
+    //             type: 'INFO_MODAL',
+    //             icon: 'INFO',
+    //             title: strings('modal.cryptocurrencySynchronizing.title'),
+    //             description: strings('modal.cryptocurrencySynchronizing.description')
+    //         })
+    //     }
+    // }
+    // винести методи в компоненту та передавати атрибути через пропси - і буде тобі щастя!!!
+    // handleReceive = (cryptoCurrency, address) => {
+    //     const cryptoCurrency = this.props.cryptoCurrency
+    //     const { address } = this.props.account
+    //     noinspection ES6MissingAwait
+    //     checkTransferHasError({ currencyCode: cryptoCurrency.currencyCode, currencySymbol: cryptoCurrency.currencySymbol, address })
+    //     NavStore.goNext('ReceiveScreen')
+    // }
+
+    // renderItem = ({item, index, drag, isActive}) => {
+    //     const walletHash = this.props.mainStore.selectedWallet.walletHash
+    //     const accountListByWallet = this.props.accountStore.accountList[walletHash] || {}
+    //     return (
+    //         !item.isHidden ? <CryptoCurrency key={index} cryptoCurrency={item}
+    //                                          accountListByWallet={accountListByWallet}
+    //                                          drag={drag}
+    //                                          isActive={isActive}/> : <></>
+    //                                          // /> : <></>
+    //     )
+    // }
+
     render() {
+        // console.log(new Date().toISOString() + ' render')
+
         firebase.analytics().setCurrentScreen('WalletList.HomeScreen')
 
-        Log.log('WalletList.HomeScreen is rendered')
-
-        const cryptoCurrencies = this.props.cryptoCurrencies
+        const data = this.props.cryptoCurrenciesStore.cryptoCurrencies
+        const walletHash = this.props.mainStore.selectedWallet.walletHash
+        const accountListByWallet = this.props.accountStore.accountList[walletHash] || {}
 
         return (
             <View style={{ flex: 1 }}>
@@ -165,18 +214,68 @@ class HomeScreen extends Component {
                                     onRefresh={this.handleRefresh}
                                 />
                             }>
-                            <WalletInfo/>
-                            <View style={{ flex: 1, paddingBottom: 30, backgroundColor: '#f5f5f5' }}>
+                            <WalletInfo accountListByWallet={accountListByWallet}/>
+                            <View style={{flex: 1, paddingBottom: 30, backgroundColor: '#f5f5f5'}}>
                                 <Text style={{
                                     marginLeft: 31,
                                     fontFamily: 'Montserrat-Bold',
                                     color: '#404040',
                                     fontSize: 14
                                 }}>{strings('homeScreen.assets')}</Text>
+                                {/* <DraggableFlatList */}
+                                {/*    // style={styles.cryptoList} */}
+                                {/*    data={cryptoCurrencies} */}
+                                {/*    renderItem={this.renderItem} */}
+                                {/*    keyExtractor={(item, index) => `draggable-item-${item.accountId}`} */}
+                                {/*    onDragEnd={({data}) => this.setState({...this.state, data})} */}
+                                {/* /> */}
+                                {/* <SwipeListView */}
+                                {/*    style={styles.cryptoList} */}
+                                {/*    data={cryptoCurrencies} */}
+                                {/*    renderItem={({item, index}) => ( */}
+                                {/*        !item.isHidden ? <CryptoCurrency key={index} cryptoCurrency={item} */}
+                                {/*                                         accountListByWallet={accountListByWallet}/> : <></> */}
+                                {/*    )} */}
+                                {/*    renderHiddenItem={({item, index}) => ( */}
+                                {/*        !item.isHidden ? <> */}
+                                {/*            <View style={styles.cryptoList__item__hidden}> */}
+                                {/*                <View style={stl.left__btn}> */}
+                                {/*                    <TouchableOpacity> */}
+                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
+                                {/*                                    size={30} name='exchange'/> */}
+                                {/*                    </TouchableOpacity> */}
+                                {/*                    <TouchableOpacity> */}
+                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
+                                {/*                                    size={30} name='buy'/> */}
+                                {/*                    </TouchableOpacity> */}
+                                {/*                    <TouchableOpacity> */}
+                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
+                                {/*                                    size={30} name='sell'/> */}
+                                {/*                    </TouchableOpacity> */}
+                                {/*                </View> */}
+                                {/*                <View style={stl.right__btn}> */}
+                                {/*                    <TouchableOpacity onPress={this.handleReceive}> */}
+                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
+                                {/*                                    size={30} name='receive'/> */}
+                                {/*                    </TouchableOpacity> */}
+                                {/*                    <TouchableOpacity onPress={this.handleSend}> */}
+                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
+                                {/*                                    size={30} name='send'/> */}
+                                {/*                    </TouchableOpacity> */}
+                                {/*                </View> */}
+                                {/*            </View> */}
+                                {/*        </> : <></> */}
+                                {/*    )} */}
+                                {/*    leftOpenValue={200} */}
+                                {/*    rightOpenValue={-150} */}
+                                {/*    previewRowKey={'0'} */}
+                                {/*    previewOpenValue={-40} */}
+                                {/*    previewOpenDelay={3000} */}
+                                {/* /> */}
                                 <View style={styles.cryptoList}>
                                     {
-                                        cryptoCurrencies.map((item, index) => {
-                                            return !item.isHidden ? <CryptoCurrency key={index} cryptoCurrency={item}/> : null
+                                        data.map((item, index) => {
+                                            return !item.isHidden ? <CryptoCurrency key={index} cryptoCurrency={item} accountListByWallet={accountListByWallet}/> : null
                                         })
                                     }
                                 </View>
@@ -192,8 +291,10 @@ class HomeScreen extends Component {
 
 const mapStateToProps = (state) => {
     return {
+        mainStore: state.mainStore,
         toolTipsStore: state.toolTipsStore,
-        cryptoCurrencies: state.currencyStore.cryptoCurrencies
+        cryptoCurrenciesStore : state.currencyStore,
+        accountStore : state.accountStore
     }
 }
 
@@ -229,5 +330,20 @@ const styles_ = {
         array: ['#f2f2f2', '#f2f2f2'],
         start: { x: 0.0, y: 1 },
         end: { x: 1, y: 1 }
+    }
+}
+
+const stl = {
+    left__btn: {
+        flexDirection: 'row',
+        width: '60%',
+        paddingRight: 30,
+        justifyContent: 'space-around',
+    },
+    right__btn: {
+        flexDirection: 'row-reverse',
+        width: '40%',
+        paddingRight: 30,
+        justifyContent: 'space-around',
     }
 }

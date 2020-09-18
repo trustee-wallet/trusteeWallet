@@ -5,36 +5,61 @@ import DBInterface from '../DB/DBInterface'
 import Log from '../../../services/Log/Log'
 import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
 
-export default {
+class AccountScanning {
 
     /**
      * @param {Object} params
      * @param {string} params.walletHash
      * @param {string} params.currencyCode
+     * @param {string} params.currencyFamily
      * @param {boolean} params.force
      * @return {Promise<{id, currencyCode, address, transactionsScanTime, transactionsScanLog, balance, balanceFix, balanceTxt, balanceProvider, balanceScanTime, balanceScanLog, accountJson}[]>}
      */
-    getAccountsForScan: async (params) => {
+    async getAccountsForScan (params) {
 
         const dbInterface = new DBInterface()
 
-        Log.daemon('AccountScanning getAccountsForScan called')
-
         let where = []
+        let limit = 2
         //where.push(`account.currency_code='ETH_UAX'`)
 
         if (typeof params.force === 'undefined' || !params.force) {
             const now = Math.round(new Date().getTime() / 1000) - 30 // 1 minute before
             where.push(`(account_balance.balance_scan_time IS NULL OR account_balance.balance_scan_time < ${now} OR account.transactions_scan_time IS NULL OR account.transactions_scan_time < ${now})`)
+        } else {
+            limit = 20
         }
         where.push(`currency.is_hidden=0`)
-        where.push(`(account.currency_code!='BTC' OR wallet.wallet_is_hd NOT IN (1, '1') OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub) OR wallet.wallet_is_hd IS NULL)`)
-        if (params.walletHash) {
-            where.push(`account.wallet_hash='${params.walletHash}'`)
-        }
+        where.push(`(account.currency_code!='BTC' 
+        OR account.derivation_path = 'm/49quote/0quote/0/1/0' 
+        OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub) 
+        OR wallet.wallet_is_hd NOT IN (1, '1') 
+        OR wallet.wallet_is_hd IS NULL)`)
         if (typeof params.currencyCode !== 'undefined' && params.currencyCode) {
             where.push(`account.currency_code='${params.currencyCode}'`)
+            where.push(`account.is_main=1`)
         }
+        if (typeof params.currencyFamily !== 'undefined' && params.currencyFamily) {
+            where.push(`account.currency_code LIKE '${params.currencyFamily}%'`)
+            limit = 20
+        }
+        if (params.walletHash) {
+            where.push(`account.wallet_hash='${params.walletHash}'`)
+            if (limit === 2) {
+                const countNotSync = await dbInterface.setQueryString(`SELECT COUNT(*) AS cn
+                 FROM account_balance
+                 LEFT JOIN currency ON currency.currency_code=account_balance.currency_code
+                 WHERE account_balance.wallet_hash='${params.walletHash}' AND (account_balance.balance_scan_time IS NULL OR account_balance.balance_scan_time=0) 
+                 AND currency.is_hidden=0`).query()
+                if (countNotSync && countNotSync.array && typeof countNotSync.array[0] !== 'undefined' && typeof countNotSync.array[0].cn !== 'undefined') {
+                    if (countNotSync.array[0].cn > 1) {
+                        where.push(`(account_balance.balance_scan_time IS NULL OR account_balance.balance_scan_time =0 )`)
+                        limit = 20
+                    }
+                }
+            }
+        }
+
 
         if (where.length > 0) {
             where = ' WHERE ' + where.join(' AND ')
@@ -68,14 +93,14 @@ export default {
             LEFT JOIN currency ON currency.currency_code=account.currency_code
             LEFT JOIN wallet ON wallet.wallet_hash=account.wallet_hash
             ${where}
-            ORDER BY account_balance.balance_scan_time ASC
-            LIMIT 10
+            ORDER BY account_balance.balance_scan_time ASC, account.currency_code ASC
+            LIMIT ${limit}
         `
+        Log.daemon('AccountScanning getAccountsForScan where ' + where + ' limit ' + limit)
 
         let res = []
         const uniqueAddresses = {}
         const idsToRemove = []
-        Log.daemon('AccountScanning getAccountsForScan SQL ', sql)
         try {
             res = await dbInterface.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
@@ -84,7 +109,17 @@ export default {
             }
             res = res.array
             for (let i = 0, ic = res.length; i < ic; i++) {
-                const key = res[i].address + '_' + res[i].currencyCode
+                const currencyCode = res[i].currencyCode
+                if (limit === 2 && (typeof params.currencyFamily === 'undefined' || !params.currencyFamily)) {
+                    if (currencyCode.indexOf('TRX') !== -1) {
+                        params.currencyFamily = 'TRX'
+                        return await this.getAccountsForScan(params)
+                    } else if (currencyCode.indexOf('ETH') !== -1 && currencyCode !== 'ETH_ROPSTEN' && currencyCode !== 'ETH_UAX') {
+                        params.currencyFamily = 'ETH'
+                        return await this.getAccountsForScan(params)
+                    }
+                }
+                const key = res[i].address + '_' + currencyCode
                 if (typeof uniqueAddresses[key] !== 'undefined') {
                     idsToRemove.push(res[i].id)
                     continue
@@ -98,29 +133,25 @@ export default {
 
                 const string = dbInterface.unEscapeString(res[i].accountJson)
                 try {
-                    Log.daemon('AccountScanning getAccountsForScan will parse ' + string)
                     res[i].accountJson = JSON.parse(string)
                 } catch (e) {
                     // noinspection ES6MissingAwait
-                    Log.errDaemon('AccountScanning getAccountsForScan json error ' + string + ' ' + e.message)
+                    Log.errDaemon('AccountScanning getAccountsForScan json error ' + res[i].id + ' ' + e.message)
                 }
             }
             if (idsToRemove.length > 0) {
                 await dbInterface.setQueryString(`DELETE FROM account WHERE id IN (${idsToRemove.join(',')})`).query()
                 await dbInterface.setQueryString(`DELETE FROM account_balance WHERE account_id IN (${idsToRemove.join(',')})`).query()
             }
-            Log.daemon('AccountScanning getAccountsForScan finished')
         } catch (e) {
-            Log.daemon('AccountScanning getAccountsForScan error ' + sql + ' ' + e.message)
+            Log.daemon('AccountScanning getAccountsForScan error ' + e.message, sql)
         }
         return res
-    },
+    }
 
-    getAddresses: async (params) => {
+    async getAddresses (params) {
 
         const dbInterface = new DBInterface()
-
-        Log.daemon('AccountScanning getAddresses called')
 
         let where = []
         if (params.walletHash) {
@@ -128,6 +159,9 @@ export default {
         }
         if (params.currencyCode) {
             where.push(`account.currency_code='${params.currencyCode}'`)
+        }
+        if (typeof params.onlyLegacy !== 'undefined') {
+            where.push(`account.address LIKE '1%'`)
         }
 
         if (where.length > 0) {
@@ -160,12 +194,13 @@ export default {
             for (tmp of res) {
                 indexedRes[tmp.address] = tmp.alreadyShown
             }
-            Log.daemon('AccountScanning getAddresses inished')
         } catch (e) {
             Log.daemon('AccountScanning getAddresses error ' + sql + ' ' + e.message)
         }
         return indexedRes
     }
 }
+
+export default new AccountScanning()
 
 

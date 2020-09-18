@@ -22,31 +22,6 @@ export function renderError(field, array) {
     } else return ''
 }
 
-export function normalizeWithDecimals(val, decimals) {
-    let tmpSplit
-    let value = val.replace(/\,/g, '.')
-
-    value = value.replace(/[^0-9.]*/g, '')
-    value = value.replace(/\.{2,}/g, '.')
-    //value = value.replace(/\.,/g, ',');
-    //value = value.replace(/\,\./g, ',');
-    //value = value.replace(/\,{2,}/g, ',');
-    value = value.replace(/\.[0-9]+\./g, '.')
-
-    if (!decimals) {
-        value = value.replace('.', '')
-    }
-
-    tmpSplit = value.split('.')
-
-    if (typeof tmpSplit[1] != 'undefined' && tmpSplit[1].length > 2) {
-        value = tmpSplit[0] + '.' + tmpSplit[1].substring(0, decimals)
-    }
-
-    value = (value[0] == '0' && value[1] == '0') || (value[0] == '0' && +value[1]) ? '0' : value
-    return !value || value == '.' ? '' : value
-}
-
 const utils = {
 
     /**

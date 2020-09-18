@@ -39,7 +39,8 @@ export default class XvgUnspentsProvider {
         const res = await BlocksoftAxios.getWithoutBraking(link)
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XvgUnspentsProvider.getUnspents link', link)
         if (!res || typeof res.data === 'undefined') {
-            throw new Error(this._settings.currencyCode + ' XvgUnspentsProvider.getUnspents nothing loaded for address')
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XvgUnspentsProvider.getUnspents nothing loaded for address ' + address + ' link ' + link)
+            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
         }
         if (!res.data || typeof res.data[0] === 'undefined') {
             return []

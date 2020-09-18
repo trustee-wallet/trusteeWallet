@@ -6,17 +6,19 @@ import firebase from 'react-native-firebase'
 import AsyncStorage from '@react-native-community/async-storage'
 import { Platform } from 'react-native'
 
-import Cashback from '../Cashback/Cashback'
 import Log from '../Log/Log'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import BlocksoftTg from '../../../crypto/common/BlocksoftTg'
 import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
+import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 
 import changeableProd from '../../config/changeable.prod'
 import changeableTester from '../../config/changeable.tester'
 
 import config from '../../config/config'
+import DeviceInfo from 'react-native-device-info'
+
 
 const SAVE_FIREBASE = config.debug.firebaseLogs // set true to save firebase
 
@@ -24,6 +26,10 @@ const CACHED = {}
 const CACHED_BUY = {}
 
 let CACHE_BALANCE = {}
+
+function cbToken() {
+    return CashBackUtils.getWalletToken()
+}
 
 class MarketingEvent {
     /**
@@ -50,7 +56,23 @@ class MarketingEvent {
         this.DATA.LOG_DEV = !(this.DATA.LOG_VERSION.indexOf('VERSION_CODE_PLACEHOLDER COMMIT_SHORT_SHA_PLACEHOLDER') === -1) ? 'TRUE' : false
         this.DATA.LOG_TESTER = changeable.tg.info.isTester ? 'TRUE' : false
         this.DATA.LOG_PLATFORM = Platform.OS + ' v' + Platform.Version
-        this.DATA.LOG_TOKEN = await AsyncStorage.getItem('fcmToken')
+        this.DATA.LOG_TOKEN = await AsyncStorage.getItem('pushToken')
+
+
+        this.DATA.LOG_MODEL = ''
+        try {
+            this.DATA.LOG_MODEL = DeviceInfo.getBrand()
+        } catch (e) {
+
+        }
+        try {
+            const tmp = DeviceInfo.getModel()
+            if (tmp) {
+                this.DATA.LOG_MODEL += ' ' + tmp
+            }
+        } catch (e) {
+
+        }
 
         this._reinitTgMessage(testerMode)
 
@@ -58,7 +80,7 @@ class MarketingEvent {
         this.DATA.LOG_WALLET = await BlocksoftKeysStorage.getSelectedWallet()
         this._reinitTgMessage(testerMode)
 
-        this.DATA.LOG_CASHBACK = Cashback.getCashbackToken()
+        this.DATA.LOG_CASHBACK = cbToken()
         this._reinitTgMessage(testerMode)
 
 
@@ -138,7 +160,13 @@ class MarketingEvent {
             firebase.analytics().setUserProperty('LOG_PLATFORM', this.DATA.LOG_PLATFORM)
             this.TG_MESSAGE += '\nPLATFORM ' + this.DATA.LOG_PLATFORM
         }
-
+        if (typeof (this.DATA.LOG_MODEL) !== 'undefined' && this.DATA.LOG_MODEL) {
+            if (firebase.crashlytics()) {
+                firebase.crashlytics().setStringValue('LOG_MODEL', this.DATA.LOG_MODEL)
+            }
+            firebase.analytics().setUserProperty('LOG_MODEL', this.DATA.LOG_MODEL)
+            this.TG_MESSAGE += '\nMODEL ' + this.DATA.LOG_MODEL
+        }
 
     }
 
@@ -152,7 +180,7 @@ class MarketingEvent {
             if (this.DATA.LOG_TOKEN) {
                 logData.LOG_TOKEN = this.DATA.LOG_TOKEN
             } else {
-                this.DATA.LOG_TOKEN = await AsyncStorage.getItem('fcmToken')
+                this.DATA.LOG_TOKEN = await AsyncStorage.getItem('pushToken')
                 if (this.DATA.LOG_TOKEN) {
                     logData.LOG_TOKEN = this.DATA.LOG_TOKEN
                     this._reinitTgMessage()
@@ -164,7 +192,7 @@ class MarketingEvent {
             if (this.DATA.LOG_CASHBACK) {
                 logData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
             } else {
-                this.DATA.LOG_CASHBACK = Cashback.getCashbackToken()
+                this.DATA.LOG_CASHBACK = cbToken()
                 if (this.DATA.LOG_CASHBACK) {
                     logData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
                     this._reinitTgMessage()
@@ -172,6 +200,9 @@ class MarketingEvent {
             }
             if (this.DATA.LOG_PLATFORM) {
                 logData.LOG_PLATFORM = this.DATA.LOG_PLATFORM
+            }
+            if (this.DATA.LOG_MODEL) {
+                logData.LOG_MODEL = this.DATA.LOG_MODEL
             }
             if (this.DATA.LOG_TESTER) {
                 logData.LOG_TESTER = this.DATA.LOG_TESTER
@@ -183,7 +214,7 @@ class MarketingEvent {
             logData.time = date[1].replace(/\..+/, '')
 
             // noinspection ES6MissingAwait
-            this.TG.send(`SPM_april_${this.DATA.LOG_VERSION} Lg ` + tmp + this.TG_MESSAGE)
+            this.TG.send(`SPM_june_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
 
             if (!ONLY_TG) {
                 let keyTitle = 'Events/' + date[0] + '/' + logTitle
@@ -200,13 +231,14 @@ class MarketingEvent {
 
         } catch (e) {
             // noinspection ES6MissingAwait
+            console.log('err', e)
             Log.err(`DMN/MarketingEvent ${logTitle} ` + e.toString() + ' with logData ' + JSON.stringify(logData))
         }
     }
 
     async logOnlyRealTime(logTitle, logData) {
         if (this.DATA.LOG_DEV) {
-            // return false
+            return false
         }
         const tmp = logTitle + ' ' + JSON.stringify(logData)
         if (tmp === this._cacheLastLog) return true
@@ -214,7 +246,7 @@ class MarketingEvent {
             if (this.DATA.LOG_TOKEN) {
                 logData.LOG_TOKEN = this.DATA.LOG_TOKEN
             } else {
-                this.DATA.LOG_TOKEN = await AsyncStorage.getItem('fcmToken')
+                this.DATA.LOG_TOKEN = await AsyncStorage.getItem('pushToken')
                 if (this.DATA.LOG_TOKEN) {
                     logData.LOG_TOKEN = this.DATA.LOG_TOKEN
                     this._reinitTgMessage()
@@ -226,7 +258,7 @@ class MarketingEvent {
             if (this.DATA.LOG_CASHBACK) {
                 logData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
             } else {
-                this.DATA.LOG_CASHBACK = Cashback.getCashbackToken()
+                this.DATA.LOG_CASHBACK = cbToken()
                 if (this.DATA.LOG_CASHBACK) {
                     logData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
                     this._reinitTgMessage()
@@ -234,6 +266,9 @@ class MarketingEvent {
             }
             if (this.DATA.LOG_PLATFORM) {
                 logData.LOG_PLATFORM = this.DATA.LOG_PLATFORM
+            }
+            if (this.DATA.LOG_MODEL) {
+                logData.LOG_MODEL = this.DATA.LOG_MODEL
             }
             if (this.DATA.LOG_TESTER) {
                 logData.LOG_TESTER = this.DATA.LOG_TESTER
@@ -245,7 +280,8 @@ class MarketingEvent {
             logData.time = date[1].replace(/\..+/, '')
 
             // noinspection ES6MissingAwait
-            this.TG.send(`RTM_april_${this.DATA.LOG_VERSION} ` + tmp + this.TG_MESSAGE)
+            this.TG.send(`RTM_june_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
+
             if (this.DATA.LOG_TESTER) {
                 const keyTitle = 'DebugTX/' + date[0] + '/' + logTitle
                 firebase.database().ref(keyTitle).push(logData)
@@ -258,7 +294,7 @@ class MarketingEvent {
 
     /**
 
-    "rules": {
+     "rules": {
                 "DATA" : {
                     "$subtoken": {
                         "$wallet": {
@@ -272,14 +308,14 @@ class MarketingEvent {
                 ".read": false,
                 ".write": true
             }
-        }
+     }
      */
     async setBalance(walletHash, currencyCode, totalBalance, logData) {
-        if (totalBalance === "" || totalBalance === "undefined" || !totalBalance) {
+        if (totalBalance === '' || totalBalance === 'undefined' || !totalBalance) {
             return false
         }
         const cacheTitle = walletHash + '_' + currencyCode
-        if (typeof(CACHE_BALANCE[cacheTitle]) === 'undefined') {
+        if (typeof (CACHE_BALANCE[cacheTitle]) === 'undefined') {
             CACHE_BALANCE[cacheTitle] = -1
         }
         if (CACHE_BALANCE[cacheTitle] === totalBalance) {
@@ -293,7 +329,7 @@ class MarketingEvent {
         if (typeof (this.DATA.LOG_TOKEN) === 'undefined') {
             token = 'NOTOKEN'
         }
-        const saveKeyData = { totalBalance, date, token, subtoken : token ? token.substr(0, 20) : ''}
+        const saveKeyData = { totalBalance, date, token, subtoken: token ? token.substr(0, 20) : '' }
 
         let eventTitle = 'slava_update_balance'
         let keyTitle = 'DATA/' + saveKeyData.subtoken + '/' + walletHash + '/balance/' + currencyCode
@@ -303,7 +339,7 @@ class MarketingEvent {
             if (this.DATA.LOG_CASHBACK) {
                 saveKeyData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
             } else {
-                this.DATA.LOG_CASHBACK = Cashback.getCashbackToken()
+                this.DATA.LOG_CASHBACK = cbToken()
                 if (this.DATA.LOG_CASHBACK) {
                     saveKeyData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
                 }
@@ -331,7 +367,7 @@ class MarketingEvent {
 
     startBuy(logData) {
         CACHED_BUY[logData.order_id] = logData
-        if (!this.DATA.LOG_CASHBACK) {
+        if (!this.DATA.LOG_CASHBACK && typeof logData.cashbackToken !== 'undefined') {
             this.DATA.LOG_CASHBACK = logData.cashbackToken
         }
         this.logEvent('slava_exchange_buy_step_1', logData)
@@ -372,7 +408,7 @@ class MarketingEvent {
     checkSellConfirm(logData) {
         if (typeof CACHED[logData.address_to] === 'undefined') return false
         const type = CACHED[logData.address_to].TYPE
-        const tmp = {...logData}
+        const tmp = { ...logData }
         CACHED[logData.address_to + '_confirm'] = tmp
         tmp.order_id = CACHED[logData.address_to].order_id
         this.logEvent('slava_exchange_' + type + '_step_2', tmp)
@@ -387,8 +423,8 @@ class MarketingEvent {
             this.logEvent('slava_send_tx', logData)
             return false
         }
-        const tmp = { ...CACHED[logData.address_to]}
-        const type  = CACHED[logData.address_to].TYPE
+        const tmp = { ...CACHED[logData.address_to] }
+        const type = CACHED[logData.address_to].TYPE
         logData.TYPE_OF_TX = type + '_outcome'
         this.logEvent('slava_exchange_' + type + '_step_last', tmp)
         this.logEvent('slava_send_tx', logData)

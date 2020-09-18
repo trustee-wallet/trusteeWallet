@@ -1,6 +1,5 @@
 /**
- * @version todo
- * @misha to review
+ * @version 0.11
  */
 import React, { Component } from 'react'
 import {
@@ -44,16 +43,20 @@ import countriesDict from '../../assets/jsons/other/country-codes'
 
 import Log from '../../services/Log/Log'
 import { connect } from 'react-redux'
-import firebase from "react-native-firebase"
+import firebase from 'react-native-firebase'
 
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 
 const { height: HEIGHT } = Dimensions.get('window')
 
+const CACHE_COUNTRIES = {}
+let CACHE_COUNTRIES_LENGTH = 0
 
 class Card extends Component {
 
-    constructor(){
+    constructor() {
         super()
         this.state = {
             number: '',
@@ -66,7 +69,7 @@ class Card extends Component {
             focused: false,
 
             selectedCountry: '',
-
+            selectCountriesList: [],
             countriesList: [],
 
             show: false
@@ -74,20 +77,38 @@ class Card extends Component {
         this.cardNameInput = React.createRef()
     }
 
-    UNSAFE_componentWillMount() {
+    async init() {
 
-        let countries = []
+        const turnOn = await BlocksoftExternalSettings.get('cardsCountries', 'Cards/index' )
+        const countriesList = []
+        const selectCountriesList = []
+        let item
 
-        for(let item of countriesDict){
-            countries.push(item)
+        let skipped = false
+        for (item of countriesDict) {
+            CACHE_COUNTRIES[item.iso] = item
+            CACHE_COUNTRIES_LENGTH++
+            countriesList.push({ label: item.country, value: item.iso, color: '#404040' })
+            if (turnOn !== 'ALL' && typeof turnOn[item.iso] === 'undefined') {
+                skipped = true
+                continue
+            }
+            selectCountriesList.push({ key: item.iso, value: item.country })
         }
 
-        const countriesList = countries.map(item => {
-            return { label: item.country, value: item.iso, color: '#404040'}
-        })
+        if (skipped) {
+            selectCountriesList.unshift({key : '', value: '-----'})
+            selectCountriesList.push({key : '', value: '-----'})
+            for (item of countriesDict) {
+                if (turnOn !== 'ALL' && typeof turnOn[item.iso] === 'undefined') {
+                    selectCountriesList.push({ key: item.iso, value: item.country })
+                }
+            }
+        }
 
         this.setState({
-            countriesList
+            countriesList,
+            selectCountriesList
         })
 
         if (Platform.OS === 'ios') {
@@ -125,11 +146,11 @@ class Card extends Component {
 
                 expiryMonth = expiryMonth.toString()
 
-                expiryMonth = expiryMonth.length == 1 ? '0' + expiryMonth : expiryMonth
+                expiryMonth = expiryMonth.length === 1 ? '0' + expiryMonth : expiryMonth
 
                 expiryYear = expiryYear.toString()
 
-                const date = expiryMonth + expiryYear == '000' ? '' : expiryMonth + '/' + expiryYear.slice(expiryYear.length - 2, expiryYear.length)
+                const date = expiryMonth + expiryYear === '000' ? '' : expiryMonth + '/' + expiryYear.slice(expiryYear.length - 2, expiryYear.length)
 
                 self.setState({
                     date
@@ -152,7 +173,7 @@ class Card extends Component {
 
             return res.data.country.numeric
         } catch (e) {
-            Log.err('Card.getCurrencyCode error ' + e.message)
+            Log.log('Card.getCurrencyCode error ' + e.message)
         }
 
         return false
@@ -169,7 +190,7 @@ class Card extends Component {
                 name: 'сard number',
                 type: 'CARD_NUMBER',
                 value: number
-            },
+            }
         ]
 
         date ? arrayToValidate.push({
@@ -179,7 +200,7 @@ class Card extends Component {
             value: date
         }) : date = '00/00'
 
-        let validate = await Validator.arrayValidation(arrayToValidate)
+        const validate = await Validator.arrayValidation(arrayToValidate)
 
         this.setState({
             errors: validate.errorArr
@@ -187,11 +208,11 @@ class Card extends Component {
 
         const cardName = await this.cardNameInput.handleValidate()
 
-        if(selectedCountry === '') return
+        if (selectedCountry === '' || typeof CACHE_COUNTRIES[selectedCountry.key] === 'undefined') return
 
-        const countryNativeCurrency = countriesDict.find(item => item.iso === selectedCountry.key)
+        const countryNativeCurrency = CACHE_COUNTRIES[selectedCountry.key]
 
-        if(validate.status === 'success'){
+        if (validate.status === 'success') {
 
             Keyboard.dismiss()
 
@@ -233,11 +254,11 @@ class Card extends Component {
 
         let tmpErrors = JSON.parse(JSON.stringify(errors))
 
-        tmpErrors = _.remove(tmpErrors, obj =>  obj.field != name )
+        tmpErrors = _.remove(tmpErrors, obj => obj.field != name)
 
-        let numberValidation = valid.number(value)
+        const numberValidation = valid.number(value)
 
-        if(name == 'number'){
+        if (name === 'number') {
             if (numberValidation.card) {
                 this.setState({
                     type: numberValidation.card.type
@@ -252,7 +273,7 @@ class Card extends Component {
                 numberPlaceholder: value.replace(' ', '')
             })
 
-            if((value.replace(/\s+/g, '')).length === 16){
+            if ((value.replace(/\s+/g, '')).length === 16) {
                 const validate = await Validator.arrayValidation([
                     {
                         id: 'number',
@@ -262,18 +283,24 @@ class Card extends Component {
                     }
                 ])
 
-                if(validate.status === 'success'){
+                if (validate.status === 'success') {
                     const countryCode = await this.getCountryCode(value)
 
                     const country = countriesDict.find(item => item.iso === countryCode)
 
-                    if(typeof countryCode !== 'undefined' && typeof country !== 'undefined') this.setState({ selectedCountry: { key: countryCode, value: country.country } })
-                        else this.setState({ selectedCountry: { key: '804', value: 'Ukraine' } })
+                    if (typeof countryCode !== 'undefined' && typeof country !== 'undefined') {
+                        this.setState({
+                            selectedCountry: {
+                                key: countryCode,
+                                value: country.country
+                            }
+                        })
+                    } else {
+                        this.setState({ selectedCountry: { key: '804', value: 'Ukraine' } })
+                    }
                 }
             }
-        }
-
-        if(name == 'date'){
+        } else if (name === 'date') {
             this.setState({
                 datePlaceholder: ((value.replace(' ', '')).concat('00000000')).substring(0, 5)
             })
@@ -294,7 +321,8 @@ class Card extends Component {
         setTimeout(() => {
             try {
                 this.scrollView.scrollTo({ y: 100 })
-            } catch (e) {}
+            } catch (e) {
+            }
         }, 500)
     }
 
@@ -308,59 +336,70 @@ class Card extends Component {
         return (
             <View style={styles.card__item}>
                 <Text style={[styles.card__title, styles.card__title_number]}>
-                    { strings('card.numberTitleInput') }
+                    {strings('card.numberTitleInput')}
                 </Text>
                 {
                     this.state.show ? <TextInputMask
                         type={'custom'}
+                        keyboardType={'numeric'}
                         selectionColor={'#fff'}
                         options={{
                             mask: '9999 9999 9999 9999 9999'
                         }}
                         value={this.state.numberPlaceholder}
-                        style={[styles.card__number, styles.card__number_placeholder, { color: renderError('number', errors) ? '#e77ca3' : '#f4f4f4'  }]}
+                        style={[styles.card__number, styles.card__number_placeholder, { color: renderError('number', errors) ? '#e77ca3' : '#f4f4f4' }]}
                     /> : null
                 }
                 {
                     this.state.show ? <TextInputMask
                         type={'custom'}
+                        keyboardType={'numeric'}
                         selectionColor={'#fff'}
                         options={{
                             mask: '9999 9999 9999 9999 9999'
                         }}
                         value={this.state.numberPlaceholder}
-                        style={{...styles.card__number, ...styles.card__number_shadow}}
+                        style={{ ...styles.card__number, ...styles.card__number_shadow }}
                     /> : null
                 }
                 {
                     this.state.show ? <TextInputMask
                         selectionColor={'#fff'}
                         type={'custom'}
+                        keyboardType={'numeric'}
                         options={{
                             mask: '9999 9999 9999 9999 9999'
                         }}
                         value={number}
-                        style={{...styles.card__number }}
+                        style={{ ...styles.card__number }}
                     /> : null
                 }
                 {
                     this.state.show ? <TextInputMask
                         selectionColor={'#fff'}
                         type={'custom'}
+                        keyboardType={'numeric'}
                         options={{
                             mask: '9999 9999 9999 9999 9999'
                         }}
-                        onFocus={ () => this.onFocus() }
+                        onFocus={() => this.onFocus()}
                         autoFocus={true}
                         placeholder={strings('card.dateTitleInput')}
                         placeholderTextColor={renderError('number', errors) ? 'transparent' : 'transparent'}
                         value={number}
                         // editable={false}
-                        onChangeText={value => this.handleNumberInput({ value, name: 'number' }) }
-                        style={{...styles.card__number, ...styles.card__number_transparent}}
+                        onChangeText={value => this.handleNumberInput({ value, name: 'number' })}
+                        style={{ ...styles.card__number, ...styles.card__number_transparent }}
                     /> : null
                 }
-                <View style={{ position: "absolute", bottom: 20, left: 0, height: 1, width: '100%', backgroundColor: "#f4f4f4" }} />
+                <View style={{
+                    position: 'absolute',
+                    bottom: 20,
+                    left: 0,
+                    height: 1,
+                    width: '100%',
+                    backgroundColor: '#f4f4f4'
+                }}/>
             </View>
         )
     }
@@ -375,7 +414,7 @@ class Card extends Component {
         return (
             <View style={styles.card__item}>
                 <Text style={[styles.card__title, styles.card__title_date]}>
-                    { strings('card.dateTitleInput') }
+                    {strings('card.dateTitleInput')}
                 </Text>
                 <TextInputMask
                     type={'datetime'}
@@ -383,7 +422,7 @@ class Card extends Component {
                         format: 'MM/YY'
                     }}
                     value={this.state.datePlaceholder}
-                    style={[styles.card__date, styles.card__date_placeholder, { color: renderError('date', errors) ? '#e77ca3' : '#f4f4f4'  }]}
+                    style={[styles.card__date, styles.card__date_placeholder, { color: renderError('date', errors) ? '#e77ca3' : '#f4f4f4' }]}
                 />
                 <TextInputMask
                     type={'datetime'}
@@ -391,7 +430,7 @@ class Card extends Component {
                         format: 'MM/YY'
                     }}
                     value={date}
-                    style={{...styles.card__date, color: renderError('date', errors) ? '#e77ca3' : '#f4f4f4' }}
+                    style={{ ...styles.card__date, color: renderError('date', errors) ? '#e77ca3' : '#f4f4f4' }}
                 />
                 <TextInputMask
                     type={'datetime'}
@@ -399,7 +438,7 @@ class Card extends Component {
                         format: 'MM/YY'
                     }}
                     value={this.state.datePlaceholder}
-                    style={{...styles.card__date, ...styles.card__date_shadow}}
+                    style={{ ...styles.card__date, ...styles.card__date_shadow }}
                 />
                 <TextInputMask
                     keyboardType={'numeric'}
@@ -411,21 +450,23 @@ class Card extends Component {
                     placeholderTextColor={renderError('date', errors) ? 'transparent' : 'transparent'}
                     value={date}
                     // editable={false}
-                    onChangeText={value => this.handleNumberInput({ value, name: 'date' }) }
-                    style={{...styles.card__date, ...styles.card__date_transparent}}
+                    onChangeText={value => this.handleNumberInput({ value, name: 'date' })}
+                    style={{ ...styles.card__date, ...styles.card__date_transparent }}
                 />
             </View>
         )
     }
 
     handleCountrySelect = () => {
-        const tmpCountries = countriesDict.map(item => { return { key: item.iso, value: item.country  } } )
+        if (CACHE_COUNTRIES_LENGTH === 0) {
+            this.init()
+        }
 
         showModal({
             type: 'SELECT_MODAL',
             data: {
-                title: strings('card.cardCurrency').replace(/\./g,''),
-                listForSelect: tmpCountries,
+                title: strings('card.cardCurrency').replace(/\./g, ''),
+                listForSelect: this.state.selectCountriesList,
                 selectedItem: this.state.selectedCountry
             }
         }, (selectedCountry) => {
@@ -434,6 +475,10 @@ class Card extends Component {
     }
 
     render() {
+        if (CACHE_COUNTRIES_LENGTH === 0) {
+            this.init()
+        }
+        UpdateOneByOneDaemon.pause()
         firebase.analytics().setCurrentScreen('Card.index')
 
         const {
@@ -445,50 +490,55 @@ class Card extends Component {
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <Navigation
-                    title={ strings('card.title') }
+                    title={strings('card.title')}
                 />
                 <KeyboardAwareView>
-                    <View style={{flex: 1}}>
+                    <View style={{ flex: 1 }}>
                         <ScrollView
-                            ref={(ref) => { this.scrollView = ref }}
+                            ref={(ref) => {
+                                this.scrollView = ref
+                            }}
                             keyboardShouldPersistTaps={'always'}
                             contentContainerStyle={focused ? styles.wrapper__content_active : styles.wrapper__content}
                             showsVerticalScrollIndicator={false}
                             style={styles.wrapper__scrollView}>
                             <TextView style={{ height: 70 }}>
-                                { strings('card.description') }
+                                {strings('card.description')}
                             </TextView>
                             <View style={styles.card}>
-                                <GradientView style={styles.card__bg} array={card__bg.array} start={card__bg.start} end={card__bg.end} />
+                                <GradientView style={styles.card__bg} array={card__bg.array} start={card__bg.start}
+                                              end={card__bg.end}/>
                                 <View style={styles.card__icon}>
                                     {
                                         this.state.type != '' ?
                                             <Icon style={styles.actionBtn__icon}
-                                                  name={this.state.type == 'visa' ? 'cc-visa' : 'cc-mastercard'} size={25} color="#fff" /> : null
+                                                  name={this.state.type == 'visa' ? 'cc-visa' : 'cc-mastercard'}
+                                                  size={25} color="#fff"/> : null
                                     }
                                 </View>
                                 <View style={styles.card__content}>
-                                    { this.renderNumberInput() }
-                                    { this.renderDateInput() }
+                                    {this.renderNumberInput()}
+                                    {this.renderDateInput()}
                                 </View>
                                 <View style={styles.card__press}>
                                     <TouchableOpacity
                                         style={styles.card__press__bg}
                                         onPress={this.handleScan}>
                                         <MaterialCommunityIcons style={styles.actionBtn__icon}
-                                              name={'credit-card-scan'} size={24} color="#7127ac" />
+                                                                name={'credit-card-scan'} size={24} color="#7127ac"/>
                                     </TouchableOpacity>
                                 </View>
                             </View>
                             <TouchableOpacity style={styles.select} onPress={() => this.handleCountrySelect()}>
-                                <GradientView style={styles.select__bg} array={lineStyles_.array} start={lineStyles_.start} end={lineStyles_.end}>
+                                <GradientView style={styles.select__bg} array={lineStyles_.array}
+                                              start={lineStyles_.start} end={lineStyles_.end}>
                                     <Text style={styles.select__text}>
                                         {
                                             selectedCountry === '' ? strings('card.cardCurrency') : strings('card.country') + ' ' + selectedCountry.value
                                         }
                                     </Text>
                                     <View style={{ marginTop: 2 }}>
-                                        <Ionicons name="ios-arrow-down" size={20} color="#fff" />
+                                        <Ionicons name="ios-arrow-down" size={20} color="#fff"/>
                                     </View>
                                 </GradientView>
                             </TouchableOpacity>
@@ -518,14 +568,14 @@ class Card extends Component {
                                 id={'cardName'}
                                 name={strings('card.cardName')}
                                 type={'OPTIONAL'}
-                                style={{ marginRight: 2 }} />
+                                style={{ marginRight: 2 }}/>
                             {/*<WarningText style={styles.warningText}>*/}
                             {/*    { strings('card.attention') }*/}
                             {/*</WarningText>*/}
-                            <View style={{...styles.card__btn, }}>
+                            <View style={{ ...styles.card__btn }}>
                                 <Button
                                     onPress={() => this.handleAdd()}>
-                                    { strings('card.add') }
+                                    {strings('card.add')}
                                 </Button>
                             </View>
                         </ScrollView>
@@ -545,34 +595,34 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps, {})(Card)
 
 const lineStyles_ = {
-    array: ["#864dd9","#ce53f9"],
-    arrayError: ['#e77ca3','#f0a5af'],
+    array: ['#864dd9', '#ce53f9'],
+    arrayError: ['#e77ca3', '#f0a5af'],
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 }
 }
 
 const styles_ = {
-    array: ["#fff","#F8FCFF"],
+    array: ['#fff', '#F8FCFF'],
     start: { x: 0.0, y: 0 },
     end: { x: 0, y: 1 }
 }
 
 const card__bg = {
-    array: ["#864dd9","#ce53f9"],
-    arrayError: ['#e77ca3','#f0a5af'],
+    array: ['#864dd9', '#ce53f9'],
+    arrayError: ['#e77ca3', '#f0a5af'],
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 }
 }
 
 const styles = {
     wrapper: {
-        flex: 1,
+        flex: 1
     },
     wrapper__scrollView: {
-        marginTop: 80,
+        marginTop: 80
     },
     wrapper_gradient: {
-        array: ["#fff","#F8FCFF"],
+        array: ['#fff', '#F8FCFF'],
         start: { x: 0.0, y: 0 },
         end: { x: 0, y: 1 }
     },
@@ -597,7 +647,7 @@ const styles = {
         fontSize: 24,
         fontFamily: 'SFUIDisplay-Semibold',
         color: '#404040',
-        textAlign: 'center',
+        textAlign: 'center'
     },
     card: {
         position: 'relative',
@@ -607,15 +657,15 @@ const styles = {
         marginBottom: 20,
         marginTop: 20,
 
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: 2
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
 
-        elevation: 4,
+        elevation: 4
     },
     card__content: {
         position: 'relative',
@@ -631,7 +681,7 @@ const styles = {
         width: '90%',
         height: 80,
 
-        overflow: "hidden"
+        overflow: 'hidden'
     },
     card__bg: {
         position: 'absolute',
@@ -668,7 +718,7 @@ const styles = {
 
         color: '#e8e8e8',
 
-        zIndex: 2,
+        zIndex: 2
     },
     card__number_shadow: {
         top: 12,
@@ -724,22 +774,22 @@ const styles = {
         left: Platform.OS === 'android' ? 5 : 2,
         fontSize: 10,
         color: '#f4f4f4',
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'SFUIDisplay-Regular'
     },
     card__title_number: {
-        top: 14,
+        top: 14
     },
     card__title_date: {
-        top: 6,
+        top: 6
     },
     card__btn: {
         marginTop: 'auto',
         marginBottom: 20
     },
-     warningText: {
+    warningText: {
         width: '100%',
-        marginTop: -10,
-     },
+        marginTop: -10
+    },
     card__press: {
         position: 'absolute',
         top: -10,
@@ -749,15 +799,15 @@ const styles = {
         borderRadius: 44,
         backgroundColor: '#fff',
         zIndex: 2,
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: 2
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
 
-        elevation: 10,
+        elevation: 10
     },
     card__press__bg: {
         alignItems: 'center',
@@ -765,15 +815,15 @@ const styles = {
         width: 44,
         height: 44,
         borderRadius: 44,
-        backgroundColor: '#fff',
+        backgroundColor: '#fff'
     },
     select: {
         height: 36,
 
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: 2
         },
         shadowOpacity: 0.23,
         shadowRadius: 2.62,
@@ -796,6 +846,6 @@ const styles = {
     select__text: {
         color: '#fff',
         fontSize: 16,
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'SFUIDisplay-Regular'
     }
 }

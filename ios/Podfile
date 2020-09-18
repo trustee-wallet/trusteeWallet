@@ -54,6 +54,9 @@ target 'TrusteeWallet' do
   pod 'Firebase/Database'
   pod 'Firebase/Analytics'
 
+
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   target 'TrusteeWalletTests' do
     inherit! :search_paths
     # Pods for testing

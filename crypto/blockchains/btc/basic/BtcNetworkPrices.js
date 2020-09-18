@@ -131,10 +131,10 @@ export default class BtcNetworkPrices {
 function addMultiply(blocks, externalSettings) {
     if (typeof externalSettings['BTC_CURRENT_PRICE_' + blocks] !== 'undefined' && externalSettings['BTC_CURRENT_PRICE_' + blocks] > 0) {
         CACHE_FEES_BTC[blocks] = externalSettings['BTC_CURRENT_PRICE_' + blocks]
-    } else if (typeof externalSettings['BTC_MULTI_' + blocks] !== 'undefined' && externalSettings['BTC_MULTI_' + blocks] > 0) {
-        CACHE_FEES_BTC[blocks] = Math.round(CACHE_FEES_BTC[blocks] * externalSettings['BTC_MULTI_' + blocks])
-    } else if (typeof externalSettings.BTC_MULTI !== 'undefined' && externalSettings.BTC_MULTI > 0) {
-        CACHE_FEES_BTC[blocks] = Math.round(CACHE_FEES_BTC[blocks] * externalSettings.BTC_MULTI)
+    } else if (typeof externalSettings['BTC_MULTI_V2_' + blocks] !== 'undefined' && externalSettings['BTC_MULTI_V2_' + blocks] > 0) {
+        CACHE_FEES_BTC[blocks] = Math.round(CACHE_FEES_BTC[blocks] * externalSettings['BTC_MULTI_V2_' + blocks])
+    } else if (typeof externalSettings.BTC_MULTI_V2 !== 'undefined' && externalSettings.BTC_MULTI_V2 > 0) {
+        CACHE_FEES_BTC[blocks] = Math.round(CACHE_FEES_BTC[blocks] * externalSettings.BTC_MULTI_V2)
     }
     if (typeof externalSettings['BTC_MIN_' + blocks] !== 'undefined' && externalSettings['BTC_MIN_' + blocks] > 0) {
         if (externalSettings['BTC_MIN_' + blocks] > CACHE_FEES_BTC[blocks]) {

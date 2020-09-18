@@ -71,7 +71,7 @@ class Navigation extends Component {
     render() {
 
         const { isBack } = this.state
-        const { title, LeftComponent, titleComponent, style, searchInputCallback, isClose = true, CustomComponent } = this.props
+        const { title, LeftComponent, RightComponent, titleComponent, style, searchInputCallback, isClose = true, CustomComponent } = this.props
 
         const tmpIsClose = typeof isClose != 'undefined' ? isClose : true
 
@@ -101,6 +101,9 @@ class Navigation extends Component {
                         }
                         {
                             typeof titleComponent != 'undefined' ? titleComponent : null
+                        }
+                        {
+                            typeof RightComponent !== 'undefined' ? <RightComponent/> : null
                         }
                         {
                             typeof this.props.next != 'undefined' ?

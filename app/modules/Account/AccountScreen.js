@@ -6,7 +6,6 @@ import { connect } from 'react-redux'
 
 import { View, Text, TouchableOpacity, ScrollView, Linking, RefreshControl, Platform } from 'react-native'
 
-import AsyncStorage from '@react-native-community/async-storage'
 import firebase from 'react-native-firebase'
 import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -22,17 +21,15 @@ import LetterSpacing from '../../components/elements/LetterSpacing'
 import Loader from '../../components/elements/LoaderItem'
 
 import Transaction from './elements/Transaction'
-import Settings from './elements/Settings'
+import SettingsBTC from './elements/SettingsBTC'
+import SettingsUSDT from './elements/SettingsUSDT'
 
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { clearSendData } from '../../appstores/Stores/Send/SendActions'
 import { setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
 
-import walletActions from '../../appstores/Stores/Wallet/WalletActions'
 
-import UIDict from '../../services/UIDict/UIDict'
 import Log from '../../services/Log/Log'
 import Toast from '../../services/UI/Toast/Toast'
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
@@ -40,16 +37,24 @@ import checkTransferHasError from '../../services/UI/CheckTransferHasError/Check
 
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
-import updateAccountBalanceAndTransactionsDaemon from '../../services/Daemon/elements/UpdateAccountBalanceAndTransactionsDaemon'
-import updateTradeOrdersDaemon from '../../services/Daemon/elements/UpdateTradeOrdersDaemon'
+import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
+import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
+import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 
 import { strings } from '../../services/i18n'
 
 import Theme from '../../themes/Themes'
-import accountDS from '../../appstores/DataSource/Account/Account'
+import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
+import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import CustomIcon from "../../components/elements/CustomIcon"
+import UIDict from "../../services/UIDict/UIDict"
+import AsyncStorage from '@react-native-community/async-storage'
+
+
+let CACHE_ASKED = false
 
 let styles
-
 
 class Account extends Component {
 
@@ -60,18 +65,18 @@ class Account extends Component {
             amountToView: 5,
             transactions: [],
             transactionsToView: [],
-            transactionsLength: 0,
             show: true,
             mode: 'TRANSACTIONS',
             openTransactionList: [],
-            cashBackToken: '',
+            dash: true,
 
-            firstCall: true
+            firstCall: true,
         }
     }
 
     // eslint-disable-next-line camelcase
     async UNSAFE_componentWillMount() {
+        UpdateOneByOneDaemon._canUpdate = false
         try {
             styles = Theme.getStyles().accountScreenStyles
 
@@ -83,16 +88,14 @@ class Account extends Component {
                 })
             }, 1000)
 
-            // plz dont uncomment lets try speed await updateAccountBalanceAndTransactionsDaemon.forceDaemonUpdate({currencyCode : cryptoCurrency.currencyCode, force : true})
-            await updateTradeOrdersDaemon.forceDaemonUpdate({force : true, source : 'ACCOUNT_OPEN'})
-            const cashBackToken = await AsyncStorage.getItem('cashbackToken')
-            this.setState({
-                cashBackToken
-            })
+            // await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({force : true, source : 'ACCOUNT_OPEN'})
+
         } catch (e) {
             // noinspection ES6MissingAwait
             Log.err('AccountScreen.componentDidMount ' + e.message)
         }
+        UpdateOneByOneDaemon._canUpdate = true
+        CACHE_ASKED = await AsyncStorage.getItem('asked')
     }
 
     componentDidUpdate(prevProps) {
@@ -143,32 +146,68 @@ class Account extends Component {
     }
 
     handleRefresh = async () => {
+        const { account } = this.props
 
         this.setState({
             refreshing: true
         })
 
-        const cryptoCurrency = this.props.cryptoCurrency
-        await updateAccountBalanceAndTransactionsDaemon.forceDaemonUpdate({currencyCode : cryptoCurrency.currencyCode, force : true})
-        await updateTradeOrdersDaemon.forceDaemonUpdate()
+        UpdateOneByOneDaemon._canUpdate = false
+
+        try {
+            await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_REFRESH' })
+        } catch (e) {
+            Log.errDaemon('AccountScreen handleRefresh error updateTradeOrdersDaemon ' + e.message)
+        }
+
+        try {
+            await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({force : true, currencyCode : account.currencyCode, source: 'ACCOUNT_REFRESH'})
+        } catch (e) {
+            Log.errDaemon('AccountScreen handleRefresh error updateAccountBalanceAndTransactions ' + e.message)
+        }
+
+        try {
+            await UpdateAccountListDaemon.updateAccountListDaemon({force : true, currencyCode : account.currencyCode, source: 'ACCOUNT_REFRESH'})
+        } catch (e) {
+            Log.errDaemon('AccountScreen handleRefresh error updateAccountListDaemon ' + e.message)
+        }
 
         await setSelectedAccount()
+
+        UpdateOneByOneDaemon._canUpdate = true
 
         this.setState({
             refreshing: false
         })
     }
 
-    handleOpenLink = () => {
+    handleOpenLink = async (address) => {
+        const now = new Date().getTime()
+        const diff = now - CACHE_ASKED*1
+        if (!CACHE_ASKED || diff > 10000) {
+            showModal({
+                type: 'YES_NO_MODAL',
+                title: strings('account.externalLink.title'),
+                icon: 'WARNING',
+                description: strings('account.externalLink.description')
+            }, () => {
+                AsyncStorage.setItem('asked', now + '')
+                CACHE_ASKED = now
+                this.actualOpen(address)
+            })
+        } else {
+            this.actualOpen(address)
+        }
+    }
 
+    actualOpen = (address) => {
         const { currencyExplorerLink } = this.props.cryptoCurrency
-        const { address } = this.props.account
 
         Linking.canOpenURL(`${currencyExplorerLink}${address}`).then(supported => {
             if (supported) {
-                let linkUrl =`${currencyExplorerLink}${address}`
+                let linkUrl = `${currencyExplorerLink}${address}`
                 if (linkUrl.indexOf('?') === -1) {
-                    linkUrl +=  '?from=trustee'
+                    linkUrl += '?from=trustee'
                 }
                 Linking.openURL(linkUrl)
             } else {
@@ -196,43 +235,6 @@ class Account extends Component {
         })
     }
 
-    handleCopyAddress = () => {
-
-        const cryptoCurrency = this.props.cryptoCurrency
-        const { address } = this.props.account
-
-        checkTransferHasError({ currencyCode: cryptoCurrency.currencyCode, currencySymbol: cryptoCurrency.currencySymbol, address })
-
-        copyToClipboard(address)
-
-        Toast.setMessage(strings('toast.copied')).show()
-    }
-
-    handleToggleSegwit = async () => {
-        try {
-
-            const { settingsStore } = this.props
-
-            if (typeof settingsStore.data.toggle_legacy_segwit_address_info === 'undefined') {
-
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: 'INFO',
-                    title: strings('modal.toggleBitcoinTypeAddressModal.info.title'),
-                    description: strings('modal.toggleBitcoinTypeAddressModal.info.description')
-                }, async () => {
-                    await settingsActions.setSettings('toggle_legacy_segwit_address_info', '1')
-                })
-            }
-
-            const setting = await walletActions.setSelectedSegwitOrNot()
-            await setSelectedAccount(setting)
-        } catch (e) {
-            // noinspection ES6MissingAwait
-            Log.err('ReceiveScreen.changeAddressType error ' + e.message)
-        }
-    }
-
     renderTooltip = (props) => {
 
         const { cryptoCurrency, account } = props
@@ -246,99 +248,187 @@ class Account extends Component {
                     !props.transactionsToView.length ?
                         <View>
                             {isSynchronized ? <Text style={styles.transaction__empty_text}>{strings('account.noTransactions')}</Text> : <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, marginLeft: 30 }}><Loader size={14} color={'#999999'}/><Text style={{ ...styles.transaction__empty_text, ...{ marginLeft: 10, marginTop: 0 } }}>{strings('homeScreen.synchronizing')}</Text></View>}
-                        </View> : null
+                        </View>
+                        : null
                 }
+                <View style={stl.scan}>
+                    <Text style={stl.scan__text}>{strings('account.scan')}</Text>
+                    <Text style={{...stl.scan__text, color: '#404040'}}>{new Date(this.props.account.balanceScanTime*1000).toLocaleTimeString().slice(0,8)}</Text>
+                </View>
             </View>
         )
 
     }
 
-    prepareTransactions = (param, paramExchangeOrders) => {
+    renderDash = () => {
+        this.setState({dash: this.state.dash})
+    }
+
+    prepareTransactions = (transactions, exchangeOrders) => {
 
         const { mainStore } = this.props
-        const { cashBackToken } = this.state
+        const walletCashBackToken = CashBackUtils.getWalletToken()
 
-        let exchangeOrders = this.props.exchangeStore.exchangeOrders ? JSON.parse(JSON.stringify(paramExchangeOrders)) : {}
-        let transactions = param ? JSON.parse(JSON.stringify(param)) : []
 
         let transactionsTmp = []
+        const unique = {}
+        const uniqueOrderId = {}
+        const byIds = {}
+        let byIdsLength = 0
 
-        exchangeOrders = exchangeOrders.filter((item) => item.cashbackToken === cashBackToken)
+        if (exchangeOrders && exchangeOrders.length > 0) {
+            let item
+            for (item of exchangeOrders) {
+                if (item.cashbackToken !== walletCashBackToken) {
+                    continue
+                }
+                if (item.requestedOutAmount.currencyCode !== this.props.cryptoCurrency.currencyCode && item.requestedInAmount.currencyCode !== this.props.cryptoCurrency.currencyCode) {
+                    continue
+                }
 
-        exchangeOrders = exchangeOrders.filter(item => item.requestedOutAmount.currencyCode === this.props.cryptoCurrency.currencyCode || item.requestedInAmount.currencyCode === this.props.cryptoCurrency.currencyCode)
+                const direction = item.requestedOutAmount.currencyCode === this.props.cryptoCurrency.currencyCode ? 'income' : 'outcome'
+                const amount = direction === 'income' ? item.requestedOutAmount.amount : item.requestedInAmount.amount
+                let subtitle = ''
+                if (item.exchangeWayType === 'EXCHANGE') {
+                    subtitle = item.requestedInAmount.currencyCode + '-' + item.requestedOutAmount.currencyCode
+                } else if (item.exchangeWayType === 'BUY') {
+                    // do nothing
+                } else {
+                    subtitle = item.outDestination
+                }
 
-        exchangeOrders = exchangeOrders.filter(item => item.exchangeWayType !== 'EXCHANGE')
 
-        exchangeOrders.forEach(item1 => transactions.forEach(item2 => {
-            if (item1.inTxHash === item2.transactionHash || item1.outTxHash === item2.transactionHash || (item2.transactionJson !== null && item1.orderId === item2.transactionJson.bseOrderID)) {
-                transactionsTmp.push({ ...item2, ...item1 })
+                const order = {
+                    orderId: item.orderId,
+                    exchangeWayType: item.exchangeWayType,
+                    status: item.status,
+                    transactionDirection: direction,
+                    createdAt: item.createdAt,
+                    addressAmountPretty: amount,
+                    outDestination: item.outDestination,
+                    depositAddress: item.depositAddress,
+                    subtitle
+                }
+
+                order.addressAmountPretty = BlocksoftPrettyNumbers.makeCut(order.addressAmountPretty).separated
+
+                if (typeof order.id === 'undefined') {
+                    order.id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+                }
+
+                if (typeof item.orderJSON !== 'undefined' && item.orderJSON !== null) {
+                    order.orderJSON = JSON.parse(item.orderJSON)
+                }
+
+                if (typeof item.payinUrl !== 'undefined' && item.payinUrl !== null) {
+                    order.payinUrl = item.payinUrl
+                }
+
+                if (typeof item.payUpdateTime !== 'undefined') {
+                    order.payUpdateTime = item.payUpdateTime
+                }
+
+                if (transactions) {
+                    let added = false
+
+                    const hash2 = item.outTxHash
+                    if (hash2 && typeof transactions[hash2] !== 'undefined') {
+                        if (typeof unique[hash2] === 'undefined') {
+                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
+                                uniqueOrderId[item.orderId] = 1
+                                transactionsTmp.push({ ...transactions[hash2], ...order })
+                                unique[hash2] = 1
+                                added = true
+                            }
+                        }
+                    }
+
+                    const hash = item.inTxHash
+                    if (hash && typeof transactions[hash] !== 'undefined') {
+                        if (typeof unique[hash] === 'undefined') {
+                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
+                                uniqueOrderId[item.orderId] = 1
+                                transactionsTmp.push({ ...transactions[hash], ...order })
+                                unique[hash] = 1
+                                added = true
+                            }
+
+                        }
+                    }
+
+                    if (!added) {
+                        byIds[item.orderId + ''] = order
+                        byIdsLength++
+                    }
+                } else {
+                    order.blockConfirmations = 0
+                    if (typeof uniqueOrderId[item.orderId] === 'undefined') {
+                        uniqueOrderId[item.orderId] = 1
+                        transactionsTmp.push(order)
+                    }
+                }
             }
-        }))
-
-        exchangeOrders = exchangeOrders.map(item => {
-
-            const order = {
-                orderId: item.orderId,
-                exchangeWayType: item.exchangeWayType,
-                // transactionStatus: 'new',
-                status: item.status,
-                blockConfirmations: 0,
-                transactionDirection: item.requestedOutAmount.currencyCode === this.props.cryptoCurrency.currencyCode ? 'income' : 'outcome',
-                createdAt: item.createdAt,
-                addressAmountPretty: item.requestedOutAmount.currencyCode === this.props.cryptoCurrency.currencyCode ? item.requestedOutAmount.amount : item.requestedInAmount.amount,
-                outDestination: item.outDestination,
-                depositAddress: item.depositAddress
-            }
-
-            if (typeof item.orderJSON !== 'undefined' && item.orderJSON !== null) {
-                order.orderJSON = JSON.parse(item.orderJSON)
-            }
-
-            if (typeof item.payinUrl !== 'undefined' && item.payinUrl !== null) {
-                order.payinUrl = item.payinUrl
-            }
-
-            if (typeof item.payUpdateTime !== 'undefined') {
-                order.payUpdateTime = item.payUpdateTime
-            }
-
-            return order
-        })
-
-        transactionsTmp.forEach(item1 => {
-            transactions = transactions.filter(item => item.transactionHash !== item1.transactionHash)
-        })
-
-        transactionsTmp.forEach(item1 => {
-            exchangeOrders = exchangeOrders.filter(item => item.inTxHash !== item1.transactionHash && item.outTxHash !== item1.transactionHash)
-            exchangeOrders = exchangeOrders.filter(item => item1.transactionJson !== null && item.orderId !== item1.transactionJson.bseOrderID)
-        })
-
-        if (mainStore.selectedWallet.walletIsHideTransactionForFee !== null && +mainStore.selectedWallet.walletIsHideTransactionForFee === 1) {
-            // @misha btc should be 600 satoshi minimum - also suggest to unify it
-            transactions = transactions.filter(item => item.addressAmount !== 0)
         }
 
-        transactionsTmp = transactionsTmp.concat(exchangeOrders, transactions)
+        if (transactions) {
+            let hash
+            for (hash in transactions) {
+                if (typeof unique[hash] !== 'undefined') continue
+                const tx = transactions[hash]
+                let added = false
+                if (byIdsLength > 0) {
+                    if (typeof tx.transactionJson !== 'undefined' && tx.transactionJson && typeof tx.transactionJson.bseOrderID !== 'undefined') {
+                        const tmpKey = tx.transactionJson.bseOrderID + ''
+                        if (typeof byIds[tmpKey] !== 'undefined') {
+                            const item = byIds[tmpKey]
+                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
+                                uniqueOrderId[item.orderId] = 1
+                                transactionsTmp.push({ ...tx, ...item})
+                                added = true
+                                delete byIds[tmpKey]
+                                byIdsLength--
+                            }
+                        }
+                    }
+                }
+                if (!added) {
+                    if (mainStore.selectedWallet.walletIsHideTransactionForFee !== null && +mainStore.selectedWallet.walletIsHideTransactionForFee === 1) {
+                        if (tx.addressAmount === 0) {
+                            continue
+                        }
+                    }
+                    if (typeof tx.id === 'undefined') {
+                        tx.id = hash
+                    }
+                    transactionsTmp.push(tx)
+                }
+            }
+        }
+
+        if (byIdsLength > 0) {
+            let orderId
+            for (orderId in byIds) {
+                const order = byIds[orderId]
+                if (order) {
+                    transactionsTmp.push(order)
+                }
+            }
+        }
 
         transactionsTmp = transactionsTmp.sort((a, b) => {
             return new Date(b.createdAt) - new Date(a.createdAt)
         })
 
-        transactionsTmp = transactionsTmp.map(item => {
-            if (typeof item.id === 'undefined') {
-                // dont touch  its react needed
-                return { ...item, id: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) }
-            } else return item
-        })
 
         return transactionsTmp
     }
 
-    handleShowMore = () => this.setState({ amountToView: this.state.amountToView + 5, transactionToView: this.state.transactions.slice(this.state.amountToView + 5) })
+    handleShowMore = () => {
+        this.setState({ amountToView: this.state.amountToView + 5 })
+    }
 
     renderAddressTooltip = (props) => {
-        let address = props.address || ''
+        const address = props.address || ''
         // @misha could be unified
         const addressPrep = address.slice(0, 10) + '...' + address.slice(address.length - 8, address.length)
         return (
@@ -353,13 +443,12 @@ class Account extends Component {
     renderBalance = (cryptoCurrency, account) => {
         const isSyncronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
-        // @misha to optimize
-        let tmps = account.balancePretty.toString().split('.')
+        const tmps = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated.split('.')
         let balancePrettyPrep1 = tmps[0]
         let balancePrettyPrep2 = ''
         if (typeof tmps[1] !== 'undefined' && tmps[1]) {
             balancePrettyPrep1 = tmps[0] + '.'
-            balancePrettyPrep2 = tmps[1].substr(0, 7)
+            balancePrettyPrep2 = tmps[1]
         }
 
         if (isSyncronized) {
@@ -393,15 +482,30 @@ class Account extends Component {
         }
     }
 
+    closeAction = () => {
+        NavStore.goBack()
+    }
+
     handleBtcAddressCopy = (address) => {
+        const cryptoCurrency = this.props.cryptoCurrency
+        checkTransferHasError({ currencyCode: cryptoCurrency.currencyCode, currencySymbol: cryptoCurrency.currencySymbol, address })
+
         copyToClipboard(address)
         Toast.setMessage(strings('toast.copied')).show()
     }
 
     renderBTCBlock = () => {
         const { account } = this.props
+        let segwitPrep = ''
+        let legacyPrep = ''
+        if (typeof account.segwitAddress !== 'undefined' && account.segwitAddress) {
+            segwitPrep = account.segwitAddress.substr(0, 5) + '...' + account.segwitAddress.substr(- 5)
+        }
+        if (typeof account.legacyAddress !== 'undefined' && account.legacyAddress) {
+            legacyPrep = account.legacyAddress.substr(0, 5) + '...' + account.legacyAddress.substr(-5)
+        }
         return (
-            <View style={{ position: 'relative', flexDirection: 'row', alignItems: 'center', marginBottom: 30 }}>
+            <View style={{ position: 'relative', flexDirection: 'row', alignItems: 'center', marginBottom: 30, marginTop:20 }}>
                 <TouchableOpacity style={{ flex: 1, marginHorizontal: 20, marginRight: 10, justifyContent: 'center', height: 60 }} onPress={() => this.handleBtcAddressCopy(account.segwitAddress)}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15, position: 'relative', zIndex: 2 }}>
                         <View style={{ paddingRight: 10 }}>
@@ -414,7 +518,7 @@ class Account extends Component {
                             }}>
                                 SegWit
                             </Text>
-                            <LetterSpacing text={account.segwitAddress.slice(0, 5) + '...' + account.segwitAddress.slice(account.segwitAddress.length - 5, account.segwitAddress.length)} textStyle={styles.topContent__address} letterSpacing={1}/>
+                            <LetterSpacing text={segwitPrep} textStyle={styles.topContent__address} letterSpacing={1}/>
                         </View>
                         <Copy name="content-copy" size={15} color={'#939393'}/>
                     </View>
@@ -435,7 +539,7 @@ class Account extends Component {
                             }}>
                                 Legacy
                             </Text>
-                            <LetterSpacing text={account.legacyAddress.slice(0, 5) + '...' + account.legacyAddress.slice(account.legacyAddress.length - 5, account.legacyAddress.length)} textStyle={styles.topContent__address} letterSpacing={1}/>
+                            <LetterSpacing text={legacyPrep} textStyle={styles.topContent__address} letterSpacing={1}/>
                         </View>
                         <Copy name="content-copy" size={15} color={'#939393'}/>
                     </View>
@@ -452,6 +556,8 @@ class Account extends Component {
         // noinspection ES6MissingAwait
         firebase.analytics().setCurrentScreen('Account.AccountScreen')
 
+        UpdateAccountListDaemon.pause()
+
         const { mode, openTransactionList } = this.state
         const { mainStore, account, cryptoCurrency, exchangeStore, settingsStore } = this.props
         const { btcShowTwoAddress = 0 } = settingsStore.data
@@ -460,7 +566,9 @@ class Account extends Component {
         const address = account.address
 
         let transactionsToView = this.prepareTransactions(transactions, exchangeStore.exchangeOrders)
+        let transactionsToViewLength = 0
         if (transactionsToView) {
+            transactionsToViewLength = transactionsToView.length
             transactionsToView = transactionsToView.slice(0, this.state.amountToView)
         } else {
             transactionsToView = []
@@ -481,19 +589,31 @@ class Account extends Component {
 
             }
             MarketingEvent.logEvent('view_account', logData)
-            Log.log('Account.AccountScreen is rendered', logData)
         }
 
+        Log.log('AccountScreen.render amountToView ' + this.state.amountToView + ' transactionsToViewLength ' + transactionsToViewLength)
         const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
 
         const shownAddress = cryptoCurrency.currencyCode === 'BTC' ? btcAddress : address
+        let leftComponent
+        let settingsComponent = null
+        if (account.currencyCode === 'BTC') {
+            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.handleSetMode}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
+            settingsComponent = <SettingsBTC containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }} wallet={mainStore.selectedWallet}/>
+        } else if (account.currencyCode === 'USDT') {
+            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.handleSetMode}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
+            settingsComponent = <SettingsUSDT containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }} wallet={mainStore.selectedWallet} account={account}/>
+        }
+        const dict = new UIDict(cryptoCurrency.currencyCode)
+        const color = dict.settings.colors.mainColor
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <Navigation
                     title={`${strings('account.title')} ${cryptoCurrency.currencySymbol}`}
                     isBack={false}
                     navigation={this.props.navigation}
-                    LeftComponent={account.currencyCode === 'BTC' ? () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.handleSetMode}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity> : undefined}
+                    closeAction={this.closeAction}
+                    LeftComponent={leftComponent}
                 />
                 <ScrollView
                     style={styles.wrapper__scrollView}
@@ -517,24 +637,36 @@ class Account extends Component {
                                             </View>
                                         </TouchableOpacity> : null
                                 }
-
                                 <View style={[styles.topContent__bottom, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { marginTop: 30 } : null]}>
-                                    <TouchableOpacity style={{ position: 'relative', padding: 20, paddingTop: 0, alignItems: 'center' }} onPress={() => this.handleOpenLink()} onLongPress={() => this.handleOpenLinkLongPress()} delayLongPress={5000}>
-                                        <View style={{ position: 'relative', alignItems: 'center', width: 50, height: 50 }}>
-                                            <GradientView style={stl.topContent__icon} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end}/>
-                                            <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center', top: 0, left: 0, bottom: 0, right: 0, zIndex: 3 }}>
-                                                <CurrencyIcon currencyCode={cryptoCurrency.currencyCode}
+                                    <TouchableOpacity style={{ position: 'relative', padding: 20, paddingTop: 0, alignItems: 'center' }} onPress={() => this.handleOpenLink(shownAddress)} onLongPress={() => this.handleOpenLinkLongPress()} delayLongPress={5000}>
+                                        <View style={{ position: 'relative', width: 50, height: 50 }}>
+                                             <GradientView style={stl.topContent__icon} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end}/>
+                                             <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center', top: 0, left: 0, bottom: 0, right: 0, zIndex: 3 }}>
+                                                 <CurrencyIcon currencyCode={cryptoCurrency.currencyCode}
                                                               containerStyle={{ borderWidth: 0 }}
                                                               markStyle={{ top: 30 }}
                                                               textContainerStyle={{ bottom: -19 }}
                                                               textStyle={{ backgroundColor: 'transparent' }}/>
-                                            </View>
-                                            <View style={{ ...stl.topContent__bottom__btn__shadow }}>
+                                             </View>
+                                             <View style={{ ...stl.topContent__bottom__btn__shadow }}>
                                                 <View style={stl.topContent__bottom__btn__shadow__item}/>
-                                            </View>
+                                             </View>
                                         </View>
                                     </TouchableOpacity>
-                                </View>
+                                {/* </View> */}
+                                {/* <View style={{...styles.topContent__bottom, marginTop: -70, paddingLeft: 100}}> */}
+                                    <TouchableOpacity style={{ position: 'relative', padding: 20, paddingTop: 0, alignItems: 'center' }} onPress={() => this.handleRefresh()}>
+                                        <View style={{ position: 'relative', width: 50, height: 50 }}>
+                                             <GradientView style={stl.topContent__icon} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end}/>
+                                             <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center', top: 0, left: 0, bottom: 0, right: 0, zIndex: 3 }}>
+                                                 <CustomIcon style={{...styles.block__icon, marginBottom: 2, color: color}} size={25} name='reload'/>
+                                             </View>
+                                             <View style={{ ...stl.topContent__bottom__btn__shadow }}>
+                                                <View style={stl.topContent__bottom__btn__shadow__item}/>
+                                             </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                 </View>
                             </View>
                             <GradientView style={[stl.bg, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { height: 160 } : null]} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end}/>
                             <View style={[stl.topContent__bg, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { height: 150 } : null]}>
@@ -544,45 +676,22 @@ class Account extends Component {
                         { cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? this.renderBTCBlock() : null}
                         <View style={{ flex: 1, alignItems: 'flex-start', height: mode === 'TRANSACTIONS' ? 'auto' : 0, overflow: 'hidden' }}>
                             <View>
-                                <ToolTips type={'ACCOUNT_SCREEN_TRANSACTION_TIP'}
+                                 <ToolTips type={'ACCOUNT_SCREEN_TRANSACTION_TIP'}
                                           height={100}
                                           MainComponent={this.renderTooltip}
                                           nextCallback={this.nextCallback}
                                           mainComponentProps={{
-                                              transactionsToView,
-                                              cryptoCurrency,
-                                              account
+                                                        transactionsToView,
+                                                        cryptoCurrency,
+                                                        account
                                           }}/>
                             </View>
                             <View style={{ position: 'relative', width: '100%' }}>
                                 <View style={{ position: 'relative', width: '100%', zIndex: 1 }}>
                                     {
-                                        // show ?
-                                        //     <FlatList
-                                        //         contentContainerStyle={{ paddingTop: 5 }}
-                                        //         data={transactionsToView}
-                                        //         windowSize={5}
-                                        //         initialListSize={5}
-                                        //         initialNumToRender={5}
-                                        //         maxToRenderPerBatch={5}
-                                        //         renderItem={({ item, index }) => {
-                                        //
-                                        //             // let invoiceMemo = typeof item.transaction_json === 'undefined' || item.transaction_json == null || typeof item.transaction_json.memo === 'undefined' ? 'no title' : item.transaction_json.memo*/}
-                                        //             // {/*        if (item.transaction_direction === 'income' && item.block_hash === 'user_invoice') {*/}
-                                        //             // {/*            if (item.transaction_status === 'pay_waiting' || item.transaction_status === 'new' ) {*/}
-                                        //             // {/*                console.log('could be destination address shown qr liked or passed by messangers etc to anyone to pay', item.transactionHash)*/}
-                                        //             // {/*            }*/}
-                                        //             // {/*        }*/}
-                                        //
-                                        //             return (
-                                        //
-                                        //             )
-                                        //         }}
-                                        //     /> : null
-                                    }
-                                    {
                                         show ? transactionsToView.map((item, index) => {
-                                            return <Transaction key={index} index={index}
+                                            return <Transaction key={item.id} index={item.id}
+                                                                count={index}
                                                                 cards={mainStore.cards}
                                                                 transactions={transactionsToView}
                                                                 amountToView={amountToView}
@@ -591,15 +700,17 @@ class Account extends Component {
                                                                 openTransactionList={openTransactionList}
                                                                 account={account}
                                                                 cryptoCurrency={cryptoCurrency}
+                                                                dash={(transactionsToViewLength - 1 === index) ? this.renderDash : !this.renderDash}
+
                                             />
                                         }) : null
                                     }
                                 </View>
                             </View>
                             {
-                                this.state.amountToView < transactions.length ?
+                                this.state.amountToView < transactionsToViewLength ?
                                     <View style={{ width: '100%', alignItems: 'center' }}>
-                                        <TouchableOpacity style={[styles.showMore]} onPress={this.handleShowMore}>
+                                        <TouchableOpacity style={{...styles.showMore, marginBottom: Platform.OS === 'ios' ? 100 : 70}} onPress={this.handleShowMore}>
                                             <Text style={[styles.showMore__btn, { color: '#404040' }]}>
                                                 {strings('account.showMore')}
                                             </Text>
@@ -608,7 +719,7 @@ class Account extends Component {
                                     </View> : <View style={{ marginBottom: Platform.OS === 'ios' ? 100 : 60 }}/>
                             }
                         </View>
-                        <Settings containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }} wallet={mainStore.selectedWallet}/>
+                        {settingsComponent}
                     </View>
                 </ScrollView>
                 <GradientView style={stl.bottomButtons} array={['#ffffff00', '#d7d7d7']} start={styles.containerBG.start} end={styles.containerBG.end}>
@@ -907,5 +1018,19 @@ const stl = {
         shadowRadius: 6.27,
 
         elevation: 10
+    },
+    scan:{
+        marginLeft: 31,
+        marginBottom: 10,
+        flexDirection: 'row'
+    },
+    scan__text:{
+        color: '#999999',
+        letterSpacing: 1,
+        fontFamily: 'SFUIDisplay-Regular',
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        fontSize: 12,
+        lineHeight: 14,
     }
 }

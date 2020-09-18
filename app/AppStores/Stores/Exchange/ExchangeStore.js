@@ -8,6 +8,11 @@ const INITIAL_STATE = {
     exchangeOrders: [],
     data: {},
     tradeType: '',
+    tradePrevCC: 'BTC',
+    tradePrevFC: false,
+    tradePrevID: false,
+    exchangeInCC : false,
+    exchangeOutCC: false,
     tradeApiConfig: {},
     exchangeApiConfig: []
 }
@@ -18,6 +23,15 @@ const exchangeStoreReducer = (state = INITIAL_STATE, action) => {
             return new Object({
                 ...state,
                 tradeApiConfig: action.tradeApiConfig
+            })
+        case 'SET_TRADE_PREV':
+            return new Object({
+                ...state,
+                tradePrevCC: action.tradePrevCC,
+                tradePrevFC: action.tradePrevFC,
+                tradePrevID: action.tradePrevID,
+                exchangeInCC : action.exchangeInCC,
+                exchangeOutCC : action.exchangeOutCC
             })
         case 'SET_EXCHANGE_API_CONFIG':
             return new Object({

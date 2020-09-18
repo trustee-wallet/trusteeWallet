@@ -9,6 +9,7 @@ import EthBasic from './basic/EthBasic'
 import EthNetworkPrices from './basic/EthNetworkPrices'
 import EthTxSendProvider from './basic/EthTxSendProvider'
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
+import BlocksoftBN from '../../common/BlocksoftBN'
 
 export default class EthTransferProcessor extends EthBasic {
     /**
@@ -42,11 +43,31 @@ export default class EthTransferProcessor extends EthBasic {
         let gasLimit
         if (typeof alreadyEstimatedGas === 'undefined' || !alreadyEstimatedGas) {
             try {
-                gasLimit = await EthEstimateGas(this._web3Link, gasPrice.price2, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
-                MarketingEvent.logOnlyRealTime('eth_gas_limit ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {amount : data.amount + '', gasLimit})
+                let ok = false
+                let i = 0
+                do {
+                    try {
+                        gasLimit = await EthEstimateGas(this._web3Link, gasPrice.price2, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
+                        MarketingEvent.logOnlyRealTime('eth_gas_limit ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {
+                            amount: data.amount + '',
+                            gasLimit
+                        })
+                        ok = true
+                    } catch (e1) {
+                        ok = false
+                        i++
+                        if (i > 3) {
+                            throw e1
+                        }
+                    }
+                } while (!ok)
             } catch (e) {
-                e.message += ' in EthEstimateGas in getFeeRate'
-                throw e
+                if (e.message.indexOf('resolve host') !== -1) {
+                    throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+                } else {
+                    e.message += ' in EthEstimateGas in getFeeRate'
+                    throw e
+                }
             }
         } else {
             gasLimit = alreadyEstimatedGas
@@ -107,7 +128,7 @@ export default class EthTransferProcessor extends EthBasic {
         try {
             balance = await this._web3.eth.getBalance(data.addressFrom)
         } catch (e) {
-            this.checkError(e)
+            this.checkError(e, data)
         }
         BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
         // noinspection EqualityComparisonWithCoercionJS
@@ -123,17 +144,19 @@ export default class EthTransferProcessor extends EthBasic {
         if (res < 0) {
             const fees = await this.getFeeRate(data)
             data.feeForTx = fees[2]
-            res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).toString()
+            const diffB = new BlocksoftBN(balance)
+            res = diffB.diff(data.feeForTx.feeForTx).get()
             BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.1', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' = ' + res)
             if (res < 0) {
                 data.feeForTx = fees[1]
-                res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
-                BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.2 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+                const diffB = new BlocksoftBN(balance)
+                res = diffB.diff(data.feeForTx.feeForTx).get()
+                BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.2 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' = ' + res)
             }
             if (res < 0) {
-                data.feeForTx = fees[0]
-                res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
-                BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.3 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+                const diffB = new BlocksoftBN(balance)
+                res = diffB.diff(data.feeForTx.feeForTx).get()
+                BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.2 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' = ' + res)
             }
         }
 
@@ -168,63 +191,107 @@ export default class EthTransferProcessor extends EthBasic {
             BlocksoftCryptoLog.log('EthTxProcessor.sendTx started')
         }
 
-        if (!txHash && (forceCheckBalance || this._checkBalance === true)) {
+        let finalGasPrice = 0
+        let finalGasLimit = 0
+
+        if (typeof data.feeForTx !== 'undefined') {
+            finalGasPrice = data.feeForTx.gasPrice * 1
+            finalGasLimit = Math.ceil(data.feeForTx.gasLimit * 1)
+        }
+
+        if (!txHash && (forceCheckBalance || this._checkBalance === true || finalGasPrice === 0 || finalGasLimit === null || finalGasLimit === 0 || finalGasLimit === null)) {
             // check usual
             let balance = '0'
             try {
                 balance = await this._web3.eth.getBalance(data.addressFrom)
             } catch (e) {
-                this.checkError(e)
+                this.checkError(e, data)
             }
             // noinspection EqualityComparisonWithCoercionJS
             if (balance.toString() === '0') {
                 throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
             }
             // noinspection EqualityComparisonWithCoercionJS
-            let res
+            let res = -1
             if (typeof data.feeForTx !== 'undefined' && typeof data.feeForTx.feeForTx !== 'undefined' && data.feeForTx.feeForTx.toString() !== '0') {
-                res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
+                const diffB = new BlocksoftBN(balance)
+                res = diffB.diff(data.amount).diff(data.feeForTx.feeForTx).get()
+
                 BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check balance 1.0 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+                if (res < 0) {
+                    if (typeof data.feeForTx.isCustomFee !== 'undefined' && data.feeForTx.isCustomFee) {
+                        throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
+                    }
+                } else {
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check selected fee 1.0 ', data.feeForTx)
+                }
             }
+
             if (res < 0) {
                 const fees = await this.getFeeRate(data)
-                data.feeForTx = fees[2]
-                res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
-                BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check balance 1.1 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
-                if (res < 0) {
-                    data.feeForTx = fees[1]
-                    res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
-                    BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check balance 1.2 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+                if (fees[2]) {
+                    data.feeForTx = fees[2]
+                    finalGasPrice = data.feeForTx.gasPrice * 1
+                    finalGasLimit = data.feeForTx.gasLimit * 1
+                    if (finalGasPrice > 0 && finalGasLimit > 0) {
+                        const diffB = new BlocksoftBN(balance)
+                        res = diffB.diff(data.amount).diff(data.feeForTx.feeForTx).get()
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check balance 1.1 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+                    } else {
+                        res = -1
+                    }
                 }
-                if (res < 0) {
+                if (res < 0 && fees[1]) {
+                    data.feeForTx = fees[1]
+                    finalGasPrice = data.feeForTx.gasPrice * 1
+                    finalGasLimit = data.feeForTx.gasLimit * 1
+                    if (finalGasPrice > 0 && finalGasLimit > 0) {
+                        const diffB = new BlocksoftBN(balance)
+                        res = diffB.diff(data.amount).diff(data.feeForTx.feeForTx).get()
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check balance 1.2 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+                    } else {
+                        res = -1
+                    }
+                }
+                if (res < 0 && fees[0]) {
                     data.feeForTx = fees[0]
-                    res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).sub(BlocksoftUtils.toBigNumber(data.amount)).toString()
-                    BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check balance 1.3 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+                    finalGasPrice = data.feeForTx.gasPrice * 1
+                    finalGasLimit = data.feeForTx.gasLimit * 1
+                    if (finalGasPrice > 0 && finalGasLimit > 0) {
+                        const diffB = new BlocksoftBN(balance)
+                        res = diffB.diff(data.amount).diff(data.feeForTx.feeForTx).get()
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sendTx check balance 1.3 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' - ' + data.amount + ' = ' + res)
+                    } else {
+                        res = -1
+                    }
                 }
             }
             if (res < 0) {
                 if (data.amount > 0) {
-                    const e = new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
-                    e.code = 'ERROR_USER'
-                    throw e
+                    throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
                 } else {
-                    const e = new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
-                    e.code = 'ERROR_USER'
-                    throw e
+                    throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
                 }
             }
         }
 
-        BlocksoftCryptoLog.log('feeForTx', data.feeForTx)
+
+        BlocksoftCryptoLog.log('feeForTx', { d: data.feeForTx, finalGasPrice, finalGasLimit })
+        if (finalGasLimit === 0 || !finalGasLimit || finalGasLimit === null) {
+            throw new Error('SERVER_PLEASE_SELECT_FEE')
+        }
+        if (finalGasPrice === 0 || !finalGasPrice || finalGasPrice === null) {
+            throw new Error('SERVER_PLEASE_SELECT_FEE')
+        }
 
         const tx = {
             from: data.addressFrom,
-            to: data.addressTo,
-            gasPrice: data.feeForTx.gasPrice * 1,
-            gas: data.feeForTx.gasLimit * 1,
+            to: data.addressTo.toLowerCase(),
+            gasPrice: finalGasPrice,
+            gas: finalGasLimit,
             value: data.amount
         }
-        BlocksoftCryptoLog.log(tx)
+
         if (typeof data.data !== 'undefined') {
             tx.data = data.data // actual value for erc20 etc
         }
@@ -240,17 +307,25 @@ export default class EthTransferProcessor extends EthBasic {
                 }
                 tx.nonce = nonce
                 result = await sender.innerSendTx(tx, data)
-                result.transactionJson = {nonce}
+                result.transactionJson = { nonce }
             } else {
                 result = await sender.send(tx, data)
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sent ' + data.addressFrom + ' done with nonce ' + result.nonce)
         } catch (e) {
             delete (data.privateKey)
-            logData.error = e.message
-            // noinspection ES6MissingAwait
-            MarketingEvent.logOnlyRealTime('eth_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
-            throw e
+            if (e.message.indexOf('insufficient funds') !== -1) {
+                if (data.amount > 0) {
+                    throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
+                } else {
+                    throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+                }
+            } else {
+                logData.error = e.message
+                // noinspection ES6MissingAwait
+                MarketingEvent.logOnlyRealTime('eth_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
+                throw e
+            }
         }
         logData.result = result
         // noinspection ES6MissingAwait

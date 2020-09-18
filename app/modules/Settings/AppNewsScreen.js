@@ -3,7 +3,7 @@
 */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Dimensions, View, Text, ScrollView, TouchableOpacity, Platform, Image } from 'react-native'
+import { Dimensions, View, Text, ScrollView, TouchableOpacity, Platform, Image, PixelRatio } from 'react-native'
 import Entypo from 'react-native-vector-icons/Entypo'
 
 import Navigation from '../../components/navigation/Navigation'
@@ -17,7 +17,13 @@ import AppNewsActions from '../../appstores/Stores/AppNews/AppNewsActions'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
 
-const { height: WINDOW_HEIGHT } = Dimensions.get('window')
+const { height: WINDOW_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
+const PIXEL_RATIO = PixelRatio.get()
+
+let SIZE = 16
+if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
+    SIZE = 8
+}
 
 class AppNewsScreen extends Component {
 
@@ -26,7 +32,7 @@ class AppNewsScreen extends Component {
     }
 
     render() {
-        const appNews = this.props.appNews
+        const appNewsList = this.props.appNewsList
 
         firebase.analytics().setCurrentScreen('AppNewsScreen')
 
@@ -41,7 +47,7 @@ class AppNewsScreen extends Component {
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                             <TouchableOpacity style={styles.title}>
                                 <Text>
-                                    {strings('appNews.subtitle')}
+                                    {SIZE === 8 ? strings('appNews.subtitleSmall') : strings('appNews.subtitle')}
                                 </Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.addAsset} onPress={() => this.clearAllHandle()}>
@@ -69,7 +75,7 @@ class AppNewsScreen extends Component {
                             </TouchableOpacity>
                         </View>
                         {
-                            appNews.length ? appNews.map((item, index) => {
+                            appNewsList.length ? appNewsList.map((item, index) => {
 
                                 let title = item.newsCustomTitle
                                 let description = item.newsCustomText
@@ -95,7 +101,7 @@ class AppNewsScreen extends Component {
                                     title = strings('pushNotifications.' + item.newsName + '.title', data)
                                 }
                                 if (!description) {
-                                    description = strings('pushNotifications.' + item.newsName + '.description',data)
+                                    description = strings('pushNotifications.' + item.newsName + '.description', data)
                                 }
                                 return (
                                     <View style={styles.container} key={index}>
@@ -177,7 +183,7 @@ const styles_ = {
 
 const mapStateToProps = (state) => {
     return {
-        appNews: state.appNewsStore.appNews
+        appNewsList: state.appNewsStore.appNewsList
     }
 }
 

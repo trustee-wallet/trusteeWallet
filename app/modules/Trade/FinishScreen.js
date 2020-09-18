@@ -1,6 +1,5 @@
 /**
- * @version todo
- * @misha to review
+ * @version 0.11
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -15,68 +14,88 @@ import Button from '../../components/elements/Button'
 
 import { setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
 
+import Log from '../../services/Log/Log'
 import { strings } from '../../services/i18n'
+import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 
 
 class FinishScreen extends Component {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            selectedCryptocurrency: {}
-        }
-    }
+    init () {
+        Log.log('Trade.FinishScreen init')
 
-    UNSAFE_componentWillMount(){
-
-        let currencies = JSON.parse(JSON.stringify(this.props.currencyStore.cryptoCurrencies))
+        const currencies = this.props.currencyStore.cryptoCurrencies
 
         const param = this.props.navigation.getParam('finishScreenParam')
 
-        console.log(param)
+        Log.log('Trade.FinishScreen init param', param)
 
-        currencies = currencies.filter(item => item.currencyCode === param.selectedCryptoCurrency.currencyCode)
+        let selectedCryptocurrency = false
 
-        this.setState({
-            selectedCryptocurrency: currencies[0]
-        })
+        if (currencies && param && typeof param.selectedCryptoCurrency !== 'undefined' && typeof param.selectedCryptoCurrency.currencyCode !== 'undefined') {
+            Log.log('Trade.FinishScreen init search ' + param.selectedCryptoCurrency)
+            let item
+            for (item of currencies) {
+                if (param.selectedCryptoCurrency.currencyCode === item.currencyCode) {
+                    selectedCryptocurrency = JSON.parse(JSON.stringify(item))
+                    Log.log('Trade.FinishScreen init found ' + item.currencyCode)
+                    break
+                }
+            }
+        }
+        return selectedCryptocurrency
     }
 
 
     handleOrderHistory = async () => {
+        try {
+            Log.log('Trade.FinishScreen handleOrderHistory init')
 
-        setSelectedCryptoCurrency(this.state.selectedCryptocurrency)
+            const selectedCryptocurrency = this.init()
 
-        await setSelectedAccount()
+            if (selectedCryptocurrency) {
+                setSelectedCryptoCurrency(selectedCryptocurrency)
 
-        NavStore.reset('AccountScreen', {
-            accountScreenParam: {
-                isOrdersActive: true
+                await setSelectedAccount()
+
+                NavStore.reset('AccountScreen', {
+                    accountScreenParam: {
+                        isOrdersActive: true
+                    }
+                })
+            } else {
+                Log.log('Trade.FinishScreen init default')
+                NavStore.reset('DashboardStack')
             }
-        })
+        } catch (e) {
+            Log.log('Trade.FinishScreen handleOrderHistory error ' + e.message)
+            NavStore.reset('DashboardStack')
+        }
     }
 
     handleClose = () => {
-        NavStore.goNext('HomeScreenStack', null, true)
+        NavStore.goNext('DashboardStack', null, true)
     }
 
-    render(){
+    render() {
+        UpdateOneByOneDaemon.pause()
         return (
             <View style={styles.wrapper}>
                 <TouchableOpacity style={styles.close} onPress={this.handleClose}>
-                    <AntDesignIcon style={styles.close__icon} name='close' />
+                    <AntDesignIcon style={styles.close__icon} name='close'/>
                 </TouchableOpacity>
                 <View style={styles.wrapper__content}>
-                    <Feather style={styles.wrapper__icon} name='info' />
+                    <Feather style={styles.wrapper__icon} name='info'/>
                     <Text style={styles.wrapper__title}>
-                        { strings('finishTradeScreen.title') }
+                        {strings('finishTradeScreen.title')}
                     </Text>
                     <Text style={styles.wrapper__description}>
-                        { strings('finishTradeScreen.description') }
+                        {strings('finishTradeScreen.description')}
                     </Text>
                 </View>
-                <Button styleText={{ color: '#7127AC' }} backgroundColorArray={['#fff', '#fff']} press={this.handleOrderHistory}>
-                    { strings('finishTradeScreen.orderHistoryBtn') }
+                <Button styleText={{ color: '#7127AC' }} backgroundColorArray={['#fff', '#fff']}
+                        press={this.handleOrderHistory}>
+                    {strings('finishTradeScreen.orderHistoryBtn')}
                 </Button>
             </View>
         )

@@ -5,7 +5,7 @@ import { strings } from '../../i18n'
 import { NotificationOpen } from 'react-native-firebase/notifications'
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
-
+import Log from '../../Log/Log'
 
 export default class BasicNotification {
     public notificationType: string
@@ -19,21 +19,29 @@ export default class BasicNotification {
     }
 
     getOpenedNotification = async (): Promise<AppNewsJson> => {
+        Log.log('PUSH getOpenedNotification init')
         const openedNotification: NotificationOpen = await firebase.notifications().getInitialNotification()
+        Log.log('PUSH getOpenedNotification', openedNotification)
         if (typeof openedNotification === 'undefined' || !openedNotification ) {
             throw new Error('Empty firebase.notification')
-        } else if (openedNotification !== null && openedNotification.notification._data.notificationType === this.notificationType) {
+            // @ts-ignore
+        } else if (openedNotification !== null && openedNotification.notification._data.notificationType) {
+            // @ts-ignore
             return openedNotification.notification._data
         } else {
-            throw new Error('This type of firebase.notification isn`t supported ' + JSON.stringify(openedNotification))
+            console.log('type',  openedNotification.notification._data.notificationType, this.notificationType)
+            Log.err('This type of firebase.notification isn`t supported ', openedNotification)
+            throw new Error('This type of firebase.notification isn`t supported')
         }
     }
 
     getTextsForNotification = (item: AppNewsItem): NotificationTexts => {
         let title = item.newsCustomTitle
         let description = item.newsCustomText
-        const data = {currencyCode : item.currencyCode, walletName : item.walletName, currencySymbol : '', currencyName : '', amountPretty : '', addressAmount : 0, balance : 0}
-        for (let code in item.newsJson) {
+        const data = {currencyCode : item.currencyCode, walletName : item.walletName, currencySymbol : '', currencyName : '', amountPretty : '',
+            addressAmount : 0, balance : 0, addressTo : '', addressFrom : '', createdAt: ''}
+        for (const code in item.newsJson) {
+            // @ts-ignore
             data[code] = item.newsJson[code]
         }
         const currency = BlocksoftDict.getCurrencyAllSettings(item.currencyCode)
@@ -47,10 +55,14 @@ export default class BasicNotification {
 
         data.amountPretty = ''
         if (typeof data.addressAmount !== 'undefined' && data.addressAmount * 1 > 0) {
+            // @ts-ignore
             const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.addressAmount) * 1
+            // @ts-ignore
             data.amountPretty = parseFloat(tmp.toFixed(5)) === 0 ? parseFloat(tmp.toFixed(10)) : parseFloat(tmp.toFixed(5))
         } else if (typeof data.balance !== 'undefined' && data.balance * 1 > 0) {
+            // @ts-ignore
             const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.balance) * 1
+            // @ts-ignore
             data.amountPretty = parseFloat(tmp.toFixed(5)) === 0 ? parseFloat(tmp.toFixed(10)) : parseFloat(tmp.toFixed(5))
         }
         if (!title || title.length < 10) {
@@ -60,7 +72,7 @@ export default class BasicNotification {
             description = strings('pushNotifications.' + item.newsName + '.description', data)
         }
 
-        return {
+        return <NotificationTexts>{
             title,
             description
         }

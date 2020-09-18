@@ -49,7 +49,7 @@ class BlocksoftKeys {
                     mnemonic = testMnemonic
                     break
                 }
-                console.log('step ' + i + ' not valid ton ' + testMnemonic)
+                BlocksoftCryptoLog.log('step ' + i + ' not valid ton ' + testMnemonic)
             }
             if (!mnemonic) {
                 throw new Error('TON Mnemonic is not validating')
@@ -164,7 +164,7 @@ class BlocksoftKeys {
                 }
                 // BIP32 Extended Private Key to check - uncomment
                 // let childFirst = root.derivePath('m/44\'/2\'/0\'/0')
-                // console.log(childFirst.toBase58())
+                // BlocksoftCryptoLog.log(childFirst.toBase58())
 
                 /**
                  * @type {EthAddressProcessor|BtcAddressProcessor}

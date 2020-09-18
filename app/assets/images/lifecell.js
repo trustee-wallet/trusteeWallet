@@ -1,7 +1,18 @@
 import * as React from "react"
 import Svg, { Circle, Path, G } from "react-native-svg"
+import OldPhone from '../../services/UI/OldPhone/OldPhone'
+import { Image } from "react-native"
 
 function SvgComponent(props) {
+    const ifSelectStyle = props.ifSelectStyle || false
+    if (OldPhone.isOldPhone()) {
+        return (
+            <Image
+                width={34} height={34}
+                resizeMode='stretch'
+                source={ifSelectStyle ? require('./lifecell_2.png') : require('./lifecell.png')}/>
+        )
+    }
         return (
             <Svg width={34} height={34} viewBox="0 0 40 40" {...props}>
                     <Circle cx={20} cy={14.618} r={12.75} fill={props.fill}/>

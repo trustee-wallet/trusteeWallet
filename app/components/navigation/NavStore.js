@@ -27,9 +27,14 @@ class ObservableNavStore {
 
     goBack = () => {
         try {
-            this.navigator.dispatch(NavigationActions.back())
+            if (this.navigator.state.nav.routes.length <= 1) {
+                this.reset('DashboardStack')
+            } else {
+                this.navigator.dispatch(NavigationActions.back())
+            }
             setCurrentScreen(this.getCurrentRoute())
         } catch (e) {
+
         }
     }
 
@@ -41,6 +46,11 @@ class ObservableNavStore {
         return route
     }
 
+    getPrevRoute = () => {
+        let route = this.navigator.state.nav
+        route = route.index > 0 ? route.routes[route.index - 1] : false
+        return route
+    }
 
     goNext = (routeName, params = null, reset = false) => {
         try {

@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, TouchableOpacity, Text, Platform } from 'react-native'
+import { View, TouchableOpacity, Text, Platform, Dimensions, PixelRatio } from 'react-native'
 
 import { MaterialIndicator, UIActivityIndicator } from 'react-native-indicators'
 
@@ -18,10 +18,18 @@ import { setSelectedAccount, setSelectedCryptoCurrency } from '../../../appstore
 import currencyActions from '../../../appstores/Stores/Currency/CurrencyActions'
 
 import Log from '../../../services/Log/Log'
-import prettyNumber from '../../../services/UI/PrettyNumber/PrettyNumber'
 
 import { strings } from '../../../services/i18n'
 import LetterSpacing from '../../../components/elements/LetterSpacing'
+import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window')
+const PIXEL_RATIO = PixelRatio.get()
+
+let SIZE = 16
+if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
+    SIZE = 8 // iphone 5s
+}
 
 class CryptoCurrency extends Component {
 
@@ -29,20 +37,25 @@ class CryptoCurrency extends Component {
 
         const { cryptoCurrency } = this.props
 
+        let status = ''
         try {
 
-            Log.log('HomeScreen.Currency handleCurrencySelect inited ', cryptoCurrency)
+            // Log.log('HomeScreen.Currency handleCurrencySelect inited ', cryptoCurrency)
+
+            status = 'setSelectedCryptoCurrency started'
 
             setSelectedCryptoCurrency(cryptoCurrency)
 
+            status = 'setSelectedAccount started'
+
             await setSelectedAccount()
 
-            Log.log('HomeScreen.Currency handleCurrencySelect finished ', cryptoCurrency)
+            // Log.log('HomeScreen.Currency handleCurrencySelect finished ', cryptoCurrency)
 
             NavStore.goNext('AccountScreen')
 
         } catch (e) {
-            Log.err('HomeScreen.Currency handleCurrencySelect error ' + e.message, cryptoCurrency)
+            Log.err('HomeScreen.Currency handleCurrencySelect error ' + status + ' ' + e.message, cryptoCurrency)
         }
     }
 
@@ -64,7 +77,7 @@ class CryptoCurrency extends Component {
                 )
             }
 
-            return <LetterSpacing text={prettyNumber(account.balancePretty, 5, account.balancePretty < 1) + ' ' + cryptoCurrency.currencySymbol} textStyle={styles.cryptoList__text} letterSpacing={0.5}/>
+            return <LetterSpacing text={BlocksoftPrettyNumbers.makeCut(account.balancePretty).separated + ' ' + cryptoCurrency.currencySymbol} textStyle={styles.cryptoList__text} letterSpacing={0.5}/>
         } catch (e) {
             Log.err('HomeScreen.Currency renderBalance ' + e.message)
             return <View/>
@@ -77,45 +90,43 @@ class CryptoCurrency extends Component {
             return <View/>
         }
 
-        const walletHash = props.selectedWallet.walletHash
-        const accountList = props.accountList[walletHash]
+        const accountListByWallet = props.accountListByWallet
         const cryptoCurrency = props.cryptoCurrency
 
         const currencyCode = cryptoCurrency.currencyCode || 'BTC'
-        if (typeof accountList === 'undefined' || typeof accountList[currencyCode] === 'undefined') {
-            return <View/>
+        let account
+        if (typeof accountListByWallet === 'undefined' || typeof accountListByWallet[currencyCode] === 'undefined') {
+            account = {basicCurrencyRate : '', basicCurrencyBalance : '', basicCurrencySymbol : '', balancePretty : '', basicCurrencyBalanceNorm : ''}
+        } else {
+            account = accountListByWallet[currencyCode]
         }
-        const account = accountList[currencyCode]
 
         let ratePrep = account.basicCurrencyRate
         if (ratePrep > 0) {
-            ratePrep = prettyNumber(ratePrep, 2, ratePrep < 1)
+            ratePrep = BlocksoftPrettyNumbers.makeCut(ratePrep, 2).separated
         }
 
         const priceChangePercentage24h = cryptoCurrency.priceChangePercentage24h * 1 || 0
         const priceChangePercentage24hPrep = (priceChangePercentage24h).toFixed(2).toString().replace('-', '') + String.fromCodePoint(parseInt('2006', 16)) + '%'
 
-        let basicBalancePrep = account.basicCurrencyBalance
-        if (basicBalancePrep) {
-            basicBalancePrep = prettyNumber(basicBalancePrep, 2, basicBalancePrep < 1).toString()
-        }
-
+        const basicBalancePrep = account.basicCurrencyBalance
         return (
             <View style={styles.container}>
-                <View style={{ position: 'relative' }}>
+                 <View style={{ position: 'relative' }}>
                     <View style={{
                         position: 'relative',
 
-                        marginBottom: 15,
+                        marginBottom: SIZE - 1,
                         marginTop: 5,
-                        marginLeft: 16,
-                        marginRight: 16,
+                        marginLeft: SIZE,
+                        marginRight: SIZE,
                         backgroundColor: '#fff',
-                        borderRadius: 16,
+                        borderRadius: SIZE,
 
                         zIndex: 2
                     }}>
                         <TouchableOpacity style={styles.cryptoList__item} {...props} onPress={() => this.handleCurrencySelect(props.accounts)}>
+
                             <GradientView
                                 style={styles.cryptoList__item__content}
                                 array={styles_.cryptoList__item.array}
@@ -167,13 +178,13 @@ class CryptoCurrency extends Component {
     }
 
     render() {
-        const { cryptoCurrency, settingsStore, accountList, selectedWallet } = this.props
+        const { cryptoCurrency, settingsStore, accountListByWallet } = this.props
 
         return cryptoCurrency.currencyCode === 'BTC'
             ?
-            <ToolTips animatePress={true} height={100} mainComponentProps={{ cryptoCurrency, settingsStore, accountList, selectedWallet }} disabled={true} MainComponent={this.renderTooltip} type={'HOME_SCREEN_CRYPTO_BTN_TIP'} nextCallback={this.handleCurrencySelect}/>
+            <ToolTips animatePress={true} height={100} mainComponentProps={{ cryptoCurrency, settingsStore, accountListByWallet }} disabled={true} MainComponent={this.renderTooltip} type={'HOME_SCREEN_CRYPTO_BTN_TIP'} nextCallback={this.handleCurrencySelect}/>
             :
-            this.renderTooltip({ cryptoCurrency, settingsStore, accountList, selectedWallet })
+            this.renderTooltip({ cryptoCurrency, settingsStore, accountListByWallet })
     }
 }
 
@@ -181,7 +192,6 @@ const mapStateToProps = (state) => {
     return {
         selectedWallet: state.mainStore.selectedWallet,
         settingsStore: state.settingsStore,
-        accountList: state.accountStore.accounts
     }
 }
 

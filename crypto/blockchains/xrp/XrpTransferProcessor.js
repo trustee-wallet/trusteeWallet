@@ -87,7 +87,7 @@ export default class XrpTransferProcessor {
         if (balanceRaw && typeof balanceRaw.balance !== 'undefined' && balanceRaw.balance > 20) {
             return false
         } else {
-            return { code: 'XRP' }
+            return { code: 'XRP', address: data.addressTo }
         }
     }
 

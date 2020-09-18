@@ -34,38 +34,73 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
      * @return {Promise<{feeForTx, langMsg, gasPrice, gasLimit}[]>}
      */
     async getFeeRate(data, alreadyEstimatedGas = false) {
-        const tmpData = {...data}
-        const logData = { tokenAddress: this._tokenAddress, addressTo: data.addressTo, amount: data.amount, addressFrom: data.addressFrom }
+        const tmpData = { ...data }
+        const logData = {
+            tokenAddress: this._tokenAddress,
+            addressTo: data.addressTo,
+            amount: data.amount,
+            addressFrom: data.addressFrom
+        }
         BlocksoftCryptoLog.log('EthTxProcessorErc20 estimateGas started', logData)
         let estimatedGas
+
         try {
-            if (data.addressTo === data.addressFrom) {
+            const basicAddressTo = data.addressTo.toLowerCase()
+            let firstAddressTo = basicAddressTo
+            let eventTitle = 'eth_gas_limit_token1 '
+            if (basicAddressTo === data.addressFrom.toLowerCase()) {
                 const tmp1 = '0xA09fe17Cb49D7c8A7858C8F9fCac954f82a9f487'
                 const tmp2 = '0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99'
-                const to = data.addressFrom === tmp1 ? tmp2 : tmp1
+                firstAddressTo = data.addressFrom === tmp1 ? tmp2 : tmp1
                 BlocksoftCryptoLog.log('EthTxProcessorErc20 estimateGas addressToChanged', logData)
-                estimatedGas = await this._token.methods.transfer(to, data.amount).estimateGas({ from: data.addressFrom })
-                const estimatedGas2 = await this._token.methods.transfer(data.addressTo, data.amount).estimateGas({ from: data.addressFrom })
-                if (estimatedGas2 > estimatedGas) {
-                    estimatedGas = estimatedGas2
-                }
-                if (estimatedGas < 41200) {
-                    estimatedGas = 41200
-                }
-                MarketingEvent.logOnlyRealTime('eth_gas_limit_token1 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {amount : data.amount + '', estimatedGas})
-            } else {
-                estimatedGas = await this._token.methods.transfer(data.addressTo, data.amount).estimateGas({ from: data.addressFrom })
-                const estimatedGas2 = await this._token.methods.transfer(data.addressTo, data.amount).estimateGas({ from: data.addressFrom })
-                if (estimatedGas2 > estimatedGas) {
-                    estimatedGas = estimatedGas2
-                }
-                if (estimatedGas < 41200) {
-                    estimatedGas = 41200
-                }
-                MarketingEvent.logOnlyRealTime('eth_gas_limit_token2 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {amount : data.amount + '', estimatedGas})
+                eventTitle = 'eth_gas_limit_token2 '
             }
+
+            let serverEstimatedGas = 0
+            let serverEstimatedGas2 = 0
+            let serverEstimatedGas3 = 0
+            try {
+                serverEstimatedGas = await this._token.methods.transfer(firstAddressTo, data.amount).estimateGas({ from: data.addressFrom })
+            } catch (e) {
+                e.message += ' while transfer check1 ' + data.amount
+                throw e
+            }
+            try {
+                serverEstimatedGas2 = await this._token.methods.transfer(basicAddressTo, data.amount).estimateGas({ from: data.addressFrom })
+            } catch (e) {
+                e.message += ' while transfer check2 ' + data.amount
+                throw e
+            }
+            const tmp3 = data.amount * 1
+            try {
+                serverEstimatedGas3 = await this._token.methods.transfer(basicAddressTo, tmp3).estimateGas({ from: data.addressFrom })
+            } catch (e) {
+                // do nothing
+            }
+
+
+            if (serverEstimatedGas2 > serverEstimatedGas) {
+                estimatedGas = serverEstimatedGas2
+            } else {
+                estimatedGas = serverEstimatedGas
+            }
+            if (estimatedGas < serverEstimatedGas3) {
+                estimatedGas = serverEstimatedGas3
+            }
+            if (estimatedGas < 70200) {
+                estimatedGas = 70200
+            }
+            MarketingEvent.logOnlyRealTime(eventTitle + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo,
+                {
+                    amount: data.amount + '',
+                    estimatedGas,
+                    serverEstimatedGas,
+                    serverEstimatedGas2,
+                    serverEstimatedGas3
+                })
+
         } catch (e) {
-            this.checkError(e)
+            this.checkError(e, logData)
         }
         BlocksoftCryptoLog.log('EthTxProcessorErc20 estimateGas finished', estimatedGas)
         return super.getFeeRate(tmpData, estimatedGas)
@@ -73,11 +108,12 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
 
     async checkTransferHasError(data) {
         const balanceProvider = Dispatcher.getScannerProcessor('ETH')
-        const balanceRaw = await balanceProvider.getBalanceBlockchain(data.addressTo)
+        const basicAddressTo = data.addressTo.toLowerCase()
+        const balanceRaw = await balanceProvider.getBalanceBlockchain(basicAddressTo)
         if (balanceRaw && typeof balanceRaw.balance !== 'undefined' && balanceRaw.balance > 0) {
             return false
         } else {
-            return {code : 'TOKEN', parentBlockchain : 'Ethereum', parentCurrency : 'ETH'}
+            return { code: 'TOKEN', parentBlockchain: 'Ethereum', parentCurrency: 'ETH' }
         }
     }
 
@@ -104,7 +140,7 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
             BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
             return balance
         } catch (e) {
-            this.checkError(e)
+            this.checkError(e, data)
         }
     }
 
@@ -119,13 +155,19 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
      * @param {string} data.data
      */
     async sendTx(data) {
-        const tmpData = {...data}
-        const logData = { tokenAddress: this._tokenAddress, addressTo: data.addressTo, amount: data.amount, addressFrom: data.addressFrom }
+        const tmpData = { ...data }
+        const logData = {
+            tokenAddress: this._tokenAddress,
+            addressTo: data.addressTo,
+            amount: data.amount,
+            addressFrom: data.addressFrom
+        }
         BlocksoftCryptoLog.log('EthTxProcessorErc20 encodeABI started', logData)
         try {
-            tmpData.data = this._token.methods.transfer(data.addressTo, data.amount).encodeABI()
+            const basicAddressTo = data.addressTo.toLowerCase()
+            tmpData.data = this._token.methods.transfer(basicAddressTo, data.amount).encodeABI()
         } catch (e) {
-            this.checkError(e)
+            this.checkError(e, logData)
         }
         BlocksoftCryptoLog.log('EthTxProcessorErc20 encodeABI finished', tmpData.data)
         tmpData.amount = 0

@@ -2,6 +2,7 @@
  * @version 0.9
  */
 import firebase from 'react-native-firebase'
+import { Dimensions, PixelRatio } from 'react-native'
 
 import BlocksoftTg from '../../../crypto/common/BlocksoftTg'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
@@ -34,8 +35,8 @@ class Log {
     constructor() {
         this.TG = new BlocksoftTg(changeableProd.tg.info.theBot, changeableProd.tg.info.appErrorsChannel)
         this.FS = {
-            DAEMON : new FileSystem(),
-            ALL : new FileSystem()
+            DAEMON: new FileSystem(),
+            ALL: new FileSystem()
         }
 
         this.LOG_VERSION = false
@@ -45,6 +46,7 @@ class Log {
         this.LOG_CASHBACK = false
         this.LOG_TOKEN = false
         this.LOG_PLATFORM = false
+        this.LOG_MODEL = false
 
         this.FS.DAEMON.setFileEncoding('utf8').setFileName('DaemonLog').setFileExtension('txt')
         this.FS.DAEMON.checkOverflow()
@@ -69,6 +71,7 @@ class Log {
         this.LOG_CASHBACK = obj.LOG_CASHBACK || false
         this.LOG_TOKEN = obj.LOG_TOKEN || false
         this.LOG_PLATFORM = obj.LOG_PLATFORM || false
+        this.LOG_MODEL = obj.LOG_MODEL || false
     }
 
     consoleStart() {
@@ -85,13 +88,33 @@ class Log {
         }
     }
 
+
+    simpleStringify(object, replacer, space) {
+        const simpleObject = {}
+        let prop
+        for (prop in object) {
+            // eslint-disable-next-line no-prototype-builtins
+            if (!object.hasOwnProperty(prop)) {
+                continue
+            }
+            if (typeof (object[prop]) === 'object') {
+                continue
+            }
+            if (typeof (object[prop]) === 'function') {
+                continue
+            }
+            simpleObject[prop] = object[prop]
+        }
+        return JSON.stringify(simpleObject, replacer, space) // returns cleaned up JSON
+    }
+
     daemon(txtOrObj, txtOrObj2 = false, txtOrObj3 = false) {
         this.log(txtOrObj, txtOrObj2, txtOrObj3, 'DAEMON')
     }
 
     errorTranslate(e, title, currencyCode, additional = '') {
         if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
-            this.err(title + ' error ' + e.message + ' ' + additional)
+            this.err(title + ' ' + currencyCode + ' error ' + e.message + ' ' + additional)
             return e
         }
 
@@ -109,6 +132,14 @@ class Log {
         return e
     }
 
+    /**
+     * @param {string|any} txtOrObj
+     * @param {string|boolean|any} txtOrObj2
+     * @param {string|boolean|any} txtOrObj3
+     * @param {string} LOG_SUBTYPE
+     * @param {string} LOG_AS_ERROR
+     * @returns {boolean}
+     */
     log(txtOrObj, txtOrObj2 = false, txtOrObj3 = false, LOG_SUBTYPE = 'ALL', LOG_AS_ERROR = false) {
         let line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
         let line2 = ''
@@ -116,14 +147,14 @@ class Log {
             if (typeof txtOrObj === 'string') {
                 line += ' ' + txtOrObj
             } else {
-                line += ' ' + JSON.stringify(txtOrObj, null, '\t')
+                line += ' ' + this.simpleStringify(txtOrObj, null, '\t')
             }
         }
         if (txtOrObj2 && typeof txtOrObj2 !== 'undefined') {
             if (typeof txtOrObj2 === 'string') {
                 line += '\n\t\t\t' + txtOrObj2
             } else if (typeof txtOrObj2.sourceURL === 'undefined') {
-                line += '\n\t\t\t' + JSON.stringify(txtOrObj2, null, '\t\t\t')
+                line += '\n\t\t\t' + this.simpleStringify(txtOrObj2, null, '\t\t\t')
             }
         }
 
@@ -145,13 +176,16 @@ class Log {
         }
 
         if (LOG_AS_ERROR) {
-            // noinspection JSUnresolvedFunction
-            firebase.crashlytics().log('==========ERROR ' + LOG_SUBTYPE + '==========')
+            if (!config.debug.appErrors) {
+                // noinspection JSUnresolvedFunction
+                firebase.crashlytics().log('==========ERROR ' + LOG_SUBTYPE + '==========')
+            }
             this.FS[LOG_SUBTYPE].writeLine('==========ERROR ' + LOG_SUBTYPE + '==========')
-
         }
-        // noinspection JSUnresolvedFunction
-        firebase.crashlytics().log(line)
+        if (!config.debug.appErrors && config.debug.firebaseLogs) {
+            // noinspection JSUnresolvedFunction
+            firebase.crashlytics().log(line)
+        }
         this.FS[LOG_SUBTYPE].writeLine(line)
 
 
@@ -159,7 +193,7 @@ class Log {
             if (typeof txtOrObj3 === 'string') {
                 line2 += '\t\t\t' + txtOrObj3
             } else {
-                line2 += '\t\t\t' + JSON.stringify(txtOrObj3, null, '\t\t\t')
+                line2 += '\t\t\t' + this.simpleStringify(txtOrObj3, null, '\t\t\t')
             }
             if (LOG_SUBTYPE !== 'DAEMON') {
                 if (DEBUG || this.localConsole) {
@@ -168,8 +202,10 @@ class Log {
             } else if (DEBUG_DAEMON) {
                 console.log('\n' + line2)
             }
-            // noinspection JSUnresolvedFunction
-            firebase.crashlytics().log(line2)
+            if (!config.debug.appErrors && config.debug.firebaseLogs) {
+                // noinspection JSUnresolvedFunction
+                firebase.crashlytics().log(line2)
+            }
             this.FS[LOG_SUBTYPE].writeLine(line2)
         }
 
@@ -202,7 +238,13 @@ class Log {
         this.err(errorObjectOrText, errorObject2, 'DAEMON')
     }
 
-    async err(errorObjectOrText, errorObject2, LOG_SUBTYPE = 'ALL') {
+    /**
+     * @param {string|any} errorObjectOrText
+     * @param {string|boolean|any} errorObject2
+     * @param {string} LOG_SUBTYPE
+     * @returns {Promise<boolean>}
+     */
+    async err(errorObjectOrText, errorObject2 = false, LOG_SUBTYPE = 'ALL') {
         const now = new Date()
         const date = now.toISOString().replace(/T/, ' ').replace(/\..+/, '')
         let line = ''
@@ -216,7 +258,7 @@ class Log {
                     line += ' ' + errorObjectOrText.message
                 }
             } else {
-                line += JSON.stringify(errorObjectOrText)
+                line += this.simpleStringify(errorObjectOrText)
             }
         }
 
@@ -253,17 +295,18 @@ class Log {
             msg += '\nTOKEN ' + this.LOG_TOKEN.substr(0, 20)
             msg += '\nFULL TOKEN ' + this.LOG_TOKEN
         }
-
         if (typeof (this.LOG_PLATFORM) !== 'undefined' && this.LOG_PLATFORM) {
             msg += '\nPLATFORM ' + this.LOG_PLATFORM
         }
-
+        if (typeof (this.LOG_MODEL) !== 'undefined' && this.LOG_MODEL) {
+            msg += '\nMODEL ' + this.LOG_MODEL
+        }
 
         try {
             if (typeof firebase.crashlytics().setStringValue !== 'undefined') {
                 if (typeof (this.LOG_VERSION) !== 'undefined' && this.LOG_VERSION) {
                     // noinspection JSUnresolvedFunction
-                    firebase.crashlytics().setStringValue('LOG_VERSION', this.LOG_VERSION)
+                    firebase.crashlytics().setStringValue('LOG_VERSION', this.LOG_VERSION.substr(0, 20))
                 }
                 if (typeof (this.LOG_TESTER) !== 'undefined' && this.LOG_TESTER) {
                     // noinspection JSUnresolvedFunction
@@ -283,7 +326,7 @@ class Log {
                 }
                 if (typeof (this.LOG_TOKEN) !== 'undefined' && this.LOG_TOKEN) {
                     // noinspection JSUnresolvedFunction
-                    firebase.crashlytics().setStringValue('LOG_TOKEN', this.LOG_TOKEN)
+                    firebase.crashlytics().setStringValue('LOG_TOKEN', this.LOG_TOKEN.substr(0, 20))
                 }
                 if (typeof (this.LOG_PLATFORM) !== 'undefined' && this.LOG_PLATFORM) {
                     // noinspection JSUnresolvedFunction
@@ -291,12 +334,15 @@ class Log {
                 }
             }
             // noinspection JSUnresolvedFunction
-            if (typeof firebase.crashlytics().recordCustomError !== 'undefined') {
-                firebase.crashlytics().recordCustomError('FRNT', line, [])
-            } else {
-                firebase.crashlytics().log('FRNT ' + line)
-                this.FS[LOG_SUBTYPE].writeLine('FRNT ' + line)
-                firebase.crashlytics().crash()
+            this.FS[LOG_SUBTYPE].writeLine('FRNT ' + line)
+
+            if (!config.debug.appErrors) {
+                if (typeof firebase.crashlytics().recordCustomError !== 'undefined') {
+                    firebase.crashlytics().recordCustomError('FRNT', line, [])
+                } else {
+                    firebase.crashlytics().log('FRNT ' + line)
+                    firebase.crashlytics().crash()
+                }
             }
         } catch (firebaseError) {
             msg += ' Crashlytics error ' + firebaseError.message
@@ -305,11 +351,13 @@ class Log {
         // noinspection ES6MissingAwait
 
         let canSend = true
-        const tmp = this.LOG_VERSION.split(' ')
-        if (typeof tmp[1] !== 'undefined') {
-            const minVersion = await BlocksoftExternalSettings.get('minAppErrorsVersion', 'Log.error')
-            if (minVersion * 1 > tmp[1] * 1) {
-                canSend = false
+        if (typeof this.LOG_VERSION !== 'undefined') {
+            const tmp = this.LOG_VERSION.toString().split(' ')
+            if (typeof tmp[1] !== 'undefined') {
+                const minVersion = await BlocksoftExternalSettings.get('minAppErrorsVersion', 'Log.error')
+                if (minVersion * 1 > tmp[1] * 1) {
+                    canSend = false
+                }
             }
         }
         if (canSend) {
@@ -344,6 +392,20 @@ class Log {
         if (typeof (this.LOG_PLATFORM) !== 'undefined' && this.LOG_PLATFORM) {
             msg += '\n\nPLATFORM ' + this.LOG_PLATFORM
         }
+        if (typeof this.LOG_MODEL !== 'undefined' && this.LOG_MODEL) {
+            msg += '\n\nMODEL ' + this.LOG_MODEL
+        }
+        try {
+            const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
+            msg += '\n\nSCREEN ' + SCREEN_WIDTH + ' x ' + SCREEN_HEIGHT
+        } catch (e) {
+
+        }
+        try {
+            msg += '\n\nPIXELS ' + PixelRatio.get()
+        } catch (e) {
+
+        }
         return msg
     }
 
@@ -354,12 +416,12 @@ class Log {
                 type: 'INFO_MODAL',
                 icon: null,
                 title: strings('modal.exchange.sorry'),
-                description: strings('modal.exchange.errors.' + msg),
+                description: strings('modal.exchange.errors.' + msg)
             })
             return true
         }
-        return (message.indexOf('network Error') !== -1
-            || message.indexOf('timeout of 0ms exceeded') !== -1
+        return (message.indexOf('network error') !== -1
+            || message.indexOf('timeout') !== -1
             || message.indexOf('request failed with status code') !== -1
             || message.indexOf('calls limits have been reached') !== -1
             || message.indexOf('server_response_') !== -1

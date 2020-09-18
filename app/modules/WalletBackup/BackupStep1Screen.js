@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions, PixelRatio } from 'react-native'
 
 import Skip from '../WalletBackup/elements/Skip'
 import GradientView from '../../components/elements/GradientView'
@@ -24,6 +24,13 @@ import firebase from 'react-native-firebase'
 import { setCallback, proceedSaveGeneratedWallet } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
 import walletActions from '../../appstores/Stores/Wallet/WalletActions'
 
+const { height: WINDOW_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
+const PIXEL_RATIO = PixelRatio.get()
+
+let SIZE = 16
+if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
+    SIZE = 8
+}
 
 class BackupStep1Screen extends Component {
 
@@ -44,13 +51,26 @@ class BackupStep1Screen extends Component {
     init = () => {
         Log.log('WalletBackup.BackupStep1Screen init')
 
-        let walletMnemonic = JSON.parse(JSON.stringify(this.props.walletMnemonic))
-        walletMnemonic = walletMnemonic.split(' ')
-        const walletMnemonicDefault = walletMnemonic
+        if (typeof this.props.walletMnemonic === 'undefined') {
+            throw new Error('WalletBackup.BackupStep1Screen init error')
+        }
+
+
+        let walletMnemonicDefault
+        try {
+            walletMnemonicDefault = this.props.walletMnemonic.split(' ')
+        } catch (e) {
+            throw new Error('WalletBackup.BackupStep1Screen init split error ' + e.message)
+        }
+
         let walletMnemonicSorted = JSON.parse(JSON.stringify(walletMnemonicDefault))
-        walletMnemonicSorted = walletMnemonicSorted.sort(() => {
-            return .5 - Math.random()
-        })
+        try {
+            walletMnemonicSorted = walletMnemonicSorted.sort(() => {
+                return .5 - Math.random()
+            })
+        } catch (e) {
+            throw new Error('WalletBackup.BackupStep1Screen init sort error ' + e.message)
+        }
 
         this.setState({
             walletMnemonicDefault: walletMnemonicDefault,
@@ -60,6 +80,7 @@ class BackupStep1Screen extends Component {
     }
 
     handleSelectWord = (item, index) => {
+        Log.log('WalletBackup.BackupStep1Screen handleSelectWord')
         const walletMnemonicSorted = JSON.parse(JSON.stringify(this.state.walletMnemonicSorted))
         const walletMnemonicSelected = JSON.parse(JSON.stringify(this.state.walletMnemonicSelected))
         walletMnemonicSelected.push(item)
@@ -75,6 +96,7 @@ class BackupStep1Screen extends Component {
     }
 
     handleRemoveWord = (item, index) => {
+        Log.log('WalletBackup.BackupStep1Screen handleRemoveWord')
         const walletMnemonicSelected = JSON.parse(JSON.stringify(this.state.walletMnemonicSelected))
         const walletMnemonicSorted = JSON.parse(JSON.stringify(this.state.walletMnemonicSorted))
         walletMnemonicSorted.push(item)
@@ -88,6 +110,7 @@ class BackupStep1Screen extends Component {
     }
 
     handleSkip = () => {
+        Log.log('WalletBackup.BackupStep1Screen handleSkip')
         const { settingsStore }  = this.props
 
         if(+settingsStore.lock_screen_status) {
@@ -104,6 +127,7 @@ class BackupStep1Screen extends Component {
     }
 
     validateMnemonic = async () => {
+        Log.log('WalletBackup.BackupStep1Screen validateMnemonic')
 
         const { flowType } = this.props.createWalletStore
 
@@ -152,7 +176,7 @@ class BackupStep1Screen extends Component {
                 }, async () => {
                     if (callback === null) {
                         NavStore.reset('DashboardStack')
-                        await App.refreshWalletsStore()
+                        await App.refreshWalletsStore({firstTimeCall : false, source : 'WalletBackup.BackupStep1Screen'})
                     } else {
                         callback()
                         setCallback({ callback: null })
@@ -167,6 +191,7 @@ class BackupStep1Screen extends Component {
     }
 
     render() {
+        Log.log('WalletBackup.BackupStep1Screen render')
         firebase.analytics().setCurrentScreen('WalletBackup.BackupStep1Screen')
 
         const { flowType } = this.props.createWalletStore
@@ -180,7 +205,7 @@ class BackupStep1Screen extends Component {
                             isClose={false}
                         /> :
                         <Navigation
-                            title={strings('walletBackup.titleNewWallet')}
+                            title={SIZE === 8 ? strings('walletBackup.titleNewWalletSmall') : strings('walletBackup.titleNewWallet')}
                             nextTitle={strings('walletBackup.skip')}
                             next={this.handleSkip}
                         />
@@ -193,10 +218,9 @@ class BackupStep1Screen extends Component {
                         {strings('walletBackup.secondStep.description')}
                     </TextView>
                     <View style={styles.confirm}>
-                        <View style={[styles.confirm__content, { height: this.state.walletMnemonicDefault.length > 12 ? 230 : 150 }]}>
+                        <View style={[styles.confirm__content, { height: this.state.walletMnemonicDefault.length > 12 ? 270 : 150 }]}>
                             {
                                 this.state.walletMnemonicSelected.map((item, index) => {
-                                    console.log(this.state.walletMnemonicSelected.length)
                                     return (
                                         <TouchableOpacity onPress={() => this.handleRemoveWord(item, index)} key={index}>
                                             <GradientView style={styles.confirm__item} array={stylesSeedItem.array}
@@ -286,7 +310,7 @@ const styles = StyleSheet.create({
         color: '#404040'
     },
     seed: {
-        marginBottom: 10,
+        marginBottom: 30,
         marginTop: 40,
         flexWrap: 'wrap',
         flexDirection: 'row',

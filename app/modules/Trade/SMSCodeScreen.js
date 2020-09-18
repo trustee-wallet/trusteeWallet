@@ -17,10 +17,11 @@ import Log from '../../services/Log/Log'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 import Navigation from '../../components/navigation/Navigation'
+import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
-
+let CACHE_IS_ERROR = false
 class SMSCodeScreen extends Component {
 
     constructor() {
@@ -67,10 +68,14 @@ class SMSCodeScreen extends Component {
             uniqueParams
         } = this.props.exchange
 
+
         const expirationDateTmp = typeof expirationDate !== 'undefined' ? expirationDate.split('/') : null
-        const easybitsCardNumber = typeof cardNumber !== 'undefined' ? cardNumber.match(/.{1,4}/g) : null
-        let xPayCardNumber = typeof cardNumber !== 'undefined' ? cardNumber.match(/.{1,4}/g) : []
-        xPayCardNumber = xPayCardNumber.join(' ')
+        let easybitsCardNumber = null
+        let xPayCardNumber = ''
+        if (cardNumber && typeof cardNumber !== 'undefined') {
+            easybitsCardNumber = cardNumber.trim().match(/.{1,4}/g)
+            xPayCardNumber = easybitsCardNumber.join(' ').trim().toString()
+        }
 
         const phoneNumber = typeof uniqueParams !== 'undefined' && typeof uniqueParams.phone !== 'undefined' ? uniqueParams.phone : ''
 
@@ -135,15 +140,27 @@ class SMSCodeScreen extends Component {
                         var ev = new Event('input');
                         var input1 = document.getElementsByName("number")[0];
                         if (typeof input1 !== 'undefined') {
-                          input1.disabled = true;
-                          input1.value = '${xPayCardNumber.length ? xPayCardNumber.toString() : ''}';
+                          ${xPayCardNumber.length ? ' input1.disabled = true; ' : ''}
+                          input1.value = '${xPayCardNumber.length ? xPayCardNumber : ''}';
                           input1.dispatchEvent(ev);
                         } else {
-                          var s = document.createElement('h1');
-                          var agent = typeof window.navigator.userAgent !== 'undefined' ? window.navigator.userAgent : 'none';
-                          s.innerHTML = 'WebView need to be <a href="https://www.apkmirror.com/apk/google-inc/android-system-webview/">updated</a> as current version ' + agent + ' is not supported';
-                          document.body.appendChild(s);
-                          window.ReactNativeWebView.postMessage('WebView Agent Error ' + window.location + ' agent ' + agent);
+                          
+                          var txt  = document.body.innerHTML.toString().substr(0, 500);
+                          var orderInfo = document.getElementsByClassName('form__info_order')[0];
+                          if (typeof orderInfo !== 'undefined') {
+                               setInterval(() => {
+                                      var txt  = document.body.innerHTML.toString().substr(0, 5000);
+                                      window.ReactNativeWebView.postMessage('WebView Agent ServerError ' + window.location + ' ' + txt);
+                               }, 1000)
+                          } else {
+                              var s = document.createElement('h1');
+                              var agent = typeof window.navigator.userAgent !== 'undefined' ? window.navigator.userAgent : 'none';
+                              s.innerHTML = 'WebView need to be <a href="https://www.apkmirror.com/apk/google-inc/android-system-webview/">updated</a> as current version ' + agent + ' is not supported';
+                              document.body.appendChild(s);
+                              window.ReactNativeWebView.postMessage('WebView Agent Error ' + window.location + ' agent ' + agent + ' ' + txt);
+                          }
+                          
+                          
                         }
                         var input2 = document.getElementsByName("date")[0];
                         if (typeof input2 !== 'undefined') {
@@ -286,7 +303,9 @@ class SMSCodeScreen extends Component {
                             if (currentNode.nodeType !== 3 || !regex.test(currentNode.data) ) {
                                 continue;
                             }
-                            currentNode.parentNode.innerHTML = '';
+                            if (typeof currentNode.parentNode !== 'undefined') {
+                             currentNode.parentNode.innerHTML = '';
+                            }
                         }
                         
                         var kunaIcon = document.getElementsByClassName('kuna-icon')[0];
@@ -336,6 +355,7 @@ class SMSCodeScreen extends Component {
                          }  
                  } catch(error) {
                     window.ReactNativeWebView.postMessage('Inner Error ' + window.location + ' webview ' + error.toString());
+                    alert(error);
                     true;
                  }
             `,
@@ -354,13 +374,18 @@ class SMSCodeScreen extends Component {
 
         MarketingEvent.logEvent('exchange_main_screen_buy_goto', { link: data.link, id: data.id + '' })
 
-        Log.log('Trade.SMSCodeScreen.handleSubmit.BUY goto', data)
+        Log.log('Trade.SMSCodeScreen.handleSubmit.BUY goto', {
+            link: this.props.exchange.link,
+            id: this.props.exchange.id,
+            cardNumber,
+            xPayCardNumber
+        })
         this.setState(data)
 
         try {
             Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be created')
             setTimeout(() => {
-                Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be finished', this.state)
+                Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be finished ' + this.state.url)
                 if (!this.state.url.includes('pay.receipt-pay.com/cards') && !this.state.url.includes('mapi.xpay.com') && !this.state.url.includes('easybits.io') && !this.state.url.includes('kuna.io/')) {
                     Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be in1')
                     if (this.state.receiptPay) {
@@ -430,7 +455,7 @@ class SMSCodeScreen extends Component {
             )
             && url !== 'about:blank' && this.state.lastStep
         ) {
-            Log.log('Trade.SMSCodeScreen.handleWebViewNavigationStateChange timeout2 will be created')
+            Log.log('Trade.SMSCodeScreen.handleWebViewNavigationStateChange timeout2 will be created ' + url + ' CACHE_IS_ERROR ' + (CACHE_IS_ERROR ? 'true' : 'false'))
             this.handleStartAnimation()
 
             this.setState({
@@ -438,11 +463,20 @@ class SMSCodeScreen extends Component {
                 lastStep: false
             })
 
-            NavStore.goNext('FinishScreen', {
-                finishScreenParam: {
-                    selectedCryptoCurrency: this.props.exchange.selectedCryptocurrency
-                }
-            })
+            if (CACHE_IS_ERROR) {
+                NavStore.goNext('FinishErrorScreen', {
+                    finishScreenParam: {
+                        selectedCryptoCurrency: this.props.exchange.selectedCryptocurrency
+                    }
+                })
+            } else {
+                NavStore.goNext('FinishScreen', {
+                    finishScreenParam: {
+                        selectedCryptoCurrency: this.props.exchange.selectedCryptocurrency
+                    }
+                })
+            }
+
 
             // setTimeout(async () => {
             //     const { data: res } = await axios.post(`${baseUrl}/get-payin-status`, data)
@@ -478,6 +512,7 @@ class SMSCodeScreen extends Component {
     }
 
     render() {
+        UpdateOneByOneDaemon.pause()
         firebase.analytics().setCurrentScreen('Trade.SMSCodeScreen')
         Log.log(`Trade.SMSCodeScreen is rendered`)
 
@@ -485,6 +520,7 @@ class SMSCodeScreen extends Component {
 
         Log.log('Trade.SMSCodeScreen.link', link, status)
 
+        CACHE_IS_ERROR = false
         return (
             <View style={{ ...styles.wrapper }}>
                 <Navigation/>
@@ -520,7 +556,12 @@ class SMSCodeScreen extends Component {
                             Log.log('Trade.SMSCodeScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
                         }}
                         onMessage={(e) => {
-                            Log.log('Trade.SMSCodeScreen.on message ' + e.nativeEvent.data)
+                            if (e.nativeEvent.data.indexOf('paycore.io') !== -1 && e.nativeEvent.data.indexOf('<section class="error-message') !== -1) {
+                                CACHE_IS_ERROR = true
+                                Log.log('Trade.SMSCodeScreen.on message ' + e.nativeEvent.data + ' SET ERROR')
+                            } else {
+                                Log.log('Trade.SMSCodeScreen.on message ' + e.nativeEvent.data + ' NO ERROR')
+                            }
                         }}
                         onLoadProgress={(e) => {
                             Log.log('Trade.SMSCodeScreen.on load progress ' + e.nativeEvent.title + ' ' + e.nativeEvent.progress)
@@ -529,7 +570,7 @@ class SMSCodeScreen extends Component {
                             Log.log('Trade.SMSCodeScreen.on content terminate ' + e.nativeEvent.title)
                         }}
                         onShouldStartLoadWithRequest={(e) => {
-                            Log.log('Trade.SMSCodeScreen.on start load with request ' + e.navigationType);
+                            Log.log('Trade.SMSCodeScreen.on start load with request ' + e.navigationType)
                             return true
                         }}
                         useWebKit={true}

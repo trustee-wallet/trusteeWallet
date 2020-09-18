@@ -5,6 +5,9 @@ import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 
 const DUST_FIRST_TRY = 546
+const BASIC_TX_SIZE = 442
+const CHANGE_TX_SIZE = 132
+const INPUTS_TX_SIZE = 152
 
 export default class UsdtTxInputsOutputs {
     /**
@@ -77,6 +80,8 @@ export default class UsdtTxInputsOutputs {
         if (subtitle.indexOf('getFeeRate') === -1 && typeof data.feeForTx !== 'undefined' && typeof data.feeForTx.feeForTx !== 'undefined') {
             autocalculateFee = false
             feeForByte = data.feeForTx.feeForByte
+        }  else if (typeof data.customFeeForByte !== 'undefined') {
+            feeForByte = data.customFeeForByte
         }
 
         let filteredUnspents = []
@@ -107,10 +112,12 @@ export default class UsdtTxInputsOutputs {
         const outputs = [{
             'to': data.addressTo,
             'amount': '0',
-            'usdt': data.amount.toString()
+            'usdt': data.amount.toString(),
+            'usdtLast' : 1
         }, {
             'to': data.addressTo,
-            'amount': (DUST_FIRST_TRY).toString()
+            'amount': (DUST_FIRST_TRY).toString(),
+            'usdtLast' : 1
         }]
 
         const correctedAmountFrom = wishedAmountBN.toString()
@@ -121,13 +128,18 @@ export default class UsdtTxInputsOutputs {
 
         const ic = filteredUnspents.length
         let msg = 'totalInputs ' + ic + ' for wishedAmount ' + wishedAmountBN.toString() + ' = ' + BlocksoftUtils.toUnified(wishedAmountBN.toString(), this._settings.decimals)
+        if (autocalculateFee) {
+            msg += ' autofeeForByte ' + feeForByte
+        } else {
+            msg += ' wishedFee ' + data.feeForTx.feeForTx + ' = ' + BlocksoftUtils.toUnified(data.feeForTx.feeForTx + '', this._settings.decimals)
+        }
 
         let inputs = []
         let inputsBalanceBN = BlocksoftUtils.toBigNumber(0)
         let foundOnlyOne = false
         let wishedAmountForOneBN = wishedAmountBN
         if (autocalculateFee) {
-            wishedAmountForOneBN = wishedAmountForOneBN.add(BlocksoftUtils.toBigNumber(precached.blocks_2 * 128))
+            wishedAmountForOneBN = wishedAmountForOneBN.add(BlocksoftUtils.toBigNumber(feeForByte * 128))
         }
 
         let legacyTotal = 0
@@ -150,16 +162,21 @@ export default class UsdtTxInputsOutputs {
         }
         msg += ' legacyInputed ' + legacyInputed + ' legacyTotal = ' + legacyTotal
         if (legacyTotal === 0 || !legacyAnyInput) {
-            BlocksoftCryptoLog.log('UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' error SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT ', {useOnlyConfirmed, legacyTotal, legacyAnyInput, uncomfirmedLegacyInputs, filteredUnspents})
+            BlocksoftCryptoLog.log('UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' error SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT ', {
+                addressFromLegacy : data.addressFromLegacy,
+                useOnlyConfirmed, legacyTotal, legacyAnyInput, uncomfirmedLegacyInputs, filteredUnspents})
             if (useOnlyConfirmed && uncomfirmedLegacyInputs > 0) {
                 throw new Error('SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM')
             } else {
                 throw new Error('SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT')
             }
         }
-        BlocksoftCryptoLog.log('UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' checked ok SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT ', {useOnlyConfirmed, legacyTotal, legacyAnyInput, filteredUnspents})
+        BlocksoftCryptoLog.log('UsdtTxInputsOutputs.getInputsOutputs ' + subtitle + ' checked ok SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT ', {
+            foundOnlyOne, addressFromLegacy : data.addressFromLegacy,
+            useOnlyConfirmed, legacyTotal, legacyAnyInput, filteredUnspents
+        })
 
-        if (legacyTotal < 2) {
+        if (legacyTotal < 2 || !autocalculateFee) {
             foundOnlyOne = false
             legacyInputed = 0
             inputs = []
@@ -219,13 +236,13 @@ export default class UsdtTxInputsOutputs {
         const inputsMinusWishedBN = inputsBalanceBN.sub(wishedAmountBN)
         if (inputsMinusWishedBN.toString() - 10000 > 0) {
             if (autocalculateFee) {
-                let size = 257
-                let sizeMsg = ' basic 257'
-                size += 40
-                sizeMsg += ' +40 for change'
-                size += 150 * (inputs.length - 1)
-                sizeMsg += ' +150*' + (inputs.length - 1)
-                let fee = precached.blocks_2 * size / 2
+                let size = BASIC_TX_SIZE
+                let sizeMsg = ' basic ' + BASIC_TX_SIZE
+                size += CHANGE_TX_SIZE
+                sizeMsg += ' +' + CHANGE_TX_SIZE + ' for change'
+                size += INPUTS_TX_SIZE * (inputs.length - 1)
+                sizeMsg += ' +' + INPUTS_TX_SIZE + '*' + (inputs.length - 1)
+                let fee = feeForByte * size / 2
                 if (fee < this._minFee) {
                     fee = this._minFee
                 }
@@ -238,6 +255,8 @@ export default class UsdtTxInputsOutputs {
                             'to': data.addressFromLegacy,
                             'amount': legacyAnyInput.value
                         })
+                        size += CHANGE_TX_SIZE
+                        sizeMsg += ' +' + CHANGE_TX_SIZE + ' for legacy'
                         outputs.push({
                             'to': addressForChange,
                             'amount': change2,
@@ -317,10 +336,10 @@ export default class UsdtTxInputsOutputs {
             }
         } else {
             if (autocalculateFee) {
-                let size = 257
-                let sizeMsg = ' basic 257'
-                size += 150 * (inputs.length - 1)
-                sizeMsg += ' +150*' + (inputs.length - 1)
+                let size = BASIC_TX_SIZE
+                let sizeMsg = ' basic ' + BASIC_TX_SIZE
+                size += INPUTS_TX_SIZE * (inputs.length - 1)
+                sizeMsg += ' +' + INPUTS_TX_SIZE + '*' + (inputs.length - 1)
                 let fee = feeForByte * size / 2
                 if (fee < this._minFee) {
                     fee = this._minFee

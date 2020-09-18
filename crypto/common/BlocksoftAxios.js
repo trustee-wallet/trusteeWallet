@@ -2,6 +2,8 @@ import BlocksoftCryptoLog from './BlocksoftCryptoLog'
 
 import axios from 'axios'
 import config from '../../app/config/config'
+import { showModal } from '../../app/appstores/Stores/Modal/ModalActions'
+import { strings } from '../../app/services/i18n'
 
 const CancelToken = axios.CancelToken
 
@@ -9,7 +11,10 @@ const CACHE_ERRORS_VALID_TIME = 60000 // 1 minute
 const CACHE_ERRORS_BY_LINKS = {}
 
 const CACHE_STARTED = {}
+const CACHE_STARTED_CANCEL = {}
 
+let CACHE_TIMEOUT_ERRORS = 0
+let CACHE_TIMEOUT_ERROR_SHOWN = 0
 class BlocksoftAxios {
 
     /**
@@ -107,16 +112,19 @@ class BlocksoftAxios {
                     timeOut = Math.round(config.request.timeout / 5)
                 }
             }
-            if (link.indexOf('/fees') !== -1) {
-                timeOut = Math.round(timeOut / 10)
+            if (link.indexOf('/fees') !== -1 || link.indexOf('/rates') !== -1) {
+                timeOut = Math.round(timeOut / 2)
             }
             if (typeof CACHE_STARTED[link] !== 'undefined') {
-                BlocksoftCryptoLog.log('PREV CALL WILL BE CANCELED ' + JSON.stringify(CACHE_STARTED[link]))
-                await CACHE_STARTED[link].cancelSource.cancel('PREV CALL CANCELED ' + JSON.stringify(CACHE_STARTED[link]))
+                const now = new Date().getTime()
+                const timeMsg = ' timeout ' + CACHE_STARTED[link].timeOut + ' started ' + CACHE_STARTED[link].time + ' diff ' + (now -  CACHE_STARTED[link].time)
+                BlocksoftCryptoLog.log('PREV CALL WILL BE CANCELED ' + timeMsg)
+                await CACHE_STARTED_CANCEL[link].cancel('PREV CALL CANCELED ' + timeMsg)
             }
             instance.defaults.timeout = timeOut
             instance.defaults.cancelToken = cancelSource.token
-            CACHE_STARTED[link] = { time: new Date().getTime(), timeOut, cancelSource }
+            CACHE_STARTED[link] = { time: new Date().getTime(), timeOut }
+            CACHE_STARTED_CANCEL[link] = cancelSource
             BlocksoftCryptoLog.log('STARTED ' + JSON.stringify(CACHE_STARTED))
             if (method === 'get') {
                 tmp = await instance.get(link)
@@ -127,7 +135,13 @@ class BlocksoftAxios {
                 // noinspection ExceptionCaughtLocallyJS
                 throw new Error('BlocksoftAxios.' + method + ' ' + link + ' status: ' + tmp.status + ' data: ' + tmp.data)
             }
-            let txt = tmp.data
+
+            if (typeof CACHE_STARTED[link] !== 'undefined') {
+                delete CACHE_STARTED[link]
+                delete CACHE_STARTED_CANCEL[link]
+                BlocksoftCryptoLog.log('FINISHED OK, LEFT ' + JSON.stringify(CACHE_STARTED))
+            }
+            /* let txt = tmp.data
             if (typeof txt === 'string') {
                 const newTxt = txt.split('<body')
                 if (newTxt.length > 1) {
@@ -136,27 +150,35 @@ class BlocksoftAxios {
             } else {
                 txt = JSON.stringify(tmp.data).substr(0, 300)
             }
-            if (typeof CACHE_STARTED[link] !== 'undefined') {
-                delete CACHE_STARTED[link]
-                BlocksoftCryptoLog.log('FINISHED OK, LEFT ' + JSON.stringify(CACHE_STARTED))
-            }
             if (txt.length > 100) {
                 BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' finish ' + link, txt) // separate line for txt
             } else {
                 BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' finish ' + link + ' ' + JSON.stringify(txt))
             }
+             */
 
+            CACHE_TIMEOUT_ERRORS = 0
         } catch (e) {
+
             if (typeof CACHE_STARTED[link] !== 'undefined') {
                 delete CACHE_STARTED[link]
                 BlocksoftCryptoLog.log('FINISHED BAD, LEFT', CACHE_STARTED)
             }
+            let subdata = {}
             if (typeof e.response === 'undefined' || typeof e.response.data === 'undefined') {
                 // do nothing
             } else if (e.response.data) {
                 e.message = JSON.stringify(e.response.data) + ' ' + e.message
+                subdata = e.response.data
             }
+
             const customError = new Error(link + ' ' + e.message.toLowerCase())
+            customError.subdata = subdata
+
+            if (config.debug.appErrors) {
+                // console.log('BlocksoftAxios._request ' + link + ' data ' + JSON.stringify(data) , e)
+            }
+
             if (e.message.indexOf('Network Error') !== -1
                 || e.message.indexOf('network error') !== -1
                 || e.message.indexOf('timeout') !== -1
@@ -172,11 +194,25 @@ class BlocksoftAxios {
                 || e.message.indexOf('unavailable') !== -1
                 || e.message.indexOf('rate limit') !== -1
                 || e.message.indexOf('offline') !== -1
+                || e.message.indexOf('status code 500') !== -1
             ) {
                 if (link.indexOf('trustee.deals') !== -1) {
                     // noinspection ES6MissingAwait
                     BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' NOTICE INNER CONNECTION ' + e.message)
                 } else {
+                    if (e.message.indexOf('timeout') !== -1) {
+                        CACHE_TIMEOUT_ERRORS++
+                        let now = new Date().getTime()
+                        if (CACHE_TIMEOUT_ERRORS > 10 && (now - CACHE_TIMEOUT_ERROR_SHOWN) > 60000) {
+                            CACHE_TIMEOUT_ERROR_SHOWN = now
+                            showModal({
+                                type: 'INFO_MODAL',
+                                icon: null,
+                                title: strings('modal.exchange.sorry'),
+                                description: strings('toast.badInternet'),
+                            })
+                        }
+                    }
                     // noinspection ES6MissingAwait
                     BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' NOTICE OUTER CONNECTION ' + e.message)
                 }
@@ -189,18 +225,26 @@ class BlocksoftAxios {
                 customError.code = 'ERROR_NOTICE'
             } else if (link.indexOf('/api/v2/sendtx/') !== -1) {
                 // noinspection ES6MissingAwait
-                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link, e.message, 'GET EXTERNAL LINK ERROR')
+                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' ' + e.message + ' GET EXTERNAL LINK ERROR1 ')
                 customError.code = 'ERROR_NOTICE'
             } else if (e.message.indexOf('account not found') !== -1) {
                 // noinspection ES6MissingAwait
-                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link, e.message) // just nothing found
+                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' ' + e.message) // just nothing found
                 return false
             } else if (errSend) {
                 // noinspection ES6MissingAwait
-                BlocksoftCryptoLog.err('BlocksoftAxios.' + method + ' ' + link, e.message, 'GET EXTERNAL LINK ERROR')
+                if (e.message.indexOf('PREV CALL CANCELED') === -1) {
+                    if (link.indexOf('trustee.deals') !== -1) {
+                        BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' ' + e.message + ' GET EXTERNAL LINK ERROR3 ' + JSON.stringify(data))
+                    } else {
+                        BlocksoftCryptoLog.err('BlocksoftAxios.' + method + ' ' + link + ' ' + e.message + ' GET EXTERNAL LINK ERROR2')
+                    }
+                } else {
+                    BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' ' + e.message + ' GET EXTERNAL LINK ERROR4')
+                }
                 customError.code = 'ERROR_SYSTEM'
             } else {
-                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link, e.message, 'GET EXTERNAL LINK NOTICE')
+                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' ' + e.message + ' GET EXTERNAL LINK NOTICE')
                 customError.code = 'ERROR_SYSTEM'
             }
 

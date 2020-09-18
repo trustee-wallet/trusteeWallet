@@ -32,7 +32,6 @@ export default class EthAddressProcessor extends EthBasic{
         }
         // noinspection JSUnresolvedVariable
         const signData = await this._web3.eth.accounts.sign(msg, privateKey)
-        BlocksoftCryptoLog.log('EthAddressProcessor.signMessage signed', signData)
         return signData
     }
 }

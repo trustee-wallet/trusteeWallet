@@ -36,19 +36,19 @@ export default class EthScannerProcessorSoul extends EthScannerProcessorErc20 {
             if (!transaction) {
                 continue
             }
-            transaction.address_amount = BlocksoftUtils.fromENumber(transaction.address_amount)
-            transaction.address_amount = BlocksoftUtils.toBigNumber(transaction.address_amount)
-            if (typeof (alreadyTransactions[transaction.transaction_hash]) !== 'undefined') {
-                const already = alreadyTransactions[transaction.transaction_hash]
-                transactions[already].address_amount = transactions[already].address_amount.add(transaction.address_amount)
+            transaction.addressAmount = BlocksoftUtils.fromENumber(transaction.addressAmount)
+            transaction.addressAmount = BlocksoftUtils.toBigNumber(transaction.addressAmount)
+            if (typeof (alreadyTransactions[transaction.transactionHash]) !== 'undefined') {
+                const already = alreadyTransactions[transaction.transactionHash]
+                transactions[already].addressAmount = transactions[already].address_amount.add(transaction.addressAmount)
             } else {
-                alreadyTransactions[transaction.transaction_hash] = count
+                alreadyTransactions[transaction.transactionHash] = count
                 count++
                 transactions.push(transaction)
             }
         }
         for (let i = 0, ic = transactions.length; i < ic; i++) {
-            transactions[i].address_amount = transactions[i].address_amount.toString()
+            transactions[i].addressAmount = transactions[i].addressAmount.toString()
         }
         return transactions
     }

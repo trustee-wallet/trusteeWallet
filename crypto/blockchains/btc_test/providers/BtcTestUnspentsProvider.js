@@ -42,7 +42,8 @@ export default class BtcTestUnspentsProvider {
         const link = `${this._apiPath}/blockchain/address/${address}/unspent?limit=100`
         const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || typeof res.data === 'undefined') {
-            throw new Error(this._settings.currencyCode + ' BtcTestUnspentsProvider.getUnspents nothing loaded for address')
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTestUnspentsProvider.getUnspents nothing loaded for address ' + address + ' link ' + link)
+            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
         }
         if (!res.data || typeof res.data.unspent === 'undefined' || !res.data.unspent) {
             return []

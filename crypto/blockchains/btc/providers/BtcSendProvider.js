@@ -51,7 +51,9 @@ export default class BtcSendProvider {
             if (config.debug.cryptoErrors) {
                 console.log('BTC Send error ' + e.message, JSON.parse(JSON.stringify(preparedInputsOutputs)))
             }
-            if (e.message.indexOf('dust') !== -1) {
+            if (this._settings.currencyCode === 'USDT' && e.message.indexOf('bad-txns-in-belowout') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+            } else if (e.message.indexOf('dust') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
             } else if (e.message.indexOf('bad-txns-inputs-spent') !== -1 || e.message.indexOf('txn-mempool-conflict') !== -1) {
                 throw new Error('SERVER_RESPONSE_NO_RESPONSE')
@@ -59,6 +61,8 @@ export default class BtcSendProvider {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
             } else if (e.message.indexOf('insufficient fee, rejecting replacement') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT')
+            } else if (e.message.indexOf('too-long-mempool-chain') !== -1) {
+                throw new Error('SERVER_RESPONSE_NO_RESPONSE')
             } else {
                 await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
                 e.message += ' link: ' + link

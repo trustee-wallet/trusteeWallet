@@ -11,7 +11,7 @@ import Log from '../../services/Log/Log'
 
 const cryptoWalletActions = {
 
-    setSelectedWallet: async (walletHash) => {
+    setSelectedWallet: async (walletHash, source) => {
 
         setLoaderStatus(true)
 
@@ -19,9 +19,9 @@ const cryptoWalletActions = {
 
             Log.log('ACT/CryptoWallet setSelectedWallet called', walletHash)
 
-            await cryptoWalletDS.setSelectedWallet(walletHash)
+            await cryptoWalletDS.setSelectedWallet(walletHash,  'ACT/CryptoWallet setSelectedWallet ' + source)
 
-            await App.refreshWalletsStore()
+            await App.refreshWalletsStore({firstTimeCall : false, source : 'ACT/CryptoWallet setSelectedWallet ' + source, walletHash, noRatesApi: true})
 
             Log.log('ACT/CryptoWallet setSelectedWallet finished')
 

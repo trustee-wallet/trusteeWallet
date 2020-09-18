@@ -17,7 +17,6 @@ import { setCards } from '../../Stores/Card/CardActions'
 import walletActions from '../../Stores/Wallet/WalletActions'
 import currencyActions from '../../Stores/Currency/CurrencyActions'
 import settingsActions from '../../Stores/Settings/SettingsActions'
-import authActions from '../../Stores/Auth/AuthActions'
 import customCurrencyActions from '../CustomCurrencyActions'
 import exchangeActions from '../../Stores/Exchange/ExchangeActions'
 
@@ -25,15 +24,17 @@ import DBOpen from '../../DataSource/DB/DBOpen'
 import DBInit from '../../DataSource/DB/DBInit/DBInit'
 
 import Log from '../../../services/Log/Log'
-import Cashback from '../../../services/Cashback/Cashback'
 import AppLockScreenIdleTime from '../../../services/AppLockScreenIdleTime/AppLockScreenIdleTime'
 import AppVersionControl from '../../../services/AppVersionControl/AppVersionControl'
 import AppNotification from '../../../services/AppNotification/AppNotificationListener'
 
-import Daemon from '../../../services/Daemon/Daemon'
-import updateAccountsDaemon from '../../../services/Daemon/elements/UpdateAccountsDaemon'
-import updateAppNewsDaemon from '../../../services/Daemon/elements/UpdateAppNewsDaemon'
-import appNewsActions from '../../Stores/AppNews/AppNewsActions'
+import Daemon from '../../../daemons/Daemon'
+import UpdateTradeOrdersDaemon from '../../../daemons/back/UpdateTradeOrdersDaemon'
+import CashBackActions from '../../Stores/CashBack/CashBackActions'
+import CashBackSettings from '../../Stores/CashBack/CashBackSettings'
+import CashBackUtils from '../../Stores/CashBack/CashBackUtils'
+
+import FilePermissions from '../../../services/FileSystem/FilePermissions'
 
 const { dispatch, getState } = store
 
@@ -46,9 +47,15 @@ class App {
     initStatus = 'init started'
     initError = 'empty'
 
-    init = async (navigateToInit = true) => {
-
+    init = async (params) => {
+        const navigateToInit = typeof params.navigateToInit !== 'undefined' ? params.navigateToInit : true
+        const source = typeof params.source !== 'undefined' ? params.source : ''
         try {
+            // console.log(new Date().toISOString() + ' start ' + source)
+
+            await FilePermissions.init()
+
+            this.initStatus = 'FilePermissions.init'
 
             AppNotification.init()
 
@@ -63,7 +70,7 @@ class App {
 
             this.initStatus = 'Orientation.lockToPortrait()'
 
-            Log.log('ACT/App init application called')
+            Log.log('ACT/App init application called ' + source)
 
             if (navigateToInit) {
 
@@ -97,15 +104,13 @@ class App {
 
             await customCurrencyActions.importCustomCurrenciesToDict()
 
-            await authActions.init()
-
-            this.initStatus = 'await authActions.init()'
+            this.initStatus = 'await customCurrencyActions.importCustomCurrenciesToDict()'
 
             await settingsActions.getSettings()
 
             this.initStatus = 'await settingsActions.getSettings()'
 
-            await this.refreshWalletsStore(true)
+            await this.refreshWalletsStore({firstTimeCall : true, source : 'ACT/App init '})
 
             this.initStatus = 'await this.refreshWalletsStore(true)'
 
@@ -123,7 +128,11 @@ class App {
 
             Daemon.start()
 
-            this.initStatus = 'updateExchangeOrdersDaemon.updateEventHandler'
+            this.initStatus = 'updateTradeOrdersDaemon.fromDB'
+
+            await UpdateTradeOrdersDaemon.fromDB()
+
+            this.initStatus = 'AppLockScreenIdleTime.init'
 
             AppLockScreenIdleTime.init()
 
@@ -134,11 +143,13 @@ class App {
 
             this.initStatus = 'setCards()'
 
+            // console.log(new Date().toISOString() + ' done')
+
         } catch (e) {
             Log.err('ACT/App init application error ' + this.initStatus + ' ' + e.message)
-            console.log(e)
             this.initError = e.message
             dispatch(setInitError(e.message))
+            NavStore.goNext('ErrorScreen', {error : e.message})
         }
         try {
             // noinspection ES6MissingAwait
@@ -148,11 +159,19 @@ class App {
         }
     }
 
-    refreshWalletsStore = async (firstTimeCall) => {
+    /**
+     *
+     * @param params.firstTimeCall
+     * @param params.source
+     * @param params.walletHash
+     * @returns {Promise<void>}
+     */
+    refreshWalletsStore = async (params) => {
 
-        Log.log('ACT/App appRefreshWalletsStates called')
+        const firstTimeCall = typeof params.firstTimeCall !== 'undefined' ? params.firstTimeCall : false
+        const source =  typeof params.source !== 'undefined' ? params.source : ''
 
-        // @misha plz consider move to Exchange actions daemonActions.clearExchangeOrdersData()
+        Log.log('ACT/App appRefreshWalletsStates called from ' + source)
 
         await walletActions.setAvailableWallets()
 
@@ -160,17 +179,19 @@ class App {
 
         await currencyActions.init()
 
-        await updateAccountsDaemon.forceDaemonUpdate()
+        await Daemon.forceAll(params)
 
-        updateAppNewsDaemon.forceDaemonUpdate()
+        await CashBackSettings.init()
 
-        appNewsActions.displayPush()
+        if (firstTimeCall) {
+            Log.log('ACT/App refreshWalletsStore CashBack.init ' + (firstTimeCall ? ' first time ' : ''))
 
-        Log.log('ACT/App appRefreshWalletsStates CashBack.init ' + (firstTimeCall ? ' first time ' : ''))
+            await CashBackUtils.init()
 
-        Cashback.init()
+            await CashBackActions.setPublicLink()
+        }
 
-        Log.log('ACT/App appRefreshWalletsStates finished')
+        Log.log('ACT/App refreshWalletsStore finished')
 
     }
 

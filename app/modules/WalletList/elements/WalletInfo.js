@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, Animated, TouchableOpacity, Image, Switch, Platform } from 'react-native'
+import { View, Text, Animated, TouchableOpacity, Image, Switch, Platform, Dimensions, PixelRatio } from 'react-native'
 
 import AsyncStorage from '@react-native-community/async-storage'
 import Entypo from 'react-native-vector-icons/Entypo'
@@ -25,8 +25,21 @@ import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 import { capitalize } from '../../../services/UI/Capitalize/Capitalize'
 import { checkQRPermission } from '../../../services/UI/Qr/QrPermissions'
 import { saveSelectedBasicCurrencyCode } from '../../../appstores/Stores/Main/MainStoreActions'
-import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
 import WalletName from './WalletName/WalletName'
+import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
+import BlocksoftBN from '../../../../crypto/common/BlocksoftBN'
+import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
+import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window')
+const PIXEL_RATIO = PixelRatio.get()
+
+let SIZE = 16
+if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
+    SIZE = 8 // iphone 5s
+}
+
+let CACHE_PREV_CURRENCY = false
 
 class WalletInfo extends Component {
 
@@ -44,11 +57,23 @@ class WalletInfo extends Component {
     }
 
     _oneFunction(cryptoCurrencies, selectedBasicCurrency, accountList) {
+        if (!cryptoCurrencies) {
+            throw new Error('no cryptoCurrencies')
+        }
+        if (!selectedBasicCurrency) {
+            throw new Error('no selectedBasicCurrency')
+        }
+        if (!accountList) {
+            throw new Error('no accountsList')
+        }
         const tmpCurrencies = cryptoCurrencies.filter(item => item.isHidden === 0)
 
+        if (typeof this.props.selectedWallet === 'undefined') {
+            return 0
+        }
         const walletHash = this.props.selectedWallet.walletHash
         const tmpAccountList = accountList[walletHash]
-        let totalBalance = 0
+        let totalBalance = new BlocksoftBN(0)
         let totalBalanceString = ''
 
         if (tmpCurrencies && typeof tmpAccountList !== 'undefined') {
@@ -62,7 +87,7 @@ class WalletInfo extends Component {
                 if (!account.basicCurrencyRate || account.basicCurrencyRate  === 0) continue
                 ratesWithoutZero++
 
-                totalBalance =  BlocksoftUtils.add(totalBalance, account.basicCurrencyBalance).toString()
+                totalBalance.add(account.basicCurrencyBalanceNorm)
                 totalBalanceString += account.balancePretty + ' ' + account.currencyCode + ', '
             }
 
@@ -71,7 +96,8 @@ class WalletInfo extends Component {
             }
         }
 
-        totalBalance += ''
+        totalBalance = totalBalance.get()
+
         MarketingEvent.setBalance(walletHash, 'TOTAL', totalBalanceString, { totalBalance, totalBalanceString, basicCurrencyCode: selectedBasicCurrency.currencyCode, walletHash })
 
         this.setState({
@@ -97,12 +123,13 @@ class WalletInfo extends Component {
 
             const cryptoCurrencies = this.props.cryptoCurrencies
             const selectedBasicCurrency = this.props.selectedBasicCurrency
-            const accountList = this.props.accountStore.accounts
+            const accountList = this.props.accountList
             await this._oneFunction(cryptoCurrencies, selectedBasicCurrency, accountList)
 
         } catch (e) {
             Log.err('HomeScreen.WalletInfo Unsafe mount error ' + e.message)
         }
+
     }
 
     // eslint-disable-next-line camelcase
@@ -110,10 +137,30 @@ class WalletInfo extends Component {
         try {
             const cryptoCurrencies = nextProps.cryptoCurrencies
             const selectedBasicCurrency = nextProps.selectedBasicCurrency
-            const accountList = nextProps.accountStore.accounts
+            const accountList = nextProps.accountList
             this._oneFunction(cryptoCurrencies, selectedBasicCurrency, accountList)
         } catch (e) {
             Log.err('HomeScreen.WalletInfo Unsafe props error ' + e.message)
+        }
+    }
+
+    handleChangeLocal = async () => {
+        const selectedBasicCurrency = this.props.selectedBasicCurrency
+        Log.log('HomeScreen.WalletInfo handleChangeLocal', selectedBasicCurrency)
+        if (selectedBasicCurrency.currencyCode !== 'USD') {
+            if (CACHE_PREV_CURRENCY !== selectedBasicCurrency.currencyCode) {
+                await settingsActions.setSettings('local_currency_homescreen', selectedBasicCurrency.currencyCode)
+                CACHE_PREV_CURRENCY = selectedBasicCurrency.currencyCode
+            }
+            await saveSelectedBasicCurrencyCode('USD')
+        } else {
+            if (!CACHE_PREV_CURRENCY) {
+                CACHE_PREV_CURRENCY = await settingsActions.getSetting('local_currency_homescreen')
+            }
+            if (!CACHE_PREV_CURRENCY) {
+                CACHE_PREV_CURRENCY = 'UAH'
+            }
+            await saveSelectedBasicCurrencyCode(CACHE_PREV_CURRENCY)
         }
     }
 
@@ -182,13 +229,16 @@ class WalletInfo extends Component {
     render() {
         const selectedWallet = this.props.selectedWallet
         const selectedBasicCurrency = this.props.selectedBasicCurrency
+        const accountListByWallet = this.props.accountListByWallet
         let { styles, totalBalance } = this.state
 
         let localCurrencySymbol = selectedBasicCurrency.symbol
-        let walletNamePrep = selectedWallet.walletName.length > 20 ? selectedWallet.walletName.slice(0, 8) + '...' : selectedWallet.walletName
+        if (!localCurrencySymbol) {
+            localCurrencySymbol = selectedBasicCurrency.currencyCode
+        }
 
         let tmp = totalBalance.toString().split('.')
-        let totalBalancePrep1 = tmp[0]
+        let totalBalancePrep1 = BlocksoftPrettyNumbers.makeCut(tmp[0]).separated
         let totalBalancePrep2 = ''
         if (typeof tmp[1] !== 'undefined') {
             totalBalancePrep2 = '.' + tmp[1].substr(0, 2)
@@ -219,8 +269,8 @@ class WalletInfo extends Component {
                     </View>
                     <View>
                         <WalletName
-                            walletHash={selectedWallet.walletHash}
-                            walletNameText={selectedWallet.walletName} />
+                            walletHash={selectedWallet.walletHash || ''}
+                            walletNameText={selectedWallet.walletName || ''} />
                     </View>
                     <TouchableOpacity style={styles.qr} onPress={this.handleScanQr}>
                         <QRCodeBtn width={18} height={18}/>
@@ -241,7 +291,9 @@ class WalletInfo extends Component {
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.walletInfo__content}>
-                                <Text style={{ ...styles.walletInfo__text_small, ...styles.walletInfo__text_small_first }}>{localCurrencySymbol} </Text>
+                                <TouchableOpacity onPress={this.handleChangeLocal}>
+                                    <Text style={{ ...styles.walletInfo__text_small, ...styles.walletInfo__text_small_first }}>{localCurrencySymbol} </Text>
+                                </TouchableOpacity>
                                 <Text style={styles.walletInfo__text_middle}>{totalBalancePrep1}</Text>
                                 <Text style={styles.walletInfo__text_small}>{totalBalancePrep2}</Text>
                                 {/* <Feather name={iconName} style={styles.walletInfo__icon} /> */}
@@ -291,7 +343,7 @@ const mapStateToProps = (state) => {
         selectedWallet: state.mainStore.selectedWallet,
         selectedBasicCurrency: state.mainStore.selectedBasicCurrency,
         cryptoCurrencies: state.currencyStore.cryptoCurrencies,
-        accountStore: state.accountStore
+        accountList: state.accountStore.accountList
     }
 }
 
@@ -313,7 +365,7 @@ const styles = {
         justifyContent: 'space-between',
         alignItems: 'center',
 
-        marginHorizontal: 16,
+        marginHorizontal: SIZE,
         marginTop: Platform.OS === 'android' ? 35 : 0
     },
     top__title: {
@@ -343,7 +395,7 @@ const styles = {
 
         backgroundColor: '#fff',
 
-        borderRadius: 16,
+        borderRadius: SIZE,
 
         shadowColor: '#000',
         shadowOffset: {
@@ -359,7 +411,7 @@ const styles = {
         position: 'relative',
 
         height: 140,
-        marginHorizontal: 16,
+        marginHorizontal: SIZE,
 
         // shadowOffset: {
         //     width: 0,
@@ -372,16 +424,16 @@ const styles = {
 
         backgroundColor: '#fff',
 
-        borderRadius: 16,
+        borderRadius: SIZE,
 
         zIndex: 2
     },
     container__bg: {
         flex: 1,
 
-        paddingLeft: 15,
-        paddingBottom: 15,
-        borderRadius: 16
+        paddingLeft: SIZE - 1,
+        paddingBottom: SIZE - 1,
+        borderRadius: SIZE
     },
     container__top: {
         flexDirection: 'row',
@@ -539,7 +591,7 @@ const stylesViolet = {
         justifyContent: 'space-between',
         alignItems: 'center',
 
-        marginHorizontal: 16,
+        marginHorizontal: SIZE,
         marginTop: Platform.OS === 'android' ? 35 : 0
     },
     top__title: {
@@ -569,7 +621,7 @@ const stylesViolet = {
 
         backgroundColor: '#fff',
 
-        borderRadius: 16,
+        borderRadius: SIZE,
 
         shadowColor: '#000',
         shadowOffset: {
@@ -585,7 +637,7 @@ const stylesViolet = {
         position: 'relative',
 
         height: 140,
-        marginHorizontal: 16,
+        marginHorizontal: SIZE,
 
         // shadowOffset: {
         //     width: 0,
@@ -598,16 +650,16 @@ const stylesViolet = {
 
         backgroundColor: '#fff',
 
-        borderRadius: 16,
+        borderRadius: SIZE,
 
         zIndex: 2
     },
     container__bg: {
         flex: 1,
 
-        paddingLeft: 15,
-        paddingBottom: 15,
-        borderRadius: 16
+        paddingLeft: SIZE - 1,
+        paddingBottom: SIZE - 1,
+        borderRadius: SIZE
     },
     container__top: {
         flexDirection: 'row',

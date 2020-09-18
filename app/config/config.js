@@ -42,22 +42,8 @@ const config = {
     },
     daemon: {
         updateTimes: {
-            updateCurrencyRate : 140000,// 1 in 2.2 minutes
-            updateAccountBalanceAndTransactions: 30000, // 1 in 1 minute
-            updateAccounts: 30000,
-            updateAppTasks : 80000, // 1 in 1 minute
-            updateAppNews : 120000, // 1 in 2 minutes
-            updateTradeOrders: 30000,
-            updateCard: 30000,
-        },
-        delayTimes: {
-            updateCurrencyRate : 500,
-            updateAccountBalanceAndTransactions: 10000,
-            updateAccounts: 15000,
-            updateAppTasks : 20000,
-            updateAppNews : 25000,
-            updateTradeOrders: 30000,
-            updateCard: 35000,
+            oneByOne : 5000, // 5 seconds
+            view : 10000, // 10 second
         }
     },
     request: {
@@ -77,7 +63,7 @@ const config = {
         cryptoErrors: false, // set false to get crypto errors in console
         appErrors: false, // set false to get errors in console
         appDBLogs: false, // set false to get db query in console
-        firebaseLogs: false // set false not to collect data to firebase live db
+        firebaseLogs: true // set false not to collect data to firebase live db
     },
     tg: {
         appDefaultTg: '', // bot id for app errors https://t.me/trusteeAppErrorsBot

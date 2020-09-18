@@ -43,11 +43,13 @@ export default class DogeSendProvider {
         try {
             res = await BlocksoftAxios.post(link, hex)
         } catch (e) {
-            if (e.message.indexOf('dust') !== -1) {
+            if (e.message.indexOf('insufficient priority') !== -1) {
+                throw new Error('SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE')
+            } else if (e.message.indexOf('dust') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
             } else if (e.message.indexOf('bad-txns-inputs-spent') !== -1 || e.message.indexOf('txn-mempool-conflict') !== -1) {
                 throw new Error('SERVER_RESPONSE_NO_RESPONSE')
-            } else if (e.message.indexOf('min relay fee not met') !== -1 || e.message.indexOf('fee for relay') !== -1 || e.message.indexOf('insufficient priority') !== -1) {
+            } else if (e.message.indexOf('min relay fee not met') !== -1 || e.message.indexOf('fee for relay') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
             } else {
                 await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)

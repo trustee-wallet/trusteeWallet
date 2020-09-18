@@ -19,11 +19,11 @@ export default class ButtonLine extends Component {
 
         const { currencyCode, containerStyle, markStyle, iconStyle, textContainerStyle, textStyle } = this.props
 
-        const fontSize = typeof iconStyle != 'undefined' ? iconStyle.fontSize : 24
+        const fontSize = typeof iconStyle !== 'undefined' ? iconStyle.fontSize : 24
 
-        const tmpContainerStyle = typeof containerStyle != 'undefined' ? containerStyle : null
+        const tmpContainerStyle = typeof containerStyle !== 'undefined' ? containerStyle : null
 
-        const tmpMarkStyle = typeof markStyle != 'undefined' ? markStyle : null
+        const tmpMarkStyle = typeof markStyle !== 'undefined' ? markStyle : null
 
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
@@ -37,6 +37,27 @@ export default class ButtonLine extends Component {
                             <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                             </View>
+                        </View>
+                    </View>
+                )
+
+            case 'ETH_OKB':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#3075EE', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('../../assets/images/ETH_OKB.png')}/>
+                        </View>
+                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
+                        </View>
+                    </View>
+                )
+
+            case 'XMR':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#F26822', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('../../assets/images/XMR.png')}/>
                         </View>
                     </View>
                 )
@@ -281,7 +302,7 @@ export default class ButtonLine extends Component {
                         </View>
                     </View>
                 )
-            case 'ETH_DAI':
+            case 'ETH_DAI': case 'ETH_DAIM':
                 return (
                     <View style={{ ...styles.icon, borderColor: '#FF6F45', ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
@@ -293,6 +314,7 @@ export default class ButtonLine extends Component {
                         </View>
                     </View>
                 )
+
             case 'XRP':
                 return (
                     <View style={{ ...styles.icon, borderColor: '#1B1818', ...tmpContainerStyle }}>
@@ -301,6 +323,79 @@ export default class ButtonLine extends Component {
                         </View>
                     </View>
                 )
+
+            case 'ETH_KNC':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#31CB9E', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_KNC" style={{ color: '#31CB9E', fontSize: fontSize }}/>
+                        </View>
+                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
+                        </View>
+                    </View>
+                )
+
+            case 'ETH_COMP':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#00D395', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_COMP" style={{ color: '#00D395', fontSize: fontSize }}/>
+                        </View>
+                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
+                        </View>
+                    </View>
+                )
+
+            case 'ETH_BAL':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#303030', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_BAL" style={{ color: '#303030', fontSize: fontSize }}/>
+                        </View>
+                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
+                        </View>
+                    </View>
+                )
+
+            case 'ETH_LEND':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#1E8FCA', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_LEND" style={{ color: '#1E8FCA', fontSize: fontSize }}/>
+                        </View>
+                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
+                        </View>
+                    </View>
+                )
+
+            case 'ETH_BNT':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#000D2B', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_BNT" style={{ color: '#000D2B', fontSize: fontSize }}/>
+                        </View>
+                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
+                        </View>
+                    </View>
+                )
+
+            case 'ETH_MKR':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#1AAB9B', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_MKR" style={{ color: '#1AAB9B', fontSize: fontSize }}/>
+                        </View>
+                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
+                        </View>
+                    </View>
+                )
+
             default:
                 break
         }

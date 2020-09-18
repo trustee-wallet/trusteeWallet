@@ -12,6 +12,10 @@
      "description": "Ваш ордер був створений. \n Щойно транзакція отримає необхідні підтвердження, вона буде виконана відповідно. \n Ви можете відстежувати стан ордеру в історії ордерів.",
      "orderHistoryBtn": "Історія ордерів"
    },
+   "finishTradeErrorScreen": {
+     "title": "Банк не підтвердив Ваш платіж!",
+     "description": "Ордер не оплачений"
+   },
    "tooltips": {
      "HOME_SCREEN_BUY_BTN_TIP": {
        "title": "",
@@ -106,7 +110,6 @@
      "fiat": "Фіат",
      "pickPaySys": "Оберіть спосіб оплати",
      "pickPaySysSell": "Оберіть спосіб отримання",
-     "only": "тільки",
      "worldwide": "Інші країни",
      "fee": "Комісія банку",
      "selectSum": "Еквівалентна сума",
@@ -124,13 +127,25 @@
        "selectPaymentSystem": "Оберіть спосіб оплати",
        "selectFiatTemplate": "Select fiat template error",
        "limit": "Ви вийшли за допустимі межі",
-       "selectCard": "Оберіть картку",
-       "takePhoto": "Будь ласка, зробіть фото картки",
-       "waitValidation": "Будь ласка, зачекайте. Фото перевіряється",
-       "canceledValidation": "Перевірку картки не пройдено. Будь ласка, спробуйте ще раз",
        "additionalData": "Будь ласка, заповніть дані",
        "notSupported": "На жаль, цей формат телефону не підтримується.",
-       "serviceUnavailable": "Послуга недоступна. Будь-ласка, спробуйте пізніше"
+       "serviceUnavailable": "Послуга недоступна. Будь-ласка, спробуйте пізніше",
+       "UI_ERROR_CARD_NEEDED": {
+         "title": "Вибачте...",
+         "desc" : "Оберіть картку або додайте нову"
+       },
+       "UI_ERROR_CARD_NEED_TAKE_PHOTO": {
+         "title" : "Будь ласка, зробіть фото картки",
+         "desc" : "Має бути фото оригіналу картки. При додаванні віртуальної картки, зробіть повноекранне фото кабінету онлайн банкінгу!"
+       },
+       "UI_ERROR_CARD_WAIT_VERIFICATION": {
+         "title": "Вибачте...",
+         "desc" : "Будь ласка, зачекайте. Фото перевіряється"
+       },
+       "UI_ERROR_CARD_CANCELED_VERIFICATION": {
+         "title": "Вибачте...",
+         "desc": "Перевірку картки не пройдено. Будь ласка, спробуйте ще раз"
+       }
      },
      "paymentInformation": "Інформація про оплату",
      "urkCardOnly": "Тільки українські картки!",
@@ -139,8 +154,14 @@
      "minAmount": "Мінімально",
      "maxAmount": "Максимально",
      "RUB": "Росія",
+     "KZ": "Казахстан",
      "UAH": "Україна",
-     "QIWI": "QIWI гаманець"
+     "QIWI": "QIWI гаманець",
+     "ADVCASH": "Комісія ADV",
+     "ADVCashName": "ADV акаунт",
+     "PMName": "PM акаунт",
+     "PayeerName": "PAYEER акаунт",
+     "onlinePayment": "Оплата онлайн"
    },
    "confirmScreen": {
      "title": "Підтвердження",
@@ -156,13 +177,21 @@
      "withdrawAddress": "Адреса до зарахування",
      "withdrawCardNumber": "Картка для виплати",
      "withdrawPhoneNumber": "Телефон для виплати",
+     "withdrawAdvAccountNumber": "Рахунок для виплати",
      "total": "Сума:",
      "submitBtnBuy": "Покупка",
      "submitBtnSell": "Продаж",
      "edit": "Змінити",
      "confirmScreenBuy": "Цей спосіб оплати наразі недоступний. Будь-ласка, спробуйте інший.",
      "confirmScreenSell": "Цей спосіб оплати наразі недоступний. Будь-ласка, спробуйте інший.",
-     "bottomInformation": "Будь ласка, зверніть увагу, обмінний курс не є фіксованим і може змінитись в процесі в залежності від ринку."
+     "bottomInformation": "Будь ласка, зверніть увагу, обмінний курс не є фіксованим і може змінитись в процесі в залежності від ринку.",
+     "confirmScreenInvalidExchangeAmount": "Будь ласка, оберіть іншу суму для обміну",
+     "confirmScreenInvalidExchangeAmountTooBig": "Будь ласка, оберіть меншу суму для обміну",
+     "confirmScreenInvalidCard": "Будь ласка, оберіть іншу картку",
+     "confirmScreenTimeout" : "Будь ласка, перевірте доступ до інтернету та спробуйте ще раз",
+     "confirmScreenInvalidOut" : "Невірний рахунок для виводу, будь ласка, перевірте та спробуйте ще раз",
+     "confirmScreenInvalidAddress" : "Системна помилка торгової пари на боці провайдера, будь ласка, спробуйте ще раз",
+     "openLink" : "Для переходу на платіжну систему, будь ласка, перейдіть по цьому посиланню"
    },
   "settings": {
     "title": "Налаштування",
@@ -193,15 +222,19 @@
       "lock": "Блокування екрану",
       "bio": "Biometrics",
       "appnews" : "Технічні повідомлення",
+      "appnewsSmall" : "Тех. повідомлення",
       "about": "Про гаманець Trustee",
       "lang": "Change language",
-      "copyLogs": "Скопiювати логи",
+      "copyLogs": "Копiювати логи",
       "cashback": {
         "title": "Кешбек",
-        "description": "Запрошуйте друзів та заробляйте гроші!"
+        "description": "Запрошуйте друзів та заробляйте гроші!",
+        "descriptionSmall": "Запрошуйте друзів та заробляйте!"
       },
       "localCurrency": "Локальна валюта",
       "scannerSettings" : "Сканування",
+      "scannerSubtitle": "Частота оновлення балансів",
+      "scannerSubtitleSmall": "Швидкість оновлення балансів",
       "toolTips": "Підказки",
       "configMode": "Конфіг",
       "testerMode": "Тестувальник"
@@ -224,6 +257,11 @@
       "accountSetting": "Налаштування акаунту",
       "showSegWitAndLegacy": "Показувати SegWit і Legacy",
       "hideCommissionTrans": "Сховати транзакції оплати за комісію",
+      "scanAddressesFromHD" : "Сканувати адреси HD на наявність балансів",
+      "setAddressesFromHD" : {
+        "title": "Головна адреса буде змінена",
+        "description" : "Ви будете використовувати баланс %{newAddress}"
+      },
       "backupModal": {
         "title": "Мнемонічна фраза не збережена!",
         "description": "Мнемонічна фраза (Seed-фраза) це єдиний ключ до Ваших активів! У разі виходу з ладу телефону або в інших подібних ситуаціях, відновити доступ без цієї фрази до Ваших активів буде неможливо! Рекомендуємо зберегти фразу в безпечному місці прямо зараз! \n \n  Якщо у Вас просять сід-фразу, то Ви маєте справу з шахраями! \n Нікому і ні за яких обставин, не повідомляйте сід-фразу!"
@@ -241,9 +279,10 @@
       "terms": "Умови користування"
     },
     "error": {
-      "title": "Системна помилка",
-      "contactSupport": "Написати в Підтримку",
-      "tryAgain": "Перезавантажити"
+      "title": "Ой, помилка",
+      "contactSupport": "Підтримка",
+      "tryAgain": "Оновити",
+      "text": "Якщо Ви бачите це, щось пішло не так, надішліть нам логи через підтримку або спробуйте перезавантажити додаток"
     },
     "config": "Конфіг змінений на: %{config}",
     "tester": "Тестувальник/користувач змінений на: %{testerMode}"
@@ -270,11 +309,20 @@
     "shareTitle": "",
     "shareMessage": "",
     "friendsJoined": "Ваші друзі",
+    "updated" : "Оновлено",
     "transAmount": "Сума транзакцій",
     "level2UsersAmount": "Друзі друзів",
+    "cashbackError" : {
+      "title" : "Не вдалось отримати дані",
+      "UI_ERROR_CASHBACK_NETWORK_ERROR": "Немає доступу до інтернету",
+      "UI_ERROR_CASHBACK_SIGN_ERROR" : "Некоректний підпис у сховищі - будь ласка, зайдіть в розділ кешбек ще раз",
+      "UI_ERROR_CASHBACK_TIME_ERROR" : "Неактуальна дата або час пристрою",
+      "UI_ERROR_CASHBACK_TIME_ERROR_LONG" : "Сервіс може не працювати в результаті нестабільного інтернету або некоректних налаштувань дати та часу на Вашому мобільному пристрої"
+    },
     "cashbackAmount": "Сума кешбеку",
     "setParentToken": "Задати посилання-запрошення Вашого друга",
-    "inputParentCashBackLink": "https://trustee.deals/link/example",
+    "hasParentToken": "Запросив %{cashbackParentToken}",
+    "inputParentCashbackLink": "https://trustee.deals/link/example",
     "minWithdraw": "Мінімальна сума для виводу",
     "withdraw": "Вивести",
     "performWithdraw": "Щоб здійснити вивід, будь-ласка, напишіть в telegram на нікнейм @TrusteeWallet"
@@ -286,18 +334,24 @@
     "receive": "%{receive}",
     "send": "Відправити",
     "history": "Історія транзакцій",
+    "scan": "Відскановано в ",
     "noTransactions": "У Вас ще немає транзакцій",
     "showMore": "Показати ще",
     "assetSettings": "Налаштування активу",
+    "externalLink": {
+      "title": "Перехід до блокчейн експлореру",
+      "description": "Ви перейдете на зовнішній ресурс"
+    },
     "transaction": {
       "pay": "Оплатити",
+      "remove" : "Видалити",
       "destinationTag": "Тег призначення",
       "nonce": "Nonce",
       "delegatedNonce": "Делегований Nonce",
       "empty": "(пусто)",
       "fee": "Комісія",
-      "txHash": "Хеш транзакції",
-      "replacedTxHash": "Замінений хеш",
+      "txHash": "Актуальний хеш транзакції",
+      "replacedTxHash": "Попередній хеш транзакції",
       "from": "Відправник",
       "to": "Отримувач",
       "status": "Статус",
@@ -312,9 +366,17 @@
       "confirmations": "Підтверджень:",
       "moreInformation": "Більше інформації",
       "cardNumberDestination": "Номер картки для виводу",
+      "advAccountDestination": "Номер рахунку для виводу",
       "phoneDestination": "Номер телефону для виводу",
       "orderId": "ID ордеру",
-      "replaceByFeeBtn": "Збільшити комісію"
+      "RBF": {
+        "replaceByFeeBtn": "Збільшити комісію",
+        "willReplaceWithNewFee": "Поточна транзакція буде замінена новою, з новим хешем та більш високою комісією",
+        "notAllowed": "Транзакція створена без можливості заміни або вже підтверджена"
+      },
+      "CPFP" : {
+        "willSpeedUp" : "Ви можете прискорити вхідну транзакцію, створивши додаткову транзакцію самому собі, з більш високою комісією. Розмір комісії буде розрахований автоматично, враховуючи особливості обох транзакцій. Зверніть увагу, що в даному випадку оплата нової транзакції буде за Ваш рахунок"
+      }
     },
     "transactionStatuses": {
       "paid" : "Оплачена",
@@ -322,10 +384,12 @@
       "pay_expired" : "Час на оплату скінчився",
       "success": "Успішна",
       "pending": "В очікуванні",
-      "new": "нова",
+      "new": "НОВА",
+      "process": "Обробляється",
       "delegated" : "делегована",
       "confirming": "Підтверджується",
       "fail": "Помилка",
+      "missing" : "Не знайдена",
       "internal_success": "З контракту",
       "internal_new": "Нова з контракту",
       "internal_fail": "Помилка з контракту"
@@ -470,8 +534,8 @@
       "title": "Підтвердження відправлення",
       "amount": "",
       "recipient": "Отримувач",
+      "multiRecipient" : "Мультивідправка на %{total} адрес",
       "change" : "Решта %{amount} %{currencySymbol} прийде на",
-      "rbf_on" : "Заміна до підтвердження буде дозволена",
       "edit": "Назад",
       "confirm": "Відправити",
       "force" : "Відправити примусово?"
@@ -547,7 +611,7 @@
       },
       "customFee": {
         "fixedFeeTitle": "ФІКСОВАНА\nКОМІСІЯ",
-        "customFeeTitle": "КАСТОМНА\nКОМІСІЯ",
+        "customFeeTitle": "ВСТАНОВИТИ\nВЛАСНОРУЧ",
         "eth": {
           "gasPrice": "Ціна за газ",
           "gasLimit": "Ліміт газу",
@@ -562,19 +626,21 @@
     },
     "errors": {
       "UI_CONFIRM_DOUBLE_SEND" : "Транзакція на цю адресу була щойно відправлена, Ви певні, що хочете повторити?",
-      "SERVER_RESPONSE_BAD_CODE" : "Системна помилка, будь ласка напишіть в підтримку для допомоги",
+      "SERVER_RESPONSE_BAD_CODE" : "Щось пішло не так, будь ласка, напишіть в підтримку для допомоги",
       "SERVER_RESPONSE_BAD_INTERNET" : "Немає доступу до інтернету",
-      "SERVER_RESPONSE_BAD_TX_TO_REPLACE" : "Транзакцію не знайдено, можливо проблеми з інтернетом або затримки на мемпулі",
+      "SERVER_RESPONSE_BAD_TX_TO_REPLACE" : "Транзакцію не знайдено, будь ласка, перевірте доступ до інтернету або можливі затримки в мережі",
       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Недостатньо коштів нативної монети %{symbol} для надсилання",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Будь ласка, перевірте доступ до інтернету при перевірці коштів в нативній монеті %{symbol} для надсилання",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Занадто мала сума транзакції",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Недостатньо коштів для транзакції",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE" : "Недостатньо коштів залишиться на балансi для оплати транзакції - будь ласка, спробуйте опцiю Вiдправити Все",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE" : "Недостатньо коштів залишиться на балансi для оплати делегованої транзакції - будь ласка, спробуйте вiдправити як ERC20",
-      "SERVER_RESPONSE_NO_RESPONSE" : "Сервер не прийняв транзакцію - будь ласка, зачекайте поки замайняться iншi транзакції",
+      "SERVER_RESPONSE_NO_RESPONSE" : "Мережа не прийняла транзакцію - будь ласка, зачекайте поки замайняться iншi транзакції",
+      "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "Мережа не прийняла транзакцію - будь ласка, зачекайте поки замайняться iншi транзакції або оберiть бiльшу платню",
       "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Недостатньо пiдтверджених коштів нативної монети %{symbol} для надсилання -  будь ласка, зачекайте поки замайняться iншi транзакції",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Занадто мала сума платнi за транзакцію",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Занадто мала сума платнi за транзакцію для заміни",
-      "SERVER_RESPONSE_NOT_CONNECTED": "Сервер не прийняв запит - будь ласка, спробуйте через хвилину",
+      "SERVER_RESPONSE_NOT_CONNECTED": "Мережа не прийняла запит - будь ласка, спробуйте через хвилину",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостатньо коштів для транзакції та мiнiмальної платнi",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Будь ласка, зачекайте поки замайняться iншi транзакції або ввiмкнiть використання непiдтверджених транзакцій",
       "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Занадто велика сума платнi за транзакцію - будь ласка, оберіть інший розмір платні вручну або введіть більшу суму для транзакції",
@@ -584,15 +650,18 @@
       "SERVER_RESPONSE_TAG_NEEDED_XRP" : "Невiрний тег призначення - будь ласка, введiть тег призначення в поле для вiрної транзакції",
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT" : "Недостатній баланс на пов`язанiй з USDT бiткоїн адресi - будь ласка, переведiть на неї трохи сатоші",
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM" : "Недостатній або непiдтверджений баланс на пов`язанiй з USDT бiткоїн адресi - будь ласка, зачекайте або ввiмкнiть використання непiдтверджених транзакцій",
-      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Сервер не прийняв транзакцію - будь ласка, зачекайте поки замайняться iншi транзакції або спробуйте вiдправити як ERC20",
-      "SERVER_RESPONSE_NO_SSL" : "SSL бібліотеку не знайдено - будь ласка, спробуйте оновити систему"
+      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Мережа не прийняла транзакцію - будь ласка, зачекайте поки замайняться iншi транзакції або спробуйте вiдправити як ERC20",
+      "SERVER_RESPONSE_NO_SSL" : "SSL бібліотеку не знайдено - будь ласка, спробуйте оновити систему",
+      "SERVER_RESPONSE_PLEASE_SELECT_FEE": "Будь ласка, оберіть платню за транзакцию зі списку"
     }
   },
   "walletBackup": {
     "title": "Резервне копіювання",
     "titleNewWallet": "Генерація гаманця",
+    "titleNewWalletSmall": "Генерація",
     "skip": "Пропустити",
     "description": "Будь хто, маючи Вашу фразу відновлення, може отримати доступ до гаманця. Будь ласка, уважно запишіть ці %{mnemonicLength} %{words}.\nНікому і ні за яких обставин, не повідомляйте сід-фразу!",
+    "pinProtected": "Вам потрібно буде ввести PIN для доступу до фрази відновлення",
     "attention": "Цю фразу потрібно буде підтвердити на наступному кроці",
     "written": "Фразу записано",
     "words": "слова",
@@ -643,7 +712,7 @@
     "elements": {
       "modal": {
         "input": {
-          "placeholder": "Увійти ..."
+          "placeholder": "Введіть ..."
         }
       },
       "input": {
@@ -656,6 +725,10 @@
       "phoneInput": {
         "phoneNumber": "Номер телефону",
         "invalidFormat": "Номер телефону невірний"
+      },
+      "advInput": {
+        "accountNumber": "Номер рахунку",
+        "invalidFormat": "Номер рахунку невірний"
       }
     },
     "navigation": {
@@ -687,17 +760,17 @@
       "title": "Функція очікується",
       "description": "Технологічно транзакції, які мають 0 підтверджень, можуть бути оновлені. Дана функція дозволить модифікувати опубліковані транзакції, які знаходяться в процесі підтвердження майнерами. Тобто може бути оновлено як розмір комісії за транзакцію, так і адреса отримувача. Більше деталей за посиланням."
     },
-    "enterCashBackTokenLink": {
+    "enterCashbackTokenLink": {
       "title": "Зв'язати з Другом!",
       "description": "Будь ласка, введіть анонімне посилання-запрошення друга для підключення Вашого анонімного гаманця в його структуру. Зверніть увагу, операцію неможливо скасувати або змінити."
     },
-    "cashBackTokenLinkModal": {
+    "cashbackTokenLinkModal": {
       "success": {
         "description": "Вітаємо, Ваш гаманець додано в структуру Вашого друга! Гаманці пов'язані за допомогою анонімних ідентифікаторів."
       }
     },
-    "cashBackLinkEqualModal": {
-      "description": "Вибачте, вказувати власне посилання-запрошення не дозволено!"
+    "cashbackLinkEqualModal": {
+      "description": "Вибачте, вказувати власне посилання-запрошення %{link} не дозволено!"
     },
     "walletCreateSettingsModal": {
       "title": "Налаштування гаманця"
@@ -721,7 +794,7 @@
       },
       "TOKEN": {
         "title": "Будь ласка, зверніть увагу!",
-        "description": "Токен %{currencySymbol} працює на блокчейн %{parentBlockchain} та для обігу потребує позитивного балансу у %{parentCurrency} для оплати комісії майнерам. Поки що на Вашому гаманці нульовий баланс %{parentCurrency}"
+        "description": "Токен %{currencySymbol} працює на блокчейні %{parentBlockchain} та для обігу потребує позитивного балансу у %{parentCurrency} для оплати комісії майнерам. Поки що на Вашому гаманці нульовий баланс %{parentCurrency}"
       }
     },
     "tokenNotAdded": {
@@ -782,11 +855,10 @@
       }
     },
     "licenseTerms": {
-      "title": "Legal documents",
-      "description": "    Please read this so you know what you`re agreeing to.",
-      "accept": "Agree",
-      "decline": "Decline",
-      "checkboxText": "I accept the license terms"
+      "title": "Юридичні документи",
+      "description": "   Будь ласка, прочитайте це, щоб знати, на що Ви погоджуєтесь",
+      "accept": "Погоджуюсь",
+      "decline": "Відхилити"
     },
     "login": {
       "title": "Вхід/Реєстрація",
@@ -802,10 +874,7 @@
       "failed": "Помилка...",
       "txCanceled": "Транзакція відхилена",
       "success": "Успіх!",
-      "txSuccess": "Транзакція успішно відправлена",
-      "errors": {
-        "UI_ERROR_CASHBACK_NETWORK_ERROR": "Немає доступу до інтернету"
-      }
+      "txSuccess": "Транзакція успішно відправлена"
     },
     "settings": {
       "soon": "Очікується",
@@ -845,7 +914,7 @@
     "walletLog" : {
       "sorry" : "Помилка....",
       "noMailApp" : "Немає доступного додатку для відправки email",
-      "notComplited" : "Будь ласка, оберіть інший канал для відправки"
+      "notComplited" : "Будь ласка, оберіть канал для відправки"
     },
     "walletBackup": {
       "success": "Успіх!",
@@ -897,7 +966,9 @@
   },
   "toast": {
     "copied": "Скопійовано в буфер",
-    "noInternet": "Немає доступу до інтернету"
+    "noInternet": "Немає доступу до інтернету",
+    "badInternet": "Нестабільний доступ  до інтернету, будь ласка, спробуйте іншого провайдера або точку доступу",
+    "saved" : "Збережено"
   },
    "tips": {
      "homeScreen": {
@@ -910,30 +981,39 @@
    "appNews" : {
      "title" : "Технічні повідомлення",
      "subtitle" : "Всі повідомлення",
+     "subtitleSmall" : "Всі повідомлення",
      "clearAll" : "Очистити все",
      "newsNull" : "У Вашому гаманці нічого нового"
 
    },
    "pushNotifications":  {
+     "FOUND_OUT_TX_STATUS_NEW": {
+       "title": "%{currencyName} вихідну транзакцію створено",
+       "description": "%{walletName} транзакція %{amountPretty} %{currencySymbol} %{addressTo} %{createdAt}"
+     },
      "FOUND_OUT_TX_STATUS_FAIL": {
        "title": "%{currencyName} вихідну транзакцію відхилено",
-       "description": "%{walletName} транзакція %{amountPretty} %{currencySymbol}, хеш %{transactionHash}"
+       "description": "%{walletName} транзакція %{amountPretty} %{currencySymbol} %{addressTo} %{createdAt}"
+     },
+     "FOUND_OUT_TX_STATUS_MISSING": {
+       "title": "%{currencyName} вихідну транзакцію не знайдено",
+       "description": "%{walletName} транзакція %{amountPretty} %{currencySymbol} %{addressTo} %{createdAt}"
      },
      "FOUND_OUT_TX_STATUS_SUCCESS": {
        "title": "%{currencyName} вихідна транзакція успішна",
-       "description": "%{walletName} транзакція %{amountPretty} %{currencySymbol}, хеш %{transactionHash}"
+       "description": "%{walletName} транзакція %{amountPretty} %{currencySymbol} %{addressTo} %{createdAt}"
      },
      "FOUND_OUT_TX_STATUS_CONFIRMING": {
        "title": "%{currencyName} вихідна транзакція в процесі",
-       "description": "%{walletName} транзакція %{amountPretty} %{currencySymbol}, хеш %{transactionHash}"
+       "description": "%{walletName} транзакція %{amountPretty} %{currencySymbol} %{addressTo} %{createdAt}"
      },
      "FOUND_OUT_TX_STATUS_DELEGATED": {
        "title": "%{currencyName} вихідна транзакція делегована",
-       "description": "%{walletName} транзакція %{amountPretty} %{currencySymbol}, хеш %{transactionHash}"
+       "description": "%{walletName} транзакція %{amountPretty} %{currencySymbol} %{addressTo} %{createdAt}"
      },
      "FOUND_IN_TX": {
        "title": "%{currencyName} вхідна транзакція",
-       "description": "%{walletName} вхідні %{amountPretty} %{currencySymbol}, хеш %{transactionHash}"
+       "description": "%{walletName} вхідні %{amountPretty} %{currencySymbol} %{addressFrom} %{createdAt}"
      },
      "DAEMON_HAS_FOUND_HD": {
        "title": "%{currencyName} HD знайдено",

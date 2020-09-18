@@ -116,6 +116,7 @@ export default class DogeTransferProcessor {
      * @param {string} data.currencyCode
      * @param {string} data.addressTo
      * @param {string} data.amount
+     * @param {string} data.multiply
      * @param {string} data.jsonData
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
@@ -135,7 +136,7 @@ export default class DogeTransferProcessor {
 
         try {
             preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getFeeRate')
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate preparedInputsOutputs', preparedInputsOutputs)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate preparedInputsOutputs', preparedInputsOutputs)
         } catch (e) {
             const tmp = { unspents: this._precached.unspents, error: e.message }
             // noinspection ES6MissingAwait
@@ -278,6 +279,9 @@ export default class DogeTransferProcessor {
                 // console.log('tr fee corrected ', fee.feeForTx + ' / ' + fee.feeForByte + ' => ' + logInputsOutputs.diffInOut, logInputsOutputs)
                 // console.log('')
                 fee.feeForTx = logInputsOutputs.diffInOut
+                fee.txSize = await this._getSize(data, preparedInputsOutputs)
+                fee.feeForByte = Math.round(logInputsOutputs.diffInOut / fee.txSize)
+                fee.multiply = preparedInputsOutputs.multiply || 0
             }
 
         } else {
@@ -290,6 +294,9 @@ export default class DogeTransferProcessor {
                 // console.log('fee corrected ', fee.feeForTx + ' / ' + fee.feeForByte + ' => ' + logInputsOutputs.diffInOut, logInputsOutputs)
                 // console.log('')
                 fee.feeForTx = logInputsOutputs.diffInOut
+                fee.txSize = await this._getSize(data, preparedInputsOutputs)
+                fee.feeForByte = Math.round(logInputsOutputs.diffInOut / fee.txSize)
+                fee.multiply = preparedInputsOutputs.multiply || 0
             }
         }
 
@@ -303,6 +310,17 @@ export default class DogeTransferProcessor {
             }
         }
         return tested.reverse()
+    }
+
+    async _getSize(data, preparedInputsOutputs) {
+        let txSize = 400
+        try {
+            const rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs)
+            txSize = Math.ceil(rawTxHex.length / 2)
+        } catch (e) {
+
+        }
+        return txSize
     }
 
     /**
@@ -354,6 +372,7 @@ export default class DogeTransferProcessor {
      * @param {string} data.addressTo
      * @param {string} data.amount
      * @param {string} data.jsonData
+     * @param {string} data.multiply
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
@@ -390,11 +409,15 @@ export default class DogeTransferProcessor {
         let logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + subtitle)
 
         if (logInputsOutputs.diffInOut > data.amount * 1.1 || logInputsOutputs.diffInOutReadable > this._maxDiffInOutReadable) {
-            const e = new Error('SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION')
-            e.code = 'ERROR_USER'
-            // noinspection ES6MissingAwait
-            MarketingEvent.logOnlyRealTime('doge_error_4_0 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
-            throw e
+            if (typeof preparedInputsOutputs.multiply !== 'undefined' && preparedInputsOutputs.multiply > 1) {
+                // continue
+            } else {
+                const e = new Error('SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION')
+                e.code = 'ERROR_USER'
+                // noinspection ES6MissingAwait
+                MarketingEvent.logOnlyRealTime('doge_error_4_0 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
+                throw e
+            }
         }
 
         let rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs, logInputsOutputs)
@@ -404,33 +427,51 @@ export default class DogeTransferProcessor {
             result = await this.sendProvider.sendTx(rawTxHex, 'usual first try')
         } catch (e1) {
             let lengthOutputs = preparedInputsOutputs.outputs.length
-            if (!showError && e1.message === 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST' && lengthOutputs > 1) {
-                lengthOutputs = lengthOutputs - 1
-                const lastOutput = preparedInputsOutputs.outputs[lengthOutputs]
-                if (lastOutput.amount < this._minOutputToBeDusted && lastOutput.to === data.addressTo) {
-                    MarketingEvent.logOnlyRealTime('doge_error_4_will_resend ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
-                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx will resend without lastOutput', logInputsOutputs)
-
-                    const newOutputs = []
-                    for (let i = 0; i < lengthOutputs; i++) {
-                        newOutputs.push(preparedInputsOutputs.outputs[i])
-                    }
-                    preparedInputsOutputs.outputs = newOutputs
-
-                    logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.sendTx')
-
-                    if (logInputsOutputs.diffInOut > data.amount * 1.1 || logInputsOutputs.diffInOutReadable > this._maxDiffInOutReadable) {
-                        const e = new Error('SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION')
-                        e.code = 'ERROR_USER'
-                        // noinspection ES6MissingAwait
-                        MarketingEvent.logOnlyRealTime('doge_error_4_0_on_resend ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
-                        throw e
-                    }
+            if (!showError) {
+                if (e1.message === 'SERVER_RESPONSE_NOT_CONNECTED') {
                     rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs, logInputsOutputs)
                     try {
-                        result = await this.sendProvider.sendTx(rawTxHex, 'resend without last output')
+                        result = await this.sendProvider.sendTx(rawTxHex, 'resend as not connected')
                     } catch (e2) {
                         error = e2
+                    }
+                } else if (e1.message === 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST' && lengthOutputs > 1) {
+                    lengthOutputs = lengthOutputs - 1
+                    const lastOutput = preparedInputsOutputs.outputs[lengthOutputs]
+                    if (lastOutput.amount < this._minOutputToBeDusted && lastOutput.to === data.addressTo) {
+                        MarketingEvent.logOnlyRealTime('doge_error_4_will_resend ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.sendTx will resend without lastOutput', logInputsOutputs)
+
+                        const newOutputs = []
+                        for (let i = 0; i < lengthOutputs; i++) {
+                            newOutputs.push(preparedInputsOutputs.outputs[i])
+                        }
+                        preparedInputsOutputs.outputs = newOutputs
+
+                        logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.sendTx')
+
+                        if (logInputsOutputs.diffInOut > data.amount * 1.1 || logInputsOutputs.diffInOutReadable > this._maxDiffInOutReadable) {
+                            const e = new Error('SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION')
+                            e.code = 'ERROR_USER'
+                            // noinspection ES6MissingAwait
+                            MarketingEvent.logOnlyRealTime('doge_error_4_0_on_resend ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
+                            throw e
+                        }
+                        rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs, logInputsOutputs)
+                        try {
+                            result = await this.sendProvider.sendTx(rawTxHex, 'resend without last output')
+                        } catch (e2) {
+                            error = e2
+                        }
+                    } else {
+                        error = e1
+                    }
+                } else if (e1.message === 'SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE') {
+                    if (typeof preparedInputsOutputs.multiply === 'undefined' || preparedInputsOutputs.multiply < 1000) {
+                        error = e1
+                        error.needFees = true
+                    } else {
+                        error = new Error('SERVER_RESPONSE_NO_RESPONSE')
                     }
                 } else {
                     error = e1
@@ -439,6 +480,9 @@ export default class DogeTransferProcessor {
                 error = e1
             }
         }
+
+
+
 
         if (error) {
             if (typeof error.code !== 'undefined' && error.code === 'ERROR_USER') {

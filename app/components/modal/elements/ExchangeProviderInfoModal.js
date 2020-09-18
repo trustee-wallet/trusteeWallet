@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.11
  */
 import React, { Component } from 'react'
 
@@ -10,6 +10,8 @@ import Modal from 'react-native-modal'
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 
 import GradientView from '../../../components/elements/GradientView'
+
+import Log from '../../../services/Log/Log'
 
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
@@ -34,6 +36,8 @@ export class ExchangeProviderInfoModal extends Component {
 
         const { paymentSystem } = this.props.data.data
 
+        Log.log('EXC/InfoModal paymentLimits', paymentSystem)
+
         this.setState({
             min: 1 * paymentSystem.limits.min.toFixed(5),
             max: paymentSystem.limits.max == null ? '∞' : 1 * paymentSystem.limits.max.toFixed(5)
@@ -45,7 +49,7 @@ export class ExchangeProviderInfoModal extends Component {
     render() {
 
         const { min, max } = this.state
-        const { selectedInCryptocurrency } = this.props.data.data
+        const { selectedInCurrency } = this.props.data.data
         const { show } = this.props
 
         return (
@@ -64,7 +68,7 @@ export class ExchangeProviderInfoModal extends Component {
                                     {strings('tradeScreen.minAmount')}
                                 </Text>
                                 <Text style={styles.content__text}>
-                                    {`${min} ${selectedInCryptocurrency.currencySymbol}`}
+                                    {`${min} ${selectedInCurrency.currencySymbol}`}
                                 </Text>
                             </View>
                             <View style={styles.content__row}>
@@ -72,7 +76,7 @@ export class ExchangeProviderInfoModal extends Component {
                                     {strings('tradeScreen.maxAmount')}
                                 </Text>
                                 <Text style={styles.content__text}>
-                                    {`${max} ${selectedInCryptocurrency.currencySymbol}`}
+                                    {`${max} ${selectedInCurrency.currencySymbol}`}
                                 </Text>
                             </View>
                         </View>

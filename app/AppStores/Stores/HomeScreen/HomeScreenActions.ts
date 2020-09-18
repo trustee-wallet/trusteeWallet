@@ -10,6 +10,8 @@ import {
 
 import { setSelectedWallet } from '../Main/MainStoreActions'
 import walletActions from '../Wallet/WalletActions'
+import Toast from '../../../services/UI/Toast/Toast'
+import { strings } from '../../../services/i18n'
 
 export function setWalletName(walletName: string): HomeScreenActionTypes {
     return {
@@ -46,6 +48,7 @@ export function saveNewWalletName(walletHash: string, newWalletName: string, old
             }
 
             await walletDS.changeWalletName(walletHash, tmpNewWalletName)
+            Toast.setMessage(strings('toast.saved')).show()
             await setSelectedWallet()
             await walletActions.setAvailableWallets()
             dispatch(setInputEditable(false))

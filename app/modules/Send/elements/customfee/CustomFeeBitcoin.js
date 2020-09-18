@@ -41,9 +41,15 @@ class CustomFee extends Component {
      * @param {number} feeForByte
      */
     handleFeeForByteInput = (feeForByte) => {
-        this.feeForTxInput.handleInput(((feeForByte * this.props.fee.txSize).toFixed()).toString(), false)
+        let tmp = feeForByte * this.props.fee.txSize * 1
+        if (tmp > 0) {
+            tmp = Math.round(tmp)
+        } else {
+            tmp = 0
+        }
+        this.feeForTxInput.handleInput(tmp.toString(), false)
         this.props.callTransferAll({
-            feeForTx: feeForByte * this.props.fee.txSize
+            feeForTx: tmp
         })
     }
 
@@ -52,7 +58,13 @@ class CustomFee extends Component {
      * @param {number} feeForTx
      */
     handleFeeForTxInput = (feeForTx) => {
-        this.feeForByteInput.handleInput(((feeForTx / this.props.fee.txSize).toFixed()).toString(), false)
+        let tmp = feeForTx / this.props.fee.txSize * 1
+        if (tmp > 0) {
+            tmp = Math.round(tmp)
+        } else {
+            tmp = 0
+        }
+        this.feeForByteInput.handleInput(tmp.toString(), false)
         this.props.callTransferAll({
             feeForTx
         })
@@ -71,7 +83,8 @@ class CustomFee extends Component {
 
             return {
                 feeForByte: feeForByteInputValidate.value,
-                feeForTx: feeForTxInputValidate.value
+                feeForTx: feeForTxInputValidate.value,
+                isCustomFee: true
             }
         }
     }

@@ -1,11 +1,10 @@
 import React from 'react'
 import Svg, { LinearGradient, Stop, Path } from 'react-native-svg'
-import { Image, Platform } from 'react-native'
+import { Image } from 'react-native'
+import OldPhone from '../../services/UI/OldPhone/OldPhone'
 
 function SvgComponent(props) {
-	let platform = Platform.OS + ' v' + Platform.Version
-	platform = platform.toLowerCase()
-	if (platform.indexOf('ios v10.') === 0 || platform.indexOf('ios v9.') === 0) {
+	if (OldPhone.isOldPhone()) {
 		return (
 			<Image
 				width={24} height={24}

@@ -59,7 +59,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
         storedKey = await cryptoWalletsDS.saveWallet(wallet)
 
-        await cryptoWalletsDS.setSelectedWallet(storedKey)
+        await cryptoWalletsDS.setSelectedWallet(storedKey, 'ACT/MStore proceedSaveGeneratedWallet')
 
         await walletDS.saveWallet({ walletHash: storedKey, walletName: wallet.walletName, walletIsBackedUp: wallet.walletIsBackedUp || 0 })
 
@@ -87,6 +87,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
                 let code
                 for (code in BlocksoftDict.Currencies) {
                     if (typeof initedCurrencyCodes[code] !== 'undefined') continue
+                    if (code === 'BTC_TEST') continue
                     prep.push({
                         walletHash: storedKey,
                         currencyCode: code,
@@ -98,6 +99,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
                     delete initedCurrencyCodes[code]  // not visible - need to scan balance anyway to show news
                 }
                 for (code in initedCurrencyCodes) {
+                    if (code === 'BTC_TEST') continue
                     prep.push({
                         walletHash: storedKey,
                         currencyCode: code,
@@ -122,7 +124,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
         await appTaskDS.clearTasks({ walletHash: storedKey })
 
         if (prevWallet && prevWallet !== storedKey) {
-            await cryptoWalletsDS.setSelectedWallet(prevWallet)
+            await cryptoWalletsDS.setSelectedWallet(prevWallet, 'ACT/MStore proceedSaveGeneratedWallet Revert')
         }
 
         Log.log('ACT/MStore proceedSaveGeneratedWallet tryWallet ' + storedKey + ' prevWallet ' + prevWallet + ' error ' + e.message)

@@ -12,7 +12,6 @@ import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 import { hideModal, showModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboard'
-import { normalizeWithDecimals } from '../../../services/utils'
 import Toast from '../../../services/UI/Toast/Toast'
 import { strings } from '../../../services/i18n'
 
@@ -28,6 +27,9 @@ import Fontisto from 'react-native-vector-icons/Fontisto'
 import qrLogo from '../../../assets/images/logoWithWhiteBG.png'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import QrCodeBox from '../../../components/elements/QrCodeBox'
+import prettyShare from '../../../services/UI/PrettyShare/PrettyShare'
+import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
+import { normalizeInputWithDecimals } from '../../../services/UI/Normalize/NormalizeInput'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -69,23 +71,26 @@ class CustomReceiveAmountModal extends Component {
     handleShare = () => {
         const { address, currencySymbol } = this.props.data.data
         try {
+            setLoaderStatus(true)
             this.refSvg.toDataURL(async (data) => {
                 const message = `${currencySymbol}
                 ${address}`
 
                 if (Platform.OS === 'android') {
                     // noinspection ES6MissingAwait
-                    Share.open({ message, url: `data:image/png;base64,${data}` })
+                    prettyShare({ message, url: `data:image/png;base64,${data}` })
                 } else {
 
                     const fs = new FileSystem()
 
                     await (fs.setFileEncoding('base64').setFileName('QR').setFileExtension('jpg')).writeFile(data)
                     // noinspection ES6MissingAwait
-                    Share.open({ message, url: await fs.getPathOrBase64() })
+                    prettyShare({ message, url: await fs.getPathOrBase64() })
                 }
+                setLoaderStatus(false)
             })
         } catch (e) {
+            setLoaderStatus(false)
             showModal({
                 type: 'CUSTOM_RECEIVE_AMOUNT_MODAL',
                 data: {
@@ -119,7 +124,7 @@ class CustomReceiveAmountModal extends Component {
 
     createDataForQr = (amount, label) => {
 
-        const tmpValue = normalizeWithDecimals(amount, 10)
+        const tmpValue = normalizeInputWithDecimals(amount, 10)
 
         const dataForQr = this.getDataForQR(tmpValue, label)
 

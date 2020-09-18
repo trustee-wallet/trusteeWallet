@@ -19,16 +19,8 @@ import GradientView from '../../../components/elements/GradientView'
 
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
-import i18n, { strings } from '../../../services/i18n'
-
-import PRIVACY_POLICY from '../../../../__terms__/PRIVACY_POLICY.js'
-import PRIVACY_POLICY_RU from '../../../../__terms__/PRIVACY_POLICY_RU.js'
-import TERMS_OF_USE_1 from '../../../../__terms__/TERMS_OF_USE_1.js'
-import TERMS_OF_USE_2 from '../../../../__terms__/TERMS_OF_USE_2.js'
-import TERMS_OF_USE_1_RU from '../../../../__terms__/TERMS_OF_USE_1_RU.js'
-import TERMS_OF_USE_2_RU from '../../../../__terms__/TERMS_OF_USE_2_RU.js'
-import DO_YOU_AGREE from '../../../../__terms__/DO_YOU_AGREE.js'
-import DO_YOU_AGREE_RU from '../../../../__terms__/DO_YOU_AGREE_RU.js'
+import ALL_TERMS from '../../../../__terms__/ALL'
+import { strings, sublocale } from '../../../services/i18n'
 
 import Entypo from 'react-native-vector-icons/Entypo'
 
@@ -53,7 +45,10 @@ export class LicenseTermsModal extends Component {
     render() {
         const { show } = this.props
 
-        const isRu = i18n.locale === 'ru-RU'
+        let sub = sublocale()
+        if (sub !== 'uk' && sub !== 'ru') {
+            sub = 'en'
+        }
 
         return (
             <Modal style={styles.modal} hasBackdrop={false} isVisible={show}>
@@ -73,10 +68,10 @@ export class LicenseTermsModal extends Component {
                                 {strings('settings.about.terms')}
                             </Text>
                             <Text style={styles.text}>
-                                {isRu ? TERMS_OF_USE_1_RU : TERMS_OF_USE_1}
+                                {ALL_TERMS.TERMS_OF_USE_1[sub]}
                             </Text>
                             <Text style={styles.text}>
-                                {isRu ? TERMS_OF_USE_2_RU : TERMS_OF_USE_2}
+                                {ALL_TERMS.TERMS_OF_USE_2[sub]}
                             </Text>
                             <TouchableOpacity onPress={() => Linking.openURL(this.state.referralProgramLink)}>
                                 <Text style={styles.link}>
@@ -89,10 +84,10 @@ export class LicenseTermsModal extends Component {
                                 {strings('settings.about.privacy')}
                             </Text>
                             <Text style={styles.text}>
-                                {isRu ? PRIVACY_POLICY_RU : PRIVACY_POLICY}
+                                {ALL_TERMS.PRIVACY_POLICY[sub]}
                             </Text>
                             <Text style={styles.text}>
-                                {isRu ? DO_YOU_AGREE_RU : DO_YOU_AGREE}
+                                {ALL_TERMS.DO_YOU_AGREE[sub]}
                             </Text>
                         </ScrollView>
                         {/*<View>*/}

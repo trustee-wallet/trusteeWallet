@@ -2,15 +2,15 @@
  * @version 0.9
  */
 const INITIAL_STATE = {
-    accounts: []
+    accountList: []
 }
 
 const accountStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
-        case 'SET_ACCOUNTS':
+        case 'SET_ACCOUNT_LIST':
             return {
                 ...state,
-                accounts: action.accounts
+                accountList: action.accountList
             }
         default:
             return state

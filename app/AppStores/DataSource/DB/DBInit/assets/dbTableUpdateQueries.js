@@ -11,7 +11,7 @@ import BlocksoftDict from '../../../../../../crypto/common/BlocksoftDict'
 import currencyActions from '../../../../Stores/Currency/CurrencyActions'
 
 export default {
-    maxVersion: 65,
+    maxVersion: 69,
     updateQuery: {
         1: {
             queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -541,7 +541,32 @@ export default {
 
         65 : {
             queryString : `UPDATE transactions SET transactions_scan_log=''`
-        }
+        },
 
+        66 : {
+            queryString : `UPDATE wallet SET wallet_allow_replace_by_fee=1`
+        },
+
+        67: {
+            afterFunction: async () => {
+                try {
+                    Log.log('DB/Update afterFunction - Migration 67 started')
+
+                    // dont put it or like this - slow phones are complaining ((( await currencyActions.addCurrency({ currencyCode: 'ETH_DAIM' }, 1, 0)
+
+                    Log.log('DB/Update afterFunction - Migration 67 finish')
+                } catch (e) {
+                    Log.log('DB/Update afterFunction - Migration 67 error ' + e.message)
+                }
+            }
+        },
+
+        68: {
+            queryString: `ALTER TABLE account ADD COLUMN changes_log TEXT NULL`
+        },
+
+        69: {
+            queryString: `ALTER TABLE account ADD COLUMN is_main INTEGER NULL DEFAULT 1`
+        },
     }
 }

@@ -170,10 +170,11 @@ async function _userDataValidation(obj) {
                 }
                 let checkValues = [value]
                 if (value.indexOf(';') !== -1) {
-                    checkValues = value.split(';')
+                    checkValues = value.replace(/\s+/g, ';').split(';')
                 }
                 for (let checkValue of checkValues) {
                     checkValue = checkValue.trim()
+                    if (!checkValue) continue
                     if (subtype === 'bitcoincash' || subtype === 'bitcoinsv') { //clone not to overwrite
                         checkValue = BtcCashUtils.toLegacyAddress(checkValue)
                     }
@@ -278,8 +279,9 @@ async function _userDataValidation(obj) {
             }
             break
 
-        case 'CASH_BACK_LINK':
+        case 'CASHBACK_LINK':
             const valueArray = value.split('/')
+            value = value.replace('https://cashback.trustee.deals/', 'https://trustee.deals/link/')
             if (!value)
                 error.msg = strings('validator.empty', { name: name })
             else if (!value.includes('https://trustee.deals/link/')) {
