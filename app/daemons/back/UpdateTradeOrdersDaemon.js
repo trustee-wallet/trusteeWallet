@@ -9,7 +9,7 @@ import Api from '../../services/Api/Api'
 import Settings from '../../appstores/DataSource/Settings/Settings'
 import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWallets'
+import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
 const settingsDS = new Settings()
 
@@ -71,6 +71,11 @@ class UpdateTradeOrdersDaemon {
         Log.daemon('UpdateTradeOrders called ' + JSON.stringify(params))
         if (CACHE_REMOVED === false) {
             await this.removedFromDb()
+        }
+
+        const tmpAuthHash = await BlocksoftKeysStorage.getSelectedWallet()
+        if (!tmpAuthHash) {
+            return false
         }
 
         if (typeof params.source !== 'undefined' && params.source === 'ACCOUNT_OPEN' && CACHE_LAST_TIME) {

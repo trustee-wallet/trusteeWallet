@@ -126,25 +126,31 @@ export default {
     },
 
     checkError: (e, msg, dataToSend, errorMsgExt) => {
-        if (e.message.indexOf('invalid outamount param') !== -1 || e.message.indexOf('invalid inamount param') !== -1 || e.message.indexOf('ER_WARN_DATA_OUT_OF_RANGE') !== -1) {
+        const tmp = e.message.toLowerCase()
+        if (tmp.indexOf('invalid outamount param') !== -1 || tmp.indexOf('invalid inamount param') !== -1 || tmp.indexOf('out_or_range') !== -1) {
             msg = strings('confirmScreen.confirmScreenInvalidExchangeAmount')
-        } else if (e.message.indexOf('enough liquidity in pair') !== -1) {
+        } else if (tmp.indexOf('enough liquidity in pair') !== -1) {
             msg = strings('confirmScreen.confirmScreenInvalidExchangeAmountTooBig')
-        } else if (e.message.indexOf('The card has not been validated') !== -1) {
+        } else if (tmp.indexOf('card has not been validated') !== -1) {
             msg = strings('confirmScreen.confirmScreenInvalidCard')
-        } else if (e.message.indexOf('timeout') !== -1) {
+        } else if (tmp.indexOf('timeout') !== -1) {
             msg = strings('confirmScreen.confirmScreenTimeout')
-        } else if (e.message.indexOf('invalid outdestination param') !== -1) {
+        } else if (tmp.indexOf('invalid outdestination param') !== -1) {
             msg = strings('confirmScreen.confirmScreenInvalidOut')
-        } else if (e.message.indexOf('failed_to_create_cryptoaddress') !== -1) {
+        } else if (tmp.indexOf('is temporary disabled') !== -1) {
+            msg = strings('confirmScreen.confirmScreenTemporaryOff')
+        } else if (tmp.indexOf('invalid cardnumber param') !== -1) {
             msg = strings('confirmScreen.confirmScreenInvalidAddress')
-        } else if (e.message.indexOf('failed: VISA_MC_P2P') !== -1) {
+            Log.err('Api.checkError ' + msg + ' error ' + tmp + ' ' + JSON.stringify(dataToSend) + ' ALL DATA ' + JSON.stringify(errorMsgExt))// will be removed after tests
+        } else if (tmp.indexOf('failed_to_create_cryptoaddress') !== -1) {
             msg = strings('confirmScreen.confirmScreenInvalidAddress')
-        } else if (e.message.indexOf('invalid address') !== -1) {
+        } else if (tmp.indexOf('failed: visa_mc_p2p') !== -1) {
             msg = strings('confirmScreen.confirmScreenInvalidAddress')
-            Log.err('Api.checkError ' + msg + ' error ' + e.message + ' ' + JSON.stringify(dataToSend) + ' ' + errorMsgExt) // will be removed after tests
+        } else if (tmp.indexOf('invalid address') !== -1) {
+            msg = strings('confirmScreen.confirmScreenInvalidAddress')
+            Log.err('Api.checkError ' + msg + ' error ' + tmp + ' ' + JSON.stringify(dataToSend) + ' ALL DATA ' + JSON.stringify(errorMsgExt)) // will be removed after tests
         } else {
-            Log.err('Api.checkError ' + msg + ' error ' + e.message + ' ' + JSON.stringify(dataToSend) + ' ' + errorMsgExt)
+            Log.err('Api.checkError ' + msg + ' error ' + tmp + ' ' + JSON.stringify(dataToSend) + ' ALL DATA ' + JSON.stringify(errorMsgExt))
             msg = strings(msg)
         }
 

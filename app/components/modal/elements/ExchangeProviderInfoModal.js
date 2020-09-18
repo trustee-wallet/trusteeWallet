@@ -38,6 +38,8 @@ export class ExchangeProviderInfoModal extends Component {
 
         Log.log('EXC/InfoModal paymentLimits', paymentSystem)
 
+        if (typeof paymentSystem === 'undefined' || !paymentSystem) return false
+
         this.setState({
             min: 1 * paymentSystem.limits.min.toFixed(5),
             max: paymentSystem.limits.max == null ? '∞' : 1 * paymentSystem.limits.max.toFixed(5)

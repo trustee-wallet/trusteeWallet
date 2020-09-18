@@ -9,7 +9,7 @@ const BALANCE_PATH = 'https://api.trongrid.io/walletsolidity/getaccount?address=
 const BALANCE_MAX_TRY = 10
 
 const CACHE_TRONGRID = {}
-const CACHE_VALID_TIME = 30000 // 30 seconds
+const CACHE_VALID_TIME = 3000 // 3 seconds
 
 export default class TrxTrongridProvider {
 

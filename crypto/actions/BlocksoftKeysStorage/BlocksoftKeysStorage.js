@@ -194,11 +194,11 @@ export class BlocksoftKeysStorage {
         await this._init()
         const msg = 'BlocksoftKeysStorage setSelectedWallet ' + source + ' ' + hashOrId + ' '
 
-        if (!hashOrId || typeof hashOrId === 'undefined') {
+        if (!hashOrId || typeof hashOrId === 'undefined' || hashOrId === 'first') {
             if (typeof this.publicWallets[0] === 'undefined') {
                 throw new Error('System error on setSelectedWallet')
             }
-            if (!this.publicSelectedWallet) {
+            if (!this.publicSelectedWallet || typeof this.publicSelectedWallet === 'undefined') {
                 hashOrId = this.publicWallets[0]
                 this.publicSelectedWallet = hashOrId
             } else {
@@ -212,7 +212,18 @@ export class BlocksoftKeysStorage {
             await this._setKeyValue('selected_hash', hashOrId)
         }
         BlocksoftCryptoLog.log(msg + this.publicSelectedWallet)
-        return true
+        return this.publicSelectedWallet
+    }
+
+    getFirstWallet() {
+        if (!this.publicSelectedWallet || typeof  this.publicSelectedWallet === 'undefined') {
+            this.setSelectedWallet('first')
+            if (!this.publicWallets || typeof this.publicWallets[0] === 'undefined') {
+                return false
+            }
+            return this.publicWallets[0]
+        }
+        return this.publicSelectedWallet
     }
 
     /**

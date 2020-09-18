@@ -10,6 +10,7 @@ import EthNetworkPrices from './basic/EthNetworkPrices'
 import EthTxSendProvider from './basic/EthTxSendProvider'
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
 import BlocksoftBN from '../../common/BlocksoftBN'
+import BlocksoftDispatcher from '../BlocksoftDispatcher'
 
 export default class EthTransferProcessor extends EthBasic {
     /**
@@ -36,9 +37,9 @@ export default class EthTransferProcessor extends EthBasic {
      * @return {Promise<{feeForTx, langMsg, gasPrice, gasLimit}[]>}
      */
     async getFeeRate(data, alreadyEstimatedGas = false) {
-        BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate started')
+        BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate started ')
 
-        const gasPrice = await EthNetworkPrices.get()
+        const gasPrice = await EthNetworkPrices.get(typeof data.addressTo !== 'undefined' ? data.addressTo : 'none')
 
         let gasLimit
         if (typeof alreadyEstimatedGas === 'undefined' || !alreadyEstimatedGas) {
@@ -81,29 +82,66 @@ export default class EthTransferProcessor extends EthBasic {
         const gasLimitBN = BlocksoftUtils.toBigNumber(gasLimit)
         BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate prefinished', gasPrice, gasLimitBN)
 
-        BlocksoftCryptoLog.log('gasPrice ' + gasPrice.price2.toString())
-        BlocksoftCryptoLog.log('gatLimit ' + gasLimitBN.toString())
-        BlocksoftCryptoLog.log('feeForTx ' + gasPrice.price2.mul(gasLimitBN).toString())
-        return [
-            {
-                langMsg: 'eth_speed_slow',
-                gasPrice: gasPrice.price0.toString(),
-                gasLimit: gasLimit, // in wei
-                feeForTx: gasPrice.price0.mul(gasLimitBN).toString()
-            },
-            {
-                langMsg: 'eth_speed_medium',
-                gasPrice: gasPrice.price1.toString(),
-                gasLimit: gasLimit,
-                feeForTx: gasPrice.price1.mul(gasLimitBN).toString()
-            },
-            {
-                langMsg: 'eth_speed_fast',
-                gasPrice: gasPrice.price2.toString(),
-                gasLimit: gasLimit,
-                feeForTx: gasPrice.price2.mul(gasLimitBN).toString()
+        let balance = false
+        let balanceBN = false
+        try {
+            balance = await this._web3.eth.getBalance(data.addressFrom)
+            balanceBN = BlocksoftUtils.toBigNumber(balance)
+            if (typeof data.amount !== 'undefined' && data.amount && data.amount > 0 && data.addressForChange !== 'TRANSFER_ALL') {
+                balanceBN = balanceBN.sub(BlocksoftUtils.toBigNumber(data.amount))
+                BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate balance ' + balance + ' minus amount ' + data.amount + ' = ' + balanceBN.toString())
             }
-        ]
+        } catch (e) {
+            balance = false
+        }
+
+        const fees = []
+        const titles = ['eth_speed_slow', 'eth_speed_medium', 'eth_speed_fast']
+        for (let index = 0; index <=2; index++) {
+            const fee = gasPrice.price[index].mul(gasLimitBN)
+            const tmp = {
+                langMsg: titles[index],
+                gasPrice: gasPrice.price[index].toString(),
+                gasLimit: gasLimit,
+                feeForTx: fee.toString()
+            }
+            if (balance) {
+                const diff = balanceBN.sub(fee).toString()
+                if (diff < 0) {
+                    BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate feeForTx ' + titles[index] + ' ' + tmp.feeForTx + ' skipped as diff ' + diff + ' with balance ' + balance + ' with gasPrice ' + tmp.gasPrice + ' / gasLimit ' + tmp.gasLimit )
+                    continue
+                }
+            }
+
+            BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate feeForTx ' + titles[index] + ' ' + tmp.feeForTx + ' with gasPrice ' + tmp.gasPrice + ' / gasLimit ' + tmp.gasLimit )
+
+            fees.push(tmp)
+        }
+
+        if (fees.length === 0) {
+            const index = 0
+            const fee = Math.ceil(balanceBN.div(gasLimitBN).toString()*1)
+            const tmp = {
+                langMsg: 'eth_speed_slowest',
+                gasPrice: fee.toString(),
+                gasLimit: gasLimit,
+                feeForTx: balanceBN.toString(),
+                needSpeed : gasPrice.price[index].toString(),
+                showSmallFeeNotice : true,
+            }
+            BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate feeForTx ' + titles[index] + ' ' + tmp.feeForTx + ' corrected for balance ' + balance + ' with gasPrice ' + tmp.gasPrice + ' / gasLimit ' + tmp.gasLimit )
+            if (tmp.gasPrice > 0) {
+                fees.push(tmp)
+            } else {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE')
+            }
+        }
+
+        if (fees.length < 3) {
+            fees[fees.length - 1].showSmallFeeNotice = true
+        }
+
+        return fees
     }
 
 
@@ -135,7 +173,7 @@ export default class EthTransferProcessor extends EthBasic {
         if (balance.toString() === '0') {
             return 0
         }
-        let res
+        let res = 0
         if (typeof data.feeForTx !== 'undefined' && typeof data.feeForTx.feeForTx !== 'undefined' && data.feeForTx.feeForTx.toString() !== '0') {
             res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).toString()
             BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.0', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' = ' + res)
@@ -301,9 +339,22 @@ export default class EthTransferProcessor extends EthBasic {
         let result = false
         try {
             if (txHash) {
-                const nonce = data.jsonData.nonce || false
+                let nonce = data.jsonData.nonce || false
                 if (!nonce) {
-                    throw new Error('System error: no nonce for ' + txHash)
+                    try {
+                        const ethProvider = await (new BlocksoftDispatcher()).getScannerProcessor({ currencyCode: 'ETH' })
+                        const scannedTx = await ethProvider.getTransactionBlockchain('0x0530bfddd4dbceb377c9484a3e03c3b306b3855101bdea3a557cc35d4691d2f2')
+                        if (scannedTx) {
+                            nonce = scannedTx.nonce
+                        }
+                    } catch (e) {
+                        BlocksoftCryptoLog.err(this._settings.currencyCode + 'TransferProcessor.sent rbf not loaded nonce for ' + txHash + ' '  + e.message)
+                        throw new Error('System error: not loaded nonce for ' + txHash)
+                    }
+                    if (!nonce) {
+                        BlocksoftCryptoLog.err(this._settings.currencyCode + 'TransferProcessor.sent rbf no nonce for ' + txHash)
+                        throw new Error('System error: no nonce for ' + txHash)
+                    }
                 }
                 tx.nonce = nonce
                 result = await sender.innerSendTx(tx, data)
@@ -314,7 +365,9 @@ export default class EthTransferProcessor extends EthBasic {
             BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.sent ' + data.addressFrom + ' done with nonce ' + result.nonce)
         } catch (e) {
             delete (data.privateKey)
-            if (e.message.indexOf('insufficient funds') !== -1) {
+            if (e.message.indexOf('underpriced') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+            } else if (e.message.indexOf('insufficient funds') !== -1) {
                 if (data.amount > 0) {
                     throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
                 } else {

@@ -175,7 +175,7 @@ class App {
 
         await walletActions.setAvailableWallets()
 
-        await setSelectedWallet()
+        await setSelectedWallet('ACT/App appRefreshWalletsStates called from ' + source)
 
         await currencyActions.init()
 

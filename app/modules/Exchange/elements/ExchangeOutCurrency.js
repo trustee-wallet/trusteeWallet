@@ -123,7 +123,7 @@ class ExchangeOutCurrency extends Component {
         Log.log('EXC/OutCurrency.handleSelectCryptocurrency init ' + (cryptocurrency.key || 'no key'))
         try {
             const { selectedWallet } = this.props.mainStore
-            const { accountList } = this.props.accountStore
+            let { accountList } = this.props.accountStore
             const { indexedCrypto } = this.state
 
             if (typeof indexedCrypto[cryptocurrency.key] === 'undefined'
@@ -136,12 +136,18 @@ class ExchangeOutCurrency extends Component {
             if (!selectedOutCurrency) {
                 return false
             }
-            const selectedAccountFromStore = accountList[selectedWallet.walletHash][selectedOutCurrency.currencyCode]
 
-            if (typeof selectedAccountFromStore === 'undefined') {
+            let selectedAccountFromStore = false
+            if (typeof accountList !== 'undefined' && typeof accountList[selectedWallet.walletHash] !== 'undefined' && typeof accountList[selectedWallet.walletHash][selectedOutCurrency.currencyCode] !== 'undefined') {
+                selectedAccountFromStore =  accountList[selectedWallet.walletHash][selectedOutCurrency.currencyCode]
+            } else {
                 await accountDS.discoverAccounts({ walletHash: selectedWallet.walletHash, currencyCode: [selectedOutCurrency.currencyCode], source : 'FROM_EXC' }, 'FROM_EXC')
-                await UpdateAccountListDaemon.updateAccountListDaemon({force: true, source : 'EXC'})
-                return false
+                accountList = await UpdateAccountListDaemon.updateAccountListDaemon({force: true, source : 'EXC'})
+                if (typeof accountList !== 'undefined' && typeof accountList[selectedWallet.walletHash] !== 'undefined' && typeof accountList[selectedWallet.walletHash][selectedOutCurrency.currencyCode] !== 'undefined') {
+                    selectedAccountFromStore =  accountList[selectedWallet.walletHash][selectedOutCurrency.currencyCode]
+                } else {
+                    throw new Error('something wrong with regeneration of the store for ' + selectedWallet.walletHash + ' out ' + selectedOutCurrency.currencyCode)
+                }
             }
 
 
@@ -279,10 +285,10 @@ class ExchangeOutCurrency extends Component {
         }
 
         if (typeof selectedOutCurrency.currencyCode !== 'undefined') {
-            let iconCode = selectedOutCurrency.currencyCode
-            if (iconCode === 'ETH_DAIM') {
-                iconCode = 'ETH_DAI'
-            }
+            const iconCode = selectedOutCurrency.currencyCode
+            // if (iconCode === 'ETH_DAIM') {
+            //     iconCode = 'ETH_DAI'
+            // }
             return (
                 <View>
                     <TouchableOpacity style={[styles.select, styles.select_active]}

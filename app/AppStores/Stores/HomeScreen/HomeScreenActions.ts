@@ -49,7 +49,7 @@ export function saveNewWalletName(walletHash: string, newWalletName: string, old
 
             await walletDS.changeWalletName(walletHash, tmpNewWalletName)
             Toast.setMessage(strings('toast.saved')).show()
-            await setSelectedWallet()
+            await setSelectedWallet('HomeScreen saveWalletName')
             await walletActions.setAvailableWallets()
             dispatch(setInputEditable(false))
         } catch (e) {

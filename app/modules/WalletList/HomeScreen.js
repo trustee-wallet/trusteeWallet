@@ -24,6 +24,7 @@ import UpdateCurrencyRateDaemon from '../../daemons/back/UpdateCurrencyRateDaemo
 import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
 import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAccountBalanceAndTransactionsHD'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
+import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
 
 let styles
 
@@ -185,7 +186,12 @@ class HomeScreen extends Component {
         firebase.analytics().setCurrentScreen('WalletList.HomeScreen')
 
         const data = this.props.cryptoCurrenciesStore.cryptoCurrencies
-        const walletHash = this.props.mainStore.selectedWallet.walletHash
+        let walletHash = this.props.mainStore.selectedWallet.walletHash
+        if (!walletHash || typeof walletHash === 'undefined') {
+            walletHash = cryptoWalletActions.setFirstWallet()
+            Log.log('HomeScreen empty wallet hash changed to ' + walletHash)
+            cryptoWalletActions.setSelectedWallet(walletHash, 'WalletList.HomeScreen', false)
+        }
         const accountListByWallet = this.props.accountStore.accountList[walletHash] || {}
 
         return (

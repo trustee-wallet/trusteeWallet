@@ -11,9 +11,11 @@ import Log from '../../services/Log/Log'
 
 const cryptoWalletActions = {
 
-    setSelectedWallet: async (walletHash, source) => {
+    setSelectedWallet: async (walletHash, source, loader = true) => {
 
-        setLoaderStatus(true)
+        if (loader) {
+            setLoaderStatus(true)
+        }
 
         try {
 
@@ -31,11 +33,16 @@ const cryptoWalletActions = {
 
         }
 
-        setTimeout(() => {
-            setLoaderStatus(false)
-        }, 1000)
-    }
+        if (loader) {
+            setTimeout(() => {
+                setLoaderStatus(false)
+            }, 1000)
+        }
+    },
 
+    setFirstWallet() {
+        return cryptoWalletDS.getFirstWallet()
+    }
 }
 
 export default cryptoWalletActions

@@ -9,7 +9,7 @@ const BALANCE_PATH = 'https://apilist.tronscan.org/api/account?address='
 const BALANCE_MAX_TRY = 10
 
 const CACHE_TRONSCAN = {}
-const CACHE_VALID_TIME = 30000 // 30 seconds
+const CACHE_VALID_TIME = 3000 // 3 seconds
 
 export default class TrxTronscanProvider {
 

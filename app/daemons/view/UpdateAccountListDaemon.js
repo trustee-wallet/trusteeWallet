@@ -205,14 +205,22 @@ class UpdateAccountListDaemon extends Update {
                             reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceFix = ''
                             reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmedTxt = ''
                             reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmedFix = ''
-                            reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceAddingLog += ' ' + tmpCurrency.balance + ' (' + tmpCurrency.address + '/' + tmpCurrency.balanceScanTime + ')'
+                            try {
+                                reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceAddingLog += ' ' + tmpCurrency.balance + ' (' + tmpCurrency.address + '/' + tmpCurrency.balanceScanTime + ')'
+                            } catch (e) {
+                                Log.errDaemon('UpdateAccountListDaemon error on balanceAddingLog ' + e.message)
+                            }
                             alreadyCounted[tmpCurrency.walletHash][tmpCurrency.currencyCode][tmpCurrency.address] = 1
                         }
                     } else {
                         alreadyCounted[tmpCurrency.walletHash][tmpCurrency.currencyCode] = {}
                         alreadyCounted[tmpCurrency.walletHash][tmpCurrency.currencyCode][tmpCurrency.address] = 1
                         reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode] = tmpCurrency
-                        reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceAddingLog = tmpCurrency.balance + ' (' + tmpCurrency.address + '/' + tmpCurrency.balanceScanTime + ')'
+                        try {
+                            reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceAddingLog = tmpCurrency.balance + ' (' + tmpCurrency.address + '/' + tmpCurrency.balanceScanTime + ')'
+                        } catch (e) {
+                            Log.errDaemon('UpdateAccountListDaemon error on balanceAddingLog2 ' + e.message)
+                        }
                     }
                     const firstLetter = tmpCurrency.address.substr(0, 1)
                     if (firstLetter === '1') {
@@ -367,10 +375,18 @@ class UpdateAccountListDaemon extends Update {
                 })
             }
 
-            if (typeof selectedAccount.currencyCode !== 'undefined') {
-                if (DaemonCache.CACHE_ALL_ACCOUNTS[selectedAccount.walletHash][selectedAccount.currencyCode].balance != selectedAccount.balance) {
-                    await setSelectedAccount()
+            try {
+                if (selectedAccount && typeof selectedAccount !== 'undefined' && typeof selectedAccount.currencyCode !== 'undefined' && typeof selectedAccount.walletHash !== 'undefined') {
+                    if (typeof DaemonCache.CACHE_ALL_ACCOUNTS[selectedAccount.walletHash][selectedAccount.currencyCode] === 'undefined') {
+                        Log.daemon('UpdateAccountListDaemon error when no selected ' + selectedAccount.currencyCode)
+                    } else {
+                        if (DaemonCache.CACHE_ALL_ACCOUNTS[selectedAccount.walletHash][selectedAccount.currencyCode].balance !== selectedAccount.balance) {
+                            await setSelectedAccount()
+                        }
+                    }
                 }
+            } catch (e) {
+                Log.errDaemon('UpdateAccountListDaemon error on setSelected ' + e.message)
             }
 
             this._canUpdate = true
@@ -379,6 +395,7 @@ class UpdateAccountListDaemon extends Update {
             this._canUpdate = true
             Log.errDaemon('UpdateAccountListDaemon error ' + e.message)
         }
+        return DaemonCache.CACHE_ALL_ACCOUNTS
     }
 
 }

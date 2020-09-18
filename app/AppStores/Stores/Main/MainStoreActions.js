@@ -26,16 +26,20 @@ import CashBackUtils from '../CashBack/CashBackUtils'
 const { dispatch } = store
 
 // @misha rething this selected wallet chain
-export async function setSelectedWallet() {
-    Log.log('ACT/MStore setSelectedWallet called')
+export async function setSelectedWallet(source) {
+    Log.log('ACT/MStore setSelectedWallet called ' + source)
 
     const walletHash = await cryptoWalletsDS.getSelectedWallet()
+
+    if (!walletHash) {
+        return false
+    }
 
     await CashBackUtils.createWalletSignature(false)
 
     const wallet = await walletDS.getWalletByHash(walletHash)
 
-    Log.log('ACT/MStore setSelectedWallet found', wallet)
+    Log.log('ACT/MStore setSelectedWallet called ' + source + ' found ' + JSON.stringify(wallet))
     dispatch({
         type: 'SET_SELECTED_WALLET',
         wallet
@@ -129,7 +133,7 @@ export async function setSelectedAccount(setting) {
                     splitSegwit : true
                 })
             }
-            if (typeof accounts.legacy[0] === 'undefined') {
+            if (!accounts || typeof accounts === 'undefined' || typeof accounts.legacy === 'undefined' || typeof accounts.legacy[0] === 'undefined') {
                 Log.log('ACT/MStore setSelectedAccount GENERATE LEGACY 2')
                 await walletPubDS.discoverMoreAccounts({
                     walletHash: wallet.walletHash,
@@ -144,7 +148,7 @@ export async function setSelectedAccount(setting) {
                     notAlreadyShown: wallet.walletIsHd
                 })
             }
-        } else if (typeof accounts.legacy[0] === 'undefined') {
+        } else if (!accounts || typeof accounts === 'undefined' || typeof accounts.legacy === 'undefined' || typeof accounts.legacy[0] === 'undefined') {
 
             await accountDS.discoverAccounts({ walletHash: wallet.walletHash, currencyCode: [currency.currencyCode], source : 'SET_SELECTED' }, 'SET_SELECTED')
             await UpdateAccountListDaemon.updateAccountListDaemon({force: true, source : 'SET_SELECTED'})
@@ -158,6 +162,7 @@ export async function setSelectedAccount(setting) {
         }
 
 
+        Log.log('ACT/MStore setSelectedAccount rechecked')
         if (typeof accounts.segwit === 'undefined' || !accounts.segwit || accounts.segwit.length === 0) {
             Log.log('ACT/MStore setSelectedAccount GENERATE SEGWIT')
             const tmp = await accountDS.discoverAccounts({

@@ -156,7 +156,7 @@ class UpdateAccountBalanceAndTransactions {
             newBalance = await (BlocksoftBalances.setCurrencyCode(account.currencyCode).setAddress(addressToScan).setAdditional(account.accountJson)).getBalance()
             if (!newBalance || typeof newBalance.balance === 'undefined') {
                 if (account.balanceScanBlock === 0 && account.balanceScanTime === 0) {
-                    updateObj.balanceScanLog = 'empty responce, old balance ' + account.balance + ', ' + JSON.stringify(newBalance)
+                    updateObj.balanceScanLog = account.address + ' empty response, old balance ' + account.balance + ', ' + JSON.stringify(newBalance)
                     await accountBalanceDS.updateAccountBalance({ updateObj }, account)
                     return false
                 }
@@ -175,7 +175,7 @@ class UpdateAccountBalanceAndTransactions {
             if (typeof newBalance.balanceScanBlock !== 'undefined' && newBalance.balanceScanBlock * 1 < account.balanceScanBlock * 1) {
                 continueWithTx = false
                 updateObj.balanceProvider = newBalance.provider
-                updateObj.balanceScanLog = 'block error, ignored new ' + newBalance.balance + ' block ' + newBalance.balanceScanBlock + ', old balance ' + account.balance + ' block ' + account.balanceScanBlock
+                updateObj.balanceScanLog = account.address + ' block error, ignored new ' + newBalance.balance + ' block ' + newBalance.balanceScanBlock + ', old balance ' + account.balance + ' block ' + account.balanceScanBlock
             } else if (newBalance.balance * 1 !== account.balance * 1 || newBalance.unconfirmed * 1 !== account.unconfirmed * 1) {
                 updateObj.balanceFix = newBalance.balance // lets send to db totally not changed big number string
                 updateObj.balanceTxt = newBalance.balance // and string for any case
@@ -185,7 +185,7 @@ class UpdateAccountBalanceAndTransactions {
                 if (typeof newBalance.balanceScanBlock !== 'undefined') {
                     updateObj.balanceScanBlock = newBalance.balanceScanBlock
                 }
-                updateObj.balanceScanLog = 'all ok, new balance ' + newBalance.balance + ', old balance ' + account.balance + ', ' + balanceError
+                updateObj.balanceScanLog = account.address + ' all ok, new balance ' + newBalance.balance + ', old balance ' + account.balance + ', ' + balanceError
 
                 const logData = {}
                 logData.walletHash = account.walletHash
@@ -199,14 +199,14 @@ class UpdateAccountBalanceAndTransactions {
                 logData.newBalance = account.newBalance + ''
                 MarketingEvent.setBalance(logData.walletHash, logData.currency, logData.newBalance, logData)
             } else {
-                updateObj.balanceScanLog = 'not changed, old balance ' + account.balance + ', ' + balanceError
+                updateObj.balanceScanLog = account.address + ' not changed, old balance ' + account.balance + ', ' + balanceError
                 if (typeof newBalance.provider !== 'undefined') {
                     updateObj.balanceProvider = newBalance.provider
                 }
             }
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance ok Prepared ' + account.currencyCode + ' ' + account.address + ' new balance ' + newBalance.balance + ' provider ' + newBalance.provider + ' old balance ' + account.balance, JSON.stringify(updateObj))
         } else {
-            updateObj.balanceScanLog = 'no balance, old balance ' + account.balance + ', ' + balanceError
+            updateObj.balanceScanLog = account.address + ' no balance, old balance ' + account.balance + ', ' + balanceError
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance not Prepared ' + account.currencyCode + ' ' + account.address + ' old balance ' + account.balance, JSON.stringify(updateObj))
         }
 

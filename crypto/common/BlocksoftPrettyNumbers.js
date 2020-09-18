@@ -13,7 +13,7 @@ class BlocksoftPrettyNumbers {
         } else {
             throw new Error('BlocksoftDict.getCurrencyAllSettings no settings.prettyNumberProcessor for ' + currencyCode)
         }
-        if (settings.decimals) {
+        if (typeof settings.decimals !== 'undefined' && settings.decimals !== false) {
             this._decimals = settings.decimals
         } else {
             throw new Error('BlocksoftDict.getCurrencyAllSettings no settings.decimals for ' + currencyCode)

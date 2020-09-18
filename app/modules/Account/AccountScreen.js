@@ -416,6 +416,18 @@ class Account extends Component {
         }
 
         transactionsTmp = transactionsTmp.sort((a, b) => {
+            if (a.createdAt === b.createdAt) {
+                if (a.transactionDirection === b.transactionDirection) {
+                    return b.id - a.id
+                }
+                const sortingB = b.transactionDirection === 'outcome' ? 2 : b.transactionDirection === 'self' ? 1 : 0
+                const sortingA = a.transactionDirection === 'outcome' ? 2 : a.transactionDirection === 'self' ? 1 : 0
+                if (sortingA === sortingB) {
+                    return b.id - a.id
+                } else {
+                    return sortingB - sortingA
+                }
+            }
             return new Date(b.createdAt) - new Date(a.createdAt)
         })
 

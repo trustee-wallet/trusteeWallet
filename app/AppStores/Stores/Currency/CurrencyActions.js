@@ -21,7 +21,6 @@ import settingsActions from '../Settings/SettingsActions'
 import ApiRates from '../../../services/Api/ApiRates'
 import UpdateCurrencyRateDaemon from '../../../daemons/back/UpdateCurrencyRateDaemon'
 import UpdateAccountBalanceAndTransactions from '../../../daemons/back/UpdateAccountBalanceAndTransactions'
-
 const { dispatch } = store
 
 const BASIC_CURRENCIES_DICTS = {}
@@ -67,10 +66,6 @@ const currencyActions = {
     },
 
     setCryptoCurrencies: async function() {
-        const { walletHash } = store.getState().mainStore.selectedWallet
-
-        Log.log('ACT/Currency setCryptoCurrencies called ' + walletHash)
-
         const prepare = []
 
         const currencies = await currencyDS.getCurrencies()

@@ -262,51 +262,71 @@ export default class DogeTransferProcessor {
         let fee
         const data = JSON.parse(JSON.stringify(dataMain))
 
+        const checkedFees = []
         if (typeof data.addressForChange !== 'undefined' && data.addressForChange === 'TRANSFER_ALL') {
 
             const lastFee = fees[fees.length - 1].feeForTx
             for (fee of fees) {
-                data.feeForTx = fee
-                if (typeof lastFee !== 'undefined' && typeof fee.feeForTx !== 'undefined') {
-                    const tmp = BlocksoftUtils.add(data.amount - fee.feeForTx, lastFee).toString()
-                    BlocksoftCryptoLog.log(this._settings.currencyCode + ` DogeTransferProcessor._recheckFees data.amount by lastFee ${data.amount} - ${fee.feeForTx} + ${lastFee} = ${tmp}`)
-                    data.amount = tmp
+                try {
+                    data.feeForTx = fee
+                    if (typeof lastFee !== 'undefined' && typeof fee.feeForTx !== 'undefined') {
+                        const tmp = BlocksoftUtils.add(data.amount - fee.feeForTx, lastFee).toString()
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ` DogeTransferProcessor._recheckFees data.amount by lastFee ${data.amount} - ${fee.feeForTx} + ${lastFee} = ${tmp}`)
+                        data.amount = tmp
+                    }
+                    const preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getFeeRecheckTrAll')
+                    const logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.getFeeRecheckTrAll')
+                    fee.preparedInputsOutputs = preparedInputsOutputs
+                    // console.log('')
+                    // console.log('tr fee corrected ', fee.feeForTx + ' / ' + fee.feeForByte + ' => ' + logInputsOutputs.diffInOut, logInputsOutputs)
+                    // console.log('')
+                    fee.feeForTx = logInputsOutputs.diffInOut
+                    fee.txSize = await this._getSize(data, preparedInputsOutputs)
+                    fee.feeForByte = Math.round(logInputsOutputs.diffInOut / fee.txSize)
+                    fee.multiply = preparedInputsOutputs.multiply || 0
+                    checkedFees.push(fee)
+                } catch (e) {
+                    // do nothing
                 }
-                const preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getFeeRecheckTrAll')
-                const logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.getFeeRecheckTrAll')
-                fee.preparedInputsOutputs = preparedInputsOutputs
-                // console.log('')
-                // console.log('tr fee corrected ', fee.feeForTx + ' / ' + fee.feeForByte + ' => ' + logInputsOutputs.diffInOut, logInputsOutputs)
-                // console.log('')
-                fee.feeForTx = logInputsOutputs.diffInOut
-                fee.txSize = await this._getSize(data, preparedInputsOutputs)
-                fee.feeForByte = Math.round(logInputsOutputs.diffInOut / fee.txSize)
-                fee.multiply = preparedInputsOutputs.multiply || 0
             }
 
         } else {
             for (fee of fees) {
-                data.feeForTx = fee
-                const preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getFeeRecheck')
-                const logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.getFeeRecheck')
-                fee.preparedInputsOutputs = preparedInputsOutputs
-                // console.log('')
-                // console.log('fee corrected ', fee.feeForTx + ' / ' + fee.feeForByte + ' => ' + logInputsOutputs.diffInOut, logInputsOutputs)
-                // console.log('')
-                fee.feeForTx = logInputsOutputs.diffInOut
-                fee.txSize = await this._getSize(data, preparedInputsOutputs)
-                fee.feeForByte = Math.round(logInputsOutputs.diffInOut / fee.txSize)
-                fee.multiply = preparedInputsOutputs.multiply || 0
+                try {
+                    data.feeForTx = fee
+                    const preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getFeeRecheck')
+                    const logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.getFeeRecheck')
+                    fee.preparedInputsOutputs = preparedInputsOutputs
+                    // console.log('')
+                    // console.log('fee corrected ', fee.feeForTx + ' / ' + fee.feeForByte + ' => ' + logInputsOutputs.diffInOut, logInputsOutputs)
+                    // console.log('')
+                    fee.feeForTx = logInputsOutputs.diffInOut
+                    fee.txSize = await this._getSize(data, preparedInputsOutputs)
+                    fee.feeForByte = Math.round(logInputsOutputs.diffInOut / fee.txSize)
+                    fee.multiply = preparedInputsOutputs.multiply || 0
+                    checkedFees.push(fee)
+                } catch (e) {
+                    // do nothing
+                }
             }
         }
 
         const tested = []
         const already = {}
-        for (let i = fees.length - 1; i>= 0; i--) {
+        let showSmallFeeNotice = true
+        for (let i = checkedFees.length - 1; i>= 0; i--) {
             fee = fees[i]
             if (typeof already[fee.feeForTx] === 'undefined') {
+                if (fee.langMsg ===  this._langPrefix + '_speed_blocks_2') {
+                    showSmallFeeNotice = false
+                }
                 tested.push(fee)
                 already[fee.feeForTx] = 1
+            }
+        }
+        if (showSmallFeeNotice) {
+            for (let i = tested.length - 1; i>=0; i--) {
+                tested[i].showSmallFeeNotice = true
             }
         }
         return tested.reverse()

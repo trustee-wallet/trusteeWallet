@@ -218,9 +218,21 @@ class QRCodeScannerScreen extends Component {
     }
 
     async onOpenGallery() {
-        const res = await openQrGallery()
-        if (res) {
-            this.onSuccess(res)
+        try {
+            const res = await openQrGallery()
+            if (res) {
+                this.onSuccess(res)
+            }
+        } catch (e) {
+            Log.err('QRCodeScanner.onOpenGallery error ' + e.message)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('tradeScreen.modalError.serviceUnavailable')
+            }, () => {
+                NavStore.goBack()
+            })
         }
     }
 

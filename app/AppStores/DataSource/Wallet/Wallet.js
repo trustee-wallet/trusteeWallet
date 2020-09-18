@@ -106,10 +106,12 @@ class Wallet {
                 wallet_allow_replace_by_fee AS walletAllowReplaceByFee,
                 wallet_is_hide_transaction_for_fee AS walletIsHideTransactionForFee
                 FROM wallet`).query()
-        if (!res || !res.array) return res
+        if (!res || !res.array) {
+            Log.log('DS/Wallet getWallets no result')
+            return []
+        }
         for (let i = 0, ic = res.array.length; i < ic; i++) {
             res.array[i] = this._prepWallet(res.array[i])
-
         }
         return res.array
     }

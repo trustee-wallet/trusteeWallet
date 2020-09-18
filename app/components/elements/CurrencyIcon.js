@@ -302,11 +302,24 @@ export default class ButtonLine extends Component {
                         </View>
                     </View>
                 )
-            case 'ETH_DAI': case 'ETH_DAIM':
+            case 'ETH_DAI':
                 return (
                     <View style={{ ...styles.icon, borderColor: '#FF6F45', ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_DAI" style={{ color: '#FF6F45', fontSize: fontSize }}/>
+                            <View
+                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
+                            </View>
+                        </View>
+                    </View>
+                )
+
+            case 'ETH_DAIM':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#FF6F45', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_DAIM" style={{ color: '#FF6F45', fontSize: fontSize }}/>
                             <View
                                 style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>

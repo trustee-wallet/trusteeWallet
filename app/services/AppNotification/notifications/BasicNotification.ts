@@ -28,8 +28,11 @@ export default class BasicNotification {
         } else if (openedNotification !== null && openedNotification.notification._data.notificationType) {
             // @ts-ignore
             return openedNotification.notification._data
+        } else if (typeof openedNotification.action !== 'undefined') {
+            if (openedNotification.action === 'android.intent.action.MAIN' || openedNotification.action === 'com.apple.UNNotificationDefaultActionIdentifier') {
+                throw new Error('Empty firebase.notification')
+            }
         } else {
-            console.log('type',  openedNotification.notification._data.notificationType, this.notificationType)
             Log.err('This type of firebase.notification isn`t supported ', openedNotification)
             throw new Error('This type of firebase.notification isn`t supported')
         }

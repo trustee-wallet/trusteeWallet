@@ -131,7 +131,7 @@ class Cryptocurrencies extends Component {
         try {
             const { selectedWallet } = this.props.mainStore
             const { tradeType } = this.props.exchangeStore
-            const { accountList } = this.props.accountStore
+            let { accountList } = this.props.accountStore
             const { indexedCrypto } = this.state
 
             if (typeof indexedCrypto[cryptocurrency.key] === 'undefined'
@@ -144,13 +144,20 @@ class Cryptocurrencies extends Component {
             if (!selectedCryptocurrency) {
                 return false
             }
-            const selectedAccountFromStore = accountList[selectedWallet.walletHash][selectedCryptocurrency.currencyCode]
 
-            if (typeof selectedAccountFromStore === 'undefined') {
+            let selectedAccountFromStore = false
+            if (typeof accountList !== 'undefined' && typeof accountList[selectedWallet.walletHash] !== 'undefined' && typeof accountList[selectedWallet.walletHash][selectedCryptocurrency.currencyCode] !== 'undefined') {
+                selectedAccountFromStore =  accountList[selectedWallet.walletHash][selectedCryptocurrency.currencyCode]
+            } else {
                 await accountDS.discoverAccounts({ walletHash: selectedWallet.walletHash, currencyCode: [selectedCryptocurrency.currencyCode], source : 'FROM_TRADE' }, 'FROM_TRADE')
-                await UpdateAccountListDaemon.updateAccountListDaemon({force: true, source : 'TRADE'})
-                return false
+                accountList = await UpdateAccountListDaemon.updateAccountListDaemon({force: true, source : 'TRADE'})
+                if (typeof accountList !== 'undefined' && typeof accountList[selectedWallet.walletHash] !== 'undefined' && typeof accountList[selectedWallet.walletHash][selectedCryptocurrency.currencyCode] !== 'undefined') {
+                    selectedAccountFromStore =  accountList[selectedWallet.walletHash][selectedCryptocurrency.currencyCode]
+                } else {
+                    throw new Error('something wrong with regeneration of the store for ' + selectedWallet.walletHash + ' trade ' + selectedCryptocurrency.currencyCode)
+                }
             }
+
 
 
             const mass = {selectedCryptocurrency}
@@ -295,10 +302,10 @@ class Cryptocurrencies extends Component {
         const { selectedCryptocurrency, selectedAccount, exchangeStore } = this.props
 
         if (typeof selectedCryptocurrency.currencyCode !== 'undefined' && typeof selectedAccount !== 'undefined' && typeof selectedAccount.balance !== 'undefined') {
-            let iconCode = selectedCryptocurrency.currencyCode
-            if (iconCode === 'ETH_DAIM') {
-                iconCode = 'ETH_DAI'
-            }
+            const iconCode = selectedCryptocurrency.currencyCode
+            // if (iconCode === 'ETH_DAIM') {
+            //     iconCode = 'ETH_DAI'
+            // }
             return (
                 <View>
                     <TouchableOpacity style={[styles.select, styles.select_active]}

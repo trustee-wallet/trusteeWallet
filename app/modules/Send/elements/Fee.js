@@ -25,6 +25,7 @@ import Log from '../../../services/Log/Log'
 import Theme from '../../../themes/Themes'
 import AsyncStorage from '@react-native-community/async-storage'
 import RateEquivalent from '../../../services/UI/RateEquivalent/RateEquivalent'
+import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
 
 let styles
 
@@ -230,6 +231,7 @@ class Fee extends Component {
                     .setCurrencyCode(currencyCode)
                     .setAddressFrom(address)
                     .setFee(fee)
+                    .setTransferAll(true)
             ).getTransferAllBalance()
 
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(amountRaw)
@@ -336,10 +338,14 @@ class Fee extends Component {
 
         const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates } = this.props.account
 
+        let showSmallFeeNotice = false
+        if (feeList && feeList.length > 0) {
+            showSmallFeeNotice = typeof feeList[feeList.length - 1].showSmallFeeNotice !== 'undefined'
+        }
         return feeList.length ? (
             <View style={styles.wrapper}>
                 <View style={styles.fee__top}>
-                     <View
+                    <View
                         style={{ flex: 1, height: 40, paddingLeft: 15, justifyContent: 'center' }}>
                         {/* onPress={() => this.toggleShowFee()}> */}
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -350,26 +356,26 @@ class Fee extends Component {
                                            color="#f4f4f4"/>
                             </View>
                         </View>
-                     </View>
+                    </View>
                     {
                         this.state.ifShowFee ?
                             <TouchableOpacity
-                                style={{height: 40, paddingRight: 15, justifyContent: 'center'}}
+                                style={{ height: 40, paddingRight: 15, justifyContent: 'center' }}
                                 onPress={() => this.toggleCustomFee()}>
                                 <View>
                                     {
                                         !this.state.ifCustomFee ?
-                                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <Text style={styles.fee__title}>
                                                     {strings('send.fee.customFee.customFeeTitle')}
                                                 </Text>
-                                                <View style={{marginLeft: 3, marginTop: 1}}>
+                                                <View style={{ marginLeft: 3, marginTop: 1 }}>
                                                     <AntDesing name="right" size={14} color="#f4f4f4"/>
                                                 </View>
                                             </View>
                                             :
-                                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                                <View style={{marginRight: 3, marginTop: 1}}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                <View style={{ marginRight: 3, marginTop: 1 }}>
                                                     <AntDesing name="left" size={14} color="#f4f4f4"/>
                                                 </View>
                                                 <Text style={styles.fee__title}>
@@ -406,12 +412,23 @@ class Fee extends Component {
                                         currencyCode: feesCurrencyCode,
                                         basicCurrencyRate: feeRates.basicCurrencyRate
                                     }), 2).justCutted
+                                    prettyFee = BlocksoftPrettyNumbers.makeCut(prettyFee, 5).justCutted
                                 }
-                                const devFee = item.feeForByte || false
+                                let devFee = false
                                 let needSpeed = item.needSpeed || false
-                                if (needSpeed) {
-                                    needSpeed = ' rec. ' + needSpeed + ' sat/B'
-                                } else {
+                                if (typeof item.feeForByte !== 'undefined') {
+                                    devFee = item.feeForByte + ' sat/B '
+                                    if (needSpeed) {
+                                        needSpeed = ' rec. ' + needSpeed + ' sat/B'
+                                    }
+                                } else if (typeof item.gasPrice !== 'undefined') {
+                                    devFee = BlocksoftPrettyNumbers.makeCut(BlocksoftUtils.toGwei(item.gasPrice),2).justCutted + ' gwei/gas '
+                                    if (needSpeed) {
+                                        needSpeed = ' rec. ' + BlocksoftPrettyNumbers.makeCut(BlocksoftUtils.toGwei(needSpeed), 2).justCutted + ' gwei/gas'
+                                    }
+                                }
+
+                                if (!needSpeed) {
                                     needSpeed = ''
                                 }
 
@@ -452,18 +469,52 @@ class Fee extends Component {
                                                 }}>
                                                     {prettyFee} {prettyFeeSymbol} ({feeBasicCurrencySymbol} {feeBasicAmount})
                                                     {devFee ?
-                                                        (' ' + devFee + ' sat/B ' + (devMode ? needSpeed : ''))
+                                                        (' ' + devFee + (devMode ? needSpeed : ''))
                                                         : ''}
                                                 </Text>
                                             </View>
                                         </TouchableOpacity>
-                                        {feeList.length - 1 !== index ? <View style={styles.fee__divider}/> : null}
+                                        {feeList.length - 1 !== index || showSmallFeeNotice ?
+                                            <View style={styles.fee__divider}/> : null}
                                     </View>
                                 )
                             }) : null
                         }
                         {
-                            status == 'fail' ? <Text> Error </Text> : null
+                            status === 'fail' ? <Text> Error </Text> : null
+                        }
+                        {
+                            showSmallFeeNotice ? <View style={styles.fee__wrap}>
+                                <TouchableOpacity
+                                    disabled={true}
+                                    style={styles.fee__item}
+                                >
+                                    <GradientView
+                                        style={styles.fee__circle}
+                                        array={styles_.array}
+                                        start={styles_.start}
+                                        end={styles_.end}>
+                                    </GradientView>
+                                    <View style={styles.fee__item__content}>
+                                        <View style={styles.fee__item__top}>
+                                            <Text style={{
+                                                ...styles.fee__item__title,
+                                                color: '#f4f4f4'
+                                            }}>
+                                                {strings(`send.fee.smallFeeNoticeTitle`)}
+                                            </Text>
+                                        </View>
+
+                                        <Text style={{
+                                            ...styles.fee__item__top__text,
+                                            color: '#f4f4f4'
+                                        }}>
+                                            {strings(`send.fee.smallFeeNoticeDesc`)}
+                                        </Text>
+
+                                    </View>
+                                </TouchableOpacity>
+                            </View> : null
                         }
                     </Animated.View>
                     <Animated.View

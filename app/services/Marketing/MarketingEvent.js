@@ -89,9 +89,11 @@ class MarketingEvent {
         this.DATA.time = date[1].replace(/\..+/, '')
 
         if (SAVE_FIREBASE) {
-            let token = this.DATA.LOG_TOKEN
-            if (typeof (this.DATA.LOG_TOKEN) === 'undefined') {
+            let token = ''
+            if (typeof this.DATA.LOG_TOKEN === 'undefined' && this.DATA.LOG_TOKEN) {
                 token = 'NOTOKEN'
+            } else {
+                token = this.DATA.LOG_TOKEN
             }
             firebase.database().ref('Inits/' + date[0] + '/' + token).push(this.DATA)
             if (token) {
@@ -177,11 +179,11 @@ class MarketingEvent {
         const tmp = logTitle + ' ' + JSON.stringify(logData)
         if (tmp === this._cacheLastLog) return true
         try {
-            if (this.DATA.LOG_TOKEN) {
+            if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
                 logData.LOG_TOKEN = this.DATA.LOG_TOKEN
             } else {
                 this.DATA.LOG_TOKEN = await AsyncStorage.getItem('pushToken')
-                if (this.DATA.LOG_TOKEN) {
+                if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
                     logData.LOG_TOKEN = this.DATA.LOG_TOKEN
                     this._reinitTgMessage()
                 }
@@ -243,11 +245,11 @@ class MarketingEvent {
         const tmp = logTitle + ' ' + JSON.stringify(logData)
         if (tmp === this._cacheLastLog) return true
         try {
-            if (this.DATA.LOG_TOKEN) {
+            if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
                 logData.LOG_TOKEN = this.DATA.LOG_TOKEN
             } else {
                 this.DATA.LOG_TOKEN = await AsyncStorage.getItem('pushToken')
-                if (this.DATA.LOG_TOKEN) {
+                if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
                     logData.LOG_TOKEN = this.DATA.LOG_TOKEN
                     this._reinitTgMessage()
                 }
@@ -325,9 +327,11 @@ class MarketingEvent {
 
         const now = new Date()
         const date = now.toISOString().replace(/T/, ' ').replace(/\..+/, '')
-        let token = this.DATA.LOG_TOKEN
-        if (typeof (this.DATA.LOG_TOKEN) === 'undefined') {
+        let token = ''
+        if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
             token = 'NOTOKEN'
+        } else {
+            token = this.DATA.LOG_TOKEN
         }
         const saveKeyData = { totalBalance, date, token, subtoken: token ? token.substr(0, 20) : '' }
 

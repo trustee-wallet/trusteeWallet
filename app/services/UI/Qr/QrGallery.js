@@ -1,12 +1,25 @@
 /**
  * @version 0.11
  */
+import { NativeModules } from 'react-native'
+
 import ImagePicker from 'react-native-image-picker'
-import { QRreader } from 'react-native-qr-scanner'
 import Log from '../../Log/Log'
+
+let { RNBlocksoftRandom, QRScanReader } = NativeModules
 
 export function openQrGallery() {
     Log.log('QrGallery inited')
+
+    if (typeof QRScanReader === 'undefined' || QRScanReader === null) {
+        QRScanReader = NativeModules.QRScanReader
+    }
+    if (typeof QRScanReader === 'undefined' || QRScanReader === null) {
+        QRScanReader = NativeModules.QRCode
+    }
+    if (typeof QRScanReader === 'undefined' || QRScanReader === null) {
+        throw new Error('QrGallery no linked')
+    }
 
     return new Promise((resolve, reject) => {
         ImagePicker.launchImageLibrary({}, (response) => {
@@ -30,13 +43,18 @@ export function openQrGallery() {
                 }
                 Log.log('QrGallery path', path)
 
-                QRreader(path).then((data) => {
-                    Log.log('QrGallery reader data ' + data)
-                    resolve({data})
-                }).catch((e) => {
-                    Log.log('QrGallery reader error ' + e.message)
-                    resolve(false)
-                })
+                try {
+
+                    QRScanReader.readerQR(path).then((data) => {
+                        Log.log('QrGallery reader data ' + data)
+                        resolve({ data })
+                    }).catch((e) => {
+                        Log.log('QrGallery reader error ' + e.message)
+                        resolve(false)
+                    })
+                } catch (e) {
+                    reject(e)
+                }
             } else {
                 Log.log('QrGallery no response')
                 resolve(false)

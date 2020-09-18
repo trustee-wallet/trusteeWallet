@@ -71,8 +71,12 @@ const cryptoWallets = {
         return storedWalletMnemonic
     },
 
+    getFirstWallet() {
+        return BlocksoftKeysStorage.getFirstWallet()
+    },
+
     async setSelectedWallet(walletHash, source) {
-        let storedSelectedWallet = []
+        let storedSelectedWallet = null
         try {
             // Log.log('DS/cryptoWallets setSelectedWallet called ' + walletHash + ' from ' + source)
 

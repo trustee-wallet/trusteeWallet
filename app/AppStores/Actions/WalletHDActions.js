@@ -20,7 +20,7 @@ const walletHDActions = {
         Log.log('ACT/WalletHD manual turnOn called ' + walletHash)
 
         await walletDS.updateWallet({ walletHash, walletIsHd: 1 })
-        await setSelectedWallet()
+        await setSelectedWallet('ACT/WalletHD manual turnOn' )
         await walletActions.setAvailableWallets()
 
         try {

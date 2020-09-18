@@ -60,6 +60,8 @@ export class PaymentSystemInfo extends Component {
 
         const { selectedFiatCurrency, paymentSystem } = this.props.data.data
 
+        if (typeof paymentSystem === 'undefined' || !paymentSystem) return false
+
         this.setState({
             min: Math.floor(paymentSystem.limits.min) + ' ' + paymentSystem.currencyCode,
             max: Math.floor(paymentSystem.limits.max) + ' ' + paymentSystem.currencyCode

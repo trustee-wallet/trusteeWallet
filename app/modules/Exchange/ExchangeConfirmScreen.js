@@ -64,29 +64,27 @@ class ExchangeConfirmScreen extends Component {
     handleSubmitTrade = async () => {
 
         let dataToSend
-        let errorMsgExt = ''
+
+        const {
+            selectedInCurrency,
+            selectedInAccount,
+            selectedOutCurrency,
+            selectedOutAccount,
+            prevInAccount,
+            prevOutAccount,
+            tradeWay,
+            amount,
+            uniqueParams
+        } = this.state
+
         try {
             AsyncStorage.setItem('TRADE_EXCHANGE_DATA', JSON.stringify({lastSellCache: this.state}))
-
-            const {
-                selectedInCurrency,
-                selectedInAccount,
-                selectedOutCurrency,
-                selectedOutAccount,
-                prevInAccount,
-                prevOutAccount,
-                tradeWay,
-                amount,
-                uniqueParams
-            } = this.state
 
             const {
                 currencyStore
             } = this.props
 
             const {amountEquivalentInCryptoToApi, amountEquivalentOutCryptoToApi, useAllFunds} = amount
-
-            console.log('selectedOutAccount1', JSON.parse(JSON.stringify(selectedOutAccount)))
 
             dataToSend = {
                 inAmount: amountEquivalentInCryptoToApi,
@@ -100,24 +98,14 @@ class ExchangeConfirmScreen extends Component {
             }
 
             if (dataToSend.outCurrencyCode === dataToSend.currencyCode) {
-                Log.err('EXC/ConfirmScreen bad data to send (same codes)', {dataToSend, prevInAccount, prevOutAccount})
+                Log.err('EXC/ConfirmScreen bad data to send (same codes) ' + dataToSend.outCurrencyCode + ' ' + dataToSend.currencyCode + ' ' + JSON.stringify({dataToSend, prevInAccount, prevOutAccount}))
             }
 
             let res = false
 
             setLoaderStatus(true)
 
-            try {
-                res = await Api.createOrder(dataToSend)
-            } catch (e) {
-                if (typeof prevInAccount !== 'undefined' && typeof prevInAccount.currencyCode !== 'undefined') {
-                    errorMsgExt += ' prevInAccount ' + prevInAccount.currencyCode
-                }
-                if (typeof prevOutAccount !== 'undefined' && typeof prevOutAccount.currencyCode !== 'undefined') {
-                    errorMsgExt += ' prevInAccount ' + prevOutAccount.currencyCode
-                }
-                throw e
-            }
+            res = await Api.createOrder(dataToSend)
 
             const dataToScreen = {
                 disabled: true,
@@ -167,7 +155,17 @@ class ExchangeConfirmScreen extends Component {
         } catch (e) {
             setLoaderStatus(false)
 
-            const msg = Api.checkError(e, 'confirmScreen.confirmScreenSell', dataToSend, errorMsgExt)
+            const msg = Api.checkError(e, 'confirmScreen.confirmScreenSell', dataToSend, {
+                selectedInCurrency,
+                selectedInAccount,
+                selectedOutCurrency,
+                selectedOutAccount,
+                prevInAccount,
+                prevOutAccount,
+                tradeWay,
+                amount,
+                uniqueParams
+            })
 
             setTimeout(() => {
                 showModal({

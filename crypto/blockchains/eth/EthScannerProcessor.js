@@ -184,6 +184,62 @@ export default class EthScannerProcessor extends EthBasic {
 
 
     /**
+     * @param {string} txHash
+     * @return {Promise<[UnifiedTransaction]>}
+     */
+    async getTransactionBlockchain(txHash) {
+        BlocksoftCryptoLog.log('EthScannerProcessor.getTransaction started ' + txHash)
+
+        if (!this._trezorServer) {
+            return false
+        }
+
+        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Scanner.getTransaction')
+        if (typeof this._trezorServer === 'undefined') {
+            BlocksoftCryptoLog.err('EthScannerProcessor.getTransaction empty trezorServer')
+            throw new Error('EthScannerProcessor.getTransaction empty trezorServer')
+        }
+
+        let link = this._trezorServer + '/api/v2/tx-specific/' + txHash
+        let res = await BlocksoftAxios.getWithoutBraking(link)
+
+        if (!res || !res.data) {
+            BlocksoftExternalSettings.setTrezorServerInvalid('ETH_TREZOR_SERVER', this._trezorServer)
+            this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Scanner._get')
+            if (typeof this._trezorServer === 'undefined') {
+                BlocksoftCryptoLog.err('EthScannerProcessor._get empty trezorServer2')
+                throw new Error('EthScannerProcessor._get empty trezorServer2')
+            }
+            link = this._trezorServer + '/api/v2/tx-specific/' + txHash
+            res = await BlocksoftAxios.getWithoutBraking(link)
+            if (!res || !res.data) {
+                BlocksoftExternalSettings.setTrezorServerInvalid('ETH_TREZOR_SERVER', this._trezorServer)
+                return false
+            }
+        }
+
+        if (typeof res.data.tx === 'undefined') {
+            return false
+        }
+
+        let tx
+        if (typeof res.data.receipt === 'undefined') {
+            tx = { ...{status : 0x0}, ...res.data.tx }
+        } else {
+            tx = { ...res.data.receipt, ...res.data.tx }
+        }
+
+        tx.nonce = BlocksoftUtils.hexToDecimal(tx.nonce)
+        tx.status = BlocksoftUtils.hexToDecimal(tx.status)
+        tx.gas = BlocksoftUtils.hexToDecimal(tx.gas)
+        tx.gasPrice = BlocksoftUtils.hexToDecimal(tx.gasPrice)
+        tx.gasUsed = BlocksoftUtils.hexToDecimal(tx.gasUsed)
+        console.log('res', tx)
+        return tx
+    }
+
+
+    /**
      * @param {string} address
      * @param {*} result[]
      * @param {boolean} isInternal

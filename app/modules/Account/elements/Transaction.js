@@ -264,8 +264,12 @@ class Transaction extends Component {
 
         if (!transaction || typeof transaction.transactionFee === 'undefined' || !transaction.transactionFee) return null
 
+        let title = strings(`account.transaction.fee`)
+        if (transaction.transactionDirection === 'income') {
+            title = strings(`account.transaction.feeIncome`)
+        }
         return {
-            title: strings(`account.transaction.fee`),
+            title,
             description: `${transaction.transactionFeePretty} ${transaction.feesCurrencySymbol} (${transaction.basicFeeCurrencySymbol} ${transaction.basicFeePretty})`
         }
 

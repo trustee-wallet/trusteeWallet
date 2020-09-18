@@ -55,8 +55,15 @@ class CustomReceiveAmountModal extends Component {
 
         const dataForQr = this.getDataForQR(this.state.value)
 
+        let tmp = false
+        if (dataForQr && typeof dataForQr !== 'undefined' && dataForQr !== null) {
+            tmp = JSON.stringify(dataForQr)
+            if (tmp) {
+                tmp = tmp.replace(/"/g, '')
+            }
+        }
         this.setState({
-            dataForQr: JSON.stringify(dataForQr).replace(/"/g, '')
+            dataForQr: tmp
         })
     }
 
@@ -128,7 +135,15 @@ class CustomReceiveAmountModal extends Component {
 
         const dataForQr = this.getDataForQR(tmpValue, label)
 
-        return JSON.stringify(dataForQr).replace(/"/g, '')
+
+        let tmp = false
+        if (dataForQr && typeof dataForQr !== 'undefined' && dataForQr !== null) {
+            tmp = JSON.stringify(dataForQr)
+            if (tmp) {
+                tmp = tmp.replace(/"/g, '')
+            }
+        }
+        return tmp
     }
 
     copyToClip = () => {
@@ -314,7 +329,7 @@ class CustomReceiveAmountModal extends Component {
                                         disabled={false}
                                         tintColor={new UIDict(currencyCode).settings.colors.mainColor}
                                         tapWrapperStyles={{ top: 15 }}
-                                        tapIconStyle={{ color: new UIDict(currencyCode).settings.colors.mainColor }}
+                                        // tapIconStyle={{ color: new UIDict(currencyCode).settings.colors.mainColor }}
                                         tapTextStyles={{ color: new UIDict(currencyCode).settings.colors.mainColor }}
                                         callback={(value) => this.amountInputCallback(value, true)}
                                         markStyle={{ flex: 1 }}

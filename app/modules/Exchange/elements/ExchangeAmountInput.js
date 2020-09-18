@@ -124,6 +124,7 @@ class ExchangeAmountInput extends Component {
                     .setAddressFrom(address)
                     .setAddressTo(tmpAddressForEstimate)
                     .setFee(fees[fees.length - 1])
+                    .setTransferAll(true)
             ).getTransferAllBalance()
 
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(current)

@@ -55,6 +55,7 @@ target 'TrusteeWallet' do
   pod 'Firebase/Analytics'
 
 
+  pod 'QRScanReader', :path => '../node_modules/react-native-qr-scanner'
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
   target 'TrusteeWalletTests' do

@@ -51,7 +51,7 @@ const walletActions = {
 
         await walletActions.setAvailableWallets()
 
-        await setSelectedWallet()
+        await setSelectedWallet('ACT/Wallet setUse')
     },
 
     setWalletBackedUpStatus: async (walletHash) => {

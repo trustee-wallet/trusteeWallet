@@ -601,6 +601,19 @@ export default class BtcTransferProcessor {
                 }
             }
         }
+        if (tested.length > 0) {
+            let showSmallFeeNotice = true
+            if (tested[tested.length - 1].langMsg === this._langPrefix + '_speed_blocks_2') {
+                showSmallFeeNotice = false
+            } else if (tested.length > 1) {
+                if (tested[tested.length - 2].langMsg === this._langPrefix + '_speed_blocks_2') {
+                    showSmallFeeNotice = false
+                }
+            }
+            if (showSmallFeeNotice) {
+                tested[tested.length - 1].showSmallFeeNotice = true
+            }
+        }
         // console.log('result5', JSON.parse(JSON.stringify(tested)))
 
         return tested

@@ -120,14 +120,18 @@ class PaymentSystem extends Component {
                     hasDouble: paymentSystem.hasDouble || false,
                     id: paymentSystem.id
                 }
-                if (typeof paymentSystem.supportedByCurrency === 'undefined' && paymentSystem.supportedCountries) {
-                    item.available = paymentSystem.supportedCountries.indexOf(selectedFiatCurrency.iso.toString()) !== -1
-                } else {
-                    if (paymentSystem.inCurrencyCode === selectedFiatCurrency.cc || paymentSystem.outCurrencyCode === selectedFiatCurrency.cc) {
-                        item.available = true
+                if (selectedFiatCurrency && typeof selectedFiatCurrency !== 'undefined' && typeof selectedFiatCurrency.iso !== 'undefined') {
+                    if (typeof paymentSystem.supportedByCurrency === 'undefined' && paymentSystem.supportedCountries) {
+                        item.available = paymentSystem.supportedCountries.indexOf(selectedFiatCurrency.iso.toString()) !== -1
                     } else {
-                        item.available = false
+                        if (paymentSystem.inCurrencyCode === selectedFiatCurrency.cc || paymentSystem.outCurrencyCode === selectedFiatCurrency.cc) {
+                            item.available = true
+                        } else {
+                            item.available = false
+                        }
                     }
+                } else {
+                    item.available = true
                 }
                 if (item.available) {
                     paymentSystemList.push(item)
@@ -318,6 +322,15 @@ class PaymentSystem extends Component {
             if (selectedPaymentSystem.hasDouble) {
                 ifSelectStyle = selectedPaymentSystem.id === item.id
             }
+        }
+
+        if (ifSelectStyle && (!selectedPaymentSystem ||  typeof selectedPaymentSystem.currencyCode === 'undefined')) {
+            CACHE_PAUSE_PROPS = true
+            this.props.handleSetState('selectedPaymentSystem', {
+                ...item
+            }, () => {
+                CACHE_PAUSE_PROPS = false
+            })
         }
 
         let bankFeeString = strings('tradeScreen.fee') + ' ' + item.providerFee[extendsFields.fieldForWayId.toLowerCase()][0].amount + ' %'

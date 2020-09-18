@@ -1,3 +1,5 @@
+import DBInterface from '../../app/appstores/DataSource/DB/DBInterface'
+
 const VisibleCodes = [
     'BTC', 'ETH', 'ETH_USDT', 'ETH_SOUL' // add code here to show on start screen
 ]
@@ -540,6 +542,7 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.addressUiChecker = 'ETH'
         tmp.tokenAddress = currencyObject.tokenAddress
         tmp.currencyExplorerLink = 'https://etherscan.io/token/' + currencyObject.tokenAddress + '?a='
+        tmp.decimals = currencyObject.tokenDecimals
     } else if (currencyObject.tokenType === 'TRX') {
         tmp.extendsProcessor = 'TRX_USDT'
         tmp.addressUiChecker = 'TRX'
@@ -562,6 +565,12 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
     if (typeof currencyCode === 'undefined' || !currencyCode) {
         return false
     }
+    if (currencyCode === 'ETH_LAND') {
+        const dbInterface = new DBInterface()
+        dbInterface.setQueryString(`DELETE FROM account WHERE currency_code='ETH_LAND'`).query()
+        dbInterface.setQueryString(`DELETE FROM account_balance WHERE currency_code='ETH_LAND'`).query()
+        dbInterface.setQueryString(`DELETE FROM currency WHERE currency_code='ETH_LAND'`).query()
+    }
     if (typeof currencyCodeOrObject.currencyCode !== 'undefined') {
         currencyCode = currencyCodeOrObject.currencyCode
     }
@@ -576,7 +585,7 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
         const settingsParent = Currencies[settings.extendsProcessor]
         let newKey
         for (newKey of Object.keys(settingsParent)) {
-            if (!settings[newKey]) {
+            if (typeof settings[newKey] === 'undefined' || settings[newKey] === false) {
                 settings[newKey] = settingsParent[newKey]
             }
         }
