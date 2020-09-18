@@ -869,6 +869,16 @@
       "try": "Спробувати",
       "notNow": "Не зараз"
     },
+    "rbfModal": {
+      "enable": "Увімкнути",
+      "disable": "Вимкнути",
+      "title": "Збільшити комісію",
+      "description": "Функція редагування транзакції до підтвердження майнерами (Replace-by-Fee) ",
+      "statusEnable": "увімкнена.",
+      "statusDisable": "відключена.", 
+      "descriptionAdd": "Ви можете увімкнути її для монет BTC, ETH, DOGE і токенів ERC20!",
+      "cancel": "Відміна"
+    },
     "infoPayOrder": {
       "error": {
         "title": "Вибачте...",

@@ -1,3 +1,7 @@
+/**
+ * @version 0.2
+ * @author yura
+ */
 import React, { Component } from 'react'
 import { View } from 'react-native'
 
@@ -47,13 +51,13 @@ export default class NewInterface extends Component {
                     <Title style={styles.title} textStyles={{ width: 'auto', paddingHorizontal: 10 }}>
                         {title}
                     </Title>
-                    <View style={{ marginTop: 16, marginBottom: 30 }}>
+                    <View style={{ marginTop: 8, marginBottom: -5 }}>
                         <Text style={styles.text}>
                             {description}
                         </Text>
                     </View>
-                    <View style={{ marginBottom: 12 }}>
-                        <Button onPress={this.handleTry} color={'#864DD9'} shadow={true}>
+                    <View>
+                        <Button onPress={this.handleTry} color={'#864DD9'} shadow={true} style={{ marginTop: 17 }}>
                             {strings('modal.infoNewInterface.try')}
                         </Button>
                         <Button onPress={this.handleNotNow} style={{ backgroundColor: 'none', color: '#864DD9' }}>
@@ -75,7 +79,9 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040'
+        color: '#404040',
+        marginTop: -10,
+        marginBottom: -2
     },
     text: {
         color: '#5C5C5C',
@@ -85,6 +91,7 @@ const styles = {
         fontSize: 14,
         lineHeight: 20,
         textAlign: 'center',
-        letterSpacing: 0.5
+        letterSpacing: 0.5,
+        marginBottom: -6
     }
 }

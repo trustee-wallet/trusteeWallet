@@ -856,6 +856,16 @@
       "try": "Try",
       "notNow": "Not now"
     },
+    "rbfModal": {
+      "enable": "Enable",
+      "disable": "Disable",
+      "title": "Replace by fee",
+      "description": "The function of editing a transaction before confirmation by miners (Replace-by-Fee) is ",
+      "statusEnable": "enabled.",
+      "statusDisable": "disabled.", 
+      "descriptionAdd": "You can enable it for BTC, ETH, DOGE and ERC20 tokens!",
+      "cancel": "Cancel"
+    },
     "infoPayOrder": {
       "error": {
         "title": "Sorry...",

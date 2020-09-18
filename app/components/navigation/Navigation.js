@@ -73,7 +73,7 @@ class Navigation extends Component {
 
     handleChangeInterface = () => {
         AsyncStorage.setItem('isNewInterface', 'false')
-        NavStore.goNext('ExchangeScreenStack')
+        NavStore.goNext('HomeScreen')
     }
 
     render() {

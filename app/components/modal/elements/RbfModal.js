@@ -9,19 +9,23 @@ import Layout from '../../../components/elements/modal/Layout'
 import Title from '../../../components/elements/modal/Title'
 import Text from '../../../components/elements/modal/Text'
 import Button from '../../../components/elements/modal/Button'
-// import Icon from '../../../components/elements/modal/Icon'
+import Icon from '../../../components/elements/modal/Icon'
+import AsyncStorage from '@react-native-community/async-storage'
 
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 import { strings } from '../../../services/i18n'
 
-export default class UpdateModal extends Component {
+export default class RbfModal extends Component {
 
     constructor(props) {
         super(props)
+        this.state = {
+            isRBF: null
+        }
     }
 
-    handleYes = async () => {
+    handleIsActive = async () => {
         const { callback } = this.props
 
         callback()
@@ -29,7 +33,7 @@ export default class UpdateModal extends Component {
         hideModal()
     }
 
-    handleNo = () => {
+    handleCancel = () => {
 
         const { noCallback } = this.props.data
 
@@ -40,10 +44,23 @@ export default class UpdateModal extends Component {
         }
     }
 
+    statusRBF = async () => {
+        const status = await AsyncStorage.getItem('RBF')
+        if (status === null || status.toString() === '0'){
+            this.setState({
+                isRBF: false
+            })
+        } else {
+            this.setState({
+                isRBF: true
+            })
+        }
+    }
+
     render() {
 
         const { title, icon, description } = this.props.data
-
+        this.statusRBF()
         return (
             <Layout visible={this.props.show}>
                 <View>
@@ -54,13 +71,15 @@ export default class UpdateModal extends Component {
                         <Text style={styles.text}>
                             {description}
                         </Text>
+                        <Text style={{ ...styles.text, fontWeight: 'bold', color: '#404040' }}>{ this.state.isRBF === true ? strings('modal.rbfModal.statusEnable').toUpperCase() : strings('modal.rbfModal.statusDisable').toUpperCase()}</Text>
+                        {this.state.isRBF !== true ? <Text style={styles.text}>{strings('modal.rbfModal.descriptionAdd')}</Text> : null}
                     </View>
                     <View>
-                        <Button onPress={this.handleYes} color={'#864DD9'} shadow={true} style={{ marginTop: 17 }}>
-                            {strings('modal.infoUpdateModal.download')}
+                        <Button onPress={this.handleIsActive} color={'#864DD9'} shadow={true} style={{ marginTop: 17 }}>
+                            {this.state.isRBF === true ? strings('modal.rbfModal.disable') : strings('modal.rbfModal.enable')}
                         </Button>
-                        <Button onPress={this.handleNo} style={{ backgroundColor: 'none', color: '#864DD9' }}>
-                            {strings('modal.infoUpdateModal.notNow')}
+                        <Button onPress={this.handleCancel} style={{ backgroundColor: 'none', color: '#864DD9' }}>
+                            {strings('modal.rbfModal.cancel')}
                         </Button>
                     </View>
                 </View>
@@ -78,8 +97,7 @@ const styles = {
         lineHeight: 26,
         textAlign: 'center',
         color: '#404040',
-        marginTop: -10,
-        marginBottom: -2
+        paddingTop: 15,
     },
     text: {
         color: '#5C5C5C',
@@ -90,6 +108,5 @@ const styles = {
         lineHeight: 20,
         textAlign: 'center',
         letterSpacing: 0.5,
-        marginBottom: -6
     }
 }

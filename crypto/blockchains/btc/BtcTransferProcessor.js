@@ -831,6 +831,7 @@ export default class BtcTransferProcessor {
         logInputsOutputs.HASH = result
         // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('btc_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
+        MarketingEvent.logOnlyRealTime('btc_tx_raw_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo + ' ' + result, rawTxHex)
 
         return {
             hash: result,

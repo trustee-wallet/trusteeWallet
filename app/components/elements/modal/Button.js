@@ -52,8 +52,7 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     text: {
-        marginTop: 16,
-        // fontFamily: 'SanFran-Semibold',
+        marginTop: 5,
         textAlign: 'center',
         fontFamily: 'Montserrat-Semibold',
         fontStyle: 'normal',

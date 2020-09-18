@@ -91,7 +91,7 @@ const styles_ = {
 
 const styles = StyleSheet.create({
     icon__wrapper: {
-        marginTop: 48,
+        marginTop: 40,
         marginBottom: 40,
         borderRadius: 60,
         alignSelf: 'center',

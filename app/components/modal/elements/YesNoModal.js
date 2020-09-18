@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -51,13 +51,13 @@ class YesNoModal extends Component {
                     <Title style={styles.title} textStyles={{ width: 'auto', paddingHorizontal: 10 }}>
                         {title}
                     </Title>
-                    <View style={{ marginTop: 16, marginBottom: 30 }}>
+                    <View style={{ marginTop: 8, marginBottom: -5 }}>
                         <Text style={styles.text}>
                             {description}
                         </Text>
                     </View>
-                    <View style={{marginBottom: 12 }}>
-                        <Button onPress={this.handleNo} color={'#F59E6C'} shadow={true}>
+                    <View>
+                        <Button onPress={this.handleNo} color={'#F59E6C'} shadow={true} style={{ marginTop: 17 }}>
                             {strings('walletBackup.skipElement.no')}
                         </Button>
                         <Button onPress={this.handleYes} style={{ backgroundColor: 'none', color: '#F59E6C' }}>
@@ -87,7 +87,9 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040'
+        color: '#404040',
+        marginTop: -10,
+        marginBottom: -2
     },
     text: {
         color: '#5C5C5C',

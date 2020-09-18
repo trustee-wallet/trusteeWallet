@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -98,13 +98,13 @@ class Skip extends Component {
                     <Title style={styles.title}>
                         {strings('walletBackup.skipElement.title')}
                     </Title>
-                    <View style={{ marginTop: 16, marginBottom: 30 }}>
+                    <View style={{ marginTop: 8, marginBottom: -5 }}>
                         <Text style={styles.text}>
                             {strings('walletBackup.skipElement.description')}
                         </Text>
                     </View>
-                    <View style={{marginBottom: 12 }}>
-                        <Button onPress={this.handleHide} color={'#F59E6C'} shadow={true}>
+                    <View>
+                        <Button onPress={this.handleHide} color={'#F59E6C'} shadow={true} style={{ marginTop: 17 }}>
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
                         <Button onPress={this.handleSkip} style={{backgroundColor: 'none', color: '#F59E6C'}}>
@@ -134,7 +134,9 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040'
+        color: '#404040',
+        marginTop: -10,
+        marginBottom: -2
     },
     text: {
         color: '#5C5C5C',
@@ -144,7 +146,8 @@ const styles = {
         fontSize: 14,
         lineHeight: 20,
         textAlign: 'center',
-        letterSpacing: 0.5
+        letterSpacing: 0.5,
+        marginBottom: -6
     }
 }
 

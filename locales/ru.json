@@ -863,6 +863,16 @@
       "try": "Попробовать",
       "notNow": "Не сейчас"
     },
+    "rbfModal": {
+      "enable": "Включить",
+      "disable": "Отключить",
+      "title": "Увеличить комиссию",
+      "description": "Функция редактирования транзакции до подтверждения майнерами (Replace-by-Fee) ",
+      "statusEnable": "включена.",
+      "statusDisable": "отключена.", 
+      "descriptionAdd": "Вы можете включить ее для монет BTC, ETH, DOGE и токенов ERC20!",
+      "cancel": "Отмена"
+    },
     "infoPayOrder": {
       "error": {
         "title": "Извините...",

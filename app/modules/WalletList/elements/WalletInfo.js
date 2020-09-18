@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -32,6 +32,8 @@ import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 import { acc } from 'react-native-reanimated'
 import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
+
+import {showModal} from '../../../appstores/Stores/Modal/ModalActions'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -238,6 +240,22 @@ class WalletInfo extends Component {
         )
     }
 
+    handlerRBF = async () => {
+        showModal({
+            type: 'RBF_ACTIVE',
+            icon: null,
+            title: strings('modal.rbfModal.title'),
+            description: strings('modal.rbfModal.description'),
+        },async () => {
+            const isActiveRBF = await AsyncStorage.getItem('RBF')
+            if (isActiveRBF === null || isActiveRBF.toString() === '0'){
+                await AsyncStorage.setItem('RBF', '1')
+            }else {
+                await AsyncStorage.setItem('RBF', '0')
+            } 
+        })
+    }
+
     render() {
         const selectedWallet = this.props.selectedWallet
         const selectedBasicCurrency = this.props.selectedBasicCurrency
@@ -298,7 +316,7 @@ class WalletInfo extends Component {
                                     </Text>
                                     <LetterSpacing text={todayPrep} textStyle={styles.container__date} letterSpacing={1}/>
                                 </View>
-                                <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')}>
+                                <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')} onLongPress={() => this.handlerRBF()} delayLongPress={5000}>
                                     <ToolTips type={'HOME_SCREEN_ADD_CRYPTO_BTN_TIP'} height={100} MainComponent={this.renderTooltip} mainComponentProps={{ styles }}/>
                                 </TouchableOpacity>
                             </View>

@@ -67,36 +67,44 @@ class BlocksoftTg {
             CHAT = this.CHAT
         }
 
-        if (typeof BAD_CHATS[CHAT] !== 'undefined' && typeof BAD_CHATS[CHAT][API_KEY] !== 'undefined') {
-            return false
+        if (typeof CHAT === "object") {
+            // array
+        } else {
+            CHAT = [ CHAT ]
         }
 
-        if (text.length > MAX_LENGTH) {
-            text = text.substring(0, MAX_LENGTH)
-        }
         let result
-        try {
-            const filters = await this._getFilter(API_KEY, CHAT)
-            if (filters) {
-                let filter
-                for (filter of filters) {
-                    if (text.indexOf(filter) !== -1) {
-                        return false
+        for (const ID of CHAT) {
+            if (typeof BAD_CHATS[ID] !== 'undefined' && typeof BAD_CHATS[ID][API_KEY] !== 'undefined') {
+                return false
+            }
+
+            if (text.length > MAX_LENGTH) {
+                text = text.substring(0, MAX_LENGTH)
+            }
+            try {
+                const filters = await this._getFilter(API_KEY, ID)
+                if (filters) {
+                    let filter
+                    for (filter of filters) {
+                        if (text.indexOf(filter) !== -1) {
+                            return false
+                        }
                     }
                 }
-            }
-            result = await this._request('sendMessage', {
-                text: text,
-                chat_id: CHAT
-            }, API_KEY)
-        } catch (err) {
-            if (err.code.toString() === '429') {
-                console.error(text)
-                return true
-            } else if (err.description === 'Bad Gateway') {
-                return false
-            } else {
-                throw err
+                result = await this._request('sendMessage', {
+                    text: text,
+                    chat_id: ID
+                }, API_KEY)
+            } catch (err) {
+                if (err.code.toString() === '429') {
+                    console.error(text)
+                    return true
+                } else if (err.description === 'Bad Gateway') {
+                    return false
+                } else {
+                    throw err
+                }
             }
         }
         return result

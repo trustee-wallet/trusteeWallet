@@ -416,6 +416,18 @@ export default class ButtonLine extends Component {
                         </View>
                     </View>
                 )
+            
+            case 'CUSTOM_MVT':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#93CA76', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="ETH_MVT" style={{ color: '#93CA76', fontSize: fontSize }}/>
+                        </View>
+                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
+                        </View>
+                    </View>
+                )
 
             default:
                 break

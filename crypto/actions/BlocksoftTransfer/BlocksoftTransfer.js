@@ -123,7 +123,10 @@ class BlocksoftTransfer {
 
 
         if (this._data.currencyCode === 'BTC' || this._data.currencyCode === 'USDT') {
-            BlocksoftCryptoLog.log('BlocksoftTransfer._initPrivate started for BTC/USDT', this._logData)
+            BlocksoftCryptoLog.log('BlocksoftTransfer._initPrivate started for BTC/USDT ' + this._private.derivePath, this._logData)
+            if (!this._private.derivePath || this._private.derivePath.toString() === 'false') {
+                this._private.derivePath = `m/84'/0'/0'/0/0`
+            }
             const resultBtc = await BlocksoftPrivateKeysUtils.getPrivateKey({
                 mnemonic,
                 addressToCheck: false,

@@ -397,6 +397,7 @@ export default class EthTransferProcessor extends EthBasic {
         logData.result = result
         // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('eth_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
+
         return result
     }
 }

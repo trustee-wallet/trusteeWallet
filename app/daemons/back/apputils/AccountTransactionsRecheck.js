@@ -29,7 +29,6 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
         const tmps = await transactionDS.getTransactions({
             currencyCode: account.currencyCode,
             walletHash: account.walletHash,
-            accountId: account.id,
             noOrder: true,
             noOld : true
         }, 'AccountTransactionsRecheck dbTransactions ' + source)
@@ -298,18 +297,18 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
         }
 
         if (!old.createdAt) {
-            tmpMsg = ` TWALLET UPDATE ${account.currencyCode} HASH ${transaction.transactionHash} by CREATED NEW ${transaction.createdAt} OLD ${old.createdAt} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+            tmpMsg = ` TWALLET UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by CREATED NEW ${transaction.createdAt} OLD ${old.createdAt} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
         } else if (old.transactionStatus !== transaction.transactionStatus || !old.createdAt) {
-            tmpMsg = ` TWALLET UPDATE ${account.currencyCode} HASH ${transaction.transactionHash} by STATUS NEW ${transaction.transactionStatus} OLD ${old.transactionStatus} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+            tmpMsg = ` TWALLET UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by STATUS NEW ${transaction.transactionStatus} OLD ${old.transactionStatus} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
         } else if (!old.transactionFee && old.transactionFee !== transaction.transactionFee) {
-            tmpMsg = ` TWALLET UPDATE ${account.currencyCode} HASH ${transaction.transactionHash} by FEE ${transaction.transactionFee} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+            tmpMsg = ` TWALLET UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by FEE ${transaction.transactionFee} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
         } else if (!old.addressAmount || old.addressAmount * 1 !== transaction.addressAmount * 1) {
-            tmpMsg = ` TWALLET UPDATE ${account.currencyCode} HASH ${transaction.transactionHash} by AMOUNT NEW ${transaction.addressAmount} OLD ${old.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+            tmpMsg = ` TWALLET UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by AMOUNT NEW ${transaction.addressAmount} OLD ${old.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
         } else if (old.blockConfirmations === transaction.blockConfirmations || (old.blockConfirmations > blocksToUpdate && transaction.blockConfirmations > blocksToUpdate)) {
-            tmpMsg = ` TWALLET SKIP ${account.currencyCode} HASH ${transaction.transactionHash} CONF ${transaction.blockConfirmations} OLD CONF ${old.blockConfirmations} STATUS ${old.transactionStatus}`
+            tmpMsg = ` TWALLET SKIP ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} CONF ${transaction.blockConfirmations} OLD CONF ${old.blockConfirmations} STATUS ${old.transactionStatus}`
             return { isChanged: 0, tmpMsg }
         } else {
-            tmpMsg = ` TWALLET UPDATE ${account.currencyCode} HASH ${transaction.transactionHash} by CONF NEW ${transaction.blockConfirmations} OLD ${old.blockConfirmations} STATUS ${transaction.transactionStatus} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+            tmpMsg = ` TWALLET UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by CONF NEW ${transaction.blockConfirmations} OLD ${old.blockConfirmations} STATUS ${transaction.transactionStatus} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
         }
 
         if (!old.transactionFee && transaction.transactionFee) {
@@ -337,17 +336,17 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
     }
 
     if (!old.createdAt) {
-        tmpMsg = ` FULL UPDATE ${account.currencyCode} HASH ${transaction.transactionHash} by CREATED NEW ${transaction.createdAt} OLD ${old.createdAt} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+        tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by CREATED NEW ${transaction.createdAt} OLD ${old.createdAt} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
     } else if (old.transactionStatus !== transaction.transactionStatus) {
-        tmpMsg = ` FULL UPDATE ${account.currencyCode} HASH ${transaction.transactionHash} by STATUS NEW ${transaction.transactionStatus} OLD ${old.transactionStatus} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+        tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by STATUS NEW ${transaction.transactionStatus} OLD ${old.transactionStatus} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
     } else if (oldAmount !== newAmount) {
-        tmpMsg = ` FULL UPDATE ${account.currencyCode} HASH ${transaction.transactionHash} by AMOUNT NEW ${newAmount} OLD ${oldAmount} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+        tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by AMOUNT NEW ${newAmount} OLD ${oldAmount} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
     } else if (oldAddressTo !== newAddressTo) {
-        tmpMsg = ` FULL UPDATE ${account.currencyCode} HASH ${transaction.transactionHash} by ADDRESS_TO ${newAddressTo} OLD ${oldAddressTo} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+        tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by ADDRESS_TO ${newAddressTo} OLD ${oldAddressTo} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
     } else if (old.addressFrom !== transaction.addressFrom) {
-        tmpMsg = ` FULL UPDATE ${account.currencyCode} HASH ${transaction.transactionHash} by ADDRESS_FROM ${transaction.addressFrom} OLD ${old.addressFrom} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+        tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by ADDRESS_FROM ${transaction.addressFrom} OLD ${old.addressFrom} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
     } else if (old.blockConfirmations === transaction.blockConfirmations || (old.blockConfirmations > blocksToUpdate && transaction.blockConfirmations > blocksToUpdate)) {
-        tmpMsg = ` SKIP ${account.currencyCode} HASH ${transaction.transactionHash} CONF ${transaction.blockConfirmations} OLD CONF ${old.blockConfirmations} STATUS ${old.transactionStatus}`
+        tmpMsg = ` SKIP ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} CONF ${transaction.blockConfirmations} OLD CONF ${old.blockConfirmations} STATUS ${old.transactionStatus}`
         // Log.daemon('UpdateAccountTransactions ' + account.currencyCode + ' skip 3 ' + transaction.transactionHash)
         return { isChanged: 0, tmpMsg }
     } else {

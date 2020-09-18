@@ -44,7 +44,7 @@ class SettingsXMR extends Component {
     }
 
 
-    init = async () => {
+    /*init = async () => {
 
         if (CACHE_INITED) {
             return true
@@ -98,7 +98,7 @@ class SettingsXMR extends Component {
         })
         Keyboard.dismiss()
         Toast.setMessage(strings('toast.saved')).show()
-    }
+    }*/
 
     handleSecrets = async () => {
         setFlowType({
@@ -109,7 +109,33 @@ class SettingsXMR extends Component {
 
     render() {
         const { containerStyle } = this.props
-        this.init()
+        // this.init()
+
+        return (
+            <View style={[styles.settings, containerStyle]}>
+
+                <View style={styles.settings__row}>
+                    <View style={styles.settings__content}>
+                        <View style={{ paddingLeft: 15, paddingRight: 15 }}>
+                            <View style={{ minWidth: this.state.size }} onLayout={this.handleOnLayout}>
+                                <TouchableOpacity style={[styles.btn, styles.btn__text_add]} onPress={this.handleSecrets}>
+                                    <LetterSpacing text={strings('settings.walletList.getMnemonicXMR')}
+                                                   textStyle={{ ...styles.settings__title }} letterSpacing={0.5}
+                                                   numberOfLines={2}/>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+
+                <View style={styles.settings__row}>
+                    <View style={styles.settings__content}>
+                        
+                    </View>
+                </View>
+
+            </View>
+        )
 
         return (
             <View style={[styles.settings, containerStyle]}>

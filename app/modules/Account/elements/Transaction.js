@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React, {Component} from 'react'
 import {
@@ -659,7 +659,7 @@ class Transaction extends Component {
 
         const {cryptoCurrency, transaction, account} = this.props
 
-        const devMode = await AsyncStorage.getItem('devMode')
+        const rbfMode = await AsyncStorage.getItem('RBF')
 
         const TmpComponent = () => {
             return (
@@ -683,15 +683,15 @@ class Transaction extends Component {
         try {
             const isETH = cryptoCurrency.currencyCode === 'ETH' || cryptoCurrency.currencyCode.indexOf('ETH_') === 0
 
-            if (devMode && devMode.toString() === '1') {
+            if (rbfMode && rbfMode.toString() === '1') {
                 if (transaction.transactionDirection === 'outcome' || transaction.transactionDirection === 'self') {
                     if (isETH || (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson && typeof transaction.transactionJson.allowReplaceByFee !== 'undefined' && transaction.transactionJson.allowReplaceByFee)) {
                         showModal({
                             type: 'YES_NO_MODAL',
                             icon: 'WARNING',
-                            title: strings(`modal.featureExpectedModal.title`),
+                            title: strings(`modal.rbfModal.title`),
                             description: strings(`account.transaction.RBF.willReplaceWithNewFee`)
-                        }, async (res) => {
+                        }, async () => {
 
                             try {
                                 let memo = ''
@@ -724,7 +724,7 @@ class Transaction extends Component {
                         showModal({
                             type: 'INFO_MODAL',
                             icon: 'INFO',
-                            title: strings(`modal.featureExpectedModal.title`),
+                            title: strings(`modal.rbfModal.title`),
                             description: strings(`account.transaction.RBF.notAllowed`),
                             component: TmpComponent
                         })
@@ -733,7 +733,7 @@ class Transaction extends Component {
                     showModal({
                         type: 'YES_NO_MODAL',
                         icon: 'WARNING',
-                        title: strings(`modal.featureExpectedModal.title`),
+                        title: strings(`modal.rbfModal.title`),
                         description: strings(`account.transaction.CPFP.willSpeedUp`),
                     }, async (res) => {
 

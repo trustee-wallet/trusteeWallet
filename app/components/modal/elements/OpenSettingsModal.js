@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React, { Component } from 'react'
 import { View } from 'react-native'
@@ -40,14 +40,14 @@ export default class OpenSettingsModal extends Component {
                     <Title style={styles.title}>
                         {title}
                     </Title>
-                    <View style={{ marginTop: 16, marginBottom: 30 }}>
+                    <View style={{ marginTop: 8, marginBottom: -5 }}>
                         <Text style={styles.text}>
                             {description}
                         </Text>
                     </View>
                     {typeof component != 'undefined' ? component() : null}
-                    <View style={{ marginTop: 12 }}>
-                        <Button onPress={this.handleHide} color={ icon === true ? '#864DD9' : icon === false ? '#E54C4C' : icon === null ? '#F59E6C' : '#2A7FDB' } shadow={true}>
+                    <View>
+                        <Button onPress={this.handleHide} color={ icon === true ? '#864DD9' : icon === false ? '#E54C4C' : icon === null ? '#F59E6C' : '#2A7FDB' } shadow={true} style={{ marginTop: 17 }}>
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
                         <Button onPress={callback} style={{ backgroundColor: 'none', color: icon === true ? '#864DD9' : icon === false ? '#E54C4C' : icon === null ? '#F59E6C' : '#2A7FDB' }}>
@@ -68,7 +68,9 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040'
+        color: '#404040',
+        marginTop: -10,
+        marginBottom: -2
     },
     text: {
         color: '#5C5C5C',
@@ -78,6 +80,7 @@ const styles = {
         fontSize: 14,
         lineHeight: 20,
         textAlign: 'center',
-        letterSpacing: 0.5
+        letterSpacing: 0.5,
+        marginBottom: -6
     }
 }

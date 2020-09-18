@@ -3,6 +3,7 @@
  */
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
+import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 
 const CACHE_NONCE = {}
 const LAST_SEND = {}
@@ -104,12 +105,15 @@ export default class EthTxSendProvider {
         // noinspection JSUnresolvedVariable
         const signData = await this._web3.eth.accounts.signTransaction(tx, data.privateKey)
         BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx signed', tx)
+        BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx hex', signData.rawTransaction)
+
 
         return new Promise((resolve, reject) => {
             BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx promise started')
             // noinspection JSUnresolvedVariable
             return this._web3.eth.sendSignedTransaction(signData.rawTransaction)
                 .on('transactionHash', (hash) => {
+                    MarketingEvent.logOnlyRealTime('eth_tx_raw_success' + hash, signData.rawTransaction)
                     resolve({ hash })
                 })
                 .on('error', (e) => {

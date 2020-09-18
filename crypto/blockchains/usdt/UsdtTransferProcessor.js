@@ -138,6 +138,7 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
         logInputsOutputs.hash = result
         // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('usdt_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+        MarketingEvent.logOnlyRealTime('usdt_tx_raw_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo + ' ' + result, rawTxHex)
 
         return {
             hash: result,

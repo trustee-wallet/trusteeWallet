@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -21,6 +21,7 @@ import OpenSettingsModal from './elements/OpenSettingsModal'
 import YesNoModal from './elements/YesNoModal'
 import UpdateModal from './elements/UpdateModal'
 import NewInterface from './elements/NewInterface'
+import RbfModal from './elements/RbfModal'
 import InputModal from './elements/InputModal'
 import PaymentSystemInfo from './elements/PaymentSystemInfo'
 import WalletSettingsModal from './elements/WallletSettingsModa'
@@ -83,6 +84,8 @@ class MainModal extends Component {
                 return <UpdateModal show={show} data={data} callback={callback}/>
             case 'NEW_INTERFACE':
                 return <NewInterface show={show} data={data} callback={callback}/>
+            case 'RBF_ACTIVE':
+                return <RbfModal show={show} data={data} callback={callback}/>
             default:
                 return <View></View>
         }

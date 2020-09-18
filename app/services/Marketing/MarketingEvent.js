@@ -149,11 +149,7 @@ class MarketingEvent {
             return false
         }
 
-        if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
-            logData.LOG_TOKEN = this.DATA.LOG_TOKEN
-        }
-
-        let tmp = logTitle + ' ' + JSON.stringify(logData)
+        const tmp = logTitle + ' ' + JSON.stringify(logData)
         if (tmp === this._cacheLastLog) return true
         try {
             if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
@@ -161,10 +157,8 @@ class MarketingEvent {
             } else {
                 this.DATA.LOG_TOKEN = await AsyncStorage.getItem('pushToken')
                 if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
-                    logData.LOG_TOKEN = this.DATA.LOG_TOKEN
                     this._reinitTgMessage()
                 }
-                tmp = logTitle + ' ' + JSON.stringify(logData)
             }
 
             this._cacheLastLog = tmp

@@ -117,8 +117,8 @@ class WalletSettingsModal extends Component {
                                 </View>
                             </View> : null
                     }
-                    <View style={{marginBottom: 12 }}>
-                        <Button onPress={() => this.handleHide()} color={'#864DD9'} shadow={true}>
+                    <View>
+                        <Button onPress={() => this.handleHide()} color={'#864DD9'} shadow={true} style={{ marginTop: 17 }}>
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
                         <Button onPress={() => this.handleSubmit()} style={{ backgroundColor: 'none', color: '#864DD9' }}>

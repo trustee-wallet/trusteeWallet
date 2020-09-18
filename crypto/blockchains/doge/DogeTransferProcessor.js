@@ -539,6 +539,7 @@ export default class DogeTransferProcessor {
         logInputsOutputs.hash = result
         // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('doge_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
+        MarketingEvent.logOnlyRealTime('doge_tx_raw_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo + ' ' + result, rawTxHex)
 
         return { hash: result, correctedAmountFrom: preparedInputsOutputs.correctedAmountFrom }
     }

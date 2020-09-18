@@ -3,8 +3,6 @@
  */
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftPrivateKeysUtils from '../../../common/BlocksoftPrivateKeysUtils'
-import BlocksoftUtils from '../../../common/BlocksoftUtils'
-import { add } from 'react-native-reanimated'
 
 const networksConstants = require('../../../common/ext/networks-constants')
 
@@ -267,6 +265,7 @@ export default class BtcTxBuilder {
         try {
             hex = txb.build().toHex()
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx size ' + hex.length, log)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx hex', hex)
         } catch (e) {
             e.message = ' transaction BTC build error: ' + e.message
             throw e

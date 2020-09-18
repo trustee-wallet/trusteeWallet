@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React, { Component } from 'react'
 import { View } from 'react-native'
@@ -33,13 +33,13 @@ export default class MnemomicFail extends Component {
                     <Title style={styles.title}>
                         {strings('walletBackup.mnemonicFail.title')}
                     </Title>
-                    <View style={{ marginTop: 16, marginBottom: 30 }}>
+                    <View style={{ marginTop: 8, marginBottom: -5 }}>
                         <Text style={styles.text}>
                             {strings('walletBackup.mnemonicFail.description')}
                         </Text>
                     </View>
-                    <View style={{marginBottom: 30 }}>
-                        <Button onPress={this.hideModal} color={'#E54C4C'} shadow={true}>
+                    <View style={{ marginBottom: 30 }}>
+                        <Button onPress={this.hideModal} color={'#E54C4C'} shadow={true} style={{ marginTop: 17 }}>
                             OK
                         </Button>
                     </View>
@@ -57,7 +57,9 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040'
+        color: '#404040',
+        marginTop: -10,
+        marginBottom: -2
     },
     text: {
         color: '#5C5C5C',
@@ -67,7 +69,8 @@ const styles = {
         fontSize: 14,
         lineHeight: 20,
         textAlign: 'center',
-        letterSpacing: 0.5
+        letterSpacing: 0.5,
+        marginBottom: -6
     }
 }
 

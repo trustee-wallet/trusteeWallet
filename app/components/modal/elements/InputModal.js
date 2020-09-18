@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React, { Component } from 'react'
 import { View, StyleSheet } from 'react-native'
@@ -95,8 +95,8 @@ export default class InputModal extends Component {
                             isCapitalize={false}
                             type={'CASHBACK_LINK'}/>
                     </View>
-                    <View style={{ marginTop: 12 }}>
-                        <Button onPress={() => this.handleHide()} color={'#864DD9'} shadow={true} >
+                    <View>
+                        <Button onPress={() => this.handleHide()} color={'#864DD9'} shadow={true} style={{ marginTop: 17 }}>
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
                         <Button onPress={() => this.handleSubmit()} style={{ backgroundColor: 'none', color: '#864DD9' }}>

@@ -38,8 +38,9 @@ const styles = StyleSheet.create({
         position: 'relative',
         left: (WINDOW_WIDTH - 313) / 2,
         width: 313,
-        minHeight: 313,
+        minHeight: 290,
         backgroundColor: '#F7F7F7',
+        marginVertical: 5,
         borderRadius: 16,
         zIndex: 1
     }

@@ -51,7 +51,6 @@ class BottomNavigation extends Component {
             // NavStore.goNext('ExchangeScreenStack')
             const newInterface = AsyncStorage.getItem('isNewInterface').then(res => {
                 let isNewInterface = JSON.parse(res)
-                console.log(isNewInterface)
                 isNewInterface = isNewInterface === true ? NavStore.goNext('ExchangeV3ScreenStack') : NavStore.goNext('ExchangeScreenStack')
             })
         } catch (e) {

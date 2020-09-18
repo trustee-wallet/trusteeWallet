@@ -52,6 +52,7 @@ import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalS
 const { height: HEIGHT } = Dimensions.get('window')
 
 const CACHE_COUNTRIES = {}
+let CACHE_TURN_ON = false
 let CACHE_COUNTRIES_LENGTH = 0
 
 class Card extends Component {
@@ -70,7 +71,6 @@ class Card extends Component {
 
             selectedCountry: '',
             selectCountriesList: [],
-            countriesList: [],
 
             show: false
         }
@@ -79,17 +79,29 @@ class Card extends Component {
 
     async init() {
 
-        const turnOn = await BlocksoftExternalSettings.get('cardsCountries', 'Cards/index' )
-        const countriesList = []
-        const selectCountriesList = []
-        let item
-
-        let skipped = false
-        for (item of countriesDict) {
+        CACHE_TURN_ON = await BlocksoftExternalSettings.get('cardsCountries', 'Cards/index' )
+        for (const item of countriesDict) {
             CACHE_COUNTRIES[item.iso] = item
             CACHE_COUNTRIES_LENGTH++
-            countriesList.push({ label: item.country, value: item.iso, color: '#404040' })
-            if (turnOn !== 'ALL' && typeof turnOn[item.iso] === 'undefined') {
+        }
+        const selectCountriesList = this._getSelectedCoutriesList()
+
+        this.setState({
+            selectCountriesList
+        })
+
+        if (Platform.OS === 'ios') {
+            CardIOUtilities.preload()
+        }
+
+    }
+
+    _getSelectedCoutriesList() {
+
+        const selectCountriesList = []
+        let skipped = false
+        for (const item of countriesDict) {
+            if (CACHE_TURN_ON !== 'ALL' && typeof CACHE_TURN_ON[item.iso] === 'undefined') {
                 skipped = true
                 continue
             }
@@ -99,22 +111,13 @@ class Card extends Component {
         if (skipped) {
             selectCountriesList.unshift({key : '', value: '-----'})
             selectCountriesList.push({key : '', value: '-----'})
-            for (item of countriesDict) {
-                if (turnOn !== 'ALL' && typeof turnOn[item.iso] === 'undefined') {
+            for (const item of countriesDict) {
+                if (CACHE_TURN_ON !== 'ALL' && typeof CACHE_TURN_ON[item.iso] === 'undefined') {
                     selectCountriesList.push({ key: item.iso, value: item.country })
                 }
             }
         }
-
-        this.setState({
-            countriesList,
-            selectCountriesList
-        })
-
-        if (Platform.OS === 'ios') {
-            CardIOUtilities.preload()
-        }
-
+        return selectCountriesList
     }
 
     componentDidMount() {
@@ -461,12 +464,16 @@ class Card extends Component {
         if (CACHE_COUNTRIES_LENGTH === 0) {
             this.init()
         }
+        let selectCountriesList = this.state.selectCountriesList
+        if (this.state.selectCountriesList.length === 0) {
+            selectCountriesList = this._getSelectedCoutriesList()
+        }
 
         showModal({
             type: 'SELECT_MODAL',
             data: {
                 title: strings('card.cardCurrency').replace(/\./g, ''),
-                listForSelect: this.state.selectCountriesList,
+                listForSelect: selectCountriesList,
                 selectedItem: this.state.selectedCountry
             }
         }, (selectedCountry) => {
@@ -478,12 +485,12 @@ class Card extends Component {
         if (CACHE_COUNTRIES_LENGTH === 0) {
             this.init()
         }
+
         UpdateOneByOneDaemon.pause()
         firebase.analytics().setCurrentScreen('Card.index')
 
         const {
             focused,
-            countriesList,
             selectedCountry
         } = this.state
 

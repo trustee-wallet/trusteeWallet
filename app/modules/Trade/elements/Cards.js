@@ -179,14 +179,14 @@ class Cards extends Component {
             const { selectedPaymentSystem, selectedCard } = nextProps
 
             if (selectedPaymentSystem && selectedPaymentSystem.supportedCountries) {
-                this.handleFilterCards(selectedPaymentSystem.supportedCountries, selectedCard)
+                this.handleFilterCards(selectedPaymentSystem, selectedCard)
 
                 if (nextProps.cardStore.cards.length !== this.props.cardStore.cards.length) {
                     this.setState({
                         showCards: false,
                         cards: nextProps.cardStore.cards
                     }, () => {
-                        this.handleFilterCards(selectedPaymentSystem.supportedCountries, nextProps.cardStore.cards[nextProps.cardStore.cards.length - 1])
+                        this.handleFilterCards(selectedPaymentSystem, nextProps.cardStore.cards[nextProps.cardStore.cards.length - 1])
                     })
                 }
             }
@@ -213,7 +213,7 @@ class Cards extends Component {
         }
     }
 
-    handleFilterCards = (supportedCountries, selectedCard) => {
+    handleFilterCards = (selectedPaymentSystem, selectedCard) => {
         const cards = JSON.parse(JSON.stringify(this.state.cards))
         const cardsTmp = []
 
@@ -221,8 +221,8 @@ class Cards extends Component {
         let firstFoundCard = false
 
         const indexedSupportedCountries = {}
-        if (supportedCountries) {
-            supportedCountries.forEach(item2 => {
+        if (selectedPaymentSystem.supportedCountries) {
+            selectedPaymentSystem.supportedCountries.forEach(item2 => {
                 indexedSupportedCountries[item2] = 1
             })
 
@@ -232,7 +232,7 @@ class Cards extends Component {
                     let found = false
                     if (typeof indexedSupportedCountries[item.countryCode] !== 'undefined') {
                         found = true
-                    } else if (this.props.selectedPaymentSystem.currencyCode === 'RUB') {
+                    } else if (selectedPaymentSystem.currencyCode === 'RUB') {
                         if (typeof CACHE_RUB_COUNTRIES[item.countryCode] !== 'undefined') {
                             found = true
                         }

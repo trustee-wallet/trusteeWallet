@@ -229,7 +229,9 @@ export default {
 
     insertAccountByPrivateKey: async (account) => {
         const dbInterface = new DBInterface()
-        const derivationPath = dbInterface.escapeString(account.path)
+        const derivationPath = dbInterface.escapeString(account.derivationPath)
+        const tmpName = dbInterface.escapeString('CREATED by InsertByPrivateKey at ' + new Date().toISOString())
+
         const key = BlocksoftKeysStorage.getAddressCacheKey(account.walletHash, derivationPath, account.currencyCode)
         if (!(typeof (SAVED_UNIQUE[key]) === 'undefined')) {
             Log.daemon('DS/Account insert account by privateKey already in cache')
@@ -249,9 +251,15 @@ export default {
                     wallet_hash AS walletHash,
                     wallet_pub_id AS walletPubId
                     FROM ${tableName}
-                    WHERE currency_code='${account.currencyCode}' AND address='${account.address}'`
+                    WHERE currency_code IN ('${currencyCode}', '${account.currencyCode}') AND address='${account.address}'`
         const find = await dbInterface.setQueryString(findSql).query()
         if (find.array.length !== 0) {
+            if (find.array[0].walletHash !== account.walletHash) {
+                await dbInterface.setQueryString(`UPDATE ${tableName} SET wallet_hash='${account.walletHash}' WHERE id=${find.array[0].id}`).query()
+            }
+            if (find.array[0].currencyCode !== currencyCode) {
+                await dbInterface.setQueryString(`UPDATE ${tableName} SET currency_code='${currencyCode}' WHERE id=${find.array[0].id}`).query()
+            }
             SAVED_UNIQUE[key] = 1
             Log.daemon('DS/Account insert account by privateKey already in db ' + account.currencyCode + ' ' + account.address + ' index ' + account.index + ' find', find)
             return false
@@ -259,7 +267,7 @@ export default {
 
         const tmp = {
             address: account.address,
-            name: '',
+            name: tmpName,
             derivationPath: derivationPath,
             derivationIndex: account.index,
             derivationType: 'main',
@@ -284,8 +292,8 @@ export default {
                 accountId: find2.array[0].id
             }
             await dbInterface.setTableName('account_balance').setInsertData({ insertObjs: [tmp2] }).insert()
+            SAVED_UNIQUE[key] = 1
         }
-        SAVED_UNIQUE[key] = 1
         Log.daemon('DS/Account insert account by privateKey add ' + account.address + ' index ' + account.index)
     },
 
@@ -467,10 +475,11 @@ export default {
                             account,
                             inDb: uniqueAddresses[key]
                         })
+                        await dbInterface.setQueryString(`UPDATE transactions SET account_id=${uniqueAddresses[key][account.address]} WHERE account_id=${account.id}`).query()
                         idsToRemove.push(account.id)
                         continue
                     }
-                    uniqueAddresses[key][account.address] = 1
+                    uniqueAddresses[key][account.address] = account.id
                     account.balance = BlocksoftFixBalance(account, 'balance')
                     account.unconfirmed = BlocksoftFixBalance(account, 'unconfirmed')
                     account.balanceProvider = account.balanceProvider || 'old'

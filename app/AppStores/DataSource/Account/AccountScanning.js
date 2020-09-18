@@ -121,10 +121,11 @@ class AccountScanning {
                 }
                 const key = res[i].address + '_' + currencyCode
                 if (typeof uniqueAddresses[key] !== 'undefined') {
+                    await dbInterface.setQueryString(`UPDATE transactions SET account_id=${uniqueAddresses[key]} WHERE account_id=${res[i].id}`).query()
                     idsToRemove.push(res[i].id)
                     continue
                 }
-                uniqueAddresses[key] = 1
+                uniqueAddresses[key] = res[i].id
                 res[i].balance = BlocksoftFixBalance(res[i], 'balance')
                 res[i].unconfirmed = BlocksoftFixBalance(res[i], 'unconfirmed')
                 res[i].balanceScanBlock = typeof res[i].balanceScanBlock !== 'undefined' ? (res[i].balanceScanBlock * 1) : 0
@@ -140,6 +141,9 @@ class AccountScanning {
                 }
             }
             if (idsToRemove.length > 0) {
+                Log.daemon('AccountScanning getAccountsForScan unique check finished, found ' + idsToRemove.join(','))
+                Log.daemon('AccountScanning getAccountsForScan not removed', uniqueAddresses)
+
                 await dbInterface.setQueryString(`DELETE FROM account WHERE id IN (${idsToRemove.join(',')})`).query()
                 await dbInterface.setQueryString(`DELETE FROM account_balance WHERE account_id IN (${idsToRemove.join(',')})`).query()
             }
