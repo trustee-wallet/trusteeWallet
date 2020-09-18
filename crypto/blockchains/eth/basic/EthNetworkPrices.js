@@ -20,7 +20,7 @@ let CACHE_PREV_DATA = { 'fastest': 100.0, 'safeLow': 13.0, 'average': 30.0 }
 class EthNetworkPrices {
 
     /**
-     * @returns {{ price: BigNumber[], average: int, fast: int, safeLow: int}}
+     * @returns {{ price[]: string, average: int, fast: int, safeLow: int}}
      */
     async get(address) {
 
@@ -84,7 +84,6 @@ class EthNetworkPrices {
      * @param {int} json.safeLow
      * @param {int} json.average
      * @param {int} json.fastest
-     * @returns {{ price0: BigNumber, price1: BigNumber, price2: BigNumber, average: int, fast: int, safeLow: int}}
      * @private
      */
     async _parseLoaded(json) {

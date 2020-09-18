@@ -63,7 +63,7 @@ const config = {
         cryptoErrors: false, // set false to get crypto errors in console
         appErrors: false, // set false to get errors in console
         appDBLogs: false, // set false to get db query in console
-        firebaseLogs: true // set false not to collect data to firebase live db
+        firebaseLogs: false // set false not to collect data to firebase live db
     },
     tg: {
         appDefaultTg: '', // bot id for app errors https://t.me/trusteeAppErrorsBot

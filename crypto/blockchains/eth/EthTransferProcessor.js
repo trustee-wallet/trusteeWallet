@@ -79,15 +79,14 @@ export default class EthTransferProcessor extends EthBasic {
             throw e
         }
 
-        const gasLimitBN = new BlocksoftBN(gasLimit)
-        BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate prefinished', gasPrice, gasLimitBN)
+        BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate prefinished', gasPrice, gasLimit)
 
         let balance = false
         try {
             balance = await this._web3.eth.getBalance(data.addressFrom)
             if (typeof data.amount !== 'undefined' && data.amount && data.amount > 0 && data.addressForChange !== 'TRANSFER_ALL') {
                 balance = BlocksoftUtils.diff(balance, data.amount)
-                BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate balance ' + balance + ' minus amount ' + data.amount + ' = ' + balanceBN.toString())
+                BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate balance ' + balance + ' minus amount ' + data.amount + ' = ' + balance)
             }
         } catch (e) {
             balance = false
@@ -96,7 +95,7 @@ export default class EthTransferProcessor extends EthBasic {
         const fees = []
         const titles = ['eth_speed_slow', 'eth_speed_medium', 'eth_speed_fast']
         for (let index = 0; index <=2; index++) {
-            const fee = gasPrice.price[index].mul(gasLimitBN)
+            const fee = BlocksoftUtils.mul(gasPrice.price[index], gasLimit)
             const tmp = {
                 langMsg: titles[index],
                 gasPrice: gasPrice.price[index].toString(),
@@ -118,7 +117,7 @@ export default class EthTransferProcessor extends EthBasic {
 
         if (fees.length === 0) {
             const index = 0
-            const fee = Math.ceil(BlocksoftUtils.div(balance, gasLimitBN)*1)
+            const fee = Math.ceil(BlocksoftUtils.div(balance, gasLimit)*1)
             const tmp = {
                 langMsg: 'eth_speed_slowest',
                 gasPrice: fee.toString(),
