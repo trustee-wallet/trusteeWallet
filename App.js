@@ -11,7 +11,7 @@ import { Linking } from 'react-native'
 
 import store from './app/store'
 
-import Router from './app/Router'
+import Router from './app/router'
 import Themes from './app/themes/Themes'
 
 import Application from './app/appstores/Actions/App/App'
