@@ -607,10 +607,10 @@
         "xrp_speed_one" : "Швидко"
       },
       "time": {
-        "eth_speed_slowest": "> 120 хвилин",
-        "eth_speed_slow": "~ 30 хвилин",
-        "eth_speed_medium": "~ 5 хвилин",
-        "eth_speed_fast": "~ 1 хвилина",
+        "eth_speed_slowest": "",
+        "eth_speed_slow": "",
+        "eth_speed_medium": "",
+        "eth_speed_fast": "",
         "eth_speed_delegated" : "Транзакція буде відправлена за рахунок третьої сторони. Комісія стягується в %{symbol} згідно ERC865",
 
         "xmr_speed_1": "",
@@ -623,28 +623,28 @@
         "btc_speed_blocks_6": "",
         "btc_speed_blocks_2": "",
 
-        "bch_speed_blocks_12": "~ 120 хвилин",
-        "bch_speed_blocks_6": "~ 60 хвилин",
-        "bch_speed_blocks_2": "~ 20 хвилин",
+        "bch_speed_blocks_12": "",
+        "bch_speed_blocks_6": "",
+        "bch_speed_blocks_2": "",
 
-        "ltc_speed_blocks_12": "~ 120 хвилин",
-        "ltc_speed_blocks_6": "~ 20 хвилин",
-        "ltc_speed_blocks_2": "~ 5 хвилин",
+        "ltc_speed_blocks_12": "",
+        "ltc_speed_blocks_6": "",
+        "ltc_speed_blocks_2": "",
 
-        "btc_corrected_speed_blocks_2": "~ 35 хвилин",
-        "btc_corrected_speed_blocks_6": "~ 95 хвилин",
-        "btc_corrected_speed_blocks_12": "~ 135+ хвилин",
-        "btc_corrected_speed_blocks_2_protection": "~ 35 хвилин",
-        "btc_corrected_speed_blocks_6_protection": "~ 95 хвилин",
-        "btc_corrected_speed_blocks_12_protection": "~ 135+ хвилин",
-        "ltc_corrected_speed_blocks_2": "~ 15 хвилин",
-        "ltc_corrected_speed_blocks_6": "~ 35 хвилин",
-        "ltc_corrected_speed_blocks_12": "~ 135+ хвилин",
-        "ltc_corrected_speed_blocks_2_protection": "~ 15 хвилин",
-        "ltc_corrected_speed_blocks_6_protection": "~ 35 хвилин",
-        "ltc_corrected_speed_blocks_12_protection": "~ 135+ хвилин",
+        "btc_corrected_speed_blocks_2": "> 35 хвилин",
+        "btc_corrected_speed_blocks_6": "> 95 хвилин",
+        "btc_corrected_speed_blocks_12": "> 135+ хвилин",
+        "btc_corrected_speed_blocks_2_protection": "> 35 хвилин",
+        "btc_corrected_speed_blocks_6_protection": "> 95 хвилин",
+        "btc_corrected_speed_blocks_12_protection": "> 135+ хвилин",
+        "ltc_corrected_speed_blocks_2": "> 15 хвилин",
+        "ltc_corrected_speed_blocks_6": "> 35 хвилин",
+        "ltc_corrected_speed_blocks_12": "> 135+ хвилин",
+        "ltc_corrected_speed_blocks_2_protection": "> 15 хвилин",
+        "ltc_corrected_speed_blocks_6_protection": "> 35 хвилин",
+        "ltc_corrected_speed_blocks_12_protection": "> 135+ хвилин",
 
-        "xrp_speed_one" : "1 хвилина"
+        "xrp_speed_one" : ""
       },
       "customFee": {
         "fixedFeeTitle": "ФІКСОВАНА\nКОМІСІЯ",
