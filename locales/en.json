@@ -192,7 +192,8 @@
     "confirmScreenTimeout" : "Please, check Internet access and try again",
     "confirmScreenInvalidOut" : "Invalid out account, please, check and try again",
     "confirmScreenInvalidAddress" : "System error of the trading pair on the provider side, please, try again",
-    "openLink" : "To go to payment please click directly on this link"
+    "openLink" : "To go to payment please click directly on this link",
+    "openLinkError": "Not found default browser - link is copied to clipboard"
   },
   "settings": {
     "title": "General settings",

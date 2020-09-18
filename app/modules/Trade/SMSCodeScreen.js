@@ -4,7 +4,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Animated, Dimensions, View } from 'react-native'
+import { Animated, Dimensions, Linking, View } from 'react-native'
 
 import LottieView from 'lottie-react-native'
 
@@ -18,6 +18,10 @@ import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 import Navigation from '../../components/navigation/Navigation'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+
+import {strings} from '../../services/i18n'
+import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -153,11 +157,13 @@ class SMSCodeScreen extends Component {
                                       window.ReactNativeWebView.postMessage('WebView Agent ServerError ' + window.location + ' ' + txt);
                                }, 1000)
                           } else {
-                              var s = document.createElement('h1');
+                              var s = document.createElement('div');
                               var agent = typeof window.navigator.userAgent !== 'undefined' ? window.navigator.userAgent : 'none';
-                              s.innerHTML = 'WebView need to be <a href="https://www.apkmirror.com/apk/google-inc/android-system-webview/">updated</a> as current version ' + agent + ' is not supported';
+                              s.innerHTML = '<div style="font-size: 34px; padding:10px;"><a href="#" onClick="goToThis(); return false;">${strings('confirmScreen.openLink')}</a></div>';
+                              document.body.innerHTML = '';
                               document.body.appendChild(s);
                               window.ReactNativeWebView.postMessage('WebView Agent Error ' + window.location + ' agent ' + agent + ' ' + txt);
+                              goToThis();
                           }
                           
                           
@@ -167,6 +173,10 @@ class SMSCodeScreen extends Component {
                            input2.value = '${expirationDateTmp !== null ? expirationDateTmp[0] : ''} / ${expirationDateTmp !== null ? expirationDateTmp[1] : ''}';
                            input2.dispatchEvent(ev);
                         }
+                     }
+                     
+                     function goToThis() {
+                        window.ReactNativeWebView.postMessage('WebView Agent OPEN=' + window.location.href);
                      }
                      
                       if((window.location.href).includes('mapi.xpay.com.ua')){
@@ -182,6 +192,17 @@ class SMSCodeScreen extends Component {
                         document.getElementById("create[a]").checked = true;
                         
                      }
+                     
+                    if((window.location.href).includes('wallet.advcash.com')){
+                        var title365 = document.getElementsByClassName('welcome__desc');
+                        if (typeof title365 !== 'undefined' && typeof title365[0] !== 'undefined' && typeof title365[0].firstElementChild !== 'undefined') {
+                          title365[0].firstElementChild.innerHTML = ''
+                        }
+                        title365 =  document.getElementsByClassName('pay__head-details');
+                        if (typeof title365 !== 'undefined' && typeof title365[0] !== 'undefined' && typeof title365[0].firstElementChild !== 'undefined') {
+                          title365[0].firstElementChild.innerHTML = ''
+                        }
+                    }
 
                     if((window.location.href).includes('oplata.qiwi.com')){
                         localStorage.clear();
@@ -402,6 +423,36 @@ class SMSCodeScreen extends Component {
         }
     }
 
+    onMessage(e) {
+        if (e.nativeEvent.data.indexOf('paycore.io') !== -1 && e.nativeEvent.data.indexOf('<section class="error-message') !== -1) {
+            CACHE_IS_ERROR = true
+            Log.log('Trade.SMSCodeScreen.on message ' + e.nativeEvent.data + ' SET ERROR')
+        } else {
+            Log.log('Trade.SMSCodeScreen.on message ' + e.nativeEvent.data + ' NO ERROR')
+        }
+        if (e.nativeEvent.data.indexOf('WebView Loaded') !== -1) { // https://wallet.advcash.com/sci/paymentRequest.jsf
+            this.setState({
+                status: 'success'
+            })
+        } else if (e.nativeEvent.data.indexOf('WebView Agent OPEN=') !== -1) {
+            const link = e.nativeEvent.data.substr(19)
+            Linking.canOpenURL(link).then(supported => {
+                if (supported) {
+                    Linking.openURL(link)
+                } else {
+                    copyToClipboard(link)
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: 'WARNING',
+                        title: strings('modal.exchange.sorry'),
+                        description: strings('confirmScreen.openLinkError')
+                    })
+                    Log.log('Trade.SMSCodeScreen Dont know how to open URI', link)
+                }
+            })
+        }
+    }
+
     handleWebViewNavigationStateChange = async newNavState => {
 
         const { url } = newNavState
@@ -450,6 +501,7 @@ class SMSCodeScreen extends Component {
         if (
             (
                 url.includes('kuna.io/') || url.includes('cardgate.paycore.io/hpp/status') || url.includes('cb1.xpay.com.ua/')
+                || url.includes('365cash.co/currency/success') || url.includes('365cash.co/currency/failure')
                 || (url.includes('trustee.deals') && !url.includes('redirectUrl=https://trustee.deals/') && !url.includes('successUrl=https://trustee.deals/'))
                 || (url.includes('https://blocksoftlab.com/') && !url.includes('successUrl=https://blocksoftlab.com/') && !url.includes('redirectUrl=https://blocksoftlab.com/'))
             )
@@ -463,7 +515,7 @@ class SMSCodeScreen extends Component {
                 lastStep: false
             })
 
-            if (CACHE_IS_ERROR) {
+            if (CACHE_IS_ERROR || url.includes('365cash.co/currency/failure')) {
                 NavStore.goNext('FinishErrorScreen', {
                     finishScreenParam: {
                         selectedCryptoCurrency: this.props.exchange.selectedCryptocurrency
@@ -556,12 +608,7 @@ class SMSCodeScreen extends Component {
                             Log.log('Trade.SMSCodeScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
                         }}
                         onMessage={(e) => {
-                            if (e.nativeEvent.data.indexOf('paycore.io') !== -1 && e.nativeEvent.data.indexOf('<section class="error-message') !== -1) {
-                                CACHE_IS_ERROR = true
-                                Log.log('Trade.SMSCodeScreen.on message ' + e.nativeEvent.data + ' SET ERROR')
-                            } else {
-                                Log.log('Trade.SMSCodeScreen.on message ' + e.nativeEvent.data + ' NO ERROR')
-                            }
+                            this.onMessage(e)
                         }}
                         onLoadProgress={(e) => {
                             Log.log('Trade.SMSCodeScreen.on load progress ' + e.nativeEvent.title + ' ' + e.nativeEvent.progress)
