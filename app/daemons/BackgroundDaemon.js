@@ -10,13 +10,17 @@ import DBInit from '../appstores/DataSource/DB/DBInit/DBInit'
 import UpdateOneByOneDaemon from './back/UpdateOneByOneDaemon'
 import FilePermissions from '../services/FileSystem/FilePermissions'
 
+let CACHE_RUNNING = false
 class BackgroundDaemon {
 
     constructor() {
         this.init()
     }
 
+
     taskToRegister = async () => {
+
+        CACHE_RUNNING = true
 
         console.log('BACKGROUND EVENT INIT')
         Log.daemon('BACKGROUND EVENT INIT')
@@ -30,6 +34,8 @@ class BackgroundDaemon {
         Log.daemon('BACKGROUND EVENT FINISH')
 
         BackgroundFetch.finish()
+
+        CACHE_RUNNING = false
     }
 
     init = () => {
@@ -68,4 +74,5 @@ class BackgroundDaemon {
 
 }
 
-export default new BackgroundDaemon()
+const single = new BackgroundDaemon()
+export default single

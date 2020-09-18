@@ -29,6 +29,16 @@ export default class XmrScannerProcessor {
         this._settings = settings
     }
 
+    async _getCache(address, additionalData, walletHash) {
+        if (typeof CACHE[address] !== 'undefined') {
+            CACHE[address].provider = 'mymonero-cache-all'
+            return CACHE[address]
+        } else {
+            return false
+        }
+
+    }
+
     /**
      * @param address
      * @param additionalData
@@ -120,6 +130,21 @@ export default class XmrScannerProcessor {
         return CACHE[address]
 
 
+    }
+
+    /**
+     * @param {string} address
+     * @param {*} additionalData
+     * @param {string} walletHash
+     * @return {Promise<{balance:*, unconfirmed:*, provider:string}>}
+     */
+    async getBalanceBlockchainCache(address, additionalData, walletHash) {
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor.getBalance started ' + address + ' of ' + walletHash)
+        const res = await this._getCache(address, additionalData, walletHash)
+        if (!res) {
+            return false
+        }
+        return { balance: res.balance, unconfirmed: 0, provider: res.provider, time: res.time }
     }
 
     /**

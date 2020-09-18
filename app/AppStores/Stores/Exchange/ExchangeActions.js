@@ -75,7 +75,11 @@ export default new class ExchangeActions {
                     tradePrevID: await AsyncStorage.getItem('trade.selectedPaymentSystem.id'),
                     tradePrevCardID: await AsyncStorage.getItem('trade.selectedCard.index'),
                     exchangeInCC: await AsyncStorage.getItem('exchange.selectedInCurrency.currencyCode'),
-                    exchangeOutCC: await AsyncStorage.getItem('exchange.selectedOutCurrency.currencyCode')
+                    exchangeOutCC: await AsyncStorage.getItem('exchange.selectedOutCurrency.currencyCode'),
+                    advEmail :  await AsyncStorage.getItem('trade.advEmail'),
+                    advWallet :  await AsyncStorage.getItem('trade.advWallet'),
+                    perfectWallet :  await AsyncStorage.getItem('trade.perfectWallet'),
+                    payeerWallet :  await AsyncStorage.getItem('trade.payeerWallet'),
                 })
             }
         } catch (e) {

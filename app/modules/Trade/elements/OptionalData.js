@@ -7,11 +7,11 @@ import { View } from 'react-native'
 
 import PhoneInput from '../../../components/elements/PhoneInput'
 import AdvInput from '../../../components/elements/AdvInput'
+import AdvEmail from '../../../components/elements/AdvEmail'
 import PerfectMoneyInput from '../../../components/elements/PerfectMoneyInput'
 import PayeerInput from '../../../components/elements/PayeerInput'
 
 import { strings } from '../../../services/i18n'
-
 
 
 class OptionalData extends Component {
@@ -21,7 +21,7 @@ class OptionalData extends Component {
         this.state = {
             enabled: false,
             uniqueParams: {},
-            selectedPaymentSystem : false
+            selectedPaymentSystem: false
         }
     }
 
@@ -69,18 +69,36 @@ class OptionalData extends Component {
 
                 delete self.state.uniqueParams.cardNumber
             }
-        } else if (selectedPaymentSystem.paymentSystem === 'ADVCASH' || selectedPaymentSystem.paymentSystem === 'PAYEER' || selectedPaymentSystem.paymentSystem === 'PERFECT_MONEY') {
+        } else if (selectedPaymentSystem.paymentSystem === 'ADVCASH') {
             if (tradeType === 'BUY') {
                 // do nothing
             } else {
                 const refPhoneNumber = this.refPhoneNumber.validate()
+                const refEmail = typeof this.refEmail !== 'undefined' ? this.refEmail.validate() : false
 
+                if (!refPhoneNumber || !refEmail) {
+                    throw new Error(strings('tradeScreen.modalError.additionalData'))
+                } else {
+                    self.state.uniqueParams = {
+                        ...self.state.uniqueParams,
+                        wallet: this.refPhoneNumber.getWalletNumber(),
+                        email: this.refEmail.getEmail()
+                    }
+
+                    delete self.state.uniqueParams.cardNumber
+                }
+            }
+        } else if (selectedPaymentSystem.paymentSystem === 'PAYEER' || selectedPaymentSystem.paymentSystem === 'PERFECT_MONEY') {
+            if (tradeType === 'BUY') {
+                // do nothing
+            } else {
+                const refPhoneNumber = this.refPhoneNumber.validate()
                 if (!refPhoneNumber) {
                     throw new Error(strings('tradeScreen.modalError.additionalData'))
                 } else {
                     self.state.uniqueParams = {
                         ...self.state.uniqueParams,
-                        wallet: this.refPhoneNumber.getWalletNumber()
+                        wallet: this.refPhoneNumber.getWalletNumber(),
                     }
 
                     delete self.state.uniqueParams.cardNumber
@@ -106,7 +124,7 @@ class OptionalData extends Component {
     renderOptionalData = () => {
 
         const { inputOnFocus } = this.props
-        const { tradeType } = this.props.exchangeStore
+        const { tradeType, advEmail, advWallet, perfectWallet, payeerWallet } = this.props.exchangeStore
         const { selectedPaymentSystem, enabled } = this.state
 
 
@@ -120,7 +138,8 @@ class OptionalData extends Component {
             } else {
                 return (
                     <View>
-                        <AdvInput ref={ref => this.refPhoneNumber = ref} onFocus={inputOnFocus}/>
+                        <AdvInput ref={ref => this.refPhoneNumber = ref} value={advWallet} onFocus={inputOnFocus}/>
+                        <AdvEmail ref={ref => this.refEmail = ref} value={advEmail} onFocus={inputOnFocus}/>
                     </View>
                 )
             }
@@ -130,21 +149,22 @@ class OptionalData extends Component {
             } else {
                 return (
                     <View>
-                        <PayeerInput ref={ref => this.refPhoneNumber = ref} onFocus={inputOnFocus}/>
+                        <PayeerInput ref={ref => this.refPhoneNumber = ref} value={payeerWallet} onFocus={inputOnFocus}/>
                     </View>
                 )
             }
-        } if (selectedPaymentSystem.paymentSystem === 'PERFECT_MONEY') {
+        }
+        if (selectedPaymentSystem.paymentSystem === 'PERFECT_MONEY') {
             if (tradeType === 'BUY') {
                 return <View/>
             } else {
                 return (
                     <View>
-                        <PerfectMoneyInput ref={ref => this.refPhoneNumber = ref} onFocus={inputOnFocus}/>
+                        <PerfectMoneyInput ref={ref => this.refPhoneNumber = ref} value={perfectWallet} onFocus={inputOnFocus}/>
                     </View>
                 )
             }
-        }else if (selectedPaymentSystem.paymentSystem === 'VISA_MC_P2P' && selectedPaymentSystem.currencyCode === 'RUB' && selectedPaymentSystem.provider === '365cash') {
+        } else if (selectedPaymentSystem.paymentSystem === 'VISA_MC_P2P' && selectedPaymentSystem.currencyCode === 'RUB' && selectedPaymentSystem.provider === '365cash') {
             return <View/>
         } else if (selectedPaymentSystem.paymentSystem === 'QIWI' || selectedPaymentSystem.paymentSystem === 'MOBILE_PHONE') {
             return (

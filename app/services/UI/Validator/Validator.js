@@ -18,6 +18,8 @@ const cardNumberValid = require('fast-luhn')
 const DEFAULT_WORDS = require('./_words/english.json')
 const bitcoin = require('bitcoinjs-lib')
 
+import * as f from 'mymonero-core-js/monero_utils/monero_paymentID_utils'
+
 async function _userDataValidation(obj) {
 
     const id = obj.id
@@ -150,11 +152,29 @@ async function _userDataValidation(obj) {
             }
             break
 
+        case 'XMR_ADDRESS':
+            value = value.trim()
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else if (!/^[0-9a-zA-Z]{95,106}$/.test(value)) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
         case 'XRP_DESTINATION_TAG':
             value = value.trim()
             if (!value) {
                 return
             } else if (value > 4294967295) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
+        case 'XMR_DESTINATION_TAG':
+            value = value.trim()
+            if (!value) {
+                return
+            } else if (!f.IsValidPaymentIDOrNoPaymentID(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break

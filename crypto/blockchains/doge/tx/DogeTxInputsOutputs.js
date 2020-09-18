@@ -188,7 +188,7 @@ export default class DogeTxInputsOutputs {
                 if (fee < this._minFee) {
                     fee = this._minFee
                 }
-                const change = BlocksoftUtils.diff(BlocksoftUtils.diff(inputsBalanceBN, wishedAmountBN), fee)
+                const change = Math.ceil(BlocksoftUtils.diff(BlocksoftUtils.diff(inputsBalanceBN, wishedAmountBN), fee) * 1)
                 if (change - this._minChangeThreshold > 0) {
                     if (addressForChange === outputs[0].to) {
                         if (outputs[0].amount * 1 > 0) {
@@ -279,10 +279,10 @@ export default class DogeTxInputsOutputs {
                 msg += ' fee [2.1] will be ' + fee
                 msg += ' feeAutoCalculate: size' + sizeMsg + ' = ' + size + ' bytes = ' + fee + ' satoshi '
                 if (data.addressForChange === 'TRANSFER_ALL') {
-                    outputs[0].amount = BlocksoftUtils.diff(inputsBalanceBN, fee)
+                    outputs[0].amount = Math.ceil(BlocksoftUtils.diff(inputsBalanceBN, fee) * 1)
                     msg += ' TRANSFER_ALL '
                 } else {
-                    const leftAfterFee = BlocksoftUtils.diff(inputsMinusWishedBN, fee)
+                    const leftAfterFee = Math.ceil(BlocksoftUtils.diff(inputsMinusWishedBN, fee) * 1)
                     if (leftAfterFee * 1 < 0 && subtitle.indexOf('tryToFind') === -1) {
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.1 with leftAfterAutoFee ' + leftAfterFee + ' ' + msg)
                         data.feeForTx = { feeForTx: fee, feeForByte: feeForByte }
@@ -295,7 +295,7 @@ export default class DogeTxInputsOutputs {
                 const change = inputsMinusWishedBN.get()
                 if (change * 1 < 0) {
                     if (data.addressForChange === 'TRANSFER_ALL') {
-                        outputs[0].amount = BlocksoftUtils.diff(inputsBalanceBN, data.feeForTx.feeForTx)
+                        outputs[0].amount = Math.ceil(BlocksoftUtils.diff(inputsBalanceBN, data.feeForTx.feeForTx) * 1)
                     } else {
                         let canWait = 0
                         let e

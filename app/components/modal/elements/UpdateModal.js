@@ -1,6 +1,3 @@
-/**
- * @version 0.9
- */
 import React, { Component } from 'react'
 import { View } from 'react-native'
 
@@ -8,36 +5,45 @@ import Layout from '../../../components/elements/modal/Layout'
 import Title from '../../../components/elements/modal/Title'
 import Text from '../../../components/elements/modal/Text'
 import Button from '../../../components/elements/modal/Button'
-import Icon from '../../../components/elements/modal/Icon'
+// import Icon from '../../../components/elements/modal/Icon'
+
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
-export default class InfoModal extends Component {
+import { strings } from '../../../services/i18n'
+
+export default class UpdateModal extends Component {
 
     constructor(props) {
         super(props)
     }
 
-    handleHide = () => {
+    handleYes = async () => {
         const { callback } = this.props
 
-        hideModal()
-        if (typeof callback != 'undefined') {
-            callback()
-        }
+        callback()
 
+        hideModal()
+    }
+
+    handleNo = () => {
+
+        const { noCallback } = this.props.data
+
+        hideModal()
+
+        if (noCallback) {
+            noCallback()
+        }
     }
 
     render() {
-        const { show } = this.props
-        const { icon, title, description, component, error } = this.props.data
-        if (typeof (error) !== 'undefined' && typeof (error.log) !== 'undefined') {
-            // make visible for advanced users or devs @Misha? alert(error.log)
-        }
+
+        const { title, icon, description } = this.props.data
+
         return (
-            <Layout visible={show}>
+            <Layout visible={this.props.show}>
                 <View>
-                    <Icon callback={this.handleHide} icon={`${icon === true ? 'success' : icon === false ? 'fail' : icon === null ? 'warning' : icon.toLowerCase()}`}/>
-                    <Title style={styles.title}>
+                    <Title style={styles.title} textStyles={{ width: 'auto', paddingHorizontal: 10 }}>
                         {title}
                     </Title>
                     <View style={{ marginTop: 16, marginBottom: 30 }}>
@@ -45,10 +51,12 @@ export default class InfoModal extends Component {
                             {description}
                         </Text>
                     </View>
-                    {typeof component != 'undefined' ? component() : null}
-                    <View style={{marginBottom: 30 }}>
-                        <Button onPress={this.handleHide} color={ icon === true ? '#864DD9' : icon === false ? '#E54C4C' : icon === null ? '#F59E6C' : '#2A7FDB' } shadow={true}>
-                            Ok
+                    <View style={{ marginBottom: 12 }}>
+                        <Button onPress={this.handleYes} color={'#864DD9'} shadow={true}>
+                            {strings('modal.infoUpdateModal.download')}
+                        </Button>
+                        <Button onPress={this.handleNo} style={{ backgroundColor: 'none', color: '#864DD9' }}>
+                            {strings('modal.infoUpdateModal.notNow')}
                         </Button>
                     </View>
                 </View>

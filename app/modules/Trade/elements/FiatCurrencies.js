@@ -201,7 +201,7 @@ class FiatCurrencies extends Component {
                     }
                 }
             } else if (TmpConstants.CACHE_SELECTED_PREV_FIAT) {
-                console.log('prev', TmpConstants.CACHE_SELECTED_PREV_FIAT)
+                // console.log('prev', TmpConstants.CACHE_SELECTED_PREV_FIAT)
             }
 
         } catch (e) {

@@ -16,20 +16,13 @@ import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import changeableProd from '../../config/changeable.prod'
 import changeableTester from '../../config/changeable.tester'
 
-import config from '../../config/config'
 import DeviceInfo from 'react-native-device-info'
-
-
-const SAVE_FIREBASE = config.debug.firebaseLogs // set true to save firebase
 
 const CACHED = {}
 const CACHED_BUY = {}
 
 let CACHE_BALANCE = {}
 
-function cbToken() {
-    return CashBackUtils.getWalletToken()
-}
 
 class MarketingEvent {
     /**
@@ -74,13 +67,27 @@ class MarketingEvent {
 
         }
 
+        this.DATA.LOG_REFERER = ''
+        try {
+            const tmp = DeviceInfo.getInstallReferrerSync()
+            if (typeof tmp !== 'undefined' && tmp === 'undefined' && tmp) {
+                this.DATA.LOG_REFERER = tmp
+            }
+        } catch (e) {
+
+        }
+
         this._reinitTgMessage(testerMode)
 
         // after this is a little bit long soooo we will pass variables any time we could
         this.DATA.LOG_WALLET = await BlocksoftKeysStorage.getSelectedWallet()
         this._reinitTgMessage(testerMode)
 
-        this.DATA.LOG_CASHBACK = cbToken()
+        await CashBackUtils.init(true)
+        this.DATA.LOG_CASHBACK = CashBackUtils.getWalletToken()
+        this._reinitTgMessage(testerMode)
+
+        this.DATA.LOG_PARENT = CashBackUtils.getParentToken()
         this._reinitTgMessage(testerMode)
 
         let tmp = await AsyncStorage.getItem('CACHE_BALANCE')
@@ -98,189 +105,85 @@ class MarketingEvent {
      * @private
      */
     _reinitTgMessage(testerMode) {
-        Log._reinitTgMessage(testerMode, this.DATA)
-        BlocksoftCryptoLog._reinitTgMessage(testerMode, this.DATA)
-        this.TG_MESSAGE = '\nVERSION ' + this.DATA.LOG_VERSION
-        if (firebase.crashlytics()) {
-            firebase.crashlytics().setStringValue('LOG_VERSION', this.DATA.LOG_VERSION)
-        }
-        firebase.analytics().setUserProperty('LOG_VERSION', this.DATA.LOG_VERSION)
 
+        this.TG_MESSAGE = ''
 
-        this.TG_MESSAGE += '\nTESTER ' + this.DATA.LOG_TESTER
+        for (const key in this.DATA) {
+            const val = this.DATA[key]
+            if (!val) {
+                continue
+            }
 
-        if (this.DATA.LOG_TESTER) {
-            if (firebase.crashlytics()) {
-                firebase.crashlytics().setStringValue('LOG_TESTER', this.DATA.LOG_TESTER)
+            if (key === 'LOG_DEV') {
+                // do nothing
+            } else if (key === 'LOG_TOKEN') {
+                const short  = val.substr(0, 20)
+                this.TG_MESSAGE += '\nTOKEN ' + short
+                this.TG_MESSAGE += '\nFULL_TOKEN ' + val
+                if (firebase.crashlytics()) {
+                    firebase.crashlytics().setStringValue(key, short)
+                    firebase.crashlytics().setStringValue(key + '_FULL', val)
+                }
+                firebase.analytics().setUserProperty(key, short)
+                firebase.analytics().setUserProperty(key + '_FULL', val)
+            } else {
+                if (key === 'LOG_VERSION') {
+                    // do nothing
+                } else {
+                    this.TG_MESSAGE += '\n' + key + ' ' + val + ' '
+                }
+                if (firebase.crashlytics()) {
+                    firebase.crashlytics().setStringValue(key, val)
+                }
+                firebase.analytics().setUserProperty(key, val)
             }
-            firebase.analytics().setUserProperty('LOG_TESTER', this.DATA.LOG_TESTER)
         }
 
-        if (typeof (this.DATA.LOG_WALLET) !== 'undefined' && this.DATA.LOG_WALLET) {
-            if (firebase.crashlytics()) {
-                firebase.crashlytics().setStringValue('LOG_WALLET', this.DATA.LOG_WALLET)
-            }
-            firebase.analytics().setUserProperty('LOG_WALLET', this.DATA.LOG_WALLET)
-            this.TG_MESSAGE += '\nWALLET ' + this.DATA.LOG_WALLET
-        }
-        if (typeof (this.DATA.LOG_CASHBACK) !== 'undefined' && this.DATA.LOG_CASHBACK) {
-            if (firebase.crashlytics()) {
-                firebase.crashlytics().setStringValue('LOG_CASHBACK', this.DATA.LOG_CASHBACK)
-            }
-            firebase.analytics().setUserProperty('LOG_CASHBACK', this.DATA.LOG_CASHBACK)
-            this.TG_MESSAGE += '\nCASHBACK ' + this.DATA.LOG_CASHBACK.substr(0, 20)
-        }
-        if (typeof (this.DATA.LOG_TOKEN) !== 'undefined' && this.DATA.LOG_TOKEN) {
-            if (firebase.crashlytics()) {
-                firebase.crashlytics().setStringValue('LOG_TOKEN', this.DATA.LOG_TOKEN)
-            }
-            firebase.analytics().setUserProperty('LOG_TOKEN', this.DATA.LOG_TOKEN)
-            this.TG_MESSAGE += '\nTOKEN ' + this.DATA.LOG_TOKEN.substr(0, 20)
-        }
-        if (typeof (this.DATA.LOG_PLATFORM) !== 'undefined' && this.DATA.LOG_PLATFORM) {
-            if (firebase.crashlytics()) {
-                firebase.crashlytics().setStringValue('LOG_PLATFORM', this.DATA.LOG_PLATFORM)
-            }
-            firebase.analytics().setUserProperty('LOG_PLATFORM', this.DATA.LOG_PLATFORM)
-            this.TG_MESSAGE += '\nPLATFORM ' + this.DATA.LOG_PLATFORM
-        }
-        if (typeof (this.DATA.LOG_MODEL) !== 'undefined' && this.DATA.LOG_MODEL) {
-            if (firebase.crashlytics()) {
-                firebase.crashlytics().setStringValue('LOG_MODEL', this.DATA.LOG_MODEL)
-            }
-            firebase.analytics().setUserProperty('LOG_MODEL', this.DATA.LOG_MODEL)
-            this.TG_MESSAGE += '\nMODEL ' + this.DATA.LOG_MODEL
-        }
+        Log._reinitTgMessage(testerMode, this.DATA, this.TG_MESSAGE)
+        BlocksoftCryptoLog._reinitTgMessage(testerMode, this.DATA, this.TG_MESSAGE)
 
     }
 
-    async logEvent(logTitle, logData, ONLY_TG = false) {
+    async logEvent(logTitle, logData, PREFIX = 'SPM') {
         if (this.DATA.LOG_DEV) {
             return false
         }
-        const tmp = logTitle + ' ' + JSON.stringify(logData)
+
+        if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
+            logData.LOG_TOKEN = this.DATA.LOG_TOKEN
+        }
+
+        let tmp = logTitle + ' ' + JSON.stringify(logData)
         if (tmp === this._cacheLastLog) return true
         try {
             if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
-                logData.LOG_TOKEN = this.DATA.LOG_TOKEN
+                // already done
             } else {
                 this.DATA.LOG_TOKEN = await AsyncStorage.getItem('pushToken')
                 if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
                     logData.LOG_TOKEN = this.DATA.LOG_TOKEN
                     this._reinitTgMessage()
                 }
-            }
-            if (this.DATA.LOG_WALLET) {
-                logData.LOG_WALLET = this.DATA.LOG_WALLET
-            }
-            if (this.DATA.LOG_CASHBACK) {
-                logData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
-            } else {
-                this.DATA.LOG_CASHBACK = cbToken()
-                if (this.DATA.LOG_CASHBACK) {
-                    logData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
-                    this._reinitTgMessage()
-                }
-            }
-            if (this.DATA.LOG_PLATFORM) {
-                logData.LOG_PLATFORM = this.DATA.LOG_PLATFORM
-            }
-            if (this.DATA.LOG_MODEL) {
-                logData.LOG_MODEL = this.DATA.LOG_MODEL
-            }
-            if (this.DATA.LOG_TESTER) {
-                logData.LOG_TESTER = this.DATA.LOG_TESTER
+                tmp = logTitle + ' ' + JSON.stringify(logData)
             }
 
             this._cacheLastLog = tmp
 
             const date = (new Date()).toISOString().split('T')
-            logData.time = date[1].replace(/\..+/, '')
 
             // noinspection ES6MissingAwait
-            this.TG.send(`SPM_june_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
-
-            if (!ONLY_TG) {
-                firebase.analytics().logEvent('v3_' + logTitle, logData)
-            }
+            this.TG.send(PREFIX + `_sept_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
 
         } catch (e) {
             // noinspection ES6MissingAwait
-            console.log('err', e)
             Log.err(`DMN/MarketingEvent ${logTitle} ` + e.toString() + ' with logData ' + JSON.stringify(logData))
         }
     }
 
     async logOnlyRealTime(logTitle, logData) {
-        if (this.DATA.LOG_DEV) {
-            return false
-        }
-        const tmp = logTitle + ' ' + JSON.stringify(logData)
-        if (tmp === this._cacheLastLog) return true
-        try {
-            if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
-                logData.LOG_TOKEN = this.DATA.LOG_TOKEN
-            } else {
-                this.DATA.LOG_TOKEN = await AsyncStorage.getItem('pushToken')
-                if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
-                    logData.LOG_TOKEN = this.DATA.LOG_TOKEN
-                    this._reinitTgMessage()
-                }
-            }
-            if (this.DATA.LOG_WALLET) {
-                logData.LOG_WALLET = this.DATA.LOG_WALLET
-            }
-            if (this.DATA.LOG_CASHBACK) {
-                logData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
-            } else {
-                this.DATA.LOG_CASHBACK = cbToken()
-                if (this.DATA.LOG_CASHBACK) {
-                    logData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
-                    this._reinitTgMessage()
-                }
-            }
-            if (this.DATA.LOG_PLATFORM) {
-                logData.LOG_PLATFORM = this.DATA.LOG_PLATFORM
-            }
-            if (this.DATA.LOG_MODEL) {
-                logData.LOG_MODEL = this.DATA.LOG_MODEL
-            }
-            if (this.DATA.LOG_TESTER) {
-                logData.LOG_TESTER = this.DATA.LOG_TESTER
-            }
-
-            this._cacheLastLog = tmp
-
-            const date = (new Date()).toISOString().split('T')
-            logData.time = date[1].replace(/\..+/, '')
-
-            // noinspection ES6MissingAwait
-            this.TG.send(`RTM_june_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
-
-        } catch (e) {
-            // noinspection ES6MissingAwait
-            Log.err(`DMN/MarketingEvent ${logTitle} ` + e.toString() + ' with logData ' + JSON.stringify(logData))
-        }
+        return this.logEvent(logTitle, logData, 'RTM')
     }
 
-    /**
-
-     "rules": {
-                "DATA" : {
-                    "$subtoken": {
-                        "$wallet": {
-                            "$currency": {
-                                ".read": "data.child('subtoken').val() === $token",
-                                ".write": true
-                            }
-                        }
-                    }
-                },
-                ".read": false,
-                ".write": true
-            }
-     }
-     */
     async setBalance(walletHash, currencyCode, totalBalance, logData) {
         if (totalBalance === '' || totalBalance === 'undefined' || !totalBalance) {
             return false
@@ -293,30 +196,9 @@ class MarketingEvent {
             return false
         }
 
-
-        const now = new Date()
-        const date = now.toISOString().replace(/T/, ' ').replace(/\..+/, '')
-        let token = ''
-        if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
-            token = 'NOTOKEN'
-        } else {
-            token = this.DATA.LOG_TOKEN
-        }
-        const saveKeyData = { totalBalance, date, token, subtoken: token ? token.substr(0, 20) : '' }
-
         let eventTitle = 'slava_update_balance'
-        let keyTitle = 'DATA/' + saveKeyData.subtoken + '/' + walletHash + '/balance/' + currencyCode
         if (currencyCode === 'TOTAL') {
             eventTitle = 'slava_update_balance_TOTAL'
-            keyTitle = 'DATA/' + saveKeyData.subtoken + '/' + walletHash + '/TOTAL/'
-            if (this.DATA.LOG_CASHBACK) {
-                saveKeyData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
-            } else {
-                this.DATA.LOG_CASHBACK = cbToken()
-                if (this.DATA.LOG_CASHBACK) {
-                    saveKeyData.LOG_CASHBACK = this.DATA.LOG_CASHBACK
-                }
-            }
         }
 
         let sendEvent = false

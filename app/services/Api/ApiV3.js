@@ -14,6 +14,7 @@ import firebase from 'react-native-firebase'
 import PubEncrypt from './PubEncrypt/PubEncrypt'
 import config from '../../config/config'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
+import currencyDS from '../../appstores/DataSource/Currency/Currency'
 
 const V3_ENTRY_POINT = '/mobile-exchanger'
 const V3_API = 'https://api.v3.trustee.deals'
@@ -42,11 +43,19 @@ export default {
             showType = 'legacy'
         }
 
-        for (let walletHash in DaemonCache.CACHE_WALLET_NAMES_AND_CB) {
+        const tmps = await currencyDS.getCurrencies()
+        const currencies = {}
+        for (const currency of tmps) {
+            const currencyCode = currency.currencyCode
+            const isHidden = currency.isHidden
+            currencies[currencyCode] = isHidden
+        }
+
+        for (const walletHash in DaemonCache.CACHE_WALLET_NAMES_AND_CB) {
             let wallet = DaemonCache.CACHE_WALLET_NAMES_AND_CB[walletHash]
             wallet = await walletDS._redoCashback(wallet)
             const accounts = []
-            for (let currencyCode in DaemonCache.CACHE_ALL_ACCOUNTS[walletHash]) {
+            for (const currencyCode in DaemonCache.CACHE_ALL_ACCOUNTS[walletHash]) {
                 const account = DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][currencyCode]
 
                 // @todo optimize with setSelectedAccount
@@ -119,11 +128,13 @@ export default {
                 } else {
                     accounts.push({
                         currencyCode,
+                        isHidden: currencies[currencyCode],
                         address: account.address,
                         balance: account.balancePretty
                     })
                 }
             }
+
             data.wallets.push({
                 walletHash,
                 walletName: wallet.walletName,
@@ -170,6 +181,7 @@ export default {
                 + '&messageHash=' + sign.messageHash
                 + '&signature=' + sign.signature
                 + '&cashbackToken=' + currentToken
+                + '&locale=' + sublocale()
             Log.log('ApiV3.initData link ' + link)
             return link
         } catch (e) {

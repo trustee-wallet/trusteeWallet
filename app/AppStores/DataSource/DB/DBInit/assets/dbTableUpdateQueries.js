@@ -11,7 +11,7 @@ import BlocksoftDict from '../../../../../../crypto/common/BlocksoftDict'
 import currencyActions from '../../../../Stores/Currency/CurrencyActions'
 
 export default {
-    maxVersion: 70,
+    maxVersion: 71,
     updateQuery: {
         1: {
             queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -571,6 +571,10 @@ export default {
 
         70: {
             queryString: `ALTER TABLE wallet ADD COLUMN wallet_cashback VARCHAR(256) NULL`
+        },
+
+        71: {
+            queryString: `ALTER TABLE app_news ADD COLUMN news_unique_key VARCHAR(256) NULL`
         },
     }
 }

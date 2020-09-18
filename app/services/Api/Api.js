@@ -149,6 +149,8 @@ export default {
             msg = strings('confirmScreen.confirmScreenInvalidOut')
         } else if (tmp.indexOf('is temporary disabled') !== -1) {
             msg = strings('confirmScreen.confirmScreenTemporaryOff')
+        } else if (tmp.indexOf('adv cash account is not verified') !== -1) {
+            msg = strings('confirmScreen.confirmScreenAdvNotVerified')
         } else if (tmp.indexOf('invalid cardnumber param') !== -1) {
             msg = strings('confirmScreen.confirmScreenInvalidAddress')
             Log.err('Api.checkError ' + msg + ' error ' + tmp + ' ' + JSON.stringify(dataToSend) + ' ALL DATA ' + JSON.stringify(errorMsgExt))// will be removed after tests

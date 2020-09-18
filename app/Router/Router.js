@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React from 'react'
 import { createAppContainer } from 'react-navigation'
@@ -17,6 +17,7 @@ import QRCodeScannerScreen from '../modules/QRCodeScanner/QRCodeScannerScreen'
 
 import HomeScreenStack from './HomeStack'
 import ExchangeScreenStack from './ExchangeScreenStack'
+import ExchangeV3ScreenStack from './ExchangeV3ScreenStack'
 import TradeScreenStack from './TradeScreenStack'
 import SettingsScreenStack from './SettingsStack'
 
@@ -121,6 +122,13 @@ const MainNavigator = createStackNavigator({
 
         ExchangeScreenStack: {
             screen: ExchangeScreenStack,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        ExchangeV3ScreenStack: {
+            screen: ExchangeV3ScreenStack,
             navigationOptions: {
                 headerShown: false
             }

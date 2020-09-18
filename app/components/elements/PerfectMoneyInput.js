@@ -9,7 +9,9 @@ import { TextInputMask } from 'react-native-masked-text'
 import GradientView from './GradientView'
 
 import { strings } from '../../services/i18n'
+import AsyncStorage from '@react-native-community/async-storage'
 
+let CACHE_VALUE = false
 
 class PerfectMoneyInput extends Component {
     constructor(props) {
@@ -17,12 +19,19 @@ class PerfectMoneyInput extends Component {
         this.state = {
             walletMask: 'U9999999',
             walletNumber: 'U',
-            isValid: true
+            isValid: true,
+            isSet : false
         }
     }
 
     validate = () => {
         const isValid = this.state.walletNumber.length === 8
+
+        CACHE_VALUE = this.state.walletNumber
+
+        if (isValid) {
+            AsyncStorage.setItem('trade.perfectWallet', this.state.walletNumber)
+        }
 
         this.setState({
             isValid
@@ -45,7 +54,17 @@ class PerfectMoneyInput extends Component {
     render() {
 
         const { isValid, walletMask } = this.state
-        const { onFocus } = this.props
+        const { onFocus, value } = this.props
+
+        if (!CACHE_VALUE) {
+            if (value) {
+                CACHE_VALUE = value
+            }
+        }
+        if (CACHE_VALUE && !this.state.isSet) {
+            this.state.walletNumber = CACHE_VALUE
+            this.state.isSet = true
+        }
 
         return (
             <View style={styles.wrapper}>

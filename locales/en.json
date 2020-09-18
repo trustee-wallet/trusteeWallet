@@ -195,6 +195,7 @@
     "confirmScreenTimeout" : "Please, check Internet access and try again",
     "confirmScreenInvalidOut" : "Invalid out account, please, check and try again",
     "confirmScreenTemporaryOff" : "Temporary disabled destination on the provider side",
+    "confirmScreenAdvNotVerified" : "Email not verified, please use verified Adv account and try again",
     "confirmScreenInvalidAddress" : "System error of the trading pair on the provider side, please, try again",
     "openLink" : "To go to payment please click directly on this link",
     "openLinkError": "Not found default browser - link is copied to clipboard"
@@ -358,6 +359,7 @@
       "pay": "Pay",
       "remove" : "Remove",
       "destinationTag": "Destination tag",
+      "paymentId": "Payment ID",
       "nonce": "Nonce",
       "delegatedNonce": "Delegated Nonce",
       "empty": "(empty)",
@@ -403,6 +405,7 @@
       "confirming": "Confirming",
       "fail": "Fail",
       "missing" : "Not found",
+      "replaced" : "Replaced",
       "internal_success": "Success from Contract",
       "internal_new": "New from Contract",
       "internal_fail": "Fail from Contract"
@@ -442,6 +445,7 @@
       "exchange": {
         "pending_payin": "Replenishment expected",
         "canceled_payin": "Replenishment canceled",
+        "refunded_order": "Refund was made",
         "done_payin": "Replenishment was successful",
         "wait_trade": "Exchange pending",
         "done_trade": "Exchange done successful",
@@ -455,6 +459,7 @@
       "sell": {
         "pending_payin": "Replenishment expected",
         "canceled_payin": "Replenishment canceled",
+        "refunded_order": "Refund was made",
         "done_payin": "Replenishment was successful",
         "wait_trade": "Exchange pending",
         "done_trade": "Exchange done successful",
@@ -468,6 +473,7 @@
       "buy": {
         "pending_payin": "Replenishment expected",
         "canceled_payin": "Replenishment canceled",
+        "refunded_order": "Refund was made",
         "done_payin": "Replenishment was successful",
         "wait_trade": "Exchange pending",
         "done_trade": "Exchange done successful",
@@ -536,6 +542,7 @@
     "value": "value",
     "comment": "Comment",
     "xrp_memo": "Destination tag",
+    "xmr_memo": "Payment ID",
     "send": "Next",
     "useAllFunds": "Use all funds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
@@ -674,7 +681,7 @@
      "SERVER_RESPONSE_MIN_GAS_ETH": "Minimal gas limit is 21000",
       "SERVER_RESPONSE_BAD_DESTINATION" : "Destination address is invalid",
       "SERVER_RESPONSE_BAD_SEND_NODE" : "No access to sending server",
-      "SERVER_RESPONSE_DOUBLE_SPEND" : "Please, regenerate transaction as outputs are changed"
+      "SERVER_RESPONSE_DOUBLE_SPEND" : "Please, regenerate transaction as outputs are changed or wait for the other transactions to be mined"
     }
   },
   "walletBackup": {
@@ -752,6 +759,10 @@
       "advInput": {
         "advNumber": "Account number",
         "invalidFormat": "Invalid account number"
+      },
+      "advEmail": {
+        "accountEmail": "Email",
+        "invalidFormat": "Invalid email"
       }
     },
     "navigation": {
@@ -835,7 +846,15 @@
     },
     "infoUpdateModal": {
       "title": "Attention!",
-      "description": "A new version is available, please, update your wallet!"
+      "description": "A new version is available, please, update your wallet!",
+      "download": "Download",
+      "notNow": "Not now"
+    },
+    "infoNewInterface": {
+      "title": "A new interface is available",
+      "description": "See what we've changed for you",
+      "try": "Try",
+      "notNow": "Not now"
     },
     "infoPayOrder": {
       "error": {

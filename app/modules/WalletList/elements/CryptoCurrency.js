@@ -100,7 +100,7 @@ class CryptoCurrency extends Component {
         } else {
             account = accountListByWallet[currencyCode]
         }
-
+        
         let ratePrep = account.basicCurrencyRate
         if (ratePrep > 0) {
             ratePrep = BlocksoftPrettyNumbers.makeCut(ratePrep, 2).separated
@@ -160,7 +160,7 @@ class CryptoCurrency extends Component {
                                         }
                                     </View>
                                 </View>
-                                <View style={{ flex: 1 }}>
+                                <View style={{ flex: 1, marginLeft: 10 }}>
                                     <Text style={styles.cryptoList__title}>
                                         {account.basicCurrencySymbol} {basicBalancePrep}
                                     </Text>
@@ -276,7 +276,7 @@ const styles = {
     cryptoList__icoWrap: {
         width: 42,
         height: 42,
-        marginRight: 15,
+        marginRight: 11,
         elevation: 0,
         shadowColor: '#fff'
     },

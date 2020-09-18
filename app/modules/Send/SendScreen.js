@@ -51,6 +51,7 @@ import config from '../../config/config'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
+import api from '../../services/Api/Api'
 
 let styles
 
@@ -722,6 +723,16 @@ class SendScreen extends Component {
         )
     }
 
+    closeAction = () => {
+        const { toTransactionJSON } = this.props.send.data
+
+        if (typeof toTransactionJSON !== 'undefined' && typeof toTransactionJSON.bseOrderID !== 'undefined') {
+            api.setExchangeStatus(toTransactionJSON.bseOrderID, 'close')
+        }
+
+        NavStore.goBack()
+    }
+
     render() {
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
@@ -763,8 +774,6 @@ class SendScreen extends Component {
 
         const basicCurrencyCode = this.state.account.basicCurrencyCode || 'USD'
 
-        const { goBackCallback } = this.props.send.data
-
         // actually should be dict[extendsProcessor].addressUIChecker check but not to take all store will keep simplier
         let extendedAddressUiChecker = (typeof addressUiChecker !== 'undefined' && addressUiChecker ? addressUiChecker : extendsProcessor)
         if (!extendedAddressUiChecker) {
@@ -779,7 +788,8 @@ class SendScreen extends Component {
                 <Navigation
                     title={strings('send.title', { currency: currencySymbol })}
                     CustomComponent={this.renderAccountDetail}
-                    goBackCallback={goBackCallback}
+                    backAction={this.closeAction}
+                    closeAction={this.closeAction}
                 />
                 <KeyboardAwareView>
                     <ScrollView
@@ -834,6 +844,18 @@ class SendScreen extends Component {
                                         keyboardType={'numeric'}
                                         decimals={0}
                                         additional={'NUMBER'}
+                                    /> : null
+                            }
+
+                            {
+                                currencyCode === 'XMR' ?
+                                    <MemoInput
+                                        ref={component => this.memoInput = component}
+                                        id={memoInput.id}
+                                        disabled={disabled}
+                                        name={strings('send.xmr_memo')}
+                                        type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
+                                        keyboardType={'default'}
                                     /> : null
                             }
 

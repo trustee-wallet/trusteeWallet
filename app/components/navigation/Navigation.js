@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React, { Component } from 'react'
 import { View, Text, TouchableOpacity, TextInput } from 'react-native'
@@ -15,6 +15,9 @@ import GradientView from '../elements/GradientView'
 
 import { strings } from '../../services/i18n'
 import LetterSpacing from '../elements/LetterSpacing'
+
+import AsyncStorage from '@react-native-community/async-storage'
+import BackToOld from './element/backToOld'
 
 
 class Navigation extends Component {
@@ -68,10 +71,15 @@ class Navigation extends Component {
         }
     }
 
+    handleChangeInterface = () => {
+        AsyncStorage.setItem('isNewInterface', 'false')
+        NavStore.goNext('ExchangeScreenStack')
+    }
+
     render() {
 
         const { isBack } = this.state
-        const { title, LeftComponent, RightComponent, titleComponent, style, searchInputCallback, isClose = true, CustomComponent } = this.props
+        const { title, LeftComponent, RightComponent, titleComponent, style, searchInputCallback, isClose = true, CustomComponent, newInterfaceSwitch } = this.props
 
         const tmpIsClose = typeof isClose != 'undefined' ? isClose : true
 
@@ -81,6 +89,16 @@ class Navigation extends Component {
                     <View style={{ ...styles.wrapper__main__content, marginTop: typeof searchInputCallback != 'undefined' ? 10 : 0 }}>
                         {
                             typeof LeftComponent !== 'undefined' ? <LeftComponent/> : null
+                        }
+                        {
+                            newInterfaceSwitch ?
+                                <TouchableOpacity style={[styles.btn, { paddingLeft: 23 }]} onPress={this.handleChangeInterface}>
+                                    <View style={{ flex: 1, flexDirection: 'row' }}>
+                                        <BackToOld />  
+                                        <Text style={styles.toOld}>to old</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            : null
                         }
                         {
                             isBack ?
@@ -95,7 +113,7 @@ class Navigation extends Component {
                         }
                         {
                             typeof title != 'undefined' ?
-                                <View numberOfLines={1} style={{ ...styles.title, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', flex: 2 }}>
+                                <View numberOfLines={1} style={{ ...styles.title, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', flex: 2, marginLeft: newInterfaceSwitch ? -100 : null }}>
                                     {title ? <LetterSpacing text={title} textStyle={{ ...styles.title, justifyContent: 'center' }} containerStyle={{ flex: 1, justifyContent: 'center' }} letterSpacing={0.5}/> : null}
                                 </View> : null
                         }
@@ -230,7 +248,7 @@ const styles = {
 
         flexDirection: 'row',
         alignItems: 'center',
-
+        
         paddingVertical: 10
     },
     btn__text: {
@@ -282,5 +300,16 @@ const styles = {
     },
     view: {
         flex: 1
+    },
+    toOld: {
+        fontFamily: 'Montserrat-Bold',
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        fontSize: 14,
+        lineHeight: 14,
+        letterSpacing: 0.8,
+        color: '#5C5C5C',
+        marginTop: 4,
+        marginLeft: 8
     }
 }

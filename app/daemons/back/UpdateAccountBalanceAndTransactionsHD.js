@@ -135,15 +135,15 @@ class UpdateAccountBalanceAndTransactionsHD {
 
                 const logData = {}
                 logData.walletHash = walletPub.walletHash
-                logData.currency = walletPub.currencyCode
+                logData.currencyCode = walletPub.currencyCode
                 logData.address = walletPub.walletPubValue
                 logData.addressShort = walletPub.walletPubValue ? walletPub.walletPubValue.slice(0, 10) : 'none'
                 logData.balanceScanTime = walletPub.balanceScanTime + ''
                 logData.balanceProvider = walletPub.balanceProvider + ''
                 logData.balance = walletPub.balance + ''
                 logData.newBalanceProvider = walletPub.newBalanceProvider + ''
-                logData.newBalance = walletPub.newBalance + ''
-                MarketingEvent.setBalance(logData.walletHash, logData.currency, logData.newBalance, logData)
+                logData.newBalance = (newBalance.balance * 1) + ''
+                MarketingEvent.setBalance(logData.walletHash, logData.currencyCode, logData.newBalance, logData)
             } else {
                 updateObj.balanceScanLog = 'not changed, old balance ' + walletPub.balance + ', ' + balanceError
                 if (typeof newBalance.provider !== 'undefined') {

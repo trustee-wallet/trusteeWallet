@@ -573,11 +573,6 @@ class SMSCodeScreen extends Component {
         }
     }
 
-    goBack = () => {
-        api.setExchangeStatus(this.state.id, 'back')
-        NavStore.goBack()
-    }
-
     closeAction = () => {
         api.setExchangeStatus(this.state.id, 'close')
         NavStore.goBack()
@@ -596,7 +591,7 @@ class SMSCodeScreen extends Component {
             <View style={{ ...styles.wrapper }}>
                 <Navigation
                     closeAction={this.closeAction}
-                    backAction={this.backAction}
+                    backAction={this.closeAction}
                 />
                 <View style={styles.wrapper__content}>
                     {

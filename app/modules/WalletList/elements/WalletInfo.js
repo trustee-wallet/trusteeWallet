@@ -30,6 +30,8 @@ import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
 import BlocksoftBN from '../../../../crypto/common/BlocksoftBN'
 import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
+import { acc } from 'react-native-reanimated'
+import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -84,11 +86,21 @@ class WalletInfo extends Component {
                 if (typeof tmpAccountList[tmpCurrency.currencyCode] === 'undefined') continue
 
                 const account = tmpAccountList[tmpCurrency.currencyCode]
-                if (!account.basicCurrencyRate || account.basicCurrencyRate  === 0) continue
+                if (!account.basicCurrencyRate || account.basicCurrencyRate === 0) continue
                 ratesWithoutZero++
 
                 totalBalance.add(account.basicCurrencyBalanceNorm)
-                totalBalanceString += account.balancePretty + ' ' + account.currencyCode + ', '
+                if (account.balancePretty === account.balance) {
+                    if (account.currencyCode !== 'USDT') {
+                        account.balancePretty = BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(account.balance)
+                    }
+                }
+
+                totalBalanceString += account.balancePretty + ' ' + account.currencyCode
+                if (account.address) {
+                    totalBalanceString += ' ' + account.address
+                }
+                totalBalanceString += ', '
             }
 
             if (selectedBasicCurrency.currencyCode !== 'USD' && ratesWithoutZero === 0) {

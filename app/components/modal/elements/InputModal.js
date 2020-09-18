@@ -95,15 +95,14 @@ export default class InputModal extends Component {
                             isCapitalize={false}
                             type={'CASHBACK_LINK'}/>
                     </View>
-                    <ButtonWrap>
-                        <Button onPress={() => this.handleHide()}>
+                    <View style={{ marginTop: 12 }}>
+                        <Button onPress={() => this.handleHide()} color={'#864DD9'} shadow={true} >
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
-                        <Line/>
-                        <Button onPress={() => this.handleSubmit()}>
+                        <Button onPress={() => this.handleSubmit()} style={{ backgroundColor: 'none', color: '#864DD9' }}>
                             {strings('walletCreate.submit')}
                         </Button>
-                    </ButtonWrap>
+                    </View>
                 </View>
             </Layout>
         )

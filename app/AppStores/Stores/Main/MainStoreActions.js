@@ -262,7 +262,7 @@ export async function setSelectedAccount(setting) {
         const tmp = await transactionDS.getTransactions({
             walletHash: wallet.walletHash,
             currencyCode: currency.currencyCode
-        })
+        }, 'ACT/MStore setSelectedAccount')
         if (tmp && tmp.length > 0) {
             let transaction
             account.transactions = {}

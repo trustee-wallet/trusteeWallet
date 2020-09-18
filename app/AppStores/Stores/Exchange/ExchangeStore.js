@@ -1,6 +1,7 @@
 /**
  * @version 0.9
  */
+
 const INITIAL_STATE = {
     accountList: [],
     cryptocurrencyList: [],
@@ -14,6 +15,10 @@ const INITIAL_STATE = {
     tradePrevCardID : false,
     exchangeInCC : false,
     exchangeOutCC: false,
+    advEmail : '',
+    advWallet : '',
+    perfectWallet : '',
+    payeerWallet : '',
     tradeApiConfig: {},
     exchangeApiConfig: []
 }
@@ -33,7 +38,11 @@ const exchangeStoreReducer = (state = INITIAL_STATE, action) => {
                 tradePrevID: action.tradePrevID,
                 tradePrevCardID : action.tradePrevCardID,
                 exchangeInCC : action.exchangeInCC,
-                exchangeOutCC : action.exchangeOutCC
+                exchangeOutCC : action.exchangeOutCC,
+                advEmail : action.advEmail,
+                advWallet : action.advWallet,
+                perfectWallet : action.perfectWallet,
+                payeerWallet : action.payeerWallet
             })
         case 'SET_EXCHANGE_API_CONFIG':
             return new Object({

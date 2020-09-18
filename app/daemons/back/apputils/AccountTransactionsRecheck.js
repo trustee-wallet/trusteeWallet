@@ -4,7 +4,6 @@
 import Log from '../../../services/Log/Log'
 import transactionDS from '../../../appstores/DataSource/Transaction/Transaction'
 import appNewsDS from '../../../appstores/DataSource/AppNews/AppNews'
-import { check } from 'react-native-permissions'
 
 const CACHE_TO_REMOVE = {} // couldnt remove on first scan - as BTC is scanned in few accounts
 
@@ -24,6 +23,8 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
     }
 
     const dbTransactions = {}
+    const toRemove = []
+    const dbNonces = {}
     try {
         const tmps = await transactionDS.getTransactions({
             currencyCode: account.currencyCode,
@@ -31,17 +32,30 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
             accountId: account.id,
             noOrder: true,
             noOld : true
-        })
+        }, 'AccountTransactionsRecheck dbTransactions ' + source)
         if (tmps && tmps.length > 0) {
             let tmp
             for (tmp of tmps) {
-                dbTransactions[tmp.transactionHash] = tmp
+                if (typeof tmp.transactionJson !== 'undefined' && tmp.transactionJson && typeof tmp.transactionJson.nonce !== 'undefined' && typeof tmp.transactionJson.delegatedNonce === 'undefined') {
+                    if (typeof dbNonces[tmp.addressFrom + '_' + tmp.transactionJson.nonce] === 'undefined') {
+                        dbNonces[tmp.addressFrom + '_' + tmp.transactionJson.nonce] = []
+                    }
+                    dbNonces[tmp.addressFrom + '_' + tmp.transactionJson.nonce].push(tmp)
+                }
+                if (typeof dbTransactions[tmp.transactionHash] !== 'undefined') {
+                    // rmv double
+                    Log.daemon('AccountTransactionsRecheck dbTransactions  will remove ' + tmp.id)
+                    toRemove.push(tmp.id)
+                    continue
+                } else {
+                    dbTransactions[tmp.transactionHash] = tmp
+                }
                 if (typeof tmp.transactionsOtherHashes !== 'undefined' && tmp.transactionsOtherHashes) {
                     const tmp2 = tmp.transactionsOtherHashes.split(',')
                     if (tmp2) {
                         let part
                         for (part of tmp2) {
-                            dbTransactions[part] = tmp
+                            dbTransactions[part] = dbTransactions[tmp.transactionHash].id
                         }
                     }
                 }
@@ -49,6 +63,10 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
         }
     } catch (e) {
         Log.errDaemon('AccountTransactionsRecheck dbTransactions something wrong ' + account.currencyCode + ' ' + e.message)
+    }
+
+    if (toRemove.length > 0) {
+        await transactionDS.removeTransactions(toRemove)
     }
     if (!account.transactionsScanLog || account.transactionsScanLog.length < 10) {
         source = 'FIRST'
@@ -89,15 +107,35 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
                     }
                 }
                 if (tmp.isChanged > 0) {
+
+                    if (transaction.transactionStatus === 'success') {
+                        if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson && typeof transaction.transactionJson.nonce !== 'undefined' && typeof transaction.transactionJson.delegatedNonce === 'undefined') {
+                            let key = transaction.addressFrom + '_' + transaction.transactionJson.nonce
+                            if (typeof dbNonces[key] !== 'undefined' && dbNonces[key].length > 1) {
+                                for (let nonced of dbNonces[key]) {
+                                    if (nonced.transactionHash !== transaction.transactionHash) {
+                                        await transactionDS.saveTransaction({
+                                            transactionStatus: 'replaced',
+                                            transactionsScanLog: nonced.transactionsScanLog + ' dropped by nonce'
+                                        }, nonced.id, 'replaced')
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+
                     changesCount++
                 }
             } catch (e) {
                 e.message = ' TX ' + transaction.transactionHash + ' ' + e.message
+                console.log(e)
                 // noinspection ExceptionCaughtLocallyJS
                 throw e
             }
         }
     } catch (e) {
+        console.log(e)
         transactionsError += ' parsing error ' + e.message
     }
 
@@ -158,7 +196,8 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
                             newsNeedPopup: 1,
                             newsGroup: 'TX_SCANNER',
                             newsName: 'FOUND_OUT_TX_STATUS_MISSING',
-                            newsJson: dbTransaction
+                            newsJson: dbTransaction,
+                            newsUniqueKey: dbTransaction.transactionHash
                         }
                     )
                 }
@@ -359,7 +398,8 @@ async function addNews(transaction, account, source, type) {
             newsNeedPopup: needToPopup,
             newsGroup: 'TX_SCANNER',
             newsName: name,
-            newsJson: transaction
+            newsJson: transaction,
+            newsUniqueKey: transaction.transactionHash
         }
     )
 }

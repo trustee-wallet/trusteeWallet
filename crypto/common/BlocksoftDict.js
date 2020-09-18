@@ -51,7 +51,7 @@ const Currencies = {
         currencyExplorerTxLink: 'https://blockchair.com/bitcoin/transaction/'
     },
 
-    /*'XMR': {
+    'XMR': {
         currencyName: 'Monero',
         currencyCode: 'XMR',
         currencySymbol: 'XMR',
@@ -62,9 +62,9 @@ const Currencies = {
         network: 'mainnet',
         decimals: 12,
         buyable: 1,
-        currencyExplorerLink: 'https://livenet.xrpl.org/accounts/',
+        currencyExplorerLink: 'https://xmrchain.net/search?value=',
         currencyExplorerTxLink: 'https://blockchair.com/monero/transaction/'
-    },*/
+    },
 
     // 'BTC_LIGHT': {
     //     currencyName: 'Bitcoin Lightning',

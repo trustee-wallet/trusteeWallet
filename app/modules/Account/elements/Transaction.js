@@ -277,10 +277,18 @@ class Transaction extends Component {
 
     prepareTransactionDestinationTag = (transactionJson, currencyCode) => {
         if (typeof transactionJson !== 'undefined' && transactionJson !== null && typeof transactionJson.memo !== 'undefined') {
-            if (currencyCode === 'XRP') {
-                return {
-                    title: strings(`account.transaction.destinationTag`),
-                    description: transactionJson.memo.toString()
+            const txt = transactionJson.memo.toString().trim()
+            if (txt !== '') {
+                if (currencyCode === 'XRP') {
+                    return {
+                        title: strings(`account.transaction.destinationTag`),
+                        description: txt
+                    }
+                } else if (currencyCode === 'XMR') {
+                    return {
+                        title: strings(`account.transaction.paymentId`),
+                        description: txt
+                    }
                 }
             }
         }
@@ -289,7 +297,7 @@ class Transaction extends Component {
     }
 
     prepareTransactionNonce = (transactionJson, currencyCode) => {
-        if (typeof transactionJson !== 'undefined' && transactionJson !== null && typeof transactionJson.nonce !== 'undefined') {
+        if (typeof transactionJson !== 'undefined' && transactionJson !== null && transactionJson && typeof transactionJson.nonce !== 'undefined') {
             return {
                 title: strings(`account.transaction.nonce`),
                 description: transactionJson.nonce.toString()
@@ -300,7 +308,7 @@ class Transaction extends Component {
     }
 
     prepareTransactionDelegatedNonce = (transactionJson, currencyCode) => {
-        if (typeof transactionJson !== 'undefined' && transactionJson !== null && typeof transactionJson.delegatedNonce !== 'undefined') {
+        if (typeof transactionJson !== 'undefined' && transactionJson !== null && transactionJson && typeof transactionJson.delegatedNonce !== 'undefined') {
             return {
                 title: strings(`account.transaction.delegatedNonce`),
                 description: transactionJson.delegatedNonce.toString()
@@ -1025,6 +1033,7 @@ class Transaction extends Component {
 
             if (typeof transaction.orderJSON !== 'undefined' && transaction.orderJSON !== null) {
                 dataToScreen.destinationTag = transaction.orderJSON.destinationTag !== null ? transaction.orderJSON.destinationTag : ''
+                dataToScreen.paymentId = transaction.orderJSON.paymentId !== null ? transaction.orderJSON.paymentId : ''
             }
 
             setSendData(dataToScreen)

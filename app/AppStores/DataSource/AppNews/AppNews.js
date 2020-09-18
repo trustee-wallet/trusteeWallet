@@ -43,6 +43,7 @@ class AppNews {
      * @param {string} appNews.newsName
      * @param {string} appNews.newsJson
      * @param {string} appNews.newsCustomCreated
+     * @param {string} appNews.newsUniqueKey
      * @param {boolean} appNews.onlyOne
      */
     saveAppNews = async (appNews) => {
@@ -58,14 +59,19 @@ class AppNews {
         }
         appNews.newsCreated = now
         if (typeof appNews.onlyOne !== 'undefined') {
-            let sql
+            let sql = `DELETE FROM app_news WHERE currency_code='${appNews.currencyCode}' AND news_name='${appNews.newsName}'`
             if (typeof appNews.walletHash !== 'undefined') {
-                sql = `DELETE FROM app_news WHERE currency_code='${appNews.currencyCode}' AND wallet_hash='${appNews.walletHash}' AND news_name='${appNews.newsName}'`
-            } else {
-                sql = `DELETE FROM app_news WHERE currency_code='${appNews.currencyCode}' AND news_name='${appNews.newsName}'`
+                sql += ` AND wallet_hash='${appNews.walletHash}'`
             }
             await dbInterface.setQueryString(sql).query()
             delete appNews.onlyOne
+        }
+        if (typeof appNews.newsUniqueKey !== 'undefined' && appNews.newsUniqueKey) {
+            let sql = `DELETE FROM app_news WHERE currency_code='${appNews.currencyCode}' AND news_unique_key='${appNews.newsUniqueKey}'`
+            if (typeof appNews.walletHash !== 'undefined') {
+                sql += ` AND wallet_hash='${appNews.walletHash}'`
+            }
+            await dbInterface.setQueryString(sql).query()
         }
         await dbInterface.setTableName(tableName).setInsertData({ insertObjs: [appNews] }).insert()
     }

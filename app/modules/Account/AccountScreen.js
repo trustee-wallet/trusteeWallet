@@ -234,7 +234,7 @@ class Account extends Component {
             type: 'INFO_MODAL',
             icon: 'INFO',
             title: 'SYSTEM_LOG',
-            description: text
+            description: text.slice(0,500)
         })
     }
 

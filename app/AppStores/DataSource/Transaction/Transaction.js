@@ -113,6 +113,12 @@ class Transaction {
 
     }
 
+    removeTransactions = async (ids) => {
+        const dbInterface = new DBInterface()
+        const sql = `DELETE FROM transactions WHERE id IN (` + ids.join(',') + `)`
+        await dbInterface.setQueryString(sql).query()
+    }
+
     /**
      * @param {Object} params
      * @param {string} params.walletHash
@@ -121,8 +127,7 @@ class Transaction {
      * @param {string} params.noOrder
      * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson}]>}
      */
-    getTransactions = async (params) => {
-
+    getTransactions = async (params, source = '?') => {
         const dbInterface = new DBInterface()
 
         // Log.daemon('DS/Transaction getTransactions called')
@@ -144,6 +149,8 @@ class Transaction {
         } else {
             where.push(`hidden_at IS NULL`)
         }
+
+        // where.push(`'${source}' = '${source}'`)
 
         if (where.length > 0) {
             where = ' WHERE ' + where.join(' AND ')
@@ -197,9 +204,11 @@ class Transaction {
         const shownTx = {}
         const txArray = []
         let tx
+        const toRemove = []
         for(tx of res) {
             if (typeof shownTx[tx.transactionHash] !== 'undefined') {
-                dbInterface.query('DELETE FROM transaction WHERE id=' + tx.id)
+                Log.daemon('Transaction getTransactions will remove ' + tx.id)
+                toRemove.push( tx.id)
                 continue
             }
             shownTx[tx.transactionHash] = 1
@@ -236,6 +245,10 @@ class Transaction {
                 }
             }
             txArray.push(tx)
+        }
+
+        if (toRemove.length > 0) {
+            await this.removeTransactions(toRemove)
         }
 
         // Log.daemon('DS/Transaction getTransactions finished ' + where + ' ' + order)

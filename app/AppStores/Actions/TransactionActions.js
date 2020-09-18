@@ -230,7 +230,7 @@ const transactionActions = {
             transactions = await transactionDS.getTransactions({
                 walletHash: account.walletHash,
                 currencyCode: account.currencyCode
-            })
+            }, 'ACT/Transaction getTransactions')
 
         } catch (e) {
 

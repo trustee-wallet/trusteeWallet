@@ -43,7 +43,8 @@ export default {
                 news_shown_popup INTEGER NULL,
                 news_shown_list INTEGER NULL,
                 news_server_id VARCHAR(256) NULL,
-                news_removed INTEGER NULL
+                news_removed INTEGER NULL,
+                news_unique_key VARCHAR(256) NULL
             )
             `
         },

@@ -87,7 +87,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
                 let code
                 for (code in BlocksoftDict.Currencies) {
                     if (typeof initedCurrencyCodes[code] !== 'undefined') continue
-                    if (code === 'BTC_TEST') continue
+                    if (code === 'BTC_TEST' || code === 'XRP' || code === 'XMR') continue
                     prep.push({
                         walletHash: storedKey,
                         currencyCode: code,

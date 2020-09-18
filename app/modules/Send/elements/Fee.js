@@ -63,6 +63,7 @@ class Fee extends Component {
 
     async init(multiply, amountRaw = false) {
         // setLoaderStatus(true)
+        console.log('init')
 
         // maybe from ratesService as its already cached
         const { walletHash } = this.props.wallet
@@ -235,14 +236,20 @@ class Fee extends Component {
 
         try {
 
-            const amountRaw = await (
-                BlocksoftTransfer
-                    .setCurrencyCode(currencyCode)
-                    .setAddressFrom(address)
-                    .setFee(fee)
-                    .setTransferAll(true)
-                    .setAdditional(accountJson)
-            ).getTransferAllBalance()
+            let amountRaw = 0
+            if (typeof fee.correctedAmountFrom === 'undefined') {
+                amountRaw = await (
+                    BlocksoftTransfer
+                        .setCurrencyCode(currencyCode)
+                        .setAddressFrom(address)
+                        .setFee(fee)
+                        .setTransferAll(true)
+                        .setAdditional(accountJson)
+                ).getTransferAllBalance()
+
+            } else {
+                amountRaw = fee.correctedAmountFrom
+            }
 
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(amountRaw)
 
@@ -417,7 +424,7 @@ class Fee extends Component {
                                 if (typeof item.feeForTxDelegated !== 'undefined') {
                                     prettyFeeSymbol = currencySymbol
                                     prettyFee = item.feeForTxCurrencyAmount
-                                    feeBasicAmount = BlocksoftPrettyNumbers.makeCut(item.feeForTxBasicAmount, 2).justCutted
+                                    feeBasicAmount = BlocksoftPrettyNumbers.makeCut(item.feeForTxBasicAmount, 5).justCutted
                                     feeBasicCurrencySymbol = item.feeForTxBasicSymbol
                                 } else {
                                     prettyFee = BlocksoftPrettyNumbers.setCurrencyCode(feesCurrencyCode).makePretty(item.feeForTx)
@@ -425,7 +432,7 @@ class Fee extends Component {
                                         value: prettyFee,
                                         currencyCode: feesCurrencyCode,
                                         basicCurrencyRate: feeRates.basicCurrencyRate
-                                    }), 2).justCutted
+                                    }), 5).justCutted
                                     prettyFee = BlocksoftPrettyNumbers.makeCut(prettyFee, 5).justCutted
                                 }
                                 let devFee = false

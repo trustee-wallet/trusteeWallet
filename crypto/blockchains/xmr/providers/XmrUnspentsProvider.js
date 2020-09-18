@@ -5,7 +5,7 @@ import settingsActions from '../../../../app/appstores/Stores/Settings/SettingsA
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import MoneroUtilsParser from '../ext/MoneroUtilsParser'
 
-import axios from 'axios'
+import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 
 export default class XmrUnspentsProvider {
 
@@ -35,7 +35,7 @@ export default class XmrUnspentsProvider {
 
     async _getUnspents(params, fn) {
         try {
-            // console.log(' Xmr._getUnspents', params, fn)
+            BlocksoftCryptoLog.log(' Xmr._getUnspents', params)
             await this._init()
             /*
             const linkParams = {
@@ -48,21 +48,26 @@ export default class XmrUnspentsProvider {
             }
             */
 
-            const res = await axios.post(this._link + 'get_unspent_outs', params)
-            const data = res.data
-            if (typeof data.per_kb_fee === 'undefined') {
-                data.per_kb_fee = data.per_byte_fee * 1024
+            const res = await BlocksoftAxios.post(this._link + 'get_unspent_outs', params)
+            if (typeof fn === 'undefined' || !fn) {
+                return res.data
+            } else {
+                fn(null, res.data)
             }
-            fn(null, data)
         } catch (e) {
             e.message += ' while Xmr._getUnspents'
             fn(e, null)
+            if (typeof fn === 'undefined' || !fn) {
+                throw e
+            } else {
+                fn(e, null)
+            }
         }
     }
 
     async _getRandomOutputs(params, fn) {
         try {
-            // console.log(' Xmr._getRandomOutputs', params, fn)
+            BlocksoftCryptoLog.log(' Xmr._getRandomOutputs', params)
             await this._init()
 
             /*
@@ -72,11 +77,20 @@ export default class XmrUnspentsProvider {
                 count: (mixin * 1 + 1)
             }
             */
-            const res = await axios.post(this._link + 'get_random_outs', params)
-            fn(null, res.data)
+
+            const res = await BlocksoftAxios.post(this._link + 'get_random_outs', params)
+            if (typeof fn === 'undefined' || !fn) {
+                return res.data
+            } else {
+                fn(null, res.data)
+            }
         } catch (e) {
             e.message += ' while Xmr._getRandomOutputs'
-            fn(e, null)
+            if (typeof fn === 'undefined' || !fn) {
+                throw e
+            } else {
+                fn(e, null)
+            }
         }
     }
 

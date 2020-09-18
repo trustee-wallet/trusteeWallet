@@ -29,7 +29,6 @@ const CACHE_CUSTOM_TIME = {
 }
 let CACHE_LAST_TIME = false
 
-
 class UpdateAccountBalanceAndTransactions {
 
     getTime() {
@@ -127,6 +126,7 @@ class UpdateAccountBalanceAndTransactions {
     }
 
     async _accountRun(account, source, time, force) {
+
         let newBalance = false
         let addressToScan = account.address
 
@@ -171,6 +171,7 @@ class UpdateAccountBalanceAndTransactions {
 
         Log.daemon('UpdateAccountBalanceAndTransactions newBalance loaded ' + account.currencyCode + ' ' + addressToScan, JSON.stringify(newBalance))
         let continueWithTx = true
+
         if (newBalance) {
             if (typeof newBalance.balanceScanBlock !== 'undefined' && newBalance.balanceScanBlock * 1 < account.balanceScanBlock * 1) {
                 continueWithTx = false
@@ -189,15 +190,15 @@ class UpdateAccountBalanceAndTransactions {
 
                 const logData = {}
                 logData.walletHash = account.walletHash
-                logData.currency = account.currencyCode
+                logData.currencyCode = account.currencyCode
                 logData.address = account.address
                 logData.addressShort = account.address ? account.address.slice(0, 10) : 'none'
                 logData.balanceScanTime = account.balanceScanTime + ''
                 logData.balanceProvider = account.balanceProvider + ''
                 logData.balance = account.balance + ''
                 logData.newBalanceProvider = account.newBalanceProvider + ''
-                logData.newBalance = account.newBalance + ''
-                MarketingEvent.setBalance(logData.walletHash, logData.currency, logData.newBalance, logData)
+                logData.newBalance = (newBalance.balance * 1) + ''
+                MarketingEvent.setBalance(logData.walletHash, logData.currencyCode, logData.newBalance, logData)
             } else {
                 updateObj.balanceScanLog = account.address + ' not changed, old balance ' + account.balance + ', ' + balanceError
                 if (typeof newBalance.provider !== 'undefined') {
@@ -260,7 +261,7 @@ class UpdateAccountBalanceAndTransactions {
 
         let transactionUpdateObj
         try {
-            transactionUpdateObj = await AccountTransactionsRecheck(newTransactions, account, source)
+            transactionUpdateObj = await AccountTransactionsRecheck(newTransactions, account, 'RECHECK ' + source)
         } catch (e) {
             e.message += ' while AccountTransactionsRecheck'
             throw e

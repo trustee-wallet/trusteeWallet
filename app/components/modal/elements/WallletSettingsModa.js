@@ -9,9 +9,7 @@ import { connect } from 'react-redux'
 import Layout from '../../../components/elements/modal/Layout'
 import Title from '../../../components/elements/modal/Title'
 import Button from '../../../components/elements/modal/Button'
-import ButtonWrap from '../../../components/elements/modal/ButtonWrap'
 import Input from '../../../components/elements/Input'
-import Line from '../../elements/modal/Line'
 
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 import { strings } from '../../../services/i18n'
@@ -119,15 +117,14 @@ class WalletSettingsModal extends Component {
                                 </View>
                             </View> : null
                     }
-                    <ButtonWrap>
-                        <Button onPress={() => this.handleHide()}>
+                    <View style={{marginBottom: 12 }}>
+                        <Button onPress={() => this.handleHide()} color={'#864DD9'} shadow={true}>
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
-                        <Line/>
-                        <Button onPress={() => this.handleSubmit()}>
+                        <Button onPress={() => this.handleSubmit()} style={{ backgroundColor: 'none', color: '#864DD9' }}>
                             {strings('walletCreate.submit')}
                         </Button>
-                    </ButtonWrap>
+                    </View>
                 </View>
             </Layout>
         )
@@ -144,7 +141,7 @@ export default connect(mapStateToProps, {})(WalletSettingsModal)
 
 const styles = {
     title: {
-        marginTop: 35
+        marginTop: 25
     },
     text: {
         marginTop: 5

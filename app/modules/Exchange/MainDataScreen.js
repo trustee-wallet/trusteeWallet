@@ -28,8 +28,10 @@ import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import Log from '../../services/Log/Log'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import exchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
+import AsyncStorage from '@react-native-community/async-storage'
 
 let CACHE_INIT_KEY = ''
+let COUNT_MODAL = 0
 
 const EXTENDS_FIELDS = {
     fieldForInCurrency: 'inCurrencyCode',
@@ -61,7 +63,30 @@ class MainDataScreen extends Component {
 
             deviceToken: null,
             show: false,
-            inited: false
+            inited: false,
+            isNewInterface: false
+        }
+    }
+
+    async componentDidMount() {
+        if (COUNT_MODAL === 0 || COUNT_MODAL === 5){
+            showModal({
+                type: 'NEW_INTERFACE',
+                icon: null,
+                title: strings('modal.infoNewInterface.title'),
+                description: strings('modal.infoNewInterface.description'),
+                noCallback: async () => {
+                    AsyncStorage.setItem('countModal', '1')
+                    COUNT_MODAL = 1
+                }
+            },() => {
+                AsyncStorage.setItem('isNewInterface', 'true')
+                COUNT_MODAL = 1
+                this.handleTryV3()
+            })
+        } else {
+            AsyncStorage.setItem('countModal', (COUNT_MODAL + 1).toString())
+            COUNT_MODAL += 1
         }
     }
 
@@ -309,12 +334,6 @@ class MainDataScreen extends Component {
                                         onRefresh={this.handleRefresh}
                                     />
                                 }>
-
-                                <View style={styles.btnTop}>
-                                    <Button press={this.handleTryV3}>
-                                        {strings('tradeScreen.tryV3')}
-                                    </Button>
-                                </View>
 
                                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 

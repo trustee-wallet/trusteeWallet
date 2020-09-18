@@ -60,7 +60,7 @@ class MainV3DataScreen extends Component {
 
         // here to do upload
         let apiUrl = await ApiV3.initData()
-
+        
         setTimeout(() => {
             this.setState({
                 show: true,
@@ -111,12 +111,14 @@ class MainV3DataScreen extends Component {
                     navigation={this.props.navigation}
                     isBack={false}
                     title={strings('tradeScreen.titleV3')}
+                    newInterfaceSwitch={true}
                 />
                 <View style={{ flex: 1, position: 'relative', marginTop: 80 }}>
                     { this.state.show ?
                         <KeyboardAvoidingView
                             behavior={Platform.select({ ios: 'height', android: 'height' })}
                             enabled={false}
+                            hideKeyboardAccessoryView={false}
                             contentContainerStyle={{ flex: 1 }}
                             style={{ flexGrow: 1 }} >
                             <WebView
@@ -126,7 +128,7 @@ class MainV3DataScreen extends Component {
                                 source={{ uri: this.state.apiUrl }}
                                 injectedJavaScript={INJECTEDJAVASCRIPT}
                                 scalesPageToFit={false}
-                                scrollEnabled={false}
+                                scrollEnabled={true}
                                 style={{ flex: 1 }}
                                 renderError={(e) => {
                                     Log.err('Exchanger.WebViewMainScreen.render error ' + e)

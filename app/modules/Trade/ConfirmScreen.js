@@ -32,6 +32,7 @@ import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 import TmpConstants from './elements/TmpConstants'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
+import api from '../../services/Api/Api'
 
 class ConfirmScreen extends Component {
 
@@ -200,7 +201,8 @@ class ConfirmScreen extends Component {
                 outAmount: +((+amountEquivalentInFiatToApi).toFixed(2)),
                 locale: settingsStore.data.language.split('-')[0],
                 exchangeWayId: tradeWay.id,
-                refundAddress: selectedAccount.address
+                refundAddress: selectedAccount.address,
+                uniqueParams : uniqueParams
             }
 
             // TODO: fix this
@@ -336,6 +338,7 @@ class ConfirmScreen extends Component {
 
         let outTitle = ''
         let outValue = ''
+        let outValue2 = ''
 
         if (exchangeStore.tradeType === 'BUY') {
             outTitle = strings('confirmScreen.withdrawAddress')
@@ -347,13 +350,35 @@ class ConfirmScreen extends Component {
         } else if (tradeWay.outPaywayCode === 'ADVCASH' || tradeWay.outPaywayCode === 'PAYEER' || tradeWay.outPaywayCode === 'PERFECT_MONEY') {
             outTitle = strings('confirmScreen.withdrawAdvAccountNumber')
             outValue = uniqueParams.wallet
+            if (uniqueParams.email && tradeWay.outPaywayCode === 'ADVCASH') {
+                outValue2 = uniqueParams.email
+            }
         } else {
             outTitle = strings('confirmScreen.withdrawCardNumber')
             outValue = selectedCard.number.replace(/^.{12}/g, '**** **** **** ')
         }
 
 
-        return (
+        return outValue2 ? (
+            <View style={styles.wrapper__bottom}>
+                <View style={styles.wrapper__row}>
+                    <Text style={[styles.wrapper__text, styles.wrapper__text_99]}>
+                        {outTitle}
+                    </Text>
+                    <Text style={[styles.wrapper__text, styles.wrapper__text_40]}>
+                        {outValue}
+                    </Text>
+                </View>
+                <View style={styles.wrapper__row}>
+                    <Text style={[styles.wrapper__text, styles.wrapper__text_99]}>
+
+                    </Text>
+                    <Text style={[styles.wrapper__text, styles.wrapper__text_40]}>
+                        {outValue2}
+                    </Text>
+                </View>
+            </View>
+        ) : (
             <View style={styles.wrapper__bottom}>
                 <View style={styles.wrapper__row}>
                     <Text style={[styles.wrapper__text, styles.wrapper__text_99]}>
@@ -387,6 +412,10 @@ class ConfirmScreen extends Component {
         }
     }
 
+    closeAction = () => {
+        NavStore.goBack()
+    }
+
     render() {
         UpdateOneByOneDaemon.pause()
         const {selectedCryptocurrency, selectedFiatCurrency, tradeWay, amount, visible} = this.state
@@ -401,6 +430,8 @@ class ConfirmScreen extends Component {
             <View style={styles.wrapper}>
                 <Navigation
                     title={strings('confirmScreen.title')}
+                    backAction={this.closeAction}
+                    closeAction={this.closeAction}
                 />
                 <ScrollView
                     ref={(ref) => this.scrollView = ref}

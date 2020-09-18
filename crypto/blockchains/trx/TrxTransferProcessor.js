@@ -244,6 +244,8 @@ export default class TrxTransferProcessor {
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
         } else if (msg.indexOf('balance is not sufficient') !== -1) {
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+        } else if (msg.indexOf('account not exist') !== -1) {
+            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
         } else if (msg.indexOf('Amount must greater than 0') !== -1) {
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
         } else if (msg.indexOf('assetBalance must be greater than 0') !== -1 || msg.indexOf('assetBalance is not sufficient') !== -1) {

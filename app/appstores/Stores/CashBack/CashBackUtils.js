@@ -10,15 +10,21 @@ import cryptoWalletsDS from '../../DataSource/CryptoWallets/CryptoWallets'
 import BlocksoftKeysForRefStorage from '../../../../crypto/actions/BlocksoftKeysForRef/BlocksoftKeysForRefStorage'
 import BlocksoftKeysForRef from '../../../../crypto/actions/BlocksoftKeysForRef/BlocksoftKeysForRef'
 import CashBackActions from './CashBackActions'
+import MarketingEvent from '../../../services/Marketing/MarketingEvent'
+
 
 export default new class CashBackUtils {
     constructor() {
         this.walletToken = ''
         this.walletPublicAddress = ''
         this.savedData = false
+        this.inited = false
     }
 
-    init = async () => {
+    init = async (force = false) => {
+        if (!force && this.inited) {
+            return false
+        }
         this.walletToken = await AsyncStorage.getItem('walletToken')
         if (!this.walletToken) {
             await this.createWalletSignature(false)
@@ -42,28 +48,36 @@ export default new class CashBackUtils {
         }
 
         this.parentToken = false
-        const tmpParentToken = await AsyncStorage.getItem('parentToken')
-        if (typeof tmpParentToken !== 'undefined' && tmpParentToken != null) {
+        const tmpParentToken = await AsyncStorage.getItem('parentTokenRechecked')
+
+        if (typeof tmpParentToken !== 'undefined' && tmpParentToken != null && tmpParentToken) {
             this.parentToken = tmpParentToken
             await CashBackActions.setParentToken(this.parentToken)
         } else {
             try {
                 const firebaseUrl = await firebase.links().getInitialLink()
                 if (typeof firebaseUrl !== 'undefined' && firebaseUrl != null) {
+                    MarketingEvent.logEvent('cashback_parent_link', firebaseUrl)
                     const firebaseUrlArray = firebaseUrl.split('=')
                     this.parentToken = firebaseUrlArray[firebaseUrlArray.length - 1]
-                    await AsyncStorage.setItem('parentToken',  this.parentToken)
+                    await AsyncStorage.setItem('parentTokenRechecked',  this.parentToken)
                     await CashBackActions.setParentToken(this.parentToken)
+                    MarketingEvent.logEvent('cashback_parent_fire', {parent : this.parentToken})
                 }
             } catch (e) {
                 Log.log('SRV/CashBack init parent error ' + e.message)
             }
         }
+        this.inited = true
     }
 
     setCashBackDataFromApi = async (data) => {
         this.savedData = data
         await AsyncStorage.setItem('cashbackAllData_' + this.walletToken,  JSON.stringify(data))
+        if (data.parentToken && this.parentToken !== data.parentToken) {
+            this.parentToken = data.parentToken
+            await AsyncStorage.setItem('parentTokenRechecked', data.parentToken)
+        }
         await CashBackActions.setCashBackDataFromApi(data)
     }
 
@@ -72,7 +86,7 @@ export default new class CashBackUtils {
             return false
         }
         this.parentToken = parentToken
-        await AsyncStorage.setItem('parentToken', parentToken)
+        await AsyncStorage.setItem('parentTokenRechecked', parentToken)
         await CashBackActions.setParentToken(this.parentToken)
     }
 

@@ -2,35 +2,34 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, Platform } from 'react-native'
-
-import { TextInputMask } from 'react-native-masked-text'
+import { View, Text, Platform, TextInput } from 'react-native'
 
 import GradientView from './GradientView'
 
 import { strings } from '../../services/i18n'
+
 import AsyncStorage from '@react-native-community/async-storage'
 
 let CACHE_VALUE = false
 
-class AdvInput extends Component {
+class AdvEmail extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            walletMask: 'U999999999999',
-            walletNumber: 'U',
+            email: '',
             isValid: true,
             isSet : false
         }
     }
 
     validate = () => {
-        const isValid = this.state.walletNumber.length === 13
+        const pattern = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
 
-        CACHE_VALUE = this.state.walletNumber
+        CACHE_VALUE = this.state.email
 
+        const isValid = this.state.email && pattern.test(this.state.email)
         if (isValid) {
-            AsyncStorage.setItem('trade.advWallet', this.state.walletNumber)
+            AsyncStorage.setItem('trade.advEmail', this.state.email)
         }
 
         this.setState({
@@ -40,20 +39,20 @@ class AdvInput extends Component {
         return isValid
     }
 
-    getWalletNumber = () => this.state.walletNumber
+    getEmail = () => this.state.email
 
 
     onChangeText = (value) => {
 
         this.setState({
-            isValid: true,
-            walletNumber: value
+            isValid : true,
+            email: value
         })
     }
 
     render() {
 
-        const { isValid, walletMask } = this.state
+        const { isValid } = this.state
         const { onFocus, value } = this.props
 
         if (!CACHE_VALUE) {
@@ -62,22 +61,19 @@ class AdvInput extends Component {
             }
         }
         if (CACHE_VALUE && !this.state.isSet) {
-            this.state.walletNumber = CACHE_VALUE
+            this.state.email = CACHE_VALUE
             this.state.isSet = true
         }
 
         return (
             <View style={styles.wrapper}>
                 <View style={styles.content}>
-                    <TextInputMask
+                    <TextInput
                         ref={ref => this.refTextInputMask = ref}
                         type={'custom'}
-                        placeholder={strings('components.elements.advInput.accountNumber')}
-                        options={{
-                            mask: walletMask
-                        }}
-                        keyboardType={'number'}
-                        value={this.state.walletNumber}
+                        placeholder={strings('components.elements.advEmail.accountEmail')}
+                        keyboardType={'email-address'}
+                        value={this.state.email}
                         onChangeText={(value) => this.onChangeText(value)}
                         placeholderTextColor={!isValid ? '#e77ca3' : '#404040'}
                         onFocus={onFocus}
@@ -88,7 +84,7 @@ class AdvInput extends Component {
                     <GradientView style={styles.line__item} array={isValid ? lineStyles.array : lineStyles.arrayError} start={lineStyles.start} end={lineStyles.end}/>
                 </View>
                 <Text style={[styles.error, !isValid ? { color: '#e77ca3' } : null]}>
-                    {!isValid ? strings('components.elements.advInput.invalidFormat') : ''}
+                    {!isValid ? strings('components.elements.advEmail.invalidFormat') : ''}
                 </Text>
             </View>
         )
@@ -96,7 +92,7 @@ class AdvInput extends Component {
 
 }
 
-export default AdvInput
+export default AdvEmail
 
 const lineStyles = {
     array: ['#7127ac', '#864dd9'],
