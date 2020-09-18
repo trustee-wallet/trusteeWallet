@@ -549,7 +549,7 @@ class SendScreen extends Component {
             })
 
             setTimeout(() => {
-                Log.log('amount', amount)
+                Log.log('SendScreen.handleSendTransaction amount ' + amount)
                 const data = {
                     memo,
                     amount: typeof amount === 'undefined' ? '0' : amount.toString(),

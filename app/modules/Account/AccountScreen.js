@@ -586,10 +586,16 @@ class Account extends Component {
             transactionsToView = []
         }
 
+
+        Log.log('AccountScreen.render amountToView ' + this.state.amountToView + ' transactionsToViewLength ' + transactionsToViewLength)
+        const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
+
+        const shownAddress = cryptoCurrency.currencyCode === 'BTC' ? btcAddress : address
+
         if (account && account.balanceProvider) {
             const logData = {
                 currency: cryptoCurrency.currencyCode,
-                address: account.address,
+                address: shownAddress,
                 amount: account.balancePretty + '',
                 unconfirmed: account.unconfirmedPretty + '',
                 balanceScanTime: account.balanceScanTime + '',
@@ -598,15 +604,16 @@ class Account extends Component {
                 basicCurrencyCode: account.basicCurrencyCode + '',
                 basicCurrencyBalance: account.basicCurrencyBalance + '',
                 basicCurrencyRate: account.basicCurrencyRate + ''
+            }
 
+            if (cryptoCurrency.currencyCode === 'BTC') {
+                logData.legacyAddress = account.legacyAddress || ''
+                logData.segwitAddress = account.segwitAddress || ''
             }
             MarketingEvent.logEvent('view_account', logData)
         }
 
-        Log.log('AccountScreen.render amountToView ' + this.state.amountToView + ' transactionsToViewLength ' + transactionsToViewLength)
-        const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
 
-        const shownAddress = cryptoCurrency.currencyCode === 'BTC' ? btcAddress : address
         let leftComponent
         let settingsComponent = null
         if (account.currencyCode === 'BTC') {
