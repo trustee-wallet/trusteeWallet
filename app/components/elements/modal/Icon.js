@@ -23,7 +23,7 @@ export default class Icon extends Component {
 
         if (this.props.icon === 'info') {
             return (
-                <View style={styles.shadow}>
+                <View style={styles.icon__wrapper}>
                     <TouchableOpacity onPress={() => callback()}>
                         <View style={styles.info}>
                             <CustomIcon name="infoTransparent" style={{ fontSize: styles_.info.size, color: styles_.color }}/>
@@ -33,30 +33,30 @@ export default class Icon extends Component {
             )
         } else if (this.props.icon === 'fail') {
             return (
-                <View style={styles.shadow}>
+                <View style={styles.icon__wrapper}>
                     <TouchableOpacity onPress={() => callback()}>
                         <View style={styles.fail}>
-                            <AntDesign name="close" size={styles_.fail.size} color={styles_.color}/>
+                            <CustomIcon name="failedTransaction" size={styles_.fail.size} color={styles_.color}/>
                         </View>
                     </TouchableOpacity>
                 </View>
             )
         } else if (this.props.icon === 'success') {
             return (
-                <View style={styles.shadow}>
+                <View style={styles.icon__wrapper}>
                     <TouchableOpacity onPress={() => callback()}>
                         <View style={styles.success}>
-                            <IconEntypo name="check" size={styles_.success.size} color={styles_.color}/>
+                            <CustomIcon name="approvedTransaction" size={styles_.success.size} color={'#864DD9'}/>
                         </View>
                     </TouchableOpacity>
                 </View>
             )
         } else if (this.props.icon === 'warning') {
             return (
-                <View style={styles.shadow}>
+                <View style={styles.icon__wrapper}>
                     <TouchableOpacity onPress={() => callback()}>
                         <View style={styles.warning}>
-                            <IconIonicons name="ios-warning" size={styles_.warning.size} color={styles_.color}/>
+                            <CustomIcon name="infoTransparent" size={styles_.warning.size} color={styles_.color}/>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -75,69 +75,59 @@ export default class Icon extends Component {
 
 const styles_ = {
     info: {
-        size: 25
+        size: 30
     },
     fail: {
-        size: 35
+        size: 25
     },
     success: {
-        size: 40
+        size: 64
     },
     warning: {
-        size: 40
+        size: 30
     },
     color: '#fff'
 }
 
 const styles = StyleSheet.create({
-    shadow: {
-        marginTop: -20,
+    icon__wrapper: {
+        marginTop: 40,
+        marginBottom: 40,
         borderRadius: 60,
         alignSelf: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-
-        elevation: 5,
-
-        backgroundColor: '#fff'
     },
     fail: {
         justifyContent: 'center',
         alignItems: 'center',
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: '#D982A2'
+        width: 64,
+        height: 64,
+        borderRadius: 50,
+        backgroundColor: '#E54C4C'
     },
     info: {
         justifyContent: 'center',
         alignItems: 'center',
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        width: 64,
+        height: 64,
+        borderRadius: 50,
         backgroundColor: '#2A7FDB'
     },
     success: {
         alignSelf: 'center',
         justifyContent: 'center',
         alignItems: 'center',
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: '#4F9766'
+        // width: 64,
+        // height: 64,
+        // borderRadius: 50,
+        // backgroundColor: '#864DD9'
     },
     warning: {
         alignSelf: 'center',
         justifyContent: 'center',
         alignItems: 'center',
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: '#F4B7A0'
+        width: 64,
+        height: 64,
+        borderRadius: 50,
+        backgroundColor: '#F59E6C'
     }
 })

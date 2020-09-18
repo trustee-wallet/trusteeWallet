@@ -10,13 +10,19 @@ import { strings } from '../../i18n'
  * @param params.currencyCode
  * @param params.currencySymbol
  * @param params.address
+ * @param params.amount
  * @returns {Promise<boolean>}
  */
 export default async function checkTransferHasError(params) {
+    if (params.currencyCode === 'undefined') {
+        return false
+    }
+    
     const checked = await (
         BlocksoftTransfer
             .setCurrencyCode(params.currencyCode)
             .setAddressTo(params.address)
+            .setAmount(params.amount || 0)
     ).checkTransferHasError()
 
     if (!checked) return false

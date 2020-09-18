@@ -1,18 +1,29 @@
+/**
+ * @version 0.11
+ */
 import React, { Component } from 'react'
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native'
+import { Dimensions, PixelRatio, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native'
 import { connect, ConnectedProps } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { strings } from '../../../../services/i18n'
 
 import {
     WalletName
 } from '../../../../appstores/Stores/HomeScreen/Types'
+
 import {
     setInputEditable,
     setWalletName,
     saveNewWalletName
 } from '../../../../appstores/Stores/HomeScreen/HomeScreenActions'
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window')
+const PIXEL_RATIO = PixelRatio.get()
+
+let SIZE = 25
+if (PIXEL_RATIO*1 <= 2 && SCREEN_WIDTH < 400) {
+    SIZE = 20 // iphone 5s
+}
 
 const mapState = (state: any) => {
     const walletName: WalletName = state.homeScreenStore.walletInfo.walletName
@@ -62,8 +73,12 @@ export class WalletNameComponent extends Component<Props, {}>{
     prepareWalletName = (walletName: string, isEditable: boolean) => {
         let tmpWalletName = walletName
         if(!isEditable) {
-            tmpWalletName = tmpWalletName.length > 20 ? tmpWalletName.slice(0, 20) + '...' : tmpWalletName
-            // tmpWalletName = tmpWalletName.replace(/[\u2006]/g, '').split('').join(String.fromCodePoint(parseInt('2006', 16)))
+            try {
+                tmpWalletName = tmpWalletName.length > SIZE ? tmpWalletName.slice(0, SIZE) + '...' : tmpWalletName
+                // tmpWalletName = tmpWalletName.replace(/[\u2006]/g, '').split('').join(String.fromCodePoint(parseInt('2006', 16)))
+            } catch (e) {
+                tmpWalletName = 'TRUSTEE WALLET'
+            }
         }
         return tmpWalletName
     }
@@ -79,7 +94,8 @@ export class WalletNameComponent extends Component<Props, {}>{
                 ref={ref => this.nameInputRef = ref}
                 style={styles.input}
                 // placeholder={strings(`components.elements.modal.input.placeholder`).split('').join(String.fromCodePoint(parseInt('2006', 16)))}
-                placeholder={strings(`components.elements.modal.input.placeholder`)}
+                // placeholder={strings(`components.elements.modal.input.placeholder`)}
+                placeholder=''
                 editable={props.walletName.isEditable}
                 selectionColor={'#404040'}
                 onBlur={() => this.onBlur(props.walletHash, props.walletName.text, props.walletNameText)}
@@ -118,7 +134,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        minWidth: 70,
+        minWidth: 120,
         maxWidth: 200,
         height: '100%'
     },

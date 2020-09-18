@@ -17,10 +17,10 @@ import Wallet from './elements/Wallet'
 
 import { setFlowType, setWalletName } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
 
-import prettyNumber from '../../services/UI/PrettyNumber/PrettyNumber'
 import { strings } from '../../services/i18n'
-import UpdateAccountsDaemon from '../../services/Daemon/elements/UpdateAccountsDaemon'
 
+import DaemonCache from '../../daemons/DaemonCache'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
 class WalletListScreen extends Component {
 
@@ -55,15 +55,18 @@ class WalletListScreen extends Component {
 
         const { selectedWallet, selectedBasicCurrency } = this.props.mainStore
         const { wallets } = this.props
+        const { accountList } = this.props.accountStore
 
         let totalBalance = 0
         let localCurrencySymbol = selectedBasicCurrency.symbol
 
-        const CACHE_SUM = UpdateAccountsDaemon.getCache(false)
+        const CACHE_SUM = DaemonCache.getCache(false)
         if (CACHE_SUM) {
-            totalBalance = prettyNumber(CACHE_SUM.balance, 2)
+            totalBalance = BlocksoftPrettyNumbers.makeCut(CACHE_SUM.balance, 2, 'Settings/totalBalance').separated
             localCurrencySymbol = CACHE_SUM.basicCurrencySymbol
         }
+
+        const importBtnTitle = strings('walletCreateScreen.importWallet').split(' ')[0]
 
         return (
             <View style={styles.wrapper}>
@@ -77,12 +80,14 @@ class WalletListScreen extends Component {
                         <View style={styles.wrapper__top__content}>
                             <LetterSpacing text={strings('settings.walletList.totalBalance')} textStyle={styles.wrapper__top__content__title} letterSpacing={0.5}/>
                             <Text style={styles.wrapper__top__content__text}>
-                                {localCurrencySymbol} {prettyNumber(totalBalance, 2)}
+                                {localCurrencySymbol} {totalBalance}
                             </Text>
                         </View>
-                        <TouchableOpacity onPress={this.handleImport}>
-                            <LightButton Icon={(props) => <CustomIcon size={10} name={'receive'} {...props} />} iconStyle={{ marginHorizontal: 3 }} title={strings('walletCreateScreen.importWallet').split(' ')[0]}/>
-                        </TouchableOpacity>
+
+                                <TouchableOpacity onPress={this.handleImport}>
+                                    <LightButton Icon={(props) => <CustomIcon size={10} name={'receive'} {...props} />} iconStyle={{ marginHorizontal: 3 }} title={importBtnTitle}/>
+                                </TouchableOpacity>
+
                     </View>
                     <View style={styles.wrapper__content}>
                         <View style={styles.block}>
@@ -91,6 +96,7 @@ class WalletListScreen extends Component {
                                     return (
                                         <Wallet ref={ref => this.walletsRefs[`walletRef${index}`] = ref}
                                                 selectedWallet={selectedWallet}
+                                                accountListByHash={accountList[item.walletHash]}
                                                 wallet={item}
                                                 key={index}
                                                 setTotalBalance={this.setTotalBalance}
@@ -109,6 +115,7 @@ class WalletListScreen extends Component {
 const mapStateToProps = (state) => {
     return {
         mainStore: state.mainStore,
+        accountStore : state.accountStore,
         wallets: state.walletStore.wallets
     }
 }

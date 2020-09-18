@@ -17,8 +17,20 @@ import Log from '../services/Log/Log'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
+function getStackTrace(err) {
+    let stack = err.stack || ''
+    stack = stack.split('\n').map(function(line) {
+        const tmp = line.split('(http://localhost:')
+        if (tmp && tmp.length > 1) {
+            return tmp[0].trim()
+        }
+        return line.trim()
+    })
+    return stack.splice(stack[0] === 'Error' ? 2 : 1)
+}
+
 const myErrorHandler = (err) => {
-    Log.err('myErrorHandler error ' + err.message)
+    Log.err('myErrorHandler error ' + err.message, getStackTrace(err))
 }
 
 class MainStack extends Component {

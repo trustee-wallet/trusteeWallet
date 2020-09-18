@@ -40,7 +40,8 @@ export default class BsvUnspentsProvider {
         const link = `${this._apiPath}/address/${address}/unspent`
         const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || typeof res.data === 'undefined') {
-            throw new Error(this._settings.currencyCode + ' BsvUnspentsProvider.getUnspents nothing loaded for address')
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BsvUnspentsProvider.getUnspents nothing loaded for address ' + address + ' link ' + link)
+            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
         }
         if (!res.data || typeof res.data.data === 'undefined' || !res.data.data || typeof res.data.data.list === 'undefined' || !res.data.data.list) {
             return []
@@ -63,7 +64,6 @@ export default class BsvUnspentsProvider {
                 value: unspent.value.toString(),
                 height: 0,
                 confirmations : unspent.confirmations,
-                valueBN : BlocksoftUtils.toBigNumber(unspent.value.toString())
             })
         }
         return sortedUnspents

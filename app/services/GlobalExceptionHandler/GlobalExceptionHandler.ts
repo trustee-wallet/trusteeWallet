@@ -7,6 +7,7 @@ import {
 import Log from '../Log/Log'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { strings } from '../i18n'
+import config from '../../config/config'
 
 let CACHE_LAST_ERROR = ''
 
@@ -53,6 +54,12 @@ export default new class GlobalExceptionHandler {
     }
 
     errorTemplate = (e: Error): string => {
+        // eslint-disable-next-line no-undef
+        if (config.debug.appErrors) {
+            console.log('-----------GLOBAL ERROR---------')
+            console.log(e)
+            return ''
+        }
         return `
             
         ---------------- GLOBAL ----------------

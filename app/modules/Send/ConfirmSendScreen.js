@@ -19,15 +19,23 @@ import Cross from 'react-native-vector-icons/Entypo'
 import Fee from './elements/Fee'
 import ButtonLine from '../../components/elements/ButtonLine'
 import Button from '../../components/elements/Button'
-import utils from '../../services/utils'
 import Theme from '../../themes/Themes'
-import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
-import prettyNumber from '../../services/UI/PrettyNumber/PrettyNumber'
+
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import {
+    setLoaderStatus,
+    setSelectedAccount,
+    setSelectedCryptoCurrency
+} from '../../appstores/Stores/Main/MainStoreActions'
 
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import AntDesing from 'react-native-vector-icons/AntDesign'
+import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
+import store from '../../store'
+import _ from 'lodash'
+import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 
 let styles
 
@@ -39,8 +47,8 @@ class ConfirmSendScreen extends Component {
             isSendDisabled: false,
             data: {},
             feeList: null,
-            selectedFee : false,
-            selectedCustomFee : false,
+            selectedFee: false,
+            selectedCustomFee: false,
             needPasswordConfirm: false
         }
     }
@@ -49,22 +57,62 @@ class ConfirmSendScreen extends Component {
     UNSAFE_componentWillMount() {
         styles = Theme.getStyles().sendScreenStyles.confirmModalStyles
 
-        const data = this.props.navigation.getParam('confirmSendScreenParam')
+        const data = this.props.navigation.getParam('confirmSendScreenParam') ? this.props.navigation.getParam('confirmSendScreenParam') : this.props.navigation.getParam('confirmWebViewParam')
 
-        this.setState({
-            data
-        })
+        if (data.currencyCode) {
+            const newData = this.getData(data)
+            this.setState({
+                data: newData
+            })
+
+        } else {
+            this.setState({
+                data
+            })
+
+        }
 
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
 
             const settings = this.props.settingsStore.data
 
-            if(+settings.lock_screen_status) {
+            if (+settings.lock_screen_status) {
                 this.setState({
                     needPasswordConfirm: true
                 })
             }
         })
+    }
+
+    getData(data) {
+        const { account, address, amount, memo, amountRaw, wallet, cryptoCurrency, useAllFunds, toTransactionJSON, type, currencyCode } = data
+
+        const { selectedWallet } = store.getState().mainStore
+
+        const { cryptoCurrencies } = store.getState().currencyStore
+        const cryptoCurrencyNew = _.find(cryptoCurrencies, { currencyCode: currencyCode })
+
+        const { accountList } = store.getState().accountStore
+        const accountNew = accountList[selectedWallet.walletHash][currencyCode]
+
+        const amountRawNew = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(amount)
+        if (typeof amountRawNew === 'undefined') {
+            Log.err('SendScreen.handleSendTransaction ' + currencyCode + ' not ok amountRaw ')
+        }
+
+        const newData = {
+            memo,
+            amount,
+            amountRaw: amountRawNew,
+            address,
+            wallet: selectedWallet,
+            cryptoCurrency: cryptoCurrencyNew,
+            account: accountNew,
+            useAllFunds,
+            toTransactionJSON,
+            type
+        }
+        return newData
     }
 
     componentWillUnmount() {
@@ -75,7 +123,9 @@ class ConfirmSendScreen extends Component {
         NavStore.goBack(null)
     }
 
-    setParentState = (field, value) => this.setState({ [field]: value })
+    setParentState = (field, value) => {
+        this.setState({ [field]: value })
+    }
 
     handleSend = async (passwordCheck = true, uiErrorConfirmed = false) => {
 
@@ -93,8 +143,8 @@ class ConfirmSendScreen extends Component {
             needPasswordConfirm
         } = this.state
 
-        if(needPasswordConfirm && passwordCheck && typeof settingsStore.data.askPinCodeWhenSending !== 'undefined' && +settingsStore.data.askPinCodeWhenSending) {
-            lockScreenAction.setFlowType({flowType: 'CONFIRM_SEND_CRYPTO'})
+        if (needPasswordConfirm && passwordCheck && typeof settingsStore.data.askPinCodeWhenSending !== 'undefined' && +settingsStore.data.askPinCodeWhenSending) {
+            lockScreenAction.setFlowType({ flowType: 'CONFIRM_SEND_CRYPTO' })
             lockScreenAction.setActionCallback({ actionCallback: this.handleSend })
             NavStore.goNext('LockScreen')
             return
@@ -187,7 +237,7 @@ class ConfirmSendScreen extends Component {
                 const transaction = {
                     accountId: accountId,
                     transactionHash: tx.hash,
-                    transactionUpdateHash : transactionReplaceByFee,
+                    transactionUpdateHash: transactionReplaceByFee,
                     transactionsOtherHashes: transactionReplaceByFee,
                     transactionJson
                 }
@@ -231,15 +281,19 @@ class ConfirmSendScreen extends Component {
                     transaction.updatedAt = new Date(tx.timestamp).toISOString()
                 }
 
-
-                MarketingEvent.checkSellSendTx({
+                const logData = {
                     walletHash: walletHash,
                     currencyCode: currencyCode,
                     transactionHash: tx.hash,
                     addressTo: addressTo,
                     addressFrom: addressFrom,
-                    addressAmount: amountRaw
-                })
+                    addressAmount: amountRaw,
+                    fee: JSON.stringify(fee)
+                }
+                if (transactionReplaceByFee) {
+                    logData.transactionReplaceByFee = transactionReplaceByFee
+                }
+                MarketingEvent.checkSellSendTx(logData)
 
                 transactionActions.saveTransaction(transaction)
             }
@@ -259,14 +313,18 @@ class ConfirmSendScreen extends Component {
 
                 const { type } = this.props.sendStore.data
 
-                if (type === 'TRADE_SEND') {
+                if (type === 'MAIN_SCANNER') {
+                    NavStore.goNext('DashboardStack')
+                } else if (type === 'SEND_SCANNER') {
+                    NavStore.goNext('AccountScreen')
+                } else if (type === 'TRADE_SEND') {
                     NavStore.goNext('FinishScreen', {
                         finishScreenParam: {
                             selectedCryptoCurrency: this.props.sendStore.data.cryptoCurrency
                         }
                     })
                 } else {
-                    BlocksoftTransfer.getTransferPrecache()
+                    BlocksoftTransfer.getTransferPrecache('confirmScreenOk')
 
                     if (transactionReplaceByFee) {
                         NavStore.goBack(null)
@@ -286,13 +344,21 @@ class ConfirmSendScreen extends Component {
 
                 this.setState({ isSendDisabled: false })
 
+                const allData = this.state.data
+
                 showModal({
                     type: 'YES_NO_MODAL',
                     icon: 'WARNING',
                     title: strings('send.confirmModal.title'),
                     description: strings('send.errors.' + e.message)
-                }, () => {
-                    this.handleSend(passwordCheck, true)
+                }, async () => {
+                    if (typeof e.newAmount !== 'undefined') {
+                        allData.amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(e.newAmount)
+                        this.setState({ amountRaw: e.newAmount, data: allData })
+                        await this.fee.changeAmountRaw(e.newAmount)
+                    } else {
+                        this.handleSend(passwordCheck, e.message)
+                    }
                 })
 
             } else {
@@ -302,15 +368,30 @@ class ConfirmSendScreen extends Component {
                     type: 'INFO_MODAL',
                     icon: null,
                     title: strings('modal.exchange.sorry'),
-                    description: e.message,
-                    error: e
+                    description: e.message
                 })
+
+                if (typeof e.needFees !== 'undefined') {
+                    await this.fee.multiplyFee()
+                }
             }
             this.setState({ isSendDisabled: false })
         }
 
-
         setLoaderStatus(false)
+    }
+
+    showMultiAddresses = (multiShow) => {
+        let description = ''
+        for (let i = 0, ic = multiShow.length; i < ic; i++) {
+            description += (i + 1) + ': ' + BlocksoftPrettyStrings.makeCut(multiShow[i]) + '\n'
+        }
+        showModal({
+            type: 'INFO_MODAL',
+            icon: null,
+            title: strings('send.confirmModal.multiRecipient', { total: multiShow.length }),
+            description
+        })
     }
 
     renderBottom = (feeList, extendCurrencyCode) => {
@@ -319,7 +400,13 @@ class ConfirmSendScreen extends Component {
 
         if (feeList === null || feeList.length) {
             return (
-                <View style={{ width: '100%', position: 'relative', flexDirection: 'row', justifyContent: 'space-between', zIndex: 1 }}>
+                <View style={{
+                    width: '100%',
+                    position: 'relative',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    zIndex: 1
+                }}>
                     <ButtonLine
                         press={() => this.handleHide()}
                         styles={styles.btn}
@@ -340,52 +427,63 @@ class ConfirmSendScreen extends Component {
             )
         }
 
+        Log.log('ConfirmSendScreen.renderBottom ' + extendCurrencyCode, feeList)
         return (
             <View style={{ position: 'relative', width: '100%', zIndex: 1 }}>
-                <Text style={{ paddingHorizontal: 20, textAlign: 'center', paddingVertical: 10, fontFamily: 'SFUIDisplay-Semibold', fontSize: 14, color: '#404040', zIndex: 1 }}>
-                    {strings('send.errors.SERVER_RESPONSE_NOT_ENOUGH_FEE', { symbol: extendCurrencyCode })}
+                <Text style={{
+                    paddingHorizontal: 20,
+                    textAlign: 'center',
+                    paddingVertical: 10,
+                    fontFamily: 'SFUIDisplay-Semibold',
+                    fontSize: 14,
+                    color: '#404040',
+                    zIndex: 1
+                }}>
+                    {strings('send.errors.SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET', { symbol: extendCurrencyCode })}
                 </Text>
             </View>
         )
     }
 
     render() {
-
+        UpdateOneByOneDaemon.pause()
+        UpdateAccountListDaemon.pause()
         const { isSendDisabled, feeList, selectedFee, selectedCustomFee } = this.state
-        const { isBottomFunctionEnabled, amount, address, account, cryptoCurrency, wallet, type } = this.state.data
+        let { isBottomFunctionEnabled, amount, address, account, cryptoCurrency, wallet, type, transactionSpeedUp, transactionReplaceByFee } = this.state.data
         const { currencySymbol } = cryptoCurrency
         const basicCurrencySymbol = account.basicCurrencySymbol
 
-
-        const equivalent = prettyNumber(RateEquivalent.mul({ value: amount, currencyCode: account.currencyCode, basicCurrencyRate: account.basicCurrencyRate }), 2)
+        const equivalent = BlocksoftPrettyNumbers.makeCut(RateEquivalent.mul({
+            value: amount,
+            currencyCode: account.currencyCode,
+            basicCurrencyRate: account.basicCurrencyRate
+        }), 2).justCutted
         let extendCurrencyCode = BlocksoftDict.getCurrencyAllSettings(cryptoCurrency.currencyCode)
         extendCurrencyCode = typeof extendCurrencyCode.addressCurrencyCode === 'undefined' ? extendCurrencyCode.currencySymbol : extendCurrencyCode.addressCurrencyCode
 
-        let changeAddress = ''
-        let changePretty = ''
-        let changeCurrencySymbol = ''
-        let allowReplaceByFee = ''
-        if ( feeList || selectedFee) {
+        let multiShow = false
+        if (feeList || selectedFee) {
             const lastFee = selectedFee || feeList[feeList.length - 1]
             if (lastFee) {
-                if (typeof lastFee.preparedInputsOutputs !== 'undefined' && typeof lastFee.preparedInputsOutputs.outputs !== 'undefined' && lastFee.preparedInputsOutputs.outputs.length > 0) {
-                    const lastOutput = lastFee.preparedInputsOutputs.outputs[lastFee.preparedInputsOutputs.outputs.length - 1]
-                    if (typeof lastOutput.type !== 'undefined' && lastOutput.type === 'change') {
-                        changeAddress = lastOutput.to
-                        if (selectedCustomFee) {
-                            changePretty = ''
-                        } else if (cryptoCurrency.currencyCode === 'USDT') {
-                            changeCurrencySymbol = 'BTC'
-                            changePretty = BlocksoftPrettyNumbers.setCurrencyCode('BTC').makePretty(lastOutput.amount)
-                        } else {
-                            changePretty = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makePretty(lastOutput.amount)
-                        }
-                    }
+                if (typeof lastFee.preparedInputsOutputs !== 'undefined' && typeof lastFee.preparedInputsOutputs.multiAddress !== 'undefined' && lastFee.preparedInputsOutputs.multiAddress) {
+                    address = lastFee.preparedInputsOutputs.multiAddress[0]
+                    multiShow = lastFee.preparedInputsOutputs.multiAddress
                 }
-                if (typeof lastFee.txAllowReplaceByFee !== 'undefined') {
-                    allowReplaceByFee = lastFee.txAllowReplaceByFee ? 'on' : ''
-                }
+
             }
+        }
+
+        // recheck amount to show less digits in erc-20
+        amount = BlocksoftPrettyNumbers.makePretty(BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makeUnPretty(amount))
+
+
+        let titleMsg = ''
+        if (typeof transactionReplaceByFee !== 'undefined' && transactionReplaceByFee) {
+            titleMsg = strings('send.confirmModal.titleReplaceByFee', {hash : BlocksoftPrettyStrings.makeCut(transactionReplaceByFee)})
+        } else if (typeof transactionSpeedUp !== 'undefined') {
+            titleMsg = strings('send.confirmModal.titleSpeedUp', {hash : BlocksoftPrettyStrings.makeCut(transactionSpeedUp)})
+        } else {
+            titleMsg = strings('send.confirmModal.title')
         }
 
         return (
@@ -393,12 +491,20 @@ class ConfirmSendScreen extends Component {
                 <View style={styles.wrapper}>
                     <SafeAreaView style={{ flex: 0, backgroundColor: '#7127ab' }}/>
                     <SafeAreaView style={{ flex: 1, position: 'relative', backgroundColor: '#fff' }}>
-                        <View style={{ position: 'absolute', width: '100%', top: 0, left: 0, height: 1000, backgroundColor: '#7127ab' }}/>
+                        <View style={{
+                            position: 'absolute',
+                            width: '100%',
+                            top: 0,
+                            left: 0,
+                            height: 1000,
+                            backgroundColor: '#7127ab'
+                        }}/>
                         <KeyboardAwareView>
-                            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.wrapper__content}>
+                            <ScrollView showsVerticalScrollIndicator={false}
+                                        contentContainerStyle={styles.wrapper__content}>
                                 <View style={styles.top}>
                                     <Text style={styles.title}>
-                                        {strings('send.confirmModal.title')}
+                                        {titleMsg}
                                     </Text>
                                 </View>
                                 <View style={styles.box}>
@@ -428,41 +534,36 @@ class ConfirmSendScreen extends Component {
                                         <Text style={styles.description__text}>
                                             {strings('send.confirmModal.recipient')}
                                         </Text>
-                                        <Text style={styles.description__text}>
-                                            {address.slice(0, 10) + '...' + address.slice(address.length - 10, address.length)}
-                                        </Text>
+                                        {
+                                            multiShow
+                                                ?
+                                                (
+                                                    <TouchableOpacity
+                                                        style={{
+                                                            flex: 1,
+                                                            height: 30,
+                                                            paddingLeft: 0,
+                                                            justifyContent: 'center'
+                                                        }}
+                                                        onPress={() => this.showMultiAddresses(multiShow)}>
+                                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                            <Text
+                                                                style={styles.description__text}>{strings('send.confirmModal.multiRecipient', { total: multiShow.length })}</Text>
+                                                            <View style={{ marginLeft: 5, marginBottom: 0 }}>
+                                                                <AntDesing name={'caretdown'} size={13}
+                                                                           color="#f4f4f4"/>
+                                                            </View>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                )
+                                                : (
+                                                    <Text style={styles.description__text}>
+                                                        {BlocksoftPrettyStrings.makeCut(address, 10)}
+                                                    </Text>
+                                                )
+                                        }
                                     </View>
                                 </View>
-                                {changeAddress || allowReplaceByFee?
-                                    <View style={styles.description}>
-                                        <View style={styles.description__item}>
-                                            <Text style={styles.description__text}>
-                                                {''}
-                                            </Text>
-                                        </View>
-                                    </View> : null
-                                }
-                                {changeAddress ?
-                                    <View style={styles.description}>
-                                        <View style={styles.description__item}>
-                                            <Text style={styles.description__text}>
-                                                {strings('send.confirmModal.change', {amount : changePretty, currencySymbol : changeCurrencySymbol})}
-                                            </Text>
-                                            <Text style={styles.description__text}>
-                                                {changeAddress.slice(0, 10) + '...' + changeAddress.slice(changeAddress.length - 10, changeAddress.length)}
-                                            </Text>
-                                        </View>
-                                    </View> : null
-                                }
-                                {allowReplaceByFee ?
-                                    <View style={styles.description}>
-                                        <View style={styles.description__item}>
-                                            <Text style={styles.description__text}>
-                                                { strings('send.confirmModal.rbf_' + allowReplaceByFee)}
-                                            </Text>
-                                        </View>
-                                    </View> : null
-                                }
 
                                 <TouchableOpacity onPress={() => this.handleHide()} style={styles.cross}>
                                     <Cross name={'cross'} size={30} color={'#fff'}/>
@@ -479,7 +580,15 @@ class ConfirmSendScreen extends Component {
                             </ScrollView>
                             <View style={styles.bottom}>
                                 {this.renderBottom(feeList, extendCurrencyCode)}
-                                <View style={{ position: 'absolute', width: '100%', top: 0, left: 0, height: 1000, backgroundColor: '#fff', zIndex: 0 }}/>
+                                <View style={{
+                                    position: 'absolute',
+                                    width: '100%',
+                                    top: 0,
+                                    left: 0,
+                                    height: 1000,
+                                    backgroundColor: '#fff',
+                                    zIndex: 0
+                                }}/>
                             </View>
                         </KeyboardAwareView>
                     </SafeAreaView>

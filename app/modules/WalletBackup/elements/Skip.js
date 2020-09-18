@@ -1,17 +1,15 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, StyleSheet } from 'react-native'
+import { View } from 'react-native'
 
 import Layout from '../../../components/elements/modal/Layout'
 import Title from '../../../components/elements/modal/Title'
 import Text from '../../../components/elements/modal/Text'
 import Button from '../../../components/elements/modal/Button'
 import Icon from '../../../components/elements/modal/Icon'
-import ButtonWrap from '../../../components/elements/modal/ButtonWrap'
-import Line from '../../../components/elements/modal/Line'
 
 import { hideModal, showModal } from '../../../appstores/Stores/Modal/ModalActions'
 
@@ -41,16 +39,31 @@ class Skip extends Component {
 
             let tmpWalletName = walletName
 
-            if(!tmpWalletName) {
-                tmpWalletName = await walletActions.getNewWalletName()
+            try {
+                if (!tmpWalletName) {
+                    tmpWalletName = await walletActions.getNewWalletName()
+                }
+            } catch (e) {
+                e.message += ' while getNewWalletName'
+                throw e
             }
 
-            await proceedSaveGeneratedWallet({
-                walletName: tmpWalletName,
-                walletMnemonic
-            })
+            try {
+                await proceedSaveGeneratedWallet({
+                    walletName: tmpWalletName,
+                    walletMnemonic
+                })
+            } catch (e) {
+                e.message += ' while proceedSaveGeneratedWallet'
+                throw e
+            }
 
-            await App.refreshWalletsStore()
+            try {
+                await App.refreshWalletsStore({ firstTimeCall: false, source: 'WalletBackup.handleSkip' })
+            } catch (e) {
+                e.message += ' while refreshWalletsStore'
+                throw e
+            }
 
             setLoaderStatus(false)
 
@@ -85,18 +98,19 @@ class Skip extends Component {
                     <Title style={styles.title}>
                         {strings('walletBackup.skipElement.title')}
                     </Title>
-                    <Text style={styles.text}>
-                        {strings('walletBackup.skipElement.description')}
-                    </Text>
-                    <ButtonWrap>
-                        <Button onPress={this.handleHide}>
+                    <View style={{ marginTop: 8, marginBottom: -5 }}>
+                        <Text style={styles.text}>
+                            {strings('walletBackup.skipElement.description')}
+                        </Text>
+                    </View>
+                    <View>
+                        <Button onPress={this.handleHide} color={'#F59E6C'} shadow={true} style={{ marginTop: 17 }}>
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
-                        <Line/>
-                        <Button onPress={this.handleSkip}>
+                        <Button onPress={this.handleSkip} style={{backgroundColor: 'none', color: '#F59E6C'}}>
                             {strings('walletBackup.skipElement.yes')}
                         </Button>
-                    </ButtonWrap>
+                    </View>
                 </View>
             </Layout>
         )
@@ -112,14 +126,31 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, {})(Skip)
 
-const styles = StyleSheet.create({
+const styles = {
     title: {
-        marginTop: 15
+        fontFamily: 'Montserrat-Bold',
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        fontSize: 18,
+        lineHeight: 26,
+        textAlign: 'center',
+        color: '#404040',
+        marginTop: -10,
+        marginBottom: -2
     },
     text: {
-        marginTop: 5
+        color: '#5C5C5C',
+        fontFamily: 'SFUIDisplay-Regular',
+        fontStyle: 'normal',
+        fontWeight: 'normal',
+        fontSize: 14,
+        lineHeight: 20,
+        textAlign: 'center',
+        letterSpacing: 0.5,
+        marginBottom: -6
     }
-})
+}
+
 
 /*
 <Modal

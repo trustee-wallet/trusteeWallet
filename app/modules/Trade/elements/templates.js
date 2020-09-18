@@ -18,6 +18,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import countriesDict from '../../../assets/jsons/other/country-codes'
 import AntDesign from 'react-native-vector-icons/AntDesign'
+import UpdateCardsDaemon from '../../../daemons/back/UpdateCardsDaemon'
 
 
 export default new class Templates {
@@ -49,6 +50,9 @@ export default new class Templates {
 
         const cardJson = JSON.parse(card.cardVerificationJson)
 
+        if (typeof cardJson !== 'undefined' && cardJson && typeof cardJson.verificationStatus !== 'undefined' && cardJson.verificationStatus === 'pending') {
+            UpdateCardsDaemon.updateCardsDaemon({force : true, unique: card.id})
+        }
         return (
             <View style={{ paddingLeft: 15, paddingTop: 15, position: 'relative'}}>
                 {

@@ -12,7 +12,7 @@ import { strings } from '../../../services/i18n'
 
 class Limits extends Component {
 
-    constructor(){
+    constructor() {
         super()
         this.state = {
             limits: {},
@@ -31,7 +31,7 @@ class Limits extends Component {
 
         const { selectedCryptocurrency, selectedFiatCurrency, selectedPaymentSystem, selectedFiatTemplate } = nextProps
 
-        if(typeof selectedFiatCurrency.cc != 'undefined' && typeof selectedCryptocurrency.currencyCode != 'undefined' && typeof selectedPaymentSystem.paymentSystem != 'undefined'){
+        if (typeof selectedFiatCurrency.cc != 'undefined' && typeof selectedCryptocurrency.currencyCode != 'undefined' && typeof selectedPaymentSystem.paymentSystem != 'undefined') {
 
             this.prepareLimits(selectedCryptocurrency, selectedFiatCurrency, selectedPaymentSystem)
         }
@@ -44,6 +44,8 @@ class Limits extends Component {
     prepareLimits = (selectedCryptocurrency, selectedFiatCurrency, selectedPaymentSystem) => {
 
         const tradeWay = this.props.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
+
+        if (typeof tradeWay === 'undefined' || !tradeWay) return false
 
         const ifEqual = selectedFiatCurrency.cc !== selectedPaymentSystem.currencyCode
 
@@ -62,10 +64,10 @@ class Limits extends Component {
         const { refAmount } = this.props
         const { limits } = this.state
 
-        if(typeof refAmount == 'undefined'){
+        if (typeof refAmount == 'undefined') {
 
             return (
-                <View />
+                <View/>
             )
         }
 
@@ -73,7 +75,7 @@ class Limits extends Component {
 
         let isValid = true
 
-        if(limits.min > amount.amountEquivalentInFiatToApi || amount.amountEquivalentInFiatToApi > limits.max){
+        if (limits.min > amount.amountEquivalentInFiatToApi || amount.amountEquivalentInFiatToApi > limits.max) {
             isValid = false
         }
 
@@ -87,7 +89,9 @@ class Limits extends Component {
         // const selectedTradeWay = this.props.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
 
         this.props.refAmount.handleSetState('moneyType', 'FIAT', () => {
-            this.props.refAmount.setInputData(amount.toString())
+            if (amount) {
+                this.props.refAmount.setInputData(amount.toString())
+            }
             // this.props.refAmount.calculateEquivalent(selectedTradeWay, selectedFiatCurrency, amount)
         })
         this.setState({
@@ -100,34 +104,34 @@ class Limits extends Component {
         const { isValid, limits } = this.state
         const { selectedFiatCurrency } = this.props
 
-        if(!isValid)
+        if (!isValid)
             return (
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={styles.container}>
                         <Text style={styles.title} numberOfLines={1}>
-                            { strings('tradeScreen.limitsTitle') }
+                            {strings('tradeScreen.limitsTitle')}
                         </Text>
                         <View style={styles.container__row}>
                             <View style={styles.container__col}>
                                 <Text style={[styles.container__text1, { marginLeft: 15, marginTop: -6 }]}>
-                                    { strings('exchangeScreen.min') }
+                                    {strings('exchangeScreen.min')}
                                 </Text>
                                 <Text style={[styles.container__text1, { marginLeft: 15, marginTop: 12 }]}>
-                                    { strings('exchangeScreen.max') }
+                                    {strings('exchangeScreen.max')}
                                 </Text>
                             </View>
                             <View style={styles.container__col}>
                                 <TouchableOpacity style={styles.number} onPress={() => this.useLimit(limits.minEquivalent)}>
                                     <View style={[styles.number__content, styles.number__content_1]}>
                                         <Text style={styles.container__text2}>
-                                            { `${selectedFiatCurrency.symbol} ${limits.minEquivalent}` }
+                                            {`${selectedFiatCurrency.symbol} ${limits.minEquivalent}`}
                                         </Text>
                                     </View>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.number} onPress={() => this.useLimit(limits.maxEquivalent)}>
                                     <View style={[styles.number__content, styles.number__content_2]}>
                                         <Text style={styles.container__text2}>
-                                            { `${selectedFiatCurrency.symbol} ${limits.maxEquivalent}` }
+                                            {`${selectedFiatCurrency.symbol} ${limits.maxEquivalent}`}
                                         </Text>
                                     </View>
                                 </TouchableOpacity>
@@ -137,10 +141,10 @@ class Limits extends Component {
                 </TouchableWithoutFeedback>
             )
 
-        return <View />
+        return <View/>
     }
 
-    render(){
+    render() {
         return this.renderLimits()
     }
 }
@@ -174,12 +178,12 @@ const styles = {
 
         fontSize: 19,
         fontFamily: 'SFUIDisplay-Regular',
-        color: "#fff"
+        color: '#fff'
     },
     container__row: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-between'
     },
     container__col: {
         justifyContent: 'center'
@@ -187,12 +191,12 @@ const styles = {
     container__text1: {
         fontSize: 16,
         fontFamily: 'SFUIDisplay-Regular',
-        color: '#FFDEEA',
+        color: '#FFDEEA'
     },
     container__text2: {
         fontSize: 16,
         fontFamily: 'SFUIDisplay-Semibold',
-        color: '#F79EBE',
+        color: '#F79EBE'
     },
     number__content: {
         padding: 10,
@@ -210,5 +214,5 @@ const styles = {
     number__content_2: {
         marginTop: 6,
         marginBottom: 15
-    },
+    }
 }

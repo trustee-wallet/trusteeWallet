@@ -1,12 +1,22 @@
-import { add } from 'react-native-reanimated'
-
+import {BigNumber} from 'bignumber.js'
 const Web3 = require('web3')
 
 class BlocksoftUtils {
 
+    //  console.log('added', BlocksoftUtils.add(967282001717650,87696220292905380))
     static add(val1, val2) {
         if (typeof val1 === 'undefined') {
             return val2 || ''
+        }
+        if (typeof val2 === 'undefined') {
+            return val1
+        }
+        if (typeof val1.innerBN !== 'undefined') {
+            if (typeof val2.innerBN !== 'undefined') {
+                return val1.innerBN.plus(val2.innerBN).toString()
+            } else {
+                return val1.innerBN.plus(BigNumber(val2)).toString()
+            }
         }
         if (!val2 || !(val2 * 1 > 0)) {
             return val1
@@ -15,79 +25,136 @@ class BlocksoftUtils {
         if (str.indexOf('.') !== -1 || str.indexOf(',') !== -1) {
             return val1 * 1 + val2 * 1
         }
-        return BlocksoftUtils.toBigNumber(val1).add(BlocksoftUtils.toBigNumber(val2))
+        let res = 0
+        try {
+            res = BigNumber(val1).plus(BigNumber(val2)).toString()
+        } catch (e) {
+            return val1 * 1 + val2 * 1
+        }
+        return res
     }
 
     static mul(val1, val2) {
         if (typeof val1 === 'undefined') {
             return ''
         }
+        if (typeof val2 === 'undefined') {
+            return val1
+        }
         if (val2 === '1' || val2 === 1) {
             return val1
         }
-        const str = val1.toString() + val2.toString()
-        if (str.indexOf('.') !== -1 || str.indexOf(',') !== -1) {
-            return val1 * val2
+        if (typeof val1.innerBN !== 'undefined') {
+            if (typeof val2.innerBN !== 'undefined') {
+                return val1.innerBN.times(val2.innerBN).toString()
+            } else {
+                return val1.innerBN.times(BigNumber(val2)).toString()
+            }
         }
-        return BlocksoftUtils.toBigNumber(val1).mul(BlocksoftUtils.toBigNumber(val2))
+        const str = val1.toString() + val2.toString()
+        let res = 0
+        if (str.indexOf('.') !== -1 || str.indexOf(',') !== -1) {
+            res = val1 * val2
+        } else {
+            try {
+                res = BigNumber(val1).times(BigNumber(val2)).toString()
+            } catch (e) {
+                res = val1 * val2
+            }
+        }
+        return BlocksoftUtils.fromENumber(res)
     }
 
     static div(val1, val2) {
         if (typeof val1 === 'undefined') {
             return ''
         }
+        if (typeof val2 === 'undefined') {
+            return val1
+        }
         if (val2 === '1' || val2 === 1) {
             return val1
         }
+        if (typeof val1.innerBN !== 'undefined') {
+            if (typeof val2.innerBN !== 'undefined') {
+                return val1.innerBN.dividedBy(val2.innerBN).toString()
+            } else {
+                return val1.innerBN.dividedBy(BigNumber(val2 + '')).toString()
+            }
+        }
         const str = val1.toString() + val2.toString()
+        let res = 0
         if (str.indexOf('.') !== -1 || str.indexOf(',') !== -1) {
-            return val1 / val2
+            res = val1 / val2
+        } else {
+            let addedZeros = false
+            if (val1.length <= val2.length + 2) {
+                val1 += '00000000'
+                addedZeros = true
+            }
+            try {
+                res = BigNumber(val1).dividedBy(BigNumber(val2)).toString()
+                if (addedZeros) {
+                    res = res / 100000000
+                }
+            } catch (e) {
+                res = val1 / val2
+            }
         }
-        let addedZeros = false
-        if (val1.length <= val2.length + 2) {
-            val1 += '00000000'
-            addedZeros = true
-        }
-        let res = (BlocksoftUtils.toBigNumber(val1)).div(BlocksoftUtils.toBigNumber(val2))
-        res = res.toString()
-        if (addedZeros) {
-            return res / 100000000
-        }
-        return res
+        return BlocksoftUtils.fromENumber(res)
     }
 
     static diff(val1, val2) {
         if (typeof val1 === 'undefined') {
             return val2 || ''
         }
-        if (!val2) return val1
-        if (!val1) return -1 * val2
-        const str = val1.toString() + val2.toString()
-        if (str.indexOf('.') !== -1 || str.indexOf(',') !== -1) {
-            return val1 - val2
+        if (typeof val2 === 'undefined') {
+            return val1
         }
-        return BlocksoftUtils.toBigNumber(val1).sub(BlocksoftUtils.toBigNumber(val2 + '')).toString()
-    }
-
-    /**
-     * @param val
-     * @returns BN
-     */
-    static toBigNumber(val) {
-        // noinspection JSCheckFunctionSignatures,JSUnresolvedVariable
-        return new Web3.utils.BN(val)
+        if (!val2) {
+            return val1
+        }
+        if (!val1) {
+            return -1 * val2
+        }
+        if (typeof val1.innerBN !== 'undefined') {
+           if (typeof val2.innerBN !== 'undefined') {
+               return val1.innerBN.minus(val2.innerBN).toString()
+           } else {
+               return val1.innerBN.minus(BigNumber(val2 + '')).toString()
+           }
+        }
+        const str = val1.toString() + val2.toString()
+        let res = 0
+        if (str.indexOf('.') !== -1 || str.indexOf(',') !== -1) {
+            res = val1 - val2
+        } else {
+            try {
+                res = BigNumber(val1).minus(BigNumber(val2 + '')).toString()
+            } catch (e) {
+                res = val1 - val2
+            }
+        }
+        return BlocksoftUtils.fromENumber(res)
     }
 
     static fromENumber(val) {
         if (val === null || typeof (val) === 'undefined' || !val) {
             return 0
         }
-        val = val.toString()
-        if (val.indexOf('e+') === -1) {
+        val = val.toString().toLowerCase()
+        if (val.indexOf('e') === -1) {
             return val
         }
-        const parts = val.split('e+')
-        return this.fromUnified(parts[0], parts[1])
+        const parts = val.split('e')
+        const number = parts[1].substr(0, 1)
+        const power =  parts[1].substr(1)
+        const first = parts[0].split('.')
+        if (number === '+') {
+            return this.fromUnified(parts[0], power)
+        } else {
+            return '0.' + ('0'.repeat(power)) + first[0] + first[1]
+        }
     }
 
     static toSatoshi(val) {
@@ -124,6 +191,7 @@ class BlocksoftUtils {
     }
 
     static fromUnified(val, decimals = 8) {
+        if (typeof val === 'undefined') return 0
         val = val.toString()
         const parts = val.split('.')
         let number = parts[0]

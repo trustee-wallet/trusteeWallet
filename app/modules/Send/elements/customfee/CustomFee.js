@@ -44,19 +44,20 @@ class CustomFee extends Component {
 
     renderFee = () => {
 
-        const { currencyCode, getCustomFee, useAllFunds } = this.props
+        let { currencyCode, getCustomFee, useAllFunds } = this.props
 
-        switch (currencyCode) {
-            // @misha could it be unified on "ETH" + tokens and "BTC" + btclike
+        let prefix = currencyCode
+        if (typeof currencyCode !== 'undefined' && currencyCode) {
+            const tmp = currencyCode.split('_')
+            if (typeof tmp[0] !== 'undefined' && tmp[0]) {
+                prefix = tmp[0]
+            }
+        }
+        if (typeof getCustomFee === 'undefined') {
+            getCustomFee = ''
+        }
+        switch (prefix) {
             case 'ETH':
-            case 'ETH_ROPSTEN':
-            case 'ETH_TRUE_USD':
-            case 'ETH_USDT':
-            case 'ETH_BNB':
-            case 'ETH_USDC':
-            case 'ETH_PAX':
-            case 'ETH_DAI':
-            case 'ETH_ROPSTEN_KSU_TOKEN':
                 this.state.selectedCustomFeeComponent = 'customFeeEthereum'
                 return <CustomFeeEthereum
                     ref={ref => this.customFeeEthereum = ref}
@@ -66,8 +67,9 @@ class CustomFee extends Component {
                     callTransferAll={this.callTransferAll}
                     useAllFunds={useAllFunds}/>
             case 'BTC':
+            case 'LTC':
+            case 'XVG':
             case 'DOGE':
-            case 'BTC_TEST':
             case 'USDT':
                 this.state.selectedCustomFeeComponent = 'customFeeBitcoin'
                 return <CustomFeeBitcoin

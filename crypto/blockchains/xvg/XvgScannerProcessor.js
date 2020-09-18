@@ -44,7 +44,7 @@ export default class XvgScannerProcessor {
      */
     async getTransactionsBlockchain(address) {
         address = address.trim()
-        BlocksoftCryptoLog.log('XvgScannerProcessor.getTransactions started', address)
+        BlocksoftCryptoLog.log('XvgScannerProcessor.getTransactions started ' + address)
         const link = `${API_PATH}/address/${address}/txs`
         BlocksoftCryptoLog.log('XvgScannerProcessor.getTransactions call ' + link)
         let tmp = await BlocksoftAxios.get(link)
@@ -97,8 +97,7 @@ export default class XvgScannerProcessor {
                 }
             }
         }
-        BlocksoftCryptoLog.log('XvgScannerProcessor.getTransactions finished', address)
-        BlocksoftCryptoLog.log('XvgScannerProcessor.getTransactions new tx total', transactions.length)
+        BlocksoftCryptoLog.log('XvgScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
         return transactions
 
     }

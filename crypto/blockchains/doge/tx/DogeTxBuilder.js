@@ -132,6 +132,7 @@ export default class DogeTxBuilder {
         try {
             hex = txb.build().toHex()
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx size ' + hex.length, log)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx hex', hex)
         } catch (e) {
             e.message = ' transaction DOGE build error: ' + e.message
             throw e

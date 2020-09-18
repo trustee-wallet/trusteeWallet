@@ -1,0 +1,59 @@
+{
+  "_android": {
+    "_actions": [],
+    "_autoCancel": undefined,
+    "_badgeIconType": undefined,
+    "_bigPicture": undefined,
+    "_bigText": undefined,
+    "_category": undefined,
+    "_channelId": undefined,
+    "_clickAction": undefined,
+    "_color": undefined,
+    "_colorized": undefined,
+    "_contentInfo": undefined,
+    "_defaults": undefined,
+    "_group": undefined,
+    "_groupAlertBehaviour": undefined,
+    "_groupSummary": undefined,
+    "_largeIcon": undefined,
+    "_lights": undefined,
+    "_localOnly": undefined,
+    "_notification": [
+      Circular
+    ],
+    "_number": undefined,
+    "_ongoing": undefined,
+    "_onlyAlertOnce": undefined,
+    "_people": [],
+    "_priority": undefined,
+    "_progress": undefined,
+    "_remoteInputHistory": undefined,
+    "_shortcutId": undefined,
+    "_showWhen": undefined,
+    "_smallIcon": {
+      "icon": "ic_launcher"
+    },
+    "_sortKey": undefined,
+    "_tag": undefined,
+    "_ticker": undefined,
+    "_timeoutAfter": undefined,
+    "_usesChronometer": undefined,
+    "_vibrate": undefined,
+    "_visibility": undefined,
+    "_when": undefined
+  },
+  "_body": "Message",
+  "_data": {
+    "notification": "{\"ru\":{\"description\":\"Message\",\"title\":\"Title\"},\"uk\":{\"description\":\"Message\",\"title\":\"Title\"},\"en\":{\"description\":\"Message\",\"title\":\"Title\"}}"
+  },
+  "_ios": {
+    "_attachments": [],
+    "_notification": [
+      Circular
+    ]
+  },
+  "_notificationId": "0:1591203266145915%fc7d5544fc7d5544",
+  "_sound": "default",
+  "_subtitle": undefined,
+  "_title": "Title"
+}

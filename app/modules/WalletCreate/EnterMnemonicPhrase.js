@@ -29,6 +29,8 @@ import { strings } from '../../services/i18n'
 import Log from '../../services/Log/Log'
 import walletActions from '../../appstores/Stores/Wallet/WalletActions'
 import IconAwesome from 'react-native-vector-icons/FontAwesome'
+import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -93,7 +95,7 @@ class EnterMnemonicPhrase extends Component {
                 walletIsBackedUp: 1
             }, 'IMPORT')
 
-            await App.refreshWalletsStore()
+            await App.refreshWalletsStore({firstTimeCall : false, source : 'WalletCreate.EnterMnemonicPhrase'})
 
             setLoaderStatus(false)
 
@@ -177,6 +179,9 @@ class EnterMnemonicPhrase extends Component {
     }
 
     render() {
+        UpdateOneByOneDaemon.pause()
+        UpdateAccountListDaemon.pause()
+
         firebase.analytics().setCurrentScreen('WalletCreate.EnterMnemonicPhraseScreen')
         const { focused } = this.state
 
@@ -202,8 +207,9 @@ class EnterMnemonicPhrase extends Component {
                             id={data.id}
                             name={strings('walletCreate.enterMnemonic.mnemonic')}
                             type={data.type}
-                            autoFocus={true}
+                            // autoFocus={true}
                             onFocus={() => this.onFocus()}
+                            isTextarea={true}
                             callback={() => {
                                 this.setState({
                                     walletExist: false

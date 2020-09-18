@@ -4,11 +4,10 @@
 import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
-import { View, Text, ScrollView, TouchableOpacity, Linking, Switch, Vibration } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Linking, Switch, Vibration, Dimensions, PixelRatio } from 'react-native'
 
 import firebase from 'react-native-firebase'
 
-import Share from 'react-native-share'
 
 import NavStore from '../../components/navigation/NavStore'
 import Icon from '../../components/elements/CustomIcon.js'
@@ -19,29 +18,31 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
+import AsyncStorage from '@react-native-community/async-storage'
+
 import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { setFlowType, setMnemonicLength, setWalletName } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
+import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import CashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
 
 import { strings } from '../../services/i18n'
-
-import Cashback from '../../services/Cashback/Cashback'
-
-import Log from '../../services/Log/Log'
-
-import config from '../../config/config'
 import Navigation from '../../components/navigation/Navigation'
 import Toast from '../../services/UI/Toast/Toast'
-import AsyncStorage from '@react-native-community/async-storage'
 
-import DBExport from '../../appstores/DataSource/DB/DBExport/DBExport'
+import Log from '../../services/Log/Log'
+import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
+
+import config from '../../config/config'
 
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
-import FileSystem from '../../services/FileSystem/FileSystem'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import SendLog from '../../services/Log/SendLog'
+import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
+import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 class SettingsMainScreen extends Component {
 
@@ -60,9 +61,7 @@ class SettingsMainScreen extends Component {
         const devMode = await AsyncStorage.getItem('devMode')
         const testerMode = await AsyncStorage.getItem('testerMode')
 
-        console.log('SettingsMainScreen.UNSAFE_componentWillMount.devMode', devMode)
-
-        if (devMode != null) {
+        if (devMode && devMode.toString() === '1') {
             config.devMode = true
         }
 
@@ -116,81 +115,43 @@ class SettingsMainScreen extends Component {
         NavStore.goNext('BackupStep0Screen')
     }
 
-    handleSupport = () => {
-        Linking.openURL('https://t.me/trustee_support_bot')
+    handleSupport = async () => {
+        const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
+        MarketingEvent.logEvent('taki_support', { link, screen: 'SETTINGS' })
+        Linking.openURL(link)
     }
 
     handleLogs = async () => {
 
         let deviceToken = ''
         try {
-            deviceToken = await AsyncStorage.getItem('fcmToken')
+            deviceToken = await AsyncStorage.getItem('pushToken')
         } catch (e) {
             // do nothing
         }
 
         setLoaderStatus(true)
 
-        DBExport.getSql().then(async (sql) => {
-
-            const logs = `    
-          
-                ↑↑↑ Send to: contact@trustee.deals ↑↑↑
-                ${deviceToken} 
-                --LOG-- 
-                ${Log.getHeaders()} 
-                
-                
-                --SQL-- 
-                ${sql}
-            `
-            const fs = new FileSystem()
-            await (fs.setFileEncoding('utf8').setFileName('Logs').setFileExtension('txt')).writeFile(logs)
-
-            const urls = [
-                await fs.getPathOrBase64(),
-                await Log.FS.ALL.getPathOrBase64(),
-                await Log.FS.DAEMON.getPathOrBase64(),
-                await BlocksoftCryptoLog.FS.getPathOrBase64()
-            ]
-
-            const shareOptions = {
-                title: 'Trustee. Support',
-                subject: 'Trustee. Support',
-                email: 'contact@trustee.deals',
-                message: '↑↑↑ Send to: contact@trustee.deals ↑↑↑',
-                urls
-            }
-
-            Share.open(shareOptions)
-                .then((res) => {
-                    setLoaderStatus(false)
-                })
-                .catch(e => {
-                    setLoaderStatus(false)
-
-                    let text = e.message
-                    if (typeof (e.error) !== 'undefined' && e.error.indexOf('No Activity') !== -1) {
-                        text = strings('modal.walletLog.noMailApp')
-                    }
-                    if (text.indexOf('User did not share') !== -1) {
-                        text = strings('modal.walletLog.notComplited')
-                    }
-                        showModal({
-                            type: 'INFO_MODAL',
-                            icon: false,
-                            title: strings('modal.walletLog.sorry'),
-                            description: text
-                        })
-
-                })
+        SendLog.getAll().then(async (shareOptions) => {
+            await prettyShare(shareOptions)
+            setLoaderStatus(false)
         }).catch(function(e) {
             setLoaderStatus(false)
-            let text = e.message
+
+            let text = e.message || JSON.stringify(e.error).substr(0, 100)
             let log = e.message
-            if (typeof (e.error) !== 'undefined' && e.error.indexOf('No Activity') !== -1) {
+            if (typeof (e.error) !== 'undefined') {
+                if (e.error.toString().indexOf('No Activity') !== -1) {
+                    text = strings('modal.walletLog.noMailApp')
+                } else if (!text) {
+                    text = JSON.stringify(e.error).substr(0, 100)
+                }
+                log += ' ' + JSON.stringify(e.error)
+            }
+
+            if (typeof (e.error) !== 'undefined' && e.error.toString().indexOf('No Activity') !== -1) {
                 text = strings('modal.walletLog.noMailApp')
-                log += ' ' + e.error
+
             }
             if (text.indexOf('User did not share') !== -1) {
                 text = strings('modal.walletLog.notComplited')
@@ -282,6 +243,7 @@ class SettingsMainScreen extends Component {
     }
 
     handleReferral = () => {
+        MarketingEvent.logEvent('taki_cashback_1_click', {})
         NavStore.goNext('CashbackScreen')
     }
 
@@ -321,7 +283,7 @@ class SettingsMainScreen extends Component {
             mode
         })
 
-        Cashback.reInit()
+        CashBackSettings.init()
         ExchangeActions.init()
 
         Vibration.vibrate(100)
@@ -349,16 +311,29 @@ class SettingsMainScreen extends Component {
     }
 
     onLongPressButton = async () => {
-        config.devMode = true
+        if (config.devMode) {
+            config.devMode = false
 
-        this.setState({
-            devMode: true,
-            mode: config.exchange.mode
-        })
+            this.setState({
+                devMode: false,
+                mode: config.exchange.mode
+            })
 
-        Toast.setMessage('DEV MODE').show()
+            Toast.setMessage('DEV MODE OFF').show()
 
-        await AsyncStorage.setItem('devMode', '1')
+            await AsyncStorage.setItem('devMode', '0')
+        } else {
+            config.devMode = true
+
+            this.setState({
+                devMode: true,
+                mode: config.exchange.mode
+            })
+
+            Toast.setMessage('DEV MODE').show()
+
+            await AsyncStorage.setItem('devMode', '1')
+        }
 
         Vibration.vibrate(100)
     }
@@ -385,8 +360,6 @@ class SettingsMainScreen extends Component {
         touchID_status = +touchID_status
 
         const tmpAskPinCodeWhenSending = !(typeof askPinCodeWhenSending === 'undefined' || askPinCodeWhenSending === '0')
-
-        console.log(tmpAskPinCodeWhenSending)
 
         return (
             <View style={styles.wrapper}>
@@ -550,7 +523,7 @@ class SettingsMainScreen extends Component {
                                     <Ionicons name="ios-people" size={20} style={styles.icon}/>
                                     <View style={styles.block__item__content}>
                                         <Text style={styles.block__text}>{strings('settings.other.cashback.title')}</Text>
-                                        <Text style={styles.block__subtext}>{strings('settings.other.cashback.description')}</Text>
+                                        <Text style={styles.block__subtext}>{strings(SCREEN_WIDTH > 320 ? 'settings.other.cashback.description' : 'settings.other.cashback.descriptionSmall')}</Text>
                                     </View>
                                     <View style={styles.block__item__arrow}>
                                         <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
@@ -560,10 +533,10 @@ class SettingsMainScreen extends Component {
                                 <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('AppNewsScreen')}>
                                     <Icon name="info" size={20} style={styles.icon}/>
                                     <View style={styles.block__item__content}>
-                                        <Text style={styles.block__text}>{strings('settings.other.appnews')}</Text>
+                                        <Text style={styles.block__text}>{strings(SCREEN_WIDTH > 320 ? 'settings.other.appnews' : 'settings.other.appnewsSmall')}</Text>
                                     </View>
                                     <Text style={styles.block__text__right}>
-                                        [{this.props.appNews.length > 0 ? this.props.appNews.length : 0}]
+                                        [{this.props.appNewsList.length > 0 ? this.props.appNewsList.length : 0}]
                                     </Text>
                                     <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
                                 </TouchableOpacity>
@@ -594,6 +567,7 @@ class SettingsMainScreen extends Component {
                                     <FontAwesome name="cogs" size={20} style={styles.icon}/>
                                     <View style={styles.block__item__content}>
                                         <Text style={styles.block__text}>{strings('settings.other.scannerSettings')}</Text>
+                                        <Text style={styles.block__subtext}>{strings(SCREEN_WIDTH > 320 ? 'settings.other.scannerSubtitle' : 'settings.other.scannerSubtitleSmall')}</Text>
                                     </View>
                                     <Text style={styles.block__text__right}>
                                         {strings(`scannerSettings.codes.${this.getScannerCode()}`)}
@@ -636,7 +610,7 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         walletStore: state.walletStore,
         settings: state.settingsStore,
-        appNews: state.appNewsStore.appNews
+        appNewsList: state.appNewsStore.appNewsList
     }
 }
 

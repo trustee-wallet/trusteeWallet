@@ -19,7 +19,7 @@ class ApiRates {
      * @type {number}
      * @private
      */
-    _CACHE_VALID_TIME = 60000 // 1 minute
+    _CACHE_VALID_TIME = 30000 // 30 sec
 
     /**
      * last response array of rates

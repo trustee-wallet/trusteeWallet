@@ -13,13 +13,15 @@ import GradientView from '../../../components/elements/GradientView'
 
 import NavStore from '../../navigation/NavStore'
 
-import AuthActions from '../../../appstores/Stores/Auth/AuthActions'
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
 
 import { strings } from '../../../services/i18n'
 import Log from '../../../services/Log/Log'
 import Netinfo from '../../../services/Netinfo/Netinfo'
+import cryptoWalletActions from '../../../appstores/Actions/CryptoWalletActions'
+import UpdateCashBackDataDaemon from '../../../daemons/back/UpdateCashBackDataDaemon'
+import CashBackActions from '../../../appstores/Stores/CashBack/CashBackActions'
 
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
@@ -44,7 +46,6 @@ export class LoginModal extends Component {
     handleSelect = (selectedWallet) => this.setState({ selectedWallet })
 
     declineCallback = () => {
-        NavStore.goBack()
         hideModal()
     }
 
@@ -55,7 +56,9 @@ export class LoginModal extends Component {
             hideModal()
             setLoaderStatus(true)
 
-            await AuthActions.register(this.state.selectedWallet.walletHash)
+            await cryptoWalletActions.setSelectedWallet(this.state.selectedWallet.walletHash, 'LoginModal')
+
+            await UpdateCashBackDataDaemon.updateCashBackDataDaemon({ force: true })
 
             setLoaderStatus(false)
         } catch (e) {

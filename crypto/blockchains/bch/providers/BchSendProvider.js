@@ -1,22 +1,16 @@
 /**
- * @version 0.5
+ * @version 0.11
  */
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
+import DogeSendProvider from '../../doge/providers/DogeSendProvider'
 
-export default class BchSendProvider {
+export default class BchSendProvider extends DogeSendProvider {
     /**
      * @type {string}
      * @private
      */
     _apiPath = 'https://rest.bitcoin.com/v2/rawtransactions/sendRawTransaction/'
-
-    /**
-     * @param {*} settings
-     */
-    constructor(settings) {
-        this._settings = settings
-    }
 
     /**
      * @param {string} hex
@@ -25,6 +19,19 @@ export default class BchSendProvider {
      */
     async sendTx(hex, subtitle) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BchSendProvider.sendTx ' + subtitle + ' started ' + subtitle)
+
+        try {
+            const trezor = await super.sendTx(hex, subtitle)
+            if (trezor) {
+                return trezor
+            }
+        } catch (e) {
+            if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
+                throw e
+            } else {
+                // do nothing
+            }
+        }
 
         let res
         try {

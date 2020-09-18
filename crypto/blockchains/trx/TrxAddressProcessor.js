@@ -4,6 +4,10 @@
 import TronUtils from './ext/TronUtils'
 
 export default class TrxAddressProcessor {
+
+    async setBasicRoot(root) {
+
+    }
     /**
      * @param {string|Buffer} privateKey
      * @param {*} data

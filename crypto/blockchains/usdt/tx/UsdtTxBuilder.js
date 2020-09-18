@@ -40,4 +40,21 @@ export default class UsdtTxBuilder extends BtcTxBuilder {
             txb.addOutput(to, amount)
         }
     }
+
+    async getRawTx(data, preparedInputsOutputs) {
+        const newOutputs = []
+        for (let output of preparedInputsOutputs.outputs) {
+            if (typeof output.usdtLast !== 'undefined') {
+                continue
+            }
+            newOutputs.push(output)
+        }
+        for (let output of preparedInputsOutputs.outputs) {
+            if (typeof output.usdtLast !== 'undefined') {
+                newOutputs.push(output)
+            }
+        }
+        const newInputsOutputs = {... preparedInputsOutputs, ...{outputs : newOutputs}}
+        return super.getRawTx(data, newInputsOutputs)
+    }
 }

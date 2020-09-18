@@ -127,6 +127,17 @@ export default {
 
             elevation: 3
         },
+        cryptoList__item__hidden: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            height: 74,
+            marginBottom: 10,
+            marginTop: 5,
+            marginLeft: 20,
+            marginRight: 20,
+            paddingLeft: 10,
+            borderRadius: 15,
+        },
         cryptoList__title: {
             color: '#404040',
             fontFamily: 'SFUIDisplay-Semibold',
@@ -237,9 +248,7 @@ export default {
         topContent__bottom: {
             flexDirection: 'row',
             justifyContent: 'center',
-
             marginTop: Platform.OS === 'ios' ? -20 : -30,
-
             overflow: 'visible'
         },
         topContent__middle: {
@@ -312,7 +321,8 @@ export default {
             marginLeft: 30,
             color: '#999999',
             fontSize: 12,
-            fontFamily: 'SFUIDisplay-Semibold'
+            fontFamily: 'SFUIDisplay-Semibold',
+            letterSpacing: 1
         },
         transaction__item: {
             position: 'relative',
@@ -602,7 +612,7 @@ export default {
             flex: 1,
             alignItems: 'center',
 
-            padding: 20
+            padding: 10
         },
         qr__content__top__item__text: {
             fontSize: 14,

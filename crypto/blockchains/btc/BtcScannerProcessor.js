@@ -97,7 +97,7 @@ export default class BtcScannerProcessor {
      * @return {Promise<{balance:*, unconfirmed:*, provider:string}>}
      */
     async getBalanceBlockchain(address) {
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getBalance started', address)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getBalance started ' + address)
         const res = await this._get(address)
         if (!res) {
             return false
@@ -121,7 +121,7 @@ export default class BtcScannerProcessor {
      */
     async getTransactionsBlockchain(address, data) {
         address = address.trim()
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions started', address)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions started ' + address)
         let res = await this._get(address, data)
         if (!res || typeof res.data === 'undefined') return []
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions loaded from ' + res.provider + ' ' + res.time)
@@ -129,7 +129,7 @@ export default class BtcScannerProcessor {
         if (typeof res.transactions === 'undefined' || !res.transactions) return []
         const transactions = []
         const addresses = res.plainAddresses
-        if (typeof data.addresses !== 'undefined') {
+        if (typeof data !== 'undefined' && data && typeof data.addresses !== 'undefined') {
             let tmp
             for (tmp in data.addresses) {
                 addresses[tmp] = data.addresses[tmp]
@@ -142,7 +142,7 @@ export default class BtcScannerProcessor {
                 transactions.push(transaction)
             }
         }
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions finished', address)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions finished ' +  address + ' total: ' + transactions.length)
         return transactions
     }
 

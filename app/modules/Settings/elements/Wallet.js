@@ -11,16 +11,14 @@ import NavStore from '../../../components/navigation/NavStore'
 
 import Settings from './Settings'
 
-import currencyDS from '../../../appstores/DataSource/Currency/Currency'
 import cryptoWalletActions from '../../../appstores/Actions/CryptoWalletActions'
 import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
 import { setFlowType } from '../../../appstores/Stores/CreateWallet/CreateWalletActions'
 
 import { strings } from '../../../services/i18n'
 
-import prettyNumber from '../../../services/UI/PrettyNumber/PrettyNumber'
-import UpdateAccountsDaemon from '../../../services/Daemon/elements/UpdateAccountsDaemon'
-
+import DaemonCache from '../../../daemons/DaemonCache'
+import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 
 class Wallet extends Component {
 
@@ -35,8 +33,7 @@ class Wallet extends Component {
 
     async componentDidMount() {
         const { walletHash } = this.props.wallet
-
-        const CACHE_SUM = UpdateAccountsDaemon.getCache(walletHash)
+        const CACHE_SUM = DaemonCache.getCache(walletHash)
 
         let walletBalance = 0
         let walletBalanceLocal = ''
@@ -44,8 +41,8 @@ class Wallet extends Component {
             walletBalance = CACHE_SUM.balance
             walletBalanceLocal = CACHE_SUM.basicCurrencySymbol
         }
-        // @misha to check if pretty is enough
-        walletBalance = walletBalanceLocal + ' ' + prettyNumber(walletBalance, 2)
+
+        walletBalance = walletBalanceLocal + ' ' + BlocksoftPrettyNumbers.makeCut(walletBalance, 2, 'Settings/walletBalance').separated
 
         this.setState({
             walletBalance
@@ -77,12 +74,13 @@ class Wallet extends Component {
         NavStore.goNext('BackupStep0Screen')
     }
 
-    handleSelectWallet = () => {
+    handleSelectWallet = async () => {
         const { wallet } = this.props
 
         this.props.closeAllSettings()
 
-        cryptoWalletActions.setSelectedWallet(wallet.walletHash)
+        await cryptoWalletActions.setSelectedWallet(wallet.walletHash, 'handleSelectWallet')
+        NavStore.reset('DashboardStack')
     }
 
     toggleShowSettings = () => {
@@ -94,7 +92,7 @@ class Wallet extends Component {
     render() {
 
         const { heightAnimation, walletBalance } = this.state
-        const { selectedWallet, wallet } = this.props
+        const { selectedWallet, wallet, accountListByHash } = this.props
 
         const isSelected = wallet.walletHash === selectedWallet.walletHash
         const isBackedUp = wallet.walletIsBackedUp
