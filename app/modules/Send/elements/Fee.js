@@ -61,7 +61,7 @@ class Fee extends Component {
         await this.init(false)
     }
 
-    async init(multiply) {
+    async init(multiply, amountRaw = false) {
         // setLoaderStatus(true)
 
         // maybe from ratesService as its already cached
@@ -73,6 +73,10 @@ class Fee extends Component {
 
         const derivationPathTmp = derivationPath.replace(/quote/g, '\'')
 
+        let feesAmountRaw = sendData.amountRaw
+        if (typeof amountRaw !== 'undefined' && amountRaw) {
+            feesAmountRaw = amountRaw
+        }
         try {
 
             const addressTo = sendData.address ? sendData.address : address
@@ -88,7 +92,7 @@ class Fee extends Component {
                             .setAddressFrom(address)
                             .setAddressTo(addressTo)
                             .setMemo(sendData.memo)
-                            .setAmount(sendData.amountRaw)
+                            .setAmount(feesAmountRaw)
                             .setTxHash(sendData.transactionReplaceByFee)
                             .setAdditional(sendData.toTransactionJSON)
                             .setMultiply(multiply || 0)
@@ -109,7 +113,7 @@ class Fee extends Component {
                             .setAddressFrom(address)
                             .setAddressTo(addressTo)
                             .setMemo(sendData.memo)
-                            .setAmount(sendData.amountRaw)
+                            .setAmount(feesAmountRaw)
                             .setTxInput(sendData.transactionSpeedUp)
                             .setMultiply(multiply || 0)
                     ).getFeeRate()
@@ -129,7 +133,7 @@ class Fee extends Component {
                             .setAddressFrom(address)
                             .setAddressTo(addressTo)
                             .setMemo(sendData.memo)
-                            .setAmount(sendData.amountRaw)
+                            .setAmount(feesAmountRaw)
                             .setTransferAll(true)
                             .setMultiply(multiply || 0)
                     ).getFeeRate()
@@ -148,7 +152,7 @@ class Fee extends Component {
                             .setAddressFrom(address)
                             .setAddressTo(addressTo)
                             .setMemo(sendData.memo)
-                            .setAmount(sendData.amountRaw)
+                            .setAmount(feesAmountRaw)
                             .setMultiply(multiply || 0)
                     ).getFeeRate()
                 } catch (e) {
@@ -268,6 +272,10 @@ class Fee extends Component {
             CACHE_MULTI = CACHE_MULTI * x
         }
         return this.init(CACHE_MULTI)
+    }
+
+    changeAmountRaw = async (amountRaw) => {
+        return this.init(false, amountRaw)
     }
 
     getFee = async () => {

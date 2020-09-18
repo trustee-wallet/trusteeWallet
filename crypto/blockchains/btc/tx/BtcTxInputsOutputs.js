@@ -3,6 +3,7 @@
  */
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+import BlocksoftBN from '../../../common/BlocksoftBN'
 
 const coinSelect = require('coinselect')
 const coinSplit = require('coinselect/split')
@@ -182,8 +183,8 @@ export default class BtcTxInputsOutputs {
         }
 
         const filteredUnspents = []
-        let unconfirmedBN = BlocksoftUtils.toBigNumber(0)
-        let skippedBN = BlocksoftUtils.toBigNumber(0)
+        const unconfirmedBN = new BlocksoftBN(0)
+        const skippedBN = new BlocksoftBN(0)
         let usdtInputsTotal = 0
         let unspent
         if (useOnlyConfirmed) {
@@ -192,11 +193,11 @@ export default class BtcTxInputsOutputs {
                     usdtInputsTotal++
                 }
                 if (skipAddress && skipAddress === unspent.address) {
-                    skippedBN = unconfirmedBN.add(unspent.valueBN)
+                    skippedBN.add(unspent.value)
                 } else if (unspent.confirmations > 0) {
                     filteredUnspents.push(unspent)
                 } else {
-                    unconfirmedBN = unconfirmedBN.add(unspent.valueBN)
+                    unconfirmedBN.add(unspent.value)
                 }
             }
         } else {
@@ -205,7 +206,7 @@ export default class BtcTxInputsOutputs {
                     usdtInputsTotal++
                 }
                 if (skipAddress && skipAddress === unspent.address) {
-                    skippedBN = unconfirmedBN.add(unspent.valueBN)
+                    skippedBN.add(unspent.value)
                 } else {
                     filteredUnspents.push(unspent)
                 }
@@ -221,12 +222,12 @@ export default class BtcTxInputsOutputs {
         }
 
 
-        let totalBalanceBN = BlocksoftUtils.toBigNumber(0)
+        const totalBalanceBN = new BlocksoftBN(0)
         for (unspent of filteredUnspents) {
-            totalBalanceBN = totalBalanceBN.add(unspent.valueBN)
+            totalBalanceBN.add(unspent.value)
         }
 
-        let wishedAmountBN = BlocksoftUtils.toBigNumber(data.amount)
+        const wishedAmountBN = new BlocksoftBN(data.amount)
 
         const outputs = []
         outputs.push({
@@ -235,11 +236,11 @@ export default class BtcTxInputsOutputs {
         })
 
         if (!autocalculateFee) {
-            wishedAmountBN = wishedAmountBN.add(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx))
+            wishedAmountBN.add(data.feeForTx.feeForTx)
         }
 
         const ic = filteredUnspents.length
-        let msg = 'totalInputs ' + ic + ' for wishedAmount ' + wishedAmountBN.toString() + ' = ' + BlocksoftUtils.toUnified(wishedAmountBN.toString(), this._settings.decimals)
+        let msg = 'totalInputs ' + ic + ' for wishedAmount ' + wishedAmountBN.get() + ' = ' + BlocksoftUtils.toUnified(wishedAmountBN.get(), this._settings.decimals)
         if (usdtAddress) {
             msg += ' usdtInputsTotal ' + usdtInputsTotal
         }
@@ -251,62 +252,70 @@ export default class BtcTxInputsOutputs {
 
 
         const inputs = []
-        let inputsBalanceBN = BlocksoftUtils.toBigNumber(0)
-        let leftBalanceBN = totalBalanceBN
-
+        const inputsBalanceBN = new BlocksoftBN(0)
+        const leftBalanceBN = new BlocksoftBN(totalBalanceBN)
 
         let usdtInputsUsed = 0
         for (let i = 0; i < ic; i++) {
-            if (!isTransferAll && wishedAmountBN.sub(inputsBalanceBN) < 0) {
-                msg += ' finished by collectedAmount ' + inputsBalanceBN.toString()
+            if (!isTransferAll && BlocksoftUtils.diff(wishedAmountBN, inputsBalanceBN) < 0) {
+                msg += ' finished by collectedAmount ' + inputsBalanceBN.get()
                 break
             }
 
             const unspent = filteredUnspents[i]
+
+            let willAdd = false
             if (
                 unspent.isRequired
                 ||
                 isTransferAll
-                ||
-                (inputsBalanceBN.add(unspent.valueBN).sub(wishedAmountBN) <= 0)
-                ||
-                (leftBalanceBN.sub(unspent.valueBN).sub(wishedAmountBN) < 0) // left of not included outputs will be less than needed
             ) {
+                willAdd = true
+            } else {
+                let tmp = BlocksoftUtils.add(BlocksoftUtils.diff(inputsBalanceBN, wishedAmountBN), unspent.value) * 1
+                if (tmp <= 0) {
+                    willAdd = true
+                } else {
+                    tmp = BlocksoftUtils.diff(BlocksoftUtils.diff(leftBalanceBN, wishedAmountBN), unspent.value) * 1 // left of not included outputs will be less than needed
+                    if (tmp < 0) {
+                        willAdd = true
+                    }
+                }
+            }
+            if (willAdd) {
                 if (usdtAddress && usdtAddress === unspent.address) {
                     usdtInputsUsed++
                 }
                 inputs.push(unspent)
-                inputsBalanceBN = inputsBalanceBN.add(unspent.valueBN)
-                msg += ' ' + i + ') added ' + unspent.value + ' = ' + inputsBalanceBN
+                inputsBalanceBN.add(unspent.value)
+                msg += ' ' + i + ') added ' + unspent.value + ' = ' + inputsBalanceBN.get()
             } else {
                 msg += ' ' + i + ') skipped ' + unspent.value
-                leftBalanceBN = leftBalanceBN.sub(unspent.valueBN)
+                leftBalanceBN.diff(unspent.value)
             }
         }
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxInputsOutputs.getInputsOutputs ' + subtitle + ' usdtCheck ' + JSON.stringify({ usdtAddress, usdtInputsTotal, usdtInputsUsed }))
 
 
-        let inputsMinusWishedBN = inputsBalanceBN.sub(wishedAmountBN)
-
+        const inputsMinusWishedBN = new BlocksoftBN(inputsBalanceBN).diff(wishedAmountBN)
         let size = 192
         let usdtAmount = 0
         if (usdtAddress && usdtInputsUsed >= usdtInputsTotal) {
             msg += ' added output for usdt ' + usdtInputsUsed + '' + usdtInputsTotal
             usdtAmount = 546
-            if (inputsMinusWishedBN.toString() - this._minChangeThreshold > 0) {
+            if (inputsMinusWishedBN.get() - this._minChangeThreshold > 0) {
                 usdtAmount = 2546
             }
-            const usdtAmountBN = BlocksoftUtils.toBigNumber(usdtAmount + '')
             outputs.push({
                 'to': data.addressFromLegacy,
                 'amount': usdtAmount
             })
-            wishedAmountBN = wishedAmountBN.add(usdtAmountBN)
-            inputsMinusWishedBN = inputsMinusWishedBN.sub(usdtAmountBN)
+            wishedAmountBN.add(usdtAmount)
+            inputsMinusWishedBN.diff(usdtAmount)
             size += 40
         }
 
-        if (inputsMinusWishedBN.toString() - this._minChangeThreshold > 0) {
+        if (inputsMinusWishedBN.get() - this._minChangeThreshold > 0) {
             if (autocalculateFee) {
                 let sizeMsg = ' basic ' + size
                 size += 40
@@ -317,10 +326,10 @@ export default class BtcTxInputsOutputs {
                 if (fee < this._minFee) {
                     fee = this._minFee
                 }
-                const change = inputsBalanceBN.sub(wishedAmountBN).sub(BlocksoftUtils.toBigNumber(fee)).toString()
+                const change = BlocksoftUtils.diff(BlocksoftUtils.diff(inputsBalanceBN, wishedAmountBN), fee) * 1
                 if (change - this._minChangeThreshold > 0) {
                     if (addressForChange === outputs[0].to) {
-                        outputs[0].amount = outputs[0].amount * 1 + change * 1
+                        outputs[0].amount = outputs[0].amount * 1 + change
                         msg += ' change1.1.1.1 is added to first output '
                     } else {
                         outputs.push({
@@ -341,7 +350,7 @@ export default class BtcTxInputsOutputs {
                     return this._tryToFind(data, size, precached, 'autofee 1.1 => fixed tryToFind')
                 }
             } else {
-                const change = inputsMinusWishedBN.toString()
+                const change = inputsMinusWishedBN.get()
                 if (addressForChange === outputs[0].to) {
                     if (outputs[0].amount * 1 > 0) {
                         outputs[0].amount = outputs[0].amount * 1 + change * 1
@@ -372,9 +381,9 @@ export default class BtcTxInputsOutputs {
                 msg += ' fee [2.1] will be ' + fee
                 msg += ' feeAutoCalculate: size' + sizeMsg + ' = ' + size + ' bytes = ' + fee + ' satoshi '
                 if (isTransferAll) {
-                    outputs[0].amount = inputsBalanceBN.sub(BlocksoftUtils.toBigNumber(fee)).toString()
+                    outputs[0].amount = BlocksoftUtils.diff(inputsBalanceBN, fee)
                 } else {
-                    const leftAfterFee = inputsMinusWishedBN.sub(BlocksoftUtils.toBigNumber(fee))
+                    const leftAfterFee = BlocksoftUtils.diff(inputsMinusWishedBN, fee) * 1
                     if (leftAfterFee < 0 && subtitle.indexOf('tryToFind') === -1) {
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.1 with leftAfterAutoFee ' + leftAfterFee + ' ' + msg)
                         data.feeForTx = { feeForTx: fee, feeForByte: feeForByte }
@@ -382,12 +391,12 @@ export default class BtcTxInputsOutputs {
                     }
                 }
             } else {
-                const change = inputsMinusWishedBN.toString()
+                const change = inputsMinusWishedBN.get() * 1
                 if (change < 0) {
                     if (isTransferAll) {
-                        outputs[0].amount = inputsBalanceBN.sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).toString()
+                        outputs[0].amount = BlocksoftUtils.diff(inputsBalanceBN, data.feeForTx.feeForTx)
                     } else {
-                        const diff = inputsMinusWishedBN.add(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).toString()
+                        const diff = BlocksoftUtils.diff(inputsMinusWishedBN, data.feeForTx.feeForTx) * 1
                         if (diff > 188) {
                             BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.2.01 diff ' + diff + ' with leftSmallChange ' + change + ' fee ' + data.feeForTx.feeForTx + ' ' + msg)
                         } else {
@@ -395,11 +404,11 @@ export default class BtcTxInputsOutputs {
                             let usdtSkipped = 0
                             let e
                             if (useOnlyConfirmed) {
-                                BlocksoftCryptoLog.log('unconfirmed', unconfirmedBN.toString())
-                                canWait = unconfirmedBN.add(inputsMinusWishedBN).toString()
+                                BlocksoftCryptoLog.log('unconfirmed', unconfirmedBN.get())
+                                canWait = unconfirmedBN.add(inputsMinusWishedBN).get()
                             }
                             if (skipAddress) {
-                                usdtSkipped = skippedBN.toString()
+                                usdtSkipped = skippedBN.get()
                                 BlocksoftCryptoLog.log('skipped', usdtSkipped)
                             }
                             if (usdtSkipped > 0) {
@@ -447,10 +456,10 @@ export default class BtcTxInputsOutputs {
             let canWait = 0
             let usdtSkipped = 0
             if (useOnlyConfirmed) {
-                canWait = unconfirmedBN.toString()
+                canWait = unconfirmedBN.get()
             }
             if (skipAddress) {
-                usdtSkipped = skippedBN.toString()
+                usdtSkipped = skippedBN.get()
                 BlocksoftCryptoLog.log('skipped', usdtSkipped)
             }
             if (usdtSkipped > 0) {
@@ -494,7 +503,7 @@ export default class BtcTxInputsOutputs {
         }
 
 
-        if (!tryToFind && data.amount < 1000) {
+        if (!tryToFind && data.amount * 1 < 1000) {
             const fee = precached.blocks_12 * size / 2
             data.feeForTx = { feeForTx: fee, feeForByte: precached.blocks_12 }
             try {

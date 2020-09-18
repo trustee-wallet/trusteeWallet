@@ -2,6 +2,7 @@
  * @version 0.5
  */
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
+import BlocksoftBN from '../../../common/BlocksoftBN'
 import EthScannerProcessorErc20 from '../EthScannerProcessorErc20'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 
@@ -36,11 +37,10 @@ export default class EthScannerProcessorSoul extends EthScannerProcessorErc20 {
             if (!transaction) {
                 continue
             }
-            transaction.addressAmount = BlocksoftUtils.fromENumber(transaction.addressAmount)
-            transaction.addressAmount = BlocksoftUtils.toBigNumber(transaction.addressAmount)
+            transaction.addressAmount = new BlocksoftBN(BlocksoftUtils.fromENumber(transaction.addressAmount))
             if (typeof (alreadyTransactions[transaction.transactionHash]) !== 'undefined') {
                 const already = alreadyTransactions[transaction.transactionHash]
-                transactions[already].addressAmount = transactions[already].address_amount.add(transaction.addressAmount)
+                transactions[already].addressAmount.add(transaction.addressAmount)
             } else {
                 alreadyTransactions[transaction.transactionHash] = count
                 count++
@@ -48,7 +48,7 @@ export default class EthScannerProcessorSoul extends EthScannerProcessorErc20 {
             }
         }
         for (let i = 0, ic = transactions.length; i < ic; i++) {
-            transactions[i].addressAmount = transactions[i].addressAmount.toString()
+            transactions[i].addressAmount = transactions[i].addressAmount.get()
         }
         return transactions
     }

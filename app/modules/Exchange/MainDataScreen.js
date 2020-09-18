@@ -196,6 +196,13 @@ class MainDataScreen extends Component {
     }
 
     handleSubmitTrade = async () => {
+        setTimeout(() => {
+            this.actualHandleSubmitTrade()
+        }, 100)
+
+    }
+
+    actualHandleSubmitTrade = async () => {
         Log.log('EXC/Main.handleSubmitTrade init')
         const {
             selectedInCurrency,

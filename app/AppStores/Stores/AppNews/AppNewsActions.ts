@@ -35,6 +35,7 @@ export default {
 
     clearAll: async() : Promise<void> => {
         await appNewsDS.clear()
+        // @ts-ignore
         await UpdateAppNewsListDaemon.forceDaemonUpdate()
     }
 }

@@ -55,7 +55,6 @@ export default class DogeUnspentsProvider {
         const sortedUnspents = []
         let unspent
         for (unspent of res.data) {
-            unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
             sortedUnspents.push(unspent)
         }
         return sortedUnspents

@@ -9,7 +9,7 @@ import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 
 const ESTIMATE_PATH = 'https://ethgasstation.info/json/ethgasAPI.json'
 const ESTIMATE_MAX_TRY = 50 // max tries before error appear in axios get
-const MAGIC_TX_DIVIDER = BlocksoftUtils.toBigNumber(10)
+const MAGIC_TX_DIVIDER = 10
 
 const CACHE_VALID_TIME = 60000 // 1 minute
 let CACHE_FEES_ETH = false
@@ -112,9 +112,9 @@ class EthNetworkPrices {
         }
 
         try {
-            CACHE_FEES_ETH[12] = BlocksoftUtils.toBigNumber(BlocksoftUtils.toWei(CACHE_FEES_ETH[12], 'gwei')).div(MAGIC_TX_DIVIDER) // in gwei to wei + magic
-            CACHE_FEES_ETH[6] = BlocksoftUtils.toBigNumber(BlocksoftUtils.toWei(CACHE_FEES_ETH[6], 'gwei')).div(MAGIC_TX_DIVIDER) // in gwei to wei + magic
-            CACHE_FEES_ETH[2] = BlocksoftUtils.toBigNumber(BlocksoftUtils.toWei(CACHE_FEES_ETH[2], 'gwei')).div(MAGIC_TX_DIVIDER) // in gwei to wei + magic
+            CACHE_FEES_ETH[12] = BlocksoftUtils.div(BlocksoftUtils.toWei(CACHE_FEES_ETH[12], 'gwei'), MAGIC_TX_DIVIDER) // in gwei to wei + magic
+            CACHE_FEES_ETH[6] = BlocksoftUtils.div(BlocksoftUtils.toWei(CACHE_FEES_ETH[6], 'gwei'), MAGIC_TX_DIVIDER) // in gwei to wei + magic
+            CACHE_FEES_ETH[2] = BlocksoftUtils.div(BlocksoftUtils.toWei(CACHE_FEES_ETH[2], 'gwei'), MAGIC_TX_DIVIDER) // in gwei to wei + magic
         } catch (e) {
             e.message += ' in EthPrice Magic divider'
             throw e

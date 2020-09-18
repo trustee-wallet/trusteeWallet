@@ -79,16 +79,14 @@ export default class EthTransferProcessor extends EthBasic {
             throw e
         }
 
-        const gasLimitBN = BlocksoftUtils.toBigNumber(gasLimit)
+        const gasLimitBN = new BlocksoftBN(gasLimit)
         BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate prefinished', gasPrice, gasLimitBN)
 
         let balance = false
-        let balanceBN = false
         try {
             balance = await this._web3.eth.getBalance(data.addressFrom)
-            balanceBN = BlocksoftUtils.toBigNumber(balance)
             if (typeof data.amount !== 'undefined' && data.amount && data.amount > 0 && data.addressForChange !== 'TRANSFER_ALL') {
-                balanceBN = balanceBN.sub(BlocksoftUtils.toBigNumber(data.amount))
+                balance = BlocksoftUtils.diff(balance, data.amount)
                 BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate balance ' + balance + ' minus amount ' + data.amount + ' = ' + balanceBN.toString())
             }
         } catch (e) {
@@ -106,8 +104,8 @@ export default class EthTransferProcessor extends EthBasic {
                 feeForTx: fee.toString()
             }
             if (balance) {
-                const diff = balanceBN.sub(fee).toString()
-                if (diff < 0) {
+                const diff = BlocksoftUtils.diff(balance, fee)
+                if (diff * 1 < 0) {
                     BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate feeForTx ' + titles[index] + ' ' + tmp.feeForTx + ' skipped as diff ' + diff + ' with balance ' + balance + ' with gasPrice ' + tmp.gasPrice + ' / gasLimit ' + tmp.gasLimit )
                     continue
                 }
@@ -120,12 +118,12 @@ export default class EthTransferProcessor extends EthBasic {
 
         if (fees.length === 0) {
             const index = 0
-            const fee = Math.ceil(balanceBN.div(gasLimitBN).toString()*1)
+            const fee = Math.ceil(BlocksoftUtils.div(balance, gasLimitBN)*1)
             const tmp = {
                 langMsg: 'eth_speed_slowest',
                 gasPrice: fee.toString(),
                 gasLimit: gasLimit,
-                feeForTx: balanceBN.toString(),
+                feeForTx: balance,
                 needSpeed : gasPrice.price[index].toString(),
                 showSmallFeeNotice : true,
             }
@@ -175,25 +173,22 @@ export default class EthTransferProcessor extends EthBasic {
         }
         let res = 0
         if (typeof data.feeForTx !== 'undefined' && typeof data.feeForTx.feeForTx !== 'undefined' && data.feeForTx.feeForTx.toString() !== '0') {
-            res = BlocksoftUtils.toBigNumber(balance).sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).toString()
+            res = BlocksoftUtils.diff(balance, data.feeForTx.feeForTx)
             BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.0', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' = ' + res)
         }
 
         if (res < 0) {
             const fees = await this.getFeeRate(data)
             data.feeForTx = fees[2]
-            const diffB = new BlocksoftBN(balance)
-            res = diffB.diff(data.feeForTx.feeForTx).get()
+            res = BlocksoftUtils.diff(balance, data.feeForTx.feeForTx)
             BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.1', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' = ' + res)
             if (res < 0) {
                 data.feeForTx = fees[1]
-                const diffB = new BlocksoftBN(balance)
-                res = diffB.diff(data.feeForTx.feeForTx).get()
+                res = BlocksoftUtils.diff(balance, data.feeForTx.feeForTx)
                 BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.2 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' = ' + res)
             }
             if (res < 0) {
-                const diffB = new BlocksoftBN(balance)
-                res = diffB.diff(data.feeForTx.feeForTx).get()
+                res = BlocksoftUtils.diff(balance, data.feeForTx.feeForTx)
                 BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance with fee 1.2 ', data.addressFrom + ' => ' + balance + ' - ' + data.feeForTx.feeForTx + ' = ' + res)
             }
         }

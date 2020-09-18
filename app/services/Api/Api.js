@@ -31,6 +31,16 @@ export default {
         })
     },
 
+    setExchangeStatus: async (orderId, status) => {
+        const { mode: exchangeMode, apiEndpoints } = config.exchange
+        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+        const cashbackToken = CashBackUtils.getWalletToken()
+        const link = `${baseUrl}/365cash/handle-success-order`
+        Log.log('Api setExchangeStatus axios ' + link)
+        const data = {orderId, status, cashbackToken}
+        return BlocksoftAxios.post(link, data, false)
+    },
+
     getExchangeData: async () => {
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL

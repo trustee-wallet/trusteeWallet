@@ -223,7 +223,13 @@ class MainDataScreen extends Component {
     }
 
     handleSubmitTrade = async () => {
+        setTimeout(() => {
+            this.actualHandleSubmitTrade()
+        }, 100)
 
+    }
+
+    actualHandleSubmitTrade = async () => {
         const {
             selectedCryptocurrency,
             selectedFiatCurrency,
@@ -236,7 +242,6 @@ class MainDataScreen extends Component {
         const amount = this.refAmount.handleGetAmountEquivalent()
         try {
             await this.handleValidateSubmit()
-
         } catch (e) {
             if(e.message.indexOf('UI_') === 0){
                 showModal({
@@ -258,6 +263,7 @@ class MainDataScreen extends Component {
 
         NavStore.goNext('ConfirmScreen', {
             orderData: {
+                checkTmp : true,
                 selectedCryptocurrency,
                 selectedFiatCurrency,
                 selectedPaymentSystem,

@@ -68,7 +68,6 @@ export default class BchUnspentsProvider extends  DogeUnspentsProvider {
                 value: unspent.satoshis.toString(),
                 height: unspent.height,
                 confirmations : unspent.confirmations,
-                valueBN : BlocksoftUtils.toBigNumber(unspent.satoshis.toString())
             })
         }
 

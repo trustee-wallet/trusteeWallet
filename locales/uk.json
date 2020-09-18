@@ -554,6 +554,7 @@
         "eth_speed_fast": "Швидко",
         "eth_speed_delegated" : "Делегована ERC865",
 
+        "btc_speed_blocks_24": "Мінімально",
         "btc_speed_blocks_12": "Повільно",
         "btc_speed_blocks_6": "Середньо",
         "btc_speed_blocks_2": "Швидко",
@@ -589,6 +590,7 @@
         "eth_speed_fast": "~ 1 хвилина",
         "eth_speed_delegated" : "Транзакція буде відправлена за рахунок третьої сторони. Комісія стягується в %{symbol} згідно ERC865",
 
+        "btc_speed_blocks_24": "> 120 хвилин",
         "btc_speed_blocks_12": "~ 120 хвилин",
         "btc_speed_blocks_6": "~ 60 хвилин",
         "btc_speed_blocks_2": "~ 15 хвилин",
@@ -646,6 +648,7 @@
       "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "Мережа не приймає транзакцію - будь ласка, зачекайте доки замайняться інші транзакції або використовуйте більшу комісію",
       "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Недостатньо коштів нативной монети %{symbol} для сплати комісії - будь ласка, зачекайте доки інші транзакції замайняться",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Занадто мала комісія за транзакцію",
+      "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Занадто мала комісія за транзакцію для заміни - якщо Ви згодні що комісію можна взяти з суми отримувача - то на наступному кроці побачите перераховану транзакцію",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Занадто мала комісія за транзакцію для заміни",
       "SERVER_RESPONSE_NOT_CONNECTED": "Мережа не відповідає - будь ласка, повторіть операцію пізніше",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостатньо коштів для транзакції і сплати мінімальної комісії",

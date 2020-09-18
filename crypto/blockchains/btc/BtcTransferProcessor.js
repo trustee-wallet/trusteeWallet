@@ -16,6 +16,7 @@ import UsdtScannerProcessor from '../usdt/UsdtScannerProcessor'
 
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
 import DaemonCache from '../../../app/daemons/DaemonCache'
+import BlocksoftBN from '../../common/BlocksoftBN'
 
 
 const CACHE_VALID_TIME = 1000
@@ -53,9 +54,9 @@ export default class BtcTransferProcessor {
             time: 0
         }
         this._prefees = {
-            unspentsKey : '',
-            fees : [],
-            time : 0
+            unspentsKey: '',
+            fees: [],
+            time: 0
         }
         this._langPrefix = networksConstants[settings.network].langPrefix
         this.networkPrices = new BtcNetworkPrices()
@@ -193,12 +194,12 @@ export default class BtcTransferProcessor {
                     this._precached.unspents.sort((a, b) => {
                         if (a.isRequired) {
                             if (b.isRequired) {
-                                return b.valueBN.sub(a.valueBN).toString()
+                                return BlocksoftUtils.diff(b.value, a.value) // cloning diff as usual with change inner value of a and b
                             } else {
                                 return false
                             }
                         } else {
-                            return b.valueBN.sub(a.valueBN).toString()
+                            return BlocksoftUtils.diff(b.value, a.value)
                         }
                     })
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getTransferPrecache unspents sorted', this._precached.unspents)
@@ -231,6 +232,7 @@ export default class BtcTransferProcessor {
         this._prefees.time = new Date().getTime()
         this._prefees.amount = data.amount
     }
+
     /**
      * @param {string} data.walletUseUnconfirmed
      * @param {string} data.privateKey
@@ -263,12 +265,13 @@ export default class BtcTransferProcessor {
         }
 
         const startBlocks = ['blocks_2', 'blocks_6', 'blocks_12']
-        const startOptions = ['usual', 'usual minus', 'usual plus']
+        const startOptions = ['usual', 'usual minus', 'usual plus1', 'usual plus2']
         const preparedInputsOutputsBlocks = { blocks_2: false, blocks_6: false, blocks_12: false }
         const logInputsOutputsBlocks = { blocks_2: false, blocks_6: false, blocks_12: false }
         let startBlock
         let prevBlock
         let startIndex = 0
+        let prevError = false
         while (startIndex < 3) {
             startBlock = startBlocks[startIndex]
             let preparedInputsOutputs
@@ -277,7 +280,6 @@ export default class BtcTransferProcessor {
                 startFee = startFee * 2
             }
             let startOption
-            let prevError = false
             for (startOption of startOptions) {
                 // console.log(' ENTER ' + startBlock + ' ' + startOption)
                 let moreFeesIsBetter = false
@@ -302,21 +304,29 @@ export default class BtcTransferProcessor {
                         }
                     } else if (startOption.indexOf('plus') !== -1) {
 
-                        if (prevError === 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE') {
-                            if (startFee > 100) {
-                                customData.customFeeForByte = startFee - 100
-                            } else if (startFee > 50) {
-                                customData.customFeeForByte = startFee - 50
-                            } else if (startBlock === 'blocks_12') {
-                                customData.customFeeForByte = 10
+                        if (prevError === 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE' || prevError === 'SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE') {
+                            if (startOption.indexOf('plus1') !== -1) {
+                                if (startFee > 100) {
+                                    customData.customFeeForByte = startFee - 100
+                                } else if (startFee > 50) {
+                                    customData.customFeeForByte = startFee - 50
+                                } else if (startBlock === 'blocks_12') {
+                                    customData.customFeeForByte = 10
+                                } else {
+                                    customData.customFeeForByte = startFee - 15
+                                }
                             } else {
-                                customData.customFeeForByte = startFee - 15
+                                if (startBlock === 'blocks_12') {
+                                    customData.customFeeForByte = 1
+                                } else {
+                                    customData.customFeeForByte = startFee - 20
+                                }
                             }
                         } else {
                             customData.customFeeForByte = startFee + 10
                         }
                     }
-                    // console.log(' TRY ' + customData.customFeeForByte)
+                    // console.log(' TRY ' + startOption + ' ' + startBlock + ' ' + customData.customFeeForByte)
                     preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(customData, this._precached, 'getFeeRate ' + startFee + ' ' + startOption)
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate ' + startBlock + ' ' + startFee + ' ' + startOption + ' preparedInputsOutputs', preparedInputsOutputs)
                 } catch (e) {
@@ -373,6 +383,12 @@ export default class BtcTransferProcessor {
             startIndex++
         }
 
+        if (!isPrecount && prevError) {
+            if (prevError === 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE' || prevError === 'SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE') {
+                throw new Error( 'SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE')
+            }
+        }
+
         let slowPrice = logInputsOutputsBlocks.blocks_12.diffInOut
         let mediumPrice = logInputsOutputsBlocks.blocks_6.diffInOut
         let fastestPrice = logInputsOutputsBlocks.blocks_2.diffInOut
@@ -392,8 +408,7 @@ export default class BtcTransferProcessor {
         let maxLang = this._langPrefix + '_speed_blocks_2'
         let maxTxSize = logInputsOutputsBlocks.blocks_2.txSize
 
-        const leftBalanceBN = BlocksoftUtils.toBigNumber(logInputsOutputsBlocks.blocks_2.leftBalanceAndChange)
-        const tmp = leftBalanceBN.sub(BlocksoftUtils.toBigNumber(maxPrice))
+        const tmp = BlocksoftUtils.diff(logInputsOutputsBlocks.blocks_2.leftBalanceAndChange, maxPrice)
         if (!isPrecount && tmp.toString() < 0) {
             // console.log('leftBalance less then Zero ' + tmp.toString())
             preparedInputsOutputsBlocks.blocks_2 = false
@@ -402,7 +417,7 @@ export default class BtcTransferProcessor {
             } else {
                 maxPrice = logInputsOutputsBlocks.blocks_2.leftBalanceAndChange
             }
-            maxFeePerByte = BlocksoftUtils.toBigNumber(maxPrice).div(BlocksoftUtils.toBigNumber(maxTxSize)).toString()
+            maxFeePerByte = BlocksoftUtils.div(maxPrice, maxTxSize)
             if (maxPrice < slowPrice) {
                 maxLang = 'btc_corrected_speed_blocks_12'
             } else if (maxPrice < mediumPrice) {
@@ -420,7 +435,7 @@ export default class BtcTransferProcessor {
                 txSize: logInputsOutputsBlocks.blocks_12.txSize,
                 preparedInputsOutputs: preparedInputsOutputsBlocks.blocks_12,
                 needSpeed: this._precached.blocks_12,
-                firstNeedSpeed : this._precached.blocks_12,
+                firstNeedSpeed: this._precached.blocks_12,
                 sortIndex: 1
             },
             {
@@ -430,7 +445,7 @@ export default class BtcTransferProcessor {
                 txSize: logInputsOutputsBlocks.blocks_6.txSize,
                 preparedInputsOutputs: preparedInputsOutputsBlocks.blocks_6,
                 needSpeed: this._precached.blocks_6,
-                firstNeedSpeed : this._precached.blocks_6,
+                firstNeedSpeed: this._precached.blocks_6,
                 sortIndex: 2
             },
             {
@@ -440,7 +455,7 @@ export default class BtcTransferProcessor {
                 txSize: maxTxSize,
                 preparedInputsOutputs: preparedInputsOutputsBlocks.blocks_2,
                 needSpeed: this._precached.blocks_2,
-                firstNeedSpeed : this._precached.blocks_2,
+                firstNeedSpeed: this._precached.blocks_2,
                 sortIndex: 3
             }
         ]
@@ -457,14 +472,12 @@ export default class BtcTransferProcessor {
             }
         }
         if (this._settings.currencyCode !== 'USDT' && !txHash) {
-            const amountBN = BlocksoftUtils.toBigNumber(data.amount)
-            const div = amountBN.div(BlocksoftUtils.toBigNumber(maxPrice)).toString()
+            const div = BlocksoftUtils.div(data.amount, maxPrice) * 1
             if (div < 5) {
-                const tmp = amountBN.div(BlocksoftUtils.toBigNumber(20))
-                const tmp2 = tmp.toString()
-                if (tmp2 > 0) {
-                    maxPrice = tmp2
-                    maxFeePerByte = tmp.div(BlocksoftUtils.toBigNumber(maxTxSize)).toString()
+                const tmp = BlocksoftUtils.div(data.amount, 20) * 1
+                if (tmp > 0) {
+                    maxFeePerByte = Math.round(BlocksoftUtils.div(tmp, maxTxSize) * 1)
+                    maxPrice = Math.round(BlocksoftUtils.mul(maxFeePerByte, maxTxSize))
                     if (maxPrice < slowPrice || maxFeePerByte < this._precached.blocks_12) {
                         maxLang = 'btc_corrected_speed_blocks_12_protection'
                     } else if (maxPrice < mediumPrice || maxFeePerByte < this._precached.blocks_6) {
@@ -498,6 +511,7 @@ export default class BtcTransferProcessor {
         const data = JSON.parse(JSON.stringify(dataMain))
 
         for (fee of fees) {
+            // console.log('fee', JSON.parse(JSON.stringify(fee)))
             data.feeForTx = fee
             let preparedInputsOutputs = fee.preparedInputsOutputs
             let recounted
@@ -507,6 +521,7 @@ export default class BtcTransferProcessor {
                     preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, this._precached, 'getFeeRecheck')
                     fee.txSize = await this._getSize(data, preparedInputsOutputs)
                 } catch (e) {
+                    console.log(e)
                     preparedInputsOutputs = false
                 }
                 fee.preparedInputsOutputs = preparedInputsOutputs
@@ -519,6 +534,7 @@ export default class BtcTransferProcessor {
                 const logInputsOutputs = this._logInputsOutputs(data, preparedInputsOutputs, this._settings.currencyCode + ' BtcTransferProcessor.getFeeRecheck')
                 fee.feeForTx = logInputsOutputs.diffInOut
                 fee.feeForByte = Math.round(logInputsOutputs.diffInOut / fee.txSize)
+
                 /*
                 console.log('')
                 console.log('')
@@ -530,7 +546,7 @@ export default class BtcTransferProcessor {
                 console.log(' msg ' + logInputsOutputs.msg)
                 console.log(JSON.parse(JSON.stringify(logInputsOutputs)))
                 console.log('')
-                 */
+                */
             }
         }
 
@@ -545,7 +561,6 @@ export default class BtcTransferProcessor {
             }
             return b.sortIndex - a.sortIndex
         })
-
 
 
         // console.log('result4', JSON.parse(JSON.stringify(fees)))
@@ -564,6 +579,8 @@ export default class BtcTransferProcessor {
                 }
             }
         }
+
+        // console.log('result4+1', JSON.parse(JSON.stringify(fees)))
 
         const speeds = [12, 6, 2]
         let totalSpeeds = 0
@@ -603,6 +620,9 @@ export default class BtcTransferProcessor {
         }
         if (tested.length > 0) {
             let showSmallFeeNotice = true
+            if (tested[0].feeForByte <= 2) {
+                tested[0].langMsg = this._langPrefix + '_speed_blocks_24'
+            }
             if (tested[tested.length - 1].langMsg === this._langPrefix + '_speed_blocks_2') {
                 showSmallFeeNotice = false
             } else if (tested.length > 1) {
@@ -696,7 +716,7 @@ export default class BtcTransferProcessor {
      * @param {number} data.nSequence
      * @returns {Promise<{correctedAmountFrom: string, hash: string}>}
      */
-    async sendTx(data) {
+    async sendTx(data, uiErrorConfirmed = false) {
         const txHash = data.txHash || false
         this._initProviders()
 
@@ -747,7 +767,7 @@ export default class BtcTransferProcessor {
         const rawTxHex = await this.txBuilder.getRawTx(data, preparedInputsOutputs)
         let result
         try {
-            result = await this.sendProvider.sendTx(rawTxHex, 'usual first try', preparedInputsOutputs)
+            result = await this.sendProvider.sendTx(rawTxHex, 'usual first try', preparedInputsOutputs, uiErrorConfirmed)
         } catch (e) {
             if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
                 // can do something here to try more
@@ -762,6 +782,19 @@ export default class BtcTransferProcessor {
                 MarketingEvent.logOnlyRealTime('btc_error_4_2 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
                 // noinspection JSUndefinedPropertyAssignment
                 data.rawTxHex = rawTxHex
+                if (e.message === 'UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT') {
+                    let newAmount = BlocksoftUtils.diff(data.amount, logInputsOutputs.diffInOut * 4)
+                    if (newAmount < 0) {
+                        newAmount = BlocksoftUtils.diff(data.amount, logInputsOutputs.diffInOut * 2)
+                    }
+                    if (newAmount < 0) {
+                        newAmount = BlocksoftUtils.diff(data.amount, logInputsOutputs.diffInOut)
+                    }
+                    if (newAmount < 0) {
+                        throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT')
+                    }
+                    e.newAmount = newAmount
+                }
                 throw e
             }
         }
@@ -796,16 +829,16 @@ export default class BtcTransferProcessor {
             diffInOut: 0,
             msg: preparedInputsOutputs.msg || 'none'
         }
-        let totalIn = BlocksoftUtils.toBigNumber(0)
-        let totalOut = BlocksoftUtils.toBigNumber(0)
-        let totalBalance = BlocksoftUtils.toBigNumber(0)
+        const totalInBN = new BlocksoftBN(0)
+        const totalOutBN = new BlocksoftBN(0)
+        const totalBalanceBN = new BlocksoftBN(0)
 
         let unspent
         for (unspent of this._precached.unspents) {
-            totalBalance = totalBalance.add(unspent.valueBN)
+            totalBalanceBN.add(unspent.value)
         }
 
-        let leftBalance = totalBalance
+        const leftBalanceBN = new BlocksoftBN(totalBalanceBN)
         let input, output
         if (preparedInputsOutputs) {
             for (input of preparedInputsOutputs.inputs) {
@@ -816,32 +849,32 @@ export default class BtcTransferProcessor {
                     confirmations: input.confirmations,
                     address: input.address
                 })
-                totalIn = totalIn.add(input.valueBN)
-                leftBalance = leftBalance.sub(input.valueBN)
+                totalInBN.add(input.value)
+                leftBalanceBN.diff(input.value)
             }
             for (output of preparedInputsOutputs.outputs) {
                 logInputsOutputs.outputs.push(output)
-                totalOut = totalOut.add(BlocksoftUtils.toBigNumber(output.amount))
+                totalOutBN.add(output.amount)
             }
         }
-        logInputsOutputs.totalIn = totalIn.toString()
-        logInputsOutputs.totalOut = totalOut.toString()
-        logInputsOutputs.diffInOut = totalIn.sub(totalOut).toString()
+        logInputsOutputs.totalIn = totalInBN.get()
+        logInputsOutputs.totalOut = totalOutBN.get()
+        logInputsOutputs.diffInOut = totalInBN.diff(totalOutBN).get()
         logInputsOutputs.diffInOutReadable = BlocksoftUtils.toUnified(logInputsOutputs.diffInOut, this._settings.decimals)
 
-        let tmp = totalOut
+        const tmpBN = new BlocksoftBN(totalOutBN)
         if (data.currencyCode === 'USDT') {
-            tmp = tmp.add(totalOut)
+            // tmpBN.add(totalOutBN)
         } else {
-            tmp = tmp.sub(BlocksoftUtils.toBigNumber(data.amount))
+            tmpBN.diff(data.amount)
         }
         if (logInputsOutputs.diffInOut > 0) {
-            tmp = tmp.add(BlocksoftUtils.toBigNumber(logInputsOutputs.diffInOut))
+            tmpBN.add(logInputsOutputs.diffInOut)
         }
-        logInputsOutputs.totalOutMinusAmount = tmp.toString()
-        logInputsOutputs.totalBalance = totalBalance.toString()
-        logInputsOutputs.leftBalance = leftBalance.toString()
-        logInputsOutputs.leftBalanceAndChange = leftBalance.add(tmp).toString()
+        logInputsOutputs.totalOutMinusAmount = tmpBN.get()
+        logInputsOutputs.totalBalance = totalBalanceBN.get()
+        logInputsOutputs.leftBalance = leftBalanceBN.get()
+        logInputsOutputs.leftBalanceAndChange = BlocksoftUtils.add(leftBalanceBN, tmpBN)
 
         logInputsOutputs.data = JSON.parse(JSON.stringify(data))
         logInputsOutputs.data.privateKey = '***'

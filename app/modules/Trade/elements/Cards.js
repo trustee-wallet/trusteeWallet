@@ -27,9 +27,11 @@ import utils from '../../../services/utils'
 import FileSystem from '../../../services/FileSystem/FileSystem'
 import CashBackUtils from '../../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
+import TmpConstants from './TmpConstants'
 
 let CACHE_RUB_COUNTRIES = {}
 let CACHE_RUB_COUNTRIES_SET = false
+
 
 class Cards extends Component {
 
@@ -68,12 +70,23 @@ class Cards extends Component {
             return { ...item, supported: true }
         })
 
+
+        let selectedCardIndex = TmpConstants.CACHE_SELECTED_PREV_CARD_ID
+        if (!selectedCardIndex && this.props.exchangeStore.tradePrevCardID) {
+            selectedCardIndex = this.props.exchangeStore.tradePrevCardID * 1
+        }
+        if (!selectedCardIndex || typeof cards[selectedCardIndex] === 'undefined') {
+            selectedCardIndex = cards.length - 1
+        }
+
+        this.setCardToTmp(selectedCardIndex, cards, 'initCards')
+
         this.setState({
             cards,
-            firstItem: cards.length - 1
+            firstItem: selectedCardIndex
         })
+        this.props.handleSetState('selectedCard', cards[selectedCardIndex])
 
-        this.props.handleSetState('selectedCard', cards[cards.length - 1])
     }
 
     getState = () => this.state
@@ -84,30 +97,34 @@ class Cards extends Component {
                 return { ...item, supported: true }
             })
 
-            if (isNewAdded) {
-                this.setState({
-                    cards,
-                    firstItem: cards.length - 1
-                })
-
-                this.props.handleSetState('selectedCard', cards[cards.length - 1])
-            } else {
-
-                let updateSelectedCard = JSON.parse(JSON.stringify(cards))
-                updateSelectedCard = updateSelectedCard.filter(item => item.id === this.props.selectedCard.id)
-
-                const selectedCardIndex = cards.findIndex(item => item.id === this.props.selectedCard.id)
-
-                this.setState({
-                    cards,
-                    firstItem: selectedCardIndex
-                })
-
-                this.props.handleSetState('selectedCard', updateSelectedCard[0])
+            let selectedCardIndex = cards.length - 1
+            if (!isNewAdded) {
+                selectedCardIndex = cards.findIndex(item => item.id === this.props.selectedCard.id)
+                if (typeof cards[selectedCardIndex] === 'undefined') {
+                    throw new Error('no card index ' + selectedCardIndex)
+                }
             }
+
+            this.setCardToTmp(selectedCardIndex, cards, 'initFromProps')
+
+            this.setState({
+                cards,
+                firstItem: selectedCardIndex
+            })
+            this.props.handleSetState('selectedCard', JSON.parse(JSON.stringify(cards[selectedCardIndex])))
+
         } catch (e) {
             Log.err('Cards.initFromProps error ' + e)
         }
+    }
+
+    setCardToTmp = (selectedCardIndex, cards, source) => {
+
+        TmpConstants.CACHE_SELECTED_PREV_CARD_ID = selectedCardIndex
+        TmpConstants.CACHE_CARD = cards[selectedCardIndex]
+
+        AsyncStorage.setItem('trade.selectedCard.index', selectedCardIndex + '')
+
     }
 
     drop = () => {
@@ -206,7 +223,7 @@ class Cards extends Component {
         const indexedSupportedCountries = {}
         if (supportedCountries) {
             supportedCountries.forEach(item2 => {
-              indexedSupportedCountries[item2] = 1
+                indexedSupportedCountries[item2] = 1
             })
 
             if (cards) {
@@ -294,6 +311,8 @@ class Cards extends Component {
 
         const { cards } = this.state
 
+        this.setCardToTmp(index, cards, 'onSnapToItem')
+
         this.props.handleSetState('selectedCard', cards[index])
     }
 
@@ -348,7 +367,7 @@ class Cards extends Component {
 
             data.append('cardNumber', tmpCards[selectedCardIndex].number)
 
-            if(typeof photoSource !== 'undefined') {
+            if (typeof photoSource !== 'undefined') {
                 const fs = new FileSystem()
                 const base64 = await fs.handleImageBase64(photoSource)
                 data.append('image', 'data:image/jpeg;base64,' + base64)
@@ -371,7 +390,7 @@ class Cards extends Component {
                 try {
 
                     let res = await Api.validateCard(data)
-                        res = await res.json()
+                    res = await res.json()
 
                     // @misha to optimize
                     if ((typeof res.message !== 'undefined' && res.message.includes('Card has not been verified')) || (typeof res.errorMsg !== 'undefined' && res.errorMsg.includes('No file was uploaded'))) {
@@ -521,7 +540,6 @@ class Cards extends Component {
         const { selectedCard } = this.props
 
         const selectedCardIndex = cards.findIndex(item => item.id === selectedCard.id)
-
 
         return (
             <View style={{ width: '100%', maxHeight: !enabled ? 0 : 500, overflow: !enabled ? 'hidden' : 'visible' }}>

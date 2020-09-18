@@ -73,6 +73,7 @@ export default new class ExchangeActions {
                     tradePrevCC: await AsyncStorage.getItem('trade.selectedCryptocurrency.currencyCode'),
                     tradePrevFC: await AsyncStorage.getItem('trade.selectedFiatCurrency.cc'),
                     tradePrevID: await AsyncStorage.getItem('trade.selectedPaymentSystem.id'),
+                    tradePrevCardID: await AsyncStorage.getItem('trade.selectedCard.index'),
                     exchangeInCC: await AsyncStorage.getItem('exchange.selectedInCurrency.currencyCode'),
                     exchangeOutCC: await AsyncStorage.getItem('exchange.selectedOutCurrency.currencyCode')
                 })

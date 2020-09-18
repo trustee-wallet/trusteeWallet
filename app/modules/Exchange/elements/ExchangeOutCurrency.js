@@ -199,7 +199,8 @@ class ExchangeOutCurrency extends Component {
             checkTransferHasError({
                 currencyCode: selectedOutCurrency.currencyCode,
                 currencySymbol: selectedOutCurrency.currencySymbol,
-                address: mass.selectedOutAccount.address
+                address: mass.selectedOutAccount.address,
+                amount: mass.selectedOutAccount.balance
             })
 
             ExchangeTmpConstants.CACHE_SELECTED_PREV_OUT = selectedOutCurrency.currencyCode

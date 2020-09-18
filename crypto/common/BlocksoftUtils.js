@@ -8,6 +8,16 @@ class BlocksoftUtils {
         if (typeof val1 === 'undefined') {
             return val2 || ''
         }
+        if (typeof val2 === 'undefined') {
+            return val1
+        }
+        if (typeof val1.innerBN !== 'undefined') {
+            if (typeof val2.innerBN !== 'undefined') {
+                return val1.innerBN.plus(val2.innerBN).toString()
+            } else {
+                return val1.innerBN.plus(BigNumber(val2)).toString()
+            }
+        }
         if (!val2 || !(val2 * 1 > 0)) {
             return val1
         }
@@ -28,8 +38,18 @@ class BlocksoftUtils {
         if (typeof val1 === 'undefined') {
             return ''
         }
+        if (typeof val2 === 'undefined') {
+            return val1
+        }
         if (val2 === '1' || val2 === 1) {
             return val1
+        }
+        if (typeof val1.innerBN !== 'undefined') {
+            if (typeof val2.innerBN !== 'undefined') {
+                return val1.innerBN.times(val2.innerBN).toString()
+            } else {
+                return val1.innerBN.times(BigNumber(val2)).toString()
+            }
         }
         const str = val1.toString() + val2.toString()
         let res = 0
@@ -49,8 +69,18 @@ class BlocksoftUtils {
         if (typeof val1 === 'undefined') {
             return ''
         }
+        if (typeof val2 === 'undefined') {
+            return val1
+        }
         if (val2 === '1' || val2 === 1) {
             return val1
+        }
+        if (typeof val1.innerBN !== 'undefined') {
+            if (typeof val2.innerBN !== 'undefined') {
+                return val1.innerBN.dividedBy(val2.innerBN).toString()
+            } else {
+                return val1.innerBN.dividedBy(BigNumber(val2 + '')).toString()
+            }
         }
         const str = val1.toString() + val2.toString()
         let res = 0
@@ -78,8 +108,22 @@ class BlocksoftUtils {
         if (typeof val1 === 'undefined') {
             return val2 || ''
         }
-        if (!val2) return val1
-        if (!val1) return -1 * val2
+        if (typeof val2 === 'undefined') {
+            return val1
+        }
+        if (!val2) {
+            return val1
+        }
+        if (!val1) {
+            return -1 * val2
+        }
+        if (typeof val1.innerBN !== 'undefined') {
+           if (typeof val2.innerBN !== 'undefined') {
+               return val1.innerBN.minus(val2.innerBN).toString()
+           } else {
+               return val1.innerBN.minus(BigNumber(val2 + '')).toString()
+           }
+        }
         const str = val1.toString() + val2.toString()
         let res = 0
         if (str.indexOf('.') !== -1 || str.indexOf(',') !== -1) {
@@ -92,19 +136,6 @@ class BlocksoftUtils {
             }
         }
         return BlocksoftUtils.fromENumber(res)
-    }
-
-    /**
-     * @param val
-     * @returns BN
-     */
-    static toBigNumber(val) {
-        try {
-            // noinspection JSCheckFunctionSignatures,JSUnresolvedVariable
-            return new Web3.utils.BN(val)
-        } catch (e) {
-            throw new Error(e.message + ' while toBigNumber ' + val)
-        }
     }
 
     static fromENumber(val) {
@@ -160,6 +191,7 @@ class BlocksoftUtils {
     }
 
     static fromUnified(val, decimals = 8) {
+        if (typeof val === 'undefined') return 0
         val = val.toString()
         const parts = val.split('.')
         let number = parts[0]

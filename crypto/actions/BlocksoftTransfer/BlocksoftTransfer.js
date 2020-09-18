@@ -432,7 +432,7 @@ class BlocksoftTransfer {
         try {
             BlocksoftCryptoLog.log(`BlocksoftTransfer.getTransferAllBalance ${currencyCode} started ${this._data.addressFrom} `)
             balanceUpdated = await this._processor[currencyCode].getTransferAllBalance(this._data, balanceRaw)
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.getTransferAllBalance ${currencyCode} got ${this._data.addressFrom} data`, balanceUpdated)
+            BlocksoftCryptoLog.log(`BlocksoftTransfer.getTransferAllBalance ${currencyCode} got ${this._data.addressFrom} data ` + JSON.stringify(balanceUpdated))
         } catch (e) {
             if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
                 // noinspection ES6MissingAwait
@@ -510,7 +510,7 @@ class BlocksoftTransfer {
         let res = ''
         try {
             BlocksoftCryptoLog.log(`BlocksoftTransfer.sendTx ${currencyCode} started`, this._logData)
-            res = await this._processor[currencyCode].sendTx(this._data)
+            res = await this._processor[currencyCode].sendTx(this._data, uiErrorConfirmed)
             BlocksoftCryptoLog.log(`BlocksoftTransfer.sendTx ${currencyCode} finished`, res)
             if (this._data.currencyCode === 'BTC' || this._data.currencyCode === 'USDT') {
                 if (this._data.addressForChangeHD) {
@@ -523,7 +523,7 @@ class BlocksoftTransfer {
                 time: new Date().getTime()
             }
         } catch (e) {
-            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1 ) {
                 // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.err(`BlocksoftTransfer.sendTx ${currencyCode} error ` + e.message, e.data ? e.data : e)
             }

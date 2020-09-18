@@ -72,8 +72,7 @@ export default class BtcTestUnspentsProvider {
                 vout: unspent.n,
                 value: unspent.value_int.toString(),
                 height: 0,
-                confirmations : unspent.confirmations,
-                valueBN : BlocksoftUtils.toBigNumber(unspent.value_int.toString())
+                confirmations : unspent.confirmations
             })
         }
         return sortedUnspents

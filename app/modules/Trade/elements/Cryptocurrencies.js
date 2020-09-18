@@ -221,7 +221,8 @@ class Cryptocurrencies extends Component {
                 checkTransferHasError({
                     currencyCode: selectedCryptocurrency.currencyCode,
                     currencySymbol: selectedCryptocurrency.currencySymbol,
-                    address: mass.selectedAccount.address
+                    address: mass.selectedAccount.address,
+                    amount: mass.selectedAccount.balance
                 })
             }
 

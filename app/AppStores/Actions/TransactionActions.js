@@ -13,6 +13,7 @@ import DaemonCache from '../../daemons/DaemonCache'
 import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
+import config from '../../config/config'
 
 const { dispatch } = store
 
@@ -86,9 +87,10 @@ const transactionActions = {
 
                 const prepared = { ...account }
 
-                let tx
-                for (tx of prepared.transactions) {
-                    if (tx.transactionHash === transaction.transactionUpdateHash) {
+                let transactionHash
+                for (transactionHash in prepared.transactions) {
+                    if (transactionHash === transaction.transactionUpdateHash) {
+                        const tx = prepared.transactions[transactionHash]
                         tx.transactionHash = transaction.transactionUpdateHash
                         tx.transactionsOtherHashes = transaction.transactionsOtherHashes
                         tx.transactionJson = transaction.transactionJson
@@ -102,7 +104,10 @@ const transactionActions = {
             }
 
         } catch (e) {
-
+            if (config.debug.appErrors) {
+                console.log('ACT/Transaction updateTransaction ' + e.message)
+                console.log(e)
+            }
             Log.err('ACT/Transaction updateTransaction ' + e.message)
         }
     },

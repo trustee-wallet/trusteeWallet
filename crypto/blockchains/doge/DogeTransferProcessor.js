@@ -3,6 +3,7 @@
  */
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftUtils from '../../common/BlocksoftUtils'
+import BlocksoftBN from '../../common/BlocksoftBN'
 
 import DogeNetworkPrices from './basic/DogeNetworkPrices'
 import DogeUnspentsProvider from './providers/DogeUnspentsProvider'
@@ -90,7 +91,7 @@ export default class DogeTransferProcessor {
             if (this._precached.unspents) {
                 if (this._precached.unspents.length > 1) {
                     this._precached.unspents.sort((a, b) => {
-                        return b.valueBN.sub(a.valueBN).toString()
+                        return BlocksoftUtils.diff(b.value, a.value) * 1
                     })
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getTransferPrecache unspents sorted', this._precached.unspents)
                 } else {
@@ -185,14 +186,14 @@ export default class DogeTransferProcessor {
         let maxFeePerByte = this._precached.blocks_2
         let maxLang = this._langPrefix + '_speed_blocks_2'
 
-        const leftBalanceBN = BlocksoftUtils.toBigNumber(logInputsOutputs.leftBalanceAndChange)
-        const tmp = leftBalanceBN.sub(BlocksoftUtils.toBigNumber(maxPrice))
-        if (!isPrecount && tmp.toString() < 0) {
-            maxPrice = leftBalanceBN.toString()
+        const leftBalanceBN = new BlocksoftBN(logInputsOutputs.leftBalanceAndChange)
+        const tmp = BlocksoftUtils.diff(leftBalanceBN, maxPrice)
+        if (!isPrecount && tmp * 1 < 0) {
+            maxPrice = logInputsOutputs.leftBalanceAndChang
             if (maxPrice <= 0) {
                 maxPrice = logInputsOutputs.diffInOut
             }
-            maxFeePerByte = BlocksoftUtils.toBigNumber(maxPrice).div(BlocksoftUtils.toBigNumber(txSize)).toString()
+            maxFeePerByte = BlocksoftUtils.div(maxPrice, txSize)
             if (maxPrice < slowPrice) {
                 maxLang = 'ltc_corrected_speed_blocks_12'
             } else if (maxPrice < mediumPrice) {
@@ -229,12 +230,10 @@ export default class DogeTransferProcessor {
             return this._recheckFees(result, data)
         }
 
-        const amountBN = BlocksoftUtils.toBigNumber(data.amount)
-        const div = amountBN.div(BlocksoftUtils.toBigNumber(maxPrice)).toString()
+        const div = BlocksoftUtils.div(data.amount, maxPrice) * 1
         if (div < 1 && logInputsOutputs.diffInOut > 0) {
-            const tmp2 = BlocksoftUtils.toBigNumber(logInputsOutputs.diffInOut)
             maxPrice = logInputsOutputs.diffInOut
-            maxFeePerByte = tmp2.div(BlocksoftUtils.toBigNumber(txSize)).toString()
+            maxFeePerByte = Math.ceil(BlocksoftUtils.div(logInputsOutputs.diffInOut, txSize) * 1)
             if (maxPrice < slowPrice) {
                 maxLang = 'ltc_corrected_speed_blocks_12_protection'
             } else if (maxPrice < mediumPrice) {
@@ -270,7 +269,7 @@ export default class DogeTransferProcessor {
                 try {
                     data.feeForTx = fee
                     if (typeof lastFee !== 'undefined' && typeof fee.feeForTx !== 'undefined') {
-                        const tmp = BlocksoftUtils.add(data.amount - fee.feeForTx, lastFee).toString()
+                        const tmp = BlocksoftUtils.add(data.amount - fee.feeForTx, lastFee)
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ` DogeTransferProcessor._recheckFees data.amount by lastFee ${data.amount} - ${fee.feeForTx} + ${lastFee} = ${tmp}`)
                         data.amount = tmp
                     }
@@ -541,53 +540,68 @@ export default class DogeTransferProcessor {
     }
 
 
+
     _logInputsOutputs(data, preparedInputsOutputs, title) {
-        const logInputsOutputs = { inputs: [], outputs: [], totalIn: 0, totalOut: 0, diffInOut: 0, msg: preparedInputsOutputs.msg }
-        let totalIn = BlocksoftUtils.toBigNumber(0)
-        let totalOut = BlocksoftUtils.toBigNumber(0)
-        let totalBalance = BlocksoftUtils.toBigNumber(0)
+        const logInputsOutputs = {
+            inputs: [],
+            outputs: [],
+            totalIn: 0,
+            totalOut: 0,
+            diffInOut: 0,
+            msg: preparedInputsOutputs.msg || 'none'
+        }
+        const totalInBN = new BlocksoftBN(0)
+        const totalOutBN = new BlocksoftBN(0)
+        const totalBalanceBN = new BlocksoftBN(0)
 
         let unspent
         for (unspent of this._precached.unspents) {
-            totalBalance = totalBalance.add(unspent.valueBN)
+            totalBalanceBN.add(unspent.value)
         }
 
-        let leftBalance = totalBalance
-        let input
-        for (input of preparedInputsOutputs.inputs) {
-            logInputsOutputs.inputs.push({
-                txid: input.txid,
-                vout: input.vout,
-                value: input.value,
-                confirmations: input.confirmations
-            })
-            totalIn = totalIn.add(input.valueBN)
-            leftBalance = leftBalance.sub(input.valueBN)
+        const leftBalanceBN = new BlocksoftBN(totalBalanceBN)
+        let input, output
+        if (preparedInputsOutputs) {
+            for (input of preparedInputsOutputs.inputs) {
+                logInputsOutputs.inputs.push({
+                    txid: input.txid,
+                    vout: input.vout,
+                    value: input.value,
+                    confirmations: input.confirmations,
+                    address: input.address
+                })
+                totalInBN.add(input.value)
+                leftBalanceBN.diff(input.value)
+            }
+            for (output of preparedInputsOutputs.outputs) {
+                logInputsOutputs.outputs.push(output)
+                totalOutBN.add(output.amount)
+            }
         }
-        let output
-        for (output of preparedInputsOutputs.outputs) {
-            logInputsOutputs.outputs.push(output)
-            totalOut = totalOut.add(BlocksoftUtils.toBigNumber(output.amount))
-        }
-        logInputsOutputs.totalIn = totalIn.toString()
-        logInputsOutputs.totalOut = totalOut.toString()
-        logInputsOutputs.diffInOut = totalIn.sub(totalOut).toString()
+        logInputsOutputs.totalIn = totalInBN.get()
+        logInputsOutputs.totalOut = totalOutBN.get()
+        logInputsOutputs.diffInOut = totalInBN.diff(totalOutBN).get()
         logInputsOutputs.diffInOutReadable = BlocksoftUtils.toUnified(logInputsOutputs.diffInOut, this._settings.decimals)
-        let tmp = totalOut.sub(BlocksoftUtils.toBigNumber(data.amount))
-        if (logInputsOutputs.diffInOut > 0) {
-            tmp = tmp.add(BlocksoftUtils.toBigNumber(logInputsOutputs.diffInOut))
-        }
-        logInputsOutputs.totalOutMinusAmount = tmp.toString()
-        logInputsOutputs.totalBalance = totalBalance.toString()
-        logInputsOutputs.leftBalance = leftBalance.toString()
-        logInputsOutputs.leftBalanceAndChange = leftBalance.add(tmp).toString()
 
-        logInputsOutputs.feeForByte = preparedInputsOutputs.feeForByte
+        const tmpBN = new BlocksoftBN(totalOutBN).diff(data.amount)
+        if (logInputsOutputs.diffInOut > 0) {
+            tmpBN.add(logInputsOutputs.diffInOut)
+        }
+        logInputsOutputs.totalOutMinusAmount = tmpBN.get()
+        logInputsOutputs.totalBalance = totalBalanceBN.get()
+        logInputsOutputs.leftBalance = leftBalanceBN.get()
+        logInputsOutputs.leftBalanceAndChange = BlocksoftUtils.add(leftBalanceBN, tmpBN)
+
+        logInputsOutputs.data = JSON.parse(JSON.stringify(data))
+        logInputsOutputs.data.privateKey = '***'
+        logInputsOutputs.data.privateKeyLegacy = '***'
+        logInputsOutputs.data.mnemonic = '***'
         if (typeof data.feeForTx === 'undefined' || typeof data.feeForTx.feeForByte === 'undefined' || data.feeForTx.feeForByte < 0) {
             BlocksoftCryptoLog.log(title + ' preparedInputsOutputs with autofee ', logInputsOutputs)
         } else {
             BlocksoftCryptoLog.log(title + ' preparedInputsOutputs with fee ' + data.feeForTx.feeForTx, logInputsOutputs)
         }
+        // console.log('btc_info ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
         // noinspection JSIgnoredPromiseFromCall
         MarketingEvent.logOnlyRealTime('doge_info ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
         return logInputsOutputs

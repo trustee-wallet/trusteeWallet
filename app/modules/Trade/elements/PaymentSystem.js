@@ -177,7 +177,7 @@ class PaymentSystem extends Component {
                             source = 'FromHistory'
                         }
                     }
-                    TmpConstants.CACHE_SELECTED_PRED_ID = this.props.exchangeStore.tradePrevID
+                    TmpConstants.CACHE_SELECTED_PREV_ID = this.props.exchangeStore.tradePrevID
                 } else if (found.paymentSystem === 'QIWI' && available.length > 1) {
                     found = available[1]
                 }

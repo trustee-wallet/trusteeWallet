@@ -30,7 +30,7 @@ import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
-
+import TmpConstants from './elements/TmpConstants'
 
 class ConfirmScreen extends Component {
 
@@ -44,6 +44,11 @@ class ConfirmScreen extends Component {
     // eslint-disable-next-line camelcase
     UNSAFE_componentWillMount() {
         const orderData = this.props.navigation.getParam('orderData')
+        if (typeof orderData.checkTmp !== 'undefined' && typeof orderData.selectedCard !== 'undefined') {
+            if (typeof TmpConstants.CACHE_CARD !== 'undefined' && typeof TmpConstants.CACHE_CARD.number !== 'undefined') {
+                orderData.selectedCard = TmpConstants.CACHE_CARD
+            }
+        }
         this.setState({
             ...orderData,
             visible: true

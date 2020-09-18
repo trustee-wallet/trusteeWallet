@@ -6,11 +6,20 @@ class BlocksoftBN {
     innerBN = false
 
     constructor(val) {
-        try {
-            // noinspection JSCheckFunctionSignatures,JSUnresolvedVariable
-            this.innerBN = new BigNumber(val)
-        } catch (e) {
-            throw new Error(e.message + ' while BlocksoftBN.constructor ' + val)
+        if (typeof val.innerBN !== 'undefined') {
+            try {
+                // noinspection JSCheckFunctionSignatures,JSUnresolvedVariable
+                this.innerBN = new BigNumber(val.innerBN.toString())
+            } catch (e) {
+                throw new Error(e.message + ' while BlocksoftBN.constructor ' + val)
+            }
+        } else {
+            try {
+                // noinspection JSCheckFunctionSignatures,JSUnresolvedVariable
+                this.innerBN = new BigNumber(val)
+            } catch (e) {
+                throw new Error(e.message + ' while BlocksoftBN.constructor ' + val)
+            }
         }
     }
 
@@ -19,34 +28,55 @@ class BlocksoftBN {
         return this.innerBN.toString()
     }
 
+    toString() {
+        return this.innerBN.toString()
+    }
+
     add(val) {
-        if (!val || val.toString() === '0') {
+        if (typeof val === 'undefined' || !val || val.toString() === '0') {
             return false
         }
         let val2
-        try {
-            val = BlocksoftUtils.fromENumber(val)
-            val2 = BigNumber(val)
-        } catch (e) {
-            throw new Error(e.message + ' while BlocksoftBN.add transform ' + val)
+        if (typeof val !== 'string' && typeof val !== 'number') {
+            if (typeof val.innerBN !== 'undefined') {
+                val2 = val.innerBN
+            } else {
+                throw new Error('BlocksoftBN.add unsupported type ' + (typeof val) + ' ' + JSON.stringify(val))
+            }
+        } else {
+            try {
+                val = BlocksoftUtils.fromENumber(val)
+                val2 = BigNumber(val)
+            } catch (e) {
+                throw new Error(e.message + ' while BlocksoftBN.add transform ' + val)
+            }
         }
         try {
             this.innerBN = this.innerBN.plus(val2)
         } catch (e) {
-            throw new Error(e.message + ' while BlocksoftBN.adding ' + val)
+            throw new Error(e.message + ' while BlocksoftBN.add ' + val)
         }
+        return this
     }
 
     diff(val) {
-        if (!val || val.toString() === '0') {
+        if (typeof val === 'undefined' || !val || val.toString() === '0') {
             return this
         }
         let val2
-        try {
-            val = BlocksoftUtils.fromENumber(val)
-            val2 = BigNumber(val)
-        } catch (e) {
-            throw new Error(e.message + ' while BlocksoftBN.minus transform ' + val)
+        if (typeof val !== 'string' && typeof val !== 'number') {
+            if (typeof val.innerBN !== 'undefined') {
+                val2 = val.innerBN
+            } else {
+                throw new Error('BlocksoftBN.diff unsupported type ' + (typeof val) + ' ' + JSON.stringify(val))
+            }
+        } else {
+            try {
+                val = BlocksoftUtils.fromENumber(val)
+                val2 = BigNumber(val)
+            } catch (e) {
+                throw new Error(e.message + ' while BlocksoftBN.diff transform ' + val)
+            }
         }
         try {
             this.innerBN = this.innerBN.minus(val2)

@@ -64,7 +64,6 @@ export default class BsvUnspentsProvider {
                 value: unspent.value.toString(),
                 height: 0,
                 confirmations : unspent.confirmations,
-                valueBN : BlocksoftUtils.toBigNumber(unspent.value.toString())
             })
         }
         return sortedUnspents

@@ -7,17 +7,16 @@
  * @property {*} txid '1885a8fc772be4704cbdbaf84b39956cbb4eb69e5eef0a3d35ba5cb29b0af333',
  * @property {*} vout 1
  * @property {*} value 9998331800
- * @property {*} valueBN 9998331800
  * @property {*} height 3038080
  * @property {*} confirmations 11808
  */
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
-import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
-import { unpad } from 'ethereumjs-util'
+
 import DBInterface from '../../../../app/appstores/DataSource/DB/DBInterface'
 import accountDS from '../../../../app/appstores/DataSource/Account/Account'
+
 
 export default class BtcUnspentsProvider {
     /**
@@ -78,7 +77,6 @@ export default class BtcUnspentsProvider {
                 sortedUnspents[index].confirmations = 11
                 sortedUnspents[index].isRequired = true
             } else {
-                unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
                 if (unspent.address) {
                     const res = await dbInterface.setQueryString(`SELECT id, address, derivation_path AS path FROM account WHERE address='${unspent.address}' AND currency_code='BTC' AND derivation_path IS NOT NULL LIMIT 1`).query()
                     if (res && res.array && res.array[0]) {
@@ -184,7 +182,6 @@ export default class BtcUnspentsProvider {
         let unspent
         if (tmp[0]) {
             for (unspent of tmp[0]) {
-                unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
                 if (typeof unspent.address === 'undefined') {
                     unspent.address = address
                 }
@@ -195,7 +192,6 @@ export default class BtcUnspentsProvider {
         }
         if (tmp[1]) {
             for (unspent of tmp[1]) {
-                unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
                 if (typeof unspent.address === 'undefined') {
                     unspent.address = addressLegacy
                 }
@@ -206,7 +202,6 @@ export default class BtcUnspentsProvider {
         }
         if (typeof tmp[2] !== 'undefined' && tmp[2]) {
             for (unspent of tmp[2]) {
-                unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
                 if (typeof unspent.address === 'undefined') {
                     unspent.address = addressCompatible
                 }

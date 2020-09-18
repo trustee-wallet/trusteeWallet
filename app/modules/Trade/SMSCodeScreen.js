@@ -23,6 +23,7 @@ import {strings} from '../../services/i18n'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 
+import api from '../../services/Api/Api'
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_IS_ERROR = false
@@ -407,14 +408,20 @@ class SMSCodeScreen extends Component {
             Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be created')
             setTimeout(() => {
                 Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be finished ' + this.state.url)
-                if (!this.state.url.includes('pay.receipt-pay.com/cards') && !this.state.url.includes('mapi.xpay.com') && !this.state.url.includes('easybits.io') && !this.state.url.includes('kuna.io/')) {
+                if (!this.state.url.includes('pay.receipt-pay.com/cards')
+                    && !this.state.url.includes('mapi.xpay.com')
+                    && !this.state.url.includes('easybits.io')
+                    && !this.state.url.includes('kuna.io/')
+                    && !this.state.url.includes('online.contact-sys.com/')
+                ) {
                     Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be in1')
                     if (this.state.receiptPay) {
-                        Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be in2')
+                        Log.log('Trade.SMSCodeScreen.componentDidMount timeout0 will be in2 timeout status success set')
                         this.setState({
                             receiptPay: false,
                             status: 'success'
                         })
+                        api.setExchangeStatus(this.state.id, 'shown')
                     }
                 }
             }, 30000)
@@ -434,6 +441,7 @@ class SMSCodeScreen extends Component {
             this.setState({
                 status: 'success'
             })
+            api.setExchangeStatus(this.state.id, 'shown')
         } else if (e.nativeEvent.data.indexOf('WebView Agent OPEN=') !== -1) {
             const link = e.nativeEvent.data.substr(19)
             Linking.canOpenURL(link).then(supported => {
@@ -516,12 +524,14 @@ class SMSCodeScreen extends Component {
             })
 
             if (CACHE_IS_ERROR || url.includes('365cash.co/currency/failure')) {
+                await api.setExchangeStatus(this.state.id, 'fail')
                 NavStore.goNext('FinishErrorScreen', {
                     finishScreenParam: {
                         selectedCryptoCurrency: this.props.exchange.selectedCryptocurrency
                     }
                 })
             } else {
+                await api.setExchangeStatus(this.state.id, 'success')
                 NavStore.goNext('FinishScreen', {
                     finishScreenParam: {
                         selectedCryptoCurrency: this.props.exchange.selectedCryptocurrency
@@ -563,19 +573,31 @@ class SMSCodeScreen extends Component {
         }
     }
 
+    goBack = () => {
+        api.setExchangeStatus(this.state.id, 'back')
+        NavStore.goBack()
+    }
+
+    closeAction = () => {
+        api.setExchangeStatus(this.state.id, 'close')
+        NavStore.goBack()
+    }
+
     render() {
         UpdateOneByOneDaemon.pause()
         firebase.analytics().setCurrentScreen('Trade.SMSCodeScreen')
-        Log.log(`Trade.SMSCodeScreen is rendered`)
 
         const { scriptLoadEnd, status, link } = this.state
 
-        Log.log('Trade.SMSCodeScreen.link', link, status)
+        Log.log('Trade.SMSCodeScreen.link status ' + status, link)
 
         CACHE_IS_ERROR = false
         return (
             <View style={{ ...styles.wrapper }}>
-                <Navigation/>
+                <Navigation
+                    closeAction={this.closeAction}
+                    backAction={this.backAction}
+                />
                 <View style={styles.wrapper__content}>
                     {
                         status !== 'success' ?

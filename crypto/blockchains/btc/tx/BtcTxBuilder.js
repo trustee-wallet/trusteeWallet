@@ -30,7 +30,6 @@ export default class BtcTxBuilder {
      * @param {string} inputs[].address
      * @param {string} inputs[].isSegwit
      * @param {string} inputs[].confirmations
-     * @param {string} inputs[].valueBN
      * @returns {Promise<void>}
      * @private
      */
@@ -169,7 +168,6 @@ export default class BtcTxBuilder {
      * @param {string} preparedInputsOutputs.inputs[].address
      * @param {string} preparedInputsOutputs.inputs[].isSegwit
      * @param {string} preparedInputsOutputs.inputs[].confirmations
-     * @param {string} preparedInputsOutputs.inputs[].valueBN
      * @param {string} preparedInputsOutputs.outputs[].to
      * @param {string} preparedInputsOutputs.outputs[].amount
      * @return {Promise<string>}

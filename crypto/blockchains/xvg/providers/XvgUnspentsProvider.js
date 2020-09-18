@@ -72,8 +72,7 @@ export default class XvgUnspentsProvider {
                     vout: unspent.mintIndex,
                     value: unspent.value.toString(),
                     height: unspent.mintHeight,
-                    confirmations: 1,
-                    valueBN: BlocksoftUtils.toBigNumber(unspent.value.toString())
+                    confirmations: 1
                 })
                 already[unspent.mintTxid] = unspent.value
             }

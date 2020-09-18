@@ -79,6 +79,9 @@ export default class XrpTransferProcessor {
     }
 
     async checkTransferHasError(data) {
+        if (data.amount && data.amount*1 > 20) {
+            return false
+        }
         /**
          * @type {XrpScannerProcessor}
          */
@@ -130,7 +133,7 @@ export default class XrpTransferProcessor {
 
         const current = this._amountPrep(balanceRaw - fee - 20)
 
-        BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + current)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + current)
         return current
     }
 

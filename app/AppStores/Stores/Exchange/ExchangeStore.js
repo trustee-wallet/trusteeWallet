@@ -11,6 +11,7 @@ const INITIAL_STATE = {
     tradePrevCC: 'BTC',
     tradePrevFC: false,
     tradePrevID: false,
+    tradePrevCardID : false,
     exchangeInCC : false,
     exchangeOutCC: false,
     tradeApiConfig: {},
@@ -30,6 +31,7 @@ const exchangeStoreReducer = (state = INITIAL_STATE, action) => {
                 tradePrevCC: action.tradePrevCC,
                 tradePrevFC: action.tradePrevFC,
                 tradePrevID: action.tradePrevID,
+                tradePrevCardID : action.tradePrevCardID,
                 exchangeInCC : action.exchangeInCC,
                 exchangeOutCC : action.exchangeOutCC
             })

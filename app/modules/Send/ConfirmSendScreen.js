@@ -300,13 +300,21 @@ class ConfirmSendScreen extends Component {
 
                 this.setState({ isSendDisabled: false })
 
+                const allData = this.state.data
+
                 showModal({
                     type: 'YES_NO_MODAL',
                     icon: 'WARNING',
                     title: strings('send.confirmModal.title'),
                     description: strings('send.errors.' + e.message)
-                }, () => {
-                    this.handleSend(passwordCheck, true)
+                }, async () => {
+                    if (typeof e.newAmount !== 'undefined') {
+                        allData.amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(e.newAmount)
+                        this.setState({amountRaw : e.newAmount, data: allData})
+                        await this.fee.changeAmountRaw(e.newAmount)
+                    } else {
+                        this.handleSend(passwordCheck, e.message)
+                    }
                 })
 
             } else {

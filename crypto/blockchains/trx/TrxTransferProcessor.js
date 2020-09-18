@@ -87,7 +87,7 @@ export default class TrxTransferProcessor {
         }
         if (balanceRaw) {
             if (feeForTx > 0) {
-                return BlocksoftUtils.toBigNumber(balanceRaw).sub(BlocksoftUtils.toBigNumber(feeForTx)).toString()
+                return BlocksoftUtils.diff(balanceRaw, feeForTx)
             } else {
                 return balanceRaw
             }
@@ -105,7 +105,7 @@ export default class TrxTransferProcessor {
             result = await this._trongridProvider.get(addressHex, this._tokenName)
         }
         if (this._tokenName === '_' && feeForTx > 0) {
-            return BlocksoftUtils.toBigNumber(result.balance).sub(BlocksoftUtils.toBigNumber(feeForTx)).toString()
+            return BlocksoftUtils.diff(result.balance, feeForTx)
         }
         return result.balance
     }
