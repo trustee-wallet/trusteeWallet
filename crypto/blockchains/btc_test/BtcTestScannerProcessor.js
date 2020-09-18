@@ -46,7 +46,7 @@ export default class BtcTestScannerProcessor {
      * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalanceBlockchain(address) {
-        BlocksoftCryptoLog.log('BtcTestScannerProcessor.getBalance started', address)
+        BlocksoftCryptoLog.log('BtcTestScannerProcessor.getBalance started ' + address)
         const res = await this._get(address)
         if (!res || typeof res.confirmed === 'undefined') {
             return false
@@ -61,7 +61,7 @@ export default class BtcTestScannerProcessor {
      * @return {Promise<UnifiedTransaction[]>}
      */
     async getTransactionsBlockchain(address, jsonData = {}) {
-        BlocksoftCryptoLog.log('BtcTestScannerProcessor.getTransactions started ', address)
+        BlocksoftCryptoLog.log('BtcTestScannerProcessor.getTransactions started ' + address)
         const res = await this._get(address)
         if (!res || typeof res.transactions === 'undefined') {
             return []
@@ -72,7 +72,7 @@ export default class BtcTestScannerProcessor {
             const transaction = await  this._unifyTransaction(address, tx)
             transactions.push(transaction)
         }
-        BlocksoftCryptoLog.log('BtcTestScannerProcessor.getTransactions finished', address + ' total: ' + transactions.length)
+        BlocksoftCryptoLog.log('BtcTestScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
         return transactions
     }
 

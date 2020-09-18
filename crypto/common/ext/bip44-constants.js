@@ -25,7 +25,7 @@ module.exports = [
     [ `44'/195`, "TRX", "Tron" ],
 
     [ `44'/144`, "XRP", "Ripple" ],
-
+    [ `44'/128`, "XMR", "Monero" ],
 
     /*
     [ 0x80000004, "RDD", "Reddcoin" ],

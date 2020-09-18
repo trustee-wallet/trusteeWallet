@@ -3,6 +3,7 @@
  */
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+import BlocksoftBN from '../../../common/BlocksoftBN'
 
 export default class DogeTxInputsOutputs {
 
@@ -24,6 +25,7 @@ export default class DogeTxInputsOutputs {
      * @param {string} data.walletUseUnconfirmed
      * @param {string} data.addressFrom
      * @param {string} data.addressTo
+     * @param {string} data.multiply
      * @param {string|number} data.amount
      * @param {string|boolean} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
@@ -56,78 +58,100 @@ export default class DogeTxInputsOutputs {
         const useOnlyConfirmed = !data.walletUseUnconfirmed || subtitle.indexOf('unconfirmed') === -1
         let autocalculateFee = true
         let feeForByte = precached.blocks_2
-        if (subtitle.indexOf('getFeeRate') === -1 && typeof data.feeForTx !== 'undefined' && typeof data.feeForTx.feeForTx !== 'undefined') {
-            autocalculateFee = false
-            feeForByte = data.feeForTx.feeForByte
+        let feeForTx = 0
+        let multiply = 0
+        if (typeof data.feeForTx !== 'undefined' && typeof data.feeForTx.feeForTx !== 'undefined') {
+            if (subtitle.indexOf('getFeeRate') === -1) {
+                autocalculateFee = false
+                feeForByte = data.feeForTx.feeForByte
+            }
+            feeForTx = data.feeForTx.feeForTx
+        }
+        if (typeof data.multiply !== 'undefined' && data.multiply * 1 > 0) {
+            multiply = data.multiply * 1
+            feeForByte = feeForByte * multiply
+            feeForTx = feeForTx * multiply
         }
 
         let filteredUnspents = []
-        let unconfirmedBN = BlocksoftUtils.toBigNumber(0)
+        const unconfirmedBN = new BlocksoftBN(0)
         let unspent
         if (useOnlyConfirmed) {
             for (unspent of precached.unspents) {
                 if (unspent.confirmations > 0) {
                     filteredUnspents.push(unspent)
                 } else {
-                    unconfirmedBN = unconfirmedBN.add(unspent.valueBN)
+                    unconfirmedBN.add(unspent.value)
                 }
             }
         } else {
             filteredUnspents = precached.unspents
         }
 
-        let totalBalanceBN = BlocksoftUtils.toBigNumber(0)
+        const totalBalanceBN = new BlocksoftBN(0)
         for (unspent of filteredUnspents) {
-            totalBalanceBN = totalBalanceBN.add(unspent.valueBN)
+            totalBalanceBN.add(unspent.value)
         }
 
 
-        const basicWishedAmountBN = BlocksoftUtils.toBigNumber(data.amount)
-        let wishedAmountBN = basicWishedAmountBN
+        let multiAddress = false
+        const basicWishedAmountBN = new BlocksoftBN(data.amount)
+        const wishedAmountBN = new BlocksoftBN(basicWishedAmountBN)
 
         const outputs = []
+        let plus = 0
         if (data.addressTo.indexOf(';') === -1) {
             outputs.push({
                 'to': data.addressTo,
                 'amount': data.amount.toString()
             })
         } else {
-            const addresses = data.addressTo.split(';')
+            const addresses = data.addressTo.replace(/\s+/g, ';').split(';')
+            multiAddress = []
+            let total = 0
             for (let i = 0, ic = addresses.length; i < ic; i++) {
                 const address = addresses[i].trim()
+                if (!address) continue
                 outputs.push({
                     'to': address,
                     'amount': data.amount.toString()
                 })
-                if (i > 0) {
-                    wishedAmountBN = wishedAmountBN.add(basicWishedAmountBN)
+                multiAddress.push(address)
+                if (total > 0) {
+                    wishedAmountBN.add(basicWishedAmountBN)
+                    plus += data.amount * 1
                 }
-                i++
+                total++
+            }
+            if (multiAddress.length <= 1) {
+                multiAddress = false
             }
         }
-        let correctedAmountFrom = wishedAmountBN.toString()
 
         if (!autocalculateFee) {
-            wishedAmountBN = wishedAmountBN.add(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx))
+            wishedAmountBN.add(feeForTx)
         }
 
         const ic = filteredUnspents.length
-        let msg = 'totalInputs ' + ic + ' for wishedAmount ' + wishedAmountBN.toString() + ' = ' + BlocksoftUtils.toUnified(wishedAmountBN.toString(), this._settings.decimals)
+        let msg = 'totalInputs ' + ic + ' for wishedAmount ' + wishedAmountBN.get() + ' = ' + BlocksoftUtils.toUnified(wishedAmountBN.get(), this._settings.decimals)
         if (autocalculateFee) {
             msg += ' and autocalculate fee'
         } else {
-            msg += ' and fee ' + data.feeForTx.feeForTx + ' = ' + BlocksoftUtils.toUnified(data.feeForTx.feeForTx.toString(), this._settings.decimals)
+            msg += ' and prefee ' + feeForTx + ' = ' + BlocksoftUtils.toUnified(feeForTx.toString(), this._settings.decimals)
+        }
+        if (multiply > 0) {
+            msg += ' multy ' + multiply
         }
 
         const inputs = []
-        let inputsBalanceBN = BlocksoftUtils.toBigNumber(0)
-        let leftBalanceBN = totalBalanceBN
+        const inputsBalanceBN = new BlocksoftBN(0)
+        const leftBalanceBN = new BlocksoftBN(totalBalanceBN)
 
 
         let someUnusedOutput = false
         for (let i = 0; i < ic; i++) {
-            if (!isTransferAll && wishedAmountBN.sub(inputsBalanceBN) < 0) {
-                msg += ' finished by collectedAmount ' + inputsBalanceBN.toString()
+            if (!isTransferAll && BlocksoftUtils.diff(wishedAmountBN, inputsBalanceBN) * 1 < 0) {
+                msg += ' finished by collectedAmount ' + inputsBalanceBN.get()
                 break
             }
 
@@ -135,24 +159,24 @@ export default class DogeTxInputsOutputs {
             if (
                 isTransferAll
                 ||
-                (inputsBalanceBN.add(unspent.valueBN).sub(wishedAmountBN) <= 0)
+                (BlocksoftUtils.add(BlocksoftUtils.diff(inputsBalanceBN, wishedAmountBN), unspent.value)*1 <= 0)
                 ||
-                (leftBalanceBN.sub(unspent.valueBN).sub(wishedAmountBN) < 0) // left of not included outputs will be less than needed
+                (BlocksoftUtils.diff(BlocksoftUtils.diff(leftBalanceBN, wishedAmountBN), unspent.value)*1 < 0) // left of not included outputs will be less than needed
             ) {
                 inputs.push(unspent)
-                inputsBalanceBN = inputsBalanceBN.add(unspent.valueBN)
+                inputsBalanceBN.add(unspent.value)
                 msg += ' ' + i + ') added ' + unspent.value + ' = ' + inputsBalanceBN
             } else {
                 msg += ' ' + i + ') skipped ' + unspent.value
-                leftBalanceBN = leftBalanceBN.sub(unspent.valueBN)
+                leftBalanceBN.diff(unspent.value)
                 if (unspent.value > this._minOutputToBeDusted) {
                     someUnusedOutput = unspent
                 }
             }
         }
 
-        const inputsMinusWishedBN = inputsBalanceBN.sub(wishedAmountBN)
-        if (inputsMinusWishedBN.toString() - this._minChangeThreshold > 0) {
+        const inputsMinusWishedBN = new BlocksoftBN(inputsBalanceBN).diff(wishedAmountBN)
+        if (inputsMinusWishedBN.get() - this._minChangeThreshold > 0) {
             if (autocalculateFee) {
                 let size = 192
                 let sizeMsg = ' basic 192'
@@ -164,8 +188,7 @@ export default class DogeTxInputsOutputs {
                 if (fee < this._minFee) {
                     fee = this._minFee
                 }
-                const changeBN = inputsBalanceBN.sub(wishedAmountBN).sub(BlocksoftUtils.toBigNumber(fee))
-                const change = changeBN.toString()
+                const change = Math.ceil(BlocksoftUtils.diff(BlocksoftUtils.diff(inputsBalanceBN, wishedAmountBN), fee) * 1)
                 if (change - this._minChangeThreshold > 0) {
                     if (addressForChange === outputs[0].to) {
                         if (outputs[0].amount * 1 > 0) {
@@ -179,8 +202,8 @@ export default class DogeTxInputsOutputs {
                             if (someUnusedOutput) {
                                 outputs.push({
                                     'to': addressForChange,
-                                    'amount': someUnusedOutput.valueBN.add(changeBN).toString(),
-                                    'type' : 'change'
+                                    'amount': BlocksoftUtils.add(someUnusedOutput.value, change),
+                                    'type': 'change'
                                 })
                                 inputs.push(someUnusedOutput)
                                 msg += ' change will be ' + change + ' + one input ' + someUnusedOutput.value
@@ -191,7 +214,7 @@ export default class DogeTxInputsOutputs {
                             outputs.push({
                                 'to': addressForChange,
                                 'amount': change,
-                                'type' : 'change'
+                                'type': 'change'
                             })
                             msg += ' change will be ' + change
                         }
@@ -204,12 +227,11 @@ export default class DogeTxInputsOutputs {
                 }
                 if (change < 0 && subtitle.indexOf('tryToFind') === -1) {
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxInputsOutputs.getInputsOutputs ' + subtitle + ' 1.1 with leftChange ' + change + ' ' + msg)
-                    data.feeForTx = {feeForTx : fee, feeForByte : feeForByte}
-                    return this._tryToFind(data, size, precached, 'autofee 1.1 => fixed tryToFind' )
+                    data.feeForTx = { feeForTx: fee, feeForByte: feeForByte }
+                    return this._tryToFind(data, size, precached, 'autofee 1.1 => fixed tryToFind')
                 }
             } else {
-                const changeBN = inputsMinusWishedBN
-                const change = inputsMinusWishedBN.toString()
+                const change = inputsMinusWishedBN.get()
                 if (addressForChange === outputs[0].to) {
                     if (outputs[0].amount * 1 > 0) {
                         outputs[0].amount = outputs[0].amount * 1 + change * 1
@@ -222,8 +244,8 @@ export default class DogeTxInputsOutputs {
                         if (someUnusedOutput) {
                             outputs.push({
                                 'to': addressForChange,
-                                'amount': someUnusedOutput.valueBN.add(changeBN).toString(),
-                                'type' : 'change'
+                                'amount': BlocksoftUtils.add(someUnusedOutput.value, change),
+                                'type': 'change'
                             })
                             inputs.push(someUnusedOutput)
                             msg += ' change will be ' + change + ' + one input ' + someUnusedOutput.value
@@ -234,16 +256,17 @@ export default class DogeTxInputsOutputs {
                         outputs.push({
                             'to': addressForChange,
                             'amount': change,
-                            'type' : 'change'
+                            'type': 'change'
                         })
                         msg += ' change will be ' + change
                     }
                 }
-                msg += ' fee [1.2] will be ' + data.feeForTx.feeForTx
+                msg += ' fee [1.2] will be ' + feeForTx
+                data.feeForTx.feeForTx = feeForTx
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxInputsOutputs.getInputsOutputs ' + subtitle + ' 1.2 with change ' + change + ' ' + msg)
             }
         } else {
-            msg += ' no outputs for change as ' + inputsMinusWishedBN.toString() + '-' + this._minChangeThreshold + ' = ' + (inputsMinusWishedBN.toString() - this._minChangeThreshold) + ' // '
+            msg += ' no outputs for change as ' + inputsMinusWishedBN.get() + '-' + this._minChangeThreshold + ' = ' + (inputsMinusWishedBN.get() - this._minChangeThreshold) + ' // '
             if (autocalculateFee) {
                 let size = 192
                 let sizeMsg = ' basic 192'
@@ -256,28 +279,29 @@ export default class DogeTxInputsOutputs {
                 msg += ' fee [2.1] will be ' + fee
                 msg += ' feeAutoCalculate: size' + sizeMsg + ' = ' + size + ' bytes = ' + fee + ' satoshi '
                 if (data.addressForChange === 'TRANSFER_ALL') {
-                    outputs[0].amount = inputsBalanceBN.sub(BlocksoftUtils.toBigNumber(fee)).toString()
-                    correctedAmountFrom = outputs[0].amount
+                    outputs[0].amount = Math.ceil(BlocksoftUtils.diff(inputsBalanceBN, fee) * 1)
                     msg += ' TRANSFER_ALL '
                 } else {
-                    const leftAfterFee = inputsMinusWishedBN.sub(BlocksoftUtils.toBigNumber(fee))
-                    if (leftAfterFee < 0 && subtitle.indexOf('tryToFind') === -1) {
+                    const leftAfterFee = Math.ceil(BlocksoftUtils.diff(inputsMinusWishedBN, fee) * 1)
+                    if (leftAfterFee * 1 < 0 && subtitle.indexOf('tryToFind') === -1) {
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.1 with leftAfterAutoFee ' + leftAfterFee + ' ' + msg)
-                        data.feeForTx = {feeForTx : fee, feeForByte : feeForByte}
-                        return this._tryToFind(data, size, precached, 'autofee 2.1 => fixed tryToFind' )
+                        data.feeForTx = { feeForTx: fee, feeForByte: feeForByte }
+                        return this._tryToFind(data, size, precached, 'autofee 2.1 => fixed tryToFind')
                     } else {
                         msg += ' 2.1 leftAfterAutoFee ' + leftAfterFee
                     }
                 }
             } else {
-                const change = inputsMinusWishedBN.toString()
-                if (change < 0) {
+                const change = inputsMinusWishedBN.get()
+                if (change * 1 < 0) {
                     if (data.addressForChange === 'TRANSFER_ALL') {
-                        outputs[0].amount = inputsBalanceBN.sub(BlocksoftUtils.toBigNumber(data.feeForTx.feeForTx)).toString()
+                        outputs[0].amount = Math.ceil(BlocksoftUtils.diff(inputsBalanceBN, data.feeForTx.feeForTx) * 1)
                     } else {
                         let canWait = 0
                         let e
-                        if (useOnlyConfirmed) canWait = unconfirmedBN.add(inputsMinusWishedBN).toString()
+                        if (useOnlyConfirmed) {
+                            canWait = BlocksoftUtils.add(unconfirmedBN, inputsMinusWishedBN)
+                        }
                         if (canWait > 0) {
                             BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.2.1 with leftSmallChange ' + change + ' ' + msg + ' canWait ' + canWait)
                             if (data.walletUseUnconfirmed) {
@@ -286,9 +310,9 @@ export default class DogeTxInputsOutputs {
                                 e = new Error('SERVER_RESPONSE_WAIT_FOR_CONFIRM')
                             }
                         } else {
-                            BlocksoftCryptoLog.log('fee', data.feeForTx.feeForTx)
+                            BlocksoftCryptoLog.log('fee', { fromData: data.feeForTx.feeForTx, current: feeForTx })
                             BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxInputsOutputs.getInputsOutputs ' + subtitle + ' 2.2.2 with leftSmallChange ' + change + ' ' + msg + ' canWait ' + canWait)
-                            if (data.feeForTx.feeForTx >= -1 * change) {
+                            if (feeForTx >= -1 * change) {
                                 e = new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
                             } else {
                                 e = new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
@@ -300,15 +324,18 @@ export default class DogeTxInputsOutputs {
                     }
                 }
                 msg += ' fees [2.2] will be ' + change
-                msg += ' fees started ' + data.feeForTx.feeForTx
+                msg += ' fees started ' + feeForTx
+                data.feeForTx.feeForTx = feeForTx
             }
         }
 
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxInputsOutputs.getInputsOutputs ' + subtitle + ' ' + msg)
         if (outputs[0].amount < 0) {
             let canWait = 0
-            if (useOnlyConfirmed) canWait = unconfirmedBN.toString()
-            if (canWait > 0) {
+            if (useOnlyConfirmed) {
+                canWait = unconfirmedBN.get()
+            }
+            if (canWait * 1 > 0) {
                 if (data.walletUseUnconfirmed) {
                     return this.getInputsOutputs(data, precached, 'unconfirmed 3')
                 } else {
@@ -325,9 +352,11 @@ export default class DogeTxInputsOutputs {
         return {
             inputs,
             outputs,
-            correctedAmountFrom,
+            correctedAmountFrom: outputs[0].amount * 1 + plus,
             feeForByte,
-            msg
+            msg,
+            multiAddress,
+            multiply
         }
     }
 

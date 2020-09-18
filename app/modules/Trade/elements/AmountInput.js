@@ -85,7 +85,7 @@ class AmountInput extends Component {
 
             const { selectedCryptocurrency, selectedPaymentSystem } = this.props
 
-            const { address, currencyCode, derivationPath } = this.props.selectedAccount
+            const { address, currencyCode, derivationPath, accountJson } = this.props.selectedAccount
             errorCurrencyCode = currencyCode
 
             const { addressForEstimateSellAll } = this.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
@@ -93,11 +93,19 @@ class AmountInput extends Component {
 
             const derivationPathTmp = derivationPath.replace(/quote/g, '\'')
 
-            Log.log('Exchange.MainDataScreen.handleSellAll start')
+            Log.log('TRADE/AmountInput.handleSellAll start')
 
-            const tmp = await BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).getBalance()
-            const balanceRaw = tmp ? BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) : 0 // to think show this as option or no
-            Log.log(`AmountInput.handleSellAll balance ${currencyCode} ${address} data`, tmp)
+            const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash)).getBalance()
+            let balanceRaw = 0
+            if (tmp) {
+                try {
+                    balanceRaw = BlocksoftUtils.add(tmp.balance, tmp.unconfirmed)
+                } catch (e) {
+                    Log.err('TRADE/AmountInput.handleSellAll BlocksoftUtils.add error ' + e.message + ' tmp: ' + JSON.stringify(tmp))
+                    balanceRaw = tmp.balance
+                }
+            }
+            Log.log(`TRADE/AmountInput.handleSellAll balance ${currencyCode} ${address} data`, tmp)
 
             const fees = await (
                 BlocksoftTransfer
@@ -108,22 +116,30 @@ class AmountInput extends Component {
                     .setAddressTo(tmpAddressForEstimate)
                     .setAmount(balanceRaw)
                     .setTransferAll(true)
+                    .setAdditional(accountJson)
             ).getFeeRate(true)
 
+            const fee = fees[fees.length - 1]
             const current = await (
                 BlocksoftTransfer
                     .setCurrencyCode(currencyCode)
                     .setAddressFrom(address)
                     .setAddressTo(tmpAddressForEstimate)
-                    .setFee(fees[fees.length - 1])
+                    .setFee(fee)
+                    .setTransferAll(true)
+                    .setAdditional(accountJson)
             ).getTransferAllBalance()
 
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(current)
+            const amount = BlocksoftPrettyNumbers.makeCut(BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(current), 14).justCutted
 
             this.setState({
                 moneyType: 'CRYPTO'
             }, () => {
+                try {
                 this.amountInput.handleInput(amount.toString())
+                } catch (e) {
+                    throw new Error(e.message + ' in Trade.AmountInput.handleSellAll', {current, amount, fee})
+                }
             })
 
             this.setState({
@@ -185,7 +201,7 @@ class AmountInput extends Component {
         if (moneyType === 'FIAT') {
             if (selectedFiatCurrency.cc !== selectedExchangeWay[extendsFields.fieldForFiatCurrency]) {
 
-                let amountEquivalentInCryptoTmp = this.prepareAndCallEquivalentFunction(selectedExchangeWay, this.getEquivalentSide(), amount * selectedFiatCurrency.rate)
+                const amountEquivalentInCryptoTmp = this.prepareAndCallEquivalentFunction(selectedExchangeWay, this.getEquivalentSide(), amount * selectedFiatCurrency.rate)
 
                 this.setState({
                     amountEquivalentInFiatToApi: (amount * selectedFiatCurrency.rate).toString(),
@@ -205,7 +221,7 @@ class AmountInput extends Component {
                 })
             } else {
 
-                let amountEquivalentInCryptoTmp = this.prepareAndCallEquivalentFunction(selectedExchangeWay, this.getEquivalentSide(), amount)
+                const amountEquivalentInCryptoTmp = this.prepareAndCallEquivalentFunction(selectedExchangeWay, this.getEquivalentSide(), amount)
 
                 this.setState({
                     amountEquivalentInFiatToApi: (amount).toString(),
@@ -220,7 +236,7 @@ class AmountInput extends Component {
             }
         } else {
             if (selectedFiatCurrency.cc !== selectedExchangeWay[extendsFields.fieldForFiatCurrency]) {
-
+                const amountEquivalentInCryptoTmp = this.prepareAndCallEquivalentFunction(selectedExchangeWay, this.getEquivalentSide(), amount)
 
                 this.setState({
                     amountEquivalentInFiatToApi: (amountEquivalentInCryptoTmp[`${extendsFields.fieldForWayId.toLowerCase()}Amount`]).toString(),
@@ -234,7 +250,7 @@ class AmountInput extends Component {
                 })
             } else {
 
-                let amountEquivalentInCryptoTmp = this.prepareAndCallEquivalentFunction(selectedExchangeWay, this.getEquivalentSide(), amount)
+                const amountEquivalentInCryptoTmp = this.prepareAndCallEquivalentFunction(selectedExchangeWay, this.getEquivalentSide(), amount)
 
                 this.setState({
                     amountEquivalentInFiatToApi: (amountEquivalentInCryptoTmp[`${extendsFields.fieldForWayId.toLowerCase()}Amount`]).toString(),
@@ -313,9 +329,12 @@ class AmountInput extends Component {
         }
 
         // =  && tradeType === 'BUY' ?  : strings('tradeScreen.youGet')
-        const selectedEquivalent = moneyType === 'CRYPTO' ? 1 * (+amountEquivalentInFiat).toFixed(2) : 1 * (+amountEquivalentInCrypto).toFixed(8)
+        let selectedEquivalent = moneyType === 'CRYPTO' ? 1 * (+amountEquivalentInFiat).toFixed(2) : 1 * (+amountEquivalentInCrypto).toFixed(8)
         const symbol = moneyType === 'CRYPTO' ? selectedFiatCurrency.cc : selectedCryptocurrency.currencySymbol
 
+        if (selectedEquivalent.toString() === 'NaN') {
+            selectedEquivalent = 0
+        }
         return `${bottomLeftText} ${selectedEquivalent} ${symbol}`
     }
 
@@ -354,42 +373,42 @@ class AmountInput extends Component {
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={styles.container__to}/>
                 </TouchableWithoutFeedback>
-                <View style={[styles.container, { height: typeof selectedFiatTemplate.value != 'undefined' && !selectedFiatTemplate.value ? 'auto' : 0 }]}>
-                    {
-                        typeof selectedFiatTemplate.value != 'undefined' && !selectedFiatTemplate.value ?
-                            <View>
-                                <Text style={[styles.titleText, { textAlign: 'center' }]}>{strings('tradeScreen.selectSum')}</Text>
-                                <Input
-                                    ref={component => this.amountInput = component}
-                                    id={'amountInput'}
-                                    name={this.renderInputText()}
-                                    type={'EMPTY'}
-                                    decimals={10}
-                                    additional={'NUMBER'}
-                                    tapText={moneyType === 'FIAT' ? selectedFiatCurrency.cc : selectedCryptocurrency.currencySymbol}
-                                    tapCallback={this.handleSetMoneyType}
-                                    tapWrapperStyles={{ top: 6, right: 20, padding: 15, backgroundColor: '#fff' }}
-                                    tapContentStyles={{ padding: 0, paddingHorizontal: 8, height: 30, borderRadius: 6, backgroundColor: '#F9F2FF' }}
-                                    tapTextStyles={{ fontSize: 12 }}
-                                    style={{ marginRight: 2, marginLeft: 30, paddingRight: 108 }}
-                                    bottomLeftText={bottomLeftText}
-                                    keyboardType={'numeric'}
-                                    onFocus={onFocus}
-                                    onSubmitEditing={this.onSubmitEditing}
-                                    action={exchangeStore.tradeType === 'SELL' ? {
-                                        title: strings('exchange.mainData.sellAll').toUpperCase(),
-                                        callback: () => {
-                                            this.setState({
-                                                useAllFunds: !useAllFunds
-                                            })
-                                            this.handleSellAll()
-                                        }
-                                    } : undefined}
-                                    actionBtnStyles={{ top: -10, paddingTop: 10, paddingHorizontal: 30, marginRight: 5 }}
-                                    disabled={false}
-                                    callback={(value) => this.amountInputCallback(value, true)}/>
-                            </View> : null
-                    }
+                <View style={[styles.container, { height: 'auto' }]}>
+
+
+                    <View>
+                        <Text style={[styles.titleText, { textAlign: 'center' }]}>{strings('tradeScreen.selectSum')}</Text>
+                        <Input
+                            ref={component => this.amountInput = component}
+                            id={'amountInput'}
+                            name={this.renderInputText()}
+                            type={'EMPTY'}
+                            decimals={10}
+                            additional={'NUMBER'}
+                            tapText={moneyType === 'FIAT' ? selectedFiatCurrency.cc : selectedCryptocurrency.currencySymbol}
+                            tapCallback={this.handleSetMoneyType}
+                            tapWrapperStyles={{ top: 6, right: 20, padding: 15, backgroundColor: '#fff' }}
+                            tapContentStyles={{ padding: 0, paddingHorizontal: 8, height: 30, borderRadius: 6, backgroundColor: '#F9F2FF' }}
+                            tapTextStyles={{ fontSize: 12 }}
+                            style={{ marginRight: 2, marginLeft: 30, paddingRight: 108 }}
+                            bottomLeftText={bottomLeftText}
+                            keyboardType={'numeric'}
+                            onFocus={onFocus}
+                            onSubmitEditing={this.onSubmitEditing}
+                            action={exchangeStore.tradeType === 'SELL' ? {
+                                title: strings('exchange.mainData.sellAll').toUpperCase(),
+                                callback: () => {
+                                    this.setState({
+                                        useAllFunds: !useAllFunds
+                                    })
+                                    this.handleSellAll()
+                                }
+                            } : undefined}
+                            actionBtnStyles={{ top: -10, paddingTop: 10, paddingHorizontal: 30, marginRight: 5 }}
+                            disabled={false}
+                            callback={(value) => this.amountInputCallback(value, true)}/>
+                    </View>
+
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                         <View style={styles.container__bot}/>
                     </TouchableWithoutFeedback>

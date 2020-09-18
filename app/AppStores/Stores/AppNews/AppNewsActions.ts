@@ -3,27 +3,31 @@ import Log from '../../../services/Log/Log'
 
 import { AppNewsItem } from './Types'
 import AppNotification from '../../../services/AppNotification/AppNotification'
-import UpdateAppNewsDaemon from '../../../services/Daemon/elements/UpdateAppNewsDaemon'
-import AppNews from '../../DataSource/AppNews/AppNews'
-
+import UpdateAppNewsListDaemon from '../../../daemons/view/UpdateAppNewsListDaemon'
+import config from '../../../config/config'
 
 export default {
-    displayPush: async (): Promise<void> => {
-        const appNewsList: Array<AppNewsItem> | false = await appNewsDS.getAppNews({ newsNeedPopup: 1})
+    displayPush: async (appNewsList: Array<AppNewsItem>): Promise<void> => {
 
         if(!appNewsList) return
 
-        let unique = {}
+        const unique = {}
         for(const news of appNewsList) {
             try {
-                let key = typeof news.newsJson.transactionHash !== 'undefined' ? news.newsJson.transactionHash : ''
+                const key = typeof news.newsJson.transactionHash !== 'undefined' ? news.newsJson.transactionHash : news.newsJson
+                // @ts-ignore
                 if (typeof unique[key] === 'undefined') {
+                    // @ts-ignore
                     unique[key] = 1
                     await new AppNotification(news).displayPush()
                 } else {
-                    AppNews.setNewsNeedPopup(news.id, 0)
+                    await appNewsDS.setNewsNeedPopup(news.id, 0)
                 }
+
             } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('ACT/AppNewsActions error ' + e.message)
+                }
                 Log.daemon('ACT/AppNewsActions error ' + e.message)
             }
         }
@@ -31,6 +35,7 @@ export default {
 
     clearAll: async() : Promise<void> => {
         await appNewsDS.clear()
-        await UpdateAppNewsDaemon.updateAppNewsDaemon()
+        // @ts-ignore
+        await UpdateAppNewsListDaemon.forceDaemonUpdate()
     }
 }

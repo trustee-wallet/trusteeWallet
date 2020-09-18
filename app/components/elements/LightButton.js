@@ -5,6 +5,7 @@ import React, { Component } from 'react'
 import { Text, View } from 'react-native'
 import { BoxShadow } from 'react-native-shadow'
 import rnTextSize from 'react-native-text-size'
+import OldPhone from '../../services/UI/OldPhone/OldPhone'
 
 
 export default class LightButton extends Component {
@@ -34,6 +35,17 @@ export default class LightButton extends Component {
 
         const { width } = this.state
         const { title, Icon, iconStyle, disabled } = this.props
+
+        if (OldPhone.isOldPhone()) {
+            return <View setting={{ ...styles.button__wrapper, width: +width + 32, backgroundColor: '#f5f5f5' }}>
+                <View style={[styles.button__content, { backgroundColor: '#f5f5f5' }]}>
+                    <Icon style={{ ...styles.button_icon, ...iconStyle }}/>
+                    <Text style={[styles.button__text, { color: '#404040' }]}>
+                        {title}
+                    </Text>
+                </View>
+            </View>
+        }
 
         return (
             <BoxShadow setting={{ ...styles.button__wrapper, width: +width + 32, backgroundColor: '#f5f5f5' }}>

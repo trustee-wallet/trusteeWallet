@@ -13,7 +13,9 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import NavStore from '../../components/navigation/NavStore'
 
 import { strings } from '../../services/i18n'
-import Cashback from '../../services/Cashback/Cashback'
+
+import CashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
+
 import Toast from '../../services/UI/Toast/Toast'
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 
@@ -30,7 +32,7 @@ class AboutScreen extends Component {
         Toast.setMessage(strings('settings.config', { config: 'DEV' })).show()
         config.exchange.mode = 'DEV'
         config.cashback.mode = 'DEV'
-        Cashback.reInit()
+        CashBackSettings.init()
         Vibration.vibrate(100)
     }
 

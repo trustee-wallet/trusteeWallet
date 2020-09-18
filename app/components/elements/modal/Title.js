@@ -8,7 +8,7 @@ export default class Title extends Component {
     render() {
         return (
             <View style={this.props.style}>
-                <Text style={[styles.text, this.props.textStyles]}>{this.props.children}</Text>
+                <Text style={[styles.text, this.props.textStyles, this.props.style]}>{this.props.children}</Text>
             </View>
         )
     }

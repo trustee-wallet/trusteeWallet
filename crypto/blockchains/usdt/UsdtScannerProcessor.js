@@ -4,9 +4,10 @@
 import BlocksoftUtils from '../../common/BlocksoftUtils'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
-import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
+import BlocksoftDispatcher from '../BlocksoftDispatcher'
 
 const USDT_API = 'https://microscanners.trustee.deals/usdt' // https://microscanners.trustee.deals/usdt/1CmAoxq8BTxANRDwheJUpaGy6ngWNYX85
+const USDT_API_MASS = 'https://microscanners.trustee.deals/balanceMass'
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {}
@@ -22,6 +23,12 @@ export default class UsdtScannerProcessor {
      * @private
      */
     _blocksToConfirm = 1
+
+    /**
+     * @type {boolean|BtcScannerProcessor}
+     * @private
+     */
+    _btcProvider = false
 
 
     /**
@@ -54,9 +61,31 @@ export default class UsdtScannerProcessor {
         CACHE[address] = {
             data: res.data.data,
             time: now,
-            provider : 'usdt'
+            provider: 'usdt'
         }
         return CACHE[address]
+    }
+
+    /**
+     * @param address
+     * @returns {Promise<boolean|*>}
+     * @private
+     */
+    async _getMass(address) {
+        const now = new Date().getTime()
+
+        // mass ask
+        const link = `${USDT_API_MASS}`
+        const res = await BlocksoftAxios.postWithoutBraking(link, address)
+
+        if (!res || typeof res.data === 'undefined') {
+            return false
+        }
+        return {
+            data: res.data.data,
+            time: now,
+            provider: 'usdt'
+        }
     }
 
     /**
@@ -64,14 +93,19 @@ export default class UsdtScannerProcessor {
      * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalanceBlockchain(address) {
+        if (typeof address === 'object') {
+            BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance started MASS ' + JSON.stringify(address))
+            return this._getMass(address)
+        }
+
         BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance started ' + address)
-        const tmp  = await this._get(address)
+        const tmp = await this._get(address)
         if (typeof tmp === 'undefined' || !tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.balance === 'undefined' || !tmp.data.balance) {
             return false
         }
         const balance = tmp.data.balance
         BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance finished', address + ' => ' + balance)
-        return {balance, provider: tmp.provider, time: tmp.time, unconfirmed : 0, balanceScanBlock : tmp.data.block}
+        return { balance, provider: tmp.provider, time: tmp.time, unconfirmed: 0, balanceScanBlock: tmp.data.block }
     }
 
     /**
@@ -80,8 +114,8 @@ export default class UsdtScannerProcessor {
      */
     async getTransactionsBlockchain(address) {
         address = address.trim()
-        BlocksoftCryptoLog.log('UsdtScannerProcessor.getTransactions started', address)
-        let tmp  = await this._get(address)
+        BlocksoftCryptoLog.log('UsdtScannerProcessor.getTransactions started ' + address)
+        let tmp = await this._get(address)
         if (!tmp || typeof tmp.data === 'undefined' || !tmp.data) {
             return []
         }
@@ -98,13 +132,36 @@ export default class UsdtScannerProcessor {
             this.lastBlock = tmp.block
         }
         let tx
+        const unique = {}
         if (tmp.txs && tmp.txs.length > 0) {
             for (tx of tmp.txs) {
                 const transaction = await this._unifyTransaction(address, tx)
                 transactions.push(transaction)
+                unique[transaction.transactionHash] = 1
             }
         }
-        BlocksoftCryptoLog.log('UsdtScannerProcessor.getTransactions finished', address)
+        let btcTxs = false
+        try {
+            if (!this._btcProvider) {
+                this._btcProvider = await (new BlocksoftDispatcher()).getScannerProcessor({ currencyCode: 'BTC' })
+            }
+            btcTxs = await this._btcProvider.getTransactionsBlockchain(address)
+        } catch (e) {
+
+        }
+        if (btcTxs && btcTxs.length > 0) {
+            for (tx of btcTxs) {
+                if (typeof unique[tx.transactionHash] !== 'undefined') continue
+                transactions.push({
+                    blockConfirmations: tx.blockConfirmations,
+                    blockTime: tx.blockTime,
+                    transactionDirection: tx.transactionDirection,
+                    transactionHash: tx.transactionHash,
+                    transactionStatus: tx.transactionStatus
+                })
+            }
+        }
+        BlocksoftCryptoLog.log('UsdtScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
         return transactions
     }
 
@@ -143,13 +200,13 @@ export default class UsdtScannerProcessor {
             blockNumber: +transaction.block_number,
             blockTime: transaction.created_time,
             blockConfirmations: confirmations,
-            transactionDirection: (address.toLowerCase() === transaction.from_address.toLowerCase()) ? 'outcome' :  'income',
+            transactionDirection: (address.toLowerCase() === transaction.from_address.toLowerCase()) ? 'outcome' : 'income',
             addressFrom: transaction.from_address === address ? '' : transaction.from_address,
             addressTo: transaction.to_address === address ? '' : transaction.to_address,
             addressAmount: transaction.amount,
             transactionStatus: (transaction.custom_valid.toString() === '1' && transaction._removed.toString() === '0') ? transactionStatus : 'fail',
-            transactionFee : BlocksoftUtils.toSatoshi(transaction.fee),
-            inputValue : transaction.custom_type
+            transactionFee: BlocksoftUtils.toSatoshi(transaction.fee),
+            inputValue: transaction.custom_type
         }
         if (tx.addressTo === '' && tx.addressFrom === '') {
             tx.transactionDirection = 'self'

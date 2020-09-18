@@ -51,21 +51,21 @@ const walletActions = {
 
         await walletActions.setAvailableWallets()
 
-        await setSelectedWallet()
+        await setSelectedWallet('ACT/Wallet setUse')
     },
 
     setWalletBackedUpStatus: async (walletHash) => {
 
         await walletDS.updateWallet({ walletHash, walletIsBackedUp: 1 })
 
-        await App.refreshWalletsStore()
+        await App.refreshWalletsStore({firstTimeCall : false, source : 'ACT/Wallet setWalletBackedUpStatus '})
 
     },
 
     getNewWalletName: async () => {
         const wallets = await walletDS.getWallets()
 
-        if(!wallets.length) {
+        if (typeof wallets === 'undefined' || !wallets || !wallets.length) {
             return 'TRUSTEE WALLET'
         }
 

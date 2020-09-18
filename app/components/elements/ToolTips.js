@@ -38,7 +38,9 @@ class ToolTips extends Component {
                     toggleTooltip: () => {
                         typeof prevToggleCallback !== 'undefined' ? prevToggleCallback() : null
                         setTimeout(() => {
-                            this.refTooltip.toggleTooltip()
+                            if (typeof this.refTooltip !== 'undefined') {
+                                this.refTooltip.toggleTooltip()
+                            }
                         }, 300)
                         typeof nextToggleCallback !== 'undefined' ? nextCallback() : null
                     },
@@ -51,7 +53,9 @@ class ToolTips extends Component {
         setTimeout(() => {
             try {
                 if(typeof showAfterRender !== 'undefined' && showAfterRender){
-                    this.refTooltip.toggleTooltip()
+                    if (typeof this.refTooltip !== 'undefined') {
+                        this.refTooltip.toggleTooltip()
+                    }
                 }
             } catch (e) {}
         }, 300)
@@ -64,7 +68,7 @@ class ToolTips extends Component {
         let nextBtnCallback
         let nextBtnText
         let isSkip
-
+        
         switch (type) {
             case 'HOME_SCREEN_BUY_BTN_TIP':
                 nextBtnText = strings(`tooltips.buttons.next`)

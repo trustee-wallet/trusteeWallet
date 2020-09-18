@@ -16,8 +16,7 @@ import sendStoreReducer from './Stores/Send/SendStore'
 import settingsReducer from './Stores/Settings/SettingsStore'
 import lockScreenReducer from './Stores/LockScreen/LockScreenStore'
 import navigationReducer from './Stores/Navigation/NavigationStore'
-import authStoreReducer from './Stores/Auth/AuthStore'
-import cashBackStoreReducer from './Stores/CashBack/CashBackStore.ts'
+import cashBackStoreReducer from './Stores/CashBack/CashBackStore'
 import toolTipsReducer from './Stores/ToolTips/ToolTipsStore'
 import appNewsStoreReducer from './Stores/AppNews/AppNewsReducer'
 import homeScreenStoreReducer from './Stores/HomeScreen/HomeScreenStore'
@@ -36,7 +35,6 @@ export default combineReducers({
     settingsStore: settingsReducer,
     lockScreenStore: lockScreenReducer,
     navigationStore: navigationReducer,
-    authStore: authStoreReducer,
     cashBackStore: cashBackStoreReducer,
     toolTipsStore: toolTipsReducer,
     appNewsStore : appNewsStoreReducer,

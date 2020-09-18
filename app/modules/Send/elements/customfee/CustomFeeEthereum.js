@@ -12,6 +12,7 @@ import GasPriceAmountInput from '../../../../components/elements/Input'
 import GasLimitAmountInput from '../../../../components/elements/Input'
 
 import BlocksoftUtils from '../../../../../crypto/common/BlocksoftUtils'
+import { showModal } from '../../../../appstores/Stores/Modal/ModalActions'
 
 
 class CustomFee extends Component {
@@ -24,12 +25,14 @@ class CustomFee extends Component {
     }
 
     componentDidMount() {
-        this.gasPriceInput.handleInput(BlocksoftUtils.toGwei(this.props.fee.gasPrice), false)
-        this.gasLimitInput.handleInput(this.props.fee.gasLimit.toString(), false)
+        if (typeof this.props.fee.gasLimit !== 'undefined') {
+            this.gasPriceInput.handleInput(BlocksoftUtils.toGwei(this.props.fee.gasPrice), false)
+            this.gasLimitInput.handleInput(this.props.fee.gasLimit.toString(), false)
+        }
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
-        if (Object.keys(nextProps.fee).length !== 0 && (JSON.stringify(nextProps.fee) !== JSON.stringify(this.props.fee))) {
+        if (Object.keys(nextProps.fee).length !== 0 && (JSON.stringify(nextProps.fee) !== JSON.stringify(this.props.fee)) && typeof nextProps.fee.gasLimit !== 'undefined') {
             this.gasPriceInput.handleInput(BlocksoftUtils.toGwei(nextProps.fee.gasPrice), false)
             this.gasLimitInput.handleInput(nextProps.fee.gasLimit.toString(), false)
         }
@@ -44,10 +47,22 @@ class CustomFee extends Component {
             && gasLimitInputValidate.status === 'success'
             && gasPriceInputValidate.value !== 0
             && gasLimitInputValidate.value !== 0) {
-
-            return {
-                gasPrice: BlocksoftUtils.toWei(gasPriceInputValidate.value, 'gwei'),
-                gasLimit: gasLimitInputValidate.value
+            if (gasLimitInputValidate.value < 21000) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.exchange.sorry'),
+                    description: strings('send.errors.SERVER_RESPONSE_MIN_GAS_ETH')
+                })
+                throw new Error('minimal gas limit not ok ' + gasLimitInputValidate.value)
+            } else {
+                const res = {
+                    gasPrice: BlocksoftUtils.toWei(gasPriceInputValidate.value, 'gwei'),
+                    gasLimit: gasLimitInputValidate.value,
+                    isCustomFee: true
+                }
+                res.feeForTx = BlocksoftUtils.mul(res.gasLimit, res.gasPrice)
+                return res
             }
         }
     }

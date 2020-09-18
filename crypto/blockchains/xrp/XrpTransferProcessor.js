@@ -50,10 +50,11 @@ export default class XrpTransferProcessor {
      * @param {string} data.addressTo
      * @param {string} data.addressForChange
      * @param {string|int} data.amount
-     * @param {number|boolean} alreadyEstimatedGas
+     * @param {number|boolean} additionalData.isPrecount
+     * @param {number|boolean} additionalData.estimatedGas
      * @returns {Promise<boolean>}
      */
-    async getFeeRate(data, alreadyEstimatedGas = false) {
+    async getFeeRate(data, additionalData) {
 
         if (data.amount <= 0) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' XrpTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' skipped as zero amount')
@@ -79,6 +80,9 @@ export default class XrpTransferProcessor {
     }
 
     async checkTransferHasError(data) {
+        if (data.amount && data.amount*1 > 20) {
+            return false
+        }
         /**
          * @type {XrpScannerProcessor}
          */
@@ -87,7 +91,7 @@ export default class XrpTransferProcessor {
         if (balanceRaw && typeof balanceRaw.balance !== 'undefined' && balanceRaw.balance > 20) {
             return false
         } else {
-            return { code: 'XRP' }
+            return { code: 'XRP', address: data.addressTo }
         }
     }
 
@@ -130,7 +134,7 @@ export default class XrpTransferProcessor {
 
         const current = this._amountPrep(balanceRaw - fee - 20)
 
-        BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + current)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + 'TransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + current)
         return current
     }
 

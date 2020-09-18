@@ -22,7 +22,7 @@ export default class NavigationTitleComponent extends Component {
 
         ExchangeActions.handleSetTradeType(tradeTypeObj)
 
-        this.props.handleSetTradeWay(tradeTypeObj.tradeType, "STATE_CACHE")
+        this.props.handleSetRevert(tradeTypeObj.tradeType, "STATE_CACHE")
     }
 
     render() {

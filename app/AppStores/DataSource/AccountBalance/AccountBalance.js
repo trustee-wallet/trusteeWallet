@@ -19,8 +19,6 @@ export default {
      */
     updateAccountBalance: async (data, account) => {
 
-        Log.daemon('DS/AccountBalance updateAccountBalance called')
-
         const dbInterface = new DBInterface()
         if (data.updateObj.balanceScanLog.length > 1000) {
             data.updateObj.balanceScanLog = data.updateObj.balanceScanLog.substr(0, 1000)
@@ -30,7 +28,6 @@ export default {
         if (find.length > 0) {
             data.key = {accountId : account.id}
             await dbInterface.setTableName(tableName).setUpdateData(data).update()
-            Log.daemon( 'DS/AccountBalance updateAccountBalance finished' )
         } else {
             data.updateObj.accountId = account.id
             data.updateObj.status = 0
@@ -47,14 +44,9 @@ export default {
      * @return {Promise<void>}
      */
     insertAccountBalance: async (data) => {
-
-        Log.daemon('DS/AccountBalance insertAccountBalance called')
-
         const dbInterface = new DBInterface()
 
         await dbInterface.setTableName(tableName).setInsertData(data).insert()
-
-        Log.daemon('DS/AccountBalance insertAccountBalance finished')
 
     }
 }

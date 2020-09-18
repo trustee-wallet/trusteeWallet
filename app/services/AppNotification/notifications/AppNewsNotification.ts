@@ -4,7 +4,6 @@ import PrepareNotification from './BasicNotification'
 
 import Log from '../../Log/Log'
 
-
 export default new class AppNewsNotification extends PrepareNotification {
     constructor() {
         super()
@@ -16,9 +15,9 @@ export default new class AppNewsNotification extends PrepareNotification {
             const openedNotification = await this.getOpenedNotification()
         } catch (e) {
             if (e.message === 'Empty firebase.notification') {
-                Log.daemon('AppNewsNotification prepareOpenedNotification notice ' + e.message)
+                Log.log('PUSH AppNewsNotification prepareOpenedNotification notice ' + e.message)
             } else {
-                Log.errDaemon('AppNewsNotification prepareOpenedNotification error ' + e.message)
+                Log.err('PUSH AppNewsNotification prepareOpenedNotification error ' + e.message)
             }
         }
     }

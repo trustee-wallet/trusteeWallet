@@ -6,7 +6,7 @@ import BlocksoftAxios from '../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import EthBasic from './basic/EthBasic'
 import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
-import { add } from 'react-native-reanimated'
+import BlocksoftBN from '../../common/BlocksoftBN'
 
 const CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL = {}
 const CACHE_GET_MAX_BLOCK = { max_block_number: 0, confirmations: 0 }
@@ -41,18 +41,26 @@ export default class EthScannerProcessor extends EthBasic {
         address = address.toLowerCase()
 
         this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Scanner._get')
-
+        if (typeof this._trezorServer === 'undefined') {
+            BlocksoftCryptoLog.err('EthScannerProcessor._get empty trezorServer')
+            throw new Error('EthScannerProcessor._get empty trezorServer')
+        }
         const now = new Date().getTime()
         if (typeof CACHE[address] !== 'undefined' && (now - CACHE[address].time < CACHE_VALID_TIME)) {
             CACHE[address].provider = 'trezor-cache'
             return CACHE[address]
         }
+
         let link = this._trezorServer + '/api/v2/address/' + address + '?details=txs'
         let res = await BlocksoftAxios.getWithoutBraking(link)
 
         if (!res || !res.data) {
             BlocksoftExternalSettings.setTrezorServerInvalid('ETH_TREZOR_SERVER', this._trezorServer)
             this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Scanner._get')
+            if (typeof this._trezorServer === 'undefined') {
+                BlocksoftCryptoLog.err('EthScannerProcessor._get empty trezorServer2')
+                throw new Error('EthScannerProcessor._get empty trezorServer2')
+            }
             link = this._trezorServer + '/api/v2/address/' + address + '?details=txs'
             res = await BlocksoftAxios.getWithoutBraking(link)
             if (!res || !res.data) {
@@ -67,7 +75,7 @@ export default class EthScannerProcessor extends EthBasic {
         const data = res.data
         data.totalTokens = 0
         data.formattedTokens = {}
-        BlocksoftCryptoLog.log('EthScannerProcessor._get ERC20 tokens ' + JSON.stringify(data.tokens))
+        // BlocksoftCryptoLog.log('EthScannerProcessor._get ERC20 tokens ' + JSON.stringify(data.tokens))
         if (typeof data.tokens !== 'undefined') {
             let token
             for (token of data.tokens) {
@@ -176,6 +184,62 @@ export default class EthScannerProcessor extends EthBasic {
 
 
     /**
+     * @param {string} txHash
+     * @return {Promise<[UnifiedTransaction]>}
+     */
+    async getTransactionBlockchain(txHash) {
+        BlocksoftCryptoLog.log('EthScannerProcessor.getTransaction started ' + txHash)
+
+        if (!this._trezorServer) {
+            return false
+        }
+
+        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Scanner.getTransaction')
+        if (typeof this._trezorServer === 'undefined') {
+            BlocksoftCryptoLog.err('EthScannerProcessor.getTransaction empty trezorServer')
+            throw new Error('EthScannerProcessor.getTransaction empty trezorServer')
+        }
+
+        let link = this._trezorServer + '/api/v2/tx-specific/' + txHash
+        let res = await BlocksoftAxios.getWithoutBraking(link)
+
+        if (!res || !res.data) {
+            BlocksoftExternalSettings.setTrezorServerInvalid('ETH_TREZOR_SERVER', this._trezorServer)
+            this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Scanner._get')
+            if (typeof this._trezorServer === 'undefined') {
+                BlocksoftCryptoLog.err('EthScannerProcessor._get empty trezorServer2')
+                throw new Error('EthScannerProcessor._get empty trezorServer2')
+            }
+            link = this._trezorServer + '/api/v2/tx-specific/' + txHash
+            res = await BlocksoftAxios.getWithoutBraking(link)
+            if (!res || !res.data) {
+                BlocksoftExternalSettings.setTrezorServerInvalid('ETH_TREZOR_SERVER', this._trezorServer)
+                return false
+            }
+        }
+
+        if (typeof res.data.tx === 'undefined') {
+            return false
+        }
+
+        let tx
+        if (typeof res.data.receipt === 'undefined') {
+            tx = { ...{status : 0x0}, ...res.data.tx }
+        } else {
+            tx = { ...res.data.receipt, ...res.data.tx }
+        }
+
+        tx.nonce = BlocksoftUtils.hexToDecimal(tx.nonce)
+        tx.status = BlocksoftUtils.hexToDecimal(tx.status)
+        tx.gas = BlocksoftUtils.hexToDecimal(tx.gas)
+        tx.gasPrice = BlocksoftUtils.hexToDecimal(tx.gasPrice)
+        tx.gasUsed = BlocksoftUtils.hexToDecimal(tx.gasUsed)
+        console.log('res', tx)
+        return tx
+    }
+
+
+    /**
      * @param {string} address
      * @param {*} result[]
      * @param {boolean} isInternal
@@ -188,9 +252,16 @@ export default class EthScannerProcessor extends EthBasic {
             return []
         }
         let tx
+        let unique = {}
         for (tx of result) {
             try {
+
                 let transaction
+                const key = typeof tx.hash !== 'undefined' ? tx.hash : tx.txid
+                if (typeof unique[key] !== 'undefined') {
+                    continue
+                }
+                unique[key] = 1
                 if (isTrezor) {
                     transaction = await this._unifyTransactionTrezor(address, tx, isInternal)
                 } else {
@@ -200,7 +271,7 @@ export default class EthScannerProcessor extends EthBasic {
                     transactions.push(transaction)
                 }
             } catch (e) {
-                BlocksoftCryptoLog.error('EthScannerProcessor._unifyTransaction error ' + e.message + ' on ' + (isTrezor ? 'Trezor' : 'usual') + ' tx ' + JSON.stringify(tx))
+                BlocksoftCryptoLog.err('EthScannerProcessor._unifyTransaction error ' + e.message + ' on ' + (isTrezor ? 'Trezor' : 'usual') + ' tx ' + JSON.stringify(tx))
             }
         }
         return transactions
@@ -263,7 +334,7 @@ export default class EthScannerProcessor extends EthBasic {
             }
             let tmp
             let found = false
-            amount = BlocksoftUtils.toBigNumber(0)
+            amount = new BlocksoftBN(0)
             for (tmp of transaction.tokenTransfers) {
                 if (tmp.token.toLowerCase() === this._tokenAddress.toLowerCase()) {
                     tmp.from = tmp.from.toLowerCase()
@@ -273,7 +344,7 @@ export default class EthScannerProcessor extends EthBasic {
                     }
                     if (tmp.to === address) {
                         fromAddress = tmp.from
-                        amount = amount.add(BlocksoftUtils.toBigNumber(tmp.value))
+                        amount.add(tmp.value)
                     } else if (tmp.from === address) {
                         if (this._delegateAddress && tmp.to.toLowerCase() === this._delegateAddress.toLowerCase()) {
                             fee = tmp.value
@@ -281,13 +352,13 @@ export default class EthScannerProcessor extends EthBasic {
                             feeCurrencyCode = this._settings.currencyCode || 'DELEGATE'
                         } else {
                             toAddress = tmp.to
-                            amount = amount.sub(BlocksoftUtils.toBigNumber(tmp.value))
+                            amount.diff(tmp.value)
                         }
                     }
                     found = true
                 }
             }
-            amount = amount.toString()
+            amount = amount.get()
             if (amount < 0) {
                 amount = -1 * amount
                 fromAddress = address
@@ -460,7 +531,7 @@ export default class EthScannerProcessor extends EthBasic {
                 transactionIndex: transaction.transactionIndex
             }
             tx.transactionJson = additional
-            tx.transactionFee = BlocksoftUtils.toBigNumber(transaction.gasUsed).mul(BlocksoftUtils.toBigNumber(transaction.gasPrice)).toString()
+            tx.transactionFee = BlocksoftUtils.mul(transaction.gasUsed, transaction.gasPrice).toString()
         }
         if (tx.addressFrom === '' && tx.addressTo === '') {
             tx.transactionDirection = 'self'

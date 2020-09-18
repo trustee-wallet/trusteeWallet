@@ -1,6 +1,5 @@
 /**
- * @version 0.9
- * @misha - is it actually used? seems not translated
+ * @version 0.10
  */
 import React, { Component } from 'react'
 import { View, StyleSheet } from 'react-native'
@@ -17,7 +16,7 @@ import { hideModal, showModal } from '../../../appstores/Stores/Modal/ModalActio
 import { strings } from '../../../services/i18n'
 import { setQRConfig, setQRValue } from '../../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import NavStore from '../../navigation/NavStore'
-import AddressInput from '../../elements/Input'
+import Log from '../../../services/Log/Log'
 
 export default class InputModal extends Component {
 
@@ -30,36 +29,39 @@ export default class InputModal extends Component {
     }
 
     handleSubmit = async () => {
-        const { cashBackLink } = this.props.data
+        const { cashbackLink } = this.props.data
 
         const { callback } = this.props
 
-        const res = await this.cashBackInput.handleValidate()
+        const res = await this.cashbackInput.handleValidate()
 
-        if (cashBackLink === res.value) {
+        if (cashbackLink === res.value) {
+            Log.log('CashbackLink inputParent for ' + cashbackLink + ' is equal ' + res.value)
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
                 title: strings('modal.exchange.sorry'),
-                description: strings('modal.cashBackLinkEqualModal.description')
+                description: strings('modal.cashbackLinkEqualModal.description', {link : res.value})
             })
             return
         }
 
+        Log.log('CashbackLink inputParent for  ' + cashbackLink + ' res ', res)
+
         if (res.status === 'success') {
-            let cashBackParentToken = res.value.split('/')
-            cashBackParentToken = cashBackParentToken[cashBackParentToken.length - 1]
+            let cashbackParentToken = res.value.split('/')
+            cashbackParentToken = cashbackParentToken[cashbackParentToken.length - 1]
             if (callback) {
-                callback(cashBackParentToken)
+                callback(cashbackParentToken)
             }
         }
     }
 
 
     componentDidMount() {
-        const { qrCashBackLink } = this.props.data
-        if (qrCashBackLink && this.cashBackInput) {
-            this.cashBackInput.handleInput(qrCashBackLink)
+        const { qrCashbackLink } = this.props.data
+        if (qrCashbackLink && this.cashbackInput) {
+            this.cashbackInput.handleInput(qrCashbackLink)
         }
     }
 
@@ -78,30 +80,29 @@ export default class InputModal extends Component {
                     </Text>
                     <View style={{ height: 60, paddingHorizontal: 20 }}>
                         <Input
-                            ref={ref => this.cashBackInput = ref}
-                            id={'cashBackInput'}
-                            name={strings('cashback.inputParentCashBackLink')}
+                            ref={ref => this.cashbackInput = ref}
+                            id={'cashbackInput'}
+                            name={strings('cashback.inputParentCashbackLink')}
                             paste={true}
                             qr={true}
                             qrCallback={() => {
                                 setQRConfig({
-                                    type: 'CASH_BACK_LINK'
+                                    type: 'CASHBACK_LINK'
                                 })
                                 this.handleHide()
                                 NavStore.goNext('QRCodeScannerScreen')
                             }}
                             isCapitalize={false}
-                            type={'CASH_BACK_LINK'}/>
+                            type={'CASHBACK_LINK'}/>
                     </View>
-                    <ButtonWrap>
-                        <Button onPress={() => this.handleHide()}>
+                    <View>
+                        <Button onPress={() => this.handleHide()} color={'#864DD9'} shadow={true} style={{ marginTop: 17 }}>
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
-                        <Line/>
-                        <Button onPress={() => this.handleSubmit()}>
+                        <Button onPress={() => this.handleSubmit()} style={{ backgroundColor: 'none', color: '#864DD9' }}>
                             {strings('walletCreate.submit')}
                         </Button>
-                    </ButtonWrap>
+                    </View>
                 </View>
             </Layout>
         )

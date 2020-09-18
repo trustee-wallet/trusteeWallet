@@ -6,10 +6,14 @@ import store from '../../store'
 import transactionDS from '../DataSource/Transaction/Transaction'
 
 import Log from '../../services/Log/Log'
+
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import prettyNumber from '../../services/UI/PrettyNumber/PrettyNumber'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import UpdateAccountsDaemon from '../../services/Daemon/elements/UpdateAccountsDaemon'
+import DaemonCache from '../../daemons/DaemonCache'
+import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
+import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
+import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
+import config from '../../config/config'
 
 const { dispatch } = store
 
@@ -27,29 +31,33 @@ const transactionActions = {
      * @param {string} transaction.addressAmount
      * @param {string} transaction.transactionFee
      * @param {string} transaction.transactionOfTrusteeWallet
+     * @param {string} transaction.transactionJson
+     * @param {string} transaction.transactionJson.bseOrderID
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
      */
     saveTransaction: async (transaction) => {
 
         try {
-
             await transactionDS.saveTransaction(transaction)
 
             const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
 
-            console.log('transaction added', transaction.accountId, transaction.transactionHash, transaction)
             if (transaction.accountId === account.accountId) {
 
                 const prepared = { ...account }
                 const tx = JSON.parse(JSON.stringify(transaction))
                 transactionActions.preformat(tx, account)
-                prepared.transactions.unshift(tx)
+                prepared.transactions[tx.transactionHash] = tx
 
                 dispatch({
                     type: 'SET_SELECTED_ACCOUNT',
                     selectedAccount: prepared
                 })
+            }
+
+            if (typeof transaction.transactionJson.bseOrderID !== 'undefined') {
+                UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true })
             }
 
         } catch (e) {
@@ -75,15 +83,14 @@ const transactionActions = {
 
             const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
 
-            console.log('transaction updated', transaction)
-
             if (transaction.accountId === account.accountId) {
 
                 const prepared = { ...account }
 
-                let tx
-                for (tx of prepared.transactions) {
-                    if (tx.transactionHash === transaction.transactionUpdateHash) {
+                let transactionHash
+                for (transactionHash in prepared.transactions) {
+                    if (transactionHash === transaction.transactionUpdateHash) {
+                        const tx = prepared.transactions[transactionHash]
                         tx.transactionHash = transaction.transactionUpdateHash
                         tx.transactionsOtherHashes = transaction.transactionsOtherHashes
                         tx.transactionJson = transaction.transactionJson
@@ -97,17 +104,28 @@ const transactionActions = {
             }
 
         } catch (e) {
-
+            if (config.debug.appErrors) {
+                console.log('ACT/Transaction updateTransaction ' + e.message)
+                console.log(e)
+            }
             Log.err('ACT/Transaction updateTransaction ' + e.message)
         }
     },
 
     preformat(transaction, account) {
         if (!transaction) return
-        // @misha review plz all like this to add in one place like here and unified
+
+        let addressAmountSatoshi = false
+
         try {
-            let tmp = 1 * BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(transaction.addressAmount)
-            transaction.addressAmountPretty = parseFloat(tmp.toFixed(5)) === 0 ? parseFloat(tmp.toFixed(10)) : parseFloat(tmp.toFixed(5))
+            transaction.addressAmountNorm = BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(transaction.addressAmount)
+            const res = BlocksoftPrettyNumbers.makeCut(transaction.addressAmountNorm)
+            if (res.isSatoshi) {
+                addressAmountSatoshi = '...' + transaction.addressAmount
+                transaction.addressAmountPretty = res.cutted
+            } else {
+                transaction.addressAmountPretty = res.separated
+            }
         } catch (e) {
             e.message += ' on addressAmountPretty'
             throw e
@@ -116,15 +134,19 @@ const transactionActions = {
         transaction.basicCurrencySymbol = account.basicCurrencySymbol
         transaction.basicAmountPretty = 0
 
-        try {
-            if (account.basicCurrencyRate === 1) {
-                transaction.basicAmountPretty = prettyNumber(transaction.addressAmountPretty, 2)
-            } else {
-                transaction.basicAmountPretty = prettyNumber(transaction.addressAmountPretty * account.basicCurrencyRate, 2)
+        transaction.addressAmountSatoshi = addressAmountSatoshi
+        if (!addressAmountSatoshi) {
+            try {
+                if (account.basicCurrencyRate === 1) {
+                    transaction.basicAmountNorm = transaction.addressAmountNorm
+                } else {
+                    transaction.basicAmountNorm = transaction.addressAmountNorm * account.basicCurrencyRate
+                }
+                transaction.basicAmountPretty = BlocksoftPrettyNumbers.makeCut(transaction.basicAmountNorm, 2).separated
+            } catch (e) {
+                e.message += ' on basicAmountPretty ' + transaction.addressAmountPretty
+                throw e
             }
-        } catch (e) {
-            e.message += ' on basicAmountPretty'
-            throw e
         }
 
         transaction.basicFeePretty = 0
@@ -135,12 +157,14 @@ const transactionActions = {
             feeCurrencyCode = transaction.transactionFeeCurrencyCode
             const extendedFeesCode = BlocksoftDict.getCurrencyAllSettings(transaction.transactionFeeCurrencyCode)
             transaction.feesCurrencySymbol = extendedFeesCode.currencySymbol || extendedFeesCode.currencyCode
-            feeRates = UpdateAccountsDaemon.getCacheRates(transaction.transactionFeeCurrencyCode)
+            feeRates = DaemonCache.getCacheRates(transaction.transactionFeeCurrencyCode)
         } else {
             feeCurrencyCode = account.feesCurrencyCode
             transaction.feesCurrencySymbol = account.feesCurrencySymbol
             feeRates = account.feeRates
         }
+
+        let getBasic = true
 
         if (typeof transaction.transactionFee === 'undefined') {
             Log.log('ACT/Transaction preformat bad transactionFee ' + JSON.stringify(transaction.transactionFee))
@@ -151,8 +175,20 @@ const transactionActions = {
             transaction.transactionFeePretty = 0
         } else {
             try {
-                const tmp = 1 * BlocksoftPrettyNumbers.setCurrencyCode(feeCurrencyCode).makePretty(transaction.transactionFee)
-                transaction.transactionFeePretty = parseFloat(tmp.toFixed(5)) === 0 ? parseFloat(tmp.toFixed(10)) : parseFloat(tmp.toFixed(5))
+                const tmp = BlocksoftPrettyNumbers.setCurrencyCode(feeCurrencyCode).makePretty(transaction.transactionFee)
+                const tmp2 = BlocksoftUtils.fromENumber(tmp*1)
+                const res = BlocksoftPrettyNumbers.makeCut(tmp2, 7)
+                if (res.isSatoshi) {
+                    getBasic = false
+                    transaction.transactionFeePretty =  '...' + transaction.transactionFee
+                    if (transaction.feesCurrencySymbol === 'ETH') {
+                        transaction.feesCurrencySymbol = 'wei'
+                    } else if (transaction.feesCurrencySymbol === 'BTC' || transaction.feesCurrencySymbol === 'BTC') {
+                        transaction.feesCurrencySymbol = 'sat'
+                    }
+                } else {
+                    transaction.transactionFeePretty = res.cutted
+                }
             } catch (e) {
                 e.message += ' on transactionFeePretty with tx ' + JSON.stringify(transaction)
                 throw e
@@ -166,9 +202,11 @@ const transactionActions = {
             if (feeRates) {
                 transaction.basicFeeCurrencySymbol = feeRates.basicCurrencySymbol
                 if (feeRates.basicCurrencyRate === 1) {
-                    transaction.basicFeePretty = prettyNumber(transaction.transactionFeePretty, 2)
+                    transaction.basicFeePretty = BlocksoftPrettyNumbers.makeCut(transaction.transactionFeePretty, 2).justCutted
+                } else if (getBasic) {
+                    transaction.basicFeePretty = BlocksoftPrettyNumbers.makeCut(BlocksoftUtils.mul(transaction.transactionFeePretty, feeRates.basicCurrencyRate), 2).justCutted
                 } else {
-                    transaction.basicFeePretty = prettyNumber(transaction.transactionFeePretty * feeRates.basicCurrencyRate, 2)
+                    transaction.basicFeePretty = '0'
                 }
             }
         } catch (e) {
@@ -192,7 +230,7 @@ const transactionActions = {
             transactions = await transactionDS.getTransactions({
                 walletHash: account.walletHash,
                 currencyCode: account.currencyCode
-            })
+            }, 'ACT/Transaction getTransactions')
 
         } catch (e) {
 

@@ -76,7 +76,7 @@ export default new class SendActions {
                 if (initialURL.indexOf('trustee.page.link') === -1) {
                     const { selectedWallet } = store.getState().mainStore
                     const { cryptoCurrencies } = store.getState().currencyStore
-                    const { accounts: accountList } = store.getState().accountStore
+                    const { accountList } = store.getState().accountStore
                     const currency = _.find(cryptoCurrencies, { currencyCode: res.data.currencyCode })
                     const account = accountList[selectedWallet.walletHash][currency.currencyCode]
 

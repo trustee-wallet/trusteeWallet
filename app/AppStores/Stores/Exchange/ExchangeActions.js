@@ -1,8 +1,9 @@
 /**
  * @version 0.9
- * @misha maybe other actions also make as classes ? to unify
  */
 import store from '../../../store'
+
+import AsyncStorage from '@react-native-community/async-storage'
 
 import Api from '../../../services/Api/Api'
 import Log from '../../../services/Log/Log'
@@ -24,7 +25,39 @@ export default new class ExchangeActions {
             const res = await Api.getExchangeData()
 
             if (res && typeof res.data !== 'undefined' && typeof res.data.exchangeWays !== 'undefined') {
-                const tradeApiConfig = res.data.exchangeWays.buy.concat(res.data.exchangeWays.sell)
+                const tradeApiConfig = []
+                let item
+                for (item of res.data.exchangeWays.sell) {
+                    if (item.outCurrencyCode === 'RUB' && item.outPaywayCode === 'VISA_MC_P2P' && item.supportedCountries[0] === '643' && item.supportedCountries.length === 1) { // Russia
+                        item.hasDouble = true
+                        tradeApiConfig.push(item)
+                        tradeApiConfig.push({
+                            ...item,
+                            supportedCountries: ['398'],
+                            id: 'ksu_' + item.id,
+                            supportedByCurrency: true,
+                            paymentTitleSuffix: 'KZ'
+                        })
+                    } else {
+                        tradeApiConfig.push(item)
+                    }
+
+                }
+                for (item of res.data.exchangeWays.buy) {
+                    if (item.inCurrencyCode === 'RUB' && item.inPaywayCode === 'VISA_MC_P2P' && item.supportedCountries[0] === '643' && item.supportedCountries.length === 1) { // Russia
+                        item.hasDouble = true
+                        tradeApiConfig.push(item)
+                        tradeApiConfig.push({
+                            ...item,
+                            supportedCountries: ['398'],
+                            id: 'ksu_' + item.id,
+                            supportedByCurrency: true,
+                            paymentTitleSuffix: 'KZ'
+                        })
+                    } else {
+                        tradeApiConfig.push(item)
+                    }
+                }
                 const exchangeApiConfig = res.data.exchangeWays.exchange
 
                 dispatch({
@@ -34,6 +67,19 @@ export default new class ExchangeActions {
                 dispatch({
                     type: 'SET_EXCHANGE_API_CONFIG',
                     exchangeApiConfig
+                })
+                dispatch( {
+                    type: 'SET_TRADE_PREV',
+                    tradePrevCC: await AsyncStorage.getItem('trade.selectedCryptocurrency.currencyCode'),
+                    tradePrevFC: await AsyncStorage.getItem('trade.selectedFiatCurrency.cc'),
+                    tradePrevID: await AsyncStorage.getItem('trade.selectedPaymentSystem.id'),
+                    tradePrevCardID: await AsyncStorage.getItem('trade.selectedCard.index'),
+                    exchangeInCC: await AsyncStorage.getItem('exchange.selectedInCurrency.currencyCode'),
+                    exchangeOutCC: await AsyncStorage.getItem('exchange.selectedOutCurrency.currencyCode'),
+                    advEmail :  await AsyncStorage.getItem('trade.advEmail'),
+                    advWallet :  await AsyncStorage.getItem('trade.advWallet'),
+                    perfectWallet :  await AsyncStorage.getItem('trade.perfectWallet'),
+                    payeerWallet :  await AsyncStorage.getItem('trade.payeerWallet'),
                 })
             }
         } catch (e) {

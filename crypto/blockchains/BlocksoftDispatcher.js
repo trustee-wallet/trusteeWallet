@@ -45,6 +45,10 @@ import XrpScannerProcessor from './xrp/XrpScannerProcessor'
 
 import XvgScannerProcessor from './xvg/XvgScannerProcessor'
 
+import XmrAddressProcessor from './xmr/XmrAddressProcessor'
+import XmrScannerProcessor from './xmr/XmrScannerProcessor'
+import XmrSecretsProcessor from './xmr/XmrSecretsProcessor'
+
 export default class BlocksoftDispatcher {
 
     _settings = {}
@@ -87,6 +91,8 @@ export default class BlocksoftDispatcher {
                 return new TrxAddressProcessor()
             case 'XRP':
                 return new XrpAddressProcessor()
+            case 'XMR':
+                return new XmrAddressProcessor()
             default:
                 throw new Error('Unknown addressProcessor ' + currencyDictSettings.addressProcessor)
         }
@@ -100,15 +106,15 @@ export default class BlocksoftDispatcher {
         const currencyDictSettings = this._getSettings(currencyCode)
         switch (currencyDictSettings.scannerProcessor) {
             case 'BCH':
-                return new BchScannerProcessor()
+                return new BchScannerProcessor(currencyDictSettings)
             case 'BSV':
-                return new BsvScannerProcessor()
+                return new BsvScannerProcessor(currencyDictSettings)
             case 'BTC': case 'BTC_SEGWIT': case 'BTC_SEGWIT_COMPATIBLE':
                 return new BtcScannerProcessor(currencyDictSettings)
             case 'BTC_LIGHT' :
-                return new BtcLightScannerProcessor()
+                return new BtcLightScannerProcessor(currencyDictSettings)
             case 'BTC_TEST':
-                return new BtcTestScannerProcessor()
+                return new BtcTestScannerProcessor(currencyDictSettings)
             case 'BTG':
                 return new BtgScannerProcessor(currencyDictSettings)
             case 'DOGE':
@@ -126,11 +132,13 @@ export default class BlocksoftDispatcher {
             case 'TRX':
                 return new TrxScannerProcessor(currencyDictSettings)
             case 'USDT':
-                return new UsdtScannerProcessor()
+                return new UsdtScannerProcessor(currencyDictSettings)
             case 'XRP':
-                return new XrpScannerProcessor()
+                return new XrpScannerProcessor(currencyDictSettings)
             case 'XVG':
-                return new XvgScannerProcessor()
+                return new XvgScannerProcessor(currencyDictSettings)
+            case 'XMR':
+                return new XmrScannerProcessor(currencyDictSettings)
             default:
                 throw new Error('Unknown scannerProcessor ' + currencyDictSettings.scannerProcessor)
         }
@@ -158,8 +166,20 @@ export default class BlocksoftDispatcher {
     getInvoiceProcessor(currencyCode) {
         const currencyDictSettings = this._getSettings(currencyCode)
         if (currencyDictSettings.currencyCode !== 'BTC_LIGHT') {
-            throw new Error('Unknown transferProcessor ' + currencyDictSettings.transferProcessor)
+            throw new Error('Unknown invoiceProcessor ' + currencyDictSettings.currencyCode)
         }
         return new BtcLightInvoiceProcessor()
+    }
+
+    /**
+     * @param {string} currencyCode
+     * @return {XmrSecretsProcessor}
+     */
+    getSecretsProcessor(currencyCode) {
+        const currencyDictSettings = this._getSettings(currencyCode)
+        if (currencyDictSettings.currencyCode !== 'XMR') {
+            throw new Error('Unknown invoiceProcessor ' + currencyDictSettings.currencyCode)
+        }
+        return new XmrSecretsProcessor()
     }
 }

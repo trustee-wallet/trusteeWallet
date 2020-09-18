@@ -126,6 +126,9 @@ export class BlocksoftKeysStorage {
         if (this._serviceWalletsCounter > 0) {
             for (let i = 1; i <= this._serviceWalletsCounter; i++) {
                 const wallet = await this._getKeyValue('wallet_' + i)
+                if (!wallet.priv || wallet.priv === '' || wallet.priv === 'new wallet is not generated - please reinstall and restart' || wallet.priv === wallet.pub) {
+                    continue
+                }
                 this._serviceWallets[wallet.pub] = wallet.priv
                 this._serviceWallets[i - 1] = wallet.priv
                 this.publicWallets.push(wallet.pub)
@@ -138,11 +141,12 @@ export class BlocksoftKeysStorage {
         const tmp = await this._getKeyValue('selected_hash')
         if (tmp && tmp.pub) {
             this.publicSelectedWallet = tmp.pub
+            BlocksoftCryptoLog.log('BlocksoftKeysStorage publicSelectedWallet by selected_hash', this.publicSelectedWallet)
         }
         if (!this.publicSelectedWallet || !this._serviceWallets[this.publicSelectedWallet]) {
             this.publicSelectedWallet = firstWallet
+            BlocksoftCryptoLog.log('BlocksoftKeysStorage publicSelectedWallet by recheck', this.publicSelectedWallet)
         }
-
         BlocksoftCryptoLog.log('BlocksoftKeysStorage init ended')
         this._serviceWasInited = true
     }
@@ -183,16 +187,47 @@ export class BlocksoftKeysStorage {
     /**
      * public select wallet hash
      * @param {string} hashOrId
+     * @param {string} source
      * @return {boolean}
      */
-    async setSelectedWallet(hashOrId) {
+    async setSelectedWallet(hashOrId, source) {
         await this._init()
-        if (!this._serviceWallets[hashOrId]) {
-            throw new Error('undefined wallet with hash ' + hashOrId)
+        const msg = 'BlocksoftKeysStorage setSelectedWallet ' + source + ' ' + hashOrId + ' '
+
+        if (!hashOrId || typeof hashOrId === 'undefined' || hashOrId === 'first') {
+            if (typeof this.publicWallets[0] === 'undefined') {
+                this._serviceWasInited = false
+                await this._init()
+                if (typeof this.publicWallets[0] === 'undefined') {
+                    throw new Error('System empty second try on setSelectedWallet')
+                }
+            }
+            if (!this.publicSelectedWallet || typeof this.publicSelectedWallet === 'undefined') {
+                hashOrId = this.publicWallets[0]
+                this.publicSelectedWallet = hashOrId
+            } else {
+                // do nothing
+            }
+        } else {
+            if (!this._serviceWallets[hashOrId]) {
+                throw new Error('undefined wallet with hash ' + hashOrId)
+            }
+            this.publicSelectedWallet = hashOrId
+            await this._setKeyValue('selected_hash', hashOrId)
         }
-        this.publicSelectedWallet = hashOrId
-        await this._setKeyValue('selected_hash', hashOrId)
-        return true
+        BlocksoftCryptoLog.log(msg + this.publicSelectedWallet)
+        return this.publicSelectedWallet
+    }
+
+    getFirstWallet() {
+        if (!this.publicSelectedWallet || typeof  this.publicSelectedWallet === 'undefined') {
+            this.setSelectedWallet('first')
+            if (!this.publicWallets || typeof this.publicWallets[0] === 'undefined') {
+                return false
+            }
+            return this.publicWallets[0]
+        }
+        return this.publicSelectedWallet
     }
 
     /**

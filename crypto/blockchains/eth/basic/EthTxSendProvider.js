@@ -3,6 +3,7 @@
  */
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
+import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 
 const CACHE_NONCE = {}
 const LAST_SEND = {}
@@ -39,7 +40,7 @@ export default class EthTxSendProvider {
             } catch(e) {
                 if (steps > 3) {
                     throw e
-                } else if (e.message.indexOf('underpriced') !== -1 || e.message.indexOf('known transaction') !== -1 || e.message.indexOf('nonce') !== -1) {
+                } else if (e.message.indexOf('underpriced') !== -1 || e.message.indexOf('known transaction') !== -1  || e.message.indexOf('already known') !== -1 || e.message.indexOf('nonce') !== -1) {
                     BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx will CHANGE_NONCE step ' + steps + ' tx.nonce ' + (JSON.stringify(tx.nonce) || 'default') + ' int ' + currentNonce + ' ' + e.message)
                     steps++
                     if (currentNonce === false) {
@@ -98,15 +99,21 @@ export default class EthTxSendProvider {
         if (data.privateKey.substr(0,2) !== '0x') {
             data.privateKey = '0x' + data.privateKey
         }
+        if (tx.value < 0 || tx.value.toString().substr(0,1) === '-') {
+            throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
+        }
         // noinspection JSUnresolvedVariable
         const signData = await this._web3.eth.accounts.signTransaction(tx, data.privateKey)
         BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx signed', tx)
+        BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx hex', signData.rawTransaction)
+
 
         return new Promise((resolve, reject) => {
             BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx promise started')
             // noinspection JSUnresolvedVariable
             return this._web3.eth.sendSignedTransaction(signData.rawTransaction)
                 .on('transactionHash', (hash) => {
+                    MarketingEvent.logOnlyRealTime('eth_tx_raw_success' + hash, signData.rawTransaction)
                     resolve({ hash })
                 })
                 .on('error', (e) => {

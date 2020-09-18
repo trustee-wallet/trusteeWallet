@@ -8,12 +8,21 @@ const tableName = 'card'
 
 export default {
 
-    getCards: async () => {
-
+    /**
+     * @param {string} params.isPending
+     * @returns {Promise<boolean|*>}
+     */
+    getCards: async (params) => {
         const dbInterface = new DBInterface()
-
-        Log.log('DS/Card getCards called')
-
+        let where = []
+        if (params && typeof params.isPending !== 'undefined' && params.isPending) {
+            where.push(`card_verification_json LIKE '%pending%`)
+        }
+        if (where.length > 0) {
+            where = ' WHERE ' + where.join(' AND ')
+        } else {
+            where = ''
+        }
         const res = await dbInterface.setQueryString(`
                 SELECT 
                 id,
@@ -25,48 +34,32 @@ export default {
                 country_code AS countryCode,
                 currency AS currency,
                 card_verification_json AS cardVerificationJson
-                FROM card`).query()
-
-        Log.log('DS/Card getCards finished')
-
-        if (!res || typeof res.array === 'undefined' || res.array.length === 0) return false
+                FROM card ${where}`).query()
+        if (!res || typeof res.array === 'undefined' || res.array.length === 0) {
+            Log.log('DS/Card finished as empty')
+            return false
+        }
         return res.array
     },
 
     updateCard: async (data) => {
-
-        Log.log('DS/Card updateCard called')
-
         const dbInterface = new DBInterface()
-
         if (typeof data.updateObj.cardVerificationJson !== 'undefined') {
             data.updateObj.cardVerificationJson = dbInterface.escapeString(data.updateObj.cardVerificationJson)
         }
-
         await dbInterface.setTableName(tableName).setUpdateData(data).update()
-
-        Log.log('DS/Card finished')
+        Log.log('DS/Card updateCard finished')
     },
 
     saveCard: async (data) => {
-
-        Log.log('DS/Card saveCard called')
-
         const dbInterface = new DBInterface()
-
         await dbInterface.setTableName(tableName).setInsertData(data).insert()
-
         Log.log('DS/Card saveCard finished')
-
     },
 
     deleteCard: async (cardID) => {
-        Log.log('DS/Card deleteCard called')
-
         const dbInterface = new DBInterface()
-
         await dbInterface.setQueryString(`DELETE FROM card WHERE id=${cardID}`).query()
-
         Log.log('DS/Card deleteCard finished')
     }
 }

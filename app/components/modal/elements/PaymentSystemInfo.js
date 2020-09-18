@@ -13,6 +13,7 @@ import GradientView from '../../../components/elements/GradientView'
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 import { strings } from '../../../services/i18n'
+import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
 
 
 export class PaymentSystemInfo extends Component {
@@ -42,8 +43,10 @@ export class PaymentSystemInfo extends Component {
             title = strings('tradeScreen.rusCardOnly')
         } else if (paymentSystem.paymentSystem === 'QIWI') {
             title = strings('tradeScreen.QIWI')
+        } else if (paymentSystem.paymentSystem === 'ADVCASH') {
+            title = strings('tradeScreen.ADVCASH') + ' ' + (BlocksoftExternalSettings.getStatic('ADV_PERCENT')) + '%'
         } else if (paymentSystem.paymentSystem === 'MOBILE_PHONE') {
-            title = strings(`tradeScreen.UAH`) + ' ' + strings('tradeScreen.only')
+            title = strings(`tradeScreen.UAH`)
         } else {
             title = strings('tradeScreen.worldwideOnly')
         }
@@ -56,6 +59,8 @@ export class PaymentSystemInfo extends Component {
     initLimits = () => {
 
         const { selectedFiatCurrency, paymentSystem } = this.props.data.data
+
+        if (typeof paymentSystem === 'undefined' || !paymentSystem) return false
 
         this.setState({
             min: Math.floor(paymentSystem.limits.min) + ' ' + paymentSystem.currencyCode,

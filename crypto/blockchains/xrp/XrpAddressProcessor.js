@@ -6,6 +6,11 @@ const bitcoin = require('bitcoinjs-lib')
 const basex = require('base-x')
 
 export default class XrpAddressProcessor {
+
+    async setBasicRoot(root) {
+
+    }
+
     /**
      * @param {string|Buffer} privateKey
      * @param {*} data
