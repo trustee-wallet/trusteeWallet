@@ -524,14 +524,14 @@ class SMSCodeScreen extends Component {
             })
 
             if (CACHE_IS_ERROR || url.includes('365cash.co/currency/failure')) {
-                await api.setExchangeStatus(this.state.id, 'fail')
+                api.setExchangeStatus(this.state.id, 'fail')
                 NavStore.goNext('FinishErrorScreen', {
                     finishScreenParam: {
                         selectedCryptoCurrency: this.props.exchange.selectedCryptocurrency
                     }
                 })
             } else {
-                await api.setExchangeStatus(this.state.id, 'success')
+                api.setExchangeStatus(this.state.id, 'success')
                 NavStore.goNext('FinishScreen', {
                     finishScreenParam: {
                         selectedCryptoCurrency: this.props.exchange.selectedCryptocurrency
