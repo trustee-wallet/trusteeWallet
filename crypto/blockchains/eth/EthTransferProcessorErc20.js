@@ -30,10 +30,11 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
      * @param {string} data.addressFrom
      * @param {string} data.addressTo
      * @param {string} data.amount
-     * @param {number|boolean} alreadyEstimatedGas
+     * @param {number|boolean} additionalData.isPrecount
+     * @param {number|boolean} additionalData.estimatedGas
      * @return {Promise<{feeForTx, langMsg, gasPrice, gasLimit}[]>}
      */
-    async getFeeRate(data, alreadyEstimatedGas = false) {
+    async getFeeRate(data, additionalData) {
         const tmpData = { ...data }
         const logData = {
             tokenAddress: this._tokenAddress,
@@ -103,7 +104,7 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor {
             this.checkError(e, logData)
         }
         BlocksoftCryptoLog.log('EthTxProcessorErc20 estimateGas finished', estimatedGas)
-        return super.getFeeRate(tmpData, estimatedGas)
+        return super.getFeeRate(tmpData, {... additionalData, ... {estimatedGas}})
     }
 
     async checkTransferHasError(data) {

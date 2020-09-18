@@ -247,13 +247,16 @@ export default class BtcTransferProcessor {
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
      * @param {number} data.nSequence
+     * @param {number|boolean} additionalData.isPrecount
      */
-    async getFeeRate(data, isPrecount = false) {
+    async getFeeRate(data, additionalData) {
         this._initProviders()
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate ' + data.addressFrom + ' started')
 
         const txHash = data.txHash || false
         const now = new Date().getTime()
+
+        const isPrecount =  typeof additionalData.isPrecount  === 'undefined' || additionalData.isPrecount === false
 
         if (data.addressForChange === 'TRANSFER_ALL' && this._prefees.unspentsKey === this._feeKeyFromData(data) && now - this._prefees.time < CACHE_ALL_VALID_TIME) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTransferProcessor.getFeeRate ' + data.addressFrom + ' precached', this._prefees)

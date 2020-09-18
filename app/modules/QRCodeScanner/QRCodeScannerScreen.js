@@ -224,14 +224,23 @@ class QRCodeScannerScreen extends Component {
                 this.onSuccess(res)
             }
         } catch (e) {
-            Log.err('QRCodeScanner.onOpenGallery error ' + e.message)
+            let message = strings('tradeScreen.modalError.serviceUnavailable')
+            let goBack = true
+            if (e.message === 'NOT_FOUND') {
+                message = strings('tradeScreen.modalError.qrNotFoundInFile')
+                goBack = false
+            } else {
+                Log.err('QRCodeScanner.onOpenGallery error ' + e.message)
+            }
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
                 title: strings('modal.exchange.sorry'),
-                description: strings('tradeScreen.modalError.serviceUnavailable')
+                description: message
             }, () => {
-                NavStore.goBack()
+                if (goBack) {
+                    NavStore.goBack()
+                }
             })
         }
     }

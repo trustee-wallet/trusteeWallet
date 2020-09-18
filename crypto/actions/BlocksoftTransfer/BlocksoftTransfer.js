@@ -483,7 +483,7 @@ class BlocksoftTransfer {
         }
 
         BlocksoftCryptoLog.log(`BlocksoftTransfer.getFeeRate ${currencyCode} started`, this._logData)
-        const res = await this._processor[currencyCode].getFeeRate(this._data, isPrecount)
+        const res = await this._processor[currencyCode].getFeeRate(this._data, {isPrecount})
         BlocksoftCryptoLog.log(`BlocksoftTransfer.getFeeRate ${currencyCode} finished`, res)
 
         return res

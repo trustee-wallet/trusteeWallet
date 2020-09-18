@@ -33,22 +33,23 @@ export default class EthTransferProcessor extends EthBasic {
      * @param {string} data.addressFrom
      * @param {string} data.addressTo
      * @param {string|int} data.amount
-     * @param {number|boolean} alreadyEstimatedGas
+     * @param {number|boolean} additionalData.isPrecount
+     * @param {number|boolean} additionalData.estimatedGas
      * @return {Promise<{feeForTx, langMsg, gasPrice, gasLimit}[]>}
      */
-    async getFeeRate(data, alreadyEstimatedGas = false) {
+    async getFeeRate(data, additionalData) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate started ')
 
         const gasPrice = await EthNetworkPrices.get(typeof data.addressTo !== 'undefined' ? data.addressTo : 'none')
 
         let gasLimit
-        if (typeof alreadyEstimatedGas === 'undefined' || !alreadyEstimatedGas) {
+        if (typeof additionalData.estimatedGas === 'undefined' || !additionalData.estimatedGas) {
             try {
                 let ok = false
                 let i = 0
                 do {
                     try {
-                        gasLimit = await EthEstimateGas(this._web3Link, gasPrice.price2, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
+                        gasLimit = await EthEstimateGas(this._web3Link, gasPrice.price[2], data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
                         MarketingEvent.logOnlyRealTime('eth_gas_limit ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {
                             amount: data.amount + '',
                             gasLimit
@@ -71,8 +72,9 @@ export default class EthTransferProcessor extends EthBasic {
                 }
             }
         } else {
-            gasLimit = alreadyEstimatedGas
+            gasLimit = additionalData.estimatedGas
         }
+
         if (!gasLimit) {
             const e = new Error('invalid transaction (no gas limit)')
             e.code = 'ERROR_USER'
@@ -84,21 +86,23 @@ export default class EthTransferProcessor extends EthBasic {
         let balance = false
 
         // do nothing
-        try {
-            balance = await this._web3.eth.getBalance(data.addressFrom)
-            if (!balance || balance === 0) {
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessor.getFeeRate balanceFromWeb3 is empty ' + balance)
-                balance = false
-            } else if (this._settings.currencyCode === 'ETH') {
-                const newBalance = BlocksoftUtils.diff(balance, data.amount)
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessor.getFeeRate balance ' + balance + ' minus amount ' + data.amount + ' = ' + newBalance)
-                if (newBalance > 0) {
-                    balance = newBalance
+        if (data.addressForChange !== 'TRANSFER_ALL') {
+            try {
+                balance = await this._web3.eth.getBalance(data.addressFrom)
+                if (!balance || balance === 0) {
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessor.getFeeRate balanceFromWeb3 is empty ' + balance)
+                    balance = false
+                } else if (this._settings.currencyCode === 'ETH') {
+                    const newBalance = BlocksoftUtils.diff(balance, data.amount)
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessor.getFeeRate balance ' + balance + ' minus amount ' + data.amount + ' = ' + newBalance)
+                    if (newBalance > 0) {
+                        balance = newBalance
+                    }
                 }
-            }
 
-        } catch (e) {
-            balance = false
+            } catch (e) {
+                balance = false
+            }
         }
 
 

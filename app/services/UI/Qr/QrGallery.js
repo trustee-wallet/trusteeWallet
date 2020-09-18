@@ -6,7 +6,7 @@ import { NativeModules } from 'react-native'
 import ImagePicker from 'react-native-image-picker'
 import Log from '../../Log/Log'
 
-let { RNBlocksoftRandom, QRScanReader } = NativeModules
+let { QRScanReader } = NativeModules
 
 export function openQrGallery() {
     Log.log('QrGallery inited')
@@ -41,7 +41,7 @@ export function openQrGallery() {
                     Log.log('QrGallery no path')
                     return false
                 }
-                Log.log('QrGallery path', path)
+                Log.log('QrGallery path ' + path)
 
                 try {
 
@@ -50,6 +50,9 @@ export function openQrGallery() {
                         resolve({ data })
                     }).catch((e) => {
                         Log.log('QrGallery reader error ' + e.message)
+                        if (e.message.toString() === 'NOT_FOUND') {
+                            reject(new Error(e.message))
+                        }
                         resolve(false)
                     })
                 } catch (e) {

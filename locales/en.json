@@ -130,6 +130,7 @@
       "additionalData": "Please, fill additional data",
       "notSupported": "This phone format is not supported.",
       "serviceUnavailable": "Service unavailable. Please, try again later",
+      "qrNotFoundInFile" : "Qr-code not found, please, try to reload file",
       "UI_ERROR_CARD_NEEDED": {
         "title": "Sorry...",
         "desc" : "Please, select card or add new one"

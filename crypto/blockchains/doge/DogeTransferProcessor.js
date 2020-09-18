@@ -122,13 +122,17 @@ export default class DogeTransferProcessor {
      * @param {string} data.addressForChange
      * @param {string|number} data.feeForTx.feeForTx
      * @param {string|number} data.feeForTx.feeForByte
+     * @param {number|boolean} additionalData.isPrecount
      * @param {number} data.nSequence
      */
-    async getFeeRate(data, isPrecount = false) {
+    async getFeeRate(data, additionalData) {
         this._initProviders()
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate ' + data.addressFrom + ' started')
 
         const now = new Date().getTime()
+        
+        const isPrecount =  typeof additionalData.isPrecount  === 'undefined' || additionalData.isPrecount === false
+
         if (this._precached.unspentsAddress !== data.addressFrom || !this._precached.blocks_2 || !this._precached.unspents || now - this._precached.time > CACHE_VALID_TIME) {
             await this.getTransferPrecache(data)
         }

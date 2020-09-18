@@ -55,10 +55,11 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
      * @param {string} data.addressFrom
      * @param {string} data.addressTo
      * @param {string} data.amount
-     * @param {number|boolean} alreadyEstimatedGas
+     * @param {number|boolean} additionalData.isPrecount
+     * @param {number|boolean} additionalData.estimatedGas
      * @return {Promise<{feeForTx, langMsg, gasPrice, gasLimit}[]>}
      */
-    async getFeeRate(data, alreadyEstimatedGas = false) {
+    async getFeeRate(data, additionalData = {}) {
         const tmpData = { ...data }
         const logData = { tokenAddress: this._tokenAddress, addressTo: data.addressTo, amount: data.amount, addressFrom: data.addressFrom }
         BlocksoftCryptoLog.log('EthTxProcessorUAX getFeeRate started', logData)
@@ -89,7 +90,7 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
                 this.checkError(e, logData)
             }
             BlocksoftCryptoLog.log('EthTxProcessorUAX estimateGas finished', estimatedGas)
-            fees = await super.getFeeRate(tmpData, estimatedGas)
+            fees = await super.getFeeRate(tmpData, {... additionalData, ... {estimatedGas}})
         }
 
         if (balanceUAX > 0) {

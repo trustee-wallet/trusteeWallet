@@ -50,10 +50,11 @@ export default class XrpTransferProcessor {
      * @param {string} data.addressTo
      * @param {string} data.addressForChange
      * @param {string|int} data.amount
-     * @param {number|boolean} alreadyEstimatedGas
+     * @param {number|boolean} additionalData.isPrecount
+     * @param {number|boolean} additionalData.estimatedGas
      * @returns {Promise<boolean>}
      */
-    async getFeeRate(data, alreadyEstimatedGas = false) {
+    async getFeeRate(data, additionalData) {
 
         if (data.amount <= 0) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' XrpTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' skipped as zero amount')

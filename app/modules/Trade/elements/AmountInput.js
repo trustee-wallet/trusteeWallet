@@ -118,21 +118,26 @@ class AmountInput extends Component {
                     .setTransferAll(true)
             ).getFeeRate(true)
 
+            const fee = fees[fees.length - 1]
             const current = await (
                 BlocksoftTransfer
                     .setCurrencyCode(currencyCode)
                     .setAddressFrom(address)
                     .setAddressTo(tmpAddressForEstimate)
-                    .setFee(fees[fees.length - 1])
+                    .setFee(fee)
                     .setTransferAll(true)
             ).getTransferAllBalance()
 
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(current)
+            const amount = BlocksoftPrettyNumbers.makeCut(BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(current), 14).justCutted
 
             this.setState({
                 moneyType: 'CRYPTO'
             }, () => {
-                this.amountInput.handleInput(amount.toString())
+                try {
+                    this.amountInput.handleInput(amount.toString())
+                } catch (e) {
+                    throw new Error(e.message + ' in Trade.AmountInput.handleSellAll', {current, amount, fee})
+                }
             })
 
             this.setState({

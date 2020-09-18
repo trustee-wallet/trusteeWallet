@@ -36,10 +36,11 @@ export default class TrxTransferProcessor {
      * @param {string} data.addressFrom
      * @param {string} data.addressTo
      * @param {string|int} data.amount
-     * @param {number|boolean} alreadyEstimatedGas
+     * @param {number|boolean} additionalData.isPrecount
+     * @param {number|boolean} additionalData.estimatedGas
      * @returns {Promise<boolean>}
      */
-    async getFeeRate(data, alreadyEstimatedGas = false) {
+    async getFeeRate(data, additionalData) {
         if (data.addressTo && data.addressTo !== data.addressFrom) {
             try {
                 const res = await BlocksoftAxios.get('https://apilist.tronscan.org/api/account?address=' + data.addressTo)
