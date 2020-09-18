@@ -2,32 +2,77 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Image, TouchableOpacity, TouchableWithoutFeedback, Vibration } from 'react-native'
+import { View, Text, ScrollView, Image, TextInput  } from 'react-native'
 
-import firebase from 'react-native-firebase'
-import GradientView from '../../components/elements/GradientView'
 import Navigation from '../../components/navigation/Navigation'
-import Icon from '../../components/elements/CustomIcon.js'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import Button from '../../components/elements/Button'
 
-import NavStore from '../../components/navigation/NavStore'
-
-import { strings } from '../../services/i18n'
-import Cashback from '../../services/Cashback/Cashback'
-import Toast from '../../services/UI/Toast/Toast'
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
-
-import config from '../../config/config'
 
 
 class FIOScreen extends Component {
 
 
-
     render() {
         return (
-            <View style={{ padding: 30, backgroundColor: '#f5f5f5' }}>
-                <Text>FIO screen test text</Text>
+            <View>
+                <Navigation
+                    //title={strings('assets.mainTitle')}
+                    title={'Fio screen'}
+                />
+                
+                <View style={{padding: 30, paddingTop: 100, height: '100%',  backgroundColor: '#f5f5f5'}}>
+
+
+
+                <View  style={{height: '100%',   flexDirection: 'column',  flex: 1,  justifyContent: 'space-between'}}>
+                    <View>
+                        <Text>Enter Recipient FIO, ENS, or Public Address</Text>
+                        <TextInput
+                            style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                            onChangeText={text => console.log('Input changed')}
+                        />
+                    </View>
+
+                    <View style={{ flex: 1,  paddingVertical: 20}}>
+                        <ScrollView>
+
+
+                            <View  style={styles.fio_item}>
+                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
+                                <Text>Fio Adress 1</Text>
+                            </View>
+
+                            <View  style={styles.fio_item}>
+                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
+                                <Text>Fio Adress 2</Text>
+                            </View>
+
+                            <View  style={styles.fio_item}>
+                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
+                                <Text>Fio Adress 3</Text>
+                            </View>
+
+                        </ScrollView>
+                    </View>
+
+                    <View style={{marginTop: 20}}>
+                        <Button press={() =>  console.log('select FIO pressed')}>
+                            select FIO
+                        </Button>
+                    </View>
+
+
+
+                </View>
+
+
+
+
+
+
+
+
+                </View>
             </View>
         );
     }
@@ -36,13 +81,47 @@ class FIOScreen extends Component {
 export default FIOScreen
 
 
-const styles_ = {
-    array: ['#fff', '#fff'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
-}
-
 const styles = {
+
+    fio_item: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+        margin: 5,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 5
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 1,
+        elevation: 5
+    },
+
+    fio_img: {
+        width: 25,
+        height: 25
+    },
+
+
+
+
+    container: {
+        flex: 1,
+        width: '100%'
+    },
+    scrollView: {
+        backgroundColor: 'pink',
+        marginHorizontal: 20,
+    },
+    text: {
+        fontSize: 42,
+    },
+
+    
     wrapper: {
         flex: 1
     },
