@@ -12,13 +12,14 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import GradientView from '../../components/elements/GradientView'
 
-import { normalizeWithDecimals } from '../../services/utils'
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 import { capitalize } from '../../services/UI/Capitalize/Capitalize'
 import { checkQRPermission } from '../../services/UI/Qr/QrPermissions'
 import Validator from '../../services/UI/Validator/Validator'
 import Toast from '../../services/UI/Toast/Toast'
 import { strings } from '../../services/i18n'
+import { normalizeInputWithDecimals } from '../../services/UI/Normalize/NormalizeInput'
+import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 
 
 class Input extends Component {
@@ -31,7 +32,8 @@ class Input extends Component {
             focus: false,
             autoFocus: false,
             show: false,
-            tap: true
+            tap: true,
+            inputHeight : 0
         }
         this.inputRef = React.createRef()
     }
@@ -86,10 +88,10 @@ class Input extends Component {
 
         value === '' && !this.state.focus ? value = this.state.value : value
 
-        const { id, name, type, subtype, cuttype, additional, decimals, callback } = this.props
+        const { id, name, type, subtype, cuttype, additional, decimals, callback, isTextarea = false } = this.props
 
         if (additional === 'NUMBER') {
-            value = normalizeWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
+            value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
             this.setState({
                 value
             })
@@ -123,7 +125,10 @@ class Input extends Component {
             if (tmpIndex !== -1) {
                 valueNew = valueNew.slice(tmpIndex + 9).trim()
             }
-            if (valueNew.indexOf(cuttype) === 0) {
+            if (cuttype === 'TRX' && value.length<=34) {
+                // do nothing
+                // TRX addresses can start with TRX
+            } else if (valueNew.indexOf(cuttype) === 0) {
                 valueNew = valueNew.substr(cuttype.length).trim()
             }
             if (valueNew) {
@@ -133,7 +138,7 @@ class Input extends Component {
 
         if (Array.isArray(type)) {
 
-            let tmps = []
+            const tmps = []
             let tmp
             for (tmp of type) {
                 tmps.push(
@@ -208,8 +213,10 @@ class Input extends Component {
             tintColor,
             validPlaceholder,
             onSubmitEditing,
+            noEdit,
             isCapitalize = true,
-            isLine = true
+            isLine = true,
+            isTextarea = false
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
@@ -217,10 +224,30 @@ class Input extends Component {
         error = typeof error !== 'undefined' ? error.msg : ''
         const isDisabled = typeof disabled !== 'undefined' ? disabled : false
 
+        const lineStyle = {}
+        let elementStyle = {}
+        if (typeof style !== 'undefined') {
+            elementStyle = style
+        }
+
+
+        if (isTextarea) {
+            let height = this.state.inputHeight + 30
+            if (height < 70) {
+                height = 70
+            }
+            elementStyle.minHeight = height
+            elementStyle.maxHeight = height
+            lineStyle.top = height - 10
+            if (error && height === 70) {
+                lineStyle.top = height - 20
+            }
+        }
+
         return (
-            <View style={{ ...styles.wrapper, ...style }}>
+            <View style={{ ...styles.wrapper, ...elementStyle }}>
                 {
-                    typeof isLine !== 'undefined' && isLine ? <GradientView style={styles.line} array={error ? lineStyles_.arrayError : lineStyles_.array} start={lineStyles_.start} end={lineStyles_.end}/> : null
+                    typeof isLine !== 'undefined' && isLine ? <GradientView style={{...styles.line, ...lineStyle}} array={error ? lineStyles_.arrayError : noEdit ? lineStyles_.arrayEdit : lineStyles_.array} start={lineStyles_.start} end={lineStyles_.end}/> : null
                 }
                 {
                     show ? <TextField
@@ -242,11 +269,22 @@ class Input extends Component {
                         }}
                         autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
                         disabled={isDisabled}
+                        disabledLineType={'none'}
                         error={error ? error.toString() : ''}
                         onChangeText={(value) => this.handleInput(value)}
-                        style={styles.fontFamily}
+                        style={ noEdit ? {...styles.fontFamily, color: '#999999'} : styles.fontFamily}
+                        // style={styles.fontFamily}
+                        multiline={isTextarea}
+                        autoCorrect={false}
+                        spellCheck={false}
                         onBlur={() => {
                             this.setState({ focus: false })
+                        }}
+                        onContentSizeChange={(e) => {
+                            const h =  e.nativeEvent.contentSize.height
+                            if (h > 1) {
+                                this.setState({ inputHeight: h })
+                            }
                         }}
                         onFocus={typeof onFocus === 'undefined' ? () => {
                             this.setState({ focus: true })
@@ -259,9 +297,11 @@ class Input extends Component {
                 {
                     validPlaceholder ?
                         <TextInput
-                            style={[styles.validPlaceholder, !this.state.errors.length && value !== '' && focus === false ? styles.validPlaceholder_active : null]}
-                            value={value.slice(0, 8) + '...' + value.slice(value.length - 8, value.length)}
+                            style={[styles.validPlaceholder, !this.state.errors.length && value !== '' && focus === false ? styles.validPlaceholder_active : null, {color: noEdit ? '#999999' : '#0D0D0D'}]}
+                            value={BlocksoftPrettyStrings.makeCut(value, 8)}
                             editable={!isDisabled}
+                            autoCorrect={false}
+                            spellCheck={false}
                             onFocus={() => {
                                 this.inputRef.focus()
                             }}
@@ -281,7 +321,7 @@ class Input extends Component {
                                 }}>
                                     {typeof disabled !== 'undefined' && !disabled ? <Ionicons size={12} name='ios-swap' style={[{ color: '#7127ac', ...tapIconStyle }]}/> : null}
                                 </View>
-                                <Text style={[styles.tap__text, tapTextStyles]}>{tapText}</Text>
+                                 <Text style={{...styles.tap__text, ...tapTextStyles, color: noEdit ? '#999999' : '#7127ac'}}>{tapText}</Text>
                             </View>
                         </TouchableOpacity> : null
                 }
@@ -352,6 +392,7 @@ export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: 
 const lineStyles_ = {
     array: ['#7127ac', '#864dd9'],
     arrayError: ['#e77ca3', '#f0a5af'],
+    arrayEdit: ['#999999', '#999999'],
     start: { x: 0, y: 0 },
     end: { x: 1, y: 0 }
 }
@@ -391,11 +432,12 @@ const styles = {
         color: '#e77ca3'
     },
     fontFamily: {
-        fontFamily: 'SFUIDisplay-Regular'
+        fontFamily: 'SFUIDisplay-Regular',
+        marginRight: 70,
         // textDecoration: 'none'
     },
     mark: {
-        //position: 'absolute',
+        // position: 'absolute',
         right: 0,
         bottom: 0,
         fontFamily: 'SFUIDisplay-Regular',
@@ -425,7 +467,8 @@ const styles = {
     },
     actionBtn: {},
     actionBtn__icon: {
-        marginLeft: 20
+        marginLeft: 20,
+        marginTop: 20
     },
     actionBtn__icon_qr: {
         marginTop: 2
@@ -463,7 +506,7 @@ const styles = {
         fontFamily: 'SFUIDisplay-Regular',
 
         backgroundColor: '#f9f9f9',
-        overflow: 'hidden'
+        overflow: 'hidden',
     },
     validPlaceholder_active: {
         maxHeight: 200

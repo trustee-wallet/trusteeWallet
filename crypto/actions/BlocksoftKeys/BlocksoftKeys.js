@@ -49,7 +49,7 @@ class BlocksoftKeys {
                     mnemonic = testMnemonic
                     break
                 }
-                console.log('step ' + i + ' not valid ton ' + testMnemonic)
+                BlocksoftCryptoLog.log('step ' + i + ' not valid ton ' + testMnemonic)
             }
             if (!mnemonic) {
                 throw new Error('TON Mnemonic is not validating')
@@ -164,13 +164,19 @@ class BlocksoftKeys {
                 }
                 // BIP32 Extended Private Key to check - uncomment
                 // let childFirst = root.derivePath('m/44\'/2\'/0\'/0')
-                // console.log(childFirst.toBase58())
+                // BlocksoftCryptoLog.log(childFirst.toBase58())
 
                 /**
                  * @type {EthAddressProcessor|BtcAddressProcessor}
                  */
                 const processor = await Dispatcher.innerGetAddressProcessor(settings)
 
+                try {
+                    await processor.setBasicRoot(root)
+                } catch (e) {
+                    e.message += ' while doing ' + JSON.stringify(settings)
+                    throw e
+                }
                 let currentFromIndex = fromIndex
                 let currentToIndex = toIndex
                 let currentFullTree = fullTree
@@ -184,7 +190,8 @@ class BlocksoftKeys {
                         const tmp = derivation.path.split('/')
                         const result = await processor.getAddress(child.privateKey, {
                             publicKey: child.publicKey,
-                            walletHash: data.walletHash
+                            walletHash: data.walletHash,
+                            derivationPath : derivation.path
                         })
                         result.basicPrivateKey = child.privateKey.toString('hex')
                         result.basicPublicKey = child.publicKey.toString('hex')
@@ -244,15 +251,20 @@ class BlocksoftKeys {
                                 const child = root.derivePath(path)
                                 const result = await processor.getAddress(child.privateKey, {
                                     publicKey: child.publicKey,
-                                    walletHash: data.walletHash
+                                    walletHash: data.walletHash,
+                                    derivationPath : path,
+                                    derivationIndex : index,
+                                    derivationType : suffix.type
                                 })
-                                result.basicPrivateKey = child.privateKey.toString('hex')
-                                result.basicPublicKey = child.publicKey.toString('hex')
-                                result.path = path
-                                result.index = index
-                                result.alreadyShown = 0
-                                result.type = suffix.type
-                                results[currencyCode].push(result)
+                                if (result) {
+                                    result.basicPrivateKey = child.privateKey.toString('hex')
+                                    result.basicPublicKey = child.publicKey.toString('hex')
+                                    result.path = path
+                                    result.index = index
+                                    result.alreadyShown = 0
+                                    result.type = suffix.type
+                                    results[currencyCode].push(result)
+                                }
                             }
                         }
                     }
@@ -293,18 +305,21 @@ class BlocksoftKeys {
     /**
      * @param {string} data.mnemonic
      * @param {string} data.currencyCode
-     * @param {string} data.path
+     * @param {string} data.derivationPath
+     * @param {string} data.derivationIndex
+     * @param {string} data.derivationType
      * @return {Promise<{address, privateKey}>}
      */
     async discoverOne(data) {
         const seed = BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase())
         const root = bip32.fromSeed(seed)
-        const child = root.derivePath(data.path)
+        const child = root.derivePath(data.derivationPath)
         /**
          * @type {EthAddressProcessor|BtcAddressProcessor}
          */
         const processor = await Dispatcher.getAddressProcessor(data.currencyCode)
-        return processor.getAddress(child.privateKey)
+        processor.setBasicRoot(root)
+        return processor.getAddress(child.privateKey, {derivationPath : data.derivationPath, derivationIndex: data.derivationIndex, derivationType:  data.derivationType})
     }
 
     /**

@@ -1,8 +1,10 @@
+import DBInterface from '../../app/appstores/DataSource/DB/DBInterface'
+
 const VisibleCodes = [
     'BTC', 'ETH', 'ETH_USDT', 'ETH_SOUL' // add code here to show on start screen
 ]
 const Codes = [
-    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'TRX'   // add code here for autocreation the wallet address with the currency
+    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'ETH_DAIM', 'TRX'   // add code here for autocreation the wallet address with the currency
 ]
 
 const Currencies = {
@@ -47,6 +49,21 @@ const Currencies = {
         buyable: 1,
         currencyExplorerLink: 'https://blockchair.com/bitcoin/address/',
         currencyExplorerTxLink: 'https://blockchair.com/bitcoin/transaction/'
+    },
+
+    'XMR': {
+        currencyName: 'Monero',
+        currencyCode: 'XMR',
+        currencySymbol: 'XMR',
+        addressProcessor: 'XMR',
+        scannerProcessor: 'XMR',
+        extendsProcessor: 'XMR',
+        prettyNumberProcessor: 'UNIFIED',
+        network: 'mainnet',
+        decimals: 12,
+        buyable: 1,
+        currencyExplorerLink: 'https://xmrchain.net/search?value=',
+        currencyExplorerTxLink: 'https://blockchair.com/monero/transaction/'
     },
 
     // 'BTC_LIGHT': {
@@ -285,6 +302,7 @@ const Currencies = {
         addressUiChecker: 'TRX',
         ratesCurrencyCode: 'BTT', // if code in rates should be different, else - used currencyCode
         network: 'trx', // network also used as mark of rate scanning
+        skipParentBalanceCheck:true, // parent balance could be zero
         decimals: 6,
         buyable: 0,
         tokenName: '1002000',
@@ -329,9 +347,9 @@ const Currencies = {
         currencyExplorerLink: 'https://etherscan.io/token/0x8e870d67f660d95d5be530380d0ec0bd388289e1?a='
     },
     'ETH_DAI': {
-        currencyName: 'Dai Stablecoin v1.0',
+        currencyName: 'Sai Stablecoin v1.0',
         currencyCode: 'ETH_DAI',
-        currencySymbol: 'DAI',
+        currencySymbol: 'SAI',
         extendsProcessor: 'ETH_TRUE_USD',
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'DAI', // if code in rates should be different, else - used currencyCode
@@ -340,6 +358,104 @@ const Currencies = {
         tokenAddress: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359',
         currencyExplorerLink: 'https://etherscan.io/token/0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359?a='
     },
+    'ETH_DAIM': {
+        currencyName: 'Dai Stablecoin',
+        currencyCode: 'ETH_DAIM',
+        currencySymbol: 'DAI',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'DAI', // if code in rates should be different, else - used currencyCode
+        decimals: 18,
+        buyable: 0,
+        tokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
+        currencyExplorerLink: 'https://etherscan.io/token/0x6b175474e89094c44da98b954eedeac495271d0f?a='
+    },
+    'ETH_OKB': {
+        currencyName: 'OKB',
+        currencyCode: 'ETH_OKB',
+        currencySymbol: 'OKB',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'OKB', // if code in rates should be different, else - used currencyCode
+        decimals: 18,
+        buyable: 0,
+        tokenAddress: '0x75231f58b43240c9718dd58b4967c5114342a86c',
+        currencyExplorerLink: 'https://etherscan.io/token/0x75231f58b43240c9718dd58b4967c5114342a86c?a='
+    },
+    'ETH_MKR': {
+        currencyName: 'Maker',
+        currencyCode: 'ETH_MKR',
+        currencySymbol: 'MKR',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'MKR',
+        decimals: 18,
+        buyable: 0,
+        tokenAddress: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
+        currencyExplorerLink: 'https://etherscan.io/token/0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2?a='
+    },
+    'ETH_KNC': {
+        currencyName: 'KyberNetwork',
+        currencyCode: 'ETH_KNC',
+        currencySymbol: 'KNC',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'KNC',
+        decimals: 18,
+        buyable: 0,
+        tokenAddress: '0xdd974d5c2e2928dea5f71b9825b8b646686bd200',
+        currencyExplorerLink: 'https://etherscan.io/token/0xdd974d5c2e2928dea5f71b9825b8b646686bd200?a='
+    },
+    'ETH_COMP': {
+        currencyName: 'Compound',
+        currencyCode: 'ETH_COMP',
+        currencySymbol: 'COMP',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'COMP',
+        decimals: 18,
+        buyable: 0,
+        tokenAddress: '0xc00e94cb662c3520282e6f5717214004a7f26888',
+        currencyExplorerLink: 'https://etherscan.io/token/0xc00e94cb662c3520282e6f5717214004a7f26888?a='
+    },
+    'ETH_BAL': {
+        currencyName: 'Balancer',
+        currencyCode: 'ETH_BAL',
+        currencySymbol: 'BAL',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'BAL',
+        decimals: 18,
+        buyable: 0,
+        tokenAddress: '0xba100000625a3754423978a60c9317c58a424e3d',
+        currencyExplorerLink: 'https://etherscan.io/token/0xba100000625a3754423978a60c9317c58a424e3d?a='
+    },
+    'ETH_LEND': {
+        currencyName: 'EthLend',
+        currencyCode: 'ETH_LEND',
+        currencySymbol: 'LEND',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'LEND',
+        decimals: 18,
+        buyable: 0,
+        tokenAddress: '0x80fb784b7ed66730e8b1dbd9820afd29931aab03',
+        currencyExplorerLink: 'https://etherscan.io/token/0x80fb784b7ed66730e8b1dbd9820afd29931aab03?a='
+    },
+    'ETH_BNT': {
+        currencyName: 'Bancor',
+        currencyCode: 'ETH_BNT',
+        currencySymbol: 'BNT',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'BNT',
+        decimals: 18,
+        buyable: 0,
+        tokenAddress: '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c',
+        currencyExplorerLink: 'https://etherscan.io/token/0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c?a='
+    },
+
+
     'ETH_SOUL': {
         currencyName: 'CryptoSoul',
         currencyCode: 'ETH_SOUL',
@@ -441,6 +557,7 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.addressUiChecker = 'ETH'
         tmp.tokenAddress = currencyObject.tokenAddress
         tmp.currencyExplorerLink = 'https://etherscan.io/token/' + currencyObject.tokenAddress + '?a='
+        tmp.decimals = currencyObject.tokenDecimals
     } else if (currencyObject.tokenType === 'TRX') {
         tmp.extendsProcessor = 'TRX_USDT'
         tmp.addressUiChecker = 'TRX'
@@ -448,6 +565,9 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.tokenName = currencyObject.tokenAddress
         tmp.currencyExplorerLink = 'https://tronscan.org/#/address/'
         tmp.currencyExplorerTxLink = 'https://tronscan.org/#/transaction/'
+        if (tmp.tokenName.substr(0, 1) !== 'T') {
+            this.skipParentBalanceCheck = true
+        }
     } else {
         return false
     }
@@ -459,6 +579,12 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
     let currencyCode = currencyCodeOrObject
     if (typeof currencyCode === 'undefined' || !currencyCode) {
         return false
+    }
+    if (currencyCode === 'ETH_LAND') {
+        const dbInterface = new DBInterface()
+        dbInterface.setQueryString(`DELETE FROM account WHERE currency_code='ETH_LAND'`).query()
+        dbInterface.setQueryString(`DELETE FROM account_balance WHERE currency_code='ETH_LAND'`).query()
+        dbInterface.setQueryString(`DELETE FROM currency WHERE currency_code='ETH_LAND'`).query()
     }
     if (typeof currencyCodeOrObject.currencyCode !== 'undefined') {
         currencyCode = currencyCodeOrObject.currencyCode
@@ -474,7 +600,7 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
         const settingsParent = Currencies[settings.extendsProcessor]
         let newKey
         for (newKey of Object.keys(settingsParent)) {
-            if (!settings[newKey]) {
+            if (typeof settings[newKey] === 'undefined' || settings[newKey] === false) {
                 settings[newKey] = settingsParent[newKey]
             }
         }

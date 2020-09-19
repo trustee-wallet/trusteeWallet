@@ -43,7 +43,8 @@ export default {
                 news_shown_popup INTEGER NULL,
                 news_shown_list INTEGER NULL,
                 news_server_id VARCHAR(256) NULL,
-                news_removed INTEGER NULL
+                news_removed INTEGER NULL,
+                news_unique_key VARCHAR(256) NULL
             )
             `
         },
@@ -77,9 +78,12 @@ export default {
                 wallet_pub_id INTEGER NULL,
                 
                 status INTEGER NULL,
+                is_main INTEGER NULL DEFAULT 1,
                 
                 transactions_scan_time INTEGER NULL,
                 transactions_scan_log TEXT NULL,
+                
+                changes_log TEXT_NULL,
                 
                 currency_code VARCHAR(32) NOT NULL,
                 
@@ -177,6 +181,7 @@ export default {
             tableName: 'wallet',
             queryString: `CREATE TABLE IF NOT EXISTS wallet (
                 wallet_hash VARCHAR(256) NOT NULL PRIMARY KEY,
+                wallet_cashback VARCHAR(256) NULL,
                 wallet_name VARCHAR(256) NOT NULL,
                 wallet_is_backed_up INTEGER NULL,
 

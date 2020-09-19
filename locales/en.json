@@ -1,4 +1,4 @@
- {
+{
   "appName": "Trustee",
   "auth": {
     "navigation": {
@@ -12,158 +12,194 @@
     "description": "Your order was created. \n Once your transaction will get required confirmations it will be fulfilled accordingly.  \n You can monitor your order status in the orders history.",
     "orderHistoryBtn": "Orders history"
   },
-   "tooltips": {
-     "HOME_SCREEN_BUY_BTN_TIP": {
-       "title": "",
-       "description": "Here you can buy crypto with card - your Captain Obvious :)"
-     },
-     "HOME_SCREEN_EXCHANGE_BTN_TIP": {
-       "title": "",
-       "description": "Now you don’t need to use exchanges - change crypto to crypto with us in 2 clicks!"
-     },
-     "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
-       "title": "",
-       "description": "Add important assets and start earning - let’s go!"
-     },
-     "HOME_SCREEN_CRYPTO_BTN_TIP": {
-       "title": "",
-       "description": "This is your unique bitcoin wallet - start sending and accepting bitcoins!"
-     },
-     "ACCOUNT_SCREEN_ADDRESS_TIP": {
-       "title": "",
-       "description": "This is your %{currencyName} address - analog of card number for advanced users! "
-     },
-     "ACCOUNT_SCREEN_TRANSACTION_TIP": {
-       "title": "",
-       "description": "Here you can find all the info about your transactions and orders - let’s go!"
-     },
-     "buttons": {
-       "next": "Next",
-       "skip": "Skip",
-       "close": "Close"
-     }
-   },
-   "homeScreen": {
-     "balance": "Balance",
-     "today": "Today",
-     "changedLastDay": "In the last 24 hours",
-     "assets": "Assets",
-     "synchronizing": "Synchronization"
-   },
-   "walletCreateScreen": {
-     "title": "BUY SELL EXCHANGE ANONYMOUSLY",
-     "createWallet": "Create wallet",
-     "importWallet": "Import wallet",
-     "acceptTerms": "You don`t agree with Term of Service and Privacy Policy",
-     "terms1": "I agree with ",
-     "terms2": "Term of Service and Privacy Policy"
-   },
-   "exchangeScreen": {
-     "title": "Exchange",
-     "pickProvider": "Pick a provider",
-     "providerInformation": "Provider info",
-     "fee": "Fee",
-     "equivalent": "Equivalent: ~",
-     "exchangeAll": "Exchange all",
-     "min": "minimum:",
-     "max": "maximum:",
-     "exchangeBtn": "Exchange",
-     "payinAddress": "Sending address",
-     "payoutAddress": "Receiving address",
-     "date": "Date:",
-     "receiveAddressModal": {
-       "title": "Exchange for your own wallet?",
-       "description1": "Wallet",
-       "description2": "address"
-     },
-     "expiredModal" : {
-       "title" : "Expired",
-       "description" : "20-minute interval for creating a transaction expired, please, create new order"
-     },
-     "noAddressModal" : {
-       "title" : "External Asset",
-       "description" : "Your have selected asset not turned on in Trustee, please, turn it on or make transaction yourself"
-     },
-     "resendModal" : {
-       "title" : "Exchange not finished",
-       "description" : "Send transaction to this address?"
-     },
-     "waitConfirmModal" : {
-       "title" : "Exchange is almost finished",
-       "description" : "Transaction %{txHash} is already created, please, wait for network confirmations"
-     }
-   },
-   "exchangeConfirmScreen": {
-     "title": "Confirm",
-     "youWantToExchange": "You want to exchange",
-     "exchangeDetails": "Exchange details",
-     "exchangeBtn": "Exchange"
-   },
-   "tradeScreen": {
-     "youGet": "You get:",
-     "youGive": "You give:",
-     "crypto": "Crypto",
-     "fiat": "Fiat",
-     "pickPaySys": "Pick a payment method",
-     "pickPaySysSell": "Select a receipt method",
-     "only": "only",
-     "worldwide": "Worldwide",
-     "fee": "Banking fee",
-     "selectSum": "Equivalent amount",
-     "custom": "Custom",
-     "limitsTitle": "Sorry, but there are some limits",
-     "minPurchase": "min purchase sum:",
-     "maxPurchase": "max purchase sum:",
-     "selectCrypto": "Select cryptocurrency",
-     "selectFiat": "Select fiat currency",
-     "submit": "Submit",
-     "modalError": {
-        "selectCryptocurrency": "Please, select cryptocurrency",
-        "selectWhatYouGet": "Please, select what you get",
-        "selectWhatYouGive": "Please, select what you give",
-        "selectPaymentSystem": "Please, select payment method",
-        "selectFiatTemplate": "Select fiat template",
-        "limit": "You are out of allowed limits",
-        "selectCard": "Please, select card",
-        "takePhoto": "Please, take a photo of card",
-        "waitValidation": "Please, wait. Photo is checking",
-        "canceledValidation": "Card verification failed. Please, try again",
-        "additionalData": "Please, fill additional data",
-        "notSupported": "This phone format is not supported.",
-        "serviceUnavailable": "Service unavailable. Please, try again later"
-     },
-     "paymentInformation": "Payment method info",
-     "urkCardOnly": "Ukranian cards only!",
-     "rusCardOnly": "Russian cards only!",
-     "worldwideOnly": "Worldwide",
-     "minAmount": "Min amount",
-     "maxAmount": "Max amount",
-     "RUB": "Russia",
-     "UAH": "Ukraine",
-     "QIWI": "QIWI wallet"
-   },
-   "confirmScreen": {
-     "title": "Confirm",
-     "rate": "Rate",
-     "fees": "Trade details",
-     "youWantToBuy": "You want to buy",
-     "youWantToSell": "You want to sell",
-     "providerFee": "Banking fee",
-     "outputFee": "Network fee",
-     "trusteeFee": "Trustee fee",
-     "networkFee": "network fee",
-     "info": "Info",
-     "withdrawAddress": "Destination address",
-     "withdrawCardNumber": "Card for payout",
-     "withdrawPhoneNumber": "Phone for payout",
-     "total": "Total:",
-     "submitBtnBuy": "Buy",
-     "submitBtnSell": "Sell",
-     "edit": "Edit",
-     "confirmScreenBuy": "This payment method currently unavailable. Please, try another one.",
-     "confirmScreenSell": "This payment method currently unavailable. Please, try another one.",
-     "bottomInformation": "Please, pay attention, exchange rate is not fixed and might be changed following the market."
-   },
+  "finishTradeErrorScreen": {
+    "title": "Bank did not confirm your payment!",
+    "description": "Order not paid"
+  },
+  "tooltips": {
+    "HOME_SCREEN_BUY_BTN_TIP": {
+      "title": "",
+      "description": "Here you can buy crypto with card - your Captain Obvious :)"
+    },
+    "HOME_SCREEN_EXCHANGE_BTN_TIP": {
+      "title": "",
+      "description": "Now you don’t need to use exchanges - change crypto to crypto with us in 2 clicks!"
+    },
+    "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
+      "title": "",
+      "description": "Add important assets and start earning - let’s go!"
+    },
+    "HOME_SCREEN_CRYPTO_BTN_TIP": {
+      "title": "",
+      "description": "This is your unique bitcoin wallet - start sending and accepting bitcoins!"
+    },
+    "ACCOUNT_SCREEN_ADDRESS_TIP": {
+      "title": "",
+      "description": "This is your %{currencyName} address - analog of card number for advanced users! "
+    },
+    "ACCOUNT_SCREEN_TRANSACTION_TIP": {
+      "title": "",
+      "description": "Here you can find all the info about your transactions and orders - let’s go!"
+    },
+    "buttons": {
+      "next": "Next",
+      "skip": "Skip",
+      "close": "Close"
+    }
+  },
+  "homeScreen": {
+    "balance": "Balance",
+    "today": "Today",
+    "changedLastDay": "In the last 24 hours",
+    "assets": "Assets",
+    "synchronizing": "Synchronization"
+  },
+  "walletCreateScreen": {
+    "title": "BUY SELL EXCHANGE ANONYMOUSLY",
+    "createWallet": "Create wallet",
+    "importWallet": "Import wallet",
+    "acceptTerms": "You don`t agree with Term of Service and Privacy Policy",
+    "terms1": "I agree with ",
+    "terms2": "Term of Service and Privacy Policy"
+  },
+  "exchangeScreen": {
+    "title": "Exchange",
+    "pickProvider": "Pick a provider",
+    "providerInformation": "Provider info",
+    "fee": "Fee",
+    "equivalent": "Equivalent: ~",
+    "exchangeAll": "Exchange all",
+    "min": "minimum:",
+    "max": "maximum:",
+    "exchangeBtn": "Exchange",
+    "payinAddress": "Sending address",
+    "payoutAddress": "Receiving address",
+    "date": "Date:",
+    "receiveAddressModal": {
+      "title": "Exchange for your own wallet?",
+      "description1": "Wallet",
+      "description2": "address"
+    },
+    "expiredModal": {
+      "title": "Expired",
+      "description": "20-minute interval for creating a transaction expired, please, create new order"
+    },
+    "noAddressModal": {
+      "title": "External Asset",
+      "description": "Your have selected asset not turned on in Trustee, please, turn it on or make transaction yourself"
+    },
+    "resendModal": {
+      "title": "Exchange not finished",
+      "description": "Send transaction to this address?"
+    },
+    "waitConfirmModal": {
+      "title": "Exchange is almost finished",
+      "description": "Transaction %{txHash} is already created, please, wait for network confirmations"
+    }
+  },
+  "exchangeConfirmScreen": {
+    "title": "Confirm",
+    "youWantToExchange": "You want to exchange",
+    "exchangeDetails": "Exchange details",
+    "exchangeBtn": "Exchange"
+  },
+  "tradeScreen": {
+    "tryV3" : "Try new interface",
+    "titleV3" : "New exchange",
+    "youGet": "You get:",
+    "youGive": "You give:",
+    "crypto": "Crypto",
+    "fiat": "Fiat",
+    "pickPaySys": "Pick a payment method",
+    "pickPaySysSell": "Select a receipt method",
+    "worldwide": "Worldwide",
+    "fee": "Banking fee",
+    "selectSum": "Equivalent amount",
+    "custom": "Custom",
+    "limitsTitle": "Sorry, but there are some limits",
+    "minPurchase": "min purchase sum:",
+    "maxPurchase": "max purchase sum:",
+    "selectCrypto": "Select cryptocurrency",
+    "selectFiat": "Select fiat currency",
+    "submit": "Submit",
+    "modalError": {
+      "selectCryptocurrency": "Please, select cryptocurrency",
+      "selectWhatYouGet": "Please, select what you get",
+      "selectWhatYouGive": "Please, select what you give",
+      "selectPaymentSystem": "Please, select payment method",
+      "selectFiatTemplate": "Select fiat template",
+      "limit": "You are out of allowed limits",
+      "additionalData": "Please, fill additional data",
+      "notSupported": "This phone format is not supported.",
+      "serviceUnavailable": "Service unavailable. Please, try again later",
+      "qrNotFoundInFile" : "Qr-code not found, please, try to reload file",
+      "UI_ERROR_CARD_NEEDED": {
+        "title": "Sorry...",
+        "desc" : "Please, select card or add new one"
+      },
+      "UI_ERROR_CARD_NEED_TAKE_PHOTO": {
+        "title" : "Please, take a photo card",
+        "desc" : "Should be a photo of the original card. When adding a virtual card, take a full-screen photo of your online banking account!"
+      },
+      "UI_ERROR_CARD_WAIT_VERIFICATION": {
+        "title": "Sorry...",
+        "desc" : "Please, wait. Photo is checking"
+      },
+      "UI_ERROR_CARD_CANCELED_VERIFICATION": {
+        "title": "Sorry...",
+        "desc": "Card verification failed. Please, try again"
+      }
+
+    },
+    "paymentInformation": "Payment method info",
+    "urkCardOnly": "Ukranian cards only!",
+    "rusCardOnly": "Russian & Belorussian cards!",
+    "worldwideOnly": "Worldwide",
+    "minAmount": "Min amount",
+    "maxAmount": "Max amount",
+    "RUB": "Russia & Belorussia",
+    "KZ" : "Kazakhstan",
+    "UAH": "Ukraine",
+    "QIWI": "QIWI wallet",
+    "ADVCASH": "Commission ADV",
+    "ADVCashName": "ADV account",
+    "PMName": "PM account",
+    "PayeerName": "PAYEER account",
+    "onlinePayment": "Online payment"
+  },
+  "confirmScreen": {
+    "title": "Confirm",
+    "rate": "Rate",
+    "fees": "Trade details",
+    "youWantToBuy": "You want to buy",
+    "youWantToSell": "You want to sell",
+    "providerFee": "Banking fee",
+    "outputFee": "Network fee",
+    "trusteeFee": "Trustee fee",
+    "networkFee": "network fee",
+    "info": "Info",
+    "withdrawAddress": "Destination address",
+    "withdrawCardNumber": "Card for payout",
+    "withdrawPhoneNumber": "Phone for payout",
+    "withdrawAdvAccountNumber": "Account for payout",
+    "total": "Total:",
+    "submitBtnBuy": "Buy",
+    "submitBtnSell": "Sell",
+    "edit": "Edit",
+    "confirmScreenBuy": "This payment method currently unavailable. Please, try another one.",
+    "confirmScreenSell": "This payment method currently unavailable. Please, try another one.",
+    "bottomInformation": "Please, pay attention, exchange rate is not fixed and might be changed following the market.",
+    "confirmScreenInvalidExchangeAmount": "Please, select bigger amount for exchange",
+    "confirmScreenInvalidExchangeAmountTooBig": "Please, select less amount for exchange",
+    "confirmScreenInvalidCard": "Please, select valid card",
+    "confirmScreenTimeout" : "Please, check Internet access and try again",
+    "confirmScreenInvalidOut" : "Invalid out account, please, check and try again",
+    "confirmScreenTemporaryOff" : "Temporary disabled destination on the provider side",
+    "confirmScreenAdvNotVerified" : "Email not verified, please use verified Adv account and try again",
+    "confirmScreenInvalidAddress" : "System error of the trading pair on the provider side, please, try again",
+    "openLink" : "To go to payment please click directly on this link",
+    "openLinkError": "Not found default browser - link is copied to clipboard"
+  },
   "settings": {
     "title": "General settings",
     "walletManagement": {
@@ -172,7 +208,8 @@
       "import": "Import wallet",
       "create": "Create new wallet",
       "select": "Select wallet",
-      "turnOnHD" : "Turn on HD"
+      "registerFioAddress": "Register FIO Address",
+      "turnOnHD": "Turn on HD"
     },
     "security": {
       "title": "Security",
@@ -192,16 +229,20 @@
       "supportSubtitle": "Our telegram support bot",
       "lock": "Lock screen",
       "bio": "Biometrics",
-      "appnews" : "Technical Messages",
+      "appnews": "Technical Messages",
+      "appnewsSmall": "Tech Messages",
       "about": "About Trustee",
       "lang": "Change language",
       "copyLogs": "Copy logs",
       "cashback": {
         "title": "Cashback",
-        "description": "Invite friends and make money"
+        "description": "Invite friends and make money",
+        "descriptionSmall": "Invite friends and make money!"
       },
       "localCurrency": "Local currency",
-      "scannerSettings" : "Scanning",
+      "scannerSettings": "Scanning",
+      "scannerSubtitle": "Balance reload frequency",
+      "scannerSubtitleSmall": "Balance reload speed",
       "toolTips": "Tooltips",
       "configMode": "Config",
       "testerMode": "Tester"
@@ -215,8 +256,8 @@
       "on": "On",
       "totalBalance": "Total balance",
       "useUnconfirmed": "Use unconfirmed transactions",
-      "allowReplaceByFee" : "Edit the transaction before confirmation by miners",
-      "changeSetting" : "Collect Change to",
+      "allowReplaceByFee": "Edit the transaction before confirmation by miners",
+      "changeSetting": "Collect Change to",
       "useLegacy": "Use Legacy",
       "useSegWit": "Use SegWit",
       "showLegacy": "Show Legacy",
@@ -224,6 +265,11 @@
       "accountSetting": "Account settings",
       "showSegWitAndLegacy": "Show SegWit and Legacy",
       "hideCommissionTrans": "Hide commission payment transactions",
+      "scanAddressesFromHD" : "Scan addresses from HD for balances",
+      "setAddressesFromHD" : {
+        "title": "Main address will be changed",
+        "description" : "You will be using balance from address %{newAddress}"
+      },
       "backupModal": {
         "title": "Mnemonic phrase not saved!",
         "description": "The mnemonic phrase (seed phrase) is the only key to your assets! In case of failure of the phone or other similar situations, it will be impossible to restore access to your assets without this phrase! We recommend that you save the phrase in a safe place right now! \n \n If you are asked for a seed phrase, then you are dealing with scammers! \n Do not tell the seed phrase under any circumstances!"
@@ -231,7 +277,13 @@
       "hdEnableModal": {
         "title": "Switch wallet to HD mode?",
         "description": "HD mode implies rotation of addresses for each transaction. The switching operation is irreversible."
-      }
+      },
+      "serverInputXMR" : "Server (default api.mymonero.com)",
+      "serverInputTitleXMR" : "api.mymonero.com:8443",
+      "serverSendInputXMR" : "Server for Send TX (default api.mymonero.com)",
+      "serverSendInputTitleXMR" : "or node.moneroworld.com:18089",
+      "saveSettings" : "Save settings",
+      "getMnemonicXMR" : "View secrets"
     },
     "about": {
       "title": "About",
@@ -241,9 +293,10 @@
       "terms": "Terms of use"
     },
     "error": {
-      "title": "System Error",
-      "contactSupport": "Contact Support",
-      "tryAgain": "Reload"
+      "title": "Oooops, app error",
+      "contactSupport": "Support",
+      "tryAgain": "Reload",
+      "text": "If you're seeing this, smth went wrong, please, send us logs via support or try to reload the app"
     },
     "config": "Config changed to: %{config}",
     "tester": "Tester/user changed to: %{testerMode}"
@@ -255,12 +308,12 @@
     "showAsset": "Show",
     "hideAsset": "Hide"
   },
-   "AddCustomToken": {
-     "mainTitle": "Add asset",
-     "tokenInputTitle": "Asset address",
-     "description": "Ethereum (ETH) and Tron (TRX) token/asset addresses are supported",
-     "add": "Add"
-   },
+  "AddCustomToken": {
+    "mainTitle": "Add asset",
+    "tokenInputTitle": "Asset address",
+    "description": "Ethereum (ETH) and Tron (TRX) token/asset addresses are supported",
+    "add": "Add"
+  },
   "cashback": {
     "pageTitle": "Cashback",
     "mainTitle": "Refer your friends - earn cashback!",
@@ -270,11 +323,20 @@
     "shareTitle": "",
     "shareMessage": "",
     "friendsJoined": "Your friends",
+    "updated" : "Updated",
     "transAmount": "Transaction amount",
     "level2UsersAmount": "Friends of friends",
+    "cashbackError" : {
+      "title" : "Failed to get data",
+      "UI_ERROR_CASHBACK_NETWORK_ERROR": "Bad internet access",
+      "UI_ERROR_CASHBACK_SIGN_ERROR" : "Incorrect signature in keystore - please, relogin in cashback",
+      "UI_ERROR_CASHBACK_TIME_ERROR" : "Outdated device date or time",
+      "UI_ERROR_CASHBACK_TIME_ERROR_LONG" : "The service may not work as a result of unstable Internet or incorrect date and time settings on your mobile device"
+    },
     "cashbackAmount": "Cashback amount",
     "setParentToken": "Link in to your friend structure",
-    "inputParentCashBackLink": "https://trustee.deals/link/example",
+    "hasParentToken": "Invited by %{cashbackParentToken}",
+    "inputParentCashbackLink": "https://trustee.deals/link/example",
     "withdraw": "Withdraw",
     "minWithdraw": "Minimal amount to withdraw",
     "performWithdraw": "To perform withdraw, please, write to telegram to nickname @TrusteeWallet"
@@ -286,24 +348,32 @@
     "receive": "%{receive}",
     "send": "Send",
     "history": "Transaction history",
+    "scan": "Scanned at ",
     "noTransactions": "You don’t have any transaction yet.",
     "showMore": "Show more",
     "assetSettings": "Asset settings",
+    "externalLink": {
+      "title": "Go to blockchain explorer",
+      "description": "External site link will be opened"
+    },
     "transaction": {
       "pay": "Pay",
+      "remove" : "Remove",
       "destinationTag": "Destination tag",
+      "paymentId": "Payment ID",
       "nonce": "Nonce",
       "delegatedNonce": "Delegated Nonce",
       "empty": "(empty)",
       "fee": "Fee",
-      "txHash": "Transaction hash",
-      "replacedTxHash": "Replaced hash",
+      "feeIncome": "Sender Fee",
+      "txHash": "Actual transaction hash",
+      "replacedTxHash": "Previous transaction hash",
       "from": "From",
       "to": "To",
       "status": "Status",
       "outcome": "Outcome",
       "income": "Income",
-      "self" : "Self",
+      "self": "Self",
       "exchange": "Exchange",
       "buy": "Buy",
       "sell": "Sell",
@@ -312,20 +382,31 @@
       "confirmations": "Confirmations:",
       "moreInformation": "More information",
       "cardNumberDestination": "Withdraw card number",
+      "advAccountDestination": "Withdraw account number",
       "phoneDestination": "Withdraw phone number",
       "orderId": "Order ID",
-      "replaceByFeeBtn": "Update tx fee"
+      "RBF": {
+        "replaceByFeeBtn": "Update tx fee",
+        "willReplaceWithNewFee": "The current transaction will be replaced with a new one, with a new hash and a higher commission",
+        "notAllowed": "The transaction was created without the possibility of replacement or has already been confirmed"
+      },
+      "CPFP" : {
+        "willSpeedUp" : "You can speed up an incoming transaction by creating an additional transaction on your own, with a higher commission. The size of the commission will be calculated automatically, taking into account the features of both transactions.Please note, that in this case, payment for a new transaction will be at your expense"
+      }
     },
     "transactionStatuses": {
-      "paid" : "Paid",
-      "pay_waiting" : "Waiting payment",
-      "pay_expired" : "Expired payment",
+      "paid": "Paid",
+      "pay_waiting": "Waiting payment",
+      "pay_expired": "Expired payment",
       "success": "Success",
       "pending": "Pending",
-      "new": "new",
-      "delegated" : "delegated",
+      "new": "NEW",
+      "process": "In process",
+      "delegated": "delegated",
       "confirming": "Confirming",
       "fail": "Fail",
+      "missing" : "Not found",
+      "replaced" : "Replaced",
       "internal_success": "Success from Contract",
       "internal_new": "New from Contract",
       "internal_fail": "Fail from Contract"
@@ -365,6 +446,7 @@
       "exchange": {
         "pending_payin": "Replenishment expected",
         "canceled_payin": "Replenishment canceled",
+        "refunded_order": "Refund was made",
         "done_payin": "Replenishment was successful",
         "wait_trade": "Exchange pending",
         "done_trade": "Exchange done successful",
@@ -378,6 +460,7 @@
       "sell": {
         "pending_payin": "Replenishment expected",
         "canceled_payin": "Replenishment canceled",
+        "refunded_order": "Refund was made",
         "done_payin": "Replenishment was successful",
         "wait_trade": "Exchange pending",
         "done_trade": "Exchange done successful",
@@ -391,6 +474,7 @@
       "buy": {
         "pending_payin": "Replenishment expected",
         "canceled_payin": "Replenishment canceled",
+        "refunded_order": "Refund was made",
         "done_payin": "Replenishment was successful",
         "wait_trade": "Exchange pending",
         "done_trade": "Exchange done successful",
@@ -406,7 +490,6 @@
       "selectCurrency": "Select a cryptocurrency",
       "selectPayment": "Select type of payment",
       "estimateAmount": "Enter the amount",
-
       "addCard": "ADD NEW CARD",
       "address": "Your address:",
       "titleBuy": "Buy crypto",
@@ -435,7 +518,7 @@
       "moreInformation": "More information"
     }
   },
-  "card" : {
+  "card": {
     "title": "Add new card",
     "description": "To add new card, please, scan it or enter number manually",
     "instructions": "Hold card here. It will scan automatically.",
@@ -448,111 +531,112 @@
     "noName": "NO NAME",
     "country": "Country:"
   },
-  "qrScanner" : {
+  "qrScanner": {
     "line1": "Please, place the QR-code inside the",
     "line2": "rectangle to scan it"
   },
   "send": {
     "title": "Send %{currency}",
-    "description": "Paste the recipient's wallet address or scan the QR-code.",
+    "description": "Paste the recipient's wallet address or scan the QR-code",
     "descriptionExchange": "The recipient's wallet address is set automatically. This is the address of the exchange provider. Assets exchange and payout will be executed after a successful transaction",
     "address": "Destination address",
     "value": "value",
     "comment": "Comment",
     "xrp_memo": "Destination tag",
+    "xmr_memo": "Payment ID",
     "send": "Next",
     "useAllFunds": "Use all funds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
-    "notEnough": "You don't have enough funds for send.",
+    "notEnough": "You don't have enough funds to send",
     "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}",
     "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations or turn on usage of unconfirmed transactions",
     "confirmModal": {
       "title": "Do you confirm sending?",
+      "titleSpeedUp": "Do you confirm speeding up incoming transaction %{hash}?",
+      "titleReplaceByFee": "Do you confirm replacing transaction %{hash}?",
       "amount": "Amount",
       "recipient": "Recipient",
-      "change" : "Change %{amount} %{currencySymbol} will go to",
-      "rbf_on" : "Replace by Fee will be allowed",
+      "multiRecipient" : "Multisend to %{total} addresses",
+      "change": "Change %{amount} %{currencySymbol} will go to",
       "edit": "Back",
       "confirm": "Send",
-      "force" : "Do anyway?"
+      "force": "Do anyway?"
     },
     "fee": {
-      "title": "Change fee",
+      "smallFeeNoticeTitle" : "Please, be careful",
+      "smallFeeNoticeDesc" : "Not enough balance for recommended fast transaction fee",
+      "title": "Change\nfee",
       "text": {
+        "eth_speed_slowest": "Slowest",
         "eth_speed_slow": "Slow",
         "eth_speed_medium": "Medium",
         "eth_speed_fast": "Fast",
-        "eth_speed_delegated" : "Delegated ERC865",
-
+        "eth_speed_delegated": "Delegated ERC865",
+        "xmr_speed_1": "Slow",
+        "xmr_speed_2" : "Medium",
+        "xmr_speed_3" : "High",
+        "xmr_speed_4" : "Very High",
+        "btc_speed_blocks_24": "Slowest",
         "btc_speed_blocks_12": "Slow",
         "btc_speed_blocks_6": "Medium",
         "btc_speed_blocks_2": "Fast",
-
         "bch_speed_blocks_12": "Slow",
         "bch_speed_blocks_6": "Medium",
         "bch_speed_blocks_2": "Fast",
-
         "ltc_speed_blocks_12": "Slow",
         "ltc_speed_blocks_6": "Medium",
         "ltc_speed_blocks_2": "Fast",
-
         "btc_corrected_speed_blocks_2": "Auto",
         "btc_corrected_speed_blocks_6": "Auto",
         "btc_corrected_speed_blocks_12": "Auto",
-
         "btc_corrected_speed_blocks_2_protection": "Auto (overpay protection)",
         "btc_corrected_speed_blocks_6_protection": "Auto (overpay protection)",
         "btc_corrected_speed_blocks_12_protection": "Auto (overpay protection)",
-
         "ltc_corrected_speed_blocks_2": "Auto",
         "ltc_corrected_speed_blocks_6": "Auto",
         "ltc_corrected_speed_blocks_12": "Auto",
-
         "ltc_corrected_speed_blocks_2_protection": "Auto (overpay protection)",
         "ltc_corrected_speed_blocks_6_protection": "Auto (overpay protection)",
         "ltc_corrected_speed_blocks_12_protection": "Auto (overpay protection)",
-
-        "xrp_speed_one" : "Fast"
+        "xrp_speed_one": "Fast"
       },
       "time": {
-        "eth_speed_slow": "~ 30 minutes",
-        "eth_speed_medium": "~ 5 minutes",
-        "eth_speed_fast": "~ 1 minute",
-        "eth_speed_delegated" : "The transaction will be sent at the expense of a third party. Commission is charged in %{symbol} according to ERC865",
-
-        "btc_speed_blocks_12": "~ 120 minutes",
-        "btc_speed_blocks_6": "~ 60 minutes",
-        "btc_speed_blocks_2": "~ 15 minutes",
-
-        "bch_speed_blocks_12": "~ 120 minutes",
-        "bch_speed_blocks_6": "~ 60 minutes",
-        "bch_speed_blocks_2": "~ 20 minutes",
-
-        "ltc_speed_blocks_12": "~ 120 minutes",
-        "ltc_speed_blocks_6": "~ 20 minutes",
-        "ltc_speed_blocks_2": "~ 5 minutes",
-
-        "btc_corrected_speed_blocks_2": "~ 35 minutes",
-        "btc_corrected_speed_blocks_6": "~ 95 minutes",
-        "btc_corrected_speed_blocks_12": "~ 135+ minutes",
-
-        "btc_corrected_speed_blocks_2_protection": "~ 35 minutes",
-        "btc_corrected_speed_blocks_6_protection": "~ 95 minutes",
-        "btc_corrected_speed_blocks_12_protection": "~ 135+ minutes",
-
-        "ltc_corrected_speed_blocks_2": "~ 15 minutes",
-        "ltc_corrected_speed_blocks_6": "~ 35 minutes",
-        "ltc_corrected_speed_blocks_12": "~ 135+ minutes",
-
-        "ltc_corrected_speed_blocks_2_protection": "~ 15 minutes",
-        "ltc_corrected_speed_blocks_6_protection": "~ 35 minutes",
-        "ltc_corrected_speed_blocks_12_protection": "~ 135+ minutes",
-
-        "xrp_speed_one" : "~ 1 minute"
+        "eth_speed_slowest": "",
+        "eth_speed_slow": "",
+        "eth_speed_medium": "",
+        "eth_speed_fast": "",
+        "eth_speed_delegated": "The transaction will be sent at the expense of a third party. Commission is charged in %{symbol} according to ERC865",
+        "xmr_speed_1": "",
+        "xmr_speed_2" : "",
+        "xmr_speed_3" : "",
+        "xmr_speed_4" : "",
+        "btc_speed_blocks_24": "",
+        "btc_speed_blocks_12": "",
+        "btc_speed_blocks_6": "",
+        "btc_speed_blocks_2": "",
+        "bch_speed_blocks_12": "",
+        "bch_speed_blocks_6": "",
+        "bch_speed_blocks_2": "",
+        "ltc_speed_blocks_12": "",
+        "ltc_speed_blocks_6": "",
+        "ltc_speed_blocks_2": "",
+        "btc_corrected_speed_blocks_2": "> 35 minutes",
+        "btc_corrected_speed_blocks_6": "> 95 minutes",
+        "btc_corrected_speed_blocks_12": "> 135+ minutes",
+        "btc_corrected_speed_blocks_2_protection": "> 35 minutes",
+        "btc_corrected_speed_blocks_6_protection": "> 95 minutes",
+        "btc_corrected_speed_blocks_12_protection": "> 135+ minutes",
+        "ltc_corrected_speed_blocks_2": "> 15 minutes",
+        "ltc_corrected_speed_blocks_6": "> 35 minutes",
+        "ltc_corrected_speed_blocks_12": "> 135+ minutes",
+        "ltc_corrected_speed_blocks_2_protection": "> 15 minutes",
+        "ltc_corrected_speed_blocks_6_protection": "> 35 minutes",
+        "ltc_corrected_speed_blocks_12_protection": "> 135+ minutes",
+        "xrp_speed_one": ""
       },
       "customFee": {
         "fixedFeeTitle": "FIXED FEE",
-        "customFeeTitle": "CUSTOM FEE",
+        "customFeeTitle": "SET\nMANUALLY",
         "eth": {
           "gasPrice": "Gas price",
           "gasLimit": "Gas limit",
@@ -566,38 +650,48 @@
       }
     },
     "errors": {
-      "UI_CONFIRM_DOUBLE_SEND" : "Transaction to this address has been already sent few moments ago, are you sure to repeat?",
-      "SERVER_RESPONSE_BAD_CODE" : "System error, please contact support for help",
-      "SERVER_RESPONSE_BAD_INTERNET" : "No internet access",
-      "SERVER_RESPONSE_BAD_TX_TO_REPLACE" : "Transaction not found, could be internet problem or mempool delay",
-      "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Not enough balance in native coin %{symbol} to send",
-      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Not enough confirmed balance in native coin %{symbol} to send - please, wait for other transactions to be mined",
-      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Transaction fee too small",
-      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Transaction fee too small for replacement",
-      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Transaction amount too small",
-      "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Nothing to transfer",
-      "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE" : "Nothing left to pay for delegated fee - please, use usual ERC20 transfer",
-      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE" : "Nothing left to pay for fee - please, use Send All button",
-      "SERVER_RESPONSE_NO_RESPONSE" : "Server not accepting transaction - please, wait for other transactions to be mined",
-      "SERVER_RESPONSE_NOT_CONNECTED" : "Server not connected - please, wait a little bit",
-      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Transaction amount too small for any fee",
-      "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Please, wait for other transactions to be mined or turn on usage of unconfirmed transactions",
-      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Transaction fee too big - please, select less fee manually or enter bigger amount to transfer",
-      "SERVER_RESPONSE_SELF_TX_FORBIDDEN" : "Transaction to the same address are forbidden",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP" : "Not enough balance - 20 XRP should be left on account balance",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP" : "Not enough amount - send 20 XRP or more to the destination address as it has no transactions yet",
-      "SERVER_RESPONSE_TAG_NEEDED_XRP" : "Not valid destination tag - please, enter destination tag for correct transaction",
-      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT" : "Not enough balance on USDT bitcoin address - please, transfer some satoshis to this address",
-      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM" : "Not enough confirmed balance on USDT bitcoin address - please, wait a little bit or turn on usage of unconfirmed transactions",
-      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Server not accepting transaction - please, wait for other transactions to be mined or use usual ERC20 transfer",
-      "SERVER_RESPONSE_NO_SSL" : "SSL library not found - please, try to update the system"
+     "UI_CONFIRM_DOUBLE_SEND": "The transaction has been sent to this address already, are you sure that you want to repeat the transaction?",
+     "SERVER_RESPONSE_BAD_CODE": "Something went wrong, contact our support service, please,",
+     "SERVER_RESPONSE_BAD_INTERNET": "No access to internet",
+     "SERVER_RESPONSE_BAD_TX_TO_REPLACE": "Transaction was not found, please check your internet connection. Possible delays for updating information",
+     "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Insufficient balance of native currency %{symbol} to pay the network fee",
+     "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Native currency (%{symbol}) balance cannot be updated. Please check your internet connection",
+     "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Transaction amount is too small",
+     "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "Insufficient balance to send the transaction",
+     "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "Insufficient balance to pay the network fee - please use an option \"Send All\" ",
+     "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "Insufficient balance to pay the delegated transaction - please use ERC20 standard transaction",
+     "SERVER_RESPONSE_NO_RESPONSE": "The transaction has not received a network confirmation - please wait for the other transactions to be mined",
+     "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "The transaction has not received a network confirmation - please wait for the other transactions to be mined or place higher fee",
+     "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Insufficient balance of native currency %{symbol} to pay the network fee - please wait for the other transactions to be mined",
+     "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Transaction fee is too small",
+     "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Transaction replacement fee is too small - click yes to take some fee from the recipient's amount, then in the next step you will see the recalculated transaction data",
+     "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Transaction replacement fee is too small",
+     "SERVER_RESPONSE_NOT_CONNECTED": "Network is unreachable - please repeat the operation later",
+     "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "Insufficient balance to make the transaction and to pay the minimal fee",
+     "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "Please wait for the other transactions to be mined or turn ON an option \"Use unconfirmed transactions\" ",
+     "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Transaction fee is too high - please adjust the fee manually or send more funds",
+     "SERVER_RESPONSE_SELF_TX_FORBIDDEN": "Transactions to the same address are forbidden",
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "Insufficient balance to make the transaction (Please store not less than 20 XRP on balance)",
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "Insufficient funds - send not less than 20 XRP to activate the receiving address",
+     "SERVER_RESPONSE_TAG_NEEDED_XRP": "Destination Tag is incorrect - please enter the correct Destination Tag to make the transaction",
+     "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT": "Insufficient BTC balance on linked USDT address - please wait or turn ON an option \"Use unconfirmed transactions\" ",
+     "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM": "Insufficient or unconfirmed BTC balance on linked USDT address - please wait or turn ON an option \"Use unconfirmed transactions\" ",
+     "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH": "The transaction has not received a network confirmation - please wait for the other transactions to be mined or use ERC20 standard transaction",
+     "SERVER_RESPONSE_NO_SSL": "SSL library was not found - please update the system",
+     "SERVER_RESPONSE_PLEASE_SELECT_FEE": "Please, select the available fee from the list",
+     "SERVER_RESPONSE_MIN_GAS_ETH": "Minimal gas limit is 21000",
+      "SERVER_RESPONSE_BAD_DESTINATION" : "Destination address is invalid",
+      "SERVER_RESPONSE_BAD_SEND_NODE" : "No access to sending server",
+      "SERVER_RESPONSE_DOUBLE_SPEND" : "Please, regenerate transaction as outputs are changed or wait for the other transactions to be mined"
     }
   },
   "walletBackup": {
     "title": "Backup recovery phrase",
     "titleNewWallet": "Create new wallet",
+    "titleNewWalletSmall": "Create new",
     "skip": "Skip",
     "description": "Anyone with your recovery phrase can access or spend your coins. Please, carefully write down these %{mnemonicLength} %{words}.\nDo not tell the seed phrase under any circumstances!",
+    "pinProtected": "You will need to enter PIN to access recovery phrase",
     "attention": "You will confirm this phrase on the next step",
     "written": "I`ve written it down",
     "words": "words",
@@ -614,7 +708,8 @@
       "cancel": "Cancel",
       "yes": "Yes",
       "no": "No"
-    }
+    },
+    "descriptionXMR": "Anyone with your recovery phrase can access or spend your coins. This words are derived from main recovery phrase, so you could use it only to backup Monero"
   },
   "walletCreate": {
     "walletExist": "The wallet has been already imported.",
@@ -661,6 +756,14 @@
       "phoneInput": {
         "phoneNumber": "Phone number",
         "invalidFormat": "Invalid phone number"
+      },
+      "advInput": {
+        "advNumber": "Account number",
+        "invalidFormat": "Invalid account number"
+      },
+      "advEmail": {
+        "accountEmail": "Email",
+        "invalidFormat": "Invalid email"
       }
     },
     "navigation": {
@@ -692,17 +795,17 @@
       "title": "Feature expected",
       "description": "Technology allows transactions that have 0 confirmations to be updated. This feature will allow you to modify published transactions that are in the process of being verified by miners. Can be updated both the transaction fee size and address of recepient. More details following the link."
     },
-    "enterCashBackTokenLink": {
+    "enterCashbackTokenLink": {
       "title": "Connect with Comrade!",
       "description": "Please, enter the anonymous invitation link of the friend to connect your anonymous wallet to his structure. Note that the operation cannot be undone or changed."
     },
-    "cashBackTokenLinkModal": {
+    "cashbackTokenLinkModal": {
       "success": {
         "description": "Congratulations, your wallet successfully connected to your friend's structure. Wallets are linked using anonymous identifiers."
       }
     },
-    "cashBackLinkEqualModal": {
-      "description": "Sorry, it is not allowed to specify your own invitation link!"
+    "cashbackLinkEqualModal": {
+      "description": "Sorry, it is not allowed to specify your own invitation link %{link}!"
     },
     "walletCreateSettingsModal": {
       "title": "Wallet settings"
@@ -744,7 +847,25 @@
     },
     "infoUpdateModal": {
       "title": "Attention!",
-      "description": "A new version is available, please, update your wallet!"
+      "description": "A new version is available, please, update your wallet!",
+      "download": "Download",
+      "notNow": "Not now"
+    },
+    "infoNewInterface": {
+      "title": "A new interface is available",
+      "description": "See what we've changed for you",
+      "try": "Try",
+      "notNow": "Not now"
+    },
+    "rbfModal": {
+      "enable": "Enable",
+      "disable": "Disable",
+      "title": "Replace by fee",
+      "description": "The function of editing a transaction before confirmation by miners (Replace-by-Fee) is ",
+      "statusEnable": "enabled.",
+      "statusDisable": "disabled.",
+      "descriptionAdd": "You can enable it for BTC, ETH, DOGE and ERC20 tokens!",
+      "cancel": "Cancel"
     },
     "infoPayOrder": {
       "error": {
@@ -788,10 +909,9 @@
     },
     "licenseTerms": {
       "title": "Legal documents",
-      "description": "    Please, read this so you know what you`re agreeing to.",
+      "description": "    Please, read this so you know what you`re agreeing to",
       "accept": "Agree",
-      "decline": "Decline",
-      "checkboxText": "I accept the license terms"
+      "decline": "Decline"
     },
     "login": {
       "title": "Login/SignUp",
@@ -807,10 +927,7 @@
       "failed": "Failed...",
       "txCanceled": "Transaction has been canceled",
       "success": "Success!",
-      "txSuccess": "Transaction was successfully sent.",
-      "errors": {
-        "UI_ERROR_CASHBACK_NETWORK_ERROR": "Bad internet access"
-      }
+      "txSuccess": "Transaction was successfully sent."
     },
     "settings": {
       "soon": "Coming soon",
@@ -829,17 +946,14 @@
       "added": "Card was added."
     },
     "qrScanner": {
-
       "success": {
         "title": "Success!",
         "description": "The wallet has been successfully copied to clipboard!"
       },
-
       "error": {
         "title": "Sorry....",
         "description": "Invalid wallet. You can try again."
       },
-
       "sorry": "Sorry...."
     },
     "send": {
@@ -847,10 +961,10 @@
       "txSuccess": "Your transaction has been successfully sent!",
       "fail": "Fail..."
     },
-    "walletLog" : {
-      "sorry" : "Sorry....",
-      "noMailApp" : "No mail apps found",
-      "notComplited" : "Please, select some channel to complete share"
+    "walletLog": {
+      "sorry": "Sorry....",
+      "noMailApp": "No mail apps found",
+      "notComplited": "Please, select some channel to complete share"
     },
     "walletBackup": {
       "success": "Success!",
@@ -883,15 +997,15 @@
       "ru-UA": "Українська"
     }
   },
-   "scannerSettings" : {
-     "title" : "Scanner settings",
-     "codes" : {
-       "none" : "No auto",
-       "10min" : "10 minutes",
-       "1min" : "1 minute"
-     },
-     "lastScan" : "Last scanned: %{time}"
-   },
+  "scannerSettings": {
+    "title": "Scanner settings",
+    "codes": {
+      "none": "No auto",
+      "10min": "10 minutes",
+      "1min": "1 minute"
+    },
+    "lastScan": "Last scanned: %{time}"
+  },
   "repeat": {
     "receive": "Receive"
   },
@@ -902,7 +1016,9 @@
   },
   "toast": {
     "copied": "Copied to clipboard",
-    "noInternet": "No internet access"
+    "noInternet": "No internet access",
+    "badInternet": "Bad internet access, please, try reconnect with another provider",
+    "saved" : "Saved"
   },
   "tips": {
     "homeScreen": {
@@ -912,33 +1028,41 @@
       }
     }
   },
-   "appNews" : {
-     "title" : "Technical messages",
-     "subtitle" : "All notifications and messages",
-     "clearAll" : "Clear All",
-     "newsNull" : "Nothing new in your wallet"
-
-   },
-  "pushNotifications":  {
+  "appNews": {
+    "title": "Technical messages",
+    "subtitle": "All notifications and messages",
+    "subtitleSmall": "All notifications",
+    "clearAll": "Clear All",
+    "newsNull": "Nothing new in your wallet"
+  },
+  "pushNotifications": {
+    "FOUND_OUT_TX_STATUS_NEW": {
+      "title": "%{currencyName} outcoming transaction created",
+      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+    },
     "FOUND_OUT_TX_STATUS_FAIL": {
       "title": "%{currencyName} outcoming transaction fail",
-      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol}, hash %{transactionHash}"
+      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+    },
+    "FOUND_OUT_TX_STATUS_MISSING": {
+      "title": "%{currencyName} outcoming transaction not found",
+      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
     },
     "FOUND_OUT_TX_STATUS_SUCCESS": {
       "title": "%{currencyName} outcoming transaction mined",
-      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol}, hash %{transactionHash}"
+      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
     },
     "FOUND_OUT_TX_STATUS_CONFIRMING": {
       "title": "%{currencyName} outcoming transaction confirming",
-      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol}, hash %{transactionHash}"
+      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
     },
     "FOUND_OUT_TX_STATUS_DELEGATED": {
       "title": "%{currencyName} outcoming transaction delegated",
-      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol}, hash %{transactionHash}"
+      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
     },
     "FOUND_IN_TX": {
       "title": "%{currencyName} incoming transaction",
-      "description": "%{walletName} got %{amountPretty} %{currencySymbol}, hash %{transactionHash}"
+      "description": "%{walletName} got %{amountPretty} %{currencySymbol} %{addressFrom}"
     },
     "DAEMON_HAS_FOUND_HD": {
       "title": "%{currencyName} HD wallet found",
@@ -951,220 +1075,236 @@
     "DAEMON_HAS_FOUND_BALANCE": {
       "title": "%{currencyName} not shown, but has balance",
       "description": "%{walletName} address %{address} has %{amountPretty} %{currencySymbol}"
+    },
+    "CURRENCY_RATE_UPDATED": {
+      "title": "%{currencyName} rate updated",
+      "description": "current value is %{currencyRateUsd}$"
+    },
+    "CURRENCY_RATE_SCANNED_LAST_TIME": {
+      "title": "Currency rates are scanned",
+      "description": "but cached values are the same - so no changes"
+    },
+    "TXS_SCANNED_LAST_TIME" : {
+      "title" : "%{currencyName} transactions are scanned",
+      "description" : "%{walletName} log %{log}"
+    },
+    "HD_SCANNED_LAST_TIME" : {
+      "title" : "HD transactions are scanned",
+      "description" : "%{walletName} log %{log}"
     }
   },
   "currencyList": {
     "AUD": {
-      "currencyCode":"AUD",
-      "currency":"Australian Dollar"
+      "currencyCode": "AUD",
+      "currency": "Australian Dollar"
     },
     "CAD": {
-      "currencyCode":"CAD",
-      "currency":"Canadian Dollar"
+      "currencyCode": "CAD",
+      "currency": "Canadian Dollar"
     },
     "CNY": {
-      "currencyCode":"CNY",
-      "currency":"Chinese Yuan"
+      "currencyCode": "CNY",
+      "currency": "Chinese Yuan"
     },
     "HRK": {
-      "currencyCode":"HRK",
-      "currency":"Croatian Kuna"
+      "currencyCode": "HRK",
+      "currency": "Croatian Kuna"
     },
     "CZK": {
-      "currencyCode":"CZK",
-      "currency":"Czech Republic Koruna"
+      "currencyCode": "CZK",
+      "currency": "Czech Republic Koruna"
     },
     "DKK": {
-      "currencyCode":"DKK",
-      "currency":"Danish Krone"
+      "currencyCode": "DKK",
+      "currency": "Danish Krone"
     },
     "HKD": {
-      "currencyCode":"HKD",
-      "currency":"Hong Kong Dollar"
+      "currencyCode": "HKD",
+      "currency": "Hong Kong Dollar"
     },
     "HUF": {
-      "currencyCode":"HUF",
-      "currency":"Hungarian Forint"
+      "currencyCode": "HUF",
+      "currency": "Hungarian Forint"
     },
     "INR": {
-      "currencyCode":"INR",
-      "currency":"Indian Rupee"
+      "currencyCode": "INR",
+      "currency": "Indian Rupee"
     },
     "IDR": {
-      "currencyCode":"IDR",
-      "currency":"Indonesian Rupiah"
+      "currencyCode": "IDR",
+      "currency": "Indonesian Rupiah"
     },
     "IRR": {
-      "currencyCode":"IRR",
-      "currency":"Iranian Rial"
+      "currencyCode": "IRR",
+      "currency": "Iranian Rial"
     },
     "ILS": {
-      "currencyCode":"ILS",
-      "currency":"Israeli New Sheqel"
+      "currencyCode": "ILS",
+      "currency": "Israeli New Sheqel"
     },
     "JPY": {
-      "currencyCode":"JPY",
-      "currency":"Japanese Yen"
+      "currencyCode": "JPY",
+      "currency": "Japanese Yen"
     },
     "KZT": {
-      "currencyCode":"KZT",
-      "currency":"Kazakhstani Tenge"
+      "currencyCode": "KZT",
+      "currency": "Kazakhstani Tenge"
     },
     "KRW": {
-      "currencyCode":"KRW",
-      "currency":"South Korean Won"
+      "currencyCode": "KRW",
+      "currency": "South Korean Won"
     },
     "MXN": {
-      "currencyCode":"MXN",
-      "currency":"Mexican Peso"
+      "currencyCode": "MXN",
+      "currency": "Mexican Peso"
     },
     "MDL": {
-      "currencyCode":"MDL",
-      "currency":"Moldovan Leu"
+      "currencyCode": "MDL",
+      "currency": "Moldovan Leu"
     },
     "NZD": {
-      "currencyCode":"NZD",
-      "currency":"New Zealand Dollar"
+      "currencyCode": "NZD",
+      "currency": "New Zealand Dollar"
     },
     "NOK": {
-      "currencyCode":"NOK",
-      "currency":"Norwegian Krone"
+      "currencyCode": "NOK",
+      "currency": "Norwegian Krone"
     },
     "RUB": {
-      "currencyCode":"RUB",
-      "currency":"Russian Ruble"
+      "currencyCode": "RUB",
+      "currency": "Russian Ruble"
     },
     "SAR": {
-      "currencyCode":"SAR",
-      "currency":"Saudi Riyal"
+      "currencyCode": "SAR",
+      "currency": "Saudi Riyal"
     },
     "SGD": {
-      "currencyCode":"SGD",
-      "currency":"Singapore Dollar"
+      "currencyCode": "SGD",
+      "currency": "Singapore Dollar"
     },
     "ZAR": {
-      "currencyCode":"ZAR",
-      "currency":"South African Rand"
+      "currencyCode": "ZAR",
+      "currency": "South African Rand"
     },
     "SEK": {
-      "currencyCode":"SEK",
-      "currency":"Swedish Krona"
+      "currencyCode": "SEK",
+      "currency": "Swedish Krona"
     },
     "CHF": {
-      "currencyCode":"CHF",
-      "currency":"Swiss Franc"
+      "currencyCode": "CHF",
+      "currency": "Swiss Franc"
     },
     "EGP": {
-      "currencyCode":"EGP",
-      "currency":"Egyptian Pound"
+      "currencyCode": "EGP",
+      "currency": "Egyptian Pound"
     },
     "GBP": {
-      "currencyCode":"GBP",
-      "currency":"British Pound Sterling"
+      "currencyCode": "GBP",
+      "currency": "British Pound Sterling"
     },
     "USD": {
-      "currencyCode":"USD",
-      "currency":"US Dollar"
+      "currencyCode": "USD",
+      "currency": "US Dollar"
     },
     "AZN": {
-      "currencyCode":"AZN",
-      "currency":"Azerbaijani Manat"
+      "currencyCode": "AZN",
+      "currency": "Azerbaijani Manat"
     },
     "RON": {
-      "currencyCode":"RON",
-      "currency":"Romanian Leu"
+      "currencyCode": "RON",
+      "currency": "Romanian Leu"
     },
     "TRY": {
-      "currencyCode":"TRY",
-      "currency":"Turkish Lira"
+      "currencyCode": "TRY",
+      "currency": "Turkish Lira"
     },
     "BGN": {
-      "currencyCode":"BGN",
-      "currency":"Bulgarian Lev"
+      "currencyCode": "BGN",
+      "currency": "Bulgarian Lev"
     },
     "EUR": {
-      "currencyCode":"EUR",
-      "currency":"Euro"
+      "currencyCode": "EUR",
+      "currency": "Euro"
     },
     "PLN": {
-      "currencyCode":"PLN",
-      "currency":"Polish Zloty"
+      "currencyCode": "PLN",
+      "currency": "Polish Zloty"
     },
     "DZD": {
-      "currencyCode":"DZD",
-      "currency":"Algerian Dinar"
+      "currencyCode": "DZD",
+      "currency": "Algerian Dinar"
     },
     "BDT": {
-      "currencyCode":"BDT",
-      "currency":"Bangladeshi Taka"
+      "currencyCode": "BDT",
+      "currency": "Bangladeshi Taka"
     },
     "AMD": {
-      "currencyCode":"AMD",
-      "currency":"Armenian Dram"
+      "currencyCode": "AMD",
+      "currency": "Armenian Dram"
     },
     "IQD": {
-      "currencyCode":"IQD",
-      "currency":"Iraqi Dinar"
+      "currencyCode": "IQD",
+      "currency": "Iraqi Dinar"
     },
     "LBP": {
-      "currencyCode":"LBP",
-      "currency":"Lebanese Pound"
+      "currencyCode": "LBP",
+      "currency": "Lebanese Pound"
     },
     "LYD": {
-      "currencyCode":"LYD",
-      "currency":"Libyan Dinar"
+      "currencyCode": "LYD",
+      "currency": "Libyan Dinar"
     },
     "MYR": {
-      "currencyCode":"MYR",
-      "currency":"Malaysian Ringgit"
+      "currencyCode": "MYR",
+      "currency": "Malaysian Ringgit"
     },
     "MAD": {
-      "currencyCode":"MAD",
-      "currency":"Moroccan Dirham"
+      "currencyCode": "MAD",
+      "currency": "Moroccan Dirham"
     },
     "PKR": {
-      "currencyCode":"PKR",
-      "currency":"Pakistani Rupee"
+      "currencyCode": "PKR",
+      "currency": "Pakistani Rupee"
     },
     "VND": {
-      "currencyCode":"VND",
-      "currency":"Vietnamese Dong"
+      "currencyCode": "VND",
+      "currency": "Vietnamese Dong"
     },
     "THB": {
-      "currencyCode":"THB",
-      "currency":"Thai Baht"
+      "currencyCode": "THB",
+      "currency": "Thai Baht"
     },
     "AED": {
-      "currencyCode":"AED",
-      "currency":"United Arab Emirates Dirham"
+      "currencyCode": "AED",
+      "currency": "United Arab Emirates Dirham"
     },
     "TND": {
-      "currencyCode":"TND",
-      "currency":"Tunisian Dinar"
+      "currencyCode": "TND",
+      "currency": "Tunisian Dinar"
     },
     "UZS": {
-      "currencyCode":"UZS",
-      "currency":"Uzbekistan Som"
+      "currencyCode": "UZS",
+      "currency": "Uzbekistan Som"
     },
     "TWD": {
-      "currencyCode":"TWD",
-      "currency":"New Taiwan Dollar"
+      "currencyCode": "TWD",
+      "currency": "New Taiwan Dollar"
     },
     "GHS": {
-      "currencyCode":"GHS",
-      "currency":"Gibraltar Pound"
+      "currencyCode": "GHS",
+      "currency": "Gibraltar Pound"
     },
     "RSD": {
-      "currencyCode":"RSD",
-      "currency":"Serbian Dinar"
+      "currencyCode": "RSD",
+      "currency": "Serbian Dinar"
     },
     "GEL": {
-      "currencyCode":"GEL",
-      "currency":"Georgian Lari"
+      "currencyCode": "GEL",
+      "currency": "Georgian Lari"
     },
     "UAH": {
-      "currencyCode":"UAH",
-      "currency":"Ukrainian Hryvnia"
+      "currencyCode": "UAH",
+      "currency": "Ukrainian Hryvnia"
     }
   }
 }

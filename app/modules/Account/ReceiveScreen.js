@@ -53,9 +53,11 @@ import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 
 import UIDict from '../../services/UIDict/UIDict'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import prettyNumber from '../../services/UI/PrettyNumber/PrettyNumber'
-import AppSupport from '../../services/AppSupport/AppSupport'
+
 import QrCodeBox from '../../components/elements/QrCodeBox'
+import OldPhone from '../../services/UI/OldPhone/OldPhone'
+import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
 let styles
 
@@ -208,7 +210,7 @@ class ReceiveScreen extends Component {
 
             NavStore.goNext('TradeScreenStack', {
                 exchangeScreenParam: {
-                    selectedCryptocurrency: this.props.currency
+                    selectedCryptocurrency: this.props.cryptoCurrency
                 }
             })
         })
@@ -217,18 +219,12 @@ class ReceiveScreen extends Component {
     handleExchange = () => {
 
         try {
-            AppSupport.isExchangeAvailable()
-
             setLoaderStatus(true)
-
-            // @misha to dict
-            const code = this.props.cryptoCurrency.currencyCode === 'ETH_USDT' ? 'USDTERC20' : this.props.cryptoCurrency.currencySymbol
 
             NavStore.goNext('ExchangeScreenStack',
                 {
-                    exchangeMainDataScreenParam: {
-                        url: `https://changenow.io/${sublocale()}/exchange?amount=1&from=${code}&link_id=35bd08f188a35c&to=eth`,
-                        type: 'CREATE_NEW_ORDER'
+                    exchangeScreenParam: {
+                        selectedOutCurrency: this.props.cryptoCurrency
                     }
                 })
         } catch (e) {
@@ -259,23 +255,24 @@ class ReceiveScreen extends Component {
         const address = this.getAddress()
 
         try {
+            setLoaderStatus(true)
             this.refSvg.toDataURL(async (data) => {
 
                 const message = `${currencySymbol}
                 ${address}`
                 if (Platform.OS === 'android') {
                     // noinspection ES6MissingAwait
-                    Share.open({ message, url: `data:image/png;base64,${data}` })
+                    prettyShare({ message, url: `data:image/png;base64,${data}` })
                 } else {
-
                     const fs = new FileSystem()
-
                     await (fs.setFileEncoding('base64').setFileName('QR').setFileExtension('jpg')).writeFile(data)
                     // noinspection ES6MissingAwait
-                    Share.open({ message, url: await fs.getPathOrBase64() })
+                    prettyShare({ message, url: await fs.getPathOrBase64() })
                 }
+                setLoaderStatus(false)
             })
         } catch (e) {
+            setLoaderStatus(false)
             showModal({
                 type: 'CUSTOM_RECEIVE_AMOUNT_MODAL',
                 data: {
@@ -295,7 +292,7 @@ class ReceiveScreen extends Component {
             cryptoCurrency: this.props.cryptoCurrency
         })
 
-        const currencyAmountPrep = prettyNumber(account.balancePretty, 5)
+        const currencyAmountPrep = BlocksoftPrettyNumbers.makeCut(account.balancePretty).separated
 
         return (
             <View style={styles.accountDetail}>
@@ -354,14 +351,14 @@ class ReceiveScreen extends Component {
             const backgroundColor = dict.settings.colors.mainColor
             return (
                 <View style={{ flexDirection: 'row', width: '100%' }}>
-                    <TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center', height: 56 }} disabled={settingAddressType === 'segwit'} onPress={this.changeAddressType}>
+                    <TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center', height: 36 }} disabled={settingAddressType === 'segwit'} onPress={this.changeAddressType}>
                         <Text style={{
                             fontFamily: 'Montserrat-Bold',
                             fontSize: 12,
                             color: settingAddressType === 'segwit' ? dict.settings.colors.mainColor : '#404040'
                         }}>SegWit</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center', height: 56 }} disabled={settingAddressType === 'legacy'} onPress={this.changeAddressType}>
+                    <TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center', height: 36 }} disabled={settingAddressType === 'legacy'} onPress={this.changeAddressType}>
                         <Text style={{
                             fontFamily: 'Montserrat-Bold',
                             fontSize: 12,
@@ -413,12 +410,6 @@ class ReceiveScreen extends Component {
 
         const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? this.props.account.segwitAddress : this.props.account.legacyAddress
 
-        let platform = Platform.OS + ' v' + Platform.Version
-        platform = platform.toLowerCase()
-        let oldIos = false
-        if (platform.indexOf('ios v10.') === 0 || platform.indexOf('ios v9.') === 0) {
-            oldIos = true
-        }
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <Navigation
@@ -428,19 +419,19 @@ class ReceiveScreen extends Component {
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={styles.wrapper__content}>
                         <View style={styles.qr}>
-                            <GradientView style={[styles.qr__content, currencyCode === 'BTC' && +btcShowTwoAddress ? null : { paddingTop: 22 }]}
+                            <GradientView style={[styles.qr__content, currencyCode === 'BTC' && +btcShowTwoAddress ? null : { paddingTop: 12 }]}
                                           array={styles.qr__bg.array} start={styles.qr__bg.start}
                                           end={styles.qr__bg.end}>
                                 {currencyCode === 'BTC' && +btcShowTwoAddress ? this.renderSegWitLegacy() : null}
                                 <TouchableOpacity style={{
                                     position: 'relative',
-                                    paddingHorizontal: 20,
+                                    paddingHorizontal: 10,
                                     alignItems: currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd ? 'flex-start' : 'center'
                                 }} onPress={() => this.copyToClip()}>
                                     <QrCodeBox
                                         getRef={ref => this.refSvg = ref}
                                         value={this.getAddressForQR()}
-                                        size={230}
+                                        size={250}
                                         color='#404040'
                                         logo={qrLogo}
                                         logoSize={70}
@@ -449,7 +440,7 @@ class ReceiveScreen extends Component {
                                             Log.err('ReceiveScreen QRCode error ' + e.message)
                                         }}
                                     />
-                                    <View style={{ width: 200, marginTop: 20 }}>
+                                    <View style={{ width: 200, marginTop: 10 }}>
                                         <LetterSpacing text={currencyCode === 'BTC' ? btcAddress : address} numberOfLines={2} containerStyle={{
                                             flexWrap: 'wrap',
                                             justifyContent: currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd ? 'flex-start' : 'center'
@@ -471,7 +462,7 @@ class ReceiveScreen extends Component {
                                 <View style={styles.line}>
                                     <View style={styles.line__item}/>
                                 </View>
-                                {oldIos ? null : <View style={{
+                                {OldPhone.isOldPhone() ? null : <View style={{
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                     justifyContent: 'space-between'

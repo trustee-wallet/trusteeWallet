@@ -11,6 +11,8 @@ import store from '../../store'
 
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 
+import Log from '../../services/Log/Log'
+
 class AppLockScreenIdleTime {
 
     lockScreenTimerIOS = {}
@@ -21,6 +23,7 @@ class AppLockScreenIdleTime {
         if (this._init) {
             return true
         }
+        Log.daemon('LockScreen inited')
         if (Platform.OS === 'android') {
             AppState.addEventListener('change', (state) => this.handleLockScreenStateAndroid({ state }))
         } else {
@@ -30,12 +33,14 @@ class AppLockScreenIdleTime {
     }
 
     handleLockScreenStateAndroid = (param) => {
+        Log.daemon('LockScreen param.state', param.state)
         if (param.state === 'background') {
 
             BackgroundTimer.runBackgroundTimer(() => {
                 const { lock_screen_status } = store.getState().settingsStore.data
 
                 if (+lock_screen_status) {
+                    Log.daemon('LockScreen on background timer runned Android')
                     lockScreenAction.setFlowType({
                         flowType: ''
                     })
@@ -54,6 +59,8 @@ class AppLockScreenIdleTime {
                 const { lock_screen_status } = store.getState().settingsStore.data
 
                 if (+lock_screen_status) {
+                    Log.daemon('LockScreen on background timer runned Ios')
+
                     lockScreenAction.setFlowType({
                         flowType: ''
                     })

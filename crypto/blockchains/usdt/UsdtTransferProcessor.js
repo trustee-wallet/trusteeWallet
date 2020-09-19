@@ -9,6 +9,7 @@ import BtcSendProvider from '../btc/providers/BtcSendProvider'
 import UsdtTxInputsOutputs from './tx/UsdtTxInputsOutputs'
 import UsdtTxBuilder from './tx/UsdtTxBuilder'
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
+import UsdtScannerProcessor from './UsdtScannerProcessor'
 
 const Dispatcher = new BlocksoftDispatcher()
 
@@ -31,7 +32,7 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
         this.txPrepareInputsOutputs = new UsdtTxInputsOutputs(this._settings, this._trezorServerCode)
         this.txBuilder = new UsdtTxBuilder(this._settings, this._trezorServerCode)
         this._initedProviders = true
-        this.usdtScannerProcessor = false
+        this.usdtScannerProcessor = new UsdtScannerProcessor()
     }
 
     /**
@@ -93,7 +94,7 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
 
         const now = new Date().getTime()
         if (this._precached.unspentsKey !== this._unspentsKeyFromData(data) || !this._precached.blocks_2 || !this._precached.unspents || now - this._precached.time > CACHE_VALID_TIME) {
-            await this.getTransferPrecache(data)
+            await this.getTransferPrecache(data, 'usdt sendTx')
         }
 
         const correctedAmountFrom = data.amount // USDT FIX!!!!
@@ -137,6 +138,7 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor {
         logInputsOutputs.hash = result
         // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('usdt_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
+        MarketingEvent.logOnlyRealTime('usdt_tx_raw_success ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo + ' ' + result, rawTxHex)
 
         return {
             hash: result,

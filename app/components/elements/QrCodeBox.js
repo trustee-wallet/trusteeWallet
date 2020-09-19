@@ -2,9 +2,9 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { Platform, View, Text } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
 import QRCodeOld from 'react-native-qrcode'
+import OldPhone from '../../services/UI/OldPhone/OldPhone'
 
 export default class QrCodeBox extends Component {
 
@@ -14,9 +14,10 @@ export default class QrCodeBox extends Component {
     }
 
     render() {
-        let platform = Platform.OS + ' v' + Platform.Version
-        platform = platform.toLowerCase()
-        if (platform.indexOf('ios v10.') === 0 || platform.indexOf('ios v9.') === 0) {
+        if (!this.props.value || this.props.value === '') {
+            return null
+        }
+        if (OldPhone.isOldPhone()) {
             return (
                 <QRCodeOld
                     getRef={this.props.getRef}
@@ -38,6 +39,7 @@ export default class QrCodeBox extends Component {
                 logo={this.props.logo}
                 logoSize={this.props.logoSize}
                 logoBackgroundColor={this.props.logoBackgroundColor}
+                quietZone={10}
                 onError={this.props.onError}
             />
         )

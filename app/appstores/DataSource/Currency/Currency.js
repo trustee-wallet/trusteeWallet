@@ -19,8 +19,6 @@ export default {
      */
     updateCurrency: async (data) => {
 
-        Log.daemon('DS/Currency updateCurrency called ', data)
-
         const dbInterface = new DBInterface()
 
         if (typeof data.updateObj.currencyRateJson !== 'undefined') {
@@ -41,7 +39,6 @@ export default {
             return true
         }
 
-        Log.daemon('DS/Currency updateCurrency finished')
         return true
 
     },
@@ -54,23 +51,17 @@ export default {
      */
     insertCurrency: async (data) => {
 
-        Log.daemon('DS/Currency insertCurrency called')
-
         const dbInterface = new DBInterface()
 
         await dbInterface.setTableName(tableName).setInsertData(data).insert()
-
-        Log.daemon('DS/Currency insertCurrency finished')
 
     },
 
     /**
      * @namespace Flow.updateRates
-     * @returns {Promise<{currencyCode, currencyRateUsd, currencyRateJson, currencyRateScanTime, priceProvider, priceChangePercentage24h, priceChange24h, priceHigh24h, priceLow24h, priceLastUpdate}[]>}
+     * @returns {Promise<{currencyCode, currencyRateUsd, currencyRateJson, currencyRateScanTime, priceProvider, priceChangePercentage24h, priceLastUpdate}[]>}
      */
     getCurrencies: async () => {
-
-        Log.daemon('DS/Currency getCurrencies called')
 
         const dbInterface = new DBInterface()
 
@@ -83,14 +74,9 @@ export default {
               currency_rate_scan_time AS currencyRateScanTime,                
               price_provider AS priceProvider,
               price_change_percentage_24h AS priceChangePercentage24h,
-              price_change_24h AS priceChange24h,
-              price_high_24h AS priceHigh24h,
-              price_low_24h AS priceLow24h,
               price_last_updated AS priceLastUpdate
             FROM ${tableName}
         `).query()
-
-        Log.daemon('DS/Currency getCurrencies finished')
 
         if (!res || !res.array) {
             return false
@@ -116,13 +102,9 @@ export default {
      */
     getCurrenciesCodesActivated: async () => {
 
-        Log.daemon('DS/Currency getCurrenciesCodesActivated called')
-
         const dbInterface = new DBInterface()
 
         const res = await dbInterface.setQueryString(`SELECT currency_code AS currencyCode FROM ${tableName}`).query()
-
-        Log.daemon('DS/Currency getCurrenciesCodesActivated finished')
 
         if (!res || !res.array) {
             return BlocksoftDict.Codes

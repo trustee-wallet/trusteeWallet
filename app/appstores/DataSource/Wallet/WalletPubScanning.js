@@ -62,6 +62,7 @@ export default {
             LIMIT 20
         `
         let res = []
+        const unique = {}
         try {
             res = await dbInterface.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
@@ -70,11 +71,15 @@ export default {
             }
             res = res.array
             for (let i = 0, ic = res.length; i < ic; i++) {
-                res[i].balance = BlocksoftFixBalance(res[i], 'balance')
-                res[i].unconfirmed = BlocksoftFixBalance(res[i], 'unconfirmed')
-                res[i].balanceScanBlock = typeof res[i].balanceScanBlock !== 'undefined' ? (res[i].balanceScanBlock * 1) : 0
-                res[i].balanceScanLog = res[i].balanceScanLog || ''
-                res[i].transactionsScanLog = res[i].transactionsScanLog || ''
+                const key = res[i].walletHash + '_' + res[i].walletPubType
+                if (typeof unique[key] === 'undefined') {
+                    res[i].balance = BlocksoftFixBalance(res[i], 'balance')
+                    res[i].unconfirmed = BlocksoftFixBalance(res[i], 'unconfirmed')
+                    res[i].balanceScanBlock = typeof res[i].balanceScanBlock !== 'undefined' ? (res[i].balanceScanBlock * 1) : 0
+                    res[i].balanceScanLog = res[i].balanceScanLog || ''
+                    res[i].transactionsScanLog = res[i].transactionsScanLog || ''
+                    unique[key] = 1
+                }
             }
             Log.daemon('DS/WalletPubScanning getWalletPubsForScan finished')
         } catch (e) {

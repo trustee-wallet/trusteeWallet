@@ -36,10 +36,11 @@ export default class TrxTransferProcessor {
      * @param {string} data.addressFrom
      * @param {string} data.addressTo
      * @param {string|int} data.amount
-     * @param {number|boolean} alreadyEstimatedGas
+     * @param {number|boolean} additionalData.isPrecount
+     * @param {number|boolean} additionalData.estimatedGas
      * @returns {Promise<boolean>}
      */
-    async getFeeRate(data, alreadyEstimatedGas = false) {
+    async getFeeRate(data, additionalData) {
         if (data.addressTo && data.addressTo !== data.addressFrom) {
             try {
                 const res = await BlocksoftAxios.get('https://apilist.tronscan.org/api/account?address=' + data.addressTo)
@@ -87,7 +88,7 @@ export default class TrxTransferProcessor {
         }
         if (balanceRaw) {
             if (feeForTx > 0) {
-                return BlocksoftUtils.toBigNumber(balanceRaw).sub(BlocksoftUtils.toBigNumber(feeForTx)).toString()
+                return BlocksoftUtils.diff(balanceRaw, feeForTx)
             } else {
                 return balanceRaw
             }
@@ -105,7 +106,7 @@ export default class TrxTransferProcessor {
             result = await this._trongridProvider.get(addressHex, this._tokenName)
         }
         if (this._tokenName === '_' && feeForTx > 0) {
-            return BlocksoftUtils.toBigNumber(result.balance).sub(BlocksoftUtils.toBigNumber(feeForTx)).toString()
+            return BlocksoftUtils.diff(result.balance, feeForTx)
         }
         return result.balance
     }
@@ -239,10 +240,16 @@ export default class TrxTransferProcessor {
     }
 
     checkError(msg) {
-        if (msg.indexOf('balance is not sufficient') !== -1) {
+        if (this._settings.currencyCode !== 'TRX' && msg.indexOf('AccountResourceInsufficient') !== -1) {
+            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+        } else if (msg.indexOf('balance is not sufficient') !== -1) {
+            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+        } else if (msg.indexOf('account not exist') !== -1) {
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
         } else if (msg.indexOf('Amount must greater than 0') !== -1) {
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
+        } else if (msg.indexOf('assetBalance must be greater than 0') !== -1 || msg.indexOf('assetBalance is not sufficient') !== -1) {
+            throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
         } else {
             throw new Error(msg)
         }

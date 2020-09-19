@@ -5,6 +5,8 @@ import DBInterface from '../DB/DBInterface'
 
 import BlocksoftKeysUtils from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeysUtils'
 import Log from '../../../services/Log/Log'
+import CashBackUtils from '../../Stores/CashBack/CashBackUtils'
+import DaemonCache from '../../../daemons/DaemonCache'
 
 const CACHE = []
 
@@ -13,6 +15,7 @@ class Wallet {
     /**
      * @param {Object} wallet
      * @param {string} wallet.walletHash
+     * @param {string} wallet.walletCashback
      * @param {string} wallet.walletName
      * @param {string} wallet.walletJson
      * @param {integer} wallet.walletIsBackedUp
@@ -27,8 +30,11 @@ class Wallet {
         const dbInterface = new DBInterface()
         const tmpWalletName = dbInterface.escapeString(wallet.walletName)
         const tmpWalletJSON = dbInterface.escapeString(wallet.walletJson)
+
+        const walletUseLegacy = 2
+        const walletUseUnconfirmed = 1
         await dbInterface.setQueryString(`INSERT INTO wallet (wallet_hash, wallet_name, wallet_json, wallet_is_hd, wallet_use_legacy, wallet_use_unconfirmed, wallet_allow_replace_by_fee, wallet_is_backed_up, wallet_is_hide_transaction_for_fee) 
-        VALUES ('${wallet.walletHash}', '${tmpWalletName}','${tmpWalletJSON}', 0, 0, 0, 0, ${wallet.walletIsBackedUp || 0}, ${wallet.walletIsHideTransactionForFee || 1})`).query(true)
+        VALUES ('${wallet.walletHash}', '${tmpWalletName}','${tmpWalletJSON}', 0, ${walletUseLegacy}, ${walletUseUnconfirmed}, 1, ${wallet.walletIsBackedUp || 0}, ${wallet.walletIsHideTransactionForFee || 1})`).query(true)
     }
 
     /**
@@ -47,6 +53,7 @@ class Wallet {
 
     /**
      * @param {string} wallet.walletHash
+     * @param {string} wallet.walletCashback
      * @param {string} wallet.walletIsHd
      * @param {string} wallet.walletUseUnconfirmed
      * @param {string} wallet.walletUseLegacy
@@ -82,7 +89,8 @@ class Wallet {
      */
     changeWalletName = async (walletHash, newWalletName) => {
         const dbInterface = new DBInterface()
-        await dbInterface.setQueryString(`UPDATE wallet SET wallet_name='${newWalletName}' WHERE wallet_hash='${walletHash}'`).query()
+        await dbInterface.setQueryString(`UPDATE wallet SET wallet_name='${dbInterface.escapeString(newWalletName)}' WHERE wallet_hash='${walletHash}'`).query()
+        CACHE[walletHash] = false
     }
 
     /**
@@ -94,6 +102,7 @@ class Wallet {
         const res = await dbInterface.setQueryString(`
                 SELECT
                 wallet_hash AS walletHash,
+                wallet_cashback AS walletCashback,
                 wallet_name AS walletName,
                 wallet_is_hd AS walletIsHd,
                 wallet_is_backed_up AS walletIsBackedUp,
@@ -102,12 +111,27 @@ class Wallet {
                 wallet_allow_replace_by_fee AS walletAllowReplaceByFee,
                 wallet_is_hide_transaction_for_fee AS walletIsHideTransactionForFee
                 FROM wallet`).query()
-        if (!res || !res.array) return res
+        if (!res || !res.array) {
+            Log.log('DS/Wallet getWallets no result')
+            return []
+        }
         for (let i = 0, ic = res.array.length; i < ic; i++) {
             res.array[i] = this._prepWallet(res.array[i])
-
+            this._redoCashback(res.array[i])
         }
         return res.array
+    }
+
+    async _redoCashback(wallet) {
+        if (wallet.walletCashback && wallet.walletCashback !== '') {
+            return wallet
+        }
+        const dbInterface = new DBInterface()
+        const { cashbackToken } = await CashBackUtils.getByHash(wallet.walletHash, 'DS/Wallet getWallets redo')
+        await dbInterface.setQueryString(`UPDATE wallet SET wallet_cashback='${cashbackToken}' WHERE wallet_hash='${wallet.walletHash}'`).query()
+        wallet.walletCashback = cashbackToken
+        DaemonCache.CACHE_WALLET_NAMES_AND_CB[wallet.walletHash] = wallet
+        return wallet
     }
 
     _prepWallet(wallet) {

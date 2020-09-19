@@ -5,6 +5,7 @@ import RNFS, { unlink } from 'react-native-fs'
 import ImageResizer from 'react-native-image-resizer'
 
 import { Platform } from 'react-native'
+import FilePermissions from './FilePermissions'
 
 
 class FileSystem {
@@ -39,9 +40,10 @@ class FileSystem {
      */
     _returnBase64 = false
 
-    constructor() {
-        this._dirname = RNFS.DocumentDirectoryPath
+    constructor(baseDir = 'logs') {
+        this._dirname = RNFS.DocumentDirectoryPath + '/' + baseDir
     }
+
 
     writeFile = async (content) => {
         let res
@@ -58,7 +60,11 @@ class FileSystem {
     getPathOrBase64 = async () => {
         if (Platform.OS === 'android') {
             const res = await this.getBase64()
-            return 'data:text/plain;base64,' + res
+            let type = 'data:text/plain'
+            if (this._fileExtension === 'zip') {
+                type = 'data:application/zip'
+            }
+            return type + ';base64,' + res
         } else {
             return this.getPath()
         }
@@ -85,6 +91,31 @@ class FileSystem {
         return `${_dirname}/${_fileName}.${_fileExtension}`
     }
 
+    cleanDir = async () => {
+        const items = await RNFS.readDir(this._dirname)
+        if (!items) return
+        let item
+        for (item of items) {
+            await RNFS.unlink(item.path)
+        }
+        return true
+    }
+
+    remove = async () => {
+        let res
+        try {
+            const path = this.getPath()
+            res = await RNFS.exists(path)
+            if (!res) {
+                return true
+            }
+            await RNFS.unlink(path)
+        } catch (e) {
+            console.error('FileSystem.remove error ' + e.message)
+        }
+        return res
+    }
+
     checkOverflow = async () => {
         let res
         try {
@@ -105,6 +136,9 @@ class FileSystem {
     }
 
     writeLine = async (line) => {
+        if (!FilePermissions.isOk()) {
+            return false
+        }
         if (line.indexOf('appendFile') !== -1) {
             return false
         }
@@ -144,6 +178,10 @@ class FileSystem {
         return this
     }
 
+    getDir() {
+        return this._dirname
+    }
+
     /**
      * @param {boolean} returnBase64
      * @returns {FileSystem}
@@ -159,7 +197,6 @@ class FileSystem {
         return RNFS.readFile(resizedImageUrl.uri, 'base64')
     }
 }
-
 
 
 export default FileSystem

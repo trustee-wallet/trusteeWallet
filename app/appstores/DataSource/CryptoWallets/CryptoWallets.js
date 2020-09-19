@@ -46,41 +46,45 @@ const cryptoWallets = {
     async getSelectedWallet() {
         let storedSelectedWalletHash = null
         try {
-            Log.log('DS/cryptoWallets getSelectedWallet')
+            // Log.log('DS/cryptoWallets getSelectedWallet')
 
             storedSelectedWalletHash = await BlocksoftKeysStorage.getSelectedWallet()
 
-            Log.log('DS/cryptoWallets getSelectedWallet finished')
+            // Log.log('DS/cryptoWallets getSelectedWallet finished')
         } catch (e) {
             Log.err('DS/cryptoWallets getSelectedWallet error ' + e.message)
         }
         return storedSelectedWalletHash
     },
 
-    async getWallet(walletHash) {
+    async getWallet(walletHash, source) {
         let storedWalletMnemonic = null
         try {
-            Log.log('DS/cryptoWallets getWallet', walletHash)
+            // Log.log('DS/cryptoWallets getWallet ' + source  + ' ' + walletHash + ' started')
 
             storedWalletMnemonic = await BlocksoftKeysStorage.getWalletMnemonic(walletHash)
 
-            Log.log('DS/cryptoWallets getWallet finished')
+            // Log.log('DS/cryptoWallets getWallet ' + source + ' finished')
         } catch (e) {
-            Log.err('DS/cryptoWallets getWallet error ' + e.message)
+            Log.err('DS/cryptoWallets getWallet ' + source + ' error ' + e.message)
         }
         return storedWalletMnemonic
     },
 
-    async setSelectedWallet(walletHash) {
-        let storedSelectedWallet = []
+    getFirstWallet() {
+        return BlocksoftKeysStorage.getFirstWallet()
+    },
+
+    async setSelectedWallet(walletHash, source) {
+        let storedSelectedWallet = null
         try {
-            Log.log('DS/cryptoWallets setSelectedWallet called ' + walletHash)
+            // Log.log('DS/cryptoWallets setSelectedWallet called ' + walletHash + ' from ' + source)
 
-            storedSelectedWallet = await BlocksoftKeysStorage.setSelectedWallet(walletHash)
+            storedSelectedWallet = await BlocksoftKeysStorage.setSelectedWallet(walletHash, source)
 
-            Log.log('DS/cryptoWallets setSelectedWallet finished ' + walletHash)
+            // Log.log('DS/cryptoWallets setSelectedWallet finished ' + walletHash + ' from ' + source)
         } catch (e) {
-            Log.err('DS/cryptoWallets setSelectedWallet error' + e.message)
+            Log.err('DS/cryptoWallets setSelectedWallet error ' + e.message)
         }
         return storedSelectedWallet
     }

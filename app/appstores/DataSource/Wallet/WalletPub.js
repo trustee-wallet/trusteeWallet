@@ -97,6 +97,8 @@ class WalletPub {
 
 
         let pub
+        const unique = {}
+        const toRemove = []
         for (pub of res.array) {
             if (pub.walletPubType === 'btc.84') {
                 pub.currencyCode = 'BTC_SEGWIT'
@@ -104,10 +106,27 @@ class WalletPub {
             if (typeof CACHE[pub.walletHash] === 'undefined' || CACHE[pub.walletHash]  === false) {
                 CACHE[pub.walletHash] = {}
             }
-            CACHE[pub.walletHash][pub.walletPubType] = pub
-            CACHE[pub.walletHash][pub.walletPubType].balance = BlocksoftFixBalance(pub, 'balance')
-            CACHE[pub.walletHash][pub.walletPubType].unconfirmed = BlocksoftFixBalance(pub, 'unconfirmed')
+            const key = pub.walletHash + '_' + pub.walletPubType
+            if (typeof unique[key] === 'undefined') {
+                CACHE[pub.walletHash][pub.walletPubType] = pub
+                CACHE[pub.walletHash][pub.walletPubType].balance = BlocksoftFixBalance(pub, 'balance')
+                CACHE[pub.walletHash][pub.walletPubType].unconfirmed = BlocksoftFixBalance(pub, 'unconfirmed')
+                unique[key] = pub.id
+            } else {
+                toRemove.push({old : pub.id, to : unique[key]})
+            }
         }
+        Log.daemon('DS/WalletPub.getWalletPubs toRemove', toRemove)
+        if (toRemove.length > 0) {
+            let tmp
+            for (tmp of toRemove) {
+                const sql3 = `UPDATE account SET wallet_pub_id=${tmp.to} WHERE wallet_pub_id=${tmp.old}`
+                await dbInterface.setQueryString(sql3).query()
+                const sql4 = `DELETE FROM wallet_pub WHERE id=${tmp.old}`
+                await dbInterface.setQueryString(sql4).query()
+            }
+        }
+
         if (params && typeof params.walletHash !== 'undefined') {
             return CACHE[params.walletHash]
         } else {
@@ -122,18 +141,18 @@ class WalletPub {
     getOrGenerate = async (params) => {
         Log.daemon('DS/WalletPub getOrGenerated started', params)
         let xpubs = await this.getWalletPubs(params)
-        if (typeof xpubs['btc.44'] === 'undefined' || typeof xpubs['btc.84'] === 'undefined' || typeof xpubs['btc.49'] === 'undefined') {
+        if (!xpubs || typeof xpubs['btc.44'] === 'undefined' || typeof xpubs['btc.84'] === 'undefined' || typeof xpubs['btc.49'] === 'undefined') {
             Log.daemon('DS/WalletPub called BTC pub generation')
             const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash)
-            if (typeof xpubs['btc.44'] === 'undefined') {
+            if (!xpubs || typeof xpubs['btc.44'] === 'undefined') {
                 const tmp = await BlocksoftKeys.discoverXpub({ mnemonic, currencyCode: params.currencyCode })
                 await this.saveWalletPub({ walletHash: params.walletHash, currencyCode: params.currencyCode, walletPubType: 'btc.44', walletPubValue: tmp }, 'getOrGenerate')
             }
-            if (typeof xpubs['btc.49'] === 'undefined') {
+            if (!xpubs || typeof xpubs['btc.49'] === 'undefined') {
                 const tmp = await BlocksoftKeys.discoverXpub({ mnemonic, currencyCode: params.currencyCode + '_SEGWIT_COMPATIBLE' })
                 await this.saveWalletPub({ walletHash: params.walletHash, currencyCode: params.currencyCode, walletPubType: 'btc.49', walletPubValue: tmp }, 'getOrGenerate')
             }
-            if (typeof xpubs['btc.84'] === 'undefined') {
+            if (!xpubs || typeof xpubs['btc.84'] === 'undefined') {
                 const tmp = await BlocksoftKeys.discoverXpub({ mnemonic, currencyCode: params.currencyCode + '_SEGWIT' })
                 await this.saveWalletPub({ walletHash: params.walletHash, currencyCode: params.currencyCode, walletPubType: 'btc.84', walletPubValue: tmp }, 'getOrGenerate')
             }
@@ -152,20 +171,20 @@ class WalletPub {
      * @param {string} params.needLegacy
      * @returns {Promise<void>}
      */
-    discoverMoreAccounts = async (params) => {
-        Log.daemon('DS/WalletPub discoverMoreAccounts started', params)
+    discoverMoreAccounts = async (params, source = '') => {
+        Log.daemon('DS/WalletPub discoverMoreAccounts started ' + source, params)
         const xpubs = await this.getOrGenerate(params)
         if (params.needLegacy) {
             const xpub = xpubs['btc.44']
-            await this._discoverMoreAccountsForXpub(xpub)
+            await this._discoverMoreAccountsForXpub(xpub, 0, false, source)
         }
         if (params.needSegwitCompatible) {
             const xpub = xpubs['btc.49']
-            await this._discoverMoreAccountsForXpub(xpub)
+            await this._discoverMoreAccountsForXpub(xpub, 0, false, source)
         }
         if (params.needSegwit) {
             const xpub = xpubs['btc.84']
-            await this._discoverMoreAccountsForXpub(xpub)
+            await this._discoverMoreAccountsForXpub(xpub, 0, false, source)
         }
         return true
     }
@@ -174,13 +193,15 @@ class WalletPub {
      * @param xpub
      * @param derivationIndex
      * @param setSelectedFunction
+     * @param source
      * @returns {Promise<boolean>}
      * @private
      */
-    _discoverMoreAccountsForXpub = async (xpub, derivationIndex = 0, setSelectedFunction = false) => {
-        const max = await accountHdDS.getAccountsMaxForScanPub({ walletPubId: xpub.id })
+    _discoverMoreAccountsForXpub = async (xpub, derivationIndex = 0, setSelectedFunction = false, source = '') => {
+        // @todo removed index and function in params
+        const max = await accountHdDS.getAccountsMaxForScanPub({ walletPubId: xpub.id, currencyCode: 'BTC' }, source)
 
-        Log.daemon('DS/WalletPub discoverMoreAccountsForXpub maxForXpub ' + JSON.stringify(max) + ' xpub ' + JSON.stringify(xpub))
+        Log.daemon('DS/WalletPub _discoverMoreAccountsForXpub started ' + source + ' maxForXpub ' + JSON.stringify(max) + ' xpub ' + JSON.stringify(xpub))
 
         if (max && max.accountsDerivationIndex > -1) {
             const newDerivationIndex = max.accountsDerivationIndex * 1 + 1
@@ -195,10 +216,10 @@ class WalletPub {
         }
 
         CACHE_NOW_UPDATING[cacheTitle] = 1
-        let subtitle = 'UPDATE_BALANCE'
+        let subtitle = 'UPDATE_BALANCE' + source
         let plus = 2
         if (!max || max.accountsTotal < 1) {
-            subtitle = 'UPDATE_BALANCE_NO_MAX'
+            subtitle = 'UPDATE_BALANCE_NO_MAX' + source
             plus = 1
         } else if (setSelectedFunction) {
             setSelectedFunction(max)
@@ -207,9 +228,20 @@ class WalletPub {
             return false
         }
 
-        Log.daemon('DS/WalletPub discoverMoreAccountsForXpub ' + xpub.currencyCode + ' derivation will start from ' + derivationIndex)
+        Log.daemon('DS/WalletPub _discoverMoreAccountsForXpub ' + source + ' ' + xpub.currencyCode + ' derivation will start from ' + derivationIndex)
         try {
-            await accountDS.discoverAccounts({ walletHash: xpub.walletHash, currencyCode: [xpub.currencyCode], fromIndex: derivationIndex, toIndex: derivationIndex + plus, walletPubId: xpub.id, fullTree: true }, subtitle)
+            const discoverParams = { walletHash: xpub.walletHash, currencyCode: [xpub.currencyCode], fromIndex: derivationIndex, toIndex: derivationIndex + plus, walletPubId: xpub.id, fullTree: true }
+            let step = 0
+            let result
+            do {
+                step++
+                discoverParams.fromIndex = discoverParams.toIndex
+                discoverParams.toIndex = discoverParams.fromIndex + plus
+                result = await accountDS.discoverAccounts(discoverParams, subtitle + '_TRY_' + step)
+                if (step > 3) {
+                    plus = 5
+                }
+            } while (result && result.newSaved === 0 && step < 10)
             Log.daemon('DS/WalletPub discoverMoreAccountsForXpub derivation finished')
             if (plus === 1 && setSelectedFunction) {
                 setSelectedFunction()
@@ -249,14 +281,11 @@ class WalletPub {
             BlocksoftKeys.discoverXpub({ mnemonic, currencyCode: 'BTC_SEGWIT' }),
         ])
         Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan discovered Xpub stared')
-        Log.daemon(`LINK1 https://btc1.trezor.io/api/v2/xpub/${xpubs[0]}?details=tokens&tokens=used&gap=9999`)
-        Log.daemon(`LINK2 https://btc1.trezor.io/api/v2/xpub/${xpubs[1]}?details=tokens&tokens=used&gap=9999`)
-        Log.daemon(`LINK2 https://btc1.trezor.io/api/v2/xpub/${xpubs[2]}?details=tokens&tokens=used&gap=9999`)
-        const importCheckUsedTmp = await Promise.all([
-           ,
-            BlocksoftAxios.getWithoutBraking(`https://btc1.trezor.io/api/v2/xpub/${xpubs[1]}?details=tokens&tokens=used&gap=9999`),
-        ])
-        const trezorServer = BlocksoftExternalSettings.getTrezorServer('BTC_TREZOR_SERVER', 'hdOn')
+
+        const trezorServer = await BlocksoftExternalSettings.getTrezorServer('BTC_TREZOR_SERVER', 'hdOn')
+        Log.daemon(`LINK1 ${trezorServer}/api/v2/xpub/${xpubs[0]}?details=tokens&tokens=used&gap=9999`)
+        Log.daemon(`LINK2 ${trezorServer}/api/v2/xpub/${xpubs[1]}?details=tokens&tokens=used&gap=9999`)
+        Log.daemon(`LINK2 ${trezorServer}/api/v2/xpub/${xpubs[2]}?details=tokens&tokens=used&gap=9999`)
         const importCheckUsed = await BlocksoftAxios.getWithoutBraking(`${trezorServer}/api/v2/xpub/${xpubs[0]}?details=tokens&tokens=used&gap=9999`)
         const importCheckUsed1 = await BlocksoftAxios.getWithoutBraking(`${trezorServer}/api/v2/xpub/${xpubs[1]}?details=tokens&tokens=used&gap=9999`)
         const importCheckUsed2 = await BlocksoftAxios.getWithoutBraking(`${trezorServer}/api/v2/xpub/${xpubs[2]}?details=tokens&tokens=used&gap=9999`)
@@ -265,6 +294,10 @@ class WalletPub {
             {
                 balance : 0,
                 unconfirmed : 0
+            },
+            {
+                balance: 0,
+                unconfirmed: 0
             },
             {
                 balance: 0,
@@ -291,7 +324,7 @@ class WalletPub {
         if (importCheckUsed1 && importCheckUsed1.data && importCheckUsed1.data.usedTokens > 0) {
             xPubBalances[1].balance = importCheckUsed1.data.balance
             xPubBalances[1].unconfirmed = importCheckUsed1.data.unconfirmedBalance
-            if (importCheckUsed1.data.usedTokens === 1 && importCheckUsed1.data.tokens[0].path === 'm/49\'/0\'/0\'/0/0') {
+            if (importCheckUsed1.data.usedTokens === 1 && (importCheckUsed1.data.tokens[0].path === 'm/49\'/0\'/0\'/0/1' || importCheckUsed1.data.tokens[0].path === 'm/49\'/0\'/0\'/0/0')) {
                 Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan BTC_SEGWIT_COMPATIBLE Xpub found nothing')
                 // do nothing
             } else {
@@ -322,30 +355,35 @@ class WalletPub {
                 }
             }
         }
+
         if (toSave || params.force) {
             await walletDS.updateWallet({ walletHash : params.walletHash, walletIsHd: 1 })
             await this.saveWalletPub({ walletHash : params.walletHash, currencyCode: 'BTC', walletPubType: 'btc.44', walletPubValue: xpubs[0], balance : xPubBalances[0].balance, unconfirmed : xPubBalances[0].unconfirmed }, 'fromTrezor')
             await this.saveWalletPub({ walletHash : params.walletHash, currencyCode: 'BTC', walletPubType: 'btc.49', walletPubValue: xpubs[1], balance : xPubBalances[1].balance, unconfirmed : xPubBalances[1].unconfirmed }, 'fromTrezor')
             await this.saveWalletPub({ walletHash : params.walletHash, currencyCode: 'BTC', walletPubType: 'btc.84', walletPubValue: xpubs[2], balance : xPubBalances[2].balance, unconfirmed : xPubBalances[2].unconfirmed }, 'fromTrezor')
-            Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' saved xpubs')
+            Log.daemon.log('DS/WalletPub discoverFromTrezor ' + source + ' saved xpubs', {toSave, params, derivations})
         }
         const check = await this.getWalletPubs({walletHash : params.walletHash, currencyCode: 'BTC'})
+
         let token
 
-        derivations.walletPubId = check['btc.44'].id
-        if (derivations.BTC && derivations.BTC.length > 0) {
-            for (token of derivations.BTC) {
-                token.walletPubId = check['btc.44'].id
+        if (check && typeof check['btc.44'] !== 'undefined') {
+            derivations.walletPubId = check['btc.44'].id
+
+            if (derivations.BTC && derivations.BTC.length > 0) {
+                for (token of derivations.BTC) {
+                    token.walletPubId = check['btc.44'].id
+                }
             }
-        }
-        if (derivations.BTC_SEGWIT_COMPATIBLE && derivations.BTC_SEGWIT_COMPATIBLE.length > 0) {
-            for (token of derivations.BTC_SEGWIT_COMPATIBLE) {
-                token.walletPubId = check['btc.49'].id
+            if (derivations.BTC_SEGWIT_COMPATIBLE && derivations.BTC_SEGWIT_COMPATIBLE.length > 0) {
+                for (token of derivations.BTC_SEGWIT_COMPATIBLE) {
+                    token.walletPubId = check['btc.49'].id
+                }
             }
-        }
-        if (derivations.BTC_SEGWIT && derivations.BTC_SEGWIT.length > 0) {
-            for (token of derivations.BTC_SEGWIT) {
-                token.walletPubId = check['btc.84'].id
+            if (derivations.BTC_SEGWIT && derivations.BTC_SEGWIT.length > 0) {
+                for (token of derivations.BTC_SEGWIT) {
+                    token.walletPubId = check['btc.84'].id
+                }
             }
         }
 

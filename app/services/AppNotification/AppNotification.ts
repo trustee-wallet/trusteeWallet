@@ -6,6 +6,7 @@ import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
 import AppNotificationDispatcher from './AppNotificationDispatcher'
 import Log from '../Log/Log'
 import { LocalNotification } from './Types'
+import config from '../../config/config'
 
 export default class AppNotification {
 
@@ -20,12 +21,14 @@ export default class AppNotification {
     }
 
     displayPush = async (): Promise<void> => {
-        if (!this.appNotificationProcessor || !this.appNotificationPrepare.notificationNeedPopup || !this.appNotificationProcessor.canBeShowed()) {
+        if (!this.appNotificationProcessor || !this.appNotificationProcessor.canBeShowed()) {
             return
         }
 
+        let localNotification = false
         try {
-            let localNotification = new firebase.notifications.Notification()
+
+            localNotification = new firebase.notifications.Notification()
                 .setNotificationId(this.appNotificationPrepare.notificationId)
                 .setTitle(this.appNotificationPrepare.notificationTitle)
                 .setSubtitle(this.appNotificationPrepare.notificationSubtitle)
@@ -50,10 +53,26 @@ export default class AppNotification {
             }
 
             this.appNotificationProcessor.incrementNotificationCounter()
+
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('PUSH displayLocalNotification prep error ' + e.message)
+            }
+            Log.err('PUSH displayLocalNotification prep error ' + e.message)
+        }
+
+        if (!localNotification) {
+            return false
+        }
+        try {
             await firebase.notifications().displayNotification(localNotification)
+
             await appNewsDS.setNewsNeedPopup(this.appNews.id, 0)
         } catch (e) {
-            Log.err('AppNotification.displayLocalNotification error ' + e.message)
+            if (config.debug.appErrors) {
+                console.log('PUSH displayLocalNotification show error ' + e.message)
+            }
+            Log.err('PUSH displayLocalNotification show error ' + e.message)
         }
     }
 }

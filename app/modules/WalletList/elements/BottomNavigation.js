@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React, { Component } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
@@ -22,6 +22,8 @@ import Netinfo from '../../../services/Netinfo/Netinfo'
 
 import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
 import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
+
+import AsyncStorage from '@react-native-community/async-storage'
 
 
 class BottomNavigation extends Component {
@@ -46,7 +48,11 @@ class BottomNavigation extends Component {
                 setLoaderStatus(false)
             }
 
-            NavStore.goNext('ExchangeScreenStack')
+            // NavStore.goNext('ExchangeScreenStack')
+            const newInterface = AsyncStorage.getItem('isNewInterface').then(res => {
+                let isNewInterface = JSON.parse(res)
+                isNewInterface = isNewInterface === true ? NavStore.goNext('ExchangeV3ScreenStack') : NavStore.goNext('ExchangeScreenStack')
+            })
         } catch (e) {
             if (Log.isNetworkError(e.message) || e.message.includes('UI_ERROR')) {
                 Log.log('HomeScreen.BottomNavigation handleModal error ' + e.message)

@@ -10,6 +10,9 @@ const CACHE_VALID_TIME = 60000 // 1 minute
 const CACHE_TIME = {}
 const CACHE_FILTER = {}
 
+const CACHE_ERROR_TIME = 60000
+let CACHE_ERROR = 0
+
 const axios = require('axios')
 
 class BlocksoftTg {
@@ -64,36 +67,44 @@ class BlocksoftTg {
             CHAT = this.CHAT
         }
 
-        if (typeof BAD_CHATS[CHAT] !== 'undefined' && typeof BAD_CHATS[CHAT][API_KEY] !== 'undefined') {
-            return false
+        if (typeof CHAT === "object") {
+            // array
+        } else {
+            CHAT = [ CHAT ]
         }
 
-        if (text.length > MAX_LENGTH) {
-            text = text.substring(0, MAX_LENGTH)
-        }
         let result
-        try {
-            const filters = await this._getFilter(API_KEY, CHAT)
-            if (filters) {
-                let filter
-                for (filter of filters) {
-                    if (text.indexOf(filter) !== -1) {
-                        return false
+        for (const ID of CHAT) {
+            if (typeof BAD_CHATS[ID] !== 'undefined' && typeof BAD_CHATS[ID][API_KEY] !== 'undefined') {
+                return false
+            }
+
+            if (text.length > MAX_LENGTH) {
+                text = text.substring(0, MAX_LENGTH)
+            }
+            try {
+                const filters = await this._getFilter(API_KEY, ID)
+                if (filters) {
+                    let filter
+                    for (filter of filters) {
+                        if (text.indexOf(filter) !== -1) {
+                            return false
+                        }
                     }
                 }
-            }
-            result = await this._request('sendMessage', {
-                text: text,
-                chat_id: CHAT
-            }, API_KEY)
-        } catch (err) {
-            if (err.code.toString() === '429') {
-                console.error(text)
-                return true
-            } else if (err.description === 'Bad Gateway') {
-                return false
-            } else {
-                throw err
+                result = await this._request('sendMessage', {
+                    text: text,
+                    chat_id: ID
+                }, API_KEY)
+            } catch (err) {
+                if (err.code.toString() === '429') {
+                    console.error(text)
+                    return true
+                } else if (err.description === 'Bad Gateway') {
+                    return false
+                } else {
+                    throw err
+                }
             }
         }
         return result
@@ -109,7 +120,10 @@ class BlocksoftTg {
      * @private
      */
     async _request(method, qs, API_KEY) {
-
+        const now = new Date().getTime()
+        if (now -  CACHE_ERROR < CACHE_ERROR_TIME) {
+            return true
+        }
         const link = `https://api.telegram.org/bot${API_KEY}/${method}`
         let response
         try {
@@ -131,6 +145,9 @@ class BlocksoftTg {
             }
             e.message += ' ' + link + ' ' + JSON.stringify(qs)
             console.log('TG error : ' + e.message)
+            if (e.message.indexOf('Too Many Requests') !== -1) {
+                CACHE_ERROR = now
+            }
             return false
         }
         return response.data

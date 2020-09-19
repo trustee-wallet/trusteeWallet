@@ -1,5 +1,5 @@
 /**
- * @version 0.5
+ * @version 0.11
  */
 
 import DogeTransferProcessor from '../doge/DogeTransferProcessor'
@@ -20,6 +20,12 @@ export default class BchTransferProcessor extends DogeTransferProcessor {
     _maxDiffInOutReadable = 0.05
 
     /**
+     * @type {string}
+     * @private
+     */
+    _trezorServerCode = 'BCH_TREZOR_SERVER'
+
+    /**
      * @type {{minOutputToBeDustedReadable: number, minChangeThresholdReadable: number, minFee: number}}
      * @private
      */
@@ -34,8 +40,8 @@ export default class BchTransferProcessor extends DogeTransferProcessor {
      */
     _initProviders() {
         if (this._initedProviders) return false
-        this.unspentsProvider = new BchUnspentsProvider(this._settings)
-        this.sendProvider = new BchSendProvider(this._settings)
+        this.unspentsProvider = new BchUnspentsProvider(this._settings, this._trezorServerCode)
+        this.sendProvider = new BchSendProvider(this._settings, this._trezorServerCode)
         this.txPrepareInputsOutputs = new DogeTxInputsOutputs(this._settings, this._inputsOutputsSettings)
         this.txBuilder = new BchTxBuilder(this._settings, this._maxDiffInOutReadable)
         this._initedProviders = true

@@ -6,6 +6,10 @@ import EthBasic from './basic/EthBasic'
 
 export default class EthAddressProcessor extends EthBasic{
 
+    async setBasicRoot(root) {
+
+    }
+    
     /**
      * @param {string|Buffer} privateKey
      * @param {*} data
@@ -32,7 +36,6 @@ export default class EthAddressProcessor extends EthBasic{
         }
         // noinspection JSUnresolvedVariable
         const signData = await this._web3.eth.accounts.sign(msg, privateKey)
-        BlocksoftCryptoLog.log('EthAddressProcessor.signMessage signed', signData)
         return signData
     }
 }

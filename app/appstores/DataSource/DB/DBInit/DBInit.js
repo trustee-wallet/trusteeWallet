@@ -90,7 +90,7 @@ class DBInit {
                 await dbInterface.setQueryString(initQuery[i].queryString).query()
                 Log.log(_createTableStatus.success)
             } catch (e) {
-                Log.error('DBInit error in insert')
+                Log.err('DBInit error in insert')
                 Log.log(_createTableStatus.error)
                 countError++
             }

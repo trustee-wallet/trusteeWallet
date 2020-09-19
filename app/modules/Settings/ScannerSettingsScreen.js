@@ -22,7 +22,7 @@ import { strings } from '../../services/i18n'
 import firebase from 'react-native-firebase'
 
 import config from '../../config/config'
-import { UpdateAccountBalanceAndTransactions } from '../../services/Daemon/elements/UpdateAccountBalanceAndTransactions'
+import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
 
 class ScannerSettingsScreen extends Component {
 
@@ -45,7 +45,7 @@ class ScannerSettingsScreen extends Component {
         const { scannerSettings } = config.scanner
         const code = this.getCode()
 
-        const time = UpdateAccountBalanceAndTransactions.getTime()
+        const time =  UpdateAccountBalanceAndTransactions.getTime()
 
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>

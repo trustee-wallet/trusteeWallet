@@ -19,7 +19,6 @@ import firebase from 'react-native-firebase'
 import Share from 'react-native-share'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import AsyncStorage from '@react-native-community/async-storage'
 
 import NavStore from '../../components/navigation/NavStore'
 import ButtonIcon from '../../components/elements/ButtonIcon'
@@ -28,22 +27,29 @@ import CustomShare from '../../components/elements/Share'
 import GradientView from '../../components/elements/GradientView'
 import QrCodeBox from '../../components/elements/QrCodeBox'
 
-import AuthActions from '../../appstores/Stores/Auth/AuthActions'
 import { hideModal, showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 
 import Log from '../../services/Log/Log'
 import Toast from '../../services/UI/Toast/Toast'
 import Netinfo from '../../services/Netinfo/Netinfo'
-import Cashback from '../../services/Cashback/Cashback'
+
 import { strings } from '../../services/i18n'
-import authDS from '../../appstores/DataSource/Auth/Auth'
+
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
-import prettyNumber from '../../services/UI/PrettyNumber/PrettyNumber'
+
+import UpdateCashBackDataDaemon from '../../daemons/back/UpdateCashBackDataDaemon'
+import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
+import CustomIcon from '../../components/elements/CustomIcon'
+import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
+import CashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
+let CACHE_SHOWN_ERROR = ''
 
 class CashbackScreen extends Component {
 
@@ -57,38 +63,19 @@ class CashbackScreen extends Component {
                 message: strings('cashback.shareMessage'),
                 url: ''
             },
-            cashbackStatistics: {},
-            init : false
+            init: false
         }
 
         this.customShare = React.createRef()
         this.shareScrollView = React.createRef()
     }
 
+    // eslint-disable-next-line camelcase
     async UNSAFE_componentWillMount() {
 
         this.init()
 
-        const { logged } = this.props.authStore
-
-        if (!logged) {
-            showModal({ type: 'LOGIN_MODAL' })
-            return false
-        }
-
-        setLoaderStatus(true)
-
-        const authHash = await authDS.getAuthMnemonicHash()
-
-        try {
-            await Cashback.getCashbackData(authHash)
-        } catch (e) {
-            if (Log.isNetworkError(e.message)) {
-                Log.log(e.message)
-            } else {
-                Log.err('CashbackScreen.UNSAFE_componentWillMount error ' + e.message, JSON.stringify(e))
-            }
-        }
+        await UpdateCashBackDataDaemon.updateCashBackDataDaemon({ force: true })
 
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
             this.init()
@@ -125,9 +112,8 @@ class CashbackScreen extends Component {
         try {
             await Netinfo.isInternetReachable()
 
-            const authHash = await authDS.getAuthMnemonicHash()
+            await UpdateCashBackDataDaemon.updateCashBackDataDaemon({ force: true })
 
-            await Cashback.getCashbackData(authHash)
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log(e.message)
@@ -141,88 +127,69 @@ class CashbackScreen extends Component {
         })
     }
 
+
     handleSignOut = async () => {
-        try {
-            await Netinfo.isInternetReachable()
-
-            setLoaderStatus(true)
-
-            await AuthActions.singOut()
-            NavStore.goBack()
-
-            setLoaderStatus(false)
-
-        } catch (e) {
-            if (Log.isNetworkError(e.message)) {
-                Log.log(e.message)
-            } else {
-                Log.err('CashbackScreen.handleSignOut ' + e.message, JSON.stringify(e))
-            }
-        }
-
-
+        showModal({ type: 'LOGIN_MODAL' })
     }
 
     componentDidMount() {
         setTimeout(() => {
             try {
                 this.shareScrollView.scrollTo({ x: SCREEN_WIDTH / 50, y: 0, animated: false })
-            } catch {}
+            } catch {
+            }
         }, 500)
     }
 
-    handleCopyToClipboard = async (cashBackLink) => {
-        copyToClipboard(cashBackLink)
+    handleCopyToClipboard = async (cashbackLink) => {
+        copyToClipboard(cashbackLink)
         Toast.setMessage(strings('toast.copied')).show()
     }
 
-    handleLongCopyToClipboard = async (cashBackLink) => {
-        copyToClipboard(cashBackLink)
+    handleLongCopyToClipboard = async (cashbackLink) => {
+        copyToClipboard(cashbackLink)
         Toast.setMessage(strings('toast.copied')).show()
         Vibration.vibrate(100)
     }
 
-    handleShare = (social, cashBackLink) => {
+    handleShare = (social, cashbackLink) => {
+        MarketingEvent.logEvent('taki_cashback_3_copyToSocial', { cashbackLink, social })
         const shareOptions = JSON.parse(JSON.stringify(this.state.shareOptions))
-        shareOptions.url = cashBackLink
-        Share.shareSingle(Object.assign(shareOptions, {'social': social}))
+        shareOptions.url = cashbackLink
+        Share.shareSingle(Object.assign(shareOptions, { 'social': social }))
     }
 
-    handleSimpleShare = (cashBackLink) => {
+    handleSimpleShare = (cashbackLink) => {
+        MarketingEvent.logEvent('taki_cashback_3_copyToMoreStart', { cashbackLink })
         const shareOptions = JSON.parse(JSON.stringify(this.state.shareOptions))
-        shareOptions.url = cashBackLink
-        Share.open(shareOptions)
+        shareOptions.url = cashbackLink
+        prettyShare(shareOptions, 'taki_cashback_4_copyToMoreFinish')
     }
 
     renderAuthComponent = () => {
-        const { logged, authMnemonicHash } = this.props.authStore
+        const { walletName } = this.props.mainStore.selectedWallet
 
-        const wallets = JSON.parse(JSON.stringify(this.props.walletStore.wallets))
-
-        const wallet = wallets.find(item => authMnemonicHash === item.walletHash)
-
-        if (logged) {
-            return (
-                <View style={styles.auth}>
-                    <View>
-                        <MaterialIcons name="verified-user" size={22} color="#fff"/>
-                    </View>
-                    <View style={styles.auth__container}>
-                        <Text style={styles.auth__title}>
-                            {strings('auth.navigation.title', { authMnemonicName: wallet.walletName })}
-                        </Text>
-                        <Text style={styles.auth__description}>
-                            {strings('auth.navigation.description')}
-                        </Text>
-                    </View>
-                    <TouchableOpacity style={styles.auth__btn} onPress={() => this.handleSignOut()}>
-                        <Text style={styles.auth__text}>
-                            {strings('auth.logOut')}
-                        </Text>
-                    </TouchableOpacity>
+        return (
+            <View style={styles.auth}>
+                <View>
+                    <MaterialIcons name="verified-user" size={22} color="#fff"/>
                 </View>
-            )
-        }
+                <View style={styles.auth__container}>
+                    <Text style={styles.auth__title}>
+                        {strings('auth.navigation.title', { authMnemonicName: typeof walletName !== 'undefined' ? walletName : '' })}
+                    </Text>
+                    <Text style={styles.auth__description}>
+                        {strings('auth.navigation.description')}
+                    </Text>
+                </View>
+                <TouchableOpacity style={styles.auth__btn} onPress={() => this.handleSignOut()}>
+                    <Text style={styles.auth__text}>
+                        {strings('settings.walletManagement.select')}
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        )
+
     }
 
     telegramComponent = () => {
@@ -231,16 +198,21 @@ class CashbackScreen extends Component {
                 <TouchableOpacity onPress={() => {
                     Linking.openURL('https://t.me/trustee_wallet')
                 }}>
-                    <Text style={{ paddingTop: 10, paddingHorizontal: 10, fontFamily: 'SFUIDisplay-Semibold', color: '#4AA0EB' }}>@TrusteeWallet</Text>
+                    <Text style={{
+                        paddingTop: 10,
+                        paddingHorizontal: 10,
+                        fontFamily: 'SFUIDisplay-Semibold',
+                        color: '#4AA0EB'
+                    }}>@TrusteeWallet</Text>
                 </TouchableOpacity>
             </View>
         )
     }
 
     handleWithdraw = () => {
-        const { cashBackApiData } = this.props.cashBackStore
+        const cashbackBalance = this.props.cashBackStore.dataFromApi.cashbackBalance || 0
 
-        if (cashBackApiData.cashBackBalance < 2) {
+        if (cashbackBalance < 2) {
             showModal({
                 type: 'INFO_MODAL',
                 icon: false,
@@ -259,33 +231,34 @@ class CashbackScreen extends Component {
     }
 
     copyToClip = (link) => {
+        MarketingEvent.logEvent('taki_cashback_3_copyToClip', { cashbackLink: link })
+
         copyToClipboard(link)
 
         Toast.setMessage(strings('toast.copied')).show()
     }
 
     handleSetParentToken = (value) => {
-        const {
-            cashBackToken,
-            cashBackLinkPrefix,
-        } = this.props.cashBackStore
+        let cashbackLink = this.props.cashBackStore.dataFromApi.cashbackLink || false
+        if (!cashbackLink || cashbackLink === '') {
+            cashbackLink = this.props.cashBackStore.cashbackLink || ''
+        }
 
         showModal({
-            type: 'INPUT_MODAL',
-            title: strings('modal.enterCashBackTokenLink.title'),
-            description: strings('modal.enterCashBackTokenLink.description'),
-            cashBackLink: cashBackLinkPrefix + cashBackToken,
-            qrCashBackLink : value
-        }, async (cashBackParentToken) => {
+                type: 'INPUT_MODAL',
+                title: strings('modal.enterCashbackTokenLink.title'),
+                description: strings('modal.enterCashbackTokenLink.description'),
+                cashbackLink: cashbackLink,
+                qrCashbackLink: value
+            }, async (cashbackParentToken) => {
                 try {
-                    await AsyncStorage.setItem('parentToken', cashBackParentToken)
-                    Cashback.init()
+                    await CashBackUtils.setParentToken(cashbackParentToken)
                     hideModal()
                     showModal({
                         type: 'INFO_MODAL',
                         icon: 'INFO',
                         title: strings('modal.walletBackup.success'),
-                        description: strings('modal.cashBackTokenLinkModal.success.description')
+                        description: strings('modal.cashbackTokenLinkModal.success.description')
                     })
                 } catch (e) {
                     console.log(e)
@@ -295,23 +268,71 @@ class CashbackScreen extends Component {
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.CashbackScreen')
+        firebase.analytics().setCurrentScreen('Settings.CashBackScreen')
 
-        const {
-            cashBackParentToken,
-            cashBackToken,
-            cashBackLinkPrefix,
-            cashBackApiData
-        } = this.props.cashBackStore
+        Log.log('CashbackScreen is rendered', this.props.cashBackStore)
 
-        const {
-            cashBackBalance,
+        let cashbackLink = this.props.cashBackStore.dataFromApi.cashbackLink || false
+        let cashbackLinkNotice = false
+        if (!cashbackLink || cashbackLink === '') {
+            cashbackLink = this.props.cashBackStore.cashbackLink || ''
+            if (cashbackLink) {
+                cashbackLinkNotice = true
+            }
+        }
+
+        const error = this.props.cashBackStore.error.title || false
+        const errorTime = this.props.cashBackStore.error.time || false
+        if (error && error !== 'UI_ERROR_CASHBACK_NETWORK_ERROR') {
+            const key = error + errorTime
+            if (key !== CACHE_SHOWN_ERROR) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('cashback.cashbackError.title'),
+                    description: strings('cashback.cashbackError.' + error + '_LONG')
+                })
+            }
+            CACHE_SHOWN_ERROR = key
+        }
+
+        const { walletHash } = this.props.mainStore.selectedWallet
+        const savedAuthHash = this.props.cashBackStore.dataFromApi.authHash || ''
+
+        let cashbackBalance = this.props.cashBackStore.dataFromApi.cashbackBalance || 0
+        let invitedUsers = this.props.cashBackStore.dataFromApi.invitedUsers || 0
+        let level2Users = this.props.cashBackStore.dataFromApi.level2Users || 0
+        let overalVolume = this.props.cashBackStore.dataFromApi.overalVolume || 0
+        let time = this.props.cashBackStore.dataFromApi.time || false
+
+        let overalPrep = 1 * BlocksoftPrettyNumbers.makeCut(overalVolume, 6).justCutted
+        let balancePrep = 1 * BlocksoftPrettyNumbers.makeCut(cashbackBalance, 6).justCutted
+
+        if (savedAuthHash !== walletHash) {
+            invitedUsers = '?'
+            level2Users = '?'
+            overalPrep = '?'
+            balancePrep = '?'
+            cashbackLink = CashBackSettings.getLink(CashBackUtils.getWalletToken())
+        }
+
+        let cashbackParentToken = this.props.cashBackStore.dataFromApi.parentToken || false
+        let cashbackParentNotice = false
+        if (!cashbackParentToken || cashbackParentToken === null) {
+            cashbackParentToken = this.props.cashBackStore.parentToken || ''
+            if (cashbackParentToken) {
+                cashbackParentNotice = true
+            }
+        }
+
+        MarketingEvent.logEvent('taki_cashback_2_render', {
+            cashbackLink,
+            invitedUsers,
             level2Users,
-            overallVolume,
-            invitedUsers
-        } = cashBackApiData
-
-        const cashBackLink = cashBackLinkPrefix + cashBackToken
+            balancePrep,
+            overalPrep,
+            cashbackParentToken
+        })
 
         return (
             <View style={styles.wrapper}>
@@ -332,16 +353,19 @@ class CashbackScreen extends Component {
                         justifyContent: 'space-between'
                     }}>
 
-                    <CustomShare ref={ref => this.customShare = ref} link={cashBackLink}/>
+                    <CustomShare ref={ref => this.customShare = ref} link={cashbackLink}/>
                     <View style={styles.wrapper__top}>
-                        <TouchableOpacity style={{ position: 'relative', width: '100%' }} onPress={() => this.copyToClip(cashBackLink)}>
+                        <TouchableOpacity style={{ position: 'relative', width: '100%' }}
+                                          onPress={() => this.copyToClip(cashbackLink)}>
                             <View style={styles.wrapper__qr}>
                                 <QrCodeBox
-                                    value={cashBackLink}
+                                    value={cashbackLink}
                                     size={200}
                                     color='#404040'
                                     onError={(e) => {
-                                        Log.err('CashbackScreen QRCode error ' + e.message)
+                                        if (e.message !== 'No input text') {
+                                            Log.err('CashbackScreen QRCode error ' + e.message)
+                                        }
                                     }}
                                 />
                             </View>
@@ -372,13 +396,32 @@ class CashbackScreen extends Component {
                                           end={styles.cashbackInfoBg.end}>
                                 <View style={styles.cashbackInfo__row}>
                                     <View style={styles.cashbackInfo__content}>
+                                        {error ?
+                                            <View style={styles.cashbackInfo__item}>
+                                                <Text style={[styles.cashbackInfo__text]} numberOfLines={1}>
+                                                    {strings('cashback.cashbackError.' + error)}
+                                                </Text>
+                                                <Text style={[styles.cashbackInfo__title]}>
+                                                    {errorTime > 0 ? (': ' + new Date(errorTime).toLocaleTimeString()) : ''}
+                                                </Text>
+                                            </View>
+                                            : null}
+                                        <View style={styles.cashbackInfo__item}>
+                                            <Text style={[styles.cashbackInfo__text]} numberOfLines={1}>
+                                                {strings('cashback.updated')}
+                                            </Text>
+                                            <Text style={[styles.cashbackInfo__title]}>
+                                                {': '}
+                                                {time ? new Date(time).toLocaleTimeString() : '-'}
+                                            </Text>
+                                        </View>
                                         <View style={styles.cashbackInfo__item}>
                                             <Text style={[styles.cashbackInfo__text]} numberOfLines={1}>
                                                 {strings('cashback.transAmount')}
                                             </Text>
                                             <Text style={[styles.cashbackInfo__title]}>
                                                 {': '}
-                                                {1 * prettyNumber(overallVolume, 6)} USDT
+                                                {overalPrep} USDT
                                             </Text>
                                         </View>
                                         <View style={styles.cashbackInfo__item}>
@@ -387,7 +430,7 @@ class CashbackScreen extends Component {
                                             </Text>
                                             <Text style={[styles.cashbackInfo__title]}>
                                                 {': '}
-                                                {1 * prettyNumber(cashBackBalance, 6)} USDT
+                                                {balancePrep} USDT
                                             </Text>
                                         </View>
                                         <View style={styles.cashbackInfo__item}>
@@ -417,18 +460,32 @@ class CashbackScreen extends Component {
                                 </View>
                             </GradientView>
                             <View style={styles.cashbackLink}>
-                                <TouchableOpacity style={styles.cashbackLink__link} onLongPress={() => this.handleLongCopyToClipboard(cashBackLink)} onPress={() => this.handleCopyToClipboard(cashBackLink)}>
+                                <TouchableOpacity style={styles.cashbackLink__link}
+                                                  onLongPress={() => this.handleLongCopyToClipboard(cashbackLink)}
+                                                  onPress={() => this.handleCopyToClipboard(cashbackLink)}>
                                     <Text style={styles.cashbackLink__text}>
-                                        {cashBackLink.replace(/(.)(?=.)/g, '$1 ')}
+                                        {cashbackLink.replace(/(.)(?=.)/g, '$1 ')}
+                                        {cashbackLinkNotice ?
+                                            <CustomIcon name="warning" style={[styles.cashBackError__icon]}/> : null
+                                        }
                                     </Text>
                                 </TouchableOpacity>
                             </View>
                             {
-                                !cashBackParentToken ?
-                                    <TouchableOpacity style={styles.cashBackParent} onPress={() => this.handleSetParentToken()}>
-                                        <MaterialCommunityIcons name={'link-plus'} style={styles.cashBackParent__icon} />
-                                        <Text style={styles.cashBackParent__text}>{strings('cashback.setParentToken')}</Text>
-                                    </TouchableOpacity> : null
+                                !cashbackParentToken ?
+                                    <TouchableOpacity style={styles.cashBackParent}
+                                                      onPress={() => this.handleSetParentToken()}>
+                                        <MaterialCommunityIcons name={'link-plus'} style={styles.cashBackParent__icon}/>
+                                        <Text
+                                            style={styles.cashBackParent__text}>{strings('cashback.setParentToken')}</Text>
+                                    </TouchableOpacity> : <TouchableOpacity style={styles.cashBackParent}>
+                                        <MaterialCommunityIcons name={'link-plus'} style={styles.cashBackParent__icon}/>
+                                        <Text
+                                            style={styles.cashBackParent__text}>{strings('cashback.hasParentToken', { cashbackParentToken })}</Text>
+                                        {cashbackParentNotice ?
+                                            <CustomIcon name="warning" style={[styles.cashBackError__icon]}/> : null
+                                        }
+                                    </TouchableOpacity>
                             }
 
                             <View style={styles.sharing}>
@@ -446,19 +503,23 @@ class CashbackScreen extends Component {
                                     contentContainerStyle={styles.sharing__content}
                                     horizontal={true}>
                                     <View style={styles.sharing__item}>
-                                        <ButtonIcon style={{ backgroundColor: '#4AA0EB' }} icon="TELEGRAM" callback={() => this.customShare.handleShare('TELEGRAM')}/>
+                                        <ButtonIcon style={{ backgroundColor: '#4AA0EB' }} icon="TELEGRAM"
+                                                    callback={() => this.customShare.handleShare('TELEGRAM')}/>
                                         <Text style={styles.sharing__text}>Telegram</Text>
                                     </View>
                                     <View style={styles.sharing__item}>
-                                        <ButtonIcon style={{ backgroundColor: '#1877f2' }} icon="FACEBOOK" callback={() => this.handleShare('facebook', cashBackLink)}/>
+                                        <ButtonIcon style={{ backgroundColor: '#1877f2' }} icon="FACEBOOK"
+                                                    callback={() => this.handleShare('facebook', cashbackLink)}/>
                                         <Text style={styles.sharing__text}>Facebook</Text>
                                     </View>
                                     <View style={styles.sharing__item}>
-                                        <ButtonIcon style={{ backgroundColor: '#BA5DF5' }} icon="VIBER" callback={() => this.customShare.handleShare('VIBER')}/>
+                                        <ButtonIcon style={{ backgroundColor: '#BA5DF5' }} icon="VIBER"
+                                                    callback={() => this.customShare.handleShare('VIBER')}/>
                                         <Text style={styles.sharing__text}>Viber</Text>
                                     </View>
                                     <View style={styles.sharing__item}>
-                                        <ButtonIcon style={{ backgroundColor: '#f55499' }} icon="DOTS" callback={() => this.handleSimpleShare(cashBackLink)}/>
+                                        <ButtonIcon style={{ backgroundColor: '#f55499' }} icon="DOTS"
+                                                    callback={() => this.handleSimpleShare(cashbackLink)}/>
                                         <Text style={styles.sharing__text}>{strings('cashback.more')}</Text>
                                     </View>
                                 </ScrollView>
@@ -475,8 +536,6 @@ const mapStateToProps = (state) => {
     return {
         mainStore: state.mainStore,
         cashBackStore: state.cashBackStore,
-        authStore: state.authStore,
-        walletStore: state.walletStore,
         send: state.sendStore
     }
 }
@@ -839,7 +898,7 @@ const styles = {
         marginBottom: 1,
 
         fontSize: 20,
-        color: '#ffffff',
+        color: '#ffffff'
     },
     cashBackParent__text: {
         fontSize: 14,
@@ -849,5 +908,8 @@ const styles = {
         textDecorationStyle: 'solid',
         textDecorationColor: '#ffffff',
         textAlign: 'center'
+    },
+    cashBackError__icon: {
+        color: '#FF2E2E'
     }
 }

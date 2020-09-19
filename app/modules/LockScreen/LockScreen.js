@@ -5,6 +5,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { View , Image, Animated } from 'react-native'
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import Orientation from 'react-native-orientation'
 
 import PINCode, { hasUserSetPinCode, deleteUserPinCode } from '@haskkor/react-native-pincode'
 import firebase from 'react-native-firebase'
@@ -37,17 +38,18 @@ class LockScreen extends Component {
             Animated.sequence([
                 Animated.timing(this.state.progress, {
                     toValue: 1,
-                    duration: 5000
+                    duration: 500
                 }),
                 Animated.timing(this.state.progress, {
                     toValue: 0,
-                    duration: 5000
+                    duration: 500
                 })
             ]),
             {
                 iterations: 100
             }
         ).start()
+        Orientation.lockToPortrait()
     }
 
     finishProcess = () => {
@@ -75,6 +77,14 @@ class LockScreen extends Component {
             lockScreenAction.setFlowType({
                 flowType: ''
             })
+        } else if (flowType ===  'CONFIRM_BACKUP_WALLET') {
+            NavStore.goBack()
+            setLoaderStatus(true)
+            setTimeout(() => {
+                actionCallback(false)
+                lockScreenAction.setFlowType({ flowType: '' })
+                lockScreenAction.setActionCallback({ actionCallback: () => {} })
+            }, 50)
         } else if (flowType === 'CONFIRM_SEND_CRYPTO') {
             NavStore.goBack()
             setLoaderStatus(true)
@@ -105,7 +115,7 @@ class LockScreen extends Component {
                 this.setState({
                     show: true
                 })
-            }, 500)
+            }, 100)
         })
 
     }
@@ -163,7 +173,7 @@ class LockScreen extends Component {
                     this.state.passwordState !== null && this.state.show ?
 
                         <View style={{ flex: 1 }}>
-                            <View style={[styles.top, flowType !== '' ? styles.top__navigation : null]}>
+                             <View style={[styles.top, flowType !== '' ? styles.top__navigation : null]}>
                                 <Image
                                     style={styles.top__logo}
                                     resizeMode='stretch'
@@ -325,10 +335,11 @@ const styles = {
         alignItems: 'center',
         width: '100%',
         height: 250,
-
-        marginBottom: 15
+        paddingTop: 110,
+        marginBottom: 15,
     },
     top__navigation: {
+        paddingTop: 50,
         marginTop: 50,
         marginBottom: -30
     },

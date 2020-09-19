@@ -2,6 +2,8 @@
  * @version 0.5
  * https://etherscan.io/apis#accounts
  */
+import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+
 const Web3 = require('web3')
 
 export default class EthBasic {
@@ -68,7 +70,7 @@ export default class EthBasic {
             case 'mainnet':
             case 'ropsten':
             // case 'kovan' : case 'rinkeby' : case 'goerli' :
-                this._web3Link = `https://${settings.network}.infura.io/v3/e69df96932bd4e9db7451fab8d6e0c85`
+                this._web3Link = `https://${settings.network}.infura.io/v3/73c21b1f95ca4946886c78eac6bc1d11`
                 break
             default:
                 throw new Error('while retrieving Ethereum address - unknown Ethereum network specified. Proper values are "mainnet", "ropsten", "kovan", rinkeby". Got : ' + settings.network)
@@ -84,8 +86,14 @@ export default class EthBasic {
         this._tokenAddress = false
     }
 
-    checkError(e) {
-        if (e.message.indexOf('infura') !== -1) {
+    checkError(e, data) {
+        if (e.message.indexOf('gas required exceeds allowance') !== -1) {
+            BlocksoftCryptoLog.log('EthBasic checkError ' + e.message + ' for ' + data.addressFrom)
+            throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+        } else if (e.message.indexOf('transaction underpriced') !== -1) {
+            BlocksoftCryptoLog.log('EthBasic checkError2 ' + e.message + ' for ' + data.addressFrom)
+            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+        } else if (e.message.indexOf('infura') !== -1) {
             throw new Error('SERVER_RESPONSE_BAD_INTERNET')
         } else {
             throw e

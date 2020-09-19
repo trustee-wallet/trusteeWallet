@@ -2,15 +2,15 @@
  * @version 0.9
  */
 const INITIAL_STATE = {
-    appNews: []
+    appNewsList: []
 }
 
 const appNewsStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
-        case 'SET_APP_NEWS':
+        case 'SET_APP_NEWS_LIST':
             return new Object({
                 ...state,
-                appNews: action.appNews
+                appNewsList: action.appNewsList
             })
         default:
             return state

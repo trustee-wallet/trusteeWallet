@@ -11,17 +11,19 @@ import Log from '../../services/Log/Log'
 
 const cryptoWalletActions = {
 
-    setSelectedWallet: async (walletHash) => {
+    setSelectedWallet: async (walletHash, source, loader = true) => {
 
-        setLoaderStatus(true)
+        if (loader) {
+            setLoaderStatus(true)
+        }
 
         try {
 
             Log.log('ACT/CryptoWallet setSelectedWallet called', walletHash)
 
-            await cryptoWalletDS.setSelectedWallet(walletHash)
+            await cryptoWalletDS.setSelectedWallet(walletHash,  'ACT/CryptoWallet setSelectedWallet ' + source)
 
-            await App.refreshWalletsStore()
+            await App.refreshWalletsStore({firstTimeCall : false, source : 'ACT/CryptoWallet setSelectedWallet ' + source, walletHash, noRatesApi: true})
 
             Log.log('ACT/CryptoWallet setSelectedWallet finished')
 
@@ -31,11 +33,16 @@ const cryptoWalletActions = {
 
         }
 
-        setTimeout(() => {
-            setLoaderStatus(false)
-        }, 1000)
-    }
+        if (loader) {
+            setTimeout(() => {
+                setLoaderStatus(false)
+            }, 1000)
+        }
+    },
 
+    setFirstWallet() {
+        return cryptoWalletDS.getFirstWallet()
+    }
 }
 
 export default cryptoWalletActions

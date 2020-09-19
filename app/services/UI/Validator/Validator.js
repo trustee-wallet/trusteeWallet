@@ -18,6 +18,8 @@ const cardNumberValid = require('fast-luhn')
 const DEFAULT_WORDS = require('./_words/english.json')
 const bitcoin = require('bitcoinjs-lib')
 
+import * as f from 'mymonero-core-js/monero_utils/monero_paymentID_utils'
+
 async function _userDataValidation(obj) {
 
     const id = obj.id
@@ -150,11 +152,29 @@ async function _userDataValidation(obj) {
             }
             break
 
+        case 'XMR_ADDRESS':
+            value = value.trim()
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else if (!/^[0-9a-zA-Z]{95,106}$/.test(value)) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
         case 'XRP_DESTINATION_TAG':
             value = value.trim()
             if (!value) {
                 return
             } else if (value > 4294967295) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
+        case 'XMR_DESTINATION_TAG':
+            value = value.trim()
+            if (!value) {
+                return
+            } else if (!f.IsValidPaymentIDOrNoPaymentID(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break
@@ -170,10 +190,11 @@ async function _userDataValidation(obj) {
                 }
                 let checkValues = [value]
                 if (value.indexOf(';') !== -1) {
-                    checkValues = value.split(';')
+                    checkValues = value.replace(/\s+/g, ';').split(';')
                 }
                 for (let checkValue of checkValues) {
                     checkValue = checkValue.trim()
+                    if (!checkValue) continue
                     if (subtype === 'bitcoincash' || subtype === 'bitcoinsv') { //clone not to overwrite
                         checkValue = BtcCashUtils.toLegacyAddress(checkValue)
                     }
@@ -192,22 +213,30 @@ async function _userDataValidation(obj) {
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else {
-                let network = null
-                let firstOne = value[0]
-                let firstThree = value.slice(0, 3)
-                if (firstOne === '1' || firstOne === '3') {
-                    network = bitcoin.networks.mainnet
-                } else if (firstThree === 'bc1') {
-                    network = bitcoin.networks.mainnet
-                } else if (firstOne === '2' || firstOne === 'm' || firstOne === 'n') {
-                    network = bitcoin.networks.testnet
-                } else if (firstThree === 'tb1') {
-                    network = bitcoin.networks.testnet
+                let checkValues = [value]
+                if (value.indexOf(';') !== -1) {
+                    checkValues = value.replace(/\s+/g, ';').split(';')
                 }
-                try {
-                    let output = bitcoin.address.toOutputScript(value, network)
-                } catch (e) {
-                    error.msg = strings('validator.invalidFormat', { name: name })
+                for (let checkValue of checkValues) {
+                    checkValue = checkValue.trim()
+                    if (!checkValue) continue
+                    let network = null
+                    let firstOne = checkValue[0]
+                    let firstThree = checkValue.slice(0, 3)
+                    if (firstOne === '1' || firstOne === '3') {
+                        network = bitcoin.networks.mainnet
+                    } else if (firstThree === 'bc1') {
+                        network = bitcoin.networks.mainnet
+                    } else if (firstOne === '2' || firstOne === 'm' || firstOne === 'n') {
+                        network = bitcoin.networks.testnet
+                    } else if (firstThree === 'tb1') {
+                        network = bitcoin.networks.testnet
+                    }
+                    try {
+                        let output = bitcoin.address.toOutputScript(checkValue, network)
+                    } catch (e) {
+                        error.msg = strings('validator.invalidFormat', { name: name })
+                    }
                 }
             }
             break
@@ -278,8 +307,9 @@ async function _userDataValidation(obj) {
             }
             break
 
-        case 'CASH_BACK_LINK':
+        case 'CASHBACK_LINK':
             const valueArray = value.split('/')
+            value = value.replace('https://cashback.trustee.deals/', 'https://trustee.deals/link/')
             if (!value)
                 error.msg = strings('validator.empty', { name: name })
             else if (!value.includes('https://trustee.deals/link/')) {

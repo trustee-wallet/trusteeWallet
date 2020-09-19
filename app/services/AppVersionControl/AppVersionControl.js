@@ -81,9 +81,9 @@ class AppVersionControl {
             if (!isSkipped && +newVersion > +this._currentVersion) {
                 const OS = this._OS.toUpperCase()
                 showModal({
-                    type: 'YES_NO_MODAL',
+                    type: 'UPDATE_MODAL',
                     title: strings('modal.infoUpdateModal.title'),
-                    icon: 'INFO',
+                    icon: null,
                     description: strings('modal.infoUpdateModal.description'),
                     noCallback: async () => {
                         versionControl.skippedVersions.push(newVersion)

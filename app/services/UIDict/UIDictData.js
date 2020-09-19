@@ -127,6 +127,16 @@ export default {
             mainColor: '#FF6F45'
         }
     },
+    'ETH_DAIM': {
+        colors: {
+            mainColor: '#FF6F45'
+        }
+    },
+    'ETH_OKB': {
+        colors: {
+            mainColor: '#3075EE'
+        }
+    },
     'XRP': {
         colors: {
             mainColor: '#1B1818'

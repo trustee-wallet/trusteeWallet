@@ -19,11 +19,11 @@
  * @returns {Promise<{from: string, to: string, value: number, direction: string}>}
  * @constructor
  */
-import BlocksoftUtils from '../../../common/BlocksoftUtils'
+import BlocksoftBN from '../../../common/BlocksoftBN'
 
 export default async function BtcFindAddressFunction(indexedAddresses, transaction) {
-    let inputMy = BlocksoftUtils.toBigNumber(0)
-    let inputOthers = BlocksoftUtils.toBigNumber(0)
+    const inputMyBN = new BlocksoftBN(0)
+    const inputOthersBN = new BlocksoftBN(0)
     let inputMyAddress = ''
     const inputOthersAddresses = []
     const uniqueTmp = {}
@@ -31,7 +31,6 @@ export default async function BtcFindAddressFunction(indexedAddresses, transacti
         for (let i = 0, ic = transaction.vin.length; i < ic; i++) {
             let vinAddress
             const vinValue = transaction.vin[i].value
-            const vinBN = BlocksoftUtils.toBigNumber(vinValue)
             if (typeof transaction.vin[i].addresses !== 'undefined') {
                 vinAddress = transaction.vin[i].addresses[0]
             } else if (typeof transaction.vin[i].addr !== 'undefined') {
@@ -39,20 +38,20 @@ export default async function BtcFindAddressFunction(indexedAddresses, transacti
             }
             if (!vinAddress) continue
             if (typeof indexedAddresses[vinAddress] !== 'undefined') {
-                inputMy = inputMy.add(vinBN)
+                inputMyBN.add(vinValue)
                 inputMyAddress = vinAddress
             } else {
                 if (typeof uniqueTmp[vinAddress] === 'undefined') {
                     uniqueTmp[vinAddress] = 1
                     inputOthersAddresses.push(vinAddress)
                 }
-                inputOthers = inputOthers.add(vinBN)
+                inputOthersBN.add(vinValue)
             }
         }
     }
 
-    let outputMy = BlocksoftUtils.toBigNumber(0)
-    let outputOthers = BlocksoftUtils.toBigNumber(0)
+    const outputMyBN = new BlocksoftBN(0)
+    const outputOthersBN = new BlocksoftBN(0)
 
     let outputMyAddress = ''
     const allMyAddresses = []
@@ -62,7 +61,6 @@ export default async function BtcFindAddressFunction(indexedAddresses, transacti
         for (let j = 0, jc = transaction.vout.length; j < jc; j++) {
             let voutAddress
             const voutValue = transaction.vout[j].value
-            const voutBN = BlocksoftUtils.toBigNumber(voutValue)
             if (typeof transaction.vout[j].addresses !== 'undefined') {
                 voutAddress = transaction.vout[j].addresses[0]
             } else if (typeof transaction.vout[j].scriptPubKey !== 'undefined' && typeof transaction.vout[j].scriptPubKey.addresses !== 'undefined') {
@@ -70,7 +68,7 @@ export default async function BtcFindAddressFunction(indexedAddresses, transacti
             }
 
             if (typeof indexedAddresses[voutAddress] !== 'undefined') {
-                outputMy = outputMy.add(voutBN)
+                outputMyBN.add(voutValue)
                 outputMyAddress = voutAddress
                 allMyAddresses.push(outputMyAddress)
             } else {
@@ -78,25 +76,25 @@ export default async function BtcFindAddressFunction(indexedAddresses, transacti
                     uniqueTmp2[voutAddress] = 1
                     outputOthersAddresses.push(voutAddress)
                 }
-                outputOthers = outputOthers.add(voutBN)
+                outputOthersBN.add(voutValue)
             }
         }
     }
 
     let output
-    if (inputMy.toString() === '0') { // my only in output
+    if (inputMyBN.get() === '0') { // my only in output
         output = {
             direction: 'income',
             from: inputOthersAddresses.length > 0 ? inputOthersAddresses.join(',') : '',
             to: '', // outputMyAddress,
-            value: outputMy.toString()
+            value: outputMyBN.get()
         }
-    } else if (outputMy.toString() === '0') { // my only in input
+    } else if (outputMyBN.get() === '0') { // my only in input
         output = {
             direction: 'outcome',
             from: '', // inputMyAddress,
             to: outputOthersAddresses.length > 0 ? outputOthersAddresses.join(',') : '',
-            value: (inputOthers.toString() === '0') ? outputOthers.toString() : inputMy.toString()
+            value: (inputOthersBN.get() === '0') ? outputOthersBN.get() : inputMyBN.get()
         }
     } else { // both input and output
         if (outputOthersAddresses.length > 0) {// there are other address
@@ -104,14 +102,14 @@ export default async function BtcFindAddressFunction(indexedAddresses, transacti
                 direction: 'outcome',
                 from: '', // inputMyAddress,
                 to: outputOthersAddresses.join(','),
-                value: outputOthers.toString()
+                value: outputOthersBN.get()
             }
         } else {
             output = {
                 direction: 'self',
                 from: '', // inputMyAddress,
                 to: '', // outputMyAddress,
-                value: Math.abs(inputMy.sub(outputMy).toString())
+                value: Math.abs(inputMyBN.diff(outputMyBN).get())
             }
         }
     }

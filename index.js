@@ -11,7 +11,7 @@ import './global'
 import App from './App'
 import {name as appName} from './app.json'
 import MarketingEvent from './app/services/Marketing/MarketingEvent'
-import BackgroundDaemon from './app/services/Daemon/BackgroundDaemon'
+import BackgroundDaemon from './app/daemons/BackgroundDaemon'
 
 MarketingEvent.initMarketing(false)
 

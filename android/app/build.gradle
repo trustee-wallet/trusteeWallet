@@ -133,7 +133,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.30.414"
+        versionName "1.30.594"
 
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
@@ -142,7 +142,21 @@ android {
 //          abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64", "mips"
 //        }
 
+        packagingOptions {
+                pickFirst 'lib/x86/libc++_shared.so'
+                pickFirst 'lib/x86_64/libc++_shared.so'
+                pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+                pickFirst 'lib/arm64-v8a/libc++_shared.so'
+        }
     }
+
+    packagingOptions {
+                    pickFirst 'lib/x86/libc++_shared.so'
+                    pickFirst 'lib/x86_64/libc++_shared.so'
+                    pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+                    pickFirst 'lib/arm64-v8a/libc++_shared.so'
+            }
+
     splits {
         abi {
             reset()
@@ -201,6 +215,7 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-vector-icons')
     def multidex_version = "2.0.1"
     implementation 'androidx.multidex:multidex:$multidex_version'
 

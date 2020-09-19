@@ -1,13 +1,99 @@
 /**
- * @version 0.5
+ * @version 0.11
  */
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import EthScannerProcessorErc20 from './EthScannerProcessorErc20'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import BlocksoftUtils from '../../common/BlocksoftUtils'
 import DBInterface from '../../../app/appstores/DataSource/DB/DBInterface'
-
 const TXS_PATH = 'https://api.xreserve.fund/delegated-transactions?address='
+
+async function replaceTx(old, txid, notReplacing) {
+
+    const now = new Date().toISOString()
+    const dbInterface = new DBInterface()
+
+    let oldTx = false
+    let oldJson = false
+    if (typeof notReplacing[old] !== 'undefined') {
+        oldTx = notReplacing[old]
+        try {
+            oldJson = JSON.parse(dbInterface.unEscapeString(oldTx.transactionJson))
+        } catch (e) {
+
+        }
+    }
+
+    if (typeof notReplacing[txid] === 'undefined') {
+        if (oldTx) {
+            // hidden_at need to set!
+            BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions checked kuna already replacing in db ' + old + ' actual ' + txid + ' but need to hide old')
+            await dbInterface.setQueryString(`UPDATE transactions SET hidden_at = '${now}' WHERE LOWER(transaction_hash)=LOWER('${old}') AND currency_code='ETH_UAX'`).query()
+        } else {
+            BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions checked kuna already replacing in db ' + old + ' actual ' + txid + ' and old is hidden')
+        }
+        return false
+    }
+
+
+    let newJson = false
+    try {
+        newJson = JSON.parse(dbInterface.unEscapeString(notReplacing[txid].transactionJson))
+    } catch (e) {
+
+    }
+
+
+    if (!newJson) {
+        newJson = {}
+    }
+    if (oldJson) {
+        if (typeof oldJson.memo !== 'undefined') {
+            if (typeof newJson.memo !== 'undefined') {
+                if (newJson.memo) {
+                    newJson.memo += ' ' + oldJson.memo
+                }
+            } else {
+                newJson.memo = oldJson.memo
+            }
+        }
+        if (typeof oldJson.comment !== 'undefined') {
+            if (typeof newJson.comment !== 'undefined') {
+                if (oldJson.comment) {
+                    newJson.comment += ' ' + oldJson.comment
+                }
+            } else {
+                newJson.comment = oldJson.comment
+            }
+        }
+        if (typeof oldJson.delegatedNonce !== 'undefined') {
+            newJson.delegatedNonce = oldJson.delegatedNonce
+        }
+        if (typeof oldJson.nonce !== 'undefined') {
+            newJson.nonce = oldJson.nonce
+        }
+    }
+
+    let updateSql
+    if (oldTx) {
+        updateSql = `UPDATE transactions 
+                     SET 
+                     transaction_of_trustee_wallet=${oldTx.transactionOfTrusteeWallet}, 
+                     transaction_json='${dbInterface.escapeString(JSON.stringify(newJson))}',
+                     transactions_other_hashes='${old}',
+                     created_at ='${oldTx.createdAt}'
+                     WHERE LOWER(transaction_hash)=LOWER('${txid}') AND currency_code='ETH_UAX'`
+    } else {
+        updateSql = `UPDATE transactions 
+                     SET transactions_other_hashes='${old}' 
+                     WHERE LOWER(transaction_hash)=LOWER('${txid}') AND currency_code='ETH_UAX'`
+    }
+    await dbInterface.setQueryString(updateSql).query()
+    BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions put kuna update in db ' + old + ' actual ' + txid, updateSql)
+    await dbInterface.setQueryString(`UPDATE transactions SET hidden_at = '${now}' WHERE LOWER(transaction_hash)=LOWER('${old}') AND currency_code='ETH_UAX'`).query()
+    BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions put kuna dropped in db ' + old + ' actual ' + txid)
+
+}
 
 export default class EthScannerProcessorUAX extends EthScannerProcessorErc20 {
     async getTransactionsBlockchain(address) {
@@ -19,6 +105,8 @@ export default class EthScannerProcessorUAX extends EthScannerProcessorErc20 {
         if (!txs || typeof txs.data === 'undefined' || txs.data.length === 0) {
             return txsBasic
         }
+
+        // BlocksoftCryptoLog.log('txs', JSON.parse(JSON.stringify(txs.data)))
 
         const dbInterface = new DBInterface()
 
@@ -35,27 +123,27 @@ export default class EthScannerProcessorUAX extends EthScannerProcessorErc20 {
             }
         }
 
-        const notReplaced = {}
+        const notReplacing = {}
         sql = `SELECT id, transaction_hash AS transactionHash, 
                 transaction_of_trustee_wallet AS transactionOfTrusteeWallet,
                 transaction_json AS transactionJson,
                 created_at AS createdAt
                 FROM transactions WHERE currency_code='ETH_UAX'
                 AND (transactions_other_hashes IS NULL OR transactions_other_hashes = '')
-                `
+                AND hidden_at IS NULL`
         saved = await dbInterface.setQueryString(sql).query()
         if (saved && saved.array && saved.array.length > 0) {
             let tmp
             for (tmp of saved.array) {
-                notReplaced[tmp.transactionHash.toLowerCase()] = tmp
+                notReplacing[tmp.transactionHash.toLowerCase()] = tmp
             }
         }
-        /*
-        console.log('txsBasic', txsBasic)
-        console.log('txsKuna', txs.data)
-        console.log('noncesKuna', delegatedByNonces)
-        console.log('notReplaced', notReplaced)
-        */
+
+        // BlocksoftCryptoLog.log('txsBasic', txsBasic)
+        // BlocksoftCryptoLog.log('txsKuna', txs.data)
+        // BlocksoftCryptoLog.log('noncesKuna', delegatedByNonces)
+        // BlocksoftCryptoLog.log('notReplacing', notReplacing)
+
 
         const txBasicIndexed = {}
         let key, tmp
@@ -67,72 +155,17 @@ export default class EthScannerProcessorUAX extends EthScannerProcessorErc20 {
         }
 
         const newTxBasic = JSON.parse(JSON.stringify(txsBasic))
-        const now = new Date().toISOString()
+
         for (tmp of txs.data) {
             const txid = tmp.txid.toLowerCase()
             if (typeof delegatedByNonces[tmp.nonce] !== 'undefined') {
                 const old = delegatedByNonces[tmp.nonce].toLowerCase()
                 if (old !== txid) {
-                    if (typeof notReplaced[txid] !== 'undefined') {
-
-                        let updateSql = `UPDATE transactions 
-                            SET transactions_other_hashes='${old}' 
-                            WHERE LOWER(transaction_hash)=LOWER('${txid}') AND currency_code='ETH_UAX'`
-                        if (typeof notReplaced[old] !== 'undefined') {
-                            let newJson = {}
-                            try {
-                                newJson = JSON.parse(dbInterface.unEscapeString(notReplaced[txid].transactionJson))
-                            } catch (e) {
-
-                            }
-                            let oldJson = {}
-                            const oldTx = notReplaced[old]
-                            try {
-                                oldJson = JSON.parse(dbInterface.unEscapeString(oldTx.transactionJson))
-                            } catch (e) {
-
-                            }
-                            if (oldJson) {
-                                if (typeof oldJson.memo !== 'undefined') {
-                                    if (typeof newJson.memo !== 'undefined') {
-                                        if (newJson.memo) {
-                                            newJson.memo += ' ' + oldJson.memo
-                                        }
-                                    } else {
-                                        newJson.memo = oldJson.memo
-                                    }
-                                }
-                                if (typeof oldJson.comment !== 'undefined') {
-                                    if (typeof newJson.comment !== 'undefined') {
-                                        if (oldJson.comment) {
-                                            newJson.comment += ' ' + oldJson.comment
-                                        }
-                                    } else {
-                                        newJson.comment = oldJson.comment
-                                    }
-                                }
-                                if (typeof oldJson.delegatedNonce !== 'undefined') {
-                                    newJson.delegatedNonce = oldJson.delegatedNonce
-                                }
-                                if (typeof oldJson.nonce !== 'undefined') {
-                                    newJson.nonce = oldJson.nonce
-                                }
-                            }
-                            updateSql = `UPDATE transactions 
-                                            SET 
-                                            transaction_of_trustee_wallet=${oldTx.transactionOfTrusteeWallet}, 
-                                            transaction_json='${dbInterface.escapeString(JSON.stringify(newJson))}',
-                                            transactions_other_hashes='${old}',
-                                            created_at ='${oldTx.createdAt}'
-                                            WHERE LOWER(transaction_hash)=LOWER('${txid}') AND currency_code='ETH_UAX'`
-                        }
-
-                        await dbInterface.setQueryString(updateSql).query()
-                        await dbInterface.setQueryString(`UPDATE transactions SET hidden_at = '${now}' WHERE LOWER(transaction_hash)=LOWER('${old}') AND currency_code='ETH_UAX'`).query()
-                        BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions put kuna dropped nonce ' + tmp.nonce + ' in db ' + old + ' actual ' + txid)
-                    } else {
-                        BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions already put kuna dropped nonce ' + tmp.nonce + ' in db ' + old + ' actual ' + txid)
-                    }
+                    BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions checked kuna not ok nonce ' + tmp.nonce + ' in db ' + old + ' actual ' + txid, {
+                        old: notReplacing[old],
+                        txid: notReplacing[txid]
+                    })
+                    await replaceTx(old, txid, notReplacing)
                 } else {
                     BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions checked kuna ok nonce ' + tmp.nonce + ' in db ' + old + ' actual ' + txid)
                 }
@@ -179,8 +212,6 @@ export default class EthScannerProcessorUAX extends EthScannerProcessorErc20 {
                 BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions put kuna tx ' + txid + ' as not found in etherscan')
             }
         }
-
-        // console.log('finish', newTxBasic)
         return newTxBasic
     }
 }

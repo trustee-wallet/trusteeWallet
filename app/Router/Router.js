@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React from 'react'
 import { createAppContainer } from 'react-navigation'
@@ -8,6 +8,8 @@ import { createStackNavigator } from 'react-navigation-stack'
 import WalletCreateStack from './WalletCreateStack'
 import WalletBackupStack from './WalletBackupStack'
 
+import ErrorScreen from './ErrorScreen'
+
 import InitScreen from '../modules/Init/InitScreen'
 import WalletCreateScreen from '../modules/WalletCreate/WalletCreateScreen'
 import EnterMnemonicPhrase from '../modules/WalletCreate/EnterMnemonicPhrase'
@@ -15,6 +17,7 @@ import QRCodeScannerScreen from '../modules/QRCodeScanner/QRCodeScannerScreen'
 
 import HomeScreenStack from './HomeStack'
 import ExchangeScreenStack from './ExchangeScreenStack'
+import ExchangeV3ScreenStack from './ExchangeV3ScreenStack'
 import TradeScreenStack from './TradeScreenStack'
 import SettingsScreenStack from './SettingsStack'
 
@@ -38,6 +41,13 @@ import SMSCodeScreen from '../modules/Trade/SMSCodeScreen'
 const MainNavigator = createStackNavigator({
         InitScreen: {
             screen: InitScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        ErrorScreen: {
+            screen: ErrorScreen,
             navigationOptions: {
                 headerShown: false
             }
@@ -120,6 +130,13 @@ const MainNavigator = createStackNavigator({
 
         ExchangeScreenStack: {
             screen: ExchangeScreenStack,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        ExchangeV3ScreenStack: {
+            screen: ExchangeV3ScreenStack,
             navigationOptions: {
                 headerShown: false
             }

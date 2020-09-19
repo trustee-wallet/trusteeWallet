@@ -6,6 +6,7 @@ import { createStackNavigator } from 'react-navigation-stack'
 import MainDataScreen from '../modules/Trade/MainDataScreen'
 import ConfirmScreen from '../modules/Trade/ConfirmScreen'
 import FinishScreen from '../modules/Trade/FinishScreen'
+import FinishErrorScreen from '../modules/Trade/FinishErrorScreen'
 
 const TradeScreenStack = createStackNavigator(
     {
@@ -25,6 +26,13 @@ const TradeScreenStack = createStackNavigator(
 
         FinishScreen: {
             screen: FinishScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        FinishErrorScreen: {
+            screen: FinishErrorScreen,
             navigationOptions: {
                 headerShown: false
             }
