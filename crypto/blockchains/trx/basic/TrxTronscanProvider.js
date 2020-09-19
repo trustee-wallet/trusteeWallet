@@ -9,7 +9,7 @@ const BALANCE_PATH = 'https://apilist.tronscan.org/api/account?address='
 const BALANCE_MAX_TRY = 10
 
 const CACHE_TRONSCAN = {}
-const CACHE_VALID_TIME = 30000 // 30 seconds
+const CACHE_VALID_TIME = 3000 // 3 seconds
 
 export default class TrxTronscanProvider {
 
@@ -28,9 +28,11 @@ export default class TrxTronscanProvider {
             }
         }
 
-        const res = await BlocksoftAxios.getWithoutBraking(BALANCE_PATH + address, BALANCE_MAX_TRY)
+        const link = BALANCE_PATH + address
+        BlocksoftCryptoLog.log('TrxTronscanProvider.get ' + link)
+        const res = await BlocksoftAxios.getWithoutBraking(link, BALANCE_MAX_TRY)
         if (!res || !res.data) {
-            return { balance : 0, unconfirmed: 0, provider: 'tronscan-emptyisok' }
+            return false
         }
 
         CACHE_TRONSCAN[address] = {}
@@ -49,7 +51,7 @@ export default class TrxTronscanProvider {
         }
 
         if (typeof CACHE_TRONSCAN[address][tokenName] === 'undefined') {
-            return { balance : 0, unconfirmed: 0, provider: 'tronscan-emptyisok' }
+            return false
         }
 
         const balance = CACHE_TRONSCAN[address][tokenName]

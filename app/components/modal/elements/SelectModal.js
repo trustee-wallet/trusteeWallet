@@ -31,17 +31,36 @@ export default class SelectModal extends Component {
     }
 
     componentDidMount() {
+
         try {
             const itemListForSelect = JSON.parse(JSON.stringify(this.props.data.data.listForSelect))
             const selectedItem = JSON.parse(JSON.stringify(this.props.data.data.selectedItem))
 
-            const itemList = itemListForSelect.map(item => item.value)
-
+            const itemList = []
+            let item
+            let index = 0
+            let checkedSelectedItemIndex = 0
+            let checkedSelectedItem = false
+            for (item of itemListForSelect) {
+                itemList.push(item.value)
+                if (selectedItem.value === item.value) {
+                    checkedSelectedItemIndex = index
+                    checkedSelectedItem = item
+                }
+                index++
+            }
+            if (checkedSelectedItem === false) {
+                checkedSelectedItem = itemListForSelect[0]
+            }
+            if (checkedSelectedItem && checkedSelectedItem.value === "-----") {
+                checkedSelectedItemIndex = 1
+                itemListForSelect[1]
+            }
             this.setState({
                 itemList,
                 itemListForSelect,
-                selectedItemIndex: itemList.indexOf(selectedItem.value) === -1 ? 0 : itemList.indexOf(selectedItem.value),
-                selectedItem: itemList.indexOf(selectedItem.value) === -1 ? itemListForSelect[0] : itemListForSelect[itemList.indexOf(selectedItem.value)],
+                selectedItemIndex : checkedSelectedItemIndex,
+                selectedItem : checkedSelectedItem,
                 pickerVisible: true
             })
         } catch (e) {
@@ -54,6 +73,7 @@ export default class SelectModal extends Component {
                 NavStore.goBack()
             })
         }
+
     }
 
     onPickerSelect(index) {

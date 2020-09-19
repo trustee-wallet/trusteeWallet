@@ -3,7 +3,6 @@
  */
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftPrivateKeysUtils from '../../../common/BlocksoftPrivateKeysUtils'
-import BlocksoftUtils from '../../../common/BlocksoftUtils'
 
 const networksConstants = require('../../../common/ext/networks-constants')
 
@@ -29,22 +28,21 @@ export default class BtcTxBuilder {
      * @param {string} inputs[].address
      * @param {string} inputs[].isSegwit
      * @param {string} inputs[].confirmations
-     * @param {string} inputs[].valueBN
      * @returns {Promise<void>}
      * @private
      */
     async _getRawTxValidateKeyPairByInputs(data, inputs) {
-        const discoverFor =  {
+        const discoverFor = {
             mnemonic: data.mnemonic,
-            walletHash: data.walletHash,
+            walletHash: data.walletHash
         }
-        for (let i = 0, ic = inputs.length; i < ic; i++ ) {
+        for (let i = 0, ic = inputs.length; i < ic; i++) {
             const input = inputs[i]
             if (typeof input === 'undefined' || !input) {
                 throw new Error('nothing to discover in input ' + JSON.stringify(input))
             }
             if (typeof input.path === 'undefined' || !input.path) {
-                throw new Error('no path to discover in input ' + JSON.stringify(input))
+                return false
             }
             discoverFor.path = input.path
             discoverFor.addressToCheck = input.address
@@ -58,7 +56,7 @@ export default class BtcTxBuilder {
     }
 
     _getRawTxValidateKeyPair(privateKey, addressFrom, isSegwit = false) {
-        if (this.keyPair[addressFrom]) return true
+        if (typeof this.keyPair[addressFrom] !== 'undefined' && this.keyPair[addressFrom]) return true
         this.keyPair[addressFrom] = false
         if (!privateKey) {
             throw new Error('no privateKey')
@@ -85,8 +83,14 @@ export default class BtcTxBuilder {
                 address = this.p2wpkh[addressFrom].address
             } else if (isSegwit === '_SEGWIT_COMPATIBLE') {
                 try {
-                    this.p2wpkh[addressFrom] = bitcoin.payments.p2wpkh({ pubkey: this.keyPair[addressFrom].publicKey, network: this._bitcoinNetwork })
-                    this.p2sh[addressFrom] = bitcoin.payments.p2sh({ redeem: this.p2wpkh[addressFrom], network: this._bitcoinNetwork })
+                    this.p2wpkh[addressFrom] = bitcoin.payments.p2wpkh({
+                        pubkey: this.keyPair[addressFrom].publicKey,
+                        network: this._bitcoinNetwork
+                    })
+                    this.p2sh[addressFrom] = bitcoin.payments.p2sh({
+                        redeem: this.p2wpkh[addressFrom],
+                        network: this._bitcoinNetwork
+                    })
                 } catch (e) {
                     e.message += ' in privateKey SegwitCompatible signature create'
                     // noinspection ExceptionCaughtLocallyJS
@@ -162,7 +166,6 @@ export default class BtcTxBuilder {
      * @param {string} preparedInputsOutputs.inputs[].address
      * @param {string} preparedInputsOutputs.inputs[].isSegwit
      * @param {string} preparedInputsOutputs.inputs[].confirmations
-     * @param {string} preparedInputsOutputs.inputs[].valueBN
      * @param {string} preparedInputsOutputs.outputs[].to
      * @param {string} preparedInputsOutputs.outputs[].amount
      * @return {Promise<string>}
@@ -186,7 +189,7 @@ export default class BtcTxBuilder {
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx no RBF ' + data.nSequence)
             }
         } else {
-            data.nSequence = data.jsonData.nSequence*1 + 1
+            data.nSequence = data.jsonData.nSequence * 1 + 1
             data.txAllowReplaceByFee = true
 
             if (data.nSequence >= MAX_SEQ) {
@@ -198,9 +201,11 @@ export default class BtcTxBuilder {
             }
         }
 
-        if (data.addressFromXpub) {
+        if (typeof preparedInputsOutputs.inputs !== 'undefined' && preparedInputsOutputs.inputs) {
             await this._getRawTxValidateKeyPairByInputs(data, preparedInputsOutputs.inputs)
-        } else if (typeof data.privateKeyLegacy !== 'undefined') {
+        }
+
+        if (typeof data.privateKeyLegacy !== 'undefined') {
             this._getRawTxValidateKeyPair(data.privateKey, data.addressFrom, '_SEGWIT')
             this._getRawTxValidateKeyPair(data.privateKeyLegacy, data.addressFromLegacy, false)
         } else {
@@ -210,7 +215,7 @@ export default class BtcTxBuilder {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx validated address private key')
 
         let txb
-        if (preparedInputsOutputs.feeForByte <= 250 ) {
+        if (preparedInputsOutputs.feeForByte <= 250) {
             txb = new bitcoin.TransactionBuilder(this._bitcoinNetwork)
         } else {
             BlocksoftCryptoLog.log('preparedInputsOutputs.feeForByte', preparedInputsOutputs.feeForByte)
@@ -234,11 +239,11 @@ export default class BtcTxBuilder {
 
         let output
         for (output of preparedInputsOutputs.outputs) {
-            const tmp = { addressTo: output.to, amount: output.amount}
+            const tmp = { addressTo: output.to, amount: output.amount }
             try {
                 this._getRawTxAddOutput(txb, output.to, output.amount * 1, output)
                 log.outputs.push(tmp)
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx output added ', output )
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx output added ', output)
             } catch (e) {
                 e.message = ' transaction BTC add output error: ' + e.message + ' ' + JSON.stringify(tmp)
                 throw e
@@ -260,6 +265,7 @@ export default class BtcTxBuilder {
         try {
             hex = txb.build().toHex()
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx size ' + hex.length, log)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx hex', hex)
         } catch (e) {
             e.message = ' transaction BTC build error: ' + e.message
             throw e

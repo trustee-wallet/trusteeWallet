@@ -9,7 +9,7 @@ import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 
 const ESTIMATE_PATH = 'https://ethgasstation.info/json/ethgasAPI.json'
 const ESTIMATE_MAX_TRY = 50 // max tries before error appear in axios get
-const MAGIC_TX_DIVIDER = BlocksoftUtils.toBigNumber(10)
+const MAGIC_TX_DIVIDER = 10
 
 const CACHE_VALID_TIME = 60000 // 1 minute
 let CACHE_FEES_ETH = false
@@ -20,12 +20,12 @@ let CACHE_PREV_DATA = { 'fastest': 100.0, 'safeLow': 13.0, 'average': 30.0 }
 class EthNetworkPrices {
 
     /**
-     * @returns {{ price0: BigNumber, price1: BigNumber, price2: BigNumber, average: int, fast: int, safeLow: int}}
+     * @returns {{ price[]: string, average: int, fast: int, safeLow: int}}
      */
-    async get() {
+    async get(address) {
 
         BlocksoftCryptoLog.log('EthNetworkPricesProvider started')
-        const logData = { source: 'fromCache', cacheTime: CACHE_FEES_ETH_TIME + '', fee: JSON.stringify(CACHE_FEES_ETH)}
+        const logData = { address, source: 'fromCache', cacheTime: CACHE_FEES_ETH_TIME + '', fee: JSON.stringify(CACHE_FEES_ETH)}
 
         const now = new Date().getTime()
         if (CACHE_FEES_ETH && now - CACHE_FEES_ETH_TIME < CACHE_VALID_TIME) {
@@ -44,13 +44,16 @@ class EthNetworkPrices {
             if (tmp.data && tmp.data.fastest) {
                 logData.source = 'reloaded'
                 CACHE_PREV_DATA = tmp.data
+                BlocksoftCryptoLog.log('EthNetworkPricesProvider loaded new fee', CACHE_PREV_DATA)
             } else {
                 logData.source = 'fromLoadCache'
                 link = 'prev'
+                BlocksoftCryptoLog.log('EthNetworkPricesProvider loaded prev fee as no fastest', CACHE_PREV_DATA)
             }
         } catch (e) {
             // noinspection ES6MissingAwait
             MarketingEvent.logEvent('estimate_fee_eth_load_error', { link, data: e.toString() })
+            BlocksoftCryptoLog.log('EthNetworkPricesProvider loaded prev fee as error', CACHE_PREV_DATA)
             // do nothing
         }
 
@@ -69,9 +72,7 @@ class EthNetworkPrices {
 
     _format() {
         return {
-            price0 : CACHE_FEES_ETH[12],
-            price1 : CACHE_FEES_ETH[6],
-            price2 : CACHE_FEES_ETH[2],
+            price : [CACHE_FEES_ETH[12], CACHE_FEES_ETH[6], CACHE_FEES_ETH[2]],
             safeLow : CACHE_FEES_ETH[12].toString(),
             average : CACHE_FEES_ETH[6].toString(),
             fastest : CACHE_FEES_ETH[2].toString()
@@ -83,20 +84,15 @@ class EthNetworkPrices {
      * @param {int} json.safeLow
      * @param {int} json.average
      * @param {int} json.fastest
-     * @returns {{ price0: BigNumber, price1: BigNumber, price2: BigNumber, average: int, fast: int, safeLow: int}}
      * @private
      */
     async _parseLoaded(json) {
-
         CACHE_FEES_ETH = {}
-        CACHE_FEES_ETH[2] = json.fastest * 1
-        CACHE_FEES_ETH[6] = json.average * 1
-        CACHE_FEES_ETH[12] = json.safeLow * 1
 
         const externalSettings = await BlocksoftExternalSettings.getAll('ETH.getNetworkPrices')
-        addMultiply(2, externalSettings)
-        addMultiply(6, externalSettings)
-        addMultiply(12, externalSettings)
+        addMultiply(2, json.fastest * 1, externalSettings)
+        addMultiply(6, json.average * 1, externalSettings)
+        addMultiply(12, json.safeLow * 1, externalSettings)
 
         if (CACHE_FEES_ETH[12] === CACHE_FEES_ETH[6]) {
             if (CACHE_FEES_ETH[6] === CACHE_FEES_ETH[2]) {
@@ -115,9 +111,9 @@ class EthNetworkPrices {
         }
 
         try {
-            CACHE_FEES_ETH[12] = BlocksoftUtils.toBigNumber(BlocksoftUtils.toWei(CACHE_FEES_ETH[12], 'gwei')).div(MAGIC_TX_DIVIDER) // in gwei to wei + magic
-            CACHE_FEES_ETH[6] = BlocksoftUtils.toBigNumber(BlocksoftUtils.toWei(CACHE_FEES_ETH[6], 'gwei')).div(MAGIC_TX_DIVIDER) // in gwei to wei + magic
-            CACHE_FEES_ETH[2] = BlocksoftUtils.toBigNumber(BlocksoftUtils.toWei(CACHE_FEES_ETH[2], 'gwei')).div(MAGIC_TX_DIVIDER) // in gwei to wei + magic
+            CACHE_FEES_ETH[12] = BlocksoftUtils.div(BlocksoftUtils.toWei(CACHE_FEES_ETH[12], 'gwei'), MAGIC_TX_DIVIDER) // in gwei to wei + magic
+            CACHE_FEES_ETH[6] = BlocksoftUtils.div(BlocksoftUtils.toWei(CACHE_FEES_ETH[6], 'gwei'), MAGIC_TX_DIVIDER) // in gwei to wei + magic
+            CACHE_FEES_ETH[2] = BlocksoftUtils.div(BlocksoftUtils.toWei(CACHE_FEES_ETH[2], 'gwei'), MAGIC_TX_DIVIDER) // in gwei to wei + magic
         } catch (e) {
             e.message += ' in EthPrice Magic divider'
             throw e
@@ -127,13 +123,16 @@ class EthNetworkPrices {
     }
 }
 
-function addMultiply(blocks, externalSettings) {
+function addMultiply(blocks, fee, externalSettings) {
     if (typeof externalSettings['ETH_CURRENT_PRICE_' + blocks] !== 'undefined' && externalSettings['ETH_CURRENT_PRICE_' + blocks] > 0) {
         CACHE_FEES_ETH[blocks] = externalSettings['ETH_CURRENT_PRICE_' + blocks]
     } else if (typeof externalSettings['ETH_MULTI_' + blocks] !== 'undefined' && externalSettings['ETH_MULTI_' + blocks] > 0) {
-        CACHE_FEES_ETH[blocks] = Math.round(CACHE_FEES_ETH[blocks] * externalSettings['ETH_MULTI_' + blocks])
+        CACHE_FEES_ETH[blocks] = BlocksoftUtils.mul(fee, externalSettings['ETH_MULTI_' + blocks])
     } else if (typeof externalSettings.ETH_MULTI !== 'undefined' && externalSettings.ETH_MULTI > 0) {
-        CACHE_FEES_ETH[blocks] = Math.round(CACHE_FEES_ETH[blocks] * externalSettings.ETH_MULTI)
+        CACHE_FEES_ETH[blocks] = BlocksoftUtils.mul(fee, externalSettings.ETH_MULTI)*1
+        BlocksoftCryptoLog.log('EthNetworkPricesProvider addMultiply result', {blocks, fee, mul: externalSettings.ETH_MULTI, res: CACHE_FEES_ETH[blocks]})
+    } else {
+        CACHE_FEES_ETH[blocks] = fee
     }
     if (typeof externalSettings['ETH_MIN_' + blocks] !== 'undefined' &&  externalSettings['ETH_MIN_' + blocks] > 0) {
         if (externalSettings['ETH_MIN_' + blocks] > CACHE_FEES_ETH[blocks]) {

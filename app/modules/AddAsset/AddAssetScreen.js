@@ -24,6 +24,8 @@ class AddAssetScreen extends Component {
         super(props)
         this.state = {
             availableCurrencies: [],
+            viewCurrencies: [],
+            currentSearch: false,
             size: 0,
             initSize: 0
         }
@@ -47,10 +49,14 @@ class AddAssetScreen extends Component {
     }
 
     setAvailableCurrencies = (cryptoCurrencies) => {
+
+
+        const { currentSearch } = this.state
+
         let addedCurrencies = []
         let notAddedCurrencies = []
 
-        const tmpCurrencies = JSON.parse(JSON.stringify( typeof cryptoCurrencies == 'undefined' ? this.props.currencyStore.cryptoCurrencies : cryptoCurrencies))
+        const tmpCurrencies = JSON.parse(JSON.stringify(typeof cryptoCurrencies === 'undefined' ? this.props.currencyStore.cryptoCurrencies : cryptoCurrencies))
 
         for (let currency in BlocksoftDict.Currencies) {
 
@@ -66,10 +72,69 @@ class AddAssetScreen extends Component {
             }
         }
 
-        this.setState({
-            availableCurrencies: addedCurrencies.concat(notAddedCurrencies)
-        })
+        addedCurrencies = addedCurrencies.concat(notAddedCurrencies)
+
+
+        let newArray
+        if (currentSearch) {
+            newArray = this._searchInputToViewArray(addedCurrencies, currentSearch)
+        }
+        if (newArray && newArray.length > 0) {
+            this.setState({
+                availableCurrencies: addedCurrencies,
+                viewCurrencies: newArray
+            })
+        } else {
+            this.setState({
+                availableCurrencies: addedCurrencies,
+                viewCurrencies: addedCurrencies
+            })
+        }
     }
+
+    _searchInputToViewArray(cryptoCurrencies, value) {
+        let newArray = []
+        const lastArray = []
+
+        for (const item of cryptoCurrencies) {
+            const currencyName = item.currencyName.toLowerCase()
+            const currencyCode = item.currencyCode.toLowerCase()
+            if (currencyName.indexOf(value) !== -1 || currencyCode.indexOf(value) !== -1) {
+                if (currencyName.indexOf(value) === 0 || currencyCode.indexOf(value) === 0) {
+                    newArray.push(item)
+                } else {
+                    lastArray.push(item)
+                }
+            }
+        }
+
+        if (lastArray && lastArray.length > 0) {
+            newArray = newArray.concat(lastArray)
+        }
+        return newArray
+    }
+
+    searchInputCallback = (value) => {
+        const tmpArray = this.state.availableCurrencies
+
+        if (value) {
+            value = value.trim().toLowerCase()
+        }
+
+        if (!value) {
+            this.setState({
+                viewCurrencies: tmpArray,
+                currentSearch: value
+            })
+        } else {
+            const newArray = this._searchInputToViewArray(tmpArray, value)
+            this.setState({
+                viewCurrencies: newArray,
+                currentSearch: value
+            })
+        }
+    }
+
 
     handleAddCurrency = async (currencyToAdd) => {
         await currencyActions.addCurrency(currencyToAdd)
@@ -139,12 +204,13 @@ class AddAssetScreen extends Component {
     render() {
         firebase.analytics().setCurrentScreen('AddAssetScreen.index')
 
-        const { availableCurrencies } = this.state
+        const { viewCurrencies } = this.state
 
         return (
             <View style={styles.wrapper}>
                 <Navigation
                     title={strings('assets.mainTitle')}
+                    searchInputCallback={this.searchInputCallback}
                 />
                 <View style={styles.wrapper__content}>
                     <View>
@@ -161,7 +227,7 @@ class AddAssetScreen extends Component {
                                 style={styles.availableCurrencies}
                                 showsVerticalScrollIndicator={false}>
                                 {
-                                    availableCurrencies.map((item, index) => {
+                                    viewCurrencies.map((item, index) => {
                                         return (
                                             <View key={index}>
                                                 <View
@@ -170,8 +236,10 @@ class AddAssetScreen extends Component {
                                                     <CurrencyIcon currencyCode={item.currencyCode}
                                                                   markStyle={{ top: 30 }}/>
                                                     <View style={styles.availableCurrencies__text}>
-                                                        <Text style={styles.availableCurrencies__text_name} numberOfLines={1}>{item.currencyName}</Text>
-                                                        <Text style={styles.availableCurrencies__text_symbol}>{item.currencySymbol}</Text>
+                                                        <Text style={styles.availableCurrencies__text_name}
+                                                              numberOfLines={1}>{item.currencyName}</Text>
+                                                        <Text
+                                                            style={styles.availableCurrencies__text_symbol}>{item.currencySymbol}</Text>
                                                     </View>
                                                     {
                                                         this.renderControlButton(item)
@@ -219,7 +287,7 @@ const styles = {
 
         paddingRight: 15,
         paddingLeft: 15,
-        marginTop: 100
+        marginTop: 130
     },
     content: {
         flex: 1,

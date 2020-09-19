@@ -9,7 +9,7 @@ const BALANCE_PATH = 'https://api.trongrid.io/walletsolidity/getaccount?address=
 const BALANCE_MAX_TRY = 10
 
 const CACHE_TRONGRID = {}
-const CACHE_VALID_TIME = 30000 // 30 seconds
+const CACHE_VALID_TIME = 3000 // 3 seconds
 
 export default class TrxTrongridProvider {
 
@@ -28,8 +28,12 @@ export default class TrxTrongridProvider {
             }
         }
 
-        const res = await BlocksoftAxios.getWithoutBraking(BALANCE_PATH + address, BALANCE_MAX_TRY)
-        if (!res || !res.data || typeof res.data.balance === 'undefined') return false
+        const link = BALANCE_PATH + address
+        BlocksoftCryptoLog.log('TrxTrongridProvider.get ' + link)
+        const res = await BlocksoftAxios.getWithoutBraking(link, BALANCE_MAX_TRY)
+        if (!res || !res.data || typeof res.data.balance === 'undefined') {
+            return false
+        }
 
         CACHE_TRONGRID[address] = {}
         CACHE_TRONGRID[address].time = now
@@ -42,7 +46,7 @@ export default class TrxTrongridProvider {
         }
 
         if (typeof CACHE_TRONGRID[address][tokenName] === 'undefined') {
-            return { balance : 0, unconfirmed: 0, provider: 'trongrid-emptyisok' }
+            return false
         }
 
         const balance = CACHE_TRONGRID[address][tokenName]

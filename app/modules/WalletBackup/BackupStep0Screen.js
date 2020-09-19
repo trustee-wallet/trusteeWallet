@@ -1,9 +1,9 @@
 /**
- * @version 0.9
+ * @version 0.11
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Platform } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Platform, Dimensions, PixelRatio } from 'react-native'
 import Icon from 'react-native-vector-icons/AntDesign'
 import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -16,7 +16,7 @@ import NavStore from '../../components/navigation/NavStore'
 
 import { strings } from '../../../app/services/i18n'
 
-import { hideModal, showModal } from '../../appstores/Stores/Modal/ModalActions'
+import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { setWalletMnemonic } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
 
 import BlocksoftKeys from '../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
@@ -26,9 +26,18 @@ import Log from '../../services/Log/Log'
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 
 import firebase from 'react-native-firebase'
-import ButtonLine from '../../components/elements/ButtonLine'
 import IconAwesome from 'react-native-vector-icons/FontAwesome'
+import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
+import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import BlocksoftSecrets from '../../../crypto/actions/BlocksoftSecrets/BlocksoftSecrets'
 
+const { height: WINDOW_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
+const PIXEL_RATIO = PixelRatio.get()
+
+let SIZE = 16
+if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
+    SIZE = 8
+}
 
 class BackupStep0Screen extends Component {
 
@@ -36,7 +45,8 @@ class BackupStep0Screen extends Component {
         super(props)
         this.state = {
             walletMnemonic: '',
-            walletMnemonicArray: []
+            walletMnemonicArray: [],
+            needPasswordConfirm: false
         }
         this.skipModal = React.createRef()
     }
@@ -48,24 +58,61 @@ class BackupStep0Screen extends Component {
             const { flowType, mnemonicLength } = this.props.createWalletStore
 
             let walletMnemonic = ''
-
-            if (flowType === 'BACKUP_WALLET') {
+            let mnemonic = ''
+            let needPasswordConfirm = false
+            if (flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR') {
+                const { settingsStore } = this.props
                 const selectedWallet = this.props.selectedWallet
-                let mnemonic = 'new wallet is not generated - please reinstall and restart'
                 if (selectedWallet && selectedWallet.walletHash) {
-                    mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(selectedWallet.walletHash)
+                    try {
+                        mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(selectedWallet.walletHash)
+                    } catch {
+                        Log.log('WalletBackup.BackupStep0Screen error mnemonic for ' + selectedWallet.walletHash)
+                    }
                 }
-                walletMnemonic = mnemonic
+                if (flowType === 'BACKUP_WALLET_XMR') {
+                    walletMnemonic = await (BlocksoftSecrets.setCurrencyCode('XMR').setMnemonic(mnemonic)).getWords()
+                } else {
+                    walletMnemonic = mnemonic
+                }
+                if (+settingsStore.lock_screen_status) {
+                    needPasswordConfirm = true
+                }
+                if (!walletMnemonic || walletMnemonic === '') {
+                    Log.log('WalletBackup.BackupStep0Screen no mnenonic for selected wallet')
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: 'WARNING',
+                        title: strings('settings.walletList.backupModal.title'),
+                        description: 'selected wallet is not generated - please select another from the list or reinstall and restart'
+                    })
+                }
             } else {
-                walletMnemonic = (await BlocksoftKeys.newMnemonic(mnemonicLength)).mnemonic
+                try {
+                    walletMnemonic = (await BlocksoftKeys.newMnemonic(mnemonicLength)).mnemonic
+                } catch {
+                    Log.log('WalletBackup.BackupStep0Screen error mnemonic generation')
+                }
+
+                if (!walletMnemonic || walletMnemonic === '') {
+                    Log.log('WalletBackup.BackupStep0Screen no mnenonic for new wallet')
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: 'WARNING',
+                        title: strings('settings.walletList.backupModal.title'),
+                        description: 'new wallet is not generated - please reinstall and restart'
+                    })
+                }
             }
+
 
             const walletMnemonicArray = walletMnemonic.split(' ')
 
             setWalletMnemonic({ walletMnemonic })
             this.setState({
                 walletMnemonic,
-                walletMnemonicArray
+                walletMnemonicArray,
+                needPasswordConfirm
             })
 
         } catch (e) {
@@ -105,23 +152,6 @@ class BackupStep0Screen extends Component {
         NavStore.goNext('BackupStep1Screen')
     }
 
-    handleSkip = () => {
-
-        const { settingsStore }  = this.props
-
-        if(+settingsStore.lock_screen_status) {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: 'INFO',
-                title: strings('modal.exchange.sorry'),
-                description: strings('modal.disabledSkipModal.description')
-            })
-            return
-        }
-
-        showModal({ type: 'BACKUP_SKIP_MODAL' })
-    }
-
     renderSettingsIcon = () => {
         return (
             <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.openWalletSettings}>
@@ -141,22 +171,76 @@ class BackupStep0Screen extends Component {
         )
     }
 
+    handleAfterPin = () => {
+        setLoaderStatus(false)
+        this.setState({
+            needPasswordConfirm: false
+        })
+    }
+
     render() {
 
         firebase.analytics().setCurrentScreen('WalletBackup.BackupStep0Screen')
 
         const { flowType, mnemonicLength } = this.props.createWalletStore
 
+        if (flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR') {
+            const {
+                needPasswordConfirm
+            } = this.state
+
+            if (needPasswordConfirm) {
+                lockScreenAction.setFlowType({ flowType: 'CONFIRM_BACKUP_WALLET' })
+                lockScreenAction.setActionCallback({ actionCallback: this.handleAfterPin })
+                NavStore.goNext('LockScreen')
+                return (
+                    <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
+                        <Navigation
+                            title={strings('walletBackup.title')}
+                            isClose={false}
+                        />
+                        <ScrollView
+                            showsVerticalScrollIndicator={false}
+                            style={styles.wrapper__scrollView}>
+                            <View style={styles.wrapper__content}>
+                                <TextView style={{ height: 90 }}>
+                                    {strings('walletBackup.description', {
+                                        mnemonicLength: mnemonicLength === 256 ? 24 : 12,
+                                        words: mnemonicLength === 256 ? strings('walletCreate.words24') : strings('walletCreate.words12')
+                                    })}
+                                </TextView>
+                                <Image
+                                    style={styles.img}
+                                    resizeMode='stretch'
+                                    source={require('../../assets/images/importSave.png')}
+                                />
+                                <View style={styles.seed}>
+                                    <Text>
+                                        {strings('walletBackup.pinProtected')}
+                                    </Text>
+                                </View>
+                            </View>
+                        </ScrollView>
+                    </GradientView>
+                )
+            }
+        }
+
+        let totalWords = 12
+        if (mnemonicLength === 256 || (typeof this.state.walletMnemonicArray !== 'undefined' && this.state.walletMnemonicArray.length > 12)) {
+            totalWords = 24
+        }
+
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 {
-                    flowType === 'BACKUP_WALLET' ?
+                    flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR' ?
                         <Navigation
                             title={strings('walletBackup.title')}
                             isClose={false}
                         /> :
                         <Navigation
-                            title={strings('walletBackup.titleNewWallet')}
+                            title={SIZE === 8 ? strings('walletBackup.titleNewWalletSmall') : strings('walletBackup.titleNewWallet')}
                             nextTitle={strings('walletBackup.skip')}
                             isBack={false}
                             LeftComponent={this.renderSettingsIcon}
@@ -168,7 +252,14 @@ class BackupStep0Screen extends Component {
                     style={styles.wrapper__scrollView}>
                     <View style={styles.wrapper__content}>
                         <TextView style={{ height: 90 }}>
-                            {strings('walletBackup.description', { mnemonicLength: mnemonicLength === 256 ? 24 : 12, words: mnemonicLength === 256 ? strings('walletCreate.words24') : strings('walletCreate.words12') })}
+                            {
+
+                                flowType === 'BACKUP_WALLET' ? strings('walletBackup.description', {
+                                    mnemonicLength: totalWords,
+                                    words: totalWords === 24 ? strings('walletCreate.words24') : strings('walletCreate.words12')
+                                }) : strings('walletBackup.descriptionXMR')
+
+                            }
                         </TextView>
                         <Image
                             style={styles.img}
@@ -195,13 +286,18 @@ class BackupStep0Screen extends Component {
                             </Text>
                             <Copy name="content-copy" size={18} color="#946288"/>
                         </TouchableOpacity>
-                        <View style={styles.warning}>
-                            <Icon style={styles.warning__icon} name="warning" size={20} color="#946288"/>
-                            <Text style={styles.warning__text}>{strings('walletBackup.attention')}</Text>
-                        </View>
-                        <Button press={this.onPress} styles={{ marginBottom: 50 }}>
-                            {strings('walletBackup.written')}
-                        </Button>
+
+                        {flowType !== 'BACKUP_WALLET_XMR' ?
+                            <View style={styles.warning}>
+                                <Icon style={styles.warning__icon} name="warning" size={20} color="#946288"/>
+                                <Text style={styles.warning__text}>{strings('walletBackup.attention')}</Text>
+                            </View> : null}
+
+                        {flowType !== 'BACKUP_WALLET_XMR' ?
+                            <Button press={this.onPress} styles={{ marginBottom: 50 }}>
+                                {strings('walletBackup.written')}
+                            </Button> : null}
+
                     </View>
                 </ScrollView>
             </GradientView>
@@ -357,5 +453,5 @@ const styles = StyleSheet.create({
         width: '100%',
         marginBottom: 50,
         backgroundColor: '#f6f6f6'
-    },
+    }
 })

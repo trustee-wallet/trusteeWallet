@@ -1,6 +1,5 @@
 /**
- * @version todo
- * @misha to review
+ * @version 0.11
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -10,10 +9,8 @@ import {
     View,
     ScrollView,
     Keyboard,
-    TouchableWithoutFeedback
+    TouchableWithoutFeedback, RefreshControl
 } from 'react-native'
-
-import AsyncStorage from '@react-native-community/async-storage'
 
 import Cards from './elements/Cards'
 import Limits from './elements/Limits'
@@ -38,13 +35,15 @@ import NavStore from '../../components/navigation/NavStore'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { strings } from '../../services/i18n'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-
+import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+import exchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 
 class MainDataScreen extends Component {
 
     constructor() {
         super()
         this.state = {
+            refreshing: false,
             selectedCryptocurrency: {},
             selectedAccount: {},
             selectedPaymentSystem: '',
@@ -67,63 +66,42 @@ class MainDataScreen extends Component {
     UNSAFE_componentWillMount() {
         const { tradeType } = this.props.exchangeStore
 
-        this.handleSetTradeWay(tradeType, "STORAGE_CACHE")
+        this.handleSetTradeWay(tradeType, 'STORAGE_CACHE')
     }
 
     handleConvertToPaymentCurrency = (fromCurrency, amount) => amount
 
-    handleSetTradeWay = async (tradeType, cacheType) => {
+
+    handleSetRevert = async (tradeType, cacheType) => {
+        return this.handleSetTradeWay(tradeType, cacheType, false)
+    }
+
+    handleSetTradeWay = async (tradeType, cacheType, resetSelected = true) => {
 
         setLoaderStatus(true)
 
-        let cacheState = JSON.parse(JSON.stringify(this.state))
+        let initState = {
+            selectedTradeWay: {},
+        }
+        if (resetSelected) {
+            initState = {
+                selectedCryptocurrency: {},
+                selectedAccount: {},
+                selectedPaymentSystem: '',
+                selectedFiatCurrency: {},
+                selectedFiatTemplate: '',
+                selectedCard: {},
+                uniqueParams: {},
 
-        if(cacheType === "STATE_CACHE"){
-            cacheState = JSON.parse(JSON.stringify(this.state))
-        } else if(cacheType === "STORAGE_CACHE") {
-            if(tradeType === "BUY"){
-                const lastBuyCache = await AsyncStorage.getItem("TRADE_BUY_DATA")
+                selectedTradeWay: {},
+                fieldForFiatCurrency: '',
+                fieldForPaywayCode: '',
 
-                if(lastBuyCache !== null){
-                    cacheState = JSON.parse(lastBuyCache)
-                    cacheState = cacheState.lastBuyCache
-                }
-            } else {
-                const lastSellCache = await AsyncStorage.getItem("TRADE_SELL_DATA")
-                if(lastSellCache !== null){
-                    cacheState = JSON.parse(lastSellCache)
-                    cacheState = cacheState.lastSellCache
-                }
+                deviceToken: null
             }
         }
 
-        let initState = {
-            selectedCryptocurrency: {},
-            selectedAccount: {},
-            selectedPaymentSystem: '',
-            selectedFiatCurrency: {},
-            selectedFiatTemplate: '',
-            selectedCard: {},
-            uniqueParams: {},
-
-            selectedTradeWay: {},
-            fieldForFiatCurrency: '',
-            fieldForPaywayCode: '',
-
-            deviceToken: null
-        }
-
-        let preparedCachedData = {}
-
-        if(tradeType === 'BUY'){
-
-            // preparedCachedData = this.prepareDataBetweenTradeType(cacheState, "outCurrencyCode", "inCurrencyCode")
-            // preparedCachedData = preparedCachedData === null ? {} : preparedCachedData
-
-            // delete preparedCachedData.selectedAccount
-
-            delete preparedCachedData.uniqueParams
-            delete preparedCachedData.selectedAccount
+        if (tradeType === 'BUY') {
 
             initState = {
                 ...initState,
@@ -132,19 +110,11 @@ class MainDataScreen extends Component {
                     fieldForFiatCurrency: 'inCurrencyCode',
                     fieldForPaywayCode: 'inPaywayCode',
                     fieldForWayId: 'IN',
-                    fieldForWayId2: 'OUT',
+                    fieldForWayId2: 'OUT'
                 }
             }
 
         } else {
-
-            // preparedCachedData = this.prepareDataBetweenTradeType(cacheState, "inCurrencyCode", "outCurrencyCode")
-            // preparedCachedData = preparedCachedData === null ? {} : preparedCachedData
-
-            // delete preparedCachedData.selectedAccount
-
-            delete preparedCachedData.uniqueParams
-            delete preparedCachedData.selectedAccount
 
             initState = {
                 ...initState,
@@ -153,7 +123,7 @@ class MainDataScreen extends Component {
                     fieldForFiatCurrency: 'outCurrencyCode',
                     fieldForPaywayCode: 'outPaywayCode',
                     fieldForWayId: 'OUT',
-                    fieldForWayId2: 'IN',
+                    fieldForWayId2: 'IN'
                 }
             }
         }
@@ -165,51 +135,46 @@ class MainDataScreen extends Component {
                     show: true
                 }, () => {
                     setTimeout(() => {
-                        this.setState({...preparedCachedData})
                         setLoaderStatus(false)
-                    }, 500)
+                    }, 50)
                 })
         )
 
     }
 
-    prepareDataBetweenTradeType = (cacheState, fieldForCryptocurrency, fieldForFiatCurrency) => {
-
-        let data = null
-
-        let tradeWays = JSON.parse(JSON.stringify(this.props.exchangeStore.tradeApiConfig.exchangeWays))
-
-        if(typeof cacheState.selectedCryptocurrency.currencyCode !== "undefined" && typeof cacheState.selectedFiatCurrency.cc !== "undefined"){
-            tradeWays = tradeWays.filter(item => item[fieldForCryptocurrency] === cacheState.selectedCryptocurrency.currencyCode && item[fieldForFiatCurrency] === cacheState.selectedFiatCurrency.cc)
-            if(tradeWays.length){
-                data = {}
-                data.selectedCryptocurrency = cacheState.selectedCryptocurrency
-                data.selectedAccount = cacheState.selectedAccount
-                data.selectedFiatCurrency = cacheState.selectedFiatCurrency
-            }
+    handleSetState = (field, state, callback) => {
+        if (field === 'mass') {
+            this.setState(state)
+        } else if (typeof callback === 'undefined') {
+            this.setState({ [field]: state })
         } else {
-            tradeWays = tradeWays.filter(item => item[fieldForFiatCurrency] === cacheState.selectedFiatCurrency.cc)
-            if(tradeWays.length){
-                data = {}
-                data.selectedFiatCurrency = cacheState.selectedFiatCurrency
-            }
+            this.setState({ [field]: state },  callback)
         }
-
-        return data
     }
-
-    handleSetState = (field, state) => this.setState({ [field]: state })
 
     handleGetTradeWay = (selectedCryptocurrency, selectedPaymentSystem) => {
         const {
             extendsFields
         } = this.state
 
-        let tradeWays = JSON.parse(JSON.stringify(this.props.exchangeStore.tradeApiConfig.exchangeWays))
+        const tradeWays = this.props.exchangeStore.tradeApiConfig.exchangeWays
 
-        tradeWays = tradeWays.filter(item => item[extendsFields.fieldForCryptocurrency] === selectedCryptocurrency.currencyCode && item[extendsFields.fieldForPaywayCode] === selectedPaymentSystem.paymentSystem && item[extendsFields.fieldForFiatCurrency] === selectedPaymentSystem.currencyCode)
+        const tradeWayList = []
 
-        return tradeWays[0]
+        if (tradeWays) {
+            let item
+            for (item of tradeWays) {
+                if (
+                    item[extendsFields.fieldForCryptocurrency] === selectedCryptocurrency.currencyCode &&
+                    item[extendsFields.fieldForPaywayCode] === selectedPaymentSystem.paymentSystem &&
+                    item[extendsFields.fieldForFiatCurrency] === selectedPaymentSystem.currencyCode
+                ) {
+                    tradeWayList.push(item)
+                    break
+                }
+            }
+        }
+        return tradeWayList[0]
     }
 
     handleValidateSubmit = async () => {
@@ -222,57 +187,83 @@ class MainDataScreen extends Component {
 
         const { exchangeStore } = this.props
 
-        if(typeof selectedCryptocurrency.currencyCode == 'undefined') throw new Error(strings('tradeScreen.modalError.selectCryptocurrency'))
+        if (typeof selectedCryptocurrency.currencyCode === 'undefined') throw new Error(strings('tradeScreen.modalError.selectCryptocurrency'))
 
-        if(typeof selectedFiatCurrency.cc == 'undefined') throw new Error(exchangeStore.tradeType === 'BUY' ? strings('tradeScreen.modalError.selectWhatYouGive') : strings('tradeScreen.modalError.selectWhatYouGet'))
 
-        if(typeof selectedPaymentSystem.paymentSystem == 'undefined') throw new Error(strings('tradeScreen.modalError.selectPaymentSystem'))
+        if (typeof selectedFiatCurrency.cc === 'undefined') throw new Error(exchangeStore.tradeType === 'BUY' ? strings('tradeScreen.modalError.selectWhatYouGive') : strings('tradeScreen.modalError.selectWhatYouGet'))
 
-        if(!selectedFiatTemplate) throw new Error(strings('tradeScreen.modalError.selectFiatTemplate'))
+        if (typeof selectedPaymentSystem.paymentSystem === 'undefined') throw new Error(strings('tradeScreen.modalError.selectPaymentSystem'))
 
-        if(!this.refLimits.handleValidateLimits()) {
+        // if (!selectedFiatTemplate) throw new Error(strings('tradeScreen.modalError.selectFiatTemplate'))
+
+        if (!this.refLimits.handleValidateLimits()) {
             Keyboard.dismiss()
             throw new Error(strings('tradeScreen.modalError.limit'))
         }
 
-        if(this.refOptionalData.getState().enabled)
+        if (this.refOptionalData.getState().enabled)
             await this.refOptionalData.validateData()
 
-        if(this.refCards.getState().enabled){
+        if (this.refCards.getState().enabled) {
             this.refCards.validate()
         }
     }
 
-    handleSubmitTrade = async () => {
+    handleRefresh = async () => {
 
+        this.setState({
+            refreshing: true
+        })
+
+        await exchangeActions.init()
+
+        this.setState({
+            refreshing: false
+        })
+    }
+
+    handleSubmitTrade = async () => {
+        setTimeout(() => {
+            this.actualHandleSubmitTrade()
+        }, 100)
+
+    }
+
+    actualHandleSubmitTrade = async () => {
         const {
             selectedCryptocurrency,
             selectedFiatCurrency,
             selectedPaymentSystem,
             selectedCard,
-            selectedAccount,
+            selectedAccount
         } = this.state
 
-        const deviceToken = await AsyncStorage.getItem('fcmToken')
-        const cashbackToken = await AsyncStorage.getItem('cashbackToken')
         const tradeWay = this.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
         const amount = this.refAmount.handleGetAmountEquivalent()
-
         try {
             await this.handleValidateSubmit()
-
         } catch (e) {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.exchange.sorry'),
-                description: e.message
-            })
+            if(e.message.indexOf('UI_') === 0){
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('tradeScreen.modalError.' + e.message + '.title'),
+                    description: strings('tradeScreen.modalError.' + e.message + '.desc')
+                })
+            } else {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.exchange.sorry'),
+                    description: e.message
+                })
+            }
             return
         }
 
         NavStore.goNext('ConfirmScreen', {
             orderData: {
+                checkTmp : true,
                 selectedCryptocurrency,
                 selectedFiatCurrency,
                 selectedPaymentSystem,
@@ -280,8 +271,6 @@ class MainDataScreen extends Component {
                 selectedAccount,
                 tradeWay,
                 amount,
-                deviceToken,
-                cashbackToken,
                 uniqueParams: this.state.uniqueParams
             }
         })
@@ -291,12 +280,13 @@ class MainDataScreen extends Component {
         setTimeout(() => {
             try {
                 this.scrollView.scrollTo({ x: 0, y: 370, animated: true })
-            } catch (e) {}
+            } catch (e) {
+            }
         }, 400)
     }
 
     render() {
-
+        UpdateOneByOneDaemon.pause()
         const {
             extendsFields,
             selectedCryptocurrency,
@@ -322,165 +312,174 @@ class MainDataScreen extends Component {
                     handleSetState={this.handleSetState}
                     navigation={this.props.navigation}
                     titleComponent={<NavigationTitleComponent
-                    handleSetTradeWay={this.handleSetTradeWay}
-                    handleSetState={this.handleSetState}
-                    exchangeStore={exchangeStore} />}
+                        handleSetRevert={this.handleSetRevert}
+                        handleSetState={this.handleSetState}
+                        exchangeStore={exchangeStore}/>}
                 />
                 <KeyboardAwareView>
-                        {
-                            show ?
-                                <ScrollView
-                                    ref={(ref) => this.scrollView = ref}
-                                    keyboardShouldPersistTaps={'always'}
-                                    showsVerticalScrollIndicator={false}
-                                    style={styles.wrapper__scrollView}>
-                                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                                        {
-                                            exchangeStore.tradeType === 'BUY' ?
-                                                <View style={styles.top}>
-                                                    <View style={styles.top__item}>
-                                                        <Text style={[styles.titleText, typeof selectedCryptocurrency.currencyCode === 'undefined' ? styles.titleText_disabled : null]}>
-                                                            { strings('tradeScreen.youGive') }
-                                                        </Text>
-                                                        <FiatCurrencies
-                                                            ref={ref => this.refFiatCurrencies = ref}
-                                                            selectedFiatCurrency={selectedFiatCurrency}
-                                                            extendsFields={extendsFields}
-                                                            selectedCryptocurrency={selectedCryptocurrency}
-                                                            selectedPaymentSystem={selectedPaymentSystem}
-                                                            navigation={navigation}
-                                                            handleSetState={this.handleSetState}/>
-                                                    </View>
-                                                    <View style={styles.top__item_space} />
-                                                    <View style={styles.top__item}>
-                                                        <Text style={styles.titleText}>
-                                                            { strings('tradeScreen.youGet') }
-                                                        </Text>
-                                                        <Cryptocurrencies
-                                                            self={this}
-                                                            ref={ref => this.refCryptocurrencies = ref}
-                                                            refFiatCurrencies={this.refFiatCurrencies}
-                                                            selectedCryptocurrency={selectedCryptocurrency}
-                                                            selectedAccount={selectedAccount}
-                                                            handleSetState={this.handleSetState}
-                                                            extendsFields={extendsFields}
-                                                            navigation={navigation} />
-                                                    </View>
+                    {
+                        show ?
+                            <ScrollView
+                                ref={(ref) => this.scrollView = ref}
+                                keyboardShouldPersistTaps={'always'}
+                                showsVerticalScrollIndicator={false}
+                                style={styles.wrapper__scrollView}
+                                refreshControl={
+                                    <RefreshControl
+                                        refreshing={this.state.refreshing}
+                                        onRefresh={this.handleRefresh}
+                                    />
+                                }>
+                                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                                    {
+                                        exchangeStore.tradeType === 'BUY' ?
+                                            <View style={styles.top}>
+                                                <View style={styles.top__item}>
+                                                    <Text
+                                                        style={[styles.titleText, typeof selectedCryptocurrency.currencyCode === 'undefined' ? styles.titleText_disabled : null]}>
+                                                        {strings('tradeScreen.youGive')}
+                                                    </Text>
+                                                    <FiatCurrencies
+                                                        ref={ref => this.refFiatCurrencies = ref}
+                                                        selectedFiatCurrency={selectedFiatCurrency}
+                                                        extendsFields={extendsFields}
+                                                        selectedCryptocurrency={selectedCryptocurrency}
+                                                        selectedPaymentSystem={selectedPaymentSystem}
+                                                        navigation={navigation}
+                                                        handleSetState={this.handleSetState}/>
                                                 </View>
-                                                :
-                                                <View style={styles.top}>
-                                                    <View style={styles.top__item}>
-                                                        <Text style={[styles.titleText, typeof selectedCryptocurrency.currencyCode == 'undefined' ? styles.titleText_disabled : null]}>
-                                                            { strings('tradeScreen.youGive') }
-                                                        </Text>
-                                                        <Cryptocurrencies
-                                                            ref={ref => this.refCryptocurrencies = ref}
-                                                            refFiatCurrencies={this.refFiatCurrencies}
-                                                            selectedCryptocurrency={selectedCryptocurrency}
-                                                            selectedAccount={selectedAccount}
-                                                            handleSetState={this.handleSetState}
-                                                            extendsFields={extendsFields}
-                                                            navigation={navigation} />
-                                                    </View>
-                                                    <View style={styles.top__item_space} />
-                                                    <View style={styles.top__item}>
-                                                        <Text style={styles.titleText}>
-                                                            { strings('tradeScreen.youGet') }
-                                                        </Text>
-                                                        <FiatCurrencies
-                                                            ref={ref => this.refFiatCurrencies = ref}
-                                                            selectedFiatCurrency={selectedFiatCurrency}
-                                                            extendsFields={extendsFields}
-                                                            selectedCryptocurrency={selectedCryptocurrency}
-                                                            selectedPaymentSystem={selectedPaymentSystem}
-                                                            navigation={navigation}
-                                                            handleSetState={this.handleSetState}/>
-                                                    </View>
+                                                <View style={styles.top__item_space}/>
+                                                <View style={styles.top__item}>
+                                                    <Text style={styles.titleText}>
+                                                        {strings('tradeScreen.youGet')}
+                                                    </Text>
+                                                    <Cryptocurrencies
+                                                        self={this}
+                                                        ref={ref => this.refCryptocurrencies = ref}
+                                                        refFiatCurrencies={this.refFiatCurrencies}
+                                                        selectedCryptocurrency={selectedCryptocurrency}
+                                                        selectedAccount={selectedAccount}
+                                                        handleSetState={this.handleSetState}
+                                                        extendsFields={extendsFields}
+                                                        navigation={navigation}/>
                                                 </View>
-                                        }
-
-                                    </TouchableWithoutFeedback>
-                                    <View style={styles.middle}>
-                                        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                                            <View>
-                                                <Text style={[styles.titleText, { marginLeft: 30 }]}>{ exchangeStore.tradeType === 'BUY' ? strings('tradeScreen.pickPaySys') : strings('tradeScreen.pickPaySysSell') }</Text>
-                                                <View styles={styles.line} />
                                             </View>
-                                        </TouchableWithoutFeedback>
-                                        <PaymentSystem
-                                            ref={ref => this.refPaymentSystem = ref}
-                                            refOptionalData={this.refOptionalData}
-                                            refCards={this.refCards}
-                                            handleSetState={this.handleSetState}
-                                            extendsFields={extendsFields}
+                                            :
+                                            <View style={styles.top}>
+                                                <View style={styles.top__item}>
+                                                    <Text
+                                                        style={[styles.titleText, typeof selectedCryptocurrency.currencyCode === 'undefined' ? styles.titleText_disabled : null]}>
+                                                        {strings('tradeScreen.youGive')}
+                                                    </Text>
+                                                    <Cryptocurrencies
+                                                        ref={ref => this.refCryptocurrencies = ref}
+                                                        refFiatCurrencies={this.refFiatCurrencies}
+                                                        selectedCryptocurrency={selectedCryptocurrency}
+                                                        selectedAccount={selectedAccount}
+                                                        handleSetState={this.handleSetState}
+                                                        extendsFields={extendsFields}
+                                                        navigation={navigation}/>
+                                                </View>
+                                                <View style={styles.top__item_space}/>
+                                                <View style={styles.top__item}>
+                                                    <Text style={styles.titleText}>
+                                                        {strings('tradeScreen.youGet')}
+                                                    </Text>
+                                                    <FiatCurrencies
+                                                        ref={ref => this.refFiatCurrencies = ref}
+                                                        selectedFiatCurrency={selectedFiatCurrency}
+                                                        extendsFields={extendsFields}
+                                                        selectedCryptocurrency={selectedCryptocurrency}
+                                                        selectedPaymentSystem={selectedPaymentSystem}
+                                                        navigation={navigation}
+                                                        handleSetState={this.handleSetState}/>
+                                                </View>
+                                            </View>
+                                    }
+
+                                </TouchableWithoutFeedback>
+
+                                <View style={styles.middle}>
+                                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                                        <View>
+                                            <Text
+                                                style={[styles.titleText, { marginLeft: 30 }]}>{exchangeStore.tradeType === 'BUY' ? strings('tradeScreen.pickPaySys') : strings('tradeScreen.pickPaySysSell')}</Text>
+                                            <View styles={styles.line}/>
+                                        </View>
+                                    </TouchableWithoutFeedback>
+                                    <PaymentSystem
+                                        ref={ref => this.refPaymentSystem = ref}
+                                        refOptionalData={this.refOptionalData}
+                                        refCards={this.refCards}
+                                        handleSetState={this.handleSetState}
+                                        extendsFields={extendsFields}
+                                        selectedPaymentSystem={selectedPaymentSystem}
+                                        selectedTradeWay={selectedTradeWay}
+                                        selectedCryptocurrency={selectedCryptocurrency}
+                                        selectedFiatCurrency={selectedFiatCurrency}
+                                        selectedFiatTemplate={selectedFiatTemplate}/>
+                                </View>
+                                <View style={styles.box}>
+                                    <View style={{ height: 0, maxHeight: 0, overflow: 'hidden' }}>
+                                        <FiatTemplate
+                                            refLimits={this.refLimits}
+                                            refAmount={this.refAmount}
                                             selectedPaymentSystem={selectedPaymentSystem}
-                                            selectedTradeWay={selectedTradeWay}
                                             selectedCryptocurrency={selectedCryptocurrency}
                                             selectedFiatCurrency={selectedFiatCurrency}
-                                            selectedFiatTemplate={selectedFiatTemplate} />
+                                            selectedFiatTemplate={selectedFiatTemplate}
+                                            handleSetState={this.handleSetState}
+                                            handleGetTradeWay={this.handleGetTradeWay}
+                                            handleConvertToPaymentCurrency={this.handleConvertToPaymentCurrency}/>
                                     </View>
-                                    <View style={styles.box}>
-                                        {/*<TouchableWithoutFeedback onPress={Keyboard.dismiss}>*/}
-                                        {/*    <Text style={[styles.titleText, { textAlign: 'center' }]}>{ strings('tradeScreen.selectSum') }</Text>*/}
-                                        {/*</TouchableWithoutFeedback>*/}
-                                        <View style={{ height: 0, maxHeight: 0, overflow: 'hidden' }}>
-                                            <FiatTemplate
-                                                refLimits={this.refLimits}
-                                                refAmount={this.refAmount}
-                                                selectedPaymentSystem={selectedPaymentSystem}
-                                                selectedCryptocurrency={selectedCryptocurrency}
-                                                selectedFiatCurrency={selectedFiatCurrency}
-                                                selectedFiatTemplate={selectedFiatTemplate}
-                                                handleSetState={this.handleSetState}
-                                                handleGetTradeWay={this.handleGetTradeWay}
-                                                handleConvertToPaymentCurrency={this.handleConvertToPaymentCurrency}/>
-                                        </View>
-                                        <AmountInput
-                                            ref={ref => this.refAmount = ref}
+                                    <AmountInput
+                                        ref={ref => this.refAmount = ref}
+                                        selectedFiatTemplate={selectedFiatTemplate}
+                                        extendsFields={extendsFields}
+                                        selectedPaymentSystem={selectedPaymentSystem}
+                                        selectedFiatCurrency={selectedFiatCurrency}
+                                        selectedCryptocurrency={selectedCryptocurrency}
+                                        selectedAccount={selectedAccount}
+                                        onFocus={this.amountInputOnFocus}
+                                        submitTrade={this.handleSubmitTrade}/>
+                                    <Limits ref={ref => this.refLimits = ref}
+                                            refAmount={this.refAmount}
                                             selectedFiatTemplate={selectedFiatTemplate}
                                             extendsFields={extendsFields}
                                             selectedPaymentSystem={selectedPaymentSystem}
                                             selectedFiatCurrency={selectedFiatCurrency}
                                             selectedCryptocurrency={selectedCryptocurrency}
                                             selectedAccount={selectedAccount}
-                                            onFocus={this.amountInputOnFocus}
-                                            submitTrade={this.handleSubmitTrade} />
-                                        <Limits ref={ref => this.refLimits = ref}
-                                                refAmount={this.refAmount}
-                                                selectedFiatTemplate={selectedFiatTemplate}
-                                                extendsFields={extendsFields}
-                                                selectedPaymentSystem={selectedPaymentSystem}
-                                                selectedFiatCurrency={selectedFiatCurrency}
-                                                selectedCryptocurrency={selectedCryptocurrency}
-                                                selectedAccount={selectedAccount}
-                                                isLimitValid={isLimitValid}
-                                                handleGetTradeWay={this.handleGetTradeWay}
-                                                handleSetState={this.handleSetState} />
-                                        <OptionalData
-                                            ref={ref => this.refOptionalData = ref}
-                                            self={this}
-                                            inputOnFocus={this.amountInputOnFocus}
-                                            handleSetState={this.handleSetState}
-                                            selectedPaymentSystem={selectedPaymentSystem}
-                                            selectedCard={selectedCard} />
-                                    </View>
-                                    <View style={styles.box}>
-                                        <Cards
-                                            self={this}
-                                            ref={ref => this.refCards = ref}
-                                            selectedCard={selectedCard}
-                                            extendsFields={extendsFields}
-                                            selectedCryptocurrency={selectedCryptocurrency}
-                                            selectedPaymentSystem={selectedPaymentSystem}
+                                            isLimitValid={isLimitValid}
+                                            handleGetTradeWay={this.handleGetTradeWay}
                                             handleSetState={this.handleSetState}/>
-                                    </View>
-                                    <View style={styles.btn}>
-                                        <Button press={this.handleSubmitTrade}>
-                                            { submitBtnFix }
-                                        </Button>
-                                    </View>
-                                </ScrollView> : null
-                        }
+                                    <OptionalData
+                                        ref={ref => this.refOptionalData = ref}
+                                        self={this}
+                                        inputOnFocus={this.amountInputOnFocus}
+                                        handleSetState={this.handleSetState}
+                                        exchangeStore={exchangeStore}
+                                        selectedPaymentSystem={selectedPaymentSystem}
+                                        selectedCard={selectedCard}/>
+                                </View>
+                                <View style={styles.box}>
+                                    <Cards
+                                        self={this}
+                                        ref={ref => this.refCards = ref}
+                                        selectedCard={selectedCard}
+                                        extendsFields={extendsFields}
+                                        selectedCryptocurrency={selectedCryptocurrency}
+                                        selectedPaymentSystem={selectedPaymentSystem}
+                                        handleSetState={this.handleSetState}/>
+                                </View>
+
+                                <View style={styles.btn}>
+                                    <Button press={this.handleSubmitTrade}>
+                                        {submitBtnFix}
+                                    </Button>
+                                </View>
+                            </ScrollView> : null
+                    }
                 </KeyboardAwareView>
             </View>
         )
@@ -511,7 +510,7 @@ const styles = {
         backgroundColor: '#fff'
     },
     wrapper__scrollView: {
-        marginTop: 80,
+        marginTop: 80
     },
     top: {
         flexDirection: 'row',
@@ -522,7 +521,7 @@ const styles = {
         paddingHorizontal: 15
     },
     top__item: {
-        flex: 1,
+        flex: 1
     },
     top__item_space: {
         minWidth: 7

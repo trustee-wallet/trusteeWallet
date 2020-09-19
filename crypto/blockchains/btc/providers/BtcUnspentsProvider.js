@@ -7,16 +7,16 @@
  * @property {*} txid '1885a8fc772be4704cbdbaf84b39956cbb4eb69e5eef0a3d35ba5cb29b0af333',
  * @property {*} vout 1
  * @property {*} value 9998331800
- * @property {*} valueBN 9998331800
  * @property {*} height 3038080
  * @property {*} confirmations 11808
  */
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
-import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
-import { unpad } from 'ethereumjs-util'
+
 import DBInterface from '../../../../app/appstores/DataSource/DB/DBInterface'
+import accountDS from '../../../../app/appstores/DataSource/Account/Account'
+
 
 export default class BtcUnspentsProvider {
     /**
@@ -54,7 +54,7 @@ export default class BtcUnspentsProvider {
 
         const unique = {}
         if (allUnspents) {
-            for(unspent of allUnspents) {
+            for (unspent of allUnspents) {
                 if (unspent.txid === tx) continue
                 if (typeof unspent.address === 'undefined') {
                     unspent.address = unspent.addresses[0]
@@ -77,7 +77,6 @@ export default class BtcUnspentsProvider {
                 sortedUnspents[index].confirmations = 11
                 sortedUnspents[index].isRequired = true
             } else {
-                unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
                 if (unspent.address) {
                     const res = await dbInterface.setQueryString(`SELECT id, address, derivation_path AS path FROM account WHERE address='${unspent.address}' AND currency_code='BTC' AND derivation_path IS NOT NULL LIMIT 1`).query()
                     if (res && res.array && res.array[0]) {
@@ -128,12 +127,12 @@ export default class BtcUnspentsProvider {
         }
         let addressTo = false
 
-        if (typeof res.data.vout !== 'undefined' && typeof  res.data.vout[0].addresses !== 'undefined' && typeof res.data.vout[0].addresses[0] !== 'undefined') {
-            addressTo =  res.data.vout[0].addresses[0]
+        if (typeof res.data.vout !== 'undefined' && typeof res.data.vout[0].addresses !== 'undefined' && typeof res.data.vout[0].addresses[0] !== 'undefined') {
+            addressTo = res.data.vout[0].addresses[0]
         }
 
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider.getTx found ' + tx + ' to '  +  addressTo, sortedUnspents)
-        return {sortedUnspents, addressTo}
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider.getTx found ' + tx + ' to ' + addressTo, sortedUnspents)
+        return { sortedUnspents, addressTo }
 
     }
 
@@ -144,17 +143,35 @@ export default class BtcUnspentsProvider {
      * @param addressCompatible
      * @returns {Promise<UnifiedUnspent[]>}
      */
-    async getUnspents(address, addressLegacy, addressCompatible = '') {
+    async getUnspents(address, addressLegacy, addressCompatible = '', source) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider.getUnspents started ' + address + ' ' + addressLegacy + ' ' + addressCompatible)
 
         this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'BTC.Unspents.getUnspents')
 
-        let tmp = []
+        const tmp = []
         try {
-            tmp[0] = await this._getUnspents(address)
-            tmp[1] = await this._getUnspents(addressLegacy)
+            tmp[0] = await this._getUnspents(address, source)
+            tmp[1] = await this._getUnspents(addressLegacy, source)
             if (addressCompatible) {
-                tmp[2] = await this._getUnspents(addressCompatible)
+                tmp[2] = await this._getUnspents(addressCompatible, source)
+            }
+
+            const badAddresses = await accountDS.getAccountData({ derivationPath: 'm/49quote/0quote/0/1/0' })
+            if (badAddresses) {
+                if (typeof tmp[2] === 'undefined' || !tmp[2]) {
+                    tmp[2] = []
+                }
+                let bad, badInput
+                for (bad of badAddresses) {
+                    const res = await this._getUnspents(bad.address)
+                    if (res && typeof res !== 'undefined' && res.length > 0) {
+                        for (badInput of res) {
+                            badInput.address = bad.address
+                            badInput.path = 'm/49quote/0quote/0/1/0'
+                            tmp[2].push(badInput)
+                        }
+                    }
+                }
             }
         } catch (e) {
             e.message += ' in getUnspents '
@@ -165,7 +182,6 @@ export default class BtcUnspentsProvider {
         let unspent
         if (tmp[0]) {
             for (unspent of tmp[0]) {
-                unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
                 if (typeof unspent.address === 'undefined') {
                     unspent.address = address
                 }
@@ -176,7 +192,6 @@ export default class BtcUnspentsProvider {
         }
         if (tmp[1]) {
             for (unspent of tmp[1]) {
-                unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
                 if (typeof unspent.address === 'undefined') {
                     unspent.address = addressLegacy
                 }
@@ -185,9 +200,8 @@ export default class BtcUnspentsProvider {
                 sortedUnspents.push(unspent)
             }
         }
-        if (addressCompatible && tmp[2]) {
+        if (typeof tmp[2] !== 'undefined' && tmp[2]) {
             for (unspent of tmp[2]) {
-                unspent.valueBN = BlocksoftUtils.toBigNumber(unspent.value)
                 if (typeof unspent.address === 'undefined') {
                     unspent.address = addressCompatible
                 }
@@ -205,13 +219,24 @@ export default class BtcUnspentsProvider {
      * @returns {Promise<*[]|*>}
      * @private
      */
-    async _getUnspents(address) {
+    async _getUnspents(address, source) {
         if (!address || typeof address === 'undefined') return false
-        const link = this._trezorServer + '/api/v2/utxo/' + address + '?gap=9999'// ?confirmed=true
-        const res = await BlocksoftAxios.getWithoutBraking(link)
+        let link = this._trezorServer + '/api/v2/utxo/' + address + '?gap=9999'// ?confirmed=true
+        let res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || typeof res.data === 'undefined') {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider._getUnspents ' + source + ' nothing loaded for address ' + address + ' link ' + link)
             await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
-            BlocksoftCryptoLog.err(this._settings.currencyCode + ' BtcUnspentsProvider._getUnspents nothing loaded for address ' + address + ' link ' + link)
+
+            this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'BTC.Unspents.getUnspents error')
+            link = this._trezorServer + '/api/v2/utxo/' + address + '?gap=9999'// ?confirmed=true
+            res = await BlocksoftAxios.getWithoutBraking(link)
+            if (!res || typeof res.data === 'undefined') {
+                if (source && source.indexOf('sendTx') === -1) {
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider._getUnspents ' + source + ' nothing loaded for address ' + address + ' link ' + link)
+                } else {
+                    BlocksoftCryptoLog.err(this._settings.currencyCode + ' BtcUnspentsProvider._getUnspents ' + source + ' nothing loaded for address ' + address + ' link ' + link)
+                }
+            }
         }
         if (!res || typeof res.data === 'undefined' || !res.data || typeof res.data[0] === 'undefined') {
             return false

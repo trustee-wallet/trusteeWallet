@@ -54,6 +54,12 @@ target 'TrusteeWallet' do
   pod 'Firebase/Database'
   pod 'Firebase/Analytics'
 
+
+  pod 'QRScanReader', :path => '../node_modules/react-native-qr-scanner'
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
+  pod 'react-native-fast-crypto', :path => '../node_modules/react-native-fast-crypto', :binary => false
+
   target 'TrusteeWalletTests' do
     inherit! :search_paths
     # Pods for testing

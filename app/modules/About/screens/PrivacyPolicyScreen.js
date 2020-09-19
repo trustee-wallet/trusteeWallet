@@ -8,17 +8,19 @@ import firebase from 'react-native-firebase'
 
 import Navigation from '../../../components/navigation/Navigation'
 
-import i18n, { strings } from '../../../services/i18n'
+import { strings, sublocale } from '../../../services/i18n'
 
-import PRIVACY_POLICY from '../../../../__terms__/PRIVACY_POLICY'
-import PRIVACY_POLICY_RU from '../../../../__terms__/PRIVACY_POLICY_RU'
+import ALL_TERMS from '../../../../__terms__/ALL'
 
 class PrivacyPolicyScreen extends Component {
 
     render() {
         firebase.analytics().setCurrentScreen('Settings.PrivacyPolicyScreen')
 
-        const isRu = i18n.locale === 'ru-RU'
+        let sub = sublocale()
+        if (sub !== 'uk' && sub !== 'ru') {
+            sub = 'en'
+        }
 
         return (
             <View style={styles.wrapper}>
@@ -33,7 +35,7 @@ class PrivacyPolicyScreen extends Component {
                             {strings('settings.about.privacy')}
                         </Text>
                         <Text style={styles.text}>
-                            {isRu ? PRIVACY_POLICY_RU : PRIVACY_POLICY}
+                            {ALL_TERMS.PRIVACY_POLICY[sub]}
                         </Text>
                     </View>
                 </ScrollView>

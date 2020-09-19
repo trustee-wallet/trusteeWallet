@@ -21,10 +21,15 @@ const CACHE = {
     'ETH_TREZOR_SERVER': ['https://eth1.trezor.io', 'https://eth2.trezor.io'],
     'BTC_TREZOR_SERVER': ['https://btc1.trezor.io', 'https://btc2.trezor.io', 'https://btc3.trezor.io', 'https://btc4.trezor.io', 'https://btc5.trezor.io'],
     'LTC_TREZOR_SERVER': ['https://ltc1.trezor.io', 'https://ltc2.trezor.io', 'https://ltc3.trezor.io', 'https://ltc4.trezor.io', 'https://ltc5.trezor.io'],
+    'BCH_TREZOR_SERVER': ['https://bch1.trezor.io', 'https://bch2.trezor.io', 'https://bch3.trezor.io', 'https://bch4.trezor.io', 'https://bch5.trezor.io'],
     'DOGE_TREZOR_SERVER': ['https://doge1.trezor.io', 'https://doge2.trezor.io', 'https://doge3.trezor.io', 'https://doge4.trezor.io', 'https://doge5.trezor.io'],
     'BTG_TREZOR_SERVER': ['https://btg1.trezor.io', 'https://btg2.trezor.io', 'https://btg3.trezor.io', 'https://btg4.trezor.io', 'https://btg5.trezor.io'],
     'minCryptoErrorsVersion': 491,
-    'minAppErrorsVersion': 491
+    'minAppErrorsVersion': 491,
+    'cardsCountries' : {643 : 1, 804: 1, 398: 1, 112: 1},
+    'rubCardsCountries' : {643 : 1, 112: 1}, // 643 - russia, 398 - kz, 112 - bl, 804 - ua,
+    'ADV_PERCENT' : 1,
+    'SUPPORT_BOT' : 'https://t.me/trustee_support_bot?start=app'
 }
 
 
@@ -36,9 +41,13 @@ class BlocksoftExternalSettings {
     }
 
     async get(param, source) {
-        BlocksoftCryptoLog.log('BlocksoftExternalSettings.get started ' + param + ' from ' + source)
-        this._get(source)
+        // BlocksoftCryptoLog.log('BlocksoftExternalSettings.get started ' + param + ' from ' + source)
+        await this._get(source)
         if (typeof CACHE[param] === 'undefined') return false
+        return CACHE[param]
+    }
+
+    getStatic(param, source) {
         return CACHE[param]
     }
 
@@ -48,10 +57,10 @@ class BlocksoftExternalSettings {
             return false
         }
         try {
-            BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source)
+            // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source)
             const tmp = await BlocksoftAxios.getWithoutBraking(API_PATH)
             CACHE_TIME = now
-            BlocksoftCryptoLog.log('BlocksoftExternalSettings._get returned ALL from ' + source)
+            // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get returned ALL from ' + source)
             if (tmp && typeof tmp.data !== 'undefined' && tmp.data) {
                 this._setCache(tmp.data.data)
                 CACHE_VALID_TIME = MIN_CACHE_VALID_TIME
@@ -59,7 +68,7 @@ class BlocksoftExternalSettings {
                 CACHE_VALID_TIME = MAX_CACHE_VALID_TIME
             }
         } catch (e) {
-            BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source + ' error ' + e.message)
+            // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source + ' error ' + e.message)
         }
     }
 
@@ -71,7 +80,7 @@ class BlocksoftExternalSettings {
     }
 
     async setTrezorServerInvalid(key, server) {
-        BlocksoftCryptoLog.log('BlocksoftExternalSettings.setTrezorServerInvalid ' + key + ' start invalid ' + server + ' cache ' + JSON.stringify(TREZOR_SERVERS[key]))
+        // BlocksoftCryptoLog.log('BlocksoftExternalSettings.setTrezorServerInvalid ' + key + ' start invalid ' + server + ' cache ' + JSON.stringify(TREZOR_SERVERS[key]))
         if (typeof TREZOR_SERVERS[key] === 'undefined') {
             return false
         }
@@ -80,36 +89,51 @@ class BlocksoftExternalSettings {
             return false
         }
         cached.currentServerIndex++
-        if (cached.currentServerIndex >= cached.okServers.length) {
+        if (cached.currentServerIndex >= cached.okServers.length || typeof cached.okServers[cached.currentServerIndex] === 'undefined') {
             cached.currentServerIndex = 0
         }
-        cached.currentServerValue = cached.okServers[cached.currentServerIndex]
-        BlocksoftCryptoLog.log('BlocksoftExternalSettings.setTrezorServerInvalid ' + key + ' finish invalid ' + server + ' cache ' + JSON.stringify(TREZOR_SERVERS[key]))
+        if (typeof cached.okServers[cached.currentServerIndex] !== 'undefined') {
+            cached.currentServerValue = cached.okServers[cached.currentServerIndex]
+        }
+        // BlocksoftCryptoLog.log('BlocksoftExternalSettings.setTrezorServerInvalid ' + key + ' finish invalid ' + server + ' cache ' + JSON.stringify(TREZOR_SERVERS[key]))
+        if (typeof cached.currentServerValue === 'undefined' || !cached.currentServerValue) {
+            BlocksoftCryptoLog.err('BlocksoftExternalSettings.getTrezorServer ' + key + ' setInvalid error with currentServer ' + JSON.stringify(TREZOR_SERVERS[key]))
+            return CACHE[key][0]
+        }
         return cached.currentServerValue
     }
 
     async getTrezorServer(key, source) {
-        BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source)
+        // BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source)
         const now = new Date().getTime()
         if (typeof TREZOR_SERVERS[key] !== 'undefined') {
             const cached = TREZOR_SERVERS[key]
             if (now - cached.cacheTime < MIN_CACHE_VALID_TIME) {
-                BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' got from cache ' + JSON.stringify(TREZOR_SERVERS[key]))
+                // BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' got from cache ' + JSON.stringify(TREZOR_SERVERS[key]))
+                if (typeof cached.currentServerValue === 'undefined' || !cached.currentServerValue) {
+                    BlocksoftCryptoLog.err('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' cache error with currentServer ' + JSON.stringify(TREZOR_SERVERS[key]))
+                    return CACHE[key][0]
+                }
                 return cached.currentServerValue
             }
         }
         const servers = await this.get(key, 'inner')
         let okServers = []
         let bestHeight = 0
+        let currentServer = false
         if (key === 'BTC_TREZOR_SERVER') {
             okServers = servers
+            currentServer = 'https://btc1.trezor.io'
         } else {
             let server
             const allServers = []
             for (server of servers) {
-                BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' server ' + server + ' will load ' + server + '/api')
+                if (!currentServer) {
+                    currentServer = server
+                }
+                // BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' server ' + server + ' will load ' + server + '/api')
                 const current = await BlocksoftAxios.getWithoutBraking(server + '/api')
-                BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' server ' + server + ' is loaded', current)
+                // BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' server ' + server + ' is loaded')
                 if (current && typeof current.data !== 'undefined' && current.data) {
                     if (current.data.blockbook.bestHeight !== 'undefined') {
                         const tmp = current.data.blockbook.bestHeight
@@ -117,14 +141,14 @@ class BlocksoftExternalSettings {
                             bestHeight = tmp
                         }
                         allServers[server] = tmp
-                        BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' server ' + server + ' height ' + tmp)
+                        // BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' server ' + server + ' height ' + tmp)
                     } else {
                         BlocksoftCryptoLog.err('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' server ' + server + ' something wrong with blockbook ' + JSON.stringify(current.data))
                     }
 
                 }
             }
-            if (typeof TREZOR_SERVERS[key] !== 'undefined' && TREZOR_SERVERS[key].bestHeight > bestHeight) {
+            if (typeof TREZOR_SERVERS[key] !== 'undefined' && TREZOR_SERVERS[key].bestHeight > bestHeight && typeof TREZOR_SERVERS[key].currentServerValue !== 'undefined' && TREZOR_SERVERS[key].currentServerValue) {
                 TREZOR_SERVERS[key].cacheTime = now
                 return TREZOR_SERVERS[key].currentServerValue
             }
@@ -133,20 +157,29 @@ class BlocksoftExternalSettings {
                     okServers.push(server)
                 }
             }
-            if (!okServers) {
-                throw new Error('no trezor servers')
-            }
+        }
+
+
+        if (okServers && typeof okServers[0] !== 'undefined') {
+            currentServer = okServers[0]
+        } else {
+            okServers = [currentServer]
         }
 
         TREZOR_SERVERS[key] = {
             okServers,
             bestHeight,
             cacheTime: now,
-            currentServerValue: okServers[0],
+            currentServerValue: currentServer,
             currentServerIndex: 0
         }
+        if (typeof currentServer === 'undefined' || !currentServer) {
+            BlocksoftCryptoLog.err('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' error with currentServer ' + JSON.stringify(TREZOR_SERVERS[key]))
+        }
+
         BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' put to cache ' + JSON.stringify(TREZOR_SERVERS[key]))
-        return okServers[0]
+
+        return currentServer
     }
 }
 

@@ -5,7 +5,7 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import EthTransferProcessorErc20 from './EthTransferProcessorErc20'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
-import UpdateAccountsDaemon from '../../../app/services/Daemon/elements/UpdateAccountsDaemon'
+import DaemonCache from '../../../app/daemons/DaemonCache'
 import DBInterface from '../../../app/appstores/DataSource/DB/DBInterface'
 
 const axios = require('axios')
@@ -55,10 +55,11 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
      * @param {string} data.addressFrom
      * @param {string} data.addressTo
      * @param {string} data.amount
-     * @param {number|boolean} alreadyEstimatedGas
+     * @param {number|boolean} additionalData.isPrecount
+     * @param {number|boolean} additionalData.estimatedGas
      * @return {Promise<{feeForTx, langMsg, gasPrice, gasLimit}[]>}
      */
-    async getFeeRate(data, alreadyEstimatedGas = false) {
+    async getFeeRate(data, additionalData = {}) {
         const tmpData = { ...data }
         const logData = { tokenAddress: this._tokenAddress, addressTo: data.addressTo, amount: data.amount, addressFrom: data.addressFrom }
         BlocksoftCryptoLog.log('EthTxProcessorUAX getFeeRate started', logData)
@@ -66,11 +67,12 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
         let fees = []
         let balanceETH = 0
         let balanceUAX = 0
+        const basicAddressTo = data.addressTo.toLowerCase()
         try {
             balanceETH = await this._web3.eth.getBalance(data.addressFrom)
             balanceUAX = await this._token.methods.balanceOf(data.addressFrom).call()
         } catch (e) {
-            this.checkError(e)
+            this.checkError(e, logData)
         }
         BlocksoftCryptoLog.log('EthTxProcessorUAX balances', { balanceETH, balanceUAX })
         if (balanceETH > MIN_FEE) {
@@ -82,20 +84,20 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
                     BlocksoftCryptoLog.log('EthTxProcessorUAX estimateGas addressToChanged', logData)
                     estimatedGas = await this._token.methods.transfer(data.addressFrom === tmp1 ? tmp2 : tmp1, data.amount).estimateGas({ from: data.addressFrom })
                 } else {
-                    estimatedGas = await this._token.methods.transfer(data.addressTo, data.amount).estimateGas({ from: data.addressFrom })
+                    estimatedGas = await this._token.methods.transfer(basicAddressTo, data.amount).estimateGas({ from: data.addressFrom })
                 }
             } catch (e) {
-                this.checkError(e)
+                this.checkError(e, logData)
             }
             BlocksoftCryptoLog.log('EthTxProcessorUAX estimateGas finished', estimatedGas)
-            fees = await super.getFeeRate(tmpData, estimatedGas)
+            fees = await super.getFeeRate(tmpData, {... additionalData, ... {estimatedGas}})
         }
 
         if (balanceUAX > 0) {
             await this._loadDelegatedFee()
 
             if (CACHE_FEES_VALUE && balanceUAX > CACHE_FEES_VALUE) {
-                const basic = UpdateAccountsDaemon.getCacheRates('ETH_UAX')
+                const basic = DaemonCache.getCacheRates('ETH_UAX')
                 const newFee = {
                     langMsg: 'eth_speed_delegated',
                     feeForTx: 0,
@@ -135,7 +137,7 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
             try {
                 balanceRaw = await this._token.methods.balanceOf(data.addressFrom).call()
             } catch (e) {
-                this.checkError(e)
+                this.checkError(e, data)
             }
         }
         data.amount = balanceRaw
@@ -160,6 +162,42 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
             }
             return balanceRaw - CACHE_FEES_VALUE
         }
+    }
+
+    _makeRequest(data, fee, nonce) {
+
+        const sigArgs = [
+            { type: 'address', value: this._tokenAddress },
+            { type: 'address', value: DELEGATED_ADDRESS },
+            { type: 'address', value: data.addressTo },
+            { type: 'uint256', value: data.amount },
+            { type: 'uint256', value: fee },
+            { type: 'uint256', value: nonce }
+        ]
+        let message = this._web3.utils.soliditySha3(...sigArgs)
+        if (message.substr(0, 2) === '0x') {
+            message = message.substr(2)
+        }
+        let key = data.privateKey
+        if (key.substr(0, 2) === '0x') {
+            key = key.substr(2)
+        }
+        const messageHex = Buffer.from(message, 'hex')
+        BlocksoftCryptoLog.log('UAX message', message)
+
+        const ecsignData = ethUtil.ecsign(messageHex, Buffer.from(key, 'hex'))
+
+        // const accountData2 = this._web3.eth.accounts.sign(message, privateKey) // not working as prefexed https://web3js.readthedocs.io/en/v1.2.0/web3-eth-accounts.html#sign
+
+        return JSON.stringify({
+            to: data.addressTo,
+            value: data.amount * 1,
+            fee: fee,
+            nonce: nonce,
+            v: ecsignData.v,
+            r: ethUtil.bufferToHex(ecsignData.r),
+            s: ethUtil.bufferToHex(ecsignData.s)
+        })
     }
 
     /**
@@ -197,7 +235,20 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
         if (typeof data.feeForTx.feeForTxDelegated !== 'undefined') {
             const link = NONCE_PATH + data.addressFrom
             MarketingEvent.logOnlyRealTime('kuna_tx_nonce ask ' + ' ' + data.addressFrom + ' => ' + data.addressTo, { link })
-            let nonce = await BlocksoftAxios.get(link)
+            let nonce = false
+            let tries = 0
+            do {
+                tries++
+                try {
+                    nonce = await BlocksoftAxios.getWithoutBraking(link)
+                } catch (e) {
+                }
+            } while (nonce === false && tries < 10)
+
+            if (nonce === false) {
+                throw new Error('SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH')
+            }
+
             MarketingEvent.logOnlyRealTime('kuna_tx_nonce res ' + ' ' + data.addressFrom + ' => ' + data.addressTo, {link, nonce : JSON.stringify(nonce)})
             if (!nonce || typeof nonce.data === 'undefined' || typeof nonce.data.nonce === 'undefined') {
                 throw new Error('api.xreserve.fund NONCE ERROR')
@@ -205,6 +256,7 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
             nonce = nonce.data.nonce
             const fee = data.feeForTx.feeForTxDelegated
 
+            let maxNonce = 0
             try {
                 const link2 = TXS_PATH + data.addressFrom
                 const txs = await BlocksoftAxios.get(link2)
@@ -212,6 +264,9 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
                 if (txs && typeof txs.data !=='undefined' && txs.data.length > 0) {
                     for (let tx of txs.data) {
                         tx.txid = tx.txid.toLowerCase()
+                        if (tx.status !== 'rejected' && tx.nonce > maxNonce) {
+                            maxNonce = tx.nonce
+                        }
                         CACHE_TXS[tx.txid] = tx
                     }
                 }
@@ -227,44 +282,49 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 {
                 }
             }
 
-            const sigArgs = [
-                { type: 'address', value: this._tokenAddress },
-                { type: 'address', value: DELEGATED_ADDRESS },
-                { type: 'address', value: data.addressTo },
-                { type: 'uint256', value: data.amount },
-                { type: 'uint256', value: fee },
-                { type: 'uint256', value: nonce }
-            ]
-            let message = this._web3.utils.soliditySha3(...sigArgs)
-            if (message.substr(0, 2) === '0x') {
-                message = message.substr(2)
-            }
-            let key = data.privateKey
-            if (key.substr(0, 2) === '0x') {
-                key = key.substr(2)
-            }
-            const messageHex = Buffer.from(message, 'hex')
-            BlocksoftCryptoLog.log('UAX message', message)
-            const { v, r, s } = ethUtil.ecsign(messageHex, Buffer.from(key, 'hex'))
 
-            const request = JSON.stringify({
-                to: data.addressTo,
-                value: data.amount * 1,
-                fee: fee,
-                nonce: nonce,
-                v: v,
-                r: ethUtil.bufferToHex(r),
-                s: ethUtil.bufferToHex(s)
-            })
-            BlocksoftCryptoLog.log('UAX request data', request)
+            let request = this._makeRequest(data, fee, nonce)
+            BlocksoftCryptoLog.log('UAX request maxNonce ' + maxNonce + ' data', request)
+
 
             try {
-                const result = await axios.post(POST_PATH, request, {
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',
-                        'Content-Type': 'application/json'
+                let result
+                try {
+                    result = await axios.post(POST_PATH, request, {
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                } catch (e) {
+                    if (typeof e.response === 'undefined' || typeof e.response.data === 'undefined') {
+                        // do nothing
+                    } else if (e.response.data) {
+                        e.message = JSON.stringify(e.response.data) + ' ' + e.message
                     }
-                })
+                    if (e.message.indexOf('Incorrect nonce value. Real:') !== -1) {
+                        const realNonce = e.message.split('Real:')[1].split('.')[0]*1
+                        request = this._makeRequest(data, fee, realNonce)
+                        BlocksoftCryptoLog.log('UAX request1 realNonce ' + realNonce + ' data', request)
+                        result = await axios.post(POST_PATH, request, {
+                            headers: {
+                                'Access-Control-Allow-Origin': '*',
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                    } else if (e.message.indexOf('SequelizeUniqueConstraintError: Validation error') !== -1) {
+                        request = this._makeRequest(data, fee, maxNonce + 1)
+                        BlocksoftCryptoLog.log('UAX request2 maxNonce ' + maxNonce + ' data', request)
+                        result = await axios.post(POST_PATH, request, {
+                            headers: {
+                                'Access-Control-Allow-Origin': '*',
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                    } else {
+                        throw e
+                    }
+                }
                 if (result && result.data) {
                     if (typeof result.data.txid !== 'undefined') {
                         hash = result.data.txid.toLowerCase()

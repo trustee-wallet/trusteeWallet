@@ -3,21 +3,29 @@
  */
 import { createStackNavigator } from 'react-navigation-stack'
 
-import StartScreen from '../modules/Exchange/StartScreen'
 import MainDataScreen from '../modules/Exchange/MainDataScreen'
+import MainV3DataScreen from '../modules/Exchange/MainV3DataScreen'
+import ExchangeConfirmScreen from '../modules/Exchange/ExchangeConfirmScreen'
 import FinishScreen from '../modules/Exchange/FinishScreen'
 
-const exchangeScreenStack = createStackNavigator(
+const ExchangeScreenStack = createStackNavigator(
     {
-        StartScreen: {
-            screen: StartScreen,
+        MainDataScreen: {
+            screen: MainDataScreen,
             navigationOptions: {
                 headerShown: false
             }
         },
 
-        MainDataScreen: {
-            screen: MainDataScreen,
+        MainV3DataScreen: {
+            screen: MainV3DataScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        ExchangeConfirmScreen: {
+            screen: ExchangeConfirmScreen,
             navigationOptions: {
                 headerShown: false
             }
@@ -31,8 +39,8 @@ const exchangeScreenStack = createStackNavigator(
         }
     },
     {
-        initialRouteName: 'StartScreen'
+        initialRouteName: 'MainDataScreen'
     }
 )
 
-export default exchangeScreenStack
+export default ExchangeScreenStack

@@ -45,6 +45,8 @@ export default class XrpScannerProcessor {
                         break
                     }
                 }
+            } else {
+                return false
             }
         } catch (e) {
             if (e.message.indexOf('timed out') === -1 && e.message.indexOf('account not found') === -1) {

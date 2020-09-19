@@ -44,7 +44,7 @@ export default class BsvScannerProcessor {
      * @return {Promise<UnifiedTransaction[]>}
      */
     async getTransactionsBlockchain(address) {
-        BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions started', address)
+        BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions started ' + address)
         const tmp = await BlocksoftAxios.getWithoutBraking(API_TX_PATH + address + '/tx')
         if (!tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.data === 'undefined' || !tmp.data.data || typeof tmp.data.data.list === 'undefined' || !tmp.data.data.list) {
              return []
@@ -55,7 +55,7 @@ export default class BsvScannerProcessor {
             const transaction = await this._unifyTransaction(address, tx)
             transactions.push(transaction)
         }
-        BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions finished', address + ' total: ' + transactions.length)
+        BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
         return transactions
     }
 

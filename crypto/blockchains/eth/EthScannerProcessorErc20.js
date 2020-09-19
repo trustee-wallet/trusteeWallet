@@ -37,17 +37,20 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
             let time = 0
 
             const res = await this._get(address)
-            if (!res || typeof res.data === 'undefined') return []
+            if (!res || typeof res.data === 'undefined') return false
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance loaded from ' + res.provider + ' ' + res.time)
             const data = res.data
 
             if (data && this._tokenAddress && typeof data.formattedTokens[this._tokenAddress] !== 'undefined' && typeof typeof data.formattedTokens[this._tokenAddress].balance !== 'undefined') {
                 balance = data.formattedTokens[this._tokenAddress].balance
+                if (balance === []) return false
                 provider = res.provider
                 time = res.time
                 return { balance, unconfirmed : 0, provider, time, balanceScanBlock : res.data.nonce}
             }
             balance = await this._token.methods.balanceOf(address).call()
+            if (balance === []) return false
+
             provider = 'web3'
             time = 'now()'
             return { balance, unconfirmed: 0, provider, time }

@@ -1,18 +1,16 @@
 /**
- * @version 0.9
+ * @version 0.10
  */
 import React, { Component } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View } from 'react-native'
 
 import Layout from '../../../components/elements/modal/Layout'
 import Title from '../../../components/elements/modal/Title'
 import Text from '../../../components/elements/modal/Text'
 import Button from '../../../components/elements/modal/Button'
 import Icon from '../../../components/elements/modal/Icon'
-import ButtonWrap from '../../../components/elements/modal/ButtonWrap'
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 import { strings } from '../../../services/i18n'
-import Line from '../../elements/modal/Line'
 
 export default class OpenSettingsModal extends Component {
 
@@ -42,32 +40,47 @@ export default class OpenSettingsModal extends Component {
                     <Title style={styles.title}>
                         {title}
                     </Title>
-                    <View style={{ paddingHorizontal: 15 }}>
+                    <View style={{ marginTop: 8, marginBottom: -5 }}>
                         <Text style={styles.text}>
                             {description}
                         </Text>
                     </View>
                     {typeof component != 'undefined' ? component() : null}
-                    <ButtonWrap>
-                        <Button onPress={this.handleHide}>
+                    <View>
+                        <Button onPress={this.handleHide} color={ icon === true ? '#864DD9' : icon === false ? '#E54C4C' : icon === null ? '#F59E6C' : '#2A7FDB' } shadow={true} style={{ marginTop: 17 }}>
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
-                        <Line/>
-                        <Button onPress={callback}>
+                        <Button onPress={callback} style={{ backgroundColor: 'none', color: icon === true ? '#864DD9' : icon === false ? '#E54C4C' : icon === null ? '#F59E6C' : '#2A7FDB' }}>
                             {btnSubmitText}
                         </Button>
-                    </ButtonWrap>
+                    </View>
                 </View>
             </Layout>
         )
     }
 }
 
-const styles = StyleSheet.create({
+const styles = {
     title: {
-        marginTop: 15
+        fontFamily: 'Montserrat-Bold',
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        fontSize: 18,
+        lineHeight: 26,
+        textAlign: 'center',
+        color: '#404040',
+        marginTop: -10,
+        marginBottom: -2
     },
     text: {
-        marginTop: 5
+        color: '#5C5C5C',
+        fontFamily: 'SFUIDisplay-Regular',
+        fontStyle: 'normal',
+        fontWeight: 'normal',
+        fontSize: 14,
+        lineHeight: 20,
+        textAlign: 'center',
+        letterSpacing: 0.5,
+        marginBottom: -6
     }
-})
+}
