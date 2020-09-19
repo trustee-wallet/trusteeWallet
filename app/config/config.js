@@ -73,7 +73,7 @@ const config = {
     },
     fio: {
         apiEndpoints: {
-            registrationSiteURL: 'https://giveaway.fio.foundation/?referrer=edge&fpk=',
+            registrationSiteURL: 'https://reg.fioprotocol.io/ref/trustee?publicKey=FIO7PyvqRfkL5dAbCrXb5erjP2mA7sDhmjChNLw1tzsnXYSfR4Cnz',
         },
     },
 }
