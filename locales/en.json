@@ -416,6 +416,7 @@
       "description": "Your current %{currency} address:",
       "clickToCopy": "Click to copy",
       "receiveAmount": "Receive an Amount",
+      "FIORequest": "FIO Request",
       "share": "Share",
       "copy": "Copy"
     },
