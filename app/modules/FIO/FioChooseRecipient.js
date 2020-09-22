@@ -6,6 +6,7 @@ import { View, Text, ScrollView, Image, TextInput  } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
+import { strings } from '../../services/i18n'
 
 
 
@@ -17,7 +18,7 @@ class FioChooseRecipient extends Component {
             <View>
                 <Navigation
                     //title={strings('assets.mainTitle')}
-                    title={'Fio screen'}
+                    title= {strings('FioChooseRecipient.title')}
                 />
                 
                 <View style={{paddingTop: 90, height: '100%'}}>
@@ -26,7 +27,7 @@ class FioChooseRecipient extends Component {
 
                 <View  style={styles.container}>
                     <View>
-                        <Text style={styles.txt}>Enter Recipient FIO, ENS, or Public Address</Text>
+                        <Text style={styles.txt}>{strings('FioChooseRecipient.description')}</Text>
                         <TextInput
                             style={styles.input}
                             onChangeText={text => console.log('Input changed')}
@@ -77,7 +78,7 @@ class FioChooseRecipient extends Component {
 
                     <View style={{marginTop: 20}}>
                         <Button press={() =>  console.log('select FIO pressed')}>
-                            select FIO
+                            {strings('FioChooseRecipient.btnText')}
                         </Button>
                     </View>
 

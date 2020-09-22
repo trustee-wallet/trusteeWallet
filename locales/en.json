@@ -420,18 +420,6 @@
       "share": "Share",
       "copy": "Copy"
     },
-
-    "fioScreen": {
-      "title": "%{receive}",
-      "description": "Your current %{currency} address:",
-      "clickToCopy": "Click to copy",
-      "receiveAmount": "Receive an Amount",
-      "FIORequest": "FIO Request",
-      "share": "Share",
-      "copy": "Copy"
-    },
-
-
     "addAccount": {
       "list": "Crypto list"
     },
@@ -439,6 +427,14 @@
       "list": "Account list"
     }
   },
+
+  "FioChooseRecipient": {
+    "title": "Choose Fio Recipient",
+    "description": "Enter Recipient FIO, ENS, or Public Address",
+    "btnText": "Select FIO"
+  },
+
+  
   "exchangeInit": {
     "ordersHistory": "Orders history",
     "ordersNull": "You don`t have any orders yet."
