@@ -441,7 +441,7 @@ const styles = {
     },
     fontFamily: {
         fontFamily: 'SFUIDisplay-Regular',
-        marginRight: 70,
+        marginRight: 110,
         // textDecoration: 'none'
     },
     mark: {
@@ -475,7 +475,7 @@ const styles = {
     },
     actionBtn: {},
     actionBtn__icon: {
-        marginLeft: 20,
+        marginLeft: 15,
         marginTop: 20
     },
     actionBtn__icon_qr: {
