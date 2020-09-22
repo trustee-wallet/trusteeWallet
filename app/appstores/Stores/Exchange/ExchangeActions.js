@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 
 import Api from '../../../services/Api/Api'
 import Log from '../../../services/Log/Log'
+import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
 
 const { dispatch } = store
 
@@ -24,11 +25,12 @@ export default new class ExchangeActions {
         try {
             const res = await Api.getExchangeData()
 
+            const rubKostilKZT = (await BlocksoftExternalSettings.get('rubKostilKZT')) === 1
             if (res && typeof res.data !== 'undefined' && typeof res.data.exchangeWays !== 'undefined') {
                 const tradeApiConfig = []
                 let item
                 for (item of res.data.exchangeWays.sell) {
-                    if (item.outCurrencyCode === 'RUB' && item.outPaywayCode === 'VISA_MC_P2P' && item.supportedCountries[0] === '643' && item.supportedCountries.length === 1) { // Russia
+                    if (rubKostilKZT && item.outCurrencyCode === 'RUB' && item.outPaywayCode === 'VISA_MC_P2P' && item.supportedCountries[0] === '643' && item.supportedCountries.length === 1) { // Russia
                         item.hasDouble = true
                         tradeApiConfig.push(item)
                         tradeApiConfig.push({
@@ -44,7 +46,7 @@ export default new class ExchangeActions {
 
                 }
                 for (item of res.data.exchangeWays.buy) {
-                    if (item.inCurrencyCode === 'RUB' && item.inPaywayCode === 'VISA_MC_P2P' && item.supportedCountries[0] === '643' && item.supportedCountries.length === 1) { // Russia
+                    if (rubKostilKZT && item.inCurrencyCode === 'RUB' && item.inPaywayCode === 'VISA_MC_P2P' && item.supportedCountries[0] === '643' && item.supportedCountries.length === 1) { // Russia
                         item.hasDouble = true
                         tradeApiConfig.push(item)
                         tradeApiConfig.push({

@@ -18,7 +18,7 @@ import KievStar from '../../../assets/images/kievstar'
 import Vodafone from '../../../assets/images/vodafone'
 
 import Feather from 'react-native-vector-icons/Feather'
-import { strings } from '../../../services/i18n'
+import { strings, sublocale } from '../../../services/i18n'
 
 import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
 import Log from '../../../services/Log/Log'
@@ -369,6 +369,7 @@ class PaymentSystem extends Component {
         switch (item.paymentSystem) {
             case 'VISA_MC_P2P':
             case 'VISA_MC':
+
                 if (typeof item.paymentTitleSuffix === 'undefined' || !item.paymentTitleSuffix) {
                     title = strings(`tradeScreen.${item.currencyCode}`)
                 } else {
@@ -424,6 +425,10 @@ class PaymentSystem extends Component {
                 title = ''
                 Icon = () => <View/>
                 break
+        }
+
+        if (typeof item.title !== 'undefined' && typeof item.title[sublocale()] !== 'undefined' && item.title[sublocale()] && item.title[sublocale()] !== '') {
+            title = item.title[sublocale()]
         }
 
         return (

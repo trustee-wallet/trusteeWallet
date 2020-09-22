@@ -28,6 +28,7 @@ const CACHE = {
     'minAppErrorsVersion': 491,
     'cardsCountries' : {643 : 1, 804: 1, 398: 1, 112: 1},
     'rubCardsCountries' : {643 : 1, 112: 1}, // 643 - russia, 398 - kz, 112 - bl, 804 - ua,
+    'rubKostilKZT' : 0,
     'ADV_PERCENT' : 1,
     'SUPPORT_BOT' : 'https://t.me/trustee_support_bot?start=app'
 }
