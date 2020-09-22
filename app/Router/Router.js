@@ -30,7 +30,7 @@ import LoadScreen from '../modules/Load/LoadScreen'
 import LockScreen from '../modules/LockScreen/LockScreen'
 
 import AboutScreen from '../modules/About/AboutScreen'
-import FIOScreen from '../modules/FIO/FIOScreen'
+import ChooseFioRecipient from '../modules/FIO/ChooseFioRecipient'
 import AccountScreen from '../modules/Account/AccountScreen'
 import ReceiveScreen from '../modules/Account/ReceiveScreen'
 import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
@@ -67,8 +67,8 @@ const MainNavigator = createStackNavigator({
             }
         },
 
-        FIOScreen: {
-            screen: FIOScreen,
+        ChooseFioRecipient: {
+            screen: ChooseFioRecipient,
             navigationOptions: {
                 headerShown: false
             }

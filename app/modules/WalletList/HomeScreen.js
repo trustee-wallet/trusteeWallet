@@ -225,7 +225,7 @@ class HomeScreen extends Component {
                             }>
                             <WalletInfo accountListByWallet={accountListByWallet}/>
                             <View style={{ flex: 1, padding: 30, backgroundColor: '#f5f5f5' }}>
-                                <Button press={() =>  NavStore.goNext('FIOScreen')}>
+                                <Button press={() =>  NavStore.goNext('ChooseFioRecipient')}>
                                     go to FIO screen
                                 </Button>
                             </View>
