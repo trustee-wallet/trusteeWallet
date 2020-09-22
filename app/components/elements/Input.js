@@ -20,6 +20,7 @@ import Toast from '../../services/UI/Toast/Toast'
 import { strings } from '../../services/i18n'
 import { normalizeInputWithDecimals } from '../../services/UI/Normalize/NormalizeInput'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
+import NavStore from '../../components/navigation/NavStore'
 
 
 class Input extends Component {
@@ -193,6 +194,7 @@ class Input extends Component {
             actionBtnStyles,
             paste,
             copy,
+            fio,
             qr,
             style,
             onFocus,
@@ -326,6 +328,13 @@ class Input extends Component {
                         </TouchableOpacity> : null
                 }
                 <View style={styles.actions}>
+                    {
+                        typeof fio !== 'undefined' && fio ?
+                            <TouchableOpacity press={() =>  NavStore.goNext('FIOScreen')} style={styles.actionBtn}>
+                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="contacts" size={25} color="#855eab"/>
+                            </TouchableOpacity> : null
+                    }
+
                     {
                         typeof copy !== 'undefined' && copy ?
                             <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>

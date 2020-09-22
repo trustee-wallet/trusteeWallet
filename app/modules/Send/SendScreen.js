@@ -815,6 +815,7 @@ class SendScreen extends Component {
                                 subtype={network}
                                 cuttype={currencySymbol}
                                 paste={!disabled}
+                                fio={!disabled}
                                 copy={copyAddress}
                                 qr={!disabled}
                                 qrCallback={() => {
