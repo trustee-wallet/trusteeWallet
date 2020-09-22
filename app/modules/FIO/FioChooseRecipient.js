@@ -9,7 +9,7 @@ import Button from '../../components/elements/Button'
 
 
 
-class ChooseFioRecipient extends Component {
+class FioChooseRecipient extends Component {
 
 
     render() {
@@ -98,7 +98,7 @@ class ChooseFioRecipient extends Component {
     }
 }
 
-export default ChooseFioRecipient
+export default FioChooseRecipient
 
 
 const styles = {

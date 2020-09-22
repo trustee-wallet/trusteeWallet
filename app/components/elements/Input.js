@@ -330,7 +330,7 @@ class Input extends Component {
                 <View style={styles.actions}>
                     {
                         typeof fio !== 'undefined' && fio ?
-                            <TouchableOpacity onPress={() => NavStore.goNext('ChooseFioRecipient')} style={styles.actionBtn}>
+                            <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
                                 <MaterialCommunityIcons style={styles.actionBtn__icon} name="contacts" size={25} color="#855eab"/>
                             </TouchableOpacity> : null
                     }
