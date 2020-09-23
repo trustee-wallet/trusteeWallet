@@ -434,6 +434,12 @@
     "btnText": "Select FIO"
   },
 
+  "FioChooseAddress": {
+    "title": "Choose Fio Address",
+    "description": "Enter address to request payment from",
+    "btnText": "Select FIO Address"
+  },
+
   
   "exchangeInit": {
     "ordersHistory": "Orders history",
