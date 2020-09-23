@@ -416,6 +416,7 @@
       "description": "Your current %{currency} address:",
       "clickToCopy": "Click to copy",
       "receiveAmount": "Receive an Amount",
+      "FIORequest": "FIO Request",
       "share": "Share",
       "copy": "Copy"
     },
@@ -426,6 +427,20 @@
       "list": "Account list"
     }
   },
+
+  "FioChooseRecipient": {
+    "title": "Choose Fio Recipient",
+    "description": "Enter Recipient FIO, ENS, or Public Address",
+    "btnText": "Select FIO"
+  },
+
+  "FioChooseAddress": {
+    "title": "Choose Fio Address",
+    "description": "Enter address to request payment from",
+    "btnText": "Select FIO Address"
+  },
+
+  
   "exchangeInit": {
     "ordersHistory": "Orders history",
     "ordersNull": "You don`t have any orders yet."

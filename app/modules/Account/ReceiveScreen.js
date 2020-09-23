@@ -431,7 +431,7 @@ class ReceiveScreen extends Component {
                                     <QrCodeBox
                                         getRef={ref => this.refSvg = ref}
                                         value={this.getAddressForQR()}
-                                        size={250}
+                                        size={200}
                                         color='#404040'
                                         logo={qrLogo}
                                         logoSize={70}
@@ -481,6 +481,14 @@ class ReceiveScreen extends Component {
                                     style={[styles.qr__shadow__item, isSegWitLegacy ? { height: Platform.OS === 'android' ? 406 : 404 } : null]}/>
                             </View>
                         </View>
+
+                        <View  style={{marginTop: 20}}>
+                            <LightButton color={color} Icon={(props) => <Feather color={color} size={10}
+                                                                                 name={'edit'} {...props} />}
+                                         title={strings('account.receiveScreen.FIORequest')}
+                                         iconStyle={{ marginHorizontal: 3 }}/>
+                        </View>
+                        
                         <View style={styles.options}>
                             <TouchableOpacity style={styles.options__item} onPress={this.handleBuy}>
                                 <View style={styles.options__wrap}>

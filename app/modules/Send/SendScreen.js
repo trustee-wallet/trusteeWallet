@@ -804,6 +804,7 @@ class SendScreen extends Component {
                             <TextView style={{ height: 70 }}>
                                 {description}
                             </TextView>
+
                             <AddressInput
                                 style={{marginTop: 20}}
                                 ref={component => this.addressInput = component}
@@ -814,6 +815,7 @@ class SendScreen extends Component {
                                 subtype={network}
                                 cuttype={currencySymbol}
                                 paste={!disabled}
+                                fio={disabled}
                                 copy={copyAddress}
                                 qr={!disabled}
                                 qrCallback={() => {
