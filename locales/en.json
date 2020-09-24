@@ -450,6 +450,15 @@
     "btnText": "Next"
   },
 
+  "FioRequestsList": {
+    "title": "FIO Requests list",
+    "from": "Send Request From",
+    "to": "Send Request To",
+    "amount": "Amount",
+    "memo": "Memo",
+    "btnText": "Next"
+  },
+
   
   "exchangeInit": {
     "ordersHistory": "Orders history",

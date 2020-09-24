@@ -413,7 +413,7 @@ class SettingsMainScreen extends Component {
                                     </View>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('WalletListScreen')}>
+                                <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('FioRequestsList')}>
                                     <Icon name="addressBook" size={20} style={styles.icon}/>
                                     <View style={styles.block__item__content}>
                                         <Text style={styles.block__text}>{strings('settings.walletManagement.fioRequest')}</Text>
