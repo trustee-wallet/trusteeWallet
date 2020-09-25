@@ -453,6 +453,7 @@
   "FioRequestsList": {
     "title": "FIO Requests list",
     "pendingRequests": "Pending Requests",
+    "sentRequests": "Sent Requests",
 
 
     "from": "Send Request From",

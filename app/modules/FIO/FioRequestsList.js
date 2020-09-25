@@ -21,6 +21,39 @@ if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
     SIZE = 8 // iphone 5s
 }
 
+const DATA_PENDING = [
+    {
+        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+        title: 'Requested BTC',
+        date: '9/29/2020',
+        time: '4:42 PM',
+        descr: 'Demo request',
+        coin: 'BTC',
+        sum: '0.0005',
+        sumUSD: '$ 0.04',
+    },
+    {
+        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+        title: 'Requested 2 BTC',
+        date: '9/29/2020',
+        time: '4:42 PM',
+        descr: 'Demo request',
+        coin: 'BTC',
+        sum: '0.0005',
+        sumUSD: '$ 0.04',
+    },
+    {
+        id: '58694a0f-3da1-471f-bd96-145571e29d72',
+        title: 'Requested 3 BTC',
+        date: '9/29/2020',
+        time: '4:42 PM',
+        descr: 'Demo request',
+        coin: 'BTC',
+        sum: '0.0005',
+        sumUSD: '$ 0.04',
+    },
+];
+
 class FioRequestsList extends Component {
 
 
@@ -33,7 +66,7 @@ class FioRequestsList extends Component {
 
                     <View style={{paddingTop: 80, height: '100%'}}>
 
-                        <GradientView style={{...styles.btn, ...this.props.innerStyle}}
+                        <GradientView
                                       array={typeof backgroundColorArray == 'undefined' ? styles_.array : backgroundColorArray}
                                       start={styles_.start} end={styles_.end}>
                             <View style={styles.title_section}>
@@ -43,19 +76,29 @@ class FioRequestsList extends Component {
                             </View>
                         </GradientView>
 
+                        <ScrollView>
+                            <View style={styles.container}>
+                                <Text style={styles.txt}>9/29/2020</Text>
+                                <RequestItem/>
+                            </View>
+                        </ScrollView>
+
+
+                        <GradientView style={{marginTop: 20}}
+                                      array={typeof backgroundColorArray == 'undefined' ? styles_.array : backgroundColorArray}
+                                      start={styles_.start} end={styles_.end}>
+                            <View style={styles.title_section}>
+                                <Icon name="reload" size={20} style={styles.icon1}/>
+                                <Text
+                                    style={styles.title_section_txt}>{strings('FioRequestsList.sentRequests')}</Text>
+                            </View>
+                        </GradientView>
 
                         <ScrollView>
                             <View style={styles.container}>
-
                                 <Text style={styles.txt}>9/29/2020</Text>
-
-
                                 <RequestItem/>
-                                <RequestItem/>
-                                <RequestItem/>
-
                             </View>
-
                         </ScrollView>
 
 
@@ -69,7 +112,7 @@ class FioRequestsList extends Component {
 export default FioRequestsList
 
 const styles_ = {
-    array: ['#43156d', '#7127ab'],
+    array: ['#555', '#999'],
     start: { x: 0.0, y: 0.5 },
     end: { x: 1, y: 0.5 }
 }
