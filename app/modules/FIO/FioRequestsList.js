@@ -11,6 +11,8 @@ import Feather from 'react-native-vector-icons/Feather'
 import Icon from '../../components/elements/CustomIcon.js'
 import GradientView from '../../components/elements/GradientView'
 
+import RequestItem from './elements/RequestItem'
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
 
@@ -42,36 +44,19 @@ class FioRequestsList extends Component {
                         </GradientView>
 
 
-                        <View style={styles.container}>
+                        <ScrollView>
+                            <View style={styles.container}>
 
-                            <Text style={styles.txt}>9/29/2020</Text>
+                                <Text style={styles.txt}>9/29/2020</Text>
 
-                            <View >
-                                <View style={{position: 'relative'}}>
-                                    <View style={{
-                                        position: 'relative',
 
-                                        marginBottom: SIZE - 1,
-                                        marginTop: 5,
-                                        backgroundColor: '#fff',
-                                        borderRadius: SIZE,
+                                <RequestItem/>
+                                <RequestItem/>
+                                <RequestItem/>
 
-                                        zIndex: 2
-                                    }}>
-                                        <TouchableOpacity onPress={() => console.log("Request pressed")}>
-                                            <View style={styles.request__item}>
-                                                <Text style={styles.txt}>9/28/2020</Text>
-                                                <Text style={styles.txt}>9/28/2020</Text>
-                                            </View>
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View style={styles.shadow}>
-                                        <View style={styles.shadow__item}/>
-                                    </View>
-                                </View>
                             </View>
 
-                        </View>
+                        </ScrollView>
 
 
                     </View>
@@ -117,43 +102,7 @@ const styles = {
         flex: 1,
     },
 
-    request__item: {
-        position: 'relative',
-        padding: 20,
-        backgroundColor: '#fff',
-        borderRadius: 16,
-    },
-
-    shadow: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-
-        width: '100%',
-        height: '100%',
-
-        zIndex: 1
-    },
-    shadow__item: {
-
-        marginHorizontal: 0,
-        marginTop: 25,
-        height: Platform.OS === 'ios' ? 50 : 43,
-
-        backgroundColor: '#fff',
-
-        borderRadius: 16,
-
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 5
-        },
-        shadowOpacity: 0.34,
-        shadowRadius: 6.27,
-
-        elevation: 10
-    }
+    
 
 
 }
