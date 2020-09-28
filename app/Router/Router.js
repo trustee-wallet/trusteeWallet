@@ -31,6 +31,8 @@ import LockScreen from '../modules/LockScreen/LockScreen'
 
 import AboutScreen from '../modules/About/AboutScreen'
 import FioChooseRecipient from '../modules/FIO/FioChooseRecipient'
+import FioSendRequest from '../modules/FIO/FioSendRequest'
+import FioRequestsList from '../modules/FIO/FioRequestsList'
 import FioChooseAddress from '../modules/FIO/FioChooseAddress'
 import AccountScreen from '../modules/Account/AccountScreen'
 import ReceiveScreen from '../modules/Account/ReceiveScreen'
@@ -77,6 +79,20 @@ const MainNavigator = createStackNavigator({
 
         FioChooseAddress: {
             screen: FioChooseAddress,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        FioSendRequest: {
+            screen: FioSendRequest,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        FioRequestsList: {
+            screen: FioRequestsList,
             navigationOptions: {
                 headerShown: false
             }

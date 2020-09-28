@@ -208,6 +208,7 @@
       "import": "Import wallet",
       "create": "Create new wallet",
       "select": "Select wallet",
+      "fioRequest": "FIO Requests",
       "registerFioAddress": "Register FIO Address",
       "turnOnHD": "Turn on HD"
     },
@@ -438,6 +439,28 @@
     "title": "Choose Fio Address",
     "description": "Enter address to request payment from",
     "btnText": "Select FIO Address"
+  },
+
+  "FioSendRequest": {
+    "title": "Send FIO Request",
+    "from": "Send Request From",
+    "to": "Send Request To",
+    "amount": "Amount",
+    "memo": "Memo",
+    "btnText": "Next"
+  },
+
+  "FioRequestsList": {
+    "title": "FIO Requests list",
+    "pendingRequests": "Pending Requests",
+    "sentRequests": "Sent Requests",
+
+
+    "from": "Send Request From",
+    "to": "Send Request To",
+    "amount": "Amount",
+    "memo": "Memo",
+    "btnText": "Next"
   },
 
   

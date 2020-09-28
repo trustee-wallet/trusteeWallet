@@ -9,8 +9,10 @@ import ScannerSettingsScreen from '../modules/Settings/ScannerSettingsScreen'
 import CashbackScreen from '../modules/Settings/CashbackScreen'
 
 import AboutScreen from '../modules/About/AboutScreen'
-import FioChooseAddress from '../modules/FIO/FioChooseAddress'
 import FioChooseRecipient from '../modules/FIO/FioChooseRecipient'
+import FioSendRequest from '../modules/FIO/FioSendRequest'
+import FioRequestsList from '../modules/FIO/FioRequestsList'
+import FioChooseAddress from '../modules/FIO/FioChooseAddress'
 import TermsOfUseScreen from '../modules/About/screens/TermsOfUseScreen'
 import PrivacyPolicyScreen from '../modules/About/screens/PrivacyPolicyScreen'
 import LocalCurrencyScreen from '../modules/Settings/LocalCurrencyScreen'
@@ -30,18 +32,35 @@ const SettingsStack = createStackNavigator(
                 headerShown: false
             }
         },
+
         FioChooseRecipient: {
             screen: FioChooseRecipient,
             navigationOptions: {
                 headerShown: false
             }
         },
+
         FioChooseAddress: {
             screen: FioChooseAddress,
             navigationOptions: {
                 headerShown: false
             }
         },
+
+        FioSendRequest: {
+            screen: FioSendRequest,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        FioRequestsList: {
+            screen: FioRequestsList,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
         WalletListScreen: {
             screen: WalletListScreen,
             navigationOptions: {
