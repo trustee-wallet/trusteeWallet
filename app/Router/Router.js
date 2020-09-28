@@ -34,6 +34,7 @@ import FioChooseRecipient from '../modules/FIO/FioChooseRecipient'
 import FioSendRequest from '../modules/FIO/FioSendRequest'
 import FioRequestsList from '../modules/FIO/FioRequestsList'
 import FioChooseAddress from '../modules/FIO/FioChooseAddress'
+import FioRequestDetails from '../modules/FIO/FioRequestDetails'
 import AccountScreen from '../modules/Account/AccountScreen'
 import ReceiveScreen from '../modules/Account/ReceiveScreen'
 import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
@@ -97,6 +98,14 @@ const MainNavigator = createStackNavigator({
                 headerShown: false
             }
         },
+
+        FioRequestDetails: {
+            screen: FioRequestDetails,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
 
         AccountScreen: {
             screen: AccountScreen,
