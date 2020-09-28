@@ -13,49 +13,78 @@ import GradientView from '../../components/elements/GradientView'
 
 import RequestItem from './elements/RequestItem'
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
-const PIXEL_RATIO = PixelRatio.get()
-
-let SIZE = 16
-if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
-    SIZE = 8 // iphone 5s
-}
 
 const DATA_PENDING = [
     {
         id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        title: 'Requested BTC',
+        title: 'Requested BTC 1',
         date: '9/29/2020',
         time: '4:42 PM',
         descr: 'Demo request',
-        coin: 'BTC',
+        currencyCode: 'BTC',
         sum: '0.0005',
         sumUSD: '$ 0.04',
+        status: 'Recieved',
+        type: 'pending',
     },
     {
         id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        title: 'Requested 2 BTC',
+        title: 'Requested ETH',
         date: '9/29/2020',
         time: '4:42 PM',
         descr: 'Demo request',
-        coin: 'BTC',
+        currencyCode: 'ETH',
         sum: '0.0005',
         sumUSD: '$ 0.04',
+        status: 'Rejected',
+        type: 'pending',
     },
     {
         id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Requested 3 BTC',
+        title: 'Requested BTC 3',
         date: '9/29/2020',
         time: '4:42 PM',
         descr: 'Demo request',
-        coin: 'BTC',
+        currencyCode: 'BTC',
         sum: '0.0005',
         sumUSD: '$ 0.04',
+        status: 'Recieved',
+        type: 'pending',
     },
 ];
 
+const DATA_SENT = [
+    {
+        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+        title: 'Requested BTC 1',
+        date: '9/29/2020',
+        time: '4:42 PM',
+        descr: 'Demo request',
+        currencyCode: 'BTC',
+        sum: '0.0005',
+        sumUSD: '$ 0.04',
+        from: 'pm@fio.testnet',
+        status: 'Recieved',
+        type: 'sent',
+    },
+];
+
+
 class FioRequestsList extends Component {
 
+    renderRequestList = (data) => {
+        return (
+            data.map((item, key) => (
+                <>
+                    <Text style={styles.txt}>{item.date}</Text>
+                    <RequestItem
+                        key={key}
+                        data={item}
+                        callback={() => console.log("Request pressed array" + item.id) }/>
+                </>
+            ))
+        )
+    }
 
     render() {
         return (
@@ -78,13 +107,19 @@ class FioRequestsList extends Component {
 
                         <ScrollView>
                             <View style={styles.container}>
-                                <Text style={styles.txt}>9/29/2020</Text>
-                                <RequestItem/>
+
+                               {/* <RequestItem
+                                    data={DATA_PENDING[1]}
+                                    callback={() => console.log("Request pressed array 2") } />
+                                */}
+
+                                {this.renderRequestList(DATA_PENDING)}
+
                             </View>
                         </ScrollView>
 
 
-                        <GradientView style={{marginTop: 20}}
+                        <GradientView
                                       array={typeof backgroundColorArray == 'undefined' ? styles_.array : backgroundColorArray}
                                       start={styles_.start} end={styles_.end}>
                             <View style={styles.title_section}>
@@ -96,8 +131,9 @@ class FioRequestsList extends Component {
 
                         <ScrollView>
                             <View style={styles.container}>
-                                <Text style={styles.txt}>9/29/2020</Text>
-                                <RequestItem/>
+
+                                {this.renderRequestList(DATA_SENT)}
+                                
                             </View>
                         </ScrollView>
 
@@ -139,7 +175,7 @@ const styles = {
     },
 
     container: {
-        padding: 20,
+        padding: 15,
         height: '100%',
         flexDirection: 'column',
         flex: 1,
