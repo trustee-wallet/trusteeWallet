@@ -465,7 +465,7 @@
     "btnText": "Press to Confirm"
   },
 
-  
+
   "exchangeInit": {
     "ordersHistory": "Orders history",
     "ordersNull": "You don`t have any orders yet."
@@ -590,6 +590,7 @@
     "notEnough": "You don't have enough funds to send",
     "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}",
     "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations or turn on usage of unconfirmed transactions",
+    "publicFioAddressNotFound": "%{symbol} public address is not associated with specified FIO address",
     "confirmModal": {
       "title": "Do you confirm sending?",
       "titleSpeedUp": "Do you confirm speeding up incoming transaction %{hash}?",

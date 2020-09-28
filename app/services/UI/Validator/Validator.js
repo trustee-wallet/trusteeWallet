@@ -11,6 +11,7 @@
 import { strings } from '../../i18n'
 import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
 import BtcCashUtils from '../../../../crypto/blockchains/bch/ext/BtcCashUtils'
+import { isFioAddressRegistered } from '../../../../crypto/blockchains/fio/FioUtils'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
 
@@ -18,7 +19,14 @@ const cardNumberValid = require('fast-luhn')
 const DEFAULT_WORDS = require('./_words/english.json')
 const bitcoin = require('bitcoinjs-lib')
 
-import * as f from 'mymonero-core-js/monero_utils/monero_paymentID_utils'
+async function _fioAddressValidation(obj) {
+    const { value, type } = obj
+
+    if (!value || !type || !type.includes('_ADDRESS')) {
+        return false;
+    }
+    return isFioAddressRegistered(value)
+}
 
 async function _userDataValidation(obj) {
 
@@ -418,6 +426,12 @@ module.exports = {
             }
         }
         if (resultArray && resultArray.length > 0) {
+            if (array[0] && (await _fioAddressValidation(array[0]))) {
+                return {
+                    status: 'success',
+                    errorArr: []
+                }
+            }
             return {
                 status: 'fail',
                 errorArr: resultArray

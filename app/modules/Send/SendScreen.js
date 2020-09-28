@@ -52,6 +52,7 @@ import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import api from '../../services/Api/Api'
+import { getPubFioAddress, isFioAddressRegistered } from '../../../crypto/blockchains/fio/FioUtils'
 
 let styles
 
@@ -512,6 +513,20 @@ class SendScreen extends Component {
             }
         }
 
+        let recipientAddress = addressValidation.value;
+        if (await isFioAddressRegistered(recipientAddress)) {
+            const publicFioAddress = await getPubFioAddress(addressValidation.value, cryptoCurrency.currencyCode, cryptoCurrency.currencyCode);
+            if (!publicFioAddress) {
+                const msg = strings('send.publicFioAddressNotFound', { symbol: cryptoCurrency.currencyCode })
+                Log.log('SendScreen.handleSendTransaction ' + msg)
+                enoughFunds.isAvailable = false
+                enoughFunds.messages.push(msg)
+                this.setState({ enoughFunds })
+                return
+            }
+            recipientAddress = publicFioAddress;
+        }
+
         setLoaderStatus(true)
 
         const amount = this.state.inputType === 'FIAT' ? this.state.amountEquivalent : valueValidation.value
@@ -560,7 +575,7 @@ class SendScreen extends Component {
                     memo,
                     amount: typeof amount === 'undefined' ? '0' : amount.toString(),
                     amountRaw,
-                    address: addressValidation.value,
+                    address: recipientAddress,
                     wallet,
                     cryptoCurrency,
                     account,
