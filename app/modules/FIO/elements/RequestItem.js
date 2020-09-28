@@ -17,32 +17,42 @@ if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
 
 class RequestItem extends Component {
 
+    constructor(props) {
+        super(props)
+    }
+
+
 
     render() {
+
+        const { data, callback } = this.props
+        const currencyCode = data.currencyCode || 'BTC'
+        
         return (
             <View >
                 <View style={{position: 'relative'}}>
                     <View style={styles.wrapper}>
-                        <TouchableOpacity onPress={() => console.log("Request pressed")}>
+                        <TouchableOpacity onPress={callback} >
                             <View style={styles.request__item}>
                                 <View style={styles.request__col1}>
-                                    <Icon name="selectWallet" size={35} style={styles.icon1}/>
+                                    <Icon name="selectWallet" size={25} style={styles.icon1}/>
                                     <View>
-                                        <Text style={styles.txt1}>Requested BTC</Text>
-                                        <Text style={styles.txt2}>4:42 PM - Demo request</Text>
-                                        <Text style={styles.status}>Received</Text>
+                                        {data.type == 'sent' && <Text style={styles.txt1}>{data.from}</Text>}
+                                        {data.type == 'pending' && <Text style={styles.txt1}>{data.title}</Text>}
+                                        <Text style={styles.txt2}>{data.time} - {data.descr}</Text>
+                                        <Text style={[styles.status, data.status == 'Rejected' ? styles.error : styles.success]} >{data.status}</Text>
                                     </View>
                                 </View>
 
                                 <View style={styles.request__col2}>
-                                    <CurrencyIcon currencyCode={'BTC'}
+                                    <CurrencyIcon currencyCode={currencyCode}
                                                   containerStyle={styles.cryptoList__icoWrap}
                                                   markStyle={styles.cryptoList__icon__mark}
                                                   markTextStyle={styles.cryptoList__icon__mark__text}
                                                   iconStyle={styles.cryptoList__icon}/>
                                     <View>
-                                        <Text style={styles.txt3}>0.0005</Text>
-                                        <Text style={styles.txt4}>$ 0.04</Text>
+                                        <Text style={styles.txt3}>{data.sum}</Text>
+                                        <Text style={styles.txt4}>{data.sumUSD}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -74,6 +84,7 @@ const styles = {
     request__item: {
         position: 'relative',
         padding: 20,
+        paddingVertical: 10,
         backgroundColor: '#fff',
         borderRadius: 16,
         display: 'flex',
@@ -86,7 +97,7 @@ const styles = {
         display: 'flex',
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         alignItems: 'center',
         marginRight: 50,
     },
@@ -96,11 +107,12 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+
     },
 
     icon1: {
         marginRight: 10,
-        color: '#555',
+        color: '#aaa',
     },
 
     txt1: {
@@ -113,23 +125,30 @@ const styles = {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 14,
         color: '#777',
+        marginBottom: -5,
     },
 
     txt3: {
         fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 15,
+        fontSize: 13,
         marginBottom: -5,
-        color: '#F79E1B',
     },
 
     txt4: {
         fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 15,
+        fontSize: 13,
     },
 
     status: {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 14,
+    },
+
+    error: {
+        color: '#ff0000',
+    },
+
+    success: {
         color: '#3ac058',
     },
 
