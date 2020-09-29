@@ -25,7 +25,7 @@ class FioRequestDetails extends Component {
                         <KeyboardAvoidingView behavior="padding">
 
                             <View>
-                                <Text style={styles.txt}>Balance: 0.000025 BTC ($0.24)</Text>
+                                <Text style={styles.txt}>{strings('FioRequestDetails.balance')}: 0.000025 BTC ($0.24)</Text>
                                 <Text style={styles.txt}>1 BTC = $9,700.70 USD</Text>
 
 
@@ -54,10 +54,10 @@ class FioRequestDetails extends Component {
                                     </View>
                                 </View>
 
-                                <Text style={styles.txt}>Fee: + B 0.000033 ($0.03)</Text>
-                                <Text style={styles.txt2}>To: pm7@fiotestnet</Text>
-                                <Text style={styles.txt2}>From: pm7@fiotestnet</Text>
-                                <Text style={styles.txt2}>FIO Memo: For demo 2</Text>
+                                <Text style={styles.txt}>{strings('FioRequestDetails.fee')}: + B 0.000033 ($0.03)</Text>
+                                <Text style={styles.txt2}>{strings('FioRequestDetails.to')}: pm7@fiotestnet</Text>
+                                <Text style={styles.txt2}>{strings('FioRequestDetails.from')}: pm7@fiotestnet</Text>
+                                <Text style={styles.txt2}>{strings('FioRequestDetails.memo')}: For demo</Text>
                             </View>
 
                         </KeyboardAvoidingView>
@@ -95,6 +95,7 @@ const styles = {
         padding: 20,
         borderRadius: 10,
         marginVertical: 10,
+        opacity: 0.8,
         backgroundColor: '#fff',
         shadowColor: "#777",
         shadowOffset: {

@@ -458,10 +458,12 @@
 
   "FioRequestDetails": {
     "title": "FIO Request Details",
-    "from": "Send Request From",
-    "to": "Send Request To",
+    "balance": "Balance",
+    "fee": "Fee",
+    "to": "To",
+    "from": "From",
+    "memo": "FIO Memo",
     "amount": "Amount",
-    "memo": "Memo",
     "btnText": "Press to Confirm"
   },
 
