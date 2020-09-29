@@ -231,6 +231,9 @@ class HomeScreen extends Component {
                                 <Button press={() =>  NavStore.goNext('FioSendRequest')}>
                                     go to Fio Send Request screen
                                 </Button>
+                                <Button press={() =>  NavStore.goNext('FioRequestDetails')}>
+                                    go to Fio Request Details screen
+                                </Button>
                             </View>
                             <View style={{flex: 1, paddingBottom: 30, backgroundColor: '#f5f5f5'}}>
                                 <Text style={{
