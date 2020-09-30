@@ -147,7 +147,8 @@ const styles = {
 
     txt3: {
         fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 24,
+        fontSize: 22,
+        fontWeight: 'bold',
         color: '#333',
         textAlign: 'center',
         marginVertical: 7,
@@ -164,7 +165,7 @@ const styles = {
     cryptoList__icoWrap: {
         width: 42,
         height: 42,
-        marginRight: 7,
+        marginRight: 10,
         elevation: 0,
         shadowColor: '#fff'
     },
