@@ -65,6 +65,20 @@ const Currencies = {
         currencyExplorerLink: 'https://xmrchain.net/search?value=',
         currencyExplorerTxLink: 'https://blockchair.com/monero/transaction/'
     },
+    'FIO': {
+        currencyName: 'FIO',
+        currencyCode: 'XMR',
+        currencySymbol: 'FIO',
+        addressProcessor: 'XMR',
+        scannerProcessor: 'XMR',
+        extendsProcessor: 'XMR',
+        prettyNumberProcessor: 'UNIFIED',
+        network: 'mainnet',
+        decimals: 18,
+        buyable: 0,
+        currencyExplorerLink: 'https://fio-test.bloks.io/account/',
+        currencyExplorerTxLink: 'https://fio-test.bloks.io/transaction/'
+    },
 
     // 'BTC_LIGHT': {
     //     currencyName: 'Bitcoin Lightning',

@@ -416,7 +416,7 @@ export default class ButtonLine extends Component {
                         </View>
                     </View>
                 )
-            
+
             case 'CUSTOM_MVT':
                 return (
                     <View style={{ ...styles.icon, borderColor: '#93CA76', ...tmpContainerStyle }}>
@@ -425,6 +425,14 @@ export default class ButtonLine extends Component {
                         </View>
                         <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
+                        </View>
+                    </View>
+                )
+            case 'FIO':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#4C5FAB', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <Image style={{ width: 25, height: 25 }} resize={'stretch'} source={require('../../assets/images/fio.png')}/>
                         </View>
                     </View>
                 )

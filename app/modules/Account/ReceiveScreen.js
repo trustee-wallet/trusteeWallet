@@ -483,13 +483,13 @@ class ReceiveScreen extends Component {
                         </View>
 
                             <TouchableOpacity style={{marginTop: 20}}
-                                              onPress={NavStore.goNext('FioSendRequest')}>
+                                              onPress={() => NavStore.goNext('FioSendRequest')}>
                                 <LightButton color={color} Icon={(props) => <Feather color={color} size={10}
                                                                                  name={'edit'} {...props} />}
                                          title={strings('account.receiveScreen.FIORequest')}
                                          iconStyle={{ marginHorizontal: 3 }}/>
                             </TouchableOpacity>
-                        
+
                         <View style={styles.options}>
                             <TouchableOpacity style={styles.options__item} onPress={this.handleBuy}>
                                 <View style={styles.options__wrap}>
