@@ -12,6 +12,7 @@ import Icon from '../../components/elements/CustomIcon.js'
 import GradientView from '../../components/elements/GradientView'
 
 import RequestItem from './elements/RequestItem'
+import { getSentFioRequests } from '../../../crypto/blockchains/fio/FioUtils'
 
 
 const DATA_PENDING = [
@@ -71,6 +72,11 @@ const DATA_SENT = [
 
 
 class FioRequestsList extends Component {
+
+    async componentDidMount() {
+        const sentRequests = await getSentFioRequests("FIO5kJKNHwctcfUM5XZyiWSqSTM5HTzznJP9F3ZdbhaQAHEVq575o", 100, 0)
+        console.log(sentRequests)
+    }
 
     renderRequestList = (data) => {
         return (
@@ -133,7 +139,7 @@ class FioRequestsList extends Component {
                             <View style={styles.container}>
 
                                 {this.renderRequestList(DATA_SENT)}
-                                
+
                             </View>
                         </ScrollView>
 
@@ -181,7 +187,7 @@ const styles = {
         flex: 1,
     },
 
-    
+
 
 
 }
