@@ -30,27 +30,32 @@ class FioRequestDetails extends Component {
 
 
                                 <View style={styles.info__section}>
-                                    <View style={[styles.flex__container, styles.flex__start]}>
-                                        <CurrencyIcon currencyCode={'BTC'}
-                                                      containerStyle={styles.cryptoList__icoWrap}
-                                                      markStyle={styles.cryptoList__icon__mark}
-                                                      markTextStyle={styles.cryptoList__icon__mark__text}
-                                                      iconStyle={styles.cryptoList__icon}/>
-                                        <Text style={styles.txt3}>Send from My Bitcoin</Text>
-                                    </View>
+                                    <View style={styles.info__section__content}>
+                                        <View style={[styles.flex__container, styles.flex__start]}>
+                                            <CurrencyIcon currencyCode={'BTC'}
+                                                          containerStyle={styles.cryptoList__icoWrap}
+                                                          markStyle={styles.cryptoList__icon__mark}
+                                                          markTextStyle={styles.cryptoList__icon__mark__text}
+                                                          iconStyle={styles.cryptoList__icon}/>
+                                            <Text style={styles.txt3}>Send from My Bitcoin</Text>
+                                        </View>
 
-                                    <View style={styles.flex__container}>
-                                        <Text style={styles.txt}>BTC</Text>
-                                        <Text style={styles.txt}>B 0.000005</Text>
-                                    </View>
+                                        <View style={styles.flex__container}>
+                                            <Text style={styles.txt}>BTC</Text>
+                                            <Text style={styles.txt}>B 0.000005</Text>
+                                        </View>
 
-                                    <View style={styles.flex__container}>
-                                        <View style={styles.line2}></View>
-                                    </View>
+                                        <View style={styles.flex__container}>
+                                            <View style={styles.line2}></View>
+                                        </View>
 
-                                    <View style={styles.flex__container}>
-                                        <Text style={styles.txt4}>USD</Text>
-                                        <Text style={styles.txt4}>$ 0.004</Text>
+                                        <View style={styles.flex__container}>
+                                            <Text style={styles.txt4}>USD</Text>
+                                            <Text style={styles.txt4}>$ 0.004</Text>
+                                        </View>
+                                    </View>
+                                    <View style={styles.shadow}>
+                                        <View style={styles.shadow__item}/>
                                     </View>
                                 </View>
 
@@ -90,21 +95,18 @@ const styles = {
     },
 
     info__section: {
+        position: 'relative',
+    },
+
+    info__section__content: {
+        position: 'relative',
         borderWidth: 1,
+        backgroundColor: '#fff',
         borderColor: '#ddd',
         padding: 20,
         borderRadius: 10,
         marginVertical: 10,
-        opacity: 0.8,
-        backgroundColor: '#fff',
-        shadowColor: "#777",
-        shadowOffset: {
-            width: 0,
-            height: 9,
-        },
-        shadowOpacity: 0.50,
-        shadowRadius: 12.35,
-        elevation: 30,
+        zIndex: 2,
     },
     
     flex__container: {
@@ -174,6 +176,34 @@ const styles = {
     },
     cryptoList__icon__mark__text: {
         fontSize: 5
+    },
+
+    shadow: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 1,
+    },
+
+    shadow__item: {
+        position: 'absolute',
+        bottom: 10,
+        left: '1%',
+        width: '98%',
+        height: '50%',
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 5
+        },
+        shadowOpacity: 0.54,
+        shadowRadius: 6.27,
+        opacity: 0.9,
+        elevation: 10
     },
 
 
