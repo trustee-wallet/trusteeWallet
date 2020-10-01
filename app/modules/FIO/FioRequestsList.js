@@ -73,9 +73,19 @@ const DATA_SENT = [
 
 class FioRequestsList extends Component {
 
+    constructor(props) {
+        super(props)
+        this.state = {
+            sentRequestsData: [],
+            status: false
+        }
+    }
+
     async componentDidMount() {
         const sentRequests = await getSentFioRequests("FIO5kJKNHwctcfUM5XZyiWSqSTM5HTzznJP9F3ZdbhaQAHEVq575o", 100, 0)
         console.log(sentRequests)
+        console.log(sentRequests.requests)
+        this.setState({ sentRequestsData: sentRequests.requests })
     }
 
     renderRequestList = (data) => {
@@ -119,6 +129,7 @@ class FioRequestsList extends Component {
                                     callback={() => console.log("Request pressed array 2") } />
                                 */}
 
+
                                 {this.renderRequestList(DATA_PENDING)}
 
                             </View>
@@ -138,6 +149,9 @@ class FioRequestsList extends Component {
                         <ScrollView>
                             <View style={styles.container}>
 
+
+                                {this.renderRequestList(this.state.sentRequestsData)}
+                                
                                 {this.renderRequestList(DATA_SENT)}
 
                             </View>
