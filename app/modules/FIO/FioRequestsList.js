@@ -84,8 +84,7 @@ class FioRequestsList extends Component {
     async componentDidMount() {
         const sentRequests = await getSentFioRequests("FIO5kJKNHwctcfUM5XZyiWSqSTM5HTzznJP9F3ZdbhaQAHEVq575o", 100, 0)
         console.log(sentRequests)
-        console.log(sentRequests.requests)
-        this.setState({ sentRequestsData: sentRequests.requests })
+        this.setState({ sentRequestsData: sentRequests })
     }
 
     renderRequestList = (data) => {
@@ -123,12 +122,6 @@ class FioRequestsList extends Component {
 
                         <ScrollView>
                             <View style={styles.container}>
-
-                               {/* <RequestItem
-                                    data={DATA_PENDING[1]}
-                                    callback={() => console.log("Request pressed array 2") } />
-                                */}
-
 
                                 {this.renderRequestList(DATA_PENDING)}
 
