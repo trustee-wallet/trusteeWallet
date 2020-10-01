@@ -67,7 +67,7 @@ const Currencies = {
     },
     'FIO': {
         currencyName: 'FIO',
-        currencyCode: 'XMR',
+        currencyCode: 'FIO',
         currencySymbol: 'FIO',
         addressProcessor: 'XMR',
         scannerProcessor: 'XMR',
