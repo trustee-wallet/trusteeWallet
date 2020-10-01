@@ -37,6 +37,7 @@ class RequestItem extends Component {
                                 <View style={styles.request__col1}>
                                     <Icon name="selectWallet" size={25} style={styles.icon1}/>
                                     <View>
+                                        {data.status == 'requested' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{data.payee_fio_address}</Text>}
                                         {data.type == 'sent' && <Text style={styles.txt1}>{data.from}</Text>}
                                         {data.type == 'pending' && <Text style={styles.txt1}>{data.title}</Text>}
                                         <Text style={styles.txt2}>{data.time} - {data.descr}</Text>

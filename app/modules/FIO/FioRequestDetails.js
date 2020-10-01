@@ -69,9 +69,18 @@ class FioRequestDetails extends Component {
 
 
                         <View style={{marginTop: 20}}>
-                            <Button press={() => console.log('select FIO pressed')}>
-                                {strings('FioRequestDetails.btnText')}
-                            </Button>
+                            <View style={styles.btn__container}>
+                                <View style={styles.btn__holder}>
+                                    <Button press={() => console.log('reject button pressed')}>
+                                        {strings('FioRequestDetails.btnTextReject')}
+                                    </Button>
+                                </View>
+                                <View style={styles.btn__holder}>
+                                    <Button press={() => console.log('confirm button pressed')}>
+                                        {strings('FioRequestDetails.btnTextConfirm')}
+                                    </Button>
+                                </View>
+                            </View>
                         </View>
 
 
@@ -117,6 +126,19 @@ const styles = {
         paddingLeft: 50,
     },
 
+    btn__container: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginHorizontal: -5,
+    },
+
+    btn__holder: {
+        flex: 1,
+        marginHorizontal: 5,
+    },
+
     flex__start: {
         justifyContent: 'flex-start',
         paddingLeft: 0,
@@ -148,7 +170,6 @@ const styles = {
     txt3: {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 22,
-        fontWeight: 'bold',
         color: '#333',
         textAlign: 'center',
         marginVertical: 7,

@@ -464,7 +464,8 @@
     "from": "From",
     "memo": "FIO Memo",
     "amount": "Amount",
-    "btnText": "Press to Confirm"
+    "btnTextReject": "Reject",
+    "btnTextConfirm": "Confirm"
   },
 
 
