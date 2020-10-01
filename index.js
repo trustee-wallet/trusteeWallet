@@ -4,6 +4,7 @@
  */
 
 import 'react-native-gesture-handler'
+import 'react-native-get-random-values'
 import BackgroundFetch from "react-native-background-fetch"
 import {AppRegistry} from 'react-native'
 import './shim.js'
