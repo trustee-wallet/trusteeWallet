@@ -69,7 +69,7 @@ const Currencies = {
         currencyName: 'FIO',
         currencyCode: 'FIO',
         currencySymbol: 'FIO',
-        addressProcessor: 'XMR',
+        addressProcessor: 'FIO',
         scannerProcessor: 'XMR',
         extendsProcessor: 'XMR',
         prettyNumberProcessor: 'UNIFIED',
