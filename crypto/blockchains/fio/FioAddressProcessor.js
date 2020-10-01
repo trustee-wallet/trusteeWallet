@@ -9,6 +9,7 @@
  */
 
 import { Ecc } from '@fioprotocol/fiojs'
+import { DERIVE_PATH } from './FioUtils'
 
 export default class FioAddressProcessor {
 
@@ -18,9 +19,9 @@ export default class FioAddressProcessor {
         this._root = root
     }
 
-
     /**
      * @param {string|Buffer} privateKey
+     * @param data
      * @param {*} data.publicKey
      * @param {*} data.walletHash
      * @param {*} data.derivationPath
@@ -29,20 +30,21 @@ export default class FioAddressProcessor {
      * @returns {Promise<{privateKey: string, address: string, addedData: *}>}
      */
     async getAddress(privateKey, data = {}) {
-        const child = this._root.derivePath('m/44\'/235\'/0\'/0/0')
+        const child = this._root.derivePath(DERIVE_PATH)
 
         const pvt = await Ecc.PrivateKey(child.privateKey)
-        console.log(pvt.toString())
-        console.log(pvt.toWif())
-        console.log(pvt.toPublic().toString())
-
         // LOG 5Kbb37EAqQgZ9vWUHoPiC2uXYhyGSFNbL6oiDp24Ea1ADxV1qnu
         // LOG 5Kbb37EAqQgZ9vWUHoPiC2uXYhyGSFNbL6oiDp24Ea1ADxV1qnu
         // LOG FIO5kJKNHwctcfUM5XZyiWSqSTM5HTzznJP9F3ZdbhaQAHEVq575o
 
+        // limb egg attend help seek blur chicken question until radio index pitch
+        // LOG  5JmNyktQYEmG86Pd5Ymgx9YHxhRedpcfmMNugTZR4D9G3kPL3f1
+        // LOG  5JmNyktQYEmG86Pd5Ymgx9YHxhRedpcfmMNugTZR4D9G3kPL3f1
+        // LOG  FIO5xbYYdNs5a7Fe5nmkb7BeUFjpXYgkmJus8NMZUAeNyt8jgsEwB
+
         return {
-            address: pvt.toWif(),
-            privateKey: pvt.toString(),
+            address: pvt.toPublic().toString(),
+            privateKey: pvt.toWif(),
             addedData: false
         }
     }

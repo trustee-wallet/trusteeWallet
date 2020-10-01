@@ -115,8 +115,16 @@ class SettingsMainScreen extends Component {
     }
 
     handleRegisterFIOAddress = async () => {
+        const { accountList } = this.props.accountStore
+        const { selectedWallet } = this.props.mainStore
         const { apiEndpoints } = config.fio
-        Linking.openURL(`${apiEndpoints.registrationSiteURL}`)
+
+        const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
+        if (publicFioAddress) {
+            Linking.openURL(`${apiEndpoints.registrationSiteURL}${publicFioAddress}`)
+        } else {
+            // TODO show some warning tooltip
+        }
     }
 
     handleSupport = async () => {
@@ -635,6 +643,7 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         walletStore: state.walletStore,
         settings: state.settingsStore,
+        accountStore: state.accountStore,
         appNewsList: state.appNewsStore.appNewsList
     }
 }

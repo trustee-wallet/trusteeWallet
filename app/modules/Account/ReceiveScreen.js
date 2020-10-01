@@ -58,6 +58,7 @@ import QrCodeBox from '../../components/elements/QrCodeBox'
 import OldPhone from '../../services/UI/OldPhone/OldPhone'
 import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import { getFioName, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
 
 let styles
 
@@ -67,8 +68,21 @@ class ReceiveScreen extends Component {
     constructor() {
         super()
         this.state = {
-            settingAddressType: ''
+            settingAddressType: '',
+            fioAddress: null,
         }
+    }
+
+    async componentDidMount() {
+        const { currencyCode } = this.props.cryptoCurrency
+        const address = this.getAddress();
+
+        const fioAddress = await getFioName(address);
+        const publicAddress = await getPubAddress(fioAddress, currencyCode, currencyCode)
+
+        this.setState({
+            fioAddress: publicAddress ? fioAddress : null
+        })
     }
 
     // eslint-disable-next-line camelcase
@@ -397,7 +411,7 @@ class ReceiveScreen extends Component {
 
     render() {
         const { mainStore, settingsStore } = this.props
-        const { isSegWitLegacy } = this.state
+        const { isSegWitLegacy, fioAddress } = this.state
         const { address } = this.props.account
         const { currencySymbol, currencyCode } = this.props.cryptoCurrency
         const { btcShowTwoAddress = 0 } = settingsStore.data
@@ -423,6 +437,7 @@ class ReceiveScreen extends Component {
                                           array={styles.qr__bg.array} start={styles.qr__bg.start}
                                           end={styles.qr__bg.end}>
                                 {currencyCode === 'BTC' && +btcShowTwoAddress ? this.renderSegWitLegacy() : null}
+                                {fioAddress ? <Text>{fioAddress}</Text> : null}
                                 <TouchableOpacity style={{
                                     position: 'relative',
                                     paddingHorizontal: 10,

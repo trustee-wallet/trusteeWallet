@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@fioprotocol/fiojs": "^1.0.1",
+    "@fioprotocol/fiosdk": "^1.1.0",
     "@haskkor/react-native-pincode": "git+https://git@github.com/trustee-wallet/react-native-pincode",
     "@react-native-community/async-storage": "^1.7.1",
     "@react-native-community/blur": "^3.4.1",

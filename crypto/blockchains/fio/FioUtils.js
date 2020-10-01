@@ -1,11 +1,25 @@
 import config from '../../../app/config/config'
 import { Fio, Ecc } from '@fioprotocol/fiojs'
 import { TextDecoder, TextEncoder } from 'text-encoding'
+import { FIOSDK } from '@fioprotocol/fiosdk'
 
 const axios = require('axios')
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
+
+export const DERIVE_PATH = "m/44'/235'/0'/0/0";
+
+const fetchJson = async (uri, opts = {}) => {
+    // eslint-disable-next-line no-undef
+    return fetch(uri, opts)
+}
+
+const getFioSDK = (publicKey, privateKey) => {
+    const { apiEndpoints: { baseURL } } = config.fio
+
+    return  new FIOSDK(privateKey, publicKey, 'http://testnet.fioprotocol.io/v1/', fetchJson)
+};
 
 export const isFioAddressRegistered = async (address) => {
     const { apiEndpoints: { baseURL } } = config.fio
@@ -25,33 +39,34 @@ export const isFioAddressRegistered = async (address) => {
     }
 }
 
-export const getPubFioAddress = async (fioAddress, chainCode, tokenCode) => {
-    const { apiEndpoints: { baseURL } } = config.fio
-
+export const getPubAddress = async (fioAddress, chainCode, tokenCode) => {
     try {
-        const response = await axios.post(`${baseURL}/get_pub_address`, {
-            'fio_address': fioAddress,
-            'chain_code': chainCode,
-            'token_code': tokenCode
-        })
-        return response.data && response.data['public_address']
+        const response = await getFioSDK().getPublicAddress(fioAddress, chainCode, tokenCode)
+        return response['public_address']
     } catch (e) {
         console.warn('FIO getPubFioAddress error: ', e)
         return null
     }
 }
 
-export const getFioNames = async (fioPublicKey) => {
-    const { apiEndpoints: { baseURL } } = config.fio
-
+export const getFioName = async (fioPublicKey) => {
     try {
-        const response = await axios.post(`${baseURL}/get_fio_names`, {
-            'fio_public_key': fioPublicKey,
-        })
-        return response.data && response.data['fio_addresses'] || []
+        const response = await getFioSDK().getFioNames(fioPublicKey)
+        const [ fioAddress ] = response['fio_addresses'] || []
+        return fioAddress['fio_address']
     } catch (e) {
         console.warn('FIO getFioNames error: ', e)
-        return []
+        return null
+    }
+}
+
+export const getFioBalance = async (fioPublicKey) => {
+    try {
+        const response = await getFioSDK().getFioBalance(fioPublicKey)
+        return response['balance'] || 0
+    } catch (e) {
+        console.warn('FIO getFioBalance error: ', e)
+        return 0
     }
 }
 
@@ -59,6 +74,10 @@ export const getSentFioRequests = async (fioPublicKey, limit = 100, offset = 0) 
     const { apiEndpoints: { baseURL } } = config.fio
 
     try {
+        // TODO change to SDK
+        // const response = await getFioSDK(fioPublicKey, "5Kbb37EAqQgZ9vWUHoPiC2uXYhyGSFNbL6oiDp24Ea1ADxV1qnu")
+        //     .getSentFioRequests(limit, offset)
+
         const response = await axios.post(`${baseURL}/get_sent_fio_requests`, {
             'fio_public_key': fioPublicKey,
             'limit': limit,
@@ -94,4 +113,17 @@ export const decodeFioData = ({content, payeePrivateKey, payerPublicKey}) => {
         console.warn('FIO decodeFioData error: ', e)
         return null
     }
+}
+
+export const addPubAddress = async () => {
+    const maxFee =  await getFioSDK().getFeeForAddPublicAddress("kir@fiotestnet")
+    const response = await getFioSDK("FIO5xbYYdNs5a7Fe5nmkb7BeUFjpXYgkmJus8NMZUAeNyt8jgsEwB", "5JmNyktQYEmG86Pd5Ymgx9YHxhRedpcfmMNugTZR4D9G3kPL3f1").addPublicAddress(
+        "kir@fiotestnet",
+        "BTC",
+        "BTC",
+        "1PMycacnJaSqwwJqjawXBErnLsZ7RkXUAs",
+        maxFee,
+    )
+
+    console.log(response)
 }

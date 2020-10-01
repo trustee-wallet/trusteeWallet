@@ -70,11 +70,11 @@ const Currencies = {
         currencyCode: 'FIO',
         currencySymbol: 'FIO',
         addressProcessor: 'FIO',
-        scannerProcessor: 'XMR',
+        scannerProcessor: 'FIO',
         extendsProcessor: 'XMR',
         prettyNumberProcessor: 'UNIFIED',
         network: 'mainnet',
-        decimals: 18,
+        decimals: 9,
         buyable: 0,
         currencyExplorerLink: 'https://fio-test.bloks.io/account/',
         currencyExplorerTxLink: 'https://fio-test.bloks.io/transaction/'

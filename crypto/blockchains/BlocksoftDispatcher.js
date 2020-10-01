@@ -49,6 +49,7 @@ import XmrAddressProcessor from './xmr/XmrAddressProcessor'
 import XmrScannerProcessor from './xmr/XmrScannerProcessor'
 import XmrSecretsProcessor from './xmr/XmrSecretsProcessor'
 import FioAddressProcessor from './fio/FioAddressProcessor'
+import FioScannerProcessor from './fio/FioScannerProcessor'
 
 export default class BlocksoftDispatcher {
 
@@ -143,7 +144,7 @@ export default class BlocksoftDispatcher {
             case 'XMR':
                 return new XmrScannerProcessor(currencyDictSettings)
             case 'FIO':
-                return new XmrScannerProcessor(currencyDictSettings)
+                return new FioScannerProcessor(currencyDictSettings)
             default:
                 throw new Error('Unknown scannerProcessor ' + currencyDictSettings.scannerProcessor)
         }

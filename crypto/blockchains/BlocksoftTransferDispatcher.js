@@ -19,6 +19,7 @@ import XrpTransferProcessor from './xrp/XrpTransferProcessor'
 import XvgTransferProcessor from './xvg/XvgTransferProcessor'
 import EthTransferProcessorUAX from './eth/EthTransferProcessorUAX'
 import XmrTransferProcessor from './xmr/XmrTransferProcessor'
+import FioTransferProcessor from './fio/FioTransferProcessor'
 
 
 export default class BlocksoftTransferDispatcher {
@@ -76,6 +77,8 @@ export default class BlocksoftTransferDispatcher {
                 return new XvgTransferProcessor(currencyDictSettings)
             case 'XMR':
                 return new XmrTransferProcessor(currencyDictSettings)
+            case 'FIO':
+                return new FioTransferProcessor(currencyDictSettings)
             default:
                 throw new Error('Unknown transferProcessor ' + transferProcessor)
         }
