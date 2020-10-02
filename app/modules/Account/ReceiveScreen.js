@@ -58,7 +58,8 @@ import QrCodeBox from '../../components/elements/QrCodeBox'
 import OldPhone from '../../services/UI/OldPhone/OldPhone'
 import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import { getFioName, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
+import { addCryptoPublicAddress, getFioName, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
+import DaemonCache from '../../daemons/DaemonCache'
 
 let styles
 
@@ -69,20 +70,12 @@ class ReceiveScreen extends Component {
         super()
         this.state = {
             settingAddressType: '',
-            fioAddress: null,
+            fioName: null,
         }
     }
 
     async componentDidMount() {
-        const { currencyCode } = this.props.cryptoCurrency
-        const address = this.getAddress();
-
-        const fioAddress = await getFioName(address);
-        const publicAddress = await getPubAddress(fioAddress, currencyCode, currencyCode)
-
-        this.setState({
-            fioAddress: publicAddress ? fioAddress : null
-        })
+        await this.resolveAddressByFio()
     }
 
     // eslint-disable-next-line camelcase
@@ -90,6 +83,48 @@ class ReceiveScreen extends Component {
         styles = Theme.getStyles().receiveScreenStyles
 
         settingsActions.getSetting('btc_legacy_or_segwit').then(res => this.setState({ settingAddressType: res }))
+    }
+
+    resolveAddressByFio = async () => {
+        const { selectedWallet } = this.props.mainStore
+        const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
+        if (fioAccount?.address) {
+            const fioName = await getFioName(fioAccount?.address)
+            if (fioName) {
+                const { currencyCode, currencySymbol } = this.props.cryptoCurrency
+                const address = this.getAddress()
+
+                let chainCode = currencyCode
+                if (typeof currencyCode !== 'undefined' && currencyCode === currencySymbol) {
+                    const tmp = currencyCode.split('_')
+                    if (typeof tmp[0] !== 'undefined' && tmp[0]) {
+                        chainCode = tmp[0]
+                    }
+                }
+
+                const publicAddress = await getPubAddress(fioName, chainCode, currencyCode)
+                if (publicAddress) {
+                    Log.log(`ReceiveScreen.resolveAddressByFio Resolved ${currencyCode}(${chainCode}) public address ${publicAddress} by ${fioName}`)
+                    this.setState({ fioName })
+                } else {
+                    Log.log(`ReceiveScreen.resolveAddressByFio Public address ${currencyCode}(${chainCode}) by ${fioName} not found`)
+                    const isAddressCreated = await addCryptoPublicAddress({
+                        fioName,
+                        chainCode,
+                        tokenCode: currencyCode,
+                        publicAddress: address,
+                        publicKey: fioAccount?.address,
+                        privateKey: '', // TODO resolve account private key
+                    })
+                    if (isAddressCreated) {
+                        Log.log(`ReceiveScreen.resolveAddressByFio Successfully added public address ${currencyCode}(${chainCode}) to ${fioName}`)
+                        this.setState({ fioName })
+                    }
+                }
+            } else {
+                await Log.err('ReceiveScreen.resolveAddressByFio FIO address not registered')
+            }
+        }
     }
 
     copyToClip = () => {
@@ -411,7 +446,7 @@ class ReceiveScreen extends Component {
 
     render() {
         const { mainStore, settingsStore } = this.props
-        const { isSegWitLegacy, fioAddress } = this.state
+        const { isSegWitLegacy, fioName } = this.state
         const { address } = this.props.account
         const { currencySymbol, currencyCode } = this.props.cryptoCurrency
         const { btcShowTwoAddress = 0 } = settingsStore.data
@@ -437,7 +472,7 @@ class ReceiveScreen extends Component {
                                           array={styles.qr__bg.array} start={styles.qr__bg.start}
                                           end={styles.qr__bg.end}>
                                 {currencyCode === 'BTC' && +btcShowTwoAddress ? this.renderSegWitLegacy() : null}
-                                {fioAddress ? <Text>{fioAddress}</Text> : null}
+                                {fioName ? <Text>{fioName}</Text> : null}
                                 <TouchableOpacity style={{
                                     position: 'relative',
                                     paddingHorizontal: 10,
