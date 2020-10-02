@@ -76,14 +76,18 @@ class FioRequestsList extends Component {
     constructor(props) {
         super(props)
         this.state = {
+            pendingRequestsData: [],
             sentRequestsData: [],
             status: false
         }
     }
 
     async componentDidMount() {
+        const pendingRequests = await getPendingFioRequests("FIO5kJKNHwctcfUM5XZyiWSqSTM5HTzznJP9F3ZdbhaQAHEVq575o", 100, 0)
         const sentRequests = await getSentFioRequests("FIO5kJKNHwctcfUM5XZyiWSqSTM5HTzznJP9F3ZdbhaQAHEVq575o", 100, 0)
         console.log(sentRequests)
+        console.log(pendingRequests)
+        this.setState({ pendingRequestsData: pendingRequests })
         this.setState({ sentRequestsData: sentRequests })
     }
 
@@ -122,6 +126,8 @@ class FioRequestsList extends Component {
 
                         <ScrollView>
                             <View style={styles.container}>
+
+                                {this.renderRequestList(this.state.pendingRequestsData)}
 
                                 {this.renderRequestList(DATA_PENDING)}
 
