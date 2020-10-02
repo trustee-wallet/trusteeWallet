@@ -26,7 +26,7 @@ class RequestItem extends Component {
     render() {
 
         const { data, callback } = this.props
-        const currencyCode = data?.contentDecoded?.chain_code || 'NOCOIN'
+        const currencyCode = data?.content?.chain_code || 'NOCOIN'
         console.log("currencyCode = " + currencyCode)
         
         return (
@@ -54,7 +54,7 @@ class RequestItem extends Component {
                                                   iconStyle={styles.cryptoList__icon}/>
                                     <View>
                                         <Text style={styles.txt3}>{data.sum}</Text>
-                                        <Text style={styles.txt3}>{data?.contentDecoded?.amount}</Text>
+                                        <Text style={styles.txt3}>{data?.content?.amount}</Text>
                                         <Text style={styles.txt4}>{data.sumUSD}</Text>
                                     </View>
                                 </View>
