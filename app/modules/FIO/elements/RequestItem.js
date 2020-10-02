@@ -26,7 +26,7 @@ class RequestItem extends Component {
     render() {
 
         const { data, callback } = this.props
-        const currencyCode = data?.contentDecoded?.chain_code || 'BTC'
+        const currencyCode = data?.contentDecoded?.chain_code || 'BTC33'
         console.log("currencyCode = " + currencyCode)
         
         return (
@@ -110,7 +110,6 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-
     },
 
     icon1: {

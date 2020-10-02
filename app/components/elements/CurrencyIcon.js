@@ -25,7 +25,7 @@ export default class ButtonLine extends Component {
 
         const tmpMarkStyle = typeof markStyle !== 'undefined' ? markStyle : null
 
-        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)  || 'NOCOIN'
 
         switch (currencyCode) {
 
@@ -438,7 +438,14 @@ export default class ButtonLine extends Component {
                 )
 
             default:
-                break
+                return (
+                    <View style={{ ...styles.icon, ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <Text style={styles.icon__item__text}>No</Text>
+                            <Text style={styles.icon__item__text}>Icon</Text>
+                        </View>
+                    </View>
+                )
         }
 
         if (typeof extend.addressCurrencyCode !== 'undefined') {
@@ -513,6 +520,12 @@ const styles = {
 
         overflow: 'visible'
     },
+    icon__item__text: {
+        fontSize: 12,
+        marginVertical: 0,
+        lineHeight: 12,
+    },
+
     icon__text: {
         justifyContent: 'center',
         alignItems: 'center',

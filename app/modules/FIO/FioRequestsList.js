@@ -142,7 +142,6 @@ class FioRequestsList extends Component {
                         <ScrollView>
                             <View style={styles.container}>
 
-
                                 {this.renderRequestList(this.state.sentRequestsData)}
                                 
                                 {this.renderRequestList(DATA_SENT)}
