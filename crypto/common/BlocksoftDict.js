@@ -608,7 +608,6 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
         settings = CurrenciesForTests[currencyCode]
     }
     if (!settings) {
-        return false
         throw new Error('Currency code not found in dict ' + JSON.stringify(currencyCode))
     }
     if (settings.extendsProcessor && Currencies[settings.extendsProcessor]) {

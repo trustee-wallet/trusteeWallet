@@ -26,7 +26,7 @@ class RequestItem extends Component {
     render() {
 
         const { data, callback } = this.props
-        const currencyCode = data?.contentDecoded?.chain_code || 'BTC33'
+        const currencyCode = data?.contentDecoded?.chain_code || 'NOCOIN'
         console.log("currencyCode = " + currencyCode)
         
         return (

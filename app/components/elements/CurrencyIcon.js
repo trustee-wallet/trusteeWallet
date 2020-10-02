@@ -25,7 +25,12 @@ export default class ButtonLine extends Component {
 
         const tmpMarkStyle = typeof markStyle !== 'undefined' ? markStyle : null
 
-        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)  || 'NOCOIN'
+        let extend
+        try {
+            extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+        } catch (e) {
+            extend = 'NOCOIN'
+        }
 
         switch (currencyCode) {
 
