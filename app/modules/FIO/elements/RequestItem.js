@@ -109,6 +109,7 @@ const styles = {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
+        flexBasis: '24%',
         alignItems: 'center',
     },
 
@@ -133,7 +134,8 @@ const styles = {
     txt3: {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 13,
-        marginBottom: -5,
+        marginBottom: -10,
+        minWidth: '50%',
     },
 
     txt4: {
