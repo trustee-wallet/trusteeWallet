@@ -14,6 +14,12 @@ import CurrencyIcon from '../../components/elements/CurrencyIcon'
 class FioRequestDetails extends Component {
 
 
+    async componentDidMount() {
+        const data = this.props.navigation.getParam('requestDetailScreenParam')
+        console.log("requestDetailScreenParam data")
+        console.log(data)
+    }
+
     render() {
         return (
             <View>

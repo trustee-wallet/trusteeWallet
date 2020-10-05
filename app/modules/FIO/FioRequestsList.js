@@ -13,6 +13,7 @@ import GradientView from '../../components/elements/GradientView'
 
 import RequestItem from './elements/RequestItem'
 import { getSentFioRequests, getPendingFioRequests } from '../../../crypto/blockchains/fio/FioUtils'
+import NavStore from '../../components/navigation/NavStore'
 
 
 const DATA_PENDING = [
@@ -101,7 +102,15 @@ class FioRequestsList extends Component {
                     <RequestItem
                         key={key}
                         data={item}
-                        callback={() => console.log("Request pressed array" + item.id) }/>
+                        callback={
+                            () => {
+                                console.log( item)
+                                NavStore.goNext('FioRequestDetails', {
+                                    requestDetailScreenParam: item
+                                })
+                            }
+                        }
+                    />
                 </>
             ))
         )
