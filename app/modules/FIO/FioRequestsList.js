@@ -132,7 +132,7 @@ class FioRequestsList extends Component {
                     <View style={{paddingTop: 80, height: '100%'}}>
 
                         <GradientView
-                                      array={typeof backgroundColorArray == 'undefined' ? styles_.array : backgroundColorArray}
+                                      array={styles_.array}
                                       start={styles_.start} end={styles_.end}>
                             <View style={styles.title_section}>
                                 <Icon name="info" size={20} style={styles.icon1}/>
@@ -153,7 +153,7 @@ class FioRequestsList extends Component {
 
 
                         <GradientView
-                                      array={typeof backgroundColorArray == 'undefined' ? styles_.array : backgroundColorArray}
+                                        array={styles_.array}
                                       start={styles_.start} end={styles_.end}>
                             <View style={styles.title_section}>
                                 <Icon name="reload" size={20} style={styles.icon1}/>
