@@ -1,24 +1,7 @@
-import config from '../../../app/config/config'
-import { Fio } from '@fioprotocol/fiojs'
-import { TextDecoder, TextEncoder } from 'text-encoding'
-import { FIOSDK } from '@fioprotocol/fiosdk'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
-
-const textEncoder = new TextEncoder();
-const textDecoder = new TextDecoder();
+import { getFioSdk } from './FioSdkWrapper'
 
 export const DERIVE_PATH = "m/44'/235'/0'/0/0";
-
-const fetchJson = async (uri, opts = {}) => {
-    // eslint-disable-next-line no-undef
-    return fetch(uri, opts)
-}
-
-const getFioSDK = (publicKey, privateKey) => {
-    const { apiEndpoints: { baseURL } } = config.fio
-
-    return new FIOSDK(privateKey, publicKey, baseURL, fetchJson)
-};
 
 export const isFioAddressRegistered = async (address) => {
     if (!address || !address.includes('@')) {
@@ -26,86 +9,64 @@ export const isFioAddressRegistered = async (address) => {
     }
 
     try {
-        const response = await getFioSDK().isAvailable(address)
+        const response = await getFioSdk().isAvailable(address)
         return response['is_registered'] === 1
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO sFioAddressRegistered')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO sFioAddressRegistered')
         return false
     }
 }
 
 export const getPubAddress = async (fioAddress, chainCode, tokenCode) => {
     try {
-        const response = await getFioSDK().getPublicAddress(fioAddress, chainCode, tokenCode)
+        const response = await getFioSdk().getPublicAddress(fioAddress, chainCode, tokenCode)
         return response['public_address']
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO getPubFioAddress')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getPubFioAddress')
         return null
     }
 }
 
 export const getFioName = async (fioPublicKey) => {
     try {
-        const response = await getFioSDK().getFioNames(fioPublicKey)
+        const response = await getFioSdk().getFioNames(fioPublicKey)
         const [ fioAddress ] = response['fio_addresses'] || []
         return fioAddress['fio_address']
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO getFioNames')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getFioNames')
         return null
     }
 }
 
 export const getFioBalance = async (fioPublicKey) => {
     try {
-        const response = await getFioSDK().getFioBalance(fioPublicKey)
+        const response = await getFioSdk().getFioBalance(fioPublicKey)
         return response['balance'] || 0
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO getFioBalance')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getFioBalance')
         return 0
     }
 }
 
 export const getSentFioRequests = async (fioPublicKey, limit = 100, offset = 0) => {
-    const privateKey = '5Kbb37EAqQgZ9vWUHoPiC2uXYhyGSFNbL6oiDp24Ea1ADxV1qnu'
-
     try {
-        const response = await getFioSDK(fioPublicKey, privateKey).getSentFioRequests(limit, offset)
-        return (response['requests'] || []).map(request => ({
-            ...request,
-            contentDecoded: request['content'] // TODO just for compatibility refactor to content and remove
-        }))
+        BlocksoftCryptoLog.log(`FIO getSentFioRequests started ${fioPublicKey}`)
+        const response = await getFioSdk().getSentFioRequests(limit, offset)
+        return response['requests'] || []
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO getSentFioRequests')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getSentFioRequests')
         return []
     }
 }
 
 export const getPendingFioRequests = async (fioPublicKey, limit = 100, offset = 0) => {
-    const privateKey = '5Kbb37EAqQgZ9vWUHoPiC2uXYhyGSFNbL6oiDp24Ea1ADxV1qnu'
-
     try {
-        const response = await getFioSDK(fioPublicKey, privateKey).getPendingFioRequests(limit, offset)
-        return (response['requests'] || []).map(request => ({
-            ...request,
-            contentDecoded: request['content'] // TODO just for compatibility refactor to content and remove
-        }))
+        BlocksoftCryptoLog.log(`FIO getPendingFioRequests started ${fioPublicKey}`)
+        const response = await getFioSdk().getPendingFioRequests(limit, offset)
+        return response['requests'] || []
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO getPendingFioRequests')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getPendingFioRequests')
         return []
-    }
-}
-
-export const decodeFioData = ({content, payeePrivateKey, payerPublicKey}) => {
-    if (!content || !payeePrivateKey || !payerPublicKey) {
-        return null;
-    }
-
-    try {
-        const cipherAlice = Fio.createSharedCipher({privateKey: payeePrivateKey, publicKey: payerPublicKey, textEncoder, textDecoder})
-        return cipherAlice.decrypt('new_funds_content', content)
-    } catch (e) {
-        BlocksoftCryptoLog.err(e, e.json, 'FIO decodeFioData')
-        return null
     }
 }
 
@@ -116,14 +77,11 @@ export const decodeFioData = ({content, payeePrivateKey, payerPublicKey}) => {
  * @param chainCode Blockchain code for blockchain hosting this token.
  * @param tokenCode Token code to be used with that public address.
  * @param publicAddress The public address to be added to the FIO Address for the specified token.
- * @param privateKey the fio private key of the client sending requests to FIO API.
- * @param publicKey the fio public key of the client sending requests to FIO API.
  */
-export const addCryptoPublicAddress = async ({fioName, chainCode, tokenCode, publicAddress, publicKey, privateKey}) => {
+export const addCryptoPublicAddress = async ({fioName, chainCode, tokenCode, publicAddress}) => {
     try {
-        const maxFee = await getFioSDK().getFeeForAddPublicAddress(fioName)
-        const response = await getFioSDK(publicKey, privateKey)
-            .addPublicAddress(
+        const maxFee = await getFioSdk().getFeeForAddPublicAddress(fioName)
+        const response = await getFioSdk().addPublicAddress(
                 fioName,
                 chainCode,
                 tokenCode,
@@ -137,6 +95,51 @@ export const addCryptoPublicAddress = async ({fioName, chainCode, tokenCode, pub
         }
         return isOK
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO addPubAddress')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO addPubAddress')
+    }
+}
+
+
+/**
+ * Create a new funds request on the FIO chain.
+ *
+ * @param payerFioAddress FIO Address of the payer. This address will receive the request and will initiate payment.
+ * @param payeeFioAddress FIO Address of the payee. This address is sending the request and will receive payment.
+ * @param payeeTokenPublicAddress Payee's public address where they want funds sent.
+ * @param amount Amount requested.
+ * @param chainCode Blockchain code for blockchain hosting this token.
+ * @param tokenCode Code of the token represented in amount requested.
+ * @param memo
+ */
+export const requestFunds = async ({payerFioAddress, payeeFioAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, memo}) => {
+    try {
+        BlocksoftCryptoLog.log(`FIO requestFunds started ${payerFioAddress} -> ${payeeFioAddress} ${amount} ${tokenCode} (${chainCode})`)
+        const maxFee = await getFioSdk().getFeeForNewFundsRequest(payeeFioAddress)
+        const response = await getFioSdk().requestFunds(
+            payerFioAddress,
+            payeeFioAddress,
+            payeeTokenPublicAddress,
+            amount,
+            chainCode,
+            tokenCode,
+            memo,
+            maxFee['fee'] || 0,
+            null,
+            null,
+            null,
+            null,
+        )
+
+        await BlocksoftCryptoLog.log('FIO requestFunds result', response)
+        return response
+    } catch (e) {
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO requestFunds')
+        const errorMessage = e.json?.fields
+            ? e.json?.fields[0].error
+            : e.json?.message
+
+        return {
+            error: errorMessage || 'FIO request creation error'
+        }
     }
 }

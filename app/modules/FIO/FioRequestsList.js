@@ -13,8 +13,7 @@ import GradientView from '../../components/elements/GradientView'
 
 import RequestItem from './elements/RequestItem'
 import { getSentFioRequests, getPendingFioRequests } from '../../../crypto/blockchains/fio/FioUtils'
-import NavStore from '../../components/navigation/NavStore'
-
+import { connect } from 'react-redux'
 
 const DATA_PENDING = [
     {
@@ -84,14 +83,20 @@ class FioRequestsList extends Component {
     }
 
     async componentDidMount() {
-        const pendingRequests = await getPendingFioRequests("FIO5kJKNHwctcfUM5XZyiWSqSTM5HTzznJP9F3ZdbhaQAHEVq575o", 100, 0)
-        const sentRequests = await getSentFioRequests("FIO5kJKNHwctcfUM5XZyiWSqSTM5HTzznJP9F3ZdbhaQAHEVq575o", 100, 0)
-        console.log("sentRequests data:")
-        console.log(sentRequests)
-        console.log("pendingRequests data:")
-        console.log(pendingRequests)
-        this.setState({ pendingRequestsData: pendingRequests })
-        this.setState({ sentRequestsData: sentRequests })
+        const { accountList } = this.props.accountStore
+        const { selectedWallet } = this.props.mainStore
+
+        const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
+        if (publicFioAddress) {
+            const pendingRequests = await getPendingFioRequests(publicFioAddress, 100, 0)
+            const sentRequests = await getSentFioRequests(publicFioAddress, 100, 0)
+            console.log(sentRequests)
+            console.log(pendingRequests)
+            this.setState({
+                sentRequestsData: sentRequests,
+                pendingRequestsData: pendingRequests,
+            })
+        }
     }
 
     renderRequestList = (data) => {
@@ -102,15 +107,7 @@ class FioRequestsList extends Component {
                     <RequestItem
                         key={key}
                         data={item}
-                        callback={
-                            () => {
-                                console.log( item)
-                                NavStore.goNext('FioRequestDetails', {
-                                    requestDetailScreenParam: item
-                                })
-                            }
-                        }
-                    />
+                        callback={() => console.log("Request pressed array" + item.id) }/>
                 </>
             ))
         )
@@ -160,7 +157,7 @@ class FioRequestsList extends Component {
                             <View style={styles.container}>
 
                                 {this.renderRequestList(this.state.sentRequestsData)}
-                                
+
                                 {this.renderRequestList(DATA_SENT)}
 
                             </View>
@@ -174,7 +171,21 @@ class FioRequestsList extends Component {
     }
 }
 
-export default FioRequestsList
+
+const mapStateToProps = (state) => {
+    return {
+        mainStore: state.mainStore,
+        accountStore: state.accountStore,
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        dispatch
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FioRequestsList)
 
 const styles_ = {
     array: ['#555', '#999'],
@@ -209,8 +220,4 @@ const styles = {
         flexDirection: 'column',
         flex: 1,
     },
-
-
-
-
 }

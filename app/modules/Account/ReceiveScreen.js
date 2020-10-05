@@ -113,8 +113,6 @@ class ReceiveScreen extends Component {
                         chainCode,
                         tokenCode: currencyCode,
                         publicAddress: address,
-                        publicKey: fioAccount?.address,
-                        privateKey: '', // TODO resolve account private key
                     })
                     if (isAddressCreated) {
                         Log.log(`ReceiveScreen.resolveAddressByFio Successfully added public address ${currencyCode}(${chainCode}) to ${fioName}`)

@@ -2,17 +2,36 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Image, TextInput, KeyboardAvoidingView  } from 'react-native'
+import { View, Text, TextInput, KeyboardAvoidingView  } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
 import { strings } from '../../services/i18n'
 import Feather from 'react-native-vector-icons/Feather'
+import NavStore from '../../components/navigation/NavStore'
+import { requestFunds } from '../../../crypto/blockchains/fio/FioUtils'
 
 
 
 class FioSendRequest extends Component {
 
+    handleNext = async () => {
+        const result = await requestFunds({
+            payerFioAddress: 'kir2@fiotestnet',
+            payeeFioAddress: 'kir@fiotestnet',
+            payeeTokenPublicAddress: '1Ppa9CzfAYLd5pUyFGc5GzFwDUUBkCVJVr',
+            amount: 1,
+            chainCode: 'BTC',
+            tokenCode: 'BTC',
+            memo: 'some memo',
+        })
+
+        if (result['fio_request_id']) {
+            NavStore.goBack(null) // TODO all fine, return to some screen
+        } else {
+            console.log(result['error']) // TODO some error, show some tooltip?
+        }
+    }
 
     render() {
         return (
@@ -75,7 +94,7 @@ class FioSendRequest extends Component {
 
 
                         <View style={{marginTop: 20}}>
-                            <Button press={() => console.log('select FIO pressed')}>
+                            <Button press={this.handleNext}>
                                 {strings('FioSendRequest.btnText')}
                             </Button>
                         </View>
@@ -112,7 +131,7 @@ const styles = {
     },
 
     wrapper__icon: {
-        fontSize: 14, 
+        fontSize: 14,
     },
 
     input: {
