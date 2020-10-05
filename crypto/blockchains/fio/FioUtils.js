@@ -2,6 +2,7 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import { getFioSdk } from './FioSdkWrapper'
 import config from '../../../app/config/config'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
+import { Fio } from '@fioprotocol/fiojs'
 
 export const DERIVE_PATH = "m/44'/235'/0'/0/0";
 
@@ -82,15 +83,15 @@ export const getPendingFioRequests = async (fioPublicKey, limit = 100, offset = 
  */
 export const addCryptoPublicAddress = async ({fioName, chainCode, tokenCode, publicAddress}) => {
     try {
-        const maxFee = await getFioSdk().getFeeForAddPublicAddress(fioName)
+        const { fee = 0 } = await getFioSdk().getFeeForAddPublicAddress(fioName)
         const response = await getFioSdk().addPublicAddress(
-                fioName,
-                chainCode,
-                tokenCode,
-                publicAddress,
-                maxFee['fee'] || 0,
-                null
-            )
+            fioName,
+            chainCode,
+            tokenCode,
+            publicAddress,
+            fee,
+            null
+        )
         const isOK = response['status'] === 'OK'
         if (!isOK) {
             await BlocksoftCryptoLog.log('FIO addPublicAddress error', response)
@@ -116,7 +117,7 @@ export const addCryptoPublicAddress = async ({fioName, chainCode, tokenCode, pub
 export const requestFunds = async ({payerFioAddress, payeeFioAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, memo}) => {
     try {
         BlocksoftCryptoLog.log(`FIO requestFunds started ${payerFioAddress} -> ${payeeFioAddress} ${amount} ${tokenCode} (${chainCode})`)
-        const maxFee = await getFioSdk().getFeeForNewFundsRequest(payeeFioAddress)
+        const { fee = 0 } = await getFioSdk().getFeeForNewFundsRequest(payeeFioAddress)
         const response = await getFioSdk().requestFunds(
             payerFioAddress,
             payeeFioAddress,
@@ -125,7 +126,7 @@ export const requestFunds = async ({payerFioAddress, payeeFioAddress, payeeToken
             chainCode,
             tokenCode,
             memo,
-            maxFee['fee'] || 0,
+            fee,
             null,
             null,
             null,
@@ -146,13 +147,14 @@ export const requestFunds = async ({payerFioAddress, payeeFioAddress, payeeToken
     }
 }
 
-export const getTransactions = async () => {
+export const getTransactions = async (publicKey) => {
     const { apiEndpoints: { historyURL } } = config.fio
 
     try {
+        const accountHash = Fio.accountHash(publicKey);
         const response = await BlocksoftAxios.post(`${historyURL}get_actions`, {
-            "account_name": "zbwprrzymskb",
-            "pos": -1
+            'account_name': accountHash,
+            'pos': -1
         })
         return response?.data['actions'] || []
     } catch (e) {
@@ -161,3 +163,16 @@ export const getTransactions = async () => {
     }
 }
 
+export const transferTokens = async (addressTo, amount) => {
+    try {
+        const { fee = 0 } = await getFioSdk().getFee('transfer_tokens_pub_key')
+        const result = await getFioSdk().transferTokens(addressTo, amount, fee, null)
+        return result['transaction_id']
+    } catch (e) {
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO transferTokens')
+        const errorMessage = e.json?.fields
+            ? e.json?.fields[0].error
+            : e.json?.message
+        throw new Error(errorMessage || 'FIO token transfer error')
+    }
+}

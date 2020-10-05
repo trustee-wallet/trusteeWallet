@@ -1,6 +1,8 @@
 /**
  * @version 0.11
  */
+import { getFioSdk } from './FioSdkWrapper'
+import { getFioBalance, transferTokens } from './FioUtils'
 
 export default class FioTransferProcessor {
 
@@ -48,7 +50,10 @@ export default class FioTransferProcessor {
      * @returns {Promise<string>}
      */
     async getTransferAllBalance(data, balanceRaw) {
-        return 0
+        const { fee = 0 } = await getFioSdk().getFee('transfer_tokens_pub_key')
+        const balance = await getFioBalance(data.addressFrom)
+
+        return balance > 0 && balance > fee ? balance - fee : 0
     }
 
     /**
@@ -71,6 +76,8 @@ export default class FioTransferProcessor {
      * @param {string} data.jsonData.publicViewKey
      */
     async sendTx(data) {
-        return { hash: "rawTxHash" }
+        const txId = await transferTokens(data.addressTo, data.amount)
+
+        return { hash: txId }
     }
 }

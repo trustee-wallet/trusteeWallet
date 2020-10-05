@@ -65,7 +65,7 @@ export default class FioScannerProcessor {
      */
     async getTransactionsBlockchain(address, additionalData, walletHash) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' FioScannerProcessor.getTransactionsBlockchain started ' + address + ' of ' + walletHash)
-        // const transactions = await getTransactions()
+        const transactions = await getTransactions(address)
         return []
     }
 
