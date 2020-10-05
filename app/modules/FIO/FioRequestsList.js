@@ -5,9 +5,7 @@ import React, { Component } from 'react'
 import { View, Text, ScrollView, Image, TextInput, KeyboardAvoidingView, SafeAreaView, TouchableOpacity, Dimensions, PixelRatio  } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/Button'
 import { strings } from '../../services/i18n'
-import Feather from 'react-native-vector-icons/Feather'
 import Icon from '../../components/elements/CustomIcon.js'
 import GradientView from '../../components/elements/GradientView'
 
@@ -104,7 +102,6 @@ class FioRequestsList extends Component {
         return (
             data.map((item, key) => (
                 <>
-                    <Text style={styles.txt}>{item.date}</Text>
                     <RequestItem
                         key={key}
                         data={item}
@@ -146,8 +143,6 @@ class FioRequestsList extends Component {
 
                                 {this.renderRequestList(this.state.pendingRequestsData, 'pending')}
 
-                                {this.renderRequestList(DATA_PENDING, 'pending')}
-
                             </View>
                         </ScrollView>
 
@@ -166,8 +161,6 @@ class FioRequestsList extends Component {
                             <View style={styles.container}>
 
                                 {this.renderRequestList(this.state.sentRequestsData, 'sent')}
-
-                                {this.renderRequestList(DATA_SENT, 'sent')}
 
                             </View>
                         </ScrollView>

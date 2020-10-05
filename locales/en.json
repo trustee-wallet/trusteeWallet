@@ -454,7 +454,8 @@
     "title": "FIO Requests list",
     "pendingRequests": "Pending Requests",
     "sentRequests": "Sent Requests",
-  },                                                                                                                             
+    "RequestedTxt": "Requested"
+  },
 
   "FioRequestDetails": {
     "title": "FIO Request Details",

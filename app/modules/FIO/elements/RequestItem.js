@@ -6,6 +6,7 @@ import { View, Text, ScrollView, Image, KeyboardAvoidingView, SafeAreaView, Touc
 import { strings } from '../../../services/i18n'
 import Icon from '../../../components/elements/CustomIcon.js'
 import CurrencyIcon from '../../../components/elements/CurrencyIcon'
+import Moment from 'moment';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -27,7 +28,8 @@ class RequestItem extends Component {
 
         const { data, type, callback } = this.props
         const currencyCode = data?.content?.chain_code || 'NOCOIN'
-        
+        Moment.locale('en');
+
         return (
             <View >
                 <View style={{position: 'relative'}}>
@@ -37,12 +39,11 @@ class RequestItem extends Component {
                                 <View style={styles.request__col1}>
                                     <Icon name="selectWallet" size={25} style={styles.icon1}/>
                                     <View>
-                                        <Text style={styles.txt2}>{type}</Text>
-                                        {data.status == 'requested' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{data.payee_fio_address}</Text>}
-                                        {data.type == 'sent' && <Text style={styles.txt1}>{data.from}</Text>}
-                                        {data.type == 'pending' && <Text style={styles.txt1}>{data.title}</Text>}
-                                        <Text style={styles.txt2}>{data.time} - {data.descr}</Text>
-                                        <Text style={[styles.status, data.status == 'Rejected' ? styles.error : styles.success]} >{data.status}</Text>
+
+                                        {type == 'sent' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{data?.payer_fio_address}</Text>}
+                                        {type == 'pending' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{strings('FioRequestsList.RequestedTxt')} {data?.content?.token_code}</Text>}
+                                        <Text style={styles.txt2}>{Moment(data?.time_stamp).format('lll')} - {data?.content?.memo}</Text>
+                                        {type == 'sent' && <Text style={[styles.status, data.status == 'rejected' ? styles.error : styles.success]} >{data.status}</Text>  }
                                     </View>
                                 </View>
 
@@ -53,9 +54,8 @@ class RequestItem extends Component {
                                                   markTextStyle={styles.cryptoList__icon__mark__text}
                                                   iconStyle={styles.cryptoList__icon}/>
                                     <View>
-                                        <Text style={styles.txt3}>{data.sum}</Text>
                                         <Text style={styles.txt3}>{data?.content?.amount}</Text>
-                                        <Text style={styles.txt4}>{data.sumUSD}</Text>
+                                        <Text style={styles.txt4}>$ 0.0 {data?.content?.sumUSD}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -67,8 +67,15 @@ class RequestItem extends Component {
                 </View>
             </View>
         );
+
     }
 }
+
+/*
+* LOG  {"content": {"amount": "1", "chain_code": "BTC", "hash": null, "memo": "some memo", "offline_url": null, "payee_public_address": "1Ppa9CzfAYLd5pUyFGc5GzFwDUUBkCVJVr", "token_code": "BTC"}, "fio_request_id": 759, "payee_fio_address": "kir@fiotestnet", "pay
+ ee_fio_public_key": "FIO5xbYYdNs5a7Fe5nmkb7BeUFjpXYgkmJus8NMZUAeNyt8jgsEwB", "payer_fio_address": "kir2@fiotestnet", "payer_fio_public_key": "FIO67fELa4N8pLNJFGLnDwqLhiUo1zf5A1gwsTD8muoSDYmTUQSF6", "status": "requested", "time_stamp": "2020-10-05T10:54:44"}
+
+ * */
 
 export default RequestItem
 
@@ -134,7 +141,7 @@ const styles = {
     txt3: {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 13,
-        marginBottom: -10,
+        marginBottom: -4,
         minWidth: '50%',
     },
 
