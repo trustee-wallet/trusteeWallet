@@ -55,6 +55,8 @@ class AppVersionControl {
 
     async init() {
 
+        return false
+        
         const settingsDS = new Settings()
 
         let versionControl = await settingsDS.getSetting(this._settingsDBKey)

@@ -105,7 +105,7 @@
   },
   "tradeScreen": {
     "tryV3" : "Попробовать новый интерфейс",
-    "titleV3" : "Новый обмен",
+    "titleV3" : "Обмен",
     "youGet": "Получаете:",
     "youGive": "Отдаете:",
     "crypto": "Криптовалюта",
@@ -721,6 +721,23 @@
     "walletExist": "Кошелек уже импортирован в приложение.",
     "createTitle": "Генерация кошелька",
     "importTitle": "Импорт кошелька",
+    "importGoogle": "Google Drive",
+    "importGoogleError": {
+      "title" : "Not Connected",
+      "description" : "Please try again or check access permissions"
+    },
+    "importGoogleNoWallet": {
+      "title" : "No Backup File",
+      "description" : "Encrypted backup file not found"
+    },
+    "backupGoogleHasWallet" : {
+      "title" : "Already Created Backup File",
+      "description" : "Remove backup file to recreate"
+    },
+    "backupGoogleSuccess" : {
+      "title" : "Created Backup File",
+      "description" : "Dont remove backup file to restore after application installation"
+    },
     "name": "Назовите кошелек",
     "submit": "Дальше",
     "words12": "слов",
@@ -782,7 +799,8 @@
     "sell": "Продать",
     "wallet": "Кошелек",
     "exchange": "Обмен",
-    "settings": "Настройки"
+    "earn": "Заработать",
+    "settings": "Больше"
   },
   "modal": {
     "titles": {
@@ -869,7 +887,7 @@
       "title": "Увеличить комиссию",
       "description": "Функция редактирования транзакции до подтверждения майнерами (Replace-by-Fee) ",
       "statusEnable": "включена.",
-      "statusDisable": "отключена.", 
+      "statusDisable": "отключена.",
       "descriptionAdd": "Вы можете включить ее для монет BTC, ETH, DOGE и токенов ERC20!",
       "cancel": "Отмена"
     },

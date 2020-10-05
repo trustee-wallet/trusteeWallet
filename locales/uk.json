@@ -105,7 +105,7 @@
    },
    "tradeScreen": {
      "tryV3" : "Спробувати новий інтерфейс",
-     "titleV3" : "Новий обмін",
+     "titleV3" : "Обмін",
      "youGet": "Отримуєте:",
      "youGive": "Віддаєте:",
      "crypto": "Криптовалюта",
@@ -727,6 +727,23 @@
     "walletExist": "Гаманець вже імпортований у додаток.",
     "createTitle": "Генерація гаманця",
     "importTitle": "Імпорт гаманця",
+    "importGoogle": "Google Drive",
+    "importGoogleError": {
+      "title" : "Not Connected",
+      "description" : "Please try again or check access permissions"
+    },
+    "importGoogleNoWallet": {
+      "title" : "No Backup File",
+      "description" : "Encrypted backup file not found"
+    },
+    "backupGoogleHasWallet" : {
+      "title" : "Already Created Backup File",
+      "description" : "Remove backup file to recreate"
+    },
+    "backupGoogleSuccess" : {
+      "title" : "Created Backup File",
+      "description" : "Dont remove backup file to restore after application installation"
+    },
     "name": "Назвіть гаманець",
     "submit": "Далі",
     "words12": "слів",
@@ -788,7 +805,8 @@
     "sell": "Продати",
     "wallet": "Гаманець",
     "exchange": "Обмін",
-    "settings": "Налаштування"
+    "earn": "Заробити",
+    "settings": "Більше"
   },
   "modal": {
     "titles": {
@@ -875,7 +893,7 @@
       "title": "Збільшити комісію",
       "description": "Функція редагування транзакції до підтвердження майнерами (Replace-by-Fee) ",
       "statusEnable": "увімкнена.",
-      "statusDisable": "відключена.", 
+      "statusDisable": "відключена.",
       "descriptionAdd": "Ви можете увімкнути її для монет BTC, ETH, DOGE і токенів ERC20!",
       "cancel": "Відміна"
     },

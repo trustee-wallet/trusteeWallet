@@ -429,6 +429,18 @@ export default class ButtonLine extends Component {
                     </View>
                 )
 
+            case 'CUSTOM_TTCrypto':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#404040', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name="TRX_TTCrypto" style={{ color: '#404040', fontSize: fontSize, marginRight: 1 }}/>
+                        </View>
+                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                <CustomIcon name="TRX" style={{ color: '#E51A31' }} fontSize={13}/>
+                        </View>
+                    </View>
+                )
+
             default:
                 break
         }

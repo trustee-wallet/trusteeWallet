@@ -474,8 +474,11 @@ class ConfirmSendScreen extends Component {
         }
 
         // recheck amount to show less digits in erc-20
-        amount = BlocksoftPrettyNumbers.makePretty(BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makeUnPretty(amount))
-
+        const newAmount = BlocksoftPrettyNumbers.makePretty(BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makeUnPretty(amount))
+        Log.log('ConfirmSendScreen makePretty/makePretty ' + account.currencyCode + ' '  + amount + ' => ' + newAmount)
+        if (typeof newAmount !== 'undefined' && newAmount*1 > 0) {
+            amount = newAmount + ''
+        }
 
         let titleMsg = ''
         if (typeof transactionReplaceByFee !== 'undefined' && transactionReplaceByFee) {
@@ -486,6 +489,23 @@ class ConfirmSendScreen extends Component {
             titleMsg = strings('send.confirmModal.title')
         }
 
+        let amountFirst = ''
+        let amountSecond = ''
+
+        if (amount && typeof amount.split !== 'undefined') {
+            const tmp = amount.split('.')
+            if (typeof tmp[1] !== 'undefined') {
+                amountFirst = tmp[0] + '.'
+                amountSecond =  tmp[1].slice(0, 7) + ' '
+            } else if (typeof tmp[0] !== 'undefined') {
+                amountFirst = tmp[0]
+                amountSecond = ''
+            }
+        } else {
+            if (typeof amount.split === 'undefined') {
+                throw new Error('ConfirmSendScreen.render split is undefined')
+            }
+        }
         return (
             <GradientView style={styles.bg} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <View style={styles.wrapper}>
@@ -511,13 +531,12 @@ class ConfirmSendScreen extends Component {
                                     <View style={styles.content__text}>
                                         <Text style={styles.content__text_first}>
                                             {
-                                                // @misha
-                                                typeof amount.split('.')[1] !== 'undefined' ? amount.split('.')[0] + '.' : amount.split('.')[0]
+                                                amountFirst
                                             }
                                         </Text>
                                         <Text style={styles.content__text_last}>
                                             {
-                                                typeof amount.split('.')[1] !== 'undefined' ? amount.split('.')[1].slice(0, 7) + ' ' + currencySymbol : ' ' + currencySymbol
+                                                amountSecond + currencySymbol
                                             }
                                         </Text>
                                     </View>

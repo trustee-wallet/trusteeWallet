@@ -110,11 +110,12 @@ class CashbackScreen extends Component {
         })
 
         try {
-            await Netinfo.isInternetReachable()
 
+            await Netinfo.isInternetReachable()
             await UpdateCashBackDataDaemon.updateCashBackDataDaemon({ force: true })
 
         } catch (e) {
+
             if (Log.isNetworkError(e.message)) {
                 Log.log(e.message)
             } else {
@@ -334,9 +335,17 @@ class CashbackScreen extends Component {
             cashbackParentToken
         })
 
+        let timePrep
+        if (time) {
+            const timeDate = new Date(time)
+            timePrep = timeDate.toLocaleTimeString()
+            if (timeDate.toDateString() !== new Date().toDateString()) {
+                timePrep = timeDate.getDate() + '/' + (timeDate.getMonth() + 1) + ' ' + timePrep
+            }
+        }
         return (
             <View style={styles.wrapper}>
-                <Navigation title={strings('cashback.pageTitle')}>
+                <Navigation isBack={false} title={strings('cashback.pageTitle')}>
                     {this.renderAuthComponent()}
                 </Navigation>
                 <ScrollView
@@ -396,7 +405,7 @@ class CashbackScreen extends Component {
                                           end={styles.cashbackInfoBg.end}>
                                 <View style={styles.cashbackInfo__row}>
                                     <View style={styles.cashbackInfo__content}>
-                                        {error ?
+                                        {error && errorTime > time ?
                                             <View style={styles.cashbackInfo__item}>
                                                 <Text style={[styles.cashbackInfo__text]} numberOfLines={1}>
                                                     {strings('cashback.cashbackError.' + error)}
@@ -412,7 +421,7 @@ class CashbackScreen extends Component {
                                             </Text>
                                             <Text style={[styles.cashbackInfo__title]}>
                                                 {': '}
-                                                {time ? new Date(time).toLocaleTimeString() : '-'}
+                                                {time ? timePrep : '-'}
                                             </Text>
                                         </View>
                                         <View style={styles.cashbackInfo__item}>

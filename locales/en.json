@@ -105,7 +105,7 @@
   },
   "tradeScreen": {
     "tryV3" : "Try new interface",
-    "titleV3" : "New exchange",
+    "titleV3" : "Exchange",
     "youGet": "You get:",
     "youGive": "You give:",
     "crypto": "Crypto",
@@ -714,6 +714,23 @@
     "walletExist": "The wallet has been already imported.",
     "createTitle": "Create new wallet",
     "importTitle": "Import wallet",
+    "importGoogle": "Google Drive",
+    "importGoogleError": {
+      "title" : "Not Connected",
+      "description" : "Please try again or check access permissions"
+    },
+    "importGoogleNoWallet": {
+      "title" : "No Backup File",
+      "description" : "Encrypted backup file not found"
+    },
+    "backupGoogleHasWallet" : {
+      "title" : "Already Created Backup File",
+      "description" : "Remove backup file to recreate"
+    },
+    "backupGoogleSuccess" : {
+      "title" : "Created Backup File",
+      "description" : "Dont remove backup file to restore after application installation"
+    },
     "name": "wallet name",
     "submit": "Submit",
     "words12": "words",
@@ -775,7 +792,8 @@
     "sell": "Sell",
     "wallet": "Wallet",
     "exchange": "Exchange",
-    "settings": "Settings"
+    "earn": "Earn",
+    "settings": "More"
   },
   "modal": {
     "titles": {
@@ -862,7 +880,7 @@
       "title": "Replace by fee",
       "description": "The function of editing a transaction before confirmation by miners (Replace-by-Fee) is ",
       "statusEnable": "enabled.",
-      "statusDisable": "disabled.", 
+      "statusDisable": "disabled.",
       "descriptionAdd": "You can enable it for BTC, ETH, DOGE and ERC20 tokens!",
       "cancel": "Cancel"
     },
