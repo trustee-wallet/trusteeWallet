@@ -7,6 +7,7 @@ import 'react-native'
 import * as Keychain from 'react-native-keychain'
 
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import { fioSdkWrapper } from '../../blockchains/fio/FioSdkWrapper'
 
 export class BlocksoftKeysStorage {
 
@@ -142,6 +143,8 @@ export class BlocksoftKeysStorage {
         if (tmp && tmp.pub) {
             this.publicSelectedWallet = tmp.pub
             BlocksoftCryptoLog.log('BlocksoftKeysStorage publicSelectedWallet by selected_hash', this.publicSelectedWallet)
+
+            await fioSdkWrapper.init(tmp.priv)
         }
         if (!this.publicSelectedWallet || !this._serviceWallets[this.publicSelectedWallet]) {
             this.publicSelectedWallet = firstWallet
