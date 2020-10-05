@@ -100,7 +100,7 @@ class FioRequestsList extends Component {
         }
     }
 
-    renderRequestList = (data) => {
+    renderRequestList = (data, type) => {
         return (
             data.map((item, key) => (
                 <>
@@ -108,6 +108,7 @@ class FioRequestsList extends Component {
                     <RequestItem
                         key={key}
                         data={item}
+                        type={type}
                         callback={
                             () => {
                                 console.log( item)
@@ -130,7 +131,6 @@ class FioRequestsList extends Component {
 
 
                     <View style={{paddingTop: 80, height: '100%'}}>
-
                         <GradientView
                                       array={styles_.array}
                                       start={styles_.start} end={styles_.end}>
@@ -144,16 +144,16 @@ class FioRequestsList extends Component {
                         <ScrollView>
                             <View style={styles.container}>
 
-                                {this.renderRequestList(this.state.pendingRequestsData)}
+                                {this.renderRequestList(this.state.pendingRequestsData, 'pending')}
 
-                                {this.renderRequestList(DATA_PENDING)}
+                                {this.renderRequestList(DATA_PENDING, 'pending')}
 
                             </View>
                         </ScrollView>
 
 
                         <GradientView
-                                        array={styles_.array}
+                                      array={styles_.array}
                                       start={styles_.start} end={styles_.end}>
                             <View style={styles.title_section}>
                                 <Icon name="reload" size={20} style={styles.icon1}/>
@@ -165,9 +165,9 @@ class FioRequestsList extends Component {
                         <ScrollView>
                             <View style={styles.container}>
 
-                                {this.renderRequestList(this.state.sentRequestsData)}
+                                {this.renderRequestList(this.state.sentRequestsData, 'sent')}
 
-                                {this.renderRequestList(DATA_SENT)}
+                                {this.renderRequestList(DATA_SENT, 'sent')}
 
                             </View>
                         </ScrollView>

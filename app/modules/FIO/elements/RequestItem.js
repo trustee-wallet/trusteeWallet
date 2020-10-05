@@ -25,7 +25,7 @@ class RequestItem extends Component {
 
     render() {
 
-        const { data, callback } = this.props
+        const { data, type, callback } = this.props
         const currencyCode = data?.content?.chain_code || 'NOCOIN'
         
         return (
@@ -37,6 +37,7 @@ class RequestItem extends Component {
                                 <View style={styles.request__col1}>
                                     <Icon name="selectWallet" size={25} style={styles.icon1}/>
                                     <View>
+                                        <Text style={styles.txt2}>{type}</Text>
                                         {data.status == 'requested' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{data.payee_fio_address}</Text>}
                                         {data.type == 'sent' && <Text style={styles.txt1}>{data.from}</Text>}
                                         {data.type == 'pending' && <Text style={styles.txt1}>{data.title}</Text>}
