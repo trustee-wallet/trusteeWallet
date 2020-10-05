@@ -12,7 +12,7 @@ import Icon from '../../components/elements/CustomIcon.js'
 import GradientView from '../../components/elements/GradientView'
 
 import RequestItem from './elements/RequestItem'
-import { getSentFioRequests } from '../../../crypto/blockchains/fio/FioUtils'
+import { getSentFioRequests, getPendingFioRequests } from '../../../crypto/blockchains/fio/FioUtils'
 
 
 const DATA_PENDING = [
@@ -85,7 +85,9 @@ class FioRequestsList extends Component {
     async componentDidMount() {
         const pendingRequests = await getPendingFioRequests("FIO5kJKNHwctcfUM5XZyiWSqSTM5HTzznJP9F3ZdbhaQAHEVq575o", 100, 0)
         const sentRequests = await getSentFioRequests("FIO5kJKNHwctcfUM5XZyiWSqSTM5HTzznJP9F3ZdbhaQAHEVq575o", 100, 0)
+        console.log("sentRequests data:")
         console.log(sentRequests)
+        console.log("pendingRequests data:")
         console.log(pendingRequests)
         this.setState({ pendingRequestsData: pendingRequests })
         this.setState({ sentRequestsData: sentRequests })
