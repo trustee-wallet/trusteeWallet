@@ -65,8 +65,19 @@ export default class FioScannerProcessor {
      */
     async getTransactionsBlockchain(address, additionalData, walletHash) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' FioScannerProcessor.getTransactionsBlockchain started ' + address + ' of ' + walletHash)
-        const transactions = await getTransactions(address)
-        return []
+        const response = await getTransactions(address)
+        const actions = response['actions'] || []
+        const lastBlock = response['last_irreversible_block']
+
+        const transactions = []
+        let tx
+        for (tx of actions) {
+            const transaction = await this._unifyTransaction(address, lastBlock, tx)
+            if (transaction) {
+                transactions.push(transaction)
+            }
+        }
+        return transactions
     }
 
     /**
@@ -92,19 +103,27 @@ export default class FioScannerProcessor {
      * @return  {Promise<UnifiedTransaction>}
      * @private
      */
-    _unifyTransaction(address, lastBlock, transaction) {
+    async _unifyTransaction(address, lastBlock, transaction) {
+        const txData = transaction.action_trace?.act?.data
+        if (!txData?.payee_public_key || transaction.action_trace.receiver !== 'fio.token') {
+            return false
+        }
+
+        const transactionStatus = lastBlock - transaction['block_num'] > 5 ? 'success' : 'new'
+        const direction = (address === txData?.payee_public_key) ? 'income' : 'outcome'
+
         return {
-            transactionHash: '',
+            transactionHash: transaction['action_trace']['trx_id'],
             blockHash: '',
-            blockNumber: 0,
-            blockTime: '',
-            blockConfirmations: 0,
-            transactionDirection: 'income',
-            addressFrom: '',
-            addressTo: '',
-            addressAmount: 0,
-            transactionStatus: "transactionStatus",
-            transactionFee: 0
+            blockNumber: transaction['block_num'],
+            blockTime: transaction['block_time'],
+            blockConfirmations: lastBlock - transaction['block_num'],
+            transactionDirection: direction,
+            addressFrom: direction === 'income' ? '-' : txData?.payee_public_key,
+            addressTo: direction === 'income' ? txData?.payee_public_key : address,
+            addressAmount: txData?.amount,
+            transactionStatus: transactionStatus,
+            transactionFee: txData?.max_fee || 0
         }
     }
 }

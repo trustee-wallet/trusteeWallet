@@ -156,7 +156,7 @@ export const getTransactions = async (publicKey) => {
             'account_name': accountHash,
             'pos': -1
         })
-        return response?.data['actions'] || []
+        return response?.data
     } catch (e) {
         await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getTransactions')
         return []
