@@ -98,3 +98,48 @@ export const addCryptoPublicAddress = async ({fioName, chainCode, tokenCode, pub
         await BlocksoftCryptoLog.err(e, e.json, 'FIO addPubAddress')
     }
 }
+
+
+/**
+ * Create a new funds request on the FIO chain.
+ *
+ * @param payerFioAddress FIO Address of the payer. This address will receive the request and will initiate payment.
+ * @param payeeFioAddress FIO Address of the payee. This address is sending the request and will receive payment.
+ * @param payeeTokenPublicAddress Payee's public address where they want funds sent.
+ * @param amount Amount requested.
+ * @param chainCode Blockchain code for blockchain hosting this token.
+ * @param tokenCode Code of the token represented in amount requested.
+ * @param memo
+ */
+export const requestFunds = async ({payerFioAddress, payeeFioAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, memo}) => {
+    try {
+        BlocksoftCryptoLog.log(`FIO requestFunds started ${payerFioAddress} -> ${payeeFioAddress} ${amount} ${tokenCode} (${chainCode})`)
+        const maxFee = await getFioSdk().getFeeForNewFundsRequest(payeeFioAddress)
+        const response = await getFioSdk().requestFunds(
+            payerFioAddress,
+            payeeFioAddress,
+            payeeTokenPublicAddress,
+            amount,
+            chainCode,
+            tokenCode,
+            memo,
+            maxFee['fee'] || 0,
+            null,
+            null,
+            null,
+            null,
+        )
+
+        await BlocksoftCryptoLog.log('FIO requestFunds result', response)
+        return response
+    } catch (e) {
+        await BlocksoftCryptoLog.err(e, e.json, 'FIO requestFunds')
+        const errorMessage = e.json?.fields
+            ? e.json?.fields[0].error
+            : e.json?.message
+
+        return {
+            error: errorMessage || 'FIO request creation error'
+        }
+    }
+}
