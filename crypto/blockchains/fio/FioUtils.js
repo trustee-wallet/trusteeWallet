@@ -1,5 +1,7 @@
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import { getFioSdk } from './FioSdkWrapper'
+import config from '../../../app/config/config'
+import BlocksoftAxios from '../../common/BlocksoftAxios'
 
 export const DERIVE_PATH = "m/44'/235'/0'/0/0";
 
@@ -143,3 +145,19 @@ export const requestFunds = async ({payerFioAddress, payeeFioAddress, payeeToken
         }
     }
 }
+
+export const getTransactions = async () => {
+    const { apiEndpoints: { historyURL } } = config.fio
+
+    try {
+        const response = await BlocksoftAxios.post(`${historyURL}get_actions`, {
+            "account_name": "zbwprrzymskb",
+            "pos": -1
+        })
+        return response?.data['actions'] || []
+    } catch (e) {
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getTransactions')
+        return []
+    }
+}
+

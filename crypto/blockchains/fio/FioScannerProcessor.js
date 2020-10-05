@@ -1,5 +1,5 @@
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
-import { getFioBalance } from './FioUtils'
+import { getFioBalance, getTransactions } from './FioUtils'
 
 export default class FioScannerProcessor {
 
@@ -50,7 +50,11 @@ export default class FioScannerProcessor {
      */
     async getBalanceBlockchain(address, additionalData, walletHash) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' FioScannerProcessor.getBalance started ' + address + ' of ' + walletHash)
-        return getFioBalance(address)
+        const balance = await getFioBalance(address)
+        return {
+            balance,
+            unconfirmed: 0,
+        }
     }
 
     /**
@@ -60,7 +64,8 @@ export default class FioScannerProcessor {
      * @return {Promise<UnifiedTransaction[]>}
      */
     async getTransactionsBlockchain(address, additionalData, walletHash) {
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' FioScannerProcessor.getBalance started ' + address + ' of ' + walletHash)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' FioScannerProcessor.getTransactionsBlockchain started ' + address + ' of ' + walletHash)
+        // const transactions = await getTransactions()
         return []
     }
 
@@ -87,7 +92,7 @@ export default class FioScannerProcessor {
      * @return  {Promise<UnifiedTransaction>}
      * @private
      */
-    async _unifyTransaction(address, lastBlock, transaction) {
+    _unifyTransaction(address, lastBlock, transaction) {
         return {
             transactionHash: '',
             blockHash: '',

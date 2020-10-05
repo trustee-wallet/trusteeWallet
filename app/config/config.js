@@ -74,6 +74,7 @@ const config = {
     fio: {
         apiEndpoints: {
             baseURL: 'http://testnet.fioprotocol.io/v1/',
+            historyURL: 'https://testnet.fio.dev/v1/history/',
             registrationSiteURL: 'https://reg.fioprotocol.io/ref/trustee?publicKey=',
         },
     },

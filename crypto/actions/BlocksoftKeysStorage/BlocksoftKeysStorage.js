@@ -143,8 +143,6 @@ export class BlocksoftKeysStorage {
         if (tmp && tmp.pub) {
             this.publicSelectedWallet = tmp.pub
             BlocksoftCryptoLog.log('BlocksoftKeysStorage publicSelectedWallet by selected_hash', this.publicSelectedWallet)
-
-            await fioSdkWrapper.init(tmp.priv)
         }
         if (!this.publicSelectedWallet || !this._serviceWallets[this.publicSelectedWallet]) {
             this.publicSelectedWallet = firstWallet
@@ -152,6 +150,9 @@ export class BlocksoftKeysStorage {
         }
         BlocksoftCryptoLog.log('BlocksoftKeysStorage init ended')
         this._serviceWasInited = true
+
+        const mnemonic = await this.getWalletMnemonic(this.publicSelectedWallet)
+        await fioSdkWrapper.init(mnemonic)
     }
 
     async reInit() {
