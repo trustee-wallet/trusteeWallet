@@ -12,7 +12,7 @@ export const isFioAddressRegistered = async (address) => {
         const response = await getFioSdk().isAvailable(address)
         return response['is_registered'] === 1
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO sFioAddressRegistered')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO sFioAddressRegistered')
         return false
     }
 }
@@ -22,7 +22,7 @@ export const getPubAddress = async (fioAddress, chainCode, tokenCode) => {
         const response = await getFioSdk().getPublicAddress(fioAddress, chainCode, tokenCode)
         return response['public_address']
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO getPubFioAddress')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getPubFioAddress')
         return null
     }
 }
@@ -33,7 +33,7 @@ export const getFioName = async (fioPublicKey) => {
         const [ fioAddress ] = response['fio_addresses'] || []
         return fioAddress['fio_address']
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO getFioNames')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getFioNames')
         return null
     }
 }
@@ -43,7 +43,7 @@ export const getFioBalance = async (fioPublicKey) => {
         const response = await getFioSdk().getFioBalance(fioPublicKey)
         return response['balance'] || 0
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO getFioBalance')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getFioBalance')
         return 0
     }
 }
@@ -54,7 +54,7 @@ export const getSentFioRequests = async (fioPublicKey, limit = 100, offset = 0) 
         const response = await getFioSdk().getSentFioRequests(limit, offset)
         return response['requests'] || []
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO getSentFioRequests')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getSentFioRequests')
         return []
     }
 }
@@ -65,7 +65,7 @@ export const getPendingFioRequests = async (fioPublicKey, limit = 100, offset = 
         const response = await getFioSdk().getPendingFioRequests(limit, offset)
         return response['requests'] || []
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO getPendingFioRequests')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getPendingFioRequests')
         return []
     }
 }
@@ -95,7 +95,7 @@ export const addCryptoPublicAddress = async ({fioName, chainCode, tokenCode, pub
         }
         return isOK
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO addPubAddress')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO addPubAddress')
     }
 }
 
@@ -133,7 +133,7 @@ export const requestFunds = async ({payerFioAddress, payeeFioAddress, payeeToken
         await BlocksoftCryptoLog.log('FIO requestFunds result', response)
         return response
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, e.json, 'FIO requestFunds')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO requestFunds')
         const errorMessage = e.json?.fields
             ? e.json?.fields[0].error
             : e.json?.message

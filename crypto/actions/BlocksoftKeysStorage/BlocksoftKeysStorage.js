@@ -219,6 +219,9 @@ export class BlocksoftKeysStorage {
             await this._setKeyValue('selected_hash', hashOrId)
         }
         BlocksoftCryptoLog.log(msg + this.publicSelectedWallet)
+
+        const mnemonic = await this.getWalletMnemonic(hashOrId)
+        await fioSdkWrapper.init(mnemonic)
         return this.publicSelectedWallet
     }
 
