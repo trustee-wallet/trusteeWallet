@@ -539,13 +539,17 @@ class ReceiveScreen extends Component {
                             </View>
                         </View>
 
-                            <TouchableOpacity style={{marginTop: 20}}
-                                              onPress={this.handleFioRequestCreate}>
-                                <LightButton color={color} Icon={(props) => <Feather color={color} size={10}
-                                                                                 name={'edit'} {...props} />}
-                                         title={strings('account.receiveScreen.FIORequest')}
-                                         iconStyle={{ marginHorizontal: 3 }}/>
-                            </TouchableOpacity>
+                        {
+                            fioName ? (
+                                <TouchableOpacity style={{marginTop: 20}}
+                                                  onPress={this.handleFioRequestCreate}>
+                                    <LightButton color={color} Icon={(props) => <Feather color={color} size={10}
+                                                                                         name={'edit'} {...props} />}
+                                                 title={strings('account.receiveScreen.FIORequest')}
+                                                 iconStyle={{ marginHorizontal: 3 }}/>
+                                </TouchableOpacity>
+                            ) : null
+                        }
 
                         <View style={styles.options}>
                             <TouchableOpacity style={styles.options__item} onPress={this.handleBuy}>
