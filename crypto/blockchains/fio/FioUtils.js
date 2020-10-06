@@ -187,3 +187,40 @@ export const rejectFioFundsRequest = async (fioRequestId, payerFioAddress) => {
         await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO rejectFioRequest')
     }
 }
+
+/**
+ *
+ * Records information on the FIO blockchain about a transaction that occurred on other blockchain, i.e. 1 BTC was sent on Bitcoin Blockchain, and both
+ * sender and receiver have FIO Addresses. OBT stands for Other Blockchain Transaction
+ *
+ * @param fioRequestId ID of funds request, if this Record Send transaction is in response to a previously received funds request.  Send empty if no FIO Request ID
+ * @param payerFioAddress FIO Address of the payer. This address initiated payment.
+ * @param payeeFioAddress FIO Address of the payee. This address is receiving payment.
+ * @param payerTokenPublicAddress Public address on other blockchain of user sending funds.
+ * @param payeeTokenPublicAddress Public address on other blockchain of user receiving funds.
+ * @param amount Amount sent.
+ * @param chainCode Blockchain code for blockchain hosting this token.
+ * @param tokenCode Code of the token represented in Amount requested, i.e. BTC.
+ * @param obtId Other Blockchain Transaction ID (OBT ID), i.e Bitcoin transaction ID.
+ */
+export const recordFioObtData = async ({
+                                           fioRequestId,
+                                           payerFioAddress,
+                                           payeeFioAddress,
+                                           payerTokenPublicAddress,
+                                           payeeTokenPublicAddress,
+                                           amount,
+                                           chainCode,
+                                           tokenCode,
+                                           obtId
+                                       }) => {
+    try {
+        const sdk = getFioSdk()
+        const { fee = 0 } = await sdk.getFeeForRecordObtData(payerFioAddress)
+        const result = await sdk.recordObtData(fioRequestId, payerFioAddress, payeeFioAddress, payerTokenPublicAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, 'sent_to_blockchain', obtId, fee, null, null, null, null, null)
+        return !!result['status']
+    } catch (e) {
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO rejectFioRequest')
+    }
+}
+
