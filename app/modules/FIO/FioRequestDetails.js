@@ -18,6 +18,7 @@ class FioRequestDetails extends Component {
         this.state = {
             fioRequestId: null,
             payerFioAddress: null,
+            requestDetailData: [],
         }
     }
 
@@ -27,6 +28,7 @@ class FioRequestDetails extends Component {
         console.log(data)
 
         this.setState({
+            requestDetailData: data,
             fioRequestId: 757,
             payerFioAddress: 'kir@fiotestnet'
         })
@@ -65,11 +67,11 @@ class FioRequestDetails extends Component {
                                                           markStyle={styles.cryptoList__icon__mark}
                                                           markTextStyle={styles.cryptoList__icon__mark__text}
                                                           iconStyle={styles.cryptoList__icon}/>
-                                            <Text style={styles.txt3}>Send from My Bitcoin</Text>
+                                            <Text style={styles.txt3}>Send from My {this.state.requestDetailData?.content?.token_code}</Text>
                                         </View>
 
                                         <View style={styles.flex__container}>
-                                            <Text style={styles.txt}>BTC</Text>
+                                            <Text style={styles.txt}>{this.state.requestDetailData?.content?.token_code}</Text>
                                             <Text style={styles.txt}>B 0.000005</Text>
                                         </View>
 
@@ -88,9 +90,9 @@ class FioRequestDetails extends Component {
                                 </View>
 
                                 <Text style={styles.txt}>{strings('FioRequestDetails.fee')}: + B 0.000033 ($0.03)</Text>
-                                <Text style={styles.txt2}>{strings('FioRequestDetails.to')}: pm7@fiotestnet</Text>
-                                <Text style={styles.txt2}>{strings('FioRequestDetails.from')}: pm7@fiotestnet</Text>
-                                <Text style={styles.txt2}>{strings('FioRequestDetails.memo')}: For demo</Text>
+                                <Text style={styles.txt2}>{strings('FioRequestDetails.to')}: {this.state.requestDetailData?.payee_fio_address}</Text>
+                                <Text style={styles.txt2}>{strings('FioRequestDetails.from')}: {this.state.requestDetailData?.payer_fio_address}</Text>
+                                <Text style={styles.txt2}>{strings('FioRequestDetails.memo')}: {this.state.requestDetailData?.content?.memo}</Text>
                             </View>
 
                         </KeyboardAvoidingView>
