@@ -12,6 +12,7 @@ import NavStore from '../../components/navigation/NavStore'
 import { requestFunds } from '../../../crypto/blockchains/fio/FioUtils'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import Toast from '../../services/UI/Toast/Toast'
+import CurrencyIcon from '../../components/elements/CurrencyIcon'
 
 
 
@@ -68,6 +69,15 @@ class FioSendRequest extends Component {
 
                 <View style={{paddingTop: 90, height: '100%'}}>
                     <View style={styles.container}>
+
+                        <View style={styles.subheader}>
+                            <CurrencyIcon currencyCode={this.state.fioRequestDetails.currencySymbol !== this.state.fioRequestDetails.chainCode ? `${this.state.fioRequestDetails.chainCode}_${this.state.fioRequestDetails.currencySymbol}` : this.state.fioRequestDetails.currencySymbol}
+                                          containerStyle={styles.cryptoList__icoWrap}
+                                          markStyle={styles.cryptoList__icon__mark}
+                                          markTextStyle={styles.cryptoList__icon__mark__text}
+                                          iconStyle={styles.cryptoList__icon}/>
+                            <Text style={styles.subheaderTxt}>{this.state.fioRequestDetails.currencySymbol}</Text>
+                        </View>
 
 
                         <KeyboardAvoidingView behavior="padding">
@@ -149,6 +159,22 @@ const styles = {
         height: '100%',
         flexDirection: 'column',
         flex: 1,
+    },
+
+    subheader: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: -25,
+        marginBottom: 15,
+    },
+
+    subheaderTxt: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 18,
+        color: '#333',
+        paddingLeft: 10,
     },
 
     input__wrapper: {
