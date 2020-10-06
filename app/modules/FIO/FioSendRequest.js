@@ -115,8 +115,8 @@ class FioSendRequest extends Component {
                                     <Feather style={styles.wrapper__icon} name='edit'/>
                                 </View>
                                 <TextInput
-                                    multiline={true}
-                                    numberOfLines={3}
+                                    multiline={false}
+                                    numberOfLines={1}
                                     style={styles.input}
                                     onChangeText={(text) => this.setState({memo: text})}
                                     value={this.state.memo}
