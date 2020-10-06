@@ -103,6 +103,7 @@ class SendScreen extends Component {
             inputType: 'CRYPTO',
 
             toTransactionJSON: {},
+            fioRequestDetails: {},
 
             copyAddress: false
         }
@@ -132,6 +133,23 @@ class SendScreen extends Component {
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
             this.init()
         })
+    }
+
+    componentDidMount() {
+        const fioRequest = this.props.navigation.getParam('fioRequestDetails')
+        if (fioRequest) {
+            if (fioRequest.content?.token_code === 'FIO') {
+                this.addressInput.handleInput(fioRequest.payee_fio_address)
+            } else {
+                this.addressInput.handleInput(fioRequest.content?.payee_public_address)
+            }
+            this.commentInput.handleInput(fioRequest.content?.memo)
+            this.valueInput.handleInput(fioRequest.content?.amount)
+
+            this.setState({
+                fioRequestDetails: fioRequest
+            })
+        }
     }
 
     init = async () => {
@@ -428,7 +446,7 @@ class SendScreen extends Component {
 
         Log.log('SendScreen.handleSendTransaction started ' + (force ? 'FORCE' : 'usual'))
 
-        const { account, cryptoCurrency, toTransactionJSON, useAllFunds } = this.state
+        const { account, cryptoCurrency, toTransactionJSON, useAllFunds, fioRequestDetails } = this.state
 
         const addressValidation = await this.addressInput.handleValidate()
         const valueValidation = await this.valueInput.handleValidate()
@@ -585,7 +603,8 @@ class SendScreen extends Component {
                 }
 
                 NavStore.goNext('ConfirmSendScreen', {
-                    confirmSendScreenParam: data
+                    confirmSendScreenParam: data,
+                    fioRequestDetails: fioRequestDetails
                 })
 
                 MarketingEvent.checkSellConfirm({

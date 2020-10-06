@@ -10,15 +10,16 @@ import { strings } from '../../services/i18n'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
 import { rejectFioFundsRequest } from '../../../crypto/blockchains/fio/FioUtils'
 import NavStore from '../../components/navigation/NavStore'
+import { setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
+import Log from '../../services/Log/Log'
+import { connect } from 'react-redux'
 
 class FioRequestDetails extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            fioRequestId: null,
-            payerFioAddress: null,
-            requestDetailData: [],
+            requestDetailData: {},
         }
     }
 
@@ -29,18 +30,33 @@ class FioRequestDetails extends Component {
 
         this.setState({
             requestDetailData: data,
-            fioRequestId: 757,
-            payerFioAddress: 'kir@fiotestnet'
         })
     }
 
     handleReject = async () => {
-        const { fioRequestId, payerFioAddress } = this.state
-        const isRejected = await rejectFioFundsRequest(fioRequestId, payerFioAddress)
+        // eslint-disable-next-line camelcase
+        const { fio_request_id, payer_fio_address } = this.state.requestDetailData
+        const isRejected = await rejectFioFundsRequest(fio_request_id, payer_fio_address)
         if (isRejected) {
             NavStore.goBack(null)
         } else {
             // error
+        }
+    }
+
+    handleConfirm = async () => {
+        const { content } = this.state.requestDetailData
+        const currency = this.props.currencyStore.cryptoCurrencies.find(item => item.currencyCode === content?.chain_code)
+
+        try {
+            setSelectedCryptoCurrency(currency)
+            await setSelectedAccount()
+
+            NavStore.goNext('SendScreen', {
+                fioRequestDetails: this.state.requestDetailData
+            })
+        } catch (e) {
+            await Log.err('FioRequestDetails handleConfirm error ' + e.message, content?.chain_code)
         }
     }
 
@@ -106,7 +122,7 @@ class FioRequestDetails extends Component {
                                     </Button>
                                 </View>
                                 <View style={styles.btn__holder}>
-                                    <Button press={() => console.log('confirm button pressed')}>
+                                    <Button press={this.handleConfirm}>
                                         {strings('FioRequestDetails.btnTextConfirm')}
                                     </Button>
                                 </View>
@@ -121,7 +137,20 @@ class FioRequestDetails extends Component {
     }
 }
 
-export default FioRequestDetails
+const mapStateToProps = (state) => {
+    return {
+        mainStore: state.mainStore,
+        currencyStore: state.currencyStore
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        dispatch
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FioRequestDetails)
 
 
 const styles = {
