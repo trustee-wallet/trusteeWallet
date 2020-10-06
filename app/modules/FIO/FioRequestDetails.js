@@ -84,7 +84,7 @@ class FioRequestDetails extends Component {
                                 <View style={styles.info__section}>
                                     <View style={styles.info__section__content}>
                                         <View style={[styles.flex__container, styles.flex__start]}>
-                                            <CurrencyIcon currencyCode={'BTC'}
+                                            <CurrencyIcon currencyCode={this.state.requestDetailData?.content?.token_code || 'NOCOIN'}
                                                           containerStyle={styles.cryptoList__icoWrap}
                                                           markStyle={styles.cryptoList__icon__mark}
                                                           markTextStyle={styles.cryptoList__icon__mark__text}
