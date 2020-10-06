@@ -10,6 +10,7 @@ import { strings } from '../../services/i18n'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
 import { rejectFioFundsRequest } from '../../../crypto/blockchains/fio/FioUtils'
 import NavStore from '../../components/navigation/NavStore'
+import Moment from 'moment';
 import { setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
 import Log from '../../services/Log/Log'
 import { connect } from 'react-redux'
@@ -31,6 +32,8 @@ class FioRequestDetails extends Component {
         this.setState({
             requestDetailData: data,
         })
+
+        Moment.locale('en');
     }
 
     handleReject = async () => {
@@ -43,6 +46,8 @@ class FioRequestDetails extends Component {
             // error
         }
     }
+
+
 
     handleConfirm = async () => {
         const { content } = this.state.requestDetailData
@@ -71,8 +76,9 @@ class FioRequestDetails extends Component {
                         <KeyboardAvoidingView behavior="padding">
 
                             <View>
-                                <Text style={styles.txt}>{strings('FioRequestDetails.balance')}: 0.000025 BTC ($0.24)</Text>
-                                <Text style={styles.txt}>1 BTC = $9,700.70 USD</Text>
+                                {/*<Text style={styles.txt}>{strings('FioRequestDetails.balance')}: 0.000025 BTC ($0.24)</Text>*/}
+                                {/*<Text style={styles.txt}>1 BTC = $9,700.70 USD</Text>*/}
+                                <Text style={styles.txt2}>Request created: {Moment(this.state.requestDetailData?.time_stamp).format('lll')}</Text>
 
 
                                 <View style={styles.info__section}>
@@ -105,7 +111,7 @@ class FioRequestDetails extends Component {
                                     </View>
                                 </View>
 
-                                <Text style={styles.txt}>{strings('FioRequestDetails.fee')}: + B 0.000033 ($0.03)</Text>
+                                {/*<Text style={styles.txt}>{strings('FioRequestDetails.fee')}: + B 0.000033 ($0.03)</Text>*/}
                                 <Text style={styles.txt2}>{strings('FioRequestDetails.to')}: {this.state.requestDetailData?.payee_fio_address}</Text>
                                 <Text style={styles.txt2}>{strings('FioRequestDetails.from')}: {this.state.requestDetailData?.payer_fio_address}</Text>
                                 <Text style={styles.txt2}>{strings('FioRequestDetails.memo')}: {this.state.requestDetailData?.content?.memo}</Text>

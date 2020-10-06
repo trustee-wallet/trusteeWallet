@@ -219,6 +219,7 @@ const styles = {
     container: {
         padding: 15,
         height: '100%',
+        minHeight: 180,
         flexDirection: 'column',
         flex: 1,
     },
