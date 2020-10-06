@@ -8,16 +8,38 @@ import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
 import { strings } from '../../services/i18n'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
-
-
+import { rejectFioFundsRequest } from '../../../crypto/blockchains/fio/FioUtils'
+import NavStore from '../../components/navigation/NavStore'
 
 class FioRequestDetails extends Component {
 
+    constructor(props) {
+        super(props)
+        this.state = {
+            fioRequestId: null,
+            payerFioAddress: null,
+        }
+    }
 
     async componentDidMount() {
         const data = this.props.navigation.getParam('requestDetailScreenParam')
         console.log("requestDetailScreenParam data")
         console.log(data)
+
+        this.setState({
+            fioRequestId: 757,
+            payerFioAddress: 'kir@fiotestnet'
+        })
+    }
+
+    handleReject = async () => {
+        const { fioRequestId, payerFioAddress } = this.state
+        const isRejected = await rejectFioFundsRequest(fioRequestId, payerFioAddress)
+        if (isRejected) {
+            NavStore.goBack(null)
+        } else {
+            // error
+        }
     }
 
     render() {
@@ -77,7 +99,7 @@ class FioRequestDetails extends Component {
                         <View style={{marginTop: 20}}>
                             <View style={styles.btn__container}>
                                 <View style={styles.btn__holder}>
-                                    <Button press={() => console.log('reject button pressed')}>
+                                    <Button press={this.handleReject}>
                                         {strings('FioRequestDetails.btnTextReject')}
                                     </Button>
                                 </View>
@@ -123,7 +145,7 @@ const styles = {
         marginVertical: 10,
         zIndex: 2,
     },
-    
+
     flex__container: {
         display: 'flex',
         flexDirection: 'row',

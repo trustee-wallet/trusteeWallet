@@ -176,3 +176,14 @@ export const transferTokens = async (addressTo, amount) => {
         throw new Error(errorMessage || 'FIO token transfer error')
     }
 }
+
+export const rejectFioFundsRequest = async (fioRequestId, payerFioAddress) => {
+    try {
+        const sdk = getFioSdk()
+        const { fee = 0 } = await sdk.getFeeForRejectFundsRequest(payerFioAddress)
+        const result = await sdk.rejectFundsRequest(`${fioRequestId}`, fee, null)
+        return result['status'] === 'request_rejected'
+    } catch (e) {
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO rejectFioRequest')
+    }
+}
