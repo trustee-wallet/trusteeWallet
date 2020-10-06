@@ -72,7 +72,7 @@ class FioRequestDetails extends Component {
 
                                         <View style={styles.flex__container}>
                                             <Text style={styles.txt}>{this.state.requestDetailData?.content?.token_code}</Text>
-                                            <Text style={styles.txt}>B 0.000005</Text>
+                                            <Text style={styles.txt}>{this.state.requestDetailData?.content?.amount}</Text>
                                         </View>
 
                                         <View style={styles.flex__container}>
