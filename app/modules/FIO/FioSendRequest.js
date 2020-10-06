@@ -10,27 +10,55 @@ import { strings } from '../../services/i18n'
 import Feather from 'react-native-vector-icons/Feather'
 import NavStore from '../../components/navigation/NavStore'
 import { requestFunds } from '../../../crypto/blockchains/fio/FioUtils'
+import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import Toast from '../../services/UI/Toast/Toast'
 
 
 
 class FioSendRequest extends Component {
 
+    constructor(props) {
+        super(props)
+        this.state = {
+            fioRequestDetails: {},
+            payerFioAddress: '',
+            payeeFioAddress: '',
+            amount: null,
+            memo: '',
+        }
+    }
+
+    componentDidMount() {
+        const fioRequestDetails = this.props.navigation.getParam('fioRequestDetails')
+        if (fioRequestDetails) {
+            this.setState({
+                fioRequestDetails: fioRequestDetails,
+                payeeFioAddress: fioRequestDetails.fioName,
+            })
+        }
+    }
+
     handleNext = async () => {
+        const { fioRequestDetails, amount, memo, payerFioAddress, payeeFioAddress } = this.state
+        setLoaderStatus(true)
+
         const result = await requestFunds({
-            payerFioAddress: 'kir2@fiotestnet',
-            payeeFioAddress: 'kir@fiotestnet',
-            payeeTokenPublicAddress: '1Ppa9CzfAYLd5pUyFGc5GzFwDUUBkCVJVr',
-            amount: 1,
-            chainCode: 'BTC',
-            tokenCode: 'BTC',
-            memo: 'some memo',
+            payerFioAddress,
+            payeeFioAddress,
+            payeeTokenPublicAddress: fioRequestDetails.address,
+            amount,
+            chainCode: fioRequestDetails.chainCode,
+            tokenCode: fioRequestDetails.currencySymbol,
+            memo,
         })
 
         if (result['fio_request_id']) {
-            NavStore.goBack(null) // TODO all fine, return to some screen
+            NavStore.goBack(null)
+            Toast.setMessage(strings('FioSendRequest.created')).show()
         } else {
-            console.log(result['error']) // TODO some error, show some tooltip?
+            Toast.setMessage(result['error']).show()
         }
+        setLoaderStatus(false)
     }
 
     render() {
@@ -50,7 +78,8 @@ class FioSendRequest extends Component {
                                 </View>
                                 <TextInput
                                     style={styles.input}
-                                    onChangeText={text => console.log('Input changed')}
+                                    editable={false}
+                                    value={this.state.payeeFioAddress}
                                 />
                             </View>
 
@@ -62,7 +91,8 @@ class FioSendRequest extends Component {
                                 </View>
                                 <TextInput
                                     style={styles.input}
-                                    onChangeText={text => console.log('Input changed')}
+                                    onChangeText={(text) => this.setState({payerFioAddress: text})}
+                                    value={this.state.payerFioAddress}
                                 />
                             </View>
 
@@ -73,7 +103,8 @@ class FioSendRequest extends Component {
                                 </View>
                                 <TextInput
                                     style={styles.input}
-                                    onChangeText={text => console.log('Input changed')}
+                                    onChangeText={(text) => this.setState({amount: text})}
+                                    value={this.state.amount}
                                 />
                             </View>
 
@@ -87,7 +118,8 @@ class FioSendRequest extends Component {
                                     multiline={true}
                                     numberOfLines={3}
                                     style={styles.input}
-                                    onChangeText={text => console.log('Input changed')}
+                                    onChangeText={(text) => this.setState({memo: text})}
+                                    value={this.state.memo}
                                 />
                             </View>
                         </KeyboardAvoidingView>

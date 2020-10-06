@@ -447,7 +447,8 @@
     "to": "Send Request To",
     "amount": "Amount",
     "memo": "Memo",
-    "btnText": "Next"
+    "btnText": "Next",
+    "created": "FIO request created"
   },
 
   "FioRequestsList": {

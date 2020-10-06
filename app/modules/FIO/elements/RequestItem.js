@@ -18,16 +18,11 @@ if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
 
 class RequestItem extends Component {
 
-    constructor(props) {
-        super(props)
-    }
-
-
-
     render() {
 
         const { data, type, callback } = this.props
-        const currencyCode = data?.content?.chain_code || 'NOCOIN'
+        const currencyCode = data?.content?.token_code || 'NOCOIN'
+        const chainCode = data?.content?.chain_code || 'NOCOIN'
         Moment.locale('en');
 
         return (
@@ -39,16 +34,15 @@ class RequestItem extends Component {
                                 <View style={styles.request__col1}>
                                     <Icon name="selectWallet" size={25} style={styles.icon1}/>
                                     <View>
-
-                                        {type == 'sent' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{data?.payer_fio_address}</Text>}
-                                        {type == 'pending' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{strings('FioRequestsList.RequestedTxt')} {data?.content?.token_code}</Text>}
+                                        {type === 'sent' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{data?.payer_fio_address}</Text>}
+                                        {type === 'pending' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{strings('FioRequestsList.RequestedTxt')} {data?.content?.token_code}</Text>}
                                         <Text style={styles.txt2}>{Moment(data?.time_stamp).format('lll')} - {data?.content?.memo}</Text>
-                                        {type == 'sent' && <Text style={[styles.status, data.status == 'rejected' ? styles.error : styles.success]} >{data.status}</Text>  }
+                                        {type === 'sent' && <Text style={[styles.status, data.status === 'rejected' ? styles.error : styles.success]} >{data.status}</Text>  }
                                     </View>
                                 </View>
 
                                 <View style={styles.request__col2}>
-                                    <CurrencyIcon currencyCode={currencyCode}
+                                    <CurrencyIcon currencyCode={currencyCode !== chainCode ? `${chainCode}_${currencyCode}` : currencyCode}
                                                   containerStyle={styles.cryptoList__icoWrap}
                                                   markStyle={styles.cryptoList__icon__mark}
                                                   markTextStyle={styles.cryptoList__icon__mark__text}

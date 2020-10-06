@@ -6,6 +6,17 @@ import { Fio } from '@fioprotocol/fiojs'
 
 export const DERIVE_PATH = "m/44'/235'/0'/0/0";
 
+export const resolveChainCode = (currencyCode, currencySymbol) => {
+    let chainCode = currencyCode
+    if (typeof currencyCode !== 'undefined' && currencyCode !== currencySymbol) {
+        const tmp = currencyCode.split('_')
+        if (typeof tmp[0] !== 'undefined' && tmp[0]) {
+            chainCode = tmp[0]
+        }
+    }
+    return chainCode
+}
+
 export const isFioAddressRegistered = async (address) => {
     if (!address || !address.includes('@')) {
         return false;

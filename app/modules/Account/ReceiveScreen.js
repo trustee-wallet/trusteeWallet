@@ -58,7 +58,7 @@ import QrCodeBox from '../../components/elements/QrCodeBox'
 import OldPhone from '../../services/UI/OldPhone/OldPhone'
 import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import { addCryptoPublicAddress, getFioName, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
+import { addCryptoPublicAddress, getFioName, getPubAddress, resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
 import DaemonCache from '../../daemons/DaemonCache'
 
 let styles
@@ -93,25 +93,18 @@ class ReceiveScreen extends Component {
             if (fioName) {
                 const { currencyCode, currencySymbol } = this.props.cryptoCurrency
                 const address = this.getAddress()
+                const chainCode = resolveChainCode(currencyCode, currencySymbol)
 
-                let chainCode = currencyCode
-                if (typeof currencyCode !== 'undefined' && currencyCode === currencySymbol) {
-                    const tmp = currencyCode.split('_')
-                    if (typeof tmp[0] !== 'undefined' && tmp[0]) {
-                        chainCode = tmp[0]
-                    }
-                }
-
-                const publicAddress = await getPubAddress(fioName, chainCode, currencyCode)
+                const publicAddress = await getPubAddress(fioName, chainCode, currencySymbol)
                 if (publicAddress) {
-                    Log.log(`ReceiveScreen.resolveAddressByFio Resolved ${currencyCode}(${chainCode}) public address ${publicAddress} by ${fioName}`)
+                    Log.log(`ReceiveScreen.resolveAddressByFio Resolved ${currencySymbol}(${chainCode}) public address ${publicAddress} by ${fioName}`)
                     this.setState({ fioName })
                 } else {
-                    Log.log(`ReceiveScreen.resolveAddressByFio Public address ${currencyCode}(${chainCode}) by ${fioName} not found`)
+                    Log.log(`ReceiveScreen.resolveAddressByFio Public address ${currencySymbol}(${chainCode}) by ${fioName} not found`)
                     const isAddressCreated = await addCryptoPublicAddress({
                         fioName,
                         chainCode,
-                        tokenCode: currencyCode,
+                        tokenCode: currencySymbol,
                         publicAddress: address,
                     })
                     if (isAddressCreated) {
@@ -292,6 +285,22 @@ class ReceiveScreen extends Component {
                 address,
                 currencySymbol,
                 currencyCode
+            }
+        })
+    }
+
+    handleFioRequestCreate = () => {
+        const { currencyCode, currencySymbol } = this.props.cryptoCurrency
+        const { fioName } = this.state
+        const address = this.getAddress()
+        const chainCode = resolveChainCode(currencyCode, currencySymbol)
+
+        NavStore.goNext('FioSendRequest', {
+            fioRequestDetails: {
+                fioName,
+                address,
+                chainCode,
+                currencySymbol
             }
         })
     }
@@ -531,7 +540,7 @@ class ReceiveScreen extends Component {
                         </View>
 
                             <TouchableOpacity style={{marginTop: 20}}
-                                              onPress={() => NavStore.goNext('FioSendRequest')}>
+                                              onPress={this.handleFioRequestCreate}>
                                 <LightButton color={color} Icon={(props) => <Feather color={color} size={10}
                                                                                  name={'edit'} {...props} />}
                                          title={strings('account.receiveScreen.FIORequest')}
