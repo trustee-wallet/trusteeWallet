@@ -101,10 +101,10 @@ class FioRequestDetails extends Component {
                                             <View style={styles.line2}></View>
                                         </View>
 
-                                        <View style={styles.flex__container}>
+                                        {/*<View style={styles.flex__container}>
                                             <Text style={styles.txt4}>USD</Text>
                                             <Text style={styles.txt4}>$ 0.004</Text>
-                                        </View>
+                                        </View>*/}
                                     </View>
                                     <View style={styles.shadow}>
                                         <View style={styles.shadow__item}/>
@@ -119,7 +119,7 @@ class FioRequestDetails extends Component {
 
                         </KeyboardAvoidingView>
 
-                        {this.state.requestDetailData?.status !== 'requested' &&
+                        { !this.state.requestDetailData?.status &&
                             <View style={{marginTop: 20}}>
                                 <View style={styles.btn__container}>
                                     <View style={styles.btn__holder}>
