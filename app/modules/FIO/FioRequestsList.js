@@ -14,62 +14,6 @@ import { getSentFioRequests, getPendingFioRequests } from '../../../crypto/block
 import { connect } from 'react-redux'
 import NavStore from '../../components/navigation/NavStore'
 
-const DATA_PENDING = [
-    {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        title: 'Requested BTC 1',
-        date: '9/29/2020',
-        time: '4:42 PM',
-        descr: 'Demo request',
-        currencyCode: 'BTC',
-        sum: '0.0005',
-        sumUSD: '$ 0.04',
-        status: 'Recieved',
-        type: 'pending',
-    },
-    {
-        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        title: 'Requested ETH',
-        date: '9/29/2020',
-        time: '4:42 PM',
-        descr: 'Demo request',
-        currencyCode: 'ETH',
-        sum: '0.0005',
-        sumUSD: '$ 0.04',
-        status: 'Rejected',
-        type: 'pending',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Requested BTC 3',
-        date: '9/29/2020',
-        time: '4:42 PM',
-        descr: 'Demo request',
-        currencyCode: 'BTC',
-        sum: '0.0005',
-        sumUSD: '$ 0.04',
-        status: 'Recieved',
-        type: 'pending',
-    },
-];
-
-const DATA_SENT = [
-    {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        title: 'Requested BTC 1',
-        date: '9/29/2020',
-        time: '4:42 PM',
-        descr: 'Demo request',
-        currencyCode: 'BTC',
-        sum: '0.0005',
-        sumUSD: '$ 0.04',
-        from: 'pm@fio.testnet',
-        status: 'Recieved',
-        type: 'sent',
-    },
-];
-
-
 class FioRequestsList extends Component {
 
     constructor(props) {
@@ -89,8 +33,8 @@ class FioRequestsList extends Component {
         if (publicFioAddress) {
             const pendingRequests = await getPendingFioRequests(publicFioAddress, 100, 0)
             const sentRequests = await getSentFioRequests(publicFioAddress, 100, 0)
-            console.log(sentRequests)
-            console.log(pendingRequests)
+            //console.log(sentRequests)
+            //console.log(pendingRequests)
             this.setState({
                 sentRequestsData: sentRequests,
                 pendingRequestsData: pendingRequests,
@@ -108,7 +52,6 @@ class FioRequestsList extends Component {
                         type={type}
                         callback={
                             () => {
-                                console.log( item)
                                 NavStore.goNext('FioRequestDetails', {
                                     requestDetailScreenParam: item
                                 })

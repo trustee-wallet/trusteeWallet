@@ -26,8 +26,8 @@ class FioRequestDetails extends Component {
 
     async componentDidMount() {
         const data = this.props.navigation.getParam('requestDetailScreenParam')
-        console.log("requestDetailScreenParam data")
-        console.log(data)
+        //console.log("requestDetailScreenParam data")
+        //console.log(data)
 
         this.setState({
             requestDetailData: data,
