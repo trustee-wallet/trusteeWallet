@@ -119,21 +119,22 @@ class FioRequestDetails extends Component {
 
                         </KeyboardAvoidingView>
 
-
-                        <View style={{marginTop: 20}}>
-                            <View style={styles.btn__container}>
-                                <View style={styles.btn__holder}>
-                                    <Button press={this.handleReject}>
-                                        {strings('FioRequestDetails.btnTextReject')}
-                                    </Button>
-                                </View>
-                                <View style={styles.btn__holder}>
-                                    <Button press={this.handleConfirm}>
-                                        {strings('FioRequestDetails.btnTextConfirm')}
-                                    </Button>
+                        {this.state.requestDetailData?.status !== 'requested' &&
+                            <View style={{marginTop: 20}}>
+                                <View style={styles.btn__container}>
+                                    <View style={styles.btn__holder}>
+                                        <Button press={this.handleReject}>
+                                            {strings('FioRequestDetails.btnTextReject')}
+                                        </Button>
+                                    </View>
+                                    <View style={styles.btn__holder}>
+                                        <Button press={this.handleConfirm}>
+                                            {strings('FioRequestDetails.btnTextConfirm')}
+                                        </Button>
+                                    </View>
                                 </View>
                             </View>
-                        </View>
+                        }
 
 
                     </View>
