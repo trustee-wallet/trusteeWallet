@@ -13,3 +13,11 @@ if (typeof atob === 'undefined') {
     return new Buffer(b64Encoded, 'base64').toString('binary');
   };
 }
+
+if (typeof global.crypto !== 'object') {
+    global.crypto = {}
+}
+
+if (typeof global.crypto.getRandomValues !== 'function') {
+    global.crypto.getRandomValues = require('react-native-blocksoft-random').getRandomBytes;
+}
