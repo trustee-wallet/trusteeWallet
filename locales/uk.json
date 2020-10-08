@@ -207,6 +207,8 @@
       "import": "Імпортувати гаманець",
       "create": "Створити новий гаманець",
       "select": "Обрати гаманець",
+      "fioRequest": "FIO запити",
+      "registerFioAddress": "Зарегиструвати FIO адресу",
       "turnOnHD" : "Увiмкнути деревовиднi адреси BTC"
     },
     "security": {
@@ -414,6 +416,7 @@
       "description": "Ваша %{currency} адреса:",
       "clickToCopy": "Натисніть, щоб скопіювати",
       "receiveAmount": "Вказати суму",
+      "FIORequest": "FIO запит",
       "share": "Поділитись",
       "copy": "Копіювати"
     },
@@ -424,6 +427,48 @@
       "list": "Облікові записи"
     }
   },
+
+   "FioChooseRecipient": {
+     "title": "Оберіть Fio отримувача",
+     "description": "Введіть FIO, ENS або публічну адресу отримувача",
+     "btnText": "Обрати FIO"
+   },
+
+   "FioChooseAddress": {
+     "title": "Обрати Fio адресу",
+     "description": "Введіть адресу щоб запросити платіж від",
+     "btnText": "Оберіть FIO адресу"
+   },
+
+   "FioSendRequest": {
+     "title": "Надіслати FIO запит",
+     "from": "Надіслати запит від",
+     "to": "Надіслати запит к",
+     "amount": "Кількість",
+     "memo": "Коментар",
+     "btnText": "Далі",
+     "created": "FIO запит створено"
+   },
+
+   "FioRequestsList": {
+     "title": "Список запитів FIO",
+     "pendingRequests": "Очикуючі запити",
+     "sentRequests": "Відправлені запити",
+     "RequestedTxt": "Запитано"
+   },
+
+   "FioRequestDetails": {
+     "title": "Деталі FIO запита",
+     "balance": "Баланс",
+     "fee": "Комісія",
+     "to": "К",
+     "from": "Від",
+     "memo": "FIO коментар",
+     "amount": "Кількість",
+     "btnTextReject": "Відхилити",
+     "btnTextConfirm": "Підтвердити"
+   },
+
   "exchangeInit": {
     "ordersHistory": "Історія ордерів",
     "ordersNull": "У Вас немає ордерів."
@@ -549,6 +594,7 @@
     "notEnough": "У Вас недостатньо коштів для відправки",
     "notEnoughForFee": "Для надсилання токенів потрібно мати позитивний баланс у нативній монеті %{symbol}",
     "notEnoughForFeeConfirmed": "Для надсилання токенів потрібно мати позитивний підтверджений баланс у нативній монеті %{symbol}, зачекайте на підтвердження або ввімкніть використання непідтвердженних транзакцій",
+    "publicFioAddressNotFound": "%{symbol} публічна адреса не зв'язана з вказаною FIO адресою",
     "confirmModal": {
       "title": "Підтвердження відправлення",
       "titleSpeedUp": "Підтвердження прискорення вхідної транзакції %{hash}",
