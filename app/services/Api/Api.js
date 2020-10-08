@@ -10,7 +10,8 @@ import { strings, sublocale } from '../i18n'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import CashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
+
+import MarketingEvent from '../Marketing/MarketingEvent'
 
 
 export default {
@@ -126,8 +127,8 @@ export default {
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
         data.cashbackToken = CashBackUtils.getWalletToken()
-        data.deviceToken = Log.LOG_TOKEN
-        data.walletHash = Log.LOG_WALLET
+        data.deviceToken = MarketingEvent.DATA.LOG_TOKEN
+        data.walletHash = MarketingEvent.DATA.LOG_WALLET
         if (data.exchangeWayId.toString().indexOf('ksu_') !== -1) {
             data.exchangeWayId = data.exchangeWayId.substr(4)
         }
@@ -175,10 +176,10 @@ export default {
         }
         data.cashbackToken = CashBackUtils.getWalletToken()
         data.exchangeCashbackToken = CashBackUtils.getWalletToken()
-        data.deviceToken = Log.LOG_TOKEN
+        data.deviceToken = MarketingEvent.DATA.LOG_TOKEN
         data.otherDeviceTokens = await AsyncStorage.getItem('allPushTokens')
-        data.platform = Log.LOG_PLATFORM
-        data.version = Log.LOG_VERSION
+        data.platform = MarketingEvent.DATA.LOG_PLATFORM
+        data.version = MarketingEvent.DATA.LOG_VERSION
         data.locale = sublocale()
         data.time = new Date().toLocaleTimeString()
         const { mode: exchangeMode, apiEndpoints } = config.exchange
@@ -200,10 +201,8 @@ export default {
             throw new Error('UI_ERROR_CASHBACK_SIGN_ERROR')
         }
         const cashbackToken = CashBackUtils.getWalletToken()
-
-
         const parentToken = CashBackUtils.getParentToken()
-        const deviceToken = Log.LOG_TOKEN
+        const deviceToken = MarketingEvent.DATA.LOG_TOKEN
 
         const getStatisticsReqData = {
             deviceToken,

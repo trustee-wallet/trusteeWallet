@@ -152,6 +152,10 @@ class BackupStep0Screen extends Component {
         NavStore.goNext('BackupStep1Screen')
     }
 
+    onGoogle = () => {
+        NavStore.goNext('BackupStepGoogle')
+    }
+
     renderSettingsIcon = () => {
         return (
             <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.openWalletSettings}>
@@ -296,6 +300,11 @@ class BackupStep0Screen extends Component {
                         {flowType !== 'BACKUP_WALLET_XMR' ?
                             <Button press={this.onPress} styles={{ marginBottom: 50 }}>
                                 {strings('walletBackup.written')}
+                            </Button> : null}
+
+                        {flowType !== 'BACKUP_WALLET_XMR' && false ?
+                            <Button press={this.onGoogle} styles={{ marginBottom: 50 }}>
+                                {strings('walletCreate.importGoogle')}
                             </Button> : null}
 
                     </View>

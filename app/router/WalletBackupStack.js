@@ -4,6 +4,7 @@
 import { createStackNavigator } from 'react-navigation-stack'
 import BackupStep0Screen from '../modules/WalletBackup/BackupStep0Screen'
 import BackupStep1Screen from '../modules/WalletBackup/BackupStep1Screen'
+import BackupStepGoogle from '../modules/WalletBackup/BackupStepGoogle'
 
 const WalletBackupStack = createStackNavigator(
     {
@@ -15,6 +16,12 @@ const WalletBackupStack = createStackNavigator(
         },
         BackupStep1Screen: {
             screen: BackupStep1Screen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+        BackupStepGoogle : {
+            screen: BackupStepGoogle,
             navigationOptions: {
                 headerShown: false
             }

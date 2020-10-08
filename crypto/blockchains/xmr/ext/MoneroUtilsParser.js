@@ -9,6 +9,11 @@ import { MyMoneroCoreBridgeRN } from 'mymonero-core-js/monero_utils/MyMoneroCore
 const MY_MONERO = { core: false, coreWasm : false }
 
 export default {
+
+    checkDestination(value) {
+        return f.IsValidPaymentIDOrNoPaymentID(value)
+    },
+
     async getCore() {
         if (MY_MONERO.core) {
             return MY_MONERO.core

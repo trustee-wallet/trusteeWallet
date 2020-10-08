@@ -31,6 +31,7 @@ import walletActions from '../../appstores/Stores/Wallet/WalletActions'
 import IconAwesome from 'react-native-vector-icons/FontAwesome'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
+import GoogleDrive from '../../services/Back/Google/GoogleDrive'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -46,9 +47,31 @@ class EnterMnemonicPhrase extends Component {
         super(props)
         this.state = {
             focused: false,
-            walletExist: false
+            walletExist: false,
+            googleMnemonic: false
         }
         this.mnemonicPhrase = React.createRef()
+    }
+
+    init() {
+        const data = this.props.navigation.getParam('flowSubtype')
+
+        if (data !== 'GOOGLE_SUBTYPE') {
+            return false
+        }
+        // somehow without state change init not loaded with ref
+        if (typeof this.mnemonicPhrase.handleInput !== 'undefined') {
+            if (!this.state.googleMnemonic) {
+                this.setState({ googleMnemonic: true })
+                this.mnemonicPhrase.handleInput(GoogleDrive.currentMnemonic())
+            }
+        } else {
+            this.setState({ googleMnemonic: false })
+        }
+    }
+
+    handleImportGoogle = async () => {
+        NavStore.goNext('EnterMnemonicPhraseGoogle')
     }
 
 
@@ -85,7 +108,7 @@ class EnterMnemonicPhrase extends Component {
 
             let tmpWalletName = walletName
 
-            if(!tmpWalletName) {
+            if (!tmpWalletName) {
                 tmpWalletName = await walletActions.getNewWalletName()
             }
 
@@ -95,7 +118,7 @@ class EnterMnemonicPhrase extends Component {
                 walletIsBackedUp: 1
             }, 'IMPORT')
 
-            await App.refreshWalletsStore({firstTimeCall : false, source : 'WalletCreate.EnterMnemonicPhrase'})
+            await App.refreshWalletsStore({ firstTimeCall: false, source: 'WalletCreate.EnterMnemonicPhrase' })
 
             setLoaderStatus(false)
 
@@ -179,11 +202,14 @@ class EnterMnemonicPhrase extends Component {
     }
 
     render() {
+        this.init()
+
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
 
         firebase.analytics().setCurrentScreen('WalletCreate.EnterMnemonicPhraseScreen')
         const { focused } = this.state
+
 
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
@@ -221,6 +247,9 @@ class EnterMnemonicPhrase extends Component {
                             <Button styles={styles.btn} press={this.handleImport}>
                                 {strings('walletCreate.importTitle')}
                             </Button>
+                            {false ? <Button styles={styles.btn} press={this.handleImportGoogle}>
+                                {strings('walletCreate.importGoogle')}
+                            </Button> : null}
                         </View>
                     </ScrollView>
                 </KeyboardAwareView>

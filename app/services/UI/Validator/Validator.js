@@ -11,6 +11,7 @@
 import { strings } from '../../i18n'
 import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
 import BtcCashUtils from '../../../../crypto/blockchains/bch/ext/BtcCashUtils'
+import MoneroUtilsParser from '../../../../crypto/blockchains/xmr/ext/MoneroUtilsParser'
 import { isFioAddressRegistered } from '../../../../crypto/blockchains/fio/FioUtils'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
@@ -182,7 +183,7 @@ async function _userDataValidation(obj) {
             value = value.trim()
             if (!value) {
                 return
-            } else if (!f.IsValidPaymentIDOrNoPaymentID(value)) {
+            } else if (!MoneroUtilsParser.checkDestination(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break

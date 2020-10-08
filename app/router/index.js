@@ -19,14 +19,26 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 function getStackTrace(err) {
     let stack = err.stack || ''
+    let isIndex = false
+    let deepIndex = 0
     stack = stack.split('\n').map(function(line) {
         const tmp = line.split('(http://localhost:')
-        if (tmp && tmp.length > 1) {
-            return tmp[0].trim()
+        deepIndex++
+        if (deepIndex > 3) {
+            return ''
         }
-        return line.trim()
+        if (tmp && tmp.length > 1) {
+            return tmp[0].trim() + ' '
+        }
+        if (line.indexOf('index.android.bundle') !== -1) {
+            if (isIndex) {
+                return ''
+            }
+            isIndex = true
+        }
+        return line.trim() + ' '
     })
-    return stack.splice(stack[0] === 'Error' ? 2 : 1)
+    return stack.splice(stack[0] === 'Error' ? 2 : 1).join('')
 }
 
 const myErrorHandler = (err) => {

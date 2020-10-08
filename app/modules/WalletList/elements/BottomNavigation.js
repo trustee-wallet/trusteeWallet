@@ -1,5 +1,5 @@
 /**
- * @version 0.10
+ * @version 0.11
  */
 import React, { Component } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
@@ -99,6 +99,10 @@ class BottomNavigation extends Component {
         NavStore.goNext('SettingsScreenStack')
     }
 
+    handleCashback = () => {
+        NavStore.goNext('CashbackScreen')
+    }
+
     returnBuyTooltip = () => {
         return (
             <View style={{ alignItems: 'center' }}>
@@ -141,6 +145,10 @@ class BottomNavigation extends Component {
                         <FontistoIcon size={18} name={'shopping-basket-remove'} color={`${'#404040'}`}/>
                     </View>
                     <Text style={{ ...styles.navigation__item__text, marginTop: 4 }}>{strings('dashboardStack.sell')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.navigation__item} onPress={this.handleCashback}>
+                    <CustomIcon name="earn" style={{ color: '#404040', marginTop: 2 }} size={20}/>
+                    <Text style={[styles.navigation__item__text, { marginTop: 2 }]}>{strings('dashboardStack.earn')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.navigation__item} onPress={this.handleSettings}>
                     <IconAwesome size={20} name="gear" color={`${'#404040'}`}/>

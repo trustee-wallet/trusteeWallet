@@ -1,4 +1,8 @@
+import { NativeModules } from 'react-native'
+
 import DBInterface from '../../app/appstores/DataSource/DB/DBInterface'
+
+const { RNFastCrypto } = NativeModules
 
 const VisibleCodes = [
     'BTC', 'ETH', 'ETH_USDT', 'ETH_SOUL', 'FIO' // add code here to show on start screen
@@ -543,6 +547,10 @@ const CurrenciesForTests = {
         currencyExplorerLink: 'https://tronscan.org/#/address/',
         currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
     }
+}
+
+if (typeof RNFastCrypto === 'undefined') {
+    delete Currencies['XMR']
 }
 
 /**

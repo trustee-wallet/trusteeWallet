@@ -457,7 +457,11 @@ class Account extends Component {
     renderBalance = (cryptoCurrency, account) => {
         const isSyncronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
-        const tmps = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated.split('.')
+        const tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
+        if (typeof tmp.split === 'undefined') {
+            throw new Error('AccountScreen.renderBalance split is undefined')
+        }
+        const tmps = tmp.split('.')
         let balancePrettyPrep1 = tmps[0]
         let balancePrettyPrep2 = ''
         if (typeof tmps[1] !== 'undefined' && tmps[1]) {

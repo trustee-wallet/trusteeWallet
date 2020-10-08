@@ -136,7 +136,7 @@ class AmountInput extends Component {
                 moneyType: 'CRYPTO'
             }, () => {
                 try {
-                this.amountInput.handleInput(amount.toString())
+                    this.amountInput.handleInput(amount.toString())
                 } catch (e) {
                     throw new Error(e.message + ' in Trade.AmountInput.handleSellAll', {current, amount, fee})
                 }
@@ -197,6 +197,10 @@ class AmountInput extends Component {
     calculateEquivalent = (selectedExchangeWay, selectedFiatCurrency, amount) => {
         const { moneyType } = this.state
         const { extendsFields } = this.props
+
+        if (!selectedExchangeWay || typeof selectedExchangeWay === 'undefined') {
+            return false
+        }
 
         if (moneyType === 'FIAT') {
             if (selectedFiatCurrency.cc !== selectedExchangeWay[extendsFields.fieldForFiatCurrency]) {

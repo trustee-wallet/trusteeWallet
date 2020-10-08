@@ -1,18 +1,12 @@
 /**
- * @version 0.12
+ * @version 0.13
  * @author yura
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import {
-    Text,
     View,
-    ScrollView,
-    Keyboard,
-    TouchableWithoutFeedback,
-    RefreshControl,
-    Linking,
     Dimensions,
     KeyboardAvoidingView,
     Platform
@@ -23,8 +17,6 @@ import Navigation from '../../components/navigation/Navigation'
 import firebase from 'react-native-firebase'
 
 import NavStore from '../../components/navigation/NavStore'
-
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 
 import ApiV3 from '../../services/Api/ApiV3'
 import Log from '../../services/Log/Log'
@@ -56,8 +48,6 @@ class MainV3DataScreen extends Component {
         CACHE_INIT_KEY = key
         this.setState({ inited: true })
 
-        setLoaderStatus(true)
-
         // here to do upload
         let apiUrl = await ApiV3.initData()
         
@@ -65,10 +55,6 @@ class MainV3DataScreen extends Component {
             this.setState({
                 show: true,
                 apiUrl
-            }, () => {
-                setTimeout(() => {
-                    setLoaderStatus(false)
-                }, 10)
             })
         }, 10)
 
@@ -77,7 +63,13 @@ class MainV3DataScreen extends Component {
 
     onMessage(event) {
         try {
-            const { address, amount, orderHash, comment, inCurrencyCode } = JSON.parse(event.nativeEvent.data)
+            const { address, amount, orderHash, comment, inCurrencyCode, error } = JSON.parse(event.nativeEvent.data)
+            
+            if (error) {
+                NavStore.goNext('HomeScreen')
+                return
+            }
+
             Log.log('EXC/MainV3Screen.onMessage parsed', event.nativeEvent.data)
             const data = {
                 memo: false,
@@ -110,7 +102,7 @@ class MainV3DataScreen extends Component {
                     handleSetState={this.handleSetState}
                     navigation={this.props.navigation}
                     isBack={false}
-                    title={strings('tradeScreen.titleV3')}
+                    title={strings('tradeScreen.titleV3').toUpperCase()}
                     newInterfaceSwitch={true}
                 />
                 <View style={{ flex: 1, position: 'relative', marginTop: 80 }}>

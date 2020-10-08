@@ -13,6 +13,7 @@ import ErrorScreen from './ErrorScreen'
 import InitScreen from '../modules/Init/InitScreen'
 import WalletCreateScreen from '../modules/WalletCreate/WalletCreateScreen'
 import EnterMnemonicPhrase from '../modules/WalletCreate/EnterMnemonicPhrase'
+import EnterMnemonicPhraseGoogle from '../modules/WalletCreate/EnterMnemonicPhraseGoogle'
 import QRCodeScannerScreen from '../modules/QRCodeScanner/QRCodeScannerScreen'
 
 import HomeScreenStack from './HomeStack'
@@ -129,6 +130,12 @@ const MainNavigator = createStackNavigator({
         },
         EnterMnemonicPhrase: {
             screen: EnterMnemonicPhrase,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+        EnterMnemonicPhraseGoogle: {
+            screen: EnterMnemonicPhraseGoogle,
             navigationOptions: {
                 headerShown: false
             }
