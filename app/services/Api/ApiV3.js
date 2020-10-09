@@ -15,6 +15,7 @@ import PubEncrypt from './PubEncrypt/PubEncrypt'
 import config from '../../config/config'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
 import currencyDS from '../../appstores/DataSource/Currency/Currency'
+import MarketingEvent from '../Marketing/MarketingEvent'
 
 const V3_ENTRY_POINT = '/mobile-exchanger'
 const V3_API = 'https://api.v3.trustee.deals'
@@ -182,6 +183,7 @@ export default {
                 + '&signature=' + sign.signature
                 + '&cashbackToken=' + currentToken
                 + '&locale=' + sublocale()
+                + '&version=' + MarketingEvent.DATA.LOG_VERSION
             Log.log('ApiV3.initData link ' + link)
             return link
         } catch (e) {

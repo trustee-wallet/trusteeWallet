@@ -24,6 +24,8 @@ import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 
 import { WebView } from 'react-native-webview'
 import { strings } from '../../services/i18n'
+import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+import AsyncStorage from '@react-native-community/async-storage'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -35,8 +37,9 @@ class MainV3DataScreen extends Component {
         super()
         this.state = {
             show: false,
-            inited : false,
-            apiUrl: 'https://testexchange.trustee.deals/waiting'
+            inited: false,
+            apiUrl: 'https://testexchange.trustee.deals/waiting',
+            navigationViewV3 : true
         }
     }
 
@@ -50,11 +53,13 @@ class MainV3DataScreen extends Component {
 
         // here to do upload
         let apiUrl = await ApiV3.initData()
-        
+
+        const navigationViewV3 = (await BlocksoftExternalSettings.get('navigationViewV3')) === 1
         setTimeout(() => {
             this.setState({
                 show: true,
-                apiUrl
+                apiUrl,
+                navigationViewV3
             })
         }, 10)
 
@@ -63,11 +68,16 @@ class MainV3DataScreen extends Component {
 
     onMessage(event) {
         try {
-            const { address, amount, orderHash, comment, inCurrencyCode, error } = JSON.parse(event.nativeEvent.data)
-            
-            if (error) {
+            const { address, amount, orderHash, comment, inCurrencyCode, error, backToOld, close } = JSON.parse(event.nativeEvent.data)
+
+            if (error || close) {
                 NavStore.goNext('HomeScreen')
                 return
+            }
+
+            if (backToOld) {
+                AsyncStorage.setItem('isNewInterface', 'false')
+                NavStore.goNext('HomeScreen')
             }
 
             Log.log('EXC/MainV3Screen.onMessage parsed', event.nativeEvent.data)
@@ -97,16 +107,17 @@ class MainV3DataScreen extends Component {
 
         return (
             <View style={styles.wrapper}>
-                <Navigation
-                    self={this}
-                    handleSetState={this.handleSetState}
-                    navigation={this.props.navigation}
-                    isBack={false}
-                    title={strings('tradeScreen.titleV3').toUpperCase()}
-                    newInterfaceSwitch={true}
-                />
-                <View style={{ flex: 1, position: 'relative', marginTop: 80 }}>
-                    { this.state.show ?
+                {this.state.navigationViewV3 ?
+                    <Navigation
+                        self={this}
+                        handleSetState={this.handleSetState}
+                        navigation={this.props.navigation}
+                        isBack={false}
+                        title={strings('tradeScreen.titleV3').toUpperCase()}
+                        newInterfaceSwitch={true}
+                    /> : null}
+                <View style={{ flex: 1, position: 'relative', marginTop: this.state.navigationViewV3 ? 80 : 0 }}>
+                    {this.state.show ?
                         <KeyboardAvoidingView
                             behavior={Platform.select({ ios: 'height', android: 'height' })}
                             enabled={false}
