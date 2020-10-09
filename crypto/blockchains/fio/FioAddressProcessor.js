@@ -33,14 +33,6 @@ export default class FioAddressProcessor {
         const child = this._root.derivePath(DERIVE_PATH)
 
         const pvt = await Ecc.PrivateKey(child.privateKey)
-        // LOG 5Kbb37EAqQgZ9vWUHoPiC2uXYhyGSFNbL6oiDp24Ea1ADxV1qnu
-        // LOG 5Kbb37EAqQgZ9vWUHoPiC2uXYhyGSFNbL6oiDp24Ea1ADxV1qnu
-        // LOG FIO5kJKNHwctcfUM5XZyiWSqSTM5HTzznJP9F3ZdbhaQAHEVq575o
-
-        // limb egg attend help seek blur chicken question until radio index pitch
-        // LOG  5JmNyktQYEmG86Pd5Ymgx9YHxhRedpcfmMNugTZR4D9G3kPL3f1
-        // LOG  5JmNyktQYEmG86Pd5Ymgx9YHxhRedpcfmMNugTZR4D9G3kPL3f1
-        // LOG  FIO5xbYYdNs5a7Fe5nmkb7BeUFjpXYgkmJus8NMZUAeNyt8jgsEwB
 
         return {
             address: pvt.toPublic().toString(),
