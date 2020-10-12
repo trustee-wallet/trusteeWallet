@@ -441,6 +441,12 @@
     "btnText": "Select FIO Address"
   },
 
+  "FioSettings": {
+    "title": "Choose Fio Address",
+    "description": "Enter address to request payment from",
+    "btnText": "Select FIO Address"
+  },
+
   "FioSendRequest": {
     "title": "Send FIO Request",
     "from": "Send Request From",
