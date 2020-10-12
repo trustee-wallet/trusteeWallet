@@ -13,6 +13,7 @@ import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKey
 import BtcCashUtils from '../../../../crypto/blockchains/bch/ext/BtcCashUtils'
 import MoneroUtilsParser from '../../../../crypto/blockchains/xmr/ext/MoneroUtilsParser'
 import { isFioAddressRegistered } from '../../../../crypto/blockchains/fio/FioUtils'
+import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
 
@@ -149,6 +150,19 @@ async function _userDataValidation(obj) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^0x+[0-9a-fA-F]{40}$/.test(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
+        case 'FIO_ADDRESS':
+            value = value.trim()
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else {
+                try {
+                    FIOSDK.isFioPublicKeyValid(value)
+                } catch (e) {
+                    error.msg = strings('validator.invalidFormat', { name: name })
+                }
             }
             break
 

@@ -75,7 +75,7 @@ const Currencies = {
         currencySymbol: 'FIO',
         addressProcessor: 'FIO',
         scannerProcessor: 'FIO',
-        extendsProcessor: 'XMR',
+        extendsProcessor: 'FIO',
         prettyNumberProcessor: 'UNIFIED',
         network: 'mainnet',
         decimals: 9,

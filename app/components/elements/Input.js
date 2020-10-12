@@ -126,7 +126,7 @@ class Input extends Component {
             if (tmpIndex !== -1) {
                 valueNew = valueNew.slice(tmpIndex + 9).trim()
             }
-            if (cuttype === 'TRX' && value.length<=34) {
+            if (cuttype === 'TRX' && value.length<=34 || cuttype === 'FIO') {
                 // do nothing
                 // TRX addresses can start with TRX
             } else if (valueNew.indexOf(cuttype) === 0) {
