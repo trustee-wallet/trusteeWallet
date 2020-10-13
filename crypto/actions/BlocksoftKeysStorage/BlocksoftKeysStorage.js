@@ -7,6 +7,7 @@ import 'react-native'
 import * as Keychain from 'react-native-keychain'
 
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import { fioSdkWrapper } from '../../blockchains/fio/FioSdkWrapper'
 
 export class BlocksoftKeysStorage {
 
@@ -149,6 +150,9 @@ export class BlocksoftKeysStorage {
         }
         BlocksoftCryptoLog.log('BlocksoftKeysStorage init ended')
         this._serviceWasInited = true
+
+        const mnemonic = await this.getWalletMnemonic(this.publicSelectedWallet)
+        await fioSdkWrapper.init(mnemonic)
     }
 
     async reInit() {
@@ -216,6 +220,9 @@ export class BlocksoftKeysStorage {
             await this._setKeyValue('selected_hash', hashOrId)
         }
         BlocksoftCryptoLog.log(msg + this.publicSelectedWallet)
+
+        const mnemonic = await this.getWalletMnemonic(hashOrId)
+        await fioSdkWrapper.init(mnemonic)
         return this.publicSelectedWallet
     }
 

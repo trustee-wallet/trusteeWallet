@@ -70,7 +70,14 @@ const config = {
     tg: {
         appDefaultTg: '', // bot id for app errors https://t.me/trusteeAppErrorsBot
         trusteeCore: ''
-    }
+    },
+    fio: {
+        apiEndpoints: {
+            baseURL: 'http://testnet.fioprotocol.io/v1/',
+            historyURL: 'https://testnet.fio.dev/v1/history/',
+            registrationSiteURL: 'https://reg.fioprotocol.io/ref/trustee?publicKey=',
+        },
+    },
 }
 
 // eslint-disable-next-line no-undef

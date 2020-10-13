@@ -12,12 +12,23 @@ import { strings } from '../../i18n'
 import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
 import BtcCashUtils from '../../../../crypto/blockchains/bch/ext/BtcCashUtils'
 import MoneroUtilsParser from '../../../../crypto/blockchains/xmr/ext/MoneroUtilsParser'
+import { isFioAddressRegistered } from '../../../../crypto/blockchains/fio/FioUtils'
+import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
 
 const cardNumberValid = require('fast-luhn')
 const DEFAULT_WORDS = require('./_words/english.json')
 const bitcoin = require('bitcoinjs-lib')
+
+async function _fioAddressValidation(obj) {
+    const { value, type } = obj
+
+    if (!value || !type || !type.includes('_ADDRESS')) {
+        return false;
+    }
+    return isFioAddressRegistered(value)
+}
 
 async function _userDataValidation(obj) {
 
@@ -139,6 +150,19 @@ async function _userDataValidation(obj) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^0x+[0-9a-fA-F]{40}$/.test(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
+        case 'FIO_ADDRESS':
+            value = value.trim()
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else {
+                try {
+                    FIOSDK.isFioPublicKeyValid(value)
+                } catch (e) {
+                    error.msg = strings('validator.invalidFormat', { name: name })
+                }
             }
             break
 
@@ -417,6 +441,12 @@ module.exports = {
             }
         }
         if (resultArray && resultArray.length > 0) {
+            if (array[0] && (await _fioAddressValidation(array[0]))) {
+                return {
+                    status: 'success',
+                    errorArr: []
+                }
+            }
             return {
                 status: 'fail',
                 errorArr: resultArray

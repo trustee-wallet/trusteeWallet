@@ -58,6 +58,8 @@ import QrCodeBox from '../../components/elements/QrCodeBox'
 import OldPhone from '../../services/UI/OldPhone/OldPhone'
 import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import { addCryptoPublicAddress, getFioName, getPubAddress, resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
+import DaemonCache from '../../daemons/DaemonCache'
 
 let styles
 
@@ -67,8 +69,13 @@ class ReceiveScreen extends Component {
     constructor() {
         super()
         this.state = {
-            settingAddressType: ''
+            settingAddressType: '',
+            fioName: null,
         }
+    }
+
+    async componentDidMount() {
+        await this.resolveAddressByFio()
     }
 
     // eslint-disable-next-line camelcase
@@ -76,6 +83,39 @@ class ReceiveScreen extends Component {
         styles = Theme.getStyles().receiveScreenStyles
 
         settingsActions.getSetting('btc_legacy_or_segwit').then(res => this.setState({ settingAddressType: res }))
+    }
+
+    resolveAddressByFio = async () => {
+        const { selectedWallet } = this.props.mainStore
+        const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
+        if (fioAccount?.address) {
+            const fioName = await getFioName(fioAccount?.address)
+            if (fioName) {
+                const { currencyCode, currencySymbol } = this.props.cryptoCurrency
+                const address = this.getAddress()
+                const chainCode = resolveChainCode(currencyCode, currencySymbol)
+
+                const publicAddress = await getPubAddress(fioName, chainCode, currencySymbol)
+                if (publicAddress) {
+                    Log.log(`ReceiveScreen.resolveAddressByFio Resolved ${currencySymbol}(${chainCode}) public address ${publicAddress} by ${fioName}`)
+                    this.setState({ fioName })
+                } else {
+                    Log.log(`ReceiveScreen.resolveAddressByFio Public address ${currencySymbol}(${chainCode}) by ${fioName} not found`)
+                    const isAddressCreated = await addCryptoPublicAddress({
+                        fioName,
+                        chainCode,
+                        tokenCode: currencySymbol,
+                        publicAddress: address,
+                    })
+                    if (isAddressCreated) {
+                        Log.log(`ReceiveScreen.resolveAddressByFio Successfully added public address ${currencyCode}(${chainCode}) to ${fioName}`)
+                        this.setState({ fioName })
+                    }
+                }
+            } else {
+                await Log.err('ReceiveScreen.resolveAddressByFio FIO address not registered')
+            }
+        }
     }
 
     copyToClip = () => {
@@ -249,6 +289,22 @@ class ReceiveScreen extends Component {
         })
     }
 
+    handleFioRequestCreate = () => {
+        const { currencyCode, currencySymbol } = this.props.cryptoCurrency
+        const { fioName } = this.state
+        const address = this.getAddress()
+        const chainCode = resolveChainCode(currencyCode, currencySymbol)
+
+        NavStore.goNext('FioSendRequest', {
+            fioRequestDetails: {
+                fioName,
+                address,
+                chainCode,
+                currencySymbol
+            }
+        })
+    }
+
     shareAddress = () => {
         const { currencySymbol } = this.props.cryptoCurrency
 
@@ -397,7 +453,7 @@ class ReceiveScreen extends Component {
 
     render() {
         const { mainStore, settingsStore } = this.props
-        const { isSegWitLegacy } = this.state
+        const { isSegWitLegacy, fioName } = this.state
         const { address } = this.props.account
         const { currencySymbol, currencyCode } = this.props.cryptoCurrency
         const { btcShowTwoAddress = 0 } = settingsStore.data
@@ -423,6 +479,7 @@ class ReceiveScreen extends Component {
                                           array={styles.qr__bg.array} start={styles.qr__bg.start}
                                           end={styles.qr__bg.end}>
                                 {currencyCode === 'BTC' && +btcShowTwoAddress ? this.renderSegWitLegacy() : null}
+                                {fioName ? <Text>{fioName}</Text> : null}
                                 <TouchableOpacity style={{
                                     position: 'relative',
                                     paddingHorizontal: 10,
@@ -431,7 +488,7 @@ class ReceiveScreen extends Component {
                                     <QrCodeBox
                                         getRef={ref => this.refSvg = ref}
                                         value={this.getAddressForQR()}
-                                        size={250}
+                                        size={200}
                                         color='#404040'
                                         logo={qrLogo}
                                         logoSize={70}
@@ -481,6 +538,19 @@ class ReceiveScreen extends Component {
                                     style={[styles.qr__shadow__item, isSegWitLegacy ? { height: Platform.OS === 'android' ? 406 : 404 } : null]}/>
                             </View>
                         </View>
+
+                        {
+                            fioName ? (
+                                <TouchableOpacity style={{marginTop: 20}}
+                                                  onPress={this.handleFioRequestCreate}>
+                                    <LightButton color={color} Icon={(props) => <Feather color={color} size={10}
+                                                                                         name={'edit'} {...props} />}
+                                                 title={strings('account.receiveScreen.FIORequest')}
+                                                 iconStyle={{ marginHorizontal: 3 }}/>
+                                </TouchableOpacity>
+                            ) : null
+                        }
+
                         <View style={styles.options}>
                             <TouchableOpacity style={styles.options__item} onPress={this.handleBuy}>
                                 <View style={styles.options__wrap}>

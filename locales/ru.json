@@ -207,6 +207,8 @@
       "import": "Импортировать кошелек",
       "create": "Создать новый кошелек",
       "select": "Выбрать кошелек",
+      "fioRequest": "FIO запросы",
+      "registerFioAddress": "Зарегистрировать FIO адрес",
       "turnOnHD" : "Включить древовидные адреса BTC"
     },
     "security": {
@@ -414,6 +416,7 @@
       "description": "Ваш %{currency} адрес:",
       "clickToCopy": "Нажмите, чтобы скопировать",
       "receiveAmount": "Указать сумму",
+      "FIORequest": "FIO запрос",
       "share": "Поделиться",
       "copy": "Копировать"
     },
@@ -424,6 +427,48 @@
       "list": "Учетные записи"
     }
   },
+
+  "FioChooseRecipient": {
+    "title": "Выбрать Fio получателя",
+    "description": "Введите FIO, ENS или публичный адрес получателя",
+    "btnText": "Выбрать FIO"
+  },
+
+  "FioChooseAddress": {
+    "title": "Выберите Fio адрес",
+    "description": "Введите адрес чтоб запросить платёж от",
+    "btnText": "Выберите FIO адрес"
+  },
+
+  "FioSendRequest": {
+    "title": "Послать FIO запрос",
+    "from": "Послать запрос от",
+    "to": "Послать запрос к",
+    "amount": "Количество",
+    "memo": "Комментарий",
+    "btnText": "Дальше",
+    "created": "FIO запрос создан"
+  },
+
+  "FioRequestsList": {
+    "title": "Список запросов FIO",
+    "pendingRequests": "Ожидающие запросы",
+    "sentRequests": "Отправленные запросы",
+    "RequestedTxt": "Запрошено"
+  },
+
+  "FioRequestDetails": {
+    "title": "Детали FIO запроса",
+    "balance": "Баланс",
+    "fee": "Комисия",
+    "to": "К",
+    "from": "От",
+    "memo": "FIO комментарий",
+    "amount": "Количество",
+    "btnTextReject": "Отклонить",
+    "btnTextConfirm": "Подтвердить"
+  },
+
   "exchangeInit": {
     "ordersHistory": "История ордеров",
     "ordersNull": "У Вас нет ордеров."
@@ -548,6 +593,7 @@
     "notEnough": "У Вас недостаточно средств для отправки",
     "notEnoughForFee": "Для отправки токенов необходимо иметь положительный баланс в нативной монете %{symbol}",
     "notEnoughForFeeConfirmed": "Для отправки токенов необходимо иметь положительный подтвержденный баланс в нативной монете %{symbol}, подождите подтверждения или включите использование неподтвержденных транзакций",
+    "publicFioAddressNotFound": "%{symbol} публичный адрес не связан с указаным FIO адресом",
     "confirmModal": {
       "title": "Подтверждение отправки",
       "titleSpeedUp": "Подтверждение ускорения входящей транзакции %{hash}",

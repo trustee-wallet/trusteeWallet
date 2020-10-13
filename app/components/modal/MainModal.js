@@ -81,6 +81,7 @@ class MainModal extends Component {
             case 'WALLET_SETTINGS_MODAL':
                 return <WalletSettingsModal show={show} data={data} callback={callback}/>
             case 'WALLET_UPDATE':
+            case 'UPDATE_MODAL':
                 return <UpdateModal show={show} data={data} callback={callback}/>
             case 'NEW_INTERFACE':
                 return <NewInterface show={show} data={data} callback={callback}/>

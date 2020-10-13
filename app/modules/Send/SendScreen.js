@@ -52,6 +52,7 @@ import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import api from '../../services/Api/Api'
+import { getPubAddress, isFioAddressRegistered } from '../../../crypto/blockchains/fio/FioUtils'
 
 let styles
 
@@ -102,6 +103,7 @@ class SendScreen extends Component {
             inputType: 'CRYPTO',
 
             toTransactionJSON: {},
+            fioRequestDetails: {},
 
             copyAddress: false
         }
@@ -131,6 +133,23 @@ class SendScreen extends Component {
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
             this.init()
         })
+    }
+
+    componentDidMount() {
+        const fioRequest = this.props.navigation.getParam('fioRequestDetails')
+        if (fioRequest) {
+            if (fioRequest.content?.token_code === 'FIO') {
+                this.addressInput.handleInput(fioRequest.payee_fio_address)
+            } else {
+                this.addressInput.handleInput(fioRequest.content?.payee_public_address)
+            }
+            this.commentInput.handleInput(fioRequest.content?.memo)
+            this.valueInput.handleInput(fioRequest.content?.amount)
+
+            this.setState({
+                fioRequestDetails: fioRequest
+            })
+        }
     }
 
     init = async () => {
@@ -427,7 +446,7 @@ class SendScreen extends Component {
 
         Log.log('SendScreen.handleSendTransaction started ' + (force ? 'FORCE' : 'usual'))
 
-        const { account, cryptoCurrency, toTransactionJSON, useAllFunds } = this.state
+        const { account, cryptoCurrency, toTransactionJSON, useAllFunds, fioRequestDetails } = this.state
 
         const addressValidation = await this.addressInput.handleValidate()
         const valueValidation = await this.valueInput.handleValidate()
@@ -512,6 +531,20 @@ class SendScreen extends Component {
             }
         }
 
+        let recipientAddress = addressValidation.value;
+        if (await isFioAddressRegistered(recipientAddress)) {
+            const publicFioAddress = await getPubAddress(addressValidation.value, cryptoCurrency.currencyCode, cryptoCurrency.currencyCode);
+            if (!publicFioAddress) {
+                const msg = strings('send.publicFioAddressNotFound', { symbol: cryptoCurrency.currencyCode })
+                Log.log('SendScreen.handleSendTransaction ' + msg)
+                enoughFunds.isAvailable = false
+                enoughFunds.messages.push(msg)
+                this.setState({ enoughFunds })
+                return
+            }
+            recipientAddress = publicFioAddress;
+        }
+
         setLoaderStatus(true)
 
         const amount = this.state.inputType === 'FIAT' ? this.state.amountEquivalent : valueValidation.value
@@ -560,7 +593,7 @@ class SendScreen extends Component {
                     memo,
                     amount: typeof amount === 'undefined' ? '0' : amount.toString(),
                     amountRaw,
-                    address: addressValidation.value,
+                    address: recipientAddress,
                     wallet,
                     cryptoCurrency,
                     account,
@@ -570,7 +603,8 @@ class SendScreen extends Component {
                 }
 
                 NavStore.goNext('ConfirmSendScreen', {
-                    confirmSendScreenParam: data
+                    confirmSendScreenParam: data,
+                    fioRequestDetails: fioRequestDetails
                 })
 
                 MarketingEvent.checkSellConfirm({
@@ -804,6 +838,7 @@ class SendScreen extends Component {
                             <TextView style={{ height: 70 }}>
                                 {description}
                             </TextView>
+
                             <AddressInput
                                 style={{marginTop: 20}}
                                 ref={component => this.addressInput = component}
@@ -814,6 +849,7 @@ class SendScreen extends Component {
                                 subtype={network}
                                 cuttype={currencySymbol}
                                 paste={!disabled}
+                                fio={disabled}
                                 copy={copyAddress}
                                 qr={!disabled}
                                 qrCallback={() => {

@@ -36,6 +36,7 @@ import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 import store from '../../store'
 import _ from 'lodash'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
+import { recordFioObtData } from '../../../crypto/blockchains/fio/FioUtils'
 
 let styles
 
@@ -49,7 +50,8 @@ class ConfirmSendScreen extends Component {
             feeList: null,
             selectedFee: false,
             selectedCustomFee: false,
-            needPasswordConfirm: false
+            needPasswordConfirm: false,
+            fioRequestDetails: null
         }
     }
 
@@ -82,6 +84,15 @@ class ConfirmSendScreen extends Component {
                 })
             }
         })
+    }
+
+    componentDidMount() {
+        const fioRequestDetails = this.props.navigation.getParam('fioRequestDetails')
+        if (fioRequestDetails) {
+            this.setState({
+                fioRequestDetails: fioRequestDetails
+            })
+        }
     }
 
     getData(data) {
@@ -140,7 +151,8 @@ class ConfirmSendScreen extends Component {
         }
 
         const {
-            needPasswordConfirm
+            needPasswordConfirm,
+            fioRequestDetails,
         } = this.state
 
         if (needPasswordConfirm && passwordCheck && typeof settingsStore.data.askPinCodeWhenSending !== 'undefined' && +settingsStore.data.askPinCodeWhenSending) {
@@ -296,6 +308,20 @@ class ConfirmSendScreen extends Component {
                 MarketingEvent.checkSellSendTx(logData)
 
                 transactionActions.saveTransaction(transaction)
+            }
+
+            if (fioRequestDetails) {
+                await recordFioObtData({
+                    fioRequestId: fioRequestDetails.fio_request_id,
+                    payerFioAddress: fioRequestDetails.payer_fio_address,
+                    payeeFioAddress: fioRequestDetails.payee_fio_address,
+                    payerTokenPublicAddress: addressFrom,
+                    payeeTokenPublicAddress: addressTo,
+                    amount: amountRaw,
+                    chainCode: currencyCode,
+                    tokenCode: currencyCode,
+                    obtId: tx.hash
+                })
             }
 
             hideModal()

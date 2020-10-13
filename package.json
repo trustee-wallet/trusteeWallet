@@ -14,6 +14,8 @@
     "oam": "adb shell input keyevent 82"
   },
   "dependencies": {
+    "@fioprotocol/fiojs": "^1.0.1",
+    "@fioprotocol/fiosdk": "^1.1.0",
     "@haskkor/react-native-pincode": "git+https://git@github.com/trustee-wallet/react-native-pincode",
     "@react-native-community/async-storage": "^1.7.1",
     "@react-native-community/blur": "^3.4.1",
@@ -136,6 +138,7 @@
     "secp256k1": "3.8.0",
     "stream-browserify": "^1.0.0",
     "string_decoder": "^0.10.31",
+    "text-encoding": "^0.7.0",
     "timers-browserify": "^1.4.2",
     "tty-browserify": "0.0.0",
     "url": "^0.10.3",

@@ -25,7 +25,12 @@ export default class ButtonLine extends Component {
 
         const tmpMarkStyle = typeof markStyle !== 'undefined' ? markStyle : null
 
-        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+        let extend
+        try {
+            extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+        } catch (e) {
+            extend = 'NOCOIN'
+        }
 
         switch (currencyCode) {
 
@@ -416,7 +421,7 @@ export default class ButtonLine extends Component {
                         </View>
                     </View>
                 )
-            
+
             case 'CUSTOM_MVT':
                 return (
                     <View style={{ ...styles.icon, borderColor: '#93CA76', ...tmpContainerStyle }}>
@@ -425,6 +430,14 @@ export default class ButtonLine extends Component {
                         </View>
                         <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
+                        </View>
+                    </View>
+                )
+            case 'FIO':
+                return (
+                    <View style={{ ...styles.icon, borderColor: '#4C5FAB', ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <Image style={{ width: 25, height: 25 }} resize={'stretch'} source={require('../../assets/images/fio.png')}/>
                         </View>
                     </View>
                 )
@@ -442,7 +455,14 @@ export default class ButtonLine extends Component {
                 )
 
             default:
-                break
+                return (
+                    <View style={{ ...styles.icon, ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <Text style={styles.icon__item__text}>No</Text>
+                            <Text style={styles.icon__item__text}>Icon</Text>
+                        </View>
+                    </View>
+                )
         }
 
         if (typeof extend.addressCurrencyCode !== 'undefined') {
@@ -517,6 +537,12 @@ const styles = {
 
         overflow: 'visible'
     },
+    icon__item__text: {
+        fontSize: 12,
+        marginVertical: 0,
+        lineHeight: 12,
+    },
+
     icon__text: {
         justifyContent: 'center',
         alignItems: 'center',
