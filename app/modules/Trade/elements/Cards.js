@@ -348,6 +348,13 @@ class Cards extends Component {
             }
         } catch (e) {
             Log.err('Cards.prepareImageUrl error ' + e.message)
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('tradeScreen.modalError.serviceUnavailable')
+            })
         }
     }
 
@@ -392,6 +399,7 @@ class Cards extends Component {
                     let res = await Api.validateCard(data)
                     res = await res.json()
 
+                    Log.log('TRADE/Cards validateCard result', res)
                     // @misha to optimize
                     if ((typeof res.message !== 'undefined' && res.message.includes('Card has not been verified')) || (typeof res.errorMsg !== 'undefined' && res.errorMsg.includes('No file was uploaded'))) {
                         this.setState({
@@ -469,6 +477,16 @@ class Cards extends Component {
                             }
                         })
                         await setCards()
+
+                        setLoaderStatus(false)
+                    } else {
+
+                        showModal({
+                            type: 'INFO_MODAL',
+                            icon: 'INFO',
+                            title: strings('modal.exchange.sorry'),
+                            description: res.message || res.errorMsg || strings('tradeScreen.modalError.serviceUnavailable')
+                        })
 
                         setLoaderStatus(false)
                     }

@@ -132,7 +132,7 @@
     "readable-stream": "^1.0.33",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
-    "ripple-lib": "^1.6.0",
+    "ripple-lib": "1.8.0",
     "rn-tooltip": "^2.0.0",
     "safe-event-emitter": "^1.0.1",
     "secp256k1": "3.8.0",

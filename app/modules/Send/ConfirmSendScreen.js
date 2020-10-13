@@ -516,20 +516,20 @@ class ConfirmSendScreen extends Component {
         }
 
         let amountFirst = ''
-        let amountSecond = ''
+        let amountSecond = ' '
 
-        if (amount && typeof amount.split !== 'undefined') {
-            const tmp = amount.split('.')
-            if (typeof tmp[1] !== 'undefined') {
-                amountFirst = tmp[0] + '.'
-                amountSecond =  tmp[1].slice(0, 7) + ' '
-            } else if (typeof tmp[0] !== 'undefined') {
-                amountFirst = tmp[0]
-                amountSecond = ''
-            }
-        } else {
+        if (amount) {
             if (typeof amount.split === 'undefined') {
-                throw new Error('ConfirmSendScreen.render split is undefined')
+                Log.log('ConfirmSendScreen.render split is undefined ', amount)
+            } else {
+                const tmp = amount.split('.')
+                if (typeof tmp[1] !== 'undefined') {
+                    amountFirst = tmp[0] + '.'
+                    amountSecond =  tmp[1].slice(0, 7) + ' '
+                } else if (typeof tmp[0] !== 'undefined') {
+                    amountFirst = tmp[0]
+                }
+
             }
         }
         return (
