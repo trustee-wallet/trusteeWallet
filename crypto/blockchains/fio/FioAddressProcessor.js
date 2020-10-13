@@ -9,7 +9,7 @@
  */
 
 import { Ecc } from '@fioprotocol/fiojs'
-import { DERIVE_PATH } from './FioUtils'
+import { FIOSDK } from '@fioprotocol/fiosdk'
 
 export default class FioAddressProcessor {
 
@@ -30,12 +30,9 @@ export default class FioAddressProcessor {
      * @returns {Promise<{privateKey: string, address: string, addedData: *}>}
      */
     async getAddress(privateKey, data = {}) {
-        const child = this._root.derivePath(DERIVE_PATH)
-
-        const pvt = await Ecc.PrivateKey(child.privateKey)
-
+        const pvt = await Ecc.PrivateKey(privateKey)
         return {
-            address: pvt.toPublic().toString(),
+            address: FIOSDK.derivedPublicKey(privateKey).publicKey,
             privateKey: pvt.toWif(),
             addedData: false
         }

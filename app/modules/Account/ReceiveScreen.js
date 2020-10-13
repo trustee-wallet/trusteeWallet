@@ -70,12 +70,7 @@ class ReceiveScreen extends Component {
         super()
         this.state = {
             settingAddressType: '',
-            fioName: null,
         }
-    }
-
-    async componentDidMount() {
-        await this.resolveAddressByFio()
     }
 
     // eslint-disable-next-line camelcase
@@ -83,39 +78,6 @@ class ReceiveScreen extends Component {
         styles = Theme.getStyles().receiveScreenStyles
 
         settingsActions.getSetting('btc_legacy_or_segwit').then(res => this.setState({ settingAddressType: res }))
-    }
-
-    resolveAddressByFio = async () => {
-        const { selectedWallet } = this.props.mainStore
-        const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
-        if (fioAccount?.address) {
-            const fioName = await getFioName(fioAccount?.address)
-            if (fioName) {
-                const { currencyCode, currencySymbol } = this.props.cryptoCurrency
-                const address = this.getAddress()
-                const chainCode = resolveChainCode(currencyCode, currencySymbol)
-
-                const publicAddress = await getPubAddress(fioName, chainCode, currencySymbol)
-                if (publicAddress) {
-                    Log.log(`ReceiveScreen.resolveAddressByFio Resolved ${currencySymbol}(${chainCode}) public address ${publicAddress} by ${fioName}`)
-                    this.setState({ fioName })
-                } else {
-                    Log.log(`ReceiveScreen.resolveAddressByFio Public address ${currencySymbol}(${chainCode}) by ${fioName} not found`)
-                    const isAddressCreated = await addCryptoPublicAddress({
-                        fioName,
-                        chainCode,
-                        tokenCode: currencySymbol,
-                        publicAddress: address,
-                    })
-                    if (isAddressCreated) {
-                        Log.log(`ReceiveScreen.resolveAddressByFio Successfully added public address ${currencyCode}(${chainCode}) to ${fioName}`)
-                        this.setState({ fioName })
-                    }
-                }
-            } else {
-                await Log.err('ReceiveScreen.resolveAddressByFio FIO address not registered')
-            }
-        }
     }
 
     copyToClip = () => {

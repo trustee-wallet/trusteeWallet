@@ -4,8 +4,6 @@ import config from '../../../app/config/config'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import { Fio } from '@fioprotocol/fiojs'
 
-export const DERIVE_PATH = "m/44'/235'/0'/0/0";
-
 export const resolveChainCode = (currencyCode, currencySymbol) => {
     let chainCode = currencyCode
     if (typeof currencyCode !== 'undefined' && currencyCode !== currencySymbol) {
