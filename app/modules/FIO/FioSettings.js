@@ -2,16 +2,30 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Image, TextInput  } from 'react-native'
+import { View, Text, ScrollView, Image, TextInput, Switch  } from 'react-native'
+import CurrencyIcon from '../../components/elements/CurrencyIcon'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
 import { strings } from '../../services/i18n'
+import GradientView from '../../components/elements/GradientView'
 
 
 
 class FioSettings extends Component {
 
+    constructor(props) {
+        super(props)
+        this.state = {
+            isSelected: false,
+        }
+    }
+
+    toggleSwitch = async () => {
+        this.setState({
+            isSelected: !this.state.isSelected,
+        })
+    }
 
     render() {
         return (
@@ -20,32 +34,89 @@ class FioSettings extends Component {
                     //title={strings('assets.mainTitle')}
                     title= {strings('FioSettings.title')}
                 />
-                
-                <View style={{paddingTop: 90, height: '100%'}}>
 
+                <View style={{paddingTop: 80, height: '100%'}}>
+
+                    <GradientView
+                        array={styles_.array}
+                        start={styles_.start} end={styles_.end}>
+                        <View style={styles.titleSection}>
+                            <Text style={styles.titleTxt1}>Kir2@trustee</Text>
+                            <Text style={styles.titleTxt2}>{strings('FioSettings.Expire')} 30.09.2021</Text>
+                        </View>
+                    </GradientView>
 
 
                 <View  style={styles.container}>
                     <View>
-                        <Text style={styles.txt}>{strings('FioSettings.description')}</Text>
-                        <TextInput
-                            style={styles.input}
-                            onChangeText={text => console.log('Input changed')}
-                        />
+                        <Text style={styles.txt}>{strings('FioSettings.description')} </Text>
                     </View>
 
                     <View style={{ flex: 1,  paddingVertical: 20}}>
                         <ScrollView>
 
-                            <View  style={styles.fio_item}>
-                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
-                                <Text style={styles.fio_txt}>Fio Adress 1</Text>
+
+                            <View style={styles.coinRow}>
+                                <View  style={styles.coinRowInfo}>
+                                    <CurrencyIcon currencyCode={'BTC'}
+                                                  containerStyle={styles.cryptoList__icoWrap}
+                                                  markStyle={styles.cryptoList__icon__mark}
+                                                  markTextStyle={styles.cryptoList__icon__mark__text}
+                                                  iconStyle={styles.cryptoList__icon}/>
+                                    <View>
+                                        <Text style={styles.txt2}>BTC</Text>
+                                        <Text style={styles.txt3}>My Bitcoin</Text>
+                                    </View>
+                                </View>
+
+                                <Switch
+                                    thumbColor="#fff"
+                                    trackColor={{ true: '#864DD9', false: '#dadada' }}
+                                    onValueChange={this.toggleSwitch}
+                                    value={this.state.isSelected}/>
                             </View>
 
-                            <View  style={styles.fio_item}>
-                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
-                                <Text style={styles.fio_txt}>Fio Adress 2</Text>
+                            <View style={styles.coinRow}>
+                                <View  style={styles.coinRowInfo}>
+                                    <CurrencyIcon currencyCode={'ETH'}
+                                                  containerStyle={styles.cryptoList__icoWrap}
+                                                  markStyle={styles.cryptoList__icon__mark}
+                                                  markTextStyle={styles.cryptoList__icon__mark__text}
+                                                  iconStyle={styles.cryptoList__icon}/>
+                                    <View>
+                                        <Text style={styles.txt2}>ETH</Text>
+                                        <Text style={styles.txt3}>My Ether</Text>
+                                    </View>
+                                </View>
+
+                                <Switch
+                                    thumbColor="#fff"
+                                    trackColor={{ true: '#864DD9', false: '#dadada' }}
+                                    onValueChange={this.toggleSwitch}
+                                    value={this.state.isSelected}/>
                             </View>
+
+
+                            <View style={styles.coinRow}>
+                                <View  style={styles.coinRowInfo}>
+                                    <CurrencyIcon currencyCode={'FIO'}
+                                                  containerStyle={styles.cryptoList__icoWrap}
+                                                  markStyle={styles.cryptoList__icon__mark}
+                                                  markTextStyle={styles.cryptoList__icon__mark__text}
+                                                  iconStyle={styles.cryptoList__icon}/>
+                                    <View>
+                                        <Text style={styles.txt2}>FIO</Text>
+                                        <Text style={styles.txt3}>My FIO</Text>
+                                    </View>
+                                </View>
+
+                                <Switch
+                                    thumbColor="#fff"
+                                    trackColor={{ true: '#864DD9', false: '#dadada' }}
+                                    onValueChange={this.toggleSwitch}
+                                    value={this.state.isSelected}/>
+                            </View>
+
 
                         </ScrollView>
                     </View>
@@ -57,13 +128,7 @@ class FioSettings extends Component {
                     </View>
 
 
-
                 </View>
-
-
-
-
-
 
 
 
@@ -75,60 +140,102 @@ class FioSettings extends Component {
 
 export default FioSettings
 
+const styles_ = {
+    array: ['#43156d', '#7127ab'],
+    start: { x: 0.0, y: 0.5 },
+    end: { x: 1, y: 0.5 }
+}
 
 const styles = {
 
     container: {
         padding: 30,
+        paddingTop: 10,
         height: '100%',
         flexDirection: 'column',
         flex: 1,
         justifyContent: 'space-between'
     },
 
-    input: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 19,
-        color: '#404040',
-        marginTop: 0,
-        marginBottom: 20,
-        height: 40,
-        borderColor: '#864dd9',
-        borderBottomWidth: 3
+    titleSection: {
+        padding: 10,
+        color: '#fff',
     },
 
-    fio_item: {
-        flex: 1,
+
+    coinRow: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 15,
+        paddingBottom: 15,
+        borderColor: '#ddd',
+        borderBottomWidth: 1
+    },
+
+    coinRowInfo: {
+        display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-
-        marginBottom: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e3e6e9',
-        backgroundColor: '#fff',
-        borderRadius: 20
     },
 
-    fio_txt: {
+    cryptoList__icoWrap: {
+        width: 42,
+        height: 42,
+        marginRight: 7,
+        elevation: 0,
+        shadowColor: '#fff'
+    },
+    
+    cryptoList__icon: {
+        fontSize: 20
+    },
+    cryptoList__icon__mark: {
+        bottom: 5
+    },
+    cryptoList__icon__mark__text: {
+        fontSize: 5
+    },
+
+
+    txtCenter: {
+        textAlign: 'center',
+    },
+
+    titleTxt1: {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 19,
-        color: '#404040',
+        color: '#fff',
+        textAlign: 'center',
     },
 
-    fio_img: {
-        width: 25,
-        height: 25,
-        marginRight: 20,
-        borderWidth: 1,
-        borderColor: '#e3e6e9',
-        padding: 20,
-        borderRadius: 100
+    titleTxt2: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 14,
+        color: '#fff',
+        textAlign: 'center',
+        marginTop: -5,
     },
 
     txt: {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 19,
         color: '#777',
+        textAlign: 'center',
+    },
+
+    txt2: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 19,
+        color: '#000',
+    },
+
+    txt3: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 14,
+        color: '#000',
+        marginTop: -5,
     },
 
 

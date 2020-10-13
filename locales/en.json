@@ -443,8 +443,9 @@
 
   "FioSettings": {
     "title": "Fio Settings",
-    "description": "Enter address to request payment from",
-    "btnText": "Select FIO Address"
+    "description": "Choose wallets to connect to your FIO address",
+    "Expire": "Expires",
+    "btnText": "Next"
   },
 
   "FioSendRequest": {
