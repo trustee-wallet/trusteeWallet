@@ -30,7 +30,13 @@ export default class FioTransferProcessor {
      * @returns {Promise<boolean>}
      */
     async getFeeRate(data, additionalData) {
-        return false
+        const { fee = 0 } = await getFioSdk().getFee('transfer_tokens_pub_key')
+        return [
+            {
+                langMsg: 'xrp_speed_one',
+                feeForTx: fee
+            }
+        ]
     }
 
     /**
