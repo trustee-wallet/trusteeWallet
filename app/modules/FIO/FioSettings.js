@@ -2,40 +2,16 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Image, TextInput, Switch  } from 'react-native'
+import { View, Text, ScrollView, Switch } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
 import SettingsCoin from './elements/SettingsCoin'
 import { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
-
-
-const DATA_COINS = [
-    {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        token_code: 'BTC',
-        chain_code: 'BTC',
-        currencyName: 'My Bitcoin',
-        isActive: true,
-    },
-    {
-        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        token_code: 'ETH',
-        chain_code: 'ETH',
-        currencyName: 'My Ether',
-        isActive: false,
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        token_code: 'FIO',
-        chain_code: 'FIO',
-        currencyName: 'My FIO',
-        isActive: true,
-    },
-];
-
-
+import { connect } from 'react-redux'
+import DaemonCache from '../../daemons/DaemonCache'
+import { getFioNames } from '../../../crypto/blockchains/fio/FioUtils'
 
 class FioSettings extends Component {
 
@@ -43,39 +19,90 @@ class FioSettings extends Component {
         super(props)
         this.state = {
             isAllWalletsSelected: false,
-            DATA_COINS: [],
+            cryptoCurrencies: [],
+            selectedCryptoCurrencies: {},
+            fioAddress: null,
+            fioAddressExpiration: null,
         }
     }
 
     async componentDidMount() {
+        this.setAvailableCurrencies()
+        await this.resolveFioAccount()
+    }
+
+    setAvailableCurrencies = () => {
+        const { cryptoCurrencies } = this.props.currencyStore
         this.setState({
-            DATA_COINS: DATA_COINS,
+            cryptoCurrencies: cryptoCurrencies?.filter(c => !c.isHidden)
         })
     }
 
+    resolveFioAccount = async () => {
+        const { selectedWallet } = this.props.mainStore
+        const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
+        if (fioAccount && fioAccount.address) {
+            // setLoaderStatus(true)
+            const fioNames = await getFioNames(fioAccount.address)
+            if (fioNames && fioNames.length > 0) {
+                this.setState({
+                    fioAddress: fioNames[0].fio_address,
+                    fioAddressExpiration: fioNames[0].expiration,
+                })
+            }
+            // setLoaderStatus(false)
+        }
+    }
 
-    toggleSwitch = async () => {
+    toggleSwitchAll = () => {
+        const { isAllWalletsSelected, cryptoCurrencies } = this.state
+
         this.setState({
-            isAllWalletsSelected: !this.state.isAllWalletsSelected,
+            isAllWalletsSelected: !isAllWalletsSelected,
+            selectedCryptoCurrencies: isAllWalletsSelected
+                ? {}
+                : cryptoCurrencies.reduce((res, current) => {
+                    return ({
+                        ...res,
+                        [current.currencyCode]: true
+                    })
+                }, {})
+        })
+    }
+
+    toggleSwitch = (currencyCode) => {
+        const { selectedCryptoCurrencies } = this.state
+
+        this.setState({
+            selectedCryptoCurrencies: {
+                ...selectedCryptoCurrencies,
+                [currencyCode]: !selectedCryptoCurrencies[currencyCode],
+            }
         })
     }
 
     renderSettingCoins = (data) => {
+        const { selectedCryptoCurrencies } = this.state
         return (
             data.map((item, key) => (
-                <>
                 <SettingsCoin
                     key={key}
-                    data={item}
+                    cryptoCurrency={item}
+                    isSelected={selectedCryptoCurrencies[item.currencyCode]}
+                    toggleSwitch={this.toggleSwitch}
                 />
-                </>
             ))
         )
     }
 
-
+    handleNext = () => {
+        const { selectedCryptoCurrencies } = this.state
+        console.log(selectedCryptoCurrencies)
+    }
 
     render() {
+        const { fioAddress, fioAddressExpiration } = this.state
+
         return (
             <View>
                 <Navigation
@@ -88,57 +115,71 @@ class FioSettings extends Component {
                         array={styles_.array}
                         start={styles_.start} end={styles_.end}>
                         <View style={styles.titleSection}>
-                            <Text style={styles.titleTxt1}>Kir2@trustee</Text>
-                            <Text style={styles.titleTxt2}>{strings('FioSettings.Expire')} 30.09.2021</Text>
+                            <Text style={styles.titleTxt1}>{fioAddress}</Text>
+                            <Text style={styles.titleTxt2}>{strings('FioSettings.Expire')} {fioAddressExpiration}</Text>
                         </View>
                     </GradientView>
 
-
-                <View  style={styles.container}>
-                    <View>
-                        <Text style={styles.txt}>{strings('FioSettings.description')} </Text>
-                    </View>
-
-                    <View style={{ flex: 1,  paddingVertical: 20}}>
-                        <ScrollView>
-
-
-                            <View style={styles.coinRow}>
-                                <View  style={styles.coinRowInfo}>
-                                        <Text style={styles.txt2}>Connect all wallets</Text>
+                    {
+                        fioAddress ? (
+                            <View style={styles.container}>
+                                <View>
+                                    <Text style={styles.txt}>{strings('FioSettings.description')} </Text>
                                 </View>
 
-                                <Switch
-                                    thumbColor="#fff"
-                                    trackColor={{ true: '#864DD9', false: '#dadada' }}
-                                    onValueChange={this.toggleSwitch}
-                                    value={this.state.isAllWalletsSelected}/>
+                                <View style={{ flex: 1, paddingVertical: 20 }}>
+                                    <ScrollView>
+
+                                        <View style={styles.coinRow}>
+                                            <View style={styles.coinRowInfo}>
+                                                <Text style={styles.txt2}>Connect all wallets</Text>
+                                            </View>
+
+                                            <Switch
+                                                thumbColor="#fff"
+                                                trackColor={{ true: '#864DD9', false: '#dadada' }}
+                                                onValueChange={this.toggleSwitchAll}
+                                                value={this.state.isAllWalletsSelected} />
+                                        </View>
+
+                                        {this.renderSettingCoins(this.state.cryptoCurrencies)}
+
+                                    </ScrollView>
+                                </View>
+
+                                <View style={{ marginTop: 20 }}>
+                                    <Button press={this.handleNext}>
+                                        {strings('FioSettings.btnText')}
+                                    </Button>
+                                </View>
+
                             </View>
+                        ) : (
+                            <View style={styles.container}>
+                                <View>
+                                    <Text style={styles.txt}> fio address not registered </Text>
+                                </View>
 
-
-                            {this.renderSettingCoins(this.state.DATA_COINS)}
-
-                        </ScrollView>
-                    </View>
-
-                    <View style={{marginTop: 20}}>
-                        <Button press={() =>  console.log('select FIO pressed')}>
-                            {strings('FioSettings.btnText')}
-                        </Button>
-                    </View>
-
-
-                </View>
-
-
-
+                                <View style={{ marginTop: 20 }}>
+                                    <Button press={this.handleNext}>
+                                        register fio address
+                                    </Button>
+                                </View>
+                            </View>
+                        )
+                    }
                 </View>
             </View>
         );
     }
 }
 
-export default FioSettings
+const mapStateToProps = (state) => ({
+    mainStore: state.mainStore,
+    currencyStore: state.currencyStore
+})
+
+export default connect(mapStateToProps, {})(FioSettings)
 
 const styles_ = {
     array: ['#43156d', '#7127ab'],
@@ -161,8 +202,6 @@ const styles = {
         padding: 10,
         color: '#fff',
     },
-
-
 
     txtCenter: {
         textAlign: 'center',
@@ -213,6 +252,4 @@ const styles = {
         flexDirection: 'row',
         alignItems: 'center',
     },
-
-
 }

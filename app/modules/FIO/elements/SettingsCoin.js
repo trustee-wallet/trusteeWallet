@@ -8,48 +8,26 @@ import CurrencyIcon from '../../../components/elements/CurrencyIcon'
 
 class SettingsCoin extends Component {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            isSelected: false,
-        }
+    toggleSwitch = () => {
+        const { cryptoCurrency, toggleSwitch } = this.props
+        toggleSwitch(cryptoCurrency.currencyCode)
     }
-
-    async componentDidMount() {
-        this.setState({
-            isSelected: this.props.data?.isActive,
-        })
-    }
-
-
-
-    toggleSwitch = async () => {
-        this.setState({
-            isSelected: !this.state.isSelected,
-        })
-    }
-
-
 
     render() {
+        const { cryptoCurrency, isSelected } = this.props
+        const currencyCode = cryptoCurrency.currencyCode || 'NOCOIN'
 
-        const { data } = this.props
-        const currencyCode = data?.token_code || 'NOCOIN'
-        const chainCode = data?.chain_code || 'NOCOIN'
-
-
-        
         return (
             <View style={styles.coinRow}>
                 <View  style={styles.coinRowInfo}>
-                    <CurrencyIcon currencyCode={currencyCode !== chainCode ? `${chainCode}_${currencyCode}` : currencyCode}
+                    <CurrencyIcon currencyCode={currencyCode}
                                   containerStyle={styles.cryptoList__icoWrap}
                                   markStyle={styles.cryptoList__icon__mark}
                                   markTextStyle={styles.cryptoList__icon__mark__text}
                                   iconStyle={styles.cryptoList__icon}/>
                     <View>
-                        <Text style={styles.txt2}>{data?.token_code}</Text>
-                        <Text style={styles.txt3}>{data?.currencyName}</Text>
+                        <Text style={styles.txt2}>{cryptoCurrency.currencySymbol}</Text>
+                        <Text style={styles.txt3}>{cryptoCurrency.currencyName}</Text>
                     </View>
                 </View>
 
@@ -57,7 +35,7 @@ class SettingsCoin extends Component {
                     thumbColor="#fff"
                     trackColor={{ true: '#864DD9', false: '#dadada' }}
                     onValueChange={this.toggleSwitch}
-                    value={this.state.isSelected}/>
+                    value={isSelected}/>
             </View>
         );
     }
@@ -93,7 +71,7 @@ const styles = {
         elevation: 0,
         shadowColor: '#fff'
     },
-    
+
     cryptoList__icon: {
         fontSize: 20
     },

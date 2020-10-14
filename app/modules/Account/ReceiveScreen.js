@@ -58,8 +58,7 @@ import QrCodeBox from '../../components/elements/QrCodeBox'
 import OldPhone from '../../services/UI/OldPhone/OldPhone'
 import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import { addCryptoPublicAddress, getFioName, getPubAddress, resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
-import DaemonCache from '../../daemons/DaemonCache'
+import { resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
 
 let styles
 

@@ -39,14 +39,19 @@ export const getPubAddress = async (fioAddress, chainCode, tokenCode) => {
     }
 }
 
-export const getFioName = async (fioPublicKey) => {
+/**
+ * Returns FIO Addresses and FIO Domains owned by this public key.
+ *
+ * @param fioPublicKey FIO public key of owner.
+ * @return Promise<[ { fio_address:*, expiration:* } ]>
+ */
+export const getFioNames = async (fioPublicKey) => {
     try {
         const response = await getFioSdk().getFioNames(fioPublicKey)
-        const [ fioAddress ] = response['fio_addresses'] || []
-        return fioAddress['fio_address']
+        return response['fio_addresses'] || []
     } catch (e) {
         await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getFioNames')
-        return null
+        return []
     }
 }
 
