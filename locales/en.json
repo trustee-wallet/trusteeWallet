@@ -210,6 +210,7 @@
       "select": "Select wallet",
       "fioRequest": "FIO Requests",
       "registerFioAddress": "Register FIO Address",
+      "fioSettings": "FIO Settings",
       "turnOnHD": "Turn on HD"
     },
     "security": {

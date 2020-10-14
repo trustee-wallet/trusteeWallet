@@ -431,6 +431,16 @@ class SettingsMainScreen extends Component {
                                     </View>
                                 </TouchableOpacity>
 
+                                <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('FioSettings')}>
+                                    <Icon name="addressBook" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('settings.walletManagement.fioSettings')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
+                                    </View>
+                                </TouchableOpacity>
+
                                 <View style={styles.divider}/>
                                 <TouchableOpacity style={{ ...styles.block__item }} onPress={() => this.handleRegisterFIOAddress()}>
                                     <Icon name="info" size={20} style={styles.icon}/>
