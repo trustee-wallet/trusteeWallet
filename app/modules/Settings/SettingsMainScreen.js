@@ -432,7 +432,7 @@ class SettingsMainScreen extends Component {
                                 </TouchableOpacity>
 
                                 <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('FioSettings')}>
-                                    <Icon name="addressBook" size={20} style={styles.icon}/>
+                                    <Icon name="settings" size={20} style={styles.icon}/>
                                     <View style={styles.block__item__content}>
                                         <Text style={styles.block__text}>{strings('settings.walletManagement.fioSettings')}</Text>
                                     </View>
