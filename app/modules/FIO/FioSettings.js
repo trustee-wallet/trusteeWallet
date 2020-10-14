@@ -7,8 +7,34 @@ import CurrencyIcon from '../../components/elements/CurrencyIcon'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
+import SettingsCoin from './elements/SettingsCoin'
 import { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
+
+
+const DATA_COINS = [
+    {
+        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+        token_code: 'BTC',
+        chain_code: 'BTC',
+        currencyName: 'My Bitcoin',
+        isActive: true,
+    },
+    {
+        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+        token_code: 'ETH',
+        chain_code: 'ETH',
+        currencyName: 'My Ether',
+        isActive: false,
+    },
+    {
+        id: '58694a0f-3da1-471f-bd96-145571e29d72',
+        token_code: 'FIO',
+        chain_code: 'FIO',
+        currencyName: 'My FIO',
+        isActive: true,
+    },
+];
 
 
 
@@ -18,8 +44,16 @@ class FioSettings extends Component {
         super(props)
         this.state = {
             isSelected: false,
+            DATA_COINS: [],
         }
     }
+
+    async componentDidMount() {
+        this.setState({
+            DATA_COINS: DATA_COINS,
+        })
+    }
+
 
     toggleSwitch = async () => {
         this.setState({
@@ -27,11 +61,25 @@ class FioSettings extends Component {
         })
     }
 
+    renderSettingCoins = (data) => {
+        return (
+            data.map((item, key) => (
+                <>
+                <SettingsCoin
+                    key={key}
+                    data={item}
+                />
+                </>
+            ))
+        )
+    }
+
+
+
     render() {
         return (
             <View>
                 <Navigation
-                    //title={strings('assets.mainTitle')}
                     title= {strings('FioSettings.title')}
                 />
 
@@ -55,68 +103,7 @@ class FioSettings extends Component {
                     <View style={{ flex: 1,  paddingVertical: 20}}>
                         <ScrollView>
 
-
-                            <View style={styles.coinRow}>
-                                <View  style={styles.coinRowInfo}>
-                                    <CurrencyIcon currencyCode={'BTC'}
-                                                  containerStyle={styles.cryptoList__icoWrap}
-                                                  markStyle={styles.cryptoList__icon__mark}
-                                                  markTextStyle={styles.cryptoList__icon__mark__text}
-                                                  iconStyle={styles.cryptoList__icon}/>
-                                    <View>
-                                        <Text style={styles.txt2}>BTC</Text>
-                                        <Text style={styles.txt3}>My Bitcoin</Text>
-                                    </View>
-                                </View>
-
-                                <Switch
-                                    thumbColor="#fff"
-                                    trackColor={{ true: '#864DD9', false: '#dadada' }}
-                                    onValueChange={this.toggleSwitch}
-                                    value={this.state.isSelected}/>
-                            </View>
-
-                            <View style={styles.coinRow}>
-                                <View  style={styles.coinRowInfo}>
-                                    <CurrencyIcon currencyCode={'ETH'}
-                                                  containerStyle={styles.cryptoList__icoWrap}
-                                                  markStyle={styles.cryptoList__icon__mark}
-                                                  markTextStyle={styles.cryptoList__icon__mark__text}
-                                                  iconStyle={styles.cryptoList__icon}/>
-                                    <View>
-                                        <Text style={styles.txt2}>ETH</Text>
-                                        <Text style={styles.txt3}>My Ether</Text>
-                                    </View>
-                                </View>
-
-                                <Switch
-                                    thumbColor="#fff"
-                                    trackColor={{ true: '#864DD9', false: '#dadada' }}
-                                    onValueChange={this.toggleSwitch}
-                                    value={this.state.isSelected}/>
-                            </View>
-
-
-                            <View style={styles.coinRow}>
-                                <View  style={styles.coinRowInfo}>
-                                    <CurrencyIcon currencyCode={'FIO'}
-                                                  containerStyle={styles.cryptoList__icoWrap}
-                                                  markStyle={styles.cryptoList__icon__mark}
-                                                  markTextStyle={styles.cryptoList__icon__mark__text}
-                                                  iconStyle={styles.cryptoList__icon}/>
-                                    <View>
-                                        <Text style={styles.txt2}>FIO</Text>
-                                        <Text style={styles.txt3}>My FIO</Text>
-                                    </View>
-                                </View>
-
-                                <Switch
-                                    thumbColor="#fff"
-                                    trackColor={{ true: '#864DD9', false: '#dadada' }}
-                                    onValueChange={this.toggleSwitch}
-                                    value={this.state.isSelected}/>
-                            </View>
-
+                            {this.renderSettingCoins(this.state.DATA_COINS)}
 
                         </ScrollView>
                     </View>
@@ -163,41 +150,6 @@ const styles = {
     },
 
 
-    coinRow: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 15,
-        paddingBottom: 15,
-        borderColor: '#ddd',
-        borderBottomWidth: 1
-    },
-
-    coinRowInfo: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-
-    cryptoList__icoWrap: {
-        width: 42,
-        height: 42,
-        marginRight: 7,
-        elevation: 0,
-        shadowColor: '#fff'
-    },
-    
-    cryptoList__icon: {
-        fontSize: 20
-    },
-    cryptoList__icon__mark: {
-        bottom: 5
-    },
-    cryptoList__icon__mark__text: {
-        fontSize: 5
-    },
-
 
     txtCenter: {
         textAlign: 'center',
@@ -223,19 +175,6 @@ const styles = {
         fontSize: 19,
         color: '#777',
         textAlign: 'center',
-    },
-
-    txt2: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 19,
-        color: '#000',
-    },
-
-    txt3: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#000',
-        marginTop: -5,
     },
 
 
