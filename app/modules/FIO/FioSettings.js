@@ -3,7 +3,6 @@
  */
 import React, { Component } from 'react'
 import { View, Text, ScrollView, Image, TextInput, Switch  } from 'react-native'
-import CurrencyIcon from '../../components/elements/CurrencyIcon'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
@@ -43,7 +42,7 @@ class FioSettings extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            isSelected: false,
+            isAllWalletsSelected: false,
             DATA_COINS: [],
         }
     }
@@ -57,7 +56,7 @@ class FioSettings extends Component {
 
     toggleSwitch = async () => {
         this.setState({
-            isSelected: !this.state.isSelected,
+            isAllWalletsSelected: !this.state.isAllWalletsSelected,
         })
     }
 
@@ -102,6 +101,20 @@ class FioSettings extends Component {
 
                     <View style={{ flex: 1,  paddingVertical: 20}}>
                         <ScrollView>
+
+
+                            <View style={styles.coinRow}>
+                                <View  style={styles.coinRowInfo}>
+                                        <Text style={styles.txt2}>Connect all wallets</Text>
+                                </View>
+
+                                <Switch
+                                    thumbColor="#fff"
+                                    trackColor={{ true: '#864DD9', false: '#dadada' }}
+                                    onValueChange={this.toggleSwitch}
+                                    value={this.state.isAllWalletsSelected}/>
+                            </View>
+
 
                             {this.renderSettingCoins(this.state.DATA_COINS)}
 
@@ -175,6 +188,30 @@ const styles = {
         fontSize: 19,
         color: '#777',
         textAlign: 'center',
+    },
+
+    txt2: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 17,
+        color: '#000',
+    },
+
+    coinRow: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 15,
+        paddingTop: 10,
+        paddingBottom: 15,
+        borderColor: '#ddd',
+        borderBottomWidth: 1
+    },
+
+    coinRowInfo: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
     },
 
 
