@@ -157,7 +157,7 @@ class FioSettings extends Component {
                                 </View>
 
                                 <View style={{ flex: 1, paddingVertical: 20 }}>
-                                    <ScrollView>
+                                    <ScrollView style={{ marginHorizontal: -20, paddingHorizontal: 20 }}>
 
                                         <View style={styles.coinRow}>
                                             <View style={styles.coinRowInfo}>
