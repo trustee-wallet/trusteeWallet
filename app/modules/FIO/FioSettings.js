@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import DaemonCache from '../../daemons/DaemonCache'
 import { getFioNames } from '../../../crypto/blockchains/fio/FioUtils'
 import config from '../../config/config'
+import Moment from 'moment';
 
 class FioSettings extends Component {
 
@@ -118,6 +119,7 @@ class FioSettings extends Component {
 
     render() {
         const { fioAddress, fioAddressExpiration } = this.state
+        Moment.locale('en');
 
         return (
             <View>
@@ -135,7 +137,7 @@ class FioSettings extends Component {
                                 fioAddress ? (
                                     <View>
                                         <Text style={styles.titleTxt1}>{fioAddress}</Text>
-                                        <Text style={styles.titleTxt2}>{strings('FioSettings.Expire')} {fioAddressExpiration}</Text>
+                                        <Text style={styles.titleTxt2}>{strings('FioSettings.Expire')} {Moment(fioAddressExpiration).format('lll')} </Text>
                                     </View>
                                 ) : (
                                         /*if fio address not registered*/
