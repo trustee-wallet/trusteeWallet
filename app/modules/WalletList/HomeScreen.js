@@ -231,6 +231,12 @@ class HomeScreen extends Component {
                                 </Button>
                             </View>
 
+                            <View style={{ flex: 1, padding: 30, backgroundColor: '#f5f5f5' }}>
+                                <Button press={() =>  NavStore.goNext('FioSendRequest')}>
+                                    go to Fio Send Request
+                                </Button>
+                            </View>
+
                             <View style={{flex: 1, paddingBottom: 30, backgroundColor: '#f5f5f5'}}>
                                 <Text style={{
                                     marginLeft: 31,

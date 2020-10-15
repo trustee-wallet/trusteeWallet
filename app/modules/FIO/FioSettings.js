@@ -2,7 +2,7 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Switch } from 'react-native'
+import { View, Text, ScrollView, Switch, Linking } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
@@ -12,6 +12,7 @@ import GradientView from '../../components/elements/GradientView'
 import { connect } from 'react-redux'
 import DaemonCache from '../../daemons/DaemonCache'
 import { getFioNames } from '../../../crypto/blockchains/fio/FioUtils'
+import config from '../../config/config'
 
 class FioSettings extends Component {
 
@@ -100,6 +101,21 @@ class FioSettings extends Component {
         console.log(selectedCryptoCurrencies)
     }
 
+    handleRegisterFIOAddress = async () => {
+        const { accountList } = this.props.accountStore
+        const { selectedWallet } = this.props.mainStore
+        const { apiEndpoints } = config.fio
+
+        const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
+        console.log("publicFioAddress")
+        console.log(publicFioAddress)
+        if (publicFioAddress) {
+            Linking.openURL(`${apiEndpoints.registrationSiteURL}${publicFioAddress}`)
+        } else {
+            // TODO show some warning tooltip
+        }
+    }
+
     render() {
         const { fioAddress, fioAddressExpiration } = this.state
 
@@ -115,8 +131,19 @@ class FioSettings extends Component {
                         array={styles_.array}
                         start={styles_.start} end={styles_.end}>
                         <View style={styles.titleSection}>
-                            <Text style={styles.titleTxt1}>{fioAddress}</Text>
-                            <Text style={styles.titleTxt2}>{strings('FioSettings.Expire')} {fioAddressExpiration}</Text>
+                            {
+                                fioAddress ? (
+                                    <View>
+                                        <Text style={styles.titleTxt1}>{fioAddress}</Text>
+                                        <Text style={styles.titleTxt2}>{strings('FioSettings.Expire')} {fioAddressExpiration}</Text>
+                                    </View>
+                                ) : (
+                                        /*if fio address not registered*/
+                                        <View>
+                                            <Text style={styles.titleTxt1}>{strings('FioSettings.noFioTitle')}</Text>
+                                        </View>
+                                )
+                             }
                         </View>
                     </GradientView>
 
@@ -155,14 +182,15 @@ class FioSettings extends Component {
 
                             </View>
                         ) : (
+                            /*if fio address not registered*/
                             <View style={styles.container}>
                                 <View>
-                                    <Text style={styles.txt}> fio address not registered </Text>
+                                    <Text style={styles.txt}> {strings('FioSettings.noFioDescription')} </Text>
                                 </View>
 
                                 <View style={{ marginTop: 20 }}>
-                                    <Button press={this.handleNext}>
-                                        register fio address
+                                    <Button press={this.handleRegisterFIOAddress}>
+                                        {strings('FioSettings.noFioBtn')}
                                     </Button>
                                 </View>
                             </View>
@@ -176,6 +204,7 @@ class FioSettings extends Component {
 
 const mapStateToProps = (state) => ({
     mainStore: state.mainStore,
+    accountStore: state.accountStore,
     currencyStore: state.currencyStore
 })
 
