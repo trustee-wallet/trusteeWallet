@@ -64,10 +64,14 @@ class FioSendRequest extends Component {
         setLoaderStatus(false)
     }
 
+    callbackModal() {
+        console.log("callbackModal")
+    }
 
-    showLicenceModal = () => {
+    showSelectCoinModal = () => {
         showModal({
-            type: 'SELECT_COIN_MODAL'
+            type: 'SELECT_COIN_MODAL',
+            callback: this.callbackModal
         })
     }
 
@@ -81,7 +85,7 @@ class FioSendRequest extends Component {
 
                         <View style={styles.subheader}>
 
-                            <TouchableOpacity style={styles.terms__btn} onPress={this.showLicenceModal}>
+                            <TouchableOpacity style={styles.terms__btn} onPress={this.showSelectCoinModal}>
                                 <Text>
                                     <Text style={styles.terms__text1}>
                                         {strings('FioSendRequest.selectCoin')}

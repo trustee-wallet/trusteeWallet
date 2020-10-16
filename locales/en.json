@@ -991,7 +991,8 @@
     },
     "selectCoinFio": {
       "title": "Select Coin for Request",
-      "description": "Please, select coin for request",
+      "description": "Please, select a coin which you want request",
+      "description2": "selected coin will be transfered to FIO request",
       "btn": "Select"
     },
     "login": {
