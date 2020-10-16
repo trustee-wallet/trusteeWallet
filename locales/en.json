@@ -454,6 +454,7 @@
 
   "FioSendRequest": {
     "title": "Send FIO Request",
+    "selectCoin": "Click to Select Coin",
     "from": "Send Request From",
     "to": "Send Request To",
     "amount": "Amount",
@@ -987,6 +988,11 @@
       "description": "    Please, read this so you know what you`re agreeing to",
       "accept": "Agree",
       "decline": "Decline"
+    },
+    "selectCoinFio": {
+      "title": "Select Coin for Request",
+      "description": "Please, select coin for request",
+      "btn": "Select"
     },
     "login": {
       "title": "Login/SignUp",

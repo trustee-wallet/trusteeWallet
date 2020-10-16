@@ -2,7 +2,7 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, TextInput, KeyboardAvoidingView  } from 'react-native'
+import { View, Text, TextInput, KeyboardAvoidingView, TouchableOpacity  } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
@@ -13,6 +13,8 @@ import { requestFunds } from '../../../crypto/blockchains/fio/FioUtils'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import Toast from '../../services/UI/Toast/Toast'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
+
+import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
 
 
@@ -62,6 +64,13 @@ class FioSendRequest extends Component {
         setLoaderStatus(false)
     }
 
+
+    showLicenceModal = () => {
+        showModal({
+            type: 'SELECT_COIN_MODAL'
+        })
+    }
+
     render() {
         return (
             <View>
@@ -71,6 +80,16 @@ class FioSendRequest extends Component {
                     <View style={styles.container}>
 
                         <View style={styles.subheader}>
+
+                            <TouchableOpacity style={styles.terms__btn} onPress={this.showLicenceModal}>
+                                <Text>
+                                    <Text style={styles.terms__text1}>
+                                        {strings('FioSendRequest.selectCoin')}
+                                    </Text>
+                                </Text>
+                            </TouchableOpacity>
+
+                            
                             <CurrencyIcon currencyCode={this.state.fioRequestDetails.currencySymbol !== this.state.fioRequestDetails.chainCode ? `${this.state.fioRequestDetails.chainCode}_${this.state.fioRequestDetails.currencySymbol}` : this.state.fioRequestDetails.currencySymbol}
                                           containerStyle={styles.cryptoList__icoWrap}
                                           markStyle={styles.cryptoList__icon__mark}
@@ -163,7 +182,7 @@ const styles = {
 
     subheader: {
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: -25,
