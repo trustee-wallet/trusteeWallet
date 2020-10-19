@@ -86,11 +86,11 @@ class FioSendRequest extends Component {
                         <View style={styles.subheader}>
 
                             <TouchableOpacity style={styles.terms__btn} onPress={this.showSelectCoinModal}>
-                                <Text>
-                                    <Text style={styles.terms__text1}>
+                                <View style={styles.popup_btn}>
+                                    <Text style={styles.popup_txt}>
                                         {strings('FioSendRequest.selectCoin')}
                                     </Text>
-                                </Text>
+                                </View>
                             </TouchableOpacity>
 
                             
@@ -182,6 +182,20 @@ const styles = {
         height: '100%',
         flexDirection: 'column',
         flex: 1,
+    },
+
+    popup_btn: {
+        padding: 10,
+        paddingHorizontal: 20,
+        margin: 10,
+        borderRadius: 10,
+        backgroundColor: '#6B36A8',
+    },
+
+    popup_txt: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 16,
+        color: '#fff',
     },
 
     subheader: {
