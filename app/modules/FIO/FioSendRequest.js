@@ -93,13 +93,16 @@ class FioSendRequest extends Component {
                                 </View>
                             </TouchableOpacity>
 
+                            <TouchableOpacity onPress={this.showSelectCoinModal}>
+                                <CurrencyIcon
+                                    currencyCode={this.state.fioRequestDetails.currencySymbol !== this.state.fioRequestDetails.chainCode ? `${this.state.fioRequestDetails.chainCode}_${this.state.fioRequestDetails.currencySymbol}` : this.state.fioRequestDetails.currencySymbol}
+                                    containerStyle={styles.cryptoList__icoWrap}
+                                    markStyle={styles.cryptoList__icon__mark}
+                                    markTextStyle={styles.cryptoList__icon__mark__text}
+                                    iconStyle={styles.cryptoList__icon}/>
+                                <Text style={styles.subheaderTxt}>{this.state.fioRequestDetails.currencySymbol}</Text>
+                            </TouchableOpacity>
                             
-                            <CurrencyIcon currencyCode={this.state.fioRequestDetails.currencySymbol !== this.state.fioRequestDetails.chainCode ? `${this.state.fioRequestDetails.chainCode}_${this.state.fioRequestDetails.currencySymbol}` : this.state.fioRequestDetails.currencySymbol}
-                                          containerStyle={styles.cryptoList__icoWrap}
-                                          markStyle={styles.cryptoList__icon__mark}
-                                          markTextStyle={styles.cryptoList__icon__mark__text}
-                                          iconStyle={styles.cryptoList__icon}/>
-                            <Text style={styles.subheaderTxt}>{this.state.fioRequestDetails.currencySymbol}</Text>
                         </View>
 
 
