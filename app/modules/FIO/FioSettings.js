@@ -14,6 +14,8 @@ import DaemonCache from '../../daemons/DaemonCache'
 import { getFioNames } from '../../../crypto/blockchains/fio/FioUtils'
 import config from '../../config/config'
 import Moment from 'moment';
+import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import { resolveChainCode, addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress, removeCryptoPublicAddresses } from '../../../crypto/blockchains/fio/FioUtils'
 
 class FioSettings extends Component {
 
@@ -29,8 +31,14 @@ class FioSettings extends Component {
     }
 
     async componentDidMount() {
-        this.setAvailableCurrencies()
-        await this.resolveFioAccount()
+        setLoaderStatus(true)
+        try {
+            this.setAvailableCurrencies()
+            await this.resolveFioAccount()
+            await this.resolvePublicAddresses()
+        } finally {
+            setLoaderStatus(false)
+        }
     }
 
     setAvailableCurrencies = () => {
@@ -38,6 +46,23 @@ class FioSettings extends Component {
         this.setState({
             cryptoCurrencies: cryptoCurrencies?.filter(c => !c.isHidden)
         })
+    }
+
+    resolvePublicAddresses = async () => {
+        const { cryptoCurrencies, fioAddress } = this.state
+        if (cryptoCurrencies && fioAddress) {
+            const publicAddresses = await Promise.all(cryptoCurrencies.map(c => {
+                const codes = resolveCryptoCodes(c.currencyCode)
+                return getPubAddress(fioAddress, codes['chain_code'], codes['token_code'])
+            }))
+
+            this.setState({
+                selectedCryptoCurrencies: cryptoCurrencies.reduce((res, current, index) => ({
+                    ...res, 
+                    [current.currencyCode]: !!publicAddresses[index] && publicAddresses[index] !== '0' 
+                }), {})
+            })
+        }
     }
 
     resolveFioAccount = async () => {
@@ -97,9 +122,42 @@ class FioSettings extends Component {
         )
     }
 
-    handleNext = () => {
-        const { selectedCryptoCurrencies } = this.state
-        console.log(selectedCryptoCurrencies)
+    handleNext = async () => {
+        try {
+            const { selectedWallet } = this.props.mainStore
+            const { selectedCryptoCurrencies, fioAddress, cryptoCurrencies } = this.state
+    
+            setLoaderStatus(true)
+            const publicAddresses = await cryptoCurrencies
+                .reduce(async (resP, current) => {
+                    const res = await resP;
+    
+                    const account = await DaemonCache.getCacheAccount(selectedWallet.walletHash, current.currencyCode)
+                    if (!account) {
+                        return res
+                    }
+                    
+                    return [
+                        ...res,
+                        {
+                            chain_code: resolveChainCode(account.currencyCode, account.currencySymbol),
+                            token_code: account.currencySymbol,
+                            public_address: selectedCryptoCurrencies[account.currencyCode] === true ? account.address : 0
+                        },
+                    ]
+                }, [])
+    
+            const isAddressCreated = await addCryptoPublicAddresses({
+                fioName: fioAddress, 
+                publicAddresses
+            })
+    
+            if (isAddressCreated) {
+                console.log(`FioSettings.resolveAddressByFio Successfully added public address to ${fioAddress}`)
+            }
+        } finally {
+            setLoaderStatus(false)
+        }
     }
 
     handleRegisterFIOAddress = async () => {

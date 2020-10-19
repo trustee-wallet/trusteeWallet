@@ -15,6 +15,20 @@ export const resolveChainCode = (currencyCode, currencySymbol) => {
     return chainCode
 }
 
+export const resolveCryptoCodes = (currencyCode) => {
+    let chainCode = currencyCode
+    let currencySymbol = currencyCode
+    const tmp = currencyCode.split('_')
+    if (typeof tmp[0] !== 'undefined' && tmp[0] && tmp[1]) {
+        chainCode = tmp[0]
+        currencySymbol = tmp[1]
+    }
+    return {
+        chain_code: chainCode,
+        token_code: currencySymbol
+    }
+}
+
 export const isFioAddressRegistered = async (address) => {
     if (!address || !address.includes('@')) {
         return false;
@@ -103,6 +117,25 @@ export const addCryptoPublicAddress = async ({fioName, chainCode, tokenCode, pub
             chainCode,
             tokenCode,
             publicAddress,
+            fee,
+            null
+        )
+        const isOK = response['status'] === 'OK'
+        if (!isOK) {
+            await BlocksoftCryptoLog.log('FIO addPublicAddress error', response)
+        }
+        return isOK
+    } catch (e) {
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO addPubAddress')
+    }
+}
+
+export const addCryptoPublicAddresses = async ({fioName, publicAddresses}) => {
+    try {
+        const { fee = 0 } = await getFioSdk().getFeeForAddPublicAddress(fioName)
+        const response = await getFioSdk().addPublicAddresses(
+            fioName,
+            publicAddresses,
             fee,
             null
         )

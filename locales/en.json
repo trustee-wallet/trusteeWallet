@@ -446,10 +446,10 @@
     "title": "Fio Settings",
     "description": "Choose wallets to connect to your FIO address",
     "Expire": "Expires",
-    "btnText": "Next",
+    "btnText": "Save",
     "noFioTitle": "You need to register FIO address",
     "noFioDescription": "FIO address not registered",
-    "noFioBtn": "Register Fio Address",
+    "noFioBtn": "Register Fio Address"
   },
 
   "FioSendRequest": {
