@@ -103,23 +103,28 @@ class FioSendRequest extends Component {
 
                         <View style={styles.subheader}>
 
-                            <TouchableOpacity style={styles.terms__btn} onPress={this.showSelectCoinModal}>
-                                <View style={styles.popup_btn}>
-                                    <Text style={styles.popup_txt}>
-                                        {strings('FioSendRequest.selectCoin')}
-                                    </Text>
-                                </View>
-                            </TouchableOpacity>
+                            {!this.state.fioRequestDetails.currencySymbol &&
+                                <TouchableOpacity style={styles.terms__btn} onPress={this.showSelectCoinModal}>
+                                    <View style={styles.popup_btn}>
+                                        <Text style={styles.popup_txt}>
+                                            {strings('FioSendRequest.selectCoin')}
+                                        </Text>
+                                    </View>
+                                </TouchableOpacity>
+                            }
 
-                            <TouchableOpacity onPress={this.showSelectCoinModal}>
-                                <CurrencyIcon
-                                    currencyCode={this.state.fioRequestDetails.currencySymbol !== this.state.fioRequestDetails.chainCode ? `${this.state.fioRequestDetails.chainCode}_${this.state.fioRequestDetails.currencySymbol}` : this.state.fioRequestDetails.currencySymbol}
-                                    containerStyle={styles.cryptoList__icoWrap}
-                                    markStyle={styles.cryptoList__icon__mark}
-                                    markTextStyle={styles.cryptoList__icon__mark__text}
-                                    iconStyle={styles.cryptoList__icon}/>
-                                <Text style={styles.subheaderTxt}>{this.state.fioRequestDetails.currencySymbol}</Text>
-                            </TouchableOpacity>
+                            {this.state.fioRequestDetails.currencySymbol &&
+                                <TouchableOpacity onPress={this.showSelectCoinModal}>
+                                    <CurrencyIcon
+                                        currencyCode={this.state.fioRequestDetails.currencySymbol !== this.state.fioRequestDetails.chainCode ? `${this.state.fioRequestDetails.chainCode}_${this.state.fioRequestDetails.currencySymbol}` : this.state.fioRequestDetails.currencySymbol}
+                                        containerStyle={styles.cryptoList__icoWrap}
+                                        markStyle={styles.cryptoList__icon__mark}
+                                        markTextStyle={styles.cryptoList__icon__mark__text}
+                                        iconStyle={styles.cryptoList__icon}/>
+                                    <Text style={styles.subheaderTxt}>{this.state.fioRequestDetails.currencySymbol}</Text>
+                                </TouchableOpacity>
+                            }
+
                             
                         </View>
 
@@ -235,7 +240,7 @@ const styles = {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 18,
         color: '#333',
-        paddingLeft: 10,
+        textAlign: 'center',
     },
 
     input__wrapper: {
