@@ -421,6 +421,16 @@ class SettingsMainScreen extends Component {
                                     </View>
                                 </TouchableOpacity>
 
+                                <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('FioSendRequest')}>
+                                    <Icon name="exchangeRates" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('settings.walletManagement.sendFioRequest')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
+                                    </View>
+                                </TouchableOpacity>
+
                                 <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('FioRequestsList')}>
                                     <Icon name="addressBook" size={20} style={styles.icon}/>
                                     <View style={styles.block__item__content}>
