@@ -98,15 +98,11 @@ export class SelectCoinModal extends Component {
         })
     }
 
-    callbackModal = () => {
-        const { callback } = this.props
-            //callbackModal()
-    }
-
     currencySelected = (currencyCode) => {
-        console.log("currencyCode = ")
-        console.log(currencyCode)
-        this.callbackModal()
+        const { callback } = this.props
+        if (callback) {
+            callback(currencyCode)
+        }
         hideModal()
     }
 

@@ -11,11 +11,10 @@ import { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
 import { connect } from 'react-redux'
 import DaemonCache from '../../daemons/DaemonCache'
-import { getFioNames } from '../../../crypto/blockchains/fio/FioUtils'
 import config from '../../config/config'
 import Moment from 'moment';
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import { resolveChainCode, addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress, removeCryptoPublicAddresses } from '../../../crypto/blockchains/fio/FioUtils'
+import { getFioNames, resolveChainCode, addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
 
 class FioSettings extends Component {
 

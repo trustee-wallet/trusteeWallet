@@ -8,6 +8,7 @@ import Navigation from '../../components/navigation/Navigation'
 import { strings } from '../../services/i18n'
 import Icon from '../../components/elements/CustomIcon.js'
 import GradientView from '../../components/elements/GradientView'
+import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 
 import RequestItem from './elements/RequestItem'
 import { getSentFioRequests, getPendingFioRequests } from '../../../crypto/blockchains/fio/FioUtils'
@@ -28,18 +29,18 @@ class FioRequestsList extends Component {
     async componentDidMount() {
         const { accountList } = this.props.accountStore
         const { selectedWallet } = this.props.mainStore
-
         const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
+
+        setLoaderStatus(true)
         if (publicFioAddress) {
             const pendingRequests = await getPendingFioRequests(publicFioAddress, 100, 0)
             const sentRequests = await getSentFioRequests(publicFioAddress, 100, 0)
-            //console.log(sentRequests)
-            //console.log(pendingRequests)
             this.setState({
                 sentRequestsData: sentRequests,
                 pendingRequestsData: pendingRequests,
             })
         }
+        setLoaderStatus(false)
     }
 
     renderRequestList = (data, type) => {

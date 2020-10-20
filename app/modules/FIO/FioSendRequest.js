@@ -9,10 +9,12 @@ import Button from '../../components/elements/Button'
 import { strings } from '../../services/i18n'
 import Feather from 'react-native-vector-icons/Feather'
 import NavStore from '../../components/navigation/NavStore'
-import { requestFunds } from '../../../crypto/blockchains/fio/FioUtils'
+import { connect } from 'react-redux'
+import { requestFunds, getFioNames, resolveCryptoCodes } from '../../../crypto/blockchains/fio/FioUtils'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import Toast from '../../services/UI/Toast/Toast'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
+import DaemonCache from '../../daemons/DaemonCache'
 
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
@@ -31,13 +33,20 @@ class FioSendRequest extends Component {
         }
     }
 
-    componentDidMount() {
-        const fioRequestDetails = this.props.navigation.getParam('fioRequestDetails')
-        if (fioRequestDetails) {
-            this.setState({
-                fioRequestDetails: fioRequestDetails,
-                payeeFioAddress: fioRequestDetails.fioName,
-            })
+    async componentDidMount() {
+        await this.resolveFioAccount()
+    }
+
+    resolveFioAccount = async () => {
+        const { selectedWallet } = this.props.mainStore
+        const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
+        if (fioAccount && fioAccount.address) {
+            const fioNames = await getFioNames(fioAccount.address)
+            if (fioNames && fioNames.length > 0) {
+                this.setState({
+                    payeeFioAddress: fioNames[0].fio_address,
+                })
+            }
         }
     }
 
@@ -64,15 +73,24 @@ class FioSendRequest extends Component {
         setLoaderStatus(false)
     }
 
-    callbackModal() {
-        console.log("callbackModal")
+    callbackModal = (currencyCode) => {
+        const fioRequestDetails = this.state.fioRequestDetails
+        // eslint-disable-next-line camelcase
+        const {chain_code, token_code} = resolveCryptoCodes(currencyCode)
+
+        this.setState({
+            fioRequestDetails: {
+                ...fioRequestDetails,
+                chainCode: chain_code,
+                currencySymbol: token_code,
+            }
+        })
     }
 
     showSelectCoinModal = () => {
         showModal({
             type: 'SELECT_COIN_MODAL',
-            callback: this.callbackModal
-        })
+        }, this.callbackModal)
     }
 
     render() {
@@ -175,8 +193,11 @@ class FioSendRequest extends Component {
     }
 }
 
-export default FioSendRequest
+const mapStateToProps = (state) => ({
+    mainStore: state.mainStore,
+})
 
+export default connect(mapStateToProps, {})(FioSendRequest)
 
 const styles = {
 
