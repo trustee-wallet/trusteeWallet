@@ -2,7 +2,7 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, TextInput, KeyboardAvoidingView, TouchableOpacity  } from 'react-native'
+import { View, Text, TextInput, KeyboardAvoidingView, TouchableOpacity, Linking  } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
@@ -15,6 +15,7 @@ import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import Toast from '../../services/UI/Toast/Toast'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
 import DaemonCache from '../../daemons/DaemonCache'
+import config from '../../config/config'
 
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
@@ -73,6 +74,19 @@ class FioSendRequest extends Component {
         setLoaderStatus(false)
     }
 
+    handleRegisterFIOAddress = async () => {
+        const { accountList } = this.props.accountStore
+        const { selectedWallet } = this.props.mainStore
+        const { apiEndpoints } = config.fio
+
+        const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
+        if (publicFioAddress) {
+            Linking.openURL(`${apiEndpoints.registrationSiteURL}${publicFioAddress}`)
+        } else {
+            // TODO show some warning tooltip
+        }
+    }
+
     callbackModal = (currencyCode) => {
         const fioRequestDetails = this.state.fioRequestDetails
         // eslint-disable-next-line camelcase
@@ -102,6 +116,23 @@ class FioSendRequest extends Component {
                     <View style={styles.container}>
 
                         <View style={styles.subheader}>
+
+
+                            <TouchableOpacity style={styles.terms__btn} onPress={() => NavStore.goNext('FioSettings')}>
+                                <View style={styles.popup_btn}>
+                                    <Text style={styles.popup_txt}>
+                                        {strings('settings.walletManagement.fioSettings')}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.terms__btn} press={this.handleRegisterFIOAddress}>
+                                <View style={styles.popup_btn}>
+                                    <Text style={styles.popup_txt}>
+                                        {strings('settings.walletManagement.registerFioAddress')}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
 
                             {!this.state.fioRequestDetails.currencySymbol &&
                                 <TouchableOpacity style={styles.terms__btn} onPress={this.showSelectCoinModal}>
@@ -200,6 +231,7 @@ class FioSendRequest extends Component {
 
 const mapStateToProps = (state) => ({
     mainStore: state.mainStore,
+    accountStore: state.accountStore,
 })
 
 export default connect(mapStateToProps, {})(FioSendRequest)
