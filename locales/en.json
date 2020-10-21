@@ -461,7 +461,8 @@
     "amount": "Amount",
     "memo": "Memo",
     "btnText": "Next",
-    "created": "FIO request created"
+    "created": "FIO request created",
+    "noCoinSelected": "You need to choose coin in which you make request"
   },
 
   "FioRequestsList": {

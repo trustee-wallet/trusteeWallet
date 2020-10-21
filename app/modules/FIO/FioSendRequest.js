@@ -90,7 +90,7 @@ class FioSendRequest extends Component {
         const { amount, memo, payerFioAddress, payeeFioAddress, currencyCode } = this.state
 
         if (!currencyCode) {
-            Toast.setMessage(strings('FioSendRequest.noWalletSelected')).show()
+            Toast.setMessage(strings('FioSendRequest.noCoinSelected')).show()
             return
         }
 
