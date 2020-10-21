@@ -183,8 +183,7 @@ class FioSendRequest extends Component {
                             {
                                 !this.state.payeeFioAddress ?
                                     <View style={styles.rowFlex}>
-                                        <TouchableOpacity
-                                                          press={this.handleRegisterFIOAddress}>
+                                        <TouchableOpacity onPress={this.handleRegisterFIOAddress}>
                                             <View style={styles.popup_btn}>
                                                 <Text style={styles.popup_txt}>
                                                     {strings('FioSendRequest.registerFioAddress')}
