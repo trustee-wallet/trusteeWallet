@@ -165,24 +165,38 @@ class FioSendRequest extends Component {
 
                             {
                                 !this.state.enabledCryptoCurrencies?.length ?
-                                <TouchableOpacity style={styles.terms__btn} onPress={() => NavStore.goNext('FioSettings')}>
-                                    <View style={styles.popup_btn}>
-                                        <Text style={styles.popup_txt}>
-                                            {strings('settings.walletManagement.fioSettings')}
-                                        </Text>
-                                    </View>
-                                </TouchableOpacity> : null
+                                <View style={styles.rowFlex}>
+                                    <TouchableOpacity style={styles.terms__btn} onPress={() => NavStore.goNext('FioSettings')}>
+                                        <View style={styles.popup_btn}>
+                                            <Text style={styles.popup_txt}>
+                                                {strings('FioSendRequest.fioSettings')}
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                    <Text style={styles.descr_txt}>
+                                        {strings('FioSendRequest.goToFioSettings')}
+                                    </Text>
+                                </View>
+                                : null
                             }
 
                             {
                                 !this.state.payeeFioAddress ?
-                                <TouchableOpacity style={styles.terms__btn} press={this.handleRegisterFIOAddress}>
-                                    <View style={styles.popup_btn}>
-                                        <Text style={styles.popup_txt}>
-                                            {strings('settings.walletManagement.registerFioAddress')}
+                                    <View style={styles.rowFlex}>
+                                        <TouchableOpacity style={styles.terms__btn}
+                                                          press={this.handleRegisterFIOAddress}>
+                                            <View style={styles.popup_btn}>
+                                                <Text style={styles.popup_txt}>
+                                                    {strings('FioSendRequest.registerFioAddress')}
+                                                </Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                        <Text style={styles.descr_txt}>
+                                            {strings('FioSendRequest.needRegisterFio')}
                                         </Text>
                                     </View>
-                                </TouchableOpacity> : null
+
+                                    : null
                             }
 
                             {
@@ -310,6 +324,26 @@ const styles = {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 16,
         color: '#fff',
+    },
+
+    rowFlex: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginHorizontal: -10,
+        marginVertical: 5,
+        backgroundColor: '#eee',
+        padding: 5,
+        paddingRight: 15,
+        borderRadius: 20,
+    },
+
+   descr_txt: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 14,
+        color: '#777',
+       flex: 1,
     },
 
     subheader: {

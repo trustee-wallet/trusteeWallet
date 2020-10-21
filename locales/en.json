@@ -462,7 +462,11 @@
     "memo": "Memo",
     "btnText": "Next",
     "created": "FIO request created",
-    "noCoinSelected": "You need to choose coin in which you make request"
+    "fioSettings": "FIO Settings",
+    "registerFioAddress": "Register FIO Address",
+    "noCoinSelected": "You need to choose coin in which you make request",
+    "goToFioSettings": "You need go to Fio Settings and associate coins with your fio address",
+    "needRegisterFio": "You need to register your fio address"
   },
 
   "FioRequestsList": {
