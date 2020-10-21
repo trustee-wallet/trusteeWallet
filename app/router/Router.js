@@ -20,6 +20,7 @@ import HomeScreenStack from './HomeStack'
 import ExchangeScreenStack from './ExchangeScreenStack'
 import ExchangeV3ScreenStack from './ExchangeV3ScreenStack'
 import TradeScreenStack from './TradeScreenStack'
+import TradeV3ScreenStack from './TradeV3ScreenStack'
 import SettingsScreenStack from './SettingsStack'
 
 import AddCardScreen from '../modules/Card'
@@ -36,6 +37,7 @@ import FioSendRequest from '../modules/FIO/FioSendRequest'
 import FioRequestsList from '../modules/FIO/FioRequestsList'
 import FioChooseAddress from '../modules/FIO/FioChooseAddress'
 import FioRequestDetails from '../modules/FIO/FioRequestDetails'
+import FioSettings from '../modules/FIO/FioSettings'
 import AccountScreen from '../modules/Account/AccountScreen'
 import ReceiveScreen from '../modules/Account/ReceiveScreen'
 import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
@@ -102,6 +104,13 @@ const MainNavigator = createStackNavigator({
 
         FioRequestDetails: {
             screen: FioRequestDetails,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        FioSettings: {
+            screen: FioSettings,
             navigationOptions: {
                 headerShown: false
             }
@@ -177,6 +186,13 @@ const MainNavigator = createStackNavigator({
 
         ExchangeV3ScreenStack: {
             screen: ExchangeV3ScreenStack,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        TradeV3ScreenStack: {
+            screen: TradeV3ScreenStack,
             navigationOptions: {
                 headerShown: false
             }

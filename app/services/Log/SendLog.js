@@ -51,18 +51,19 @@ class SendLog {
         const fs = new FileSystem()
         await (fs.setFileEncoding('utf8').setFileName('SQL').setFileExtension('txt')).writeFile(logs)
 
-        const zipFs = new FileSystem('zip')
-        await zipFs.cleanDir()
-        const line = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '-').replace(/:/, '-').replace(/:/, '-')
-        zipFs.setFileName('logs-' + line).setFileExtension('zip')
-        try {
-            await zipFs.cleanDir()
-        } catch (e) {
-            // do nothing
-        }
-
         let urls = []
         try {
+
+            const zipFs = new FileSystem('zip')
+            await zipFs.cleanDir()
+            const line = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '-').replace(/:/, '-').replace(/:/, '-')
+            zipFs.setFileName('logs-' + line).setFileExtension('zip')
+            try {
+                await zipFs.cleanDir()
+            } catch (e) {
+                // do nothing
+            }
+
             const zipped = await this.actualZip(fs, zipFs)
             Log.log('SendLog zip success ' + JSON.stringify(zipped))
             urls = [

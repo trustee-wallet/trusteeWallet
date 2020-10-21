@@ -133,7 +133,7 @@ class Log {
      * @param {string} LOG_AS_ERROR
      * @returns {boolean}
      */
-    log(txtOrObj, txtOrObj2 = false, txtOrObj3 = false, LOG_SUBTYPE = 'ALL', LOG_AS_ERROR = false) {
+    log(txtOrObj, txtOrObj2 = false, txtOrObj3 = false, LOG_SUBTYPE = 'ALL', LOG_AS_ERROR = false, LOG_WRITE_FILE = true) {
         let line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
         let line2 = ''
         if (txtOrObj && typeof txtOrObj !== 'undefined') {
@@ -173,13 +173,17 @@ class Log {
                 // noinspection JSUnresolvedFunction
                 firebase.crashlytics().log('==========ERROR ' + LOG_SUBTYPE + '==========')
             }
-            this.FS[LOG_SUBTYPE].writeLine('==========ERROR ' + LOG_SUBTYPE + '==========')
+            if (LOG_WRITE_FILE) {
+                this.FS[LOG_SUBTYPE].writeLine('==========ERROR ' + LOG_SUBTYPE + '==========')
+            }
         }
         if (!config.debug.appErrors && config.debug.firebaseLogs) {
             // noinspection JSUnresolvedFunction
             firebase.crashlytics().log(line)
         }
-        this.FS[LOG_SUBTYPE].writeLine(line)
+        if (LOG_WRITE_FILE) {
+            this.FS[LOG_SUBTYPE].writeLine(line)
+        }
 
 
         if (txtOrObj3 && typeof txtOrObj3 !== 'undefined') {
@@ -199,7 +203,9 @@ class Log {
                 // noinspection JSUnresolvedFunction
                 firebase.crashlytics().log(line2)
             }
-            this.FS[LOG_SUBTYPE].writeLine(line2)
+            if (LOG_WRITE_FILE) {
+                this.FS[LOG_SUBTYPE].writeLine(line2)
+            }
         }
 
         if (LOG_AS_ERROR) {
@@ -231,13 +237,19 @@ class Log {
         this.err(errorObjectOrText, errorObject2, 'DAEMON')
     }
 
+    async errFS(errorObjectOrText, errorObject2) {
+        this.err(errorObjectOrText, errorObject2, 'ALL', false)
+    }
+
+
+
     /**
      * @param {string|any} errorObjectOrText
      * @param {string|boolean|any} errorObject2
      * @param {string} LOG_SUBTYPE
      * @returns {Promise<boolean>}
      */
-    async err(errorObjectOrText, errorObject2 = false, LOG_SUBTYPE = 'ALL') {
+    async err(errorObjectOrText, errorObject2 = false, LOG_SUBTYPE = 'ALL', LOG_WRITE_FILE = true) {
         const now = new Date()
         const date = now.toISOString().replace(/T/, ' ').replace(/\..+/, '')
         let line = ''
@@ -265,7 +277,7 @@ class Log {
         }
 
 
-        this.log(errorObjectOrText, errorObject2, false, LOG_SUBTYPE, true)
+        this.log(errorObjectOrText, errorObject2, false, LOG_SUBTYPE, true, LOG_WRITE_FILE)
 
         if (errorObject2 && typeof errorObject2.code !== 'undefined' && (errorObject2.code === 'ERROR_USER' || errorObject2.code === 'ERROR_NOTICE')) {
             return true
@@ -277,7 +289,9 @@ class Log {
         try {
 
             // noinspection JSUnresolvedFunction
-            this.FS[LOG_SUBTYPE].writeLine('FRNT ' + line)
+            if (LOG_WRITE_FILE) {
+                this.FS[LOG_SUBTYPE].writeLine('FRNT ' + line)
+            }
 
             if (!config.debug.appErrors) {
                 if (typeof firebase.crashlytics().recordCustomError !== 'undefined') {

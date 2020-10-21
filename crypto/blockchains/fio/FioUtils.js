@@ -4,8 +4,6 @@ import config from '../../../app/config/config'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import { Fio } from '@fioprotocol/fiojs'
 
-export const DERIVE_PATH = "m/44'/235'/0'/0/0";
-
 export const resolveChainCode = (currencyCode, currencySymbol) => {
     let chainCode = currencyCode
     if (typeof currencyCode !== 'undefined' && currencyCode !== currencySymbol) {
@@ -15,6 +13,20 @@ export const resolveChainCode = (currencyCode, currencySymbol) => {
         }
     }
     return chainCode
+}
+
+export const resolveCryptoCodes = (currencyCode) => {
+    let chainCode = currencyCode
+    let currencySymbol = currencyCode
+    const tmp = currencyCode.split('_')
+    if (typeof tmp[0] !== 'undefined' && tmp[0] && tmp[1]) {
+        chainCode = tmp[0]
+        currencySymbol = tmp[1]
+    }
+    return {
+        chain_code: chainCode,
+        token_code: currencySymbol
+    }
 }
 
 export const isFioAddressRegistered = async (address) => {
@@ -41,14 +53,19 @@ export const getPubAddress = async (fioAddress, chainCode, tokenCode) => {
     }
 }
 
-export const getFioName = async (fioPublicKey) => {
+/**
+ * Returns FIO Addresses and FIO Domains owned by this public key.
+ *
+ * @param fioPublicKey FIO public key of owner.
+ * @return Promise<[ { fio_address:*, expiration:* } ]>
+ */
+export const getFioNames = async (fioPublicKey) => {
     try {
         const response = await getFioSdk().getFioNames(fioPublicKey)
-        const [ fioAddress ] = response['fio_addresses'] || []
-        return fioAddress['fio_address']
+        return response['fio_addresses'] || []
     } catch (e) {
         await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getFioNames')
-        return null
+        return []
     }
 }
 
@@ -100,6 +117,25 @@ export const addCryptoPublicAddress = async ({fioName, chainCode, tokenCode, pub
             chainCode,
             tokenCode,
             publicAddress,
+            fee,
+            null
+        )
+        const isOK = response['status'] === 'OK'
+        if (!isOK) {
+            await BlocksoftCryptoLog.log('FIO addPublicAddress error', response)
+        }
+        return isOK
+    } catch (e) {
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO addPubAddress')
+    }
+}
+
+export const addCryptoPublicAddresses = async ({fioName, publicAddresses}) => {
+    try {
+        const { fee = 0 } = await getFioSdk().getFeeForAddPublicAddress(fioName)
+        const response = await getFioSdk().addPublicAddresses(
+            fioName,
+            publicAddresses,
             fee,
             null
         )

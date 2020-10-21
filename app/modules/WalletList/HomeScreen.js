@@ -224,6 +224,7 @@ class HomeScreen extends Component {
                                 />
                             }>
                             <WalletInfo accountListByWallet={accountListByWallet}/>
+
                             <View style={{flex: 1, paddingBottom: 30, backgroundColor: '#f5f5f5'}}>
                                 <Text style={{
                                     marginLeft: 31,

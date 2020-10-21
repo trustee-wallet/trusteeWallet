@@ -15,18 +15,31 @@ import PubEncrypt from './PubEncrypt/PubEncrypt'
 import config from '../../config/config'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
 import currencyDS from '../../appstores/DataSource/Currency/Currency'
+import cardDS from '../../appstores/DataSource/Card/Card'
 import MarketingEvent from '../Marketing/MarketingEvent'
 
-const V3_ENTRY_POINT = '/mobile-exchanger'
+const V3_ENTRY_POINT_EXCHANGE = '/mobile-exchanger'
+const V3_ENTRY_POINT_TRADE = '/mobile-sell'
+
 const V3_API = 'https://api.v3.trustee.deals'
 const V3_PUB = '818ef87763ee0f9eaee49ff1f27d4b87e76dc1a8309187b82de52687783d832705f4bafe4a51efad26ccca9367419f9e28e07cea849b8b15108a56e054128a8c'
 const V3_KEY_PREFIX = 'TrusteeExchange'
+
 
 let CACHE_SERVER_TIME_NEED_TO_ASK = false
 
 export default {
 
-    async initData() {
+    async initData(type) {
+
+        let entryPoint
+        if (type === 'EXCHANGE') {
+            entryPoint = V3_ENTRY_POINT_EXCHANGE
+        } else if (type === 'TRADE') {
+            entryPoint = V3_ENTRY_POINT_TRADE
+        } else {
+            throw new Error('ApiV3 invalid settings type ' + type)
+        }
 
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         const entryUrl = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
@@ -34,7 +47,8 @@ export default {
         const data = {
             locale: sublocale(),
             deviceToken: Log.LOG_TOKEN,
-            wallets: []
+            wallets: [],
+            cards : await cardDS.getCards()
         }
 
         const btcLegacyOrSegWit = await settingsActions.getSetting('btc_legacy_or_segwit')
@@ -158,6 +172,7 @@ export default {
                 // do nothing
             }
         }
+        console.log('data', data)
 
         const sign = await CashBackUtils.createWalletSignature(true, msg)
         data.sign = sign
@@ -176,7 +191,7 @@ export default {
 
             await firebase.database().ref(keyTitle).set(encrypted)
 
-            const link = entryUrl + V3_ENTRY_POINT
+            const link = entryUrl + entryPoint
                 + '?date=' + date[0]
                 + '&message=' + sign.message
                 + '&messageHash=' + sign.messageHash

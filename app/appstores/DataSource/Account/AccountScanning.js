@@ -38,6 +38,7 @@ class AccountScanning {
         if (typeof params.currencyCode !== 'undefined' && params.currencyCode) {
             where.push(`account.currency_code='${params.currencyCode}'`)
             where.push(`account.is_main=1`)
+            limit = 10
         }
         if (typeof params.currencyFamily !== 'undefined' && params.currencyFamily) {
             where.push(`account.currency_code LIKE '${params.currencyFamily}%'`)

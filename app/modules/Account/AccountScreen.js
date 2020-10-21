@@ -607,6 +607,7 @@ class Account extends Component {
                 balanceScanTime: account.balanceScanTime + '',
                 balanceProvider: account.balanceProvider + '',
                 balanceScanLog: account.balanceScanLog + '',
+                balanceAddingLog: account.balanceAddingLog + '',
                 basicCurrencyCode: account.basicCurrencyCode + '',
                 basicCurrencyBalance: account.basicCurrencyBalance + '',
                 basicCurrencyRate: account.basicCurrencyRate + ''

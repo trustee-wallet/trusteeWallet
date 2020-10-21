@@ -17,6 +17,7 @@ import changeableProd from '../../config/changeable.prod'
 import changeableTester from '../../config/changeable.tester'
 
 import DeviceInfo from 'react-native-device-info'
+import { log } from 'react-native-reanimated'
 
 const CACHED = {}
 const CACHED_BUY = {}
@@ -186,6 +187,7 @@ class MarketingEvent {
         if (typeof (CACHE_BALANCE[cacheTitle]) === 'undefined') {
             CACHE_BALANCE[cacheTitle] = -1
         }
+
         if (CACHE_BALANCE[cacheTitle] === totalBalance) {
             return false
         }

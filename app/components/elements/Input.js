@@ -20,6 +20,7 @@ import Toast from '../../services/UI/Toast/Toast'
 import { strings } from '../../services/i18n'
 import { normalizeInputWithDecimals } from '../../services/UI/Normalize/NormalizeInput'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
+import Log from '../../services/Log/Log'
 import NavStore from '../../components/navigation/NavStore'
 
 
@@ -118,6 +119,7 @@ class Input extends Component {
     handleValidate = async () => {
         const { id, name, type, subtype, cuttype } = this.props
         let { value } = this.state
+        const valueState = JSON.parse(JSON.stringify(value))
 
         let validation
         if (cuttype) {
@@ -162,14 +164,16 @@ class Input extends Component {
                 }
             }
         } else {
-            validation = await Validator.arrayValidation([{
+            const params = {
                 id,
                 name,
                 type,
                 subtype,
                 cuttype,
                 value
-            }])
+            }
+            validation = await Validator.arrayValidation([params])
+            Log.log('Input.handleValidate one', {validation, params})
         }
 
         this.setState({
@@ -179,7 +183,8 @@ class Input extends Component {
 
         return {
             status: validation.status,
-            value
+            value : value,
+            valueState : valueState
         }
     }
 

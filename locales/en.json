@@ -153,11 +153,11 @@
     },
     "paymentInformation": "Payment method info",
     "urkCardOnly": "Ukranian cards only!",
-    "rusCardOnly": "Russian & Belorussian cards!",
+    "rusCardOnly": "Russian & Belarusian cards!",
     "worldwideOnly": "Worldwide",
     "minAmount": "Min amount",
     "maxAmount": "Max amount",
-    "RUB": "Russia & Belorussia",
+    "RUB": "Russia & Belarus",
     "KZ" : "Kazakhstan",
     "UAH": "Ukraine",
     "QIWI": "QIWI wallet",
@@ -208,8 +208,10 @@
       "import": "Import wallet",
       "create": "Create new wallet",
       "select": "Select wallet",
+      "sendFioRequest": "Send FIO Request",
       "fioRequest": "FIO Requests",
       "registerFioAddress": "Register FIO Address",
+      "fioSettings": "FIO Settings",
       "turnOnHD": "Turn on HD"
     },
     "security": {
@@ -442,19 +444,29 @@
   },
 
   "FioSettings": {
-    "title": "Choose Fio Address",
-    "description": "Enter address to request payment from",
-    "btnText": "Select FIO Address"
+    "title": "Fio Settings",
+    "description": "Choose wallets to connect to your FIO address",
+    "Expire": "Expires",
+    "btnText": "Save",
+    "noFioTitle": "You need to register FIO address",
+    "noFioDescription": "FIO address not registered",
+    "noFioBtn": "Register Fio Address"
   },
 
   "FioSendRequest": {
     "title": "Send FIO Request",
+    "selectCoin": "Click to Select Coin",
     "from": "Send Request From",
     "to": "Send Request To",
     "amount": "Amount",
     "memo": "Memo",
-    "btnText": "Next",
-    "created": "FIO request created"
+    "btnText": "Create",
+    "created": "FIO request created",
+    "fioSettings": "FIO Settings",
+    "registerFioAddress": "Register FIO Address",
+    "noCoinSelected": "You need to choose coin in which you make request",
+    "goToFioSettings": "You need go to Fio Settings and associate coins with your fio address",
+    "needRegisterFio": "You need to register your Fio Address first "
   },
 
   "FioRequestsList": {
@@ -983,6 +995,12 @@
       "accept": "Agree",
       "decline": "Decline"
     },
+    "selectCoinFio": {
+      "title": "Select Coin for Request",
+      "description": "Please, select a coin which you want request",
+      "description2": "selected coin will be transfered to FIO request",
+      "btn": "Select"
+    },
     "login": {
       "title": "Login/SignUp",
       "description": "Get a special link, invite your friends and earn! 10% cashback from the commission of your exchanges and 10% from friends exchanges!",
@@ -1039,8 +1057,7 @@
     "walletBackup": {
       "success": "Success!",
       "seedConfirm": "Seed phrase was confirmed!",
-      "walletCreated": "Your wallet was created!",
-      "mnemonicCopied": "The recovery phrase has been successfully copied to clipboard!"
+      "walletCreated": "Your wallet was created!"
     },
     "walletCreate": {
       "success": "Success!",

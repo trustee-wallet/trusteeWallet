@@ -2,17 +2,22 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, TextInput, KeyboardAvoidingView  } from 'react-native'
+import { View, Text, TextInput, KeyboardAvoidingView, TouchableOpacity, Linking  } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
 import { strings } from '../../services/i18n'
 import Feather from 'react-native-vector-icons/Feather'
 import NavStore from '../../components/navigation/NavStore'
-import { requestFunds } from '../../../crypto/blockchains/fio/FioUtils'
+import { connect } from 'react-redux'
+import { requestFunds, getFioNames, resolveCryptoCodes, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import Toast from '../../services/UI/Toast/Toast'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
+import DaemonCache from '../../daemons/DaemonCache'
+import config from '../../config/config'
+
+import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
 
 
@@ -21,37 +26,93 @@ class FioSendRequest extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            fioRequestDetails: {},
             payerFioAddress: '',
             payeeFioAddress: '',
             amount: null,
             memo: '',
+            currencyCode: '',
+            enabledCryptoCurrencies: [],
+            availableCryptoCurrencies: [],
+            isLoading: false,
         }
     }
 
-    componentDidMount() {
-        const fioRequestDetails = this.props.navigation.getParam('fioRequestDetails')
-        if (fioRequestDetails) {
+    async componentDidMount() {
+        setLoaderStatus(true)
+        this.setState({isLoading: true})
+        try {
+            await this.resolveFioAccount()
+            await this.resolvePublicAddresses()
+        } finally {
+            setLoaderStatus(false)
+            this.setState({isLoading: false})
+        }
+    }
+
+    resolveFioAccount = async () => {
+        const { selectedWallet } = this.props.mainStore
+        const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
+        if (fioAccount && fioAccount.address) {
+            const fioNames = await getFioNames(fioAccount.address)
+            if (fioNames && fioNames.length > 0) {
+                this.setState({
+                    payeeFioAddress: fioNames[0].fio_address,
+                })
+            }
+        }
+    }
+
+    resolvePublicAddresses = async () => {
+        const { payeeFioAddress } = this.state
+        const { cryptoCurrencies } = this.props.currencyStore
+
+        const availableCryptoCurrencies = cryptoCurrencies?.filter(c => !c.isHidden);
+        this.setState({
+            availableCryptoCurrencies,
+        })
+
+        if (cryptoCurrencies && payeeFioAddress) {
+            const publicAddresses = await Promise.all(availableCryptoCurrencies.map(c => {
+                const codes = resolveCryptoCodes(c.currencyCode)
+                return getPubAddress(payeeFioAddress, codes['chain_code'], codes['token_code'])
+            }))
+
             this.setState({
-                fioRequestDetails: fioRequestDetails,
-                payeeFioAddress: fioRequestDetails.fioName,
+                enabledCryptoCurrencies: availableCryptoCurrencies.reduce((res, current, index) => {
+                    return !!publicAddresses[index] && publicAddresses[index] !== '0' ? [
+                        ...res,
+                        current
+                    ] : res
+                }, [])
             })
         }
     }
 
     handleNext = async () => {
-        const { fioRequestDetails, amount, memo, payerFioAddress, payeeFioAddress } = this.state
-        setLoaderStatus(true)
+        const { selectedWallet } = this.props.mainStore
+        const { amount, memo, payerFioAddress, payeeFioAddress, currencyCode } = this.state
 
+        if (!currencyCode) {
+            Toast.setMessage(strings('FioSendRequest.noCoinSelected')).show()
+            return
+        }
+
+        const account = await DaemonCache.getCacheAccount(selectedWallet.walletHash, currencyCode)
+
+        // eslint-disable-next-line camelcase
+        const {chain_code, token_code} = resolveCryptoCodes(currencyCode)
+
+        setLoaderStatus(true)
         const result = await requestFunds({
             payerFioAddress,
             payeeFioAddress,
-            payeeTokenPublicAddress: fioRequestDetails.address,
+            payeeTokenPublicAddress: account.address,
             amount,
-            chainCode: fioRequestDetails.chainCode,
-            tokenCode: fioRequestDetails.currencySymbol,
+            chainCode: chain_code,
+            tokenCode: token_code,
             memo,
         })
+        setLoaderStatus(false)
 
         if (result['fio_request_id']) {
             NavStore.goBack(null)
@@ -59,26 +120,114 @@ class FioSendRequest extends Component {
         } else {
             Toast.setMessage(result['error']).show()
         }
-        setLoaderStatus(false)
+    }
+
+    handleRegisterFIOAddress = async () => {
+        const { selectedWallet } = this.props.mainStore
+        const { apiEndpoints } = config.fio
+
+        const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
+        if (fioAccount && fioAccount.address) {
+            Linking.openURL(`${apiEndpoints.registrationSiteURL}${fioAccount.address}`)
+        }
+    }
+
+    callbackModal = (currencyCode) => {
+        this.setState({
+            currencyCode,
+        })
+    }
+
+    showSelectCoinModal = () => {
+        showModal({
+            type: 'SELECT_COIN_MODAL',
+            data: {
+                cryptoCurrencies: this.state.enabledCryptoCurrencies,
+            }
+        }, this.callbackModal)
+    }
+
+    getSelectedCurrency = () => {
+        if (!this.state.currencyCode) {
+            return null
+        }
+        return this.state.availableCryptoCurrencies.find(i => i.currencyCode === this.state.currencyCode)
     }
 
     render() {
+        const selectedCurrencyName = this.getSelectedCurrency()?.currencyName
+
         return (
             <View>
                 <Navigation title={strings('FioSendRequest.title')}/>
 
                 <View style={{paddingTop: 90, height: '100%'}}>
                     <View style={styles.container}>
+                        {
+                            !this.state.isLoading ?
+                                <View style={styles.subheader}>
 
-                        <View style={styles.subheader}>
-                            <CurrencyIcon currencyCode={this.state.fioRequestDetails.currencySymbol !== this.state.fioRequestDetails.chainCode ? `${this.state.fioRequestDetails.chainCode}_${this.state.fioRequestDetails.currencySymbol}` : this.state.fioRequestDetails.currencySymbol}
-                                          containerStyle={styles.cryptoList__icoWrap}
-                                          markStyle={styles.cryptoList__icon__mark}
-                                          markTextStyle={styles.cryptoList__icon__mark__text}
-                                          iconStyle={styles.cryptoList__icon}/>
-                            <Text style={styles.subheaderTxt}>{this.state.fioRequestDetails.currencySymbol}</Text>
-                        </View>
+                                    {
+                                        !this.state.enabledCryptoCurrencies?.length && this.state.payeeFioAddress ?
+                                            <View style={styles.rowFlex}>
+                                                <TouchableOpacity onPress={() => NavStore.goNext('FioSettings')}>
+                                                    <View style={styles.popup_btn}>
+                                                        <Text style={styles.popup_txt}>
+                                                            {strings('FioSendRequest.fioSettings')}
+                                                        </Text>
+                                                    </View>
+                                                </TouchableOpacity>
+                                                <Text style={styles.descr_txt}>
+                                                    {strings('FioSendRequest.goToFioSettings')}
+                                                </Text>
+                                            </View>
+                                            : null
+                                    }
 
+                                    {
+                                        !this.state.payeeFioAddress ?
+                                            <View style={styles.rowFlex}>
+                                                <TouchableOpacity onPress={this.handleRegisterFIOAddress}>
+                                                    <View style={styles.popup_btn}>
+                                                        <Text style={styles.popup_txt}>
+                                                            {strings('FioSendRequest.registerFioAddress')}
+                                                        </Text>
+                                                    </View>
+                                                </TouchableOpacity>
+                                                <Text style={styles.descr_txt}>
+                                                    {strings('FioSendRequest.needRegisterFio')}
+                                                </Text>
+                                            </View>
+
+                                            : null
+                                    }
+
+                                    {
+                                        !this.state.currencyCode && this.state.enabledCryptoCurrencies?.length ?
+                                            <TouchableOpacity style={styles.terms__btn} onPress={this.showSelectCoinModal}>
+                                                <View style={styles.popup_btn}>
+                                                    <Text style={styles.popup_txt}>
+                                                        {strings('FioSendRequest.selectCoin')}
+                                                    </Text>
+                                                </View>
+                                            </TouchableOpacity> : null
+                                    }
+
+                                    {
+                                        this.state.currencyCode ?
+                                            <TouchableOpacity style={styles.rowFlex2} onPress={this.showSelectCoinModal}>
+                                                <CurrencyIcon
+                                                    currencyCode={this.state.currencyCode}
+                                                    containerStyle={styles.cryptoList__icoWrap}
+                                                    markStyle={styles.cryptoList__icon__mark}
+                                                    markTextStyle={styles.cryptoList__icon__mark__text}
+                                                    iconStyle={styles.cryptoList__icon}/>
+                                                <Text style={styles.subheaderTxt}>{selectedCurrencyName}</Text>
+                                            </TouchableOpacity> : null
+                                    }
+
+                                </View> : null
+                        }
 
                         <KeyboardAvoidingView behavior="padding">
                             <View style={styles.input__wrapper}>
@@ -149,8 +298,13 @@ class FioSendRequest extends Component {
     }
 }
 
-export default FioSendRequest
+const mapStateToProps = (state) => ({
+    mainStore: state.mainStore,
+    accountStore: state.accountStore,
+    currencyStore: state.currencyStore
+})
 
+export default connect(mapStateToProps, {})(FioSendRequest)
 
 const styles = {
 
@@ -161,9 +315,51 @@ const styles = {
         flex: 1,
     },
 
-    subheader: {
+    popup_btn: {
+        padding: 10,
+        paddingHorizontal: 20,
+        margin: 10,
+        borderRadius: 10,
+        backgroundColor: '#6B36A8',
+    },
+
+    popup_txt: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 16,
+        color: '#fff',
+        textAlign: 'center',
+    },
+
+    rowFlex: {
         display: 'flex',
         flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginHorizontal: -10,
+        marginVertical: 5,
+        backgroundColor: '#eee',
+        padding: 2,
+        paddingRight: 10,
+        borderRadius: 20,
+    },
+
+    rowFlex2: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+   descr_txt: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 13,
+        color: '#777',
+       flex: 1,
+    },
+
+    subheader: {
+        display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: -25,
@@ -174,7 +370,7 @@ const styles = {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 18,
         color: '#333',
-        paddingLeft: 10,
+        textAlign: 'center',
     },
 
     input__wrapper: {

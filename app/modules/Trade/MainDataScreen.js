@@ -37,6 +37,10 @@ import { strings } from '../../services/i18n'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import exchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
+// import AsyncStorage from '@react-native-community/async-storage'
+import Log from '../../services/Log/Log'
+
+// let COUNT_MODAL_SELL = 0
 
 class MainDataScreen extends Component {
 
@@ -62,11 +66,45 @@ class MainDataScreen extends Component {
 
     }
 
+    // async componentDidMount() {
+
+    //     const { tradeType } = this.props.exchangeStore
+        
+    //     if (tradeType === 'SELL') {
+    //         if (COUNT_MODAL_SELL === 0 || COUNT_MODAL_SELL === 5) {
+    //             showModal({
+    //                 type: 'NEW_INTERFACE',
+    //                 icon: null,
+    //                 title: strings('modal.infoNewInterface.title'),
+    //                 description: strings('modal.infoNewInterface.description'),
+    //                 noCallback: async () => {
+    //                     AsyncStorage.setItem('countModalSell', '1')
+    //                     COUNT_MODAL_SELL = 1
+    //                 }
+    //             }, () => {
+    //                 AsyncStorage.setItem('isNewInterfaceSell', 'true')
+    //                 COUNT_MODAL_SELL = 1
+    //                 this.handleTryV3()
+    //             })
+    //         } else {
+    //             AsyncStorage.setItem('countModalSell', (COUNT_MODAL_SELL + 1).toString())
+    //             COUNT_MODAL_SELL += 1
+    //         }
+    //     }
+    // }
+
     // eslint-disable-next-line camelcase
-    UNSAFE_componentWillMount() {
+    async UNSAFE_componentWillMount() {
         const { tradeType } = this.props.exchangeStore
 
         this.handleSetTradeWay(tradeType, 'STORAGE_CACHE')
+
+    }
+
+    handleTryV3 = () => {
+        Log.log('EXC/Main.handleTryV3 init')
+        Keyboard.dismiss()
+        // NavStore.goNext('TradeV3ScreenStack')
     }
 
     handleConvertToPaymentCurrency = (fromCurrency, amount) => amount
@@ -129,15 +167,15 @@ class MainDataScreen extends Component {
         }
 
         this.setState({
-                ...initState
-            }, () =>
-                this.setState({
-                    show: true
-                }, () => {
-                    setTimeout(() => {
-                        setLoaderStatus(false)
-                    }, 50)
-                })
+            ...initState
+        }, () =>
+            this.setState({
+                show: true
+            }, () => {
+                setTimeout(() => {
+                    setLoaderStatus(false)
+                }, 50)
+            })
         )
 
     }
@@ -148,7 +186,7 @@ class MainDataScreen extends Component {
         } else if (typeof callback === 'undefined') {
             this.setState({ [field]: state })
         } else {
-            this.setState({ [field]: state },  callback)
+            this.setState({ [field]: state }, callback)
         }
     }
 
@@ -243,7 +281,7 @@ class MainDataScreen extends Component {
         try {
             await this.handleValidateSubmit()
         } catch (e) {
-            if(e.message.indexOf('UI_') === 0){
+            if (e.message.indexOf('UI_') === 0) {
                 showModal({
                     type: 'INFO_MODAL',
                     icon: null,
@@ -263,7 +301,7 @@ class MainDataScreen extends Component {
 
         NavStore.goNext('ConfirmScreen', {
             orderData: {
-                checkTmp : true,
+                checkTmp: true,
                 selectedCryptocurrency,
                 selectedFiatCurrency,
                 selectedPaymentSystem,
@@ -314,7 +352,7 @@ class MainDataScreen extends Component {
                     titleComponent={<NavigationTitleComponent
                         handleSetRevert={this.handleSetRevert}
                         handleSetState={this.handleSetState}
-                        exchangeStore={exchangeStore}/>}
+                        exchangeStore={exchangeStore} />}
                 />
                 <KeyboardAwareView>
                     {
@@ -346,9 +384,9 @@ class MainDataScreen extends Component {
                                                         selectedCryptocurrency={selectedCryptocurrency}
                                                         selectedPaymentSystem={selectedPaymentSystem}
                                                         navigation={navigation}
-                                                        handleSetState={this.handleSetState}/>
+                                                        handleSetState={this.handleSetState} />
                                                 </View>
-                                                <View style={styles.top__item_space}/>
+                                                <View style={styles.top__item_space} />
                                                 <View style={styles.top__item}>
                                                     <Text style={styles.titleText}>
                                                         {strings('tradeScreen.youGet')}
@@ -361,7 +399,7 @@ class MainDataScreen extends Component {
                                                         selectedAccount={selectedAccount}
                                                         handleSetState={this.handleSetState}
                                                         extendsFields={extendsFields}
-                                                        navigation={navigation}/>
+                                                        navigation={navigation} />
                                                 </View>
                                             </View>
                                             :
@@ -378,9 +416,9 @@ class MainDataScreen extends Component {
                                                         selectedAccount={selectedAccount}
                                                         handleSetState={this.handleSetState}
                                                         extendsFields={extendsFields}
-                                                        navigation={navigation}/>
+                                                        navigation={navigation} />
                                                 </View>
-                                                <View style={styles.top__item_space}/>
+                                                <View style={styles.top__item_space} />
                                                 <View style={styles.top__item}>
                                                     <Text style={styles.titleText}>
                                                         {strings('tradeScreen.youGet')}
@@ -392,7 +430,7 @@ class MainDataScreen extends Component {
                                                         selectedCryptocurrency={selectedCryptocurrency}
                                                         selectedPaymentSystem={selectedPaymentSystem}
                                                         navigation={navigation}
-                                                        handleSetState={this.handleSetState}/>
+                                                        handleSetState={this.handleSetState} />
                                                 </View>
                                             </View>
                                     }
@@ -404,7 +442,7 @@ class MainDataScreen extends Component {
                                         <View>
                                             <Text
                                                 style={[styles.titleText, { marginLeft: 30 }]}>{exchangeStore.tradeType === 'BUY' ? strings('tradeScreen.pickPaySys') : strings('tradeScreen.pickPaySysSell')}</Text>
-                                            <View styles={styles.line}/>
+                                            <View styles={styles.line} />
                                         </View>
                                     </TouchableWithoutFeedback>
                                     <PaymentSystem
@@ -417,7 +455,7 @@ class MainDataScreen extends Component {
                                         selectedTradeWay={selectedTradeWay}
                                         selectedCryptocurrency={selectedCryptocurrency}
                                         selectedFiatCurrency={selectedFiatCurrency}
-                                        selectedFiatTemplate={selectedFiatTemplate}/>
+                                        selectedFiatTemplate={selectedFiatTemplate} />
                                 </View>
                                 <View style={styles.box}>
                                     <View style={{ height: 0, maxHeight: 0, overflow: 'hidden' }}>
@@ -430,7 +468,7 @@ class MainDataScreen extends Component {
                                             selectedFiatTemplate={selectedFiatTemplate}
                                             handleSetState={this.handleSetState}
                                             handleGetTradeWay={this.handleGetTradeWay}
-                                            handleConvertToPaymentCurrency={this.handleConvertToPaymentCurrency}/>
+                                            handleConvertToPaymentCurrency={this.handleConvertToPaymentCurrency} />
                                     </View>
                                     <AmountInput
                                         ref={ref => this.refAmount = ref}
@@ -441,18 +479,18 @@ class MainDataScreen extends Component {
                                         selectedCryptocurrency={selectedCryptocurrency}
                                         selectedAccount={selectedAccount}
                                         onFocus={this.amountInputOnFocus}
-                                        submitTrade={this.handleSubmitTrade}/>
+                                        submitTrade={this.handleSubmitTrade} />
                                     <Limits ref={ref => this.refLimits = ref}
-                                            refAmount={this.refAmount}
-                                            selectedFiatTemplate={selectedFiatTemplate}
-                                            extendsFields={extendsFields}
-                                            selectedPaymentSystem={selectedPaymentSystem}
-                                            selectedFiatCurrency={selectedFiatCurrency}
-                                            selectedCryptocurrency={selectedCryptocurrency}
-                                            selectedAccount={selectedAccount}
-                                            isLimitValid={isLimitValid}
-                                            handleGetTradeWay={this.handleGetTradeWay}
-                                            handleSetState={this.handleSetState}/>
+                                        refAmount={this.refAmount}
+                                        selectedFiatTemplate={selectedFiatTemplate}
+                                        extendsFields={extendsFields}
+                                        selectedPaymentSystem={selectedPaymentSystem}
+                                        selectedFiatCurrency={selectedFiatCurrency}
+                                        selectedCryptocurrency={selectedCryptocurrency}
+                                        selectedAccount={selectedAccount}
+                                        isLimitValid={isLimitValid}
+                                        handleGetTradeWay={this.handleGetTradeWay}
+                                        handleSetState={this.handleSetState} />
                                     <OptionalData
                                         ref={ref => this.refOptionalData = ref}
                                         self={this}
@@ -460,7 +498,7 @@ class MainDataScreen extends Component {
                                         handleSetState={this.handleSetState}
                                         exchangeStore={exchangeStore}
                                         selectedPaymentSystem={selectedPaymentSystem}
-                                        selectedCard={selectedCard}/>
+                                        selectedCard={selectedCard} />
                                 </View>
                                 <View style={styles.box}>
                                     <Cards
@@ -470,7 +508,7 @@ class MainDataScreen extends Component {
                                         extendsFields={extendsFields}
                                         selectedCryptocurrency={selectedCryptocurrency}
                                         selectedPaymentSystem={selectedPaymentSystem}
-                                        handleSetState={this.handleSetState}/>
+                                        handleSetState={this.handleSetState} />
                                 </View>
 
                                 <View style={styles.btn}>

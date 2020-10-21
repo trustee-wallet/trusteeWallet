@@ -41,6 +41,7 @@ import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import SendLog from '../../services/Log/SendLog'
 import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -334,6 +335,7 @@ class SettingsMainScreen extends Component {
             Toast.setMessage('DEV MODE OFF').show()
 
             await AsyncStorage.setItem('devMode', '0')
+            await AppNotificationListener.unsetDev()
         } else {
             config.devMode = true
 
@@ -345,6 +347,7 @@ class SettingsMainScreen extends Component {
             Toast.setMessage('DEV MODE').show()
 
             await AsyncStorage.setItem('devMode', '1')
+            await AppNotificationListener.setLang()
         }
 
         Vibration.vibrate(100)
@@ -421,10 +424,30 @@ class SettingsMainScreen extends Component {
                                     </View>
                                 </TouchableOpacity>
 
+                                <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('FioSendRequest')}>
+                                    <Icon name="exchangeRates" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('settings.walletManagement.sendFioRequest')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
+                                    </View>
+                                </TouchableOpacity>
+
                                 <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('FioRequestsList')}>
                                     <Icon name="addressBook" size={20} style={styles.icon}/>
                                     <View style={styles.block__item__content}>
                                         <Text style={styles.block__text}>{strings('settings.walletManagement.fioRequest')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('FioSettings')}>
+                                    <Icon name="settings" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('settings.walletManagement.fioSettings')}</Text>
                                     </View>
                                     <View style={styles.block__item__arrow}>
                                         <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>

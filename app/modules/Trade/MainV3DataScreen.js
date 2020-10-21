@@ -1,5 +1,5 @@
 /**
- * @version 0.13
+ * @version 0.1
  * @author yura
  */
 import React, { Component } from 'react'
@@ -28,7 +28,6 @@ import { WebView } from 'react-native-webview'
 import { strings } from '../../services/i18n'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 import AsyncStorage from '@react-native-community/async-storage'
-import { Text } from 'react-native-svg'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -56,7 +55,7 @@ class MainV3DataScreen extends Component {
         this.setState({ inited: true })
 
         // here to do upload
-        let apiUrl = await ApiV3.initData('EXCHANGE')
+        let apiUrl = await ApiV3.initData('TRADE')
 
         const navigationViewV3 = (await BlocksoftExternalSettings.get('navigationViewV3')) === 1
         setTimeout(() => {
@@ -103,7 +102,7 @@ class MainV3DataScreen extends Component {
             }
 
             if (backToOld) {
-                AsyncStorage.setItem('isNewInterface', 'false')
+                AsyncStorage.setItem('isNewInterfaceSell', 'false')
                 NavStore.goNext('HomeScreen')
             }
 
@@ -115,20 +114,20 @@ class MainV3DataScreen extends Component {
                 return
             }
 
-            if (address && amount && orderHash) {
+            // if (address && amount && orderHash) {
 
-                const data = {
-                    memo: false,
-                    amount: amount,
-                    address: address,
-                    useAllFunds: false,
-                    toTransactionJSON: { 'bseOrderID': orderHash, 'comment': comment || '' },
-                    currencyCode: inCurrencyCode,
-                    type: 'TRADE_SEND'
-                }
+            //     const data = {
+            //         memo: false,
+            //         amount: amount,
+            //         address: address,
+            //         useAllFunds: false,
+            //         toTransactionJSON: { 'bseOrderID': orderHash, 'comment': comment || '' },
+            //         currencyCode: inCurrencyCode,
+            //         type: 'TRADE_SEND'
+            //     }
 
-                NavStore.goNext('ConfirmSendScreen', { confirmWebViewParam: data })
-            }
+            //     NavStore.goNext('ConfirmSendScreen', { confirmWebViewParam: data })
+            // }
         } catch {
             Log.err('EXC/MainV3Screen.onMessage parse error ', event.nativeEvent)
         }
@@ -138,22 +137,13 @@ class MainV3DataScreen extends Component {
         UpdateOneByOneDaemon.pause()
 
         this.init()
-        firebase.analytics().setCurrentScreen('Exchange.MainV3Screen.Exchange')
+        firebase.analytics().setCurrentScreen('Trade.MainV3Screen.Sell')
 
         const INJECTEDJAVASCRIPT = `const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta)`
 
         return (
             <View style={styles.wrapper}>
-                {this.state.navigationViewV3 ?
-                    <Navigation
-                        self={this}
-                        handleSetState={this.handleSetState}
-                        navigation={this.props.navigation}
-                        isBack={false}
-                        title={strings('tradeScreen.titleV3').toUpperCase()}
-                        newInterfaceSwitch={true}
-                    /> : null}
-                <View style={{ flex: 1, position: 'relative', marginTop: this.state.navigationViewV3 ? 80 : 0 }}>
+                <View style={{ flex: 1, position: 'relative', marginTop: 0 }}>
                     {this.state.show ?
                         <KeyboardAvoidingView
                             behavior={Platform.select({ ios: 'height', android: 'height' })}
@@ -171,25 +161,25 @@ class MainV3DataScreen extends Component {
                                 scrollEnabled={true}
                                 style={{ flex: 1 }}
                                 renderError={(e) => {
-                                    Log.err('Exchanger.WebViewMainScreen.render error ' + e)
+                                    Log.err('Sell.WebViewMainScreen.render error ' + e)
                                 }}
                                 onError={(e) => {
-                                    Log.err('Exchanger.WebViewMainScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.description)
+                                    Log.err('Sell.WebViewMainScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.description)
                                 }}
                                 onHttpError={(e) => {
-                                    Log.log('Exchanger.WebViewMainScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
+                                    Log.log('Sell.WebViewMainScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
                                 }}
                                 onMessage={e => {
                                     this.onMessage(e)
                                 }}
                                 onLoadProgress={(e) => {
-                                    Log.log('Exchanger.WebViewMainScreen.on load progress ' + e.nativeEvent.title + ' ' + e.nativeEvent.progress)
+                                    Log.log('Sell.WebViewMainScreen.on load progress ' + e.nativeEvent.title + ' ' + e.nativeEvent.progress)
                                 }}
                                 onContentProcessDidTerminate={(e) => {
-                                    Log.log('Exchanger.WebViewMainScreen.on content terminate ' + e.nativeEvent.title)
+                                    Log.log('Sell.WebViewMainScreen.on content terminate ' + e.nativeEvent.title)
                                 }}
                                 onShouldStartLoadWithRequest={(e) => {
-                                    Log.log('Exchanger.WebViewMainScreen.on start load with request ' + e.navigationType)
+                                    Log.log('Sell.WebViewMainScreen.on start load with request ' + e.navigationType)
                                     return true
                                 }}
                                 onLoadStart={StatusBar.setBarStyle("dark-content")}
