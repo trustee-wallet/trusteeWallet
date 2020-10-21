@@ -460,7 +460,7 @@
     "to": "Send Request To",
     "amount": "Amount",
     "memo": "Memo",
-    "btnText": "Next",
+    "btnText": "Create",
     "created": "FIO request created",
     "fioSettings": "FIO Settings",
     "registerFioAddress": "Register FIO Address",
