@@ -19,5 +19,5 @@ if (typeof global.crypto !== 'object') {
 }
 
 if (typeof global.crypto.getRandomValues !== 'function') {
-    global.crypto.getRandomValues = require('react-native-blocksoft-random').getRandomBytes;
+    global.crypto.getRandomValues = (array) => require('react-native-blocksoft-random').getRandomBytes(array.byteLength)
 }
