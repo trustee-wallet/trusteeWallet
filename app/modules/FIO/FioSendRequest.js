@@ -32,17 +32,20 @@ class FioSendRequest extends Component {
             memo: '',
             currencyCode: '',
             enabledCryptoCurrencies: [],
-            availableCryptoCurrencies: []
+            availableCryptoCurrencies: [],
+            isLoading: false,
         }
     }
 
     async componentDidMount() {
         setLoaderStatus(true)
+        this.setState({isLoading: true})
         try {
             await this.resolveFioAccount()
             await this.resolvePublicAddresses()
         } finally {
             setLoaderStatus(false)
+            this.setState({isLoading: false})
         }
     }
 
@@ -160,70 +163,71 @@ class FioSendRequest extends Component {
 
                 <View style={{paddingTop: 90, height: '100%'}}>
                     <View style={styles.container}>
+                        {
+                            !this.state.isLoading ?
+                                <View style={styles.subheader}>
 
-                        <View style={styles.subheader}>
-
-                            {
-                                !this.state.enabledCryptoCurrencies?.length && this.state.payeeFioAddress ?
-                                <View style={styles.rowFlex}>
-                                    <TouchableOpacity onPress={() => NavStore.goNext('FioSettings')}>
-                                        <View style={styles.popup_btn}>
-                                            <Text style={styles.popup_txt}>
-                                                {strings('FioSendRequest.fioSettings')}
-                                            </Text>
-                                        </View>
-                                    </TouchableOpacity>
-                                    <Text style={styles.descr_txt}>
-                                        {strings('FioSendRequest.goToFioSettings')}
-                                    </Text>
-                                </View>
-                                : null
-                            }
-
-                            {
-                                !this.state.payeeFioAddress ?
-                                    <View style={styles.rowFlex}>
-                                        <TouchableOpacity onPress={this.handleRegisterFIOAddress}>
-                                            <View style={styles.popup_btn}>
-                                                <Text style={styles.popup_txt}>
-                                                    {strings('FioSendRequest.registerFioAddress')}
+                                    {
+                                        !this.state.enabledCryptoCurrencies?.length && this.state.payeeFioAddress ?
+                                            <View style={styles.rowFlex}>
+                                                <TouchableOpacity onPress={() => NavStore.goNext('FioSettings')}>
+                                                    <View style={styles.popup_btn}>
+                                                        <Text style={styles.popup_txt}>
+                                                            {strings('FioSendRequest.fioSettings')}
+                                                        </Text>
+                                                    </View>
+                                                </TouchableOpacity>
+                                                <Text style={styles.descr_txt}>
+                                                    {strings('FioSendRequest.goToFioSettings')}
                                                 </Text>
                                             </View>
-                                        </TouchableOpacity>
-                                        <Text style={styles.descr_txt}>
-                                            {strings('FioSendRequest.needRegisterFio')}
-                                        </Text>
-                                    </View>
+                                            : null
+                                    }
 
-                                    : null
-                            }
+                                    {
+                                        !this.state.payeeFioAddress ?
+                                            <View style={styles.rowFlex}>
+                                                <TouchableOpacity onPress={this.handleRegisterFIOAddress}>
+                                                    <View style={styles.popup_btn}>
+                                                        <Text style={styles.popup_txt}>
+                                                            {strings('FioSendRequest.registerFioAddress')}
+                                                        </Text>
+                                                    </View>
+                                                </TouchableOpacity>
+                                                <Text style={styles.descr_txt}>
+                                                    {strings('FioSendRequest.needRegisterFio')}
+                                                </Text>
+                                            </View>
 
-                            {
-                                !this.state.currencyCode && this.state.enabledCryptoCurrencies?.length ?
-                                <TouchableOpacity style={styles.terms__btn} onPress={this.showSelectCoinModal}>
-                                    <View style={styles.popup_btn}>
-                                        <Text style={styles.popup_txt}>
-                                            {strings('FioSendRequest.selectCoin')}
-                                        </Text>
-                                    </View>
-                                </TouchableOpacity> : null
-                            }
+                                            : null
+                                    }
 
-                            {
-                                this.state.currencyCode ?
-                                <TouchableOpacity style={styles.rowFlex2} onPress={this.showSelectCoinModal}>
-                                    <CurrencyIcon
-                                        currencyCode={this.state.currencyCode}
-                                        containerStyle={styles.cryptoList__icoWrap}
-                                        markStyle={styles.cryptoList__icon__mark}
-                                        markTextStyle={styles.cryptoList__icon__mark__text}
-                                        iconStyle={styles.cryptoList__icon}/>
-                                    <Text style={styles.subheaderTxt}>{selectedCurrencyName}</Text>
-                                </TouchableOpacity> : null
-                            }
+                                    {
+                                        !this.state.currencyCode && this.state.enabledCryptoCurrencies?.length ?
+                                            <TouchableOpacity style={styles.terms__btn} onPress={this.showSelectCoinModal}>
+                                                <View style={styles.popup_btn}>
+                                                    <Text style={styles.popup_txt}>
+                                                        {strings('FioSendRequest.selectCoin')}
+                                                    </Text>
+                                                </View>
+                                            </TouchableOpacity> : null
+                                    }
 
-                        </View>
+                                    {
+                                        this.state.currencyCode ?
+                                            <TouchableOpacity style={styles.rowFlex2} onPress={this.showSelectCoinModal}>
+                                                <CurrencyIcon
+                                                    currencyCode={this.state.currencyCode}
+                                                    containerStyle={styles.cryptoList__icoWrap}
+                                                    markStyle={styles.cryptoList__icon__mark}
+                                                    markTextStyle={styles.cryptoList__icon__mark__text}
+                                                    iconStyle={styles.cryptoList__icon}/>
+                                                <Text style={styles.subheaderTxt}>{selectedCurrencyName}</Text>
+                                            </TouchableOpacity> : null
+                                    }
 
+                                </View> : null
+                        }
 
                         <KeyboardAvoidingView behavior="padding">
                             <View style={styles.input__wrapper}>
