@@ -60,7 +60,7 @@ class MainModal extends Component {
             case 'LICENSE_TERMS_MODAL':
                 return <LicenseTermsModal show={show} callback={callback}/>
             case 'SELECT_COIN_MODAL':
-                return <SelectCoinModal show={show} callback={callback}/>
+                return <SelectCoinModal show={show} callback={callback} data={data}/>
             case 'BACKUP_SKIP_MODAL':
                 return <SkipModal show={show}/>
             case 'WALLET_CREATE_CONGRATS_MODAL':

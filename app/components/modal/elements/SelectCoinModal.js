@@ -8,47 +8,18 @@ import {
     TouchableOpacity,
     Dimensions,
     ScrollView,
-    Linking
 } from 'react-native'
-import { connect } from 'react-redux'
 
-import RNExitApp from 'react-native-exit-app'
 import Modal from 'react-native-modal'
 
 import GradientView from '../../../components/elements/GradientView'
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 import { strings, sublocale } from '../../../services/i18n'
 import Entypo from 'react-native-vector-icons/Entypo'
-const width = Dimensions.get('window').width
-const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 import CurrencyIcon from '../../../components/elements/CurrencyIcon'
+const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
-
-
-const DATA_COINS = [
-    {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        token_code: 'BTC',
-        chain_code: 'BTC',
-        currencyName: 'My Bitcoin',
-        isActive: true,
-    },
-    {
-        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        token_code: 'ETH',
-        chain_code: 'ETH',
-        currencyName: 'My Ether',
-        isActive: false,
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        token_code: 'FIO',
-        chain_code: 'FIO',
-        currencyName: 'My FIO',
-        isActive: true,
-    },
-];
 
 class ModalCoin extends Component {
 
@@ -82,20 +53,8 @@ export class SelectCoinModal extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            cryptoCurrencies: [],
-            selectedCryptoCurrencies: {},
+            cryptoCurrencies: props.data.data.cryptoCurrencies || [],
         }
-    }
-
-    async componentDidMount() {
-        this.setAvailableCurrencies()
-    }
-
-    setAvailableCurrencies = () => {
-        const { cryptoCurrencies } = this.props.currencyStore
-        this.setState({
-            cryptoCurrencies: cryptoCurrencies?.filter(c => !c.isHidden)
-        })
     }
 
     currencySelected = (currencyCode) => {
@@ -117,12 +76,6 @@ export class SelectCoinModal extends Component {
             ))
         )
     }
-
-    handleNext = () => {
-        const { selectedCryptoCurrencies } = this.state
-        console.log(selectedCryptoCurrencies)
-    }
-
 
     render() {
         const { show } = this.props
@@ -167,19 +120,7 @@ const styles_ = {
     end: { x: 1, y: 0.5 }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        currencyStore: state.currencyStore
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(SelectCoinModal)
+export default SelectCoinModal
 
 const styles = {
     modal: {
