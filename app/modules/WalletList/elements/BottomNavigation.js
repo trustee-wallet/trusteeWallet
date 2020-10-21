@@ -62,6 +62,10 @@ class BottomNavigation extends Component {
         }
     }
 
+    handleSellBtn = () => {
+        NavStore.goNext('SellV3ScreenStack')
+    }
+
     handleMainBtn = async (type) => {
         try {
             await Netinfo.isInternetReachable()
@@ -83,9 +87,19 @@ class BottomNavigation extends Component {
                     title: strings('modal.exchange.sorry'),
                     description: strings('tradeScreen.modalError.serviceUnavailable')
                 })
-            } else {
-                NavStore.goNext('TradeScreenStack')
-            }
+            // } else {
+                // if (type === 'SELL') {
+                //     const isNewInterfaceSell = await AsyncStorage.getItem('isNewInterfaceSell')
+
+                //     if (isNewInterfaceSell === 'true') {
+                //         NavStore.goNext('TradeV3ScreenStack')
+                //     } else {
+                //         NavStore.goNext('TradeScreenStack')
+                //     }
+                } else {
+                    NavStore.goNext('TradeScreenStack')
+                }
+            
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('HomeScreen.BottomNavigation handleMainBtn error ' + e.message)
@@ -128,7 +142,7 @@ class BottomNavigation extends Component {
         return (
             <View style={styles.wrapper}>
 
-                <TouchableOpacity style={styles.navigation__item} onPress={this.handleModal}>
+                <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleModal()}>
 
                     <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={100} MainComponent={this.renderExchangeTooltip}/>
 

@@ -4,6 +4,7 @@
  */
 
 import * as f from 'mymonero-core-js/hostAPI/response_parser_utils'
+import * as payment from 'mymonero-core-js/monero_utils/monero_paymentID_utils'
 import { MyMoneroCoreBridgeRN } from 'mymonero-core-js/monero_utils/MyMoneroCoreBridgeRN'
 
 const MY_MONERO = { core: false, coreWasm : false }
@@ -11,7 +12,7 @@ const MY_MONERO = { core: false, coreWasm : false }
 export default {
 
     checkDestination(value) {
-        return f.IsValidPaymentIDOrNoPaymentID(value)
+        return payment.IsValidPaymentIDOrNoPaymentID(value)
     },
 
     async getCore() {

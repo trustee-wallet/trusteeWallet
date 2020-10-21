@@ -6,7 +6,10 @@ import ImageResizer from 'react-native-image-resizer'
 
 import { Platform } from 'react-native'
 import FilePermissions from './FilePermissions'
+import Log from '../Log/Log'
 
+let CACHE_WRITE_ERROR = 0
+const CACHE_VALID_TIME_PAUSE = 10000
 
 class FileSystem {
 
@@ -15,6 +18,12 @@ class FileSystem {
      * @private
      */
     _dirname = null
+
+    /**
+     * @type string
+     * @public
+     */
+    coreDirname = null
 
     /**
      * @type string
@@ -41,7 +50,12 @@ class FileSystem {
     _returnBase64 = false
 
     constructor(baseDir = 'logs') {
-        this._dirname = RNFS.DocumentDirectoryPath + '/' + baseDir
+        if (RNFS.CachesDirectoryPath) {
+            this.coreDirname = RNFS.CachesDirectoryPath
+        } else {
+            this.coreDirname = RNFS.DocumentDirectoryPath
+        }
+        this._dirname = this.coreDirname + '/' + baseDir
     }
 
 
@@ -50,24 +64,30 @@ class FileSystem {
         try {
             res = await RNFS.writeFile(this.getPath(), content, this._fileEncoding)
         } catch (e) {
-            console.error('FileSystem.writeFile error ' + e.message)
+            Log.errFS('ERROR!!! FS.writeFile error ' + e.message)
             throw e
         }
-
         return res
     }
 
     getPathOrBase64 = async () => {
-        if (Platform.OS === 'android') {
-            const res = await this.getBase64()
-            let type = 'data:text/plain'
-            if (this._fileExtension === 'zip') {
-                type = 'data:application/zip'
+        let res
+        try {
+            if (Platform.OS === 'android') {
+                res = await this.getBase64()
+                let type = 'data:text/plain'
+                if (this._fileExtension === 'zip') {
+                    type = 'data:application/zip'
+                }
+                res = type + ';base64,' + res
+            } else {
+                res = await this.getPath()
             }
-            return type + ';base64,' + res
-        } else {
-            return this.getPath()
+        } catch (e) {
+            Log.errFS('ERROR!!! FS.getPathOrBase64 error ' + e.message)
+            throw e
         }
+        return res
     }
 
     getBase64 = async () => {
@@ -75,7 +95,7 @@ class FileSystem {
         try {
             res = await RNFS.readFile(this.getPath(), 'base64')
         } catch (e) {
-            console.error('FileSystem.getBase64 error ' + e.message)
+            Log.errFS('ERROR!!! FS.getBase64 error ' + e.message)
             throw e
         }
         return res
@@ -111,7 +131,7 @@ class FileSystem {
             }
             await RNFS.unlink(path)
         } catch (e) {
-            console.error('FileSystem.remove error ' + e.message)
+            Log.errFS('ERROR!!! FS.remove error ' + e.message)
         }
         return res
     }
@@ -130,7 +150,7 @@ class FileSystem {
             }
             await RNFS.unlink(path)
         } catch (e) {
-            console.error('FileSystem.checkOverflow error ' + e.message)
+            Log.errFS('ERROR!!! FS.checkOverflow error ' + e.message)
         }
         return res
     }
@@ -142,11 +162,16 @@ class FileSystem {
         if (line.indexOf('appendFile') !== -1) {
             return false
         }
+        const now = new Date().getTime()
+        if ( now - CACHE_WRITE_ERROR < CACHE_VALID_TIME_PAUSE) {
+            return false
+        }
         let res
         try {
-            res = RNFS.appendFile(this.getPath(), line + '\n', this._fileEncoding)
+            res = await RNFS.appendFile(this.getPath(), line + '\n', this._fileEncoding)
         } catch (e) {
-            console.error('FileSystem.writeLine error ' + e.message)
+            CACHE_WRITE_ERROR = now
+            Log.errFS('ERROR!!! FS.writeLine error ' + e.message)
         }
         return res
     }
@@ -192,9 +217,14 @@ class FileSystem {
     }
 
     handleImageBase64 = async (path) => {
-        console.log(path)
-        const resizedImageUrl = await ImageResizer.createResizedImage(path, 1920, 1080, 'JPEG', 100, 0, RNFS.DocumentDirectoryPath)
-        return RNFS.readFile(resizedImageUrl.uri, 'base64')
+        let res
+        try {
+            const resizedImageUrl = await ImageResizer.createResizedImage(path, 1920, 1080, 'JPEG', 100, 0, this.coreDirname)
+            res = await RNFS.readFile(resizedImageUrl.uri, 'base64')
+        } catch (e) {
+            Log.errFS('ERROR!!! FS.handleImageBase64 error ' + e.message)
+        }
+        return res
     }
 }
 

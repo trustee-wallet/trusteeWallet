@@ -24,6 +24,7 @@ import { strings } from '../../services/i18n'
 import firebase from 'react-native-firebase'
 
 import config from '../../config/config'
+import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
 
 class LanguageListScreen extends Component {
 
@@ -40,7 +41,12 @@ class LanguageListScreen extends Component {
 
     setLanguage = async (item) => {
 
+        await AppNotificationListener.unsetLang()
+
         await settingsActions.setSettings('language', item.code)
+
+        await AppNotificationListener.setLang()
+
 
         NavStore.reset('DashboardStack')
 

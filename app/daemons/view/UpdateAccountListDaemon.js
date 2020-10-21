@@ -17,6 +17,7 @@ import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import DaemonCache from '../DaemonCache'
 import { setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
 import BlocksoftBN from '../../../crypto/common/BlocksoftBN'
+import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 let CACHE_PAUSE = 0
 const CACHE_VALID_TIME_PAUSE = 10000
@@ -238,6 +239,8 @@ class UpdateAccountListDaemon extends Update {
                     balance: 0,
                     unconfirmed: 0,
                     balanceAddingLog: '',
+                    balanceAddingLogHidden : '',
+                    balanceAddingLogZero : '',
                     basicCurrencySymbol: basicCurrency.symbol || '$'
                 }
                 DaemonCache.CACHE_WALLET_TOTAL.balance = 0
@@ -334,23 +337,34 @@ class UpdateAccountListDaemon extends Update {
                         account.basicCurrencyBalanceNorm = account.balancePretty
                         account.basicCurrencyUnconfirmedNorm = account.unconfirmedPretty
                         if (rate !== 1) {
-                            account.basicCurrencyBalanceNorm = account.balancePretty * rate
-                            account.basicCurrencyUnconfirmedNorm = account.unconfirmedPretty * rate
+                            account.basicCurrencyBalanceNorm = BlocksoftUtils.mul(account.balancePretty, rate)
+                            account.basicCurrencyUnconfirmedNorm = BlocksoftUtils.mul(account.unconfirmedPretty, rate)
                         }
                         account.basicCurrencyBalance = BlocksoftPrettyNumbers.makeCut(account.basicCurrencyBalanceNorm, 2).separated
                         account.basicCurrencyUnconfirmed = BlocksoftPrettyNumbers.makeCut(account.basicCurrencyUnconfirmedNorm, 2).separated
+
+                        let str = ''
+                        str += account.balancePretty + ' ' + account.currencyCode
+                        if (account.address) {
+                            str += ' ' + account.address
+                        }
+                        str += ' ' + account.basicCurrencyBalance + ' ' + account.basicCurrencyCode + ', '
 
                         if (!tmpCurrency.isHidden) {
 
                             if (account.basicCurrencyBalanceNorm > 0) {
                                 try {
-                                    DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].balanceAddingLog += ' + ' + account.basicCurrencyBalance + '(' + account.currencySymbol + ')'
+                                    DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].balanceAddingLog += str
                                     DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].balance = BlocksoftUtils.add(DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].balance, account.basicCurrencyBalanceNorm)
                                     DaemonCache.CACHE_WALLET_TOTAL.balance = BlocksoftUtils.add(DaemonCache.CACHE_WALLET_TOTAL.balance, account.basicCurrencyBalanceNorm)
                                 } catch (e) {
                                     Log.errDaemon('UpdateAccountListDaemon error on sum ' + e.message)
                                 }
+                            } else {
+                                DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].balanceAddingLogZero += str
                             }
+
+
                             if (account.basicCurrencyUnconfirmedNorm > 0) {
                                 try {
                                     DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].unconfirmed = BlocksoftUtils.add(DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].unconfirmed, account.basicCurrencyUnconfirmedNorm)
@@ -360,6 +374,12 @@ class UpdateAccountListDaemon extends Update {
                                 }
                             }
 
+                        } else {
+                            if (account.basicCurrencyBalanceNorm > 0) {
+                                DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].balanceAddingLogHidden += str
+                            } else {
+                                DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].balanceAddingLogZero += str
+                            }
                         }
                     } else {
                         account.basicCurrencyBalance = 0
@@ -375,6 +395,18 @@ class UpdateAccountListDaemon extends Update {
                 DaemonCache.CACHE_WALLET_TOTAL.balance = BlocksoftPrettyNumbers.makeCut(DaemonCache.CACHE_WALLET_TOTAL.balance, 2).justCutted
                 DaemonCache.CACHE_WALLET_TOTAL.unconfirmed = BlocksoftPrettyNumbers.makeCut(DaemonCache.CACHE_WALLET_TOTAL.unconfirmed, 2).justCutted
             }
+
+            for (const tmpWalletHash in DaemonCache.CACHE_WALLET_SUMS) {
+                const cacheBalanceString =  DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].balanceAddingLog + DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].balanceAddingLogHidden
+                MarketingEvent.setBalance(tmpWalletHash, 'TOTAL', cacheBalanceString, {
+                    totalBalance : DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].balance,
+                    totalBalanceString : DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].balanceAddingLog,
+                    hiddenBalanceString : DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash].balanceAddingLogHidden,
+                    basicCurrencyCode,
+                    walletHash : tmpWalletHash })
+            }
+
+            Log.daemon('UpdateAccountListDaemon CACHE_WALLET_SUMS', DaemonCache.CACHE_WALLET_SUMS)
 
             if (typeof DaemonCache.CACHE_ALL_ACCOUNTS !== 'undefined') {
                 store.dispatch({

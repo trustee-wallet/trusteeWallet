@@ -58,6 +58,7 @@ import QrCodeBox from '../../components/elements/QrCodeBox'
 import OldPhone from '../../services/UI/OldPhone/OldPhone'
 import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import AsyncStorage from '@react-native-community/async-storage'
 import { resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
 
 let styles
@@ -217,17 +218,24 @@ class ReceiveScreen extends Component {
         })
     }
 
-    handleExchange = () => {
+    handleExchange = async () => {
 
         try {
-            setLoaderStatus(true)
 
-            NavStore.goNext('ExchangeScreenStack',
-                {
-                    exchangeScreenParam: {
-                        selectedOutCurrency: this.props.cryptoCurrency
-                    }
-                })
+            const newInterface = await AsyncStorage.getItem('isNewInterface')
+
+            if (newInterface === 'true'){
+                NavStore.goNext('ExchangeV3ScreenStack')
+            } else {
+                setLoaderStatus(true)
+
+                NavStore.goNext('ExchangeScreenStack',
+                    {
+                        exchangeScreenParam: {
+                            selectedOutCurrency: this.props.cryptoCurrency
+                        }
+                    })
+            }
         } catch (e) {
             // noinspection ES6MissingAwait
             Log.err('ReceiveScreen.handleExchange error ' + e.message)

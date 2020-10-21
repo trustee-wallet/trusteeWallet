@@ -34,6 +34,7 @@ import { acc } from 'react-native-reanimated'
 import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
 
 import {showModal} from '../../../appstores/Stores/Modal/ModalActions'
+import DaemonCache from '../../../daemons/DaemonCache'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -50,7 +51,6 @@ class WalletInfo extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            totalBalance: '0.0',
             minus: 0,
             progress: new Animated.Value(0),
             opacity: new Animated.Value(1),
@@ -61,62 +61,7 @@ class WalletInfo extends Component {
     }
 
     _oneFunction(cryptoCurrencies, selectedBasicCurrency, accountList) {
-        if (!cryptoCurrencies) {
-            throw new Error('no cryptoCurrencies')
-        }
-        if (!selectedBasicCurrency) {
-            throw new Error('no selectedBasicCurrency')
-        }
-        if (!accountList) {
-            throw new Error('no accountsList')
-        }
-        const tmpCurrencies = cryptoCurrencies.filter(item => item.isHidden === 0)
-
-        if (typeof this.props.selectedWallet === 'undefined') {
-            return 0
-        }
-        const walletHash = this.props.selectedWallet.walletHash
-        const tmpAccountList = accountList[walletHash]
-        let totalBalance = new BlocksoftBN(0)
-        let totalBalanceString = ''
-
-        if (tmpCurrencies && typeof tmpAccountList !== 'undefined') {
-
-            let tmpCurrency
-            let ratesWithoutZero = 0
-            for (tmpCurrency of tmpCurrencies) {
-                if (typeof tmpAccountList[tmpCurrency.currencyCode] === 'undefined') continue
-
-                const account = tmpAccountList[tmpCurrency.currencyCode]
-                if (!account.basicCurrencyRate || account.basicCurrencyRate === 0) continue
-                ratesWithoutZero++
-
-                totalBalance.add(account.basicCurrencyBalanceNorm)
-                if (account.balancePretty === account.balance) {
-                    if (account.currencyCode !== 'USDT') {
-                        account.balancePretty = BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(account.balance)
-                    }
-                }
-
-                totalBalanceString += account.balancePretty + ' ' + account.currencyCode
-                if (account.address) {
-                    totalBalanceString += ' ' + account.address
-                }
-                totalBalanceString += ', '
-            }
-
-            if (selectedBasicCurrency.currencyCode !== 'USD' && ratesWithoutZero === 0) {
-                saveSelectedBasicCurrencyCode('USD')
-            }
-        }
-
-        totalBalance = totalBalance.get()
-
-        MarketingEvent.setBalance(walletHash, 'TOTAL', totalBalanceString, { totalBalance, totalBalanceString, basicCurrencyCode: selectedBasicCurrency.currencyCode, walletHash })
-
-        this.setState({
-            totalBalance
-        })
+        //MarketingEvent.setBalance(walletHash, 'TOTAL', totalBalanceString, { totalBalance, totalBalanceString, basicCurrencyCode: selectedBasicCurrency.currencyCode, walletHash })
     }
 
     // eslint-disable-next-line camelcase
@@ -135,27 +80,10 @@ class WalletInfo extends Component {
                 }))
             })
 
-            const cryptoCurrencies = this.props.cryptoCurrencies
-            const selectedBasicCurrency = this.props.selectedBasicCurrency
-            const accountList = this.props.accountList
-            await this._oneFunction(cryptoCurrencies, selectedBasicCurrency, accountList)
-
         } catch (e) {
             Log.err('HomeScreen.WalletInfo Unsafe mount error ' + e.message)
         }
 
-    }
-
-    // eslint-disable-next-line camelcase
-    UNSAFE_componentWillReceiveProps(nextProps) {
-        try {
-            const cryptoCurrencies = nextProps.cryptoCurrencies
-            const selectedBasicCurrency = nextProps.selectedBasicCurrency
-            const accountList = nextProps.accountList
-            this._oneFunction(cryptoCurrencies, selectedBasicCurrency, accountList)
-        } catch (e) {
-            Log.err('HomeScreen.WalletInfo Unsafe props error ' + e.message)
-        }
     }
 
     handleChangeLocal = async () => {
@@ -252,19 +180,28 @@ class WalletInfo extends Component {
                 await AsyncStorage.setItem('RBF', '1')
             }else {
                 await AsyncStorage.setItem('RBF', '0')
-            } 
+            }
         })
     }
 
     render() {
         const selectedWallet = this.props.selectedWallet
         const selectedBasicCurrency = this.props.selectedBasicCurrency
-        const accountListByWallet = this.props.accountListByWallet
-        let { styles, totalBalance } = this.state
+        let { styles } = this.state
 
         let localCurrencySymbol = selectedBasicCurrency.symbol
         if (!localCurrencySymbol) {
             localCurrencySymbol = selectedBasicCurrency.currencyCode
+        }
+
+        const CACHE_SUM = DaemonCache.getCache(selectedWallet.walletHash)
+
+        let totalBalance = 0
+        if (CACHE_SUM) {
+            totalBalance = CACHE_SUM.balance
+            if (localCurrencySymbol !== CACHE_SUM.basicCurrencySymbol) {
+                localCurrencySymbol = CACHE_SUM.basicCurrencySymbol
+            }
         }
 
         let tmp = totalBalance.toString().split('.')
