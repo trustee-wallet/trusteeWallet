@@ -164,9 +164,9 @@ class FioSendRequest extends Component {
                         <View style={styles.subheader}>
 
                             {
-                                !this.state.enabledCryptoCurrencies?.length ?
+                                !this.state.enabledCryptoCurrencies?.length && this.state.payeeFioAddress ?
                                 <View style={styles.rowFlex}>
-                                    <TouchableOpacity style={styles.terms__btn} onPress={() => NavStore.goNext('FioSettings')}>
+                                    <TouchableOpacity onPress={() => NavStore.goNext('FioSettings')}>
                                         <View style={styles.popup_btn}>
                                             <Text style={styles.popup_txt}>
                                                 {strings('FioSendRequest.fioSettings')}
@@ -183,7 +183,7 @@ class FioSendRequest extends Component {
                             {
                                 !this.state.payeeFioAddress ?
                                     <View style={styles.rowFlex}>
-                                        <TouchableOpacity style={styles.terms__btn}
+                                        <TouchableOpacity
                                                           press={this.handleRegisterFIOAddress}>
                                             <View style={styles.popup_btn}>
                                                 <Text style={styles.popup_txt}>
@@ -212,7 +212,7 @@ class FioSendRequest extends Component {
 
                             {
                                 this.state.currencyCode ?
-                                <TouchableOpacity onPress={this.showSelectCoinModal}>
+                                <TouchableOpacity style={styles.rowFlex2} onPress={this.showSelectCoinModal}>
                                     <CurrencyIcon
                                         currencyCode={this.state.currencyCode}
                                         containerStyle={styles.cryptoList__icoWrap}
@@ -324,6 +324,7 @@ const styles = {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 16,
         color: '#fff',
+        textAlign: 'center',
     },
 
     rowFlex: {
@@ -334,14 +335,21 @@ const styles = {
         marginHorizontal: -10,
         marginVertical: 5,
         backgroundColor: '#eee',
-        padding: 5,
-        paddingRight: 15,
+        padding: 2,
+        paddingRight: 10,
         borderRadius: 20,
+    },
+
+    rowFlex2: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 
    descr_txt: {
         fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
+        fontSize: 13,
         color: '#777',
        flex: 1,
     },
