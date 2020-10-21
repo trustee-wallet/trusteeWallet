@@ -26,27 +26,8 @@ class Wallet extends Component {
         super(props)
         this.state = {
             isShowSettings: false,
-            walletBalance: 0,
             heightAnimation: new Animated.Value(102)
         }
-    }
-
-    async componentDidMount() {
-        const { walletHash } = this.props.wallet
-        const CACHE_SUM = DaemonCache.getCache(walletHash)
-
-        let walletBalance = 0
-        let walletBalanceLocal = ''
-        if (CACHE_SUM) {
-            walletBalance = CACHE_SUM.balance
-            walletBalanceLocal = CACHE_SUM.basicCurrencySymbol
-        }
-
-        walletBalance = walletBalanceLocal + ' ' + BlocksoftPrettyNumbers.makeCut(walletBalance, 2, 'Settings/walletBalance').separated
-
-        this.setState({
-            walletBalance
-        })
     }
 
     closeSetting = () => {
@@ -91,11 +72,22 @@ class Wallet extends Component {
 
     render() {
 
-        const { heightAnimation, walletBalance } = this.state
-        const { selectedWallet, wallet, accountListByHash } = this.props
+        const { heightAnimation} = this.state
+        const { selectedWallet, wallet } = this.props
 
         const isSelected = wallet.walletHash === selectedWallet.walletHash
         const isBackedUp = wallet.walletIsBackedUp
+
+        const CACHE_SUM = DaemonCache.getCache(wallet.walletHash)
+
+        let walletBalance = 0
+        let walletBalanceLocal = ''
+        if (CACHE_SUM) {
+            walletBalance = CACHE_SUM.balance
+            walletBalanceLocal = CACHE_SUM.basicCurrencySymbol
+        }
+
+        walletBalance = walletBalanceLocal + ' ' + BlocksoftPrettyNumbers.makeCut(walletBalance, 2, 'Settings/walletBalance').separated
 
         return (
             <Animated.View style={{ position: 'relative', height: heightAnimation, marginBottom: 16 }}>

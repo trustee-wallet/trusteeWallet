@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 import { hideModal, showModal } from '../../appstores/Stores/Modal/ModalActions'
 import Log from '../Log/Log'
 import { sublocale } from '../i18n'
-import { NotificationJson } from './Types'
+import { NotificationUnified } from './Types'
 import { AppNewsItem } from '../../appstores/Stores/AppNews/Types'
 
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
@@ -13,7 +13,7 @@ import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
 import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 
 
-const ASYNC_CACHE_TITLE = 'pushToken'
+const ASYNC_CACHE_TITLE = 'pushTokenV2'
 const ASYNC_CACHE_TIME = 'pushTokenTime'
 const ASYNC_ALL_CACHE = 'allPushTokens'
 const CACHE_VALID_TIME = 120000000 // 2000 minute
@@ -61,6 +61,50 @@ export default new class AppNotificationListener {
         return res
     }
 
+    async unsetLang(): Promise<void> {
+        const locale: string = sublocale()
+        try {
+            await firebase.messaging().unsubscribeFromTopic('trustee_all_' + locale)
+        } catch (e) {
+            Log.log('PUSH unsetLang ' + locale + ' error ' + e.message)
+        }
+        try {
+            await firebase.messaging().unsubscribeFromTopic('trustee_dev_' + locale)
+        } catch (e) {
+            Log.log('PUSH unsetLang ' + locale + ' error ' + e.message)
+        }
+    }
+
+    async setLang(): Promise<void> {
+        const locale: string = sublocale()
+        try {
+            await firebase.messaging().subscribeToTopic('trustee_all_' + locale)
+        } catch (e) {
+            Log.log('PUSH setLang ' + locale + ' error ' + e.message)
+        }
+        const devMode = await AsyncStorage.getItem('devMode')
+        if (devMode && devMode.toString() === '1') {
+            try {
+                await firebase.messaging().subscribeToTopic('trustee_dev_' + locale)
+            } catch (e) {
+                Log.log('PUSH setLang ' + locale + ' error ' + e.message)
+            }
+        }
+    }
+
+    async unsetDev(): Promise<void> {
+        const locale: string = sublocale()
+        const keys = ['trustee_dev', 'trustee_dev_' + locale, 'trustee_dev_ua', 'trustee_dev_en', 'trustee_dev_ru']
+        for (const key of keys) {
+            try {
+                await firebase.messaging().unsubscribeFromTopic(key)
+            } catch (e) {
+                Log.log('PUSH unsetDev ' + locale + ' error ' + e.message)
+            }
+        }
+    }
+
+
     async getToken(): Promise<void> {
         let fcmToken: string | null = await AsyncStorage.getItem(ASYNC_CACHE_TITLE)
         // @ts-ignore
@@ -77,8 +121,16 @@ export default new class AppNotificationListener {
             }
         }
 
-        if (!time || !fcmToken) {
+        const locale: string = sublocale()
+
+        if (!time || !fcmToken || fcmToken === '') {
             await firebase.messaging().subscribeToTopic('trustee_all')
+            await firebase.messaging().subscribeToTopic('trustee_all_' + locale)
+            const devMode = await AsyncStorage.getItem('devMode')
+            if (devMode && devMode.toString() === '1') {
+                await firebase.messaging().subscribeToTopic('trustee_dev')
+                await firebase.messaging().subscribeToTopic('trustee_dev_' + locale)
+            }
             fcmToken = await firebase.messaging().getToken()
             Log.log('PUSH getToken subscribed token ' + fcmToken)
             await this._onRefresh(fcmToken)
@@ -110,26 +162,18 @@ export default new class AppNotificationListener {
                 let data
                 let notificationId
                 try {
-                    // @ts-ignore
-                    if (typeof notificationOpen.notification._data.notification !== 'undefined') {
-                        // @ts-ignore
-                        data = JSON.parse(notificationOpen.notification._data.notification)
-                    } else {
-                        // @ts-ignore
-                        data = notificationOpen.notification._data.notificationJson
-                    }
-                    // @ts-ignore
-                    notificationId = notificationOpen.notification._notificationId
+                    data = this._unifyAnyPush(notificationOpen.notification)
+                    notificationId = data.toSave.newsServerId
                 } catch (e) {
                     // @ts-ignore
                     Log.err('PUSH AppNotification.createNotificationOpenedListener parse error ' + e.message, notificationOpen.notification._data)
                 }
 
                 try {
-                    if (data.newsCreated !== 'undefined') {
-                        this.showNewsModal(data, notificationId)
+                    if (typeof data.toShow !== 'undefined' && data.toShow && typeof data.toShow.newsCreated !== 'undefined') {
+                        this.showNewsModal(data.toShow, notificationId)
                     } else {
-                        this.showNotificationModal(data, notificationId)
+                        this.showNotificationModal(data.toSave, notificationId)
                     }
                 } catch (e) {
                     Log.err('PUSH AppNotification.createNotificationOpenedListener show error ' + e.message, {
@@ -204,34 +248,42 @@ export default new class AppNotificationListener {
         }
 
         try {
-            // @ts-ignore
-            if (typeof notificationOpen.notification._data.notification !== 'undefined') {
-                // @ts-ignore
-                data = JSON.parse(notificationOpen.notification._data.notification)
-            } else {
-                // @ts-ignore
-                data = notificationOpen.notification._data.notificationJson
-            }
+            data = this._unifyAnyPush(notificationOpen.notification)
+            notificationId = data.toSave.newsServerId
         } catch (e) {
             Log.log('PUSH _isAppOpenViaNotification parse error ' + e.message)
         }
 
         try {
-            if (data.newsCreated !== 'undefined') {
+            if (typeof data.toShow !== 'undefined' && data.toShow && typeof data.toShow.newsCreated !== 'undefined') {
                 // @ts-ignore
-                this.showNewsModal(data, notificationId)
+                this.showNewsModal(data.toShow, notificationId)
             } else {
                 // @ts-ignore
-                this.showNotificationModal(data, notificationId)
+                this.showNotificationModal(data.toSave, notificationId)
             }
         } catch (e) {
             Log.log('PUSH _isAppOpenViaNotification show error ' + e.message, { data, notificationId })
         }
     }
 
-    async _onNotification(notification: RNFirebase.notifications.Notification): Promise<void> {
 
-        console.log('n', notification)
+    _unifyAnyPush(notification: RNFirebase.notifications.Notification): { toSave: NotificationUnified, toShow: AppNewsItem, needReload: boolean } {
+
+        let toShow = false
+        try {
+            // @ts-ignore
+            if (typeof notification._data.notification !== 'undefined') {
+                // @ts-ignore
+                toShow = JSON.parse(notification._data.notification)
+            } else {
+                // @ts-ignore
+                toShow = notification._data.notificationJson
+            }
+        } catch (e) {
+            // do nothing
+        }
+
         const toSave = {
             newsSource: 'PUSHES',
             newsGroup: 'PUSHES',
@@ -240,39 +292,58 @@ export default new class AppNotificationListener {
             newsCustomText: notification.body,
             newsNeedPopup: 0,
             newsServerId: notification.notificationId,
-            newsJson: false
-        }
+            newsJson: {}
+        } as NotificationUnified
+
         const locale: string = sublocale()
-        if (notification._data) {
-            let tmp = false
-            if (typeof notification._data !== 'object') {
-                try {
-                    tmp = JSON.parse(notification._data)
-                } catch (e) {
-                    Log.log('PUSH _onNotification notification._data not JSON ' + e.message, notification._data)
-                }
+
+        const keys = [
+            notification.data,
+            notification.body
+        ]
+        // @ts-ignore
+        if (typeof notification._data !== 'undefined') {
+            // @ts-ignore
+            if (typeof notification._data.notification !== 'undefined') {
+                // @ts-ignore
+                keys.push(notification._data.notification)
+                // @ts-ignore
+            } else if (typeof notification._data.notificationJson !== 'undefined') {
+                // @ts-ignore
+                keys.push(notification._data.notificationJson)
             } else {
-                tmp = notification._data
-            }
-            if (tmp) {
-                toSave.newsJson = tmp
+                // @ts-ignore
+                keys.push(notification._data)
             }
         }
-        if (notification.data) {
+        if (typeof notification.data !== 'undefined') {
+            keys.push(notification.data)
+        }
+        if (typeof notification.body !== 'undefined') {
+            keys.push(notification.body)
+        }
+
+        for (const key of keys) {
+            if (!key) continue
             let tmp = false
-            if (typeof notification.data !== 'object') {
+            if (typeof notification.body !== 'object') {
                 try {
-                    tmp = JSON.parse(notification.data)
+                    tmp = JSON.parse(key)
                 } catch (e) {
-                    Log.log('PUSH _onNotification notification.data not JSON ' + e.message, notification.data)
+                    Log.log('PUSH _onNotification notification not JSON ' + e.message, key)
                 }
             } else {
-                tmp = notification.data
+                tmp = key
             }
-            if (tmp) {
+            if (tmp && typeof tmp === 'object') {
                 // @ts-ignore
                 toSave.newsJson = { ...tmp, ...toSave.newsJson }
             }
+        }
+
+        if (toSave.newsJson === {}) {
+            // @ts-ignore
+            toSave.newsJson = false
         }
 
         let needReload = false
@@ -290,17 +361,14 @@ export default new class AppNotificationListener {
             }
 
             let lang = toSave.newsJson
-            if (typeof toSave.newsJson['en'] !== 'undefined') {
-                if (toSave.newsJson['en'].title === 'Exchange') {
-                    needReload = true
-                }
-            }
-
             if (typeof toSave.newsJson.notification !== 'undefined' && typeof toSave.newsJson.notification['en'] !== 'undefined') {
                 lang = toSave.newsJson.notification
-                if (toSave.newsJson.notification['en'].title === 'Exchange') {
-                    needReload = true
-                }
+            }
+            if (typeof toSave.newsJson.inCurrencyCode !== 'undefined') {
+                needReload = true
+            }
+            if (typeof lang !== 'undefined' && typeof lang['en'] !== 'undefined' && typeof lang['en'].title !== 'undefined' && lang['en'].title === 'Exchange') {
+                needReload = true
             }
 
             if (typeof lang[locale] !== 'undefined') {
@@ -312,6 +380,12 @@ export default new class AppNotificationListener {
                 }
             }
         }
+        return { toSave, needReload, toShow }
+    }
+
+    async _onNotification(notification: RNFirebase.notifications.Notification): Promise<void> {
+
+        const { toSave, needReload } = this._unifyAnyPush(notification)
         Log.log('PUSH _onNotification got toSave', toSave)
         await appNewsDS.saveAppNews(toSave)
 
@@ -319,9 +393,9 @@ export default new class AppNotificationListener {
 
         let localNotification = new firebase.notifications.Notification()
             .setNotificationId(notification.notificationId)
-            .setTitle(notification.title)
+            .setTitle(toSave.newsCustomTitle)
             .setSubtitle(notificationSubtitle)
-            .setBody(notification.body)
+            .setBody(toSave.newsCustomText)
             .setData(notification.data)
 
         if (Platform.OS === 'android') {
@@ -371,21 +445,22 @@ export default new class AppNotificationListener {
                 } catch (e) {
                     Log.err('PUSH _onNotification inside error ' + e.message)
                 }
+                return false
             })
         } catch (e) {
             Log.err('PUSH _onNotification outside error ' + e.message)
         }
     }
 
-    showNotificationModal = (data: NotificationJson, notificationId: string): void => {
+    showNotificationModal = (data: NotificationUnified, notificationId: string): void => {
         const locale: string = sublocale()
         showModal({
             type: 'CHOOSE_INFO_MODAL',
             data: {
                 // @ts-ignore
-                title: data[locale].title,
+                title: data.newsCustomTitle,
                 // @ts-ignore
-                description: data[locale].description,
+                description: data.newsCustomText,
                 hideBottom: true,
                 acceptCallback: async () => {
                     if (notificationId) {

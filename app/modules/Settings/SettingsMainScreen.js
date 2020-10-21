@@ -41,6 +41,7 @@ import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import SendLog from '../../services/Log/SendLog'
 import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -322,6 +323,7 @@ class SettingsMainScreen extends Component {
             Toast.setMessage('DEV MODE OFF').show()
 
             await AsyncStorage.setItem('devMode', '0')
+            await AppNotificationListener.unsetDev()
         } else {
             config.devMode = true
 
@@ -333,6 +335,7 @@ class SettingsMainScreen extends Component {
             Toast.setMessage('DEV MODE').show()
 
             await AsyncStorage.setItem('devMode', '1')
+            await AppNotificationListener.setLang()
         }
 
         Vibration.vibrate(100)

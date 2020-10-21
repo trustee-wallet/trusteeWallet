@@ -1002,8 +1002,7 @@
     "walletBackup": {
       "success": "Успіх!",
       "seedConfirm": "Фразу резервного копіювання підтверджено!",
-      "walletCreated": "Гаманець створено!",
-      "mnemonicCopied": "Фраза відновлення скопійована в буфер обміну!"
+      "walletCreated": "Гаманець створено!"
     },
     "walletCreate": {
       "success": "Успіх!",

@@ -20,6 +20,7 @@ import HomeScreenStack from './HomeStack'
 import ExchangeScreenStack from './ExchangeScreenStack'
 import ExchangeV3ScreenStack from './ExchangeV3ScreenStack'
 import TradeScreenStack from './TradeScreenStack'
+import TradeV3ScreenStack from './TradeV3ScreenStack'
 import SettingsScreenStack from './SettingsStack'
 
 import AddCardScreen from '../modules/Card'
@@ -136,6 +137,13 @@ const MainNavigator = createStackNavigator({
 
         ExchangeV3ScreenStack: {
             screen: ExchangeV3ScreenStack,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        TradeV3ScreenStack: {
+            screen: TradeV3ScreenStack,
             navigationOptions: {
                 headerShown: false
             }

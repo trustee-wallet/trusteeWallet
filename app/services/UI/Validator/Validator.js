@@ -12,6 +12,7 @@ import { strings } from '../../i18n'
 import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
 import BtcCashUtils from '../../../../crypto/blockchains/bch/ext/BtcCashUtils'
 import MoneroUtilsParser from '../../../../crypto/blockchains/xmr/ext/MoneroUtilsParser'
+import Log from '../../Log/Log'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
 
@@ -170,8 +171,11 @@ async function _userDataValidation(obj) {
             break
 
         case 'XMR_DESTINATION_TAG':
+            if (typeof value === 'undefined') {
+                return
+            }
             value = value.trim()
-            if (!value) {
+            if (!value || value === '') {
                 return
             } else if (!MoneroUtilsParser.checkDestination(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })

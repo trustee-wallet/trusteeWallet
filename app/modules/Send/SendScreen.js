@@ -185,7 +185,12 @@ class SendScreen extends Component {
                 ...toState
             }, () => {
 
-                typeof this.memoInput.handleInput !== 'undefined' ? this.memoInput.handleInput(destinationTag) : null
+                if (typeof this.memoInput.handleInput !== 'undefined') {
+                    if (typeof destinationTag === 'undefined') {
+                        destinationTag = ''
+                    }
+                    this.memoInput.handleInput(destinationTag)
+                }
 
                 this.addressInput.handleInput(address)
                 this.commentInput.handleInput(comment)
@@ -644,8 +649,8 @@ class SendScreen extends Component {
     renderEnoughFundsError = () => {
         const { enoughFunds } = this.state
 
-        Log.log('SendScreen renderEnoughFundsError', enoughFunds)
         if (!enoughFunds.isAvailable) {
+            Log.log('SendScreen renderEnoughFundsError', enoughFunds)
             return (
                 <View>
                     {

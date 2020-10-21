@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 import { check, request, PERMISSIONS } from 'react-native-permissions'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
 
-import i18n, { strings } from '../../../services/i18n'
+import i18n, { strings, sublocale } from '../../../services/i18n'
 
 import { hideModal, showModal } from '../../../appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
@@ -362,17 +362,71 @@ class Cards extends Component {
         try {
             const deviceToken = await AsyncStorage.getItem('pushToken')
             const cashbackToken = CashBackUtils.getWalletToken()
-            const locale = i18n.locale.split('-')[0]
+            const locale = sublocale()
 
             const { cards } = this.state
             const { selectedCard } = this.props
             const { imagePickerOptions } = this.state
             const data = new FormData()
 
-            const tmpCards = JSON.parse(JSON.stringify(cards))
-            const selectedCardIndex = cards.findIndex(item => item.id === selectedCard.id)
+            let selectedCardIndex = cards.findIndex(item => item.id === selectedCard.id)
+            let tmpCards
+            let cardsToCheck = cards
+            if (selectedCardIndex === -1) {
+                Log.log('Card.validateCard get new cards')
+                cardsToCheck = await cardDS.getCards()
+                cardsToCheck.unshift({
+                    name: 'Add new card',
+                    type: 'ADD'
+                })
+                tmpCards = JSON.parse(JSON.stringify(cardsToCheck))
+            } else {
+                tmpCards = JSON.parse(JSON.stringify(cards))
+            }
+            let cardNumber = false
 
-            data.append('cardNumber', tmpCards[selectedCardIndex].number)
+
+            if (typeof tmpCards[selectedCardIndex] !== 'undefined' && typeof tmpCards[selectedCardIndex].number !== 'undefined' && tmpCards[selectedCardIndex].number) {
+                cardNumber = tmpCards[selectedCardIndex].number
+                Log.log('Card.validateCard selectedCard.0 gives ' + cardNumber)
+            } else if (typeof selectedCard !== 'undefined' && typeof selectedCard.number !== 'undefined' && selectedCard.number) {
+                cardNumber = selectedCard.number
+                Log.log('Card.validateCard selectedCard.1 gives ' + cardNumber)
+            } else if (cardsToCheck) {
+                let index = -1
+                let newIndex = -1
+                for (const card of cardsToCheck) {
+                    index++
+                    if (typeof card.number === 'undefined') continue
+                    if (card.cardVerificationJson === null) {
+                        cardNumber = card.number
+                        newIndex = index
+                    }
+                }
+                selectedCardIndex = newIndex
+                Log.log('Card.validateCard changed selectedIndex ' + selectedCardIndex + ' => ' + newIndex + ' gives ' + cardNumber)
+            }
+
+            console.log('Card.validateCard selectedCard.final ' + cardNumber)
+            if (!cardNumber || typeof cardNumber === 'undefined') {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: 'INFO',
+                    title: strings('modal.exchange.sorry'),
+                    description: 'System error with card number : undefined '
+                })
+                return false
+            } else if (cardNumber.toString().length < 6) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: 'INFO',
+                    title: strings('modal.exchange.sorry'),
+                    description: 'System error with card number : ' + cardNumber
+                })
+                return false
+            }
+
+            data.append('cardNumber', cardNumber)
 
             if (typeof photoSource !== 'undefined') {
                 const fs = new FileSystem()
@@ -567,7 +621,7 @@ class Cards extends Component {
                             <View style={styles.content__row}>
                                 <View style={[styles.content__item]}>
                                     <TouchableWithoutFeedback style={[styles.content__item]} onPress={Keyboard.dismiss}>
-                                        <View style={[styles.content__item]}/>
+                                        <View style={[styles.content__item]} />
                                     </TouchableWithoutFeedback>
                                 </View>
                                 <View>

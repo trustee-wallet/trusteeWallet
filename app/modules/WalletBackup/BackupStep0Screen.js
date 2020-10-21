@@ -30,6 +30,7 @@ import IconAwesome from 'react-native-vector-icons/FontAwesome'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import BlocksoftSecrets from '../../../crypto/actions/BlocksoftSecrets/BlocksoftSecrets'
+import Toast from '../../services/UI/Toast/Toast'
 
 const { height: WINDOW_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -139,13 +140,7 @@ class BackupStep0Screen extends Component {
         const { walletMnemonic } = this.state
 
         copyToClipboard(walletMnemonic)
-
-        showModal({
-            type: 'INFO_MODAL',
-            icon: true,
-            title: strings('modal.walletBackup.success'),
-            description: strings('modal.walletBackup.mnemonicCopied')
-        })
+        Toast.setMessage(strings('toast.copied')).show()
     }
 
     onPress = () => {

@@ -993,8 +993,7 @@
     "walletBackup": {
       "success": "Успех!",
       "seedConfirm": "Фраза резервного копирования подтверждена!",
-      "walletCreated": "Кошелек создан!",
-      "mnemonicCopied": "Фраза резервного копирования скопирована в буфер обмена!"
+      "walletCreated": "Кошелек создан!"
     },
     "walletCreate": {
       "success": "Успех!",

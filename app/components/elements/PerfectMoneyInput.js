@@ -17,7 +17,7 @@ class PerfectMoneyInput extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            walletMask: 'U9999999',
+            walletMask: 'U99999999',
             walletNumber: 'U',
             isValid: true,
             isSet : false
@@ -25,7 +25,8 @@ class PerfectMoneyInput extends Component {
     }
 
     validate = () => {
-        const isValid = this.state.walletNumber.length === 8
+        const length = this.state.walletNumber.length
+        const isValid =  length === 8 || length === 9
 
         CACHE_VALUE = this.state.walletNumber
 
