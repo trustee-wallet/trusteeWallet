@@ -15,6 +15,7 @@ import config from '../../config/config'
 import Moment from 'moment';
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import { getFioNames, resolveChainCode, addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
+import NavStore from '../../components/navigation/NavStore'
 
 class FioSettings extends Component {
 
@@ -174,6 +175,10 @@ class FioSettings extends Component {
         }
     }
 
+    navCloseAction = () => {
+        NavStore.goNext('SettingsMainScreen')
+    }
+
     render() {
         const { fioAddress, fioAddressExpiration } = this.state
         Moment.locale('en');
@@ -182,6 +187,7 @@ class FioSettings extends Component {
             <View>
                 <Navigation
                     title= {strings('FioSettings.title')}
+                    backAction={this.navCloseAction}
                 />
 
                 <View style={{paddingTop: 80, height: '100%'}}>
