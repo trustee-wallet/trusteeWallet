@@ -11,7 +11,7 @@ import CurrencyIcon from '../../components/elements/CurrencyIcon'
 import { rejectFioFundsRequest } from '../../../crypto/blockchains/fio/FioUtils'
 import NavStore from '../../components/navigation/NavStore'
 import Moment from 'moment';
-import { setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
+import { setLoaderStatus, setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
 import Log from '../../services/Log/Log'
 import { connect } from 'react-redux'
 
@@ -27,8 +27,6 @@ class FioRequestDetails extends Component {
     async componentDidMount() {
         const data = this.props.navigation.getParam('requestDetailScreenParam')
         const type = this.props.navigation.getParam('requestDetailScreenType')
-        //console.log("requestDetailScreenParam data")
-        //console.log(data)
 
         this.setState({
             requestDetailData: data,
@@ -51,6 +49,7 @@ class FioRequestDetails extends Component {
         const { content } = this.state.requestDetailData
         const currency = this.props.currencyStore.cryptoCurrencies.find(item => item.currencyCode === content?.chain_code)
 
+        setLoaderStatus(true)
         try {
             setSelectedCryptoCurrency(currency)
             await setSelectedAccount()
