@@ -52,7 +52,7 @@ import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import api from '../../services/Api/Api'
-import { getPubAddress, isFioAddressRegistered } from '../../../crypto/blockchains/fio/FioUtils'
+import { getPubAddress, isFioAddressRegistered, resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
 
 let styles
 
@@ -538,8 +538,9 @@ class SendScreen extends Component {
 
         let recipientAddress = addressValidation.value;
         if (await isFioAddressRegistered(recipientAddress)) {
-            const publicFioAddress = await getPubAddress(addressValidation.value, cryptoCurrency.currencyCode, cryptoCurrency.currencyCode);
-            if (!publicFioAddress) {
+            const chainCode = resolveChainCode(cryptoCurrency.currencyCode, cryptoCurrency.currencySymbol);
+            const publicFioAddress = await getPubAddress(addressValidation.value, chainCode, cryptoCurrency.currencySymbol);
+            if (!publicFioAddress || publicFioAddress === '0') {
                 const msg = strings('send.publicFioAddressNotFound', { symbol: cryptoCurrency.currencyCode })
                 Log.log('SendScreen.handleSendTransaction ' + msg)
                 enoughFunds.isAvailable = false

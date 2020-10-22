@@ -11,7 +11,7 @@ import CurrencyIcon from '../../components/elements/CurrencyIcon'
 import { rejectFioFundsRequest } from '../../../crypto/blockchains/fio/FioUtils'
 import NavStore from '../../components/navigation/NavStore'
 import Moment from 'moment';
-import { setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
+import { setLoaderStatus, setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
 import Log from '../../services/Log/Log'
 import { connect } from 'react-redux'
 
@@ -26,9 +26,6 @@ class FioRequestDetails extends Component {
 
     async componentDidMount() {
         const data = this.props.navigation.getParam('requestDetailScreenParam')
-        //console.log("requestDetailScreenParam data")
-        //console.log(data)
-
         this.setState({
             requestDetailData: data,
         })
@@ -39,20 +36,16 @@ class FioRequestDetails extends Component {
     handleReject = async () => {
         // eslint-disable-next-line camelcase
         const { fio_request_id, payer_fio_address } = this.state.requestDetailData
-        const isRejected = await rejectFioFundsRequest(fio_request_id, payer_fio_address)
-        if (isRejected) {
-            NavStore.goBack(null)
-        } else {
-            // error
-        }
+        setLoaderStatus(true)
+        await rejectFioFundsRequest(fio_request_id, payer_fio_address)
+        setLoaderStatus(false)
+        NavStore.reset('FioRequestsList')
     }
-
-
 
     handleConfirm = async () => {
         const { content } = this.state.requestDetailData
         const currency = this.props.currencyStore.cryptoCurrencies.find(item => item.currencyCode === content?.chain_code)
-
+        setLoaderStatus(true)
         try {
             setSelectedCryptoCurrency(currency)
             await setSelectedAccount()
@@ -62,6 +55,8 @@ class FioRequestDetails extends Component {
             })
         } catch (e) {
             await Log.err('FioRequestDetails handleConfirm error ' + e.message, content?.chain_code)
+        } finally {
+            setLoaderStatus(false)
         }
     }
 
