@@ -83,7 +83,8 @@ export const getSentFioRequests = async (fioPublicKey, limit = 100, offset = 0) 
     try {
         BlocksoftCryptoLog.log(`FIO getSentFioRequests started ${fioPublicKey}`)
         const response = await getFioSdk().getSentFioRequests(limit, offset)
-        return response['requests'] || []
+        const requests = response['requests'] || []
+        return requests.sort((a, b) => new Date(b.time_stamp) - new Date(a.time_stamp));
     } catch (e) {
         await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getSentFioRequests')
         return []
@@ -94,7 +95,8 @@ export const getPendingFioRequests = async (fioPublicKey, limit = 100, offset = 
     try {
         BlocksoftCryptoLog.log(`FIO getPendingFioRequests started ${fioPublicKey}`)
         const response = await getFioSdk().getPendingFioRequests(limit, offset)
-        return response['requests'] || []
+        const requests = response['requests'] || []
+        return requests.sort((a, b) => new Date(b.time_stamp) - new Date(a.time_stamp));
     } catch (e) {
         await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getPendingFioRequests')
         return []
