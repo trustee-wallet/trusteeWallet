@@ -162,6 +162,7 @@ const styles = {
     },
     subtitle: {
         marginBottom: 15,
+        marginHorizontal: 20,
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 15,
         color: '#f4f4f4'
@@ -179,6 +180,7 @@ const styles = {
     text2: {
         width: '100%',
         padding: 10,
+        paddingHorizontal: 20,
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 14,
         textAlign: 'left',
