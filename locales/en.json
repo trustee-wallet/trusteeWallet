@@ -447,6 +447,7 @@
     "title": "Fio Settings",
     "description": "Choose wallets to connect to your FIO address",
     "Expire": "Expires",
+    "connectAllWallets": "Connect all wallets",
     "btnText": "Save",
     "noFioTitle": "You need to register FIO address",
     "noFioDescription": "FIO address not registered",

@@ -224,7 +224,7 @@ class FioSettings extends Component {
 
                                         <View style={styles.coinRow}>
                                             <View style={styles.coinRowInfo}>
-                                                <Text style={styles.txt2}>Connect all wallets</Text>
+                                                <Text style={styles.txt2}>{strings('FioSettings.connectAllWallets')} </Text>
                                             </View>
 
                                             <Switch
