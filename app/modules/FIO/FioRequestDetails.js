@@ -41,15 +41,11 @@ class FioRequestDetails extends Component {
     handleReject = async () => {
         // eslint-disable-next-line camelcase
         const { fio_request_id, payer_fio_address } = this.state.requestDetailData
-        const isRejected = await rejectFioFundsRequest(fio_request_id, payer_fio_address)
-        if (isRejected) {
-            NavStore.goBack(null)
-        } else {
-            // error
-        }
+        setLoaderStatus(true)
+        await rejectFioFundsRequest(fio_request_id, payer_fio_address)
+        setLoaderStatus(false)
+        NavStore.reset('FioRequestsList')
     }
-
-
 
     handleConfirm = async () => {
         const { content } = this.state.requestDetailData
@@ -64,6 +60,8 @@ class FioRequestDetails extends Component {
             })
         } catch (e) {
             await Log.err('FioRequestDetails handleConfirm error ' + e.message, content?.chain_code)
+        } finally {
+            setLoaderStatus(false)
         }
     }
 
@@ -111,11 +109,6 @@ class FioRequestDetails extends Component {
 
                                         <View style={styles.flex__container}>
                                             <View style={styles.line2}></View>
-                                        </View>
-
-                                        <View style={styles.flex__container}>
-                                            <Text style={styles.txt}>Type = </Text>
-                                            <Text style={styles.txt}>{this.state.requestDetailType}</Text>
                                         </View>
 
                                         {/*<View style={styles.flex__container}>

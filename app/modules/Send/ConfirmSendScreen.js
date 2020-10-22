@@ -339,7 +339,7 @@ class ConfirmSendScreen extends Component {
 
                 const { type } = this.props.sendStore.data
 
-                if (type === 'MAIN_SCANNER') {
+                if (type === 'MAIN_SCANNER' || fioRequestDetails) {
                     NavStore.goNext('DashboardStack')
                 } else if (type === 'SEND_SCANNER') {
                     NavStore.goNext('AccountScreen')
