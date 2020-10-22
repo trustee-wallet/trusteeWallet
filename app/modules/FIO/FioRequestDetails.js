@@ -26,11 +26,13 @@ class FioRequestDetails extends Component {
 
     async componentDidMount() {
         const data = this.props.navigation.getParam('requestDetailScreenParam')
+        const type = this.props.navigation.getParam('requestDetailScreenType')
         //console.log("requestDetailScreenParam data")
         //console.log(data)
 
         this.setState({
             requestDetailData: data,
+            requestDetailType: type,
         })
 
         Moment.locale('en');
@@ -89,7 +91,17 @@ class FioRequestDetails extends Component {
                                                           markStyle={styles.cryptoList__icon__mark}
                                                           markTextStyle={styles.cryptoList__icon__mark__text}
                                                           iconStyle={styles.cryptoList__icon}/>
-                                            <Text style={styles.txt3}>Send from My {this.state.requestDetailData?.content?.token_code}</Text>
+                                            <Text style={styles.txt3}>
+                                                {
+                                                    this.state.requestDetailType == 'sent' ? (
+                                                        /*if type of page is sent*/
+                                                        <Text>{strings('FioRequestDetails.sentTitle') } </Text>
+                                                    ) : (
+                                                        /*if type of page is pending*/
+                                                        <Text>{strings('FioRequestDetails.pendingTitle') } </Text>
+                                                    )
+                                                }
+                                                {this.state.requestDetailData?.content?.token_code}</Text>
                                         </View>
 
                                         <View style={styles.flex__container}>
@@ -99,6 +111,11 @@ class FioRequestDetails extends Component {
 
                                         <View style={styles.flex__container}>
                                             <View style={styles.line2}></View>
+                                        </View>
+
+                                        <View style={styles.flex__container}>
+                                            <Text style={styles.txt}>Type = </Text>
+                                            <Text style={styles.txt}>{this.state.requestDetailType}</Text>
                                         </View>
 
                                         {/*<View style={styles.flex__container}>

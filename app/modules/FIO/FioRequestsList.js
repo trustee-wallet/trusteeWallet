@@ -54,7 +54,8 @@ class FioRequestsList extends Component {
                         callback={
                             () => {
                                 NavStore.goNext('FioRequestDetails', {
-                                    requestDetailScreenParam: item
+                                    requestDetailScreenParam: item,
+                                    requestDetailScreenType: type
                                 })
                             }
                         }

@@ -478,6 +478,8 @@
 
   "FioRequestDetails": {
     "title": "FIO Request Details",
+    "sentTitle": "Recieve to My",
+    "pendingTitle": "Send from My",
     "balance": "Balance",
     "fee": "Fee",
     "to": "To",
