@@ -52,6 +52,7 @@ Build preparation
 ```
 cd ./trusteeWallet
 npm install
+npx jetifier
 rm -f shim.js
 ./node_modules/.bin/rn-nodeify --hack --install
 ```
