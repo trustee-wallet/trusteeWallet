@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "315819154886",
-    "firebase_url": "https://fir-4ca48.firebaseio.com",
-    "project_id": "fir-4ca48",
-    "storage_bucket": "fir-4ca48.appspot.com"
+    "project_number": "1000360526097",
+    "firebase_url": "https://api-7762265605376467090-814112.firebaseio.com",
+    "project_id": "api-7762265605376467090-814112",
+    "storage_bucket": "api-7762265605376467090-814112.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:315819154886:android:c0bbda14ce32468041e6c7",
+        "mobilesdk_app_id": "1:1000360526097:android:c679be150b04db26",
         "android_client_info": {
           "package_name": "com.trusteewallet"
         }
       },
       "oauth_client": [
         {
-          "client_id": "315819154886-livb5oegs7pvprs7cbja42e8is88r181.apps.googleusercontent.com",
+          "client_id": "1000360526097-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBKdI2lKJnmJppU1i9GFHORaQGYkni3-yg"
+          "current_key": "AIzaXXXXXXXXX_XXXXXXXXXXXXXXXX_XXX-XXXE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "315819154886-livb5oegs7pvprs7cbja42e8is88r181.apps.googleusercontent.com",
+              "client_id": "1000360526097-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
