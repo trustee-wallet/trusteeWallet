@@ -443,6 +443,12 @@
     "btnText": "Select FIO Address"
   },
 
+  "FioAddresses": {
+    "title": "Fio Addresses",
+    "description": "Choose wallets to connect to your FIO address",
+    "btnText": "Register new FIO address",
+  },
+
   "FioSettings": {
     "title": "Fio Settings",
     "description": "Choose wallets to connect to your FIO address",

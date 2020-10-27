@@ -212,55 +212,18 @@ class FioAddresses extends Component {
                         </View>
                     </GradientView>
 
-                    {
-                        fioAddress ? (
-                            <View style={styles.container}>
-                                <View>
-                                    <Text style={styles.txt}>{strings('FioAddresses.description')} </Text>
-                                </View>
+                    <View style={styles.container}>
+                        <View>
+                            <Text style={styles.txt}> {strings('FioAddresses.noFioDescription')} 77</Text>
+                        </View>
 
-                                <View style={{ flex: 1, paddingVertical: 20 }}>
-                                    <ScrollView style={{ marginHorizontal: -20, paddingHorizontal: 20 }}>
-
-                                        <View style={styles.coinRow}>
-                                            <View style={styles.coinRowInfo}>
-                                                <Text style={styles.txt2}>{strings('FioAddresses.connectAllWallets')} </Text>
-                                            </View>
-
-                                            <Switch
-                                                thumbColor="#fff"
-                                                trackColor={{ true: '#864DD9', false: '#dadada' }}
-                                                onValueChange={this.toggleSwitchAll}
-                                                value={this.state.isAllWalletsSelected} />
-                                        </View>
-
-                                        {this.renderSettingCoins(this.state.cryptoCurrencies)}
-
-                                    </ScrollView>
-                                </View>
-
-                                <View style={{ marginTop: 20 }}>
-                                    <Button press={this.handleNext}>
-                                        {strings('FioAddresses.btnText')}
-                                    </Button>
-                                </View>
-
-                            </View>
-                        ) : (
-                            /*if fio address not registered*/
-                            <View style={styles.container}>
-                                <View>
-                                    <Text style={styles.txt}> {strings('FioAddresses.noFioDescription')} </Text>
-                                </View>
-
-                                <View style={{ marginTop: 20 }}>
-                                    <Button press={this.handleRegisterFIOAddress}>
-                                        {strings('FioAddresses.noFioBtn')}
-                                    </Button>
-                                </View>
-                            </View>
-                        )
-                    }
+                        <View style={{ marginTop: 20 }}>
+                            <Button press={this.handleRegisterFIOAddress}>
+                                {strings('FioAddresses.btnText')}
+                            </Button>
+                        </View>
+                    </View>
+                    
                 </View>
             </View>
         );
