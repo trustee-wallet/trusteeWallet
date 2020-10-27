@@ -52,6 +52,7 @@ import CustomIcon from "../../components/elements/CustomIcon"
 import UIDict from "../../services/UIDict/UIDict"
 import AsyncStorage from '@react-native-community/async-storage'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
+import { getFioObtData } from '../../../crypto/blockchains/fio/FioUtils'
 
 
 
@@ -74,6 +75,7 @@ class Account extends Component {
             dash: true,
 
             firstCall: true,
+            fioMemo: {},
         }
     }
 
@@ -109,6 +111,21 @@ class Account extends Component {
                 this.setState({
                     show: true
                 })
+            })
+        }
+    }
+
+    async loadFioData() {
+        const result = await getFioObtData('FIO')
+        if (result && result['obt_data_records']) {
+            const memos = result['obt_data_records'].reduce((res, item) => {
+                return !item.content?.obt_id ? res : {
+                    ...res,
+                    [item.content?.obt_id]: item.content?.memo || 'fio memo'
+                }
+            }, {})
+            this.setState({
+                fioMemo: memos
             })
         }
     }
@@ -619,7 +636,6 @@ class Account extends Component {
             }
             MarketingEvent.logEvent('view_account', logData)
         }
-
 
         let leftComponent
         let settingsComponent = null

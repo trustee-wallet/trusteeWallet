@@ -320,7 +320,8 @@ class ConfirmSendScreen extends Component {
                     amount: amountRaw,
                     chainCode: currencyCode,
                     tokenCode: currencyCode,
-                    obtId: tx.hash
+                    obtId: tx.hash,
+                    memo: fioRequestDetails.memo,
                 })
             }
 

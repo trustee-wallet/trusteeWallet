@@ -610,6 +610,7 @@
     "comment": "Comment",
     "xrp_memo": "Destination tag",
     "xmr_memo": "Payment ID",
+    "fio_memo": "FIO Memo",
     "send": "Next",
     "useAllFunds": "Use all funds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
