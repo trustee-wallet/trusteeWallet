@@ -123,14 +123,6 @@ class SettingsMainScreen extends Component {
     }
 
     handleLogs = async () => {
-
-        let deviceToken = ''
-        try {
-            deviceToken = await AsyncStorage.getItem('pushToken')
-        } catch (e) {
-            // do nothing
-        }
-
         setLoaderStatus(true)
 
         SendLog.getAll().then(async (shareOptions) => {
