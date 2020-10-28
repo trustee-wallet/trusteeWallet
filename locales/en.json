@@ -211,7 +211,7 @@
       "sendFioRequest": "Send FIO Request",
       "fioRequest": "FIO Requests",
       "registerFioAddress": "Register FIO Address",
-      "fioSettings": "FIO Settings",
+      "fioAddresses": "FIO Addresses",
       "turnOnHD": "Turn on HD"
     },
     "security": {
