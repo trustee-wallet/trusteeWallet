@@ -28,6 +28,7 @@ class SettingsCoin extends Component {
                     <View>
                         <Text style={styles.txt2}>{cryptoCurrency.currencySymbol}</Text>
                         <Text style={styles.txt3}>{cryptoCurrency.currencyName}</Text>
+                        <Text style={styles.txtAddress} numberOfLines={1} ellipsizeMode='tail'>e54fed70c7ca19c211c04cc2e58342051c9388e723be5efb06ad62e3917fad3c</Text>
                     </View>
                 </View>
 
@@ -62,6 +63,7 @@ const styles = {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
+        flex: 1,
     },
 
     cryptoList__icoWrap: {
@@ -93,6 +95,15 @@ const styles = {
         fontSize: 14,
         color: '#000',
         marginTop: -5,
+    },
+
+    txtAddress: {
+        flex: 1,
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 12,
+        color: '#888',
+        marginTop: -5,
+        maxWidth: '85%',
     },
 
 
