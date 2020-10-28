@@ -13,29 +13,39 @@ import config from '../../config/config'
 import Moment from 'moment';
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import NavStore from '../../components/navigation/NavStore'
+import DaemonCache from '../../daemons/DaemonCache'
+import { getFioNames } from '../../../crypto/blockchains/fio/FioUtils'
 
 class FioAddresses extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            isAllWalletsSelected: false,
-            cryptoCurrencies: [],
-            selectedCryptoCurrencies: {},
-            fioAddress: null,
-            fioAddressExpiration: null,
+            fioAddresses: [],
         }
     }
 
     async componentDidMount() {
         setLoaderStatus(true)
         try {
-
+            await this.resolveFioAccount()
         } finally {
             setLoaderStatus(false)
         }
     }
 
+    resolveFioAccount = async () => {
+        const { selectedWallet } = this.props.mainStore
+        const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
+        if (fioAccount && fioAccount.address) {
+            const fioNames = await getFioNames(fioAccount.address)
+            if (fioNames && fioNames.length > 0) {
+                this.setState({
+                    fioAddresses: fioNames,
+                })
+            }
+        }
+    }
 
     handleRegisterFIOAddress = async () => {
         const { accountList } = this.props.accountStore
@@ -43,8 +53,6 @@ class FioAddresses extends Component {
         const { apiEndpoints } = config.fio
 
         const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
-        console.log("publicFioAddress")
-        console.log(publicFioAddress)
         if (publicFioAddress) {
             Linking.openURL(`${apiEndpoints.registrationSiteURL}${publicFioAddress}`)
         } else {
@@ -53,7 +61,7 @@ class FioAddresses extends Component {
     }
 
     navCloseAction = () => {
-        NavStore.goNext('SettingsMainScreen')
+        NavStore.goBack()
     }
 
     gotoFioSettings = () => {
@@ -61,7 +69,6 @@ class FioAddresses extends Component {
     }
 
     render() {
-        const { fioAddress, fioAddressExpiration } = this.state
         Moment.locale('en');
 
         return (
@@ -88,24 +95,18 @@ class FioAddresses extends Component {
 
                         <View style={{flex: 1, paddingVertical: 20}}>
                             <ScrollView>
-
-
-                                <TouchableOpacity onPress={this.gotoFioSettings}>
-                                    <View style={styles.fio_item}>
-                                        <Image style={styles.fio_img} resize={'stretch'}
-                                               source={require('../../assets/images/fio-logo.png')}/>
-                                        <Text style={styles.fio_txt}>Fio Adress 1</Text>
-                                    </View>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity onPress={this.gotoFioSettings}>
-                                    <View style={styles.fio_item}>
-                                        <Image style={styles.fio_img} resize={'stretch'}
-                                               source={require('../../assets/images/fio-logo.png')}/>
-                                        <Text style={styles.fio_txt}>Fio Adress 2</Text>
-                                    </View>
-                                </TouchableOpacity>
-
+                                {
+                                    this.state.fioAddresses.map(address => (
+                                        <TouchableOpacity key={address.fio_address}
+                                                          onPress={() => this.gotoFioSettings(address)}>
+                                            <View style={styles.fio_item}>
+                                                <Image style={styles.fio_img} resize={'stretch'}
+                                                       source={require('../../assets/images/fio-logo.png')}/>
+                                                <Text style={styles.fio_txt}>{address.fio_address}</Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                    ))
+                                }
                             </ScrollView>
                         </View>
 
@@ -118,7 +119,7 @@ class FioAddresses extends Component {
 
 
                     </View>
-                    
+
                 </View>
             </View>
         );
