@@ -14,7 +14,7 @@ import DaemonCache from '../../daemons/DaemonCache'
 import config from '../../config/config'
 import Moment from 'moment';
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import { getFioNames, resolveChainCode, addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
+import { resolveChainCode, addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
 import NavStore from '../../components/navigation/NavStore'
 
 class FioSettings extends Component {
@@ -31,11 +31,15 @@ class FioSettings extends Component {
     }
 
     async componentDidMount() {
+        const availableCurrencies = this.setAvailableCurrencies()
+        const address = this.props.navigation.getParam('fioAddress')
+        this.setState({
+            fioAddress: address.fio_address,
+            fioAddressExpiration: address.expiration,
+        })
         setLoaderStatus(true)
         try {
-            this.setAvailableCurrencies()
-            await this.resolveFioAccount()
-            await this.resolvePublicAddresses()
+            await this.resolvePublicAddresses(address.fio_address, availableCurrencies)
         } finally {
             setLoaderStatus(false)
         }
@@ -43,14 +47,15 @@ class FioSettings extends Component {
 
     setAvailableCurrencies = () => {
         const { cryptoCurrencies } = this.props.currencyStore
+        const availableCurrencies = cryptoCurrencies?.filter(c => !c.isHidden)
         this.setState({
-            cryptoCurrencies: cryptoCurrencies?.filter(c => !c.isHidden)
+            cryptoCurrencies: availableCurrencies
         })
+        return availableCurrencies
     }
 
-    resolvePublicAddresses = async () => {
-        const { cryptoCurrencies, fioAddress } = this.state
-        if (cryptoCurrencies && fioAddress) {
+    resolvePublicAddresses = async (fioAddress, cryptoCurrencies) => {
+        if (cryptoCurrencies) {
             const publicAddresses = await Promise.all(cryptoCurrencies.map(c => {
                 const codes = resolveCryptoCodes(c.currencyCode)
                 return getPubAddress(fioAddress, codes['chain_code'], codes['token_code'])
@@ -58,26 +63,10 @@ class FioSettings extends Component {
 
             this.setState({
                 selectedCryptoCurrencies: cryptoCurrencies.reduce((res, current, index) => ({
-                    ...res, 
-                    [current.currencyCode]: !!publicAddresses[index] && publicAddresses[index] !== '0' 
+                    ...res,
+                    [current.currencyCode]: !!publicAddresses[index] && publicAddresses[index] !== '0'
                 }), {})
             })
-        }
-    }
-
-    resolveFioAccount = async () => {
-        const { selectedWallet } = this.props.mainStore
-        const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
-        if (fioAccount && fioAccount.address) {
-            // setLoaderStatus(true)
-            const fioNames = await getFioNames(fioAccount.address)
-            if (fioNames && fioNames.length > 0) {
-                this.setState({
-                    fioAddress: fioNames[0].fio_address,
-                    fioAddressExpiration: fioNames[0].expiration,
-                })
-            }
-            // setLoaderStatus(false)
         }
     }
 
@@ -126,17 +115,17 @@ class FioSettings extends Component {
         try {
             const { selectedWallet } = this.props.mainStore
             const { selectedCryptoCurrencies, fioAddress, cryptoCurrencies } = this.state
-    
+
             setLoaderStatus(true)
             const publicAddresses = await cryptoCurrencies
                 .reduce(async (resP, current) => {
                     const res = await resP;
-    
+
                     const account = await DaemonCache.getCacheAccount(selectedWallet.walletHash, current.currencyCode)
                     if (!account) {
                         return res
                     }
-                    
+
                     return [
                         ...res,
                         {
@@ -146,15 +135,11 @@ class FioSettings extends Component {
                         },
                     ]
                 }, [])
-    
-            const isAddressCreated = await addCryptoPublicAddresses({
-                fioName: fioAddress, 
+
+            await addCryptoPublicAddresses({
+                fioName: fioAddress,
                 publicAddresses
             })
-    
-            if (isAddressCreated) {
-                console.log(`FioSettings.resolveAddressByFio Successfully added public address to ${fioAddress}`)
-            }
         } finally {
             setLoaderStatus(false)
         }
@@ -166,8 +151,6 @@ class FioSettings extends Component {
         const { apiEndpoints } = config.fio
 
         const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
-        console.log("publicFioAddress")
-        console.log(publicFioAddress)
         if (publicFioAddress) {
             Linking.openURL(`${apiEndpoints.registrationSiteURL}${publicFioAddress}`)
         } else {
@@ -186,8 +169,8 @@ class FioSettings extends Component {
         return (
             <View>
                 <Navigation
-                    title= {strings('FioSettings.title')}
-                    backAction={this.navCloseAction}
+                    title={strings('FioSettings.title')}
+                    closeAction={this.navCloseAction}
                 />
 
                 <View style={{paddingTop: 80, height: '100%'}}>
@@ -203,7 +186,7 @@ class FioSettings extends Component {
                                         <Text style={styles.titleTxt2}>{strings('FioSettings.Expire')} {Moment(fioAddressExpiration).format('lll')} </Text>
                                     </View>
                                 ) : (
-                                        /*if fio address not registered*/
+                                        /* if fio address not registered */
                                         <View>
                                             <Text style={styles.titleTxt1}>{strings('FioSettings.noFioTitle')}</Text>
                                         </View>
@@ -247,7 +230,7 @@ class FioSettings extends Component {
 
                             </View>
                         ) : (
-                            /*if fio address not registered*/
+                            /* if fio address not registered */
                             <View style={styles.container}>
                                 <View>
                                     <Text style={styles.txt}> {strings('FioSettings.noFioDescription')} </Text>

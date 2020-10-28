@@ -64,8 +64,8 @@ class FioAddresses extends Component {
         NavStore.goBack()
     }
 
-    gotoFioSettings = () => {
-        NavStore.goNext('FioSettings')
+    gotoFioSettings = (fioAddress) => {
+        NavStore.goNext('FioSettings', { fioAddress })
     }
 
     render() {

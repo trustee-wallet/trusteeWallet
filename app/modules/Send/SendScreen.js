@@ -144,7 +144,7 @@ class SendScreen extends Component {
             } else {
                 this.addressInput.handleInput(fioRequest.content?.payee_public_address)
             }
-            this.memoInput.handleInput(fioRequest.content?.memo)
+            // this.memoInput.handleInput(fioRequest.content?.memo)
             this.valueInput.handleInput(fioRequest.content?.amount)
 
             this.setState({
