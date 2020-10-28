@@ -2,19 +2,16 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Switch, Linking } from 'react-native'
+import { View, Text, ScrollView, Linking, Image, TouchableOpacity } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
-import SettingsCoin from './elements/SettingsCoin'
 import { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
 import { connect } from 'react-redux'
-import DaemonCache from '../../daemons/DaemonCache'
 import config from '../../config/config'
 import Moment from 'moment';
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import { getFioNames, resolveChainCode, addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
 import NavStore from '../../components/navigation/NavStore'
 
 class FioAddresses extends Component {
@@ -33,132 +30,12 @@ class FioAddresses extends Component {
     async componentDidMount() {
         setLoaderStatus(true)
         try {
-            this.setAvailableCurrencies()
-            await this.resolveFioAccount()
-            await this.resolvePublicAddresses()
+
         } finally {
             setLoaderStatus(false)
         }
     }
 
-    setAvailableCurrencies = () => {
-        const { cryptoCurrencies } = this.props.currencyStore
-        this.setState({
-            cryptoCurrencies: cryptoCurrencies?.filter(c => !c.isHidden)
-        })
-    }
-
-    resolvePublicAddresses = async () => {
-        const { cryptoCurrencies, fioAddress } = this.state
-        if (cryptoCurrencies && fioAddress) {
-            const publicAddresses = await Promise.all(cryptoCurrencies.map(c => {
-                const codes = resolveCryptoCodes(c.currencyCode)
-                return getPubAddress(fioAddress, codes['chain_code'], codes['token_code'])
-            }))
-
-            this.setState({
-                selectedCryptoCurrencies: cryptoCurrencies.reduce((res, current, index) => ({
-                    ...res, 
-                    [current.currencyCode]: !!publicAddresses[index] && publicAddresses[index] !== '0' 
-                }), {})
-            })
-        }
-    }
-
-    resolveFioAccount = async () => {
-        const { selectedWallet } = this.props.mainStore
-        const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
-        if (fioAccount && fioAccount.address) {
-            // setLoaderStatus(true)
-            const fioNames = await getFioNames(fioAccount.address)
-            if (fioNames && fioNames.length > 0) {
-                this.setState({
-                    fioAddress: fioNames[0].fio_address,
-                    fioAddressExpiration: fioNames[0].expiration,
-                })
-            }
-            // setLoaderStatus(false)
-        }
-    }
-
-    toggleSwitchAll = () => {
-        const { isAllWalletsSelected, cryptoCurrencies } = this.state
-
-        this.setState({
-            isAllWalletsSelected: !isAllWalletsSelected,
-            selectedCryptoCurrencies: isAllWalletsSelected
-                ? {}
-                : cryptoCurrencies.reduce((res, current) => {
-                    return ({
-                        ...res,
-                        [current.currencyCode]: true
-                    })
-                }, {})
-        })
-    }
-
-    toggleSwitch = (currencyCode) => {
-        const { selectedCryptoCurrencies } = this.state
-
-        this.setState({
-            selectedCryptoCurrencies: {
-                ...selectedCryptoCurrencies,
-                [currencyCode]: !selectedCryptoCurrencies[currencyCode],
-            }
-        })
-    }
-
-    renderSettingCoins = (data) => {
-        const { selectedCryptoCurrencies } = this.state
-        return (
-            data.map((item, key) => (
-                <SettingsCoin
-                    key={key}
-                    cryptoCurrency={item}
-                    isSelected={selectedCryptoCurrencies[item.currencyCode]}
-                    toggleSwitch={this.toggleSwitch}
-                />
-            ))
-        )
-    }
-
-    handleNext = async () => {
-        try {
-            const { selectedWallet } = this.props.mainStore
-            const { selectedCryptoCurrencies, fioAddress, cryptoCurrencies } = this.state
-    
-            setLoaderStatus(true)
-            const publicAddresses = await cryptoCurrencies
-                .reduce(async (resP, current) => {
-                    const res = await resP;
-    
-                    const account = await DaemonCache.getCacheAccount(selectedWallet.walletHash, current.currencyCode)
-                    if (!account) {
-                        return res
-                    }
-                    
-                    return [
-                        ...res,
-                        {
-                            chain_code: resolveChainCode(account.currencyCode, account.currencySymbol),
-                            token_code: account.currencySymbol,
-                            public_address: selectedCryptoCurrencies[account.currencyCode] === true ? account.address : 0
-                        },
-                    ]
-                }, [])
-    
-            const isAddressCreated = await addCryptoPublicAddresses({
-                fioName: fioAddress, 
-                publicAddresses
-            })
-    
-            if (isAddressCreated) {
-                console.log(`FioAddresses.resolveAddressByFio Successfully added public address to ${fioAddress}`)
-            }
-        } finally {
-            setLoaderStatus(false)
-        }
-    }
 
     handleRegisterFIOAddress = async () => {
         const { accountList } = this.props.accountStore
@@ -179,6 +56,10 @@ class FioAddresses extends Component {
         NavStore.goNext('SettingsMainScreen')
     }
 
+    gotoFioSettings = () => {
+        NavStore.goNext('FioSettings')
+    }
+
     render() {
         const { fioAddress, fioAddressExpiration } = this.state
         Moment.locale('en');
@@ -196,32 +77,46 @@ class FioAddresses extends Component {
                         array={styles_.array}
                         start={styles_.start} end={styles_.end}>
                         <View style={styles.titleSection}>
-                            {
-                                fioAddress ? (
-                                    <View>
-                                        <Text style={styles.titleTxt1}>{fioAddress}</Text>
-                                        <Text style={styles.titleTxt2}>{strings('FioAddresses.Expire')} {Moment(fioAddressExpiration).format('lll')} </Text>
-                                    </View>
-                                ) : (
-                                        /*if fio address not registered*/
-                                        <View>
-                                            <Text style={styles.titleTxt1}>{strings('FioAddresses.noFioTitle')}</Text>
-                                        </View>
-                                )
-                             }
+                            <View>
+                                <Text style={styles.titleTxt1}>{strings('FioAddresses.description')}</Text>
+                            </View>
                         </View>
                     </GradientView>
 
                     <View style={styles.container}>
-                        <View>
-                            <Text style={styles.txt}> {strings('FioAddresses.noFioDescription')} 77</Text>
+
+
+                        <View style={{flex: 1, paddingVertical: 20}}>
+                            <ScrollView>
+
+
+                                <TouchableOpacity onPress={this.gotoFioSettings}>
+                                    <View style={styles.fio_item}>
+                                        <Image style={styles.fio_img} resize={'stretch'}
+                                               source={require('../../assets/images/fio-logo.png')}/>
+                                        <Text style={styles.fio_txt}>Fio Adress 1</Text>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity onPress={this.gotoFioSettings}>
+                                    <View style={styles.fio_item}>
+                                        <Image style={styles.fio_img} resize={'stretch'}
+                                               source={require('../../assets/images/fio-logo.png')}/>
+                                        <Text style={styles.fio_txt}>Fio Adress 2</Text>
+                                    </View>
+                                </TouchableOpacity>
+
+                            </ScrollView>
                         </View>
 
-                        <View style={{ marginTop: 20 }}>
+
+                        <View style={{marginTop: 20}}>
                             <Button press={this.handleRegisterFIOAddress}>
                                 {strings('FioAddresses.btnText')}
                             </Button>
                         </View>
+
+
                     </View>
                     
                 </View>
@@ -264,19 +159,40 @@ const styles = {
         textAlign: 'center',
     },
 
+    fio_item: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+
+        marginBottom: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#e3e6e9',
+        backgroundColor: '#fff',
+        borderRadius: 20
+    },
+
+    fio_txt: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 19,
+        color: '#404040',
+    },
+
+    fio_img: {
+        width: 25,
+        height: 25,
+        marginRight: 20,
+        borderWidth: 1,
+        borderColor: '#e3e6e9',
+        padding: 20,
+        borderRadius: 100
+    },
+
+
     titleTxt1: {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 19,
         color: '#fff',
         textAlign: 'center',
-    },
-
-    titleTxt2: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#fff',
-        textAlign: 'center',
-        marginTop: -5,
     },
 
     txt: {
@@ -286,27 +202,5 @@ const styles = {
         textAlign: 'center',
     },
 
-    txt2: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 17,
-        color: '#000',
-    },
 
-    coinRow: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 15,
-        paddingTop: 10,
-        paddingBottom: 15,
-        borderColor: '#ddd',
-        borderBottomWidth: 1
-    },
-
-    coinRowInfo: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
 }

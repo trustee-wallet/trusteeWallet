@@ -444,8 +444,8 @@
   },
 
   "FioAddresses": {
-    "title": "Fio Addresses",
-    "description": "Choose wallets to connect to your FIO address",
+    "title": "Fio Names",
+    "description": "Fio Addresses",
     "btnText": "Register new FIO address",
   },
 
