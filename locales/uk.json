@@ -210,7 +210,7 @@
       "sendFioRequest": "Відправити FIO Запит",
       "fioRequest": "FIO запити",
       "registerFioAddress": "Зарегиструвати FIO адресу",
-      "fioSettings": "FIO Налаштування",
+      "fioAddresses": "FIO Адреси",
       "turnOnHD" : "Увiмкнути деревовиднi адреси BTC"
     },
     "security": {
