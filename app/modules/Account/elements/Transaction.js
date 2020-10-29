@@ -77,7 +77,7 @@ class Transaction extends Component {
     init = (transaction) => {
 
         try {
-            const {cryptoCurrency} = this.props
+            const {cryptoCurrency, fioMemo} = this.props
 
             const subContent = []
 
@@ -93,6 +93,9 @@ class Transaction extends Component {
 
             const commentToView = this.prepareCommentToView(transaction.transactionJson)
             commentToView ? subContent.push(commentToView) : null
+
+            const fioMemoToView = this.prepareFioMemoToView(fioMemo)
+            fioMemoToView ? subContent.push(fioMemoToView) : null
 
             const outDestinationCardToView = this.prepareOutDestinationCard(transaction)
             outDestinationCardToView ? subContent.push(outDestinationCardToView) : null
@@ -219,6 +222,17 @@ class Transaction extends Component {
                 config: {
                     isEditable: true
                 }
+            }
+        }
+
+        return null
+    }
+
+    prepareFioMemoToView = (fioMemo) => {
+        if (typeof fioMemo !== 'undefined' && fioMemo !== null) {
+            return {
+                title: strings(`send.fio_memo`),
+                description: fioMemo,
             }
         }
 

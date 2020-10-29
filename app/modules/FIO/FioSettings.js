@@ -10,12 +10,12 @@ import SettingsCoin from './elements/SettingsCoin'
 import { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
 import { connect } from 'react-redux'
-import DaemonCache from '../../daemons/DaemonCache'
 import config from '../../config/config'
 import Moment from 'moment';
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import { resolveChainCode, addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
+import { addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
 import NavStore from '../../components/navigation/NavStore'
+import accountDS from '../../appstores/DataSource/Account/Account'
 
 class FioSettings extends Component {
 
@@ -24,6 +24,7 @@ class FioSettings extends Component {
         this.state = {
             isAllWalletsSelected: false,
             cryptoCurrencies: [],
+            accounts: [],
             selectedCryptoCurrencies: {},
             fioAddress: null,
             fioAddressExpiration: null,
@@ -31,68 +32,107 @@ class FioSettings extends Component {
     }
 
     async componentDidMount() {
-        const availableCurrencies = this.setAvailableCurrencies()
-        const address = this.props.navigation.getParam('fioAddress')
-        this.setState({
-            fioAddress: address.fio_address,
-            fioAddressExpiration: address.expiration,
+        const fioAddress = this.props.navigation.getParam('fioAddress')
+
+        const { cryptoCurrencies } = this.props.currencyStore
+        const availableCurrencies = cryptoCurrencies?.filter(c => !c.isHidden)
+        const availableCurrenciesCodes = availableCurrencies.map(c => c.currencyCode)
+
+        const { selectedWallet } = this.props.mainStore
+
+        const accountListByWallet = this.props.accountStore.accountList[selectedWallet.walletHash] || {}
+        const accounts = await Object.entries(accountListByWallet).reduce(async (resP, [_, account]) => {
+            const res = await resP;
+
+            const isAvailable = availableCurrenciesCodes.includes(account.currencyCode)
+            if (!isAvailable) {
+                return res
+            }
+
+            account.currencyName = availableCurrencies.find(c => c.currencyCode === account.currencyCode)?.currencyName
+
+            if (account.currencyCode === 'BTC') {
+                const accounts = await accountDS.getAccountData({
+                    walletHash: selectedWallet.walletHash,
+                    currencyCode: account.currencyCode,
+                    splitSegwit : true,
+                    notAlreadyShown: 1,
+                })
+                if (accounts && accounts.length > 1) {
+                    return [
+                        ...res,
+                        {
+                            ...account,
+                            ...accounts[0],
+                        },
+                        {
+                            ...account,
+                            ...accounts[1],
+                        }
+                    ]
+                }
+            }
+
+            return [
+                ...res,
+                account,
+            ]
+        }, [])
+
+      this.setState({
+            fioAddress: fioAddress.fio_address,
+            fioAddressExpiration: fioAddress.expiration,
+            accounts,
+            cryptoCurrencies: availableCurrenciesCodes
         })
         setLoaderStatus(true)
         try {
-            await this.resolvePublicAddresses(address.fio_address, availableCurrencies)
+            await this.resolvePublicAddresses(fioAddress.fio_address, availableCurrenciesCodes)
         } finally {
             setLoaderStatus(false)
         }
     }
 
-    setAvailableCurrencies = () => {
-        const { cryptoCurrencies } = this.props.currencyStore
-        const availableCurrencies = cryptoCurrencies?.filter(c => !c.isHidden)
-        this.setState({
-            cryptoCurrencies: availableCurrencies
-        })
-        return availableCurrencies
-    }
-
     resolvePublicAddresses = async (fioAddress, cryptoCurrencies) => {
         if (cryptoCurrencies) {
-            const publicAddresses = await Promise.all(cryptoCurrencies.map(c => {
-                const codes = resolveCryptoCodes(c.currencyCode)
+            const publicAddresses = await Promise.all(cryptoCurrencies.map(currencyCode => {
+                const codes = resolveCryptoCodes(currencyCode)
                 return getPubAddress(fioAddress, codes['chain_code'], codes['token_code'])
             }))
 
             this.setState({
-                selectedCryptoCurrencies: cryptoCurrencies.reduce((res, current, index) => ({
+                selectedCryptoCurrencies: cryptoCurrencies.reduce((res, currencyCode, index) => ({
                     ...res,
-                    [current.currencyCode]: !!publicAddresses[index] && publicAddresses[index] !== '0'
+                    [currencyCode]: publicAddresses[index]
                 }), {})
             })
         }
     }
 
     toggleSwitchAll = () => {
-        const { isAllWalletsSelected, cryptoCurrencies } = this.state
+        const { isAllWalletsSelected, cryptoCurrencies, accounts } = this.state
 
         this.setState({
             isAllWalletsSelected: !isAllWalletsSelected,
             selectedCryptoCurrencies: isAllWalletsSelected
                 ? {}
-                : cryptoCurrencies.reduce((res, current) => {
+                : cryptoCurrencies.reduce((res, currencyCode) => {
+                    const account = accounts.find(a => a.currencyCode === currencyCode)
                     return ({
                         ...res,
-                        [current.currencyCode]: true
+                        [currencyCode]: account ? account.address : '0'
                     })
                 }, {})
         })
     }
 
-    toggleSwitch = (currencyCode) => {
+    toggleSwitch = (currencyCode, address) => {
         const { selectedCryptoCurrencies } = this.state
 
         this.setState({
             selectedCryptoCurrencies: {
                 ...selectedCryptoCurrencies,
-                [currencyCode]: !selectedCryptoCurrencies[currencyCode],
+                [currencyCode]: address,
             }
         })
     }
@@ -104,7 +144,7 @@ class FioSettings extends Component {
                 <SettingsCoin
                     key={key}
                     cryptoCurrency={item}
-                    isSelected={selectedCryptoCurrencies[item.currencyCode]}
+                    isSelected={selectedCryptoCurrencies[item.currencyCode] === item.address}
                     toggleSwitch={this.toggleSwitch}
                 />
             ))
@@ -113,28 +153,18 @@ class FioSettings extends Component {
 
     handleNext = async () => {
         try {
-            const { selectedWallet } = this.props.mainStore
             const { selectedCryptoCurrencies, fioAddress, cryptoCurrencies } = this.state
 
             setLoaderStatus(true)
-            const publicAddresses = await cryptoCurrencies
-                .reduce(async (resP, current) => {
-                    const res = await resP;
-
-                    const account = await DaemonCache.getCacheAccount(selectedWallet.walletHash, current.currencyCode)
-                    if (!account) {
-                        return res
-                    }
-
-                    return [
+            const publicAddresses = cryptoCurrencies
+                .reduce((res, currencyCode) =>
+                    [
                         ...res,
                         {
-                            chain_code: resolveChainCode(account.currencyCode, account.currencySymbol),
-                            token_code: account.currencySymbol,
-                            public_address: selectedCryptoCurrencies[account.currencyCode] === true ? account.address : 0
-                        },
-                    ]
-                }, [])
+                            ...resolveCryptoCodes(currencyCode),
+                            public_address: selectedCryptoCurrencies[currencyCode] || '0'
+                        }
+                    ], [])
 
             await addCryptoPublicAddresses({
                 fioName: fioAddress,
@@ -217,7 +247,7 @@ class FioSettings extends Component {
                                                 value={this.state.isAllWalletsSelected} />
                                         </View>
 
-                                        {this.renderSettingCoins(this.state.cryptoCurrencies)}
+                                        {this.renderSettingCoins(this.state.accounts)}
 
                                     </ScrollView>
                                 </View>

@@ -8,9 +8,9 @@ import CurrencyIcon from '../../../components/elements/CurrencyIcon'
 
 class SettingsCoin extends Component {
 
-    toggleSwitch = () => {
+    toggleSwitch = (value) => {
         const { cryptoCurrency, toggleSwitch } = this.props
-        toggleSwitch(cryptoCurrency.currencyCode)
+        toggleSwitch(cryptoCurrency.currencyCode, value ? cryptoCurrency.address : '0')
     }
 
     render() {
@@ -28,7 +28,7 @@ class SettingsCoin extends Component {
                     <View>
                         <Text style={styles.txt2}>{cryptoCurrency.currencySymbol}</Text>
                         <Text style={styles.txt3}>{cryptoCurrency.currencyName}</Text>
-                        <Text style={styles.txtAddress} numberOfLines={1} ellipsizeMode='tail'>e54fed70c7ca19c211c04cc2e58342051c9388e723be5efb06ad62e3917fad3c</Text>
+                        <Text style={styles.txtAddress} numberOfLines={1} ellipsizeMode='middle'>{cryptoCurrency.address}</Text>
                     </View>
                 </View>
 
