@@ -645,6 +645,8 @@ class Account extends Component {
         } else if (account.currencyCode === 'USDT') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.handleSetMode}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
             settingsComponent = <SettingsUSDT containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }} wallet={mainStore.selectedWallet} account={account}/>
+        } else if (account.currencyCode === 'FIO') {
+            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={() =>  NavStore.goNext('FioMainSettings')}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
         } else if (account.currencyCode === 'XMR') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.handleSetMode}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
             settingsComponent = <SettingsXMR containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }} wallet={mainStore.selectedWallet} account={account}/>
