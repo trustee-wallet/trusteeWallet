@@ -108,7 +108,7 @@ class Account extends Component {
         const { currencyCode } = this.props.cryptoCurrency
         if (currencyCode === 'FIO') {
             const fioAccount = await getAccountFioName()
-            if (typeof (fioAccount) === 'undefined') {
+            if (!fioAccount) {
                 showModal({
                     type: 'YES_NO_MODAL',
                     title: strings('account.fioAccount.title'),

@@ -80,8 +80,8 @@ const Currencies = {
         network: 'mainnet',
         decimals: 9,
         buyable: 0,
-        currencyExplorerLink: 'https://fio-test.bloks.io/account/',
-        currencyExplorerTxLink: 'https://fio-test.bloks.io/transaction/'
+        currencyExplorerLink: 'https://fio.bloks.io/key/',
+        currencyExplorerTxLink: 'https://fio.bloks.io/transaction/'
     },
 
     // 'BTC_LIGHT': {
