@@ -5,16 +5,13 @@ import React, { Component } from 'react'
 import { View, Text, ScrollView, Linking, Image, TouchableOpacity } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/Button'
 import { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
 import { connect } from 'react-redux'
-import config from '../../config/config'
-import Moment from 'moment';
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import NavStore from '../../components/navigation/NavStore'
-import DaemonCache from '../../daemons/DaemonCache'
-import { getFioNames } from '../../../crypto/blockchains/fio/FioUtils'
+import Icon from '../../components/elements/CustomIcon.js'
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import config from '../../config/config'
 
 class FioMainSettings extends Component {
 
@@ -22,22 +19,25 @@ class FioMainSettings extends Component {
         super(props)
     }
 
-    navCloseAction = () => {
-        NavStore.goBack()
-    }
+    handleRegisterFIOAddress = async () => {
+        const { accountList } = this.props.accountStore
+        const { selectedWallet } = this.props.mainStore
+        const { apiEndpoints } = config.fio
 
-    gotoFioSettings = (fioAddress) => {
-        NavStore.goNext('FioSettings', { fioAddress })
+        const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
+        if (publicFioAddress) {
+            Linking.openURL(`${apiEndpoints.registrationSiteURL}${publicFioAddress}`)
+        } else {
+            // TODO show some warning tooltip
+        }
     }
 
     render() {
-        Moment.locale('en');
 
         return (
             <View>
                 <Navigation
-                    title= {strings('FioMainSettings.title')}
-                    backAction={this.navCloseAction}
+                    title= {strings('fioMainSettings.title')}
                 />
 
                 <View style={{paddingTop: 80, height: '100%'}}>
@@ -47,37 +47,67 @@ class FioMainSettings extends Component {
                         start={styles_.start} end={styles_.end}>
                         <View style={styles.titleSection}>
                             <View>
-                                <Text style={styles.titleTxt1}>{strings('FioMainSettings.description')}</Text>
+                                <Text style={styles.titleTxt1}>{strings('fioMainSettings.description')}</Text>
                             </View>
                         </View>
                     </GradientView>
 
                     <View style={styles.container}>
-
-
-                        <View style={{flex: 1, paddingVertical: 20}}>
+                        <View style={{flex: 1}}>
                             <ScrollView>
 
-                                <TouchableOpacity  onPress={() => this.gotoFioSettings()}>
-                                    <View style={styles.fio_item}>
-                                        <Image style={styles.fio_img} resize={'stretch'}
-                                               source={require('../../assets/images/fio-logo.png')}/>
-                                        <Text style={styles.fio_txt}>test txt</Text>
+                                <TouchableOpacity style={styles.block__item} onPress={() => NavStore.goNext('FioSendRequest')}>
+                                    <Icon name="exchangeRates" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('fioMainSettings.sendFioRequest')}</Text>
+                                        <Text style={styles.block__text__desc}>{strings('fioMainSettings.sendFioRequestDesc')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
                                     </View>
                                 </TouchableOpacity>
 
+                                <View style={styles.divider}/>
+
+                                <TouchableOpacity style={styles.block__item} onPress={() => NavStore.goNext('FioRequestsList')}>
+                                    <Icon name="addressBook" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('fioMainSettings.fioRequest')}</Text>
+                                        <Text style={styles.block__text__desc}>{strings('fioMainSettings.fioRequestDesc')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <View style={styles.divider}/>
+
+                                <TouchableOpacity style={styles.block__item} onPress={() => NavStore.goNext('FioAddresses')}>
+                                    <Icon name="settings" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('fioMainSettings.fioAddresses')}</Text>
+                                        <Text style={styles.block__text__desc}>{strings('fioMainSettings.fioAddressesDesc')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <View style={styles.divider}/>
+
+                                <TouchableOpacity style={styles.block__item} onPress={() => this.handleRegisterFIOAddress()}>
+                                    <Icon name="info" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('fioMainSettings.registerFioAddress')}</Text>
+                                        <Text style={styles.block__text__desc}>{strings('fioMainSettings.registerFioAddressDesc')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
+                                    </View>
+                                </TouchableOpacity>
 
                             </ScrollView>
                         </View>
-
-
-                        <View style={{marginTop: 20}}>
-                            <Button press={this.handleRegisterFIOAddress}>
-                                {strings('FioMainSettings.btnText')}
-                            </Button>
-                        </View>
-
-
                     </View>
 
                 </View>
@@ -88,8 +118,7 @@ class FioMainSettings extends Component {
 
 const mapStateToProps = (state) => ({
     mainStore: state.mainStore,
-    accountStore: state.accountStore,
-    currencyStore: state.currencyStore
+    accountStore: state.accountStore
 })
 
 export default connect(mapStateToProps, {})(FioMainSettings)
@@ -103,7 +132,6 @@ const styles_ = {
 const styles = {
 
     container: {
-        padding: 30,
         paddingTop: 10,
         height: '100%',
         flexDirection: 'column',
@@ -116,39 +144,6 @@ const styles = {
         color: '#fff',
     },
 
-    txtCenter: {
-        textAlign: 'center',
-    },
-
-    fio_item: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-
-        marginBottom: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e3e6e9',
-        backgroundColor: '#fff',
-        borderRadius: 20
-    },
-
-    fio_txt: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 19,
-        color: '#404040',
-    },
-
-    fio_img: {
-        width: 25,
-        height: 25,
-        marginRight: 20,
-        borderWidth: 1,
-        borderColor: '#e3e6e9',
-        padding: 20,
-        borderRadius: 100
-    },
-
-
     titleTxt1: {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 19,
@@ -156,12 +151,52 @@ const styles = {
         textAlign: 'center',
     },
 
-    txt: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 19,
-        color: '#777',
-        textAlign: 'center',
+    block__item: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+        paddingVertical: 10,
     },
 
+    block__item__content: {
+        paddingTop: 10,
+        paddingBottom: 10
+    },
+
+    divider: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#e3e6e9'
+    },
+
+    icon: {
+        marginRight: 15,
+        marginBottom: 1,
+        color: '#b676e8',
+        borderRadius: 50,
+        padding: 10,
+        backgroundColor: '#efefef'
+    },
+
+    block__text: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 19,
+        color: '#404040'
+    },
+
+    block__text__desc: {
+        marginTop: -2,
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 13,
+        color: '#999999'
+    },
+
+    block__item__arrow: {
+        marginLeft: 'auto'
+    },
+
+    block__arrow: {
+        marginLeft: 15,
+        color: '#999999'
+    },
 
 }

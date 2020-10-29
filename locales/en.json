@@ -431,6 +431,20 @@
     }
   },
 
+
+  "fioMainSettings": {
+    "title": "FIO Settings",
+    "description": "Control all available FIO options",
+    "sendFioRequest": "Send FIO Request",
+    "sendFioRequestDesc": "you can send FIO request",
+    "fioRequest": "FIO Requests",
+    "fioRequestDesc": "list of all active Pending/Sent FIO requests",
+    "fioAddresses": "FIO Addresses",
+    "fioAddressesDesc": "all registered FIO addresses and their options",
+    "registerFioAddress": "Register FIO Address",
+    "registerFioAddressDesc": "register your FIO address"
+  },
+
   "FioChooseRecipient": {
     "title": "Choose Fio Recipient",
     "description": "Enter Recipient FIO, ENS, or Public Address",
