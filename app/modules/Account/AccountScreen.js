@@ -4,7 +4,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { View, Text, TouchableOpacity, ScrollView, Linking, RefreshControl, Platform } from 'react-native'
+import { Linking, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 
 import firebase from 'react-native-firebase'
 import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -48,12 +48,13 @@ import Theme from '../../themes/Themes'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import CustomIcon from "../../components/elements/CustomIcon"
-import UIDict from "../../services/UIDict/UIDict"
+import CustomIcon from '../../components/elements/CustomIcon'
+import UIDict from '../../services/UIDict/UIDict'
 import AsyncStorage from '@react-native-community/async-storage'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
-import { getAccountFioName, getFioObtData } from '../../../crypto/blockchains/fio/FioUtils'
+import { getAccountFioName } from '../../../crypto/blockchains/fio/FioUtils'
 import config from '../../config/config'
+import DaemonCache from '../../daemons/DaemonCache'
 
 
 let CACHE_ASKED = false
@@ -107,7 +108,7 @@ class Account extends Component {
         const { currencyCode } = this.props.cryptoCurrency
         if (currencyCode === 'FIO') {
             const fioAccount = await getAccountFioName()
-            if (!fioAccount) {
+            if (typeof (fioAccount) === 'undefined') {
                 showModal({
                     type: 'YES_NO_MODAL',
                     title: strings('account.fioAccount.title'),
@@ -134,21 +135,6 @@ class Account extends Component {
         const { address } = this.props.account
         const { apiEndpoints } = config.fio
         await Linking.openURL(`${apiEndpoints.registrationSiteURL}${address}`)
-    }
-
-    async loadFioData() {
-        const result = await getFioObtData('FIO')
-        if (result && result['obt_data_records']) {
-            const memos = result['obt_data_records'].reduce((res, item) => {
-                return !item.content?.obt_id ? res : {
-                    ...res,
-                    [item.content?.obt_id]: item.content?.memo || 'fio memo'
-                }
-            }, {})
-            this.setState({
-                fioMemo: memos
-            })
-        }
     }
 
     handleReceive = async () => {
@@ -630,6 +616,7 @@ class Account extends Component {
             transactionsToView = []
         }
 
+        const fioMemo = DaemonCache.getFioMemo(cryptoCurrency.currencyCode)
 
         Log.log('AccountScreen.render amountToView ' + this.state.amountToView + ' transactionsToViewLength ' + transactionsToViewLength)
         const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
@@ -764,6 +751,7 @@ class Account extends Component {
                                                                 transactions={transactionsToView}
                                                                 amountToView={amountToView}
                                                                 transaction={item}
+                                                                fioMemo={fioMemo[item.transactionHash]}
                                                                 handleSetState={this.handleSetState}
                                                                 openTransactionList={openTransactionList}
                                                                 account={account}

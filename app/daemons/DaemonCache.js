@@ -12,6 +12,7 @@ class DaemonCache {
     CACHE_RATES = {}
     CACHE_ALL_ACCOUNTS = {}
     CACHE_WALLET_NAMES_AND_CB = {}
+    CACHE_FIO_MEMOS = {}
 
     /**
      * @param walletHash
@@ -34,6 +35,10 @@ class DaemonCache {
             return { basicCurrencySymbol: '', basicCurrencyRate: '' }
         }
         return this.CACHE_RATES[currencyCode]
+    }
+
+    getFioMemo(currencyCode) {
+        return this.CACHE_FIO_MEMOS[currencyCode] ?? {}
     }
 
     async _getFromDB(walletHash, currencyCode) {
