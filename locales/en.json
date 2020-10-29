@@ -359,6 +359,10 @@
       "title": "Go to blockchain explorer",
       "description": "External site link will be opened"
     },
+    "fioAccount": {
+      "title": "FIO account not registered",
+      "description": "Go to the registration page and register it now?"
+    },
     "transaction": {
       "pay": "Pay",
       "remove" : "Remove",
@@ -446,7 +450,7 @@
   "FioAddresses": {
     "title": "Fio Names",
     "description": "Fio Addresses",
-    "btnText": "Register new FIO address",
+    "btnText": "Register new FIO address"
   },
 
   "FioSettings": {

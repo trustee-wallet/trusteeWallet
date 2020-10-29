@@ -52,8 +52,8 @@ import CustomIcon from "../../components/elements/CustomIcon"
 import UIDict from "../../services/UIDict/UIDict"
 import AsyncStorage from '@react-native-community/async-storage'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
-import { getFioObtData } from '../../../crypto/blockchains/fio/FioUtils'
-
+import { getAccountFioName, getFioObtData } from '../../../crypto/blockchains/fio/FioUtils'
+import config from '../../config/config'
 
 
 let CACHE_ASKED = false
@@ -103,6 +103,21 @@ class Account extends Component {
         CACHE_ASKED = await AsyncStorage.getItem('asked')
     }
 
+    async componentDidMount() {
+        const { currencyCode } = this.props.cryptoCurrency
+        if (currencyCode === 'FIO') {
+            const fioAccount = await getAccountFioName()
+            if (!fioAccount) {
+                showModal({
+                    type: 'YES_NO_MODAL',
+                    title: strings('account.fioAccount.title'),
+                    icon: 'INFO',
+                    description: strings('account.fioAccount.description')
+                }, this.handleRegisterFIOAddress)
+            }
+        }
+    }
+
     componentDidUpdate(prevProps) {
         if (prevProps.account.transactions.length !== this.props.account.transactions.length) {
             this.setState({
@@ -113,6 +128,12 @@ class Account extends Component {
                 })
             })
         }
+    }
+
+    handleRegisterFIOAddress = async () => {
+        const { address } = this.props.account
+        const { apiEndpoints } = config.fio
+        await Linking.openURL(`${apiEndpoints.registrationSiteURL}${address}`)
     }
 
     async loadFioData() {
