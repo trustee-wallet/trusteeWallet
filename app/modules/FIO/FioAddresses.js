@@ -60,10 +60,6 @@ class FioAddresses extends Component {
         }
     }
 
-    navCloseAction = () => {
-        NavStore.goBack()
-    }
-
     gotoFioSettings = (fioAddress) => {
         NavStore.goNext('FioSettings', { fioAddress })
     }
@@ -75,7 +71,6 @@ class FioAddresses extends Component {
             <View>
                 <Navigation
                     title= {strings('FioAddresses.title')}
-                    backAction={this.navCloseAction}
                 />
 
                 <View style={{paddingTop: 80, height: '100%'}}>
