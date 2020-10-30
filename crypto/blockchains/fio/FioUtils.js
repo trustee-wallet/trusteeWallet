@@ -53,6 +53,19 @@ export const getPubAddress = async (fioAddress, chainCode, tokenCode) => {
     }
 }
 
+export const getAccountFioName = async () => {
+    try {
+        const sdk = getFioSdk()
+        const fioPublicKey = sdk.getFioPublicKey();
+        const response = await getFioSdk().getFioNames(fioPublicKey)
+        const addresses = response['fio_addresses'] || []
+        return addresses[0]?.fio_address
+    } catch (e) {
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getFioNames')
+        return null
+    }
+}
+
 /**
  * Returns FIO Addresses and FIO Domains owned by this public key.
  *
@@ -251,25 +264,34 @@ export const rejectFioFundsRequest = async (fioRequestId, payerFioAddress) => {
  * @param chainCode Blockchain code for blockchain hosting this token.
  * @param tokenCode Code of the token represented in Amount requested, i.e. BTC.
  * @param obtId Other Blockchain Transaction ID (OBT ID), i.e Bitcoin transaction ID.
+ * @param memo
  */
 export const recordFioObtData = async ({
-                                           fioRequestId,
-                                           payerFioAddress,
-                                           payeeFioAddress,
+                                           fioRequestId = '',
+                                           payerFioAddress = '',
+                                           payeeFioAddress = '',
                                            payerTokenPublicAddress,
                                            payeeTokenPublicAddress,
                                            amount,
                                            chainCode,
                                            tokenCode,
-                                           obtId
+                                           obtId,
+                                           memo
                                        }) => {
     try {
         const sdk = getFioSdk()
         const { fee = 0 } = await sdk.getFeeForRecordObtData(payerFioAddress)
-        const result = await sdk.recordObtData(fioRequestId, payerFioAddress, payeeFioAddress, payerTokenPublicAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, 'sent_to_blockchain', obtId, fee, null, null, null, null, null)
+        const result = await sdk.recordObtData(fioRequestId, payerFioAddress, payeeFioAddress, payerTokenPublicAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, 'sent_to_blockchain', obtId, fee, null, null, memo, null, null)
         return !!result['status']
     } catch (e) {
-        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO rejectFioRequest')
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO recordFioObtData')
     }
 }
 
+export const getFioObtData = async (tokenCode, offset = 0, limit = 100) => {
+    try {
+        return getFioSdk().getObtData(limit, offset, tokenCode)
+    } catch (e) {
+        await BlocksoftCryptoLog.err(e, JSON.stringify(e.json), 'FIO getFioObtData')
+    }
+}

@@ -4,7 +4,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { View, Text, TouchableOpacity, ScrollView, Linking, RefreshControl, Platform } from 'react-native'
+import { Linking, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 
 import firebase from 'react-native-firebase'
 import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -48,11 +48,13 @@ import Theme from '../../themes/Themes'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import CustomIcon from "../../components/elements/CustomIcon"
-import UIDict from "../../services/UIDict/UIDict"
+import CustomIcon from '../../components/elements/CustomIcon'
+import UIDict from '../../services/UIDict/UIDict'
 import AsyncStorage from '@react-native-community/async-storage'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
-
+import { getAccountFioName } from '../../../crypto/blockchains/fio/FioUtils'
+import config from '../../config/config'
+import DaemonCache from '../../daemons/DaemonCache'
 
 
 let CACHE_ASKED = false
@@ -74,6 +76,7 @@ class Account extends Component {
             dash: true,
 
             firstCall: true,
+            fioMemo: {},
         }
     }
 
@@ -101,6 +104,21 @@ class Account extends Component {
         CACHE_ASKED = await AsyncStorage.getItem('asked')
     }
 
+    async componentDidMount() {
+        const { currencyCode } = this.props.cryptoCurrency
+        if (currencyCode === 'FIO') {
+            const fioAccount = await getAccountFioName()
+            if (!fioAccount) {
+                showModal({
+                    type: 'YES_NO_MODAL',
+                    title: strings('account.fioAccount.title'),
+                    icon: 'INFO',
+                    description: strings('account.fioAccount.description')
+                }, this.handleRegisterFIOAddress)
+            }
+        }
+    }
+
     componentDidUpdate(prevProps) {
         if (prevProps.account.transactions.length !== this.props.account.transactions.length) {
             this.setState({
@@ -111,6 +129,12 @@ class Account extends Component {
                 })
             })
         }
+    }
+
+    handleRegisterFIOAddress = async () => {
+        const { address } = this.props.account
+        const { apiEndpoints } = config.fio
+        await Linking.openURL(`${apiEndpoints.registrationSiteURL}${address}`)
     }
 
     handleReceive = async () => {
@@ -592,6 +616,7 @@ class Account extends Component {
             transactionsToView = []
         }
 
+        const fioMemo = DaemonCache.getFioMemo(cryptoCurrency.currencyCode)
 
         Log.log('AccountScreen.render amountToView ' + this.state.amountToView + ' transactionsToViewLength ' + transactionsToViewLength)
         const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
@@ -620,7 +645,6 @@ class Account extends Component {
             MarketingEvent.logEvent('view_account', logData)
         }
 
-
         let leftComponent
         let settingsComponent = null
         if (account.currencyCode === 'BTC') {
@@ -629,6 +653,8 @@ class Account extends Component {
         } else if (account.currencyCode === 'USDT') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.handleSetMode}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
             settingsComponent = <SettingsUSDT containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }} wallet={mainStore.selectedWallet} account={account}/>
+        } else if (account.currencyCode === 'FIO') {
+            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={() =>  NavStore.goNext('FioMainSettings')}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
         } else if (account.currencyCode === 'XMR') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.handleSetMode}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
             settingsComponent = <SettingsXMR containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }} wallet={mainStore.selectedWallet} account={account}/>
@@ -725,6 +751,7 @@ class Account extends Component {
                                                                 transactions={transactionsToView}
                                                                 amountToView={amountToView}
                                                                 transaction={item}
+                                                                fioMemo={fioMemo[item.transactionHash]}
                                                                 handleSetState={this.handleSetState}
                                                                 openTransactionList={openTransactionList}
                                                                 account={account}

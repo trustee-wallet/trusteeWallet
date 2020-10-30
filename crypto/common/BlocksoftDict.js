@@ -5,7 +5,7 @@ import DBInterface from '../../app/appstores/DataSource/DB/DBInterface'
 const { RNFastCrypto } = NativeModules
 
 const VisibleCodes = [
-    'BTC', 'ETH', 'ETH_USDT', 'ETH_SOUL', 'FIO' // add code here to show on start screen
+    'BTC', 'ETH', 'ETH_USDT', 'ETH_SOUL' // add code here to show on start screen
 ]
 const Codes = [
     'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'ETH_DAIM', 'TRX', 'FIO'   // add code here for autocreation the wallet address with the currency
@@ -80,8 +80,8 @@ const Currencies = {
         network: 'mainnet',
         decimals: 9,
         buyable: 0,
-        currencyExplorerLink: 'https://fio-test.bloks.io/account/',
-        currencyExplorerTxLink: 'https://fio-test.bloks.io/transaction/'
+        currencyExplorerLink: 'https://fio.bloks.io/key/',
+        currencyExplorerTxLink: 'https://fio.bloks.io/transaction/'
     },
 
     // 'BTC_LIGHT': {

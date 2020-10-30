@@ -210,7 +210,7 @@
       "sendFioRequest": "Відправити FIO Запит",
       "fioRequest": "FIO запити",
       "registerFioAddress": "Зарегиструвати FIO адресу",
-      "fioSettings": "FIO Налаштування",
+      "fioAddresses": "FIO Адреси",
       "turnOnHD" : "Увiмкнути деревовиднi адреси BTC"
     },
     "security": {
@@ -608,6 +608,7 @@
     "send": "Далі",
     "xrp_memo": "Тег призначення",
     "xmr_memo": "Ідентифікатор платежу",
+    "fio_memo": "FIO Коментар",
     "useAllFunds": "Відправити все",
     "equivalent": "Еквівалент: ~ %{amount} %{symbol}",
     "notEnough": "У Вас недостатньо коштів для відправки",

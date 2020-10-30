@@ -18,7 +18,8 @@ import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
 import config from '../../config/config'
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
+import { getFioObtData, resolveCryptoCodes } from '../../../crypto/blockchains/fio/FioUtils'
+import DaemonCache from '../DaemonCache'
 
 const CACHE_SCANNING = {}
 const CACHE_VALID_TIME = 60000 // 1 minute
@@ -122,6 +123,34 @@ class UpdateAccountBalanceAndTransactions {
             CACHE_LAST_TIME = new Date().getTime()
         } catch (e) {
             Log.errDaemon('UpdateAccountBalanceAndTransactions balanceError ' + source + ' ' + e.message + ' ' + tmpAction)
+        }
+    }
+
+    loadFioData = async (currencyCode) => {
+        Log.daemon('UpdateAccountBalanceAndTransactions loadFioData ' + currencyCode)
+        try {
+            // eslint-disable-next-line camelcase
+            const { token_code } = resolveCryptoCodes(currencyCode)
+            const result = await getFioObtData(token_code)
+            if (result && result['obt_data_records']) {
+                const fioData = result['obt_data_records'].reduce((res, item) => {
+                    if (!item.content?.memo) {
+                        return res
+                    }
+
+                    return !item.content?.obt_id ? res : {
+                        ...res,
+                        [item.content?.obt_id]: item.content?.memo
+                    }
+                }, {})
+
+                DaemonCache.CACHE_FIO_MEMOS[currencyCode] = {
+                    ...DaemonCache.getFioMemo(currencyCode),
+                    ...fioData
+                }
+            }
+        } catch (e) {
+            Log.errDaemon('UpdateAccountBalanceAndTransactions error on loadFioData ' + e.message)
         }
     }
 
@@ -277,6 +306,8 @@ class UpdateAccountBalanceAndTransactions {
             e.message += ' while accountDS.updateAccount'
             throw e
         }
+
+        await this.loadFioData(account.currencyCode)
 
         Log.daemon('UpdateAccountBalanceAndTransactions _accountRun finish ' + account.id + ' ' + account.currencyCode + ' ' + account.address)
     }

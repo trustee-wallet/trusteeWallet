@@ -50,9 +50,9 @@ import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 import config from '../../config/config'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import api from '../../services/Api/Api'
-import { getPubAddress, isFioAddressRegistered, resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
+import { getAccountFioName, getPubAddress, isFioAddressRegistered, resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
+import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 
 let styles
 
@@ -104,6 +104,7 @@ class SendScreen extends Component {
 
             toTransactionJSON: {},
             fioRequestDetails: {},
+            isFioPayment: false,
 
             copyAddress: false
         }
@@ -143,10 +144,11 @@ class SendScreen extends Component {
             } else {
                 this.addressInput.handleInput(fioRequest.content?.payee_public_address)
             }
-            this.commentInput.handleInput(fioRequest.content?.memo)
+            // this.memoInput.handleInput(fioRequest.content?.memo)
             this.valueInput.handleInput(fioRequest.content?.amount)
 
             this.setState({
+                isFioPayment: true,
                 fioRequestDetails: fioRequest
             })
         }
@@ -451,7 +453,7 @@ class SendScreen extends Component {
 
         Log.log('SendScreen.handleSendTransaction started ' + (force ? 'FORCE' : 'usual'))
 
-        const { account, cryptoCurrency, toTransactionJSON, useAllFunds, fioRequestDetails } = this.state
+        const { account, cryptoCurrency, toTransactionJSON, useAllFunds, fioRequestDetails, isFioPayment } = this.state
 
         const addressValidation = await this.addressInput.handleValidate()
         const valueValidation = await this.valueInput.handleValidate()
@@ -536,8 +538,15 @@ class SendScreen extends Component {
             }
         }
 
+        setLoaderStatus(true)
+
+        const amount = this.state.inputType === 'FIAT' ? this.state.amountEquivalent : valueValidation.value
+        const comment = commentValidation.value
+        const memo = destinationTagValidation.value.toString()
+
+        let fioPaymentData;
         let recipientAddress = addressValidation.value;
-        if (await isFioAddressRegistered(recipientAddress)) {
+        if (this.isFioAddress(recipientAddress) && await isFioAddressRegistered(recipientAddress)) {
             const chainCode = resolveChainCode(cryptoCurrency.currencyCode, cryptoCurrency.currencySymbol);
             const publicFioAddress = await getPubAddress(addressValidation.value, chainCode, cryptoCurrency.currencySymbol);
             if (!publicFioAddress || publicFioAddress === '0') {
@@ -549,14 +558,16 @@ class SendScreen extends Component {
                 return
             }
             recipientAddress = publicFioAddress;
+            if (fioRequestDetails && fioRequestDetails.fio_request_id) {
+                fioPaymentData = fioRequestDetails
+            } else {
+                fioPaymentData = {
+                    payer_fio_address: await getAccountFioName(),
+                    payee_fio_address: addressValidation.value,
+                    memo,
+                }
+            }
         }
-
-        setLoaderStatus(true)
-
-        const amount = this.state.inputType === 'FIAT' ? this.state.amountEquivalent : valueValidation.value
-        const comment = commentValidation.value
-        const memo = destinationTagValidation.value.toString()
-
 
         try {
             toTransactionJSON.comment = comment
@@ -610,7 +621,7 @@ class SendScreen extends Component {
 
                 NavStore.goNext('ConfirmSendScreen', {
                     confirmSendScreenParam: data,
-                    fioRequestDetails: fioRequestDetails
+                    ...(isFioPayment && { fioRequestDetails: fioPaymentData })
                 })
 
                 MarketingEvent.checkSellConfirm({
@@ -666,6 +677,22 @@ class SendScreen extends Component {
             })
         }
         IS_CALLED_BACK = false
+    }
+
+    isFioAddress = (address) => {
+        let isValidAddress = false
+        if (address) {
+            try {
+                FIOSDK.isFioAddressValid(address)
+                isValidAddress = true
+            } catch (e) {}
+        }
+        if (this.state.isFioPayment !== isValidAddress) {
+            this.setState({
+                isFioPayment: isValidAddress
+            })
+        }
+        return isValidAddress;
     }
 
     onFocus = () => {
@@ -800,7 +827,8 @@ class SendScreen extends Component {
             description,
             amountInputMark,
             focused,
-            copyAddress
+            copyAddress,
+            isFioPayment,
         } = this.state
 
         const {
@@ -873,6 +901,7 @@ class SendScreen extends Component {
                                 }}
                                 disabled={disabled}
                                 validPlaceholder={true}
+                                callback={this.isFioAddress}
                                 noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' ? true : 0}
                             />
                             {
@@ -938,6 +967,19 @@ class SendScreen extends Component {
                                     isTextarea={true}
                                     style={{ marginRight: 2 }}/>
                             </View>
+
+                            {
+                                isFioPayment ?
+                                    <MemoInput
+                                        ref={component => this.memoInput = component}
+                                        id={memoInput.id}
+                                        disabled={disabled}
+                                        name={strings('send.fio_memo')}
+                                        type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
+                                        keyboardType={'default'}
+                                    /> : null
+                            }
+
                             {this.renderEnoughFundsError()}
                         </View>
 

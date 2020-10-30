@@ -211,7 +211,7 @@
       "sendFioRequest": "Send FIO Request",
       "fioRequest": "FIO Requests",
       "registerFioAddress": "Register FIO Address",
-      "fioSettings": "FIO Settings",
+      "fioAddresses": "FIO Addresses",
       "turnOnHD": "Turn on HD"
     },
     "security": {
@@ -359,6 +359,10 @@
       "title": "Go to blockchain explorer",
       "description": "External site link will be opened"
     },
+    "fioAccount": {
+      "title": "FIO account not registered",
+      "description": "Go to the registration page and register it now?"
+    },
     "transaction": {
       "pay": "Pay",
       "remove" : "Remove",
@@ -431,6 +435,20 @@
     }
   },
 
+
+  "fioMainSettings": {
+    "title": "FIO Settings",
+    "description": "Control all available FIO options",
+    "sendFioRequest": "Send FIO Request",
+    "sendFioRequestDesc": "you can send FIO request",
+    "fioRequest": "FIO Requests",
+    "fioRequestDesc": "list of all active Pending/Sent FIO requests",
+    "fioAddresses": "FIO Addresses",
+    "fioAddressesDesc": "all registered FIO addresses and their options",
+    "registerFioAddress": "Register FIO Address",
+    "registerFioAddressDesc": "register your FIO address"
+  },
+
   "FioChooseRecipient": {
     "title": "Choose Fio Recipient",
     "description": "Enter Recipient FIO, ENS, or Public Address",
@@ -441,6 +459,12 @@
     "title": "Choose Fio Address",
     "description": "Enter address to request payment from",
     "btnText": "Select FIO Address"
+  },
+
+  "FioAddresses": {
+    "title": "Fio Names",
+    "description": "Fio Addresses",
+    "btnText": "Register new FIO address"
   },
 
   "FioSettings": {
@@ -610,6 +634,7 @@
     "comment": "Comment",
     "xrp_memo": "Destination tag",
     "xmr_memo": "Payment ID",
+    "fio_memo": "FIO Memo",
     "send": "Next",
     "useAllFunds": "Use all funds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",

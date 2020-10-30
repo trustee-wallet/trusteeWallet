@@ -14,7 +14,9 @@ import FioSendRequest from '../modules/FIO/FioSendRequest'
 import FioRequestsList from '../modules/FIO/FioRequestsList'
 import FioChooseAddress from '../modules/FIO/FioChooseAddress'
 import FioRequestDetails from '../modules/FIO/FioRequestDetails'
+import FioMainSettings from '../modules/FIO/FioMainSettings'
 import FioSettings from '../modules/FIO/FioSettings'
+import FioAddresses from '../modules/FIO/FioAddresses'
 import TermsOfUseScreen from '../modules/About/screens/TermsOfUseScreen'
 import PrivacyPolicyScreen from '../modules/About/screens/PrivacyPolicyScreen'
 import LocalCurrencyScreen from '../modules/Settings/LocalCurrencyScreen'
@@ -70,12 +72,28 @@ const SettingsStack = createStackNavigator(
             }
         },
 
+        FioAddresses: {
+            screen: FioAddresses,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        FioMainSettings: {
+            screen: FioMainSettings,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
         FioSettings: {
             screen: FioSettings,
             navigationOptions: {
                 headerShown: false
             }
         },
+
+
 
         WalletListScreen: {
             screen: WalletListScreen,
