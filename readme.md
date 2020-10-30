@@ -79,7 +79,7 @@ On the next step we decoding both APK files by `apktool`. File downloaded from G
 Finally on the last step using simple `diff` command we checking both folders for differences.  
 
 ```bash 
-git clone https://gl.blocksoftlab.com/Trustee/trusteewallet.git
+git clone https://github.com/trustee-wallet/trusteeWallet.git
 cd trusteewallet/
 ./docker/verify_android_build.sh
 ```
