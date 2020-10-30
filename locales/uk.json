@@ -207,10 +207,6 @@
       "import": "Імпортувати гаманець",
       "create": "Створити новий гаманець",
       "select": "Обрати гаманець",
-      "sendFioRequest": "Відправити FIO Запит",
-      "fioRequest": "FIO запити",
-      "registerFioAddress": "Зарегиструвати FIO адресу",
-      "fioAddresses": "FIO Адреси",
       "turnOnHD" : "Увiмкнути деревовиднi адреси BTC"
     },
     "security": {

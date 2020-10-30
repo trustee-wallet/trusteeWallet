@@ -207,10 +207,6 @@
       "import": "Импортировать кошелек",
       "create": "Создать новый кошелек",
       "select": "Выбрать кошелек",
-      "sendFioRequest": "Отправить FIO Запрос",
-      "fioRequest": "FIO запросы",
-      "registerFioAddress": "Зарегистрировать FIO адрес",
-      "fioAddresses": "FIO Адреса",
       "turnOnHD" : "Включить древовидные адреса BTC"
     },
     "security": {
@@ -428,6 +424,19 @@
     "accountList": {
       "list": "Учетные записи"
     }
+  },
+
+  "fioMainSettings": {
+    "title": "FIO Настройки",
+    "description": "Контролируйте все доступные FIO настройки",
+    "sendFioRequest": "Отправить FIO Запрос",
+    "sendFioRequestDesc": "отправляйте FIO запросы",
+    "fioRequest": "FIO запросы",
+    "fioRequestDesc": "список всех активных Ожидающих/Отправленых FIO запросов",
+    "fioAddresses": "FIO Адреса",
+    "fioAddressesDesc": "все зарегистрированные FIO адреса и их опции",
+    "registerFioAddress": "Зарегистрировать FIO адрес",
+    "registerFioAddressDesc": "зарегистрируйте FIO адрес"
   },
 
   "FioChooseRecipient": {
