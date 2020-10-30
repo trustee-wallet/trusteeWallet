@@ -430,6 +430,19 @@
     }
   },
 
+   "fioMainSettings": {
+     "title": "FIO Налаштування",
+     "description": "Контролюй всі можливі FIO опції",
+     "sendFioRequest": "Надіслати FIO запит",
+     "sendFioRequestDesc": "ви можете надіслати FIO запит",
+     "fioRequest": "FIO Запити",
+     "fioRequestDesc": "перелік всіх активних Очикуючих/Відправлених FIO запитів",
+     "fioAddresses": "FIO Адреси",
+     "fioAddressesDesc": "всі зареєстровані FIO адреси та їх опції",
+     "registerFioAddress": "Зарегеструвати FIO адресу",
+     "registerFioAddressDesc": "зарегеструвати FIO адресу"
+   },
+
    "FioChooseRecipient": {
      "title": "Оберіть Fio отримувача",
      "description": "Введіть FIO, ENS або публічну адресу отримувача",
