@@ -28,6 +28,7 @@ import FileSystem from '../../../services/FileSystem/FileSystem'
 import CashBackUtils from '../../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
 import TmpConstants from './TmpConstants'
+import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 
 let CACHE_RUB_COUNTRIES = {}
 let CACHE_RUB_COUNTRIES_SET = false
@@ -360,7 +361,7 @@ class Cards extends Component {
 
     validateCard = async (photoSource) => {
         try {
-            const deviceToken = await AsyncStorage.getItem('pushToken')
+            const deviceToken = MarketingEvent.DATA.LOG_TOKEN
             const cashbackToken = CashBackUtils.getWalletToken()
             const locale = sublocale()
 

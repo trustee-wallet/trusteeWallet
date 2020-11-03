@@ -42,6 +42,7 @@ import UIDict from '../../../services/UIDict/UIDict'
 
 import updateTradeOrdersDaemon from '../../../daemons/back/UpdateTradeOrdersDaemon'
 import Ionicons from "react-native-vector-icons/Ionicons";
+import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 
 class Transaction extends Component {
 
@@ -980,7 +981,7 @@ class Transaction extends Component {
 
     handleBuy = async () => {
         try {
-            const deviceToken = await AsyncStorage.getItem('pushToken')
+            const deviceToken = MarketingEvent.DATA.LOG_TOKEN
 
             const {transaction, cryptoCurrency, cards} = this.props
 

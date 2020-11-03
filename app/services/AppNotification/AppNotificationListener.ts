@@ -11,6 +11,7 @@ import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
 import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
 import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
+import MarketingEvent from '../Marketing/MarketingEvent'
 
 
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
@@ -138,6 +139,9 @@ export default new class AppNotificationListener {
         } else {
             Log.log('PUSH getToken cache result ' + fcmToken)
         }
+
+        // @ts-ignore
+        MarketingEvent.DATA.LOG_TOKEN = fcmToken
     }
 
     async requestPermission(): Promise<boolean> {

@@ -9,10 +9,13 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 
 import BlocksoftPrivateKeysUtils from '../../common/BlocksoftPrivateKeysUtils'
 import MoneroUtilsParser from './ext/MoneroUtilsParser'
+import { showModal } from '../../../app/appstores/Stores/Modal/ModalActions'
+import { strings } from '../../../app/services/i18n'
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {}
 const NEVER_LOGIN = {}
+let CACHE_SHOWN_ERROR = 0
 
 export default class XmrScannerProcessor {
 
@@ -84,8 +87,24 @@ export default class XmrScannerProcessor {
         const linkParams = { address: address, view_key: viewKey }
 
 
-        const res = await BlocksoftAxios.post(link + 'get_address_info', linkParams)
-
+        let res = false
+        try {
+            res = await BlocksoftAxios.post(link + 'get_address_info', linkParams)
+        } catch (e) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get error ' + e.message, linkParams)
+            if (CACHE_SHOWN_ERROR === 0 && e.message.indexOf('invalid address and/or view key') !== -1) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: false,
+                    title:  strings('modal.walletLog.sorry'),
+                    description: strings('settings.walletList.needReinstallXMR')
+                })
+                CACHE_SHOWN_ERROR++
+                if (CACHE_SHOWN_ERROR > 100) {
+                    CACHE_SHOWN_ERROR = 0
+                }
+            }
+        }
         if (!res || !res.data) {
             if (typeof NEVER_LOGIN[address] === 'undefined') {
                 const linkParamsLogin = {
@@ -98,6 +117,18 @@ export default class XmrScannerProcessor {
                     await BlocksoftAxios.post('https://api.mymonero.com:8443/login', linkParamsLogin) // login needed
                 } catch (e) {
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get login error ' + e.message, linkParamsLogin)
+                    if (CACHE_SHOWN_ERROR === 0 && e.message.indexOf('invalid address and/or view key') !== -1) {
+                        showModal({
+                            type: 'INFO_MODAL',
+                            icon: false,
+                            title:  strings('modal.walletLog.sorry'),
+                            description: strings('settings.walletList.needReinstallXMR')
+                        })
+                        CACHE_SHOWN_ERROR++
+                        if (CACHE_SHOWN_ERROR > 100) {
+                            CACHE_SHOWN_ERROR = 0
+                        }
+                    }
                 }
             }
             return false

@@ -58,16 +58,17 @@ export default class XmrAddressProcessor {
 
         const words = MoneroMnemonic.secret_spend_key_to_words(MoneroUtils.normString(secretSpendKey), typeof data.walletHash !== 'undefined' ? data.walletHash : 'none')
 
-        const publicSpendKey = MoneroUtils.secret_key_to_public_key(secretSpendKey)
+        const publicSpendKey = MoneroUtils.secret_key_to_public_key(secretSpendKey).toString('hex')
 
-        const publicViewKey = MoneroUtils.secret_key_to_public_key(secretViewKey)
+        const publicViewKey = MoneroUtils.secret_key_to_public_key(secretViewKey).toString('hex')
 
         const address = MoneroUtils.pub_keys_to_address(0, publicSpendKey, publicViewKey)
 
 
         let mymoneroError = 0
+        let linkParamsLogin = {}
         try {
-            const linkParamsLogin = {
+            linkParamsLogin = {
                 address: address,
                 view_key: MoneroUtils.normString(secretViewKey.toString('hex')),
                 create_account: true,
@@ -78,7 +79,10 @@ export default class XmrAddressProcessor {
                 throw new Error('no data')
             }
         } catch (e) {
-            BlocksoftCryptoLog.log('XmrAddressProcessor mymonero error ' + e.message)
+            BlocksoftCryptoLog.err('XmrAddressProcessor !!!mymonero error!!! ' + e.message, {
+                linkParamsLogin,
+                publicSpendKeyL : publicSpendKey.length,
+                publicViewKeyL : publicViewKey.length})
             mymoneroError = 1
         }
 
@@ -100,8 +104,8 @@ export default class XmrAddressProcessor {
             address: address,
             privateKey: MoneroUtils.normString(secretSpendKey.toString('hex')) + '_' + MoneroUtils.normString(secretViewKey.toString('hex')),
             addedData: {
-                publicViewKey: MoneroUtils.normString(publicViewKey.toString('hex')),
-                publicSpendKey: MoneroUtils.normString(publicSpendKey.toString('hex')),
+                publicViewKey: MoneroUtils.normString(publicViewKey),
+                publicSpendKey: MoneroUtils.normString(publicSpendKey),
                 derivationIndex: 0,
                 mymoneroError
             }
