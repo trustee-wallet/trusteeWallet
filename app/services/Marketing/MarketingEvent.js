@@ -23,7 +23,7 @@ const CACHED = {}
 const CACHED_BUY = {}
 
 let CACHE_BALANCE = {}
-
+const ASYNC_CACHE_TITLE = 'pushTokenV2'
 
 class MarketingEvent {
     /**
@@ -50,7 +50,7 @@ class MarketingEvent {
         this.DATA.LOG_DEV = !(this.DATA.LOG_VERSION.indexOf('VERSION_CODE_PLACEHOLDER COMMIT_SHORT_SHA_PLACEHOLDER') === -1) ? 'TRUE' : false
         this.DATA.LOG_TESTER = changeable.tg.info.isTester ? 'TRUE' : false
         this.DATA.LOG_PLATFORM = Platform.OS + ' v' + Platform.Version
-        this.DATA.LOG_TOKEN = await AsyncStorage.getItem('pushToken')
+        this.DATA.LOG_TOKEN = await AsyncStorage.getItem(ASYNC_CACHE_TITLE)
 
 
         this.DATA.LOG_MODEL = ''
@@ -156,7 +156,7 @@ class MarketingEvent {
             if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
                 // already done
             } else {
-                this.DATA.LOG_TOKEN = await AsyncStorage.getItem('pushToken')
+                this.DATA.LOG_TOKEN = await AsyncStorage.getItem(ASYNC_CACHE_TITLE)
                 if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
                     this._reinitTgMessage()
                 }

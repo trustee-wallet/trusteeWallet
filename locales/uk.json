@@ -284,6 +284,7 @@
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Сервер для відправки транзакцій (наприклад, api.mymonero.com)",
       "serverSendInputTitleXMR" : "або node.moneroworld.com:18089",
+      "needReinstallXMR"  : "Системна помилка адреси XMR - будь ласка, збережіть мнемонічну фразу та переінсталюйте додаток, або напишіть в службу підтримки для детальних інструкцій",
       "saveSettings" : "Зберегти налаштування",
       "getMnemonicXMR" : "Переглянути секрети"
     },

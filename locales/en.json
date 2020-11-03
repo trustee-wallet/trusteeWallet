@@ -285,6 +285,7 @@
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Server for Send TX (default api.mymonero.com)",
       "serverSendInputTitleXMR" : "or node.moneroworld.com:18089",
+      "needReinstallXMR"  : "Something wrong with XMR address generation - please save mnemonic and reinstall application or contact support",
       "saveSettings" : "Save settings",
       "getMnemonicXMR" : "View secrets"
     },

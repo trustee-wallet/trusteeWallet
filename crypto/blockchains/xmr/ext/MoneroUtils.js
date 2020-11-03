@@ -150,7 +150,7 @@ export default {
         const str2 = typeof publicViewKeyHexBufferOrHex === 'string' ? publicViewKeyHexBufferOrHex : publicViewKeyHexBufferOrHex.toString('hex')
         const prefix = (index > 0) ? '2A' : '12'
 
-        let hex = prefix + str + str2
+        let hex = prefix + str + str2 //this.normString(str) + this.normString(str2)
         const hash = this.cn_fast_hash(hex)
         hex += hash.substring(0, 8)
 
