@@ -187,7 +187,8 @@ const styles = {
         marginTop: -2,
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 13,
-        color: '#999999'
+        color: '#999999',
+        maxWidth: '90%'
     },
 
     block__item__arrow: {

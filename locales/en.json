@@ -208,10 +208,6 @@
       "import": "Import wallet",
       "create": "Create new wallet",
       "select": "Select wallet",
-      "sendFioRequest": "Send FIO Request",
-      "fioRequest": "FIO Requests",
-      "registerFioAddress": "Register FIO Address",
-      "fioAddresses": "FIO Addresses",
       "turnOnHD": "Turn on HD"
     },
     "security": {
