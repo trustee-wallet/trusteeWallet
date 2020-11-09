@@ -39,6 +39,8 @@ import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import exchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 // import AsyncStorage from '@react-native-community/async-storage'
 import Log from '../../services/Log/Log'
+import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
+import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 
 // let COUNT_MODAL_SELL = 0
 
@@ -61,7 +63,8 @@ class MainDataScreen extends Component {
             fieldForPaywayCode: '',
 
             deviceToken: null,
-            show: false
+            show: false,
+            sendAllModalOk: null
         }
 
     }
@@ -69,7 +72,7 @@ class MainDataScreen extends Component {
     // async componentDidMount() {
 
     //     const { tradeType } = this.props.exchangeStore
-        
+
     //     if (tradeType === 'SELL') {
     //         if (COUNT_MODAL_SELL === 0 || COUNT_MODAL_SELL === 5) {
     //             showModal({
@@ -119,7 +122,7 @@ class MainDataScreen extends Component {
         setLoaderStatus(true)
 
         let initState = {
-            selectedTradeWay: {},
+            selectedTradeWay: {}
         }
         if (resetSelected) {
             initState = {
@@ -156,6 +159,7 @@ class MainDataScreen extends Component {
 
             initState = {
                 ...initState,
+                sendAllModalOk: null,
                 extendsFields: {
                     fieldForCryptocurrency: 'inCurrencyCode',
                     fieldForFiatCurrency: 'outCurrencyCode',
@@ -267,7 +271,12 @@ class MainDataScreen extends Component {
 
     }
 
-    actualHandleSubmitTrade = async () => {
+    actualHandleSubmitTrade = async (forceSellAll = false, fromModal = false) => {
+
+        if (forceSellAll) {
+            await this.refAmount.handleSellAll()
+        }
+
         const {
             selectedCryptocurrency,
             selectedFiatCurrency,
@@ -276,6 +285,7 @@ class MainDataScreen extends Component {
             selectedAccount
         } = this.state
 
+        const { tradeType } = this.props.exchangeStore
         const tradeWay = this.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
         const amount = this.refAmount.handleGetAmountEquivalent()
         try {
@@ -297,6 +307,38 @@ class MainDataScreen extends Component {
                 })
             }
             return
+        }
+        try {
+            if (tradeType === 'SELL' && fromModal === false) {
+
+                const limitPercent = 0.95
+                const limitUSD = 2
+
+                const percentCheck = BlocksoftUtils.diff(BlocksoftUtils.div(amount.amountEquivalentInCrypto, selectedAccount.balancePretty), limitPercent)
+                const diffCheck = BlocksoftUtils.diff(selectedAccount.balancePretty, amount.amountEquivalentInCrypto)
+                let diffUSD = 9999999
+                if (typeof selectedCryptocurrency.currencyRateJson.USD !== 'undefined') {
+                    diffUSD = BlocksoftUtils.add(RateEquivalent.mul({ value: diffCheck, currencyCode: selectedCryptocurrency.currencyCode, basicCurrencyRate: selectedCryptocurrency.currencyRateJson.USD }), limitUSD)
+                }
+                console.log('input', { amountCrypto: amount.amountEquivalentInCrypto, amountFiat: amount.amountEquivalentInFiat, percentCheck, diffCheck, diffUSD, useAll: amount.useAllFunds })
+                if (amount.useAllFunds === false && percentCheck * 1 > 0 || diffUSD * 1 < 0) {
+                    showModal({
+                        type: 'YES_NO_MODAL',
+                        icon: 'WARNING',
+                        title: strings('modal.titles.attention'),
+                        description: strings('modal.infoSendAllModal.description', { coin: selectedCryptocurrency.currencyName }),
+                        reverse: true,
+                        noCallback: () => {
+                            this.actualHandleSubmitTrade(true, true)
+                        }
+                    }, () => {
+                        this.actualHandleSubmitTrade(false, true)
+                    })
+                    return
+                }
+            }
+        } catch (e) {
+            Log.log('EXC/Main modalSellAll error ' + e.message)
         }
 
         NavStore.goNext('ConfirmScreen', {
@@ -479,7 +521,8 @@ class MainDataScreen extends Component {
                                         selectedCryptocurrency={selectedCryptocurrency}
                                         selectedAccount={selectedAccount}
                                         onFocus={this.amountInputOnFocus}
-                                        submitTrade={this.handleSubmitTrade} />
+                                        submitTrade={this.handleSubmitTrade}
+                                    />
                                     <Limits ref={ref => this.refLimits = ref}
                                         refAmount={this.refAmount}
                                         selectedFiatTemplate={selectedFiatTemplate}

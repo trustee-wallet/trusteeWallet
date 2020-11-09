@@ -28,10 +28,12 @@ RUN cd ./src/android && printenv && ./gradlew bundle
 
 RUN gplaycli -av -p -y -v -d com.trusteewallet && \
     ls -la com.trusteewallet*apk && \
+    sha256sum com.trusteewallet*apk && \
     apktool d -o fromGoogle com.trusteewallet*apk && \
     ls fromGoogle/lib/
 
 RUN java -jar bundletool.jar build-apks --mode=universal --bundle=./src/android/app/build/outputs/bundle/release/app.aab --output-format=directory --output=./built_apk && \
+    sha256sum ./built_apk/universal.apk && \
     apktool d -o fromBuild ./built_apk/universal.apk && \
     ls fromBuild/lib/
 
