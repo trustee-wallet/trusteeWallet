@@ -863,6 +863,9 @@
     "cashbackDontWork": {
       "description": "Your device does not support cashback"
     },
+    "infoSendAllModal": {
+      "description": "It looks like you are trying to send your entire %{coin} balance. For correct processing, please use the 'send all' function. Use it now now?"
+    },
     "infoUpdateModal": {
       "title": "Attention!",
       "description": "A new version is available, please, update your wallet!",

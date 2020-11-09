@@ -205,7 +205,7 @@ class SendScreen extends Component {
                 }
 
                 this.setState({
-                    useAllFunds
+                    useAllFunds: false
                 })
 
             })
@@ -396,7 +396,6 @@ class SendScreen extends Component {
             }
 
             setLoaderStatus(false)
-
             return { currencyBalanceAmount: amount, currencyBalanceAmountRaw: current }
 
         } catch (e) {
@@ -428,11 +427,15 @@ class SendScreen extends Component {
         })
     }
 
-    handleSendTransaction = async (force = false) => {
+    handleSendTransaction = async (force = false, fromModal = false, forceTransferAll = false) => {
+
+        if (forceTransferAll) {
+            await this.handleTransferAll()
+        }
 
         Log.log('SendScreen.handleSendTransaction started ' + (force ? 'FORCE' : 'usual'))
 
-        const { account, cryptoCurrency, toTransactionJSON, useAllFunds } = this.state
+        const { account, cryptoCurrency, toTransactionJSON, useAllFunds, amountEquivalent, inputType } = this.state
 
         const addressValidation = await this.addressInput.handleValidate()
         const valueValidation = await this.valueInput.handleValidate()
@@ -529,7 +532,7 @@ class SendScreen extends Component {
 
             const amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makeUnPretty(amount)
             if (typeof amountRaw === 'undefined') {
-                Log.err('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' not ok amountRaw ', {'eq' : this.state.amountEquivalent, 'vaL' :valueValidation.value, amount, amountRaw})
+                Log.err('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' not ok amountRaw ', { 'eq': this.state.amountEquivalent, 'vaL': valueValidation.value, amount, amountRaw })
             }
             const balanceRaw = account.balanceRaw
 
@@ -548,6 +551,48 @@ class SendScreen extends Component {
                     this.setState({ enoughFunds })
                     setLoaderStatus(false)
                     return
+                }
+            }
+
+            if (fromModal === false) {
+                try {
+
+                    const limitPercent = 0.95
+
+                    let percentCheck
+                    let diffCheck
+
+                    if (inputType === 'FIAT') {
+                        percentCheck = BlocksoftUtils.diff(BlocksoftUtils.div(amountEquivalent, account.balancePretty), limitPercent)
+                    } else {
+                        percentCheck = BlocksoftUtils.diff(BlocksoftUtils.div(valueValidation.value, account.balancePretty), limitPercent)
+                        diffCheck = BlocksoftUtils.diff(account.balancePretty, valueValidation.value)
+                    }
+
+                    console.log('input', {
+                        amountCrypto: valueValidation.value,
+                        percentCheck,
+                        diffCheck,
+                        useAll: useAllFunds
+                    })
+
+                    if (useAllFunds === false && percentCheck * 1 > 0) {
+                        showModal({
+                            type: 'YES_NO_MODAL',
+                            icon: 'WARNING',
+                            title: strings('modal.titles.attention'),
+                            description: strings('modal.infoSendAllModal.description', {coin: cryptoCurrency.currencyName}),
+                            reverse: true,
+                            noCallback: () => {
+                                this.handleSendTransaction(false, true, true)
+                            }
+                        }, () => {
+                            this.handleSendTransaction(false, true, false)
+                        })
+                        return
+                    }
+                } catch (e) {
+                    Log.log('SendScreen.handleSendTransaction modalSellAll error ' + e.message)
                 }
             }
 
@@ -599,7 +644,7 @@ class SendScreen extends Component {
 
     amountInputCallback = (value, changeUseAllFunds) => {
         const { currencySymbol, currencyCode } = this.state.cryptoCurrency
-        const { basicCurrencySymbol, basicCurrencyRate } = this.state.account
+        const { basicCurrencySymbol, basicCurrencyRate, balancePretty } = this.state.account
         const { useAllFunds } = this.state
 
         if (useAllFunds && changeUseAllFunds) {
@@ -711,7 +756,7 @@ class SendScreen extends Component {
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <View>
                         <CurrencyIcon currencyCode={currencyCode}
-                                      containerStyle={{}}/>
+                            containerStyle={{}} />
                     </View>
                     <View style={styles.accountDetail__content}>
                         <View style={{ paddingRight: 180 }}>
@@ -719,7 +764,7 @@ class SendScreen extends Component {
                                 {currencyName}
                             </Text>
                             <View style={{ alignItems: 'flex-start' }}>
-                                <LetterSpacing text={sumPrep} textStyle={styles.accountDetail__text} letterSpacing={1}/>
+                                <LetterSpacing text={sumPrep} textStyle={styles.accountDetail__text} letterSpacing={1} />
                             </View>
                         </View>
                     </View>
@@ -810,7 +855,7 @@ class SendScreen extends Component {
                                 {description}
                             </TextView>
                             <AddressInput
-                                style={{marginTop: 20}}
+                                style={{ marginTop: 20 }}
                                 ref={component => this.addressInput = component}
                                 id={addressInput.id}
                                 // onFocus={() => this.onFocus()}
@@ -889,7 +934,8 @@ class SendScreen extends Component {
                                 }}
                                 disabled={disabled}
                                 noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' ? true : 0}
-                                callback={(value) => this.amountInputCallback(value, true)}/>
+                                callback={(value) => this.amountInputCallback(value, true)}
+                            />
 
                             <View style={{ flexDirection: 'row' }}>
                                 <Input
@@ -899,7 +945,7 @@ class SendScreen extends Component {
                                     name={strings('send.comment')}
                                     type={'OPTIONAL'}
                                     isTextarea={true}
-                                    style={{ marginRight: 2 }}/>
+                                    style={{ marginRight: 2 }} />
                             </View>
                             {this.renderEnoughFundsError()}
                         </View>

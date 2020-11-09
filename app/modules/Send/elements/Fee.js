@@ -127,6 +127,9 @@ class Fee extends Component {
                 }
                 showFees = true
             } else if (sendData.useAllFunds) {
+                this.setState({
+                    ifShowFee: false
+                })
                 try {
                     fees = await (
                         BlocksoftTransfer.setCurrencyCode(currencyCode)
@@ -183,11 +186,11 @@ class Fee extends Component {
                     }
                 }
 
-                // if (showFees) {
-                //     this.setState({
-                //         ifShowFee: true
-                //     })
-                // }
+                if (showFees) {
+                    this.setState({
+                        ifShowFee: true
+                    })
+                }
 
                 if (!fees || fees === null) {
                     fees = false
@@ -346,11 +349,11 @@ class Fee extends Component {
         this.setState({ ifCustomFee: !ifCustomFee })
     }
 
-    // toggleShowFee = () => {
-    //     this.setState({
-    //         ifShowFee: !this.state.ifShowFee
-    //     })
-    // }
+    toggleShowFee = () => {
+        this.setState({
+            ifShowFee: !this.state.ifShowFee
+        })
+    }
 
     render() {
 
@@ -366,18 +369,18 @@ class Fee extends Component {
         return feeList.length ? (
             <View style={styles.wrapper}>
                 <View style={styles.fee__top}>
-                    <View
-                        style={{ flex: 1, height: 40, paddingLeft: 15, justifyContent: 'center' }}>
-                        {/* onPress={() => this.toggleShowFee()}> */}
+                    <TouchableOpacity
+                        style={{ flex: 1, height: 40, paddingLeft: 15, justifyContent: 'center' }}
+                        onPress={() => this.toggleShowFee()}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={styles.fee__title}>{strings('send.fee.title')}</Text>
                             <View style={{ marginLeft: 5, marginBottom: -5 }}>
-                                {/* <AntDesing name={this.state.ifShowFee ? 'caretup' : 'caretdown'} size={13} */}
-                                <AntDesing name={'caretdown'} size={13}
+                                <AntDesing name={this.state.ifShowFee ? 'caretup' : 'caretdown'} size={13}
+                                // <AntDesing name={'caretdown'} size={13}
                                            color="#f4f4f4"/>
                             </View>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                     {
                         this.state.ifShowFee ?
                             <TouchableOpacity
