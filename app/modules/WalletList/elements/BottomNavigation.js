@@ -99,7 +99,7 @@ class BottomNavigation extends Component {
                 } else {
                     NavStore.goNext('TradeScreenStack')
                 }
-            
+
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('HomeScreen.BottomNavigation handleMainBtn error ' + e.message)
@@ -107,10 +107,6 @@ class BottomNavigation extends Component {
                 Log.err('HomeScreen.BottomNavigation handleMainBtn error ' + e.message)
             }
         }
-    }
-
-    handleSettings = () => {
-        NavStore.goNext('SettingsScreenStack')
     }
 
     handleCashback = () => {
@@ -143,15 +139,11 @@ class BottomNavigation extends Component {
             <View style={styles.wrapper}>
 
                 <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleModal()}>
-
                     <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={100} MainComponent={this.renderExchangeTooltip}/>
-
                 </TouchableOpacity>
 
                 <TouchableOpacity style={[styles.navigation__item]} onPress={() => this.handleMainBtn('BUY')}>
-
                     <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={100} MainComponent={this.returnBuyTooltip}/>
-
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleMainBtn('SELL')}>
@@ -160,14 +152,12 @@ class BottomNavigation extends Component {
                     </View>
                     <Text style={{ ...styles.navigation__item__text, marginTop: 4 }}>{strings('dashboardStack.sell')}</Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity style={styles.navigation__item} onPress={this.handleCashback}>
                     <CustomIcon name="earn" style={{ color: '#404040', marginTop: 2 }} size={20}/>
                     <Text style={[styles.navigation__item__text, { marginTop: 2 }]}>{strings('dashboardStack.earn')}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.navigation__item} onPress={this.handleSettings}>
-                    <IconAwesome size={20} name="gear" color={`${'#404040'}`}/>
-                    <Text style={[styles.navigation__item__text, { marginTop: 3 }]}>{strings('dashboardStack.settings')}</Text>
-                </TouchableOpacity>
+
                 <View style={styles.wrapper__shadow}>
                     <View style={styles.wrapper__shadow__item}/>
                 </View>

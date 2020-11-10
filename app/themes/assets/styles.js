@@ -103,9 +103,13 @@ export default {
         activeTitle: {
             color: 'red'
         },
+        cryptoList__wrapper: {
+            flex: 1,
+            paddingBottom: 30,
+            backgroundColor: '#f5f5f5'
+        },
         cryptoList: {
             flex: 1,
-            marginTop: 12
         },
         cryptoList__item: {
             flexDirection: 'row',

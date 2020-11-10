@@ -51,7 +51,6 @@
      "balance": "Баланс",
      "today": "Сьогодні",
      "changedLastDay": "За останні 24 години",
-     "assets": "Активи",
      "synchronizing": "Синхронізація"
    },
    "walletCreateScreen": {

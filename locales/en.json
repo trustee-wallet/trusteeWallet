@@ -51,7 +51,6 @@
     "balance": "Balance",
     "today": "Today",
     "changedLastDay": "In the last 24 hours",
-    "assets": "Assets",
     "synchronizing": "Synchronization"
   },
   "walletCreateScreen": {
