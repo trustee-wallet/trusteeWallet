@@ -49,6 +49,8 @@ import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
 import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
 import DaemonCache from '../../../daemons/DaemonCache'
 
+import { HIT_SLOP } from '../../../themes/Themes';
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
 
@@ -132,22 +134,21 @@ class WalletInfo extends Component {
         NavStore.goNext('QRCodeScannerScreen')
     }
 
-    // TODO: gives to the user an oportunity to change block color (long press on block?)
-    // toggleViolet = async () => {
-    //     await AsyncStorage.setItem('isViolet', JSON.stringify(!this.state.isViolet))
+    toggleViolet = async () => {
+        await AsyncStorage.setItem('isViolet', JSON.stringify(!this.state.isViolet))
 
-    //     Animated.timing(this.state.opacity, {
-    //         toValue: 0,
-    //         duration: 300
-    //     }).start(() => {
-    //         this.setState({ isViolet: !this.state.isViolet }, () => {
-    //             Animated.timing(this.state.opacity, {
-    //                 toValue: 1,
-    //                 duration: 300
-    //             }).start()
-    //         })
-    //     })
-    // }
+        Animated.timing(this.state.opacity, {
+            toValue: 0,
+            duration: 300
+        }).start(() => {
+            this.setState({ isViolet: !this.state.isViolet }, () => {
+                Animated.timing(this.state.opacity, {
+                    toValue: 1,
+                    duration: 300
+                }).start()
+            })
+        })
+    }
 
     renderTooltip = () => {
         const { isViolet } = this.state;
@@ -157,21 +158,6 @@ class WalletInfo extends Component {
                 <Text style={[styles.addAsset__text, isViolet && styles.addAsset__text__VIOLET]}>
                     {strings('settings.assets.addAsset').toUpperCase()}
                 </Text>
-                <Image
-                    style={[styles.img__hor, styles.img__hor_right]}
-                    resizeMode={'stretch'}
-                    source={styles.img__paths.right}
-                />
-                <Image
-                    style={[styles.img__hor, styles.img__hor_left]}
-                    resizeMode={'stretch'}
-                    source={styles.img__paths.left}
-                />
-                <Image
-                    style={[styles.img__ver]}
-                    resizeMode={'stretch'}
-                    source={styles.img__paths.line}
-                />
             </View>
         )
     }
@@ -228,11 +214,11 @@ class WalletInfo extends Component {
         const todayPrep = `${strings('homeScreen.today')}, ${date.getDate()} ${capitalize(moment(date).format('MMM'))}`
 
         return (
-            <View>
+            <View style={styles.wrapper}>
                 {/* TODO: moves header from this component */}
                 <View style={styles.header}>
                     <View style={styles.header__left}>
-                        <TouchableOpacity>
+                        <TouchableOpacity style={styles.notificationButton} hitSlop={HIT_SLOP}>
                             <NotificationIcon />
                         </TouchableOpacity>
                     </View>
@@ -244,18 +230,23 @@ class WalletInfo extends Component {
                     </View>
 
                     <View style={styles.header__right}>
-                        <TouchableOpacity style={styles.qrButton} onPress={this.handleScanQr}>
+                        <TouchableOpacity style={styles.qrButton} onPress={this.handleScanQr} hitSlop={HIT_SLOP}>
                             <QRCodeBtn width={18} height={18} />
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.settingsButton} onPress={this.handleOpenSettings}>
+                        <TouchableOpacity style={styles.settingsButton} onPress={this.handleOpenSettings} hitSlop={HIT_SLOP}>
                             <MenuIcon />
                         </TouchableOpacity>
                     </View>
                 </View>
 
                 <Animated.View style={{ opacity: this.state.opacity }}>
-                    <View style={styles.container}>
+                    <TouchableOpacity
+                        style={styles.container}
+                        activeOpacity={1}
+                        onLongPress={this.toggleViolet}
+                        delayLongPress={5000}
+                    >
                         <GradientView
                             style={styles.container__bg}
                             array={isViolet ? styles.containerBG__VIOLET.array : styles.containerBG.array}
@@ -298,7 +289,7 @@ class WalletInfo extends Component {
 
                                 </View>
 
-                                <TouchableOpacity onPress={changeBalanceVisibility}>
+                                <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
                                     {isBalanceVisible ? (
                                         <IconVisible color={isViolet ? '#DADADA' : '#404040'} />
                                     ) : (
@@ -307,7 +298,7 @@ class WalletInfo extends Component {
                                 </TouchableOpacity>
                             </View>
                         </GradientView>
-                    </View>
+                    </TouchableOpacity>
                 </Animated.View>
             </View>
         )
@@ -333,6 +324,9 @@ export default connect(mapStateToProps, mapDispatchToProps)(WalletInfo)
 
 
 const styles = {
+    wrapper: {
+        backgroundColor: '#f5f5f5'
+    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -342,18 +336,23 @@ const styles = {
         marginTop: Platform.OS === 'android' ? 25 : 0
     },
     header__left: {
-        paddingLeft: 12,
         flex: 1,
         alignItems: 'flex-start',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        height: 44, // equal to "WalletName" component height
     },
     header__center: {
         flex: 2
     },
     header__right: {
         flexDirection: 'row',
+        alignItems: 'center',
         flex: 1,
         justifyContent: 'flex-end',
+        height: 44, // equal to "WalletName" component height
+    },
+    notificationButton: {
+        paddingHorizontal: 12
     },
     qrButton: {
         paddingHorizontal: 10
@@ -364,7 +363,7 @@ const styles = {
     },
     container: {
         marginHorizontal: SIZE,
-        marginBottom: 8,
+        marginBottom: 16,
 
         backgroundColor: '#fff',
         shadowColor: '#000',
@@ -372,7 +371,7 @@ const styles = {
             width: 0,
             height: 5
         },
-        shadowOpacity: 0.34,
+        shadowOpacity: 0.1,
         shadowRadius: 6.27,
         elevation: 12,
 
@@ -397,9 +396,9 @@ const styles = {
         marginTop: 14,
         marginLeft: -1,
 
-        fontFamily: 'Montserrat-Bold',
+        fontFamily: 'Montserrat-SemiBold',
         color: '#404040',
-        fontSize: 14
+        fontSize: 17
     },
     container__title__VIOLET: {
         color: '#EEEEEE',
@@ -409,7 +408,7 @@ const styles = {
 
         fontSize: 10,
         fontFamily: 'SFUIDisplay-Semibold',
-        color: '#939393'
+        color: '#999999'
     },
     container__date__VIOLET: {
         color: '#DCBAFB',
@@ -423,16 +422,6 @@ const styles = {
         array: ['#9D4AA2', '#43156D'],
         start: { x: 1, y: 0 },
         end: { x: 1, y: 1 }
-    },
-    walletInfo__title: {
-        marginTop: 7,
-        color: '#f4f4f4',
-        fontSize: 12,
-        fontFamily: 'SFUIDisplay-Semibold'
-    },
-    containerRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-start'
     },
     walletInfo__content: {
         flexDirection: 'row',
@@ -466,44 +455,6 @@ const styles = {
     walletInfo__text_middle__VIOLET: {
         color: '#F3E6FF',
     },
-    img__paths: {
-        left: require('../../../assets/images/addAssetborderShadowLeft.png'),
-        right: require('../../../assets/images/addAssetborderShadowRight.png'),
-        line: require('../../../assets/images/addAssetborderShadowLines.png')
-    },
-    img__ver: {
-        flex: 1,
-
-        position: 'absolute',
-        top: -6,
-        left: 5,
-
-        width: '103%',
-        height: 39,
-
-        opacity: .5,
-
-        zIndex: 2
-    },
-    img__hor: {
-        flex: 1,
-
-        position: 'absolute',
-        top: -6,
-
-        width: 10,
-        height: 39,
-
-        opacity: .5,
-
-        zIndex: 2
-    },
-    img__hor_right: {
-        right: -5
-    },
-    img__hor_left: {
-        left: -5
-    },
     addAsset: {
         paddingVertical: 19,
         paddingLeft: 15
@@ -521,7 +472,7 @@ const styles = {
         paddingLeft: 4,
 
         borderRadius: 6,
-        borderColor: '#5C5C5C',
+        borderColor: '#404040',
         borderWidth: 1.5
     },
     addAsset__content__VIOLET: {

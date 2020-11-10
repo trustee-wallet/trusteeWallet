@@ -103,6 +103,22 @@ export default {
         activeTitle: {
             color: 'red'
         },
+        statusBar__android: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: 25,
+            backgroundColor: '#f5f5f5',
+            zIndex: 100
+        },
+        cryptoList__scrollView: {
+            flex: 1,
+            position: 'relative',
+            marginBottom: -20,
+            zIndex: 2,
+            backgroundColor: '#f5f5f5',
+        },
         cryptoList__wrapper: {
             flex: 1,
             paddingBottom: 30,

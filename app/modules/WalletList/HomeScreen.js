@@ -14,6 +14,8 @@ import {
 } from 'react-native'
 import { connect } from 'react-redux'
 
+import AsyncStorage from '@react-native-community/async-storage'
+
 import firebase from 'react-native-firebase'
 
 import GradientView from '../../components/elements/GradientView'
@@ -45,6 +47,7 @@ class HomeScreen extends Component {
             refreshing: false,
             isBalanceVisible: true,
         }
+        this.getBalanceVisibility();
         styles = Theme.getStyles().homeScreenStyles
         SendActions.init()
     }
@@ -52,6 +55,17 @@ class HomeScreen extends Component {
     componentDidMount() {
         setLoaderStatus(false)
     }
+
+    getBalanceVisibility = async () => {
+        try {
+            const res = await AsyncStorage.getItem('isBalanceVisible')
+            const isBalanceVisible = res !== null ? JSON.parse(res) : false
+
+            this.setState(() => ({ isBalanceVisible }))
+        } catch (e) {
+            Log.err(`HomeScreen getBalanceVisibility error ${e.message}`)
+        }
+    };
 
     handleRefresh = async () => {
         try {
@@ -131,8 +145,10 @@ class HomeScreen extends Component {
     //     )
     // }
 
-    changeBalanceVisibility = () => {
-        this.setState((state) => ({ isBalanceVisible: !state.isBalanceVisible }));
+    changeBalanceVisibility = async () => {
+        const newVisibilityValue = !this.state.isBalanceVisible;
+        await AsyncStorage.setItem('isBalanceVisible', JSON.stringify(newVisibilityValue))
+        this.setState(() => ({ isBalanceVisible: newVisibilityValue }));
     }
 
     render() {
@@ -154,10 +170,10 @@ class HomeScreen extends Component {
                 <SafeAreaView style={{ flex: 0, backgroundColor: '#f5f5f5' }}/>
                 <SafeAreaView style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
                     <View style={{ flex: 1 }}>
-                        {Platform.OS === 'android' ? <View style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 25, backgroundColor: '#f5f5f5', zIndex: 100 }}/> : null}
+                        {Platform.OS === 'android' ? <View style={styles.statusBar__android}/> : null}
                         <ScrollView
                             ref={ref => this.refHomeScreenSV = ref}
-                            style={{ flex: 1, position: 'relative', marginBottom: -20, zIndex: 2 }}
+                            style={styles.cryptoList__scrollView}
                             showsVerticalScrollIndicator={false}
                             refreshControl={
                                 <RefreshControl

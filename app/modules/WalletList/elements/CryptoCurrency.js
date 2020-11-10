@@ -134,11 +134,11 @@ class CryptoCurrency extends Component {
                             </Text>
                             {
                                 typeof isSynchronized !== 'undefined'
-                                    ? !isBalanceVisible
-                                        ? <Text style={styles.cryptoList__title}>****</Text>
-                                        : isSynchronized === true
+                                    ? !isSynchronized
+                                        ? this.renderSynchrinization()
+                                        : isBalanceVisible
                                             ? <Text style={styles.cryptoList__title}>{BlocksoftPrettyNumbers.makeCut(account.balancePretty).separated}</Text>
-                                            : this.renderSynchrinization()
+                                            : <Text style={styles.cryptoList__title}>****</Text>
                                     : null
                             }
                         </View>
@@ -156,7 +156,7 @@ class CryptoCurrency extends Component {
 
                         <View style={styles.cryptoList__currency__changes}>
                             <View style={styles.cryptoList__currency__changes__rate}>
-                                {priceChangePercentage24h !== 0 && (
+                                {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && priceChangePercentage24h !== 0 && (
                                     <Ionicons
                                         name={priceChangePercentage24h > 0 ? 'ios-arrow-round-up' : 'ios-arrow-round-down'}
                                         color={priceChangePercentage24h > 0 ? '#31D182' : '#fc5088'}
@@ -169,7 +169,7 @@ class CryptoCurrency extends Component {
                                 </Text>
                             </View>
                             <Text style={styles.cryptoList__text}>
-                                {`${priceChangePercentage24h < 0 ? '- ' : ''}${priceChangePercentage24hPrep}`}
+                                {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && `${priceChangePercentage24h < 0 ? '- ' : ''}${priceChangePercentage24hPrep}`}
                             </Text>
                         </View>
                     </View>
@@ -226,6 +226,7 @@ const styles = {
         marginHorizontal: SIZE,
         marginVertical: SIZE / 2,
         borderRadius: SIZE,
+        minHeight: 102, // needed for tooltip
 
         backgroundColor: '#fff',
         shadowColor: '#000',
@@ -233,7 +234,7 @@ const styles = {
             width: 0,
             height: 5
         },
-        shadowOpacity: 0.34,
+        shadowOpacity: 0.1,
         shadowRadius: 6.27,
         elevation: 6,
     },

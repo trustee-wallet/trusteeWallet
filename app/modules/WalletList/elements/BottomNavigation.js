@@ -2,7 +2,7 @@
  * @version 0.11
  */
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, Platform } from 'react-native'
 import { connect } from 'react-redux'
 
 import IconAwesome from 'react-native-vector-icons/FontAwesome'
@@ -138,12 +138,12 @@ class BottomNavigation extends Component {
         return (
             <View style={styles.wrapper}>
 
-                <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleModal()}>
-                    <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={100} MainComponent={this.renderExchangeTooltip}/>
-                </TouchableOpacity>
-
                 <TouchableOpacity style={[styles.navigation__item]} onPress={() => this.handleMainBtn('BUY')}>
                     <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={100} MainComponent={this.returnBuyTooltip}/>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleModal()}>
+                    <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={100} MainComponent={this.renderExchangeTooltip}/>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleMainBtn('SELL')}>
@@ -193,6 +193,9 @@ const styles = {
         bottom: 0,
         right: 0,
 
+        borderTopWidth: Platform.OS === 'android' ? 1 : 0,
+        borderTopColor: '#f5f5f5',
+
         backgroundColor: '#fff',
 
         zIndex: 1
@@ -209,7 +212,7 @@ const styles = {
             width: 0,
             height: 12
         },
-        shadowOpacity: 0.58,
+        shadowOpacity: 0.3,
         shadowRadius: 16.00,
 
         elevation: 24
