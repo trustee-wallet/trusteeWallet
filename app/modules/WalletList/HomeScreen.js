@@ -59,7 +59,7 @@ class HomeScreen extends Component {
     getBalanceVisibility = async () => {
         try {
             const res = await AsyncStorage.getItem('isBalanceVisible')
-            const isBalanceVisible = res !== null ? JSON.parse(res) : false
+            const isBalanceVisible = res !== null ? JSON.parse(res) : true
 
             this.setState(() => ({ isBalanceVisible }))
         } catch (e) {
@@ -168,7 +168,7 @@ class HomeScreen extends Component {
         return (
             <View style={{ flex: 1 }}>
                 <SafeAreaView style={{ flex: 0, backgroundColor: '#f5f5f5' }}/>
-                <SafeAreaView style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
+                <SafeAreaView style={{ flex: 1, backgroundColor: '#f7f7f7' }}>
                     <View style={{ flex: 1 }}>
                         {Platform.OS === 'android' ? <View style={styles.statusBar__android}/> : null}
                         <ScrollView

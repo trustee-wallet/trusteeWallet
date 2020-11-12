@@ -107,75 +107,80 @@ class CryptoCurrency extends Component {
         }
 
         return (
-            <TouchableOpacity
-                style={styles.cryptoList__item}
-                onPress={() => this.handleCurrencySelect(props.accounts)}
-            >
-
-                <GradientView
-                    style={styles.cryptoList__item__content}
-                    array={styles_.cryptoList__item.array}
-                    start={styles_.cryptoList__item.start}
-                    end={styles_.cryptoList__item.end}
+            <View style={styles.container}>
+                <View style={styles.shadow__container}>
+                    <View style={styles.shadow__item} />
+                </View>
+                <View style={styles.shadow__item__background} />
+                <TouchableOpacity
+                    style={styles.cryptoList__item}
+                    onPress={() => this.handleCurrencySelect(props.accounts)}
                 >
+                    <GradientView
+                        style={styles.cryptoList__item__content}
+                        array={styles_.cryptoList__item.array}
+                        start={styles_.cryptoList__item.start}
+                        end={styles_.cryptoList__item.end}
+                    >
 
-                    <CurrencyIcon
-                        currencyCode={currencyCode}
-                        containerStyle={styles.cryptoList__icoWrap}
-                        markStyle={styles.cryptoList__icon__mark}
-                        markTextStyle={styles.cryptoList__icon__mark__text}
-                        iconStyle={styles.cryptoList__icon}
-                    />
+                        <CurrencyIcon
+                            currencyCode={currencyCode}
+                            containerStyle={styles.cryptoList__icoWrap}
+                            markStyle={styles.cryptoList__icon__mark}
+                            markTextStyle={styles.cryptoList__icon__mark__text}
+                            iconStyle={styles.cryptoList__icon}
+                        />
 
-                    <View style={styles.cryptoList__info}>
-                        <View style={styles.cryptoList__currency__balance}>
-                            <Text style={styles.cryptoList__title}>
-                                {cryptoCurrency.currencySymbol}
-                            </Text>
-                            {
-                                typeof isSynchronized !== 'undefined'
-                                    ? !isSynchronized
-                                        ? this.renderSynchrinization()
-                                        : isBalanceVisible
-                                            ? <Text style={styles.cryptoList__title}>{BlocksoftPrettyNumbers.makeCut(account.balancePretty).separated}</Text>
-                                            : <Text style={styles.cryptoList__title}>****</Text>
-                                    : null
-                            }
-                        </View>
-
-                        <View style={styles.cryptoList__currency__rate}>
-                            <Text style={styles.cryptoList__text}>
-                                {cryptoCurrency.currencyName}
-                            </Text>
-                            {isSynchronized === true && isBalanceVisible && (
-                                <Text style={styles.cryptoList__text}>
-                                    {`${account.basicCurrencySymbol} ${basicBalancePrep}`}
+                        <View style={styles.cryptoList__info}>
+                            <View style={styles.cryptoList__currency__balance}>
+                                <Text style={styles.cryptoList__title}>
+                                    {cryptoCurrency.currencySymbol}
                                 </Text>
-                            )}
-                        </View>
+                                {
+                                    typeof isSynchronized !== 'undefined'
+                                        ? !isSynchronized
+                                            ? this.renderSynchrinization()
+                                            : isBalanceVisible
+                                                ? <Text style={styles.cryptoList__title}>{BlocksoftPrettyNumbers.makeCut(account.balancePretty).separated}</Text>
+                                                : <Text style={styles.cryptoList__title}>****</Text>
+                                        : null
+                                }
+                            </View>
 
-                        <View style={styles.cryptoList__currency__changes}>
-                            <View style={styles.cryptoList__currency__changes__rate}>
-                                {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && priceChangePercentage24h !== 0 && (
-                                    <Ionicons
-                                        name={priceChangePercentage24h > 0 ? 'ios-arrow-round-up' : 'ios-arrow-round-down'}
-                                        color={priceChangePercentage24h > 0 ? '#31D182' : '#fc5088'}
-                                        style={styles.cryptoList__arrow}
-                                        size={18}
-                                    />
-                                )}
+                            <View style={styles.cryptoList__currency__rate}>
                                 <Text style={styles.cryptoList__text}>
-                                    {`${account.basicCurrencySymbol} ${ratePrep.toString()}`}
+                                    {cryptoCurrency.currencyName}
+                                </Text>
+                                {isSynchronized === true && isBalanceVisible && (
+                                    <Text style={styles.cryptoList__text}>
+                                        {`${account.basicCurrencySymbol} ${basicBalancePrep}`}
+                                    </Text>
+                                )}
+                            </View>
+
+                            <View style={styles.cryptoList__currency__changes}>
+                                <View style={styles.cryptoList__currency__changes__rate}>
+                                    {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && priceChangePercentage24h !== 0 && (
+                                        <Ionicons
+                                            name={priceChangePercentage24h > 0 ? 'ios-arrow-round-up' : 'ios-arrow-round-down'}
+                                            color={priceChangePercentage24h > 0 ? '#31D182' : '#fc5088'}
+                                            style={styles.cryptoList__arrow}
+                                            size={18}
+                                        />
+                                    )}
+                                    <Text style={styles.cryptoList__text}>
+                                        {`${account.basicCurrencySymbol} ${ratePrep.toString()}`}
+                                    </Text>
+                                </View>
+                                <Text style={styles.cryptoList__text}>
+                                    {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && `${priceChangePercentage24h < 0 ? '- ' : ''}${priceChangePercentage24hPrep}`}
                                 </Text>
                             </View>
-                            <Text style={styles.cryptoList__text}>
-                                {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && `${priceChangePercentage24h < 0 ? '- ' : ''}${priceChangePercentage24hPrep}`}
-                            </Text>
                         </View>
-                    </View>
 
-                </GradientView>
-            </TouchableOpacity>
+                    </GradientView>
+                </TouchableOpacity>
+            </View>
         )
     }
 
@@ -222,11 +227,27 @@ const styles_ = {
 }
 
 const styles = {
-    cryptoList__item: {
+    container: {
         marginHorizontal: SIZE,
         marginVertical: SIZE / 2,
+    },
+    shadow__container: {
+        position: 'absolute',
+        paddingTop: 1,
+        paddingBottom: 6,
+        paddingRight: 3,
+        paddingLeft: 3,
+        top: 0,
+        bottom: 0,
+        right: 0,
+        left: 0,
+        borderWidth: 1,
+        borderColor: 'transparent',
+    },
+    shadow__item: {
+        flex: 1,
         borderRadius: SIZE,
-        minHeight: 102, // needed for tooltip
+        elevation: 10,
 
         backgroundColor: '#fff',
         shadowColor: '#000',
@@ -236,7 +257,19 @@ const styles = {
         },
         shadowOpacity: 0.1,
         shadowRadius: 6.27,
-        elevation: 6,
+    },
+    shadow__item__background: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        borderRadius: SIZE,
+    },
+    cryptoList__item: {
+        borderRadius: SIZE,
+        minHeight: 102, // needed for tooltip
     },
     cryptoList__item__content: {
         flex: 1,
@@ -246,6 +279,7 @@ const styles = {
         padding: SIZE,
 
         borderRadius: SIZE,
+        zIndex: 10,
     },
     cryptoList__icoWrap: {
         width: 42,

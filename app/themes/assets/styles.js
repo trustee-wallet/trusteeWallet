@@ -2,8 +2,10 @@
  * @version 0.9
  */
 import { Dimensions, Platform, TouchableOpacity, View } from 'react-native'
+import DeviceInfo from 'react-native-device-info'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
+const hasNotch = DeviceInfo.hasNotch();
 
 
 export default {
@@ -115,13 +117,13 @@ export default {
         cryptoList__scrollView: {
             flex: 1,
             position: 'relative',
-            marginBottom: -20,
+            marginBottom: hasNotch && Platform.OS === 'ios' ? 0 : -30,
             zIndex: 2,
             backgroundColor: '#f5f5f5',
         },
         cryptoList__wrapper: {
             flex: 1,
-            paddingBottom: 30,
+            paddingBottom: hasNotch && Platform.OS === 'ios' ? 70 : 100,
             backgroundColor: '#f5f5f5'
         },
         cryptoList: {

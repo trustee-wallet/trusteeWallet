@@ -240,7 +240,10 @@ class WalletInfo extends Component {
                     </View>
                 </View>
 
-                <Animated.View style={{ opacity: this.state.opacity }}>
+                <Animated.View style={{ ...styles.balanceWrapper, opacity: this.state.opacity }}>
+                    <View style={styles.shadow__container}>
+                        <View style={styles.shadow__item} />
+                    </View>
                     <TouchableOpacity
                         style={styles.container}
                         activeOpacity={1}
@@ -333,7 +336,7 @@ const styles = {
         alignItems: 'center',
 
         marginHorizontal: SIZE,
-        marginTop: Platform.OS === 'android' ? 25 : 0
+        marginTop: Platform.OS === 'android' ? 35 : 0
     },
     header__left: {
         flex: 1,
@@ -361,9 +364,27 @@ const styles = {
         paddingLeft: 10,
         paddingRight: 12,
     },
-    container: {
+    balanceWrapper: {
         marginHorizontal: SIZE,
-        marginBottom: 16,
+        marginBottom: SIZE,
+    },
+    shadow__container: {
+        position: 'absolute',
+        paddingTop: 1,
+        paddingBottom: 3,
+        paddingRight: 3,
+        paddingLeft: 3,
+        top: 0,
+        bottom: 0,
+        right: 0,
+        left: 0,
+        borderWidth: 1,
+        borderColor: 'transparent',
+    },
+    shadow__item: {
+        flex: 1,
+        borderRadius: SIZE,
+        elevation: 10,
 
         backgroundColor: '#fff',
         shadowColor: '#000',
@@ -373,8 +394,8 @@ const styles = {
         },
         shadowOpacity: 0.1,
         shadowRadius: 6.27,
-        elevation: 12,
-
+    },
+    container: {
         borderRadius: SIZE,
         zIndex: 2
     },

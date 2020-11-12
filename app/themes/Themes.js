@@ -8,7 +8,7 @@ import blueTheme from './assets/blueTheme'
 
 
 // Defines how far your touch can start away from the button
-export const HIT_SLOP = { top: 5, right: 5, bottom: 5, left: 5 };
+export const HIT_SLOP = { top: 15, right: 15, bottom: 15, left: 15 };
 
 export default new class Themes {
 
