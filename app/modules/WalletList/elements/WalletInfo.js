@@ -345,7 +345,8 @@ const styles = {
         height: 44, // equal to "WalletName" component height
     },
     header__center: {
-        flex: 2
+        flex: 2,
+        alignItems: 'center',
     },
     header__right: {
         flexDirection: 'row',
