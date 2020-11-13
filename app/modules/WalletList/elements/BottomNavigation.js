@@ -203,7 +203,7 @@ const styles = {
     },
     wrapper__shadow__android: {
         position: 'absolute',
-        top: -5,
+        top: -2,
         left: 0,
         right: 0,
         height: 5,
