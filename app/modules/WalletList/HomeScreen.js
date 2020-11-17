@@ -13,16 +13,20 @@ import {
     TouchableOpacity
 } from 'react-native'
 import { connect } from 'react-redux'
+import _sortBy from 'lodash/sortBy'
+import DraggableFlatList from 'react-native-draggable-flatlist'
 
 import AsyncStorage from '@react-native-community/async-storage'
 
 import firebase from 'react-native-firebase'
 
 import GradientView from '../../components/elements/GradientView'
+import CustomIcon from '../../components/elements/CustomIcon'
 
 import CryptoCurrency from './elements/CryptoCurrency'
 import BottomNavigation from './elements/BottomNavigation'
 import WalletInfo from './elements/WalletInfo'
+import Header from './elements/Header'
 
 import Log from '../../services/Log/Log'
 import { strings } from '../../services/i18n'
@@ -37,6 +41,9 @@ import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAcco
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
 
+import { SIZE } from './helpers'
+
+
 let styles
 
 class HomeScreen extends Component {
@@ -46,14 +53,28 @@ class HomeScreen extends Component {
         this.state = {
             refreshing: false,
             isBalanceVisible: true,
+            data: [],
+            currenciesOrder: []
         }
         this.getBalanceVisibility();
+        this.getCurrenciesOrder();
         styles = Theme.getStyles().homeScreenStyles
         SendActions.init()
     }
 
     componentDidMount() {
         setLoaderStatus(false)
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        // console.log('getDerivedStateFromProps:', prevState.data)
+        const currenciesOrder = prevState.currenciesOrder.length ? prevState.currenciesOrder : nextProps.cryptoCurrenciesStore.cryptoCurrencies.map(c => c.currencyCode);
+        const data = _sortBy(nextProps.cryptoCurrenciesStore.cryptoCurrencies, c => currenciesOrder.indexOf(c.currencyCode))
+        return {
+            ...prevState,
+            data,
+            currenciesOrder
+        };
     }
 
     getBalanceVisibility = async () => {
@@ -65,6 +86,20 @@ class HomeScreen extends Component {
         } catch (e) {
             Log.err(`HomeScreen getBalanceVisibility error ${e.message}`)
         }
+    }
+
+    getCurrenciesOrder = async () => {
+        try {
+            const res = await AsyncStorage.getItem('currenciesOrder')
+            const currenciesOrder = res !== null ? JSON.parse(res) : []
+
+            this.setState(state => ({
+                currenciesOrder,
+                data: _sortBy(state.data, c => currenciesOrder.indexOf(c.currencyCode))
+            }))
+        } catch (e) {
+            Log.err(`HomeScreen getCurrenciesOrder error ${e.message}`)
+        }
     };
 
     handleRefresh = async () => {
@@ -72,19 +107,19 @@ class HomeScreen extends Component {
             this.setState({ refreshing: true })
 
             try {
-                await UpdateCurrencyRateDaemon.updateCurrencyRate({force : true, source: 'HomeScreen.handleRefresh'})
+                await UpdateCurrencyRateDaemon.updateCurrencyRate({ force: true, source: 'HomeScreen.handleRefresh' })
             } catch (e) {
                 Log.errDaemon('WalletList.HomeScreen handleRefresh error updateCurrencyRateDaemon ' + e.message)
             }
 
             try {
-                await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({force : true})
+                await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ force: true })
             } catch (e) {
                 Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountBalanceAndTransactionsDaemon ' + e.message)
             }
 
             try {
-                await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({force : true})
+                await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({ force: true })
             } catch (e) {
                 Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountBalanceAndTransactionsHDDaemon ' + e.message)
             }
@@ -151,12 +186,17 @@ class HomeScreen extends Component {
         this.setState(() => ({ isBalanceVisible: newVisibilityValue }));
     }
 
+    onDragEnd = ({ data }) => {
+        const currenciesOrder = data.map(c => c.currencyCode);
+        AsyncStorage.setItem('currenciesOrder', JSON.stringify(currenciesOrder))
+        this.setState(() => ({ currenciesOrder }))
+    }
+
     render() {
         // console.log(new Date().toISOString() + ' render')
 
         firebase.analytics().setCurrentScreen('WalletList.HomeScreen')
 
-        const data = this.props.cryptoCurrenciesStore.cryptoCurrencies
         let walletHash = this.props.mainStore.selectedWallet.walletHash
         if (!walletHash || typeof walletHash === 'undefined') {
             walletHash = cryptoWalletActions.setFirstWallet()
@@ -167,95 +207,45 @@ class HomeScreen extends Component {
 
         return (
             <View style={{ flex: 1 }}>
-                <SafeAreaView style={{ flex: 0, backgroundColor: '#f5f5f5' }}/>
+                <SafeAreaView style={{ flex: 0, backgroundColor: '#f5f5f5' }} />
                 <SafeAreaView style={{ flex: 1, backgroundColor: '#f7f7f7' }}>
                     <View style={{ flex: 1 }}>
-                        {Platform.OS === 'android' ? <View style={styles.statusBar__android}/> : null}
-                        <ScrollView
-                            ref={ref => this.refHomeScreenSV = ref}
-                            style={styles.cryptoList__scrollView}
+                        {Platform.OS === 'android' && <View style={styles.statusBar__android} />}
+                        <Header />
+                        <DraggableFlatList
+                            data={this.state.data}
                             showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{ paddingBottom: 20 }}
                             refreshControl={
                                 <RefreshControl
                                     tintColor={'#404040'}
                                     refreshing={this.state.refreshing}
                                     onRefresh={this.handleRefresh}
                                 />
-                            }>
-                            <WalletInfo
-                                accountListByWallet={accountListByWallet}
-                                isBalanceVisible={this.state.isBalanceVisible}
-                                changeBalanceVisibility={this.changeBalanceVisibility}
-                            />
-                            <View style={styles.cryptoList__wrapper}>
-                                {/* <DraggableFlatList */}
-                                {/*    // style={styles.cryptoList} */}
-                                {/*    data={cryptoCurrencies} */}
-                                {/*    renderItem={this.renderItem} */}
-                                {/*    keyExtractor={(item, index) => `draggable-item-${item.accountId}`} */}
-                                {/*    onDragEnd={({data}) => this.setState({...this.state, data})} */}
-                                {/* /> */}
-                                {/* <SwipeListView */}
-                                {/*    style={styles.cryptoList} */}
-                                {/*    data={cryptoCurrencies} */}
-                                {/*    renderItem={({item, index}) => ( */}
-                                {/*        !item.isHidden ? <CryptoCurrency key={index} cryptoCurrency={item} */}
-                                {/*                                         accountListByWallet={accountListByWallet}/> : <></> */}
-                                {/*    )} */}
-                                {/*    renderHiddenItem={({item, index}) => ( */}
-                                {/*        !item.isHidden ? <> */}
-                                {/*            <View style={styles.cryptoList__item__hidden}> */}
-                                {/*                <View style={stl.left__btn}> */}
-                                {/*                    <TouchableOpacity> */}
-                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
-                                {/*                                    size={30} name='exchange'/> */}
-                                {/*                    </TouchableOpacity> */}
-                                {/*                    <TouchableOpacity> */}
-                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
-                                {/*                                    size={30} name='buy'/> */}
-                                {/*                    </TouchableOpacity> */}
-                                {/*                    <TouchableOpacity> */}
-                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
-                                {/*                                    size={30} name='sell'/> */}
-                                {/*                    </TouchableOpacity> */}
-                                {/*                </View> */}
-                                {/*                <View style={stl.right__btn}> */}
-                                {/*                    <TouchableOpacity onPress={this.handleReceive}> */}
-                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
-                                {/*                                    size={30} name='receive'/> */}
-                                {/*                    </TouchableOpacity> */}
-                                {/*                    <TouchableOpacity onPress={this.handleSend}> */}
-                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
-                                {/*                                    size={30} name='send'/> */}
-                                {/*                    </TouchableOpacity> */}
-                                {/*                </View> */}
-                                {/*            </View> */}
-                                {/*        </> : <></> */}
-                                {/*    )} */}
-                                {/*    leftOpenValue={200} */}
-                                {/*    rightOpenValue={-150} */}
-                                {/*    previewRowKey={'0'} */}
-                                {/*    previewOpenValue={-40} */}
-                                {/*    previewOpenDelay={3000} */}
-                                {/* /> */}
-                                <View style={styles.cryptoList}>
-                                    {
-                                        data.map((item, index) => {
-                                            return !item.isHidden
-                                                ? (
-                                                    <CryptoCurrency
-                                                        key={index}
-                                                        cryptoCurrency={item}
-                                                        accountListByWallet={accountListByWallet}
-                                                        isBalanceVisible={this.state.isBalanceVisible}
-                                                    />
-                                                ) : null
-                                        })
-                                    }
-                                </View>
-                            </View>
-                        </ScrollView>
-                        <BottomNavigation/>
+                            }
+                            ListHeaderComponent={(
+                                <WalletInfo
+                                    accountListByWallet={accountListByWallet}
+                                    isBalanceVisible={this.state.isBalanceVisible}
+                                    changeBalanceVisibility={this.changeBalanceVisibility}
+                                />
+                            )}
+                            renderItem={({ item, drag, isActive }) => {
+                                return !item.isHidden && (
+                                    <CryptoCurrency
+                                        cryptoCurrency={item}
+                                        accountListByWallet={accountListByWallet}
+                                        isBalanceVisible={this.state.isBalanceVisible}
+                                        onDrag={drag}
+                                        isActive={isActive}
+                                    />
+                                );
+                            }}
+                            keyExtractor={item => item.currencyCode}
+                            activationDistance={15}
+                            onDragEnd={this.onDragEnd}
+                        />
+                        <BottomNavigation />
                     </View>
                 </SafeAreaView>
             </View>
@@ -267,8 +257,8 @@ const mapStateToProps = (state) => {
     return {
         mainStore: state.mainStore,
         toolTipsStore: state.toolTipsStore,
-        cryptoCurrenciesStore : state.currencyStore,
-        accountStore : state.accountStore
+        cryptoCurrenciesStore: state.currencyStore,
+        accountStore: state.accountStore
     }
 }
 

@@ -331,6 +331,7 @@ const styles = {
         backgroundColor: '#f5f5f5'
     },
     header: {
+        display: 'none',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',

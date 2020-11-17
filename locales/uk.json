@@ -51,7 +51,12 @@
      "balance": "Баланс",
      "today": "Сьогодні",
      "changedLastDay": "За останні 24 години",
-     "synchronizing": "Синхронізація"
+     "synchronizing": "Синхронізація",
+     "buttons": {
+       "hide": "Сховати",
+       "receive": "Отримати",
+       "send": "Надіслати"
+     }
    },
    "walletCreateScreen": {
      "title": "КУПУЙ ПРОДАВАЙ ОБМІНЮЙ АНОНІМНО",

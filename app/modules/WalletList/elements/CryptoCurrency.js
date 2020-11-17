@@ -3,11 +3,19 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, TouchableOpacity, Text, Platform, Dimensions, PixelRatio } from 'react-native'
+import {
+    View,
+    TouchableOpacity,
+    Text,
+    Platform
+} from 'react-native'
 
 import { MaterialIndicator, UIActivityIndicator } from 'react-native-indicators'
+import { SwipeRow } from 'react-native-swipe-list-view'
 
 import Ionicons from 'react-native-vector-icons/Ionicons'
+
+import RoundButton from '../../../components/elements/buttons/RoundButton'
 
 import NavStore from '../../../components/navigation/NavStore'
 import GradientView from '../../../components/elements/GradientView'
@@ -22,13 +30,8 @@ import Log from '../../../services/Log/Log'
 import { strings } from '../../../services/i18n'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
-const PIXEL_RATIO = PixelRatio.get()
+import { SIZE } from '../helpers';
 
-let SIZE = 16
-if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
-    SIZE = 8 // iphone 5s
-}
 
 class CryptoCurrency extends Component {
 
@@ -71,12 +74,31 @@ class CryptoCurrency extends Component {
         </View>
     )
 
-    renderTooltip = (props) => {
+    renderHiddenLayer = () => {
+        return (
+            <View style={styles.hiddenLayer__container}>
+                <View style={styles.hiddenLayer__leftButtons__wrapper}>
+                    <RoundButton
+                        type="receive"
+                        containerStyle={styles.hiddenLayer__roundButton}
+                        onPress={null}
+                    />
+                    <RoundButton
+                        type="send"
+                        containerStyle={styles.hiddenLayer__roundButton}
+                        onPress={null}
+                    />
+                </View>
+                <RoundButton
+                    type="hide"
+                    containerStyle={styles.hiddenLayer__roundButton}
+                    onPress={null}
+                />
+            </View>
+        );
+    };
 
-        if (typeof props === 'undefined') {
-            return <View />
-        }
-
+    renderVisibleLayer = (props) => {
         const accountListByWallet = props.accountListByWallet
         const cryptoCurrency = props.cryptoCurrency
         const isBalanceVisible = this.props.isBalanceVisible;
@@ -109,12 +131,14 @@ class CryptoCurrency extends Component {
         return (
             <View style={styles.container}>
                 <View style={styles.shadow__container}>
-                    <View style={styles.shadow__item} />
+                    <View style={[styles.shadow__item, this.props.isActive && styles.shadow__item__active]} />
                 </View>
                 <View style={styles.shadow__item__background} />
                 <TouchableOpacity
+                    activeOpacity={0.7}
                     style={styles.cryptoList__item}
                     onPress={() => this.handleCurrencySelect(props.accounts)}
+                    onLongPress={this.props.onDrag}
                 >
                     <GradientView
                         style={styles.cryptoList__item__content}
@@ -182,11 +206,26 @@ class CryptoCurrency extends Component {
                 </TouchableOpacity>
             </View>
         )
+    };
+
+    renderTooltip = (props) => {
+        if (typeof props === 'undefined') return <View />
+
+        return (
+            <SwipeRow
+                leftOpenValue={160}
+                rightOpenValue={-80}
+            >
+                {this.renderHiddenLayer()}
+                {this.renderVisibleLayer(props)}
+            </SwipeRow>
+        );
     }
 
     render() {
         const { cryptoCurrency, settingsStore, accountListByWallet } = this.props
 
+        // TODO: change condition
         return cryptoCurrency.currencyCode === 'BTC'
             ? (
                 <ToolTips
@@ -257,6 +296,15 @@ const styles = {
         },
         shadowOpacity: 0.1,
         shadowRadius: 6.27,
+    },
+    shadow__item__active: {
+        shadowOffset: {
+            width: 0,
+            height: 7
+        },
+        shadowOpacity: 0.16,
+        shadowRadius: 8,
+        elevation: 20
     },
     shadow__item__background: {
         position: 'absolute',
@@ -340,5 +388,19 @@ const styles = {
     },
     cryptoList__arrow: {
         marginRight: 8
+    },
+    hiddenLayer__container: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: SIZE,
+        paddingHorizontal: SIZE,
+    },
+    hiddenLayer__leftButtons__wrapper: {
+        flexDirection: 'row'
+    },
+    hiddenLayer__roundButton: {
+        marginHorizontal: 12
     },
 }
