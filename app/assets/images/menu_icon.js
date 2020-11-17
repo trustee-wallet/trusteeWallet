@@ -13,9 +13,9 @@ function SvgComponent(props) {
                 source={require('./menu_icon.png')}/>
         )
     }
-    const color = '#404040';
+    const color = props.color || '#404040';
     return (
-        <Svg width={18} height={18} viewBox="0 0 18 18" {...props}>
+        <Svg width={18} height={18} viewBox="0 0 18 18">
             <Path
                 fill={color}
                 d="M1.788 1.2887C1.35375 1.2887 0.999939 1.64251 0.999939 2.07676C0.999939 2.51101 1.35375 2.86482 1.788 2.86482L17.4806 2.86482C17.9149 2.86482 18.2681 2.51101 18.2681 2.07676C18.2681 1.64251 17.9149 1.2887 17.4806 1.2887L1.788 1.2887Z"

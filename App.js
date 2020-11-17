@@ -6,6 +6,8 @@
 import React, { Component } from 'react'
 
 import { Provider } from 'react-redux'
+import { AppearanceProvider } from 'react-native-appearance'
+import { ThemeProvider } from './app/modules/theme/ThemeProvider'
 
 import { Linking } from 'react-native'
 
@@ -32,9 +34,13 @@ export default class App extends Component {
 
     render() {
         return (
-            <Provider store={store}>
-                <Router/>
-            </Provider>
+            <AppearanceProvider>
+                <ThemeProvider>
+                    <Provider store={store}>
+                        <Router />
+                    </Provider>
+                </ThemeProvider>
+            </AppearanceProvider>
         )
     }
 

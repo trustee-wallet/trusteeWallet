@@ -13,7 +13,7 @@ function SvgComponent(props) {
                 source={require('./notification_icon.png')}/>
         )
     }
-    const color = '#404040';
+    const color = props.color || '#404040';
     return (
         <Svg width={20} height={20} viewBox="0 0 20 20" {...props}>
             <Path

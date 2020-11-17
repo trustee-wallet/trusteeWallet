@@ -51,12 +51,7 @@
     "balance": "Balance",
     "today": "Today",
     "changedLastDay": "In the last 24 hours",
-    "synchronizing": "Synchronization",
-    "buttons": {
-      "hide": "Hide",
-      "receive": "Receive",
-      "send": "Send"
-    }
+    "synchronizing": "Synchronization"
   },
   "walletCreateScreen": {
     "title": "BUY SELL EXCHANGE ANONYMOUSLY",

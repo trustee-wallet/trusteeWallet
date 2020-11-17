@@ -29,6 +29,8 @@ import { checkQRPermission } from '../../../services/UI/Qr/QrPermissions'
 
 import { HIT_SLOP } from '../../../themes/Themes';
 
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+
 import { SIZE } from '../helpers';
 
 
@@ -53,12 +55,13 @@ class WalletInfo extends React.Component {
 
     render() {
         const { selectedWallet } = this.props
+        const { colors } = this.context
 
         return (
             <View style={styles.header}>
                 <View style={styles.header__left}>
                     <TouchableOpacity style={styles.notificationButton} hitSlop={HIT_SLOP}>
-                        <NotificationIcon />
+                        <NotificationIcon color={colors.common.text1} />
                     </TouchableOpacity>
                 </View>
 
@@ -71,11 +74,15 @@ class WalletInfo extends React.Component {
 
                 <View style={styles.header__right}>
                     <TouchableOpacity style={styles.qrButton} onPress={this.handleScanQr} hitSlop={HIT_SLOP}>
-                        <QRCodeBtn width={18} height={18} />
+                        <QRCodeBtn
+                            width={18}
+                            height={18}
+                            color={colors.common.text1}
+                        />
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.settingsButton} onPress={this.handleOpenSettings} hitSlop={HIT_SLOP}>
-                        <MenuIcon />
+                        <MenuIcon color={colors.common.text1} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -95,18 +102,20 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
+WalletInfo.contextType = ThemeContext
+
 export default connect(mapStateToProps, mapDispatchToProps)(WalletInfo)
 
 
 const styles = {
     header: {
-        backgroundColor: '#f5f5f5',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
 
-        marginHorizontal: SIZE,
-        marginTop: Platform.OS === 'android' ? 35 : 0
+        paddingHorizontal: SIZE,
+        paddingTop: Platform.OS === 'android' ? 35 : 0,
+        paddingBottom: 5,
     },
     header__left: {
         flex: 1,

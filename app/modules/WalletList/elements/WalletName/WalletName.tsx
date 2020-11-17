@@ -6,6 +6,8 @@ import { Dimensions, PixelRatio, StyleSheet, TextInput, TouchableOpacity, View }
 import { connect, ConnectedProps } from 'react-redux'
 import { Dispatch } from 'redux'
 
+import { ThemeContext } from '../../../../modules/theme/ThemeProvider'
+
 
 import {
     WalletName
@@ -89,15 +91,16 @@ export class WalletNameComponent extends Component<Props, {}>{
     }
 
     renderInput = (props: Props) => {
+        const { colors } = this.context
         return (
             <TextInput
                 ref={ref => this.nameInputRef = ref}
-                style={styles.input}
+                style={[styles.input, { color: colors.common.text1 }]}
                 // placeholder={strings(`components.elements.modal.input.placeholder`).split('').join(String.fromCodePoint(parseInt('2006', 16)))}
                 // placeholder={strings(`components.elements.modal.input.placeholder`)}
                 placeholder=''
                 editable={props.walletName.isEditable}
-                selectionColor={'#404040'}
+                selectionColor={colors.common.text2}
                 onBlur={() => this.onBlur(props.walletHash, props.walletName.text, props.walletNameText)}
                 onChangeText={(text: string)=>this.onChangeText(text)}
                 value={this.prepareWalletName(props.walletName.text, props.walletName.isEditable)}
@@ -123,6 +126,8 @@ export class WalletNameComponent extends Component<Props, {}>{
     }
 }
 
+WalletNameComponent.contextType = ThemeContext
+
 export default connector(WalletNameComponent)
 
 const styles = StyleSheet.create({
@@ -140,7 +145,6 @@ const styles = StyleSheet.create({
     },
     input: {
         fontFamily: 'Montserrat-Bold',
-        color: '#404040',
         fontSize: 12,
         textAlign: 'center'
     },

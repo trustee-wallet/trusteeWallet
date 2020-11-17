@@ -12,6 +12,7 @@ import ReceiveIcon from '../../../assets/images/HomePage/receive';
 import SendIcon from '../../../assets/images/HomePage/send';
 import HideIcon from '../../../assets/images/HomePage/hide';
 
+import { useTheme } from '../../../modules/theme/ThemeProvider'
 
 import { strings } from '../../../services/i18n'
 
@@ -22,28 +23,27 @@ const ICON_SET = {
     hide: HideIcon,
 }
 
+export default function ButtonIcon(props) {
+    const {
+        type,
+        onPress,
+        containerStyle,
+        noTitle,
+    } = props
+    const { colors } = useTheme()
+    const Icon = ICON_SET[type];
 
-export default class ButtonIcon extends React.Component {
-    render() {
-        const {
-            type,
-            onPress,
-            containerStyle,
-        } = this.props
-        const Icon = ICON_SET[type];
+    if (!Icon) return null
+    const text = !noTitle && strings(`homeScreen.buttons.${type}`)
 
-        if (!Icon) return null
-        const text = strings(`homeScreen.buttons.${type}`)
-
-        return (
-            <View style={[styles.container, containerStyle]}>
-                <TouchableOpacity onPress={onPress} style={styles.roundButton}>
-                    <Icon />
-                </TouchableOpacity>
-                {!!text && <Text style={styles.text}>{text}</Text>}
-            </View>
-        )
-    }
+    return (
+        <View style={[styles.container, containerStyle]}>
+            <TouchableOpacity onPress={onPress} style={[styles.roundButton, { backgroundColor: colors.common.roundButtonBg }]}>
+                <Icon color={colors.common.roundButtonContent} />
+            </TouchableOpacity>
+            {!noTitle && <Text style={[styles.text, { color: colors.common.text1 }]}>{text}</Text>}
+        </View>
+    )
 }
 
 const styles = StyleSheet.create({
@@ -56,7 +56,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 21,
-        backgroundColor: '#404040',
 
         shadowColor: '#000',
         shadowOpacity: 0.2,
@@ -74,6 +73,5 @@ const styles = StyleSheet.create({
         fontSize: 12,
         lineHeight: 14,
         letterSpacing: 1.5,
-        color: '#999999'
     },
 })

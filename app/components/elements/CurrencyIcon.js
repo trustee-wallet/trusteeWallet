@@ -12,6 +12,8 @@ import CustomIcon from './CustomIcon'
 
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+
 
 export default class ButtonLine extends Component {
 
@@ -27,6 +29,8 @@ export default class ButtonLine extends Component {
 
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
+        const { colors } = this.context
+
         switch (currencyCode) {
 
             case 'ETH_UAX':
@@ -34,7 +38,7 @@ export default class ButtonLine extends Component {
                     <View style={{ ...styles.icon, borderColor: '#2965FF', ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('../../assets/images/ethUAX.png')}/>
-                            <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                             </View>
                         </View>
@@ -47,7 +51,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('../../assets/images/ETH_OKB.png')}/>
                         </View>
-                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                        <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                         </View>
                     </View>
@@ -68,7 +72,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_ONE" style={{ color: '#35D4D3', fontSize: fontSize }}/>
                             <View
-                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                             </View>
                         </View>
@@ -81,7 +85,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="USDT" style={{ color: '#31D182', fontSize: fontSize }}/>
                             <View
-                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <View style={{ marginTop: 1 }}>
                                     <CustomIcon name="TRX" style={{ color: '#E51A31' }} fontSize={13}/>
                                 </View>
@@ -96,7 +100,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="TRX_BTT" style={{ color: '#D73A64', fontSize: fontSize }}/>
                             <View
-                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <View style={{ marginTop: 1 }}>
                                     <CustomIcon name="TRX" style={{ color: '#E51A31' }} fontSize={13}/>
                                 </View>
@@ -129,7 +133,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <Image style={{ width: 25, height: 25 }} resize={'stretch'} source={require('../../assets/images/ethSOUL.png')}/>
                             <View
-                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                             </View>
                         </View>
@@ -190,7 +194,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="BTC" style={{ color: '#F79E1B', fontSize: fontSize }}/>
                             <View style={{ ...styles.icon__text, ...textContainerStyle }}>
-                                <Text style={{ ...styles.icon__text__item, ...textStyle }}>
+                                <Text style={{ ...styles.icon__text__item, backgroundColor: colors.common.iconMarkBg, ...textStyle }}>
                                     SW
                                 </Text>
                             </View>
@@ -203,7 +207,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="BTC" style={{ color: '#F79E1B', fontSize: fontSize }}/>
                             <View style={{ ...styles.icon__text, ...textContainerStyle }}>
-                                <Text style={{ ...styles.icon__text__item, ...textStyle }}>
+                                <Text style={{ ...styles.icon__text__item, backgroundColor: colors.common.iconMarkBg, ...textStyle }}>
                                     SWC
                                 </Text>
                             </View>
@@ -236,7 +240,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="USDT" style={{ color: '#31D182', fontSize: fontSize }}/>
                             <View
-                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="bitcoin" size={14} color={'#F79E1B'}/>
                             </View>
                         </View>
@@ -248,7 +252,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_TRUE_USD" style={{ color: '#5BB6ED', fontSize: fontSize }}/>
                             <View
-                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                             </View>
                         </View>
@@ -260,7 +264,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="USDT" style={{ color: '#31D182', fontSize: fontSize }}/>
                             <View
-                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                             </View>
                         </View>
@@ -272,7 +276,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_BNB" style={{ color: '#F59E6C', fontSize: fontSize }}/>
                             <View
-                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                             </View>
                         </View>
@@ -284,7 +288,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_USDC" style={{ color: '#2A7FDB', fontSize: fontSize }}/>
                             <View
-                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                             </View>
                         </View>
@@ -304,7 +308,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_PAX" style={{ color: '#02D193', fontSize: fontSize }}/>
                             <View
-                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                             </View>
                         </View>
@@ -316,7 +320,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_DAI" style={{ color: '#FF6F45', fontSize: fontSize }}/>
                             <View
-                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                             </View>
                         </View>
@@ -329,7 +333,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_DAIM" style={{ color: '#FF6F45', fontSize: fontSize }}/>
                             <View
-                                style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                             </View>
                         </View>
@@ -351,7 +355,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_KNC" style={{ color: '#31CB9E', fontSize: fontSize }}/>
                         </View>
-                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                        <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                         </View>
                     </View>
@@ -363,7 +367,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_COMP" style={{ color: '#00D395', fontSize: fontSize }}/>
                         </View>
-                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                        <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                         </View>
                     </View>
@@ -375,7 +379,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_BAL" style={{ color: '#303030', fontSize: fontSize }}/>
                         </View>
-                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                        <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                         </View>
                     </View>
@@ -387,7 +391,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_LEND" style={{ color: '#1E8FCA', fontSize: fontSize }}/>
                         </View>
-                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                        <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                         </View>
                     </View>
@@ -399,7 +403,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_BNT" style={{ color: '#000D2B', fontSize: fontSize }}/>
                         </View>
-                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                        <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                         </View>
                     </View>
@@ -411,19 +415,19 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_MKR" style={{ color: '#1AAB9B', fontSize: fontSize }}/>
                         </View>
-                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                        <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                         </View>
                     </View>
                 )
-            
+
             case 'CUSTOM_MVT':
                 return (
                     <View style={{ ...styles.icon, borderColor: '#93CA76', ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_MVT" style={{ color: '#93CA76', fontSize: fontSize }}/>
                         </View>
-                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                        <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                         </View>
                     </View>
@@ -435,7 +439,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="TRX_TTCrypto" style={{ color: '#404040', fontSize: fontSize, marginRight: 1 }}/>
                         </View>
-                        <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                        <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <CustomIcon name="TRX" style={{ color: '#E51A31' }} fontSize={13}/>
                         </View>
                     </View>
@@ -455,7 +459,7 @@ export default class ButtonLine extends Component {
                                 <Text style={{ fontFamily: 'SFUIDisplay-Semibold', color: '#1EB3E4', fontSize: 12 }}>
                                     {extend.currencySymbol}
                                 </Text>
-                                <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <Icon name="ethereum" size={14} color={'#1EB3E4'}/>
                                 </View>
                             </View>
@@ -468,7 +472,7 @@ export default class ButtonLine extends Component {
                                 <Text style={{ fontFamily: 'SFUIDisplay-Semibold', color: '#E51A31', fontSize: 12 }}>
                                     {extend.currencySymbol}
                                 </Text>
-                                <View style={{ ...styles.icon__mark, ...tmpMarkStyle }}>
+                                <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <CustomIcon name="TRX" style={{ color: '#E51A31', fontSize: 12 }}/>
                                 </View>
                             </View>
@@ -492,6 +496,8 @@ export default class ButtonLine extends Component {
         return this.renderIcon()
     }
 }
+
+ButtonLine.contextType = ThemeContext
 
 const styles = {
     icon: {
@@ -534,8 +540,6 @@ const styles = {
         fontSize: 10,
         fontFamily: 'Montserrat-Bold',
         color: '#F79E1B',
-
-        backgroundColor: '#f9f9f9'
     },
     icon__mark: {
         justifyContent: 'center',
@@ -547,7 +551,7 @@ const styles = {
         width: 18,
         height: 18,
 
-        backgroundColor: '#f9f9f9',
+        // backgroundColor: '#f9f9f9',
 
         borderRadius: 15,
         shadowColor: '#000',

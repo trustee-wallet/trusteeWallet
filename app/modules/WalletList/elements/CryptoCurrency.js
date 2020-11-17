@@ -30,6 +30,8 @@ import Log from '../../../services/Log/Log'
 import { strings } from '../../../services/i18n'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+
 import { SIZE } from '../helpers';
 
 
@@ -63,7 +65,7 @@ class CryptoCurrency extends Component {
 
     renderSynchrinization = () => (
         <View style={styles.cryptoList__syncRow}>
-            <Text style={[styles.cryptoList__text, { marginRight: 5 }]}>
+            <Text style={[styles.cryptoList__text, { marginRight: 5, color: this.context.colors.common.text2 }]}>
                 {strings('homeScreen.synchronizing')}
             </Text>
             <View>
@@ -81,24 +83,28 @@ class CryptoCurrency extends Component {
                     <RoundButton
                         type="receive"
                         containerStyle={styles.hiddenLayer__roundButton}
-                        onPress={null}
+                        onPress={this.props.handleReceive}
+                        noTitle
                     />
                     <RoundButton
                         type="send"
                         containerStyle={styles.hiddenLayer__roundButton}
-                        onPress={null}
+                        onPress={this.props.handleSend}
+                        noTitle
                     />
                 </View>
                 <RoundButton
                     type="hide"
                     containerStyle={styles.hiddenLayer__roundButton}
-                    onPress={null}
+                    onPress={this.props.handleHide}
+                    noTitle
                 />
             </View>
         );
     };
 
     renderVisibleLayer = (props) => {
+        const { colors } = this.context
         const accountListByWallet = props.accountListByWallet
         const cryptoCurrency = props.cryptoCurrency
         const isBalanceVisible = this.props.isBalanceVisible;
@@ -133,7 +139,7 @@ class CryptoCurrency extends Component {
                 <View style={styles.shadow__container}>
                     <View style={[styles.shadow__item, this.props.isActive && styles.shadow__item__active]} />
                 </View>
-                <View style={styles.shadow__item__background} />
+                <View style={[styles.shadow__item__background, { backgroundColor: colors.homeScreen.listItemShadowBg }]} />
                 <TouchableOpacity
                     activeOpacity={0.7}
                     style={styles.cryptoList__item}
@@ -142,9 +148,9 @@ class CryptoCurrency extends Component {
                 >
                     <GradientView
                         style={styles.cryptoList__item__content}
-                        array={styles_.cryptoList__item.array}
-                        start={styles_.cryptoList__item.start}
-                        end={styles_.cryptoList__item.end}
+                        array={colors.homeScreen.listItemGradient}
+                        start={{ x: 1, y: 0 }}
+                        end={{ x: 1, y: 1 }}
                     >
 
                         <CurrencyIcon
@@ -157,7 +163,7 @@ class CryptoCurrency extends Component {
 
                         <View style={styles.cryptoList__info}>
                             <View style={styles.cryptoList__currency__balance}>
-                                <Text style={styles.cryptoList__title}>
+                                <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>
                                     {cryptoCurrency.currencySymbol}
                                 </Text>
                                 {
@@ -165,38 +171,38 @@ class CryptoCurrency extends Component {
                                         ? !isSynchronized
                                             ? this.renderSynchrinization()
                                             : isBalanceVisible
-                                                ? <Text style={styles.cryptoList__title}>{BlocksoftPrettyNumbers.makeCut(account.balancePretty).separated}</Text>
-                                                : <Text style={styles.cryptoList__title}>****</Text>
+                                                ? <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>{BlocksoftPrettyNumbers.makeCut(account.balancePretty).separated}</Text>
+                                                : <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>****</Text>
                                         : null
                                 }
                             </View>
 
                             <View style={styles.cryptoList__currency__rate}>
-                                <Text style={styles.cryptoList__text}>
+                                <Text style={[styles.cryptoList__text, { color: colors.common.text2 }]}>
                                     {cryptoCurrency.currencyName}
                                 </Text>
                                 {isSynchronized === true && isBalanceVisible && (
-                                    <Text style={styles.cryptoList__text}>
+                                    <Text style={[styles.cryptoList__text, { color: colors.common.text2 }]}>
                                         {`${account.basicCurrencySymbol} ${basicBalancePrep}`}
                                     </Text>
                                 )}
                             </View>
 
-                            <View style={styles.cryptoList__currency__changes}>
+                            <View style={[styles.cryptoList__currency__changes, { borderColor: colors.homeScreen.listItemSeparatorLine }]}>
                                 <View style={styles.cryptoList__currency__changes__rate}>
                                     {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && priceChangePercentage24h !== 0 && (
                                         <Ionicons
                                             name={priceChangePercentage24h > 0 ? 'ios-arrow-round-up' : 'ios-arrow-round-down'}
-                                            color={priceChangePercentage24h > 0 ? '#31D182' : '#fc5088'}
+                                            color={priceChangePercentage24h > 0 ? colors.homeScreen.listItemArrowUp : colors.homeScreen.listItemArrowDown}
                                             style={styles.cryptoList__arrow}
                                             size={18}
                                         />
                                     )}
-                                    <Text style={styles.cryptoList__text}>
+                                    <Text style={[styles.cryptoList__text, { color: colors.common.text2 }]}>
                                         {`${account.basicCurrencySymbol} ${ratePrep.toString()}`}
                                     </Text>
                                 </View>
-                                <Text style={styles.cryptoList__text}>
+                                <Text style={[styles.cryptoList__text, { color: colors.common.text2 }]}>
                                     {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && `${priceChangePercentage24h < 0 ? '- ' : ''}${priceChangePercentage24hPrep}`}
                                 </Text>
                             </View>
@@ -213,8 +219,8 @@ class CryptoCurrency extends Component {
 
         return (
             <SwipeRow
-                leftOpenValue={160}
-                rightOpenValue={-80}
+                leftOpenValue={140}
+                rightOpenValue={-70}
             >
                 {this.renderHiddenLayer()}
                 {this.renderVisibleLayer(props)}
@@ -225,6 +231,8 @@ class CryptoCurrency extends Component {
     render() {
         const { cryptoCurrency, settingsStore, accountListByWallet } = this.props
 
+        // console.log(this.context
+        // if (!styles) styles = getStyles(this.context.colors)
         // TODO: change condition
         return cryptoCurrency.currencyCode === 'BTC'
             ? (
@@ -242,6 +250,8 @@ class CryptoCurrency extends Component {
     }
 }
 
+CryptoCurrency.contextType = ThemeContext
+
 const mapStateToProps = (state) => {
     return {
         selectedWallet: state.mainStore.selectedWallet,
@@ -257,13 +267,6 @@ const mapDispatchToProps = (dispatch) => {
 
 export default connect(mapStateToProps, mapDispatchToProps)(CryptoCurrency)
 
-const styles_ = {
-    cryptoList__item: {
-        array: ['#fff', '#f4f4f4'],
-        start: { x: 1, y: 0 },
-        end: { x: 1, y: 1 }
-    },
-}
 
 const styles = {
     container: {
@@ -312,7 +315,6 @@ const styles = {
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#fff',
         borderRadius: SIZE,
     },
     cryptoList__item: {
@@ -352,7 +354,6 @@ const styles = {
         alignItems: 'center'
     },
     cryptoList__title: {
-        color: '#404040',
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 17,
         lineHeight: 17,
@@ -367,7 +368,6 @@ const styles = {
         alignItems: 'center'
     },
     cryptoList__text: {
-        color: '#999999',
         fontSize: 14,
         lineHeight: 18,
         fontFamily: 'SFUIDisplay-Semibold',
@@ -378,7 +378,6 @@ const styles = {
         justifyContent: 'space-between',
         alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: '#E8E8E8',
         marginTop: 10,
         paddingTop: 4
     },
@@ -401,6 +400,6 @@ const styles = {
         flexDirection: 'row'
     },
     hiddenLayer__roundButton: {
-        marginHorizontal: 12
+        marginHorizontal: 10
     },
 }

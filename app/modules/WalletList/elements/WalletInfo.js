@@ -10,8 +10,6 @@ import {
     TouchableOpacity,
     Image,
     Platform,
-    Dimensions,
-    PixelRatio
 } from 'react-native'
 
 import AsyncStorage from '@react-native-community/async-storage'
@@ -21,9 +19,6 @@ import 'moment/min/locales.min'
 
 import IconVisible from '../../../assets/images/icon_visible'
 import IconHidden from '../../../assets/images/icon_hidden'
-import MenuIcon from '../../../assets/images/menu_icon'
-import NotificationIcon from '../../../assets/images/notification_icon'
-import QRCodeBtn from '../../../assets/images/qrCodeBtn'
 import NavStore from '../../../components/navigation/NavStore'
 import ToolTips from '../../../components/elements/ToolTips'
 import GradientView from '../../../components/elements/GradientView'
@@ -38,7 +33,6 @@ import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 import { capitalize } from '../../../services/UI/Capitalize/Capitalize'
 import { checkQRPermission } from '../../../services/UI/Qr/QrPermissions'
 import { saveSelectedBasicCurrencyCode } from '../../../appstores/Stores/Main/MainStoreActions'
-import WalletName from './WalletName/WalletName'
 import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
 import BlocksoftBN from '../../../../crypto/common/BlocksoftBN'
 import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
@@ -51,13 +45,11 @@ import DaemonCache from '../../../daemons/DaemonCache'
 
 import { HIT_SLOP } from '../../../themes/Themes';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
-const PIXEL_RATIO = PixelRatio.get()
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
-let SIZE = 16
-if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
-    SIZE = 8 // iphone 5s
-}
+import { SIZE } from '../helpers';
+import { isValidOrNoPaymentID } from 'xmr-core/xmr-crypto-utils'
+
 
 let CACHE_PREV_CURRENCY = false
 
@@ -151,11 +143,12 @@ class WalletInfo extends Component {
     }
 
     renderTooltip = () => {
-        const { isViolet } = this.state;
+        const { isViolet } = this.state
+        const { colors } = this.context
         return (
-            <View style={[styles.addAsset__content, isViolet && styles.addAsset__content__VIOLET]}>
-                <Entypo style={[styles.addAsset__icon, isViolet && styles.addAsset__icon__VIOLET]} size={13} name="plus" />
-                <Text style={[styles.addAsset__text, isViolet && styles.addAsset__text__VIOLET]}>
+            <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
+                <Entypo style={[styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]} size={13} name="plus" />
+                <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]}>
                     {strings('settings.assets.addAsset').toUpperCase()}
                 </Text>
             </View>
@@ -185,7 +178,8 @@ class WalletInfo extends Component {
             selectedBasicCurrency,
             selectedWallet,
         } = this.props
-        const { isViolet } = this.state;
+        const { isViolet } = this.state
+        const { colors } = this.context
 
         let localCurrencySymbol = selectedBasicCurrency.symbol
         if (!localCurrencySymbol) {
@@ -214,96 +208,80 @@ class WalletInfo extends Component {
         const todayPrep = `${strings('homeScreen.today')}, ${date.getDate()} ${capitalize(moment(date).format('MMM'))}`
 
         return (
-            <View style={styles.wrapper}>
-                {/* TODO: moves header from this component */}
-                <View style={styles.header}>
-                    <View style={styles.header__left}>
-                        <TouchableOpacity style={styles.notificationButton} hitSlop={HIT_SLOP}>
-                            <NotificationIcon />
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.header__center}>
-                        <WalletName
-                            walletHash={selectedWallet.walletHash || ''}
-                            walletNameText={selectedWallet.walletName || ''} />
-                    </View>
-
-                    <View style={styles.header__right}>
-                        <TouchableOpacity style={styles.qrButton} onPress={this.handleScanQr} hitSlop={HIT_SLOP}>
-                            <QRCodeBtn width={18} height={18} />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.settingsButton} onPress={this.handleOpenSettings} hitSlop={HIT_SLOP}>
-                            <MenuIcon />
-                        </TouchableOpacity>
-                    </View>
+            <Animated.View style={{ ...styles.balanceWrapper, opacity: this.state.opacity }}>
+                <View style={styles.shadow__container}>
+                    <View style={styles.shadow__item} />
                 </View>
-
-                <Animated.View style={{ ...styles.balanceWrapper, opacity: this.state.opacity }}>
-                    <View style={styles.shadow__container}>
-                        <View style={styles.shadow__item} />
-                    </View>
-                    <TouchableOpacity
-                        style={styles.container}
-                        activeOpacity={1}
-                        onLongPress={this.toggleViolet}
-                        delayLongPress={5000}
+                <TouchableOpacity
+                    style={styles.container}
+                    activeOpacity={1}
+                    onLongPress={this.toggleViolet}
+                    delayLongPress={5000}
+                >
+                    <GradientView
+                        style={styles.container__bg}
+                        array={isViolet ? colors.homeScreen.listItemVioletGradient : colors.homeScreen.listItemGradient}
+                        start={{ x: 1, y: 0 }}
+                        end={{ x: 1, y: 1 }}
                     >
-                        <GradientView
-                            style={styles.container__bg}
-                            array={isViolet ? styles.containerBG__VIOLET.array : styles.containerBG.array}
-                            start={isViolet ? styles.containerBG__VIOLET.start : styles.containerBG.start}
-                            end={isViolet ? styles.containerBG__VIOLET.end : styles.containerBG.end}
-                        >
-                            <View style={styles.container__top}>
-                                <View style={styles.container__top__left}>
-                                    <Text style={[styles.container__title, isViolet && styles.container__title__VIOLET]}>
-                                        {strings('homeScreen.balance')}
-                                    </Text>
-                                    <LetterSpacing
-                                        text={todayPrep}
-                                        textStyle={Object.assign({}, styles.container__date, isViolet && styles.container__date__VIOLET)}
-                                        letterSpacing={1}
-                                    />
-                                </View>
-                                <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')} onLongPress={() => this.handlerRBF()} delayLongPress={5000}>
-                                    <ToolTips type={'HOME_SCREEN_ADD_CRYPTO_BTN_TIP'} height={100} MainComponent={() => this.renderTooltip()} />
-                                </TouchableOpacity>
+                        <View style={styles.container__top}>
+                            <View style={styles.container__top__left}>
+                                <Text style={[
+                                    styles.container__title,
+                                    { color: isViolet ? colors.homeScreen.text1Violet : colors.common.text1 }
+                                ]}>
+                                    {strings('homeScreen.balance')}
+                                </Text>
+                                <LetterSpacing
+                                    text={todayPrep}
+                                    textStyle={Object.assign({}, styles.container__date, { color: colors.common[isViolet ? 'text3' : 'text2'] })}
+                                    letterSpacing={1}
+                                />
                             </View>
+                            <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')} onLongPress={() => this.handlerRBF()} delayLongPress={5000}>
+                                <ToolTips type={'HOME_SCREEN_ADD_CRYPTO_BTN_TIP'} height={100} MainComponent={() => this.renderTooltip()} />
+                            </TouchableOpacity>
+                        </View>
 
-                            <View style={styles.walletInfo__content}>
-                                <View style={styles.walletInfo__content__balance}>
-                                    {
-                                        isBalanceVisible ? (
-                                            <React.Fragment>
-                                                <TouchableOpacity onPress={this.handleChangeLocal}>
-                                                    <Text style={[styles.walletInfo__text_small, styles.walletInfo__text_small_first, isViolet && styles.walletInfo__text_small__VIOLET]}>
-                                                        {localCurrencySymbol}
-                                                    </Text>
-                                                </TouchableOpacity>
-                                                <Text style={[styles.walletInfo__text_middle, isViolet && styles.walletInfo__text_middle__VIOLET]}>{totalBalancePrep1}</Text>
-                                                <Text style={[styles.walletInfo__text_small, isViolet && styles.walletInfo__text_small__VIOLET]}>{totalBalancePrep2}</Text>
-                                            </React.Fragment>
-                                        ) : (
-                                                <Text style={[styles.walletInfo__text_middle, isViolet && styles.walletInfo__text_middle__VIOLET]}>****</Text>
-                                            )
-                                    }
-
-                                </View>
-
-                                <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
-                                    {isBalanceVisible ? (
-                                        <IconVisible color={isViolet ? '#DADADA' : '#404040'} />
+                        <View style={styles.walletInfo__content}>
+                            <View style={styles.walletInfo__content__balance}>
+                                {
+                                    isBalanceVisible ? (
+                                        <React.Fragment>
+                                            <TouchableOpacity onPress={this.handleChangeLocal}>
+                                                <Text style={[
+                                                    styles.walletInfo__text_small,
+                                                    styles.walletInfo__text_small_first,
+                                                    { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }
+                                                ]}>
+                                                    {localCurrencySymbol}
+                                                </Text>
+                                            </TouchableOpacity>
+                                            <Text style={[styles.walletInfo__text_middle, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>{totalBalancePrep1}</Text>
+                                            <Text style={[styles.walletInfo__text_small, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>{totalBalancePrep2}</Text>
+                                        </React.Fragment>
                                     ) : (
-                                        <IconHidden color={isViolet ? '#DADADA' : '#404040'} />
-                                    )}
-                                </TouchableOpacity>
+                                            <Text style={[
+                                                styles.walletInfo__text_middle,
+                                                styles.walletInfo__hiddenBalance,
+                                                { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }
+                                            ]}>****</Text>
+                                        )
+                                }
+
                             </View>
-                        </GradientView>
-                    </TouchableOpacity>
-                </Animated.View>
-            </View>
+
+                            <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
+                                {isBalanceVisible ? (
+                                    <IconVisible color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
+                                ) : (
+                                        <IconHidden color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
+                                    )}
+                            </TouchableOpacity>
+                        </View>
+                    </GradientView>
+                </TouchableOpacity>
+            </Animated.View>
         )
     }
 }
@@ -323,39 +301,12 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
+WalletInfo.contextType = ThemeContext
+
 export default connect(mapStateToProps, mapDispatchToProps)(WalletInfo)
 
 
 const styles = {
-    wrapper: {
-        backgroundColor: '#f5f5f5'
-    },
-    header: {
-        display: 'none',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-
-        marginHorizontal: SIZE,
-        marginTop: Platform.OS === 'android' ? 35 : 0
-    },
-    header__left: {
-        flex: 1,
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        height: 44, // equal to "WalletName" component height
-    },
-    header__center: {
-        flex: 2,
-        alignItems: 'center',
-    },
-    header__right: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        flex: 1,
-        justifyContent: 'flex-end',
-        height: 44, // equal to "WalletName" component height
-    },
     notificationButton: {
         paddingHorizontal: 12
     },
@@ -420,31 +371,13 @@ const styles = {
         marginLeft: -1,
 
         fontFamily: 'Montserrat-SemiBold',
-        color: '#404040',
         fontSize: 17
-    },
-    container__title__VIOLET: {
-        color: '#EEEEEE',
     },
     container__date: {
         marginTop: 2,
 
         fontSize: 10,
         fontFamily: 'SFUIDisplay-Semibold',
-        color: '#999999'
-    },
-    container__date__VIOLET: {
-        color: '#DCBAFB',
-    },
-    containerBG: {
-        array: ['#fff', '#f2f2f2'],
-        start: { x: 1, y: 0 },
-        end: { x: 1, y: 1 }
-    },
-    containerBG__VIOLET: {
-        array: ['#9D4AA2', '#43156D'],
-        start: { x: 1, y: 0 },
-        end: { x: 1, y: 1 }
     },
     walletInfo__content: {
         flexDirection: 'row',
@@ -458,12 +391,8 @@ const styles = {
     walletInfo__text_small: {
         fontSize: 20,
         fontFamily: 'Montserrat-Medium',
-        color: '#404040',
 
         opacity: .8
-    },
-    walletInfo__text_small__VIOLET: {
-        color: '#F3E6FF',
     },
     walletInfo__text_small_first: {
         marginRight: 5
@@ -472,11 +401,10 @@ const styles = {
         height: 42,
         fontSize: 52,
         fontFamily: 'Montserrat-Light',
-        color: '#404040',
         lineHeight: 50
     },
-    walletInfo__text_middle__VIOLET: {
-        color: '#F3E6FF',
+    walletInfo__hiddenBalance: {
+        lineHeight: 58
     },
     addAsset: {
         paddingVertical: 19,
@@ -495,27 +423,14 @@ const styles = {
         paddingLeft: 4,
 
         borderRadius: 6,
-        borderColor: '#404040',
         borderWidth: 1.5
-    },
-    addAsset__content__VIOLET: {
-        borderColor: '#F3E6FF',
     },
     addAsset__text: {
         fontSize: 10,
-        color: '#5C5C5C',
         fontFamily: 'Montserrat-Bold'
-    },
-    addAsset__text__VIOLET: {
-        color: '#F3E6FF',
     },
     addAsset__icon: {
         marginRight: 2,
         marginTop: 1,
-
-        color: '#5C5C5C'
-    },
-    addAsset__icon__VIOLET: {
-        color: '#F3E6FF',
     },
 }

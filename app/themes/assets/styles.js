@@ -105,27 +105,6 @@ export default {
         activeTitle: {
             color: 'red'
         },
-        statusBar__android: {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: 25,
-            backgroundColor: '#f5f5f5',
-            zIndex: 100
-        },
-        cryptoList__scrollView: {
-            flex: 1,
-            position: 'relative',
-            marginBottom: hasNotch && Platform.OS === 'ios' ? 0 : -30,
-            zIndex: 2,
-            backgroundColor: '#f5f5f5',
-        },
-        cryptoList__wrapper: {
-            flex: 1,
-            paddingBottom: hasNotch && Platform.OS === 'ios' ? 70 : 100,
-            backgroundColor: '#f5f5f5'
-        },
         cryptoList: {
             flex: 1,
         },
@@ -148,17 +127,6 @@ export default {
             shadowRadius: 2.22,
 
             elevation: 3
-        },
-        cryptoList__item__hidden: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            height: 74,
-            marginBottom: 10,
-            marginTop: 5,
-            marginLeft: 20,
-            marginRight: 20,
-            paddingLeft: 10,
-            borderRadius: 15,
         },
         cryptoList__title: {
             color: '#404040',

@@ -10,7 +10,8 @@ import {
     ScrollView,
     RefreshControl,
     Platform,
-    TouchableOpacity
+    TouchableOpacity,
+    StatusBar,
 } from 'react-native'
 import { connect } from 'react-redux'
 import _sortBy from 'lodash/sortBy'
@@ -32,6 +33,7 @@ import Log from '../../services/Log/Log'
 import { strings } from '../../services/i18n'
 
 import SendActions from '../../appstores/Stores/Send/SendActions'
+import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 
 import Theme from '../../themes/Themes'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
@@ -40,6 +42,8 @@ import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccoun
 import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAccountBalanceAndTransactionsHD'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
+
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
 import { SIZE } from './helpers'
 
@@ -54,7 +58,8 @@ class HomeScreen extends Component {
             refreshing: false,
             isBalanceVisible: true,
             data: [],
-            currenciesOrder: []
+            currenciesOrder: [],
+            isCurrentlyDraggable: false,
         }
         this.getBalanceVisibility();
         this.getCurrenciesOrder();
@@ -89,8 +94,9 @@ class HomeScreen extends Component {
     }
 
     getCurrenciesOrder = async () => {
+        const walletToken = CashBackUtils.getWalletToken()
         try {
-            const res = await AsyncStorage.getItem('currenciesOrder')
+            const res = await AsyncStorage.getItem(`${walletToken}:currenciesOrder`)
             const currenciesOrder = res !== null ? JSON.parse(res) : []
 
             this.setState(state => ({
@@ -186,14 +192,20 @@ class HomeScreen extends Component {
         this.setState(() => ({ isBalanceVisible: newVisibilityValue }));
     }
 
+    onDragBegin = () => {
+        this.setState(() => ({ isCurrentlyDraggable: true }));
+    };
+
     onDragEnd = ({ data }) => {
+        const walletToken = CashBackUtils.getWalletToken()
         const currenciesOrder = data.map(c => c.currencyCode);
-        AsyncStorage.setItem('currenciesOrder', JSON.stringify(currenciesOrder))
-        this.setState(() => ({ currenciesOrder }))
+        AsyncStorage.setItem(`${walletToken}:currenciesOrder`, JSON.stringify(currenciesOrder))
+        this.setState(() => ({ currenciesOrder, isCurrentlyDraggable: false }))
     }
 
     render() {
         // console.log(new Date().toISOString() + ' render')
+        const { colors, isLight } = this.context
 
         firebase.analytics().setCurrentScreen('WalletList.HomeScreen')
 
@@ -207,10 +219,10 @@ class HomeScreen extends Component {
 
         return (
             <View style={{ flex: 1 }}>
-                <SafeAreaView style={{ flex: 0, backgroundColor: '#f5f5f5' }} />
-                <SafeAreaView style={{ flex: 1, backgroundColor: '#f7f7f7' }}>
-                    <View style={{ flex: 1 }}>
-                        {Platform.OS === 'android' && <View style={styles.statusBar__android} />}
+                <StatusBar barStyle={isLight ? 'dark-content' : 'light-content'} />
+                <SafeAreaView style={{ flex: 0, backgroundColor: colors.common.background }} />
+                <SafeAreaView style={{ flex: 1, backgroundColor: colors.homeScreen.tabBarBackground }}>
+                    <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                         <Header />
                         <DraggableFlatList
                             data={this.state.data}
@@ -218,7 +230,8 @@ class HomeScreen extends Component {
                             contentContainerStyle={{ paddingBottom: 20 }}
                             refreshControl={
                                 <RefreshControl
-                                    tintColor={'#404040'}
+                                    enabled={!this.state.isCurrentlyDraggable}
+                                    tintColor={colors.common.text1}
                                     refreshing={this.state.refreshing}
                                     onRefresh={this.handleRefresh}
                                 />
@@ -238,12 +251,17 @@ class HomeScreen extends Component {
                                         isBalanceVisible={this.state.isBalanceVisible}
                                         onDrag={drag}
                                         isActive={isActive}
+                                        // TODO: add handlers
+                                        handleReceive={null}
+                                        handleSend={null}
+                                        handleHide={null}
                                     />
                                 );
                             }}
                             keyExtractor={item => item.currencyCode}
                             activationDistance={15}
                             onDragEnd={this.onDragEnd}
+                            onDragBegin={this.onDragBegin}
                         />
                         <BottomNavigation />
                     </View>
@@ -262,20 +280,6 @@ const mapStateToProps = (state) => {
     }
 }
 
+HomeScreen.contextType = ThemeContext
+
 export default connect(mapStateToProps, {})(HomeScreen)
-
-
-// const stl = {
-//     left__btn: {
-//         flexDirection: 'row',
-//         width: '60%',
-//         paddingRight: 30,
-//         justifyContent: 'space-around',
-//     },
-//     right__btn: {
-//         flexDirection: 'row-reverse',
-//         width: '40%',
-//         paddingRight: 30,
-//         justifyContent: 'space-around',
-//     }
-// }
