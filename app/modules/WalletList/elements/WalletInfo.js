@@ -36,12 +36,10 @@ import { saveSelectedBasicCurrencyCode } from '../../../appstores/Stores/Main/Ma
 import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
 import BlocksoftBN from '../../../../crypto/common/BlocksoftBN'
 import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
-import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 import { acc } from 'react-native-reanimated'
 import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
 
 import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
-import DaemonCache from '../../../daemons/DaemonCache'
 
 import { HIT_SLOP } from '../../../themes/Themes';
 
@@ -176,32 +174,10 @@ class WalletInfo extends Component {
             changeBalanceVisibility,
             isBalanceVisible,
             selectedBasicCurrency,
-            selectedWallet,
+            balanceData
         } = this.props
         const { isViolet } = this.state
         const { colors } = this.context
-
-        let localCurrencySymbol = selectedBasicCurrency.symbol
-        if (!localCurrencySymbol) {
-            localCurrencySymbol = selectedBasicCurrency.currencyCode
-        }
-
-        const CACHE_SUM = DaemonCache.getCache(selectedWallet.walletHash)
-
-        let totalBalance = 0
-        if (CACHE_SUM) {
-            totalBalance = CACHE_SUM.balance
-            if (localCurrencySymbol !== CACHE_SUM.basicCurrencySymbol) {
-                localCurrencySymbol = CACHE_SUM.basicCurrencySymbol
-            }
-        }
-
-        let tmp = totalBalance.toString().split('.')
-        let totalBalancePrep1 = BlocksoftPrettyNumbers.makeCut(tmp[0]).separated
-        let totalBalancePrep2 = ''
-        if (typeof tmp[1] !== 'undefined') {
-            totalBalancePrep2 = '.' + tmp[1].substr(0, 2)
-        }
 
         // @misha to optimize
         const date = new Date()
@@ -234,7 +210,7 @@ class WalletInfo extends Component {
                                 </Text>
                                 <LetterSpacing
                                     text={todayPrep}
-                                    textStyle={Object.assign({}, styles.container__date, { color: colors.common[isViolet ? 'text3' : 'text2'] })}
+                                    textStyle={Object.assign({}, styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 })}
                                     letterSpacing={1}
                                 />
                             </View>
@@ -254,11 +230,11 @@ class WalletInfo extends Component {
                                                     styles.walletInfo__text_small_first,
                                                     { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }
                                                 ]}>
-                                                    {localCurrencySymbol}
+                                                    {balanceData.currencySymbol}
                                                 </Text>
                                             </TouchableOpacity>
-                                            <Text style={[styles.walletInfo__text_middle, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>{totalBalancePrep1}</Text>
-                                            <Text style={[styles.walletInfo__text_small, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>{totalBalancePrep2}</Text>
+                                            <Text style={[styles.walletInfo__text_middle, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>{balanceData.beforeDecimal}</Text>
+                                            <Text style={[styles.walletInfo__text_small, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>{balanceData.afterDecimal}</Text>
                                         </React.Fragment>
                                     ) : (
                                             <Text style={[
@@ -288,7 +264,6 @@ class WalletInfo extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        selectedWallet: state.mainStore.selectedWallet,
         selectedBasicCurrency: state.mainStore.selectedBasicCurrency,
         cryptoCurrencies: state.currencyStore.cryptoCurrencies,
         accountList: state.accountStore.accountList

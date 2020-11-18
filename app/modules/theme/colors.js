@@ -20,6 +20,7 @@ export const lightColors = {
       walletInfoTextViolet: '#F3E6FF',
       tabBarText: '#5c5c5c',
       tabBarBackground: '#f7f7f7',
+      dateColorViolet: '#c4c4c4'
     }
 };
 
@@ -45,5 +46,6 @@ export const darkColors = {
       walletInfoTextViolet: '#F3E6FF',
       tabBarText: '#999',
       tabBarBackground: '#2e2e2e',
+      dateColorViolet: '#c4c4c4'
     }
 };

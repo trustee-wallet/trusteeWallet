@@ -35,20 +35,19 @@ import { strings } from '../../services/i18n'
 import SendActions from '../../appstores/Stores/Send/SendActions'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 
-import Theme from '../../themes/Themes'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import UpdateCurrencyRateDaemon from '../../daemons/back/UpdateCurrencyRateDaemon'
 import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
 import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAccountBalanceAndTransactionsHD'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import DaemonCache from '../../daemons/DaemonCache'
 import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
 import { SIZE } from './helpers'
 
-
-let styles
 
 class HomeScreen extends Component {
 
@@ -60,10 +59,10 @@ class HomeScreen extends Component {
             data: [],
             currenciesOrder: [],
             isCurrentlyDraggable: false,
+            scrollOffset: 0,
         }
         this.getBalanceVisibility();
         this.getCurrenciesOrder();
-        styles = Theme.getStyles().homeScreenStyles
         SendActions.init()
     }
 
@@ -72,7 +71,6 @@ class HomeScreen extends Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-        // console.log('getDerivedStateFromProps:', prevState.data)
         const currenciesOrder = prevState.currenciesOrder.length ? prevState.currenciesOrder : nextProps.cryptoCurrenciesStore.cryptoCurrencies.map(c => c.currencyCode);
         const data = _sortBy(nextProps.cryptoCurrenciesStore.cryptoCurrencies, c => currenciesOrder.indexOf(c.currencyCode))
         return {
@@ -203,8 +201,39 @@ class HomeScreen extends Component {
         this.setState(() => ({ currenciesOrder, isCurrentlyDraggable: false }))
     }
 
+    getBalanceData = () => {
+        const { selectedBasicCurrency, selectedWallet } = this.props.mainStore
+        let currencySymbol = selectedBasicCurrency.symbol
+        if (!currencySymbol) {
+            currencySymbol = selectedBasicCurrency.currencyCode
+        }
+
+        const CACHE_SUM = DaemonCache.getCache(selectedWallet.walletHash)
+
+        let totalBalance = 0
+        if (CACHE_SUM) {
+            totalBalance = CACHE_SUM.balance
+            if (currencySymbol !== CACHE_SUM.basicCurrencySymbol) {
+                currencySymbol = CACHE_SUM.basicCurrencySymbol
+            }
+        }
+
+        let tmp = totalBalance.toString().split('.')
+        let beforeDecimal = BlocksoftPrettyNumbers.makeCut(tmp[0]).separated
+        let afterDecimal = ''
+        if (typeof tmp[1] !== 'undefined') {
+            afterDecimal = '.' + tmp[1].substr(0, 2)
+        }
+
+        return { currencySymbol, beforeDecimal, afterDecimal };
+    }
+
+    updateOffset = (offset) => {
+        const newOffset = Math.round(offset)
+        if (this.state.scrollOffset !== newOffset) this.setState(() => ({ scrollOffset: newOffset }))
+    }
+
     render() {
-        // console.log(new Date().toISOString() + ' render')
         const { colors, isLight } = this.context
 
         firebase.analytics().setCurrentScreen('WalletList.HomeScreen')
@@ -217,17 +246,25 @@ class HomeScreen extends Component {
         }
         const accountListByWallet = this.props.accountStore.accountList[walletHash] || {}
 
+        const balanceData = this.getBalanceData()
+
         return (
             <View style={{ flex: 1 }}>
                 <StatusBar barStyle={isLight ? 'dark-content' : 'light-content'} />
                 <SafeAreaView style={{ flex: 0, backgroundColor: colors.common.background }} />
                 <SafeAreaView style={{ flex: 1, backgroundColor: colors.homeScreen.tabBarBackground }}>
                     <View style={{ flex: 1, backgroundColor: colors.common.background }}>
-                        <Header />
+                        <Header
+                            scrollOffset={this.state.scrollOffset}
+                            isBalanceVisible={this.state.isBalanceVisible}
+                            changeBalanceVisibility={this.changeBalanceVisibility}
+                            balanceData={balanceData}
+                        />
                         <DraggableFlatList
                             data={this.state.data}
                             showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{ paddingBottom: 20 }}
+                            contentContainerStyle={{ paddingBottom: 20, paddingTop: Platform.OS === 'android' ? 85 : 50 }}
+                            onScrollOffsetChange={this.updateOffset}
                             refreshControl={
                                 <RefreshControl
                                     enabled={!this.state.isCurrentlyDraggable}
@@ -241,6 +278,7 @@ class HomeScreen extends Component {
                                     accountListByWallet={accountListByWallet}
                                     isBalanceVisible={this.state.isBalanceVisible}
                                     changeBalanceVisibility={this.changeBalanceVisibility}
+                                    balanceData={balanceData}
                                 />
                             )}
                             renderItem={({ item, drag, isActive }) => {

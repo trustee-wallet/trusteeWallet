@@ -221,6 +221,8 @@ class CryptoCurrency extends Component {
             <SwipeRow
                 leftOpenValue={140}
                 rightOpenValue={-70}
+                stopLeftSwipe={160}
+                stopRightSwipe={-80}
             >
                 {this.renderHiddenLayer()}
                 {this.renderVisibleLayer(props)}
@@ -231,8 +233,6 @@ class CryptoCurrency extends Component {
     render() {
         const { cryptoCurrency, settingsStore, accountListByWallet } = this.props
 
-        // console.log(this.context
-        // if (!styles) styles = getStyles(this.context.colors)
         // TODO: change condition
         return cryptoCurrency.currencyCode === 'BTC'
             ? (
