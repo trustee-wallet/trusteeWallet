@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View , Image, Animated } from 'react-native'
+import { View, Image, Animated, Text } from 'react-native'
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Orientation from 'react-native-orientation'
 
@@ -19,6 +19,7 @@ import { strings } from '../../services/i18n'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import Button from '../../components/elements/Button'
 
 
 class LockScreen extends Component {
@@ -283,7 +284,6 @@ class LockScreen extends Component {
 
                                     borderRadius: 40
                                 }}
-                                stylePinCodeEmptyColumn={{}}
                                 iconComponentLockedPage={this.renderIconComponentLockedPage}
                                 buttonComponentLockedPage={this.renderButtonComponentLockedPage}
                                 styleLockScreenTextTimer={{
@@ -299,6 +299,14 @@ class LockScreen extends Component {
                                     borderRadius: 10,
                                     borderWidth: 1,
                                     borderColor: '#7229AE'
+                                }}
+                                stylePinCodeEmptyColumn={{
+                                    backgroundColor: "#0f0"// todo for faceid/touchid
+                                }}
+                                bottomLeftComponent={(launchTouchID)=>{
+                                    return <Button onPress={launchTouchID}>
+                                        <Text>faceid/touchid</Text>
+                                    </Button>
                                 }}
                             />
                         </View>
