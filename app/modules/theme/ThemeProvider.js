@@ -13,8 +13,8 @@ export const ThemeContext = React.createContext({
 export const ThemeProvider = (props) => {
     const colorScheme = useColorScheme()
 
-    const [isLight, setIsLight] = React.useState(colorScheme === 'light')
-    React.useEffect(() => { setIsLight(colorScheme === 'light') }, [colorScheme])
+    const [isLight, setIsLight] = React.useState(colorScheme !== 'dark')
+    React.useEffect(() => { setIsLight(colorScheme !== 'dark') }, [colorScheme])
 
     const defaultTheme = {
         isLight,
