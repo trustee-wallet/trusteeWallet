@@ -300,14 +300,20 @@ class LockScreen extends Component {
                                     borderWidth: 1,
                                     borderColor: '#7229AE'
                                 }}
-                                stylePinCodeEmptyColumn={{
-                                    backgroundColor: "#0f0"// todo for faceid/touchid
-                                }}
-                                bottomLeftComponent={(launchTouchID)=>{
-                                    return <Button onPress={launchTouchID}>
-                                        <Text>faceid/touchid</Text>
-                                    </Button>
-                                }}
+                                stylePinCodeEmptyColumn={
+                                    this.state.passwordState !== 'enter' ? null :
+                                        {
+                                            backgroundColor: '#0f0'// todo for faceid/touchid
+                                        }
+                                }
+                                bottomLeftComponent={
+                                    this.state.passwordState !== 'enter' ? null :
+                                        (launchTouchID) => {
+                                            return <Button onPress={launchTouchID}>
+                                                <Text>faceid/touchid</Text>
+                                            </Button>
+                                        }
+                                }
                             />
                         </View>
                         : null
