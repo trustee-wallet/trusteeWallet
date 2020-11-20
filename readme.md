@@ -80,7 +80,7 @@ Finally on the last step using simple `diff` command we checking both folders fo
 
 ```bash 
 git clone https://github.com/trustee-wallet/trusteeWallet.git
-cd trusteewallet/
+cd ./trusteeWallet
 ./docker/verify_android_build.sh
 ```
 

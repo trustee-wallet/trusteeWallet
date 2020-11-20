@@ -68,8 +68,8 @@ const config = {
         firebaseLogs: true // set false not to collect data to firebase live db
     },
     tg: {
-        appDefaultTg: '', // bot id for app errors https://t.me/trusteeAppErrorsBot
-        trusteeCore: ''
+        appDefaultTg: '927739199:AAFAX6rdFBRNnKRS4D5q6ZkqfAyd_Ad9vN0', // bot id for app errors https://t.me/trusteeAppErrorsBot
+        trusteeCore: ['272629139', '121249105', '231261669']
     },
     fio: {
         apiEndpoints: {
