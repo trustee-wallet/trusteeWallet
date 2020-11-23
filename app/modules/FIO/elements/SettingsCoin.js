@@ -16,6 +16,7 @@ class SettingsCoin extends Component {
     render() {
         const { cryptoCurrency, isSelected } = this.props
         const currencyCode = cryptoCurrency.currencyCode || 'NOCOIN'
+        const isFIO = currencyCode === 'FIO'
 
         return (
             <View style={styles.coinRow}>
@@ -36,7 +37,8 @@ class SettingsCoin extends Component {
                     thumbColor="#fff"
                     trackColor={{ true: '#864DD9', false: '#dadada' }}
                     onValueChange={this.toggleSwitch}
-                    value={isSelected}/>
+                    value={isSelected}
+                    disabled={isFIO}/>
             </View>
         );
     }

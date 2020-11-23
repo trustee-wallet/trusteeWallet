@@ -228,8 +228,18 @@ class BlocksoftUtils {
         if (typeof val === 'number') {
             val += ''
         }
-        // noinspection JSUnresolvedVariable
-        return Web3.utils.toWei(val, from)
+        const parts = val.toString().split('.')
+        if (typeof parts[1] === 'undefined' || parts[1] === '' || !parts[1]) {
+            // noinspection JSUnresolvedVariable
+            return Web3.utils.toWei(val, from)
+        }
+
+        let decimals = 18
+        if (from === 'gwei') {
+            decimals = 9
+        }
+        const newVal = parts[0] + '.' + parts[1].substring(0, decimals)
+        return Web3.utils.toWei(newVal, from)
     }
 
     static toGwei(val) {

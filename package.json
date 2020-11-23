@@ -30,7 +30,7 @@
     "bip39": "^3.0.2",
     "bitcoinjs-lib": "git+https://git@github.com/trustee-wallet/bitcoinjs-lib",
     "browserify-zlib": "^0.1.4",
-    "buffer": "^5.4.3",
+    "buffer": "5.6.0",
     "card-validator": "^6.2.0",
     "coinselect": "^3.1.12",
     "console-browserify": "^1.2.0",

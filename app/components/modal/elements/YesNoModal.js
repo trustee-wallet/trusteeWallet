@@ -42,12 +42,12 @@ class YesNoModal extends Component {
 
     render() {
 
-        const { title, icon, description } = this.props.data
+        const { title, icon, description, reverse } = this.props.data
 
         return (
             <Layout visible={this.props.show}>
                 <View>
-                    <Icon callback={hideModal} icon={icon.toLowerCase()}/>
+                    <Icon callback={hideModal} icon={icon.toLowerCase()} />
                     <Title style={styles.title} textStyles={{ width: 'auto', paddingHorizontal: 10 }}>
                         {title}
                     </Title>
@@ -58,10 +58,10 @@ class YesNoModal extends Component {
                     </View>
                     <View>
                         <Button onPress={this.handleNo} color={'#F59E6C'} shadow={true} style={{ marginTop: 17 }}>
-                            {strings('walletBackup.skipElement.no')}
+                            {reverse ? strings('walletBackup.skipElement.yes') : strings('walletBackup.skipElement.no')}
                         </Button>
                         <Button onPress={this.handleYes} style={{ backgroundColor: 'none', color: '#F59E6C' }}>
-                            {strings('walletBackup.skipElement.yes')}
+                            {reverse ? strings('walletBackup.skipElement.no') : strings('walletBackup.skipElement.yes')}
                         </Button>
                     </View>
                 </View>
