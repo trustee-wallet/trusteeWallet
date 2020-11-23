@@ -51,8 +51,7 @@ import config from '../../config/config'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 import api from '../../services/Api/Api'
-import { getAccountFioName, getPubAddress, isFioAddressRegistered, resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
-import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
+import { getAccountFioName, getPubAddress, isFioAddressRegistered, isFioAddressValid, resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
 
 let styles
 
@@ -68,7 +67,7 @@ const memoInput = {
 
 const amountInput = {
     id: 'value',
-    type: 'EMPTY',
+    type: 'AMOUNT',
     additional: 'NUMBER',
     mark: 'ETH'
 }
@@ -549,26 +548,37 @@ class SendScreen extends Component {
 
         let fioPaymentData;
         let recipientAddress = addressValidation.value;
-        if (this.isFioAddress(recipientAddress) && await isFioAddressRegistered(recipientAddress)) {
-            const chainCode = resolveChainCode(cryptoCurrency.currencyCode, cryptoCurrency.currencySymbol);
-            const publicFioAddress = await getPubAddress(addressValidation.value, chainCode, cryptoCurrency.currencySymbol);
-            if (!publicFioAddress || publicFioAddress === '0') {
+        if (this.isFioAddress(recipientAddress)) {
+            if (await isFioAddressRegistered(recipientAddress)) {
+                const chainCode = resolveChainCode(cryptoCurrency.currencyCode, cryptoCurrency.currencySymbol);
+                const publicFioAddress = await getPubAddress(addressValidation.value, chainCode, cryptoCurrency.currencySymbol);
+                if (!publicFioAddress || publicFioAddress === '0') {
+                    const msg = strings('send.publicFioAddressNotFound', { symbol: cryptoCurrency.currencyCode })
+                    Log.log('SendScreen.handleSendTransaction ' + msg)
+                    enoughFunds.isAvailable = false
+                    enoughFunds.messages.push(msg)
+                    setLoaderStatus(false)
+                    this.setState({ enoughFunds })
+                    return
+                }
+                recipientAddress = publicFioAddress;
+                if (fioRequestDetails && fioRequestDetails.fio_request_id) {
+                    fioPaymentData = fioRequestDetails
+                } else {
+                    fioPaymentData = {
+                        payer_fio_address: await getAccountFioName(),
+                        payee_fio_address: addressValidation.value,
+                        memo,
+                    }
+                }
+            } else {
                 const msg = strings('send.publicFioAddressNotFound', { symbol: cryptoCurrency.currencyCode })
                 Log.log('SendScreen.handleSendTransaction ' + msg)
                 enoughFunds.isAvailable = false
                 enoughFunds.messages.push(msg)
+                setLoaderStatus(false)
                 this.setState({ enoughFunds })
                 return
-            }
-            recipientAddress = publicFioAddress;
-            if (fioRequestDetails && fioRequestDetails.fio_request_id) {
-                fioPaymentData = fioRequestDetails
-            } else {
-                fioPaymentData = {
-                    payer_fio_address: await getAccountFioName(),
-                    payee_fio_address: addressValidation.value,
-                    memo,
-                }
             }
         }
 
@@ -725,19 +735,13 @@ class SendScreen extends Component {
     }
 
     isFioAddress = (address) => {
-        let isValidAddress = false
-        if (address) {
-            try {
-                FIOSDK.isFioAddressValid(address)
-                isValidAddress = true
-            } catch (e) {}
-        }
+        const isValidAddress = isFioAddressValid(address)
         if (this.state.isFioPayment !== isValidAddress) {
             this.setState({
                 isFioPayment: isValidAddress
             })
         }
-        return isValidAddress;
+        return isValidAddress
     }
 
     onFocus = () => {

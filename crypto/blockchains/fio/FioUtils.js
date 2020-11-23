@@ -3,6 +3,7 @@ import { getFioSdk } from './FioSdkWrapper'
 import config from '../../../app/config/config'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import { Fio } from '@fioprotocol/fiojs'
+import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 
 export const resolveChainCode = (currencyCode, currencySymbol) => {
     let chainCode = currencyCode
@@ -29,8 +30,18 @@ export const resolveCryptoCodes = (currencyCode) => {
     }
 }
 
+export const isFioAddressValid = (address) => {
+    if (address) {
+        try {
+            FIOSDK.isFioAddressValid(address)
+            return true
+        } catch (e) {}
+    }
+    return false
+}
+
 export const isFioAddressRegistered = async (address) => {
-    if (!address || !address.includes('@')) {
+    if (!isFioAddressValid(address)) {
         return false;
     }
 

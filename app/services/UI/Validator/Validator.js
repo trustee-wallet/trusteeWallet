@@ -13,7 +13,7 @@ import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKey
 import BtcCashUtils from '../../../../crypto/blockchains/bch/ext/BtcCashUtils'
 import MoneroUtilsParser from '../../../../crypto/blockchains/xmr/ext/MoneroUtilsParser'
 import Log from '../../Log/Log'
-import { isFioAddressRegistered } from '../../../../crypto/blockchains/fio/FioUtils'
+import { isFioAddressValid } from '../../../../crypto/blockchains/fio/FioUtils'
 import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
@@ -26,9 +26,9 @@ async function _fioAddressValidation(obj) {
     const { value, type } = obj
 
     if (!value || !type || !type.includes('_ADDRESS')) {
-        return false;
+        return false
     }
-    return isFioAddressRegistered(value)
+    return isFioAddressValid(value)
 }
 
 async function _userDataValidation(obj) {
@@ -316,6 +316,14 @@ async function _userDataValidation(obj) {
 
         case 'EMPTY':
             if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else if (value.length > 255) {
+                error.msg = strings('validator.moreThanMax', { name: name })
+            }
+            break
+
+        case 'AMOUNT':
+            if (!value || !parseFloat(value)) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (value.length > 255) {
                 error.msg = strings('validator.moreThanMax', { name: name })
