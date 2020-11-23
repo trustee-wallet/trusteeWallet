@@ -49,7 +49,7 @@ class RequestItem extends Component {
                                                   iconStyle={styles.cryptoList__icon}/>
                                     <View>
                                         <Text style={styles.txt3}>{data?.content?.amount}</Text>
-                                        <Text style={styles.txt4}>$ 0.0 {data?.content?.sumUSD}</Text>
+                                        {/* <Text style={styles.txt4}>$ 0.0 {data?.content?.sumUSD}</Text> */}
                                     </View>
                                 </View>
                             </View>

@@ -33,12 +33,13 @@ class SettingsCoin extends Component {
                     </View>
                 </View>
 
-                <Switch
-                    thumbColor="#fff"
-                    trackColor={{ true: '#864DD9', false: '#dadada' }}
-                    onValueChange={this.toggleSwitch}
-                    value={isSelected}
-                    disabled={isFIO}/>
+                { !isFIO ?
+                    <Switch
+                        thumbColor="#fff"
+                        trackColor={{ true: '#864DD9', false: '#dadada' }}
+                        onValueChange={this.toggleSwitch}
+                        value={isSelected}/> : null
+                }
             </View>
         );
     }
