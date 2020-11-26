@@ -106,5 +106,19 @@ export default new class ExchangeActions {
             exchangeOrders: exchangeOrderList
         })
     }
+
+    handleSetNewInterface = (newInterface, type) => {
+        if (type === 'SELL') {
+            dispatch({
+                type: 'SET_NEWINERFACE_SELL',
+                isNewInterfaceSell: newInterface
+            })
+        } else if (type === 'BUY') {
+            dispatch({
+                type: 'SET_NEWINERFACE_BUY',
+                isNewInterfaceBuy: newInterface
+            })
+        }
+    }
 }
 

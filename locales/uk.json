@@ -263,6 +263,7 @@
       "accountSetting": "Налаштування акаунту",
       "showSegWitAndLegacy": "Показувати SegWit і Legacy",
       "hideCommissionTrans": "Сховати транзакції оплати за комісію",
+      "manualAddressFromHD" : "Вставити адресу HD",
       "scanAddressesFromHD" : "Сканувати адреси HD на наявність балансів",
       "setAddressesFromHD" : {
         "title": "Головна адреса буде змінена",
@@ -281,7 +282,7 @@
       "serverSendInputXMR" : "Сервер для відправки транзакцій (наприклад, api.mymonero.com)",
       "serverSendInputTitleXMR" : "або node.moneroworld.com:18089",
       "needReinstallXMR"  : "Системна помилка адреси XMR - будь ласка, збережіть мнемонічну фразу та переінсталюйте додаток, або напишіть в службу підтримки для детальних інструкцій",
-      "saveSettings" : "Зберегти налаштування",
+      "saveSettings" : "Зберегти",
       "getMnemonicXMR" : "Переглянути секрети"
     },
     "about": {
@@ -891,14 +892,16 @@
       "try": "Спробувати",
       "notNow": "Не зараз"
     },
-    "rbfModal": {
+    "modalV3": {
+      "title": "Ой",
+      "description": "Сервіс тимчасово недоступний. Перевірте доступ до інтернету та спробуйте, будь ласка, пізніше"
+    },
+    "tbkModal": {
       "enable": "Увімкнути",
       "disable": "Вимкнути",
-      "title": "Збільшити комісію",
-      "description": "Функція редагування транзакції до підтвердження майнерами (Replace-by-Fee) ",
-      "statusEnable": "увімкнена.",
-      "statusDisable": "відключена.",
-      "descriptionAdd": "Ви можете увімкнути її для монет BTC, ETH, DOGE і токенів ERC20!",
+      "title": "Trustee Booster Kit",
+      "statusEnable": "увімкнений",
+      "statusDisable": "відключений",
       "cancel": "Відміна"
     },
     "infoPayOrder": {

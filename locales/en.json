@@ -264,6 +264,7 @@
       "accountSetting": "Account settings",
       "showSegWitAndLegacy": "Show SegWit and Legacy",
       "hideCommissionTrans": "Hide commission payment transactions",
+      "manualAddressFromHD" : "Paste address HD",
       "scanAddressesFromHD" : "Scan addresses from HD for balances",
       "setAddressesFromHD" : {
         "title": "Main address will be changed",
@@ -282,7 +283,7 @@
       "serverSendInputXMR" : "Server for Send TX (default api.mymonero.com)",
       "serverSendInputTitleXMR" : "or node.moneroworld.com:18089",
       "needReinstallXMR"  : "Something wrong with XMR address generation - please save mnemonic and reinstall application or contact support",
-      "saveSettings" : "Save settings",
+      "saveSettings" : "Save",
       "getMnemonicXMR" : "View secrets"
     },
     "about": {
@@ -878,15 +879,17 @@
       "try": "Try",
       "notNow": "Not now"
     },
-    "rbfModal": {
+    "tbkModal": {
       "enable": "Enable",
       "disable": "Disable",
-      "title": "Replace by fee",
-      "description": "The function of editing a transaction before confirmation by miners (Replace-by-Fee) is ",
-      "statusEnable": "enabled.",
-      "statusDisable": "disabled.",
-      "descriptionAdd": "You can enable it for BTC, ETH, DOGE and ERC20 tokens!",
+      "title": "Trustee Booster Kit",
+      "statusEnable": "enabled",
+      "statusDisable": "disabled",
       "cancel": "Cancel"
+    },
+    "modalV3" : {
+      "title": "Ooooops",
+      "description": "The service is temporarily unavailable. Please, check your internet access and try again later"
     },
     "infoPayOrder": {
       "error": {

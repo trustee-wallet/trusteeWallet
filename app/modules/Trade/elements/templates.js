@@ -50,7 +50,7 @@ export default new class Templates {
 
         const cardJson = JSON.parse(card.cardVerificationJson)
 
-        if (typeof cardJson !== 'undefined' && cardJson && typeof cardJson.verificationStatus !== 'undefined' && cardJson.verificationStatus === 'pending') {
+        if (typeof cardJson !== 'undefined' && cardJson && typeof cardJson.verificationStatus !== 'undefined' && cardJson.verificationStatus.toLowerCase() === 'pending') {
             UpdateCardsDaemon.updateCardsDaemon({force : true, unique: card.id})
         }
         return (

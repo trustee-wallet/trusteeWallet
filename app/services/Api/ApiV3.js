@@ -1,5 +1,6 @@
 /**
- * @version 0.12
+ * @version 0.13
+ * @author yura
  */
 import Log from '../Log/Log'
 import { sublocale } from '../i18n'
@@ -17,9 +18,12 @@ import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
 import currencyDS from '../../appstores/DataSource/Currency/Currency'
 import cardDS from '../../appstores/DataSource/Card/Card'
 import MarketingEvent from '../Marketing/MarketingEvent'
+import axios from 'axios'
+import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
 
 const V3_ENTRY_POINT_EXCHANGE = '/mobile-exchanger'
-const V3_ENTRY_POINT_TRADE = '/mobile-sell'
+const V3_ENTRY_POINT_SELL = '/mobile-sell'
+const V3_ENTRY_POINT_BUY = '/mobile-buy'
 
 const V3_API = 'https://api.v3.trustee.deals'
 const V3_PUB = '818ef87763ee0f9eaee49ff1f27d4b87e76dc1a8309187b82de52687783d832705f4bafe4a51efad26ccca9367419f9e28e07cea849b8b15108a56e054128a8c'
@@ -30,13 +34,76 @@ let CACHE_SERVER_TIME_NEED_TO_ASK = false
 
 export default {
 
+    validateCard: async (data, forceMode = false) => {
+        let { mode: exchangeMode } = config.exchange
+        if (typeof forceMode !== 'undefined' && forceMode) {
+            exchangeMode = forceMode
+        }
+        const baseUrl = exchangeMode === 'DEV' ? V3_API : V3_API
+
+        try {
+            return await axios.post(`${baseUrl}/payment-details/validate-card`, data, {
+                headers: {
+                    'Accept': 'multipart/form-data',
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+        } catch (e) {
+            Log.err('ApiV3 validateCard e.response.data ' + e.response.data)
+            Log.err('ApiV3 validateCard e.response.data.message ' + e.response.data.message)
+        }
+    },
+
+    setExchangeStatus: async (orderHash, status) => {
+        const { mode: exchangeMode } = config.exchange
+        const baseUrl = exchangeMode === 'DEV' ? V3_API : V3_API
+
+        const data = {}
+
+        let msg = ''
+        if (CACHE_SERVER_TIME_NEED_TO_ASK) {
+            try {
+                Log.log('ApiV3.initData will ask time from server')
+                const now = await BlocksoftAxios.get(V3_API + '/data/server-time')
+                if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
+                    msg = now.data.serverTime
+                    Log.log('ApiV3.initData msg from server ' + msg)
+                }
+            } catch (e) {
+                // do nothing
+            }
+        }
+
+        const sign = await CashBackUtils.createWalletSignature(true, msg)
+        data.sign = sign
+
+        const cashbackToken = CashBackUtils.getWalletToken()
+        data.cashbackToken = cashbackToken
+
+        data.orderHash = orderHash
+        data.paymentStatus = status
+
+        try {
+            const link = `${baseUrl}/order/update-payment-status`
+            Log.log('ApiV3 setExchangeStatus axios ' + link)
+            return BlocksoftAxios.post(link, data, false)
+
+        } catch (e) {
+            Log.err('ApiV3 setExchangeStatus e.response.data ' + e.response.data)
+            Log.err('ApiV3 setExchangeStatus e.response.data.message ' + e.response.data.message)
+        }
+
+    },
+
     async initData(type) {
 
         let entryPoint
         if (type === 'EXCHANGE') {
             entryPoint = V3_ENTRY_POINT_EXCHANGE
-        } else if (type === 'TRADE') {
-            entryPoint = V3_ENTRY_POINT_TRADE
+        } else if (type === 'SELL') {
+            entryPoint = V3_ENTRY_POINT_SELL
+        } else if (type === 'BUY'){
+            entryPoint = V3_ENTRY_POINT_BUY
         } else {
             throw new Error('ApiV3 invalid settings type ' + type)
         }
@@ -44,11 +111,16 @@ export default {
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         const entryUrl = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
 
+        await UpdateCardsDaemon.updateCardsDaemon({force: true})
+
         const data = {
             locale: sublocale(),
             deviceToken: Log.LOG_TOKEN,
             wallets: [],
             cards : await cardDS.getCards()
+        }
+        if (!data.cards || typeof data.cards === 'undefined' ) {
+            data.cards = []
         }
 
         const btcLegacyOrSegWit = await settingsActions.getSetting('btc_legacy_or_segwit')
@@ -172,7 +244,6 @@ export default {
                 // do nothing
             }
         }
-        console.log('data', data)
 
         const sign = await CashBackUtils.createWalletSignature(true, msg)
         data.sign = sign

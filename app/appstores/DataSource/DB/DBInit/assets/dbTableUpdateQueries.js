@@ -11,7 +11,7 @@ import BlocksoftDict from '../../../../../../crypto/common/BlocksoftDict'
 import currencyActions from '../../../../Stores/Currency/CurrencyActions'
 
 export default {
-    maxVersion: 71,
+    maxVersion: 75,
     updateQuery: {
         1: {
             queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -576,5 +576,36 @@ export default {
         71: {
             queryString: `ALTER TABLE app_news ADD COLUMN news_unique_key VARCHAR(256) NULL`
         },
+
+        72: {
+            queryString: `CREATE TABLE IF NOT EXISTS transactions_raw (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                currency_code VARCHAR(256) NULL,
+                address VARCHAR(256) NULL,
+                
+                transaction_unique_key VARCHAR(256) NULL,         
+                transaction_hash VARCHAR(256) NULL,                
+                transaction_raw TEXT NULL,
+                broadcast_log TEXT NULL,
+                
+                created_at DATETIME NULL,
+                updated_at DATETIME NULL,
+                broadcast_updated DATETIME NULL,
+                removed_at DATETIME NULL,
+                is_removed INTEGER_NULL
+            )`
+        },
+
+        73: {
+            queryString: `ALTER TABLE transactions ADD COLUMN address_from_basic VARCHAR(256) NULL`
+        },
+
+        74: {
+            queryString: `ALTER TABLE card ADD COLUMN wallet_hash VARCHAR(256) NULL`
+        },
+
+        75: {
+            queryString: `ALTER TABLE card ADD COLUMN verification_server VARCHAR(32) NULL`
+        }
     }
 }

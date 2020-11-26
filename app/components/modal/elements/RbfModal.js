@@ -1,5 +1,5 @@
 /**
- * @version 0.2
+ * @version 0.3
  * @author yura
  */
 import React, { Component } from 'react'
@@ -64,22 +64,22 @@ export default class RbfModal extends Component {
         return (
             <Layout visible={this.props.show}>
                 <View>
-                    <Title style={styles.title} textStyles={{ width: 'auto', paddingHorizontal: 10 }}>
+                    <Icon callback={hideModal} icon={icon.toLowerCase()} tbk={true} />
+                    <Title style={styles.title}>
                         {title}
                     </Title>
                     <View style={{ marginTop: 8, marginBottom: -5 }}>
                         <Text style={styles.text}>
                             {description}
                         </Text>
-                        <Text style={{ ...styles.text, fontWeight: 'bold', color: '#404040' }}>{ this.state.isRBF === true ? strings('modal.rbfModal.statusEnable').toUpperCase() : strings('modal.rbfModal.statusDisable').toUpperCase()}</Text>
-                        {this.state.isRBF !== true ? <Text style={styles.text}>{strings('modal.rbfModal.descriptionAdd')}</Text> : null}
+                        <Text style={styles.text}>{ this.state.isRBF === true ? strings('modal.tbkModal.statusEnable').toUpperCase() : strings('modal.tbkModal.statusDisable').toUpperCase()}</Text>
                     </View>
                     <View>
                         <Button onPress={this.handleIsActive} color={'#864DD9'} shadow={true} style={{ marginTop: 17 }}>
-                            {this.state.isRBF === true ? strings('modal.rbfModal.disable') : strings('modal.rbfModal.enable')}
+                            {this.state.isRBF === true ? strings('modal.tbkModal.disable') : strings('modal.tbkModal.enable')}
                         </Button>
                         <Button onPress={this.handleCancel} style={{ backgroundColor: 'none', color: '#864DD9' }}>
-                            {strings('modal.rbfModal.cancel')}
+                            {strings('modal.tbkModal.cancel')}
                         </Button>
                     </View>
                 </View>
@@ -97,7 +97,6 @@ const styles = {
         lineHeight: 26,
         textAlign: 'center',
         color: '#404040',
-        paddingTop: 15,
     },
     text: {
         color: '#5C5C5C',

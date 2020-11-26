@@ -263,6 +263,7 @@
       "accountSetting": "Настройки аккаунта",
       "showSegWitAndLegacy": "Показывать SegWit и Legacy",
       "hideCommissionTrans": "Скрыть транзакции оплаты за комиссию",
+      "manualAddressFromHD" : "Вставить адрес HD",
       "scanAddressesFromHD" : "Сканировать адреса HD на наличие балансов",
       "setAddressesFromHD" : {
         "title": "Главный адрес будет изменен",
@@ -281,7 +282,7 @@
       "serverSendInputXMR" : "Сервер для отправки транзакций (например, api.mymonero.com)",
       "serverSendInputTitleXMR" : "или node.moneroworld.com:18089",
       "needReinstallXMR"  : "Системная ошибка адреса XMR - пожайлуста, сохраните мнемоническую фразу и переустановите приложение, или свяжитесь со службой поддержки для подробный инструкций",
-      "saveSettings" : "Сохранить настройки",
+      "saveSettings" : "Сохранить",
       "getMnemonicXMR" : "Просмотреть секреты"
     },
     "about": {
@@ -885,15 +886,17 @@
       "try": "Попробовать",
       "notNow": "Не сейчас"
     },
-    "rbfModal": {
+    "tbkModal": {
       "enable": "Включить",
       "disable": "Отключить",
-      "title": "Увеличить комиссию",
-      "description": "Функция редактирования транзакции до подтверждения майнерами (Replace-by-Fee) ",
-      "statusEnable": "включена.",
-      "statusDisable": "отключена.",
-      "descriptionAdd": "Вы можете включить ее для монет BTC, ETH, DOGE и токенов ERC20!",
+      "title": "Trustee Booster Kit",
+      "statusEnable": "включен",
+      "statusDisable": "отключен",
       "cancel": "Отмена"
+    },
+    "modalV3": {
+      "title": "Ой",
+      "description": "Сервис временно недоступен. Проверьте доступ к интернету и попробуйте, пожалуйста, позже"
     },
     "infoPayOrder": {
       "error": {

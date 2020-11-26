@@ -1,5 +1,6 @@
 /**
- * @version 0.10
+ * @version 0.11
+ * @author yura
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -171,9 +172,9 @@ class WalletInfo extends Component {
     handlerRBF = async () => {
         showModal({
             type: 'RBF_ACTIVE',
-            icon: null,
-            title: strings('modal.rbfModal.title'),
-            description: strings('modal.rbfModal.description'),
+            icon: 'WARNING',
+            title: strings('modal.tbkModal.title'),
+            description: null,
         },async () => {
             const isActiveRBF = await AsyncStorage.getItem('RBF')
             if (isActiveRBF === null || isActiveRBF.toString() === '0'){
@@ -253,7 +254,7 @@ class WalletInfo extends Component {
                                     </Text>
                                     <LetterSpacing text={todayPrep} textStyle={styles.container__date} letterSpacing={1}/>
                                 </View>
-                                <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')} onLongPress={() => this.handlerRBF()} delayLongPress={5000}>
+                                <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')} onLongPress={() => this.handlerRBF()} delayLongPress={2500}>
                                     <ToolTips type={'HOME_SCREEN_ADD_CRYPTO_BTN_TIP'} height={100} MainComponent={this.renderTooltip} mainComponentProps={{ styles }}/>
                                 </TouchableOpacity>
                             </View>

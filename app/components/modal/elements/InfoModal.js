@@ -1,5 +1,6 @@
 /**
- * @version 0.10
+ * @version 0.11
+ * @author yura
  */
 import React, { Component } from 'react'
 import { View } from 'react-native'
@@ -47,7 +48,7 @@ export default class InfoModal extends Component {
                     </View>
                     {typeof component != 'undefined' ? component() : null}
                     <View style={{marginBottom: 30 }}>
-                        <Button onPress={this.handleHide} color={ icon === true ? '#864DD9' : icon === false ? '#E54C4C' : icon === null ? '#F59E6C' : '#2A7FDB' } shadow={true} style={{ marginTop: 17 }}>
+                        <Button onPress={this.handleHide} color={ icon === true ? '#864DD9' : icon === false ? '#F59E6C' : icon === null ? '#F59E6C' : '#2A7FDB' } shadow={true} style={{ marginTop: 17 }}>
                             Ok
                         </Button>
                     </View>

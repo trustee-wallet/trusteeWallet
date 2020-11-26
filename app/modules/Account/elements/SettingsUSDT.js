@@ -19,6 +19,7 @@ import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaem
 import Log from '../../../services/Log/Log'
 import UpdateAccountBalanceAndTransactions from '../../../daemons/back/UpdateAccountBalanceAndTransactions'
 import BlocksoftPrettyStrings from '../../../../crypto/common/BlocksoftPrettyStrings'
+import Input from '../../../components/elements/Input'
 
 class SettingsUSDT extends Component {
 
@@ -29,6 +30,7 @@ class SettingsUSDT extends Component {
             currentBalances: {},
             currentBalancesChecked: false
         }
+        this.addressManualInput = React.createRef()
     }
 
     handleScan = async () => {
@@ -57,6 +59,19 @@ class SettingsUSDT extends Component {
         }
 
         setLoaderStatus(false)
+    }
+
+    handleSave = async () => {
+        let addressInputValidate = { status: false }
+        try {
+            addressInputValidate = await this.addressManualInput.handleValidate()
+        } catch (e) {
+            Log.log('SettingsUSDT.handleSave error validation ' + e.message)
+        }
+        if (addressInputValidate.status !== 'success') return
+
+        Log.log('SettingsUSDT.handleSave validated', addressInputValidate)
+        this.handleSetMain(addressInputValidate.value.trim())
     }
 
     handleSetMain = async (newAddress, oldAddress) => {
@@ -102,17 +117,37 @@ class SettingsUSDT extends Component {
                 </View>
                 <View style={styles.settings__row}>
                     <View style={styles.settings__content}>
-                        <View style={{ paddingLeft: 15, paddingRight: 15 }}>
-                            <View style={{ minWidth: this.state.size }} onLayout={this.handleOnLayout}>
-                                <TouchableOpacity style={[styles.btn, styles.btn__text_add]} onPress={this.handleScan}>
-                                    <LetterSpacing text={strings('settings.walletList.scanAddressesFromHD')}
-                                                   textStyle={{ ...styles.settings__title }} letterSpacing={0.5}
-                                                   numberOfLines={2}/>
-                                </TouchableOpacity>
-                            </View>
+                        <View style={{ flex: 4, paddingLeft: 15, paddingRight: 5 }}>
+                                <Input
+                                    ref={ref => this.addressManualInput = ref}
+                                    id={'addressManual'}
+                                    type={'BTC_LEGACY_ADDRESS'}
+                                    name={strings('settings.walletList.manualAddressFromHD')}
+                                    paste={true}
+                                />
+                        </View>
+                        <View style={{ flex: 1, paddingLeft: 5, paddingRight: 15 }}>
+
+                            <TouchableOpacity style={[styles.btn, styles.btn__text_add]} onPress={this.handleSave}>
+                                <LetterSpacing text={strings('settings.walletList.saveSettings')}
+                                               textStyle={{ ...styles.settings__title }} letterSpacing={0.5}
+                                               numberOfLines={1}/>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
+                <View style={styles.settings__row}>
+                    <View style={styles.settings__content}>
+                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
+                            <TouchableOpacity style={[styles.btn, styles.btn__text_add]} onPress={this.handleScan}>
+                                <LetterSpacing text={strings('settings.walletList.scanAddressesFromHD')}
+                                               textStyle={{ ...styles.settings__title }} letterSpacing={0.5}
+                                               numberOfLines={1}/>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+
 
                 {
                     currentBalancesChecked ?

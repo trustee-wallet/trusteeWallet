@@ -1,5 +1,6 @@
 /**
- * @version 0.9
+ * @version 0.10
+ * @author yura
  */
 import React, { Component } from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
@@ -77,7 +78,7 @@ export class PaymentSystemInfo extends Component {
         const { show } = this.props
 
         return (
-            <Modal style={styles.modal} hasBackdrop={false} isVisible={show}>
+            <Modal style={styles.modal} isVisible={show} hasBackdrop={true} backdropOpacity={0.4} onBackdropPress={hideModal}>
                 <View style={styles.content}>
                     <GradientView style={styles.bg} array={styles_.array} start={styles_.start} end={styles_.end}>
                         <Text style={styles.title}>

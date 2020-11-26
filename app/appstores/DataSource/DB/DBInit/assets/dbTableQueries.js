@@ -52,6 +52,7 @@ export default {
             tableName: 'card',
             queryString: `CREATE TABLE IF NOT EXISTS card (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                wallet_hash VARCHAR(256) NULL,
                 card_name VARCHAR(256) NULL,
                 card_holder VARCHAR(256) NULL,
                 number VARCHAR(256) NOT NULL,
@@ -59,7 +60,8 @@ export default {
                 type VARCHAR(32) NOT NULL,
                 country_code VARCHAR(32) NULL,
                 currency VARCHAR(32) NULL,
-                card_verification_json VARCHAR(256) NULL
+                card_verification_json VARCHAR(256) NULL,
+                verification_server VARCHAR(32) NULL
             )`
         },
         {
@@ -247,6 +249,7 @@ export default {
                 
                 address_to VARCHAR(256) NULL,
                 address_from VARCHAR(256) NULL,
+                address_from_basic VARCHAR(256) NULL,
                 address_amount INTEGER NULL,
                 transaction_fee INTEGER NULL,
                 transaction_fee_currency_code VARCHAR(256) NULL,
@@ -309,6 +312,25 @@ export default {
                 
                 created_at DATETIME NULL,
                 updated_at DATETIME NULL
+            )`
+        },
+        {
+            tableName: 'transactions_raw',
+            queryString: `CREATE TABLE IF NOT EXISTS transactions_raw (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                currency_code VARCHAR(256) NULL,
+                address VARCHAR(256) NULL,
+                
+                transaction_unique_key VARCHAR(256) NULL,         
+                transaction_hash VARCHAR(256) NULL,                
+                transaction_raw TEXT NULL,
+                broadcast_log TEXT NULL,
+                
+                created_at DATETIME NULL,
+                updated_at DATETIME NULL,
+                broadcast_updated DATETIME NULL,
+                removed_at DATETIME NULL,
+                is_removed INTEGER_NULL
             )`
         },
         {

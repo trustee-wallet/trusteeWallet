@@ -1,5 +1,6 @@
 /**
- * @version 0.9
+ * @version 0.10
+ * @author yura
  */
 import React, { Component } from 'react'
 import { View, Text, Dimensions, TouchableOpacity } from 'react-native'
@@ -80,7 +81,7 @@ export class LoginModal extends Component {
         const description = strings('modal.login.description')
 
         return (
-            <Modal style={styles.modal} hasBackdrop={false} isVisible={show}>
+            <Modal style={styles.modal} hasBackdrop={true} isVisible={show} backdropOpacity={0.4} onBackdropPress={hideModal}>
                 <View style={styles.content}>
                     <GradientView style={styles.bg} array={styles_.array} start={styles_.start} end={styles_.end}>
                         <Text style={styles.title}>

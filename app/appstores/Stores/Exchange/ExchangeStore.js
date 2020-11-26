@@ -20,7 +20,9 @@ const INITIAL_STATE = {
     perfectWallet : '',
     payeerWallet : '',
     tradeApiConfig: {},
-    exchangeApiConfig: []
+    exchangeApiConfig: [],
+    isNewInterfaceBuy: false,
+    isNewInterfaceSell: false,
 }
 
 const exchangeStoreReducer = (state = INITIAL_STATE, action) => {
@@ -83,6 +85,16 @@ const exchangeStoreReducer = (state = INITIAL_STATE, action) => {
             return new Object({
                 ...state,
                 exchangeOrders: []
+            })
+        case 'SET_NEWINERFACE_SELL':
+            return new Object({
+                ...state,
+                isNewInterfaceSell: action.isNewInterfaceSell
+            })
+        case 'SET_NEWINERFACE_BUY':
+            return new Object({
+                ...state,
+                isNewInterfaceBuy: action.isNewInterfaceBuy
             })
         default:
             return state

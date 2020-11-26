@@ -881,7 +881,7 @@ class SendScreen extends Component {
                                 }}
                                 disabled={disabled}
                                 validPlaceholder={true}
-                                noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' ? true : 0}
+                                noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
                             />
                             {
                                 currencyCode === 'XRP' ?
@@ -933,7 +933,7 @@ class SendScreen extends Component {
                                     }
                                 }}
                                 disabled={disabled}
-                                noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' ? true : 0}
+                                noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
                                 callback={(value) => this.amountInputCallback(value, true)}
                             />
 

@@ -1,9 +1,11 @@
 /**
- * @version 0.9
+ * @version 0.10
+ * @author yura
  */
 import React, { Component } from 'react'
 import Modal from 'react-native-modal'
 import { View, StyleSheet, Platform, Dimensions } from 'react-native'
+import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -15,7 +17,7 @@ export default class ModalLayout extends Component {
 
     render() {
         return (
-            <Modal style={styles.modal} hasBackdrop={false} isVisible={this.props.visible}>
+            <Modal style={styles.modal} hasBackdrop={true} backdropOpacity={0.4} isVisible={this.props.visible} onBackdropPress={hideModal} >
                 <View style={styles.container}>
                     <View>
                         {this.props.children}

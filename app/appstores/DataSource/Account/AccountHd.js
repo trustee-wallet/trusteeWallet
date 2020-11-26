@@ -3,6 +3,7 @@
  */
 import DBInterface from '../DB/DBInterface'
 import Log from '../../../services/Log/Log'
+import BlocksoftAxios from '../../../../crypto/common/BlocksoftAxios'
 
 
 export default {
@@ -34,7 +35,40 @@ export default {
             Log.daemon('DS/AccountHD setMainAddress updated', params)
         } else {
             res = await dbInterface.setQueryString(`SELECT * FROM account WHERE address='${params.newAddress}' AND currency_code='BTC'`).query()
-            res = res.array[0]
+            Log.daemon('res2', JSON.parse(JSON.stringify(res)))
+            if (res.array && res.array.length > 0) {
+                res = res.array[0]
+            } else {
+                const xpub = await dbInterface.setQueryString(`SELECT wallet_pub_value AS xpub FROM wallet_pub WHERE wallet_hash='${params.walletHash}' AND wallet_pub_type='btc.44'`).query()
+                Log.daemon('xpub', JSON.parse(JSON.stringify(xpub)))
+                if (!xpub || !xpub.array || xpub.array.length < 1) {
+                    throw new Error('no Xpub')
+                } else {
+                    let found = false
+                    const link = 'https://btc1.trezor.io/api/v2/xpub/' + xpub.array[0].xpub + '?gap=9999'
+                     Log.daemon('DS/AccountHD link to load ' + link)
+                    const addresses = await BlocksoftAxios.getWithoutBraking(link)
+                    if (!addresses || !addresses.data || !addresses.data.tokens) {
+                        throw new Error('no Xpub addresses loaded')
+                    }
+                     Log.daemon('DS/AccountHD link loaded ' + link, addresses.data.tokens)
+                    for (const token of addresses.data.tokens) {
+                        if (token.name === params.newAddress) {
+                            found = token
+                        }
+                    }
+                    if (!found) {
+                        throw new Error('no Xpub address found in loaded data')
+                    }
+                    res = {
+                        address: found.name,
+                        path: dbInterface.escapeString(found.path),
+                        derivation_index: '0',
+                        derivation_type: 'main'
+                    }
+                     Log.daemon('DS/ACcountHD found res for address', JSON.parse(JSON.stringify({found, res})))
+                }
+            }
 
             const insert = {
                 address: res.address,
@@ -48,6 +82,7 @@ export default {
                 status: 0,
                 wallet_hash: params.walletHash
             }
+            Log.daemon('DS/AccountHD setMainAddress to insert', JSON.parse(JSON.stringify(insert)))
 
             await dbInterface.setTableName('account').setInsertData({ insertObjs: [insert] }).insert()
 
@@ -69,7 +104,7 @@ export default {
 
         const dbInterface = new DBInterface()
 
-        Log.daemon('DS/AccountHD getAccountsMaxForScanPub ' + source + ' called')
+         Log.daemon('DS/AccountHD getAccountsMaxForScanPub ' + source + ' called')
 
         let where = [`account.derivation_type='main'`]
 
@@ -86,18 +121,18 @@ export default {
         `
         //
         // SELECT SUM(CASE WHEN account.already_shown IS NULL OR account.already_shown=0 THEN 1 ELSE 0 END) AS accountsTotal, COUNT(account.id) AS accountsIncludingUsed, MAX(derivation_index) AS accountsDerivationIndex FROM account WHERE account.derivation_type='main' AND account.wallet_pub_id='1'
-        Log.daemon('DS/AccountHD getAccountsMaxForScanPub ' + source + ' ' + where)
+         Log.daemon('DS/AccountHD getAccountsMaxForScanPub ' + source + ' ' + where)
 
         let total = { accountsTotal: 0, accountsIncludingUsed: 0, accountsDerivationIndex: -1 }
         try {
             const res = await dbInterface.setQueryString(sql).query(true)
             if (!res || !res.array || !res.array.length) {
-                Log.daemon('DS/AccountHD getAccountsMaxForScanPub finished as empty')
+                 Log.daemon('DS/AccountHD getAccountsMaxForScanPub finished as empty')
                 return total
             } else {
                 total = res.array[0]
                 if (total.accountsDerivationIndex === 0) {
-                    Log.daemon('DS/AccountHD _reindexAddresses ' + source + ' ' + where, total)
+                     Log.daemon('DS/AccountHD _reindexAddresses ' + source + ' ' + where, total)
                     const sql2 = `
                         SELECT id, derivation_path AS derivationPath, derivation_index AS derivationIndex FROM account
                         ${where}
@@ -113,7 +148,7 @@ export default {
                         path = path.split('/')
                         const ic = path.length
                         if (ic.length < 2) {
-                            Log.daemon('DS/AccountHD getAccountsMaxForScanPub strange address ', address)
+                             Log.daemon('DS/AccountHD getAccountsMaxForScanPub strange address ', address)
                             continue
                         }
                         let max = 0
@@ -126,14 +161,14 @@ export default {
                         if (max > 0) {
                             const sql3 = `UPDATE account SET derivation_index=${max} WHERE id=${address.id}`
                             await dbInterface.setQueryString(sql3).query()
-                            Log.daemon('DS/AccountHD getAccountsMaxForScanPub updated address ', sql3)
+                             Log.daemon('DS/AccountHD getAccountsMaxForScanPub updated address ', sql3)
                         }
                     }
                 }
             }
-            Log.daemon('DS/AccountHD getAccountsMaxForScanPub finished ' + JSON.stringify(total))
+             Log.daemon('DS/AccountHD getAccountsMaxForScanPub finished ' + JSON.stringify(total))
         } catch (e) {
-            Log.daemon('DS/AccountHD getAccountsMaxForScanPub error ' + sql + ' ' + e.message)
+             Log.daemon('DS/AccountHD getAccountsMaxForScanPub error ' + sql + ' ' + e.message)
         }
 
         return total
@@ -148,7 +183,7 @@ export default {
 
         const dbInterface = new DBInterface()
 
-        Log.daemon('DS/AccountHD getAccountForChange called')
+         Log.daemon('DS/AccountHD getAccountForChange called')
 
         let where = [`account.derivation_type='change'`]
         where.push(`(account.already_shown IS NULL OR account.already_shown=0)`)
@@ -167,10 +202,10 @@ export default {
 
         const res = await dbInterface.setQueryString(sql).query()
         if (!res || !res.array || !res.array.length) {
-            Log.daemon('DS/AccountHD getAccountForChange finished as empty')
+             Log.daemon('DS/AccountHD getAccountForChange finished as empty')
             return false
         }
-        Log.daemon('DS/AccountHD getAccountForChange finished', res.array[0])
+         Log.daemon('DS/AccountHD getAccountForChange finished', res.array[0])
         return res.array[0].address
     },
 

@@ -1,5 +1,6 @@
 /**
- * @version 0.11
+ * @version 0.12
+ * @author yura
  */
 import React, { Component } from 'react'
 
@@ -55,7 +56,7 @@ export class ExchangeProviderInfoModal extends Component {
         const { show } = this.props
 
         return (
-            <Modal style={styles.modal} hasBackdrop={false} isVisible={show}>
+            <Modal style={styles.modal} hasBackdrop={true} backdropOpacity={0.4} onBackdropPress={hideModal} isVisible={show}>
                 <View style={styles.content}>
                     <GradientView style={styles.bg} array={styles_.array} start={styles_.start} end={styles_.end}>
                         <Text style={styles.title}>

@@ -40,19 +40,14 @@ class BottomNavigation extends Component {
     handleModal = async () => {
         try {
             await Netinfo.isInternetReachable()
-            // AppSupport.isExchangeAvailable()
 
-            if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
-                setLoaderStatus(true)
-                await ExchangeActions.init()
-                setLoaderStatus(false)
+            const isNewInterface = await AsyncStorage.getItem('isNewInterface')
+            if (isNewInterface === 'true') {
+                NavStore.goNext('ExchangeV3ScreenStack')
+            } else {
+                await this._showModalNoOldConfigs()
+                NavStore.goNext('ExchangeScreenStack')
             }
-
-            // NavStore.goNext('ExchangeScreenStack')
-            const newInterface = AsyncStorage.getItem('isNewInterface').then(res => {
-                let isNewInterface = JSON.parse(res)
-                isNewInterface = isNewInterface === true ? NavStore.goNext('ExchangeV3ScreenStack') : NavStore.goNext('ExchangeScreenStack')
-            })
         } catch (e) {
             if (Log.isNetworkError(e.message) || e.message.includes('UI_ERROR')) {
                 Log.log('HomeScreen.BottomNavigation handleModal error ' + e.message)
@@ -66,40 +61,57 @@ class BottomNavigation extends Component {
         NavStore.goNext('SellV3ScreenStack')
     }
 
+    _showModalNoOldConfigs = async () => {
+        if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
+            setLoaderStatus(true)
+            await ExchangeActions.init()
+            setLoaderStatus(false)
+        }
+        if(typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('tradeScreen.modalError.serviceUnavailable')
+            })
+        }
+    }
+
     handleMainBtn = async (type) => {
         try {
             await Netinfo.isInternetReachable()
-
-            if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
-                setLoaderStatus(true)
-                await ExchangeActions.init()
-                setLoaderStatus(false)
-            }
 
             ToolTipsActions.setToolTipState('HOME_SCREEN_BUY_SELL_BTN_TIP')
 
             ExchangeActions.handleSetTradeType({ tradeType: type })
 
-            if(typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: 'INFO',
-                    title: strings('modal.exchange.sorry'),
-                    description: strings('tradeScreen.modalError.serviceUnavailable')
-                })
-            // } else {
-                // if (type === 'SELL') {
-                //     const isNewInterfaceSell = await AsyncStorage.getItem('isNewInterfaceSell')
+            if (type === 'SELL') {
+                const isNewInterfaceSell = await AsyncStorage.getItem('isNewInterfaceSell')
 
-                //     if (isNewInterfaceSell === 'true') {
-                //         NavStore.goNext('TradeV3ScreenStack')
-                //     } else {
-                //         NavStore.goNext('TradeScreenStack')
-                //     }
+                if (isNewInterfaceSell === 'true') {
+                    ExchangeActions.handleSetNewInterface(isNewInterfaceSell, 'SELL')
+                    NavStore.goNext('TradeV3ScreenStack')
                 } else {
+                    await this._showModalNoOldConfigs()
+                    ExchangeActions.handleSetNewInterface(isNewInterfaceSell, 'SELL')
                     NavStore.goNext('TradeScreenStack')
                 }
-            
+            } else if (type === 'BUY') {
+                const isNewInterfaceBuy = await AsyncStorage.getItem('isNewInterfaceBuy')
+
+                if (isNewInterfaceBuy === 'true') {
+                    ExchangeActions.handleSetNewInterface(isNewInterfaceBuy, 'BUY')
+                    NavStore.goNext('TradeV3ScreenStack')
+                } else {
+                    await this._showModalNoOldConfigs()
+                    ExchangeActions.handleSetNewInterface(isNewInterfaceBuy, 'BUY')
+                    NavStore.goNext('TradeScreenStack')
+                }
+            } else {
+                await this._showModalNoOldConfigs()
+                NavStore.goNext('TradeScreenStack')
+            }
+
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('HomeScreen.BottomNavigation handleMainBtn error ' + e.message)

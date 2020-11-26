@@ -36,7 +36,7 @@ export default class Icon extends Component {
                 <View style={styles.icon__wrapper}>
                     <TouchableOpacity onPress={() => callback()}>
                         <View style={styles.fail}>
-                            <CustomIcon name="failedTransaction" size={styles_.fail.size} color={styles_.color}/>
+                            <CustomIcon name="infoTransparent" size={styles_.warning.size} color={styles_.color}/>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -55,7 +55,7 @@ export default class Icon extends Component {
             return (
                 <View style={styles.icon__wrapper}>
                     <TouchableOpacity onPress={() => callback()}>
-                        <View style={styles.warning}>
+                        <View style={this.props.tbk ? styles.tbk : styles.warning}>
                             <CustomIcon name="infoTransparent" size={styles_.warning.size} color={styles_.color}/>
                         </View>
                     </TouchableOpacity>
@@ -97,12 +97,14 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
     },
     fail: {
+        alignSelf: 'center',
         justifyContent: 'center',
         alignItems: 'center',
         width: 64,
         height: 64,
         borderRadius: 50,
-        backgroundColor: '#E54C4C'
+        backgroundColor: '#F59E6C',
+        transform: [{ rotate: '180deg' }]
     },
     info: {
         justifyContent: 'center',
@@ -129,5 +131,14 @@ const styles = StyleSheet.create({
         height: 64,
         borderRadius: 50,
         backgroundColor: '#F59E6C'
+    },
+    tbk: {
+        alignSelf: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 64,
+        height: 64,
+        borderRadius: 50,
+        backgroundColor: '#864DD9'
     }
 })

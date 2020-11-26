@@ -16,8 +16,11 @@ import MarketingEvent from '../Marketing/MarketingEvent'
 
 export default {
 
-    validateCard: async (data) => {
-        const { mode: exchangeMode, apiEndpoints } = config.exchange
+    validateCard: async (data, forceMode = false) => {
+        let { mode: exchangeMode, apiEndpoints } = config.exchange
+        if (typeof forceMode !== 'undefined' && forceMode) {
+            exchangeMode = forceMode
+        }
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
 
         return fetch(`${baseUrl}/validate-card`, {

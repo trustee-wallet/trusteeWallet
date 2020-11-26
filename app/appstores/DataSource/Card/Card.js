@@ -15,8 +15,13 @@ export default {
     getCards: async (params) => {
         const dbInterface = new DBInterface()
         let where = []
-        if (params && typeof params.isPending !== 'undefined' && params.isPending) {
-            where.push(`card_verification_json LIKE '%pending%`)
+        if (params) {
+            if (typeof params.isPending !== 'undefined' && params.isPending) {
+                where.push(`LOWER(card_verification_json) LIKE '%pending%'`)
+            }
+            if (typeof params.number !== 'undefined' && params.number) {
+                where.push(`number='${params.number}'`)
+            }
         }
         if (where.length > 0) {
             where = ' WHERE ' + where.join(' AND ')
@@ -33,7 +38,9 @@ export default {
                 type AS type,
                 country_code AS countryCode,
                 currency AS currency,
-                card_verification_json AS cardVerificationJson
+                card_verification_json AS cardVerificationJson,
+                wallet_hash AS walletHash,
+                verification_server AS verificationServer
                 FROM card ${where}`).query()
         if (!res || typeof res.array === 'undefined' || res.array.length === 0) {
             Log.log('DS/Card finished as empty')
@@ -49,6 +56,7 @@ export default {
         }
         await dbInterface.setTableName(tableName).setUpdateData(data).update()
         Log.log('DS/Card updateCard finished')
+        console.log('updateCard done')
     },
 
     saveCard: async (data) => {

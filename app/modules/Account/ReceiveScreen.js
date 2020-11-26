@@ -192,29 +192,37 @@ class ReceiveScreen extends Component {
         setLoaderStatus(false)
     }
 
-    handleBuy = () => {
-        const { exchangeStore } = this.props
+    handleBuy = async () => {
+        const newInterface = await AsyncStorage.getItem('isNewInterfaceBuy')
 
-        if (typeof exchangeStore.tradeApiConfig.exchangeWays === 'undefined' || !exchangeStore.tradeApiConfig.exchangeWays) {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.exchange.sorry'),
-                description: strings('toast.noInternet')
+        if (newInterface === 'true') {
+            NavStore.goNext('TradeV3ScreenStack', {
+                tradeType: 'BUY' })
+        } else {
+
+            const { exchangeStore } = this.props
+
+            if (typeof exchangeStore.tradeApiConfig.exchangeWays === 'undefined' || !exchangeStore.tradeApiConfig.exchangeWays) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.exchange.sorry'),
+                    description: strings('toast.noInternet')
+                })
+                return false
+            }
+
+            this.proceedAction(exchangeStore.tradeApiConfig.exchangeWays, 'BUY', () => {
+
+                ExchangeActions.handleSetTradeType({ tradeType: 'BUY' })
+
+                NavStore.goNext('TradeScreenStack', {
+                    exchangeScreenParam: {
+                        selectedCryptocurrency: this.props.cryptoCurrency
+                    }
+                })
             })
-            return false
         }
-
-        this.proceedAction(exchangeStore.tradeApiConfig.exchangeWays, 'BUY', () => {
-
-            ExchangeActions.handleSetTradeType({ tradeType: 'BUY' })
-
-            NavStore.goNext('TradeScreenStack', {
-                exchangeScreenParam: {
-                    selectedCryptocurrency: this.props.cryptoCurrency
-                }
-            })
-        })
     }
 
     handleExchange = async () => {

@@ -37,12 +37,13 @@ import { strings } from '../../services/i18n'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import exchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
-// import AsyncStorage from '@react-native-community/async-storage'
+import AsyncStorage from '@react-native-community/async-storage'
 import Log from '../../services/Log/Log'
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 
-// let COUNT_MODAL_SELL = 0
+let COUNT_MODAL_SELL = 0
+let COUNT_MODAL_BUY = 0
 
 class MainDataScreen extends Component {
 
@@ -71,27 +72,51 @@ class MainDataScreen extends Component {
 
     // async componentDidMount() {
 
-    //     const { tradeType } = this.props.exchangeStore
+    //     const { tradeType, isNewInterfaceSell, isNewInterfaceBuy } = this.props.exchangeStore
 
     //     if (tradeType === 'SELL') {
-    //         if (COUNT_MODAL_SELL === 0 || COUNT_MODAL_SELL === 5) {
-    //             showModal({
-    //                 type: 'NEW_INTERFACE',
-    //                 icon: null,
-    //                 title: strings('modal.infoNewInterface.title'),
-    //                 description: strings('modal.infoNewInterface.description'),
-    //                 noCallback: async () => {
-    //                     AsyncStorage.setItem('countModalSell', '1')
+    //         if (isNewInterfaceSell === 'false') {
+    //             if (COUNT_MODAL_SELL === 0 || COUNT_MODAL_SELL === 5) {
+    //                 showModal({
+    //                     type: 'NEW_INTERFACE',
+    //                     icon: null,
+    //                     title: strings('modal.infoNewInterface.title'),
+    //                     description: strings('modal.infoNewInterface.description'),
+    //                     noCallback: async () => {
+    //                         AsyncStorage.setItem('countModalSell', '1')
+    //                         COUNT_MODAL_SELL = 1
+    //                     }
+    //                 }, () => {
+    //                     AsyncStorage.setItem('isNewInterfaceSell', 'true')
     //                     COUNT_MODAL_SELL = 1
-    //                 }
-    //             }, () => {
-    //                 AsyncStorage.setItem('isNewInterfaceSell', 'true')
-    //                 COUNT_MODAL_SELL = 1
-    //                 this.handleTryV3()
-    //             })
-    //         } else {
-    //             AsyncStorage.setItem('countModalSell', (COUNT_MODAL_SELL + 1).toString())
-    //             COUNT_MODAL_SELL += 1
+    //                     this.handleTryV3()
+    //                 })
+    //             } else {
+    //                 AsyncStorage.setItem('countModalSell', (COUNT_MODAL_SELL + 1).toString())
+    //                 COUNT_MODAL_SELL += 1
+    //             }
+    //         }
+    //     } else if (tradeType === 'BUY') {
+    //         if (isNewInterfaceBuy === 'false') {
+    //             if (COUNT_MODAL_BUY === 0 || COUNT_MODAL_BUY === 5) {
+    //                 showModal({
+    //                     type: 'NEW_INTERFACE',
+    //                     icon: null,
+    //                     title: strings('modal.infoNewInterface.title'),
+    //                     description: strings('modal.infoNewInterface.description'),
+    //                     noCallback: async () => {
+    //                         AsyncStorage.setItem('countModalBuy', '1')
+    //                         COUNT_MODAL_BUY = 1
+    //                     }
+    //                 }, () => {
+    //                     AsyncStorage.setItem('isNewInterfaceBuy', 'true')
+    //                     COUNT_MODAL_BUY = 1
+    //                     this.handleTryV3()
+    //                 })
+    //             } else {
+    //                 AsyncStorage.setItem('countModalBuy', (COUNT_MODAL_BUY + 1).toString())
+    //                 COUNT_MODAL_BUY += 1
+    //             }
     //         }
     //     }
     // }
@@ -107,7 +132,7 @@ class MainDataScreen extends Component {
     handleTryV3 = () => {
         Log.log('EXC/Main.handleTryV3 init')
         Keyboard.dismiss()
-        // NavStore.goNext('TradeV3ScreenStack')
+        NavStore.goNext('TradeV3ScreenStack')
     }
 
     handleConvertToPaymentCurrency = (fromCurrency, amount) => amount

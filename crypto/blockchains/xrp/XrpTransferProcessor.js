@@ -186,15 +186,20 @@ export default class XrpTransferProcessor {
         }
 
         // https://xrpl.org/rippleapi-reference.html#payment
-        if (typeof data.memo !== 'undefined' && data.memo.trim().length > 0) {
-            const int = data.memo.trim() * 1
-            if (int.toString() !== data.memo) {
-                throw new Error('Destination tag type validation error')
+        try {
+            if (typeof data.memo !== 'undefined' && data.memo.toString().trim().length > 0) {
+                const int = data.memo.toString().trim() * 1
+                if (int.toString() !== data.memo) {
+                    throw new Error('Destination tag type validation error')
+                }
+                if (int > 4294967295) {
+                    throw new Error('Destination tag couldnt be more then 4294967295')
+                }
+                payment.destination.tag = int
             }
-            if (int > 4294967295) {
-                throw new Error('Destination tag couldnt be more then 4294967295')
-            }
-            payment.destination.tag = int
+        } catch (e) {
+            // @ts-ignore
+            BlocksoftCryptoLog.log('XrpTransferProcessor._getPrepared memo error ' + e.message, data)
         }
         BlocksoftCryptoLog.log('XrpTransferProcessor._getPrepared payment', payment)
 

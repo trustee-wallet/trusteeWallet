@@ -11,7 +11,8 @@ import {
     KeyboardAvoidingView,
     Platform,
     BackHandler,
-    StatusBar
+    StatusBar,
+    Keyboard
 } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
@@ -28,7 +29,7 @@ import { WebView } from 'react-native-webview'
 import { strings } from '../../services/i18n'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 import AsyncStorage from '@react-native-community/async-storage'
-import { Text } from 'react-native-svg'
+import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -57,7 +58,7 @@ class MainV3DataScreen extends Component {
 
         // here to do upload
         let apiUrl = await ApiV3.initData('EXCHANGE')
-
+        console.log(apiUrl)
         const navigationViewV3 = (await BlocksoftExternalSettings.get('navigationViewV3')) === 1
         setTimeout(() => {
             this.setState({
@@ -71,10 +72,18 @@ class MainV3DataScreen extends Component {
 
     componentDidMount() {
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
+        Keyboard.addListener( 'keyboardWillShow', this.onKeyboardShow );
+	    StatusBar.setBarStyle( 'dark-content' );
     }
 
     componentWiilUnmount() {
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
+        Keyboard.removeListener( 'keyboardWillShow', this.onKeyboardShow );
+	    StatusBar.setBarStyle( 'dark-content' );
+    }
+
+    onKeyboardShow = () => {
+        StatusBar.setBarStyle( 'dark-content' );
     }
 
     handlerBackPress = () => {
@@ -93,7 +102,7 @@ class MainV3DataScreen extends Component {
 
     onMessage(event) {
         try {
-            const { address, amount, orderHash, comment, inCurrencyCode, error, backToOld, close, homePage } = JSON.parse(event.nativeEvent.data)
+            const { address, amount, orderHash, comment, inCurrencyCode, dataExchange, error, backToOld, close, homePage } = JSON.parse(event.nativeEvent.data)
 
             Log.log('EXC/MainV3Screen.onMessage parsed', event.nativeEvent.data)
 
@@ -116,7 +125,6 @@ class MainV3DataScreen extends Component {
             }
 
             if (address && amount && orderHash) {
-
                 const data = {
                     memo: false,
                     amount: amount,
@@ -129,9 +137,35 @@ class MainV3DataScreen extends Component {
 
                 NavStore.goNext('ConfirmSendScreen', { confirmWebViewParam: data })
             }
+
+            if (dataExchange) {
+                const data = {
+                    memo: dataExchange.memo,
+                    amount: dataExchange.amount,
+                    address: dataExchange.address,
+                    useAllFunds: dataExchange.useAllFunds,
+                    toTransactionJSON: { 'bseOrderID': dataExchange.orderHash, 'comment': dataExchange.comment || '' },
+                    currencyCode: dataExchange.currencyCode,
+                    type: 'TRADE_SEND'
+                }
+
+                NavStore.goNext('ConfirmSendScreen', { confirmWebViewParam: data })
+            }
+
         } catch {
             Log.err('EXC/MainV3Screen.onMessage parse error ', event.nativeEvent)
         }
+    }
+
+    modal() {
+        showModal({
+            type: 'INFO_MODAL',
+            icon: null,
+            title: null,
+            description: strings('modal.modalV3.description')
+        },() => {
+            NavStore.goNext('HomeScreen')
+        })
     }
 
     render() {
@@ -144,15 +178,6 @@ class MainV3DataScreen extends Component {
 
         return (
             <View style={styles.wrapper}>
-                {this.state.navigationViewV3 ?
-                    <Navigation
-                        self={this}
-                        handleSetState={this.handleSetState}
-                        navigation={this.props.navigation}
-                        isBack={false}
-                        title={strings('tradeScreen.titleV3').toUpperCase()}
-                        newInterfaceSwitch={true}
-                    /> : null}
                 <View style={{ flex: 1, position: 'relative', marginTop: this.state.navigationViewV3 ? 80 : 0 }}>
                     {this.state.show ?
                         <KeyboardAvoidingView
@@ -168,16 +193,22 @@ class MainV3DataScreen extends Component {
                                 source={{ uri: this.state.apiUrl }}
                                 injectedJavaScript={INJECTEDJAVASCRIPT}
                                 scalesPageToFit={false}
-                                scrollEnabled={true}
+                                scrollEnabled={false}
                                 style={{ flex: 1 }}
                                 renderError={(e) => {
                                     Log.err('Exchanger.WebViewMainScreen.render error ' + e)
+                                    this.modal()
+                                    NavStore.goNext('HomeScreen')
                                 }}
                                 onError={(e) => {
                                     Log.err('Exchanger.WebViewMainScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.description)
+                                    this.modal()
+                                    NavStore.goNext('HomeScreen')
                                 }}
                                 onHttpError={(e) => {
                                     Log.log('Exchanger.WebViewMainScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
+                                    this.modal()
+                                    NavStore.goNext('HomeScreen')
                                 }}
                                 onMessage={e => {
                                     this.onMessage(e)
