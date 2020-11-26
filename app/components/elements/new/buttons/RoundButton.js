@@ -8,13 +8,13 @@ import {
     StyleSheet,
 } from 'react-native'
 
-import ReceiveIcon from '../../../assets/images/HomePage/receive';
-import SendIcon from '../../../assets/images/HomePage/send';
-import HideIcon from '../../../assets/images/HomePage/hide';
+import ReceiveIcon from '../../../../assets/images/HomePage/receive';
+import SendIcon from '../../../../assets/images/HomePage/send';
+import HideIcon from '../../../../assets/images/HomePage/hide';
 
-import { useTheme } from '../../../modules/theme/ThemeProvider'
+import { useTheme } from '../../../../modules/theme/ThemeProvider'
 
-import { strings } from '../../../services/i18n'
+import { strings } from '../../../../services/i18n'
 
 
 const ICON_SET = {

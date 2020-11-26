@@ -3,6 +3,7 @@
  */
 import { createStackNavigator } from 'react-navigation-stack'
 import BackupStep0Screen from '../modules/WalletBackup/BackupStep0Screen'
+// import BackupInfoScreen from '../modules/WalletBackup/BackupInfoScreen'
 import BackupStep1Screen from '../modules/WalletBackup/BackupStep1Screen'
 import BackupStepGoogle from '../modules/WalletBackup/BackupStepGoogle'
 
@@ -14,6 +15,12 @@ const WalletBackupStack = createStackNavigator(
                 headerShown: false
             }
         },
+        // BackupInfoScreen: {
+        //     screen: BackupInfoScreen,
+        //     navigationOptions: {
+        //         headerShown: false
+        //     }
+        // },
         BackupStep1Screen: {
             screen: BackupStep1Screen,
             navigationOptions: {

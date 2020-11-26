@@ -12,6 +12,7 @@ import ErrorScreen from './ErrorScreen'
 
 import InitScreen from '../modules/Init/InitScreen'
 import WalletCreateScreen from '../modules/WalletCreate/WalletCreateScreen'
+import BackupSettingsScreen from '../modules/WalletBackup/Settings'
 import EnterMnemonicPhrase from '../modules/WalletCreate/EnterMnemonicPhrase'
 import EnterMnemonicPhraseGoogle from '../modules/WalletCreate/EnterMnemonicPhraseGoogle'
 import QRCodeScannerScreen from '../modules/QRCodeScanner/QRCodeScannerScreen'
@@ -102,6 +103,12 @@ const MainNavigator = createStackNavigator({
         },
         WalletCreateScreen: {
             screen: WalletCreateScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+        BackupSettingsScreen: {
+            screen: BackupSettingsScreen,
             navigationOptions: {
                 headerShown: false
             }

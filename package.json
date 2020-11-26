@@ -8,7 +8,7 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",
-    "postinstall": "npx jetifier && ./node_modules/.bin/rn-nodeify --hack --install",
+    "postinstall": "npx jetifier && ./node_modules/.bin/rn-nodeify --hack --install && patch-package",
     "run_android": "cd android && gradlew cleanBuildCache clean && cd ../ && react-native run-android",
     "mra": "cd ./android && ./gradlew cleanBuildCache clean && cd ../ && react-native run-android",
     "oam": "adb shell input keyevent 82"
@@ -91,6 +91,7 @@
     "react-native-navigation-bar-color": "^2.0.1",
     "react-native-orientation": "^3.1.3",
     "react-native-os": "^1.2.6",
+    "react-native-pages": "^0.9.0",
     "react-native-paper": "^3.4.0",
     "react-native-permissions": "^2.0.9",
     "react-native-phone-input": "^0.2.4",

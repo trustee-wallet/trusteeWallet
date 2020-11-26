@@ -58,8 +58,14 @@
     "createWallet": "Создать кошелек",
     "importWallet": "Импортировать кошелек",
     "acceptTerms": "Вы не согласились c Условиями обслуживания и Политикой конфиденциальности",
-    "terms1": "Соглашаюсь с ",
-    "terms2": "Условиями обслуживания и Политикой конфиденциальности"
+    "agreement1": "I have read, understand and agree to the",
+    "terms": "Terms of use",
+    "agreement2": "and",
+    "privacyPolicy": "Privacy policy",
+    "slider1": "Иновационные технологии безопасности и анонимности",
+    "slider2": "Безграничные возможности в интуитивно понятном дизайне",
+    "slider3": "Встроенный мониторинг обменных пунктов",
+    "slider4": "Зависшие и дорогие транзакции"
   },
   "exchangeScreen": {
     "title": "Обмен",
@@ -692,6 +698,38 @@
     }
   },
   "walletBackup": {
+    "pageTitle": "Create wallet",
+    "infoScreen": {
+      "continue": "Continue",
+      "text1": "TRUSTEE WALLET never sends your backup phrase anywhere. Therefore, in case of device loss or failure, the only way to restore access to your funds is to use a backup phrase.",
+      "checkbox1": "I understand that if I lose my backup phrase I will lose my funds",
+      "checkbox2": "I understand that i must view my backup phrase in private with no cameras and eyes around",
+      "text2": "Be very careful with backup phrase - anyone with it can access or spend your coins. Do not tell the phrase under any circumstances!"
+    },
+    "step0Screen": {
+      "info": "Мнемоническая фраза - это единственный секретный ключ к Вашим активам. Надежно сохраните ее",
+      "showButton": "Press and hold to reveal",
+      "next": "Next"
+    },
+    "step1Screen": {
+      "title": "Verify phrase",
+      "placeholder": "Please, tap each world in the correct order to verify recovery phrase. To remove world from field tap on it again.",
+      "showButton": "Press and hold to reveal",
+      "next": "Next"
+    },
+    "settingsScreen": {
+      "title": "Advanced",
+      "apply": "Apply",
+      "walletNameLabel": "Set the wallet name",
+      "walletNamePlaceholder": "Enter name (optional)",
+      "phraseLengthLabel": "Choose recovery phrase length",
+      "12wordsLabel": "12 words",
+      "24wordsLabel": "24 words",
+      "contactTitle": "Contact support",
+      "contactSubtitle": "Official telegram channel",
+      "skipTitle": "Skip phrase verification",
+      "skipSubtitle": "Not recomended"
+    },
     "title": "Резервное копирование",
     "titleNewWallet": "Генерация кошелька",
     "titleNewWalletSmall": "Генерация",
@@ -722,6 +760,14 @@
     "createTitle": "Генерация кошелька",
     "importTitle": "Импорт кошелька",
     "importGoogle": "Google Drive",
+    "mnemonicPlaceholder": "Insert the entire recovery phrase or enter all words manually (usually 12 or 24 words)",
+    "showMnemonicButton": "Press to reveal",
+    "phrasePlaceholder": "Phrase",
+    "importButton": "Import",
+    "errors": {
+      "phraseShouldBeLonger": "Recovery phrase should be longer than 11 words",
+      "wordDoesNotExist": "Such word was not found in dictionary"
+    },
     "importGoogleError": {
       "title" : "Not Connected",
       "description" : "Please try again or check access permissions"

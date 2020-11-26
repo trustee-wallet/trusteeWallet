@@ -15,7 +15,7 @@ import { SwipeRow } from 'react-native-swipe-list-view'
 
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
-import RoundButton from '../../../components/elements/buttons/RoundButton'
+import RoundButton from '../../../components/elements/new/buttons/RoundButton'
 
 import NavStore from '../../../components/navigation/NavStore'
 import GradientView from '../../../components/elements/GradientView'
