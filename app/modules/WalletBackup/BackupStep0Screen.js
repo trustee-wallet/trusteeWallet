@@ -187,9 +187,9 @@ class BackupStep0Screen extends Component {
         setMnemonicLength({ mnemonicLength: 0 })
     }
 
-    triggerMnemonicVisible = () => {
+    triggerMnemonicVisible = (visibility) => {
         if (this.visibilityTimer) return;
-        this.setState(state => ({ isMnemonicVisible: !state.isMnemonicVisible }))
+        this.setState(() => ({ isMnemonicVisible: visibility }))
     }
 
     // handleAfterPin = () => {
@@ -283,8 +283,8 @@ class BackupStep0Screen extends Component {
                             <TouchableOpacity
                                 activeOpacity={1}
                                 onLongPress={this.showMnemonic}
-                                onPressIn={this.triggerMnemonicVisible}
-                                onPressOut={this.triggerMnemonicVisible}
+                                onPressIn={() => this.triggerMnemonicVisible(true)}
+                                onPressOut={() => this.triggerMnemonicVisible(false)}
                                 delayLongPress={2000}
                                 delayPressIn={100}
                                 disabled={isMnemonicVisible}
