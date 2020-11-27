@@ -199,7 +199,8 @@ class EnterMnemonicPhrase extends Component {
     }
 
     handleInputPhrase = (value = '') => {
-        const lowercasedValue = value.trim().toLowerCase()
+        value = value.trim()
+        const lowercasedValue = value.toLowerCase()
         const spacesNumber = lowercasedValue.match(/\s/g)?.length || 0
 
         if (!lowercasedValue) {
