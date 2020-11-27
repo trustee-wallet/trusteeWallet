@@ -79,8 +79,8 @@ class WalletCreateScreen extends Component {
 
     runSliderTimer = () => {
         this.sliderTimer = setInterval(() => {
-            this.sliderRef.scrollToPage?.(this.sliderRef.activeIndex + 1)
-            if (this.sliderRef.activeIndex + 1 === this.sliderData.length) clearInterval(this.sliderTimer)
+            const index = this.sliderRef.activeIndex < this.sliderData.length - 1 ? this.sliderRef.activeIndex + 1 : 0
+            this.sliderRef.scrollToPage?.(index)
         }, SLIDER_SCROLL_TIMEOUT)
     }
 
@@ -100,6 +100,7 @@ class WalletCreateScreen extends Component {
         } else {
             NavStore.goNext('EnterMnemonicPhrase')
         }
+        setTimeout(() => { this.setState(() => ({ checked: false })) }, 500)
     }
 
     handleCreate = () => { this.handleSelect({ flowType: 'CREATE_NEW_WALLET' }) }
@@ -122,7 +123,17 @@ class WalletCreateScreen extends Component {
         const { colors, GRID_SIZE } = this.context
         return (
             <View style={styles.sliderItem}>
-                <Image source={image} style={styles.sliderImage} resizeMode="contain" />
+                <Image
+                    source={image}
+                    style={[
+                        styles.sliderImage,
+                        {
+                            width: GRID_SIZE === 16 ? styles.sliderImage.width : styles.sliderImage.width - 50,
+                            height: GRID_SIZE === 16 ? styles.sliderImage.height : styles.sliderImage.height - 50,
+                        }
+                    ]}
+                    resizeMode="contain"
+                />
                 <Text
                     style={[
                         styles.sliderText,
@@ -188,11 +199,11 @@ const styles = {
         flex: 1
     },
     topContent: {
-        flex: 2,
-        paddingBottom: 20
+        flex: 3,
+        paddingVertical: 20
     },
     bottomContent: {
-        flex: 1,
+        flex: 2,
         justifyContent: 'center',
         paddingBottom: 16
     },

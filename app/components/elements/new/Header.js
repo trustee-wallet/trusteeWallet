@@ -166,7 +166,7 @@ const styles = {
         justifyContent: 'center',
     },
     header__center: {
-        flex: 2,
+        flex: 4,
         alignItems: 'center',
     },
     header__right: {
@@ -178,8 +178,9 @@ const styles = {
     title: {
         fontFamily: 'Montserrat-Bold',
         fontSize: 14,
-        lineHeight: 14,
+        lineHeight: 15,
         letterSpacing: 1,
         textTransform: 'uppercase',
+        textAlign: 'center'
     },
 }

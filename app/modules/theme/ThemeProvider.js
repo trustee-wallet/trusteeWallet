@@ -10,7 +10,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
 
 let GRID_SIZE = 16
-if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
+if (PIXEL_RATIO <= 2 && SCREEN_WIDTH < 330) {
     GRID_SIZE = 8 // iphone 5s
 }
 

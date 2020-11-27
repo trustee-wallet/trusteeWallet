@@ -62,10 +62,10 @@
     "terms": "Terms of use",
     "agreement2": "and",
     "privacyPolicy": "Privacy policy",
-    "slider1": "Иновационные технологии безопасности и анонимности",
-    "slider2": "Безграничные возможности в интуитивно понятном дизайне",
-    "slider3": "Встроенный мониторинг обменных пунктов",
-    "slider4": "Зависшие и дорогие транзакции"
+    "slider1": "Innovative security and anonymity technologies",
+    "slider2": "Endless possibilities in an intuitive design",
+    "slider3": "Built-in monitoring of exchange offices",
+    "slider4": "Hanging and expensive transactions"
   },
   "exchangeScreen": {
     "title": "Exchange",
@@ -691,27 +691,27 @@
     }
   },
   "walletBackup": {
-    "pageTitle": "Create wallet",
+    "pageTitle": "Create new wallet",
     "infoScreen": {
       "continue": "Continue",
-      "text1": "TRUSTEE WALLET never sends your backup phrase anywhere. Therefore, in case of device loss or failure, the only way to restore access to your funds is to use a backup phrase.",
-      "checkbox1": "I understand that if I lose my backup phrase I will lose my funds",
-      "checkbox2": "I understand that i must view my backup phrase in private with no cameras and eyes around",
-      "text2": "Be very careful with backup phrase - anyone with it can access or spend your coins. Do not tell the phrase under any circumstances!"
+      "text1": "TRUSTEE WALLET never sends your recovery phrase anywhere. Therefore, in case of device loss or failure, the only way to restore access to your funds is to use a recovery phrase.",
+      "checkbox1": "I understand that if I lose my recovery phrase I will lose my funds",
+      "checkbox2": "I understand that I must view my recovery phrase in private with no cameras and eyes around",
+      "text2": "Be very careful with recovery phrase - anyone with it can access or spend your funds. Please, do not tell the recovery phrase under any circumstances!"
     },
     "step0Screen": {
-      "info": "Мнемоническая фраза - это единственный секретный ключ к Вашим активам. Надежно сохраните ее",
-      "showButton": "Press and hold to reveal",
+      "info": "The recovery phrase is the only secret key to your assets. Store it securely!",
+      "showButton": "Click and hold to watch",
       "next": "Next"
     },
     "step1Screen": {
-      "title": "Verify phrase",
-      "placeholder": "Please, tap each world in the correct order to verify recovery phrase. To remove world from field tap on it again.",
-      "showButton": "Press and hold to reveal",
+      "title": "Check",
+      "placeholder": "Please, tap each word in the correct order to verify recovery phrase. To remove word from field tap on it again",
+      "showButton": "Click and hold to watch",
       "next": "Next"
     },
     "settingsScreen": {
-      "title": "Advanced",
+      "title": "Settings",
       "apply": "Apply",
       "walletNameLabel": "Set the wallet name",
       "walletNamePlaceholder": "Enter name (optional)",
@@ -720,7 +720,7 @@
       "24wordsLabel": "24 words",
       "contactTitle": "Contact support",
       "contactSubtitle": "Official telegram channel",
-      "skipTitle": "Skip phrase verification",
+      "skipTitle": "Skip recovery phrase verification",
       "skipSubtitle": "Not recomended"
     },
     "title": "Backup recovery phrase",
@@ -754,9 +754,9 @@
     "importTitle": "Import wallet",
     "importGoogle": "Google Drive",
     "mnemonicPlaceholder": "Insert the entire recovery phrase or enter all words manually (usually 12 or 24 words)",
-    "showMnemonicButton": "Press to reveal",
-    "phrasePlaceholder": "Phrase",
-    "importButton": "Import",
+    "showMnemonicButton": "Click to watch",
+    "phrasePlaceholder": "Recovery phrase",
+    "importButton": "Import wallet",
     "errors": {
       "phraseShouldBeLonger": "Recovery phrase should be longer than 11 words",
       "wordDoesNotExist": "Such word was not found in dictionary"

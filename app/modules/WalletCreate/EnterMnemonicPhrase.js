@@ -14,6 +14,7 @@ import {
     TouchableOpacity,
     SafeAreaView
 } from 'react-native'
+import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
 import IconMaterial from 'react-native-vector-icons/MaterialIcons'
 import firebase from 'react-native-firebase'
@@ -198,10 +199,10 @@ class EnterMnemonicPhrase extends Component {
     }
 
     handleInputPhrase = (value = '') => {
-        value = value.trim()
-        const spacesNumber = [...value.matchAll(/\s/g)].length;
+        const lowercasedValue = value.trim().toLowerCase()
+        const spacesNumber = lowercasedValue.match(/\s/g)?.length || 0
 
-        if (!value) {
+        if (!lowercasedValue) {
             this.setState(() => ({
                 phraseInputValue: '',
                 error: null,
@@ -211,13 +212,13 @@ class EnterMnemonicPhrase extends Component {
         }
 
         if (spacesNumber === 0) {
-            callWithDelay(() => this.findWords(value))
+            callWithDelay(() => this.findWords(lowercasedValue))
             this.setState(() => ({ phraseInputValue: value }))
             return
         }
 
         if (spacesNumber >= 11) {
-            const wordsArr = value.split(' ')
+            const wordsArr = lowercasedValue.split(' ')
             this.setState(() => ({
                 walletMnemonicSelected: wordsArr,
                 wordsProposed: [],
@@ -301,70 +302,72 @@ class EnterMnemonicPhrase extends Component {
                     title={strings('walletCreate.importTitle')}
                     setHeaderHeight={this.setHeaderHeight}
                 />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        ref={ref => { this.scrollView = ref }}
-                        contentContainerStyle={styles.scrollViewContent}
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        <View style={{ paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 2 }}>
-                            <SelectedMnemonic
-                                placeholder={strings('walletCreate.mnemonicPlaceholder')}
-                                showButtonTitle={strings('walletCreate.showMnemonicButton')}
-                                triggerMnemonicVisible={this.triggerMnemonicVisible}
-                                removeWord={this.handleRemoveWord}
-                                isMnemonicVisible={isMnemonicVisible}
-                                data={walletMnemonicSelected}
-                            />
-                            <View style={{ marginTop: GRID_SIZE * 0.75 }}>
-                                <TextInput
-                                    autoCapitalize={false}
-                                    inputStyle={!!error && { color: colors.createWalletScreen.importWallet.error }}
-                                    placeholder={strings('walletCreate.phrasePlaceholder')}
-                                    onChangeText={this.handleInputPhrase}
-                                    value={phraseInputValue}
-                                    HelperAction={this.renderQrCode}
+                <KeyboardAwareView>
+                    <SafeAreaView style={[styles.content, {
+                        backgroundColor: colors.common.background,
+                        marginTop: headerHeight,
+                    }]}>
+                        <ScrollView
+                            showsVerticalScrollIndicator={false}
+                            ref={ref => { this.scrollView = ref }}
+                            contentContainerStyle={styles.scrollViewContent}
+                            keyboardShouldPersistTaps="handled"
+                        >
+                            <View style={{ paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 2 }}>
+                                <SelectedMnemonic
+                                    placeholder={strings('walletCreate.mnemonicPlaceholder')}
+                                    showButtonTitle={strings('walletCreate.showMnemonicButton')}
+                                    triggerMnemonicVisible={this.triggerMnemonicVisible}
+                                    removeWord={this.handleRemoveWord}
+                                    isMnemonicVisible={isMnemonicVisible}
+                                    data={walletMnemonicSelected}
                                 />
-                                {!!error && (
-                                    <View style={[styles.errorContainer, { marginTop: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }]}>
-                                        <IconMaterial name="error-outline" size={22} color={colors.createWalletScreen.importWallet.error} />
-                                        <Text style={[styles.errorMessage, { color: colors.common.text3 }]}>{error}</Text>
+                                <View style={{ marginTop: GRID_SIZE * 0.75 }}>
+                                    <TextInput
+                                        autoCapitalize="none"
+                                        inputStyle={!!error && { color: colors.createWalletScreen.importWallet.error }}
+                                        placeholder={strings('walletCreate.phrasePlaceholder')}
+                                        onChangeText={this.handleInputPhrase}
+                                        value={phraseInputValue}
+                                        HelperAction={this.renderQrCode}
+                                    />
+                                    {!!error && (
+                                        <View style={[styles.errorContainer, { marginTop: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }]}>
+                                            <IconMaterial name="error-outline" size={22} color={colors.createWalletScreen.importWallet.error} />
+                                            <Text style={[styles.errorMessage, { color: colors.common.text3 }]}>{error}</Text>
+                                        </View>
+                                    )}
+                                    <View style={[styles.wordsContainer, { marginTop: GRID_SIZE }]}>
+                                        {wordsProposed.map((word, i) => (
+                                            <MnemonicWord
+                                                value={word}
+                                                key={`${word}${i}`}
+                                                onPress={() => this.handleSelectWord(word, i)}
+                                            />
+                                        ))}
                                     </View>
-                                )}
-                                <View style={[styles.wordsContainer, { marginTop: GRID_SIZE }]}>
-                                    {wordsProposed.map((word, i) => (
-                                        <MnemonicWord
-                                            value={word}
-                                            key={`${word}${i}`}
-                                            onPress={() => this.handleSelectWord(word, i)}
-                                        />
-                                    ))}
                                 </View>
                             </View>
-                        </View>
 
-                        <View style={{
-                            paddingHorizontal: GRID_SIZE,
-                            paddingVertical: GRID_SIZE * 1.5,
-                        }}>
-                            <TwoButtons
-                                mainButton={{
-                                    disabled: walletMnemonicSelected.length < 12,
-                                    onPress: this.handleImport,
-                                    title: strings('walletCreate.importButton')
-                                }}
-                                secondaryButton={{
-                                    type: 'settings',
-                                    onPress: this.openWalletSettings
-                                }}
-                            />
-                        </View>
-                    </ScrollView>
-                </SafeAreaView>
+                            <View style={{
+                                paddingHorizontal: GRID_SIZE,
+                                paddingVertical: GRID_SIZE * 1.5,
+                            }}>
+                                <TwoButtons
+                                    mainButton={{
+                                        disabled: walletMnemonicSelected.length < 12,
+                                        onPress: this.handleImport,
+                                        title: strings('walletCreate.importButton')
+                                    }}
+                                    secondaryButton={{
+                                        type: 'settings',
+                                        onPress: this.openWalletSettings
+                                    }}
+                                />
+                            </View>
+                        </ScrollView>
+                    </SafeAreaView>
+                </KeyboardAwareView>
             </View>
         )
     }

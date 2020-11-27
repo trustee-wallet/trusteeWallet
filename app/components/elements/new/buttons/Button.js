@@ -13,9 +13,9 @@ import { strings } from '../../../../services/i18n'
 
 
 const getStyle = (type, disabled, containerStyle, textStyle) => {
-    const { colors } = useTheme()
+    const { colors, GRID_SIZE } = useTheme()
     const style = {
-        container: [styles.container],
+        container: [styles.container, { padding: GRID_SIZE === 8 ? GRID_SIZE * 1.5 : GRID_SIZE }],
         text: [styles.text],
     };
     if (type === 'transparent') {
@@ -68,7 +68,6 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 17,
         borderRadius: 10,
     },
     buttonShadow: {
@@ -79,7 +78,7 @@ const styles = StyleSheet.create({
             width: 0,
             height: 6
         },
-        elevation: 12
+        elevation: 10
     },
     text: {
         fontFamily: 'Montserrat-SemiBold',

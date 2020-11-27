@@ -58,14 +58,14 @@
      "createWallet": "Створити гаманець",
      "importWallet": "Імпортувати гаманець",
      "acceptTerms": "Ви не погодились з Умовами надання послуг та Політикою конфіденційності",
-     "agreement1": "I have read, understand and agree to the",
-     "terms": "Terms of use",
-     "agreement2": "and",
-     "privacyPolicy": "Privacy policy",
-     "slider1": "Иновационные технологии безопасности и анонимности",
-     "slider2": "Безграничные возможности в интуитивно понятном дизайне",
-     "slider3": "Встроенный мониторинг обменных пунктов",
-     "slider4": "Зависшие и дорогие транзакции"
+     "agreement1": "Я прочитав, розумію та погоджуюсь з цим",
+     "terms": "Умови користування",
+     "agreement2": "і",
+     "privacyPolicy": "Політика конфіденційності",
+     "slider1": "Інноваційні технології безпеки і анонімності",
+     "slider2": "Безмежні можливості в інтуїтівно зрозумілому дизайні",
+     "slider3": "Вбудований моніторинг обмінних пунктів",
+     "slider4": "Завислі та дорогі транзакції"
    },
    "exchangeScreen": {
      "title": "Обмін",
@@ -704,37 +704,37 @@
     }
   },
   "walletBackup": {
-    "pageTitle": "Create wallet",
+    "pageTitle": "Створити новий гаманець",
     "infoScreen": {
-      "continue": "Continue",
-      "text1": "TRUSTEE WALLET never sends your backup phrase anywhere. Therefore, in case of device loss or failure, the only way to restore access to your funds is to use a backup phrase.",
-      "checkbox1": "I understand that if I lose my backup phrase I will lose my funds",
-      "checkbox2": "I understand that i must view my backup phrase in private with no cameras and eyes around",
-      "text2": "Be very careful with backup phrase - anyone with it can access or spend your coins. Do not tell the phrase under any circumstances!"
+      "continue": "Продовжити",
+      "text1": "TRUSTEE WALLET ніколи і нікуди не надсилає фразу відновлення. Тому, у випадку втрати чи виходу пристрою з ладу, єдиним способом отримати доступ до Ваших коштів є використання фрази відновлення",
+      "checkbox1": "Я розумію, що якщо втрачу фразу відновлення, я втрачу свої кошти",
+      "checkbox2": "Я розумію, що повинен переглядати фразу відновлення приватно, без камер та сторонних осіб",
+      "text2": "Будьте дуже обережні з фразою відновлення - кожен, хто має її, може отримати доступ до Ваших коштів і витратити їх. Будь ласка, ні в якому разі, нікому не повідомляйте фразу відновлення!"
     },
     "step0Screen": {
-      "info": "Мнемоническая фраза - это единственный секретный ключ к Вашим активам. Надежно сохраните ее",
-      "showButton": "Press and hold to reveal",
-      "next": "Next"
+      "info": "Фраза відновлення - це єдиний секретний ключ до Ваших активів. Надійно збережіть її",
+      "showButton": "Натисніть і утримуйте, щоб побачити",
+      "next": "Далі"
     },
     "step1Screen": {
-      "title": "Verify phrase",
-      "placeholder": "Please, tap each world in the correct order to verify recovery phrase. To remove world from field tap on it again.",
-      "showButton": "Press and hold to reveal",
-      "next": "Next"
+      "title": "Підтвердження",
+      "placeholder": "Будь ласка, натисніть слова у правильному порядку, щоб підтвердити фразу відновлення. Щоб видалити слово з поля, натисніть на нього ще раз",
+      "showButton": "Натисніть і утримуйте, щоб побачити",
+      "next": "Далі"
     },
     "settingsScreen": {
-      "title": "Advanced",
-      "apply": "Apply",
-      "walletNameLabel": "Set the wallet name",
-      "walletNamePlaceholder": "Enter name (optional)",
-      "phraseLengthLabel": "Choose recovery phrase length",
-      "12wordsLabel": "12 words",
-      "24wordsLabel": "24 words",
-      "contactTitle": "Contact support",
-      "contactSubtitle": "Official telegram channel",
-      "skipTitle": "Skip phrase verification",
-      "skipSubtitle": "Not recomended"
+      "title": "Налаштування",
+      "apply": "Застосувати",
+      "walletNameLabel": "Дайте назву гаманцю",
+      "walletNamePlaceholder": "Введіть ім'я (необов'язково)",
+      "phraseLengthLabel": "Оберіть довжину фрази відновлення",
+      "12wordsLabel": "12 слів",
+      "24wordsLabel": "24 слова",
+      "contactTitle": "Звернутись до служби підтримки",
+      "contactSubtitle": "Офіційний telegram канал",
+      "skipTitle": "Пропустити перевірку фрази відновлення",
+      "skipSubtitle": "Не рекомендовано"
     },
     "title": "Резервне копіювання",
     "titleNewWallet": "Генерація гаманця",
@@ -766,10 +766,10 @@
     "createTitle": "Генерація гаманця",
     "importTitle": "Імпорт гаманця",
     "importGoogle": "Google Drive",
-    "mnemonicPlaceholder": "Insert the entire recovery phrase or enter all words manually (usually 12 or 24 words)",
-    "showMnemonicButton": "Press to reveal",
-    "phrasePlaceholder": "Phrase",
-    "importButton": "Import",
+    "mnemonicPlaceholder": "Вставте всю фразу відновлення або введіть усі слова вручну (зазвичай 12 або 24 слова)",
+    "showMnemonicButton": "Натисніть, щоб подивитись",
+    "phrasePlaceholder": "Фраза відновлення",
+    "importButton": "Імпортувати гаманець",
     "errors": {
       "phraseShouldBeLonger": "Recovery phrase should be longer than 11 words",
       "wordDoesNotExist": "Such word was not found in dictionary"

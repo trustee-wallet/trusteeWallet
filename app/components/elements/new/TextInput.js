@@ -54,15 +54,10 @@ export default function Input(props) {
 }
 
 const styles = StyleSheet.create({
-    input: {
+    inputWrapper: {
+        justifyContent: 'center',
         height: 50,
         borderRadius: 10,
-        padding: 16,
-        fontFamily: 'Montserrat-SemiBold',
-        fontSize: 16,
-        lineHeight: 20,
-        letterSpacing: 0.3,
-
         elevation: 10,
         shadowColor: '#000',
         shadowRadius: 16,
@@ -72,11 +67,17 @@ const styles = StyleSheet.create({
             height: 0
         },
     },
+    input: {
+        flex: 1,
+        borderRadius: 10,
+        padding: 16,
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 16,
+        lineHeight: 20,
+        letterSpacing: 0.3,
+    },
     inputWithHelper: {
         paddingRight: 48
-    },
-    inputWrapper: {
-        justifyContent: 'center'
     },
     label: {
         fontFamily: 'Montserrat-SemiBold',
@@ -88,6 +89,6 @@ const styles = StyleSheet.create({
     helper: {
         position: 'absolute',
         right: 16,
-        zIndex: 2
+        zIndex: 20,
     }
 })
