@@ -12,7 +12,6 @@ import {
 } from 'react-native'
 
 import firebase from 'react-native-firebase'
-import Share from 'react-native-share'
 
 import Fontisto from 'react-native-vector-icons/Fontisto'
 import Feather from 'react-native-vector-icons/Feather'
@@ -36,7 +35,7 @@ import Netinfo from '../../services/Netinfo/Netinfo'
 import Log from '../../services/Log/Log'
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 
-import FileSystem from '../../services/FileSystem/FileSystem'
+import { FileSystem } from '../../services/FileSystem/FileSystem'
 
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus, setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
@@ -59,6 +58,7 @@ import OldPhone from '../../services/UI/OldPhone/OldPhone'
 import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 import AsyncStorage from '@react-native-community/async-storage'
+import { resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
 
 let styles
 
@@ -68,7 +68,7 @@ class ReceiveScreen extends Component {
     constructor() {
         super()
         this.state = {
-            settingAddressType: ''
+            settingAddressType: '',
         }
     }
 
@@ -230,7 +230,7 @@ class ReceiveScreen extends Component {
         try {
 
             const newInterface = await AsyncStorage.getItem('isNewInterface')
-            
+
             if (newInterface === 'true'){
                 NavStore.goNext('ExchangeV3ScreenStack')
             } else {
@@ -265,6 +265,22 @@ class ReceiveScreen extends Component {
         })
     }
 
+    handleFioRequestCreate = () => {
+        const { currencyCode, currencySymbol } = this.props.cryptoCurrency
+        const { fioName } = this.state
+        const address = this.getAddress()
+        const chainCode = resolveChainCode(currencyCode, currencySymbol)
+
+        NavStore.goNext('FioSendRequest', {
+            fioRequestDetails: {
+                fioName,
+                address,
+                chainCode,
+                currencySymbol
+            }
+        })
+    }
+
     shareAddress = () => {
         const { currencySymbol } = this.props.cryptoCurrency
 
@@ -278,10 +294,10 @@ class ReceiveScreen extends Component {
                 ${address}`
                 if (Platform.OS === 'android') {
                     // noinspection ES6MissingAwait
-                    prettyShare({ message, url: `data:image/png;base64,${data}` })
+                    prettyShare({ message, url: `data:image/png;base64,${data}`, title : 'QR', type: 'image/png' })
                 } else {
-                    const fs = new FileSystem()
-                    await (fs.setFileEncoding('base64').setFileName('QR').setFileExtension('jpg')).writeFile(data)
+                    const fs = new FileSystem({fileEncoding: 'base64', fileName : 'QR', fileExtension : 'jpg'})
+                    await fs.writeFile(data)
                     // noinspection ES6MissingAwait
                     prettyShare({ message, url: await fs.getPathOrBase64() })
                 }
@@ -413,7 +429,7 @@ class ReceiveScreen extends Component {
 
     render() {
         const { mainStore, settingsStore } = this.props
-        const { isSegWitLegacy } = this.state
+        const { isSegWitLegacy, fioName } = this.state
         const { address } = this.props.account
         const { currencySymbol, currencyCode } = this.props.cryptoCurrency
         const { btcShowTwoAddress = 0 } = settingsStore.data
@@ -439,6 +455,7 @@ class ReceiveScreen extends Component {
                                           array={styles.qr__bg.array} start={styles.qr__bg.start}
                                           end={styles.qr__bg.end}>
                                 {currencyCode === 'BTC' && +btcShowTwoAddress ? this.renderSegWitLegacy() : null}
+                                {fioName ? <Text>{fioName}</Text> : null}
                                 <TouchableOpacity style={{
                                     position: 'relative',
                                     paddingHorizontal: 10,
@@ -447,7 +464,7 @@ class ReceiveScreen extends Component {
                                     <QrCodeBox
                                         getRef={ref => this.refSvg = ref}
                                         value={this.getAddressForQR()}
-                                        size={250}
+                                        size={200}
                                         color='#404040'
                                         logo={qrLogo}
                                         logoSize={70}
@@ -497,6 +514,19 @@ class ReceiveScreen extends Component {
                                     style={[styles.qr__shadow__item, isSegWitLegacy ? { height: Platform.OS === 'android' ? 406 : 404 } : null]}/>
                             </View>
                         </View>
+
+                        {
+                            fioName ? (
+                                <TouchableOpacity style={{marginTop: 20}}
+                                                  onPress={this.handleFioRequestCreate}>
+                                    <LightButton color={color} Icon={(props) => <Feather color={color} size={10}
+                                                                                         name={'edit'} {...props} />}
+                                                 title={strings('account.receiveScreen.FIORequest')}
+                                                 iconStyle={{ marginHorizontal: 3 }}/>
+                                </TouchableOpacity>
+                            ) : null
+                        }
+
                         <View style={styles.options}>
                             <TouchableOpacity style={styles.options__item} onPress={this.handleBuy}>
                                 <View style={styles.options__wrap}>

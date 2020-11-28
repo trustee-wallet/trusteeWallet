@@ -16,7 +16,7 @@ import CustomFee from './customfee/CustomFee'
 import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
 import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
 
-import BlocksoftTransfer from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import { BlocksoftTransfer } from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 
 import { strings } from '../../../services/i18n'
@@ -26,27 +26,30 @@ import Theme from '../../../themes/Themes'
 import AsyncStorage from '@react-native-community/async-storage'
 import RateEquivalent from '../../../services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
+import config from '../../../config/config'
 
 let styles
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
-
-let CACHE_MULTI = false
 
 class Fee extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            feeList: [],
+            countedFees : {
+                fees : [],
+            },
+            countedFeesData : {},
+
             fee: {},
-            customFee: {},
-            estimate: 0,
-            status: 'none',
 
             ifCustomFee: false,
-            ifShowFee: true,
+            customFee: {},
+            status: 'none',
+
             devMode: false,
+
             customFeeAnimation: new Animated.Value(0)
         }
 
@@ -57,157 +60,68 @@ class Fee extends Component {
     // eslint-disable-next-line camelcase
     async UNSAFE_componentWillMount() {
         styles = Theme.getStyles().sendScreenStyles.feeStyles
-        CACHE_MULTI = 1
-        await this.init(false)
+        await this.init()
     }
 
-    async init(multiply, amountRaw = false) {
-        // setLoaderStatus(true)
-        console.log('init')
+    async init() {
 
-        // maybe from ratesService as its already cached
-        const { walletHash } = this.props.wallet
+        const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = this.props.wallet
 
         const { address, currencyCode, derivationPath, accountJson } = this.props.account
 
         const { sendData } = this.props
 
-        const derivationPathTmp = derivationPath.replace(/quote/g, '\'')
-
-        let feesAmountRaw = sendData.amountRaw
-        if (typeof amountRaw !== 'undefined' && amountRaw) {
-            feesAmountRaw = amountRaw
-        }
+        let countedFees = false
+        let countedFeesData = false
         try {
 
-            const addressTo = sendData.address ? sendData.address : address
-            let fees
-            let showFees = multiply
-
-            if (typeof sendData.transactionReplaceByFee !== 'undefined') {
-                try {
-                    fees = await (
-                        BlocksoftTransfer.setCurrencyCode(currencyCode)
-                            .setWalletHash(walletHash)
-                            .setDerivePath(derivationPathTmp)
-                            .setAddressFrom(address)
-                            .setAddressTo(addressTo)
-                            .setMemo(sendData.memo)
-                            .setAmount(feesAmountRaw)
-                            .setTxHash(sendData.transactionReplaceByFee)
-                            .setAdditional(accountJson, sendData.toTransactionJSON)
-                            .setMultiply(multiply || 0)
-                    ).getFeeRate()
-                } catch (e) {
-                    if (e.message.indexOf('SERVER_') === -1) {
-                        e.message += ' while getFeeRate RBF ' + currencyCode + ' address ' + address + ' amountRaw ' + sendData.amountRaw
-                    }
-                    throw e
-                }
-                showFees = true
-            } else if (typeof sendData.transactionSpeedUp !== 'undefined') {
-                try {
-                    fees = await (
-                        BlocksoftTransfer.setCurrencyCode(currencyCode)
-                            .setWalletHash(walletHash)
-                            .setDerivePath(derivationPathTmp)
-                            .setAddressFrom(address)
-                            .setAddressTo(addressTo)
-                            .setMemo(sendData.memo)
-                            .setAmount(feesAmountRaw)
-                            .setTxInput(sendData.transactionSpeedUp)
-                            .setAdditional(accountJson)
-                            .setMultiply(multiply || 0)
-                    ).getFeeRate()
-                } catch (e) {
-                    if (e.message.indexOf('SERVER_') === -1) {
-                        e.message += ' while SpeedUp getFeeRate ' + currencyCode + ' address ' + address + ' amountRaw ' + sendData.amountRaw
-                    }
-                    throw e
-                }
-                showFees = true
-            } else if (sendData.useAllFunds) {
-                this.setState({
-                    ifShowFee: false
-                })
-                try {
-                    fees = await (
-                        BlocksoftTransfer.setCurrencyCode(currencyCode)
-                            .setWalletHash(walletHash)
-                            .setDerivePath(derivationPathTmp)
-                            .setAddressFrom(address)
-                            .setAddressTo(addressTo)
-                            .setMemo(sendData.memo)
-                            .setAmount(feesAmountRaw)
-                            .setTransferAll(true)
-                            .setAdditional(accountJson)
-                            .setMultiply(multiply || 0)
-                    ).getFeeRate()
-                } catch (e) {
-                    if (e.message.indexOf('SERVER_') === -1) {
-                        e.message += ' while SendAll getFeeRate ' + currencyCode + ' address ' + address + ' amountRaw ' + sendData.amountRaw
-                    }
-                    throw e
-                }
+            if (typeof sendData.countedFees !== 'undefined' && sendData.countedFees && sendData.countedFees.fees.length > 0) {
+                countedFees = sendData.countedFees
+                countedFeesData = sendData.countedFeesData
             } else {
-                try {
-                    fees = await (
-                        BlocksoftTransfer.setCurrencyCode(currencyCode)
-                            .setWalletHash(walletHash)
-                            .setDerivePath(derivationPathTmp)
-                            .setAddressFrom(address)
-                            .setAddressTo(addressTo)
-                            .setMemo(sendData.memo)
-                            .setAmount(feesAmountRaw)
-                            .setAdditional(accountJson)
-                            .setMultiply(multiply || 0)
-                    ).getFeeRate()
-                } catch (e) {
-                    if (e.message.indexOf('SERVER_') === -1) {
-                        e.message += ' while Send getFeeRate ' + currencyCode + ' address ' + address + ' amountRaw ' + sendData.amountRaw
-                    }
-                    throw e
+                countedFeesData = {
+                    currencyCode,
+                    walletHash,
+                    derivationPath,
+                    addressFrom: address,
+                    addressTo: sendData.address,
+                    amount: sendData.amountRaw,
+                    isTransferAll: false,
+                    useOnlyConfirmed : !(walletUseUnconfirmed === 1),
+                    allowReplaceByFee : walletAllowReplaceByFee === 1,
+                    transactionReplaceByFee : sendData.transactionReplaceByFee,
+                    transactionSpeedUp : sendData.transactionSpeedUp,
+                    transactionJson : sendData.toTransactionJSON,
+                    accountJson
                 }
+                countedFees = await BlocksoftTransfer.getFeeRate(countedFeesData)
             }
 
-
-            Log.log('Send.Fee.UNSAFE_componentWillMount fees', fees)
-
-            if (fees) {
-                let lastFee = fees[fees.length - 1]
-                if (sendData.useAllFunds && fees.length > 1 && lastFee && lastFee.langMsg.indexOf('corrected') !== -1) {
-                    lastFee = fees[fees.length - 2]
-                    showFees = true
-                }
-
-                if (!showFees) {
-                    if (lastFee && lastFee.langMsg.indexOf('_speed_blocks_2') === -1 && lastFee.langMsg.indexOf('_speed_fast') === -1) {
-                        showFees = true
-                    }
-                }
-
-                if (showFees) {
-                    this.setState({
-                        ifShowFee: true
-                    })
-                }
-
-                if (!fees || fees === null) {
-                    fees = false
-                }
-                this.props.setParentState('feeList', fees)
-
-                const devMode = await AsyncStorage.getItem('devMode')
+            const devMode = await AsyncStorage.getItem('devMode')
+            if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
+                const fee = countedFees.fees[countedFees.selectedFeeIndex]
                 this.setState({
-                    feeList: fees,
+                    countedFees,
+                    countedFeesData,
                     devMode: devMode && devMode.toString() === '1',
-                    fee: lastFee,
+                    fee,
                     status: 'success'
                 })
+                if (typeof fee.blockchainData !== 'undefined'
+                    && typeof fee.blockchainData.preparedInputsOutputs !== 'undefined'
+                    && typeof fee.blockchainData.preparedInputsOutputs.multiAddress !== 'undefined'
+                    && typeof fee.blockchainData.preparedInputsOutputs.multiAddress[0] !== 'undefined'
+                ) {
+                    await this.handleSelectUpdateAmount(fee, fee.blockchainData.preparedInputsOutputs.multiAddress)
+                } else if (fee.amountForTx !== sendData.amountRaw) {
+                    await this.handleSelectUpdateAmount(fee, false)
+                }
             }
 
         } catch (e) {
-
+            if (config.debug.appErrors) {
+                console.log('Send.Fee.UNSAFE_componentWillMount error', e, countedFees)
+            }
             Log.errorTranslate(e, 'Send.Fee.UNSAFE_componentWillMount', currencyCode)
 
             this.setState({
@@ -225,44 +139,31 @@ class Fee extends Component {
         setLoaderStatus(false)
     }
 
-    handleTransferAll = async (fee) => {
+    handleSelectUpdateAmount = async (fee, multiAddress) => {
 
-        const {
-            address,
-            currencyCode,
-            accountJson
-        } = this.props.account
-
+        const { currencyCode } = this.props.account
         const { sendData, setParentState } = this.props
 
         const tmpData = JSON.parse(JSON.stringify(sendData))
+        if (typeof fee.amountForTx === 'undefined') {
+            return false
+        }
 
         try {
 
-            let amountRaw = 0
-            if (typeof fee.correctedAmountFrom === 'undefined') {
-                amountRaw = await (
-                    BlocksoftTransfer
-                        .setCurrencyCode(currencyCode)
-                        .setAddressFrom(address)
-                        .setFee(fee)
-                        .setTransferAll(true)
-                        .setAdditional(accountJson)
-                ).getTransferAllBalance()
-
-            } else {
-                amountRaw = fee.correctedAmountFrom
-            }
-
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(amountRaw)
+            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(fee.amountForTx)
 
             tmpData.amount = amount
-            tmpData.amountRaw = amountRaw
+            tmpData.amountRaw = fee.amountForTx
+            tmpData.multiAddress = multiAddress
 
 
             setParentState('data', tmpData)
 
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('Send.Fee.handleTransferAll', e.message, JSON.parse(JSON.stringify(fee)))
+            }
             Log.errorTranslate(e, 'Send.Fee.handleTransferAll', currencyCode)
 
             Keyboard.dismiss()
@@ -277,21 +178,8 @@ class Fee extends Component {
 
     }
 
-    multiplyFee = async () => {
-        const {
-            currencyCode
-        } = this.props.account
-        const x = currencyCode === 'DOGE' ? 5 : 2
-        if (currencyCode === 'DOGE' && CACHE_MULTI === 1) {
-            CACHE_MULTI = 25
-        } else {
-            CACHE_MULTI = CACHE_MULTI * x
-        }
-        return this.init(CACHE_MULTI)
-    }
-
     changeAmountRaw = async (amountRaw) => {
-        return this.init(false, amountRaw)
+        console.log('changeAmountRaw todo')
     }
 
     getFee = async () => {
@@ -304,15 +192,15 @@ class Fee extends Component {
 
     handleSelect = async (fee) => {
 
-        const { useAllFunds } = this.props.sendData
+        const { useAllFunds, amountRaw } = this.props.sendData
 
         const { setParentState } = this.props
 
-        if (useAllFunds) {
+        if (useAllFunds || amountRaw !== fee.amountForTx) {
 
             setLoaderStatus(true)
 
-            await this.handleTransferAll(fee)
+            await this.handleSelectUpdateAmount(fee)
             setParentState('selectedFee', fee)
 
             setLoaderStatus(false)
@@ -349,75 +237,61 @@ class Fee extends Component {
         this.setState({ ifCustomFee: !ifCustomFee })
     }
 
-    toggleShowFee = () => {
-        this.setState({
-            ifShowFee: !this.state.ifShowFee
-        })
-    }
-
     render() {
 
-        const { feeList, fee, status, devMode } = this.state
+        const { countedFees, countedFeesData, fee, status, devMode } = this.state
         const { currencySymbol, currencyCode } = this.props.cryptoCurrency
 
         const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates } = this.props.account
 
-        let showSmallFeeNotice = false
-        if (feeList && feeList.length > 0) {
-            showSmallFeeNotice = typeof feeList[feeList.length - 1].showSmallFeeNotice !== 'undefined'
-        }
-        return feeList.length ? (
+        return countedFees.fees.length ? (
             <View style={styles.wrapper}>
                 <View style={styles.fee__top}>
-                    <TouchableOpacity
-                        style={{ flex: 1, height: 40, paddingLeft: 15, justifyContent: 'center' }}
-                        onPress={() => this.toggleShowFee()}>
+                    <View
+                        style={{ flex: 1, height: 40, paddingLeft: 15, justifyContent: 'center' }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={styles.fee__title}>{strings('send.fee.title')}</Text>
                             <View style={{ marginLeft: 5, marginBottom: -5 }}>
-                                <AntDesing name={this.state.ifShowFee ? 'caretup' : 'caretdown'} size={13}
-                                // <AntDesing name={'caretdown'} size={13}
-                                           color="#f4f4f4"/>
+                                <AntDesing name={'caretdown'} size={13}
+                                           color="#f4f4f4" />
                             </View>
                         </View>
-                    </TouchableOpacity>
-                    {
-                        this.state.ifShowFee ?
-                            <TouchableOpacity
-                                style={{ height: 40, paddingRight: 15, justifyContent: 'center' }}
-                                onPress={() => this.toggleCustomFee()}>
-                                <View>
-                                    {
-                                        !this.state.ifCustomFee ?
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Text style={styles.fee__title}>
-                                                    {strings('send.fee.customFee.customFeeTitle')}
-                                                </Text>
-                                                <View style={{ marginLeft: 3, marginTop: 1 }}>
-                                                    <AntDesing name="right" size={14} color="#f4f4f4"/>
-                                                </View>
-                                            </View>
-                                            :
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <View style={{ marginRight: 3, marginTop: 1 }}>
-                                                    <AntDesing name="left" size={14} color="#f4f4f4"/>
-                                                </View>
-                                                <Text style={styles.fee__title}>
-                                                    {strings('send.fee.customFee.fixedFeeTitle')}
-                                                </Text>
-                                            </View>
-                                    }
-                                </View>
+                    </View>
 
-                            </TouchableOpacity> : null
-                    }
+                    <TouchableOpacity
+                        style={{ height: 40, paddingRight: 15, justifyContent: 'center' }}
+                        onPress={() => this.toggleCustomFee()}>
+                        <View>
+                            {
+                                !this.state.ifCustomFee ?
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Text style={styles.fee__title}>
+                                            {strings('send.fee.customFee.customFeeTitle')}
+                                        </Text>
+                                        <View style={{ marginLeft: 3, marginTop: 1 }}>
+                                            <AntDesing name="right" size={14} color="#f4f4f4" />
+                                        </View>
+                                    </View>
+                                    :
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <View style={{ marginRight: 3, marginTop: 1 }}>
+                                            <AntDesing name="left" size={14} color="#f4f4f4" />
+                                        </View>
+                                        <Text style={styles.fee__title}>
+                                            {strings('send.fee.customFee.fixedFeeTitle')}
+                                        </Text>
+                                    </View>
+                            }
+                        </View>
+
+                    </TouchableOpacity>
 
                 </View>
-                <View style={!this.state.ifShowFee ? styles.fee__content__wrap_hidden : styles.fee__content__wrap}>
+                <View style={styles.fee__content__wrap}>
                     <Animated.View
                         style={{ ...styles.fee__content, transform: [{ translateX: this.state.customFeeAnimation }] }}>
                         {
-                            status === 'success' ? feeList.map((item, index) => {
+                            status === 'success' ? countedFees.fees.map((item, index) => {
 
                                 let prettyFee
                                 let prettyFeeSymbol = feesCurrencySymbol
@@ -446,7 +320,7 @@ class Fee extends Component {
                                         needSpeed = ' rec. ' + needSpeed + ' sat/B'
                                     }
                                 } else if (typeof item.gasPrice !== 'undefined') {
-                                    devFee = BlocksoftPrettyNumbers.makeCut(BlocksoftUtils.toGwei(item.gasPrice),2).justCutted + ' gwei/gas '
+                                    devFee = BlocksoftPrettyNumbers.makeCut(BlocksoftUtils.toGwei(item.gasPrice), 2).justCutted + ' gwei/gas '
                                     if (needSpeed) {
                                         needSpeed = ' rec. ' + BlocksoftPrettyNumbers.makeCut(BlocksoftUtils.toGwei(needSpeed), 2).justCutted + ' gwei/gas'
                                     }
@@ -459,7 +333,7 @@ class Fee extends Component {
                                 // console.log('p ' + prettyFee + ' * ' + feeRates.basicCurrencyRate + ' => ' + feeBasicAmount )
 
 
-                                let timeMsg = strings(`send.fee.time.${item.langMsg}`, { symbol: prettyFeeSymbol })
+                                const timeMsg = strings(`send.fee.time.${item.langMsg}`, { symbol: prettyFeeSymbol })
                                 return (
                                     <View style={styles.fee__wrap} key={index}>
                                         <TouchableOpacity
@@ -483,12 +357,12 @@ class Fee extends Component {
                                                     </Text>
                                                 </View>
                                                 {timeMsg && timeMsg !== '' ?
-                                                <Text style={{
-                                                    ...styles.fee__item__top__text,
-                                                    color: fee.langMsg === item.langMsg ? '#efa1ae' : '#f4f4f4'
-                                                }}>
-                                                    {timeMsg}
-                                                </Text> : null }
+                                                    <Text style={{
+                                                        ...styles.fee__item__top__text,
+                                                        color: fee.langMsg === item.langMsg ? '#efa1ae' : '#f4f4f4'
+                                                    }}>
+                                                        {timeMsg}
+                                                    </Text> : null}
                                                 <Text style={{
                                                     ...styles.fee__item__top__text,
                                                     color: fee.langMsg === item.langMsg ? '#efa1ae' : '#e3e3e3'
@@ -500,8 +374,8 @@ class Fee extends Component {
                                                 </Text>
                                             </View>
                                         </TouchableOpacity>
-                                        {feeList.length - 1 !== index || showSmallFeeNotice ?
-                                            <View style={styles.fee__divider}/> : null}
+                                        {countedFees.fees.length - 1 !== index || countedFees.showSmallFeeNotice || countedFees.showChangeAmountNotice ?
+                                            <View style={styles.fee__divider} /> : null}
                                     </View>
                                 )
                             }) : null
@@ -510,7 +384,7 @@ class Fee extends Component {
                             status === 'fail' ? <Text> Error </Text> : null
                         }
                         {
-                            showSmallFeeNotice ? <View style={styles.fee__wrap}>
+                            countedFees.showSmallFeeNotice ? <View style={styles.fee__wrap}>
                                 <TouchableOpacity
                                     disabled={true}
                                     style={styles.fee__item}
@@ -542,19 +416,60 @@ class Fee extends Component {
                                 </TouchableOpacity>
                             </View> : null
                         }
+
+                        {
+                            countedFees.showChangeAmountNotice ? <View style={styles.fee__wrap}>
+                                <TouchableOpacity
+                                    disabled={true}
+                                    style={styles.fee__item}
+                                >
+                                    <GradientView
+                                        style={styles.fee__circle}
+                                        array={styles_.array}
+                                        start={styles_.start}
+                                        end={styles_.end}>
+                                    </GradientView>
+                                    <View style={styles.fee__item__content}>
+                                        <View style={styles.fee__item__top}>
+                                            <Text style={{
+                                                ...styles.fee__item__title,
+                                                color: '#f4f4f4'
+                                            }}>
+                                                {strings(`send.fee.smallFeeNoticeTitle`)}
+                                            </Text>
+                                        </View>
+
+                                        <Text style={{
+                                            ...styles.fee__item__top__text,
+                                            color: '#f4f4f4'
+                                        }}>
+                                            {strings(`send.fee.changeAmountNoticeDesc`)}
+                                        </Text>
+
+                                    </View>
+                                </TouchableOpacity>
+                            </View> : null
+                        }
                     </Animated.View>
                     <Animated.View
                         style={{ ...styles.fee__content, transform: [{ translateX: this.state.customFeeAnimation }] }}>
                         <CustomFee
                             ref={ref => this.customFee = ref}
                             currencyCode={currencyCode}
+                            feesCurrencyCode={feesCurrencyCode}
                             fee={this.state.fee}
-                            handleTransferAll={this.handleTransferAll}
-                            useAllFunds={this.props.sendData.useAllFunds}/>
+                            countedFees={countedFees}
+                            countedFeesData={countedFeesData}
+                            basicCurrencySymbol={basicCurrencySymbol}
+                            basicCurrencyRate={feeRates.basicCurrencyRate}
+                            amountForTx={this.state.amountRaw}
+                            handleSelectUpdateAmount={this.handleSelectUpdateAmount}
+                            useAllFunds={this.props.sendData.useAllFunds}
+                        />
                     </Animated.View>
                 </View>
             </View>
-        ) : <View/>
+        ) : <View />
     }
 }
 

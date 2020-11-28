@@ -8,7 +8,7 @@ const VisibleCodes = [
     'BTC', 'ETH', 'ETH_USDT', 'ETH_SOUL' // add code here to show on start screen
 ]
 const Codes = [
-    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'ETH_DAIM', 'TRX'   // add code here for autocreation the wallet address with the currency
+    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'ETH_DAIM', 'TRX', 'FIO'   // add code here for autocreation the wallet address with the currency
 ]
 
 const Currencies = {
@@ -68,6 +68,20 @@ const Currencies = {
         buyable: 1,
         currencyExplorerLink: 'https://xmrchain.net/search?value=',
         currencyExplorerTxLink: 'https://blockchair.com/monero/transaction/'
+    },
+    'FIO': {
+        currencyName: 'FIO',
+        currencyCode: 'FIO',
+        currencySymbol: 'FIO',
+        addressProcessor: 'FIO',
+        scannerProcessor: 'FIO',
+        extendsProcessor: 'FIO',
+        prettyNumberProcessor: 'UNIFIED',
+        network: 'mainnet',
+        decimals: 9,
+        buyable: 0,
+        currencyExplorerLink: 'https://fio.bloks.io/key/',
+        currencyExplorerTxLink: 'https://fio.bloks.io/transaction/'
     },
 
     // 'BTC_LIGHT': {
@@ -583,6 +597,8 @@ function addAndUnifyCustomCurrency(currencyObject) {
     Currencies['CUSTOM_' + currencyObject.currencyCode] = tmp
 }
 
+const ALL_SETTINGS = {}
+
 function getCurrencyAllSettings(currencyCodeOrObject) {
     let currencyCode = currencyCodeOrObject
     if (typeof currencyCode === 'undefined' || !currencyCode) {
@@ -594,9 +610,14 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
         dbInterface.setQueryString(`DELETE FROM account_balance WHERE currency_code='ETH_LAND'`).query()
         dbInterface.setQueryString(`DELETE FROM currency WHERE currency_code='ETH_LAND'`).query()
     }
+
     if (typeof currencyCodeOrObject.currencyCode !== 'undefined') {
         currencyCode = currencyCodeOrObject.currencyCode
     }
+    if (typeof ALL_SETTINGS[currencyCode] !== 'undefined') {
+        return ALL_SETTINGS[currencyCode]
+    }
+
     let settings = Currencies[currencyCode]
     if (!settings) {
         settings = CurrenciesForTests[currencyCode]
@@ -613,6 +634,7 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
             }
         }
     }
+    ALL_SETTINGS[currencyCode] = settings
     return settings
 }
 

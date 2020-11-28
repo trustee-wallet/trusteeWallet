@@ -30,7 +30,9 @@ import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
 import { strings } from '../../services/i18n'
 
-import BlocksoftTransfer from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
+
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
@@ -50,8 +52,8 @@ import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 import config from '../../config/config'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import api from '../../services/Api/Api'
+import { getAccountFioName, getPubAddress, isFioAddressRegistered, isFioAddressValid, resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
 
 let styles
 
@@ -67,7 +69,7 @@ const memoInput = {
 
 const amountInput = {
     id: 'value',
-    type: 'EMPTY',
+    type: 'AMOUNT',
     additional: 'NUMBER',
     mark: 'ETH'
 }
@@ -84,7 +86,6 @@ class SendScreen extends Component {
             account: {},
             cryptoCurrency: {},
             wallet: {},
-            feeList: [],
 
             disabled: false,
             destinationTag: null,
@@ -102,13 +103,15 @@ class SendScreen extends Component {
             inputType: 'CRYPTO',
 
             toTransactionJSON: {},
+            fioRequestDetails: {},
+            isFioPayment: false,
 
-            copyAddress: false
+            copyAddress: false,
+            countedFees : false
         }
         this.addressInput = React.createRef()
         this.memoInput = React.createRef()
         this.valueInput = React.createRef()
-        this.fee = React.createRef()
     }
 
     // eslint-disable-next-line camelcase
@@ -131,6 +134,24 @@ class SendScreen extends Component {
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
             this.init()
         })
+    }
+
+    componentDidMount() {
+        const fioRequest = this.props.navigation.getParam('fioRequestDetails')
+        if (fioRequest) {
+            if (fioRequest.content?.token_code === 'FIO') {
+                this.addressInput.handleInput(fioRequest.payee_fio_address)
+            } else {
+                this.addressInput.handleInput(fioRequest.content?.payee_public_address)
+            }
+            // this.memoInput.handleInput(fioRequest.content?.memo)
+            this.valueInput.handleInput(fioRequest.content?.amount)
+
+            this.setState({
+                isFioPayment: true,
+                fioRequestDetails: fioRequest
+            })
+        }
     }
 
     init = async () => {
@@ -156,8 +177,6 @@ class SendScreen extends Component {
                 inputType = 'CRYPTO'
             }
             // Log.log(inputType, type)
-
-            this.transferPrecache(account)
 
             const toState = {
                 account,
@@ -205,7 +224,7 @@ class SendScreen extends Component {
                 }
 
                 this.setState({
-                    useAllFunds: false
+                     useAllFunds: false
                 })
 
             })
@@ -222,16 +241,6 @@ class SendScreen extends Component {
             }, () => {
                 this.amountInputCallback()
             })
-
-            this.transferPrecache(account)
-        }
-    }
-
-    transferPrecache = (account) => {
-        try {
-            // (BlocksoftTransfer.setCurrencyCode(account.currencyCode).setWalletHash(account.walletHash).setAddressFrom(account.address).setDerivePath(account.derivationPath)).getTransferPrecache()
-        } catch (e) {
-            // do nothing but actually could be shown!
         }
     }
 
@@ -272,21 +281,17 @@ class SendScreen extends Component {
 
         setLoaderStatus(true)
 
-        const { walletHash, walletUseUnconfirmed } = this.props.wallet
+        const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = this.props.wallet
 
         const { address, derivationPath, currencyCode, balance, unconfirmed, accountJson } = this.state.account
 
-        const derivationPathTmp = derivationPath.replace(/quote/g, '\'')
 
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            // const tmp = await BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).getBalance()
-            // const balanceRaw = tmp ? BlocksoftUtils.add(tmp.balance, tmp.unconfirmed) : 0 // to think show this as option or no
-            const balanceRaw = walletUseUnconfirmed ? BlocksoftUtils.add(balance, unconfirmed).toString() : balance
-            Log.log(`SendScreen.handleTransferAll balance ${currencyCode} ${address} data ${balance} + ${unconfirmed} => ${balanceRaw}`)
+            Log.log(`SendScreen.handleTransferAll balance ${currencyCode} ${address} data ${balance} + ${unconfirmed}`)
 
-            let addressToForTransferAll = (BlocksoftTransfer.setCurrencyCode(currencyCode)).getAddressToForTransferAll(address)
+            let addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
 
             const addressValidate = handleInput ? await this.addressInput.handleValidate() : { status: 'fail' }
 
@@ -296,89 +301,31 @@ class SendScreen extends Component {
 
             Log.log(`SendScreen.handleTransferAll balance ${currencyCode} ${address} addressToForTransferAll`, addressToForTransferAll)
 
-            const fees = await (
-                BlocksoftTransfer
-                    .setCurrencyCode(currencyCode)
-                    .setWalletHash(walletHash)
-                    .setDerivePath(derivationPathTmp)
-                    .setAddressFrom(address)
-                    .setAddressTo(addressToForTransferAll)
-                    .setAmount(balanceRaw)
-                    .setFee(false)
-                    .setTransferAll(true)
-                    .setAdditional(accountJson)
-            ).getFeeRate(true)
+            const countedFeesData = {
+                currencyCode,
+                walletHash,
+                derivationPath,
+                addressFrom: address,
+                addressTo: addressToForTransferAll,
 
-            let current = false
+                amount: balance,
+                unconfirmed : walletUseUnconfirmed === 1 ? unconfirmed : 0,
 
-            // try fast
-            // Log.log('fees1', JSON.parse(JSON.stringify(fees)))
-            let currentFee = fees ? fees[fees.length - 1] : 0
-            try {
-                try {
-                    current = await (
-                        BlocksoftTransfer
-                            .setCurrencyCode(currencyCode)
-                            .setAddressFrom(address)
-                            .setAddressTo(addressToForTransferAll)
-                            .setFee(currentFee)
-                            .setAdditional(accountJson)
-                    ).getTransferAllBalance(balanceRaw)
-                } catch (e) {
-                    if (fees) {
-                        currentFee = fees[0]
-                        current = await (
-                            BlocksoftTransfer
-                                .setCurrencyCode(currencyCode)
-                                .setAddressFrom(address)
-                                .setAddressTo(addressToForTransferAll)
-                                .setFee(currentFee)
-                                .setAdditional(accountJson)
-                        ).getTransferAllBalance(balanceRaw)
-                    } else {
-                        throw e
-                    }
-                }
-            } catch (e) {
-                if (fees) {
-                    current = false
-                } else {
-                    throw e
-                }
+                isTransferAll: true,
+                useOnlyConfirmed : !(walletUseUnconfirmed === 1),
+                allowReplaceByFee : walletAllowReplaceByFee === 1,
+                accountJson
             }
-
-            // try slow if not enough for fast
-            // Log.log('fees', JSON.parse(JSON.stringify(fees)))
-            if (fees && typeof fees[0] !== 'undefined' && (current === false || current === 0)) {
-                currentFee = fees[0]
-                current = await (
-                    BlocksoftTransfer
-                        .setCurrencyCode(currencyCode)
-                        .setAddressFrom(address)
-                        .setAddressTo(addressToForTransferAll)
-                        .setFee(currentFee)
-                        .setAdditional(accountJson)
-                ).getTransferAllBalance(balanceRaw)
-
-                if (current === false || current === 0) {
-                    currentFee.feeForTx = currentFee.feeForTx / 2
-                    current = await (
-                        BlocksoftTransfer
-                            .setCurrencyCode(currencyCode)
-                            .setAddressFrom(address)
-                            .setAddressTo(addressToForTransferAll)
-                            .setFee(currentFee)
-                            .setAdditional(accountJson)
-                    ).getTransferAllBalance(balanceRaw)
-                }
-            }
+            const transferAllCount = await BlocksoftTransfer.getTransferAllBalance(countedFeesData)
 
 
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(current)
+            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance)
 
             this.setState({
                 inputType: 'CRYPTO',
-                useAllFunds: true
+                useAllFunds: true,
+                countedFees : transferAllCount,
+                countedFeesData
             })
 
             try {
@@ -387,8 +334,8 @@ class SendScreen extends Component {
                     && typeof this.valueInput.handleInput !== 'undefined' && this.valueInput.handleInput
                     && typeof amount !== 'undefined' && amount !== null
                 ) {
-                    this.valueInput.handleInput((1 * Math.abs(amount)).toString(), false)
-                    this.amountInputCallback((1 * Math.abs(amount)).toString(), false)
+                    this.valueInput.handleInput(amount, false)
+                    this.amountInputCallback(amount, false)
                 }
             } catch (e) {
                 e.message += ' while this.valueInput.handleInput amount ' + amount
@@ -396,10 +343,14 @@ class SendScreen extends Component {
             }
 
             setLoaderStatus(false)
-            return { currencyBalanceAmount: amount, currencyBalanceAmountRaw: current }
+
+            return { currencyBalanceAmount: amount, currencyBalanceAmountRaw: transferAllCount.selectedTransferAllBalance }
+
 
         } catch (e) {
-            // console.error(e)
+            if (config.debug.cryptoErrors) {
+                console.log('Send.SendScreen.handleTransferAll', e)
+            }
             Log.errorTranslate(e, 'Send.SendScreen.handleTransferAll', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
 
             Keyboard.dismiss()
@@ -423,19 +374,19 @@ class SendScreen extends Component {
             title: strings('send.confirmModal.title'),
             description: strings('send.confirmModal.force')
         }, () => {
-            this.handleSendTransaction(true)
+            this.handleSendTransaction(false, true, true)
         })
     }
+    handleSendTransaction = async (forceSendAll = false, fromModal = false, forceSendAmount = false) => {
 
-    handleSendTransaction = async (force = false, fromModal = false, forceTransferAll = false) => {
-
-        if (forceTransferAll) {
+        if (forceSendAll) {
             await this.handleTransferAll()
         }
 
-        Log.log('SendScreen.handleSendTransaction started ' + (force ? 'FORCE' : 'usual'))
+        Log.log('SendScreen.handleSendTransaction started ' + JSON.stringify({forceSendAmount, forceSendAll, fromModal}))
 
-        const { account, cryptoCurrency, toTransactionJSON, useAllFunds, amountEquivalent, inputType } = this.state
+        const { account, cryptoCurrency, toTransactionJSON, useAllFunds, fioRequestDetails, isFioPayment, amountEquivalent, inputType, countedFees } = this.state
+
 
         const addressValidation = await this.addressInput.handleValidate()
         const valueValidation = await this.valueInput.handleValidate()
@@ -446,17 +397,18 @@ class SendScreen extends Component {
         }
 
         const wallet = this.props.wallet
+
         const extend = BlocksoftDict.getCurrencyAllSettings(cryptoCurrency.currencyCode)
 
         if (addressValidation.status !== 'success') {
             Log.log('SendScreen.handleSendTransaction invalid address ' + JSON.stringify(addressValidation))
             return
         }
-        if (!force && valueValidation.status !== 'success') {
+        if (!forceSendAmount && valueValidation.status !== 'success') {
             Log.log('SendScreen.handleSendTransaction invalid value ' + JSON.stringify(valueValidation))
             return
         }
-        if (!force && valueValidation.value === 0) {
+        if (!forceSendAmount && valueValidation.value === 0) {
             Log.log('SendScreen.handleSendTransaction value is 0 ' + JSON.stringify(valueValidation))
             return
         }
@@ -476,7 +428,7 @@ class SendScreen extends Component {
             messages: []
         }
 
-        if (!force && typeof extend.delegatedTransfer === 'undefined' && typeof extend.feesCurrencyCode !== 'undefined' && typeof extend.skipParentBalanceCheck === 'undefined') {
+        if (!forceSendAmount && typeof extend.delegatedTransfer === 'undefined' && typeof extend.feesCurrencyCode !== 'undefined' && typeof extend.skipParentBalanceCheck === 'undefined') {
             const parentCurrency = await DaemonCache.getCacheAccount(account.walletHash, extend.feesCurrencyCode)
             if (parentCurrency) {
                 const parentBalance = parentCurrency.balance * 1
@@ -491,7 +443,7 @@ class SendScreen extends Component {
                     enoughFunds.messages.push(msg)
                     Log.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
                     if (config.debug.appErrors) {
-                        Log.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
+                        console.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
                     }
                 } else if (cryptoCurrency.currencyCode === 'USDT' && parentBalance < 550) {
                     let msg
@@ -504,7 +456,7 @@ class SendScreen extends Component {
                     enoughFunds.messages.push(msg)
                     Log.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
                     if (config.debug.appErrors) {
-                        Log.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
+                        console.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
                     }
                 } else {
                     Log.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance is ok ' + parentBalance, parentCurrency)
@@ -526,6 +478,49 @@ class SendScreen extends Component {
         const comment = commentValidation.value
         const memo = destinationTagValidation.value.toString()
 
+        let fioPaymentData
+        let recipientAddress = addressValidation.value
+        try {
+            if (this.isFioAddress(recipientAddress)) {
+                console.log('SendScreen.handleSendTransaction isFioAddress checked ' + recipientAddress)
+                if (await isFioAddressRegistered(recipientAddress)) {
+                    console.log('SendScreen.handleSendTransaction isFioAddressRegistered checked ' + recipientAddress)
+                    const chainCode = resolveChainCode(cryptoCurrency.currencyCode, cryptoCurrency.currencySymbol)
+                    const publicFioAddress = await getPubAddress(addressValidation.value, chainCode, cryptoCurrency.currencySymbol)
+                    console.log('SendScreen.handleSendTransaction public for ' + recipientAddress + ' ' + chainCode + ' =>' + publicFioAddress)
+                    if (!publicFioAddress || publicFioAddress === '0') {
+                        const msg = strings('send.publicFioAddressNotFound', { symbol: cryptoCurrency.currencyCode })
+                        Log.log('SendScreen.handleSendTransaction ' + msg)
+                        enoughFunds.isAvailable = false
+                        enoughFunds.messages.push(msg)
+                        setLoaderStatus(false)
+                        this.setState({ enoughFunds })
+                        return
+                    }
+                    recipientAddress = publicFioAddress;
+                    if (fioRequestDetails && fioRequestDetails.fio_request_id) {
+                        fioPaymentData = fioRequestDetails
+                    } else {
+                        fioPaymentData = {
+                            payer_fio_address: await getAccountFioName(),
+                            payee_fio_address: addressValidation.value,
+                            memo,
+                        }
+                    }
+                } else {
+                    console.log('SendScreen.handleSendTransaction isFioAddressRegistered no result ' + recipientAddress)
+                    const msg = strings('send.publicFioAddressNotFound', { symbol: cryptoCurrency.currencyCode })
+                    Log.log('SendScreen.handleSendTransaction ' + msg)
+                    enoughFunds.isAvailable = false
+                    enoughFunds.messages.push(msg)
+                    setLoaderStatus(false)
+                    this.setState({ enoughFunds })
+                    return
+                }
+            }
+        } catch (e) {
+            console.log('SendScreen.handleSendTransaction isFioAddress error ' + recipientAddress + ' => ' + e.message)
+        }
 
         try {
             toTransactionJSON.comment = comment
@@ -536,8 +531,11 @@ class SendScreen extends Component {
             }
             const balanceRaw = account.balanceRaw
 
-            if (!force) {
-                const diff = BlocksoftUtils.diff(amountRaw, balanceRaw)
+            if (!forceSendAmount) {
+                let diff = BlocksoftUtils.diff(amountRaw, balanceRaw)
+                if (cryptoCurrency.currencyCode === 'XRP') {
+                    diff = BlocksoftUtils.add(diff, 20)
+                }
                 if (diff > 0) {
                     Log.log('SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' not ok diff ' + diff, {
                         amountRaw,
@@ -554,8 +552,8 @@ class SendScreen extends Component {
                 }
             }
 
-            if (fromModal === false) {
-                try {
+            try {
+                if (fromModal === false && BlocksoftTransfer.checkSendAllModal({ currencyCode: cryptoCurrency.currencyCode })) {
 
                     const limitPercent = 0.95
 
@@ -576,25 +574,31 @@ class SendScreen extends Component {
                         useAll: useAllFunds
                     })
 
+                    Log.log('SendScreen.handleSendTransaction input', { amountCrypto: valueValidation.value, percentCheck, diffCheck, useAll: useAllFunds })
+
                     if (useAllFunds === false && percentCheck * 1 > 0) {
                         showModal({
                             type: 'YES_NO_MODAL',
                             icon: 'WARNING',
                             title: strings('modal.titles.attention'),
-                            description: strings('modal.infoSendAllModal.description', {coin: cryptoCurrency.currencyName}),
+
+
+                            description: strings('modal.infoSendAllModal.description', { coin: cryptoCurrency.currencyName }),
                             reverse: true,
                             noCallback: () => {
-                                this.handleSendTransaction(false, true, true)
+                                this.handleSendTransaction(true, true)
                             }
                         }, () => {
-                            this.handleSendTransaction(false, true, false)
+                            this.handleSendTransaction(false, true)
                         })
                         return
                     }
-                } catch (e) {
-                    Log.log('SendScreen.handleSendTransaction modalSellAll error ' + e.message)
                 }
+            } catch (e) {
+                Log.log('SendScreen.handleSendTransaction infoSendAllModal error ' + e.message)
             }
+
+
 
             this.setState({
                 enoughFunds: {
@@ -605,22 +609,25 @@ class SendScreen extends Component {
             })
 
             setTimeout(() => {
-                Log.log('SendScreen.handleSendTransaction amount ' + amount)
+                Log.log('SendScreen.handleSendTransaction amount ' + amount + ' recipientAddress ' + recipientAddress)
                 const data = {
                     memo,
                     amount: typeof amount === 'undefined' ? '0' : amount.toString(),
                     amountRaw,
-                    address: addressValidation.value,
+                    address: recipientAddress,
                     wallet,
                     cryptoCurrency,
                     account,
                     useAllFunds,
                     toTransactionJSON,
-                    type: this.props.send.data.type
+                    type: this.props.send.data.type,
+                    currencyCode : cryptoCurrency.currencyCode,
+                    countedFees
                 }
 
                 NavStore.goNext('ConfirmSendScreen', {
-                    confirmSendScreenParam: data
+                    confirmSendScreenParam: data,
+                    ...(isFioPayment && { fioRequestDetails: fioPaymentData })
                 })
 
                 MarketingEvent.checkSellConfirm({
@@ -644,12 +651,13 @@ class SendScreen extends Component {
 
     amountInputCallback = (value, changeUseAllFunds) => {
         const { currencySymbol, currencyCode } = this.state.cryptoCurrency
-        const { basicCurrencySymbol, basicCurrencyRate, balancePretty } = this.state.account
+        const { basicCurrencySymbol, basicCurrencyRate } = this.state.account
         const { useAllFunds } = this.state
 
         if (useAllFunds && changeUseAllFunds) {
             this.setState({
-                useAllFunds: false
+                useAllFunds: false,
+                countedFees : false
             })
         }
 
@@ -676,6 +684,16 @@ class SendScreen extends Component {
             })
         }
         IS_CALLED_BACK = false
+    }
+
+    isFioAddress = (address) => {
+        const isValidAddress = isFioAddressValid(address)
+        if (this.state.isFioPayment !== isValidAddress) {
+            this.setState({
+                isFioPayment: isValidAddress
+            })
+        }
+        return isValidAddress
     }
 
     onFocus = () => {
@@ -810,7 +828,8 @@ class SendScreen extends Component {
             description,
             amountInputMark,
             focused,
-            copyAddress
+            copyAddress,
+            isFioPayment,
         } = this.state
 
         const {
@@ -854,6 +873,7 @@ class SendScreen extends Component {
                             <TextView style={{ height: 70 }}>
                                 {description}
                             </TextView>
+
                             <AddressInput
                                 style={{ marginTop: 20 }}
                                 ref={component => this.addressInput = component}
@@ -864,6 +884,7 @@ class SendScreen extends Component {
                                 subtype={network}
                                 cuttype={currencySymbol}
                                 paste={!disabled}
+                                fio={disabled}
                                 copy={copyAddress}
                                 qr={!disabled}
                                 qrCallback={() => {
@@ -881,7 +902,9 @@ class SendScreen extends Component {
                                 }}
                                 disabled={disabled}
                                 validPlaceholder={true}
+                                callback={this.isFioAddress}
                                 noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
+
                             />
                             {
                                 currencyCode === 'XRP' ?
@@ -947,6 +970,19 @@ class SendScreen extends Component {
                                     isTextarea={true}
                                     style={{ marginRight: 2 }} />
                             </View>
+
+                            {
+                                isFioPayment ?
+                                    <MemoInput
+                                        ref={component => this.memoInput = component}
+                                        id={memoInput.id}
+                                        disabled={disabled}
+                                        name={strings('send.fio_memo')}
+                                        type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
+                                        keyboardType={'default'}
+                                    /> : null
+                            }
+
                             {this.renderEnoughFundsError()}
                         </View>
 

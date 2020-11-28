@@ -15,10 +15,6 @@ import BtcScannerProcessor from './btc/BtcScannerProcessor'
 import BtcSegwitCompatibleAddressProcessor from './btc/address/BtcSegwitCompatibleAddressProcessor'
 import BtcSegwitAddressProcessor from './btc/address/BtcSegwitAddressProcessor'
 
-import BtcLightAddressProcessor from './btc_light/BtcLightAddressProcessor'
-import BtcLightScannerProcessor from './btc_light/BtcLightScannerProcessor'
-import BtcLightInvoiceProcessor from './btc_light/BtcLightInvoiceProcessor'
-
 import BtcTestScannerProcessor from './btc_test/BtcTestScannerProcessor'
 
 import BtgScannerProcessor from './btg/BtgScannerProcessor'
@@ -48,30 +44,23 @@ import XvgScannerProcessor from './xvg/XvgScannerProcessor'
 import XmrAddressProcessor from './xmr/XmrAddressProcessor'
 import XmrScannerProcessor from './xmr/XmrScannerProcessor'
 import XmrSecretsProcessor from './xmr/XmrSecretsProcessor'
+import FioAddressProcessor from './fio/FioAddressProcessor'
+import FioScannerProcessor from './fio/FioScannerProcessor'
 
-export default class BlocksoftDispatcher {
-
-    _settings = {}
-
-    _getSettings(currencyCode) {
-        if (typeof this._settings[currencyCode] === 'undefined') {
-            this._settings[currencyCode] = BlocksoftDict.getCurrencyAllSettings(currencyCode)
-        }
-        return this._settings[currencyCode]
-    }
+class BlocksoftDispatcher {
 
     /**
      * @param {string} currencyCode
      * @return {EthAddressProcessor|BtcAddressProcessor}
      */
     getAddressProcessor(currencyCode) {
-        const currencyDictSettings = this._getSettings(currencyCode)
+        const currencyDictSettings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
         return this.innerGetAddressProcessor(currencyDictSettings)
     }
 
     /**
      * @param {Object} currencyDictSettings
-     * @return {EthAddressProcessor|BtcAddressProcessor|BtcLightAddressProcessor|TrxAddressProcessor}
+     * @return {EthAddressProcessor|BtcAddressProcessor|TrxAddressProcessor}
      */
     innerGetAddressProcessor(currencyDictSettings) {
         switch (currencyDictSettings.addressProcessor) {
@@ -83,8 +72,6 @@ export default class BlocksoftDispatcher {
                 return new BtcSegwitAddressProcessor(currencyDictSettings)
             case 'BTC_SEGWIT_COMPATIBLE':
                 return new BtcSegwitCompatibleAddressProcessor(currencyDictSettings)
-            case 'BTC_LIGHT' :
-                return new BtcLightAddressProcessor()
             case 'ETH':
                 return new EthAddressProcessor(currencyDictSettings)
             case 'TRX':
@@ -93,6 +80,8 @@ export default class BlocksoftDispatcher {
                 return new XrpAddressProcessor()
             case 'XMR':
                 return new XmrAddressProcessor()
+            case 'FIO':
+                return new FioAddressProcessor()
             default:
                 throw new Error('Unknown addressProcessor ' + currencyDictSettings.addressProcessor)
         }
@@ -100,10 +89,10 @@ export default class BlocksoftDispatcher {
 
     /**
      * @param {string} currencyCode
-     * @returns {BsvScannerProcessor|BtcScannerProcessor|UsdtScannerProcessor|EthScannerProcessorErc20|BchScannerProcessor|LtcScannerProcessor|XvgScannerProcessor|BtcTestScannerProcessor|DogeScannerProcessor|EthScannerProcessorSoul|EthScannerProcessor|BtgScannerProcessor|TrxScannerProcessor|BtcLightScannerProcessor}
+     * @returns {BsvScannerProcessor|BtcScannerProcessor|UsdtScannerProcessor|EthScannerProcessorErc20|BchScannerProcessor|LtcScannerProcessor|XvgScannerProcessor|BtcTestScannerProcessor|DogeScannerProcessor|EthScannerProcessorSoul|EthScannerProcessor|BtgScannerProcessor|TrxScannerProcessor}
      */
     getScannerProcessor(currencyCode) {
-        const currencyDictSettings = this._getSettings(currencyCode)
+        const currencyDictSettings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
         switch (currencyDictSettings.scannerProcessor) {
             case 'BCH':
                 return new BchScannerProcessor(currencyDictSettings)
@@ -111,8 +100,6 @@ export default class BlocksoftDispatcher {
                 return new BsvScannerProcessor(currencyDictSettings)
             case 'BTC': case 'BTC_SEGWIT': case 'BTC_SEGWIT_COMPATIBLE':
                 return new BtcScannerProcessor(currencyDictSettings)
-            case 'BTC_LIGHT' :
-                return new BtcLightScannerProcessor(currencyDictSettings)
             case 'BTC_TEST':
                 return new BtcTestScannerProcessor(currencyDictSettings)
             case 'BTG':
@@ -139,6 +126,8 @@ export default class BlocksoftDispatcher {
                 return new XvgScannerProcessor(currencyDictSettings)
             case 'XMR':
                 return new XmrScannerProcessor(currencyDictSettings)
+            case 'FIO':
+                return new FioScannerProcessor(currencyDictSettings)
             default:
                 throw new Error('Unknown scannerProcessor ' + currencyDictSettings.scannerProcessor)
         }
@@ -161,25 +150,16 @@ export default class BlocksoftDispatcher {
 
     /**
      * @param {string} currencyCode
-     * @return {BtcLightInvoiceProcessor}
-     */
-    getInvoiceProcessor(currencyCode) {
-        const currencyDictSettings = this._getSettings(currencyCode)
-        if (currencyDictSettings.currencyCode !== 'BTC_LIGHT') {
-            throw new Error('Unknown invoiceProcessor ' + currencyDictSettings.currencyCode)
-        }
-        return new BtcLightInvoiceProcessor()
-    }
-
-    /**
-     * @param {string} currencyCode
      * @return {XmrSecretsProcessor}
      */
     getSecretsProcessor(currencyCode) {
-        const currencyDictSettings = this._getSettings(currencyCode)
+        const currencyDictSettings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
         if (currencyDictSettings.currencyCode !== 'XMR') {
-            throw new Error('Unknown invoiceProcessor ' + currencyDictSettings.currencyCode)
+            throw new Error('Unknown secretsProcessor ' + currencyDictSettings.currencyCode)
         }
         return new XmrSecretsProcessor()
     }
 }
+
+const singleBlocksoftDispatcher = new BlocksoftDispatcher()
+export default singleBlocksoftDispatcher

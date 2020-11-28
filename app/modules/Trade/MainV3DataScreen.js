@@ -1,5 +1,5 @@
 /**
- * @version 0.1
+ * @version 0.3
  * @author yura
  */
 import React, { Component } from 'react'
@@ -28,7 +28,7 @@ import { i18n, strings, sublocale } from '../../services/i18n'
 import AsyncStorage from '@react-native-community/async-storage'
 import cardDS from '../../appstores/DataSource/Card/Card'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import FileSystem from '../../services/FileSystem/FileSystem'
+import { FileSystem } from '../../services/FileSystem/FileSystem'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import { check, request, PERMISSIONS } from 'react-native-permissions'
@@ -83,7 +83,7 @@ class MainV3DataScreen extends Component {
         const type = this.props.navigation.getParam('tradeType')
 
         let apiUrl = await ApiV3.initData(type ? type : tradeType)
-        console.log(apiUrl)
+
         setTimeout(() => {
             this.setState({
                 show: true,
@@ -252,7 +252,7 @@ class MainV3DataScreen extends Component {
 
             if (backToOld) {
                 if (tradeType === 'SELL') {
-                    AsyncStorage.setItem('isNewInterfaceSell', 'false')
+                    AsyncStorage.setItem('isNewInterfaceSell', 'false')             
                 } else if (tradeType === 'BUY') {
                     AsyncStorage.setItem('isNewInterfaceBuy', 'false')
                 }
@@ -418,7 +418,7 @@ class MainV3DataScreen extends Component {
                 if (typeof cardData.countryCode !== 'undefined') {
                     passData.countryCode = cardData.countryCode
                 }
-
+                passData.type = 'visa'
                 this.onSaveCard(passData)
             }
         } catch (e) {
@@ -450,13 +450,16 @@ class MainV3DataScreen extends Component {
                     card_name: cardData.cardName,
                     currency: cardData.currency,
                     wallet_hash: walletHash,
-                    verification_server: 'V3'
+                    verification_server: 'V3',
+                    card_email: cardData.email,
+                    card_details_json: cardData.cardDetailsJson
                 }]
             })
             Log.log('Trade/MainV3DataScreen save cardData' + cardData)
         }
-
-        await this._verifyCard(cardData)
+        if (cardData.type === 'visa' || cardData.type === 'mastercard') {
+            await this._verifyCard(cardData)
+        }
     }
 
     async _verifyCard(cardData) {
@@ -511,8 +514,8 @@ class MainV3DataScreen extends Component {
             }
 
             if (typeof cardData.photoSource !== 'undefined') {
-                const fs = new FileSystem()
-                const base64 = await fs.handleImageBase64(cardData.photoSource)
+                const fs = new FileSystem({})
+                const base64 = await fs.v3handleImageBase64(cardData.photoSource)
                 data.append('image', 'data:image/jpeg;base64,' + base64)
             }
 
@@ -534,7 +537,8 @@ class MainV3DataScreen extends Component {
             const cardJson = res
             const numberCard = cardData.number
 
-            if (typeof cardJson !== 'undefined' && cardJson && typeof cardJson.verificationStatus !== 'undefined' && cardJson.verificationStatus === 'PENDING' || cardJson.verificationStatus === 'WAIT_FOR_PHOTO') {
+            if (typeof cardJson !== 'undefined' && cardJson && typeof cardJson.verificationStatus !== 'undefined' && 
+                (cardJson.verificationStatus === 'PENDING' || cardJson.verificationStatus === 'WAIT_FOR_PHOTO')) {
                 await this.resCardToWebView(numberCard)
             } else {
                 this.webref.postMessage(JSON.stringify({ "res": { cardID, res, numberCard } }))
@@ -584,7 +588,9 @@ class MainV3DataScreen extends Component {
             currency: item.currency,
             expirationDate: item.expirationDate,
             type: item.type,
-            walletHash: item.walletHash
+            walletHash: item.walletHash,
+            card_email: item.email,
+            card_details_json: item.cardDetailsJson
             // cardVerificationJson: JSON.stringify(res)
         }
         if (typeof item.number !== 'undefined') {
@@ -598,9 +604,12 @@ class MainV3DataScreen extends Component {
             updateObj
         })
         Log.log('Trade/MainV3DataScreen card updated')
-        if (typeof item.number !== 'undefined') {
-            await this._verifyCard(item)
-        }
+
+        if (item.type === 'visa' || item.type === 'mastercard') {
+            if (typeof item.number !== 'undefined') {
+                await this._verifyCard(item)
+            }
+        }   
     }
 
     modal(){

@@ -25,7 +25,7 @@ import { strings } from '../../services/i18n'
 
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import Log from '../../services/Log/Log'
-
+import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 
 
 class AddCustomTokenScreen extends Component {
@@ -34,7 +34,7 @@ class AddCustomTokenScreen extends Component {
         super(props)
         this.state = {
             tokenType: '',
-            init : false
+            init: false
         }
         this.addressInput = React.createRef()
     }
@@ -147,6 +147,18 @@ class AddCustomTokenScreen extends Component {
 
         await customCurrencyActions.importCustomCurrenciesToDict()
 
+        try {
+            await currencyActions.addCurrency({ currencyCode: 'CUSTOM_' + checked.currencyCode })
+        } catch (e) {
+            console.log('AddCustomTokenScreen.addToken secondStep error', e)
+        }
+
+        try {
+            await currencyActions.setCryptoCurrencies()
+        } catch (e) {
+            console.log('AddCustomTokenScreen.addToken thirdStep error', e)
+        }
+
         setLoaderStatus(false)
 
         showModal({
@@ -155,7 +167,7 @@ class AddCustomTokenScreen extends Component {
             title: strings('modal.infoAddCustomAssetModal.success.title'),
             description: strings('modal.infoAddCustomAssetModal.success.description')
         }, () => {
-            NavStore.goBack()
+            NavStore.reset('DashboardStack')
         })
 
     }

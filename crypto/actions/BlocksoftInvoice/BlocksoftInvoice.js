@@ -5,8 +5,6 @@
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
 
-const Dispatcher = new BlocksoftDispatcher()
-
 class BlocksoftInvoice {
 
     /**
@@ -63,10 +61,7 @@ class BlocksoftInvoice {
     setCurrencyCode(currencyCode) {
         this._data.currencyCode = currencyCode
         if (!this._processor[currencyCode]) {
-            /**
-             * @type {BtcLightInvoiceProcessor}
-             */
-            this._processor[currencyCode] = Dispatcher.getInvoiceProcessor(currencyCode)
+
         }
         return this
     }

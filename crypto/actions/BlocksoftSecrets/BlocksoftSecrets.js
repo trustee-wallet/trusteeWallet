@@ -5,8 +5,6 @@
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
 
-const Dispatcher = new BlocksoftDispatcher()
-
 class BlocksoftSecrets {
 
     /**
@@ -37,7 +35,7 @@ class BlocksoftSecrets {
             /**
              * @type {XmrSecretsProcessor}
              */
-            this._processor[currencyCode] = Dispatcher.getSecretsProcessor(currencyCode)
+            this._processor[currencyCode] = BlocksoftDispatcher.getSecretsProcessor(currencyCode)
         }
         return this
     }

@@ -2,9 +2,9 @@
  * @version 0.11
  */
 import RNFS from 'react-native-fs'
-import Log from '../Log/Log'
 let IS_OK = false
 
+let CACHE_ERROR = ''
 class FilePermissions {
 
     init = async () => {
@@ -18,12 +18,16 @@ class FilePermissions {
             }
             IS_OK = true
         } catch (e) {
-            Log.errFS('ERROR!!! FilePermissions.createDir error ' + e.message, {caches : RNFS.CachesDirectoryPath, docs : RNFS.DocumentDirectoryPath})
+            CACHE_ERROR = ' ERROR!!! FilePermissions.createDir error ' + e.message + ' ' + JSON.stringify({caches : RNFS.CachesDirectoryPath, docs : RNFS.DocumentDirectoryPath})
         }
     }
 
     isOk() {
         return IS_OK
+    }
+
+    getError() {
+        return CACHE_ERROR
     }
 }
 

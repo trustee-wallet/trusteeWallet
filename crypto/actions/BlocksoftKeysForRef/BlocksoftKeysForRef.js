@@ -9,8 +9,6 @@ import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
 
 const bip32 = require('bip32')
 
-const Dispatcher = new BlocksoftDispatcher()
-
 const CACHE = {}
 
 class BlocksoftKeysForRef {
@@ -40,7 +38,7 @@ class BlocksoftKeysForRef {
             const path = `m/44'/60'/${index}'/0/0`
             const child = root.derivePath(path)
 
-            const processor = await Dispatcher.getAddressProcessor('ETH')
+            const processor = await BlocksoftDispatcher.getAddressProcessor('ETH')
             result = await processor.getAddress(child.privateKey)
             result.index = index
             result.path = path
@@ -54,7 +52,7 @@ class BlocksoftKeysForRef {
     }
 
     async signDataForApi(msg, privateKey) {
-        const processor = await Dispatcher.getAddressProcessor('ETH')
+        const processor = await BlocksoftDispatcher.getAddressProcessor('ETH')
         if (privateKey.substr(0, 2) !== '0x') {
             privateKey = '0x' + privateKey
         }

@@ -320,7 +320,7 @@ class UpdateAccountListDaemon extends Update {
                     account.balancePretty = 0
                     if (account.balance > 0) {
                         try {
-                            account.balancePretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(account.balance)
+                            account.balancePretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(account.balance, 'updateAccountListDaemon.balance')
                         } catch (e) {
                             Log.errDaemon('UpdateAccountListDaemon error on account.balance makePretty ' + e.message)
                         }
@@ -328,7 +328,7 @@ class UpdateAccountListDaemon extends Update {
                     account.unconfirmedPretty = 0
                     if (account.unconfirmed > 0) {
                         try {
-                            account.unconfirmedPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(account.unconfirmed)
+                            account.unconfirmedPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(account.unconfirmed, 'updateAccountListDaemon.unconfirmed')
                         } catch (e) {
                             Log.errDaemon('UpdateAccountListDaemon error on account.unconfirmed makePretty ' + e.message)
                         }

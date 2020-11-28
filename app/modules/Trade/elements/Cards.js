@@ -24,7 +24,7 @@ import Log from '../../../services/Log/Log'
 import Api from '../../../services/Api/Api'
 import cardDS from '../../../appstores/DataSource/Card/Card'
 import utils from '../../../services/utils'
-import FileSystem from '../../../services/FileSystem/FileSystem'
+import { FileSystem } from '../../../services/FileSystem/FileSystem'
 import CashBackUtils from '../../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
 import TmpConstants from './TmpConstants'
@@ -67,9 +67,16 @@ class Cards extends Component {
 
         let cards = JSON.parse(JSON.stringify(this.props.cardStore.cards))
 
-        cards = cards.map(item => {
-            return { ...item, supported: true }
-        })
+        if (cards.length === 1 && cards[0].type === 'ADD') {
+            // could be removed as second one just with filter but will do the same
+            cards = cards.map(item => {
+                return { ...item, supported: true }
+            })
+        } else {
+            cards = cards.filter(item => item.type === 'ADD' || item.type === 'visa' || item.type === 'mastercard').map(item => {
+                return { ...item, supported: true }
+            })
+        }
 
 
         let selectedCardIndex = TmpConstants.CACHE_SELECTED_PREV_CARD_ID
@@ -430,7 +437,7 @@ class Cards extends Component {
             data.append('cardNumber', cardNumber)
 
             if (typeof photoSource !== 'undefined') {
-                const fs = new FileSystem()
+                const fs = new FileSystem({})
                 const base64 = await fs.handleImageBase64(photoSource)
                 data.append('image', 'data:image/jpeg;base64,' + base64)
             }

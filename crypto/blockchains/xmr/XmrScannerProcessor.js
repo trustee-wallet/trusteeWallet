@@ -77,7 +77,7 @@ export default class XmrScannerProcessor {
             derivationPath: 'm/44\'/0\'/0\'/0/0',
             derivationIndex: additionalData.derivationIndex
         }
-        const result = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor) // privateSpend_privateView
+        const result = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor, 'XmrScannerProcessor') // privateSpend_privateView
         const keys = result.privateKey.split('_')
         const spendKey = keys[0]
         let viewKey = keys[1]

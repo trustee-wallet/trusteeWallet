@@ -26,14 +26,14 @@ export default class App extends Component {
     }
 
     componentDidMount() {
-        Application.init({source : 'App.mount'})
+        Application.init({ source: 'App.mount' })
         Linking.addEventListener('url', (data) => SendActions.handleInitialURL(data.url))
     }
 
     render() {
         return (
             <Provider store={store}>
-                <Router/>
+                <Router />
             </Provider>
         )
     }

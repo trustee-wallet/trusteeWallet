@@ -1,5 +1,5 @@
 /**
- * @version 0.13
+ * @version 0.14
  * @author yura
  */
 import Log from '../Log/Log'
@@ -54,47 +54,6 @@ export default {
         }
     },
 
-    setExchangeStatus: async (orderHash, status) => {
-        const { mode: exchangeMode } = config.exchange
-        const baseUrl = exchangeMode === 'DEV' ? V3_API : V3_API
-
-        const data = {}
-
-        let msg = ''
-        if (CACHE_SERVER_TIME_NEED_TO_ASK) {
-            try {
-                Log.log('ApiV3.initData will ask time from server')
-                const now = await BlocksoftAxios.get(V3_API + '/data/server-time')
-                if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
-                    msg = now.data.serverTime
-                    Log.log('ApiV3.initData msg from server ' + msg)
-                }
-            } catch (e) {
-                // do nothing
-            }
-        }
-
-        const sign = await CashBackUtils.createWalletSignature(true, msg)
-        data.sign = sign
-
-        const cashbackToken = CashBackUtils.getWalletToken()
-        data.cashbackToken = cashbackToken
-
-        data.orderHash = orderHash
-        data.paymentStatus = status
-
-        try {
-            const link = `${baseUrl}/order/update-payment-status`
-            Log.log('ApiV3 setExchangeStatus axios ' + link)
-            return BlocksoftAxios.post(link, data, false)
-
-        } catch (e) {
-            Log.err('ApiV3 setExchangeStatus e.response.data ' + e.response.data)
-            Log.err('ApiV3 setExchangeStatus e.response.data.message ' + e.response.data.message)
-        }
-
-    },
-
     async initData(type) {
 
         let entryPoint
@@ -115,7 +74,7 @@ export default {
 
         const data = {
             locale: sublocale(),
-            deviceToken: Log.LOG_TOKEN,
+            deviceToken: MarketingEvent.DATA.LOG_TOKEN,
             wallets: [],
             cards : await cardDS.getCards()
         }

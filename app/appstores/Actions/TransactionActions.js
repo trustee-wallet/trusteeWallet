@@ -31,15 +31,16 @@ const transactionActions = {
      * @param {string} transaction.addressAmount
      * @param {string} transaction.transactionFee
      * @param {string} transaction.transactionOfTrusteeWallet
+     * @param {string} transaction.transactionsScanLog
      * @param {string} transaction.transactionJson
      * @param {string} transaction.transactionJson.bseOrderID
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
      */
-    saveTransaction: async (transaction) => {
+    saveTransaction: async (transaction, source = '') => {
 
         try {
-            await transactionDS.saveTransaction(transaction)
+            await transactionDS.saveTransaction(transaction, false,source)
 
             const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
 
@@ -74,6 +75,11 @@ const transactionActions = {
      * @param transaction.transactionUpdateHash
      * @param transaction.transactionsOtherHashes
      * @param transaction.transactionJson
+     * @param transaction.addressAmount
+     * @param transaction.addressTo
+     * @param transaction.transactionStatus
+     * @param transaction.transactionFee
+     * @param transaction.transactionFeeCurrencyCode
      * @returns {Promise<void>}
      */
     updateTransaction: async (transaction) => {
@@ -83,19 +89,40 @@ const transactionActions = {
 
             const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
 
-            if (transaction.accountId === account.accountId) {
+            if (typeof transaction.accountId === 'undefined' || transaction.accountId === account.accountId) {
 
                 const prepared = { ...account }
 
                 let transactionHash
+                const newTransactions = {}
                 for (transactionHash in prepared.transactions) {
                     if (transactionHash === transaction.transactionUpdateHash) {
                         const tx = prepared.transactions[transactionHash]
-                        tx.transactionHash = transaction.transactionUpdateHash
+                        tx.id = transaction.transactionHash
+                        tx.transactionHash = transaction.transactionHash
                         tx.transactionsOtherHashes = transaction.transactionsOtherHashes
                         tx.transactionJson = transaction.transactionJson
+                        if (typeof transaction.addressAmount !== 'undefined') {
+                            tx.addressAmount = transaction.addressAmount
+                        }
+                        if (typeof transaction.addressTo !== 'undefined') {
+                            tx.addressTo = transaction.addressTo
+                        }
+                        if (typeof transaction.transactionStatus !== 'undefined') {
+                            tx.transactionStatus = transaction.transactionStatus
+                        }
+                        if (typeof transaction.transactionFee !== 'undefined') {
+                            tx.transactionFee = transaction.transactionFee
+                        }
+                        if (typeof transaction.transactionFeeCurrencyCode !== 'undefined') {
+                            tx.transactionFeeCurrencyCode = transaction.transactionFeeCurrencyCode
+                        }
+                        newTransactions[transaction.transactionHash] = tx
+                    } else {
+                        newTransactions[transactionHash] = prepared.transactions[transactionHash]
                     }
                 }
+                prepared.transactions = newTransactions
 
                 dispatch({
                     type: 'SET_SELECTED_ACCOUNT',
@@ -118,7 +145,7 @@ const transactionActions = {
         let addressAmountSatoshi = false
 
         try {
-            transaction.addressAmountNorm = BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(transaction.addressAmount)
+            transaction.addressAmountNorm = BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(transaction.addressAmount, 'transactionActions.addressAmount')
             const res = BlocksoftPrettyNumbers.makeCut(transaction.addressAmountNorm)
             if (res.isSatoshi) {
                 addressAmountSatoshi = '...' + transaction.addressAmount
@@ -175,7 +202,7 @@ const transactionActions = {
             transaction.transactionFeePretty = 0
         } else {
             try {
-                const tmp = BlocksoftPrettyNumbers.setCurrencyCode(feeCurrencyCode).makePretty(transaction.transactionFee)
+                const tmp = BlocksoftPrettyNumbers.setCurrencyCode(feeCurrencyCode).makePretty(transaction.transactionFee, 'transactionActions.fee')
                 const tmp2 = BlocksoftUtils.fromENumber(tmp*1)
                 const res = BlocksoftPrettyNumbers.makeCut(tmp2, 7)
                 if (res.isSatoshi) {

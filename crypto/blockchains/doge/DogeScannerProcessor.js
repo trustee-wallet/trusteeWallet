@@ -26,6 +26,8 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 
 import DogeFindAddressFunction from './basic/DogeFindAddressFunction'
 import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
+import DogeRawDS from './stores/DogeRawDS'
+import EthRawDS from '../eth/stores/EthRawDS'
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {}
@@ -109,6 +111,9 @@ export default class DogeScannerProcessor {
     async getTransactionsBlockchain(address, jsonData = {}) {
         address = address.trim()
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeScannerProcessor.getTransactions started ' + address)
+
+        const notBroadcasted = await DogeRawDS.getForAddress({ address, currencyCode: this._settings.currencyCode })
+
         let res = await this._get(address, jsonData)
         if (!res || typeof res.data === 'undefined') return []
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeScannerProcessor.getTransactions loaded from ' + res.provider + ' ' + res.time)
@@ -120,6 +125,18 @@ export default class DogeScannerProcessor {
             const transaction = await this._unifyTransaction(address, tx, jsonData)
             if (transaction) {
                 transactions.push(transaction)
+                if (
+                    transaction.transactionDirection === 'outcome' || transaction.transactionDirection === 'self'
+                ) {
+                    const uniqueFrom = address.toLowerCase() + '_' + transaction.transactionHash
+                    if (notBroadcasted && typeof notBroadcasted[uniqueFrom] !== 'undefined') {
+                        DogeRawDS.cleanRaw({
+                            address,
+                            transactionUnique: uniqueFrom,
+                            currencyCode: this._settings.currencyCode
+                        })
+                    }
+                }
             }
         }
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)

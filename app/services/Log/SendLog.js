@@ -2,7 +2,7 @@
  * @version 0.11
  */
 import Log from './Log'
-import FileSystem from '../FileSystem/FileSystem'
+import { FileSystem } from '../FileSystem/FileSystem'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import DBExport from '../../appstores/DataSource/DB/DBExport/DBExport'
 import AsyncStorage from '@react-native-community/async-storage'
@@ -40,6 +40,8 @@ class SendLog {
             `
 
         if (!FilePermissions.isOk()) {
+            // @ts-ignore
+            Log.errFS(FilePermissions.getError())
             return {
                 title: 'Trustee. Support',
                 subject: 'Trustee. Support',
@@ -48,16 +50,29 @@ class SendLog {
             }
         }
 
-        const fs = new FileSystem()
-        await (fs.setFileEncoding('utf8').setFileName('SQL').setFileExtension('txt')).writeFile(logs)
+        const fs = new FileSystem({fileEncoding: 'utf8', fileName : 'SQL', fileExtension : 'txt'})
+        await fs.writeFile(logs)
+
+        let tmp = Log.FS.ALL.getError()
+        if (tmp && tmp !== '') {
+            Log.errFS('APPLOG ' + tmp)
+        }
+
+        tmp = Log.FS.DAEMON.getError()
+        if (tmp && tmp !== '') {
+            Log.errFS('DAEMONLOG ' + tmp)
+        }
+
+        tmp = BlocksoftCryptoLog.FS.getError()
+        if (tmp && tmp !== '') {
+            Log.errFS('CRYPTOLOG ' + tmp)
+        }
 
         let urls = []
         try {
-
-            const zipFs = new FileSystem('zip')
-            await zipFs.cleanDir()
             const line = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '-').replace(/:/, '-').replace(/:/, '-')
-            zipFs.setFileName('logs-' + line).setFileExtension('zip')
+            const zipFs = new FileSystem({baseDir : 'zip', fileName : 'logs-' + line, fileExtension: 'zip'})
+            await zipFs.cleanDir()
             try {
                 await zipFs.cleanDir()
             } catch (e) {
@@ -70,7 +85,6 @@ class SendLog {
                 await zipFs.getPathOrBase64()
             ]
         } catch (e) {
-            Log.log('SendLog zip error ' + e.message)
             urls = [
                 await fs.getPathOrBase64(),
                 await Log.FS.ALL.getPathOrBase64(),

@@ -21,6 +21,7 @@ import { strings } from '../../services/i18n'
 import { normalizeInputWithDecimals } from '../../services/UI/Normalize/NormalizeInput'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 import Log from '../../services/Log/Log'
+import NavStore from '../../components/navigation/NavStore'
 
 
 class Input extends Component {
@@ -127,7 +128,7 @@ class Input extends Component {
             if (tmpIndex !== -1) {
                 valueNew = valueNew.slice(tmpIndex + 9).trim()
             }
-            if (cuttype === 'TRX' && value.length<=34) {
+            if (cuttype === 'TRX' && value.length<=34 || cuttype === 'FIO') {
                 // do nothing
                 // TRX addresses can start with TRX
             } else if (valueNew.indexOf(cuttype) === 0) {
@@ -198,6 +199,7 @@ class Input extends Component {
             actionBtnStyles,
             paste,
             copy,
+            fio,
             qr,
             style,
             onFocus,
@@ -332,6 +334,12 @@ class Input extends Component {
                 }
                 <View style={styles.actions}>
                     {
+                        typeof fio !== 'undefined' && fio ?
+                            <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
+                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="contacts" size={25} color="#855eab"/>
+                            </TouchableOpacity> : null
+                    }
+                    {
                         typeof copy !== 'undefined' && copy ?
                             <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
                                 <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-copy" size={25} color="#855eab"/>
@@ -438,7 +446,7 @@ const styles = {
     },
     fontFamily: {
         fontFamily: 'SFUIDisplay-Regular',
-        marginRight: 70,
+        marginRight: 110,
         // textDecoration: 'none'
     },
     mark: {
@@ -472,7 +480,7 @@ const styles = {
     },
     actionBtn: {},
     actionBtn__icon: {
-        marginLeft: 20,
+        marginLeft: 15,
         marginTop: 20
     },
     actionBtn__icon_qr: {

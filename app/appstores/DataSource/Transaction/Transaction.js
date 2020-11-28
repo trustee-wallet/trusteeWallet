@@ -15,6 +15,7 @@ class Transaction {
      * @param {string} transaction.transactionHash
      * @param {string} transaction.transactionStatus
      * @param {string} transaction.transactionDirection
+     * @param {string} transaction.transactionsScanLog
      * @param {integer} transaction.blockConfirmations
      * @param {string} transaction.addressTo
      * @param {string} transaction.addressFrom
@@ -47,6 +48,8 @@ class Transaction {
                 copy.transactionsScanLog = copy.transactionsScanLog.substr(0, 1000)
             }
             copy.transactionsScanLog = dbInterface.escapeString(copy.transactionsScanLog)
+        } else {
+            copy.transactionsScanLog = 'UNDEFINED TX SCAN LOG ' + source
         }
 
 
@@ -85,6 +88,13 @@ class Transaction {
      * @param transaction.transactionsOtherHashes
      * @param transaction.transactionUpdateHash
      * @param transaction.transactionJson
+     * @param transaction.currencyCode
+     * @param transaction.addressAmount
+     * @param transaction.addressTo
+     * @param transaction.transactionStatus
+     * @param transaction.transactionFee
+     * @param transaction.transactionFeeCurrencyCode
+     * @param transaction.transactionsScanLog
      * @returns {Promise<void>}
      */
     updateTransaction = async (transaction) => {
@@ -99,16 +109,40 @@ class Transaction {
                 transactionJson = dbInterface.escapeString(JSON.stringify(transaction.transactionJson))
             }
         }
-        if (transactionJson.length > 1) {
-            transactionJson = `, transaction_json='${transactionJson}'`
-        }
 
-        const sql = `UPDATE transactions 
+        let sql = `UPDATE transactions 
                         SET transaction_hash='${transaction.transactionHash}', 
-                        transactions_other_hashes='${transaction.transactionsOtherHashes}'
-                        ${transactionJson}
-                        WHERE transaction_hash='${transaction.transactionUpdateHash}' 
+                        transactions_other_hashes='${transaction.transactionsOtherHashes}',
+                        updated_at='${new Date().toISOString()}'
                      `
+        if (transactionJson.length > 1) {
+            sql += `, transaction_json='${transactionJson}'`
+        }
+        if (typeof transaction.addressAmount !== 'undefined') {
+            sql += ', address_amount=' + transaction.addressAmount
+        }
+        if (typeof transaction.addressTo !== 'undefined') {
+            sql += `, address_to='${transaction.addressTo}'`
+        }
+        if (typeof transaction.transactionStatus !== 'undefined') {
+            sql += `, transaction_status='${transaction.transactionStatus}'`
+        }
+        if (typeof transaction.transactionFee !== 'undefined') {
+            sql += `, transaction_fee='${transaction.transactionFee}'`
+        }
+        if (typeof transaction.transactionFeeCurrencyCode !== 'undefined') {
+            sql += `, transaction_fee_currency_code='${transaction.transactionFeeCurrencyCode}'`
+        }
+        if (typeof transaction.transactionsScanLog !== 'undefined') {
+            sql += `, transactions_scan_log='${transaction.transactionsScanLog} ' || transactions_scan_log`
+        }
+        sql += ` WHERE transaction_hash='${transaction.transactionUpdateHash}' `
+        if (typeof transaction.currencyCode !== 'undefined' && transaction.currencyCode) {
+            sql += ` AND currency_code='${transaction.currencyCode}' `
+        }
+        console.log('tx', JSON.parse(JSON.stringify(transaction)))
+        console.log('sql ' + sql)
+
         await dbInterface.setQueryString(sql).query()
 
     }
@@ -169,6 +203,7 @@ class Transaction {
             block_confirmations AS blockConfirmations,
             transaction_hash AS transactionHash, 
             address_from AS addressFrom, 
+            address_from_basic AS addressFromBasic,
             address_amount AS addressAmount, 
             address_to AS addressTo, 
             transaction_fee AS transactionFee,

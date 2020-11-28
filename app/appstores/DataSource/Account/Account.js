@@ -9,11 +9,13 @@ import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKey
 import currencyDS from '../Currency/Currency'
 
 import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
+import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
+import { acc } from 'react-native-reanimated'
 
 const tableName = 'account'
 let SAVED_UNIQUE = {}
 
-export default {
+class Account {
 
     /**
      * @param {string} params.walletHash
@@ -27,7 +29,7 @@ export default {
      * @param {*} params.derivations
      * @returns {Promise<{accounts : {id, address, derivationPath, derivationType, derivationIndex, currencyCode, walletHash, walletPubId}[], newSaved}>}
      */
-    discoverAccounts: async (params, source = 'BASIC') => {
+    discoverAccounts = async (params, source = 'BASIC') => {
         const dbInterface = new DBInterface()
 
         Log.daemon('DS/Account discoverAddresses called')
@@ -225,9 +227,9 @@ export default {
 
         return {accounts : prepare, newSaved: prepare.length}
 
-    },
+    }
 
-    insertAccountByPrivateKey: async (account) => {
+    insertAccountByPrivateKey = async (account) => {
         const dbInterface = new DBInterface()
         const derivationPath = dbInterface.escapeString(account.derivationPath)
         const tmpName = dbInterface.escapeString('CREATED by InsertByPrivateKey at ' + new Date().toISOString())
@@ -295,14 +297,14 @@ export default {
             SAVED_UNIQUE[key] = 1
         }
         Log.daemon('DS/Account insert account by privateKey add ' + account.address + ' index ' + account.index)
-    },
+    }
 
 
     /**
      * @param {string} params.walletHash
      * @returns {Promise<void>}
      */
-    clearAccounts: async (params) => {
+    clearAccounts = async (params) => {
         const dbInterface = new DBInterface()
 
         Log.daemon('DS/Account clear accounts called ' + params.walletHash)
@@ -312,14 +314,14 @@ export default {
         await dbInterface.setQueryString(`DELETE FROM account_balance WHERE wallet_hash='${params.walletHash}'`).query()
 
         Log.daemon('DS/Account clear accounts finished ' + params.walletHash)
-    },
+    }
 
     /**
      * @param {string} params.walletHash
      * @param {string} params.currencyCode
      * @returns {Promise<{id, address, name, derivationType, derivationPath, currencyCode, walletHash, accountJson, alreadyShown}[]>}
      */
-    getAccounts: async (params) => {
+    getAccounts = async (params) => {
 
         const dbInterface = new DBInterface()
 
@@ -360,7 +362,7 @@ export default {
             Log.daemon('DS/Account getAccounts error ' + sql + ' ' + e.message)
         }
         return res
-    },
+    }
 
     /**
      * @param {string} params.notAlreadyShown
@@ -371,7 +373,7 @@ export default {
      * @param {string} params.derivationPath
      * @returns {Promise<{id, address, name, accountId, derivationType, derivationPath, currencyCode, walletHash, accountJson, balanceFix, balanceTxt, balanceProvider, balanceScanTime, balanceScanLog, alreadyShown}[]>}
      */
-    getAccountData: async (params) => {
+    getAccountData = async (params) => {
 
         const dbInterface = new DBInterface()
 
@@ -391,6 +393,9 @@ export default {
         }
         if (params.currencyCode) {
             where.push(`account.currency_code='${params.currencyCode}'`)
+        }
+        if (params.address) {
+            where.push(`account.address='${params.address}'`)
         }
         where.push(`account.is_main=1`)
 
@@ -439,6 +444,7 @@ export default {
                 const segwit = []
                 const legacy = []
                 for (account of res.array) {
+                    account = this._prepAccount(account)
                     const key = account.currencyCode + '_' + account.walletHash
                     if (typeof uniqueAddresses[key] === 'undefined') {
                         uniqueAddresses[key] = { 1: 1 }
@@ -467,6 +473,7 @@ export default {
                 accounts.legacy = legacy
             } else {
                 for (account of res.array) {
+                    account = this._prepAccount(account)
                     const key = account.currencyCode + '_' + account.walletHash
                     if (typeof uniqueAddresses[key] === 'undefined') {
                         uniqueAddresses[key] = { 1: 1 }
@@ -499,13 +506,29 @@ export default {
         }
 
         return accounts
-    },
+    }
+
+    _prepAccount = (account) => {
+        if (typeof account.accountJson !== 'undefined' && typeof account.accountJson !== 'object') {
+            if (!account.accountJson || account.accountJson === 'false') {
+                account.accountJson = false
+            } else {
+                try {
+                    const tmp = JSON.parse(account.accountJson)
+                    account.accountJson = tmp
+                } catch (e) {
+                    // do nothing
+                }
+            }
+        }
+        return account
+    }
 
     /**
      * @param {string} params.walletHash
      * @param {string} params.currencyCode
      */
-    getAddressesList: async (params) => {
+    getAddressesList = async (params) => {
 
         const dbInterface = new DBInterface()
 
@@ -538,7 +561,7 @@ export default {
         }
 
         return res.array
-    },
+    }
 
     /**
      * @param {Object} data
@@ -550,7 +573,7 @@ export default {
      * @param {string} account.walletHash
      * @return {Promise<void>}
      */
-    updateAccount: async (data, account = false) => {
+    updateAccount = async (data, account = false) => {
         const dbInterface = new DBInterface()
 
         if (typeof data.updateObj.transactionsScanLog !== 'undefined') {
@@ -566,14 +589,14 @@ export default {
 
         await (dbInterface.setTableName(tableName).setUpdateData(data)).update()
 
-    },
+    }
 
     /**
      * @param {string} where
      * @param {string} update
      * @return {Promise<void>}
      */
-    massUpdateAccount: async (where, update) => {
+    massUpdateAccount = async (where, update) => {
         const dbInterface = new DBInterface()
 
         const sql = `UPDATE ${tableName} SET ${update} WHERE (${where})`
@@ -582,3 +605,5 @@ export default {
     }
 
 }
+
+export default new Account()

@@ -1,5 +1,6 @@
 /**
  * Separated log class for crypto module - could be encoded here later
+ * @version 0.9
  */
 import firebase from 'react-native-firebase'
 
@@ -9,7 +10,7 @@ import BlocksoftExternalSettings from './BlocksoftExternalSettings'
 import config from '../../app/config/config'
 import changeableProd from '../../app/config/changeable.prod'
 import changeableTester from '../../app/config/changeable.tester'
-import FileSystem from '../../app/services/FileSystem/FileSystem'
+import { FileSystem } from '../../app/services/FileSystem/FileSystem'
 
 const DEBUG = config.debug.cryptoLogs // set true to see usual logs in console
 
@@ -23,14 +24,13 @@ class BlocksoftCryptoLog {
 
     constructor() {
         this.TG = new BlocksoftTg(changeableProd.tg.info.theBot, changeableProd.tg.info.cryptoErrorsChannel)
-        this.FS = new FileSystem()
+        this.FS = new FileSystem({fileEncoding : 'utf8', fileName : 'CryptoLog', fileExtension : 'txt'})
 
         this.DATA = {}
         this.DATA.LOG_VERSION = false
 
         this.TG_MSG = ''
 
-        this.FS.setFileEncoding('utf8').setFileName('CryptoLog').setFileExtension('txt')
         // noinspection JSIgnoredPromiseFromCall
         this.FS.checkOverflow()
 
@@ -109,7 +109,7 @@ class BlocksoftCryptoLog {
         return true
     }
 
-    async err(errorObjectOrText, errorObject2, errorTitle = 'ERROR') {
+    async err(errorObjectOrText, errorObject2 = '', errorTitle = 'ERROR') {
         const now = new Date()
         const date = now.toISOString().replace(/T/, ' ').replace(/\..+/, '')
         let line = ''
@@ -123,7 +123,7 @@ class BlocksoftCryptoLog {
             }
         }
 
-        if (errorObject2 && typeof errorObject2 !== 'undefined' && typeof errorObject2.message !== 'undefined') {
+        if (errorObject2 && typeof errorObject2 !== 'undefined' && errorObject2 !== '' && typeof errorObject2.message !== 'undefined') {
             line += ' ' + errorObject2.message
         }
 

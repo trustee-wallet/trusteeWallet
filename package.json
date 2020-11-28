@@ -8,12 +8,14 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",
-    "postinstall": "npx jetifier && ./node_modules/.bin/rn-nodeify --hack --install",
+    "postinstall": "npx jetifier && ./node_modules/.bin/rn-nodeify --hack --install && patch-package",
     "run_android": "cd android && gradlew cleanBuildCache clean && cd ../ && react-native run-android",
     "mra": "cd ./android && ./gradlew cleanBuildCache clean && cd ../ && react-native run-android",
     "oam": "adb shell input keyevent 82"
   },
   "dependencies": {
+    "@fioprotocol/fiojs": "^1.0.1",
+    "@fioprotocol/fiosdk": "git+https://git@github.com/trustee-wallet/fiosdk_typescript#release/1.2.x",
     "@haskkor/react-native-pincode": "git+https://git@github.com/trustee-wallet/react-native-pincode",
     "@react-native-community/async-storage": "^1.7.1",
     "@react-native-community/blur": "^3.4.1",
@@ -53,6 +55,7 @@
     "moment": "^2.24.0",
     "mymonero-core-js": "git+https://git@github.com/trustee-wallet/mymonero-core-js",
     "node-libs-browser": "^2.2.1",
+    "patch-package": "^6.2.2",
     "path-browserify": "0.0.0",
     "process": "^0.11.10",
     "punycode": "^1.4.1",
@@ -78,7 +81,7 @@
     "react-native-fs": "^2.16.2",
     "react-native-gesture-handler": "^1.5.3",
     "react-native-image-picker": "^1.1.0",
-    "react-native-image-resizer": "^1.2.1",
+    "react-native-image-resizer": "1.2.1",
     "react-native-indicators": "^0.17.0",
     "react-native-keyboard-aware-view": "0.0.14",
     "react-native-keychain": "^4.0.5",
@@ -106,7 +109,7 @@
     "react-native-safe-area-view": "^1.0.0",
     "react-native-screens": "^2.0.0-alpha.22",
     "react-native-shadow": "git+https://github.com/trustee-wallet/react-native-shadow",
-    "react-native-share": "^2.0.0",
+    "react-native-share": "^4.0.2",
     "react-native-snap-carousel": "^3.8.4",
     "react-native-snow": "^0.2.0",
     "react-native-sqlite-helper": "1.1.0",
@@ -137,6 +140,7 @@
     "secp256k1": "3.8.0",
     "stream-browserify": "^1.0.0",
     "string_decoder": "^0.10.31",
+    "text-encoding": "^0.7.0",
     "timers-browserify": "^1.4.2",
     "tty-browserify": "0.0.0",
     "url": "^0.10.3",
@@ -235,3 +239,4 @@
     ]
   }
 }
+

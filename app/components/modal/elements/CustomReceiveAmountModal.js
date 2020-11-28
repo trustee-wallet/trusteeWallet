@@ -21,8 +21,7 @@ import Input from '../../../components/elements/Input'
 import RateEquivalent from '../../../services/UI/RateEquivalent/RateEquivalent'
 import AsyncStorage from '@react-native-community/async-storage'
 import UIDict from '../../../services/UIDict/UIDict'
-import Share from 'react-native-share'
-import FileSystem from '../../../services/FileSystem/FileSystem'
+import { FileSystem } from '../../../services/FileSystem/FileSystem'
 import Fontisto from 'react-native-vector-icons/Fontisto'
 import qrLogo from '../../../assets/images/logoWithWhiteBG.png'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
@@ -85,12 +84,10 @@ class CustomReceiveAmountModal extends Component {
 
                 if (Platform.OS === 'android') {
                     // noinspection ES6MissingAwait
-                    prettyShare({ message, url: `data:image/png;base64,${data}` })
+                    prettyShare({ message, url: `data:image/png;base64,${data}`, title : 'QR', type: 'image/png' })
                 } else {
-
-                    const fs = new FileSystem()
-
-                    await (fs.setFileEncoding('base64').setFileName('QR').setFileExtension('jpg')).writeFile(data)
+                    const fs = new FileSystem({fileEncoding: 'base64', fileName : 'QR', fileExtension : 'jpg'})
+                    await fs.writeFile(data)
                     // noinspection ES6MissingAwait
                     prettyShare({ message, url: await fs.getPathOrBase64() })
                 }

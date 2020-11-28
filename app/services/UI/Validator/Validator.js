@@ -13,12 +13,23 @@ import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKey
 import BtcCashUtils from '../../../../crypto/blockchains/bch/ext/BtcCashUtils'
 import MoneroUtilsParser from '../../../../crypto/blockchains/xmr/ext/MoneroUtilsParser'
 import Log from '../../Log/Log'
+import { isFioAddressValid } from '../../../../crypto/blockchains/fio/FioUtils'
+import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
 
 const cardNumberValid = require('fast-luhn')
 const DEFAULT_WORDS = require('./_words/english.json')
 const bitcoin = require('bitcoinjs-lib')
+
+async function _fioAddressValidation(obj) {
+    const { value, type } = obj
+
+    if (!value || !type || !type.includes('_ADDRESS')) {
+        return false
+    }
+    return isFioAddressValid(value)
+}
 
 async function _userDataValidation(obj) {
 
@@ -140,6 +151,19 @@ async function _userDataValidation(obj) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^0x+[0-9a-fA-F]{40}$/.test(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
+        case 'FIO_ADDRESS':
+            value = value.trim()
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else {
+                try {
+                    FIOSDK.isFioPublicKeyValid(value)
+                } catch (e) {
+                    error.msg = strings('validator.invalidFormat', { name: name })
+                }
             }
             break
 
@@ -298,6 +322,14 @@ async function _userDataValidation(obj) {
             }
             break
 
+        case 'AMOUNT':
+            if (!value || !parseFloat(value)) {
+                error.msg = strings('validator.empty', { name: name })
+            } else if (value.length > 255) {
+                error.msg = strings('validator.moreThanMax', { name: name })
+            }
+            break
+
         case 'UNDEFINED':
             if (typeof value === 'undefined') {
                 error.msg = strings('validator.empty', { name: name })
@@ -421,6 +453,12 @@ module.exports = {
             }
         }
         if (resultArray && resultArray.length > 0) {
+            if (array[0] && (await _fioAddressValidation(array[0]))) {
+                return {
+                    status: 'success',
+                    errorArr: []
+                }
+            }
             return {
                 status: 'fail',
                 errorArr: resultArray

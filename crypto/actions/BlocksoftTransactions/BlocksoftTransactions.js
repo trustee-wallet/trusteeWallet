@@ -4,8 +4,6 @@
  */
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
 
-const Dispatcher = new BlocksoftDispatcher()
-
 class BlocksoftTransactions {
 
     /**
@@ -29,7 +27,7 @@ class BlocksoftTransactions {
             /**
              * @type {EthScannerProcessor|BtcScannerProcessor|UsdtScannerProcessor}
              */
-            this._processor[currencyCode] = Dispatcher.getScannerProcessor(currencyCode)
+            this._processor[currencyCode] = BlocksoftDispatcher.getScannerProcessor(currencyCode)
         }
         return this
     }

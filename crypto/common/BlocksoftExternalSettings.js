@@ -12,18 +12,23 @@ let CACHE_TIME = 0
 const TREZOR_SERVERS = {}
 
 const CACHE = {
+    'TRX_VOTE_BEST' : 'TV9QitxEJ3pdiAUAfJ2QuPxLKp9qTTR3og',
     'BCH': { '2': 2, '6': 1, '12': 1 },
     'BSV': { '2': 2, '6': 1, '12': 1 },
     'BTG': { '2': 10, '6': 5, '12': 2 },
     'DOGE': { '2': 100, '6': 4, '12': 2 },
     'LTC': { '2': 100, '6': 2, '12': 1 },
     'XVG': { '2': 700, '6': 600, '12': 300 },
+    'XRP_SERVER' : 'wss://s1.ripple.com',
+    'ETH_INFURA' : '5e52e85aba6f483398c461c55b639a7b',
+    'ETH_INFURA_PROJECT_ID' : '619a0809dcf2483c834982803f6e8b40',
     'ETH_TREZOR_SERVER': ['https://eth1.trezor.io', 'https://eth2.trezor.io'],
     'BTC_TREZOR_SERVER': ['https://btc1.trezor.io', 'https://btc2.trezor.io', 'https://btc3.trezor.io', 'https://btc4.trezor.io', 'https://btc5.trezor.io'],
     'LTC_TREZOR_SERVER': ['https://ltc1.trezor.io', 'https://ltc2.trezor.io', 'https://ltc3.trezor.io', 'https://ltc4.trezor.io', 'https://ltc5.trezor.io'],
     'BCH_TREZOR_SERVER': ['https://bch1.trezor.io', 'https://bch2.trezor.io', 'https://bch3.trezor.io', 'https://bch4.trezor.io', 'https://bch5.trezor.io'],
     'DOGE_TREZOR_SERVER': ['https://doge1.trezor.io', 'https://doge2.trezor.io', 'https://doge3.trezor.io', 'https://doge4.trezor.io', 'https://doge5.trezor.io'],
     'BTG_TREZOR_SERVER': ['https://btg1.trezor.io', 'https://btg2.trezor.io', 'https://btg3.trezor.io', 'https://btg4.trezor.io', 'https://btg5.trezor.io'],
+    'ETH_ROPSTEN_TREZOR_SERVER' : ['https://ac-dev0.net:29136'],
     'minCryptoErrorsVersion': 491,
     'minAppErrorsVersion': 491,
     'cardsCountries' : {643 : 1, 804: 1, 398: 1, 112: 1},
@@ -49,7 +54,7 @@ class BlocksoftExternalSettings {
         return CACHE[param]
     }
 
-    getStatic(param, source) {
+    getStatic(param, source = '') {
         return CACHE[param]
     }
 
@@ -123,9 +128,9 @@ class BlocksoftExternalSettings {
         let okServers = []
         let bestHeight = 0
         let currentServer = false
-        if (key === 'BTC_TREZOR_SERVER') {
+        if (key === 'BTC_TREZOR_SERVER' || servers.length === 1) {
             okServers = servers
-            currentServer = 'https://btc1.trezor.io'
+            currentServer = servers[0]
         } else {
             let server
             const allServers = []

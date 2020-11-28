@@ -17,14 +17,16 @@ export default class TrxTronscanProvider {
      * https://apilist.tronscan.org/api/account?address=TUbHxAdhPk9ykkc7SDP5e9zUBEN14K65wk
      * @param {string} address
      * @param {string} tokenName
-     * @returns {Promise<boolean|{unconfirmed: number, balance: *, provider: string}>}
+     * @returns {Promise<boolean|{unconfirmed: number, frozen: *, voteTotal: *, balance: *, provider: string}>}
      */
     async get(address, tokenName) {
         const now = new Date().getTime()
         if (typeof CACHE_TRONSCAN[address] !== 'undefined' && (now - CACHE_TRONSCAN[address].time) < CACHE_VALID_TIME) {
             if (typeof CACHE_TRONSCAN[address][tokenName] !== 'undefined') {
                 BlocksoftCryptoLog.log('TrxTronscanProvider.get from cache', address + ' => ' + tokenName + ' : ' + CACHE_TRONSCAN[address][tokenName])
-                return { balance: CACHE_TRONSCAN[address][tokenName], unconfirmed : 0, provider: 'tronscan-cache' }
+                const frozen = typeof CACHE_TRONSCAN[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozen'] : 0
+                const voteTotal = typeof CACHE_TRONSCAN[address].voteTotal !== 'undefined' ? typeof CACHE_TRONSCAN[address].voteTotal : 0
+                return { balance: CACHE_TRONSCAN[address][tokenName], voteTotal, frozen, unconfirmed : 0, provider: 'tronscan-cache' }
             }
         }
 
@@ -38,6 +40,8 @@ export default class TrxTronscanProvider {
         CACHE_TRONSCAN[address] = {}
         CACHE_TRONSCAN[address].time = now
         CACHE_TRONSCAN[address]._ = res.data.balance
+        CACHE_TRONSCAN[address]._frozen = typeof res.data.frozen.total !== 'undefined' ? res.data.frozen.total : 0
+        CACHE_TRONSCAN[address].voteTotal = typeof res.data.voteTotal !== 'undefined' ? res.data.voteTotal : 0
         let token
         if (res.data.tokenBalances) {
             for (token of res.data.tokenBalances) {
@@ -55,6 +59,8 @@ export default class TrxTronscanProvider {
         }
 
         const balance = CACHE_TRONSCAN[address][tokenName]
-        return { balance, unconfirmed: 0, provider: 'tronscan' }
+        const frozen = typeof CACHE_TRONSCAN[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozen'] : 0
+        const voteTotal = typeof CACHE_TRONSCAN[address].voteTotal !== 'undefined' ? CACHE_TRONSCAN[address].voteTotal : 0
+        return { balance, frozen, voteTotal, unconfirmed: 0, provider: 'tronscan' }
     }
 }

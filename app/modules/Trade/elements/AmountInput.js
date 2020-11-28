@@ -12,7 +12,8 @@ import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions
 import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 import BlocksoftBalances from '../../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
-import BlocksoftTransfer from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import { BlocksoftTransfer } from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import { BlocksoftTransferUtils } from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 
 import Log from '../../../services/Log/Log'
@@ -81,7 +82,7 @@ class AmountInput extends Component {
             const {
                 selectedWallet
             } = this.props.mainStore
-            const { walletHash } = selectedWallet
+            const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = selectedWallet
 
             const { selectedCryptocurrency, selectedPaymentSystem } = this.props
 
@@ -89,48 +90,27 @@ class AmountInput extends Component {
             errorCurrencyCode = currencyCode
 
             const { addressForEstimateSellAll } = this.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
-            const tmpAddressForEstimate = addressForEstimateSellAll != null ? addressForEstimateSellAll : address
-
-            const derivationPathTmp = derivationPath.replace(/quote/g, '\'')
+            const tmpAddressForEstimate = addressForEstimateSellAll != null ? addressForEstimateSellAll : BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
 
             Log.log('TRADE/AmountInput.handleSellAll start')
 
             const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash)).getBalance()
-            let balanceRaw = 0
-            if (tmp) {
-                try {
-                    balanceRaw = BlocksoftUtils.add(tmp.balance, tmp.unconfirmed)
-                } catch (e) {
-                    Log.err('TRADE/AmountInput.handleSellAll BlocksoftUtils.add error ' + e.message + ' tmp: ' + JSON.stringify(tmp))
-                    balanceRaw = tmp.balance
-                }
-            }
             Log.log(`TRADE/AmountInput.handleSellAll balance ${currencyCode} ${address} data`, tmp)
 
-            const fees = await (
-                BlocksoftTransfer
-                    .setCurrencyCode(currencyCode)
-                    .setWalletHash(walletHash)
-                    .setDerivePath(derivationPathTmp)
-                    .setAddressFrom(address)
-                    .setAddressTo(tmpAddressForEstimate)
-                    .setAmount(balanceRaw)
-                    .setTransferAll(true)
-                    .setAdditional(accountJson)
-            ).getFeeRate(true)
-
-            const fee = fees[fees.length - 1]
-            const current = await (
-                BlocksoftTransfer
-                    .setCurrencyCode(currencyCode)
-                    .setAddressFrom(address)
-                    .setAddressTo(tmpAddressForEstimate)
-                    .setFee(fee)
-                    .setTransferAll(true)
-                    .setAdditional(accountJson)
-            ).getTransferAllBalance()
-
-            const amount = BlocksoftPrettyNumbers.makeCut(BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(current), 14).justCutted
+            const transferAllCount = await BlocksoftTransfer.getTransferAllBalance({
+                currencyCode,
+                walletHash,
+                derivationPath,
+                addressFrom: address,
+                addressTo: tmpAddressForEstimate,
+                amount: tmp ? tmp.balance : 0,
+                unconfirmed : tmp ? tmp.unconfirmed : 0,
+                isTransferAll: true,
+                useOnlyConfirmed : !(walletUseUnconfirmed === 1),
+                allowReplaceByFee : walletAllowReplaceByFee === 1,
+                accountJson
+            })
+            const amount = BlocksoftPrettyNumbers.makeCut(BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance, 'amountInput.amount'), 14).justCutted
 
             this.setState({
                 moneyType: 'CRYPTO'
@@ -138,7 +118,7 @@ class AmountInput extends Component {
                 try {
                     this.amountInput.handleInput(amount.toString())
                 } catch (e) {
-                    throw new Error(e.message + ' in Trade.AmountInput.handleSellAll', {current, amount, fee})
+                    throw new Error(e.message + ' in Trade.AmountInput.handleSellAll')
                 }
             })
 

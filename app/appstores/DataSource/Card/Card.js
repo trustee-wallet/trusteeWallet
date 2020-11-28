@@ -40,7 +40,9 @@ export default {
                 currency AS currency,
                 card_verification_json AS cardVerificationJson,
                 wallet_hash AS walletHash,
-                verification_server AS verificationServer
+                verification_server AS verificationServer,
+                card_email AS cardEmail,
+                card_details_json AS cardDetailsJson
                 FROM card ${where}`).query()
         if (!res || typeof res.array === 'undefined' || res.array.length === 0) {
             Log.log('DS/Card finished as empty')
@@ -56,7 +58,6 @@ export default {
         }
         await dbInterface.setTableName(tableName).setUpdateData(data).update()
         Log.log('DS/Card updateCard finished')
-        console.log('updateCard done')
     },
 
     saveCard: async (data) => {

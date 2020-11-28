@@ -85,7 +85,6 @@ class SettingsMainScreen extends Component {
         return typeof tmpLanguage === 'undefined' ? 'en-US' : tmpLanguage.code
     }
 
-
     getScannerCode = () => {
         let { scannerCode } = this.props.settings.data
         if (!scannerCode) scannerCode = '1min'
@@ -114,6 +113,19 @@ class SettingsMainScreen extends Component {
         setWalletName({ walletName: '' })
         setMnemonicLength({ mnemonicLength: 128 })
         NavStore.goNext('BackupStep0Screen')
+    }
+
+    handleRegisterFIOAddress = async () => {
+        const { accountList } = this.props.accountStore
+        const { selectedWallet } = this.props.mainStore
+        const { apiEndpoints } = config.fio
+
+        const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
+        if (publicFioAddress) {
+            Linking.openURL(`${apiEndpoints.registrationSiteURL}${publicFioAddress}`)
+        } else {
+            // TODO show some warning tooltip
+        }
     }
 
     handleSupport = async () => {
@@ -403,6 +415,47 @@ class SettingsMainScreen extends Component {
                                         <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
                                     </View>
                                 </TouchableOpacity>
+
+                                {/*<TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('FioSendRequest')}>
+                                    <Icon name="exchangeRates" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('settings.walletManagement.sendFioRequest')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('FioRequestsList')}>
+                                    <Icon name="addressBook" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('settings.walletManagement.fioRequest')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity style={{ ...styles.block__item }} onPress={() => NavStore.goNext('FioAddresses')}>
+                                    <Icon name="settings" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('settings.walletManagement.fioAddresses')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <View style={styles.divider}/>
+                                <TouchableOpacity style={{ ...styles.block__item }} onPress={() => this.handleRegisterFIOAddress()}>
+                                    <Icon name="info" size={20} style={styles.icon}/>
+                                    <View style={styles.block__item__content}>
+                                        <Text style={styles.block__text}>{strings('settings.walletManagement.registerFioAddress')}</Text>
+                                    </View>
+                                    <View style={styles.block__item__arrow}>
+                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
+                                    </View>
+                                </TouchableOpacity>*/}
                             </View>
                         </View>
 
@@ -605,6 +658,7 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         walletStore: state.walletStore,
         settings: state.settingsStore,
+        accountStore: state.accountStore,
         appNewsList: state.appNewsStore.appNewsList
     }
 }

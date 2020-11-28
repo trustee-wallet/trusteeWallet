@@ -26,6 +26,9 @@ import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAcco
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
 
+import Button from '../../components/elements/Button'
+import NavStore from '../../components/navigation/NavStore'
+
 let styles
 
 class HomeScreen extends Component {
@@ -221,6 +224,7 @@ class HomeScreen extends Component {
                                 />
                             }>
                             <WalletInfo accountListByWallet={accountListByWallet}/>
+
                             <View style={{flex: 1, paddingBottom: 30, backgroundColor: '#f5f5f5'}}>
                                 <Text style={{
                                     marginLeft: 31,

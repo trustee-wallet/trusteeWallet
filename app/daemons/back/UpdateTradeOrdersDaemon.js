@@ -11,6 +11,7 @@ import Settings from '../../appstores/DataSource/Settings/Settings'
 import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import config from '../../config/config'
 
 const settingsDS = new Settings()
 
@@ -87,7 +88,7 @@ class UpdateTradeOrdersDaemon {
                 return false
             }
         }
-        
+
         try {
             const tradeOrdersToMarketingEvent = []
             let tmpTradeOrders = await Api.getExchangeOrders()
@@ -183,6 +184,9 @@ class UpdateTradeOrdersDaemon {
                     await this.fromDB(walletToken)
                 }
             } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log(e.message + ' tmpTradeOrders', e, JSON.parse(JSON.stringify(tmpTradeOrders)))
+                }
                 throw new Error(e.message + ' tmpTradeOrders' + JSON.stringify(tmpTradeOrders))
             }
 

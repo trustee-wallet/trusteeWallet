@@ -4,6 +4,7 @@
 import Log from '../../../services/Log/Log'
 import transactionDS from '../../../appstores/DataSource/Transaction/Transaction'
 import appNewsDS from '../../../appstores/DataSource/AppNews/AppNews'
+import { BlocksoftTransfer } from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 
 const CACHE_TO_REMOVE = {} // couldnt remove on first scan - as BTC is scanned in few accounts
 
@@ -35,11 +36,12 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
         if (tmps && tmps.length > 0) {
             let tmp
             for (tmp of tmps) {
-                if (typeof tmp.transactionJson !== 'undefined' && tmp.transactionJson && typeof tmp.transactionJson.nonce !== 'undefined' && typeof tmp.transactionJson.delegatedNonce === 'undefined') {
-                    if (typeof dbNonces[tmp.addressFrom + '_' + tmp.transactionJson.nonce] === 'undefined') {
-                        dbNonces[tmp.addressFrom + '_' + tmp.transactionJson.nonce] = []
+                if (tmp.addressFrom === '' && typeof tmp.transactionJson !== 'undefined' && tmp.transactionJson && typeof tmp.transactionJson.nonce !== 'undefined' && typeof tmp.transactionJson.delegatedNonce === 'undefined') {
+                    const key = tmp.addressFromBasic + '_' + tmp.transactionJson.nonce
+                    if (typeof dbNonces[key] === 'undefined') {
+                        dbNonces[key] = []
                     }
-                    dbNonces[tmp.addressFrom + '_' + tmp.transactionJson.nonce].push(tmp)
+                    dbNonces[key].push(tmp)
                 }
                 if (typeof dbTransactions[tmp.transactionHash] !== 'undefined') {
                     // rmv double
@@ -54,7 +56,7 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
                     if (tmp2) {
                         let part
                         for (part of tmp2) {
-                            dbTransactions[part] = dbTransactions[tmp.transactionHash].id
+                            dbTransactions[part] = dbTransactions[tmp.transactionHash]
                         }
                     }
                 }
@@ -107,9 +109,9 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
                 }
                 if (tmp.isChanged > 0) {
 
-                    if (transaction.transactionStatus === 'success') {
+                    if (transaction.transactionStatus === 'success' || transaction.transactionStatus === 'confirming') {
                         if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson && typeof transaction.transactionJson.nonce !== 'undefined' && typeof transaction.transactionJson.delegatedNonce === 'undefined') {
-                            let key = transaction.addressFrom + '_' + transaction.transactionJson.nonce
+                            let key = transaction.addressFromBasic  + '_' + transaction.transactionJson.nonce
                             if (typeof dbNonces[key] !== 'undefined' && dbNonces[key].length > 1) {
                                 for (let nonced of dbNonces[key]) {
                                     if (nonced.transactionHash !== transaction.transactionHash) {
@@ -120,7 +122,6 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
                                     }
                                 }
                             }
-
                         }
                     }
 
@@ -148,9 +149,12 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
 
             let minutesToWait = 0
             let minutesToInform = 0
-            if (dbTransaction.currencyCode === 'USDT') {
+            if (account.currencyCode === 'USDT') {
                 minutesToWait = 1200
                 minutesToInform = 12000
+            } else if (account.currencyCode === 'ETH' || account.currencyCode.indexOf('ETH_') === 0) {
+                minutesToWait = 240
+                minutesToInform = 400
             } else if (dbTransaction.transactionStatus === 'new' || dbTransaction.transactionStatus === 'pending') {
                 minutesToWait = 20 // pending tx will be in the list - checked in trezor
                 minutesToInform = 200
@@ -181,9 +185,11 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
             const time = dbTransaction.updatedAt || dbTransaction.createdAt
             const minutes = Math.round((now - new Date(time).getTime()) / 60000)
             if (minutes > minutesToWait) {
+                await BlocksoftTransfer.setMissingTx(account, dbTransaction)
+
                 await transactionDS.saveTransaction({
                     transactionStatus: 'missing',
-                    transactionsScanLog: dbTransaction.transactionsScanLog + ' dropped after ' + minutes
+                    transactionsScanLog: dbTransaction.transactionsScanLog + ' dropped after ' + minutes + ' from ' + time
                 }, dbTransaction.id, 'missing')
 
                 if (dbTransaction.addressAmount > 0 && minutes < minutesToInform) {
@@ -249,6 +255,9 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
         }
 
         tmpMsg = ` INSERT ${account.currencyCode} HASH ${transaction.transactionHash} CONF ${transaction.blockConfirmations} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+        if (source !== 'FIRST' && transaction.addressAmount > 0) {
+            tmpMsg += ' with PUSH ' + source
+        }
         transaction.currencyCode = account.currencyCode
         transaction.walletHash = account.walletHash
         transaction.accountId = account.id
@@ -389,16 +398,17 @@ async function addNews(transaction, account, source, type) {
     if (transaction.transactionDirection === 'income') {
         name = 'FOUND_IN_TX'
     }
+    const data = {
+        walletHash: account.walletHash,
+        currencyCode: account.currencyCode,
+        newsSource: source,
+        newsNeedPopup: needToPopup,
+        newsGroup: 'TX_SCANNER',
+        newsName: name,
+        newsJson: transaction,
+        newsUniqueKey: transaction.transactionHash
+    }
     await appNewsDS.saveAppNews(
-        {
-            walletHash: account.walletHash,
-            currencyCode: account.currencyCode,
-            newsSource: source,
-            newsNeedPopup: needToPopup,
-            newsGroup: 'TX_SCANNER',
-            newsName: name,
-            newsJson: transaction,
-            newsUniqueKey: transaction.transactionHash
-        }
+        data
     )
 }

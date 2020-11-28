@@ -4,8 +4,7 @@
  */
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
-
-const Dispatcher = new BlocksoftDispatcher()
+import BlocksoftDict from '../../common/BlocksoftDict'
 
 class BlocksoftBalances {
 
@@ -43,8 +42,8 @@ class BlocksoftBalances {
             /**
              * @type {EthScannerProcessor|BtcScannerProcessor|UsdtScannerProcessor}
              */
-            this._processor[currencyCode] = Dispatcher.getScannerProcessor(currencyCode)
-            this._allSettings[currencyCode] = Dispatcher._getSettings(currencyCode)
+            this._processor[currencyCode] = BlocksoftDispatcher.getScannerProcessor(currencyCode)
+            this._allSettings[currencyCode] = BlocksoftDict.getCurrencyAllSettings(currencyCode)
         }
         this._currencySettings = this._allSettings[currencyCode]
         return this
@@ -75,7 +74,7 @@ class BlocksoftBalances {
     }
 
     /**
-     * @return {Promise<{balance:*, provider:*, unconfirmed:*, addresses : *, balanceScanBlock : *}>}
+     * @return {Promise<{balance:*, frozen: *, provider:*, unconfirmed:*, addresses : *, balanceScanBlock : *}>}
      */
     async getBalance() {
         BlocksoftCryptoLog.log('BlocksoftBalances.getBalance ' + this._data.currencyCode + ' ' + this._data.address + ' started')

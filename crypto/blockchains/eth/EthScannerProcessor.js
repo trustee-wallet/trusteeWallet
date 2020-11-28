@@ -8,6 +8,10 @@ import EthBasic from './basic/EthBasic'
 import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
 import BlocksoftBN from '../../common/BlocksoftBN'
 
+import EthTmpDS from './stores/EthTmpDS'
+import EthRawDS from './stores/EthRawDS'
+import { add } from 'react-native-reanimated'
+
 const CACHE_GET_TRANSACTIONS_NORM_OR_INTERNAL = {}
 const CACHE_GET_MAX_BLOCK = { max_block_number: 0, confirmations: 0 }
 const CACHE_BLOCK_NUMBER_TO_HASH = {}
@@ -35,16 +39,19 @@ export default class EthScannerProcessor extends EthBasic {
      * @private
      */
     async _get(address) {
-        if (!this._trezorServer) {
-            return false
-        }
         address = address.toLowerCase()
 
-        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Scanner._get')
+        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Scanner._get')
+
         if (typeof this._trezorServer === 'undefined') {
             BlocksoftCryptoLog.err('EthScannerProcessor._get empty trezorServer')
             throw new Error('EthScannerProcessor._get empty trezorServer')
         }
+
+        if (!this._trezorServer) {
+            return false
+        }
+
         const now = new Date().getTime()
         if (typeof CACHE[address] !== 'undefined' && (now - CACHE[address].time < CACHE_VALID_TIME)) {
             CACHE[address].provider = 'trezor-cache'
@@ -55,8 +62,8 @@ export default class EthScannerProcessor extends EthBasic {
         let res = await BlocksoftAxios.getWithoutBraking(link)
 
         if (!res || !res.data) {
-            BlocksoftExternalSettings.setTrezorServerInvalid('ETH_TREZOR_SERVER', this._trezorServer)
-            this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Scanner._get')
+            BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
+            this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Scanner._get')
             if (typeof this._trezorServer === 'undefined') {
                 BlocksoftCryptoLog.err('EthScannerProcessor._get empty trezorServer2')
                 throw new Error('EthScannerProcessor._get empty trezorServer2')
@@ -64,7 +71,7 @@ export default class EthScannerProcessor extends EthBasic {
             link = this._trezorServer + '/api/v2/address/' + address + '?details=txs'
             res = await BlocksoftAxios.getWithoutBraking(link)
             if (!res || !res.data) {
-                BlocksoftExternalSettings.setTrezorServerInvalid('ETH_TREZOR_SERVER', this._trezorServer)
+                BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
                 return false
             }
         }
@@ -89,7 +96,7 @@ export default class EthScannerProcessor extends EthBasic {
         }
         CACHE[address] = {
             data,
-            provider : 'trezor',
+            provider: 'trezor',
             time: now
         }
         return CACHE[address]
@@ -109,12 +116,12 @@ export default class EthScannerProcessor extends EthBasic {
             let time = 0
             const res = await this._get(address)
 
-            if (res && typeof res.data!== 'undefined' && res.data && typeof res.data.balance !== 'undefined') {
+            if (res && typeof res.data !== 'undefined' && res.data && typeof res.data.balance !== 'undefined') {
                 balance = res.data.balance
                 unconfirmed = res.data.unconfirmedBalance || 0
                 provider = res.provider
                 time = res.time
-                return { balance, unconfirmed, provider, time, balanceScanBlock : res.data.nonce}
+                return { balance, unconfirmed, provider, time, balanceScanBlock: res.data.nonce }
             }
 
             balance = await this._web3.eth.getBalance(address)
@@ -135,7 +142,10 @@ export default class EthScannerProcessor extends EthBasic {
         BlocksoftCryptoLog.log('EthScannerProcessor.getTransactions started ' + address)
 
         address = address.toLowerCase()
-        const res = await this._get(address)
+        let res = false
+        if (this._settings.currencyCode !== 'ETH_ROPSTEN') {
+            res = await this._get(address)
+        }
         if (res && typeof res.data !== 'undefined' && res.data) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance loaded from ' + res.provider + ' ' + res.time)
             if (this._tokenAddress && typeof res.data.formattedTokens[this._tokenAddress] === 'undefined') {
@@ -176,7 +186,6 @@ export default class EthScannerProcessor extends EthBasic {
             }
 
             const transactions = await this._unifyTransactions(address, tmp.data.result, isInternal)
-
             BlocksoftCryptoLog.log(logTitle + ' finished ' + address)
             return transactions
         }
@@ -190,22 +199,24 @@ export default class EthScannerProcessor extends EthBasic {
     async getTransactionBlockchain(txHash) {
         BlocksoftCryptoLog.log('EthScannerProcessor.getTransaction started ' + txHash)
 
-        if (!this._trezorServer) {
-            return false
-        }
 
-        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Scanner.getTransaction')
+        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Scanner.getTransaction')
+
         if (typeof this._trezorServer === 'undefined') {
             BlocksoftCryptoLog.err('EthScannerProcessor.getTransaction empty trezorServer')
             throw new Error('EthScannerProcessor.getTransaction empty trezorServer')
+        }
+
+        if (!this._trezorServer) {
+            return false
         }
 
         let link = this._trezorServer + '/api/v2/tx-specific/' + txHash
         let res = await BlocksoftAxios.getWithoutBraking(link)
 
         if (!res || !res.data) {
-            BlocksoftExternalSettings.setTrezorServerInvalid('ETH_TREZOR_SERVER', this._trezorServer)
-            this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Scanner._get')
+            BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
+            this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Scanner._get')
             if (typeof this._trezorServer === 'undefined') {
                 BlocksoftCryptoLog.err('EthScannerProcessor._get empty trezorServer2')
                 throw new Error('EthScannerProcessor._get empty trezorServer2')
@@ -213,7 +224,7 @@ export default class EthScannerProcessor extends EthBasic {
             link = this._trezorServer + '/api/v2/tx-specific/' + txHash
             res = await BlocksoftAxios.getWithoutBraking(link)
             if (!res || !res.data) {
-                BlocksoftExternalSettings.setTrezorServerInvalid('ETH_TREZOR_SERVER', this._trezorServer)
+                BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
                 return false
             }
         }
@@ -224,7 +235,7 @@ export default class EthScannerProcessor extends EthBasic {
 
         let tx
         if (typeof res.data.receipt === 'undefined') {
-            tx = { ...{status : 0x0}, ...res.data.tx }
+            tx = { ...{ status: 0x0 }, ...res.data.tx }
         } else {
             tx = { ...res.data.receipt, ...res.data.tx }
         }
@@ -234,7 +245,6 @@ export default class EthScannerProcessor extends EthBasic {
         tx.gas = BlocksoftUtils.hexToDecimal(tx.gas)
         tx.gasPrice = BlocksoftUtils.hexToDecimal(tx.gasPrice)
         tx.gasUsed = BlocksoftUtils.hexToDecimal(tx.gasUsed)
-        console.log('res', tx)
         return tx
     }
 
@@ -252,7 +262,10 @@ export default class EthScannerProcessor extends EthBasic {
             return []
         }
         let tx
-        let unique = {}
+        const unique = {}
+        let maxNonce = -1
+
+        const notBroadcasted = await EthRawDS.getForAddress({ address, currencyCode: this._settings.currencyCode })
         for (tx of result) {
             try {
 
@@ -269,11 +282,33 @@ export default class EthScannerProcessor extends EthBasic {
                 }
                 if (transaction) {
                     transactions.push(transaction)
+                    if (
+                        typeof transaction.transactionJson.feeType === 'undefined'
+                        && (transaction.transactionDirection === 'outcome' || transaction.transactionDirection === 'self')
+                        && typeof transaction.transactionJson.nonce !== 'undefined') {
+
+                        const uniqueFrom = address.toLowerCase() + '_' + transaction.transactionJson.nonce
+                        if (notBroadcasted && typeof notBroadcasted[uniqueFrom] !== 'undefined') {
+                            EthRawDS.cleanRaw({
+                                address,
+                                transactionUnique: uniqueFrom,
+                                currencyCode: this._settings.currencyCode
+                            })
+                        }
+                        if (transaction.transactionJson.nonce * 1 > maxNonce) {
+                            maxNonce = transaction.transactionJson.nonce  * 1
+                        }
+                    }
                 }
             } catch (e) {
                 BlocksoftCryptoLog.err('EthScannerProcessor._unifyTransaction error ' + e.message + ' on ' + (isTrezor ? 'Trezor' : 'usual') + ' tx ' + JSON.stringify(tx))
             }
         }
+
+        if (maxNonce > -1) {
+            await EthTmpDS.saveNonce(address, 'maxScanned', maxNonce)
+        }
+
         return transactions
     }
 
@@ -415,6 +450,7 @@ export default class EthScannerProcessor extends EthBasic {
             transactionDirection: (address.toLowerCase() === fromAddress.toLowerCase()) ? 'outcome' : 'income',
             addressFrom: address.toLowerCase() === fromAddress.toLowerCase() ? '' : fromAddress,
             addressTo: address.toLowerCase() === toAddress.toLowerCase() ? '' : toAddress,
+            addressFromBasic: fromAddress.toLowerCase(),
             addressAmount: amount,
             transactionStatus: transactionStatus,
             transactionFee: fee,
@@ -515,6 +551,7 @@ export default class EthScannerProcessor extends EthBasic {
             blockConfirmations: confirmations,
             transactionDirection: (address.toLowerCase() === transaction.from.toLowerCase()) ? 'outcome' : 'income',
             addressFrom: (address.toLowerCase() === transaction.from.toLowerCase()) ? '' : transaction.from,
+            addressFromBasic: transaction.from.toLowerCase(),
             addressTo: (address.toLowerCase() === transaction.to.toLowerCase()) ? '' : transaction.to,
             addressAmount: transaction.value,
             transactionStatus: transactionStatus,

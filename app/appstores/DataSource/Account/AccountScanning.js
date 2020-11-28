@@ -194,6 +194,11 @@ class AccountScanning {
                 Log.daemon('AccountScanning getAddresses finished as empty')
                 return false
             }
+            if (typeof params.limit !== 'undefined') {
+                if (params.limit === 1) {
+                    return res.array[0].address
+                }
+            }
             res = res.array
             let tmp
             for (tmp of res) {

@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 import { View, Text, TouchableOpacity, Keyboard, ScrollView, SafeAreaView } from 'react-native'
 import { hideModal, showModal } from '../../appstores/Stores/Modal/ModalActions'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import BlocksoftTransfer from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import transactionActions from '../../appstores/Actions/TransactionActions'
 import i18n, { strings } from '../../services/i18n'
@@ -36,6 +36,9 @@ import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 import store from '../../store'
 import _ from 'lodash'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
+import { recordFioObtData } from '../../../crypto/blockchains/fio/FioUtils'
+import config from '../../config/config'
+
 
 let styles
 
@@ -49,7 +52,8 @@ class ConfirmSendScreen extends Component {
             feeList: null,
             selectedFee: false,
             selectedCustomFee: false,
-            needPasswordConfirm: false
+            needPasswordConfirm: false,
+            fioRequestDetails: null
         }
     }
 
@@ -64,8 +68,15 @@ class ConfirmSendScreen extends Component {
             this.setState({
                 data: newData
             })
-
         } else {
+            if (typeof data.walletUseUnconfirmed === 'undefined') {
+                const { selectedWallet } = store.getState().mainStore
+                if (typeof data.wallet.walletHash !== 'undefined' && data.wallet.walletHash) {
+                    data.wallet = { ...selectedWallet, walletHash: data.wallet.walletHash }
+                } else {
+                    data.wallet = { ...selectedWallet }
+                }
+            }
             this.setState({
                 data
             })
@@ -84,8 +95,17 @@ class ConfirmSendScreen extends Component {
         })
     }
 
+    componentDidMount() {
+        const fioRequestDetails = this.props.navigation.getParam('fioRequestDetails')
+        if (fioRequestDetails) {
+            this.setState({
+                fioRequestDetails: fioRequestDetails
+            })
+        }
+    }
+
     getData(data) {
-        const { account, address, amount, memo, amountRaw, wallet, cryptoCurrency, useAllFunds, toTransactionJSON, type, currencyCode } = data
+        const { address, amount, memo, useAllFunds, toTransactionJSON, type, currencyCode, countedFees } = data
 
         const { selectedWallet } = store.getState().mainStore
 
@@ -93,24 +113,25 @@ class ConfirmSendScreen extends Component {
         const cryptoCurrencyNew = _.find(cryptoCurrencies, { currencyCode: currencyCode })
 
         const { accountList } = store.getState().accountStore
-        const accountNew = accountList[selectedWallet.walletHash][currencyCode]
+        const account = accountList[selectedWallet.walletHash][currencyCode]
 
-        const amountRawNew = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(amount)
-        if (typeof amountRawNew === 'undefined') {
+        const amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(amount)
+        if (typeof amountRaw === 'undefined') {
             Log.err('SendScreen.handleSendTransaction ' + currencyCode + ' not ok amountRaw ')
         }
 
         const newData = {
             memo,
             amount,
-            amountRaw: amountRawNew,
+            amountRaw,
             address,
             wallet: selectedWallet,
             cryptoCurrency: cryptoCurrencyNew,
-            account: accountNew,
+            account,
             useAllFunds,
             toTransactionJSON,
-            type
+            type,
+            countedFees
         }
         return newData
     }
@@ -131,16 +152,20 @@ class ConfirmSendScreen extends Component {
 
         const { settingsStore } = this.props
 
-        let fee
+        let selectedFee
 
         try {
-            fee = await this.fee.getFee()
+            selectedFee = await this.fee.getFee()
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('ConfirmSendScreen.handleSend', e)
+            }
             return false
         }
 
         const {
-            needPasswordConfirm
+            needPasswordConfirm,
+            fioRequestDetails,
         } = this.state
 
         if (needPasswordConfirm && passwordCheck && typeof settingsStore.data.askPinCodeWhenSending !== 'undefined' && +settingsStore.data.askPinCodeWhenSending) {
@@ -164,9 +189,7 @@ class ConfirmSendScreen extends Component {
             transactionReplaceByFee
         } = this.state.data
 
-        const {
-            walletHash
-        } = wallet
+        const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = wallet
         const {
             address: addressFrom,
             derivationPath,
@@ -176,53 +199,25 @@ class ConfirmSendScreen extends Component {
         } = account
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
-        // TODO: fix this
-        const derivationPathTmp = derivationPath.replace(/quote/g, '\'')
 
         try {
-            let tx
-            if (typeof transactionReplaceByFee !== 'undefined' && transactionReplaceByFee) {
-                tx = await (
-                    BlocksoftTransfer.setCurrencyCode(currencyCode)
-                        .setWalletHash(walletHash)
-                        .setDerivePath(derivationPathTmp)
-                        .setAddressFrom(addressFrom)
-                        .setAddressTo(addressTo)
-                        .setMemo(memo)
-                        .setAmount(amountRaw)
-                        .setAdditional(accountJson, toTransactionJSON)
-                        .setTransferAll(false)
-                        .setTxHash(transactionReplaceByFee)
-                        .setFee(fee)
-                ).sendTx(uiErrorConfirmed)
-            } else if (typeof transactionSpeedUp !== 'undefined') {
-                tx = await (
-                    BlocksoftTransfer.setCurrencyCode(currencyCode)
-                        .setWalletHash(walletHash)
-                        .setDerivePath(derivationPathTmp)
-                        .setAddressFrom(addressFrom)
-                        .setAddressTo(addressTo)
-                        .setMemo(memo)
-                        .setAmount(amountRaw)
-                        .setAdditional(accountJson, toTransactionJSON)
-                        .setTransferAll(false)
-                        .setTxInput(transactionSpeedUp)
-                        .setFee(fee)
-                ).sendTx(uiErrorConfirmed)
-            } else {
-                tx = await (
-                    BlocksoftTransfer.setCurrencyCode(currencyCode)
-                        .setWalletHash(walletHash)
-                        .setDerivePath(derivationPathTmp)
-                        .setAddressFrom(addressFrom)
-                        .setAddressTo(addressTo)
-                        .setMemo(memo)
-                        .setAmount(amountRaw)
-                        .setAdditional(accountJson, toTransactionJSON)
-                        .setTransferAll(useAllFunds)
-                        .setFee(fee)
-                ).sendTx(uiErrorConfirmed)
+            const txData = {
+                currencyCode,
+                walletHash,
+                derivationPath: derivationPath,
+                addressFrom: addressFrom,
+                addressTo: addressTo,
+                amount: amountRaw,
+                isTransferAll: useAllFunds,
+                useOnlyConfirmed: !(walletUseUnconfirmed === 1),
+                allowReplaceByFee: walletAllowReplaceByFee === 1,
+                transactionReplaceByFee,
+                transactionSpeedUp,
+                memo,
+                accountJson,
+                transactionJson: toTransactionJSON
             }
+            const tx = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed, selectedFee })
 
             const transactionJson = { memo: '', ...toTransactionJSON }
             if (typeof tx.transactionJson !== 'undefined') {
@@ -232,39 +227,53 @@ class ConfirmSendScreen extends Component {
                 }
             }
 
+            const now = new Date().toISOString()
             if (transactionReplaceByFee) {
-
                 const transaction = {
-                    accountId: accountId,
-                    transactionHash: tx.hash,
+                    currencyCode,
+                    accountId,
+                    addressAmount: tx.amountForTx,
+                    addressTo: tx.addressTo,
+                    transactionHash: tx.transactionHash,
+                    transactionStatus: 'new',
                     transactionUpdateHash: transactionReplaceByFee,
                     transactionsOtherHashes: transactionReplaceByFee,
-                    transactionJson
+                    transactionJson,
+                    transactionsScanLog: now + ' RBFed '
                 }
-
+                if (typeof tx.transactionFeeCurrencyCode !== 'undefined') {
+                    transaction.transactionFeeCurrencyCode = tx.transactionFeeCurrencyCode
+                }
+                if (typeof tx.transactionFee !== 'undefined') {
+                    transaction.transactionFee = tx.transactionFee
+                }
+                if (typeof tx.amountForTx !== 'undefined') {
+                    transaction.addressAmount = tx.amountForTx
+                }
                 await transactionActions.updateTransaction(transaction)
-
             } else {
                 const transaction = {
                     currencyCode: currencyCode,
                     accountId: accountId,
                     walletHash: walletHash,
-                    transactionHash: tx.hash,
+                    transactionHash: tx.transactionHash,
                     transactionStatus: 'new',
                     addressTo: addressTo,
                     addressFrom: '',
+                    addressFromBasic: addressFrom.toLowerCase(),
                     addressAmount: amountRaw,
-                    transactionFee: tx.transactionFee || fee.feeForTx,
-                    transactionFeeCurrencyCode: tx.currencyCode || '',
+                    transactionFee: tx.transactionFee,
+                    transactionFeeCurrencyCode: tx.transactionFeeCurrencyCode || '',
                     transactionOfTrusteeWallet: 1,
                     transactionJson,
                     blockConfirmations: 0,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    transactionDirection: 'outcome'
+                    createdAt: now,
+                    updatedAt: now,
+                    transactionDirection: 'outcome',
+                    transactionsScanLog: now + ' CREATED'
                 }
-                if (typeof tx.correctedAmountFrom !== 'undefined') {
-                    transaction.addressAmount = tx.correctedAmountFrom
+                if (typeof tx.amountForTx !== 'undefined') {
+                    transaction.addressAmount = tx.amountForTx
                 }
                 if (typeof tx.blockHash !== 'undefined') {
                     transaction.blockHash = tx.blockHash
@@ -276,26 +285,45 @@ class ConfirmSendScreen extends Component {
                     transaction.addressTo = ''
                     transaction.transactionDirection = 'self'
                 }
-                if (typeof tx.timestamp !== 'undefined' && tx.timestamp) {
-                    transaction.createdAt = new Date(tx.timestamp).toISOString()
-                    transaction.updatedAt = new Date(tx.timestamp).toISOString()
+                if (typeof tx.transactionTimestamp !== 'undefined' && tx.transactionTimestamp) {
+                    transaction.createdAt = new Date(tx.transactionTimestamp).toISOString()
+                    transaction.updatedAt = new Date(tx.transactionTimestamp).toISOString()
                 }
 
                 const logData = {
                     walletHash: walletHash,
                     currencyCode: currencyCode,
-                    transactionHash: tx.hash,
+                    transactionHash: tx.transactionHash,
                     addressTo: addressTo,
                     addressFrom: addressFrom,
                     addressAmount: amountRaw,
-                    fee: JSON.stringify(fee)
+                    fee: JSON.stringify(selectedFee)
                 }
                 if (transactionReplaceByFee) {
                     logData.transactionReplaceByFee = transactionReplaceByFee
                 }
+                if (transactionSpeedUp) {
+                    logData.transactionSpeedUp = transactionSpeedUp
+                }
                 MarketingEvent.checkSellSendTx(logData)
 
-                transactionActions.saveTransaction(transaction)
+                const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+                transactionActions.saveTransaction(transaction, line + ' HANDLE SEND ')
+            }
+
+            if (fioRequestDetails) {
+                await recordFioObtData({
+                    fioRequestId: fioRequestDetails.fio_request_id,
+                    payerFioAddress: fioRequestDetails.payer_fio_address,
+                    payeeFioAddress: fioRequestDetails.payee_fio_address,
+                    payerTokenPublicAddress: addressFrom,
+                    payeeTokenPublicAddress: addressTo,
+                    amount: amountRaw,
+                    chainCode: currencyCode,
+                    tokenCode: currencyCode,
+                    obtId: tx.hash,
+                    memo: fioRequestDetails.memo,
+                })
             }
 
             hideModal()
@@ -313,7 +341,7 @@ class ConfirmSendScreen extends Component {
 
                 const { type } = this.props.sendStore.data
 
-                if (type === 'MAIN_SCANNER') {
+                if (type === 'MAIN_SCANNER' || fioRequestDetails) {
                     NavStore.goNext('DashboardStack')
                 } else if (type === 'SEND_SCANNER') {
                     NavStore.goNext('AccountScreen')
@@ -324,8 +352,6 @@ class ConfirmSendScreen extends Component {
                         }
                     })
                 } else {
-                    BlocksoftTransfer.getTransferPrecache('confirmScreenOk')
-
                     if (transactionReplaceByFee) {
                         NavStore.goBack(null)
                     } else {
@@ -362,6 +388,9 @@ class ConfirmSendScreen extends Component {
                 })
 
             } else {
+                if (config.debug.appErrors) {
+                    console.log('Send.ConfirmSendScreen.handleSend error', e)
+                }
                 Log.errorTranslate(e, 'Send.ConfirmSendScreen.handleSend', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
 
                 showModal({
@@ -370,10 +399,6 @@ class ConfirmSendScreen extends Component {
                     title: strings('modal.exchange.sorry'),
                     description: e.message
                 })
-
-                if (typeof e.needFees !== 'undefined') {
-                    await this.fee.multiplyFee()
-                }
             }
             this.setState({ isSendDisabled: false })
         }
@@ -449,7 +474,8 @@ class ConfirmSendScreen extends Component {
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
         const { isSendDisabled, feeList, selectedFee, selectedCustomFee } = this.state
-        let { isBottomFunctionEnabled, amount, address, account, cryptoCurrency, wallet, type, transactionSpeedUp, transactionReplaceByFee } = this.state.data
+        let { isBottomFunctionEnabled, amount, address, account, cryptoCurrency, wallet, type, transactionSpeedUp, transactionReplaceByFee, multiAddress } = this.state.data
+
         const { currencySymbol } = cryptoCurrency
         const basicCurrencySymbol = account.basicCurrencySymbol
 
@@ -462,29 +488,23 @@ class ConfirmSendScreen extends Component {
         extendCurrencyCode = typeof extendCurrencyCode.addressCurrencyCode === 'undefined' ? extendCurrencyCode.currencySymbol : extendCurrencyCode.addressCurrencyCode
 
         let multiShow = false
-        if (feeList || selectedFee) {
-            const lastFee = selectedFee || feeList[feeList.length - 1]
-            if (lastFee) {
-                if (typeof lastFee.preparedInputsOutputs !== 'undefined' && typeof lastFee.preparedInputsOutputs.multiAddress !== 'undefined' && lastFee.preparedInputsOutputs.multiAddress) {
-                    address = lastFee.preparedInputsOutputs.multiAddress[0]
-                    multiShow = lastFee.preparedInputsOutputs.multiAddress
-                }
-
-            }
+        if (typeof multiAddress !== 'undefined' && multiAddress) {
+            address = multiAddress[0]
+            multiShow = multiAddress
         }
 
         // recheck amount to show less digits in erc-20
         const newAmount = BlocksoftPrettyNumbers.makePretty(BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makeUnPretty(amount))
-        Log.log('ConfirmSendScreen makePretty/makePretty ' + account.currencyCode + ' '  + amount + ' => ' + newAmount)
-        if (typeof newAmount !== 'undefined' && newAmount*1 > 0) {
+        Log.log('ConfirmSendScreen makePretty/makePretty ' + account.currencyCode + ' ' + amount + ' => ' + newAmount)
+        if (typeof newAmount !== 'undefined' && newAmount * 1 > 0) {
             amount = newAmount + ''
         }
 
         let titleMsg = ''
         if (typeof transactionReplaceByFee !== 'undefined' && transactionReplaceByFee) {
-            titleMsg = strings('send.confirmModal.titleReplaceByFee', {hash : BlocksoftPrettyStrings.makeCut(transactionReplaceByFee)})
+            titleMsg = strings('send.confirmModal.titleReplaceByFee', { hash: BlocksoftPrettyStrings.makeCut(transactionReplaceByFee) })
         } else if (typeof transactionSpeedUp !== 'undefined') {
-            titleMsg = strings('send.confirmModal.titleSpeedUp', {hash : BlocksoftPrettyStrings.makeCut(transactionSpeedUp)})
+            titleMsg = strings('send.confirmModal.titleSpeedUp', { hash: BlocksoftPrettyStrings.makeCut(transactionSpeedUp) })
         } else {
             titleMsg = strings('send.confirmModal.title')
         }
@@ -499,7 +519,7 @@ class ConfirmSendScreen extends Component {
                 const tmp = amount.split('.')
                 if (typeof tmp[1] !== 'undefined') {
                     amountFirst = tmp[0] + '.'
-                    amountSecond =  tmp[1].slice(0, 7) + ' '
+                    amountSecond = tmp[1].slice(0, 7) + ' '
                 } else if (typeof tmp[0] !== 'undefined') {
                     amountFirst = tmp[0]
                 }
@@ -509,7 +529,7 @@ class ConfirmSendScreen extends Component {
         return (
             <GradientView style={styles.bg} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <View style={styles.wrapper}>
-                    <SafeAreaView style={{ flex: 0, backgroundColor: '#7127ab' }}/>
+                    <SafeAreaView style={{ flex: 0, backgroundColor: '#7127ab' }} />
                     <SafeAreaView style={{ flex: 1, position: 'relative', backgroundColor: '#fff' }}>
                         <View style={{
                             position: 'absolute',
@@ -518,7 +538,7 @@ class ConfirmSendScreen extends Component {
                             left: 0,
                             height: 1000,
                             backgroundColor: '#7127ab'
-                        }}/>
+                        }} />
                         <KeyboardAwareView>
                             <ScrollView showsVerticalScrollIndicator={false}
                                         contentContainerStyle={styles.wrapper__content}>
@@ -570,7 +590,7 @@ class ConfirmSendScreen extends Component {
                                                                 style={styles.description__text}>{strings('send.confirmModal.multiRecipient', { total: multiShow.length })}</Text>
                                                             <View style={{ marginLeft: 5, marginBottom: 0 }}>
                                                                 <AntDesing name={'caretdown'} size={13}
-                                                                           color="#f4f4f4"/>
+                                                                           color="#f4f4f4" />
                                                             </View>
                                                         </View>
                                                     </TouchableOpacity>
@@ -585,7 +605,7 @@ class ConfirmSendScreen extends Component {
                                 </View>
 
                                 <TouchableOpacity onPress={() => this.handleHide()} style={styles.cross}>
-                                    <Cross name={'cross'} size={30} color={'#fff'}/>
+                                    <Cross name={'cross'} size={30} color={'#fff'} />
                                 </TouchableOpacity>
                                 <Fee
                                     ref={ref => this.fee = ref}
@@ -607,7 +627,7 @@ class ConfirmSendScreen extends Component {
                                     height: 1000,
                                     backgroundColor: '#fff',
                                     zIndex: 0
-                                }}/>
+                                }} />
                             </View>
                         </KeyboardAwareView>
                     </SafeAreaView>

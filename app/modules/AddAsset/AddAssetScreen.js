@@ -105,6 +105,10 @@ class AddAssetScreen extends Component {
                 } else {
                     lastArray.push(item)
                 }
+            } else if (typeof item.tokenAddress !== 'undefined' && item.tokenAddress) {
+                if (item.tokenAddress.toLowerCase().indexOf(value) !== -1) {
+                    lastArray.push(item)
+                }
             }
         }
 

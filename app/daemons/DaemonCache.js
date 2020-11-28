@@ -12,6 +12,7 @@ class DaemonCache {
     CACHE_RATES = {}
     CACHE_ALL_ACCOUNTS = {}
     CACHE_WALLET_NAMES_AND_CB = {}
+    CACHE_FIO_MEMOS = {}
 
     /**
      * @param walletHash
@@ -36,12 +37,16 @@ class DaemonCache {
         return this.CACHE_RATES[currencyCode]
     }
 
+    getFioMemo(currencyCode) {
+        return this.CACHE_FIO_MEMOS[currencyCode] ?? {}
+    }
+
     async _getFromDB(walletHash, currencyCode) {
         const dbInterface = new DBInterface()
-        const sql = ` SELECT balance_fix AS balanceFix, balance_txt AS balanceTxt FROM account_balance   WHERE currency_code='${currencyCode}' AND wallet_hash='${walletHash}'`
+        const sql = ` SELECT balance_fix AS balanceFix, balance_txt AS balanceTxt FROM account_balance WHERE currency_code='${currencyCode}' AND wallet_hash='${walletHash}'`
         const res = await dbInterface.setQueryString(sql).query()
         if (!res || !res.array || res.array.length === 0) {
-            return {balance : 0}
+            return {balance : 0, from : 'noDb'}
         }
         let account
         let totalBalance = 0
@@ -51,7 +56,7 @@ class DaemonCache {
                 totalBalance += balance
             }
         }
-        return {balance : totalBalance}
+        return {balance : totalBalance, from : 'sumDb'}
     }
 
     async getCacheAccount(walletHash, currencyCode) {

@@ -18,7 +18,8 @@ import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
 import config from '../../config/config'
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
+import { getFioObtData, resolveCryptoCodes } from '../../../crypto/blockchains/fio/FioUtils'
+import DaemonCache from '../DaemonCache'
 
 const CACHE_SCANNING = {}
 const CACHE_VALID_TIME = 60000 // 1 minute
@@ -121,7 +122,41 @@ class UpdateAccountBalanceAndTransactions {
 
             CACHE_LAST_TIME = new Date().getTime()
         } catch (e) {
-            Log.errDaemon('UpdateAccountBalanceAndTransactions balanceError ' + source + ' ' + e.message + ' ' + tmpAction)
+            if (config.debug.appErrors) {
+                console.log(e)
+            }
+            Log.errDaemon('UpdateAccountBalanceAndTransactions balance error ' + source + ' ' + e.message + ' ' + tmpAction)
+        }
+    }
+
+    loadFioData = async (currencyCode) => {
+        Log.daemon('UpdateAccountBalanceAndTransactions loadFioData ' + currencyCode)
+        try {
+            // eslint-disable-next-line camelcase
+            const { token_code } = resolveCryptoCodes(currencyCode)
+            const result = await getFioObtData(token_code)
+            if (result && result['obt_data_records']) {
+                const fioData = result['obt_data_records'].reduce((res, item) => {
+                    if (!item.content?.memo) {
+                        return res
+                    }
+
+                    return !item.content?.obt_id ? res : {
+                        ...res,
+                        [item.content?.obt_id]: item.content?.memo
+                    }
+                }, {})
+
+                DaemonCache.CACHE_FIO_MEMOS[currencyCode] = {
+                    ...DaemonCache.getFioMemo(currencyCode),
+                    ...fioData
+                }
+            }
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('UpdateAccountBalanceAndTransactions error on loadFioData ', e)
+            }
+            Log.errDaemon('UpdateAccountBalanceAndTransactions error on loadFioData ' + e.message)
         }
     }
 
@@ -177,9 +212,9 @@ class UpdateAccountBalanceAndTransactions {
                 continueWithTx = false
                 updateObj.balanceProvider = newBalance.provider
                 updateObj.balanceScanLog = account.address + ' block error, ignored new ' + newBalance.balance + ' block ' + newBalance.balanceScanBlock + ', old balance ' + account.balance + ' block ' + account.balanceScanBlock
-            } else if (newBalance.balance * 1 !== account.balance * 1 || newBalance.unconfirmed * 1 !== account.unconfirmed * 1) {
+            } else if (newBalance.balance.toString() !== account.balance.toString() || newBalance.unconfirmed.toString() !== account.unconfirmed.toString()) {
                 updateObj.balanceFix = newBalance.balance // lets send to db totally not changed big number string
-                updateObj.balanceTxt = newBalance.balance // and string for any case
+                updateObj.balanceTxt = newBalance.balance.toString() // and string for any case
                 updateObj.unconfirmedFix = newBalance.unconfirmed || 0 // lets send to db totally not changed big number string
                 updateObj.unconfirmedTxt = newBalance.unconfirmed || '' // and string for any case
                 updateObj.balanceProvider = newBalance.provider
@@ -277,6 +312,8 @@ class UpdateAccountBalanceAndTransactions {
             e.message += ' while accountDS.updateAccount'
             throw e
         }
+
+        await this.loadFioData(account.currencyCode)
 
         Log.daemon('UpdateAccountBalanceAndTransactions _accountRun finish ' + account.id + ' ' + account.currencyCode + ' ' + account.address)
     }

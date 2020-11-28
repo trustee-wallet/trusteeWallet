@@ -4,7 +4,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { View, Text, TouchableOpacity, ScrollView, Linking, RefreshControl, Platform } from 'react-native'
+import { Linking, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 
 import firebase from 'react-native-firebase'
 import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -24,6 +24,7 @@ import Transaction from './elements/Transaction'
 import SettingsBTC from './elements/SettingsBTC'
 import SettingsUSDT from './elements/SettingsUSDT'
 import SettingsXMR from './elements/SettingsXMR'
+import SettingsTRX from './elements/SettingsTRX'
 
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
@@ -48,12 +49,13 @@ import Theme from '../../themes/Themes'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import CustomIcon from "../../components/elements/CustomIcon"
-import UIDict from "../../services/UIDict/UIDict"
+import CustomIcon from '../../components/elements/CustomIcon'
+import UIDict from '../../services/UIDict/UIDict'
 import AsyncStorage from '@react-native-community/async-storage'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
-
-
+import { getAccountFioName } from '../../../crypto/blockchains/fio/FioUtils'
+import config from '../../config/config'
+import DaemonCache from '../../daemons/DaemonCache'
 
 let CACHE_ASKED = false
 
@@ -74,6 +76,7 @@ class Account extends Component {
             dash: true,
 
             firstCall: true,
+            fioMemo: {}
         }
     }
 
@@ -85,7 +88,7 @@ class Account extends Component {
 
             setTimeout(() => {
                 this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
-                    if(this.state.firstCall) {
+                    if (this.state.firstCall) {
                         this.setState({ firstCall: false })
                     }
                 })
@@ -101,6 +104,21 @@ class Account extends Component {
         CACHE_ASKED = await AsyncStorage.getItem('asked')
     }
 
+    async componentDidMount() {
+        const { currencyCode } = this.props.cryptoCurrency
+        if (currencyCode === 'FIO') {
+            const fioAccount = await getAccountFioName()
+            if (!fioAccount) {
+                showModal({
+                    type: 'YES_NO_MODAL',
+                    title: strings('account.fioAccount.title'),
+                    icon: 'INFO',
+                    description: strings('account.fioAccount.description')
+                }, this.handleRegisterFIOAddress)
+            }
+        }
+    }
+
     componentDidUpdate(prevProps) {
         if (prevProps.account.transactions.length !== this.props.account.transactions.length) {
             this.setState({
@@ -113,11 +131,22 @@ class Account extends Component {
         }
     }
 
-    handleReceive = async () => {
-        const cryptoCurrency = this.props.cryptoCurrency
+    handleRegisterFIOAddress = async () => {
         const { address } = this.props.account
+        const { apiEndpoints } = config.fio
+        await Linking.openURL(`${apiEndpoints.registrationSiteURL}${address}`)
+    }
+
+    handleReceive = async () => {
+        const { cryptoCurrency, account } = this.props
         // noinspection ES6MissingAwait
-        checkTransferHasError({ currencyCode: cryptoCurrency.currencyCode, currencySymbol: cryptoCurrency.currencySymbol, address })
+        checkTransferHasError({
+            walletHash: account.walletHash,
+            currencyCode: cryptoCurrency.currencyCode,
+            currencySymbol: cryptoCurrency.currencySymbol,
+            addressFrom: account.address,
+            addressTo: account.address
+        })
         NavStore.goNext('ReceiveScreen')
     }
 
@@ -164,13 +193,21 @@ class Account extends Component {
         }
 
         try {
-            await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({force : true, currencyCode : account.currencyCode, source: 'ACCOUNT_REFRESH'})
+            await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({
+                force: true,
+                currencyCode: account.currencyCode,
+                source: 'ACCOUNT_REFRESH'
+            })
         } catch (e) {
             Log.errDaemon('AccountScreen handleRefresh error updateAccountBalanceAndTransactions ' + e.message)
         }
 
         try {
-            await UpdateAccountListDaemon.updateAccountListDaemon({force : true, currencyCode : account.currencyCode, source: 'ACCOUNT_REFRESH'})
+            await UpdateAccountListDaemon.updateAccountListDaemon({
+                force: true,
+                currencyCode: account.currencyCode,
+                source: 'ACCOUNT_REFRESH'
+            })
         } catch (e) {
             Log.errDaemon('AccountScreen handleRefresh error updateAccountListDaemon ' + e.message)
         }
@@ -186,7 +223,7 @@ class Account extends Component {
 
     handleOpenLink = async (address) => {
         const now = new Date().getTime()
-        const diff = now - CACHE_ASKED*1
+        const diff = now - CACHE_ASKED * 1
         if (!CACHE_ASKED || diff > 10000) {
             showModal({
                 type: 'YES_NO_MODAL',
@@ -234,7 +271,7 @@ class Account extends Component {
             type: 'INFO_MODAL',
             icon: 'INFO',
             title: 'SYSTEM_LOG',
-            description: text.slice(0,500)
+            description: text.slice(0, 500)
         })
     }
 
@@ -250,13 +287,28 @@ class Account extends Component {
                 {
                     !props.transactionsToView.length ?
                         <View>
-                            {isSynchronized ? <Text style={styles.transaction__empty_text}>{strings('account.noTransactions')}</Text> : <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10, marginLeft: 30 }}><Loader size={14} color={'#999999'}/><Text style={{ ...styles.transaction__empty_text, ...{ marginLeft: 10, marginTop: 0 } }}>{strings('homeScreen.synchronizing')}</Text></View>}
+                            {isSynchronized ? <Text
+                                    style={styles.transaction__empty_text}>{strings('account.noTransactions')}</Text> :
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    marginRight: 10,
+                                    marginLeft: 30
+                                }}><Loader size={14} color={'#999999'} /><Text style={{
+                                    ...styles.transaction__empty_text, ...{
+                                        marginLeft: 10,
+                                        marginTop: 0
+                                    }
+                                }}>{strings('homeScreen.synchronizing')}</Text></View>}
                         </View>
                         : null
                 }
                 <View style={stl.scan}>
                     <Text style={stl.scan__text}>{strings('account.scan')}</Text>
-                    <Text style={{...stl.scan__text, color: '#404040'}}>{new Date(this.props.account.balanceScanTime*1000).toLocaleTimeString().slice(0,8)}</Text>
+                    <Text style={{
+                        ...stl.scan__text,
+                        color: '#404040'
+                    }}>{new Date(this.props.account.balanceScanTime * 1000).toLocaleTimeString().slice(0, 8)}</Text>
                 </View>
             </View>
         )
@@ -264,7 +316,7 @@ class Account extends Component {
     }
 
     renderDash = () => {
-        this.setState({dash: this.state.dash})
+        this.setState({ dash: this.state.dash })
     }
 
     prepareTransactions = (transactions, exchangeOrders) => {
@@ -386,7 +438,7 @@ class Account extends Component {
                             const item = byIds[tmpKey]
                             if (typeof uniqueOrderId[item.orderId] === 'undefined') {
                                 uniqueOrderId[item.orderId] = 1
-                                transactionsTmp.push({ ...tx, ...item})
+                                transactionsTmp.push({ ...tx, ...item })
                                 added = true
                                 delete byIds[tmpKey]
                                 byIdsLength--
@@ -397,7 +449,11 @@ class Account extends Component {
                 if (!added) {
                     if (mainStore.selectedWallet.walletIsHideTransactionForFee !== null && +mainStore.selectedWallet.walletIsHideTransactionForFee === 1) {
                         if (tx.addressAmount === 0) {
-                            continue
+                            if (tx.transactionOfTrusteeWallet === 1 && tx.transactionsOtherHashes !== '') {
+                                // do nothing as its removed ones
+                            } else {
+                                continue
+                            }
                         }
                     }
                     if (typeof tx.id === 'undefined') {
@@ -447,7 +503,7 @@ class Account extends Component {
         const addressPrep = BlocksoftPrettyStrings.makeCut(address, 10, 8)
         return (
             <View style={styles.topContent__address}>
-                <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1}/>
+                <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
             </View>
         )
     }
@@ -484,7 +540,8 @@ class Account extends Component {
                             }
                         </Text>
                     </View>
-                    <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance} textStyle={styles.topContent__subtitle} letterSpacing={.5}/>
+                    <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
+                                   textStyle={styles.topContent__subtitle} letterSpacing={.5} />
                 </View>
             )
         } else {
@@ -492,7 +549,7 @@ class Account extends Component {
                 <View style={styles.topContent__top}>
                     <View style={styles.topContent__title}>
                         <View style={{ height: Platform.OS === 'ios' ? 46 : 51, alignItems: 'center' }}>
-                            <Loader size={30} color={'#999'}/>
+                            <Loader size={30} color={'#999'} />
                         </View>
                     </View>
                 </View>
@@ -505,9 +562,14 @@ class Account extends Component {
     }
 
     handleBtcAddressCopy = (address) => {
-        const cryptoCurrency = this.props.cryptoCurrency
-        checkTransferHasError({ currencyCode: cryptoCurrency.currencyCode, currencySymbol: cryptoCurrency.currencySymbol, address })
-
+        const { cryptoCurrency, account } = this.props
+        checkTransferHasError({
+            walletHash: account.walletHash,
+            currencyCode: cryptoCurrency.currencyCode,
+            currencySymbol: cryptoCurrency.currencySymbol,
+            addressFrom: address,
+            addressTo: address
+        })
         copyToClipboard(address)
         Toast.setMessage(strings('toast.copied')).show()
     }
@@ -520,12 +582,26 @@ class Account extends Component {
             segwitPrep = BlocksoftPrettyStrings.makeCut(account.segwitAddress, 5)
         }
         if (typeof account.legacyAddress !== 'undefined' && account.legacyAddress) {
-            legacyPrep = BlocksoftPrettyStrings.makeCut(account.legacyAddress,5)
+            legacyPrep = BlocksoftPrettyStrings.makeCut(account.legacyAddress, 5)
         }
         return (
-            <View style={{ position: 'relative', flexDirection: 'row', alignItems: 'center', marginBottom: 30, marginTop:20 }}>
-                <TouchableOpacity style={{ flex: 1, marginHorizontal: 20, marginRight: 10, justifyContent: 'center', height: 60 }} onPress={() => this.handleBtcAddressCopy(account.segwitAddress)}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15, position: 'relative', zIndex: 2 }}>
+            <View style={{
+                position: 'relative',
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginBottom: 30,
+                marginTop: 20
+            }}>
+                <TouchableOpacity
+                    style={{ flex: 1, marginHorizontal: 20, marginRight: 10, justifyContent: 'center', height: 60 }}
+                    onPress={() => this.handleBtcAddressCopy(account.segwitAddress)}>
+                    <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingLeft: 15,
+                        position: 'relative',
+                        zIndex: 2
+                    }}>
                         <View style={{ paddingRight: 10 }}>
                             <Text style={{
                                 marginRight: 8,
@@ -536,17 +612,26 @@ class Account extends Component {
                             }}>
                                 SegWit
                             </Text>
-                            <LetterSpacing text={segwitPrep} textStyle={styles.topContent__address} letterSpacing={1}/>
+                            <LetterSpacing text={segwitPrep} textStyle={styles.topContent__address} letterSpacing={1} />
                         </View>
-                        <Copy name="content-copy" size={15} color={'#939393'}/>
+                        <Copy name="content-copy" size={15} color={'#939393'} />
                     </View>
                     <View style={[stl.topContent__bg, { height: 45 }]}>
-                        <View style={styles.shadow}/>
+                        <View style={styles.shadow} />
                     </View>
-                    <GradientView style={[stl.bg, { height: 60 }]} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end}/>
+                    <GradientView style={[stl.bg, { height: 60 }]} array={styles.containerBG.array}
+                                  start={styles.containerBG.start} end={styles.containerBG.end} />
                 </TouchableOpacity>
-                <TouchableOpacity style={{ flex: 1, marginHorizontal: 20, marginLeft: 10, justifyContent: 'center', height: 60 }} onPress={() => this.handleBtcAddressCopy(account.legacyAddress)}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15, position: 'relative', zIndex: 2 }}>
+                <TouchableOpacity
+                    style={{ flex: 1, marginHorizontal: 20, marginLeft: 10, justifyContent: 'center', height: 60 }}
+                    onPress={() => this.handleBtcAddressCopy(account.legacyAddress)}>
+                    <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingLeft: 15,
+                        position: 'relative',
+                        zIndex: 2
+                    }}>
                         <View style={{ paddingRight: 10 }}>
                             <Text style={{
                                 marginRight: 8,
@@ -557,14 +642,15 @@ class Account extends Component {
                             }}>
                                 Legacy
                             </Text>
-                            <LetterSpacing text={legacyPrep} textStyle={styles.topContent__address} letterSpacing={1}/>
+                            <LetterSpacing text={legacyPrep} textStyle={styles.topContent__address} letterSpacing={1} />
                         </View>
-                        <Copy name="content-copy" size={15} color={'#939393'}/>
+                        <Copy name="content-copy" size={15} color={'#939393'} />
                     </View>
                     <View style={[stl.topContent__bg, { height: 45 }]}>
-                        <View style={styles.shadow}/>
+                        <View style={styles.shadow} />
                     </View>
-                    <GradientView style={[stl.bg, { height: 60 }]} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end}/>
+                    <GradientView style={[stl.bg, { height: 60 }]} array={styles.containerBG.array}
+                                  start={styles.containerBG.start} end={styles.containerBG.end} />
                 </TouchableOpacity>
             </View>
         )
@@ -592,6 +678,7 @@ class Account extends Component {
             transactionsToView = []
         }
 
+        const fioMemo = DaemonCache.getFioMemo(cryptoCurrency.currencyCode)
 
         Log.log('AccountScreen.render amountToView ' + this.state.amountToView + ' transactionsToViewLength ' + transactionsToViewLength)
         const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
@@ -620,18 +707,42 @@ class Account extends Component {
             MarketingEvent.logEvent('view_account', logData)
         }
 
-
         let leftComponent
         let settingsComponent = null
         if (account.currencyCode === 'BTC') {
-            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.handleSetMode}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
-            settingsComponent = <SettingsBTC containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }} wallet={mainStore.selectedWallet}/>
+            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
+                                                    onPress={this.handleSetMode}><View
+                style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
+                                                             color={`#404040`} /></View></TouchableOpacity>
+            settingsComponent =
+                <SettingsBTC containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
+                             wallet={mainStore.selectedWallet} />
         } else if (account.currencyCode === 'USDT') {
-            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.handleSetMode}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
-            settingsComponent = <SettingsUSDT containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }} wallet={mainStore.selectedWallet} account={account}/>
+            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
+                                                    onPress={this.handleSetMode}><View
+                style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
+                                                             color={`#404040`} /></View></TouchableOpacity>
+            settingsComponent =
+                <SettingsUSDT containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
+                              wallet={mainStore.selectedWallet} account={account} />
+        } else if (account.currencyCode === 'FIO') {
+            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={() =>  NavStore.goNext('FioMainSettings')}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
         } else if (account.currencyCode === 'XMR') {
-            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.handleSetMode}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
-            settingsComponent = <SettingsXMR containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }} wallet={mainStore.selectedWallet} account={account}/>
+            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
+                                                    onPress={this.handleSetMode}><View
+                style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
+                                                             color={`#404040`} /></View></TouchableOpacity>
+            settingsComponent =
+                <SettingsXMR containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
+                             wallet={mainStore.selectedWallet} account={account} />
+        } else if (account.currencyCode === 'TRX') {
+            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
+                                                    onPress={this.handleSetMode}><View
+                style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
+                                                             color={`#404040`} /></View></TouchableOpacity>
+            settingsComponent =
+                <SettingsTRX containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
+                             wallet={mainStore.selectedWallet} account={account} />
         }
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor
@@ -654,66 +765,119 @@ class Account extends Component {
                         />
                     }>
                     <View style={styles.wrapper__content}>
-                        <View style={[styles.topContent, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { height: 190 } : null]}>
+                        <View
+                            style={[styles.topContent, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { height: 190 } : null]}>
                             <View style={stl.topContent__content}>
                                 {this.renderBalance(cryptoCurrency, mainStore.selectedAccount)}
                                 {
-                                    account.currencyCode !== 'BTC' || (account.currencyCode === 'BTC' && !(+btcShowTwoAddress))  ?
-                                        <TouchableOpacity style={styles.topContent__middle} onPress={() => this.handleBtcAddressCopy(shownAddress)}>
-                                            <ToolTips showAfterRender={true} height={150} type={'ACCOUNT_SCREEN_ADDRESS_TIP'} cryptoCurrency={cryptoCurrency} mainComponentProps={{ address: shownAddress }} MainComponent={this.renderAddressTooltip}/>
-                                            <View onPress={() => this.handleBtcAddressCopy(shownAddress)} style={styles.copyBtn}>
-                                                <Copy name="content-copy" size={15} color={'#939393'}/>
+                                    account.currencyCode !== 'BTC' || (account.currencyCode === 'BTC' && !(+btcShowTwoAddress)) ?
+                                        <TouchableOpacity style={styles.topContent__middle}
+                                                          onPress={() => this.handleBtcAddressCopy(shownAddress)}>
+                                            <ToolTips showAfterRender={true} height={150}
+                                                      type={'ACCOUNT_SCREEN_ADDRESS_TIP'}
+                                                      cryptoCurrency={cryptoCurrency}
+                                                      mainComponentProps={{ address: shownAddress }}
+                                                      MainComponent={this.renderAddressTooltip} />
+                                            <View onPress={() => this.handleBtcAddressCopy(shownAddress)}
+                                                  style={styles.copyBtn}>
+                                                <Copy name="content-copy" size={15} color={'#939393'} />
                                             </View>
                                         </TouchableOpacity> : null
                                 }
-                                <View style={[styles.topContent__bottom, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { marginTop: 30 } : null]}>
-                                    <TouchableOpacity style={{ position: 'relative', padding: 20, paddingTop: 0, alignItems: 'center' }} onPress={() => this.handleOpenLink(shownAddress)} onLongPress={() => this.handleOpenLinkLongPress()} delayLongPress={5000}>
+                                <View
+                                    style={[styles.topContent__bottom, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { marginTop: 30 } : null]}>
+                                    <TouchableOpacity style={{
+                                        position: 'relative',
+                                        padding: 20,
+                                        paddingTop: 0,
+                                        alignItems: 'center'
+                                    }} onPress={() => this.handleOpenLink(shownAddress)}
+                                                      onLongPress={() => this.handleOpenLinkLongPress()}
+                                                      delayLongPress={5000}>
                                         <View style={{ position: 'relative', width: 50, height: 50 }}>
-                                             <GradientView style={stl.topContent__icon} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end}/>
-                                             <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center', top: 0, left: 0, bottom: 0, right: 0, zIndex: 3 }}>
-                                                 <CurrencyIcon currencyCode={cryptoCurrency.currencyCode}
+                                            <GradientView style={stl.topContent__icon} array={styles.containerBG.array}
+                                                          start={styles.containerBG.start}
+                                                          end={styles.containerBG.end} />
+                                            <View style={{
+                                                position: 'absolute',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                top: 0,
+                                                left: 0,
+                                                bottom: 0,
+                                                right: 0,
+                                                zIndex: 3
+                                            }}>
+                                                <CurrencyIcon currencyCode={cryptoCurrency.currencyCode}
                                                               containerStyle={{ borderWidth: 0 }}
                                                               markStyle={{ top: 30 }}
                                                               textContainerStyle={{ bottom: -19 }}
-                                                              textStyle={{ backgroundColor: 'transparent' }}/>
-                                             </View>
-                                             <View style={{ ...stl.topContent__bottom__btn__shadow }}>
-                                                <View style={stl.topContent__bottom__btn__shadow__item}/>
-                                             </View>
+                                                              textStyle={{ backgroundColor: 'transparent' }} />
+                                            </View>
+                                            <View style={{ ...stl.topContent__bottom__btn__shadow }}>
+                                                <View style={stl.topContent__bottom__btn__shadow__item} />
+                                            </View>
                                         </View>
                                     </TouchableOpacity>
-                                {/* </View> */}
-                                {/* <View style={{...styles.topContent__bottom, marginTop: -70, paddingLeft: 100}}> */}
-                                    <TouchableOpacity style={{ position: 'relative', padding: 20, paddingTop: 0, alignItems: 'center' }} onPress={() => this.handleRefresh()}>
+                                    {/* </View> */}
+                                    {/* <View style={{...styles.topContent__bottom, marginTop: -70, paddingLeft: 100}}> */}
+                                    <TouchableOpacity style={{
+                                        position: 'relative',
+                                        padding: 20,
+                                        paddingTop: 0,
+                                        alignItems: 'center'
+                                    }} onPress={() => this.handleRefresh()}>
                                         <View style={{ position: 'relative', width: 50, height: 50 }}>
-                                             <GradientView style={stl.topContent__icon} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end}/>
-                                             <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center', top: 0, left: 0, bottom: 0, right: 0, zIndex: 3 }}>
-                                                 <CustomIcon style={{...styles.block__icon, marginBottom: 2, color: color}} size={25} name='reload'/>
-                                             </View>
-                                             <View style={{ ...stl.topContent__bottom__btn__shadow }}>
-                                                <View style={stl.topContent__bottom__btn__shadow__item}/>
-                                             </View>
+                                            <GradientView style={stl.topContent__icon} array={styles.containerBG.array}
+                                                          start={styles.containerBG.start}
+                                                          end={styles.containerBG.end} />
+                                            <View style={{
+                                                position: 'absolute',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                top: 0,
+                                                left: 0,
+                                                bottom: 0,
+                                                right: 0,
+                                                zIndex: 3
+                                            }}>
+                                                <CustomIcon
+                                                    style={{ ...styles.block__icon, marginBottom: 2, color: color }}
+                                                    size={25} name='reload' />
+                                            </View>
+                                            <View style={{ ...stl.topContent__bottom__btn__shadow }}>
+                                                <View style={stl.topContent__bottom__btn__shadow__item} />
+                                            </View>
                                         </View>
                                     </TouchableOpacity>
-                                 </View>
+                                </View>
                             </View>
-                            <GradientView style={[stl.bg, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { height: 160 } : null]} array={styles.containerBG.array} start={styles.containerBG.start} end={styles.containerBG.end}/>
-                            <View style={[stl.topContent__bg, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { height: 150 } : null]}>
-                                <View style={styles.shadow}/>
+                            <GradientView
+                                style={[stl.bg, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { height: 160 } : null]}
+                                array={styles.containerBG.array} start={styles.containerBG.start}
+                                end={styles.containerBG.end} />
+                            <View
+                                style={[stl.topContent__bg, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { height: 150 } : null]}>
+                                <View style={styles.shadow} />
                             </View>
                         </View>
-                        { cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? this.renderBTCBlock() : null}
-                        <View style={{ flex: 1, alignItems: 'flex-start', height: mode === 'TRANSACTIONS' ? 'auto' : 0, overflow: 'hidden' }}>
+                        {cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? this.renderBTCBlock() : null}
+                        <View style={{
+                            flex: 1,
+                            alignItems: 'flex-start',
+                            height: mode === 'TRANSACTIONS' ? 'auto' : 0,
+                            overflow: 'hidden'
+                        }}>
                             <View>
-                                 <ToolTips type={'ACCOUNT_SCREEN_TRANSACTION_TIP'}
+                                <ToolTips type={'ACCOUNT_SCREEN_TRANSACTION_TIP'}
                                           height={100}
                                           MainComponent={this.renderTooltip}
                                           nextCallback={this.nextCallback}
                                           mainComponentProps={{
-                                                        transactionsToView,
-                                                        cryptoCurrency,
-                                                        account
-                                          }}/>
+                                              transactionsToView,
+                                              cryptoCurrency,
+                                              account
+                                          }} />
                             </View>
                             <View style={{ position: 'relative', width: '100%' }}>
                                 <View style={{ position: 'relative', width: '100%', zIndex: 1 }}>
@@ -725,6 +889,7 @@ class Account extends Component {
                                                                 transactions={transactionsToView}
                                                                 amountToView={amountToView}
                                                                 transaction={item}
+                                                                fioMemo={fioMemo[item.transactionHash]}
                                                                 handleSetState={this.handleSetState}
                                                                 openTransactionList={openTransactionList}
                                                                 account={account}
@@ -739,53 +904,87 @@ class Account extends Component {
                             {
                                 this.state.amountToView < transactionsToViewLength ?
                                     <View style={{ width: '100%', alignItems: 'center' }}>
-                                        <TouchableOpacity style={{...styles.showMore, marginBottom: Platform.OS === 'ios' ? 100 : 70}} onPress={this.handleShowMore}>
+                                        <TouchableOpacity style={{
+                                            ...styles.showMore,
+                                            marginBottom: Platform.OS === 'ios' ? 100 : 70
+                                        }} onPress={this.handleShowMore}>
                                             <Text style={[styles.showMore__btn, { color: '#404040' }]}>
                                                 {strings('account.showMore')}
                                             </Text>
-                                            <Ionicons name='ios-arrow-down' size={12} color='#404040'/>
+                                            <Ionicons name='ios-arrow-down' size={12} color='#404040' />
                                         </TouchableOpacity>
-                                    </View> : <View style={{ marginBottom: Platform.OS === 'ios' ? 100 : 60 }}/>
+                                    </View> : <View style={{ marginBottom: Platform.OS === 'ios' ? 100 : 60 }} />
                             }
                         </View>
                         {settingsComponent}
                     </View>
                 </ScrollView>
-                <GradientView style={stl.bottomButtons} array={['#ffffff00', '#d7d7d7']} start={styles.containerBG.start} end={styles.containerBG.end}>
+                <GradientView style={stl.bottomButtons} array={['#ffffff00', '#d7d7d7']}
+                              start={styles.containerBG.start} end={styles.containerBG.end}>
                     <View style={[stl.bottomButtons__content, { paddingLeft: transactionsToView.length ? 48 : 15 }]}>
                         <View style={stl.bottomButton}>
                             <TouchableOpacity style={stl.bottomButton__wrap} onPress={this.handleSend}>
                                 <View style={stl.bottomButton__item}>
-                                    <View style={[stl.bottomButton__content, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15, backgroundColor: '#404040' }]}>
-                                        <Text style={{ fontFamily: 'SFUIDisplay-Semibold', color: '#fff' }}>{strings('account.send')}</Text>
+                                    <View style={[stl.bottomButton__content, {
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        paddingHorizontal: 15,
+                                        backgroundColor: '#404040'
+                                    }]}>
+                                        <Text style={{
+                                            fontFamily: 'SFUIDisplay-Semibold',
+                                            color: '#fff'
+                                        }}>{strings('account.send')}</Text>
                                         <View style={{ alignItems: 'center' }}>
                                             <View style={{ marginTop: -4 }}>
-                                                <Feather name={'arrow-up-right'} style={{ color: '#fff', fontSize: 20 }}/>
+                                                <Feather name={'arrow-up-right'}
+                                                         style={{ color: '#fff', fontSize: 20 }} />
                                             </View>
-                                            <View style={{ width: 12, marginTop: -1, height: 1.4, backgroundColor: '#fff' }}/>
+                                            <View style={{
+                                                width: 12,
+                                                marginTop: -1,
+                                                height: 1.4,
+                                                backgroundColor: '#fff'
+                                            }} />
                                         </View>
                                     </View>
                                     <View style={stl.bottomButtons__shadow}>
-                                        <View style={stl.bottomButtons__shadow__item}/>
+                                        <View style={stl.bottomButtons__shadow__item} />
                                     </View>
                                 </View>
                             </TouchableOpacity>
                         </View>
-                        <View style={{ width: 15 }}/>
+                        <View style={{ width: 15 }} />
                         <View style={stl.bottomButton}>
                             <TouchableOpacity style={stl.bottomButton__wrap} onPress={this.handleReceive}>
                                 <View style={stl.bottomButton__item}>
-                                    <View style={[stl.bottomButton__content, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15, backgroundColor: '#404040' }]}>
-                                        <Text style={{ fontFamily: 'SFUIDisplay-Semibold', color: '#fff' }}>{strings('account.receive', { receive: strings('repeat.receive') })}</Text>
+                                    <View style={[stl.bottomButton__content, {
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        paddingHorizontal: 15,
+                                        backgroundColor: '#404040'
+                                    }]}>
+                                        <Text style={{
+                                            fontFamily: 'SFUIDisplay-Semibold',
+                                            color: '#fff'
+                                        }}>{strings('account.receive', { receive: strings('repeat.receive') })}</Text>
                                         <View style={{ alignItems: 'center' }}>
                                             <View style={{ marginTop: -4 }}>
-                                                <Feather name={'arrow-down-left'} style={{ color: '#fff', fontSize: 20 }}/>
+                                                <Feather name={'arrow-down-left'}
+                                                         style={{ color: '#fff', fontSize: 20 }} />
                                             </View>
-                                            <View style={{ width: 12, marginTop: -1, height: 1.4, backgroundColor: '#fff' }}/>
+                                            <View style={{
+                                                width: 12,
+                                                marginTop: -1,
+                                                height: 1.4,
+                                                backgroundColor: '#fff'
+                                            }} />
                                         </View>
                                     </View>
                                     <View style={stl.bottomButtons__shadow}>
-                                        <View style={stl.bottomButtons__shadow__item}/>
+                                        <View style={stl.bottomButtons__shadow__item} />
                                     </View>
                                 </View>
                             </TouchableOpacity>
@@ -1048,18 +1247,18 @@ const stl = {
 
         elevation: 10
     },
-    scan:{
+    scan: {
         marginLeft: 31,
         marginBottom: 10,
         flexDirection: 'row'
     },
-    scan__text:{
+    scan__text: {
         color: '#999999',
         letterSpacing: 1,
         fontFamily: 'SFUIDisplay-Regular',
         fontStyle: 'normal',
         fontWeight: 'bold',
         fontSize: 12,
-        lineHeight: 14,
+        lineHeight: 14
     }
 }

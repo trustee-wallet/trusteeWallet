@@ -15,16 +15,17 @@ export default class {
      * @returns {*}
      */
     static mul(params) {
+        const betterValue = params.value.toString().replace(' ', '')
         if (typeof params.basicCurrencyRate === 'undefined' || !params.basicCurrencyRate || params.basicCurrencyRate === 0) {
             return 0
         }
         if (params.basicCurrencyRate === 1 || params.basicCurrencyRate === '1') {
-            return params.value
+            return betterValue
         }
-        if (CACHE_FOR_MUL.key  === params.basicCurrencyRate + '_' + params.value) {
+        if (CACHE_FOR_MUL.key  === params.basicCurrencyRate + '_' + betterValue) {
             return CACHE_FOR_MUL.value
         }
-        const valueRaw = BlocksoftPrettyNumbers.setCurrencyCode(params.currencyCode).makeUnPretty(params.value)
+        const valueRaw = BlocksoftPrettyNumbers.setCurrencyCode(params.currencyCode).makeUnPretty(betterValue)
         let rate = params.basicCurrencyRate
         let toUnifyRate = false
         if (rate < 1) {
@@ -36,7 +37,7 @@ export default class {
         if (toUnifyRate) {
             amount = BlocksoftUtils.toUnified(amount, 6)
         }
-        amount = BlocksoftPrettyNumbers.setCurrencyCode(params.currencyCode).makePretty(amount)
+        amount = BlocksoftPrettyNumbers.setCurrencyCode(params.currencyCode).makePretty(amount, 'rateEquivalent.amount2')
         return amount
     }
 
@@ -48,13 +49,14 @@ export default class {
      * @returns {*}
      */
     static div(params) {
+        const betterValue = params.value.toString().replace(' ', '')
         if (typeof params.basicCurrencyRate === 'undefined' || !params.basicCurrencyRate || params.basicCurrencyRate === 0) {
             return 0
         }
         if (params.basicCurrencyRate === 1 || params.basicCurrencyRate === '1') {
-            return params.value
+            return betterValue
         }
-        const valueRaw = BlocksoftPrettyNumbers.setCurrencyCode(params.currencyCode).makeUnPretty(params.value)
+        const valueRaw = BlocksoftPrettyNumbers.setCurrencyCode(params.currencyCode).makeUnPretty(betterValue)
         let rate =  params.basicCurrencyRate
         let toUnifyRate = false
         if (rate < 1) {
@@ -66,9 +68,9 @@ export default class {
         if (toUnifyRate) {
             amount = BlocksoftUtils.fromUnified(amount, 6)
         }
-        amount = BlocksoftPrettyNumbers.setCurrencyCode(params.currencyCode).makePretty(amount)
+        amount = BlocksoftPrettyNumbers.setCurrencyCode(params.currencyCode).makePretty(amount, 'rateEquivalent.amount')
         CACHE_FOR_MUL.key = params.basicCurrencyRate + '_' + amount
-        CACHE_FOR_MUL.value = params.value
+        CACHE_FOR_MUL.value = betterValue
         return amount
     }
 }

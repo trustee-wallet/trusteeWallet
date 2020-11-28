@@ -27,7 +27,7 @@ class CustomFee extends Component {
 
         const fee = await this[`${this.state.selectedCustomFeeComponent}`].getCustomFee()
 
-        if (typeof fee == 'undefined')
+        if (typeof fee === 'undefined')
             throw new Error('validate error')
 
         return fee
@@ -35,11 +35,9 @@ class CustomFee extends Component {
 
     callTransferAll = (fee) => {
 
-        const { useAllFunds, handleTransferAll } = this.props
+        const { handleSelectUpdateAmount } = this.props
 
-        if (useAllFunds) {
-            handleTransferAll(fee)
-        }
+        handleSelectUpdateAmount(fee)
     }
 
     renderFee = () => {
@@ -63,22 +61,35 @@ class CustomFee extends Component {
                     ref={ref => this.customFeeEthereum = ref}
                     getCustomFee={getCustomFee}
                     fee={this.props.fee}
+                    countedFees={this.props.countedFees}
+                    basicCurrencySymbol={this.props.basicCurrencySymbol}
+                    basicCurrencyRate={this.props.basicCurrencyRate}
+                    amountForTx={this.props.amountForTx}
                     currencyCode={currencyCode}
                     callTransferAll={this.callTransferAll}
-                    useAllFunds={useAllFunds}/>
+                    useAllFunds={useAllFunds}
+                />
             case 'BTC':
             case 'LTC':
             case 'XVG':
             case 'DOGE':
             case 'USDT':
+            case 'BSV':
+            case 'BTG':
+            case 'BCH':
                 this.state.selectedCustomFeeComponent = 'customFeeBitcoin'
                 return <CustomFeeBitcoin
                     ref={ref => this.customFeeBitcoin = ref}
                     getCustomFee={getCustomFee}
                     fee={this.props.fee}
+                    countedFeesData={this.props.countedFeesData}
+                    basicCurrencySymbol={this.props.basicCurrencySymbol}
+                    basicCurrencyRate={this.props.basicCurrencyRate}
+                    amountForTx={this.props.amountForTx}
                     currencyCode={currencyCode}
+                    feesCurrencyCode={this.props.feesCurrencyCode}
                     callTransferAll={this.callTransferAll}
-                    useAllFunds={useAllFunds}/>
+                    useAllFunds={useAllFunds} />
             default:
 
                 return <View><Text>Default</Text></View>

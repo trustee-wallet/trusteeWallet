@@ -67,11 +67,19 @@ class AppNews {
             delete appNews.onlyOne
         }
         if (typeof appNews.newsUniqueKey !== 'undefined' && appNews.newsUniqueKey) {
-            let sql = `DELETE FROM app_news WHERE currency_code='${appNews.currencyCode}' AND news_unique_key='${appNews.newsUniqueKey}'`
+            let where = `WHERE currency_code='${appNews.currencyCode}' AND news_unique_key='${appNews.newsUniqueKey}'`
             if (typeof appNews.walletHash !== 'undefined') {
-                sql += ` AND wallet_hash='${appNews.walletHash}'`
+                where += ` AND wallet_hash='${appNews.walletHash}'`
             }
-            await dbInterface.setQueryString(sql).query()
+            const saved = `SELECT * FROM app_news ${where}`
+            const tmp = await dbInterface.setQueryString(saved).query()
+            if (tmp && tmp.array && typeof tmp.array[0] !== 'undefined' && tmp.array[0]) {
+                if (tmp.array[0].news_name === appNews.newsName) {
+                    return false
+                }
+                const sql = `DELETE FROM app_news ${where}`
+                await dbInterface.setQueryString(sql).query()
+            }
         }
         await dbInterface.setTableName(tableName).setInsertData({ insertObjs: [appNews] }).insert()
     }

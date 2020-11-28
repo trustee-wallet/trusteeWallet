@@ -253,10 +253,12 @@ class BackupStep0Screen extends Component {
                         <TextView style={{ height: 90 }}>
                             {
 
-                                flowType === 'BACKUP_WALLET' ? strings('walletBackup.description', {
+                                flowType === 'BACKUP_WALLET_XMR'
+                                    ? strings('walletBackup.descriptionXMR')
+                                    : strings('walletBackup.description', {
                                     mnemonicLength: totalWords,
                                     words: totalWords === 24 ? strings('walletCreate.words24') : strings('walletCreate.words12')
-                                }) : strings('walletBackup.descriptionXMR')
+                                })
 
                             }
                         </TextView>

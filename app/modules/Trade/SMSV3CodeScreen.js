@@ -84,30 +84,30 @@ class SMSV3CodeScreen extends Component {
 
     async createSign() {
         let msg = ''
-            try {
-                Log.log('ApiV3.initData will ask time from server')
-                const now = await BlocksoftAxios.get(V3_API + '/data/server-time');
-                if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
-                    msg = now.data.serverTime
-                    Log.log('ApiV3.initData msg from server ' + msg)
-                }
-            } catch (e) {
-                // do nothing
+        try {
+            Log.log('ApiV3.initData will ask time from server')
+            const now = await BlocksoftAxios.get(V3_API + '/data/server-time');
+            if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
+                msg = now.data.serverTime
+                Log.log('ApiV3.initData msg from server ' + msg)
             }
+        } catch (e) {
+            // do nothing
+        }
 
         const sign = await CashBackUtils.createWalletSignature(true, msg);
-        
+
         this.setState({
             sign: sign
         })
     }
 
-    prepareFunction (dataString, param, that, type) {
+    prepareFunction(dataString, param, that, type) {
         let prepare = JSON.parse(JSON.stringify(dataString))
         let item
         for (item of prepare) {
             if (item !== '{')
-            prepare = prepare.substr(1)
+                prepare = prepare.substr(1)
             else
                 break
         }
@@ -117,18 +117,17 @@ class SMSV3CodeScreen extends Component {
 
         if (type === 'GENERAL') {
             // eslint-disable-next-line no-new-func
-            const getCode = new Function('tradeWebParam', 'Log', 'MarketingEvent', 'NavStore', 'setExchangeStatus', 'that', prepare)
-            return getCode(param, Log, MarketingEvent, NavStore, this.setExchangeStatus, that)
+            const getCode = new Function('tradeWebParam', 'Log', 'MarketingEvent', 'NavStore', 'setExchangeStatus', 'store', '_', 'state', 'CACHE_IS_ERROR', 'that', prepare)
+            return getCode(param, Log, MarketingEvent, NavStore, this.setExchangeStatus, store, _, this.state, CACHE_IS_ERROR, that)
         } else if (type === 'MSG') {
             // eslint-disable-next-line no-new-func
-            const getCode = new Function('e', 'Log', 'Linking', 'copyToClipboard', 'showModal', 'setExchangeStatus', 'that', prepare)
-            return getCode(param, Log, Linking, copyToClipboard, showModal, this.setExchangeStatus, that)
+            const getCode = new Function('e', 'Log', 'Linking', 'copyToClipboard', 'showModal', 'setExchangeStatus', 'CACHE_IS_ERROR', 'that', prepare)
+            return getCode(param, Log, Linking, copyToClipboard, showModal, this.setExchangeStatus, CACHE_IS_ERROR, that)
         } else if (type === 'EXCHANGE_STATUS') {
             const cashbackToken = CashBackUtils.getWalletToken()
             // eslint-disable-next-line no-new-func
-            const getCode = new Function('param', 'Log', 'setExchangeStatus', 'BlocksoftAxios', 'config', 'V3_API', 'sign', 'cashbackToken', prepare)
-            this.setExchangeStatus(this.state.orderHash, 'OPEN')
-            return getCode(param, Log, this.setExchangeStatus, BlocksoftAxios, config, V3_API, this.state.sign, cashbackToken, that)
+            const getCode = new Function('param', 'Log', 'BlocksoftAxios', 'config', 'V3_API', 'sign', 'cashbackToken', prepare)
+            return getCode(param, Log, BlocksoftAxios, config, V3_API, this.state.sign, cashbackToken, that)
         }
     }
 
@@ -140,24 +139,24 @@ class SMSV3CodeScreen extends Component {
 
     onMessage(e) {
         const tradeWebParam = this.props.navigation.getParam('tradeWebParam').message
-        this.prepareFunction(tradeWebParam, e, this, 'MSG')  
+        this.prepareFunction(tradeWebParam, e, this, 'MSG')
     }
 
     handleWebViewNavigationStateChange = async newNavState => {
         this.prepareFunction(this.state.navigation, newNavState, this, 'GENERAL')
     }
 
-    setExchangeStatus(orderHash, status) {
-        this.prepareFunction(this.state.api, {orderHash, status}, this, 'EXCHANGE_STATUS')
+    setExchangeStatus(body, orderHash, status) {
+        this.prepareFunction(body, { orderHash, status }, this, 'EXCHANGE_STATUS')
     }
 
     closeAction = () => {
-        this.setExchangeStatus(this.state.orderHash, 'CLOSE')
+        this.setExchangeStatus(this.state.api, this.state.orderHash, 'CLOSE')
         NavStore.goBack()
     }
 
     backAction = () => {
-        this.setExchangeStatus(this.state.orderHash, 'BACK')
+        this.setExchangeStatus(this.state.api, this.state.orderHash, 'BACK')
         NavStore.goBack()
     }
 

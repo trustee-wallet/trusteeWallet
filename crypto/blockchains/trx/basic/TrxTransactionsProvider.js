@@ -44,6 +44,7 @@ export default class TrxTransactionsProvider {
         }
 
         const res = await BlocksoftAxios.getWithoutBraking(this._tronscanLink + address, TXS_MAX_TRY)
+
         if (!res || !res.data || typeof res.data.data === 'undefined' || res.data.data.length === 0) return false
 
         this._lastBlock = await this._nodeInfo.getLastBlock()
@@ -127,18 +128,31 @@ export default class TrxTransactionsProvider {
             e.message += ' timestamp error transaction data ' + JSON.stringify(transaction)
             throw e
         }
+        let addressAmount = 0
+        let transactionDirection = 'self'
         if (typeof transaction.contractData.amount === 'undefined') {
-            if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 31) {
-                // skip here
+            if (typeof transaction.contractData.frozen_balance !== 'undefined') {
+                addressAmount = transaction.contractData.frozen_balance
+                transactionDirection = 'freeze'
+            } else if (typeof transaction.amount !== 'undefined' && typeof transaction.contractType !== 'undefined' && transaction.contractType === 13) {
+                addressAmount = transaction.amount
+                transactionDirection = 'claim'
             } else {
-                if (transaction.contractType === 11 || transaction.contractType === 4 || transaction.contractType === 13) {
-                    // freeze = 11, vote = 4, claim = 13
+                if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 31) {
+                    // skip here
                 } else {
-                    // noinspection ES6MissingAwait
-                    BlocksoftCryptoLog.log('TrxTransactionsProvider._unifyTransaction buggy tx ' + JSON.stringify(transaction))
+                    if (transaction.contractType === 11 || transaction.contractType === 4 || transaction.contractType === 13) {
+                        // freeze = 11, vote = 4, claim = 13
+                    } else {
+                        // noinspection ES6MissingAwait
+                        BlocksoftCryptoLog.log('TrxTransactionsProvider._unifyTransaction buggy tx ' + JSON.stringify(transaction))
+                    }
                 }
+                return false
             }
-            return false
+        } else {
+            addressAmount =  transaction.contractData.amount
+            transactionDirection =  (address.toLowerCase() === transaction.ownerAddress.toLowerCase()) ? 'outcome' : 'income'
         }
         const res = {
             transactionHash: transaction.hash,
@@ -146,10 +160,10 @@ export default class TrxTransactionsProvider {
             blockNumber: transaction.block,
             blockTime: formattedTime,
             blockConfirmations: blockConfirmations,
-            transactionDirection: (address.toLowerCase() === transaction.ownerAddress.toLowerCase()) ? 'outcome' : 'income',
+            transactionDirection,
             addressFrom: (address.toLowerCase() === transaction.ownerAddress.toLowerCase()) ? '' : transaction.ownerAddress,
             addressTo: (address.toLowerCase() === transaction.toAddress.toLowerCase()) ? '' : transaction.toAddress,
-            addressAmount: typeof transaction.contractData.amount !== 'undefined' ? transaction.contractData.amount : 0,
+            addressAmount,
             transactionStatus: transactionStatus,
             transactionFee: 0,
             inputValue: transaction.data

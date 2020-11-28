@@ -1,40 +1,43 @@
-import {BigNumber} from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
+
 const Web3 = require('web3')
 
 class BlocksoftUtils {
 
-    //  console.log('added', BlocksoftUtils.add(967282001717650,87696220292905380))
+    //  // console.log('added', BlocksoftUtils.add(967282001717650,87696220292905380))
     static add(val1, val2) {
+        // console.log('BlocksoftUtils add ', JSON.stringify({ val1, val2}))
+        let res = 0
         if (typeof val1 === 'undefined') {
-            return val2 || ''
-        }
-        if (typeof val2 === 'undefined') {
-            return val1
-        }
-        if (typeof val1.innerBN !== 'undefined') {
+            res = val2 || ''
+        } else if (typeof val2 === 'undefined' || val2 === 0 || val2 === '0') {
+            res = val1
+        } else if (typeof val1.innerBN !== 'undefined') {
             if (typeof val2.innerBN !== 'undefined') {
-                return val1.innerBN.plus(val2.innerBN).toString()
+                res = val1.innerBN.plus(val2.innerBN).toString()
             } else {
-                return val1.innerBN.plus(BigNumber(val2)).toString()
+                res = val1.innerBN.plus(BigNumber(val2)).toString()
+            }
+        } else if (!val2 || !(val2 * 1 > 0)) {
+            res =  val1
+        } else {
+            const str = val1.toString() + val2.toString()
+            if (str.indexOf('.') !== -1 || str.indexOf(',') !== -1) {
+                res = val1 * 1 + val2 * 1
+            } else {
+                try {
+                    res = BigNumber(val1).plus(BigNumber(val2)).toString()
+                } catch (e) {
+                    res = val1 * 1 + val2 * 1
+                }
             }
         }
-        if (!val2 || !(val2 * 1 > 0)) {
-            return val1
-        }
-        const str = val1.toString() + val2.toString()
-        if (str.indexOf('.') !== -1 || str.indexOf(',') !== -1) {
-            return val1 * 1 + val2 * 1
-        }
-        let res = 0
-        try {
-            res = BigNumber(val1).plus(BigNumber(val2)).toString()
-        } catch (e) {
-            return val1 * 1 + val2 * 1
-        }
+        // console.log('BlocksoftUtils added ', JSON.stringify({ val1, val2, res}))
         return res
     }
 
     static mul(val1, val2) {
+        // console.log('BlocksoftUtils mul ', JSON.stringify({ val1, val2 }))
         if (typeof val1 === 'undefined') {
             return ''
         }
@@ -66,6 +69,7 @@ class BlocksoftUtils {
     }
 
     static div(val1, val2) {
+        // console.log('BlocksoftUtils div ', JSON.stringify({ val1, val2 }))
         if (typeof val1 === 'undefined') {
             return ''
         }
@@ -105,6 +109,7 @@ class BlocksoftUtils {
     }
 
     static diff(val1, val2) {
+        // console.log('BlocksoftUtils diff ', JSON.stringify({ val1, val2 }))
         if (typeof val1 === 'undefined') {
             return val2 || ''
         }
@@ -118,11 +123,11 @@ class BlocksoftUtils {
             return -1 * val2
         }
         if (typeof val1.innerBN !== 'undefined') {
-           if (typeof val2.innerBN !== 'undefined') {
-               return val1.innerBN.minus(val2.innerBN).toString()
-           } else {
-               return val1.innerBN.minus(BigNumber(val2 + '')).toString()
-           }
+            if (typeof val2.innerBN !== 'undefined') {
+                return val1.innerBN.minus(val2.innerBN).toString()
+            } else {
+                return val1.innerBN.minus(BigNumber(val2 + '')).toString()
+            }
         }
         const str = val1.toString() + val2.toString()
         let res = 0
@@ -139,6 +144,7 @@ class BlocksoftUtils {
     }
 
     static fromENumber(val) {
+        // console.log('BlocksoftUtils fromE ', JSON.stringify(val))
         if (val === null || typeof (val) === 'undefined' || !val) {
             return 0
         }
@@ -148,7 +154,7 @@ class BlocksoftUtils {
         }
         const parts = val.split('e')
         const number = parts[1].substr(0, 1)
-        const power =  parts[1].substr(1)
+        const power = parts[1].substr(1)
         const first = parts[0].split('.')
         if (number === '+') {
             return this.fromUnified(parts[0], power)
@@ -187,10 +193,13 @@ class BlocksoftUtils {
         const parts = val.split('.')
         // noinspection JSUnresolvedVariable
         const tmp = parts[0] + added
-        return Web3.utils.fromWei(tmp, 'ether')
+        const res = Web3.utils.fromWei(tmp, 'ether')
+        // console.log('BlocksoftUtils toUnified ', JSON.stringify(val), JSON.stringify(res))
+        return res
     }
 
     static fromUnified(val, decimals = 8) {
+        // console.log('BlocksoftUtils fromUnified ', JSON.stringify(val))
         if (typeof val === 'undefined') return 0
         val = val.toString()
         const parts = val.split('.')
@@ -222,6 +231,7 @@ class BlocksoftUtils {
     }
 
     static toWei(val, from = 'ether') {
+        // console.log('BlocksoftUtils toWei ', JSON.stringify(val))
         if (typeof val === 'undefined') {
             throw new Error('toWei val is undefined')
         }
@@ -243,6 +253,7 @@ class BlocksoftUtils {
     }
 
     static toGwei(val) {
+        // console.log('BlocksoftUtils toGwei ', JSON.stringify(val))
         if (typeof val === 'number') {
             val += ''
         }
@@ -259,6 +270,7 @@ class BlocksoftUtils {
     }
 
     static toEther(val) {
+        // console.log('BlocksoftUtils toEth ', JSON.stringify(val))
         if (typeof val === 'number') {
             val += ''
         }

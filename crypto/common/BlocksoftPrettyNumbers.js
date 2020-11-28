@@ -27,7 +27,7 @@ class BlocksoftPrettyNumbers {
      * @param {string|number} number
      * @return {string}
      */
-    makePretty(number) {
+    makePretty(number, source = '') {
         if (this._processorCode === 'USDT') {
             return number
         }
@@ -40,6 +40,7 @@ class BlocksoftPrettyNumbers {
         } else if (this._processorCode === 'BTC') {
             return BlocksoftUtils.toBtc(number)
         } else if (this._processorCode === 'ETH_ERC_20' || this._processorCode === 'UNIFIED') {
+            // console.log('makePretty ' + JSON.stringify(number) + ' source ' + source)
             return BlocksoftUtils.toUnified(number, this._decimals)
         }
         throw new Error('undefined BlocksoftPrettyNumbers processor to makePretty')
@@ -117,10 +118,11 @@ class BlocksoftPrettyNumbers {
     }
 
     /**
-     * @param {string} number
+     * @param {string} value
      * @return {string}
      */
-    makeUnPretty(number) {
+    makeUnPretty(value) {
+        const number = value.toString().replace(' ', '')
         try {
             if (this._processorCode === 'USDT') {
                 return number

@@ -41,6 +41,7 @@ export default class BasicNotification {
     getTextsForNotification = (item: AppNewsItem): NotificationTexts => {
         let title = item.newsCustomTitle
         let description = item.newsCustomText
+
         const data = {currencyCode : item.currencyCode, walletName : item.walletName, currencySymbol : '', currencyName : '', amountPretty : '',
             addressAmount : 0, balance : 0, addressTo : '', addressFrom : '', createdAt: ''}
         for (const code in item.newsJson) {
@@ -56,17 +57,21 @@ export default class BasicNotification {
             data.currencyName = ''
         }
 
-        data.amountPretty = ''
-        if (typeof data.addressAmount !== 'undefined' && data.addressAmount * 1 > 0) {
+
+        if (typeof data.amountPretty === 'undefined') {
+            data.amountPretty = ''
             // @ts-ignore
-            const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.addressAmount) * 1
-            // @ts-ignore
-            data.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
-        } else if (typeof data.balance !== 'undefined' && data.balance * 1 > 0) {
-            // @ts-ignore
-            const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.balance) * 1
-            // @ts-ignore
-            data.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
+            if (typeof data.addressAmount !== 'undefined' && data.addressAmount !== '0' && data.addressAmount !== 0) {
+                // @ts-ignore
+                const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.addressAmount, 'basicNotification.addressAmount')
+                // @ts-ignore
+                data.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
+            } else if (typeof data.balance !== 'undefined' && data.balance !== '0' && data.balance !== 0) {
+                // @ts-ignore
+                const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.balance, 'basicNotification.balance')
+                // @ts-ignore
+                data.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
+            }
         }
         if (!title || title.length < 10) {
             title = strings('pushNotifications.' + item.newsName + '.title', data)

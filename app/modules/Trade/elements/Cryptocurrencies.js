@@ -219,9 +219,11 @@ class Cryptocurrencies extends Component {
 
             if (tradeType === 'BUY') {
                 checkTransferHasError({
+                    walletHash: selectedWallet.walletHash,
                     currencyCode: selectedCryptocurrency.currencyCode,
                     currencySymbol: selectedCryptocurrency.currencySymbol,
-                    address: mass.selectedAccount.address,
+                    addressFrom : '',
+                    addressTo: mass.selectedAccount.address,
                     amount: mass.selectedAccount.balance
                 })
             }

@@ -197,9 +197,11 @@ class ExchangeOutCurrency extends Component {
             }
 
             checkTransferHasError({
+                walletHash: selectedWallet.walletHash,
                 currencyCode: selectedOutCurrency.currencyCode,
                 currencySymbol: selectedOutCurrency.currencySymbol,
-                address: mass.selectedOutAccount.address,
+                addressFrom: '',
+                addressTo: mass.selectedOutAccount.address,
                 amount: mass.selectedOutAccount.balance
             })
 

@@ -10,20 +10,24 @@ import { setLoaderStatus } from '../Main/MainStoreActions'
 const { dispatch } = store
 
 export async function setCards() {
-    let cards = await cardDS.getCards()
-    if (!cards) {
-        cards = []
+    try {
+        let cards = await cardDS.getCards()
+        if (!cards) {
+            cards = []
+        }
+        cards.unshift({
+            name: 'Add new card',
+            type: 'ADD',
+        })
+
+
+        dispatch({
+            type: 'SET_CARDS',
+            cards
+        })
+    } catch (e) {
+        throw new Error(e.message + ' on setCards')
     }
-    cards.unshift({
-        name: 'Add new card',
-        type: 'ADD',
-    })
-
-
-    dispatch({
-        type: 'SET_CARDS',
-        cards
-    })
 }
 
 export async function deleteCard(cardID) {

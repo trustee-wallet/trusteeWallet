@@ -19,9 +19,7 @@ let CACHE_PREV_DATA = { 'fastest': 100.0, 'safeLow': 13.0, 'average': 30.0 }
 
 class EthNetworkPrices {
 
-    /**
-     * @returns {{ price[]: string, average: int, fast: int, safeLow: int}}
-     */
+
     async get(address) {
 
         BlocksoftCryptoLog.log('EthNetworkPricesProvider started')
@@ -71,12 +69,7 @@ class EthNetworkPrices {
     }
 
     _format() {
-        return {
-            price : [CACHE_FEES_ETH[12], CACHE_FEES_ETH[6], CACHE_FEES_ETH[2]],
-            safeLow : CACHE_FEES_ETH[12].toString(),
-            average : CACHE_FEES_ETH[6].toString(),
-            fastest : CACHE_FEES_ETH[2].toString()
-        }
+        return [CACHE_FEES_ETH[12], CACHE_FEES_ETH[6], CACHE_FEES_ETH[2]]
     }
 
 

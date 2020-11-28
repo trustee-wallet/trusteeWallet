@@ -11,13 +11,12 @@ import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions
 import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 import BlocksoftBalances from '../../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
-import BlocksoftTransfer from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import { BlocksoftTransfer } from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 
 import Log from '../../../services/Log/Log'
 import { strings } from '../../../services/i18n'
 import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
-import { keccak } from 'ethereumjs-util'
 
 
 class ExchangeAmountInput extends Component {
@@ -86,7 +85,7 @@ class ExchangeAmountInput extends Component {
             const {
                 selectedWallet
             } = this.props.mainStore
-            const { walletHash } = selectedWallet
+            const { walletHash, walletUseUnconfirmed,walletAllowReplaceByFee } = selectedWallet
 
             const { selectedInCurrency, selectedPaymentSystem } = this.props
 
@@ -96,40 +95,29 @@ class ExchangeAmountInput extends Component {
             const { addressForEstimateSellAll } = this.handleGetTradeWay(selectedInCurrency, selectedPaymentSystem)
             const tmpAddressForEstimate = addressForEstimateSellAll != null ? addressForEstimateSellAll : address
 
-            const derivationPathTmp = derivationPath.replace(/quote/g, '\'')
-
             Log.log('EXC/AmountInput.handleSellAll start')
 
             balancesData = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash)).getBalance()
             if (typeof balancesData.balance === 'undefined' || !balancesData.balance) {
                 balancesData = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash)).getBalance()
             }
-            const balanceRaw = balancesData ? BlocksoftUtils.add(balancesData.balance, balancesData.unconfirmed) : 0 // to think show this as option or no
             Log.log(`EXC/AmountInput.handleSellAll balance ${currencyCode} ${address} data`, balancesData)
 
-            const fees = await (
-                BlocksoftTransfer
-                    .setCurrencyCode(currencyCode)
-                    .setWalletHash(walletHash)
-                    .setDerivePath(derivationPathTmp)
-                    .setAddressFrom(address)
-                    .setAddressTo(tmpAddressForEstimate)
-                    .setAmount(balanceRaw)
-                    .setTransferAll(true)
-                    .setAdditional(accountJson)
-            ).getFeeRate(true)
+            const transferAllCount = await BlocksoftTransfer.getTransferAllBalance({
+                currencyCode,
+                walletHash,
+                derivationPath,
+                addressFrom: address,
+                addressTo: tmpAddressForEstimate,
+                amount: balancesData ? balancesData.balance : 0,
+                unconfirmed : balancesData ? balancesData.unconfirmed : 0,
+                isTransferAll: true,
+                useOnlyConfirmed : !(walletUseUnconfirmed === 1),
+                allowReplaceByFee : walletAllowReplaceByFee === 1,
+                accountJson
+            })
 
-            const current = await (
-                BlocksoftTransfer
-                    .setCurrencyCode(currencyCode)
-                    .setAddressFrom(address)
-                    .setAddressTo(tmpAddressForEstimate)
-                    .setFee(fees[fees.length - 1])
-                    .setTransferAll(true)
-                    .setAdditional(accountJson)
-            ).getTransferAllBalance()
-
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(current)
+            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance, 'exchangeAmountInput.amount')
 
             this.setState({
                 moneyType: 'IN'

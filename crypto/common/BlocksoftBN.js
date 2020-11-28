@@ -6,6 +6,7 @@ class BlocksoftBN {
     innerBN = false
 
     constructor(val) {
+        // console.log('BlocksoftBN construct', JSON.stringify(val))
         if (typeof val.innerBN !== 'undefined') {
             try {
                 // noinspection JSCheckFunctionSignatures,JSUnresolvedVariable
@@ -32,7 +33,12 @@ class BlocksoftBN {
         return this.innerBN.toString()
     }
 
+    lessThanZero() {
+        return this.innerBN.toString().indexOf('-') === 0
+    }
+
     add(val) {
+        // console.log('BlocksoftBN add ', JSON.stringify(val))
         if (typeof val === 'undefined' || !val || val.toString() === '0') {
             return false
         }
@@ -60,6 +66,7 @@ class BlocksoftBN {
     }
 
     diff(val) {
+        // console.log('BlocksoftBN diff ', JSON.stringify(val))
         if (typeof val === 'undefined' || !val || val.toString() === '0') {
             return this
         }

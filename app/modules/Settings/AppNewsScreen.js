@@ -91,10 +91,10 @@ class AppNewsScreen extends Component {
 
                                 data.amountPretty = ''
                                 if (typeof data.addressAmount !== 'undefined') {
-                                    const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.addressAmount) * 1
+                                    const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.addressAmount, 'appNewsScreen.addressAmount')
                                     data.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
                                 } else if (typeof data.balance !== 'undefined') {
-                                    const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.balance) * 1
+                                    const tmp = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.balance, 'appNewsScreen.balance')
                                     data.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
                                 }
                                 if (!title) {

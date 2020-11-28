@@ -15,8 +15,6 @@ const bip44Constants = require('../../common/ext/bip44-constants')
 const networksConstants = require('../../common/ext/networks-constants')
 const bs58check = require('bs58check')
 
-const Dispatcher = new BlocksoftDispatcher()
-
 const ETH_CACHE = {}
 const CACHE = {}
 
@@ -169,7 +167,7 @@ class BlocksoftKeys {
                 /**
                  * @type {EthAddressProcessor|BtcAddressProcessor}
                  */
-                const processor = await Dispatcher.innerGetAddressProcessor(settings)
+                const processor = await BlocksoftDispatcher.innerGetAddressProcessor(settings)
 
                 try {
                     await processor.setBasicRoot(root)
@@ -317,7 +315,7 @@ class BlocksoftKeys {
         /**
          * @type {EthAddressProcessor|BtcAddressProcessor}
          */
-        const processor = await Dispatcher.getAddressProcessor(data.currencyCode)
+        const processor = await BlocksoftDispatcher.getAddressProcessor(data.currencyCode)
         processor.setBasicRoot(root)
         return processor.getAddress(child.privateKey, {derivationPath : data.derivationPath, derivationIndex: data.derivationIndex, derivationType:  data.derivationType})
     }

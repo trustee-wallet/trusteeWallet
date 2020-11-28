@@ -58,7 +58,7 @@ class MainV3DataScreen extends Component {
 
         // here to do upload
         let apiUrl = await ApiV3.initData('EXCHANGE')
-        console.log(apiUrl)
+
         const navigationViewV3 = (await BlocksoftExternalSettings.get('navigationViewV3')) === 1
         setTimeout(() => {
             this.setState({

@@ -263,6 +263,7 @@
       "accountSetting": "Налаштування акаунту",
       "showSegWitAndLegacy": "Показувати SegWit і Legacy",
       "hideCommissionTrans": "Сховати транзакції оплати за комісію",
+      "checkFrozen" : "Сканувати замороженний баланс",
       "manualAddressFromHD" : "Вставити адресу HD",
       "scanAddressesFromHD" : "Сканувати адреси HD на наявність балансів",
       "setAddressesFromHD" : {
@@ -358,7 +359,8 @@
     },
     "transaction": {
       "pay": "Оплатити",
-      "remove" : "Видалити",
+      "remove" : "Приховати",
+      "removeRBF" : "Видалити заміною",
       "destinationTag": "Тег призначення",
       "paymentId": "Ідентифікатор платежу",
       "nonce": "Nonce",
@@ -374,6 +376,8 @@
       "outcome": "Вихідна",
       "income": "Вхідна",
       "self" : "Собі",
+      "freeze" : "Заморожено",
+      "claim" : "Винагорода",
       "exchange": "Обмін",
       "buy": "Покупка",
       "sell": "Продаж",
@@ -416,6 +420,7 @@
       "description": "Ваша %{currency} адреса:",
       "clickToCopy": "Натисніть, щоб скопіювати",
       "receiveAmount": "Вказати суму",
+      "FIORequest": "FIO запит",
       "share": "Поділитись",
       "copy": "Копіювати"
     },
@@ -426,6 +431,78 @@
       "list": "Облікові записи"
     }
   },
+
+   "fioMainSettings": {
+     "title": "FIO Налаштування",
+     "description": "Контролюй всі можливі FIO опції",
+     "sendFioRequest": "Надіслати FIO запит",
+     "sendFioRequestDesc": "ви можете надіслати FIO запит",
+     "fioRequest": "FIO Запити",
+     "fioRequestDesc": "перелік всіх активних Очикуючих/Відправлених FIO запитів",
+     "fioAddresses": "FIO Адреси",
+     "fioAddressesDesc": "всі зареєстровані FIO адреси та їх опції",
+     "registerFioAddress": "Зарегеструвати FIO адресу",
+     "registerFioAddressDesc": "зарегеструвати FIO адресу"
+   },
+
+   "FioChooseRecipient": {
+     "title": "Оберіть Fio отримувача",
+     "description": "Введіть FIO, ENS або публічну адресу отримувача",
+     "btnText": "Обрати FIO"
+   },
+
+   "FioChooseAddress": {
+     "title": "Обрати Fio адресу",
+     "description": "Введіть адресу щоб запросити платіж від",
+     "btnText": "Оберіть FIO адресу"
+   },
+
+   "FioSettings": {
+     "title": "Fio Налаштування",
+     "description": "Оберіть гаманець, який бажаєте з'єднати зі своєю FIO адресою",
+     "Expire": "Термін дії закінчується",
+     "connectAllWallets": "З'єднати всі гаманці",
+     "btnText": "Зберегти",
+     "noFioTitle": "Вам потрібно зарегиструвати FIO адресу",
+     "noFioDescription": "FIO адреса не зарегистрована",
+     "noFioBtn": "Зарегиструвати FIO адресу"
+   },
+
+   "FioSendRequest": {
+     "title": "Надіслати FIO запит",
+     "selectCoin": "Натисніть щоб вибрати валюту",
+     "from": "Надіслати запит від",
+     "to": "Надіслати запит к",
+     "amount": "Кількість",
+     "memo": "Коментар",
+     "btnText": "Створити",
+     "created": "FIO запит створено",
+     "fioSettings": "FIO Налаштування",
+     "registerFioAddress": "Зарегиструвати FIO адресу",
+     "noCoinSelected": "Вам потрібно обрати валюту, для якої потрібно створити запит",
+     "goToFioSettings": "Вам потрібно перейти в FIO налаштування, щоб з'єднати валюти з вашою FIO адресою",
+     "needRegisterFio": "Спочатку вам потрібно зарегиструвати FIO адресу"
+   },
+
+   "FioRequestsList": {
+     "title": "Список запитів FIO",
+     "pendingRequests": "Очикуючі запити",
+     "sentRequests": "Відправлені запити",
+     "RequestedTxt": "Запитано"
+   },
+
+   "FioRequestDetails": {
+     "title": "Деталі FIO запита",
+     "balance": "Баланс",
+     "fee": "Комісія",
+     "to": "К",
+     "from": "Від",
+     "memo": "FIO коментар",
+     "amount": "Кількість",
+     "btnTextReject": "Відхилити",
+     "btnTextConfirm": "Підтвердити"
+   },
+
   "exchangeInit": {
     "ordersHistory": "Історія ордерів",
     "ordersNull": "У Вас немає ордерів."
@@ -546,11 +623,13 @@
     "send": "Далі",
     "xrp_memo": "Тег призначення",
     "xmr_memo": "Ідентифікатор платежу",
+    "fio_memo": "FIO Коментар",
     "useAllFunds": "Відправити все",
     "equivalent": "Еквівалент: ~ %{amount} %{symbol}",
     "notEnough": "У Вас недостатньо коштів для відправки",
     "notEnoughForFee": "Для надсилання токенів потрібно мати позитивний баланс у нативній монеті %{symbol}",
     "notEnoughForFeeConfirmed": "Для надсилання токенів потрібно мати позитивний підтверджений баланс у нативній монеті %{symbol}, зачекайте на підтвердження або ввімкніть використання непідтвердженних транзакцій",
+    "publicFioAddressNotFound": "%{symbol} публічна адреса не зв'язана з вказаною FIO адресою",
     "confirmModal": {
       "title": "Підтвердження відправлення",
       "titleSpeedUp": "Підтвердження прискорення вхідної транзакції %{hash}",
@@ -566,6 +645,8 @@
     "fee": {
       "smallFeeNoticeTitle" : "Будь ласка, будьте обережні",
       "smallFeeNoticeDesc" : "Недостатньо балансу для швидкої транзакції",
+      "customFeeCalculated" : "Загальна сума",
+      "changeAmountNoticeDesc" : "Сума транзакції змінена",
       "title": "Змінити\nкомісію",
       "text": {
         "eth_speed_slowest": "Мінімально",
@@ -654,7 +735,8 @@
         "eth": {
           "gasPrice": "Ціна за газ",
           "gasLimit": "Ліміт газу",
-          "gwei": "GWEI"
+          "gwei": "GWEI",
+          "nonce": "Nonce"
         },
         "btc": {
           "feeForTx": "Ціна за транзакцію",
@@ -680,6 +762,7 @@
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Занадто мала комісія за транзакцію",
       "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Занадто мала комісія за транзакцію для заміни - якщо Ви згодні, що комісію можна взяти із суми отримувача - то на наступному кроці побачите перераховані дані транзакції",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Занадто мала комісія за транзакцію для заміни",
+      "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Транзакцію вже підтверджено",
       "SERVER_RESPONSE_NOT_CONNECTED": "Мережа не відповідає - будь ласка, повторіть операцію пізніше",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостатньо коштів для транзакції і сплати мінімальної комісії",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Будь ласка, зачекайте доки інші транзакції замайняться або увімкніть функцію \"Використовувати непідтверджені транзакції\" ",
@@ -694,9 +777,12 @@
       "SERVER_RESPONSE_NO_SSL" : "SSL бібліотека не знайдена - будь ласка, спробуйте оновити систему",
       "SERVER_RESPONSE_PLEASE_SELECT_FEE": "Будь ласка, оберіть вартість комісії зі списку",
       "SERVER_RESPONSE_MIN_GAS_ETH" : "Мінімальний ліміт газу дорівнює 21000",
+      "SERVER_RESPONSE_TOO_MUCH_GAS_ETH": "Для транзакції потрібно забагато газу - будь ласка, перевірте адресу отримувача - можливо це смартконтракт ",
+      "SERVER_RESPONSE_TOO_MUCH_GAS_ETH_ERC20": "Для транзакції токенів потрібно забагато газу - будь ласка, перевірте смартконтракт - можливо ваш баланс заморожено",
       "SERVER_RESPONSE_BAD_DESTINATION" : "Адреса отримувача невалідна",
       "SERVER_RESPONSE_BAD_SEND_NODE" :  "Немає доступу до сервера відправки",
-      "SERVER_RESPONSE_DOUBLE_SPEND" : "Будь ласка, створіть повторно транзакцію, оскільки ця використовує вже застарілі входи або зачекайте доки інші транзакції замайняться"
+      "SERVER_RESPONSE_DOUBLE_SPEND" : "Будь ласка, створіть повторно транзакцію, оскільки ця використовує вже застарілі входи або зачекайте доки інші транзакції замайняться",
+      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Транзакцію для прискорення не знайдено"
     }
   },
   "walletBackup": {
@@ -949,6 +1035,12 @@
       "description": "   Будь ласка, прочитайте це, щоб знати, на що Ви погоджуєтесь",
       "accept": "Погоджуюсь",
       "decline": "Відхилити"
+    },
+    "selectCoinFio": {
+      "title": "Оберіть валюту для запита",
+      "description": "Будь ласка, оберіть валюту для якої ви бажаєте створити запит",
+      "description2": "обрана валюта буде передана в FIO запит",
+      "btn": "Обрати"
     },
     "login": {
       "title": "Вхід/Реєстрація",

@@ -6,8 +6,6 @@ import _ from 'lodash'
 import { strings } from './i18n'
 import { showModal } from '../appstores/Stores/Modal/ModalActions'
 
-import BlocksoftTransfer from '../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
-
 import React from 'react'
 
 

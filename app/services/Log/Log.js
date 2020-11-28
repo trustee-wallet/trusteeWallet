@@ -10,7 +10,7 @@ import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalS
 import config from '../../config/config'
 import changeableProd from '../../config/changeable.prod'
 import changeableTester from '../../config/changeable.tester'
-import FileSystem from '../FileSystem/FileSystem'
+import { FileSystem } from '../FileSystem/FileSystem'
 import { strings } from '../i18n'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
@@ -35,8 +35,8 @@ class Log {
     constructor() {
         this.TG = new BlocksoftTg(changeableProd.tg.info.theBot, changeableProd.tg.info.appErrorsChannel)
         this.FS = {
-            DAEMON: new FileSystem(),
-            ALL: new FileSystem()
+            DAEMON: new FileSystem({fileEncoding: 'utf8', fileName : 'DaemonLog', fileExtension : 'txt'}),
+            ALL: new FileSystem({fileEncoding: 'utf8', fileName : 'AppLog', fileExtension : 'txt'})
         }
 
         this.DATA = {}
@@ -44,9 +44,7 @@ class Log {
 
         this.TG_MSG = ''
 
-        this.FS.DAEMON.setFileEncoding('utf8').setFileName('DaemonLog').setFileExtension('txt')
         this.FS.DAEMON.checkOverflow()
-        this.FS.ALL.setFileEncoding('utf8').setFileName('AppLog').setFileExtension('txt')
         this.FS.ALL.checkOverflow()
     }
 

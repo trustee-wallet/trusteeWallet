@@ -4,8 +4,6 @@
  */
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
 
-const Dispatcher = new BlocksoftDispatcher()
-
 class BlocksoftTokenChecks {
 
     /**
@@ -27,7 +25,7 @@ class BlocksoftTokenChecks {
     setTokenType(tokenType) {
         this._data.tokenType = tokenType
         if (!this._processor[tokenType]) {
-            this._processor[tokenType] = Dispatcher.getTokenProcessor(tokenType)
+            this._processor[tokenType] = BlocksoftDispatcher.getTokenProcessor(tokenType)
         }
         return this
     }
