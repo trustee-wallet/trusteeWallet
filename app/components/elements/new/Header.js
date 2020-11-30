@@ -81,7 +81,7 @@ export default class Header extends React.Component {
                 <StatusBar translucent={false} backgroundColor={colors.common.header.bg} barStyle={isLight ? 'dark-content' : 'light-content'} />
 
                 <View style={[styles.container, { backgroundColor: colors.common.header.bg }]}>
-                    <View style={[styles.header, { paddingHorizontal: GRID_SIZE * 2 }]}>
+                    <View style={[styles.header, { paddingHorizontal: GRID_SIZE * 1.8 }]}>
                         <View style={styles.header__left}>
                             {this.getLeftAction()}
                         </View>
@@ -120,7 +120,6 @@ const styles = {
         left: 0,
         right: 0,
         zIndex: 10,
-        // borderWidth: 1
     },
     shadow__container: {
         position: 'absolute',
@@ -151,8 +150,6 @@ const styles = {
     extraView: {
         flex: 1,
         zIndex: 20,
-        // alignItems: 'center',
-        // justifyContent: 'center',
     },
     header: {
         flexDirection: 'row',

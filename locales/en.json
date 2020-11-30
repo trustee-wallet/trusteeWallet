@@ -206,7 +206,15 @@
     "openLinkError": "Not found default browser - link is copied to clipboard"
   },
   "settings": {
-    "title": "General settings",
+    "title": "Settings",
+    "wallets": {
+      "listTitle": "My wallets",
+      "listSubtitle": "Wallets: %{number}"
+    },
+    "paymentAccounts": {
+      "listTitle": "Payment accounts",
+      "listSubtitle": "Accounts: %{number}"
+    },
     "walletManagement": {
       "title": "Wallets management",
       "backup": "Backup wallet",
@@ -217,11 +225,11 @@
     },
     "security": {
       "title": "Security",
-      "change": "Change PIN-code",
+      "change": "Change PIN",
       "lock": "PIN-code",
       "touch": "FaceID/TouchID",
-      "askPINCodeToSend": "Ask confirmation",
-      "askPINCodeSubtitle": "When sending assets"
+      "askPINCodeToSend": "Transaction confirmation",
+      "askPINCodeSubtitle": "Ask to send assets"
     },
     "assets": {
       "title": "Assets management",
@@ -236,13 +244,14 @@
       "appnews": "Technical Messages",
       "appnewsSmall": "Tech Messages",
       "about": "About Trustee",
-      "lang": "Change language",
+      "lang": "Language",
       "copyLogs": "Copy logs",
       "cashback": {
         "title": "Cashback",
         "description": "Invite friends and make money",
         "descriptionSmall": "Invite friends and make money!"
       },
+      "notifications": "Notifications",
       "localCurrency": "Local currency",
       "scannerSettings": "Scanning",
       "scannerSubtitle": "Balance reload frequency",
@@ -292,10 +301,26 @@
     },
     "about": {
       "title": "About",
-      "header": "Trustee for %{OS}",
-      "version": "Version",
+      "version": "Trustee version: %{version}",
       "privacy": "Privacy policy",
-      "terms": "Terms of use"
+      "terms": "Terms of use",
+      "feedback": "Feedback",
+      "shareLogsTitle": "Share app logs",
+      "shareLogsSubtitle": "Help us to be better",
+      "contactSupportTitle": "Contact support",
+      "contactSupportSubtitle": "Official telegram chanel",
+      "information": "Information",
+      "copyright": "© BlockSoftLab Inc, 2020"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "additional": "Additional",
+      "allNotificationsTitle": "All notifications",
+      "transactionsTitle": "Transactions",
+      "transactionsSubtitle": "Send, buy, receive, sell, exchange",
+      "exchangeRatesTitle": "Exchange rates",
+      "exchangeRateSubtitle": "Prices of main coins",
+      "newsTitle": "News"
     },
     "error": {
       "title": "Oooops, app error",
@@ -1054,7 +1079,7 @@
     "incorrect": "Incorrect PIN Code"
   },
   "languageList": {
-    "title": "Language list",
+    "title": "Language",
     "languages": {
       "ru-RU": "Русский",
       "en-US": "English",
@@ -1063,13 +1088,14 @@
     }
   },
   "scannerSettings": {
-    "title": "Scanner settings",
+    "title": "Scanning",
     "codes": {
-      "none": "No auto",
-      "10min": "10 minutes",
-      "1min": "1 minute"
+      "none": "No autoscanning",
+      "10min": "Every 10 minutes",
+      "1min": "Every minute"
     },
-    "lastScan": "Last scanned: %{time}"
+    "lastScan": "Your balances have scanned at:",
+    "helper": "But you can choose frequency yourself"
   },
   "repeat": {
     "receive": "Receive"

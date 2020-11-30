@@ -206,6 +206,14 @@
    },
   "settings": {
     "title": "Налаштування",
+    "wallets": {
+      "listTitle": "My wallets",
+      "listSubtitle": "Гаманці: %{number}"
+    },
+    "paymentAccounts": {
+      "listTitle": "Payment accounts",
+      "listSubtitle": "Аккаунти: %{number}"
+    },
     "walletManagement": {
       "title": "Керування гаманцями",
       "backup": "Резервувати гаманець",
@@ -291,10 +299,26 @@
     },
     "about": {
       "title": "Про гаманець",
-      "header": "Trustee для %{OS}",
-      "version": "Версія",
+      "version": "Версія Trustee: %{version}",
       "privacy": "Політика конфіденційності",
-      "terms": "Умови користування"
+      "terms": "Умови користування",
+      "feedback": "Feedback",
+      "shareLogsTitle": "Share app logs",
+      "shareLogsSubtitle": "Help us to be better",
+      "contactSupportTitle": "Contact support",
+      "contactSupportSubtitle": "Official telegram chanel",
+      "information": "Information",
+      "copyright": "© BlockSoftLab Inc, 2020"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "additional": "Additional",
+      "allNotificationsTitle": "All notifications",
+      "transactionsTitle": "Transactions",
+      "transactionsSubtitle": "Send, buy, receive, sell, exchange",
+      "exchangeRatesTitle": "Exchange rates",
+      "exchangeRateSubtitle": "Prices of main coins",
+      "newsTitle": "News"
     },
     "error": {
       "title": "Ой, помилка",
@@ -1085,7 +1109,8 @@
        "10min" : "10 хвилин",
        "1min" : "1 хвилина"
      },
-     "lastScan" : "Останнє сканування: %{time}"
+     "lastScan" : "Your balances have scanned at:",
+     "helper": "But you can choose frequency yourself"
    },
   "repeat": {
     "receive": "Отримати"

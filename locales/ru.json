@@ -206,6 +206,14 @@
   },
   "settings": {
     "title": "Настройки",
+    "wallets": {
+      "listTitle": "My wallets",
+      "listSubtitle": "Кошельки: %{number}"
+    },
+    "paymentAccounts": {
+      "listTitle": "Payment accounts",
+      "listSubtitle": "Аккаунты: %{number}"
+    },
     "walletManagement": {
       "title": "Управление кошельками",
       "backup": "Резервировать кошелек",
@@ -291,10 +299,26 @@
     },
     "about": {
       "title": "О кошельке",
-      "header": "Trustee для %{OS}",
-      "version": "Версия",
+      "version": "Версия Trustee: %{version}",
       "privacy": "Политика конфиденциальности",
-      "terms": "Условия пользования"
+      "terms": "Условия пользования",
+      "feedback": "Feedback",
+      "shareLogsTitle": "Share app logs",
+      "shareLogsSubtitle": "Help us to be better",
+      "contactSupportTitle": "Contact support",
+      "contactSupportSubtitle": "Official telegram chanel",
+      "information": "Information",
+      "copyright": "© BlockSoftLab Inc, 2020"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "additional": "Additional",
+      "allNotificationsTitle": "All notifications",
+      "transactionsTitle": "Transactions",
+      "transactionsSubtitle": "Send, buy, receive, sell, exchange",
+      "exchangeRatesTitle": "Exchange rates",
+      "exchangeRateSubtitle": "Prices of main coins",
+      "newsTitle": "News"
     },
     "error": {
       "title": "Ой, ошибка",
@@ -1076,7 +1100,8 @@
       "10min" : "10 минут",
       "1min" : "1 минута"
     },
-    "lastScan" : "Последнее сканирование: %{time}"
+    "lastScan" : "Your balances have scanned at:",
+    "helper": "But you can choose frequency yourself"
   },
   "repeat": {
     "receive": "Получить"

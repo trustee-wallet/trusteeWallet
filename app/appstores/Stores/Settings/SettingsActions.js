@@ -35,6 +35,12 @@ const settingsActions = {
                 settings['language'] = 'en-US'
             }
 
+            // init notifications settings
+            if (typeof settings['notifs_status'] === 'undefined') settings['notifs_status'] = '0'
+            if (typeof settings['transactions_notifs'] === 'undefined') settings['transactions_notifs'] = '1'
+            if (typeof settings['exchange_rates_notifs'] === 'undefined') settings['exchange_rates_notifs'] = '1'
+            if (typeof settings['news_notifs'] === 'undefined') settings['news_notifs'] = '1'
+
             dispatch({
                 type: 'UPDATE_SETTINGS',
                 settings

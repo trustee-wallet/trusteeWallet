@@ -31,7 +31,14 @@ const CACHE = {
     'rubKostilKZT' : 0,
     'ADV_PERCENT' : 1,
     'SUPPORT_BOT' : 'https://t.me/trustee_support_bot?start=app',
-    'navigationViewV3': 1
+    'navigationViewV3': 1,
+    'SOCIAL_LINK_TELEGRAM': '',
+    'SOCIAL_LINK_TWITTER': '',
+    'SOCIAL_LINK_FACEBOOK': '',
+    'SOCIAL_LINK_INSTAGRAM': '',
+    'SOCIAL_LINK_VK': '',
+    'SOCIAL_LINK_GITHUB': '',
+    'SOCIAL_LINK_FAQ': '',
 }
 
 
