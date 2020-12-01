@@ -60,19 +60,26 @@ class FioSettings extends Component {
                     splitSegwit : true,
                     notAlreadyShown: 1,
                 })
-                if (accounts && accounts.length > 1) {
-                    return [
-                        ...res,
-                        {
-                            ...account,
-                            ...accounts[0],
-                        },
-                        {
-                            ...account,
-                            ...accounts[1],
-                        }
-                    ]
+
+                const btcAccounts = []
+                if (accounts.segwit && typeof accounts.segwit[0] !== 'undefined') {
+                    btcAccounts.push({
+                        ...account,
+                        address: accounts.segwit[0].address
+                    })
                 }
+
+                if (accounts.legacy && typeof accounts.legacy[0] !== 'undefined') {
+                    btcAccounts.push({
+                        ...account,
+                        address: accounts.legacy[0].address
+                    })
+                }
+
+                return [
+                    ...res,
+                    ...(btcAccounts.length ? btcAccounts : [account])
+                ]
             }
 
             return [
@@ -197,10 +204,6 @@ class FioSettings extends Component {
         }
     }
 
-    navCloseAction = () => {
-        NavStore.goNext('SettingsMainScreen')
-    }
-
     render() {
         const { fioAddress, fioAddressExpiration } = this.state
         Moment.locale('en');
@@ -209,7 +212,6 @@ class FioSettings extends Component {
             <View>
                 <Navigation
                     title={strings('FioSettings.title')}
-                    closeAction={this.navCloseAction}
                 />
 
                 <View style={{paddingTop: 80, height: '100%'}}>
