@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>1000360526097-s05lv9r5sniklhjj6jbanl64ftt12urh.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1000360526097-s05lv9r5sniklhjj6jbanl64ftt12urh</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAOHXH6PObRbUVIDdPNGuSqa2LQd8GiR6k</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1000360526097</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.trusteewallet</string>
+	<key>PROJECT_ID</key>
+	<string>api-7762265605376467090-814112</string>
+	<key>STORAGE_BUCKET</key>
+	<string>api-7762265605376467090-814112.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1000360526097:ios:c679be150b04db26</string>
+	<key>DATABASE_URL</key>
+	<string>https://api-7762265605376467090-814112.firebaseio.com</string>
+</dict>
+</plist>

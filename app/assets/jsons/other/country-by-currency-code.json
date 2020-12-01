@@ -1,0 +1,479 @@
+[
+  {
+    "symbolNative":"$",
+    "currency":"US Dollar",
+    "symbol":"$",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"USD",
+    "name":"US dollars"
+  },
+  {
+    "symbolNative":"₴",
+    "currency":"Ukrainian Hryvnia",
+    "symbol":"₴",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"UAH",
+    "name":"Ukrainian hryvnias"
+  },
+  {
+    "symbolNative":"RUB",
+    "currency":"Russian Ruble",
+    "symbol":"₽",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"RUB",
+    "name":"Russian rubles"
+  },
+  {
+    "symbolNative":"CHF",
+    "currency":"Swiss Franc",
+    "symbol":"CHF",
+    "decimalDigits":2,
+    "rounding":0.05,
+    "currencyCode":"CHF",
+    "name":"Swiss francs"
+  },
+  {
+    "symbolNative":"£",
+    "currency":"British Pound Sterling",
+    "symbol":"£",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"GBP",
+    "name":"British pounds sterling"
+  },
+  {
+    "symbolNative":"€",
+    "currency":"Euro",
+    "symbol":"€",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"EUR",
+    "name":"Euro"
+  },
+  {
+    "symbolNative":"AU$",
+    "currency":"Australian Dollar",
+    "symbol":"AU$",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"AUD",
+    "name":"Australian dollars"
+  },
+  {
+    "symbolNative":"CA$",
+    "currency":"Canadian Dollar",
+    "symbol":"CA$",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"CAD",
+    "name":"Canadian dollars"
+  },
+  {
+    "symbolNative":"CN¥",
+    "currency":"Chinese Yuan",
+    "symbol":"CN¥",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"CNY",
+    "name":"Chinese yuan"
+  },
+  {
+    "symbolNative":"kn",
+    "currency":"Croatian Kuna",
+    "symbol":"kn",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"HRK",
+    "name":"Croatian kunas"
+  },
+  {
+    "symbolNative":"Kč",
+    "currency":"Czech Republic Koruna",
+    "symbol":"Kč",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"CZK",
+    "name":"Czech Republic korunas"
+  },
+  {
+    "symbolNative":"Dkr",
+    "currency":"Danish Krone",
+    "symbol":"kr",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"DKK",
+    "name":"Danish kroner"
+  },
+  {
+    "symbolNative":"HK$",
+    "currency":"Hong Kong Dollar",
+    "symbol":"HK$",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"HKD",
+    "name":"Hong Kong dollars"
+  },
+  {
+    "symbolNative":"Ft",
+    "currency":"Hungarian Forint",
+    "symbol":"Ft",
+    "decimalDigits":0,
+    "rounding":0,
+    "currencyCode":"HUF",
+    "name":"Hungarian forints"
+  },
+  {
+    "symbolNative":"Rs",
+    "currency":"Indian Rupee",
+    "symbol":"টকা",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"INR",
+    "name":"Indian rupees"
+  },
+  {
+    "symbolNative":"Rp",
+    "currency":"Indonesian Rupiah",
+    "symbol":"Rp",
+    "decimalDigits":0,
+    "rounding":0,
+    "currencyCode":"IDR",
+    "name":"Indonesian rupiahs"
+  },
+  {
+    "symbolNative":"IRR",
+    "currency":"Iranian Rial",
+    "symbol":"﷼",
+    "decimalDigits":0,
+    "rounding":0,
+    "currencyCode":"IRR",
+    "name":"Iranian rials"
+  },
+  {
+    "symbolNative":"₪",
+    "currency":"Israeli New Sheqel",
+    "symbol":"₪",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"ILS",
+    "name":"Israeli new sheqels"
+  },
+  {
+    "symbolNative":"¥",
+    "currency":"Japanese Yen",
+    "symbol":"￥",
+    "decimalDigits":0,
+    "rounding":0,
+    "currencyCode":"JPY",
+    "name":"Japanese yen"
+  },
+  {
+    "symbolNative":"KZT",
+    "currency":"Kazakhstani Tenge",
+    "symbol":"₸",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"KZT",
+    "name":"Kazakhstani tenges"
+  },
+  {
+    "symbolNative":"₩",
+    "currency":"South Korean Won",
+    "symbol":"₩",
+    "decimalDigits":0,
+    "rounding":0,
+    "currencyCode":"KRW",
+    "name":"South Korean won"
+  },
+  {
+    "symbolNative":"MX$",
+    "currency":"Mexican Peso",
+    "symbol":"MX$",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"MXN",
+    "name":"Mexican pesos"
+  },
+  {
+    "symbolNative":"MDL",
+    "currency":"Moldovan Leu",
+    "symbol":"MDL",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"MDL",
+    "name":"Moldovan lei"
+  },
+  {
+    "symbolNative":"MX$",
+    "currency":"New Zealand Dollar",
+    "symbol":"MX$",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"NZD",
+    "name":"New Zealand dollars"
+  },
+  {
+    "symbolNative":"Nkr",
+    "currency":"Norwegian Krone",
+    "symbol":"kr",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"NOK",
+    "name":"Norwegian kroner"
+  },
+  {
+    "symbolNative":"SR",
+    "currency":"Saudi Riyal",
+    "symbol":"ر.س.‏",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"SAR",
+    "name":"Saudi riyals"
+  },
+  {
+    "symbolNative":"S$",
+    "currency":"Singapore Dollar",
+    "symbol":"S$",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"SGD",
+    "name":"Singapore dollars"
+  },
+  {
+    "symbolNative":"R",
+    "currency":"South African Rand",
+    "symbol":"R",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"ZAR",
+    "name":"South African rand"
+  },
+  {
+    "symbolNative":"Skr",
+    "currency":"Swedish Krona",
+    "symbol":"kr",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"SEK",
+    "name":"Swedish kronor"
+  },
+  {
+    "symbolNative":"EGP",
+    "currency":"Egyptian Pound",
+    "symbol":"ج.م.‏",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"EGP",
+    "name":"Egyptian pounds"
+  },
+  {
+    "symbolNative":"man.",
+    "currency":"Azerbaijani Manat",
+    "symbol":"ман.",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"AZN",
+    "name":"Azerbaijani manats"
+  },
+  {
+    "symbolNative":"RON",
+    "currency":"Romanian Leu",
+    "symbol":"RON",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"RON",
+    "name":"Romanian lei"
+  },
+  {
+    "symbolNative":"TL",
+    "currency":"Turkish Lira",
+    "symbol":"TL",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"TRY",
+    "name":"Turkish Lira"
+  },
+  {
+    "symbolNative":"BGN",
+    "currency":"Bulgarian Lev",
+    "symbol":"лв.",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"BGN",
+    "name":"Bulgarian leva"
+  },
+  {
+    "symbolNative":"zł",
+    "currency":"Polish Zloty",
+    "symbol":"zł",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"PLN",
+    "name":"Polish zlotys"
+  },
+  {
+    "symbolNative":"DA",
+    "currency":"Algerian Dinar",
+    "symbol":"د.ج.‏",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"DZD",
+    "name":"Algerian dinars"
+  },
+  {
+    "symbolNative":"Tk",
+    "currency":"Bangladeshi Taka",
+    "symbol":"৳",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"BDT",
+    "name":"Bangladeshi takas"
+  },
+  {
+    "symbolNative":"AMD",
+    "currency":"Armenian Dram",
+    "symbol":"դր.",
+    "decimalDigits":0,
+    "rounding":0,
+    "currencyCode":"AMD",
+    "name":"Armenian drams"
+  },
+  {
+    "symbolNative":"IQD",
+    "currency":"Iraqi Dinar",
+    "symbol":"د.ع.‏",
+    "decimalDigits":0,
+    "rounding":0,
+    "currencyCode":"IQD",
+    "name":"Iraqi dinars"
+  },
+  {
+    "symbolNative":"LB£",
+    "currency":"Lebanese Pound",
+    "symbol":"ل.ل.‏",
+    "decimalDigits":0,
+    "rounding":0,
+    "currencyCode":"LBP",
+    "name":"Lebanese pounds"
+  },
+  {
+    "symbolNative":"LD",
+    "currency":"Libyan Dinar",
+    "symbol":"د.ل.‏",
+    "decimalDigits":3,
+    "rounding":0,
+    "currencyCode":"LYD",
+    "name":"Libyan dinars"
+  },
+  {
+    "symbolNative":"RM",
+    "currency":"Malaysian Ringgit",
+    "symbol":"RM",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"MYR",
+    "name":"Malaysian ringgits"
+  },
+  {
+    "symbolNative":"MAD",
+    "currency":"Moroccan Dirham",
+    "symbol":"د.م.‏",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"MAD",
+    "name":"Moroccan dirhams"
+  },
+  {
+    "symbolNative":"PKRs",
+    "currency":"Pakistani Rupee",
+    "symbol":"₨",
+    "decimalDigits":0,
+    "rounding":0,
+    "currencyCode":"PKR",
+    "name":"Pakistani rupees"
+  },
+  {
+    "symbolNative":"₫",
+    "currency":"Vietnamese Dong",
+    "symbol":"₫",
+    "decimalDigits":0,
+    "rounding":0,
+    "currencyCode":"VND",
+    "name":"Vietnamese dong"
+  },
+  {
+    "symbolNative":"฿",
+    "currency":"Thai Baht",
+    "symbol":"฿",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"THB",
+    "name":"Thai baht"
+  },
+  {
+    "symbolNative":"AED",
+    "currency":"United Arab Emirates Dirham",
+    "symbol":"د.إ.‏",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"AED",
+    "name":"UAE dirhams"
+  },
+  {
+    "symbolNative":"DT",
+    "currency":"Tunisian Dinar",
+    "symbol":"د.ت.‏",
+    "decimalDigits":3,
+    "rounding":0,
+    "currencyCode":"TND",
+    "name":"Tunisian dinars"
+  },
+  {
+    "symbolNative":"UZS",
+    "currency":"Uzbekistan Som",
+    "symbol":"UZS",
+    "decimalDigits":0,
+    "rounding":0,
+    "currencyCode":"UZS",
+    "name":"Uzbekistan som"
+  },
+  {
+    "symbolNative":"NT$",
+    "currency":"New Taiwan Dollar",
+    "symbol":"NT$",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"TWD",
+    "name":"New Taiwan dollars"
+  },
+  {
+    "symbolNative":"£",
+    "currency":"Gibraltar Pound",
+    "symbol":"£",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"GHS",
+    "name":"Gibraltar pound"
+  },
+  {
+    "symbolNative":"din.",
+    "currency":"Serbian Dinar",
+    "symbol":"дин.",
+    "decimalDigits":0,
+    "rounding":0,
+    "currencyCode":"RSD",
+    "name":"Serbian dinars"
+  },
+  {
+    "symbolNative":"GEL",
+    "currency":"Georgian Lari",
+    "symbol":"GEL",
+    "decimalDigits":2,
+    "rounding":0,
+    "currencyCode":"GEL",
+    "name":"Georgian laris"
+  }
+]

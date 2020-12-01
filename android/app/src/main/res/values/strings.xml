@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Trustee</string>
+    <string name="rnsb_sync_account_type" translatable="false">com.trusteewallet</string>
+    <string name="rnsb_content_authority" translatable="false">com.trusteewallet.provider</string>
+    <string name="rnsb_allow_foreground">true</string>
+    <string name="rnsb_default_timeout" translatable="false">10000</string>
+    <string name="rnsb_user_visible" translatable="false">true</string>
+    <string name="facebook_app_id">2452148564886787</string>
+</resources>

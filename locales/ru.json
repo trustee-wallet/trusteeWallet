@@ -1,0 +1,1465 @@
+{
+  "appName": "Trustee",
+  "auth": {
+    "navigation": {
+      "title": "Вы вошли используя: %{authMnemonicName}",
+      "description": "Беспарольная авторизация"
+    },
+    "logOut": "Выйти"
+  },
+  "finishTradeScreen": {
+    "title": "Успех!",
+    "description": "Ваш ордер был создан. \n Как только Ваша транзакция получит необходимые подтверждения, она будет выполнена соответствующим образом. \n Вы можете отслеживать статус Вашего ордера в истории ордеров.",
+    "orderHistoryBtn": "История ордеров"
+  },
+  "finishTradeErrorScreen": {
+    "title": "Банк не подтвердил Ваш платеж!",
+    "description": "Ордер не оплачен"
+  },
+  "tooltips": {
+    "HOME_SCREEN_BUY_BTN_TIP": {
+      "title": "",
+      "description": "Тут ты можешь купить крипту с карты - Ваш Капитан Очевидность :)"
+    },
+    "HOME_SCREEN_EXCHANGE_BTN_TIP": {
+      "title": "",
+      "description": "Не обязательно менять на биржах - меняй крипту на крипту у нас в 2 клика!"
+    },
+    "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
+      "title": "",
+      "description": "Добавляй нужные монеты и зарабатывай - вперед!"
+    },
+    "HOME_SCREEN_CRYPTO_BTN_TIP": {
+      "title": "",
+      "description": "Это - твой уникальный Биткоин кошелек - начинай отправлять и принимать биткоины!"
+    },
+    "ACCOUNT_SCREEN_ADDRESS_TIP": {
+      "title": "",
+      "description": "А это твой личный %{currencyName} адрес - аналог номера карты для продвинутых пользователей!"
+    },
+    "ACCOUNT_SCREEN_TRANSACTION_TIP": {
+      "title": "",
+      "description": "Тут можешь найти всю информацию о своих транзакциях и ордерах - вперед!"
+    },
+    "buttons": {
+      "next": "Далее",
+      "skip": "Пропустить",
+      "close": "Закрыть"
+    }
+  },
+  "homeScreen": {
+    "balance": "Баланс",
+    "today": "Сегодня",
+    "changedLastDay": "За последние 24 часа",
+    "synchronizing": "Синхронизация"
+  },
+  "walletCreateScreen": {
+    "title": "ПОКУПАЙ ПРОДАВАЙ ОБМЕНИВАЙ АНОНИМНО",
+    "createWallet": "Создать кошелек",
+    "importWallet": "Импортировать кошелек",
+    "acceptTerms": "Вы не согласились c Условиями обслуживания и Политикой конфиденциальности",
+    "agreement1": "Я прочитал, понимаю и согласен с",
+    "terms": "Условия пользования",
+    "agreement2": "и",
+    "privacyPolicy": "Политика конфиденциальности",
+    "slider1": "Инновационные технологии безопасности и анонимности",
+    "slider2": "Безграничные возможности в интуитивно понятном дизайне",
+    "slider3": "Встроенный мониторинг обменных пунктов",
+    "slider4": "Зависшие и дорогие транзакции"
+  },
+  "exchangeScreen": {
+    "title": "Обмен",
+    "pickProvider": "Выберите провайдера",
+    "providerInformation": "Информация о провайдере",
+    "fee": "Комиссия",
+    "equivalent": "Эквивалент: ~",
+    "exchangeAll": "Обменять всё",
+    "min": "минимально:",
+    "max": "максимально:",
+    "exchangeBtn": "Обменять",
+    "payinAddress": "Адрес отправителя",
+    "payoutAddress": "Адрес получателя",
+    "date": "Дата:",
+    "receiveAddressModal": {
+      "title": "Обмен на собственный кошелек?",
+      "description1": "Активный кошелек",
+      "description2": "адрес"
+    },
+    "expiredModal" : {
+      "title" : "Истек",
+      "description" : "20-минутный интервал для создания транзакции прошел, пожайлуста, создайте новую заявку"
+    },
+    "noAddressModal" : {
+      "title" : "Внешний актив",
+      "description" : "Выбранный актив не включен в Trustee - пожайлуста, включите его или совершите транзакцию самостоятельно"
+    },
+    "resendModal" : {
+      "title" : "Обмен не завершен",
+      "description" : "Отправить транзакцию на этот адрес?"
+    },
+    "waitConfirmModal" : {
+      "title" : "Обмен почти завершен",
+      "description" : "Транзакция %{txHash} уже создана, пожайлуста, подождите подтверждений сети"
+    }
+  },
+  "exchangeConfirmScreen": {
+    "title": "Подтверждение",
+    "youWantToExchange": "Вы хотите обменять",
+    "exchangeDetails": "Детали обмена",
+    "exchangeBtn": "Обменять"
+  },
+  "tradeScreen": {
+    "tryV3" : "Попробовать новый интерфейс",
+    "titleV3" : "Обмен",
+    "youGet": "Получаете:",
+    "youGive": "Отдаете:",
+    "crypto": "Криптовалюта",
+    "fiat": "Фиат",
+    "pickPaySys": "Выберите способ оплаты",
+    "pickPaySysSell": "Выберите способ получения",
+    "worldwide": "Другие страны",
+    "fee": "Комиссия банка",
+    "selectSum": "Эквивалентная сумма",
+    "custom": "Другая",
+    "limitsTitle": "Есть некоторые ограничения",
+    "minPurchase": "минимально:",
+    "maxPurchase": "максимально:",
+    "selectCrypto": "Выберите криптовалюту",
+    "selectFiat": "Выберите валюту",
+    "submit": "Дальше",
+    "modalError": {
+      "selectPhoto" : "Выберите фото карты из галлереи",
+      "selectCryptocurrency": "Выберите криптовалюту",
+      "selectWhatYouGet": "Выберите, что Вы получаете",
+      "selectWhatYouGive": "Выберите, что Вы отдаете",
+      "selectPaymentSystem": "Выберите способ оплаты",
+      "selectFiatTemplate": "Select fiat template error",
+      "limit": "Вы вышли за допустимые пределы",
+      "additionalData": "Пожалуйста, заполните данные",
+      "notSupported": "Этот формат телефона не поддерживается.",
+      "serviceUnavailable": "Сервис недоступен. Пожалуйста, попробуйте позже",
+      "qrNotFoundInFile" : "Qr-код не найден, пожалуйста, попробуйте перезагрузить файл",
+      "UI_ERROR_CARD_NEEDED": {
+        "title": "Простите...",
+        "desc" : "Выберите карту или добавьте новую"
+      },
+      "UI_ERROR_CARD_NEED_TAKE_PHOTO": {
+        "title" : "Пожалуйста, сделайте фото карты",
+        "desc" : "Должно быть фото оригинала карты. При добавлении виртуальной карты, сделайте полноэкранное фото кабинета онлайн банкинга!"
+      },
+      "UI_ERROR_CARD_WAIT_VERIFICATION": {
+        "title": "Простите...",
+        "desc" : "Пожалуйста, подождите. Фото проверяется"
+      },
+      "UI_ERROR_CARD_CANCELED_VERIFICATION": {
+        "title": "Простите...",
+        "desc": "Проверка карты не пройдена. Пожалуйста, попробуйте еще раз"
+      }
+    },
+    "paymentInformation": "Информация об оплате",
+    "urkCardOnly": "Только украинские карты!",
+    "rusCardOnly": "Российские и Белорусские карты!",
+    "worldwideOnly": "Карты других стран!",
+    "minAmount": "Минимально",
+    "maxAmount": "Максимально",
+    "RUB": "Россия и Беларусь",
+    "KZ": "Казахстан",
+    "UAH": "Украина",
+    "QIWI": "QIWI кошелек",
+    "ADVCASH": "Комиссия ADV",
+    "ADVCashName": "ADV аккаунт",
+    "PMName": "PM аккаунт",
+    "PayeerName": "PAYEER аккаунт",
+    "onlinePayment": "Оплата онлайн"
+  },
+  "confirmScreen": {
+    "title": "Подтверждение",
+    "rate": "Курс",
+    "fees": "Детали сделки",
+    "youWantToBuy": "Покупаете",
+    "youWantToSell": "Продаете",
+    "providerFee": "Комиссия банка",
+    "outputFee": "Комиссия сети",
+    "trusteeFee": "Комиссия Trustee",
+    "networkFee": "комиссия сети",
+    "info": "Info",
+    "withdrawAddress": "Адрес для получения",
+    "withdrawCardNumber": "Карта для выплаты",
+    "withdrawPhoneNumber": "Телефон для выплаты",
+    "withdrawAdvAccountNumber": "Счет для выплаты",
+    "total": "Сумма:",
+    "submitBtnBuy": "Купить",
+    "submitBtnSell": "Продать",
+    "edit": "Изменить",
+    "confirmScreenBuy": "Выбранный платежный метод в настоящее время недоступен. Пожалуйста, попробуйте другой.",
+    "confirmScreenSell": "Выбранный платежный метод в настоящее время недоступен. Пожалуйста, попробуйте другой.",
+    "bottomInformation": "Пожалуйста, обратите внимание, обменный курс не является фиксированным и может измениться в процессе в зависимости от рынка.",
+    "confirmScreenInvalidExchangeAmount": "Пожалуйста, выберите другую сумму для обмена",
+    "confirmScreenInvalidExchangeAmountTooBig": "Пожалуйста, выберите меньшую сумму для обмена",
+    "confirmScreenInvalidCard": "Пожалуйста, используйте другую карту",
+    "confirmScreenTimeout" : "Пожалуйста, проверьте доступ к интернету и попробуйте еще раз",
+    "confirmScreenInvalidOut" : "Неверный счет для вывода, пожалуйста, проверьте и попробуйте еще раз",
+    "confirmScreenAdvNotVerified" : "Email не верифицирован, пожалуйста, используйте верифицированный Adv счет и попробуйте еще раз",
+    "confirmScreenTemporaryOff" : "Временное отключение торговой пары на стороне провайдера",
+    "confirmScreenInvalidAddress" : "Системная ошибка торговой пары на стороне провайдера, пожалуйста, попробуйте еще раз",
+    "openLink" : "Для перехода на платежную систему, пожайлуста, перейдите по этой ссылке",
+    "openLinkError": "Не найден браузер - ссылка скопирована в буфер"
+  },
+  "settings": {
+    "title": "Настройки",
+    "walletManagement": {
+      "title": "Управление кошельками",
+      "backup": "Резервировать кошелек",
+      "import": "Импортировать кошелек",
+      "create": "Создать новый кошелек",
+      "select": "Выбрать кошелек",
+      "turnOnHD" : "Включить древовидные адреса BTC"
+    },
+    "security": {
+      "title": "Безопасность",
+      "change": "Изменить PIN-код",
+      "lock": "PIN-код",
+      "touch": "FaceID/TouchID",
+      "askPINCodeToSend": "Запрос авторизации",
+      "askPINCodeSubtitle": "При отправке активов"
+    },
+    "assets": {
+      "title": "Управление активами",
+      "addAsset": "Добавить актив"
+    },
+    "other": {
+      "title": "Поддержка и справка",
+      "support": "Поддержка",
+      "supportSubtitle": "Наш бот в telegram",
+      "lock": "Блокирование экрана",
+      "bio": "Biometrics",
+      "appnews" : "Технические сообщения",
+      "appnewsSmall" : "Тех. сообщения",
+      "about": "О кошельке Trustee",
+      "lang": "Change language",
+      "copyLogs": "Копировать логи",
+      "cashback": {
+        "title": "Кешбэк",
+        "description": "Приглашайте друзей и зарабатывайте деньги!",
+        "descriptionSmall": "Приглашайте друзей и зарабатывайте!"
+      },
+      "localCurrency": "Локальная валюта",
+      "scannerSettings" : "Сканирование",
+      "scannerSubtitle": "Частота обновления балансов",
+      "scannerSubtitleSmall": "Скорость обновления балансов",
+      "toolTips": "Подсказки",
+      "configMode": "Конфиг",
+      "testerMode": "Тестировщик"
+    },
+    "walletList": {
+      "title": "Список кошельков",
+      "addedAssets": "Добавленные активы",
+      "balance": "Баланс",
+      "backup": "Резервировать",
+      "off": "Выключен",
+      "on": "Включён",
+      "totalBalance": "Общий баланс",
+      "useUnconfirmed": "Использовать неподтвержденные транзакции",
+      "allowReplaceByFee" : "Редактирование транзакции до подтверждения майнерами",
+      "changeSetting" : "Адрес для сдачи",
+      "useLegacy": "Использовать Legacy",
+      "useSegWit": "Использовать Segwit",
+      "showLegacy": "Показывать Legacy",
+      "showSegWit": "Показывать SegWit",
+      "accountSetting": "Настройки аккаунта",
+      "showSegWitAndLegacy": "Показывать SegWit и Legacy",
+      "hideCommissionTrans": "Скрыть транзакции оплаты за комиссию",
+      "checkFrozen" : "Сканировать замороженный баланс",
+      "manualAddressFromHD" : "Вставить адрес HD",
+      "scanAddressesFromHD" : "Сканировать адреса HD на наличие балансов",
+      "setAddressesFromHD" : {
+        "title": "Главный адрес будет изменен",
+        "description" : "Вы будете использовать баланс адреса %{newAddress}"
+      },
+      "backupModal": {
+        "title": "Мнемоническая фраза не сохранена!",
+        "description": "Мнемоническая фраза ( Seed-фраза) это единственный ключ к Вашим активам! В случае выхода из строя телефона или в других подобных ситуациях, восстановить доступ без этой фразы к Вашим активам будет невозможно! Рекомендуем сохранить фразу в безопасном месте прямо сейчас! \n \n  Если у Вас просят сид-фразу, то Вы имеете дело с мошенниками! \n Никому и ни при каких обстоятельствах, не сообщайте сид-фразу!"
+      },
+      "hdEnableModal": {
+        "title": "Переключить кошелек в режим HD?",
+        "description": "Режим HD подразумевает ротацию адресов для каждой транзакции. Операция переключения необратима."
+      },
+      "serverInputXMR" : "Сервер с данными (например, api.mymonero.com)",
+      "serverInputTitleXMR" : "api.mymonero.com:8443",
+      "serverSendInputXMR" : "Сервер для отправки транзакций (например, api.mymonero.com)",
+      "serverSendInputTitleXMR" : "или node.moneroworld.com:18089",
+      "needReinstallXMR"  : "Системная ошибка адреса XMR - пожайлуста, сохраните мнемоническую фразу и переустановите приложение, или свяжитесь со службой поддержки для подробный инструкций",
+      "saveSettings" : "Сохранить",
+      "getMnemonicXMR" : "Просмотреть секреты"
+    },
+    "about": {
+      "title": "О кошельке",
+      "header": "Trustee для %{OS}",
+      "version": "Версия",
+      "privacy": "Политика конфиденциальности",
+      "terms": "Условия пользования"
+    },
+    "error": {
+      "title": "Ой, ошибка",
+      "contactSupport": "Поддержка",
+      "tryAgain": "Обновить",
+      "text": "Если Вы видите это, что-то пошло не так, пожалуйста, отправьте нам логи через службу поддержки или попробуйте перезагрузить приложение"
+    },
+    "config": "Конфиг изменен на: %{config}",
+    "tester": "Тестировщик/пользователь изменен на: %{testerMode}"
+  },
+  "assets": {
+    "mainTitle": "Добавить актив",
+    "addCustomAsset": "Добавить актив не из списка",
+    "addAsset": "Добавить",
+    "showAsset": "Показать",
+    "hideAsset": "Скрыть"
+  },
+  "AddCustomToken": {
+    "mainTitle": "Добавить актив",
+    "tokenInputTitle": "Адрес актива",
+    "description": "Поддерживаются Ethereum (ETH) и Tron (TRX) адреса токенов/активов",
+    "add": "Добавить"
+  },
+  "cashback": {
+    "pageTitle": "Кешбэк",
+    "mainTitle": "Приведи друзей - заработай кешбэк!",
+    "mainDescription": "Приведи пять друзей и начни зарабатывать 10% кешбэка с комиссии своих обменов! Trustee возвращает до 30% комиссии своим пользователям!",
+    "shareText": "Поделиться",
+    "more": "Еще",
+    "shareTitle": "",
+    "shareMessage": "",
+    "friendsJoined": "Ваши друзья",
+    "updated" : "Обновление",
+    "transAmount": "Сумма транзакций",
+    "level2UsersAmount": "Друзья друзей",
+    "cashbackError" : {
+      "title" : "Не удалось получить данные",
+      "UI_ERROR_CASHBACK_NETWORK_ERROR": "Нет доступа к интернету",
+      "UI_ERROR_CASHBACK_SIGN_ERROR" : "Некорректная подпись в хранилище - пожайлуста,зайдите в раздел кешбэк еще раз",
+      "UI_ERROR_CASHBACK_TIME_ERROR" : "Неактуальная дата или время устройства",
+      "UI_ERROR_CASHBACK_TIME_ERROR_LOG" : "Сервис может не работать в результате нестабильного интернета или некорректных настроек даты и времени на Вашем мобильном устройстве"
+    },
+    "cashbackAmount": "Сумма кешбэка",
+    "setParentToken": "Задать ссылку-приглашение Вашего друга",
+    "hasParentToken": "Приглашен %{cashbackParentToken}",
+    "inputParentCashbackLink": "https://trustee.deals/link/example",
+    "withdraw": "Вывести",
+    "minWithdraw": "Минимальная сумма для вывода",
+    "performWithdraw": "Чтобы осуществить вывод, пожалуйста, напишите в telegram на никнейм @TrusteeWallet"
+  },
+  "account": {
+    "title": "Счет",
+    "copy": "Копировать",
+    "refresh": "Обновить",
+    "receive": "%{receive}",
+    "send": "Отправить",
+    "history": "Транзакции",
+    "scan": "отсканировано %{time} мин назад",
+    "justScan": "отсканировано только что",
+    "noTransactions": "У Вас еще нет транзакций",
+    "showMore": "Показать еще",
+    "assetSettings": "Настройки актива",
+    "externalLink": {
+      "title": "Переход к блокчейн эксплореру",
+      "description": "Вы перейдете на внешний ресурс"
+    },
+    "transaction": {
+      "pay": "Оплатить",
+      "remove" : "Скрыть",
+      "removeRBF" : "Удалить заменой",
+      "destinationTag": "Тег назначения",
+      "paymentId": "Идентификатор платежа",
+      "nonce": "Nonce",
+      "delegatedNonce": "Делегированный Nonce",
+      "empty": "(пусто)",
+      "fee": "Комиссия",
+      "feeIncome": "Комиссия отправителя",
+      "txHash": "Актуальный хэш транзакции",
+      "replacedTxHash": "Предыдущий хэш транзакции",
+      "from": "Отправитель",
+      "to": "Получатель",
+      "status": "Статус",
+      "outcome": "Исходящая",
+      "income": "Входящая",
+      "self" : "Себе",
+      "freeze" : "Заморозка",
+      "claim" : "Награда",
+      "exchange": "Обмен",
+      "buy": "Покупка",
+      "sell": "Продажа",
+      "mobile_phone": "Пополнение мобильного",
+      "date": "Дата",
+      "confirmations": "Подтверждений:",
+      "moreInformation": "Больше информации",
+      "cardNumberDestination": "Номер карты для вывода",
+      "advAccountDestination": "Номер счета для вывода",
+      "phoneDestination": "Номер телефона для вывода",
+      "orderId": "ID ордера",
+      "RBF": {
+        "replaceByFeeBtn": "Увеличить комиссию",
+        "willReplaceWithNewFee": "Текущая транзакция будет заменена новой, с новым хэшем и более высокой комиссией",
+        "notAllowed": "Транзакция создана без возможности замены или уже подтверждена"
+      },
+      "CPFP" : {
+        "willSpeedUp" : "Вы можете ускорить входящую транзакцию, создав дополнительную транзакцию самому себе, с более высокой комиссией. Размер комиссии будет рассчитан автоматически, учитывая особенности обеих транзакций. Обратите внимание, что в данном случае оплата новой транзакции будет за Ваш счет"
+      }
+    },
+    "transactionStatuses": {
+      "paid": "Оплачена",
+      "pay_waiting": "Ждет оплаты",
+      "pay_expired": "Время для оплаты закончилось",
+      "success": "Успешная",
+      "pending": "В ожидании",
+      "new": "НОВАЯ",
+      "process": "Обрабатывается",
+      "delegated" : "делегированная",
+      "confirming": "Подтверждается",
+      "fail": "Ошибка",
+      "missing" : "Не найдена",
+      "replaced" : "Заменена",
+      "internal_success": "Успешная от контракта",
+      "internal_new": "Новая от контракта",
+      "internal_fail": "Ошибка от контракта"
+    },
+    "receiveScreen": {
+      "title": "%{receive}",
+      "description": "Ваш %{currency} адрес:",
+      "clickToCopy": "Нажмите, чтобы скопировать",
+      "receiveAmount": "Указать сумму",
+      "FIORequest": "FIO запрос",
+      "share": "Поделиться",
+      "copy": "Копировать"
+    },
+    "addAccount": {
+      "list": "Список криптовалют"
+    },
+    "accountList": {
+      "list": "Учетные записи"
+    }
+  },
+
+  "fioMainSettings": {
+    "title": "FIO Настройки",
+    "description": "Контролируйте все доступные FIO настройки",
+    "sendFioRequest": "Отправить FIO Запрос",
+    "sendFioRequestDesc": "отправляйте FIO запросы",
+    "fioRequest": "FIO запросы",
+    "fioRequestDesc": "список всех активных Ожидающих/Отправленых FIO запросов",
+    "fioAddresses": "FIO Адреса",
+    "fioAddressesDesc": "все зарегистрированные FIO адреса и их опции",
+    "registerFioAddress": "Зарегистрировать FIO адрес",
+    "registerFioAddressDesc": "зарегистрируйте FIO адрес"
+  },
+
+  "FioChooseRecipient": {
+    "title": "Выбрать Fio получателя",
+    "description": "Введите FIO, ENS или публичный адрес получателя",
+    "btnText": "Выбрать FIO"
+  },
+
+  "FioChooseAddress": {
+    "title": "Выберите Fio адрес",
+    "description": "Введите адрес чтоб запросить платёж от",
+    "btnText": "Выберите FIO адрес"
+  },
+
+  "FioSettings": {
+    "title": "Fio Настройки",
+    "description": "Выберите кошелёк, который хотите связать с своим FIO адресом",
+    "Expire": "Истекает",
+    "connectAllWallets": "Связать все кошельки",
+    "btnText": "Сохранить",
+    "noFioTitle": "Вам нужно зарегистрировать FIO адрес",
+    "noFioDescription": "FIO адрес не зарегистрирован",
+    "noFioBtn": "Зарегистрировать FIO адрес"
+  },
+
+  "FioSendRequest": {
+    "title": "Послать FIO запрос",
+    "selectCoin": "Кликнете чтобы выбрать валюту",
+    "from": "Послать запрос от",
+    "to": "Послать запрос к",
+    "amount": "Количество",
+    "memo": "Комментарий",
+    "btnText": "Создать",
+    "created": "FIO запрос создан",
+    "fioSettings": "FIO Настройки",
+    "registerFioAddress": "Зарегистрировать FIO адрес",
+    "noCoinSelected": "Вам нужно выбрать валюту, для которой нужно сделать запрос",
+    "goToFioSettings": "Вам нужно перейти в FIO настройки, чтобы связать валюты с вашим FIO адресом",
+    "needRegisterFio": "Сначала вам нужно зарегистрировать FIO адрес"
+  },
+
+  "FioRequestsList": {
+    "title": "Список запросов FIO",
+    "pendingRequests": "Ожидающие запросы",
+    "sentRequests": "Отправленные запросы",
+    "RequestedTxt": "Запрошено"
+  },
+
+  "FioRequestDetails": {
+    "title": "Детали FIO запроса",
+    "balance": "Баланс",
+    "fee": "Комисия",
+    "to": "К",
+    "from": "От",
+    "memo": "FIO комментарий",
+    "amount": "Количество",
+    "btnTextReject": "Отклонить",
+    "btnTextConfirm": "Подтвердить"
+  },
+
+  "exchangeInit": {
+    "ordersHistory": "История ордеров",
+    "ordersNull": "У Вас нет ордеров."
+  },
+  "exchange": {
+    "title": "Обмен",
+    "description": "Самый простой способ купить или продать криптовалюту. Выберите криптовалюту, сумму и карту. В общую сумму включена комиссия, которая расчитывается автоматически. Обратите внимание, что услуга предоставляется средствами интеграции со сторонними сервисами партнеров.",
+    "attention": "",
+    "buy": "Купить",
+    "sell": "Продать",
+    "exchange": "Обмен",
+    "to": "на",
+    "providerChanged": {
+      "title": "Провайдер изменился",
+      "description": "Начните транзакцию сначала"
+    },
+    "ordersStatus": {
+      "exchange": {
+        "pending_payin": "Пополнение ожидается",
+        "canceled_payin": "Пополнение отменено",
+        "refunded_order": "Произведен возврат средств",
+        "done_payin": "Пополнение прошло успешно",
+        "wait_trade": "Ожидается конвертация",
+        "done_trade": "Конвертация прошла успешно",
+        "wait_payout": "Ожидается выплата",
+        "canceled_payout": "Ошибка выплаты",
+        "done_payout": "Выплата прошла успешно",
+        "wait_kyc": "KYC ожидается",
+        "stopped_order": "Ордер остановлен на стороне провайдера",
+        "error_order": "Ошибка при выполнении. Ордер обрабатывался вручную."
+      },
+      "sell": {
+        "pending_payin": "Пополнение ожидается",
+        "canceled_payin": "Пополнение отменено",
+        "refunded_order": "Произведен возврат средств",
+        "done_payin": "Пополнение прошло успешно",
+        "wait_trade": "Ожидается конвертация",
+        "done_trade": "Конвертация прошла успешно",
+        "wait_payout": "Ожидается выплата",
+        "canceled_payout": "Ошибка выплаты",
+        "done_payout": "Выплата прошла успешно",
+        "wait_kyc": "KYC ожидается",
+        "stopped_order": "Ордер остановлен на стороне провайдера",
+        "error_order": "Ошибка при выполнении. Ордер обрабатывался вручную."
+      },
+      "buy": {
+        "pending_payin": "Пополнение ожидается",
+        "canceled_payin": "Пополнение отменено",
+        "refunded_order": "Произведен возврат средств",
+        "done_payin": "Пополнение прошло успешно",
+        "wait_trade": "Ожидается конвертация",
+        "done_trade": "Конвертация прошла успешно",
+        "wait_payout": "Ожидается выплата",
+        "canceled_payout": "Ошибка выплаты",
+        "done_payout": "Выплата прошла успешно",
+        "wait_kyc": "KYC ожидается",
+        "stopped_order": "Ордер остановлен на стороне провайдера",
+        "error_order": "Ошибка при выполнении. Ордер обрабатывался вручную."
+      }
+    },
+    "mainData": {
+      "selectCurrency": "Выбор криптовалюты",
+      "selectPayment": "Select type of payment",
+      "estimateAmount": "Введите сумму",
+      "addCard": "Добавить карту",
+      "address": "Адрес зачисления криптовалюты:",
+      "titleBuy": "Покупка",
+      "titleSell": "Продажа",
+      "amount": "Сумма",
+      "buyCrypto": "Купить в ETH",
+      "sellCrypto": "Продать в ETH",
+      "buyFiat": "Купить в UAH",
+      "sellFiat": "Продать в UAH",
+      "sellAll": "Продать всё",
+      "equivalentCryptoBuy": "Сумма покупки: ~",
+      "equivalentCryptoSell": "Сумма продажи:",
+      "equivalentFiat": "Количество: ~",
+      "minAmountToBuy": "Минимальная сумма для покупки криптовалюты:",
+      "minAmountToSell": "Минимальная сумма для продажи криптовалюты:",
+      "minExchange": "%{fiat}",
+      "maxAmountBuy": "Максимальная сумма покупки с одной карты %{maxAmountToBuy} %{fiatSymbol} в день частями по %{maxAmountToBuyPart} %{fiatSymbol}",
+      "maxAmountSell": "Максимальная сумма продажи на одну карту %{maxAmountToBuy} %{fiatSymbol} в день",
+      "maxFiat": "",
+      "next": "Дальше",
+      "blockedCard": "Эта карта не может быть использована.\nПожалуйста, выберите другую",
+      "networkFee": "Комиссия сети",
+      "paySystemFee": "Комиссия Trustee",
+      "totalBuy": "Всего к оплате",
+      "totalSell": "Всего к выплате",
+      "moreInformation": "Больше информации"
+    }
+  },
+  "card": {
+    "title": "Новая карта",
+    "description": "Чтобы добавить новую карту сканируйте её или введите номер карты вручную",
+    "instructions": "Разместите карту \n внутри прямоугольника.",
+    "attention": "Пожалуйста, будьте внимательны, старайтесь избегать ошибок.",
+    "add": "Добавить",
+    "numberTitleInput": "Номер карты",
+    "dateTitleInput": "ММ/ГГ",
+    "cardCurrency": "Выберите страну карты...",
+    "cardName": "Назовите карту",
+    "noName": "Без названия",
+    "country": "Страна:"
+  },
+  "qrScanner": {
+    "line1": "Разместите QR-код",
+    "line2": "в области камеры"
+  },
+  "send": {
+    "title": "Перевод",
+    "description": "Вставьте адрес кошелька получателя или сканируйте QR-код",
+    "descriptionExchange": "Адрес кошелька получателя задан автоматически. Это адрес поставщика обменов. Обмен актива и зачисление будет осуществлено после успешной транзакции",
+    "address": "Адрес получателя",
+    "value": "Сумма",
+    "comment": "Комментарий",
+    "send": "Дальше",
+    "xrp_memo": "Тег назначения",
+    "xmr_memo": "Идентификатор платежа",
+    "fio_memo": "FIO Сообщение",
+    "useAllFunds": "Использовать все средства",
+    "equivalent": "Эквивалент: ~ %{amount} %{symbol}",
+    "notEnough": "У Вас недостаточно средств для отправки",
+    "notEnoughForFee": "Для отправки токенов необходимо иметь положительный баланс в нативной монете %{symbol}",
+    "notEnoughForFeeConfirmed": "Для отправки токенов необходимо иметь положительный подтвержденный баланс в нативной монете %{symbol}, подождите подтверждения или включите использование неподтвержденных транзакций",
+    "publicFioAddressNotFound": "%{symbol} публичный адрес не связан с указаным FIO адресом",
+    "confirmModal": {
+      "title": "Подтверждение отправки",
+      "titleSpeedUp": "Подтверждение ускорения входящей транзакции %{hash}",
+      "titleReplaceByFee": "Подтверждение замены транзакции %{hash}",
+      "amount": "",
+      "recipient": "Получатель",
+      "multiRecipient" : "Мультиотправка на %{total} адресов",
+      "change" : "Сдача %{amount} %{currencySymbol} пойдет на",
+      "edit": "Назад",
+      "confirm": "Отправить",
+      "force" : "Отправить принудительно?"
+    },
+    "fee": {
+      "smallFeeNoticeTitle" : "Пожалуйста, будьте внимательны",
+      "smallFeeNoticeDesc" : "Недостаточно баланса для быстрой транзакции",
+      "customFeeCalculated" : "Общая сумма",
+      "changeAmountNoticeDesc" : "Сумма транзакции измена",
+      "title": "Изменить\nкомиссию",
+      "text": {
+        "eth_speed_slowest": "Минимально",
+        "eth_speed_slow": "Медленно",
+        "eth_speed_medium": "Средне",
+        "eth_speed_fast": "Быстро",
+        "eth_speed_delegated" : "Делегированная ERC865",
+
+        "xmr_speed_1": "Медленно",
+        "xmr_speed_2" : "Средне",
+        "xmr_speed_3" : "Быстро",
+        "xmr_speed_4" : "Очень быстро",
+
+        "btc_speed_blocks_24": "Минимально",
+        "btc_speed_blocks_12": "Медленно",
+        "btc_speed_blocks_6": "Средне",
+        "btc_speed_blocks_2": "Быстро",
+        "bch_speed_blocks_12": "Медленно",
+        "bch_speed_blocks_6": "Средне",
+        "bch_speed_blocks_2": "Быстро",
+        "ltc_speed_blocks_12": "Медленно",
+        "ltc_speed_blocks_6": "Средне",
+        "ltc_speed_blocks_2": "Быстро",
+
+        "btc_corrected_speed_blocks_2": "Авто",
+        "btc_corrected_speed_blocks_6": "Авто",
+        "btc_corrected_speed_blocks_12": "Авто",
+        "btc_corrected_speed_blocks_2_protection": "Авто (защита от переплаты)",
+        "btc_corrected_speed_blocks_6_protection": "Авто (защита от переплаты)",
+        "btc_corrected_speed_blocks_12_protection": "Авто (защита от переплаты)",
+        "ltc_corrected_speed_blocks_2": "Авто",
+        "ltc_corrected_speed_blocks_6": "Авто",
+        "ltc_corrected_speed_blocks_12": "Авто",
+        "ltc_corrected_speed_blocks_2_protection": "Авто (защита от переплаты)",
+        "ltc_corrected_speed_blocks_6_protection": "Авто (защита от переплаты)",
+        "ltc_corrected_speed_blocks_12_protection": "Авто (защита от переплаты)",
+
+        "xrp_speed_one" : "Быстро"
+      },
+      "time": {
+        "eth_speed_slowest": "",
+        "eth_speed_slow": "",
+        "eth_speed_medium": "",
+        "eth_speed_fast": "",
+        "eth_speed_delegated" : "Транзакция будет отправлена за счет третьей стороны. Комиссия взимается в %{symbol} согласно ERC865",
+
+        "xmr_speed_1": "",
+        "xmr_speed_2" : "",
+        "xmr_speed_3" : "",
+        "xmr_speed_4" : "",
+
+        "btc_speed_blocks_24": "",
+        "btc_speed_blocks_12": "",
+        "btc_speed_blocks_6": "",
+        "btc_speed_blocks_2": "",
+        "bch_speed_blocks_12": "",
+        "bch_speed_blocks_6": "",
+        "bch_speed_blocks_2": "",
+        "ltc_speed_blocks_12": "",
+        "ltc_speed_blocks_6": "",
+        "ltc_speed_blocks_2": "",
+
+        "btc_corrected_speed_blocks_2": "> 35 минут",
+        "btc_corrected_speed_blocks_6": "> 95 минут",
+        "btc_corrected_speed_blocks_12": "> 135+ минут",
+        "btc_corrected_speed_blocks_2_protection": "> 35 минут",
+        "btc_corrected_speed_blocks_6_protection": "> 95 минут",
+        "btc_corrected_speed_blocks_12_protection": "> 135+ минут",
+        "ltc_corrected_speed_blocks_2": "> 15 минут",
+        "ltc_corrected_speed_blocks_6": "> 35 минут",
+        "ltc_corrected_speed_blocks_12": "> 135+ минут",
+        "ltc_corrected_speed_blocks_2_protection": "> 15 минут",
+        "ltc_corrected_speed_blocks_6_protection": "> 35 минут",
+        "ltc_corrected_speed_blocks_12_protection": "> 135+ минут",
+
+        "xrp_speed_one" : ""
+      },
+      "customFee": {
+        "fixedFeeTitle": "ФИКСИРОВАННАЯ\nКОМИССИЯ",
+        "customFeeTitle": "УСТАНОВИТЬ\nВРУЧНУЮ",
+        "eth": {
+          "gasPrice": "Цена за газ",
+          "gasLimit": "Лимит газа",
+          "gwei": "GWEI",
+          "nonce": "Nonce"
+        },
+        "btc": {
+          "feeForTx": "Цена за транзакцию",
+          "feeForByte": "Цена за байт",
+          "satoshi": "SATOSHI"
+        }
+      }
+    },
+    "errors": {
+      "UI_CONFIRM_DOUBLE_SEND" : "Транзакция на этот адрес уже отправлена, Вы уверены, что хотите повторить транзакцию?",
+      "UI_CALCULATE_CUSTOM_FEE" : "Пожалуйста, просчитайте полную стоимость для выбранной цены за байт",
+      "SERVER_RESPONSE_BAD_CODE" : "Что-то пошло не так, пожайлуста, свяжитесь со службой поддержки",
+      "SERVER_RESPONSE_BAD_INTERNET" : "Нет доступа к интернету",
+      "SERVER_RESPONSE_BAD_TX_TO_REPLACE" : "Транзакция не найдена, пожалуйста, проверьте доступ к интернету. Возможны задержки в отображении информации",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Недостаточно средств нативной монеты %{symbol} для оплаты комиссии сети",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Не удалось проверить баланс нативной монеты (%{symbol}). Пожалуйста, проверьте доступ к интернету!",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Слишком маленькая сумма для транзакции",
+      "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "Недостаточно средств для отправки транзакции",
+      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE" : "Недостаточно средств на балансе для оплаты комиссии сети - пожалуйста, используйте опцию \"Отправить Все\" ",
+      "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE" : "Недостаточно средств на балансе для оплаты делегированной транзакции - пожалуйста, используйте обычную отправку ERC20",
+      "SERVER_RESPONSE_NO_RESPONSE": "Сеть не принимает транзакцию - пожалуйста, подождите пока другие транзакции будут подтверждены",
+      "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "Сеть не принимает транзакцию - пожалуйста, подождите пока другие транзакции будут подтверждены или используйте большую комиссию",
+      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Недостаточно средств нативной монеты %{symbol} для оплаты комиссии - пожалуйста, подождите пока другие транзакции будут подтверждены",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Слишком маленькая комиссия за транзакцию",
+      "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Слишком маленькая комиссия за транзакцию для замены - если Вы подтвердите, что комиссию можно взять из суммы получателя - то на следующем шаге увидите пересчитанные данные транзакции",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Слишком маленькая комиссия за транзакцию для замены",
+      "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Транзакция уже подтверждена",
+      "SERVER_RESPONSE_NOT_CONNECTED": "Сеть не отвечает - пожалуйста, повторите операцию позже",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостаточно средств для транзакции и оплаты минимальной комиссии",
+      "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Пожалуйста, подождите пока другие транзакции будут подтверждены или включите функцию \"Использовать неподтвержденные транзакции\" ",
+      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Слишком большая комиссия за транзакцию - пожалуйста, выберите размер комиссии вручную или задайте большую сумму перевода",
+      "SERVER_RESPONSE_SELF_TX_FORBIDDEN" : "Транзакции на тот же адрес запрещены",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP" : "Недостаточно средств для отправки (Оставьте не менее 20 XRP на балансе)",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP" : "Недостаточная сумма - отправьте не менее 20 XRP для активации адреса получателя",
+      "SERVER_RESPONSE_TAG_NEEDED_XRP" : "Неверный тег назначения - пожалуйста, введите правильный тег назначения для отправки транзакции",
+      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT" : "Недостаточный баланс BTC на связанном с USDT биткоин адресе - пожалуйста, переведите на него немного сатоши",
+      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM" : "Недостаточный или неподтвержденный баланс на связанном с USDT биткоин адресе - пожалуйста, подождите или включите функцию \"Использовать неподтвержденные транзакции\" ",
+      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Сеть не приняла транзакцию - пожалуйста, подождите пока другие транзакции будут подтверждены или используйте обычную отправку ERC20",
+      "SERVER_RESPONSE_NO_SSL" : "SSL библиотека не найдена - пожайлуста, попробуйте обновить систему",
+      "SERVER_RESPONSE_PLEASE_SELECT_FEE": "Пожалуйста, выберите стоимость комиссии из списка",
+      "SERVER_RESPONSE_MIN_GAS_ETH" : "Минимальный лимит газа равен 21000",
+      "SERVER_RESPONSE_TOO_MUCH_GAS_ETH": "Для транзакции требуется слишком много газа - пожалуйста, проверьте адрес получателя, возможно это смартконтракт",
+      "SERVER_RESPONSE_TOO_MUCH_GAS_ETH_ERC20": "Для транзакции токенов требуется слишком много газа - пожайлутса, проверьте смартконтракт - возможно, ваш баланс заморожен",
+      "SERVER_RESPONSE_BAD_DESTINATION" : "Адрес получателя невалиден",
+      "SERVER_RESPONSE_BAD_SEND_NODE" : "Нет доступа к серверу отправки",
+      "SERVER_RESPONSE_DOUBLE_SPEND" : "Пожалуйста, пересоздайте транзакцию, так как текущая использует уже устаревшие входы или подождите пока другие транзакции будут подтверждены",
+      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Транзакция для ускорения не найдена"
+    }
+  },
+  "walletBackup": {
+    "pageTitle": "Создать новый кошелек",
+    "infoScreen": {
+      "continue": "Продолжить",
+      "text1": "TRUSTEE WALLET никогда и никуда не отправит Вашу фразу восстановления. Поэтому, в случае потери или выхода устройства из строя, единственный способ получить доступ к своим средствам - использовать фразу восстановления",
+      "checkbox1": "Я понимаю, что если потеряю фразу восстановления, я потеряю свои средства",
+      "checkbox2": "Я понимаю, что должен просмотреть фразу восстановления наедине, без камер и посторонних вокруг",
+      "text2": "Будьте очень осторожны с фразой восстановления - любой, у кого она есть, может получить доступ к Вашим средствам и потратить их. Пожалуйста, никому не сообщайте фразу восстановления, ни при каких обстоятельствах!"
+    },
+    "step0Screen": {
+      "info": "Фраза восстановления - это единственный секретный ключ к Вашим активам. Надежно сохраните ее!",
+      "showButton": "Нажмите и удерживайте, чтобы посмотреть",
+      "next": "Дальше"
+    },
+    "step1Screen": {
+      "title": "Подтверждение",
+      "placeholder": "Пожалуйста, нажмите слова в правильном порядке, чтобы подтвердить фразу восстановления. Чтобы удалить слово с поля, нажмите на него еще раз",
+      "showButton": "Нажмите и удерживайте, чтобы посмотреть",
+      "next": "Дальше"
+    },
+    "settingsScreen": {
+      "title": "Настройки",
+      "apply": "Применить",
+      "walletNameLabel": "Дайте название кошельку",
+      "walletNamePlaceholder": "Введите имя (необязательно)",
+      "phraseLengthLabel": "Выберите длину фразы восстановления",
+      "12wordsLabel": "12 слов",
+      "24wordsLabel": "24 слова",
+      "contactTitle": "Написать в службу поддержки",
+      "contactSubtitle": "Официальный telegram канал",
+      "skipTitle": "Пропустить проверку фразы восстановления",
+      "skipSubtitle": "Не рекомендуется"
+    },
+    "title": "Резервное копирование",
+    "titleNewWallet": "Генерация кошелька",
+    "titleNewWalletSmall": "Генерация",
+    "skip": "Пропустить",
+    "description": "Любой, у кого есть Ваша фраза восстановления может получить доступ к кошельку. Пожалуйста, внимательно запишите эти %{mnemonicLength} %{words}.\nНикому и ни при каких обстоятельствах, не сообщайте сид-фразу!",
+    "pinProtected": "Вам нужно будет ввести PIN для доступа к фразе восстановления",
+    "attention": "Эту фразу нужно подтвердить на следующем шаге",
+    "written": "Фраза записана",
+    "words": "слова",
+    "secondStep": {
+      "description": "Проверка корректности записанной фразы восстановления. Нажмите слова в правильном порядке. Чтобы удалить слово из поля, нажмите на него еще раз."
+    },
+    "mnemonicFail": {
+      "title": "Ой, нет...",
+      "description": "Вы сделали ошибку в восстановительной фразе. Попробуйте еще раз."
+    },
+    "skipElement": {
+      "title": "Вы уверены?",
+      "description": "Фраза резервного копирования очень важна. Вы не будете иметь доступ к своим деньгам. Пропустить этот шаг?",
+      "cancel": "Отменить",
+      "yes": "Да",
+      "no": "Нет"
+    },
+    "descriptionXMR": "Любой, у кого есть Ваша фраза восстановления может получить доступ к кошельку. Эти слова получены из основной фразы, поэтому Вы можете использовать ее только для бекапа Monero"
+  },
+  "walletCreate": {
+    "walletExist": "Кошелек уже импортирован в приложение.",
+    "createTitle": "Генерация кошелька",
+    "importTitle": "Импорт кошелька",
+    "importGoogle": "Google Drive",
+    "mnemonicPlaceholder": "Вставьте всю фразу восстановления или введите все слова вручную (обычно 12 или 24 слова)",
+    "showMnemonicButton": "Нажмите, чтобы посмотреть",
+    "phrasePlaceholder": "Фраза восстановления",
+    "importButton": "Импортировать кошелек",
+    "errors": {
+      "phraseShouldBeLonger": "Recovery phrase should be longer than 11 words",
+      "wordDoesNotExist": "Such word was not found in dictionary"
+    },
+    "importGoogleError": {
+      "title" : "Not Connected",
+      "description" : "Please try again or check access permissions"
+    },
+    "importGoogleNoWallet": {
+      "title" : "No Backup File",
+      "description" : "Encrypted backup file not found"
+    },
+    "backupGoogleHasWallet" : {
+      "title" : "Already Created Backup File",
+      "description" : "Remove backup file to recreate"
+    },
+    "backupGoogleSuccess" : {
+      "title" : "Created Backup File",
+      "description" : "Dont remove backup file to restore after application installation"
+    },
+    "name": "Назовите кошелек",
+    "submit": "Дальше",
+    "words12": "слов",
+    "words24": "слова",
+    "description": "Выберите длину фразы восстановления",
+    "optional": "необязательный",
+    "enterMnemonic": {
+      "description": "Вставьте фразу восстановления целиком или введите ее вручную (обычно это 12 или 24 слова ).",
+      "mnemonic": "Мнемоническая фраза"
+    },
+    "congratsModal": {
+      "title": "Поздравляем!",
+      "description": "Trustee сгенерировал для Вас новый кошелек. Сделайте резервную копию фразы восстановления позднее в меню настроек - кнопка \"Пропустить\". Либо сейчас, это займент несколько минут - кнопка \"Копировать\". ",
+      "backup": "Копировать",
+      "skip": "Пропустить"
+    }
+  },
+  "walletList": {
+    "elements": {
+      "cryptoCurrency": {
+        "coins": "монет"
+      }
+    }
+  },
+  "components": {
+    "elements": {
+      "modal": {
+        "input": {
+          "placeholder": "Введите ..."
+        }
+      },
+      "input": {
+        "qrName": "Адрес кошелька",
+        "qrSuccess": "Кошелек сканирован успешно!"
+      },
+      "picker": {
+        "label": "Выберите валюту..."
+      },
+      "phoneInput": {
+        "phoneNumber": "Номер телефона",
+        "invalidFormat": "Номер телефона неправильный"
+      },
+      "advInput": {
+        "accountNumber": "Номер счета",
+        "invalidFormat": "Номер счета неправильный"
+      },
+      "advEmail": {
+        "accountEmail": "Email",
+        "invalidFormat": "Email неправильный"
+      }
+    },
+    "navigation": {
+      "back": "Назад",
+      "search": "Поиск..."
+    }
+  },
+  "dashboardStack": {
+    "buy": "Купить",
+    "sell": "Продать",
+    "wallet": "Кошелек",
+    "exchange": "Обмен",
+    "earn": "Заработать",
+    "settings": "Больше"
+  },
+  "modal": {
+    "titles": {
+      "attention": "Внимание!"
+    },
+    "close": "Закрыть",
+    "ok": "OK",
+    "pleaseWaitModal": {
+      "title": "Пожалуйста, подождите...",
+      "description": "Проверка карты займет некоторое время"
+    },
+    "waitModal": {
+      "description": "Вы уже пытались выполнить ордер. Пожалуйста, подождите."
+    },
+    "featureExpectedModal": {
+      "title": "Функция ожидается",
+      "description": "Технологически транзакции, имеющие 0 подтверждений, могут быть обновлены. Данная функция позволит модифицировать опубликованные транзакции, которые находятся в процессе подтверждения майнерами. То есть может быть обновлен как размер комиссии за транзакцию, так и адрес получателя. Больше деталей по ссылке."
+    },
+    "enterCashbackTokenLink": {
+      "title": "Связать с Другом!",
+      "description": "Пожалуйста, введите анонимную ссылку-приглашение друга для подключения Вашего анонимного кошелька в его структуру. Обратите внимание, операцию невозможно отменить или изменить."
+    },
+    "cashbackTokenLinkModal": {
+      "success": {
+        "description": "Поздравляем, Ваш кошелек добавлен в структуру Вашего друга! Кошельки связанны с помощью анонимных идентификаторов."
+      }
+    },
+    "cashbackLinkEqualModal": {
+      "description": "Извините, указывать собственную ссылку-приглашение %{link} не разрешено!"
+    },
+    "walletCreateSettingsModal": {
+      "title": "Настройки кошелька"
+    },
+    "sorryYourDeviceDoesntSupportModal": {
+      "description": "Простите, Ваш телефон %{agent} не поддерживает данную функцию"
+    },
+    "cryptocurrencySynchronizing": {
+      "title": "Извините...",
+      "description": "Данные синхронизируются, пожалуйста, подождите..."
+    },
+    "openSettingsModal": {
+      "title": "Требуется доступ к камере",
+      "description": "Разрешите использование камеры в меню настроек",
+      "btnSubmitText": "Перейти в настройки"
+    },
+    "checkTransferHasError": {
+      "XRP": {
+        "title": "Пожалуйста, обратите внимание!",
+        "description": "Ваш кошелек Ripple не активированный. Активация требует блокировки 20 XRP. Согласно протокола Ripple, эта сумма не может быть разблокирована и останется замороженной на счете."
+      },
+      "TOKEN": {
+        "title": "Пожалуйста, обратите внимание!",
+        "description": "Токен %{currencySymbol} работает на блокчейне %{parentBlockchain} и для оборота требует позитивный баланс в %{parentCurrency} для оплаты комиссии майнерам. Пока на Вашем кошельке нулевой баланс %{parentCurrency}"
+      }
+    },
+    "tokenNotAdded": {
+      "description": "Актив не добавлен. Перейти на страницу добавления?"
+    },
+    "tokenHidden": {
+      "description": "Актив скрыт. Перейти на страницу управления активами?"
+    },
+    "useAgainAddresses": {
+      "title": "Внимание!",
+      "description": "Использовать опять адреса без транзакций?"
+    },
+    "cashbackDontWork": {
+      "description": "Устройство не поддерживает кешбэк"
+    },
+    "infoSendAllModal": {
+      "description": "Похоже Вы пытаетесь отправить весь свой баланс %{coin}. Для корректной обработки, пожалуйста, воспользуйтесь функцией 'отправить все'. Воспользоваться сейчас сейчас?"
+    },
+    "infoUpdateModal": {
+      "title": "Внимание!",
+      "description": "Доступна новая версия, пожалуйста, обновите кошелек!",
+      "download": "Скачать",
+      "notNow": "Не сейчас"
+    },
+    "infoNewInterface": {
+      "title": "Доступен новый интерфейс",
+      "description": "Посмотрите, что мы изменили для вас",
+      "try": "Попробовать",
+      "notNow": "Не сейчас"
+    },
+    "tbkModal": {
+      "enable": "Включить",
+      "disable": "Отключить",
+      "title": "Trustee Booster Kit",
+      "statusEnable": "включен",
+      "statusDisable": "отключен",
+      "cancel": "Отмена"
+    },
+    "modalV3": {
+      "title": "Ой",
+      "description": "Сервис временно недоступен. Проверьте доступ к интернету и попробуйте, пожалуйста, позже"
+    },
+    "infoPayOrder": {
+      "error": {
+        "title": "Извините...",
+        "description": "Возникла проблема. Пожалуйста, создайте новый ордер"
+      }
+    },
+    "toggleBitcoinTypeAddressModal": {
+      "info": {
+        "title": "Информация...",
+        "description": "Изменен тип отображаемого адреса Bitcoin"
+      }
+    },
+    "infoBuyModal": {
+      "currencyNotAvailable": "Валюта %{currencySymbol} недоступна для покупки",
+      "notAvailable": "Недоступна для покупки"
+    },
+    "disabledLockScreenModal": {
+      "description": "У Вас есть незарезервированные кошельки, поэтому установка PIN-кода не разрешена в целях безопасности хранения Ваших активов."
+    },
+    "disabledSkipModal": {
+      "description": "У Вас установлен PIN-код, поэтому Вы не можете пропустить это этап."
+    },
+    "infoAddCustomAssetModal": {
+      "success": {
+        "title": "Актив добавлен!",
+        "description": "Теперь Вы можете найти его на странице активов и на главном экране"
+      },
+      "error": {
+        "title": "Извините, актив не найден",
+        "description": "Пожалуйста, проверьте адрес и попробуйте еще раз"
+      },
+      "catch": {
+        "title": "Извините, актив не добавлен",
+        "description": "Пожалуйста, проверьте соединение и попробуйте еще раз"
+      },
+      "attention": {
+        "title": "Актив уже добавлен",
+        "description": "Проверьте его на предыдущем экране"
+      }
+    },
+    "licenseTerms": {
+      "title": "Юридические документы",
+      "description": "    Пожалуйста, прочтите это, чтобы знать, на что Вы соглашаетесь",
+      "accept": "Соглашаюсь",
+      "decline": "Отклоняю"
+    },
+    "selectCoinFio": {
+      "title": "Выберите валюту для запроса",
+      "description": "Пожалуйста, выберите валюту для которой вы хотите сделать запрос",
+      "description2": "выбраная валюта будет передана в FIO запрос",
+      "btn": "Выбрать"
+    },
+    "login": {
+      "title": "Вход/Регистрация",
+      "description": "Получи специальную ссылку, пригласи друзей и зарабатывай! 10% кешбэка от комиссии своих обменов и 10% от обменов друзей!",
+      "btn": {
+        "login": "Войти",
+        "back": "Назад"
+      }
+    },
+    "exchange": {
+      "sorry": "Простите...",
+      "descriptionCard": "Выберите существующую карту или добавьте новую",
+      "failed": "Ошибка...",
+      "txCanceled": "Транзакция отменена",
+      "success": "Успех!",
+      "txSuccess": "Транзакция успешно отправлена"
+    },
+    "settings": {
+      "soon": "Ожидается",
+      "soonDescription": "Эта опция будет добавлена в ближайшее время"
+    },
+    "infoDeleteCard": {
+      "title": "Вы действительно хотите удалить карту?",
+      "description": ""
+    },
+    "infoChoose": {
+      "decline": "Назад",
+      "accept": "Удалить"
+    },
+    "card": {
+      "success": "Успех!",
+      "added": "Карточка добавлена"
+    },
+    "qrScanner": {
+      "success": {
+        "title": "Успех!",
+        "description": "Кошелек успешно скопирован в буфер обмена!"
+      },
+      "error": {
+        "title": "Извините...",
+        "description": "Неверный кошелек. Попробуйте еще раз."
+      },
+      "sorry": "Извините..."
+    },
+    "send": {
+      "success": "Успех!",
+      "txSuccess": "Ваша транзакция успешно отправлена!",
+      "fail": "Ошибка..."
+    },
+    "walletLog" : {
+      "sorry" : "Ошибка....",
+      "noMailApp" : "Нет доступного приложения для отправки email",
+      "notComplited" : "Пожайлуста, выберите какой либо канал для отправки"
+    },
+    "walletBackup": {
+      "success": "Успех!",
+      "seedConfirm": "Фраза резервного копирования подтверждена!",
+      "walletCreated": "Кошелек создан!"
+    },
+    "walletCreate": {
+      "success": "Успех!",
+      "walletImported": "Кошелек импортирован!"
+    },
+    "receive": {
+      "success": "Успех!",
+      "addressCopiedSuccess": "Адрес кошелька скопирован!"
+    }
+  },
+  "lockScreen": {
+    "maximumAttempts": "Достигнуто максимальное количество попыток",
+    "enter": "Введите PIN-код",
+    "create": "Введите новый PIN-код",
+    "confirm": "Подтвердите PIN-код",
+    "incorrect": "Неправильный PIN-код"
+  },
+  "languageList": {
+    "title": "Язык",
+    "languages": {
+      "ru-RU": "Русский",
+      "en-US": "English",
+      "uk-UA": "Українська",
+      "ru-UA": "Українська"
+    }
+  },
+  "scannerSettings" : {
+    "title" : "Сканирование",
+    "codes" : {
+      "none" : "Без авто",
+      "10min" : "10 минут",
+      "1min" : "1 минута"
+    },
+    "lastScan" : "Последнее сканирование: %{time}"
+  },
+  "repeat": {
+    "receive": "Получить"
+  },
+  "validator": {
+    "empty": "Заполните поле",
+    "invalidFormat": "Неправильный формат",
+    "moreThanMax": "Лимит возможной длины превышен"
+  },
+  "toast": {
+    "copied": "Скопировано в буфер",
+    "noInternet": "Нет доступа к интернету",
+    "badInternet": "Нестабильный доступ к интернету, пожалуйста, попробуйте другого провайдера или точку доступа",
+    "saved" : "Сохранено"
+  },
+  "tips": {
+    "homeScreen": {
+      "sellBuyBtn": {
+        "title": "Привет, Друг!",
+        "description": "Удерживай кнопку для переключения между покупкой и продажей криптовалюты."
+      }
+    }
+  },
+  "appNews" : {
+    "title" : "Технические сообщения",
+    "subtitle" : "Все нотификации и сообщения",
+    "subtitleSmall": "Все нотификации",
+    "clearAll" : "Очистить все",
+    "newsNull" : "В Вашем кошельке ничего нового"
+
+  },
+  "pushNotifications":  {
+    "FOUND_OUT_TX_STATUS_NEW": {
+      "title": "%{currencyName} исходящая транзакция создана",
+      "description": "%{walletName} транзакция %{amountPretty} %{currencySymbol}"
+    },
+    "FOUND_OUT_TX_STATUS_FAIL": {
+      "title": "%{currencyName} исходящая транзакция отклонена",
+      "description": "%{walletName} транзакция %{amountPretty} %{currencySymbol}"
+    },
+    "FOUND_OUT_TX_STATUS_MISSING": {
+      "title": "%{currencyName} исходящая транзакция не найдена",
+      "description": "%{walletName} транзакция %{amountPretty} %{currencySymbol}"
+    },
+    "FOUND_OUT_TX_STATUS_SUCCESS": {
+      "title": "%{currencyName} исходящая транзакция успешна",
+      "description": "%{walletName} транзакция %{amountPretty} %{currencySymbol}"
+    },
+    "FOUND_OUT_TX_STATUS_CONFIRMING": {
+      "title": "%{currencyName} исходящая транзакция подтверждается",
+      "description": "%{walletName} транзакция %{amountPretty} %{currencySymbol}"
+    },
+    "FOUND_OUT_TX_STATUS_DELEGATED": {
+      "title": "%{currencyName} исходящая транзакция делегирована",
+      "description": "%{walletName} транзакция %{amountPretty} %{currencySymbol}"
+    },
+    "FOUND_IN_TX": {
+      "title": "%{currencyName} входящая транзакция",
+      "description": "%{walletName} входящие %{amountPretty} %{currencySymbol}"
+    },
+    "DAEMON_HAS_FOUND_HD": {
+      "title": "%{currencyName} HD обнаружен",
+      "description": "%{walletName} использовались древовидные адреса, поэтому HD режим включен автоматически"
+    },
+    "DAEMON_HAS_FOUND_BALANCE_NOT_ADDED": {
+      "title": "%{currencyName} не добавлен, но есть баланс",
+      "description": "%{walletName} на адресе %{address} есть %{amountPretty} %{currencySymbol}"
+    },
+    "DAEMON_HAS_FOUND_BALANCE": {
+      "title": "%{currencyName} не показан, но есть баланс",
+      "description": "%{walletName} на адресе %{address} есть %{amountPretty} %{currencySymbol}"
+    }
+  },
+  "currencyList": {
+    "AUD": {
+      "currencyCode": "AUD",
+      "currency": "Австралийский доллар"
+    },
+    "CAD": {
+      "currencyCode": "CAD",
+      "currency": "Канадский доллар"
+    },
+    "CNY": {
+      "currencyCode": "CNY",
+      "currency": "Китайский юань"
+    },
+    "HRK": {
+      "currencyCode": "HRK",
+      "currency": "Хорватская куна"
+    },
+    "CZK": {
+      "currencyCode": "CZK",
+      "currency": "Чешская Республика крона"
+    },
+    "DKK": {
+      "currencyCode": "DKK",
+      "currency": "Датская крона"
+    },
+    "HKD": {
+      "currencyCode": "HKD",
+      "currency": "Гонконгский доллар"
+    },
+    "HUF": {
+      "currencyCode": "HUF",
+      "currency": "Венгерский форинт"
+    },
+    "INR": {
+      "currencyCode": "INR",
+      "currency": "Индийская рупия"
+    },
+    "IDR": {
+      "currencyCode": "IDR",
+      "currency": "Индонезийская рупия"
+    },
+    "IRR": {
+      "currencyCode": "IRR",
+      "currency": "Иранский риал"
+    },
+    "ILS": {
+      "currencyCode": "ILS",
+      "currency": "Новый Израильский Шекель"
+    },
+    "JPY": {
+      "currencyCode": "JPY",
+      "currency": "Японская иена"
+    },
+    "KZT": {
+      "currencyCode": "KZT",
+      "currency": "Казахстанский тенге"
+    },
+    "KRW": {
+      "currencyCode": "KRW",
+      "currency": "Южнокорейский вон"
+    },
+    "MXN": {
+      "currencyCode": "MXN",
+      "currency": "Мексиканское песо"
+    },
+    "MDL": {
+      "currencyCode": "MDL",
+      "currency": "Молдавский лей"
+    },
+    "NZD": {
+      "currencyCode": "NZD",
+      "currency": "Новозеландский доллар"
+    },
+    "NOK": {
+      "currencyCode": "NOK",
+      "currency": "Норвежская крона"
+    },
+    "RUB": {
+      "currencyCode": "RUB",
+      "currency": "Российский рубль"
+    },
+    "SAR": {
+      "currencyCode": "SAR",
+      "currency": "Саудовский риал"
+    },
+    "SGD": {
+      "currencyCode": "SGD",
+      "currency": "Сингапурский доллар"
+    },
+    "ZAR": {
+      "currencyCode": "ZAR",
+      "currency": "Южноафриканский рэнд"
+    },
+    "SEK": {
+      "currencyCode": "SEK",
+      "currency": "Шведская крона"
+    },
+    "CHF": {
+      "currencyCode": "CHF",
+      "currency": "Швейцарский франк"
+    },
+    "EGP": {
+      "currencyCode": "EGP",
+      "currency": "Египетский фунт"
+    },
+    "GBP": {
+      "currencyCode": "GBP",
+      "currency": "Британский фунт стерлингов"
+    },
+    "USD": {
+      "currencyCode": "USD",
+      "currency": "Доллар США"
+    },
+    "AZN": {
+      "currencyCode": "AZN",
+      "currency": "Азербайджанский манат"
+    },
+    "RON": {
+      "currencyCode": "RON",
+      "currency": "Румынский лей"
+    },
+    "TRY": {
+      "currencyCode": "TRY",
+      "currency": "Турецкая лира"
+    },
+    "BGN": {
+      "currencyCode": "BGN",
+      "currency": "Болгарский лев"
+    },
+    "EUR": {
+      "currencyCode": "EUR",
+      "currency": "Евро"
+    },
+    "PLN": {
+      "currencyCode": "PLN",
+      "currency": "Польский злотый"
+    },
+    "DZD": {
+      "currencyCode": "DZD",
+      "currency": "Алжирский динар"
+    },
+    "BDT": {
+      "currencyCode": "BDT",
+      "currency": "Бангладешский така"
+    },
+    "AMD": {
+      "currencyCode": "AMD",
+      "currency": "Армянский драм"
+    },
+    "IQD": {
+      "currencyCode": "IQD",
+      "currency": "Иракский динар"
+    },
+    "LBP": {
+      "currencyCode": "LBP",
+      "currency": "Ливанский фунт"
+    },
+    "LYD": {
+      "currencyCode": "LYD",
+      "currency": "Ливийский динар"
+    },
+    "MYR": {
+      "currencyCode": "MYR",
+      "currency": "Малазийский ринггит"
+    },
+    "MAD": {
+      "currencyCode": "MAD",
+      "currency": "Марокканский дирхам"
+    },
+    "PKR": {
+      "currencyCode": "PKR",
+      "currency": "Пакистанская рупия"
+    },
+    "VND": {
+      "currencyCode": "VND",
+      "currency": "Вьетнамский донг"
+    },
+    "THB": {
+      "currencyCode": "THB",
+      "currency": "Тайский бат"
+    },
+    "AED": {
+      "currencyCode": "AED",
+      "currency": "Объединенные Арабские Эмираты дирхам"
+    },
+    "TND": {
+      "currencyCode": "TND",
+      "currency": "Тунисский динар"
+    },
+    "UZS": {
+      "currencyCode": "UZS",
+      "currency": "Узбекистанский сом"
+    },
+    "TWD": {
+      "currencyCode": "TWD",
+      "currency": "Новый тайваньский доллар"
+    },
+    "GHS": {
+      "currencyCode": "GHS",
+      "currency": "Гибралтарский фунт"
+    },
+    "RSD": {
+      "currencyCode": "RSD",
+      "currency": "Сербский динар"
+    },
+    "GEL": {
+      "currencyCode": "GEL",
+      "currency": "Грузинский лари"
+    },
+    "UAH": {
+      "currencyCode": "UAH",
+      "currency": "Украинская гривна"
+    }
+  }
+}
