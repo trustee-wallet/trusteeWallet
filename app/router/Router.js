@@ -49,6 +49,8 @@ import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
 import AddCustomTokenScreen from '../modules/AddCustomToken/AddCustomTokenScreen'
 import SMSCodeScreen from '../modules/Trade/SMSCodeScreen'
 
+import AgreementScreen from '../modules/WalletCreate/AgreementScreen'
+
 
 const MainNavigator = createStackNavigator({
         InitScreen: {
@@ -203,6 +205,13 @@ const MainNavigator = createStackNavigator({
 
         HomeScreenStack: {
             screen: HomeScreenStack,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        AgreementScreen: {
+            screen: AgreementScreen,
             navigationOptions: {
                 headerShown: false
             }

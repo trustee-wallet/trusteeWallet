@@ -32,13 +32,13 @@ const config = {
     scanner: {
         scannerSettings: [
             {
-                code: 'none'
+                code: '1min'
             },
             {
                 code: '10min'
             },
             {
-                code: '1min'
+                code: 'none'
             }
         ]
     },

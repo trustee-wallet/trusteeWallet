@@ -207,6 +207,14 @@
    },
   "settings": {
     "title": "Налаштування",
+    "wallets": {
+      "listTitle": "Мої гаманці",
+      "listSubtitle": "Гаманці: %{number}"
+    },
+    "paymentAccounts": {
+      "listTitle": "Платіжні рахунки",
+      "listSubtitle": "Рахунки: %{number}"
+    },
     "walletManagement": {
       "title": "Керування гаманцями",
       "backup": "Резервувати гаманець",
@@ -220,8 +228,8 @@
       "change": "Змінити PIN-код",
       "lock": "PIN-код",
       "touch": "FaceID/TouchID",
-      "askPINCodeToSend": "Запит авторизації",
-      "askPINCodeSubtitle": "При відправці активів"
+      "askPINCodeToSend": "Підтвердження транзакції",
+      "askPINCodeSubtitle": "Запит PIN-коду при відправці активів"
     },
     "assets": {
       "title": "Керування активами",
@@ -236,13 +244,14 @@
       "appnews" : "Технічні повідомлення",
       "appnewsSmall" : "Тех. повідомлення",
       "about": "Про гаманець Trustee",
-      "lang": "Change language",
+      "lang": "Language",
       "copyLogs": "Копiювати логи",
       "cashback": {
         "title": "Кешбек",
         "description": "Запрошуйте друзів та заробляйте гроші!",
         "descriptionSmall": "Запрошуйте друзів та заробляйте!"
       },
+      "notifications": "Повідомлення",
       "localCurrency": "Локальна валюта",
       "scannerSettings" : "Сканування",
       "scannerSubtitle": "Частота оновлення балансів",
@@ -294,10 +303,26 @@
     },
     "about": {
       "title": "Про гаманець",
-      "header": "Trustee для %{OS}",
-      "version": "Версія",
+      "version": "Trustee версія: %{version}",
       "privacy": "Політика конфіденційності",
-      "terms": "Умови користування"
+      "terms": "Умови користування",
+      "feedback": "Зворотній зв'язок",
+      "shareLogsTitle": "Надіслати логи",
+      "shareLogsSubtitle": "Допоможіть нам бути кращими",
+      "contactSupportTitle": "Звернутись до служби підтримки",
+      "contactSupportSubtitle": "Офіційний telegram канал",
+      "information": "Інформація",
+      "copyright": "© BlockSoftLab Inc, 2020"
+    },
+    "notifications": {
+      "title": "Налаштування повідомлень",
+      "additional": "Додаткові",
+      "allNotificationsTitle": "Активувати всі",
+      "transactionsTitle": "Транзакції",
+      "transactionsSubtitle": "Покупка, продаж, отримання, відправка, обмін",
+      "exchangeRatesTitle": "Зміна курсів валют",
+      "exchangeRateSubtitle": "Ціни основних монет",
+      "newsTitle": "Новини"
     },
     "error": {
       "title": "Ой, помилка",
@@ -1177,14 +1202,15 @@
       "ru-UA": "Українська"
     }
   },
-   "scannerSettings" : {
-     "title" : "Сканування",
-     "codes" : {
-       "none" : "Без авто",
-       "10min" : "10 хвилин",
-       "1min" : "1 хвилина"
-     },
-     "lastScan" : "Останнє сканування: %{time}"
+   "scannerSettings": {
+    "title": "Сканування",
+    "codes": {
+      "none": "Без автосканування",
+      "10min": "Кожні 10 хвилин",
+      "1min": "Щохвилини"
+    },
+    "lastScan": "Ваші баланси відскановано в:",
+    "helper": "Ви можете обрати частоту самостійно"
    },
   "repeat": {
     "receive": "Отримати"
