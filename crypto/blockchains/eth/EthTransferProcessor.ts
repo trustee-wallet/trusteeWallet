@@ -170,7 +170,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         const tmpGasPrice = BlocksoftUtils.div(balance, gasLimit).toString()
                         if (BlocksoftUtils.diff(tmpGasPrice, prevGasPrice).toString() * 1 > 0) {
                             fee = balance
-                            newGasPrice = tmpGasPrice
+                            newGasPrice = tmpGasPrice.split('.')[0]
                         } else {
                             continue
                         }

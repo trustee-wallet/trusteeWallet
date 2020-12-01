@@ -103,7 +103,7 @@ export default class BtcTxBuilder extends DogeTxBuilder implements BlocksoftBloc
 
                 if (address !== input.address) {
                     // noinspection ExceptionCaughtLocallyJS
-                    throw new Error('not valid signing address ' + input.address + ' != ' + address + ' segwit type = ' + currencyCode)
+                    throw new Error('not valid signing path ' + input.derivationPath + ' address ' + input.address + ' != ' + address + ' segwit type = ' + currencyCode)
                 }
             } catch (e) {
                 e.message += ' in privateKey BTC signature check '
