@@ -11,7 +11,7 @@ import BlocksoftDict from '../../../../../../crypto/common/BlocksoftDict'
 import currencyActions from '../../../../Stores/Currency/CurrencyActions'
 
 export default {
-    maxVersion: 77,
+    maxVersion: 83,
     updateQuery: {
         1: {
             queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -614,6 +614,31 @@ export default {
 
         77: {
             queryString: `ALTER TABLE card ADD COLUMN card_details_json VARCHAR(256) NULL`
-        }
+        },
+
+        78: {
+            queryString: `ALTER TABLE app_news ADD COLUMN news_to_send_status INTEGER NULL`
+        },
+
+        79: {
+            queryString: `ALTER TABLE app_news ADD COLUMN news_received_at INTEGER NULL`
+        },
+
+        80: {
+            queryString: `ALTER TABLE app_news ADD COLUMN news_opened_at INTEGER NULL`
+        },
+
+        81: {
+            queryString: `ALTER TABLE app_news ADD COLUMN news_image TEXT NULL`
+        },
+
+        82: {
+            queryString: `ALTER TABLE app_news ADD COLUMN news_url TEXT NULL`
+        },
+
+        83: {
+            queryString: `DELETE FROM app_news`
+        },
+
     }
 }

@@ -67,7 +67,7 @@ export default class AppNotification {
         try {
             await firebase.notifications().displayNotification(localNotification)
 
-            await appNewsDS.setNewsNeedPopup(this.appNews.id, 0)
+            await appNewsDS.setNewsNeedPopup({id : this.appNews.id, newsNeedPopup: 0})
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('PUSH displayLocalNotification show error ' + e.message)

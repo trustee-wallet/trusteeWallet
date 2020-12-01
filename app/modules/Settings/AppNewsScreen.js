@@ -80,14 +80,17 @@ class AppNewsScreen extends Component {
                                 let title = item.newsCustomTitle
                                 let description = item.newsCustomText
                                 const data = {currencyCode : item.currencyCode, walletName : item.walletName, ... item.newsJson}
-                                const currency = BlocksoftDict.getCurrencyAllSettings(item.currencyCode)
-                                if (currency) {
-                                    data.currencySymbol = currency.currencySymbol
-                                    data.currencyName = currency.currencyName
-                                } else {
-                                    data.currencySymbol = ''
-                                    data.currencyName = ''
+                                data.currencySymbol = ''
+                                data.currencyName = ''
+                                if (typeof item.currencyCode !== 'undefined' && item.currencyCode && item.currencyCode !== 'null') {
+                                    const currency = BlocksoftDict.getCurrencyAllSettings(item.currencyCode)
+                                    if (currency) {
+                                        data.currencySymbol = currency.currencySymbol
+                                        data.currencyName = currency.currencyName
+                                    }
                                 }
+
+
 
                                 data.amountPretty = ''
                                 if (typeof data.addressAmount !== 'undefined') {
