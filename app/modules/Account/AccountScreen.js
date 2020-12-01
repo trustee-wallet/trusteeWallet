@@ -60,7 +60,7 @@ import DaemonCache from '../../daemons/DaemonCache'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 
-import Header from '../../components/elements/new/Header'
+import Header from '../../modules/Send/elements/Header'
 import TrxButton from './elements/TrxButton'
 
 
@@ -625,22 +625,22 @@ class Account extends Component {
 
         const { colors, isLight } = this.context
 
-        // const tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
+        const tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
 
-        // if (typeof tmp.split === 'undefined') {
-        //     throw new Error('AccountScreen.renderBalance split is undefined')
-        // }
-        // const tmps = tmp.split('.')
-        // let balancePrettyPrep1 = tmps[0]
-        // let balancePrettyPrep2 = ''
-        // if (typeof tmps[1] !== 'undefined' && tmps[1]) {
-        //     balancePrettyPrep1 = tmps[0] + '.'
-        //     balancePrettyPrep2 = tmps[1]
-        // }
+        if (typeof tmp.split === 'undefined') {
+            throw new Error('AccountScreen.renderBalance split is undefined')
+        }
+        const tmps = tmp.split('.')
+        let balancePrettyPrep1 = tmps[0]
+        let balancePrettyPrep2 = ''
+        if (typeof tmps[1] !== 'undefined' && tmps[1]) {
+            balancePrettyPrep1 = tmps[0] + '.'
+            balancePrettyPrep2 = tmps[1]
+        }
 
         return (
             <>
-                {/* <View style={stl.topContent__top}>
+                <View style={stl.topContent__top}>
                     <View style={stl.topContent__title}>
                         <Text style={{...stl.topContent__title_first, color: colors.accountScreen.balanceColor }}>
                             {
@@ -655,8 +655,8 @@ class Account extends Component {
                     </View>
                     <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
                         textStyle={{...stl.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent}} letterSpacing={.5} />
-                </View> */}
-                {/* <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', paddingTop: 24 }}>
+                </View>
+                <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', paddingTop: 24 }}>
                     <TrxButton
                         action={this.handleReceive}
                         type={'receive'}
@@ -672,7 +672,7 @@ class Account extends Component {
                         type={'send'}
                         style={{...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
                     />
-                </View> */}
+                </View>
             </>
         )
     }
