@@ -15,6 +15,7 @@ import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import NavStore from '../../components/navigation/NavStore'
 import DaemonCache from '../../daemons/DaemonCache'
 import { getFioNames } from '../../../crypto/blockchains/fio/FioUtils'
+import Netinfo from '../../services/Netinfo/Netinfo'
 
 class FioAddresses extends Component {
 
@@ -28,7 +29,10 @@ class FioAddresses extends Component {
     async componentDidMount() {
         setLoaderStatus(true)
         try {
+            await Netinfo.isInternetReachable()
             await this.resolveFioAccount()
+        } catch (e) {
+            NavStore.goBack(null)
         } finally {
             setLoaderStatus(false)
         }

@@ -465,7 +465,8 @@
      "btnText": "Зберегти",
      "noFioTitle": "Вам потрібно зарегиструвати FIO адресу",
      "noFioDescription": "FIO адреса не зарегистрована",
-     "noFioBtn": "Зарегиструвати FIO адресу"
+     "noFioBtn": "Зарегиструвати FIO адресу",
+     "serviceUnavailable": "Послуга недоступна. Будь ласка, спробуйте пізніше"
    },
 
    "FioSendRequest": {

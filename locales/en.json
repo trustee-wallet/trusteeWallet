@@ -477,7 +477,8 @@
     "btnText": "Save",
     "noFioTitle": "You need to register FIO address",
     "noFioDescription": "FIO address not registered",
-    "noFioBtn": "Register Fio Address"
+    "noFioBtn": "Register Fio Address",
+    "serviceUnavailable": "Service unavailable. Please, try again later"
   },
 
   "FioSendRequest": {
