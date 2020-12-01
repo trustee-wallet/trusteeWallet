@@ -56,7 +56,7 @@ import api from '../../services/Api/Api'
 import { getAccountFioName, getPubAddress, isFioAddressRegistered, isFioAddressValid, resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
 
 import TwoButtons from '../../components/elements/new/buttons/TwoButtons'
-import Header from './elements/Header'
+import Header from '../../components/elements/new/Header'
 import PartBalanceButton from './elements/partBalanceButton'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -895,7 +895,7 @@ class SendScreen extends Component {
                             </TextView> */}
 
                                 <AddressInput
-                                style={{ marginTop: 20, backgroundColor: 'green' }}
+                                style={{ marginTop: 20 }}
                                 ref={component => this.addressInput = component}
                                 id={addressInput.id}
                                 onFocus={() => this.onFocus()}
