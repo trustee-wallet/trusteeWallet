@@ -36,7 +36,14 @@ const CACHE = {
     'rubKostilKZT' : 0,
     'ADV_PERCENT' : 1,
     'SUPPORT_BOT' : 'https://t.me/trustee_support_bot?start=app',
-    'navigationViewV3': 1
+    'navigationViewV3': 1,
+    'SOCIAL_LINK_TELEGRAM': 'https://t.me/trustee_deals',
+    'SOCIAL_LINK_TWITTER': 'https://twitter.com/Trustee_Wallet',
+    'SOCIAL_LINK_FACEBOOK': 'https://facebook.com/Trustee.Wallet/',
+    'SOCIAL_LINK_INSTAGRAM': 'https://instagram.com/trustee_wallet/',
+    'SOCIAL_LINK_VK': 'https://vk.com/trustee_wallet',
+    'SOCIAL_LINK_GITHUB': 'https://github.com/trustee-wallet/trusteeWallet',
+    'SOCIAL_LINK_FAQ': 'https://github.com/trustee-wallet/trusteeWallet/wiki',
 }
 
 

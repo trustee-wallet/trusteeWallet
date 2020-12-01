@@ -31,7 +31,13 @@ export const lightColors = {
         radioButton: {
           text: '#404040',
           border: '#999',
-          checked: '#864DD9'
+          checked: '#864DD9',
+          uncheckedBg: '#DADADA'
+        },
+        switch: {
+          bgActive: '#404040',
+          bgInactive: '#C4C4C4',
+          circleBg: '#FFF',
         },
         header: {
           bg: '#f7f7f7',
@@ -132,7 +138,13 @@ export const darkColors = {
         radioButton: {
           text: '#404040',
           border: '#999',
-          checked: '#864DD9'
+          checked: '#864DD9',
+          uncheckedBg: '#DADADA'
+        },
+        switch: {
+          bgActive: '#404040',
+          bgInactive: '#C4C4C4',
+          circleBg: '#FFF',
         },
         header: {
           bg: '#f7f7f7',

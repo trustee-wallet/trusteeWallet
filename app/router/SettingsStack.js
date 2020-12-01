@@ -8,6 +8,7 @@ import LanguageListScreen from '../modules/Settings/LanguageListScreen'
 import ScannerSettingsScreen from '../modules/Settings/ScannerSettingsScreen'
 import CashbackScreen from '../modules/Settings/CashbackScreen'
 
+import NotificationsScreen from '../modules/Settings/NotificationsScreen'
 import AboutScreen from '../modules/About/AboutScreen'
 import FioChooseRecipient from '../modules/FIO/FioChooseRecipient'
 import FioSendRequest from '../modules/FIO/FioSendRequest'
@@ -133,6 +134,13 @@ const SettingsStack = createStackNavigator(
 
         CashbackScreen: {
             screen: CashbackScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        NotificationsSettingsScreen: {
+            screen: NotificationsScreen,
             navigationOptions: {
                 headerShown: false
             }

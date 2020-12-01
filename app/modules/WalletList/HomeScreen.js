@@ -229,7 +229,6 @@ class HomeScreen extends Component {
     }
 
     updateOffset = (offset) => {
-        console.log(offset)
         const newOffset = Math.round(offset)
         if (this.state.scrollOffset !== newOffset) this.setState(() => ({ scrollOffset: newOffset }))
     }

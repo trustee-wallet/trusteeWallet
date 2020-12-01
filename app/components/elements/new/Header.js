@@ -69,6 +69,8 @@ export default class Header extends React.Component {
         )
     }
 
+    processHeaderHeight = (e) => { this.props.setHeaderHeight?.(e.nativeEvent.layout.height) }
+
     render() {
         const { title, setHeaderHeight, ExtraView, anime } = this.props
         const {
@@ -83,7 +85,7 @@ export default class Header extends React.Component {
                 <StatusBar translucent={false} backgroundColor={colors.common.header.bg} barStyle={isLight ? 'dark-content' : 'light-content'} />
 
                 <View style={[styles.container, { backgroundColor: colors.common.header.bg }]}>
-                    <View style={[styles.header, { paddingHorizontal: GRID_SIZE * 2 }]}>
+                    <View style={[styles.header, { paddingHorizontal: GRID_SIZE * 1.8 }]}>
                         <View style={styles.header__left}>
                             {this.getLeftAction()}
                         </View>
