@@ -14,6 +14,7 @@ import RequestItem from './elements/RequestItem'
 import { getSentFioRequests, getPendingFioRequests } from '../../../crypto/blockchains/fio/FioUtils'
 import { connect } from 'react-redux'
 import NavStore from '../../components/navigation/NavStore'
+import Netinfo from '../../services/Netinfo/Netinfo'
 
 class FioRequestsList extends Component {
 
@@ -32,15 +33,21 @@ class FioRequestsList extends Component {
         const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
 
         setLoaderStatus(true)
-        if (publicFioAddress) {
-            const pendingRequests = await getPendingFioRequests(publicFioAddress, 100, 0)
-            const sentRequests = await getSentFioRequests(publicFioAddress, 100, 0)
-            this.setState({
-                sentRequestsData: sentRequests,
-                pendingRequestsData: pendingRequests,
-            })
+        try {
+            await Netinfo.isInternetReachable()
+            if (publicFioAddress) {
+                const pendingRequests = await getPendingFioRequests(publicFioAddress, 100, 0)
+                const sentRequests = await getSentFioRequests(publicFioAddress, 100, 0)
+                this.setState({
+                    sentRequestsData: sentRequests,
+                    pendingRequestsData: pendingRequests,
+                })
+            }
+        } catch (e) {
+            NavStore.goBack(null)
+        } finally {
+            setLoaderStatus(false)
         }
-        setLoaderStatus(false)
     }
 
     renderRequestList = (data, type) => {
