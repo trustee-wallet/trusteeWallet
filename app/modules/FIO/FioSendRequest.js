@@ -18,6 +18,7 @@ import DaemonCache from '../../daemons/DaemonCache'
 import config from '../../config/config'
 
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import Netinfo from '../../services/Netinfo/Netinfo'
 
 
 
@@ -41,8 +42,11 @@ class FioSendRequest extends Component {
         setLoaderStatus(true)
         this.setState({isLoading: true})
         try {
+            await Netinfo.isInternetReachable()
             await this.resolveFioAccount()
             await this.resolvePublicAddresses()
+        } catch (e) {
+            NavStore.goBack(null)
         } finally {
             setLoaderStatus(false)
             this.setState({isLoading: false})
@@ -94,6 +98,12 @@ class FioSendRequest extends Component {
 
         if (!currencyCode) {
             Toast.setMessage(strings('FioSendRequest.noCoinSelected')).show()
+            return
+        }
+
+        try {
+            await Netinfo.isInternetReachable()
+        } catch (e) {
             return
         }
 

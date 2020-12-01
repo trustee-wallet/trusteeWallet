@@ -49,8 +49,6 @@ export default SettingsCoin
 
 
 const styles = {
-
-
     coinRow: {
         display: 'flex',
         flexDirection: 'row',
@@ -105,9 +103,7 @@ const styles = {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 12,
         color: '#888',
-        marginTop: -5,
+        marginTop: 0,
         maxWidth: '85%',
     },
-
-
 }

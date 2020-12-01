@@ -16,6 +16,8 @@ import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import { addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
 import NavStore from '../../components/navigation/NavStore'
 import accountDS from '../../appstores/DataSource/Account/Account'
+import Toast from '../../services/UI/Toast/Toast'
+import Netinfo from '../../services/Netinfo/Netinfo'
 
 class FioSettings extends Component {
 
@@ -58,19 +60,26 @@ class FioSettings extends Component {
                     splitSegwit : true,
                     notAlreadyShown: 1,
                 })
-                if (accounts && accounts.length > 1) {
-                    return [
-                        ...res,
-                        {
-                            ...account,
-                            ...accounts[0],
-                        },
-                        {
-                            ...account,
-                            ...accounts[1],
-                        }
-                    ]
+
+                const btcAccounts = []
+                if (accounts.segwit && typeof accounts.segwit[0] !== 'undefined') {
+                    btcAccounts.push({
+                        ...account,
+                        address: accounts.segwit[0].address
+                    })
                 }
+
+                if (accounts.legacy && typeof accounts.legacy[0] !== 'undefined') {
+                    btcAccounts.push({
+                        ...account,
+                        address: accounts.legacy[0].address
+                    })
+                }
+
+                return [
+                    ...res,
+                    ...(btcAccounts.length ? btcAccounts : [account])
+                ]
             }
 
             return [
@@ -79,7 +88,7 @@ class FioSettings extends Component {
             ]
         }, [])
 
-      this.setState({
+        this.setState({
             fioAddress: fioAddress.fio_address,
             fioAddressExpiration: fioAddress.expiration,
             accounts,
@@ -87,7 +96,10 @@ class FioSettings extends Component {
         })
         setLoaderStatus(true)
         try {
+            await Netinfo.isInternetReachable()
             await this.resolvePublicAddresses(fioAddress.fio_address, availableCurrenciesCodes)
+        } catch (e) {
+            NavStore.goBack(null)
         } finally {
             setLoaderStatus(false)
         }
@@ -166,10 +178,14 @@ class FioSettings extends Component {
                         }
                     ], [])
 
-            await addCryptoPublicAddresses({
+            await Netinfo.isInternetReachable()
+
+            const isSaved = await addCryptoPublicAddresses({
                 fioName: fioAddress,
                 publicAddresses
             })
+            Toast.setMessage(strings(isSaved ? 'toast.saved' : 'FioSettings.serviceUnavailable')).show()
+            NavStore.goBack(null)
         } finally {
             setLoaderStatus(false)
         }
@@ -188,10 +204,6 @@ class FioSettings extends Component {
         }
     }
 
-    navCloseAction = () => {
-        NavStore.goNext('SettingsMainScreen')
-    }
-
     render() {
         const { fioAddress, fioAddressExpiration } = this.state
         Moment.locale('en');
@@ -200,7 +212,6 @@ class FioSettings extends Component {
             <View>
                 <Navigation
                     title={strings('FioSettings.title')}
-                    closeAction={this.navCloseAction}
                 />
 
                 <View style={{paddingTop: 80, height: '100%'}}>
