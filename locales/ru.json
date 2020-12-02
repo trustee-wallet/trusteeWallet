@@ -273,9 +273,9 @@
       "changeSetting" : "Адрес для сдачи",
       "useLegacy": "Использовать Legacy",
       "useSegWit": "Использовать Segwit",
-      "showLegacy": "Показывать Legacy",
-      "showSegWit": "Показывать SegWit",
-      "accountSetting": "Настройки аккаунта",
+      "showLegacy": "Legacy",
+      "showSegWit": "SegWit",
+      "accountAddress": "Выбрать адресс",
       "showSegWitAndLegacy": "Показывать SegWit и Legacy",
       "hideCommissionTrans": "Скрыть транзакции оплаты за комиссию",
       "checkFrozen" : "Сканировать замороженный баланс",
@@ -662,6 +662,9 @@
     "notEnoughForFee": "Для отправки токенов необходимо иметь положительный баланс в нативной монете %{symbol}",
     "notEnoughForFeeConfirmed": "Для отправки токенов необходимо иметь положительный подтвержденный баланс в нативной монете %{symbol}, подождите подтверждения или включите использование неподтвержденных транзакций",
     "publicFioAddressNotFound": "%{symbol} публичный адрес не связан с указаным FIO адресом",
+    "setting": {
+      "title": "Advanced"
+    },
     "confirmModal": {
       "title": "Подтверждение отправки",
       "titleSpeedUp": "Подтверждение ускорения входящей транзакции %{hash}",

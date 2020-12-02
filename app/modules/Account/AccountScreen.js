@@ -737,17 +737,11 @@ class Account extends Component {
                 onPress={() => this.accountSetting(account.currencyCode)}><View
                     style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
                         color={`#404040`} /></View></TouchableOpacity>
-            // settingsComponent =
-            //     <SettingsBTC containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-            //         wallet={mainStore.selectedWallet} />
         } else if (account.currencyCode === 'USDT') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
                 onPress={() => this.accountSetting(account.currencyCode)}><View
                     style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
                         color={`#404040`} /></View></TouchableOpacity>
-            // settingsComponent =
-            //     <SettingsUSDT containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-            //         wallet={mainStore.selectedWallet} account={account} />
         } else if (account.currencyCode === 'FIO') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={() => NavStore.goNext('FioMainSettings')}>
                 <View style={{ paddingVertical: 12 }}>
@@ -757,17 +751,11 @@ class Account extends Component {
                 onPress={() => this.accountSetting(account.currencyCode)}><View
                     style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
                         color={`#404040`} /></View></TouchableOpacity>
-            // settingsComponent =
-            //     <SettingsXMR containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-            //         wallet={mainStore.selectedWallet} account={account} />
         } else if (account.currencyCode === 'TRX') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
                 onPress={() => this.accountSetting(account.currencyCode)}><View
                     style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
                         color={`#404040`} /></View></TouchableOpacity>
-            // settingsComponent =
-            //     <SettingsTRX containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-            //         wallet={mainStore.selectedWallet} account={account} />
         }
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor
@@ -778,7 +766,6 @@ class Account extends Component {
                     rightAction={this.closeAction}
                     title={strings('account.title').toUpperCase()}
                     setHeaderHeight={this.setHeaderHeight}
-                    // ExtraView={() => this.renderBalanceHeader(cryptoCurrency, mainStore.selectedAccount)}
                     ExtraView={() => this.renderBalanceHeader(mainStore.selectedAccount, cryptoCurrency)}
                     scrollOffset={this.state.scrollOffset}
                 />

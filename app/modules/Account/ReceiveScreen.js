@@ -107,7 +107,7 @@ class ReceiveScreen extends Component {
         } else if (segwitAddress) {
             address = segwitAddress
         }
-        Log.log('ReceiveScreen.getAddress ' + address, {address, legacyAddress, segwitAddress, settingAddressType})
+        Log.log('ReceiveScreen.getAddress ' + address, { address, legacyAddress, segwitAddress, settingAddressType })
         return address
     }
 
@@ -197,7 +197,8 @@ class ReceiveScreen extends Component {
 
         if (newInterface === 'true') {
             NavStore.goNext('TradeV3ScreenStack', {
-                tradeType: 'BUY' })
+                tradeType: 'BUY'
+            })
         } else {
 
             const { exchangeStore } = this.props
@@ -231,7 +232,7 @@ class ReceiveScreen extends Component {
 
             const newInterface = await AsyncStorage.getItem('isNewInterface')
 
-            if (newInterface === 'true'){
+            if (newInterface === 'true') {
                 NavStore.goNext('ExchangeV3ScreenStack')
             } else {
                 setLoaderStatus(true)
@@ -294,9 +295,9 @@ class ReceiveScreen extends Component {
                 ${address}`
                 if (Platform.OS === 'android') {
                     // noinspection ES6MissingAwait
-                    prettyShare({ message, url: `data:image/png;base64,${data}`, title : 'QR', type: 'image/png' })
+                    prettyShare({ message, url: `data:image/png;base64,${data}`, title: 'QR', type: 'image/png' })
                 } else {
-                    const fs = new FileSystem({fileEncoding: 'base64', fileName : 'QR', fileExtension : 'jpg'})
+                    const fs = new FileSystem({ fileEncoding: 'base64', fileName: 'QR', fileExtension: 'jpg' })
                     await fs.writeFile(data)
                     // noinspection ES6MissingAwait
                     prettyShare({ message, url: await fs.getPathOrBase64() })
@@ -331,7 +332,7 @@ class ReceiveScreen extends Component {
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <View>
                         <CurrencyIcon currencyCode={currencyCode}
-                                      containerStyle={{}}/>
+                            containerStyle={{}} />
                     </View>
                     <View style={styles.accountDetail__content}>
                         <View style={{ paddingRight: 180 }}>
@@ -342,14 +343,14 @@ class ReceiveScreen extends Component {
                                 isSynchronized ?
                                     <View style={{ alignItems: 'flex-start' }}>
                                         <LetterSpacing text={currencyAmountPrep + ' ' + currencySymbol}
-                                                       textStyle={styles.accountDetail__text} letterSpacing={1}/>
+                                            textStyle={styles.accountDetail__text} letterSpacing={1} />
                                     </View>
                                     :
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Loader size={12} color={'#999999'}/>
+                                        <Loader size={12} color={'#999999'} />
                                         <View style={{ marginLeft: 10 }}>
                                             <LetterSpacing text={strings('homeScreen.synchronizing')}
-                                                           textStyle={styles.accountDetail__text} letterSpacing={.5}/>
+                                                textStyle={styles.accountDetail__text} letterSpacing={.5} />
                                         </View>
                                     </View>
                             }
@@ -452,19 +453,20 @@ class ReceiveScreen extends Component {
                     <View style={styles.wrapper__content}>
                         <View style={styles.qr}>
                             <GradientView style={[styles.qr__content, currencyCode === 'BTC' && +btcShowTwoAddress ? null : { paddingTop: 12 }]}
-                                          array={styles.qr__bg.array} start={styles.qr__bg.start}
-                                          end={styles.qr__bg.end}>
+                                array={styles.qr__bg.array} start={styles.qr__bg.start}
+                                end={styles.qr__bg.end}>
                                 {currencyCode === 'BTC' && +btcShowTwoAddress ? this.renderSegWitLegacy() : null}
                                 {fioName ? <Text>{fioName}</Text> : null}
                                 <TouchableOpacity style={{
                                     position: 'relative',
                                     paddingHorizontal: 10,
-                                    alignItems: currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd ? 'flex-start' : 'center'
+                                    // alignItems: currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd ? 'flex-start' : 'center'
+                                    alignItems: 'center'
                                 }} onPress={() => this.copyToClip()}>
                                     <QrCodeBox
                                         getRef={ref => this.refSvg = ref}
                                         value={this.getAddressForQR()}
-                                        size={200}
+                                        size={250}
                                         color='#404040'
                                         logo={qrLogo}
                                         logoSize={70}
@@ -473,27 +475,29 @@ class ReceiveScreen extends Component {
                                             Log.err('ReceiveScreen QRCode error ' + e.message)
                                         }}
                                     />
-                                    <View style={{ width: 200, marginTop: 10 }}>
-                                        <LetterSpacing text={currencyCode === 'BTC' ? btcAddress : address} numberOfLines={2} containerStyle={{
-                                            flexWrap: 'wrap',
-                                            justifyContent: currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd ? 'flex-start' : 'center'
-                                        }} textStyle={{ ...styles.accountDetail__text, textAlign: 'center' }}
-                                                       letterSpacing={1}/>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                        <View style={{ width: 200, marginTop: 10 }}>
+                                            <LetterSpacing text={currencyCode === 'BTC' ? btcAddress : address} numberOfLines={2} containerStyle={{
+                                                flexWrap: 'wrap',
+                                                // justifyContent: currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd ? 'flex-start' : 'center'
+                                                justifyContent: 'center'
+                                            }} textStyle={{ ...styles.accountDetail__text, textAlign: 'center' }}
+                                                letterSpacing={1} />
+                                        </View>
+                                        {
+                                            currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd ?
+                                                <TouchableOpacity onPress={this.changeAddress} style={{
+                                                    position: 'relative',
+                                                    marginLeft: 10,
+                                                    marginTop: 14
+                                                }}>
+                                                    <FontAwesome color="#F79E1B" size={20} name={'refresh'} />
+                                                </TouchableOpacity> : <View style={{ position: 'relative', marginLeft: 10, top: 7 }}><MaterialIcons color="#999999" size={14} name={'content-copy'} /></View>
+                                        }
                                     </View>
-                                    {
-                                        currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd ?
-                                            <TouchableOpacity onPress={this.changeAddress} style={{
-                                                position: 'absolute',
-                                                bottom: -7,
-                                                right: 10,
-                                                padding: 10
-                                            }}>
-                                                <FontAwesome color="#F79E1B" size={20} name={'refresh'}/>
-                                            </TouchableOpacity> : <View style={{ position: 'absolute', bottom: 7, right: 18 }}><MaterialIcons color="#999999" size={14} name={'content-copy'}/></View>
-                                    }
                                 </TouchableOpacity>
                                 <View style={styles.line}>
-                                    <View style={styles.line__item}/>
+                                    <View style={styles.line__item} />
                                 </View>
                                 {OldPhone.isOldPhone() ? null : <View style={{
                                     flexDirection: 'row',
@@ -501,28 +505,28 @@ class ReceiveScreen extends Component {
                                     justifyContent: 'space-between'
                                 }}>
                                     <TouchableOpacity style={{ padding: 14, justifyContent: 'center' }}
-                                                      onPress={this.handleCustomReceiveAmount}>
+                                        onPress={this.handleCustomReceiveAmount}>
                                         <LightButton color={color} Icon={(props) => <Feather color={color} size={10}
-                                                                                             name={'edit'} {...props} />}
-                                                     title={strings('account.receiveScreen.receiveAmount')}
-                                                     iconStyle={{ marginHorizontal: 3 }}/>
+                                            name={'edit'} {...props} />}
+                                            title={strings('account.receiveScreen.receiveAmount')}
+                                            iconStyle={{ marginHorizontal: 3 }} />
                                     </TouchableOpacity>
-                                </View> }
+                                </View>}
                             </GradientView>
                             <View style={styles.qr__shadow}>
                                 <View
-                                    style={[styles.qr__shadow__item, isSegWitLegacy ? { height: Platform.OS === 'android' ? 406 : 404 } : null]}/>
+                                    style={[styles.qr__shadow__item, isSegWitLegacy ? { height: Platform.OS === 'android' ? 406 : 404 } : null]} />
                             </View>
                         </View>
 
                         {
                             fioName ? (
-                                <TouchableOpacity style={{marginTop: 20}}
-                                                  onPress={this.handleFioRequestCreate}>
+                                <TouchableOpacity style={{ marginTop: 20 }}
+                                    onPress={this.handleFioRequestCreate}>
                                     <LightButton color={color} Icon={(props) => <Feather color={color} size={10}
-                                                                                         name={'edit'} {...props} />}
-                                                 title={strings('account.receiveScreen.FIORequest')}
-                                                 iconStyle={{ marginHorizontal: 3 }}/>
+                                        name={'edit'} {...props} />}
+                                        title={strings('account.receiveScreen.FIORequest')}
+                                        iconStyle={{ marginHorizontal: 3 }} />
                                 </TouchableOpacity>
                             ) : null
                         }
@@ -531,50 +535,50 @@ class ReceiveScreen extends Component {
                             <TouchableOpacity style={styles.options__item} onPress={this.handleBuy}>
                                 <View style={styles.options__wrap}>
                                     <GradientView style={styles.options__content} array={styles.qr__bg.array}
-                                                  start={styles.qr__bg.start} end={styles.qr__bg.end}>
+                                        start={styles.qr__bg.start} end={styles.qr__bg.end}>
                                         <View>
-                                            <Fontisto style={{ fontSize: 23, color }} name={'shopping-basket-add'}/>
+                                            <Fontisto style={{ fontSize: 23, color }} name={'shopping-basket-add'} />
                                         </View>
                                     </GradientView>
                                     <View style={styles.options__shadow}>
-                                        <View style={styles.options__shadow__item}/>
+                                        <View style={styles.options__shadow__item} />
                                     </View>
                                 </View>
                                 <View style={styles.options__text}>
                                     <LetterSpacing text={strings('exchange.buy')} textStyle={styles.options__text}
-                                                   letterSpacing={.7}/>
+                                        letterSpacing={.7} />
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.options__item} onPress={this.handleExchange}>
                                 <View style={styles.options__wrap}>
                                     <GradientView style={styles.options__content} array={styles.qr__bg.array}
-                                                  start={styles.qr__bg.start} end={styles.qr__bg.end}>
-                                        <CustomIcon name="exchange" style={{ color, fontSize: 24 }}/>
+                                        start={styles.qr__bg.start} end={styles.qr__bg.end}>
+                                        <CustomIcon name="exchange" style={{ color, fontSize: 24 }} />
                                     </GradientView>
                                     <View style={styles.options__shadow}>
-                                        <View style={styles.options__shadow__item}/>
+                                        <View style={styles.options__shadow__item} />
                                     </View>
                                 </View>
                                 <View style={styles.options__text}>
                                     <LetterSpacing text={strings('dashboardStack.exchange')}
-                                                   textStyle={styles.options__text} letterSpacing={.7}/>
+                                        textStyle={styles.options__text} letterSpacing={.7} />
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.options__item} onPress={this.shareAddress}>
                                 <View style={styles.options__wrap}>
                                     <GradientView style={styles.options__content} array={styles.qr__bg.array}
-                                                  start={styles.qr__bg.start} end={styles.qr__bg.end}>
+                                        start={styles.qr__bg.start} end={styles.qr__bg.end}>
                                         <View style={{ marginRight: 3 }}>
-                                            <Fontisto color={color} size={23} name={'share'}/>
+                                            <Fontisto color={color} size={23} name={'share'} />
                                         </View>
                                     </GradientView>
                                     <View style={styles.options__shadow}>
-                                        <View style={styles.options__shadow__item}/>
+                                        <View style={styles.options__shadow__item} />
                                     </View>
                                 </View>
                                 <View style={styles.options__text}>
                                     <LetterSpacing text={strings('account.receiveScreen.share')}
-                                                   textStyle={styles.options__text} letterSpacing={.7}/>
+                                        textStyle={styles.options__text} letterSpacing={.7} />
                                 </View>
                             </TouchableOpacity>
                         </View>

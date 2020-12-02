@@ -21,6 +21,8 @@ export default function SubSettingListItem(props) {
         title,
         subtitle,
         checked,
+        radioButtonFirst,
+        withoutLine
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -31,19 +33,34 @@ export default function SubSettingListItem(props) {
             activeOpacity={0.8}
             disabled={checked}
         >
-            <View style={[styles.mainContent, last && styles.noBorder]}>
-                <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
-                    <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
-                    {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
+            {radioButtonFirst ?
+                <View style={[styles.mainContent, last && styles.noBorder]}>
+                    <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>
+                        <RadioButton
+                            onChange={onPress}
+                            checked={checked}
+                        />
+                    </View>
+                    <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
+                        <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                        {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
+                    </View>
                 </View>
-                <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>
-                    <RadioButton
-                        onChange={onPress}
-                        checked={checked}
-                    />
-                </View>
-            </View>
-            {!last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
+                :
+                <View style={[styles.mainContent, last && styles.noBorder]}>
+                    <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
+                        <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                        {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
+                    </View>
+                    <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>
+                        <RadioButton
+                            onChange={onPress}
+                            checked={checked}
+                        />
+                    </View>
+                </View>}
+            {withoutLine ? null :
+                !last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
         </TouchableOpacity>
     )
 }

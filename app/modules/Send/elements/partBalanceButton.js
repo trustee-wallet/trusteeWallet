@@ -34,7 +34,8 @@ const styles = {
         width: '22%',
         borderRadius: 10,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        borderColor: '#404040'
     },
     text: {
         fontFamily: 'Montserrat-Bold',

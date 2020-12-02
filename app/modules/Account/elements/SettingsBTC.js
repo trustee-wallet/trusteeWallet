@@ -26,6 +26,8 @@ import BlocksoftPrettyStrings from '../../../../crypto/common/BlocksoftPrettyStr
 
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 import ListItem from '../../../components/elements/new/list/ListItem/Setting'
+import SubSetting from '../../../components/elements/new/list/ListItem/SubSetting'
+import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
 
 class SettingsBTC extends Component {
 
@@ -33,7 +35,8 @@ class SettingsBTC extends Component {
         super(props)
         this.state = {
             xpubs: false,
-            xpubsGenerating: false
+            xpubsGenerating: false,
+            dropMenu: false
         }
     }
 
@@ -83,6 +86,12 @@ class SettingsBTC extends Component {
         setLoaderStatus(false)
     }
 
+    toggleDropMenu = () => {
+        this.setState({
+            dropMenu: !this.state.dropMenu
+        })
+    }
+
 
     _loadXpubs = async () => {
         const { wallet } = this.props
@@ -103,6 +112,76 @@ class SettingsBTC extends Component {
         copyToClipboard(copy)
 
         Toast.setMessage(strings('toast.copied')).show()
+    }
+
+    showLegaceSegwitHandle = (btcLegacyOrSegWit, color) => {
+        return (
+            <View style={{ paddingHorizontal: 30 }}>
+                <SubSetting
+                    checked={btcLegacyOrSegWit === 'segwit'}
+                    title={strings('settings.walletList.showSegWit')}
+                    onPress={() => this.toggleAddress('segwit', btcLegacyOrSegWit)}
+                    radioButtonFirst={true}
+                    withoutLine={true}
+                />
+                <SubSetting
+                    checked={btcLegacyOrSegWit === 'legacy'}
+                    title={strings('settings.walletList.showLegacy')}
+                    onPress={() => this.toggleAddress('legacy', btcLegacyOrSegWit)}
+                    radioButtonFirst={true}
+                    withoutLine={true}
+                />
+            </View>
+            // <View style={[styles.settings__row, { paddingHorizontal: 30 }]}>
+            //     <Text style={[styles.settings__title, {
+            //         marginTop: 10,
+            //         marginBottom: 5,
+            //         fontSize: 14,
+            //         fontFamily: 'Montserrat-Bold'
+            //     }]}>
+            //         {strings('settings.walletList.accountSetting')}
+            //     </Text>
+            //     <TouchableOpacity
+            //         style={styles.mnemonicLength__item}
+            //         disabled={btcLegacyOrSegWit === 'segwit'}
+            //         onPress={() => this.toggleAddress('segwit', btcLegacyOrSegWit)}>
+            //         <View style={styles.radio}>
+            //             <View style={btcLegacyOrSegWit === 'segwit' ? {
+            //                 ...styles.radio__dot,
+            //                 backgroundColor: color
+            //             } : null} />
+            //         </View>
+            //         <LetterSpacing text={strings('settings.walletList.showSegWit')}
+            //             textStyle={{ ...styles.settings__title }} letterSpacing={0.5} />
+            //     </TouchableOpacity>
+            //     <TouchableOpacity
+            //         style={styles.mnemonicLength__item}
+            //         disabled={btcLegacyOrSegWit === 'legacy'}
+            //         onPress={() => this.toggleAddress('legacy', btcLegacyOrSegWit)}>
+            //         <View style={styles.radio}>
+            //             <View style={btcLegacyOrSegWit === 'legacy' ? {
+            //                 ...styles.radio__dot,
+            //                 backgroundColor: color
+            //             } : null} />
+            //         </View>
+            //         <LetterSpacing text={strings('settings.walletList.showLegacy')}
+            //             textStyle={{ ...styles.settings__title }} letterSpacing={0.5} />
+            //     </TouchableOpacity>
+            //     <TouchableOpacity
+            //         style={styles.mnemonicLength__item}
+            //         disabled={btcLegacyOrSegWit === 'two_addresses'}
+            //         onPress={() => this.toggleAddress('two_addresses', btcLegacyOrSegWit)}>
+            //         <View style={styles.radio}>
+            //             <View style={btcLegacyOrSegWit === 'two_addresses' ? {
+            //                 ...styles.radio__dot,
+            //                 backgroundColor: color
+            //             } : null} />
+            //         </View>
+            //         <LetterSpacing text={strings('settings.walletList.showSegWitAndLegacy')}
+            //             textStyle={{ ...styles.settings__title }} letterSpacing={0.5} />
+            //     </TouchableOpacity>
+            // </View>
+        )
     }
 
 
@@ -147,39 +226,51 @@ class SettingsBTC extends Component {
             }
             let val3S = ''
             if (val1) {
-                val1S = BlocksoftPrettyStrings.makeCut(val1, 14)
+                val1S = BlocksoftPrettyStrings.makeCut(val1, 10)
             }
             if (val2) {
-                val2S = BlocksoftPrettyStrings.makeCut(val2, 14)
+                val2S = BlocksoftPrettyStrings.makeCut(val2, 10)
             }
             if (val3) {
-                val3S = BlocksoftPrettyStrings.makeCut(val3, 14)
+                val3S = BlocksoftPrettyStrings.makeCut(val3, 10)
             }
             xpubsHtml =
-                <View>
-                    <View style={styles.settings__row}>
+                <View style={{ paddingBottom: 10, paddingLeft: 26 }}>
+                    <View style={{...styles.settings__row, paddingTop: 0 }}>
                         <View style={styles.settings__content}>
-                            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
+                            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, flexDirection: 'row' }}>
                                 <TouchableOpacity onPress={() => this.handleCopy(val1)}>
-                                    <Text>{val1S}</Text>
+                                    <Text style={styles.publicKey}>{val1S}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.handleCopy(val1)}
+                                    style={styles.copyBtn}>
+                                    <Copy name="content-copy" size={15} color={'#939393'} />
                                 </TouchableOpacity>
                             </View>
                         </View>
                     </View>
                     <View style={styles.settings__row}>
                         <View style={styles.settings__content}>
-                            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
+                            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, flexDirection: 'row' }}>
                                 <TouchableOpacity onPress={() => this.handleCopy(val2)}>
-                                    <Text>{val2S}</Text>
+                                    <Text style={styles.publicKey}>{val2S}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.handleCopy(val2)}
+                                    style={styles.copyBtn}>
+                                    <Copy name="content-copy" size={15} color={'#939393'} />
                                 </TouchableOpacity>
                             </View>
                         </View>
                     </View>
                     <View style={styles.settings__row}>
                         <View style={styles.settings__content}>
-                            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
+                            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, flexDirection: 'row' }}>
                                 <TouchableOpacity onPress={() => this.handleCopy(val3)}>
-                                    <Text>{val3S}</Text>
+                                    <Text style={styles.publicKey}>{val3S}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.handleCopy(val3)}
+                                    style={styles.copyBtn}>
+                                    <Copy name="content-copy" size={15} color={'#939393'} />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -190,9 +281,9 @@ class SettingsBTC extends Component {
         return (
             <>
                 <View style={styles.settings__row}>
-                    <Text style={styles.settings__main__title}>{strings('account.assetSettings')}</Text>
+                    <LetterSpacing text={strings('account.assetSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
                 </View>
-                <View style={{ marginVertical: GRID_SIZE }}>
+                <View >
                     <ListItem
                         title={strings('settings.walletList.useUnconfirmed')}
                         iconType="pinCode"
@@ -213,66 +304,30 @@ class SettingsBTC extends Component {
                         onPress={this.handleEnableHD}
                         rightContent="switch"
                         switchParams={{ value: !!wallet.walletIsHd, onPress: this.handleEnableHD }}
+                        disabledRightContent={wallet.walletIsHd ? true : false}
+                        ExtraView={() => {
+                            return (xpubsHtml)
+                        }
+                        }
                     />
-                    <View style={styles.settings__row}>
-                        {xpubsHtml}
-                    </View>
+
                     <ListItem
-                        title={strings('settings.walletList.useSegWit') + ' rest'}
+                        title={strings('settings.walletList.changeSetting')}
                         iconType="pinCode"
                         onPress={this.handleUseLegacy}
                         rightContent="switch"
                         switchParams={{ value: !walletUseLegacy, onPress: this.handleUseLegacy }}
                     />
-                </View>
-                <View style={[styles.settings__row, { paddingHorizontal: 30 }]}>
-                    <Text style={[styles.settings__title, {
-                        marginTop: 10,
-                        marginBottom: 5,
-                        fontSize: 14,
-                        fontFamily: 'Montserrat-Bold'
-                    }]}>
-                        {strings('settings.walletList.accountSetting')}
-                    </Text>
-                    <TouchableOpacity
-                        style={styles.mnemonicLength__item}
-                        disabled={btcLegacyOrSegWit === 'segwit'}
-                        onPress={() => this.toggleAddress('segwit', btcLegacyOrSegWit)}>
-                        <View style={styles.radio}>
-                            <View style={btcLegacyOrSegWit === 'segwit' ? {
-                                ...styles.radio__dot,
-                                backgroundColor: color
-                            } : null}/>
-                        </View>
-                        <LetterSpacing text={strings('settings.walletList.showSegWit')}
-                                       textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.mnemonicLength__item}
-                        disabled={btcLegacyOrSegWit === 'legacy'}
-                        onPress={() => this.toggleAddress('legacy', btcLegacyOrSegWit)}>
-                        <View style={styles.radio}>
-                            <View style={btcLegacyOrSegWit === 'legacy' ? {
-                                ...styles.radio__dot,
-                                backgroundColor: color
-                            } : null}/>
-                        </View>
-                        <LetterSpacing text={strings('settings.walletList.showLegacy')}
-                                       textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
-                    </TouchableOpacity>
-                <TouchableOpacity
-                        style={styles.mnemonicLength__item}
-                        disabled={btcLegacyOrSegWit === 'two_addresses'}
-                        onPress={() => this.toggleAddress('two_addresses', btcLegacyOrSegWit)}>
-                        <View style={styles.radio}>
-                            <View style={btcLegacyOrSegWit === 'two_addresses' ? {
-                                ...styles.radio__dot,
-                                backgroundColor: color
-                            } : null}/>
-                        </View>
-                        <LetterSpacing text={strings('settings.walletList.showSegWitAndLegacy')}
-                                       textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
-                    </TouchableOpacity>
+                    <ListItem
+                        title={strings('settings.walletList.accountAddress')}
+                        iconType="pinCode"
+                        onPress={this.toggleDropMenu}
+                        rightContent={this.state.dropMenu ? 'arrow_up' : "arrow_down"}
+                        switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
+                        type={'dropdown'}
+                        ExtraView={() => this.showLegaceSegwitHandle(btcLegacyOrSegWit, color)}
+                        subtitle={'DEFALUT'}
+                    />
                 </View>
             </>
         )
@@ -310,10 +365,9 @@ const styles = {
     },
     settings__main__title: {
         marginLeft: 15,
-        marginBottom: 10,
         marginTop: -8,
         color: '#404040',
-        fontSize: 16,
+        fontSize: 12,
         fontFamily: 'Montserrat-Bold'
     },
     settings__title: {
@@ -372,5 +426,16 @@ const styles = {
         height: 10,
         borderRadius: 10,
         backgroundColor: '#6B36A8'
+    },
+    copyBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 3,
+        marginLeft: 10
+    },
+    publicKey: {
+        fontFamily: 'Montserrat-Medium',
+        fontSize: 14,
+        color: '#404040'
     }
 }

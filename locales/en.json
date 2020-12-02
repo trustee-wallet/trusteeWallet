@@ -270,13 +270,13 @@
       "on": "On",
       "totalBalance": "Total balance",
       "useUnconfirmed": "Use unconfirmed transactions",
-      "allowReplaceByFee": "Edit the transaction before confirmation by miners",
-      "changeSetting": "Collect Change to",
+      "allowReplaceByFee": "Editing the transaction before confirmation by miners",
+      "changeSetting": "Collect Change to SegWit",
       "useLegacy": "Use Legacy",
       "useSegWit": "Use SegWit",
-      "showLegacy": "Show Legacy",
-      "showSegWit": "Show SegWit",
-      "accountSetting": "Account settings",
+      "showLegacy": "Legacy",
+      "showSegWit": "SegWit",
+      "accountAddress": "Select visible address",
       "showSegWitAndLegacy": "Show SegWit and Legacy",
       "hideCommissionTrans": "Hide commission payment transactions",
       "checkFrozen" : "Scan frozen balance",
@@ -677,6 +677,9 @@
     "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}",
     "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations or turn on usage of unconfirmed transactions",
     "publicFioAddressNotFound": "%{symbol} public address is not associated with specified FIO address",
+    "setting": {
+      "title": "Advanced"
+    },
     "confirmModal": {
       "title": "Do you confirm sending?",
       "titleSpeedUp": "Do you confirm speeding up incoming transaction %{hash}?",
