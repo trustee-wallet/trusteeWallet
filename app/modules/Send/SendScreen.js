@@ -14,8 +14,8 @@ import AsyncStorage from '@react-native-community/async-storage'
 
 
 import TextView from '../../components/elements/Text'
-import AddressInput from './elements/Input'
-import AmountInput from '../../components/elements/Input'
+import AddressInput from '../../components/elements/Input'
+import AmountInput from './elements/Input'
 import MemoInput from '../../components/elements/Input'
 import Input from '../../components/elements/Input'
 import TextareaInput from '../../components/elements/Input'
@@ -113,7 +113,8 @@ class SendScreen extends Component {
             isFioPayment: false,
 
             copyAddress: false,
-            countedFees: false
+            countedFees: false,
+            balancePart: 0
         }
         this.addressInput = React.createRef()
         this.memoInput = React.createRef()
@@ -252,7 +253,7 @@ class SendScreen extends Component {
 
     handleChangeEquivalentType = () => {
         const { currencySymbol } = this.state.cryptoCurrency
-        const { basicCurrencyCode } = this.state.account
+        const { basicCurrencySymbol } = this.state.account
 
         const inputType = this.state.inputType === 'CRYPTO' ? 'FIAT' : 'CRYPTO'
 
@@ -272,10 +273,7 @@ class SendScreen extends Component {
         }
 
         this.setState({
-            amountInputMark: strings('send.equivalent', {
-                amount: amountEquivalent,
-                symbol: this.state.inputType === 'FIAT' ? basicCurrencyCode : currencySymbol
-            }),
+            amountInputMark: this.state.inputType === 'FIAT' ? `~ ${basicCurrencySymbol} ${amountEquivalent}` : `~${amountEquivalent} ${currencySymbol}`,
             amountEquivalent,
             inputType
         })
@@ -352,7 +350,7 @@ class SendScreen extends Component {
             }
 
             setLoaderStatus(false)
-
+            console.log('currencyBalanceAmount: ', amount, 'currencyBalanceAmountRaw: ', transferAllCount.selectedTransferAllBalance)
             return { currencyBalanceAmount: amount, currencyBalanceAmountRaw: transferAllCount.selectedTransferAllBalance }
 
 
@@ -396,6 +394,7 @@ class SendScreen extends Component {
 
         const { account, cryptoCurrency, toTransactionJSON, useAllFunds, fioRequestDetails, isFioPayment, amountEquivalent, inputType, countedFees } = this.state
 
+        console.log('hello', countedFees)
 
         const addressValidation = await this.addressInput.handleValidate()
         const valueValidation = await this.valueInput.handleValidate()
@@ -633,6 +632,7 @@ class SendScreen extends Component {
                     currencyCode: cryptoCurrency.currencyCode,
                     countedFees
                 }
+                console.log('data', data.countedFees)
 
                 NavStore.goNext('ConfirmSendScreen', {
                     confirmSendScreenParam: data,
@@ -689,7 +689,7 @@ class SendScreen extends Component {
         if (amount > 0) {
             this.setState({
                 amountEquivalent: amount,
-                amountInputMark: strings('send.equivalent', { amount, symbol })
+                amountInputMark: `~${symbol} ${amount}`
             })
         }
         IS_CALLED_BACK = false
@@ -864,14 +864,12 @@ class SendScreen extends Component {
         const { type } = this.props.send.data
 
         const prev = NavStore.getPrevRoute().routeName
+
+        const notEquivalentValue = this.state.amountInputMark ? this.state.amountInputMark : this.state.inputType === 'CRYPTO' ?
+            `~ ${this.state.account.basicCurrencySymbol || '$'} 0.00` : `0.00 ${this.state.cryptoCurrency.currencySymbol}`
+
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
-                {/* <Navigation
-                    title={strings('send.title', { currency: currencySymbol })}
-                    CustomComponent={this.renderAccountDetail}
-                    backAction={this.closeAction}
-                    closeAction={this.closeAction}
-                /> */}
                 <Header
                     leftType='back'
                     leftAction={this.closeAction}
@@ -889,66 +887,99 @@ class SendScreen extends Component {
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={focused ? styles.wrapper__content_active : styles.wrapper__content}
                         style={styles.wrapper__scrollView}>
-                            {/* <View style={{ flexDirection: 'column', width: SCREEN_WIDTH, minHeight: WINDOW_HEIGHT - 100, }}> */}
-                                {/* <TextView style={{ height: 70 }}>
-                                {description}
-                            </TextView> */}
-
-                                <AddressInput
-                                style={{ marginTop: 20 }}
-                                ref={component => this.addressInput = component}
-                                id={addressInput.id}
+                        <View style={{ width: SCREEN_WIDTH, marginLeft: -30 }}>
+                            <AmountInput
+                                ref={component => this.valueInput = component}
+                                id={amountInput.id}
                                 onFocus={() => this.onFocus()}
-                                name={strings('send.address')}
-                                type={extendedAddressUiChecker.toUpperCase() + '_ADDRESS'}
-                                subtype={network}
-                                cuttype={currencySymbol}
-                                paste={!disabled}
-                                fio={disabled}
-                                copy={copyAddress}
-                                qr={!disabled}
-                                qrCallback={() => {
-                                    setQRConfig({
-                                        account: this.state.account,
-                                        cryptoCurrency: this.state.cryptoCurrency,
-                                        currencyCode,
-                                        inputType: this.state.inputType,
-                                        title: strings('modal.qrScanner.success.title'),
-                                        description: strings('modal.qrScanner.success.description'),
-                                        type: 'SEND_SCANNER'
-                                    })
-                                    setQRValue('')
-                                    NavStore.goNext('QRCodeScannerScreen')
-                                }}
+                                // autoFocus={true}
+                                name={strings('send.value')}
+                                type={amountInput.type}
+                                decimals={decimals || 10}
+                                additional={amountInput.additional}
+                                bottomLeftText={type !== 'TRADE_SEND' ? amountInputMark : undefined}
+                                keyboardType={'numeric'}
                                 disabled={disabled}
-                                validPlaceholder={true}
-                                callback={this.isFioAddress}
                                 noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
-
+                                callback={(value) => this.amountInputCallback(value, true)}
                             />
-                            <View style={style.line}>
-                                {/* < */}
+                            <View style={{ flexDirection: 'row', justifyContent: "center" }}>
+                                <View style={style.line} />
+                                <TouchableOpacity style={{ position: 'absolute', right: 22, marginTop: -2 }} onPress={this.handleChangeEquivalentType}>
+                                    <Text>{'<>'}</Text>
+                                </TouchableOpacity>
                             </View>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                    <PartBalanceButton
-                                        action={() => console.log(this.state.account.balancePretty * 0.25)}
-                                        text={'25%'}
-                                    />
-                                    <PartBalanceButton
-                                        action={() => console.log(this.state.account.balancePretty * 0.5)}
-                                        text={'50%'}
-                                    />
-                                    <PartBalanceButton
-                                        action={() => console.log(this.state.account.balancePretty * 0.75)}
-                                        text={'75%'}
-                                    />
-                                    <PartBalanceButton
-                                        text={'100%'}
-                                    />
-                                </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 32 }}>
+                                <LetterSpacing text={notEquivalentValue} textStyle={style.notEquivalentValue} letterSpacing={1.5} />
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 16 }}>
+                                <PartBalanceButton
+                                    action={() => {
+                                        if (this.state.inputType === 'FIAT') {
+                                            this.valueInput.state.value = (this.state.account.basicCurrencyBalance * 0.25).toString()
+                                            this.amountInputCallback((this.state.account.basicCurrencyBalance * 0.25), true)
+                                        } else {
+                                            this.valueInput.state.value = (this.state.account.balancePretty * 0.25).toString()
+                                            this.amountInputCallback((this.state.account.balancePretty * 0.25), true)
+                                        }
+                                        
+                                        this.setState({
+                                            balancePart: 0.25,
+                                            useAllFunds: false
+                                        })
+                                    }}
+                                    text={'25%'}
+                                    inverse={this.state.balancePart === 0.25 ? true : false}
+                                />
+                                <PartBalanceButton
+                                    action={() => {
+                                        if (this.state.inputType === 'FIAT') {
+                                            this.valueInput.state.value = (this.state.account.basicCurrencyBalance * 0.5).toString()
+                                            this.amountInputCallback((this.state.account.basicCurrencyBalance * 0.5), true)
+                                        } else {
+                                            this.valueInput.state.value = (this.state.account.balancePretty * 0.5).toString()
+                                            this.amountInputCallback((this.state.account.balancePretty * 0.5), true)
+                                        }
+                                        this.setState({
+                                            balancePart: 0.5,
+                                            useAllFunds: false
+                                        })
+                                    }}
+                                    text={'50%'}
+                                    inverse={this.state.balancePart === 0.5 ? true : false}
+                                />
+                                <PartBalanceButton
+                                    action={() => {
+                                        if (this.state.inputType === 'FIAT') {
+                                            this.valueInput.state.value = (this.state.account.basicCurrencyBalance * 0.75).toString()
+                                            this.amountInputCallback((this.state.account.basicCurrencyBalance * 0.75), true)
+                                        } else {
+                                            this.valueInput.state.value = (this.state.account.balancePretty * 0.75).toString()
+                                            this.amountInputCallback((this.state.account.balancePretty * 0.75), true)
+                                        }
+                                        this.setState({
+                                            balancePart: 0.75,
+                                            useAllFunds: false
+                                        })
+                                    }}
+                                    text={'75%'}
+                                    inverse={this.state.balancePart === 0.75 ? true : false}
+                                />
+                                <PartBalanceButton
+                                    action={() => {
+                                        this.setState({
+                                            useAllFunds: !this.state.useAllFunds,
+                                            balancePart: 0
+                                        })
+                                        this.handleTransferAll()
+                                    }}
+                                    text={'100%'}
+                                    inverse={this.state.useAllFunds ? true : false}
+                                />
+                            </View>
 
-                                {/* <AddressInput
-                                style={{ marginTop: 20 }}
+                            <AddressInput
+                                style={{ marginTop: 20, marginHorizontal: 16 }}
                                 ref={component => this.addressInput = component}
                                 id={addressInput.id}
                                 // onFocus={() => this.onFocus()}
@@ -977,11 +1008,11 @@ class SendScreen extends Component {
                                 validPlaceholder={true}
                                 callback={this.isFioAddress}
                                 noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
-
                             />
                             {
                                 currencyCode === 'XRP' ?
                                     <MemoInput
+                                        style={{marginHorizontal: 16}}
                                         ref={component => this.memoInput = component}
                                         id={memoInput.id}
                                         disabled={disabled}
@@ -996,6 +1027,7 @@ class SendScreen extends Component {
                             {
                                 currencyCode === 'XMR' ?
                                     <MemoInput
+                                        style={{marginHorizontal: 16}}
                                         ref={component => this.memoInput = component}
                                         id={memoInput.id}
                                         disabled={disabled}
@@ -1005,7 +1037,7 @@ class SendScreen extends Component {
                                     /> : null
                             }
 
-                            <AmountInput
+                            {/* <AmountInput
                                 ref={component => this.valueInput = component}
                                 id={amountInput.id}
                                 // onFocus={() => this.onFocus()}
@@ -1031,7 +1063,7 @@ class SendScreen extends Component {
                                 disabled={disabled}
                                 noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
                                 callback={(value) => this.amountInputCallback(value, true)}
-                            />
+                            /> */}
 
                             <View style={{ flexDirection: 'row' }}>
                                 <Input
@@ -1041,12 +1073,13 @@ class SendScreen extends Component {
                                     name={strings('send.comment')}
                                     type={'OPTIONAL'}
                                     isTextarea={true}
-                                    style={{ marginRight: 2 }} />
+                                    style={{ marginRight: 2, marginHorizontal: 16 }} />
                             </View>
 
                             {
                                 isFioPayment ?
                                     <MemoInput
+                                        style={{marginHorizontal: 16}}
                                         ref={component => this.memoInput = component}
                                         id={memoInput.id}
                                         disabled={disabled}
@@ -1057,7 +1090,7 @@ class SendScreen extends Component {
                             }
 
                             {this.renderEnoughFundsError()}
-                        </View> */}
+                        </View>
                         <TwoButtons
                             mainButton={{
                                 // disabled: ,
@@ -1101,6 +1134,13 @@ const style = {
         backgroundColor: '#DADADA',
         height: 1,
         width: '75%',
-        alignSelf: 'center'
+        alignSelf: 'center',
+        marginVertical: 6
+    },
+    notEquivalentValue: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 15,
+        lineHeight: 19,
+        color: '#999999'
     }
 }

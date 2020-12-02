@@ -43,6 +43,7 @@ import FioAddresses from '../modules/FIO/FioAddresses'
 import FioMainSettings from '../modules/FIO/FioMainSettings'
 import FioSettings from '../modules/FIO/FioSettings'
 import AccountScreen from '../modules/Account/AccountScreen'
+import AccountSettingScreen from '../modules/Account/AccountSettings'
 import ReceiveScreen from '../modules/Account/ReceiveScreen'
 import TransactionScreen from '../modules/Account/TransactionScreen'
 import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
@@ -146,6 +147,13 @@ const MainNavigator = createStackNavigator({
 
         AccountScreen: {
             screen: AccountScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        AccountSettings: {
+            screen: AccountSettingScreen,
             navigationOptions: {
                 headerShown: false
             }

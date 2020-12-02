@@ -163,10 +163,11 @@ class Account extends Component {
         NavStore.goNext('ReceiveScreen')
     }
 
-    handleSetMode = () => {
-        this.setState({
-            mode: this.state.mode === 'TRANSACTIONS' ? 'SETTINGS' : 'TRANSACTIONS'
-        })
+    accountSetting = (account) => {
+        NavStore.goNext('AccountSettings', {account} )
+        // this.setState({
+        //     mode: this.state.mode === 'TRANSACTIONS' ? 'SETTINGS' : 'TRANSACTIONS'
+        // })
     }
 
     handleSend = () => {
@@ -733,40 +734,40 @@ class Account extends Component {
         let settingsComponent = null
         if (account.currencyCode === 'BTC') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
-                onPress={this.handleSetMode}><View
+                onPress={() => this.accountSetting(account.currencyCode)}><View
                     style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
                         color={`#404040`} /></View></TouchableOpacity>
-            settingsComponent =
-                <SettingsBTC containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-                    wallet={mainStore.selectedWallet} />
+            // settingsComponent =
+            //     <SettingsBTC containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
+            //         wallet={mainStore.selectedWallet} />
         } else if (account.currencyCode === 'USDT') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
-                onPress={this.handleSetMode}><View
+                onPress={() => this.accountSetting(account.currencyCode)}><View
                     style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
                         color={`#404040`} /></View></TouchableOpacity>
-            settingsComponent =
-                <SettingsUSDT containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-                    wallet={mainStore.selectedWallet} account={account} />
+            // settingsComponent =
+            //     <SettingsUSDT containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
+            //         wallet={mainStore.selectedWallet} account={account} />
         } else if (account.currencyCode === 'FIO') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={() => NavStore.goNext('FioMainSettings')}>
                 <View style={{ paddingVertical: 12 }}>
                     <IconAwesome size={20} name="gear" color={`#404040`} /></View></TouchableOpacity>
         } else if (account.currencyCode === 'XMR') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
-                onPress={this.handleSetMode}><View
+                onPress={() => this.accountSetting(account.currencyCode)}><View
                     style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
                         color={`#404040`} /></View></TouchableOpacity>
-            settingsComponent =
-                <SettingsXMR containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-                    wallet={mainStore.selectedWallet} account={account} />
+            // settingsComponent =
+            //     <SettingsXMR containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
+            //         wallet={mainStore.selectedWallet} account={account} />
         } else if (account.currencyCode === 'TRX') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
-                onPress={this.handleSetMode}><View
+                onPress={() => this.accountSetting(account.currencyCode)}><View
                     style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
                         color={`#404040`} /></View></TouchableOpacity>
-            settingsComponent =
-                <SettingsTRX containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-                    wallet={mainStore.selectedWallet} account={account} />
+            // settingsComponent =
+            //     <SettingsTRX containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
+            //         wallet={mainStore.selectedWallet} account={account} />
         }
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor
@@ -927,7 +928,6 @@ class Account extends Component {
                                     <View style={{ marginBottom: 60 }} />
                             }
                         </View>
-                        {settingsComponent}
                     </View>
                 </ScrollView>
                 <GradientView style={stl.bottomButtons} array={colors.accountScreen.bottomGradient} start={styles.containerBG.start} end={styles.containerBG.end} />

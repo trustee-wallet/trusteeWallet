@@ -24,6 +24,9 @@ import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboar
 import Toast from '../../../services/UI/Toast/Toast'
 import BlocksoftPrettyStrings from '../../../../crypto/common/BlocksoftPrettyStrings'
 
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import ListItem from '../../../components/elements/new/list/ListItem/Setting'
+
 class SettingsBTC extends Component {
 
     constructor(props) {
@@ -75,7 +78,7 @@ class SettingsBTC extends Component {
             }
             setLoaderStatus(false)
         } catch (e) {
-            Log.log('Settigs.BTC.toggleSegWit ' + e.message, {oldValue, newValue})
+            Log.log('Settigs.BTC.toggleSegWit ' + e.message, { oldValue, newValue })
         }
         setLoaderStatus(false)
     }
@@ -104,6 +107,8 @@ class SettingsBTC extends Component {
 
 
     render() {
+
+        const { colors, GRID_SIZE } = this.context
 
         const { wallet, containerStyle, settingsStore, mainStore } = this.props
 
@@ -183,117 +188,42 @@ class SettingsBTC extends Component {
         }
 
         return (
-            <View style={[styles.settings, containerStyle]}>
+            <>
                 <View style={styles.settings__row}>
                     <Text style={styles.settings__main__title}>{strings('account.assetSettings')}</Text>
                 </View>
-                <View style={styles.settings__row}>
-                    <View style={styles.settings__content}>
-                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
-                            <LetterSpacing text={strings('settings.walletList.useUnconfirmed')}
-                                           textStyle={{ ...styles.settings__title }} letterSpacing={0.5}
-                                           numberOfLines={2}/>
-                        </View>
-                        <View>
-                            {
-                                Platform.OS === 'android' ?
-                                    <Switch
-                                        thumbColor="#fff"
-                                        trackColor={{ true: '#864DD9', false: '#dadada' }}
-                                        onValueChange={this.handleUseUnconfirmed}
-                                        value={!!wallet.walletUseUnconfirmed}
-                                        disabled={false}/>
-                                    :
-                                    <Switch
-                                        trackColor={{ true: '#864DD9' }}
-                                        style={{ marginTop: -3, transform: [{ scaleX: .7 }, { scaleY: .7 }] }}
-                                        onValueChange={this.handleUseUnconfirmed}
-                                        value={!!wallet.walletUseUnconfirmed}
-                                        disabled={false}/>
-                            }
-                        </View>
+                <View style={{ marginVertical: GRID_SIZE }}>
+                    <ListItem
+                        title={strings('settings.walletList.useUnconfirmed')}
+                        iconType="pinCode"
+                        onPress={this.handleUseUnconfirmed}
+                        rightContent="switch"
+                        switchParams={{ value: !!wallet.walletUseUnconfirmed, onPress: this.handleUseUnconfirmed }}
+                    />
+                    <ListItem
+                        title={strings('settings.walletList.allowReplaceByFee')}
+                        iconType="pinCode"
+                        onPress={this.handleAllowReplaceByFee}
+                        rightContent="switch"
+                        switchParams={{ value: !!wallet.walletAllowReplaceByFee, onPress: this.handleAllowReplaceByFee }}
+                    />
+                    <ListItem
+                        title={'HD'}
+                        iconType="pinCode"
+                        onPress={this.handleEnableHD}
+                        rightContent="switch"
+                        switchParams={{ value: !!wallet.walletIsHd, onPress: this.handleEnableHD }}
+                    />
+                    <View style={styles.settings__row}>
+                        {xpubsHtml}
                     </View>
-                </View>
-                <View style={styles.settings__row}>
-                    <View style={styles.settings__content}>
-                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
-                            <LetterSpacing text={strings('settings.walletList.allowReplaceByFee')}
-                                           textStyle={{ ...styles.settings__title }} letterSpacing={0.5}
-                                           numberOfLines={2}/>
-                        </View>
-                        <View>
-                            {
-                                Platform.OS === 'android' ?
-                                    <Switch
-                                        thumbColor="#fff"
-                                        trackColor={{ true: '#864DD9', false: '#dadada' }}
-                                        onValueChange={this.handleAllowReplaceByFee}
-                                        value={!!wallet.walletAllowReplaceByFee}
-                                        disabled={false}/>
-                                    :
-                                    <Switch
-                                        trackColor={{ true: '#864DD9' }}
-                                        style={{ marginTop: -3, transform: [{ scaleX: .7 }, { scaleY: .7 }] }}
-                                        onValueChange={this.handleAllowReplaceByFee}
-                                        value={!!wallet.walletAllowReplaceByFee}
-                                        disabled={false}/>
-                            }
-                        </View>
-                    </View>
-                </View>
-                <View style={[styles.settings__row]}>
-                    <View style={styles.settings__content}>
-                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
-                            <LetterSpacing text={'HD'} textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
-                        </View>
-                        <View>
-                            {
-                                Platform.OS === 'android' ?
-                                    <Switch
-                                        thumbColor="#fff"
-                                        trackColor={{ true: '#864DD9', false: '#dadada' }}
-                                        onValueChange={this.handleEnableHD}
-                                        value={!!wallet.walletIsHd}
-                                        disabled={!!wallet.walletIsHd}/>
-                                    :
-                                    <Switch
-                                        trackColor={{ true: '#864DD9' }}
-                                        style={{ marginTop: -3, transform: [{ scaleX: .7 }, { scaleY: .7 }] }}
-                                        onValueChange={this.handleEnableHD}
-                                        value={!!wallet.walletIsHd}
-                                        disabled={!!wallet.walletIsHd}/>
-                            }
-                        </View>
-                    </View>
-                </View>
-                {xpubsHtml}
-                <View style={[styles.settings__row, { paddingHorizontal: 30 }]}>
-                    <Text style={[styles.settings__title, {
-                        marginTop: 10,
-                        marginBottom: 5,
-                        fontSize: 14,
-                        fontFamily: 'Montserrat-Bold'
-                    }]}>
-                        {strings('settings.walletList.changeSetting')}
-                    </Text>
-                    <TouchableOpacity
-                        style={styles.mnemonicLength__item}
-                        onPress={this.handleUseLegacy}>
-                        <View style={styles.radio}>
-                            <View style={!walletUseLegacy ? { ...styles.radio__dot, backgroundColor: color } : null}/>
-                        </View>
-                        <LetterSpacing text={strings('settings.walletList.useSegWit')}
-                                       textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.mnemonicLength__item}
-                        onPress={this.handleUseLegacy}>
-                        <View style={styles.radio}>
-                            <View style={walletUseLegacy ? { ...styles.radio__dot, backgroundColor: color } : null}/>
-                        </View>
-                        <LetterSpacing text={strings('settings.walletList.useLegacy')}
-                                       textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
-                    </TouchableOpacity>
+                    <ListItem
+                        title={strings('settings.walletList.useSegWit') + ' rest'}
+                        iconType="pinCode"
+                        onPress={this.handleUseLegacy}
+                        rightContent="switch"
+                        switchParams={{ value: !walletUseLegacy, onPress: this.handleUseLegacy }}
+                    />
                 </View>
                 <View style={[styles.settings__row, { paddingHorizontal: 30 }]}>
                     <Text style={[styles.settings__title, {
@@ -330,7 +260,7 @@ class SettingsBTC extends Component {
                         <LetterSpacing text={strings('settings.walletList.showLegacy')}
                                        textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
                     </TouchableOpacity>
-                    <TouchableOpacity
+                <TouchableOpacity
                         style={styles.mnemonicLength__item}
                         disabled={btcLegacyOrSegWit === 'two_addresses'}
                         onPress={() => this.toggleAddress('two_addresses', btcLegacyOrSegWit)}>
@@ -344,8 +274,7 @@ class SettingsBTC extends Component {
                                        textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
                     </TouchableOpacity>
                 </View>
-
-            </View>
+            </>
         )
     }
 }
@@ -362,6 +291,8 @@ const mapDispatchToProps = (dispatch) => {
         dispatch
     }
 }
+
+SettingsBTC.contextType = ThemeContext
 
 export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(SettingsBTC)
 
