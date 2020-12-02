@@ -397,7 +397,7 @@
     "transaction": {
       "pay": "Pay",
       "remove" : "Hide",
-      "removeRBF" : "Remove by Replace",
+      "removeRBF" : "Return funds",
       "destinationTag": "Destination tag",
       "paymentId": "Payment ID",
       "nonce": "Nonce",
