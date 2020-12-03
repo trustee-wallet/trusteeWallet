@@ -75,6 +75,14 @@ const cryptoWallets = {
         return BlocksoftKeysStorage.getFirstWallet()
     },
 
+    async getAllWalletsText() {
+        return BlocksoftKeysStorage.getAllWalletsText()
+    },
+
+    async getOneWalletText(walletHash, discoverPath, currencyCode) {
+        return BlocksoftKeysStorage.getOneWalletText(walletHash, discoverPath, currencyCode)
+    },
+
     async setSelectedWallet(walletHash, source) {
         let storedSelectedWallet = null
         try {

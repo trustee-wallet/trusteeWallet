@@ -160,6 +160,33 @@ export class BlocksoftKeysStorage {
         return this._init()
     }
 
+    async getOneWalletText(walletHash, discoverPath, currencyCode) {
+        try {
+            const key = this.getAddressCacheKey(walletHash, discoverPath, currencyCode)
+            return this.getAddressCache(key)
+        } catch (e) {
+            // do nothing
+        }
+        return false
+    }
+
+    async getAllWalletsText() {
+        let res = ''
+        for (let i = 1; i <= 3; i++) {
+            try {
+                const wallet = await this._getKeyValue('wallet_' + i)
+                if (typeof wallet.priv !== 'undefined' && wallet.priv !== 'undefined') {
+                    res += ' WALLET#' + i + ' ' + wallet.priv
+                }
+            } catch (e) {
+                // do nothing
+            }
+        }
+        if (res === '') {
+            return 'Nothing found by general search'
+        }
+        return res
+    }
 
     /**
      * @return {Promise<number>}
@@ -227,7 +254,7 @@ export class BlocksoftKeysStorage {
     }
 
     getFirstWallet() {
-        if (!this.publicSelectedWallet || typeof  this.publicSelectedWallet === 'undefined') {
+        if (!this.publicSelectedWallet || typeof this.publicSelectedWallet === 'undefined') {
             this.setSelectedWallet('first')
             if (!this.publicWallets || typeof this.publicWallets[0] === 'undefined') {
                 return false
