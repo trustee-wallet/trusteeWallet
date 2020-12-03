@@ -11,6 +11,15 @@ const settingsDS = new SettingsDS()
 
 const { dispatch } = store
 
+const defaultSettings = {
+    language : 'en-US',
+    notifsStatus : '1',
+    transactionsNotifs : '1',
+    exchangeRatesNotifs : '1',
+    newsNotifs : '1',
+    notifsDevToken : ''
+}
+
 const settingsActions = {
 
     getSetting: async (key) => {
@@ -31,29 +40,24 @@ const settingsActions = {
         }
     },
 
-    getSettings: async () => {
+    getSettings: async (updateStore = true) => {
         try {
             const tmpSettings = await settingsDS.getSettings()
-            const settings = {}
+            const settings = {...defaultSettings}
 
             let key
             for (key in tmpSettings) {
                 settings[key] = tmpSettings[key].paramValue
             }
-            if (typeof settings['language'] === 'undefined') {
-                settings['language'] = 'en-US'
+
+            if (updateStore) {
+                dispatch({
+                    type: 'UPDATE_SETTINGS',
+                    settings
+                })
             }
 
-            // init notifications settings
-            if (typeof settings['notifs_status'] === 'undefined') settings['notifs_status'] = '0'
-            if (typeof settings['transactions_notifs'] === 'undefined') settings['transactions_notifs'] = '1'
-            if (typeof settings['exchange_rates_notifs'] === 'undefined') settings['exchange_rates_notifs'] = '1'
-            if (typeof settings['news_notifs'] === 'undefined') settings['news_notifs'] = '1'
-
-            dispatch({
-                type: 'UPDATE_SETTINGS',
-                settings
-            })
+            return settings
         } catch (e) {
             Log.err('ACT/Settings getSettings error ' + e.message)
         }

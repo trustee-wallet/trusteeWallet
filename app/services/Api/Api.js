@@ -196,7 +196,6 @@ export default {
             if (!res || typeof res.data === 'undefined' || !res.data || typeof res.data[0] === 'undefined') {
                 return []
             }
-            console.log('data', res.data)
             return res.data
         } catch (e) {
             if (config.debug.appErrors) {

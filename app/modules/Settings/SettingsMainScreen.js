@@ -234,7 +234,6 @@ class SettingsMainScreen extends React.Component {
             Toast.setMessage('DEV MODE OFF').show()
 
             await AsyncStorage.setItem('devMode', '0')
-            await AppNotificationListener.unsetDev()
         } else {
             config.devMode = true
 
@@ -246,8 +245,9 @@ class SettingsMainScreen extends React.Component {
             Toast.setMessage('DEV MODE').show()
 
             await AsyncStorage.setItem('devMode', '1')
-            await AppNotificationListener.setLang()
         }
+
+        await AppNotificationListener.updateSubscriptions()
 
         Vibration.vibrate(100)
     }

@@ -52,7 +52,7 @@ class App {
         const navigateToInit = typeof params.navigateToInit !== 'undefined' ? params.navigateToInit : true
         const source = typeof params.source !== 'undefined' ? params.source : ''
         try {
-            // console.log(new Date().toISOString() + ' start ' + source)
+            console.log(new Date().toISOString() + ' start ' + source)
 
             await FilePermissions.init()
 

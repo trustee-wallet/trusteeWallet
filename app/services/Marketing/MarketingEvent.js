@@ -25,6 +25,10 @@ let CACHE_BALANCE = {}
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
 
 class MarketingEvent {
+    DATA = {
+        LOG_TOKEN : ''
+    }
+
     /**
      * @return {Promise<void>}
      */

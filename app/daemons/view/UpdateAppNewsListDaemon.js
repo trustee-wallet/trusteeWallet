@@ -10,6 +10,7 @@ import store from '../../store'
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
 import appNewsActions from '../../appstores/Stores/AppNews/AppNewsActions'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
 
 class UpdateAppNewsListDaemon extends Update {
 
@@ -28,6 +29,8 @@ class UpdateAppNewsListDaemon extends Update {
             return
         }
         this._canUpdate = false
+
+        await AppNotificationListener.getToken()
 
         // nope its bad setLoaderStatus(false) // fix for some error screens
 

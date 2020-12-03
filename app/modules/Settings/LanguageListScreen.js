@@ -50,12 +50,9 @@ class LanguageListScreen extends Component {
 
     setLanguage = async (item) => {
 
-        await AppNotificationListener.unsetLang()
-
         await settingsActions.setSettings('language', item.code)
 
-        await AppNotificationListener.setLang()
-
+        await AppNotificationListener.updateSubscriptionsLater()
 
         this.handleBack()
 
