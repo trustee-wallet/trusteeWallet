@@ -221,7 +221,18 @@
       "import": "Импортировать кошелек",
       "create": "Создать новый кошелек",
       "select": "Выбрать кошелек",
-      "turnOnHD" : "Включить древовидные адреса BTC"
+      "addWallet": {
+        "title": "Add wallet",
+        "importTitle": "Импортировать кошелек",
+        "importSubtitle": "Add wallet with a recovery phrase",
+        "createTitle": "Создать новый кошелек"
+      },
+      "advanced": {
+        "title": "Advanced",
+        "walletNameLabel": "Wallet name",
+        "recoveryPhraseTitle": "Recovery phrase",
+        "recoveryPhraseSubtitle": "Your secret recovery phrase"
+      }
     },
     "security": {
       "title": "Безопасность",
@@ -237,6 +248,9 @@
     },
     "other": {
       "title": "Поддержка и справка",
+      "darkModeTitle": "Dark mode",
+      "darkModeEnabledSubtitle": "Enabled",
+      "darkModeDisabledSubtitle": "Disabled",
       "support": "Поддержка",
       "supportSubtitle": "Наш бот в telegram",
       "lock": "Блокирование экрана",
@@ -261,7 +275,9 @@
       "testerMode": "Тестировщик"
     },
     "walletList": {
-      "title": "Список кошельков",
+      "title": "My wallets",
+      "addWallet": "Add wallet",
+      "backupNeeded": "Back up needed",
       "addedAssets": "Добавленные активы",
       "balance": "Баланс",
       "backup": "Резервировать",
@@ -817,7 +833,9 @@
     }
   },
   "walletBackup": {
-    "pageTitle": "Создать новый кошелек",
+    "titleCreate": "Создать кошелек",
+    "titleBackup": "Резервное копирование",
+    "titleShow": "Recovery phrase",
     "infoScreen": {
       "continue": "Продолжить",
       "text1": "TRUSTEE WALLET никогда и никуда не отправит Вашу фразу восстановления. Поэтому, в случае потери или выхода устройства из строя, единственный способ получить доступ к своим средствам - использовать фразу восстановления",

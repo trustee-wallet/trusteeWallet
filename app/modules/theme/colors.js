@@ -102,6 +102,12 @@ export const lightColors = {
         transactionGradientArray: ['#fff', '#f2f2f2'],
         transactionData: '#999999'
       }
+    },
+    walletManagment: {
+      walletItemBg: ['#ffffff', '#f2f2f2'],
+      walletItemBgActive: ['#F3F1F6', '#F3F1F6'],
+      walletItemBorderColor: '#864DD9',
+      advanceWalletNameBg: '#EBEBEB'
     }
 };
 
@@ -147,7 +153,7 @@ export const darkColors = {
           circleBg: '#FFF',
         },
         header: {
-          bg: '#f7f7f7',
+          bg: '#2E2E2E',
           shadowColor: '#000',
         },
         listItem: {
@@ -209,5 +215,11 @@ export const darkColors = {
         transactionGradientArray: ['#fff', '#f2f2f2'],
         transactionData: '#999999'
       }
+    },
+    walletManagment: {
+      walletItemBg: ['#ffffff', '#f2f2f2'],
+      walletItemBgActive: ['#F3F1F6', '#F3F1F6'],
+      walletItemBorderColor: '#864DD9',
+      advanceWalletNameBg: '#EBEBEB'
     }
 };

@@ -222,7 +222,18 @@
       "import": "Import wallet",
       "create": "Create new wallet",
       "select": "Select wallet",
-      "turnOnHD": "Turn on HD"
+      "addWallet": {
+        "title": "Add wallet",
+        "importTitle": "Import wallet",
+        "importSubtitle": "Add wallet with a recovery phrase",
+        "createTitle": "Create new wallet"
+      },
+      "advanced": {
+        "title": "Advanced",
+        "walletNameLabel": "Wallet name",
+        "recoveryPhraseTitle": "Recovery phrase",
+        "recoveryPhraseSubtitle": "Your secret recovery phrase"
+      }
     },
     "security": {
       "title": "Security",
@@ -238,6 +249,9 @@
     },
     "other": {
       "title": "Other",
+      "darkModeTitle": "Dark mode",
+      "darkModeEnabledSubtitle": "Enabled",
+      "darkModeDisabledSubtitle": "Disabled",
       "support": "Support",
       "supportSubtitle": "Our telegram support bot",
       "lock": "Lock screen",
@@ -262,7 +276,9 @@
       "testerMode": "Tester"
     },
     "walletList": {
-      "title": "Wallet list",
+      "title": "My wallets",
+      "addWallet": "Add wallet",
+      "backupNeeded": "Back up needed",
       "addedAssets": "Added assets",
       "balance": "Balance",
       "backup": "Backup",
@@ -824,7 +840,9 @@
     }
   },
   "walletBackup": {
-    "pageTitle": "Create new wallet",
+    "titleCreate": "Create wallet",
+    "titleBackup": "Backup wallet",
+    "titleShow": "Recovery phrase",
     "infoScreen": {
       "continue": "Continue",
       "text1": "TRUSTEE WALLET never sends your recovery phrase anywhere. Therefore, in case of device loss or failure, the only way to restore access to your funds is to use a recovery phrase.",
@@ -834,13 +852,13 @@
     },
     "step0Screen": {
       "info": "The recovery phrase is the only secret key to your assets. Store it securely!",
-      "showButton": "Click and hold to watch",
+      "showButton": "Press and hold to reveal",
       "next": "Next"
     },
     "step1Screen": {
       "title": "Check",
       "placeholder": "Please, tap each word in the correct order to verify recovery phrase. To remove word from field tap on it again",
-      "showButton": "Click and hold to watch",
+      "showButton": "Press and hold to reveal",
       "next": "Next"
     },
     "settingsScreen": {

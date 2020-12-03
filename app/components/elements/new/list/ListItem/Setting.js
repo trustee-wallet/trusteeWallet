@@ -40,6 +40,8 @@ const getIcon = (iconType, color) => {
             return <NotificationIcon color={color} />
         case 'about':
             return <MaterialCommunityIcon name="information" size={22} style={{ marginLeft: 1, marginTop: 2 }} />
+        case 'darkMode':
+            return <FontAwesomeIcon name="moon-o" color={color} size={23} style={{ marginLeft: 2 }} />
         case 'localCurrency':
             return null; // TODO: add icon when custom icon set is ready
         case 'changePinCode':
@@ -61,6 +63,10 @@ const getIcon = (iconType, color) => {
         case 'exchangeRates':
             return null; // TODO: add icon when custom icon set is ready
         case 'news':
+            return null; // TODO: add icon when custom icon set is ready
+        case 'key':
+            return null; // TODO: add icon when custom icon set is ready
+        case 'importWallet':
             return null; // TODO: add icon when custom icon set is ready
         default: return null
     }
@@ -85,9 +91,10 @@ const getRightContent = (rightContent, params) => {
                     circleActiveColor={colors.common.switch.circleBg}
                     circleInActiveColor={colors.common.switch.circleBg}
                     circleSize={18}
+                    changeValueImmediately={true}
                     switchWidthMultiplier={1.6}
                     outerCircleStyle={{ paddingRight: value ? 5 : 0, paddingLeft: value ? 0 : 5 }}
-                    innerCircleStyle={{ borderColor: value ? colors.common.switch.bgActive : colors.common.switch.bgInactive }}
+                    innerCircleStyle={[!disabled && styles.switchShadow, { borderColor: value ? colors.common.switch.bgActive : colors.common.switch.bgInactive}]}
                 />
             )
         case 'arrow_down':
@@ -228,5 +235,15 @@ const styles = StyleSheet.create({
         fontSize: 13,
         lineHeight: 15,
         letterSpacing: 1.75
+    },
+    switchShadow: {
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        shadowOffset: {
+            width: 0,
+            height: 4
+        },
+        elevation: 4
     }
 })

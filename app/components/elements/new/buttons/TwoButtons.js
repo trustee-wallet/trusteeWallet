@@ -30,21 +30,21 @@ const getIcon = (type) => {
 export default function TwoButtons(props) {
     const {
         mainButton = {},
-        secondaryButton: {
-            type,
-            ...nativeParams
-        } = {}
+        secondaryButton = {}
     } = props
     const { colors, GRID_SIZE } = useTheme()
+    const hasSecodary = !!Object.keys(secondaryButton || {}).length
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity
-                style={[styles.secondaryButton, { backgroundColor: colors.common.button.secondary.bg, marginRight: GRID_SIZE }]}
-                {...nativeParams}
-            >
-                {getIcon(type)}
-            </TouchableOpacity>
+            {hasSecodary && (
+                <TouchableOpacity
+                    style={[styles.secondaryButton, { backgroundColor: colors.common.button.secondary.bg, marginRight: GRID_SIZE }]}
+                    {...secondaryButton}
+                >
+                    {getIcon(secondaryButton.type)}
+                </TouchableOpacity>
+            )}
 
             <Button {...mainButton} containerStyle={styles.mainButton} />
         </View>

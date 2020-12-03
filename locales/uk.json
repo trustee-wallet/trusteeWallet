@@ -221,7 +221,18 @@
       "import": "Імпортувати гаманець",
       "create": "Створити новий гаманець",
       "select": "Обрати гаманець",
-      "turnOnHD" : "Увiмкнути деревовиднi адреси BTC"
+      "addWallet": {
+        "title": "Add wallet",
+        "importTitle": "Импортировать кошелек",
+        "importSubtitle": "Add wallet with a recovery phrase",
+        "createTitle": "Создать новый кошелек"
+      },
+      "advanced": {
+        "title": "Advanced",
+        "walletNameLabel": "Wallet name",
+        "recoveryPhraseTitle": "Recovery phrase",
+        "recoveryPhraseSubtitle": "Your secret recovery phrase"
+      }
     },
     "security": {
       "title": "Безпека",
@@ -237,6 +248,9 @@
     },
     "other": {
       "title": "Підтримка та довідка",
+      "darkModeTitle": "Dark mode",
+      "darkModeEnabledSubtitle": "Enabled",
+      "darkModeDisabledSubtitle": "Disabled",
       "support": "Підтримка",
       "supportSubtitle": "Наш бот в telegram",
       "lock": "Блокування екрану",
@@ -823,7 +837,9 @@
     }
   },
   "walletBackup": {
-    "pageTitle": "Створити новий гаманець",
+    "titleCreate": "Створити гаманець",
+    "titleBackup": "Резервне копіювання",
+    "titleShow": "Recovery phrase",
     "infoScreen": {
       "continue": "Продовжити",
       "text1": "TRUSTEE WALLET ніколи і нікуди не надсилає фразу відновлення. Тому, у випадку втрати чи виходу пристрою з ладу, єдиним способом отримати доступ до Ваших коштів є використання фрази відновлення",
