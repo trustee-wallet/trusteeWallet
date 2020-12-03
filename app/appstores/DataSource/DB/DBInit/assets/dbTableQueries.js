@@ -36,7 +36,7 @@ export default {
                 news_custom_title TEXT NULL,
                 news_custom_text TEXT NULL,
                 news_image TEXT NULL,
-                news_url TEXT NULL
+                news_url TEXT NULL,
                 news_custom_created INTEGER NULL,          
                 news_status INTEGER NULL,                
                 news_created INTEGER NOT NULL, 

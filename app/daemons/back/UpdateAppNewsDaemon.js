@@ -36,11 +36,11 @@ class UpdateAppNewsDaemon {
                 newsUrl: row.url,
                 newsCustomCreated: row.createdAt,
                 newsUniqueKey: row.serverId,
-                newsNeedPopup: row.needPopUp ? 1 : 0,
+                newsNeedPopup: row.needPopup ? 1 : 0,
                 newsServerId: row.serverId,
                 newsLog: new Date().toISOString() + ' loaded from Server'
             }
-            if (toSave.newsServerId.indexOf('BROADCAST') === -1) {
+            if (typeof row.isBroadcast === 'undefined' || row.isBroadcast === false) {
                 toSave.walletHash = walletHash
             }
             Log.daemon('UpdateAppNews adding from Server ', toSave)
