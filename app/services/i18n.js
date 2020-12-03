@@ -31,8 +31,11 @@ export function strings(name, params = {}) {
     return i18n.t(name, params)
 }
 
-export function sublocale() {
-    let sub = i18n.locale.split('-')[0]
+export function sublocale(locale) {
+    if (typeof locale === 'undefined' || !locale) {
+        locale = i18n.locale
+    }
+    let sub = locale.split('-')[0]
     if (sub !== 'uk' && sub !== 'ru') {
         sub = 'en'
     }

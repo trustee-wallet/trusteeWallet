@@ -75,7 +75,8 @@ export default new class AppNotificationListener {
         Log.log('PUSH subscribe ' + topic + ' started')
 
         for (const lang of languageList) {
-            if (lang.code === locale) {
+            const sub = sublocale(lang.code)
+            if (sub === locale) {
                 Log.log('PUSH subscribe ' + topic + ' lang ' + locale)
                 await firebase.messaging().subscribeToTopic(topic)
                 await firebase.messaging().subscribeToTopic(topic + '_' + locale)
@@ -87,9 +88,9 @@ export default new class AppNotificationListener {
                     await firebase.messaging().unsubscribeFromTopic(topic + '_dev_' + locale)
                 }
             } else {
-                Log.log('PUSH subscribe ' + topic + ' unlang ' + locale)
-                await firebase.messaging().unsubscribeFromTopic(topic + '_' + lang.code)
-                await firebase.messaging().unsubscribeFromTopic(topic + '_dev_' + lang.code)
+                Log.log('PUSH subscribe ' + topic + ' unlang ' + sub)
+                await firebase.messaging().unsubscribeFromTopic(topic + '_' + sub)
+                await firebase.messaging().unsubscribeFromTopic(topic + '_dev_' + sub)
             }
         }
 
@@ -104,11 +105,23 @@ export default new class AppNotificationListener {
         await firebase.messaging().unsubscribeFromTopic(topic)
         await firebase.messaging().unsubscribeFromTopic(topic + '_dev')
         for (const lang of languageList) {
-            await firebase.messaging().unsubscribeFromTopic(topic + '_' + lang.code)
-            await firebase.messaging().unsubscribeFromTopic(topic + '_dev_' + lang.code)
+            const sub = sublocale(lang.code)
+            await firebase.messaging().unsubscribeFromTopic(topic + '_' + sub)
+            await firebase.messaging().unsubscribeFromTopic(topic + '_dev_' + sub)
         }
 
         Log.log('PUSH unsubscribe ' + topic + ' finished')
+    }
+
+    async rmvOld() : Promise<void> {
+        const { languageList } = config.language
+        await firebase.messaging().unsubscribeFromTopic('trustee_all')
+        await firebase.messaging().unsubscribeFromTopic('trustee_dev')
+        for (const lang of languageList) {
+            const sub = sublocale(lang.code)
+            await firebase.messaging().unsubscribeFromTopic('trustee_all_' + sub)
+            await firebase.messaging().unsubscribeFromTopic('trustee_dev_' + sub)
+        }
     }
 
     async updateSubscriptions(fcmToken : string = ''): Promise<void> {
@@ -167,6 +180,7 @@ export default new class AppNotificationListener {
         Log.log('notifsSavedToken', notifsSavedToken)
         if (!time || !fcmToken || fcmToken === '' || notifsSavedToken !== fcmToken) {
             await this.updateSubscriptions(fcmToken)
+            await this.rmvOld()
             fcmToken = await firebase.messaging().getToken()
             Log.log('PUSH getToken subscribed token ' + fcmToken)
             await this._onRefresh(fcmToken)
