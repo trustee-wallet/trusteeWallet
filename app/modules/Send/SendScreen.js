@@ -318,9 +318,9 @@ class SendScreen extends Component {
                 isHd: walletIsHd,
 
                 accountJson,
-                transactionReplaceByFee : false,
-                transactionSpeedUp : null,
-                transactionJson : {}
+                transactionReplaceByFee: false,
+                transactionSpeedUp: null,
+                transactionJson: {}
             }
 
             console.log('hi', countedFeesData)
@@ -570,6 +570,7 @@ class SendScreen extends Component {
 
         let fioPaymentData
         let recipientAddress = addressValidation.value
+        console.log(recipientAddress)
         try {
             if (this.isFioAddress(recipientAddress)) {
                 console.log('SendScreen.handleSendTransaction isFioAddress checked ' + recipientAddress)
@@ -902,6 +903,61 @@ class SendScreen extends Component {
         })
     }
 
+    minerFee = (countedFees) => {
+        let fee
+
+        if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
+            fee = countedFees.fees[countedFees.selectedFeeIndex]
+        }
+
+        const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates } = this.props.account
+
+        let prettyFee
+        let prettyFeeSymbol = feesCurrencySymbol
+        let feeBasicCurrencySymbol = basicCurrencySymbol
+        let feeBasicAmount = 0
+
+        if (typeof fee.feeForTxDelegated !== 'undefined') {
+            prettyFeeSymbol = currencySymbol
+            prettyFee = fee.feeForTxCurrencyAmount
+            feeBasicAmount = BlocksoftPrettyNumbers.makeCut(fee.feeForTxBasicAmount, 5).justCutted
+            feeBasicCurrencySymbol = fee.feeForTxBasicSymbol
+        } else {
+            prettyFee = BlocksoftPrettyNumbers.setCurrencyCode(feesCurrencyCode).makePretty(fee.feeForTx)
+            feeBasicAmount = BlocksoftPrettyNumbers.makeCut(RateEquivalent.mul({
+                value: prettyFee,
+                currencyCode: feesCurrencyCode,
+                basicCurrencyRate: feeRates.basicCurrencyRate
+            }), 5).justCutted
+            prettyFee = BlocksoftPrettyNumbers.makeCut(prettyFee, 5).justCutted
+        }
+
+        let fiatFee
+        if (Number(feeBasicAmount) < 0.01) {
+            fiatFee = `> ${feeBasicCurrencySymbol} 0.01`
+        } else {
+            fiatFee = `${feeBasicCurrencySymbol} ${feeBasicAmount}`
+        }
+        
+        // `${feeBasicCurrencySymbol} ${feeBasicAmount}`
+        return (
+            <View style={{ flexDirection: 'row', paddingHorizontal: 16, justifyContent: 'space-between'}}>
+                <View style={{ width: '50%'}}>
+                    <LetterSpacing numberOfLines={2} text={'Miner fee'} textStyle={style.minerFee} letterSpacing={0.5} />
+                </View>
+                <View style={{ alignItems: 'flex-end' }}>
+                    <LetterSpacing text={`${prettyFee} ${prettyFeeSymbol}`} textStyle={style.minerFee} letterSpacing={0.5} />
+                    <LetterSpacing text={fiatFee} textStyle={{...style.fiatFee, paddingTop: 5, color: '#999999'}} letterSpacing={1.5} />
+                </View>
+            </View>
+        )
+    }
+
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
+    }
+
     render() {
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
@@ -942,7 +998,7 @@ class SendScreen extends Component {
             network
         } = this.state.cryptoCurrency
 
-        const { colors, isLight } = this.context
+        const { colors, GRID_SIZE, isLight } = this.context
 
         const basicCurrencyCode = this.state.account.basicCurrencyCode || 'USD'
 
@@ -960,7 +1016,7 @@ class SendScreen extends Component {
             `~ ${this.state.account.basicCurrencySymbol || '$'} 0.00` : `0.00 ${this.state.cryptoCurrency.currencySymbol}`
 
         return (
-            <View style={{ flex: 1, backgroundColor: colors.common.background}}>
+            <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
                     leftType='back'
                     leftAction={this.closeAction}
@@ -968,6 +1024,7 @@ class SendScreen extends Component {
                     rightAction={this.closeAction}
                     title={strings('send.title')}
                     ExtraView={this.renderAccountDetail}
+                    setHeaderHeight={this.setHeaderHeight}
                 />
                 <KeyboardAwareView>
                     <ScrollView
@@ -976,9 +1033,11 @@ class SendScreen extends Component {
                         }}
                         keyboardShouldPersistTaps={'handled'}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={focused ? styles.wrapper__content_active : styles.wrapper__content}
-                        style={styles.wrapper__scrollView}>
-                        <View style={{ width: SCREEN_WIDTH, marginLeft: -30 }}>
+                        // contentContainerStyle={focused ? styles.wrapper__content_active : styles.wrapper__content}
+                        // style={styles.wrapper__scrollView}>
+                        contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', padding: GRID_SIZE, paddingBottom: GRID_SIZE * 2 }}
+                        style={{ marginTop: 140 }}>
+                        <View >
                             <AmountInput
                                 ref={component => this.valueInput = component}
                                 id={amountInput.id}
@@ -1003,7 +1062,7 @@ class SendScreen extends Component {
                             <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 32 }}>
                                 <LetterSpacing text={notEquivalentValue} textStyle={style.notEquivalentValue} letterSpacing={1.5} />
                             </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 16 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <PartBalanceButton
                                     action={() => {
                                         if (this.state.inputType === 'FIAT') {
@@ -1013,7 +1072,7 @@ class SendScreen extends Component {
                                             this.valueInput.state.value = (this.state.account.balancePretty * 0.25).toString()
                                             this.amountInputCallback((this.state.account.balancePretty * 0.25), true)
                                         }
-                                        
+
                                         this.setState({
                                             balancePart: 0.25,
                                             useAllFunds: false
@@ -1070,7 +1129,7 @@ class SendScreen extends Component {
                             </View>
 
                             <AddressInput
-                                style={{ marginTop: 20, marginHorizontal: 16 }}
+                                style={{ marginTop: 20 }}
                                 ref={component => this.addressInput = component}
                                 id={addressInput.id}
                                 // onFocus={() => this.onFocus()}
@@ -1100,10 +1159,10 @@ class SendScreen extends Component {
                                 callback={this.isFioAddress}
                                 noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
                             />
+                            {console.log(this.addressInput.statee)}
                             {
                                 currencyCode === 'XRP' ?
                                     <MemoInput
-                                        style={{marginHorizontal: 16}}
                                         ref={component => this.memoInput = component}
                                         id={memoInput.id}
                                         disabled={disabled}
@@ -1118,7 +1177,6 @@ class SendScreen extends Component {
                             {
                                 currencyCode === 'XMR' ?
                                     <MemoInput
-                                        style={{marginHorizontal: 16}}
                                         ref={component => this.memoInput = component}
                                         id={memoInput.id}
                                         disabled={disabled}
@@ -1170,7 +1228,6 @@ class SendScreen extends Component {
                             {
                                 isFioPayment ?
                                     <MemoInput
-                                        style={{marginHorizontal: 16}}
                                         ref={component => this.memoInput = component}
                                         id={memoInput.id}
                                         disabled={disabled}
@@ -1181,10 +1238,14 @@ class SendScreen extends Component {
                             }
 
                             {this.renderEnoughFundsError()}
+                            {(this.state.countedFees && this.state.useAllFunds) &&
+                                <>
+                                    {this.minerFee(this.state.countedFees)}
+                                </>}
                         </View>
                         <TwoButtons
                             mainButton={{
-                                // disabled: ,
+                                disabled: !this.state.amountInputMark,
                                 onPress: () => this.handleSendTransaction(false),
                                 title: strings('walletBackup.step0Screen.next')
                             }}
@@ -1235,5 +1296,19 @@ const style = {
         fontSize: 15,
         lineHeight: 19,
         color: '#999999'
+    },
+    minerFee: {
+        fontFamily: 'Montserrat-Medium',
+        fontSize: 14,
+        lineHeight: 17,
+        color: '#5C5C5C'
+    },
+    currencyFee: {
+
+    },
+    fiatFee: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 12,
+        lineHeight: 12,
     }
 }

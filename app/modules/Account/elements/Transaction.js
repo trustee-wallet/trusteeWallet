@@ -1172,7 +1172,7 @@ class Transaction extends Component {
                                         style={{ ...styles.transaction__top__type__icon, color: colors.accountScreen.transactions.transactionTitleColor }} />
                                 </View> : null
                         }
-                        <Text style={{ ...[styles.transaction__top__type, isStatus ? { color: color } : null], color: colors.accountScreen.transactions.transactionTitleColor }}>
+                        <Text style={[styles.transaction__top__type,  { color: isStatus ? color : colors.accountScreen.transactions.transactionTitleColor} ]}>
                             {isStatus ? strings(`account.transactionStatuses.${status === 'confirming' ? 'confirming' : 'process'}`).toUpperCase() : blockConfirmations}
                         </Text>
                         {this.ifTxsTW()}
