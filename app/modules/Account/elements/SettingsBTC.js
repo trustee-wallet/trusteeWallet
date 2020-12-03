@@ -123,6 +123,7 @@ class SettingsBTC extends Component {
                     onPress={() => this.toggleAddress('segwit', btcLegacyOrSegWit)}
                     radioButtonFirst={true}
                     withoutLine={true}
+                    checkedStyle={true}
                 />
                 <SubSetting
                     checked={btcLegacyOrSegWit === 'legacy'}
@@ -130,6 +131,7 @@ class SettingsBTC extends Component {
                     onPress={() => this.toggleAddress('legacy', btcLegacyOrSegWit)}
                     radioButtonFirst={true}
                     withoutLine={true}
+                    checkedStyle={true}
                 />
             </View>
             // <View style={[styles.settings__row, { paddingHorizontal: 30 }]}>

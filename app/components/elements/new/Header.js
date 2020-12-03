@@ -100,7 +100,7 @@ export default class Header extends React.Component {
                     </View>
 
                     {ExtraView && (
-                        <View style={[styles.extraView, { backgroundColor: colors.common.header.bg }]}>
+                        <View style={[styles.extraView, { backgroundColor: colors.common.header.bg, paddingHorizontal: GRID_SIZE * 2 }]}>
                             <ExtraView />
                         </View>
                     )}

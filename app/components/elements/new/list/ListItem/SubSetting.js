@@ -22,7 +22,8 @@ export default function SubSettingListItem(props) {
         subtitle,
         checked,
         radioButtonFirst,
-        withoutLine
+        withoutLine,
+        checkedStyle
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -42,8 +43,8 @@ export default function SubSettingListItem(props) {
                         />
                     </View>
                     <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
-                        <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
-                        {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
+                        <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: checkedStyle && checked ? '#864DD9' : colors.common.text1 }]}>{title}</Text>
+                        {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: checkedStyle && checked ? '#864DD9' : colors.common.text2 }]}>{subtitle}</Text>}
                     </View>
                 </View>
                 :
