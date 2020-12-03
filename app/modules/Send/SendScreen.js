@@ -308,7 +308,8 @@ class SendScreen extends Component {
                 addressFrom: address,
                 addressTo: addressToForTransferAll,
 
-                amount: value,
+                amount:  BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(value),
+                balance : balance,
                 unconfirmed: walletUseUnconfirmed === 1 ? unconfirmed : 0,
 
                 isTransferAll: false,
@@ -938,7 +939,7 @@ class SendScreen extends Component {
         } else {
             fiatFee = `${feeBasicCurrencySymbol} ${feeBasicAmount}`
         }
-        
+
         // `${feeBasicCurrencySymbol} ${feeBasicAmount}`
         return (
             <View style={{ flexDirection: 'row', paddingHorizontal: 16, justifyContent: 'space-between'}}>
