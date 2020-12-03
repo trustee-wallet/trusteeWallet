@@ -310,7 +310,7 @@ export const getFioObtData = async (tokenCode, offset = 0, limit = 100) => {
 }
 
 const formatError = (title, e) => {
-    if (config.debug.cryptoErrors) {
+    if (config.debug.fioErrors) {
         console.log(title + ' error', e.json, e)
     }
     if (e.message.indexOf('Error 404') === -1 && e.message.indexOf('Network request failed') === -1) {
