@@ -4,6 +4,7 @@ import config from '../../../app/config/config'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import { Fio } from '@fioprotocol/fiojs'
 import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
+import chunk from 'lodash/chunk'
 
 export const resolveChainCode = (currencyCode, currencySymbol) => {
     let chainCode = currencyCode
@@ -157,24 +158,54 @@ export const addCryptoPublicAddress = async ({fioName, chainCode, tokenCode, pub
 }
 
 export const addCryptoPublicAddresses = async ({fioName, publicAddresses}) => {
-    try {
-        const { fee = 0 } = await getFioSdk().getFeeForAddPublicAddress(fioName)
-        const response = await getFioSdk().addPublicAddresses(
-            fioName,
-            publicAddresses,
-            fee,
-            null
-        )
-        const isOK = response['status'] === 'OK'
-        if (!isOK) {
-            await BlocksoftCryptoLog.log('FIO addPublicAddress error', response)
+    if (!publicAddresses || Object.keys(publicAddresses).length === 0) return true
+
+    let isOK = true
+    for await (const publicAddressesChunk of chunk(publicAddresses, 5)) {
+        try {
+            const { fee = 0 } = await getFioSdk().getFeeForAddPublicAddress(fioName)
+            const response = await getFioSdk().addPublicAddresses(
+                fioName,
+                publicAddressesChunk,
+                fee,
+                null
+            )
+
+            if (response['status'] !== 'OK') {
+                await BlocksoftCryptoLog.log('FIO addPublicAddress error', response)
+                isOK = false
+            }
+        } catch (e) {
+            formatError('FIO addPubAddress', e)
         }
-        return isOK
-    } catch (e) {
-        formatError('FIO addPubAddress', e)
     }
+    return isOK
 }
 
+export const removeCryptoPublicAddresses = async ({fioName, publicAddresses}) => {
+    if (!publicAddresses || Object.keys(publicAddresses).length === 0) return true
+
+    let isOK = true
+    for await (const publicAddressesChunk of chunk(publicAddresses, 5)) {
+        try {
+            const { fee = 0 } = await getFioSdk().getFeeForRemovePublicAddresses(fioName)
+            const response = await getFioSdk().removePublicAddresses(
+                fioName,
+                publicAddressesChunk,
+                fee,
+                null
+            )
+
+            if (response['status'] !== 'OK') {
+                await BlocksoftCryptoLog.log('FIO removeCryptoPublicAddresses error', response)
+                isOK = false
+            }
+        } catch (e) {
+            formatError('FIO removeCryptoPublicAddresses', e)
+        }
+    }
+    return isOK
+}
 
 /**
  * Create a new funds request on the FIO chain.

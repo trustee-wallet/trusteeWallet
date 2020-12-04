@@ -10,7 +10,7 @@ class SettingsCoin extends Component {
 
     toggleSwitch = (value) => {
         const { cryptoCurrency, toggleSwitch } = this.props
-        toggleSwitch(cryptoCurrency.currencyCode, value ? cryptoCurrency.address : '0')
+        toggleSwitch(cryptoCurrency.currencyCode, value ? cryptoCurrency.address : null)
     }
 
     render() {
