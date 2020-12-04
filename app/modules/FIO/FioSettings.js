@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import config from '../../config/config'
 import Moment from 'moment';
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import { addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
+import { addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress, removeCryptoPublicAddresses } from '../../../crypto/blockchains/fio/FioUtils'
 import NavStore from '../../components/navigation/NavStore'
 import accountDS from '../../appstores/DataSource/Account/Account'
 import Toast from '../../services/UI/Toast/Toast'
@@ -28,6 +28,7 @@ class FioSettings extends Component {
             cryptoCurrencies: [],
             accounts: [],
             selectedCryptoCurrencies: {},
+            initialCryptoCurrencies: {},
             fioAddress: null,
             fioAddressExpiration: null,
         }
@@ -112,11 +113,18 @@ class FioSettings extends Component {
                 return getPubAddress(fioAddress, codes['chain_code'], codes['token_code'])
             }))
 
-            this.setState({
-                selectedCryptoCurrencies: cryptoCurrencies.reduce((res, currencyCode, index) => ({
+            const selectedCryptoCurrencies = cryptoCurrencies.reduce((res, currencyCode, index) => {
+                if (!publicAddresses[index] || publicAddresses[index] === '0') return res;
+
+                return ({
                     ...res,
                     [currencyCode]: publicAddresses[index]
-                }), {})
+                })
+            }, {})
+
+            this.setState({
+                selectedCryptoCurrencies,
+                initialCryptoCurrencies: selectedCryptoCurrencies,
             })
         }
     }
@@ -130,22 +138,23 @@ class FioSettings extends Component {
                 ? {}
                 : cryptoCurrencies.reduce((res, currencyCode) => {
                     const account = accounts.find(a => a.currencyCode === currencyCode)
-                    return ({
+                    return account ? {
                         ...res,
-                        [currencyCode]: account ? account.address : '0'
-                    })
+                        [currencyCode]: account.address
+                    } : res
                 }, {})
         })
     }
 
     toggleSwitch = (currencyCode, address) => {
         const { selectedCryptoCurrencies } = this.state
+        const { [currencyCode]: toRemove, ...restCurrencies } = selectedCryptoCurrencies
 
         this.setState({
-            selectedCryptoCurrencies: {
+            selectedCryptoCurrencies: address ? {
                 ...selectedCryptoCurrencies,
-                [currencyCode]: address,
-            }
+                [currencyCode]: address
+            } : restCurrencies
         })
     }
 
@@ -165,26 +174,54 @@ class FioSettings extends Component {
 
     handleNext = async () => {
         try {
-            const { selectedCryptoCurrencies, fioAddress, cryptoCurrencies } = this.state
+            const { selectedCryptoCurrencies, fioAddress, cryptoCurrencies, initialCryptoCurrencies } = this.state
 
-            setLoaderStatus(true)
-            const publicAddresses = cryptoCurrencies
-                .reduce((res, currencyCode) =>
-                    [
+            const addressesToAdd = cryptoCurrencies.reduce((res, currencyCode) => {
+                if (currencyCode !== 'FIO' && selectedCryptoCurrencies[currencyCode]
+                    && selectedCryptoCurrencies[currencyCode] !== '0'
+                    && (!initialCryptoCurrencies[currencyCode] || initialCryptoCurrencies[currencyCode] !== selectedCryptoCurrencies[currencyCode])) {
+                    return [
                         ...res,
                         {
                             ...resolveCryptoCodes(currencyCode),
-                            public_address: selectedCryptoCurrencies[currencyCode] || '0'
+                            public_address: selectedCryptoCurrencies[currencyCode]
                         }
-                    ], [])
+                    ]
+                } else {
+                    return res
+                }
+            }, [])
 
+            const addressesToRemove = cryptoCurrencies.reduce((res, currencyCode) => {
+                if (currencyCode !== 'FIO'
+                    && initialCryptoCurrencies[currencyCode] && initialCryptoCurrencies[currencyCode] !== '0'
+                    && !selectedCryptoCurrencies[currencyCode]) {
+                    return [
+                        ...res,
+                        {
+                            ...resolveCryptoCodes(currencyCode),
+                            public_address: initialCryptoCurrencies[currencyCode]
+                        }
+                    ]
+                } else {
+                    return res
+                }
+            }, [])
+
+            setLoaderStatus(true)
             await Netinfo.isInternetReachable()
 
-            const isSaved = await addCryptoPublicAddresses({
+            const isAdded = await addCryptoPublicAddresses({
                 fioName: fioAddress,
-                publicAddresses
+                publicAddresses: addressesToAdd,
             })
-            Toast.setMessage(strings(isSaved ? 'toast.saved' : 'FioSettings.serviceUnavailable')).show()
+
+            const isRemoved = await removeCryptoPublicAddresses({
+                fioName: fioAddress,
+                publicAddresses: addressesToRemove,
+            })
+
+            Toast.setMessage(strings(isAdded && isRemoved ? 'toast.saved' : 'FioSettings.serviceUnavailable')).show()
             NavStore.goBack(null)
         } finally {
             setLoaderStatus(false)
