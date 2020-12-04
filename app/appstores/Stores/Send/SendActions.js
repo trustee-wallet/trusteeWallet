@@ -18,6 +18,7 @@ const { dispatch } = store
 
 
 export function setSendData(data) {
+    console.log('SendActions.setSendData', {...data})
     dispatch({
         type: 'SET_SEND_DATA',
         data: data
@@ -25,10 +26,21 @@ export function setSendData(data) {
 }
 
 export function clearSendData() {
+    console.log('SendActions.clearSendData')
     dispatch({
         type: 'CLEAR_SEND_DATA'
     })
 }
+
+export function handleFee (countedFees, selectedFee) {
+    console.log('SendActions.handleFee', {countedFees, selectedFee})
+    dispatch({
+        type: 'SET_FEE',
+        countedFees,
+        selectedFee
+    })
+}
+
 
 export default new class SendActions {
 
@@ -102,13 +114,4 @@ export default new class SendActions {
         }
         Log.log('SendActions.handleInitialURL decode success')
     }
-}
-
-export function handleFee (countedFee, selectedFee, customFee) {
-    dispatch({
-        type: 'SET_FEE',
-        countedFee,
-        selectedFee,
-        customFee
-    })
 }

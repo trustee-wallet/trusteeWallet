@@ -64,6 +64,11 @@ class Fee extends Component {
     }
 
     async init() {
+        console.log('')
+        console.log('')
+        console.log('!!!SEND.FEE NOT USED!!!!')
+        console.log('')
+        console.log('')
 
         const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee, walletUseLegacy, walletIsHd } = this.props.wallet
 

@@ -43,14 +43,11 @@ class SendAdvancedSettingsScreen extends Component {
         this.state = {
             focused: false,
             dropMenu: false,
-            fee: {},
             devMode: false,
             selectedFee: {},
             countedFees: {},
-            selectedIndex: null,
             useAllFunds: false,
-            feeSelect: {},
-            customFee: false
+            isCustomFee: false
         }
 
         this.customFee = React.createRef()
@@ -61,25 +58,20 @@ class SendAdvancedSettingsScreen extends Component {
         styles = Theme.getStyles().sendScreenStyles
 
         const devMode = await AsyncStorage.getItem('devMode')
+        const data = this.props.navigation.getParam('data')
 
-        const fee = this.props.navigation.getParam('fee')
-
+        console.log('')
+        console.log('')
+        console.log('Send.SendAdvancedSettings.Unsafe', data)
         this.setState({
-            countedFees: fee.countedFees,
-            selectedFee: fee.selectedFee,
-            useAllFunds: fee.useAllFunds
+            countedFees: data.countedFees,
+            selectedFee: data.selectedFee,
+            useAllFunds: data.useAllFunds,
+            isCustomFee : typeof data.selectedFee.isCustomFee !== 'undefined' ? data.selectedFee.isCustomFee : false,
+            devMode: devMode && devMode.toString() === '1'
         })
 
-        if (typeof fee.countedFees.selectedFeeIndex !== 'undefined' && fee.countedFees.selectedFeeIndex >= 0) {
 
-            const feeArray = fee.countedFees.fees[fee.countedFees.selectedFeeIndex]
-
-            this.setState({
-                countedFees: fee.countedFees,
-                devMode: devMode && devMode.toString() === '1',
-                fee: feeArray
-                // status: 'success'
-            })
             // if (typeof fee.blockchainData !== 'undefined'
             //     && typeof fee.blockchainData.preparedInputsOutputs !== 'undefined'
             //     && typeof fee.blockchainData.preparedInputsOutputs.multiAddress !== 'undefined'
@@ -89,7 +81,7 @@ class SendAdvancedSettingsScreen extends Component {
             // } else if (fee.amountForTx !== sendData.amountRaw) {
             //     await this.handleSelectUpdateAmount(fee, false)
             // }
-        }
+
     }
 
     toggleDropMenu = () => {
@@ -99,11 +91,13 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     setParentState = (field, value) => {
+        console.log('Send.SendAdvancedSettings.setPatentState', {field, value})
         this.setState({ [field]: value })
     }
 
     handleSelectUpdateAmount = async (currencyCode, fee, multiAddress) => {
-
+        console.log('Send.SendAdvancedSettings.handleSelectUpdateAmount TODO ', JSON.parse(JSON.stringify({currencyCode, fee, multiAddress})))
+        return false // todo
         // const { currencyCode } = this.props.account
         const { sendData } = this.state
 
@@ -125,7 +119,7 @@ class SendAdvancedSettingsScreen extends Component {
 
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('Send.Fee.handleTransferAll', e.message, JSON.parse(JSON.stringify(fee)))
+                console.log('Send.Send.Fee.handleTransferAll', e.message, JSON.parse(JSON.stringify(fee)))
             }
             Log.errorTranslate(e, 'Send.Fee.handleTransferAll', currencyCode)
 
@@ -141,14 +135,17 @@ class SendAdvancedSettingsScreen extends Component {
 
     }
 
-    renderCustomFee = (currencyCode, feesCurrencyCode, countedFees, basicCurrencySymbol, basicCurrencyRate) => {
+    renderCustomFee = (currencyCode, feesCurrencyCode, basicCurrencySymbol, basicCurrencyRate) => {
+        const {countedFees, selectedFee} =  this.state
+        console.log('Send.SendAdvancedSettings.renderCustomFee', JSON.parse(JSON.stringify({currencyCode, feesCurrencyCode, basicCurrencySymbol, basicCurrencyRate})))
+        console.log('Send.SendAdvancedSettings.renderCustomFee state', JSON.parse(JSON.stringify({countedFees, selectedFee})))
         return (
             <View style={{ width: '90%' }}>
                 <CustomFee
                     ref={ref => this.customFee = ref}
                     currencyCode={currencyCode}
                     feesCurrencyCode={feesCurrencyCode}
-                    fee={this.state.fee}
+                    fee={selectedFee}
                     countedFees={countedFees}
                     basicCurrencySymbol={basicCurrencySymbol}
                     basicCurrencyRate={basicCurrencyRate} //feeRates.basicCurrencyRate
@@ -161,23 +158,26 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     setFee = (item, index) => {
+        console.log('Send.SendAdvancedSettings.setFee', JSON.parse(JSON.stringify({item})))
         this.setState({
-            fee: item,
-            selectedFee: '',
-            selectedIndex: index,
-            customFee: false
+            selectedFee : item,
+            isCustomFee: false
         })
     }
 
     setCustomFee = () => {
+        console.log('Send.SendAdvancedSettings.setCustomFee')
         this.setState({
-            customFee: true,
-            selectedIndex: -1,
+            isCustomFee: true
         })
     }
 
-    showFee = (countedFees, basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode) => {
+    showFee = (basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode) => {
+        const {countedFees, selectedFee, isCustomFee} =  this.state
+        console.log('Send.SendAdvancedSettings.showFee', JSON.parse(JSON.stringify({basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode})))
+        console.log('Send.SendAdvancedSettings.showFee state', JSON.parse(JSON.stringify({countedFees, selectedFee, isCustomFee})))
         if (!countedFees.fees) {
+            console.log('Send.SendAdvancedSettings.showFee noFees')
             return false
         }
 
@@ -190,10 +190,10 @@ class SendAdvancedSettingsScreen extends Component {
                         let feeBasicCurrencySymbol = basicCurrencySymbol
                         let feeBasicAmount = 0
 
-                        const { devMode, fee } = this.state
+                        const { devMode, selectedFee } = this.state
 
                         if (typeof item.feeForTxDelegated !== 'undefined') {
-                            prettyFeeSymbol = currencySymbol
+                            prettyFeeSymbol = '?' // todo currencySymbol
                             prettyFee = item.feeForTxCurrencyAmount
                             feeBasicAmount = BlocksoftPrettyNumbers.makeCut(item.feeForTxBasicAmount, 5).justCutted
                             feeBasicCurrencySymbol = item.feeForTxBasicSymbol
@@ -236,10 +236,10 @@ class SendAdvancedSettingsScreen extends Component {
                         return (
                             <SubSetting
                                 title={strings(`send.fee.text.${item.langMsg}`)}
-                                subtitle={(item === fee) && !this.state.customFee && (devFee ?
+                                subtitle={(item.langMsg === selectedFee.langMsg) && !isCustomFee && (devFee ?
                                     (devFee + (devMode ? needSpeed : '')) // needSpeed need???
                                     : '') + ` / ${feeBasicCurrencySymbol} ${feeBasicAmount}`}
-                                checked={(item === fee) && !this.state.customFee}
+                                checked={(item.langMsg === selectedFee.langMsg) && !isCustomFee}
                                 radioButtonFirst={true}
                                 withoutLine={true}
                                 onPress={() => this.setFee(item, index)}
@@ -252,12 +252,12 @@ class SendAdvancedSettingsScreen extends Component {
                 {countedFees && (
                     <SubSetting
                         title={strings(`send.fee.customFee.title`)}
-                        checked={this.state.customFee}
+                        checked={isCustomFee}
                         radioButtonFirst={true}
                         withoutLine={true}
                         onPress={() => this.setCustomFee()}
                         checkedStyle={true}
-                        ExtraView={() => this.renderCustomFee(currencyCode, feesCurrencyCode, countedFees, basicCurrencySymbol, feeRates.basicCurrencyRate)}
+                        ExtraView={() => this.renderCustomFee(currencyCode, feesCurrencyCode, basicCurrencySymbol, feeRates.basicCurrencyRate)}
                     />
                 )}
             </View>
@@ -268,19 +268,20 @@ class SendAdvancedSettingsScreen extends Component {
         return this.state.selectedFee === this.state.fee
     }
 
-    handleApply = () => {
-        const fee = this.state.countedFees
-        fee.selectedFeeIndex = this.state.selectedIndex
+    handleApply = async () => {
+        const countedFees = this.state.countedFees
+        countedFees.selectedFeeIndex = this.state.selectedIndex
 
-        const customFee = {}
-        if (this.state.customFee) {
-            customFee.gasLimit = this.customFee.customFeeEthereum.gasLimitInput.state.value
-            customFee.gasPrice = this.customFee.customFeeEthereum.gasPriceInput.state.value
-            customFee.nonceForTx = this.customFee.customFeeEthereum.nonceInput.state.value
+        let selectedFee = this.state.selectedFee
+        if (this.state.isCustomFee) {
+            // customFee.gasLimit = this.customFee.customFeeEthereum.gasLimitInput.state.value
+            // customFee.gasPrice = this.customFee.customFeeEthereum.gasPriceInput.state.value
+            // customFee.nonceForTx = this.customFee.customFeeEthereum.nonceInput.state.value
+            selectedFee = await this.customFee.handleGetCustomFee()
         }
 
-        handleFee(fee, this.state.fee, customFee)
-
+        console.log('Send.SendAdvancedSettings.handleApply ', JSON.parse(JSON.stringify({countedFees, selectedFee})))
+        handleFee(countedFees, selectedFee)
         NavStore.goBack()
     }
 
@@ -335,7 +336,7 @@ class SendAdvancedSettingsScreen extends Component {
                                 rightContent={this.state.dropMenu ? 'arrow_up' : "arrow_down"}
                                 switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
                                 type={'dropdown'}
-                                ExtraView={() => this.showFee(countedFees, basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode)}
+                                ExtraView={() => this.showFee(basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode)}
                                 subtitle={'FEE'}
                             />
                         </View>
