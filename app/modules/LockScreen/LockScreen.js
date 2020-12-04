@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View , Image, Animated } from 'react-native'
+import { View, Image, Animated, Text } from 'react-native'
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Orientation from 'react-native-orientation'
 
@@ -19,6 +19,7 @@ import { strings } from '../../services/i18n'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import Button from '../../components/elements/Button'
 
 
 class LockScreen extends Component {
@@ -279,9 +280,10 @@ class LockScreen extends Component {
                                     shadowOpacity: 0.29,
                                     shadowRadius: 4.65,
 
+                                    elevation: 7,
+
                                     borderRadius: 40
                                 }}
-                                stylePinCodeEmptyColumn={{}}
                                 iconComponentLockedPage={this.renderIconComponentLockedPage}
                                 buttonComponentLockedPage={this.renderButtonComponentLockedPage}
                                 styleLockScreenTextTimer={{
@@ -298,6 +300,20 @@ class LockScreen extends Component {
                                     borderWidth: 1,
                                     borderColor: '#7229AE'
                                 }}
+                                stylePinCodeEmptyColumn={
+                                    this.state.passwordState !== 'enter' ? null :
+                                        {
+                                            backgroundColor: '#0f0'// todo for faceid/touchid
+                                        }
+                                }
+                                bottomLeftComponent={
+                                    this.state.passwordState !== 'enter' ? null :
+                                        (launchTouchID) => {
+                                            return <Button onPress={launchTouchID}>
+                                                <Text>faceid/touchid</Text>
+                                            </Button>
+                                        }
+                                }
                             />
                         </View>
                         : null
