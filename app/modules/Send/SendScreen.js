@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 
-import { View, ScrollView, Keyboard, Text, TouchableOpacity, Dimensions } from 'react-native'
+import { View, ScrollView, Keyboard, Text, TouchableOpacity, Dimensions, SafeAreaView } from 'react-native'
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
@@ -60,6 +60,7 @@ import Header from '../../components/elements/new/Header'
 import PartBalanceButton from './elements/partBalanceButton'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import { handleFee } from '../../appstores/Stores/Send/SendActions'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -116,7 +117,9 @@ class SendScreen extends Component {
 
             copyAddress: false,
             countedFees: false,
-            balancePart: 0
+            balancePart: 0,
+            headerHeight: 0,
+            destinationAddress: null
         }
         this.addressInput = React.createRef()
         this.memoInput = React.createRef()
@@ -221,7 +224,7 @@ class SendScreen extends Component {
                 }
 
                 this.addressInput.handleInput(address)
-                this.commentInput.handleInput(comment)
+                // this.commentInput.handleInput(comment)
                 this.valueInput.handleInput(value)
                 this.amountInputCallback(value === '' ? this.valueInput.getValue() : value)
 
@@ -253,6 +256,11 @@ class SendScreen extends Component {
         }
     }
 
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
+    }
+
     handleChangeEquivalentType = () => {
         const { currencySymbol } = this.state.cryptoCurrency
         const { basicCurrencySymbol } = this.state.account
@@ -281,7 +289,8 @@ class SendScreen extends Component {
         })
     }
 
-    handleGetFee = async (value) => {
+    handleGetFee = async (value, inputType, equivalent) => {
+
         const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee, walletUseLegacy, walletIsHd } = this.props.wallet
 
         const { address, derivationPath, currencyCode, balance, unconfirmed, accountJson } = this.state.account
@@ -308,8 +317,8 @@ class SendScreen extends Component {
                 addressFrom: address,
                 addressTo: addressToForTransferAll,
 
-                amount:  BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(value),
-                balance : balance,
+                amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(inputType === 'CRYPTO' ? value : equivalent),
+                balance: balance,
                 unconfirmed: walletUseUnconfirmed === 1 ? unconfirmed : 0,
 
                 isTransferAll: false,
@@ -318,29 +327,25 @@ class SendScreen extends Component {
                 useLegacy: walletUseLegacy,
                 isHd: walletIsHd,
 
-                accountJson,
-                transactionReplaceByFee: false,
-                transactionSpeedUp: null,
-                transactionJson: {}
+                accountJson
             }
-
-            console.log('hi', countedFeesData)
 
             const transferCount = await BlocksoftTransfer.getFeeRate(countedFeesData)
             transferCount.feesCountedForData = countedFeesData
-            console.log('transferCount', transferCount)
 
-            // const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value)
+            const selectedFee = transferCount.fees[transferCount.selectedFeeIndex]
+            handleFee(transferCount, selectedFee, false)
+
+            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferCount.feesCountedForData.amount)
 
             this.setState({
-                inputType: 'CRYPTO',
                 useAllFunds: false,
                 countedFees: transferCount
             })
 
             // setLoaderStatus(false)
-            console.log('currencyBalanceAmount: ', value, 'currencyBalanceAmountRaw: ', value)
-            // return { currencyBalanceAmount: amount, currencyBalanceAmountRaw: transferCount.amount }
+            console.log('currencyBalanceAmount: ', amount, 'currencyBalanceAmountRaw: ', transferCount.feesCountedForData.amount)
+            return { currencyBalanceAmount: amount, currencyBalanceAmountRaw: transferCount.feesCountedForData.amount }
 
 
         } catch (e) {
@@ -408,7 +413,9 @@ class SendScreen extends Component {
             const transferAllCount = await BlocksoftTransfer.getTransferAllBalance(countedFeesData)
             transferAllCount.feesCountedForData = countedFeesData
 
-            console.log(transferAllCount)
+            const selectedFee = transferAllCount.fees[transferAllCount.selectedFeeIndex]
+            handleFee(transferAllCount, selectedFee, false)
+
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance)
 
             this.setState({
@@ -571,7 +578,7 @@ class SendScreen extends Component {
 
         let fioPaymentData
         let recipientAddress = addressValidation.value
-        console.log(recipientAddress)
+
         try {
             if (this.isFioAddress(recipientAddress)) {
                 console.log('SendScreen.handleSendTransaction isFioAddress checked ' + recipientAddress)
@@ -718,8 +725,8 @@ class SendScreen extends Component {
                     countedFees
                 }
 
-                NavStore.goNext('ConfirmSendScreen', {
-                    confirmSendScreenParam: data,
+                NavStore.goNext('ReceiptScreen', {
+                    ReceiptScreen: data,
                     ...(isFioPayment && { fioRequestDetails: fioPaymentData })
                 })
 
@@ -749,13 +756,13 @@ class SendScreen extends Component {
 
         if (useAllFunds && changeUseAllFunds) {
             this.setState({
-                useAllFunds: false,
-                countedFees: false
+                useAllFunds: false
             })
         }
 
         let amount = 0
         let symbol = currencySymbol
+
         try {
             if (!value || value === 0) {
                 amount = 0
@@ -771,27 +778,18 @@ class SendScreen extends Component {
         }
 
         if (amount > 0) {
+
+            if (!this.state.useAllFunds) {
+                this.handleGetFee(value, this.state.inputType, amount)
+            }
+
             this.setState({
                 amountEquivalent: amount,
-                amountInputMark: this.state.inputType === 'CRYPTO' ? `~${symbol} ${amount}` : `~ ${amount} ${symbol}`
+                amountInputMark: `${amount} ${symbol}`,
+                balancePart: 0
             })
         }
         IS_CALLED_BACK = false
-
-        // console.log('amount crypto', value)
-        if (!this.state.useAllFunds && value && value !== 0) {
-            this.handleGetFee(value)
-        }
-    }
-
-    isFioAddress = (address) => {
-        const isValidAddress = isFioAddressValid(address)
-        if (this.state.isFioPayment !== isValidAddress) {
-            this.setState({
-                isFioPayment: isValidAddress
-            })
-        }
-        return isValidAddress
     }
 
     onFocus = () => {
@@ -810,10 +808,10 @@ class SendScreen extends Component {
     renderEnoughFundsError = () => {
         const { enoughFunds } = this.state
 
+        Log.log('SendScreen renderEnoughFundsError', enoughFunds)
         if (!enoughFunds.isAvailable) {
-            Log.log('SendScreen renderEnoughFundsError', enoughFunds)
             return (
-                <View>
+                <View style={{ marginTop: 14 }}>
                     {
                         enoughFunds.messages.map((item, index) => {
                             return (
@@ -821,8 +819,8 @@ class SendScreen extends Component {
                                     <View style={styles.texts__icon}>
                                         <Icon
                                             name="information-outline"
-                                            size={16}
-                                            color="#e77ca3"
+                                            size={22}
+                                            color="#864DD9"
                                         />
                                     </View>
                                     <View>
@@ -867,41 +865,25 @@ class SendScreen extends Component {
         }
 
         return (
-            <View style={styles.accountDetail}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <View>
-                        <CurrencyIcon currencyCode={currencyCode}
-                            containerStyle={{}} />
-                    </View>
-                    <View style={styles.accountDetail__content}>
-                        <View>
-                            <Text style={styles.accountDetail__title} numberOfLines={1}>
-                                {currencyName}
-                            </Text>
-                            <View style={{ alignItems: 'flex-start' }}>
-                                <LetterSpacing text={sumPrep} textStyle={styles.accountDetail__text} letterSpacing={1} />
-                            </View>
+            // <View style={styles.accountDetail}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View>
+                    <CurrencyIcon currencyCode={currencyCode}
+                        containerStyle={{}} />
+                </View>
+                <View style={styles.accountDetail__content}>
+                    <View style={{}}>
+                        <Text style={styles.accountDetail__title} numberOfLines={1}>
+                            {currencyName}
+                        </Text>
+                        <View style={{ alignItems: 'flex-start' }}>
+                            <LetterSpacing text={sumPrep} textStyle={styles.accountDetail__text} letterSpacing={1} />
                         </View>
                     </View>
                 </View>
             </View>
+            // </View>
         )
-    }
-
-    closeAction = () => {
-        const { toTransactionJSON } = this.props.send.data
-
-        if (typeof toTransactionJSON !== 'undefined' && typeof toTransactionJSON.bseOrderID !== 'undefined') {
-            api.setExchangeStatus(toTransactionJSON.bseOrderID, 'close')
-        }
-
-        NavStore.goBack()
-    }
-
-    openAdvancedSettings = () => {
-        NavStore.goNext('SendAdvancedScreen', {
-            countedFees: this.state.countedFees
-        })
     }
 
     minerFee = (countedFees) => {
@@ -942,21 +924,45 @@ class SendScreen extends Component {
 
         // `${feeBasicCurrencySymbol} ${feeBasicAmount}`
         return (
-            <View style={{ flexDirection: 'row', paddingHorizontal: 16, justifyContent: 'space-between'}}>
-                <View style={{ width: '50%'}}>
+            <View style={{ flexDirection: 'row', paddingHorizontal: 16, justifyContent: 'space-between' }}>
+                <View style={{ width: '50%' }}>
                     <LetterSpacing numberOfLines={2} text={'Miner fee'} textStyle={style.minerFee} letterSpacing={0.5} />
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                     <LetterSpacing text={`${prettyFee} ${prettyFeeSymbol}`} textStyle={style.minerFee} letterSpacing={0.5} />
-                    <LetterSpacing text={fiatFee} textStyle={{...style.fiatFee, paddingTop: 5, color: '#999999'}} letterSpacing={1.5} />
+                    <LetterSpacing text={fiatFee} textStyle={{ ...style.fiatFee, paddingTop: 5, color: '#999999' }} letterSpacing={1.5} />
                 </View>
             </View>
         )
     }
 
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
+    closeAction = () => {
+        const { toTransactionJSON } = this.props.send.data
+
+        if (typeof toTransactionJSON !== 'undefined' && typeof toTransactionJSON.bseOrderID !== 'undefined') {
+            api.setExchangeStatus(toTransactionJSON.bseOrderID, 'close')
+        }
+
+        NavStore.goBack()
+    }
+
+    openAdvancedSettings = () => {
+        NavStore.goNext('SendAdvancedScreen', {
+            fee: {
+                countedFees: this.state.countedFees,
+                selectedFee: this.state.countedFees.fees[this.state.countedFees.selectedFeeIndex],
+                useAllFunds: this.state.useAllFunds
+            }
+        })
+    }
+
+    modalInfo = (currencyCode) => {
+        showModal({
+            type: 'INFO_MODAL',
+            icon: null,
+            title: strings('modal.qrScanner.sorry'),
+            description: currencyCode === 'XRP' ? 'xrp' : currencyCode === 'XMR' ? 'xmr' : 'fio'
+        })
     }
 
     render() {
@@ -988,6 +994,7 @@ class SendScreen extends Component {
             focused,
             copyAddress,
             isFioPayment,
+            headerHeight
         } = this.state
 
         const {
@@ -1013,8 +1020,9 @@ class SendScreen extends Component {
 
         const prev = NavStore.getPrevRoute().routeName
 
-        const notEquivalentValue = this.state.amountInputMark ? this.state.amountInputMark : this.state.inputType === 'CRYPTO' ?
-            `~ ${this.state.account.basicCurrencySymbol || '$'} 0.00` : `0.00 ${this.state.cryptoCurrency.currencySymbol}`
+        const notEquivalentValue = this.state.amountInputMark ? this.state.amountInputMark : '0.00'
+        //  this.state.inputType === 'CRYPTO' ?
+        //     `~ ${this.state.account.basicCurrencySymbol || '$'} 0.00` : `0.00 ${this.state.cryptoCurrency.currencySymbol}`
 
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
@@ -1028,6 +1036,11 @@ class SendScreen extends Component {
                     setHeaderHeight={this.setHeaderHeight}
                 />
                 <KeyboardAwareView>
+                    {/* <SafeAreaView style={[styles.content, {
+                                backgroundColor: colors.common.background,
+                                marginTop: headerHeight,
+                                height: WINDOW_HEIGHT - headerHeight
+                            }]}> */}
                     <ScrollView
                         ref={(ref) => {
                             this.scrollView = ref
@@ -1037,19 +1050,22 @@ class SendScreen extends Component {
                         // contentContainerStyle={focused ? styles.wrapper__content_active : styles.wrapper__content}
                         // style={styles.wrapper__scrollView}>
                         contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', padding: GRID_SIZE, paddingBottom: GRID_SIZE * 2 }}
-                        style={{ marginTop: 140 }}>
+                        style={{ marginTop: headerHeight }}
+                    >
                         <View >
                             <AmountInput
                                 ref={component => this.valueInput = component}
                                 id={amountInput.id}
+                                decimals={10}
+                                additional={amountInput.additional}
+                                tapText={this.state.inputType === 'FIAT' ? basicCurrencyCode : currencySymbol}
                                 onFocus={() => this.onFocus()}
                                 // autoFocus={true}
                                 name={strings('send.value')}
                                 type={amountInput.type}
                                 decimals={decimals || 10}
-                                additional={amountInput.additional}
-                                bottomLeftText={type !== 'TRADE_SEND' ? amountInputMark : undefined}
                                 keyboardType={'numeric'}
+                                enoughFunds={!this.state.enoughFunds.isAvailable}
                                 disabled={disabled}
                                 noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
                                 callback={(value) => this.amountInputCallback(value, true)}
@@ -1129,38 +1145,44 @@ class SendScreen extends Component {
                                 />
                             </View>
 
-                            <AddressInput
-                                style={{ marginTop: 20 }}
-                                ref={component => this.addressInput = component}
-                                id={addressInput.id}
-                                // onFocus={() => this.onFocus()}
-                                name={strings('send.address')}
-                                type={extendedAddressUiChecker.toUpperCase() + '_ADDRESS'}
-                                subtype={network}
-                                cuttype={currencySymbol}
-                                paste={!disabled}
-                                fio={disabled}
-                                copy={copyAddress}
-                                qr={!disabled}
-                                qrCallback={() => {
-                                    setQRConfig({
-                                        account: this.state.account,
-                                        cryptoCurrency: this.state.cryptoCurrency,
-                                        currencyCode,
-                                        inputType: this.state.inputType,
-                                        title: strings('modal.qrScanner.success.title'),
-                                        description: strings('modal.qrScanner.success.description'),
-                                        type: 'SEND_SCANNER'
-                                    })
-                                    setQRValue('')
-                                    NavStore.goNext('QRCodeScannerScreen')
-                                }}
-                                disabled={disabled}
-                                validPlaceholder={true}
-                                callback={this.isFioAddress}
-                                noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
-                            />
-                            {console.log(this.addressInput.statee)}
+                            {this.renderEnoughFundsError()}
+
+                            <View style={{ marginTop: 20 }}>
+                                <AddressInput
+                                    ref={component => this.addressInput = component}
+                                    id={addressInput.id}
+                                    // onFocus={() => this.onFocus()}
+                                    name={strings('send.address')}
+                                    type={extendedAddressUiChecker.toUpperCase() + '_ADDRESS'}
+                                    subtype={network}
+                                    cuttype={currencySymbol}
+                                    paste={!disabled}
+                                    fio={disabled}
+                                    copy={copyAddress}
+                                    qr={!disabled}
+                                    qrCallback={() => {
+                                        setQRConfig({
+                                            account: this.state.account,
+                                            cryptoCurrency: this.state.cryptoCurrency,
+                                            currencyCode,
+                                            inputType: this.state.inputType,
+                                            title: strings('modal.qrScanner.success.title'),
+                                            description: strings('modal.qrScanner.success.description'),
+                                            type: 'SEND_SCANNER'
+                                        })
+                                        setQRValue('')
+                                        NavStore.goNext('QRCodeScannerScreen')
+                                    }}
+                                    disabled={disabled}
+                                    validPlaceholder={true}
+                                    // callback={(value) => {
+                                    //     console.log(value)
+                                    //     this.setState({
+                                    //     destinationAddress: value
+                                    // })}}
+                                    noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
+                                />
+                            </View>
                             {
                                 currencyCode === 'XRP' ?
                                     <MemoInput
@@ -1172,6 +1194,8 @@ class SendScreen extends Component {
                                         keyboardType={'numeric'}
                                         decimals={0}
                                         additional={'NUMBER'}
+                                        info={true}
+                                        tabInfo={() => this.modalInfo(currencyCode)}
                                     /> : null
                             }
 
@@ -1184,47 +1208,21 @@ class SendScreen extends Component {
                                         name={strings('send.xmr_memo')}
                                         type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
                                         keyboardType={'default'}
+                                        info={true}
+                                        tabInfo={() => this.modalInfo(currencyCode)}
                                     /> : null
                             }
 
-                            {/* <AmountInput
-                                ref={component => this.valueInput = component}
-                                id={amountInput.id}
-                                // onFocus={() => this.onFocus()}
-                                // autoFocus={true}
-                                name={strings('send.value')}
-                                type={amountInput.type}
-                                decimals={decimals || 10}
-                                additional={amountInput.additional}
-                                tapText={this.state.inputType === 'FIAT' ? basicCurrencyCode : currencySymbol}
-                                tapCallback={this.handleChangeEquivalentType}
-                                style={{ marginRight: 2 }}
-                                bottomLeftText={type !== 'TRADE_SEND' ? amountInputMark : undefined}
-                                keyboardType={'numeric'}
-                                action={{
-                                    title: strings('send.useAllFunds').toUpperCase(),
-                                    callback: () => {
-                                        this.setState({
-                                            useAllFunds: !this.state.useAllFunds
-                                        })
-                                        this.handleTransferAll()
-                                    }
-                                }}
-                                disabled={disabled}
-                                noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
-                                callback={(value) => this.amountInputCallback(value, true)}
-                            /> */}
-
                             {/* <View style={{ flexDirection: 'row' }}>
-                                <Input
-                                    ref={component => this.commentInput = component}
-                                    id={'comment'}
-                                    // onFocus={() => this.onFocus()}
-                                    name={strings('send.comment')}
-                                    type={'OPTIONAL'}
-                                    isTextarea={true}
-                                    style={{ marginRight: 2, marginHorizontal: 16 }} />
-                            </View> */}
+                                        <Input
+                                            ref={component => this.commentInput = component}
+                                            id={'comment'}
+                                            // onFocus={() => this.onFocus()}
+                                            name={strings('send.comment')}
+                                            type={'OPTIONAL'}
+                                            isTextarea={true}
+                                            style={{ marginRight: 2, marginHorizontal: 16 }} />
+                                    </View> */}
 
                             {
                                 isFioPayment ?
@@ -1235,10 +1233,11 @@ class SendScreen extends Component {
                                         name={strings('send.fio_memo')}
                                         type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
                                         keyboardType={'default'}
+                                        info={true}
+                                        tabInfo={() => this.modalInfo('FIO')}
                                     /> : null
                             }
 
-                            {this.renderEnoughFundsError()}
                             {(this.state.countedFees && this.state.useAllFunds) &&
                                 <>
                                     {this.minerFee(this.state.countedFees)}
@@ -1261,7 +1260,10 @@ class SendScreen extends Component {
 
         )
     }
+
 }
+
+SendScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
@@ -1273,8 +1275,6 @@ const mapStateToProps = (state) => {
         settingsStore: state.settingsStore
     }
 }
-
-SendScreen.contextType = ThemeContext
 
 export default connect(mapStateToProps, {})(SendScreen)
 

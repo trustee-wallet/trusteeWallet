@@ -9,6 +9,7 @@ import { TextField } from 'react-native-material-textfield'
 import QR from 'react-native-vector-icons/FontAwesome'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import GradientView from '../../components/elements/GradientView'
 
@@ -224,7 +225,9 @@ class Input extends Component {
             noEdit,
             isCapitalize = true,
             isLine = true,
-            isTextarea = false
+            isTextarea = false,
+            info,
+            tabInfo
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
@@ -253,103 +256,116 @@ class Input extends Component {
         }
 
         return (
-            <View style={{ ...styles.wrapper, ...elementStyle }}>
-                {/* {
-                    typeof isLine !== 'undefined' && isLine ? <GradientView style={{...styles.line, ...lineStyle}} array={error ? lineStyles_.arrayError : noEdit ? lineStyles_.arrayEdit : lineStyles_.array} start={lineStyles_.start} end={lineStyles_.end}/> : null
-                } */}
-                {
-                    show ?
-                        <View style={{ backgroundColor: '#F5F5F5', width: '100%', borderRadius: 10 }} >
-                            <TextField
-                                ref={ref => this.inputRef = ref}
-                                labelHeight={styles.labelHeight}
-                                fontSize={19}
-                                lineWidth={0}
-                                activeLineWidth={0}
-                                placeholder={placeholder}
-                                placeholderStyle={{ ...styles.fontFamily, fontFamily: 'Montserrat-Semibold' }}
-                                value={validPlaceholder ? !this.state.errors.length && value !== '' && focus === false ? BlocksoftPrettyStrings.makeCut(value, 8) : value : value}
-                                returnKeyLabel={'Buy'}
-                                returnKeyType={'done'}
-                                onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
-                                }}
-                                autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
-                                disabled={isDisabled}
-                                disabledLineType={'none'}
-                                onChangeText={(value) => this.handleInput(value)}
-                                style={noEdit ? { ...styles.fontFamily, color: '#999999' } : styles.fontFamily}
-                                multiline={isTextarea}
-                                autoCorrect={false}
-                                spellCheck={false}
-                                onBlur={() => {
-                                    this.setState({ focus: false })
-                                }}
-                                onContentSizeChange={(e) => {
-                                    const h = e.nativeEvent.contentSize.height
-                                    if (h > 1) {
-                                        this.setState({ inputHeight: h })
-                                    }
-                                }}
-                                onFocus={typeof onFocus === 'undefined' ? () => {
-                                    this.setState({ focus: true })
-                                } : () => {
-                                    this.setState({ focus: true })
-                                    onFocus()
-                                }}
-                            />
-                        </View> : null
-                }
-                <View style={styles.actions}>
+            <View>
+                <View style={{ ...styles.wrapper, ...elementStyle }}>
                     {
-                        typeof fio !== 'undefined' && fio ?
-                            <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
-                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="contacts" size={25} color="#404040"/>
-                            </TouchableOpacity> : null
-                    }
-                    {
-                        typeof copy !== 'undefined' && copy ?
-                            <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-copy" size={25} color="#404040"/>
-                            </TouchableOpacity> : null
-                    }
-                    {
-                        typeof paste !== 'undefined' && paste ?
-                            <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-paste" size={25} color="#404040"/>
-                            </TouchableOpacity> : null
-                    }
-                    {
-                        typeof qr !== 'undefined' && qr ?
-                            <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
-                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }} name="qrcode" size={25} color="#404040"/>
-                            </TouchableOpacity> : null
-                    }
-                </View>
-                {
-                    typeof action !== 'undefined' && !disabled ?
-                        <TouchableOpacity onPress={action.callback} style={[styles.action, actionBtnStyles]}>
-                            <View style={styles.action__title}>
-                                <Text style={styles.action__title__text}>
-                                    {action.title}
-                                </Text>
+                        show ?
+                            <View style={{ backgroundColor: '#F5F5F5', width: '100%', borderRadius: 10 }} >
+                                <TextField
+                                    ref={ref => this.inputRef = ref}
+                                    labelHeight={styles.labelHeight}
+                                    fontSize={19}
+                                    lineWidth={0}
+                                    activeLineWidth={0}
+                                    placeholder={placeholder}
+                                    placeholderStyle={{ ...styles.fontFamily, fontFamily: 'Montserrat-Semibold' }}
+                                    value={validPlaceholder ? !this.state.errors.length && value !== '' && focus === false ? BlocksoftPrettyStrings.makeCut(value, 8) : value : value}
+                                    returnKeyLabel={'Buy'}
+                                    returnKeyType={'done'}
+                                    onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
+                                    }}
+                                    autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
+                                    disabled={isDisabled}
+                                    disabledLineType={'none'}
+                                    onChangeText={(value) => this.handleInput(value)}
+                                    style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: error ? '#864DD9' : '#5C5C5C', }}
+                                    multiline={isTextarea}
+                                    autoCorrect={false}
+                                    spellCheck={false}
+                                    onBlur={() => {
+                                        this.setState({ focus: false })
+                                    }}
+                                    onContentSizeChange={(e) => {
+                                        const h = e.nativeEvent.contentSize.height
+                                        if (h > 1) {
+                                            this.setState({ inputHeight: h })
+                                        }
+                                    }}
+                                    onFocus={typeof onFocus === 'undefined' ? () => {
+                                        this.setState({ focus: true })
+                                    } : () => {
+                                        this.setState({ focus: true })
+                                        onFocus()
+                                    }}
+                                />
                             </View>
-                        </TouchableOpacity> : null
-                }
-                {
-                    typeof subTitle !== 'undefined' ?
-                        <Text style={styles.subTitle}>{subTitle}</Text> : null
-                }
-                <View style={styles.bottomTexts}>
-                    <Text numberOfLines={1}>
-                        <Text style={{ ...styles.mark, ...markStyle }}>
-                            {typeof bottomLeftText !== 'undefined' ? bottomLeftText : ''}
+                            : null
+                    }
+                    <View style={styles.actions}>
+                        {
+                            typeof fio !== 'undefined' && fio ?
+                                <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
+                                    <MaterialCommunityIcons style={styles.actionBtn__icon} name="contacts" size={25} color={error ? '#864DD9' : "#404040"} />
+                                </TouchableOpacity> : null
+                        }
+                        {
+                            typeof copy !== 'undefined' && copy ?
+                                <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
+                                    <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-copy" size={25} color={error ? '#864DD9' : "#404040"} />
+                                </TouchableOpacity> : null
+                        }
+                        {
+                            typeof paste !== 'undefined' && paste ?
+                                <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
+                                    <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-paste" size={25} color={error ? '#864DD9' : "#404040"} />
+                                </TouchableOpacity> : null
+                        }
+                        {
+                            typeof qr !== 'undefined' && qr ?
+                                <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
+                                    <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }} name="qrcode" size={25} color={error ? '#864DD9' : "#404040"} />
+                                </TouchableOpacity> : null
+                        }
+                        {
+                            typeof info !== 'undefined' && typeof tabInfo !== 'undefined' && info && tabInfo ?
+                                <TouchableOpacity onPress={tabInfo} style={styles.actionBtn}>
+                                    <Icon
+                                        name="information-outline"
+                                        size={25}
+                                        color={error ? '#864DD9' : "#404040"}
+                                        style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }}
+                                    />
+                                </TouchableOpacity> : null
+                        }
+                    </View>
+                    {
+                        typeof action !== 'undefined' && !disabled ?
+                            <TouchableOpacity onPress={action.callback} style={[styles.action, actionBtnStyles]}>
+                                <View style={styles.action__title}>
+                                    <Text style={styles.action__title__text}>
+                                        {action.title}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity> : null
+                    }
+                    {/* {
+                        typeof subTitle !== 'undefined' ?
+                            <Text style={styles.subTitle}>{subTitle}</Text> : null
+                    } */}
+                    {/* <View style={styles.bottomTexts}>
+                        <Text numberOfLines={1}>
+                            <Text style={{ ...styles.mark, ...markStyle }}>
+                                {typeof bottomLeftText !== 'undefined' ? bottomLeftText : ''}
+                            </Text>
+                            <Text style={{ ...styles.mark, ...markStyle }}>
+                                {typeof mark !== 'undefined' ? mark : ''}
+                            </Text>
                         </Text>
-                        <Text style={{ ...styles.mark, ...markStyle }}>
-                            {typeof mark !== 'undefined' ? mark : ''}
-                        </Text>
-                    </Text>
+                    </View> */}
                 </View>
-
+                <View style={styles.shadow}>
+                    <View style={{ ...styles.shadow__item }} />
+                </View>
             </View>
         )
     }
@@ -383,7 +399,9 @@ const styles = {
         position: 'relative',
         maxHeight: 70,
         minHeight: 70,
-        marginBottom: 10
+        marginBottom: 10,
+
+        zIndex: 3,
     },
     content: {
         flexDirection: 'row',
@@ -538,7 +556,7 @@ const styles = {
         left: 0,
 
         width: '100%',
-        height: '100%',
+        height: 58,
 
         zIndex: 1
     },
@@ -546,12 +564,12 @@ const styles = {
         flex: 1,
 
         marginHorizontal: 4,
-        marginTop: 11,
+        // marginTop: 11,
         marginBottom: Platform.OS === 'android' ? 6 : 0,
 
         backgroundColor: '#fff',
 
-        borderRadius: 16,
+        borderRadius: 10,
 
         shadowColor: '#000',
         shadowOffset: {

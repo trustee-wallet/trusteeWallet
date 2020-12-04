@@ -2,7 +2,10 @@
  * @version 0.9
  */
 const INITIAL_STATE = {
-    data: {}
+    data: {},
+    countedFee: {},
+    selectedFee: {},
+    customFee: {}
 }
 
 const sendStoreReducer = (state = INITIAL_STATE, action) => {
@@ -15,6 +18,13 @@ const sendStoreReducer = (state = INITIAL_STATE, action) => {
         case 'CLEAR_SEND_DATA':
             return {
                 ...INITIAL_STATE
+            }
+        case 'SET_FEE':
+            return {
+                ...state,
+                countedFee: action.countedFee,
+                selectedFee: action.selectedFee,
+                customFee: action.customFee
             }
         default:
             return state

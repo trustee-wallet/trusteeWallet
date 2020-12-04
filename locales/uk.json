@@ -780,6 +780,7 @@
         "xrp_speed_one" : ""
       },
       "customFee": {
+        "title": "Власноруч",
         "fixedFeeTitle": "ФІКСОВАНА\nКОМІСІЯ",
         "customFeeTitle": "ВСТАНОВИТИ\nВЛАСНОРУЧ",
         "eth": {

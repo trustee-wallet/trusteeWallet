@@ -492,7 +492,7 @@ class ReceiveScreen extends Component {
                                                     marginTop: 14
                                                 }}>
                                                     <FontAwesome color="#F79E1B" size={20} name={'refresh'} />
-                                                </TouchableOpacity> : <View style={{ position: 'relative', marginLeft: 10, top: 7 }}><MaterialIcons color="#999999" size={14} name={'content-copy'} /></View>
+                                                </TouchableOpacity> : <View style={{ position: 'relative', marginLeft: 10, marginTop: 14, flexDirection: 'column', justifyContent: 'center' }}><MaterialIcons color="#999999" size={14} name={'content-copy'} /></View>
                                         }
                                     </View>
                                 </TouchableOpacity>

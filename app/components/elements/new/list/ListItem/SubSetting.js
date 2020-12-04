@@ -23,7 +23,8 @@ export default function SubSettingListItem(props) {
         checked,
         radioButtonFirst,
         withoutLine,
-        checkedStyle
+        checkedStyle,
+        ExtraView
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -35,18 +36,23 @@ export default function SubSettingListItem(props) {
             disabled={checked}
         >
             {radioButtonFirst ?
-                <View style={[styles.mainContent, last && styles.noBorder]}>
-                    <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>
-                        <RadioButton
-                            onChange={onPress}
-                            checked={checked}
-                        />
+                <>
+                    <View style={[styles.mainContent, last && styles.noBorder]}>
+                        <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>
+                            <RadioButton
+                                onChange={onPress}
+                                checked={checked}
+                            />
+                        </View>
+                        <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
+                            <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: checkedStyle && checked ? '#864DD9' : colors.common.text1 }]}>{title}</Text>
+                            {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: checkedStyle && checked ? '#864DD9' : colors.common.text2 }]}>{subtitle}</Text>}
+                        </View>
                     </View>
-                    <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
-                        <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: checkedStyle && checked ? '#864DD9' : colors.common.text1 }]}>{title}</Text>
-                        {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: checkedStyle && checked ? '#864DD9' : colors.common.text2 }]}>{subtitle}</Text>}
-                    </View>
-                </View>
+                    {(ExtraView && checked) && (
+                        <ExtraView />
+                    )}
+                </>
                 :
                 <View style={[styles.mainContent, last && styles.noBorder]}>
                     <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>

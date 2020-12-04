@@ -224,7 +224,8 @@ class Input extends Component {
             noEdit,
             isCapitalize = true,
             isLine = true,
-            isTextarea = false
+            isTextarea = false,
+            enoughFunds = false
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
@@ -280,7 +281,7 @@ class Input extends Component {
                         disabledLineType={'none'}
                         // error={error ? error.toString() : ''}
                         onChangeText={(value) => this.handleInput(value)}
-                        style={noEdit ? { ...styles.fontFamily, color: '#999999' } : styles.fontFamily}
+                        style={noEdit ? { ...styles.fontFamily, color: '#999999' } : {...styles.fontFamily, color: enoughFunds ? '#864DD9' : ''}}
                         // style={styles.fontFamily}
                         multiline={isTextarea}
                         autoCorrect={false}

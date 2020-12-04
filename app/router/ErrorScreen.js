@@ -150,7 +150,7 @@ const ErrorScreen = (props) => {
                 <View style={styles.footer}>
                     <View style={styles.footer__content}>
                         <Text
-                            style={styles.footer__version}>{strings('settings.about.version')} {config.version.code}</Text>
+                            style={styles.footer__version}>{strings('settings.about.version', { version: config.version.code })}</Text>
                         <Text style={styles.footer__hash}>#{config.version.hash}</Text>
                     </View>
                 </View>

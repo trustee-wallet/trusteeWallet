@@ -27,6 +27,7 @@ import SettingsScreenStack from './SettingsStack'
 import AddCardScreen from '../modules/Card'
 import SendScreen from '../modules/Send/SendScreen'
 import SendAdvancedSettingsScreen from '../modules/Send/SendAdvancedSettings'
+import ReceiptScreen from '../modules/Send/ReceiptScreen'
 import ConfirmSendScreen from '../modules/Send/ConfirmSendScreen'
 
 import LoadScreen from '../modules/Load/LoadScreen'
@@ -84,6 +85,13 @@ const MainNavigator = createStackNavigator({
 
         SendAdvancedScreen: {
             screen: SendAdvancedSettingsScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        ReceiptScreen: {
+            screen: ReceiptScreen,
             navigationOptions: {
                 headerShown: false
             }

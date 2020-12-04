@@ -783,6 +783,7 @@
         "xrp_speed_one": ""
       },
       "customFee": {
+        "title": "Manually",
         "fixedFeeTitle": "FIXED FEE",
         "customFeeTitle": "SET\nMANUALLY",
         "eth": {

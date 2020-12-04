@@ -103,3 +103,12 @@ export default new class SendActions {
         Log.log('SendActions.handleInitialURL decode success')
     }
 }
+
+export function handleFee (countedFee, selectedFee, customFee) {
+    dispatch({
+        type: 'SET_FEE',
+        countedFee,
+        selectedFee,
+        customFee
+    })
+}
