@@ -41,6 +41,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 import Log from '../../services/Log/Log'
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
+import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 
 let COUNT_MODAL_SELL = 0
 let COUNT_MODAL_BUY = 0
@@ -334,7 +335,7 @@ class MainDataScreen extends Component {
             return
         }
         try {
-            if (tradeType === 'SELL' && fromModal === false) {
+            if (tradeType === 'SELL' && fromModal === false && BlocksoftTransfer.checkSendAllModal({ currencyCode:  selectedCryptocurrency.currencyCode })) {
 
                 const limitPercent = 0.95
                 const limitUSD = 2

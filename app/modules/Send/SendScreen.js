@@ -581,12 +581,12 @@ class SendScreen extends Component {
 
         try {
             if (this.isFioAddress(recipientAddress)) {
-                console.log('SendScreen.handleSendTransaction isFioAddress checked ' + recipientAddress)
+                Log.log('SendScreen.handleSendTransaction isFioAddress checked ' + recipientAddress)
                 if (await isFioAddressRegistered(recipientAddress)) {
-                    console.log('SendScreen.handleSendTransaction isFioAddressRegistered checked ' + recipientAddress)
+                    Log.log('SendScreen.handleSendTransaction isFioAddressRegistered checked ' + recipientAddress)
                     const chainCode = resolveChainCode(cryptoCurrency.currencyCode, cryptoCurrency.currencySymbol)
                     const publicFioAddress = await getPubAddress(addressValidation.value, chainCode, cryptoCurrency.currencySymbol)
-                    console.log('SendScreen.handleSendTransaction public for ' + recipientAddress + ' ' + chainCode + ' =>' + publicFioAddress)
+                    Log.log('SendScreen.handleSendTransaction public for ' + recipientAddress + ' ' + chainCode + ' =>' + publicFioAddress)
                     if (!publicFioAddress || publicFioAddress === '0') {
                         const msg = strings('send.publicFioAddressNotFound', { symbol: cryptoCurrency.currencyCode })
                         Log.log('SendScreen.handleSendTransaction ' + msg)
@@ -607,7 +607,7 @@ class SendScreen extends Component {
                         }
                     }
                 } else {
-                    console.log('SendScreen.handleSendTransaction isFioAddressRegistered no result ' + recipientAddress)
+                    Log.log('SendScreen.handleSendTransaction isFioAddressRegistered no result ' + recipientAddress)
                     const msg = strings('send.publicFioAddressNotFound', { symbol: cryptoCurrency.currencyCode })
                     Log.log('SendScreen.handleSendTransaction ' + msg)
                     enoughFunds.isAvailable = false
@@ -618,7 +618,7 @@ class SendScreen extends Component {
                 }
             }
         } catch (e) {
-            console.log('SendScreen.handleSendTransaction isFioAddress error ' + recipientAddress + ' => ' + e.message)
+            Log.log('SendScreen.handleSendTransaction isFioAddress error ' + recipientAddress + ' => ' + e.message)
         }
 
         try {
