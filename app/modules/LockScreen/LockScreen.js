@@ -279,8 +279,6 @@ class LockScreen extends Component {
                                     shadowOpacity: 0.29,
                                     shadowRadius: 4.65,
 
-                                    elevation: 7,
-
                                     borderRadius: 40
                                 }}
                                 stylePinCodeEmptyColumn={{}}
