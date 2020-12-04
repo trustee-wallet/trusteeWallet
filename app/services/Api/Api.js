@@ -189,7 +189,8 @@ export default {
             cashbackToken: Log.DATA.LOG_CASHBACK,
             deviceToken: Log.DATA.LOG_TOKEN,
             sign : signedData,
-            userNotifications : userNotifications ? userNotifications : []
+            userNotifications : userNotifications ? userNotifications : [],
+            locale : sublocale()
         }
         try {
             const res = await BlocksoftAxios.post(`${baseUrl}`, data, false)
