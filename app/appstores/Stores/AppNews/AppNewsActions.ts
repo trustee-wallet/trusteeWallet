@@ -35,7 +35,7 @@ export default {
                     }
                     await new AppNotification(news).displayPush()
                 } else {
-                    await appNewsDS.setNewsNeedPopup(news.id, 0)
+                    await appNewsDS.setNewsNeedPopup({id : news.id, newsNeedPopup : 0})
                 }
 
             } catch (e) {
@@ -49,6 +49,18 @@ export default {
 
     clearAll: async (): Promise<void> => {
         await appNewsDS.clear()
+        // @ts-ignore
+        await UpdateAppNewsListDaemon.forceDaemonUpdate()
+    },
+
+    markAsOpened: async (id : number): Promise<void> => {
+        await appNewsDS.markAsOpened(id)
+        // @ts-ignore
+        await UpdateAppNewsListDaemon.forceDaemonUpdate()
+    },
+
+    markAsRemoved: async (id : number): Promise<void> => {
+        await appNewsDS.setRemoved({id})
         // @ts-ignore
         await UpdateAppNewsListDaemon.forceDaemonUpdate()
     }

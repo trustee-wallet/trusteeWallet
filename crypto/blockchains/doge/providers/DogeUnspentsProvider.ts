@@ -42,6 +42,9 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
         let unspent
         // @ts-ignore
         for (unspent of res.data) {
+            if (typeof unspent.path !== 'undefined') {
+                unspent.derivationPath = unspent.path
+            }
             sortedUnspents.push(unspent)
         }
         return sortedUnspents

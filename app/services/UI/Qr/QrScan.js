@@ -47,7 +47,7 @@ export async function decodeTransactionQrCode(param, currencyCode) {
             } else if (network === 'tron' || network === 'trx') {
                 res.data.currencyCode = 'TRX'
             } else if (network === 'ripple' || network === 'xrp') {
-                res.data.currencyCode = 'RIPPLE'
+                res.data.currencyCode = 'XRP'
             } else if (network === 'doge' || network === 'dogecoin') {
                 res.data.currencyCode = 'DOGE'
             } else if (network === 'ethereum' || network === 'eth') {

@@ -2,31 +2,40 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-
 import { connect } from 'react-redux'
-
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native'
-
-import IoniconsIcons from 'react-native-vector-icons/Ionicons'
-
-import AntDesign from 'react-native-vector-icons/MaterialCommunityIcons'
-
-import Navigation from '../../components/navigation/Navigation'
+import {
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+    TouchableOpacity,
+    SafeAreaView
+} from 'react-native'
+import firebase from 'react-native-firebase'
 
 import NavStore from '../../components/navigation/NavStore'
-
-import GradientView from '../../components/elements/GradientView'
 
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
 import { strings } from '../../services/i18n'
 
-import firebase from 'react-native-firebase'
-
 import config from '../../config/config'
 import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
 
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import Header from '../../components/elements/new/Header'
+import ListItem from '../../components/elements/new/list/ListItem/SubSetting'
+
+
 class LanguageListScreen extends Component {
+    state = {
+        headerHeight: 0
+    }
+
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
+    }
 
     getLangCode = () => {
 
@@ -41,16 +50,17 @@ class LanguageListScreen extends Component {
 
     setLanguage = async (item) => {
 
-        await AppNotificationListener.unsetLang()
-
         await settingsActions.setSettings('language', item.code)
 
-        await AppNotificationListener.setLang()
+        await AppNotificationListener.updateSubscriptionsLater()
 
-
-        NavStore.reset('DashboardStack')
+        this.handleBack()
 
     }
+
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('DashboardStack') }
 
     render() {
         firebase.analytics().setCurrentScreen('Settings.LanguageListScreen')
@@ -58,38 +68,41 @@ class LanguageListScreen extends Component {
         const { languageList } = config.language
         const language = this.getLangCode()
 
+        const { colors, GRID_SIZE } = this.context
+        const { headerHeight } = this.state
+
         return (
-            <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
-                <Navigation
+            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
+                <Header
+                    leftType="back"
+                    leftAction={this.handleBack}
+                    rightType="close"
+                    rightAction={this.handleClose}
                     title={strings('languageList.title')}
+                    setHeaderHeight={this.setHeaderHeight}
                 />
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    style={styles.wrapper__scrollView}>
-                    <View style={styles.wrapper__content}>
-                        <View style={styles.block}>
-                            {
-                                languageList.map((item, index) => {
-                                    return (
-                                        <View style={styles.block__content} key={index}>
-                                            <TouchableOpacity style={{ ...styles.block__item }} onPress={() => this.setLanguage(item)} key={index} disabled={item.code === language}>
-                                                <View style={styles.block__item__content}>
-                                                    <Text style={styles.block__text}>{strings(`languageList.languages.${item.code}`)}</Text>
-                                                </View>
-                                                <View style={checkBox.styleBox}>
-                                                    <View style={checkBox.styleBox}>
-                                                        {item.code == language ? <View style={{ position: 'relative', top: Platform.OS === 'ios' ? 0 : 0 }}><IoniconsIcons name='ios-checkmark' size={30} color='#7127ac'/></View> : null}
-                                                    </View>
-                                                </View>
-                                            </TouchableOpacity>
-                                        </View>
-                                    )
-                                })
-                            }
-                        </View>
-                    </View>
-                </ScrollView>
-            </GradientView>
+                <SafeAreaView style={[styles.content, {
+                    backgroundColor: colors.common.background,
+                    marginTop: headerHeight,
+                }]}>
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE, paddingLeft: GRID_SIZE * 2 }]}
+                        keyboardShouldPersistTaps="handled"
+                    >
+                        {
+                            languageList.map((item, index) => (
+                                <ListItem
+                                    checked={item.code === language}
+                                    title={strings(`languageList.languages.${item.code}`)}
+                                    onPress={() => this.setLanguage(item)}
+                                    last={languageList.length - 1 === index}
+                                />
+                            ))
+                        }
+                    </ScrollView>
+                </SafeAreaView>
+            </View>
         )
     }
 }
@@ -106,121 +119,18 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
+LanguageListScreen.contextType = ThemeContext
+
 export default connect(mapStateToProps, mapDispatchToProps)(LanguageListScreen)
 
-
-const styles_ = {
-    array: ['#f9f9f9', '#f9f9f9'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
-}
-
-const checkBox = {
-    array: ['#fff', '#fff'],
-    array_: ['#43156d', '#7027aa'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 },
-    styleBox: {
-        alignItems: 'center',
-
-        width: 30,
-        height: 30
-    },
-    styleGradient: {
-        width: 20,
-        height: 20,
-        borderRadius: 4
-    }
-}
-
 const styles = StyleSheet.create({
-    wrapper: {
+    container: {
         flex: 1
     },
-    wrapper__scrollView: {
-        marginTop: 80
+    content: {
+        flex: 1,
     },
-    wrapper__top: {
-        height: 145,
-        marginBottom: 35
+    scrollViewContent: {
+        flexGrow: 1,
     },
-    wrapper__bg: {
-        width: '100%',
-        height: '100%'
-    },
-    wrapper__content: {
-        paddingLeft: 15,
-        paddingRight: 15,
-        marginTop: 35
-    },
-    title: {
-        position: 'absolute',
-        top: 75,
-        width: '100%',
-        fontSize: 24,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#f4f4f4',
-        textAlign: 'center'
-    },
-    block__content: {
-        paddingLeft: 5,
-        paddingRight: 5,
-        marginBottom: 14,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
-
-        elevation: 3,
-        backgroundColor: '#fff',
-        borderRadius: 40
-    },
-    block__title: {
-        paddingLeft: 15,
-        marginBottom: 5,
-        fontSize: 14,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#7127ac'
-    },
-    block__item: {
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        height: 40,
-        paddingLeft: 8,
-        paddingRight: 8
-    },
-    block__item__content: {
-        paddingTop: 5,
-        paddingBottom: 5
-    },
-    block__text: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#404040'
-    },
-    block__subtext: {
-        marginTop: -6,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 11,
-        color: '#999999'
-    },
-    block__text__right: {
-        marginLeft: 'auto',
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#999999'
-    },
-    divider: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#e3e6e9'
-    },
-    icon: {
-        marginRight: 15,
-        marginBottom: 1,
-        color: '#999999'
-    }
 })

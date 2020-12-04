@@ -24,13 +24,19 @@ import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboar
 import Toast from '../../../services/UI/Toast/Toast'
 import BlocksoftPrettyStrings from '../../../../crypto/common/BlocksoftPrettyStrings'
 
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import ListItem from '../../../components/elements/new/list/ListItem/Setting'
+import SubSetting from '../../../components/elements/new/list/ListItem/SubSetting'
+import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
+
 class SettingsBTC extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
             xpubs: false,
-            xpubsGenerating: false
+            xpubsGenerating: false,
+            dropMenu: false
         }
     }
 
@@ -75,9 +81,15 @@ class SettingsBTC extends Component {
             }
             setLoaderStatus(false)
         } catch (e) {
-            Log.log('Settigs.BTC.toggleSegWit ' + e.message, {oldValue, newValue})
+            Log.log('Settigs.BTC.toggleSegWit ' + e.message, { oldValue, newValue })
         }
         setLoaderStatus(false)
+    }
+
+    toggleDropMenu = () => {
+        this.setState({
+            dropMenu: !this.state.dropMenu
+        })
     }
 
 
@@ -102,8 +114,82 @@ class SettingsBTC extends Component {
         Toast.setMessage(strings('toast.copied')).show()
     }
 
+    showLegaceSegwitHandle = (btcLegacyOrSegWit, color) => {
+        return (
+            <View style={{ paddingHorizontal: 30 }}>
+                <SubSetting
+                    checked={btcLegacyOrSegWit === 'segwit'}
+                    title={strings('settings.walletList.showSegWit')}
+                    onPress={() => this.toggleAddress('segwit', btcLegacyOrSegWit)}
+                    radioButtonFirst={true}
+                    withoutLine={true}
+                    checkedStyle={true}
+                />
+                <SubSetting
+                    checked={btcLegacyOrSegWit === 'legacy'}
+                    title={strings('settings.walletList.showLegacy')}
+                    onPress={() => this.toggleAddress('legacy', btcLegacyOrSegWit)}
+                    radioButtonFirst={true}
+                    withoutLine={true}
+                    checkedStyle={true}
+                />
+            </View>
+            // <View style={[styles.settings__row, { paddingHorizontal: 30 }]}>
+            //     <Text style={[styles.settings__title, {
+            //         marginTop: 10,
+            //         marginBottom: 5,
+            //         fontSize: 14,
+            //         fontFamily: 'Montserrat-Bold'
+            //     }]}>
+            //         {strings('settings.walletList.accountSetting')}
+            //     </Text>
+            //     <TouchableOpacity
+            //         style={styles.mnemonicLength__item}
+            //         disabled={btcLegacyOrSegWit === 'segwit'}
+            //         onPress={() => this.toggleAddress('segwit', btcLegacyOrSegWit)}>
+            //         <View style={styles.radio}>
+            //             <View style={btcLegacyOrSegWit === 'segwit' ? {
+            //                 ...styles.radio__dot,
+            //                 backgroundColor: color
+            //             } : null} />
+            //         </View>
+            //         <LetterSpacing text={strings('settings.walletList.showSegWit')}
+            //             textStyle={{ ...styles.settings__title }} letterSpacing={0.5} />
+            //     </TouchableOpacity>
+            //     <TouchableOpacity
+            //         style={styles.mnemonicLength__item}
+            //         disabled={btcLegacyOrSegWit === 'legacy'}
+            //         onPress={() => this.toggleAddress('legacy', btcLegacyOrSegWit)}>
+            //         <View style={styles.radio}>
+            //             <View style={btcLegacyOrSegWit === 'legacy' ? {
+            //                 ...styles.radio__dot,
+            //                 backgroundColor: color
+            //             } : null} />
+            //         </View>
+            //         <LetterSpacing text={strings('settings.walletList.showLegacy')}
+            //             textStyle={{ ...styles.settings__title }} letterSpacing={0.5} />
+            //     </TouchableOpacity>
+            //     <TouchableOpacity
+            //         style={styles.mnemonicLength__item}
+            //         disabled={btcLegacyOrSegWit === 'two_addresses'}
+            //         onPress={() => this.toggleAddress('two_addresses', btcLegacyOrSegWit)}>
+            //         <View style={styles.radio}>
+            //             <View style={btcLegacyOrSegWit === 'two_addresses' ? {
+            //                 ...styles.radio__dot,
+            //                 backgroundColor: color
+            //             } : null} />
+            //         </View>
+            //         <LetterSpacing text={strings('settings.walletList.showSegWitAndLegacy')}
+            //             textStyle={{ ...styles.settings__title }} letterSpacing={0.5} />
+            //     </TouchableOpacity>
+            // </View>
+        )
+    }
+
 
     render() {
+
+        const { colors, GRID_SIZE } = this.context
 
         const { wallet, containerStyle, settingsStore, mainStore } = this.props
 
@@ -142,39 +228,51 @@ class SettingsBTC extends Component {
             }
             let val3S = ''
             if (val1) {
-                val1S = BlocksoftPrettyStrings.makeCut(val1, 14)
+                val1S = BlocksoftPrettyStrings.makeCut(val1, 10)
             }
             if (val2) {
-                val2S = BlocksoftPrettyStrings.makeCut(val2, 14)
+                val2S = BlocksoftPrettyStrings.makeCut(val2, 10)
             }
             if (val3) {
-                val3S = BlocksoftPrettyStrings.makeCut(val3, 14)
+                val3S = BlocksoftPrettyStrings.makeCut(val3, 10)
             }
             xpubsHtml =
-                <View>
-                    <View style={styles.settings__row}>
+                <View style={{ paddingBottom: 10, paddingLeft: 26 }}>
+                    <View style={{...styles.settings__row, paddingTop: 0 }}>
                         <View style={styles.settings__content}>
-                            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
+                            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, flexDirection: 'row' }}>
                                 <TouchableOpacity onPress={() => this.handleCopy(val1)}>
-                                    <Text>{val1S}</Text>
+                                    <Text style={styles.publicKey}>{val1S}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.handleCopy(val1)}
+                                    style={styles.copyBtn}>
+                                    <Copy name="content-copy" size={15} color={'#939393'} />
                                 </TouchableOpacity>
                             </View>
                         </View>
                     </View>
                     <View style={styles.settings__row}>
                         <View style={styles.settings__content}>
-                            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
+                            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, flexDirection: 'row' }}>
                                 <TouchableOpacity onPress={() => this.handleCopy(val2)}>
-                                    <Text>{val2S}</Text>
+                                    <Text style={styles.publicKey}>{val2S}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.handleCopy(val2)}
+                                    style={styles.copyBtn}>
+                                    <Copy name="content-copy" size={15} color={'#939393'} />
                                 </TouchableOpacity>
                             </View>
                         </View>
                     </View>
                     <View style={styles.settings__row}>
                         <View style={styles.settings__content}>
-                            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
+                            <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, flexDirection: 'row' }}>
                                 <TouchableOpacity onPress={() => this.handleCopy(val3)}>
-                                    <Text>{val3S}</Text>
+                                    <Text style={styles.publicKey}>{val3S}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.handleCopy(val3)}
+                                    style={styles.copyBtn}>
+                                    <Copy name="content-copy" size={15} color={'#939393'} />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -183,169 +281,57 @@ class SettingsBTC extends Component {
         }
 
         return (
-            <View style={[styles.settings, containerStyle]}>
+            <>
                 <View style={styles.settings__row}>
-                    <Text style={styles.settings__main__title}>{strings('account.assetSettings')}</Text>
+                    <LetterSpacing text={strings('account.assetSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
                 </View>
-                <View style={styles.settings__row}>
-                    <View style={styles.settings__content}>
-                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
-                            <LetterSpacing text={strings('settings.walletList.useUnconfirmed')}
-                                           textStyle={{ ...styles.settings__title }} letterSpacing={0.5}
-                                           numberOfLines={2}/>
-                        </View>
-                        <View>
-                            {
-                                Platform.OS === 'android' ?
-                                    <Switch
-                                        thumbColor="#fff"
-                                        trackColor={{ true: '#864DD9', false: '#dadada' }}
-                                        onValueChange={this.handleUseUnconfirmed}
-                                        value={!!wallet.walletUseUnconfirmed}
-                                        disabled={false}/>
-                                    :
-                                    <Switch
-                                        trackColor={{ true: '#864DD9' }}
-                                        style={{ marginTop: -3, transform: [{ scaleX: .7 }, { scaleY: .7 }] }}
-                                        onValueChange={this.handleUseUnconfirmed}
-                                        value={!!wallet.walletUseUnconfirmed}
-                                        disabled={false}/>
-                            }
-                        </View>
-                    </View>
-                </View>
-                <View style={styles.settings__row}>
-                    <View style={styles.settings__content}>
-                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
-                            <LetterSpacing text={strings('settings.walletList.allowReplaceByFee')}
-                                           textStyle={{ ...styles.settings__title }} letterSpacing={0.5}
-                                           numberOfLines={2}/>
-                        </View>
-                        <View>
-                            {
-                                Platform.OS === 'android' ?
-                                    <Switch
-                                        thumbColor="#fff"
-                                        trackColor={{ true: '#864DD9', false: '#dadada' }}
-                                        onValueChange={this.handleAllowReplaceByFee}
-                                        value={!!wallet.walletAllowReplaceByFee}
-                                        disabled={false}/>
-                                    :
-                                    <Switch
-                                        trackColor={{ true: '#864DD9' }}
-                                        style={{ marginTop: -3, transform: [{ scaleX: .7 }, { scaleY: .7 }] }}
-                                        onValueChange={this.handleAllowReplaceByFee}
-                                        value={!!wallet.walletAllowReplaceByFee}
-                                        disabled={false}/>
-                            }
-                        </View>
-                    </View>
-                </View>
-                <View style={[styles.settings__row]}>
-                    <View style={styles.settings__content}>
-                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15 }}>
-                            <LetterSpacing text={'HD'} textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
-                        </View>
-                        <View>
-                            {
-                                Platform.OS === 'android' ?
-                                    <Switch
-                                        thumbColor="#fff"
-                                        trackColor={{ true: '#864DD9', false: '#dadada' }}
-                                        onValueChange={this.handleEnableHD}
-                                        value={!!wallet.walletIsHd}
-                                        disabled={!!wallet.walletIsHd}/>
-                                    :
-                                    <Switch
-                                        trackColor={{ true: '#864DD9' }}
-                                        style={{ marginTop: -3, transform: [{ scaleX: .7 }, { scaleY: .7 }] }}
-                                        onValueChange={this.handleEnableHD}
-                                        value={!!wallet.walletIsHd}
-                                        disabled={!!wallet.walletIsHd}/>
-                            }
-                        </View>
-                    </View>
-                </View>
-                {xpubsHtml}
-                <View style={[styles.settings__row, { paddingHorizontal: 30 }]}>
-                    <Text style={[styles.settings__title, {
-                        marginTop: 10,
-                        marginBottom: 5,
-                        fontSize: 14,
-                        fontFamily: 'Montserrat-Bold'
-                    }]}>
-                        {strings('settings.walletList.changeSetting')}
-                    </Text>
-                    <TouchableOpacity
-                        style={styles.mnemonicLength__item}
-                        onPress={this.handleUseLegacy}>
-                        <View style={styles.radio}>
-                            <View style={!walletUseLegacy ? { ...styles.radio__dot, backgroundColor: color } : null}/>
-                        </View>
-                        <LetterSpacing text={strings('settings.walletList.useSegWit')}
-                                       textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.mnemonicLength__item}
-                        onPress={this.handleUseLegacy}>
-                        <View style={styles.radio}>
-                            <View style={walletUseLegacy ? { ...styles.radio__dot, backgroundColor: color } : null}/>
-                        </View>
-                        <LetterSpacing text={strings('settings.walletList.useLegacy')}
-                                       textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
-                    </TouchableOpacity>
-                </View>
-                <View style={[styles.settings__row, { paddingHorizontal: 30 }]}>
-                    <Text style={[styles.settings__title, {
-                        marginTop: 10,
-                        marginBottom: 5,
-                        fontSize: 14,
-                        fontFamily: 'Montserrat-Bold'
-                    }]}>
-                        {strings('settings.walletList.accountSetting')}
-                    </Text>
-                    <TouchableOpacity
-                        style={styles.mnemonicLength__item}
-                        disabled={btcLegacyOrSegWit === 'segwit'}
-                        onPress={() => this.toggleAddress('segwit', btcLegacyOrSegWit)}>
-                        <View style={styles.radio}>
-                            <View style={btcLegacyOrSegWit === 'segwit' ? {
-                                ...styles.radio__dot,
-                                backgroundColor: color
-                            } : null}/>
-                        </View>
-                        <LetterSpacing text={strings('settings.walletList.showSegWit')}
-                                       textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.mnemonicLength__item}
-                        disabled={btcLegacyOrSegWit === 'legacy'}
-                        onPress={() => this.toggleAddress('legacy', btcLegacyOrSegWit)}>
-                        <View style={styles.radio}>
-                            <View style={btcLegacyOrSegWit === 'legacy' ? {
-                                ...styles.radio__dot,
-                                backgroundColor: color
-                            } : null}/>
-                        </View>
-                        <LetterSpacing text={strings('settings.walletList.showLegacy')}
-                                       textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.mnemonicLength__item}
-                        disabled={btcLegacyOrSegWit === 'two_addresses'}
-                        onPress={() => this.toggleAddress('two_addresses', btcLegacyOrSegWit)}>
-                        <View style={styles.radio}>
-                            <View style={btcLegacyOrSegWit === 'two_addresses' ? {
-                                ...styles.radio__dot,
-                                backgroundColor: color
-                            } : null}/>
-                        </View>
-                        <LetterSpacing text={strings('settings.walletList.showSegWitAndLegacy')}
-                                       textStyle={{ ...styles.settings__title }} letterSpacing={0.5}/>
-                    </TouchableOpacity>
-                </View>
+                <View >
+                    <ListItem
+                        title={strings('settings.walletList.useUnconfirmed')}
+                        iconType="pinCode"
+                        onPress={this.handleUseUnconfirmed}
+                        rightContent="switch"
+                        switchParams={{ value: !!wallet.walletUseUnconfirmed, onPress: this.handleUseUnconfirmed }}
+                    />
+                    <ListItem
+                        title={strings('settings.walletList.allowReplaceByFee')}
+                        iconType="pinCode"
+                        onPress={this.handleAllowReplaceByFee}
+                        rightContent="switch"
+                        switchParams={{ value: !!wallet.walletAllowReplaceByFee, onPress: this.handleAllowReplaceByFee }}
+                    />
+                    <ListItem
+                        title={'HD'}
+                        iconType="pinCode"
+                        onPress={this.handleEnableHD}
+                        rightContent="switch"
+                        switchParams={{ value: !!wallet.walletIsHd, onPress: this.handleEnableHD }}
+                        disabledRightContent={wallet.walletIsHd ? true : false}
+                        ExtraView={() => {
+                            return (xpubsHtml)
+                        }
+                        }
+                    />
 
-            </View>
+                    <ListItem
+                        title={strings('settings.walletList.changeSetting')}
+                        iconType="pinCode"
+                        onPress={this.handleUseLegacy}
+                        rightContent="switch"
+                        switchParams={{ value: !walletUseLegacy, onPress: this.handleUseLegacy }}
+                    />
+                    <ListItem
+                        title={strings('settings.walletList.accountAddress')}
+                        iconType="pinCode"
+                        onPress={this.toggleDropMenu}
+                        rightContent={this.state.dropMenu ? 'arrow_up' : "arrow_down"}
+                        switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
+                        type={'dropdown'}
+                        ExtraView={() => this.showLegaceSegwitHandle(btcLegacyOrSegWit, color)}
+                        subtitle={'DEFALUT'}
+                    />
+                </View>
+            </>
         )
     }
 }
@@ -363,6 +349,8 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
+SettingsBTC.contextType = ThemeContext
+
 export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(SettingsBTC)
 
 const styles = {
@@ -379,10 +367,9 @@ const styles = {
     },
     settings__main__title: {
         marginLeft: 15,
-        marginBottom: 10,
         marginTop: -8,
         color: '#404040',
-        fontSize: 16,
+        fontSize: 12,
         fontFamily: 'Montserrat-Bold'
     },
     settings__title: {
@@ -441,5 +428,16 @@ const styles = {
         height: 10,
         borderRadius: 10,
         backgroundColor: '#6B36A8'
+    },
+    copyBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 3,
+        marginLeft: 10
+    },
+    publicKey: {
+        fontFamily: 'Montserrat-Medium',
+        fontSize: 14,
+        color: '#404040'
     }
 }

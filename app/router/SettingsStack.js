@@ -4,10 +4,13 @@
 import { createStackNavigator } from 'react-navigation-stack'
 import SettingsMainScreen from '../modules/Settings/SettingsMainScreen'
 import WalletListScreen from '../modules/Settings/WalletListScreen'
+import AddWalletScreen from '../modules/Settings/AddWalletScreen'
+import AdvancedWalletScreen from '../modules/Settings/AdvancedWalletScreen'
 import LanguageListScreen from '../modules/Settings/LanguageListScreen'
 import ScannerSettingsScreen from '../modules/Settings/ScannerSettingsScreen'
 import CashbackScreen from '../modules/Settings/CashbackScreen'
 
+import NotificationsScreen from '../modules/Settings/NotificationsScreen'
 import AboutScreen from '../modules/About/AboutScreen'
 import FioChooseRecipient from '../modules/FIO/FioChooseRecipient'
 import FioSendRequest from '../modules/FIO/FioSendRequest'
@@ -102,6 +105,20 @@ const SettingsStack = createStackNavigator(
             }
         },
 
+        AddWalletScreen: {
+            screen: AddWalletScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        AdvancedWalletScreen: {
+            screen: AdvancedWalletScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
         LocalCurrencyScreen: {
             screen: LocalCurrencyScreen,
             navigationOptions: {
@@ -133,6 +150,13 @@ const SettingsStack = createStackNavigator(
 
         CashbackScreen: {
             screen: CashbackScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        NotificationsSettingsScreen: {
+            screen: NotificationsScreen,
             navigationOptions: {
                 headerShown: false
             }

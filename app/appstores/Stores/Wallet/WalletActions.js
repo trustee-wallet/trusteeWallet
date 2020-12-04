@@ -70,6 +70,22 @@ const walletActions = {
         }
 
         return 'TRUSTEE WALLET №' + (wallets.length)
+    },
+
+    setNewWalletName: async (walletHash, newName) => {
+        try {
+            let tmpNewWalletName = newName.replace(/'/g, '')
+
+            if (tmpNewWalletName.length > 255) tmpNewWalletName = tmpNewWalletName.slice(0, 255)
+
+            await walletDS.changeWalletName(walletHash, tmpNewWalletName)
+            await setSelectedWallet('ACT/Wallet setNewWalletName')
+            await walletActions.setAvailableWallets()
+            return true
+        } catch (e) {
+            Log.err('walletActions.setNewWalletName error:', e.message)
+            return false
+        }
     }
 }
 

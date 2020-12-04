@@ -60,7 +60,7 @@ import DaemonCache from '../../daemons/DaemonCache'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 
-import Header from '../../components/elements/new/Header'
+import Header from '../../modules/Send/elements/Header'
 import TrxButton from './elements/TrxButton'
 
 
@@ -163,10 +163,11 @@ class Account extends Component {
         NavStore.goNext('ReceiveScreen')
     }
 
-    handleSetMode = () => {
-        this.setState({
-            mode: this.state.mode === 'TRANSACTIONS' ? 'SETTINGS' : 'TRANSACTIONS'
-        })
+    accountSetting = (account) => {
+        NavStore.goNext('AccountSettings', {account} )
+        // this.setState({
+        //     mode: this.state.mode === 'TRANSACTIONS' ? 'SETTINGS' : 'TRANSACTIONS'
+        // })
     }
 
     handleSend = () => {
@@ -625,22 +626,22 @@ class Account extends Component {
 
         const { colors, isLight } = this.context
 
-        // const tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
+        const tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
 
-        // if (typeof tmp.split === 'undefined') {
-        //     throw new Error('AccountScreen.renderBalance split is undefined')
-        // }
-        // const tmps = tmp.split('.')
-        // let balancePrettyPrep1 = tmps[0]
-        // let balancePrettyPrep2 = ''
-        // if (typeof tmps[1] !== 'undefined' && tmps[1]) {
-        //     balancePrettyPrep1 = tmps[0] + '.'
-        //     balancePrettyPrep2 = tmps[1]
-        // }
+        if (typeof tmp.split === 'undefined') {
+            throw new Error('AccountScreen.renderBalance split is undefined')
+        }
+        const tmps = tmp.split('.')
+        let balancePrettyPrep1 = tmps[0]
+        let balancePrettyPrep2 = ''
+        if (typeof tmps[1] !== 'undefined' && tmps[1]) {
+            balancePrettyPrep1 = tmps[0] + '.'
+            balancePrettyPrep2 = tmps[1]
+        }
 
         return (
             <>
-                {/* <View style={stl.topContent__top}>
+                <View style={stl.topContent__top}>
                     <View style={stl.topContent__title}>
                         <Text style={{...stl.topContent__title_first, color: colors.accountScreen.balanceColor }}>
                             {
@@ -655,8 +656,8 @@ class Account extends Component {
                     </View>
                     <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
                         textStyle={{...stl.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent}} letterSpacing={.5} />
-                </View> */}
-                {/* <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', paddingTop: 24 }}>
+                </View>
+                <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', paddingTop: 24 }}>
                     <TrxButton
                         action={this.handleReceive}
                         type={'receive'}
@@ -672,7 +673,7 @@ class Account extends Component {
                         type={'send'}
                         style={{...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
                     />
-                </View> */}
+                </View>
             </>
         )
     }
@@ -733,40 +734,28 @@ class Account extends Component {
         let settingsComponent = null
         if (account.currencyCode === 'BTC') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
-                onPress={this.handleSetMode}><View
+                onPress={() => this.accountSetting(account.currencyCode)}><View
                     style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
                         color={`#404040`} /></View></TouchableOpacity>
-            settingsComponent =
-                <SettingsBTC containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-                    wallet={mainStore.selectedWallet} />
         } else if (account.currencyCode === 'USDT') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
-                onPress={this.handleSetMode}><View
+                onPress={() => this.accountSetting(account.currencyCode)}><View
                     style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
                         color={`#404040`} /></View></TouchableOpacity>
-            settingsComponent =
-                <SettingsUSDT containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-                    wallet={mainStore.selectedWallet} account={account} />
         } else if (account.currencyCode === 'FIO') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={() => NavStore.goNext('FioMainSettings')}>
                 <View style={{ paddingVertical: 12 }}>
                     <IconAwesome size={20} name="gear" color={`#404040`} /></View></TouchableOpacity>
         } else if (account.currencyCode === 'XMR') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
-                onPress={this.handleSetMode}><View
+                onPress={() => this.accountSetting(account.currencyCode)}><View
                     style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
                         color={`#404040`} /></View></TouchableOpacity>
-            settingsComponent =
-                <SettingsXMR containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-                    wallet={mainStore.selectedWallet} account={account} />
         } else if (account.currencyCode === 'TRX') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
-                onPress={this.handleSetMode}><View
+                onPress={() => this.accountSetting(account.currencyCode)}><View
                     style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
                         color={`#404040`} /></View></TouchableOpacity>
-            settingsComponent =
-                <SettingsTRX containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-                    wallet={mainStore.selectedWallet} account={account} />
         }
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor
@@ -777,7 +766,6 @@ class Account extends Component {
                     rightAction={this.closeAction}
                     title={strings('account.title').toUpperCase()}
                     setHeaderHeight={this.setHeaderHeight}
-                    // ExtraView={() => this.renderBalanceHeader(cryptoCurrency, mainStore.selectedAccount)}
                     ExtraView={() => this.renderBalanceHeader(mainStore.selectedAccount, cryptoCurrency)}
                     scrollOffset={this.state.scrollOffset}
                 />
@@ -927,7 +915,6 @@ class Account extends Component {
                                     <View style={{ marginBottom: 60 }} />
                             }
                         </View>
-                        {settingsComponent}
                     </View>
                 </ScrollView>
                 <GradientView style={stl.bottomButtons} array={colors.accountScreen.bottomGradient} start={styles.containerBG.start} end={styles.containerBG.end} />

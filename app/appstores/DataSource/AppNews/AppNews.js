@@ -5,13 +5,14 @@ import DBInterface from '../DB/DBInterface'
 import Log from '../../../services/Log/Log'
 
 import walletDS from '../Wallet/Wallet'
+import app from 'react-native-orientation/demo/app'
 
 const tableName = 'app_news'
 
 class AppNews {
 
     /**
-     * @param {string} appNews.id
+     * @param {number} appNews.id
      * @param {string} appNews.newsName
      */
     setRemoved = async (appNews) => {
@@ -27,23 +28,34 @@ class AppNews {
     }
 
     /**
-     * @param {number} appNewsId
-     * @param {number} appNewsNewsNeedPopup
+     * @param {number} appNews.id
+     * @param {number} appNews.newsNeedPopup
      */
-    setNewsNeedPopup = async (appNewsId, appNewsNewsNeedPopup) => {
+    setNewsNeedPopup = async (appNews) => {
         const dbInterface = new DBInterface()
-        const sql = `UPDATE app_news SET news_need_popup=${appNewsNewsNeedPopup} WHERE id=${appNewsId}`
+        const sql = `UPDATE app_news SET news_need_popup=${appNews.newsNeedPopup} WHERE id=${appNews.id}`
         await dbInterface.setQueryString(sql).query()
     }
 
     /**
      * @param {string} appNews.walletHash
      * @param {string} appNews.currencyCode
+     * @param {string} appNews.newsSource
      * @param {string} appNews.newsGroup
+     * @param {string} appNews.newsPriority
      * @param {string} appNews.newsName
      * @param {string} appNews.newsJson
+     * @param {string} appNews.newsCustomTitle
+     * @param {string} appNews.newsCustomText
+     * @param {string} appNews.newsImage
+     * @param {string} appNews.newsUrl
      * @param {string} appNews.newsCustomCreated
      * @param {string} appNews.newsUniqueKey
+     * @param {string} appNews.newsNeedPopup
+     * @param {string} appNews.newsServerId
+     * @param {string} appNews.newsReceivedAt
+     * @param {integer} appNews.newsToSendStatus
+     * @param {string} appNews.newsLog
      * @param {boolean} appNews.onlyOne
      */
     saveAppNews = async (appNews) => {
@@ -54,8 +66,15 @@ class AppNews {
                 appNews.newsJson = dbInterface.escapeString(JSON.stringify(appNews.newsJson))
             }
         }
+        if (typeof appNews.newsNeedPopup !== 'undefined') {
+            appNews.newsNeedPopup = appNews.newsNeedPopup ? 1 : 0
+        }
         if (typeof appNews.newsCustomCreated === 'undefined') {
             appNews.newsCustomCreated = now
+        }
+        if (typeof appNews.newsServerId !== 'undefined' && appNews.newsServerId) {
+            appNews.newsReceivedAt = now
+            appNews.newsToSendStatus = 1 // need to send as received
         }
         appNews.newsCreated = now
         if (typeof appNews.onlyOne !== 'undefined') {
@@ -95,6 +114,70 @@ class AppNews {
         await dbInterface.setQueryString('UPDATE ' + tableName + ' SET news_shown_popup=1 WHERE id=' + id).query()
     }
 
+    markAsOpened = async (id) => {
+        if (typeof id === 'undefined' || !id) return
+        const dbInterface = new DBInterface()
+        const now = Math.round(new Date().getTime() / 1000)
+        await dbInterface.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE id=' + id).query()
+    }
+
+    /**
+     * @param {string} params.walletHash
+     * @param {string} params.limit
+     */
+    getAppNewsForServer = async (params) => {
+        const dbInterface = new DBInterface()
+
+        let where = [
+            `app_news.news_server_id IS NOT NULL`,
+            `(app_news.news_to_send_status IS NOT NULL AND app_news.news_to_send_status>0)`
+        ]
+
+        if (params && typeof params.walletHash !== 'undefined' && params.walletHash) {
+            where.push(`app_news.wallet_hash='${params.walletHash}'`)
+        }
+
+        if (where.length > 0) {
+            where = ' WHERE ' + where.join(' AND ')
+        } else {
+            where = ''
+        }
+
+        let limit = 100
+        if (params && typeof params.limit !== 'undefined' && params.limit > 0) {
+            limit = params.limit
+        }
+
+        const sql = ` 
+            SELECT
+                app_news.id,
+                app_news.news_server_id AS serverId,
+                app_news.news_received_at AS receivedAt,
+                app_news.news_opened_at AS openedAt
+            FROM app_news
+            ${where}
+            LIMIT ${limit}
+        `
+
+        try {
+            const res = await dbInterface.setQueryString(sql).query()
+            if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
+                Log.daemon('AppNews getAppNewsForServer finished as empty')
+                return []
+            }
+            return res.array
+        } catch (e) {
+            Log.errDaemon('DS/AppNews getAppNewsForServer error ' + sql + ' ' + e.message)
+            return []
+        }
+    }
+
+    saveAppNewsSentForServer = async (ids) => {
+        if (typeof ids === 'undefined' || !ids) return
+        const dbInterface = new DBInterface()
+        await dbInterface.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=0 WHERE id IN (' + ids.join(',') + ')').query()
+    }
+
     /**
      * @param {string} params.walletHash
      * @param {string} params.newsServerId
@@ -127,7 +210,7 @@ class AppNews {
             where.push(`app_news.news_shown_popup IS NULL`)
         }
         if (params && typeof params.newsServerId !== 'undefined') {
-            where.push(`app_news.news_server_id > 0`)
+            where.push(`app_news.news_server_id IS NOT NULL`)
         }
 
         if (where.length > 0) {
@@ -153,12 +236,17 @@ class AppNews {
                 app_news.news_json AS newsJson,
                 app_news.news_custom_title AS newsCustomTitle,
                 app_news.news_custom_text AS newsCustomText,
-                app_news.news_custom_created AS newsCreated,          
+                app_news.news_custom_created AS newsCreated,
+                app_news.news_image AS newsImage,
+                app_news.news_url AS newsUrl,      
                 app_news.news_status AS newsStatus,  
                 app_news.news_need_popup AS newsNeedPopup,              
                 app_news.news_shown_popup AS newsShownPopup,
                 app_news.news_shown_list AS newsShownList,
-                app_news.news_server_id AS newsServerId
+                app_news.news_server_id AS newsServerId,
+                app_news.news_received_at AS newsReceivedAt,
+                app_news.news_opened_at AS newsOpenedAt
+
             FROM app_news
             ${where}
             ORDER BY app_news.news_priority, app_news.news_custom_created DESC, app_news.id DESC

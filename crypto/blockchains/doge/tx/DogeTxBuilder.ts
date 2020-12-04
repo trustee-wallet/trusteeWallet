@@ -53,6 +53,7 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
     }
 
     async _getRawTxSign(txb: TransactionBuilder, i: number, input: BlocksoftBlockchainTypes.UnspentTx): Promise<void> {
+        BlocksoftCryptoLog.log('DogeTxBuilder.getRawTx sign', input)
         // @ts-ignore
         txb.sign(i, this.keyPair, null, null, input.value * 1)
     }

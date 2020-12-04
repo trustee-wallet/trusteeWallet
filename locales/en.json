@@ -207,22 +207,41 @@
     "openLinkError": "Not found default browser - link is copied to clipboard"
   },
   "settings": {
-    "title": "General settings",
+    "title": "Settings",
+    "wallets": {
+      "listTitle": "My wallets",
+      "listSubtitle": "Wallets: %{number}"
+    },
+    "paymentAccounts": {
+      "listTitle": "Payment accounts",
+      "listSubtitle": "Accounts: %{number}"
+    },
     "walletManagement": {
       "title": "Wallets management",
       "backup": "Backup wallet",
       "import": "Import wallet",
       "create": "Create new wallet",
       "select": "Select wallet",
-      "turnOnHD": "Turn on HD"
+      "addWallet": {
+        "title": "Add wallet",
+        "importTitle": "Import wallet",
+        "importSubtitle": "Add wallet with a recovery phrase",
+        "createTitle": "Create new wallet"
+      },
+      "advanced": {
+        "title": "Advanced",
+        "walletNameLabel": "Wallet name",
+        "recoveryPhraseTitle": "Recovery phrase",
+        "recoveryPhraseSubtitle": "Your secret recovery phrase"
+      }
     },
     "security": {
       "title": "Security",
-      "change": "Change PIN-code",
+      "change": "Change PIN",
       "lock": "PIN-code",
       "touch": "FaceID/TouchID",
-      "askPINCodeToSend": "Ask confirmation",
-      "askPINCodeSubtitle": "When sending assets"
+      "askPINCodeToSend": "Transaction confirmation",
+      "askPINCodeSubtitle": "Ask to send assets"
     },
     "assets": {
       "title": "Assets management",
@@ -230,6 +249,9 @@
     },
     "other": {
       "title": "Other",
+      "darkModeTitle": "Dark mode",
+      "darkModeEnabledSubtitle": "Enabled",
+      "darkModeDisabledSubtitle": "Disabled",
       "support": "Support",
       "supportSubtitle": "Our telegram support bot",
       "lock": "Lock screen",
@@ -237,13 +259,14 @@
       "appnews": "Technical Messages",
       "appnewsSmall": "Tech Messages",
       "about": "About Trustee",
-      "lang": "Change language",
+      "lang": "Language",
       "copyLogs": "Copy logs",
       "cashback": {
         "title": "Cashback",
         "description": "Invite friends and make money",
         "descriptionSmall": "Invite friends and make money!"
       },
+      "notifications": "Notifications",
       "localCurrency": "Local currency",
       "scannerSettings": "Scanning",
       "scannerSubtitle": "Balance reload frequency",
@@ -253,7 +276,9 @@
       "testerMode": "Tester"
     },
     "walletList": {
-      "title": "Wallet list",
+      "title": "My wallets",
+      "addWallet": "Add wallet",
+      "backupNeeded": "Back up needed",
       "addedAssets": "Added assets",
       "balance": "Balance",
       "backup": "Backup",
@@ -261,13 +286,13 @@
       "on": "On",
       "totalBalance": "Total balance",
       "useUnconfirmed": "Use unconfirmed transactions",
-      "allowReplaceByFee": "Edit the transaction before confirmation by miners",
-      "changeSetting": "Collect Change to",
+      "allowReplaceByFee": "Editing the transaction before confirmation by miners",
+      "changeSetting": "Collect Change to SegWit",
       "useLegacy": "Use Legacy",
       "useSegWit": "Use SegWit",
-      "showLegacy": "Show Legacy",
-      "showSegWit": "Show SegWit",
-      "accountSetting": "Account settings",
+      "showLegacy": "Legacy",
+      "showSegWit": "SegWit",
+      "accountAddress": "Select visible address",
       "showSegWitAndLegacy": "Show SegWit and Legacy",
       "hideCommissionTrans": "Hide commission payment transactions",
       "checkFrozen" : "Scan frozen balance",
@@ -295,10 +320,26 @@
     },
     "about": {
       "title": "About",
-      "header": "Trustee for %{OS}",
-      "version": "Version",
+      "version": "Trustee version: %{version}",
       "privacy": "Privacy policy",
-      "terms": "Terms of use"
+      "terms": "Terms of use",
+      "feedback": "Feedback",
+      "shareLogsTitle": "Share app logs",
+      "shareLogsSubtitle": "Help us to be better",
+      "contactSupportTitle": "Contact support",
+      "contactSupportSubtitle": "Official telegram chanel",
+      "information": "Information",
+      "copyright": "© BlockSoftLab Inc, 2020"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "additional": "Additional",
+      "allNotificationsTitle": "Activate all",
+      "transactionsTitle": "Transactions",
+      "transactionsSubtitle": "Buy, sell, receivе, send, exchangе",
+      "exchangeRatesTitle": "Exchange rates",
+      "exchangeRateSubtitle": "Prices of main coins",
+      "newsTitle": "News"
     },
     "error": {
       "title": "Oooops, app error",
@@ -372,7 +413,7 @@
     "transaction": {
       "pay": "Pay",
       "remove" : "Hide",
-      "removeRBF" : "Remove by Replace",
+      "removeRBF" : "Return funds",
       "destinationTag": "Destination tag",
       "paymentId": "Payment ID",
       "nonce": "Nonce",
@@ -652,6 +693,9 @@
     "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}",
     "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations or turn on usage of unconfirmed transactions",
     "publicFioAddressNotFound": "%{symbol} public address is not associated with specified FIO address",
+    "setting": {
+      "title": "Advanced"
+    },
     "confirmModal": {
       "title": "Do you confirm sending?",
       "titleSpeedUp": "Do you confirm speeding up incoming transaction %{hash}?",
@@ -796,7 +840,9 @@
     }
   },
   "walletBackup": {
-    "pageTitle": "Create new wallet",
+    "titleCreate": "Create wallet",
+    "titleBackup": "Backup wallet",
+    "titleShow": "Recovery phrase",
     "infoScreen": {
       "continue": "Continue",
       "text1": "TRUSTEE WALLET never sends your recovery phrase anywhere. Therefore, in case of device loss or failure, the only way to restore access to your funds is to use a recovery phrase.",
@@ -806,13 +852,13 @@
     },
     "step0Screen": {
       "info": "The recovery phrase is the only secret key to your assets. Store it securely!",
-      "showButton": "Click and hold to watch",
+      "showButton": "Press and hold to reveal",
       "next": "Next"
     },
     "step1Screen": {
       "title": "Check",
       "placeholder": "Please, tap each word in the correct order to verify recovery phrase. To remove word from field tap on it again",
-      "showButton": "Click and hold to watch",
+      "showButton": "Press and hold to reveal",
       "next": "Next"
     },
     "settingsScreen": {
@@ -1176,13 +1222,14 @@
     }
   },
   "scannerSettings": {
-    "title": "Scanner settings",
+    "title": "Scanning",
     "codes": {
-      "none": "No auto",
-      "10min": "10 minutes",
-      "1min": "1 minute"
+      "none": "No autoscanning",
+      "10min": "Every 10 minutes",
+      "1min": "Every minute"
     },
-    "lastScan": "Last scanned: %{time}"
+    "lastScan": "Your balances have scanned at:",
+    "helper": "But you can choose frequency yourself"
   },
   "repeat": {
     "receive": "Receive"

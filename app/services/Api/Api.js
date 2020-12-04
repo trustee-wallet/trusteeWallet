@@ -173,28 +173,36 @@ export default {
         return msg
     },
 
-    getNews: async (data) => {
-        if (!Log.LOG_TOKEN || Log.LOG_TOKEN === 'false') {
-            return false
+    /**
+     *
+     * @param userNotifications[]
+     * @returns {Promise<{createdAt: string, currencyCode: string, data : any, type : string, group: string, image: string, name: string, needPopUp: boolean, priority: string, serverId: string, source: string, text: string, title: string, url: string}[]>}
+     */
+
+    getNews: async (userNotifications) => {
+        const baseUrl = 'https://notifications.trustee.deals/notifications/history'
+        const signedData = await CashBackUtils.createWalletSignature(true)
+        if (!signedData) {
+            throw new Error('No signed for getExchangeOrders')
         }
-        data.cashbackToken = CashBackUtils.getWalletToken()
-        data.exchangeCashbackToken = CashBackUtils.getWalletToken()
-        data.deviceToken = MarketingEvent.DATA.LOG_TOKEN
-        data.otherDeviceTokens = await AsyncStorage.getItem('allPushTokens')
-        data.platform = MarketingEvent.DATA.LOG_PLATFORM
-        data.version = MarketingEvent.DATA.LOG_VERSION
-        data.locale = sublocale()
-        data.time = new Date().toLocaleTimeString()
-        const { mode: exchangeMode, apiEndpoints } = config.exchange
-        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+        const data = {
+            cashbackToken: Log.DATA.LOG_CASHBACK,
+            deviceToken: Log.DATA.LOG_TOKEN,
+            sign : signedData,
+            userNotifications : userNotifications ? userNotifications : []
+        }
         try {
-            const res = await BlocksoftAxios.post(`${baseUrl}/device-token-info`, data, false)
-            if (!res || typeof res.data === 'undefined' || typeof res.data.status === 'undefined' || res.data.status !== 'success' || typeof res.data === 'undefined' || !res.data) {
-                return false
+            const res = await BlocksoftAxios.post(`${baseUrl}`, data, false)
+            if (!res || typeof res.data === 'undefined' || !res.data || typeof res.data[0] === 'undefined') {
+                return []
             }
             return res.data
         } catch (e) {
-            return false
+            if (config.debug.appErrors) {
+                console.log('Api.getNews error ', data, e)
+            }
+            Log.log('Api.getNews error ' + e.message, data)
+            return []
         }
     },
 

@@ -87,11 +87,11 @@
     },
     "expiredModal" : {
       "title" : "Истек",
-      "description" : "20-минутный интервал для создания транзакции прошел, пожайлуста, создайте новую заявку"
+      "description" : "20-минутный интервал для создания транзакции прошел, пожалуйста, создайте новую заявку"
     },
     "noAddressModal" : {
       "title" : "Внешний актив",
-      "description" : "Выбранный актив не включен в Trustee - пожайлуста, включите его или совершите транзакцию самостоятельно"
+      "description" : "Выбранный актив не включен в Trustee - пожалуйста, добавьте его или совершите транзакцию самостоятельно"
     },
     "resendModal" : {
       "title" : "Обмен не завершен",
@@ -99,7 +99,7 @@
     },
     "waitConfirmModal" : {
       "title" : "Обмен почти завершен",
-      "description" : "Транзакция %{txHash} уже создана, пожайлуста, подождите подтверждений сети"
+      "description" : "Транзакция %{txHash} уже создана, пожалуйста, подождите подтверждений сети"
     }
   },
   "exchangeConfirmScreen": {
@@ -207,21 +207,40 @@
   },
   "settings": {
     "title": "Настройки",
+    "wallets": {
+      "listTitle": "Мои кошельки",
+      "listSubtitle": "Кошельки: %{number}"
+    },
+    "paymentAccounts": {
+      "listTitle": "Платежные счета",
+      "listSubtitle": "Счета: %{number}"
+    },
     "walletManagement": {
       "title": "Управление кошельками",
       "backup": "Резервировать кошелек",
       "import": "Импортировать кошелек",
       "create": "Создать новый кошелек",
       "select": "Выбрать кошелек",
-      "turnOnHD" : "Включить древовидные адреса BTC"
+      "addWallet": {
+        "title": "Add wallet",
+        "importTitle": "Импортировать кошелек",
+        "importSubtitle": "Add wallet with a recovery phrase",
+        "createTitle": "Создать новый кошелек"
+      },
+      "advanced": {
+        "title": "Advanced",
+        "walletNameLabel": "Wallet name",
+        "recoveryPhraseTitle": "Recovery phrase",
+        "recoveryPhraseSubtitle": "Your secret recovery phrase"
+      }
     },
     "security": {
       "title": "Безопасность",
       "change": "Изменить PIN-код",
       "lock": "PIN-код",
       "touch": "FaceID/TouchID",
-      "askPINCodeToSend": "Запрос авторизации",
-      "askPINCodeSubtitle": "При отправке активов"
+      "askPINCodeToSend": "Подтверждение транзакции",
+      "askPINCodeSubtitle": "Запрос PIN-кода при отправке активов"
     },
     "assets": {
       "title": "Управление активами",
@@ -229,6 +248,9 @@
     },
     "other": {
       "title": "Поддержка и справка",
+      "darkModeTitle": "Dark mode",
+      "darkModeEnabledSubtitle": "Enabled",
+      "darkModeDisabledSubtitle": "Disabled",
       "support": "Поддержка",
       "supportSubtitle": "Наш бот в telegram",
       "lock": "Блокирование экрана",
@@ -236,13 +258,14 @@
       "appnews" : "Технические сообщения",
       "appnewsSmall" : "Тех. сообщения",
       "about": "О кошельке Trustee",
-      "lang": "Change language",
+      "lang": "Language",
       "copyLogs": "Копировать логи",
       "cashback": {
         "title": "Кешбэк",
         "description": "Приглашайте друзей и зарабатывайте деньги!",
         "descriptionSmall": "Приглашайте друзей и зарабатывайте!"
       },
+      "notifications": "Сообщения",
       "localCurrency": "Локальная валюта",
       "scannerSettings" : "Сканирование",
       "scannerSubtitle": "Частота обновления балансов",
@@ -252,7 +275,9 @@
       "testerMode": "Тестировщик"
     },
     "walletList": {
-      "title": "Список кошельков",
+      "title": "My wallets",
+      "addWallet": "Add wallet",
+      "backupNeeded": "Back up needed",
       "addedAssets": "Добавленные активы",
       "balance": "Баланс",
       "backup": "Резервировать",
@@ -264,9 +289,9 @@
       "changeSetting" : "Адрес для сдачи",
       "useLegacy": "Использовать Legacy",
       "useSegWit": "Использовать Segwit",
-      "showLegacy": "Показывать Legacy",
-      "showSegWit": "Показывать SegWit",
-      "accountSetting": "Настройки аккаунта",
+      "showLegacy": "Legacy",
+      "showSegWit": "SegWit",
+      "accountAddress": "Выбрать адресс",
       "showSegWitAndLegacy": "Показывать SegWit и Legacy",
       "hideCommissionTrans": "Скрыть транзакции оплаты за комиссию",
       "checkFrozen" : "Сканировать замороженный баланс",
@@ -294,10 +319,26 @@
     },
     "about": {
       "title": "О кошельке",
-      "header": "Trustee для %{OS}",
-      "version": "Версия",
+      "version": "Trustee версия: %{version}",
       "privacy": "Политика конфиденциальности",
-      "terms": "Условия пользования"
+      "terms": "Условия пользования",
+      "feedback": "Обратная связь",
+      "shareLogsTitle": "Отправить логи",
+      "shareLogsSubtitle": "Помогите нам быть лучше",
+      "contactSupportTitle": "Связаться со службой поддержки",
+      "contactSupportSubtitle": "Официальный telegram канал",
+      "information": "Информация",
+      "copyright": "© BlockSoftLab Inc, 2020"
+    },
+    "notifications": {
+      "title": "Настройка сообщений",
+      "additional": "Дополнительные",
+      "allNotificationsTitle": "Активировать все",
+      "transactionsTitle": "Транзакции",
+      "transactionsSubtitle": "Покупка, продажа, получение, отправка, обмен",
+      "exchangeRatesTitle": "Изменение курсов валют",
+      "exchangeRateSubtitle": "Цены основных монет",
+      "newsTitle": "Новости"
     },
     "error": {
       "title": "Ой, ошибка",
@@ -367,7 +408,7 @@
     "transaction": {
       "pay": "Оплатить",
       "remove" : "Скрыть",
-      "removeRBF" : "Удалить заменой",
+      "removeRBF" : "Вернуть средства",
       "destinationTag": "Тег назначения",
       "paymentId": "Идентификатор платежа",
       "nonce": "Nonce",
@@ -637,6 +678,9 @@
     "notEnoughForFee": "Для отправки токенов необходимо иметь положительный баланс в нативной монете %{symbol}",
     "notEnoughForFeeConfirmed": "Для отправки токенов необходимо иметь положительный подтвержденный баланс в нативной монете %{symbol}, подождите подтверждения или включите использование неподтвержденных транзакций",
     "publicFioAddressNotFound": "%{symbol} публичный адрес не связан с указаным FIO адресом",
+    "setting": {
+      "title": "Advanced"
+    },
     "confirmModal": {
       "title": "Подтверждение отправки",
       "titleSpeedUp": "Подтверждение ускорения входящей транзакции %{hash}",
@@ -789,7 +833,9 @@
     }
   },
   "walletBackup": {
-    "pageTitle": "Создать новый кошелек",
+    "titleCreate": "Создать кошелек",
+    "titleBackup": "Резервное копирование",
+    "titleShow": "Recovery phrase",
     "infoScreen": {
       "continue": "Продолжить",
       "text1": "TRUSTEE WALLET никогда и никуда не отправит Вашу фразу восстановления. Поэтому, в случае потери или выхода устройства из строя, единственный способ получить доступ к своим средствам - использовать фразу восстановления",
@@ -1168,14 +1214,15 @@
       "ru-UA": "Українська"
     }
   },
-  "scannerSettings" : {
-    "title" : "Сканирование",
-    "codes" : {
-      "none" : "Без авто",
-      "10min" : "10 минут",
-      "1min" : "1 минута"
+  "scannerSettings": {
+    "title": "Сканирование",
+    "codes": {
+      "none": "Без автосканирования",
+      "10min": "Каждые 10 минут",
+      "1min": "Ежеминутно"
     },
-    "lastScan" : "Последнее сканирование: %{time}"
+    "lastScan": "Ваши балансы отсканированы в:",
+    "helper": "Вы можете выбрать частоту самостоятельно"
   },
   "repeat": {
     "receive": "Получить"

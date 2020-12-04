@@ -23,16 +23,21 @@ export default function RadioButton(props) {
     const { colors } = useTheme()
 
     return (
-        <TouchableOpacity style={[styles.container, containerStyle]} onPress={() => onChange(value)}>
+        <TouchableOpacity
+            style={[styles.container, containerStyle]}
+            onPress={() => onChange(value)}
+            disabled={checked}
+            activeOpacity={0.8}
+        >
             <View
                 style={[
                     styles.radio,
                     { borderColor: checked ? colors.common.radioButton.checked : colors.common.radioButton.border }
                 ]}
             >
-                <View style={[styles.radioInner, { backgroundColor: checked ? colors.common.radioButton.checked : 'transparent' }]} />
+                <View style={[styles.radioInner, { backgroundColor: checked ? colors.common.radioButton.checked : colors.common.radioButton.uncheckedBg }]} />
             </View>
-            <Text style={[styles.label, { color: checked ? colors.common.radioButton.checked : colors.common.radioButton.text }]}>{label}</Text>
+            {!!label && <Text style={[styles.label, { color: checked ? colors.common.radioButton.checked : colors.common.radioButton.text }]}>{label}</Text>}
         </TouchableOpacity>
     )
 }

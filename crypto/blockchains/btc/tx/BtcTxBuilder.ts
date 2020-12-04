@@ -5,6 +5,7 @@ import { BlocksoftBlockchainTypes } from '../../BlocksoftBlockchainTypes'
 import DogeTxBuilder from '../../doge/tx/DogeTxBuilder'
 import BlocksoftPrivateKeysUtils from '../../../common/BlocksoftPrivateKeysUtils'
 import { ECPair, payments, TransactionBuilder } from 'bitcoinjs-lib'
+import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 
 export default class BtcTxBuilder extends DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder {
     private mnemonic: string = ''
@@ -27,6 +28,14 @@ export default class BtcTxBuilder extends DogeTxBuilder implements BlocksoftBloc
     async _getRawTxAddInput(txb: TransactionBuilder, i: number, input: BlocksoftBlockchainTypes.UnspentTx, nSequence: number): Promise<void> {
         if (typeof input.address === 'undefined') {
             throw new Error('no address in input ' + JSON.stringify(input))
+        }
+
+        if (!input.derivationPath || input.derivationPath === "false") {
+            // @ts-ignore
+            if (typeof input.path !== 'undefined') {
+                // @ts-ignore
+                input.derivationPath = input.path
+            }
         }
 
         // @ts-ignore
@@ -103,7 +112,7 @@ export default class BtcTxBuilder extends DogeTxBuilder implements BlocksoftBloc
 
                 if (address !== input.address) {
                     // noinspection ExceptionCaughtLocallyJS
-                    throw new Error('not valid signing address ' + input.address + ' != ' + address + ' segwit type = ' + currencyCode)
+                    throw new Error('not valid signing path ' + input.derivationPath + ' address ' + input.address + ' != ' + address + ' segwit type = ' + currencyCode)
                 }
             } catch (e) {
                 e.message += ' in privateKey BTC signature check '
@@ -126,11 +135,17 @@ export default class BtcTxBuilder extends DogeTxBuilder implements BlocksoftBloc
         }
         if (typeof this.p2wpkhBTC[input.address] === 'undefined') {
             // @ts-ignore
+            BlocksoftCryptoLog.log('BtcTxBuilder.getRawTx sign usual', input)
+            // @ts-ignore
             txb.sign(i, this.keyPairBTC[input.address], null, null, input.value * 1)
         } else if (typeof this.p2shBTC[input.address] === 'undefined') {
             // @ts-ignore
+            BlocksoftCryptoLog.log('BtcTxBuilder.getRawTx sign segwit', input)
+            // @ts-ignore
             txb.sign(i, this.keyPairBTC[input.address], null, null, input.value * 1)
         } else {
+            // @ts-ignore
+            BlocksoftCryptoLog.log('BtcTxBuilder.getRawTx sign segwit compatible', input)
             // @ts-ignore
             txb.sign(i, this.keyPairBTC[input.address], this.p2shBTC[input.address].redeem.output, null, input.value * 1)
         }

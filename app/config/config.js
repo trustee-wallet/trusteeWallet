@@ -32,13 +32,13 @@ const config = {
     scanner: {
         scannerSettings: [
             {
-                code: 'none'
+                code: '1min'
             },
             {
                 code: '10min'
             },
             {
-                code: '1min'
+                code: 'none'
             }
         ]
     },
@@ -73,6 +73,7 @@ const config = {
         cryptoLogs: false, // set false to see crypto logs in files only
         cryptoErrors: false, // set false to get crypto errors  in tg only
         appErrors: false, // set false to get errors in tg only
+        fioErrors: false, //
         appDBLogs: false, // set false to get db query in files only
         firebaseLogs: true // set false not to collect data to firebase live db
     },

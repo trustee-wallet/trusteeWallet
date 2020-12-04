@@ -75,10 +75,15 @@ class EnterMnemonicPhrase extends Component {
             walletMnemonicSelected: [],
             wordsProposed: [],
             error: null,
-            phraseInputValue: ''
+            phraseInputValue: '',
+            flowSubtype: ''
         }
     }
 
+    componentDidMount() {
+        const flowSubtype = this.props.navigation.getParam('flowSubtype', 'createFirst')
+        this.setState(() => ({ flowSubtype }))
+    }
 
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0);
@@ -194,9 +199,9 @@ class EnterMnemonicPhrase extends Component {
         }))
     }
 
-    handleBack = () => {
-        NavStore.goBack()
-    }
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('DashboardStack') }
 
     handleInputPhrase = (value = '') => {
         value = value.trim()
@@ -291,7 +296,8 @@ class EnterMnemonicPhrase extends Component {
             wordsProposed,
             walletMnemonicSelected,
             phraseInputValue,
-            error
+            error,
+            flowSubtype
         } = this.state
         const { GRID_SIZE, colors } = this.context
 
@@ -299,7 +305,9 @@ class EnterMnemonicPhrase extends Component {
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>
                 <Header
                     rightType="close"
-                    rightAction={this.handleBack}
+                    rightAction={flowSubtype === 'importAnother' ? this.handleClose : this.handleBack}
+                    leftType={flowSubtype === 'importAnother' ? 'back' : undefined}
+                    leftAction={flowSubtype === 'importAnother' ? this.handleBack : undefined}
                     title={strings('walletCreate.importTitle')}
                     setHeaderHeight={this.setHeaderHeight}
                 />

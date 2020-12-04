@@ -255,8 +255,8 @@ const Currencies = {
         network: 'mainnet',
         decimals: 8,
         buyable: 1,
-        currencyExplorerLink: 'https://livenet.xrpl.org/accounts/',
-        currencyExplorerTxLink: 'https://livenet.xrpl.org/transactions/'
+        currencyExplorerLink: 'https://blockchair.com/ripple/account/',
+        currencyExplorerTxLink: 'https://blockchair.com/ripple/transaction/'
     },
     'ETH_ROPSTEN': {
         currencyName: 'Ethereum Ropsten',

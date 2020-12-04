@@ -43,11 +43,14 @@ import FioAddresses from '../modules/FIO/FioAddresses'
 import FioMainSettings from '../modules/FIO/FioMainSettings'
 import FioSettings from '../modules/FIO/FioSettings'
 import AccountScreen from '../modules/Account/AccountScreen'
+import AccountSettingScreen from '../modules/Account/AccountSettings'
 import ReceiveScreen from '../modules/Account/ReceiveScreen'
 import TransactionScreen from '../modules/Account/TransactionScreen'
 import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
 import AddCustomTokenScreen from '../modules/AddCustomToken/AddCustomTokenScreen'
 import SMSCodeScreen from '../modules/Trade/SMSCodeScreen'
+
+import AgreementScreen from '../modules/WalletCreate/AgreementScreen'
 
 
 const MainNavigator = createStackNavigator({
@@ -149,6 +152,13 @@ const MainNavigator = createStackNavigator({
             }
         },
 
+        AccountSettings: {
+            screen: AccountSettingScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
         TransactionScreen: {
             screen: TransactionScreen,
             navigationOptions: {
@@ -203,6 +213,13 @@ const MainNavigator = createStackNavigator({
 
         HomeScreenStack: {
             screen: HomeScreenStack,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        AgreementScreen: {
+            screen: AgreementScreen,
             navigationOptions: {
                 headerShown: false
             }

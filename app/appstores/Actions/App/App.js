@@ -35,6 +35,7 @@ import CashBackSettings from '../../Stores/CashBack/CashBackSettings'
 import CashBackUtils from '../../Stores/CashBack/CashBackUtils'
 
 import FilePermissions from '../../../services/FileSystem/FilePermissions'
+import UpdateAppNewsDaemon from '../../../daemons/back/UpdateAppNewsDaemon'
 
 const { dispatch, getState } = store
 
@@ -51,7 +52,7 @@ class App {
         const navigateToInit = typeof params.navigateToInit !== 'undefined' ? params.navigateToInit : true
         const source = typeof params.source !== 'undefined' ? params.source : ''
         try {
-            // console.log(new Date().toISOString() + ' start ' + source)
+            console.log(new Date().toISOString() + ' start ' + source)
 
             await FilePermissions.init()
 
@@ -127,6 +128,10 @@ class App {
             this.initStatus = 'const { daemon } = config'
 
             Daemon.start()
+
+            this.initStatus = 'updateAppNewsDaemon.fromServer'
+
+            await UpdateAppNewsDaemon.updateAppNewsDaemon()
 
             this.initStatus = 'updateTradeOrdersDaemon.fromDB'
 

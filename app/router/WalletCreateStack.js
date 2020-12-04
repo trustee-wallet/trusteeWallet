@@ -6,18 +6,11 @@ import { createStackNavigator } from 'react-navigation-stack'
 import WalletCreateScreen from '../modules/WalletCreate/WalletCreateScreen'
 import EnterNameScreen from '../modules/WalletCreate/EnterNameScreen'
 import EnterMnemonicPhrase from '../modules/WalletCreate/EnterMnemonicPhrase'
-import AgreementScreen from '../modules/WalletCreate/AgreementScreen'
 
 const WalletCreateStack = createStackNavigator(
     {
         WalletCreateScreen: {
             screen: WalletCreateScreen,
-            navigationOptions: {
-                headerShown: false
-            }
-        },
-        AgreementScreen: {
-            screen: AgreementScreen,
             navigationOptions: {
                 headerShown: false
             }

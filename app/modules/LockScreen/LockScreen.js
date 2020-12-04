@@ -97,7 +97,7 @@ class LockScreen extends Component {
             this.setState({
                 show: false
             })
-            NavStore.reset('DashboardStack')
+            NavStore.goBack()
         }
     }
 
