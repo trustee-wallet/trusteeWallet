@@ -64,7 +64,7 @@ export class BlocksoftKeysStorage {
      * @private
      */
     async _getKeyValue(key) {
-        const res = await Keychain.getInternetCredentials(this._serviceName + '_' + key)
+        const res = await Keychain.getInternetCredentials(this._serviceName + '_' + key,{ authenticationPrompt: { title: "Fingerprint title", cancel: "Cancel" }})
         if (!res) return false
         return { 'pub': res.username, 'priv': res.password }
     }
