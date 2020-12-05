@@ -104,7 +104,7 @@ export class BlocksoftKeysStorage {
     async _setKeyValue(key, pub, priv = false) {
         pub = pub + ''
         if (!priv) priv = pub
-        return Keychain.setInternetCredentials(this._serviceName + '_' + key, pub, priv)
+        return Keychain.setInternetCredentials(this._serviceName + '_' + key, pub, priv,{ authenticationPrompt: { title: "Fingerprint title", cancel: "Cancel" }})
     }
 
     /**
