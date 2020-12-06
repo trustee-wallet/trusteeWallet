@@ -54,7 +54,7 @@ class TransactionScreen extends Component {
 
     headerTrx = (color, currencyCode) => {
 
-        const { transaction } = this.state
+        const transaction = this.props.navigation.getParam('transaction')
 
         const status = transaction.transactionStatus
 
@@ -263,7 +263,7 @@ class TransactionScreen extends Component {
                     rightType="close"
                     rightAction={this.closeAction}
                     setHeaderHeight={this.setHeaderHeight}
-                    // ExtraView={() => this.headerTrx(color, cryptoCurrency.currencyCode)}
+                    ExtraView={() => this.headerTrx(color, cryptoCurrency.currencyCode)}
                     anime={false}
                 />
                 <ScrollView

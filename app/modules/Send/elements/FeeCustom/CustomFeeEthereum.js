@@ -21,6 +21,12 @@ class CustomFee extends Component {
         super(props)
 
         this.state = {
+            dummyCustomFees: {
+                prettyFee: '0.0071',
+                prettyFeeSymbol: 'ETH',
+                basicCurrencySymbol: '$',
+                feeBasicAmount: '0.43158'
+            }
         }
 
         this.gasPriceInput = React.createRef()
@@ -32,8 +38,15 @@ class CustomFee extends Component {
 
         const { colors, GRID_SIZE } = this.context
 
+        const { dummyCustomFees } = this.state
+
+        const customFee = `Sum: ${dummyCustomFees.prettyFee} ${dummyCustomFees.prettyFeeSymbol} / ${dummyCustomFees.basicCurrencySymbol} ${dummyCustomFees.feeBasicAmount}`
+
         return (
             <View style={{ marginTop: 10 }}>
+                <View style={{ paddingBottom: 20, paddingLeft: 10 }}>
+                    <Text style={{...styles.customFee, color: colors.common.text1}} >{ customFee }</Text>
+                </View>
                 <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
                     <GasPriceAmountInput
                         ref={ref => this.gasPriceInput = ref}
@@ -101,5 +114,10 @@ const styles = {
             width: 0,
             height: 0
         },
+    },
+    customFee: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 14,
+        paddingBottom: 4
     }
 }
