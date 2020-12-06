@@ -29,6 +29,7 @@ const CACHE_CUSTOM_TIME = {
     'BSV': 60000  // 10 minutes
 }
 let CACHE_LAST_TIME = false
+let CACHE_ONE_ACCOUNTS = {}
 
 class UpdateAccountBalanceAndTransactions {
 
@@ -81,14 +82,32 @@ class UpdateAccountBalanceAndTransactions {
 
             tmpAction = 'params init'
             if (typeof callParams !== 'undefined' && callParams && typeof callParams.currencyCode !== 'undefined') {
-                params.currencyCode = callParams.currencyCode
+
+                if (force) {
+                    if (callParams.currencyCode.indexOf('TRX') === 0) {
+                        params.currencyFamily = 'TRX'
+                    } else if (callParams.currencyCode.indexOf('ETH') === 0) {
+                        params.currencyFamily = 'ETH'
+                    } else {
+                        params.currencyCode = callParams.currencyCode
+                    }
+                } else {
+                    params.currencyCode = callParams.currencyCode
+                }
             }
 
 
             Log.daemon('UpdateAccountBalanceAndTransactions called ' + source)
 
             tmpAction = 'accounts init'
-            const accounts = await accountScanningDS.getAccountsForScan(params)
+
+            let accounts = await accountScanningDS.getAccountsForScan({...params, force : false})
+
+            if (force) {
+                if (!accounts || accounts.length === 0) {
+                    accounts = await accountScanningDS.getAccountsForScan(params)
+                }
+            }
 
             if (!accounts || accounts.length === 0) {
                 Log.daemon('UpdateAccountBalanceAndTransactions called - no account')
@@ -103,20 +122,27 @@ class UpdateAccountBalanceAndTransactions {
 
             tmpAction = 'accounts run main'
             let running = 0
+            CACHE_ONE_ACCOUNTS = {}
             for (account of accounts) {
                 if (typeof CACHE_CUSTOM_TIME[account.currencyCode] !== 'undefined') {
                     continue
                 }
+                if (typeof CACHE_ONE_ACCOUNTS[account.currencyCode + '_' + account.address] !== 'undefined') {
+                    continue
+                }
                 tmpAction = 'account run ' + JSON.stringify(account)
-                await this._accountRun(account, source, CACHE_VALID_TIME, force)
+                await this._accountRun(account, accounts, source, CACHE_VALID_TIME, force)
                 running++
             }
 
             tmpAction = 'accounts run custom'
             for (account of accounts) {
+                if (typeof CACHE_ONE_ACCOUNTS[account.currencyCode + '_' + account.address] !== 'undefined') {
+                    continue
+                }
                 if (typeof CACHE_CUSTOM_TIME[account.currencyCode] !== 'undefined') {
                     // if its the only ones not updated - lets do them faster
-                    await this._accountRun(account, source, running > 0 ? CACHE_CUSTOM_TIME[account.currencyCode] : CACHE_VALID_TIME, force)
+                    await this._accountRun(account, accounts, source, running > 0 ? CACHE_CUSTOM_TIME[account.currencyCode] : CACHE_VALID_TIME, force)
                 }
             }
 
@@ -160,7 +186,7 @@ class UpdateAccountBalanceAndTransactions {
         }
     }
 
-    async _accountRun(account, source, time, force) {
+    async _accountRun(account, accounts, source, time, force) {
 
         let newBalance = false
         let addressToScan = account.address
@@ -204,15 +230,15 @@ class UpdateAccountBalanceAndTransactions {
             balanceError = ' found balanceError ' + e.message
         }
 
-        Log.daemon('UpdateAccountBalanceAndTransactions newBalance loaded ' + account.currencyCode + ' ' + addressToScan, JSON.stringify(newBalance))
+        Log.daemon('UpdateAccountBalanceAndTransactions newBalance from ' + source + ' loaded ' + account.currencyCode + ' ' + addressToScan, JSON.stringify(newBalance))
         let continueWithTx = true
 
-        if (newBalance) {
-            if (typeof newBalance.balanceScanBlock !== 'undefined' && newBalance.balanceScanBlock * 1 < account.balanceScanBlock * 1) {
+        if (newBalance && typeof newBalance.balance !== 'undefined') {
+            if (typeof newBalance.balanceScanBlock !== 'undefined' && (typeof account.balanceScanBlock === 'undefined' || newBalance.balanceScanBlock * 1 < account.balanceScanBlock * 1)) {
                 continueWithTx = false
                 updateObj.balanceProvider = newBalance.provider
                 updateObj.balanceScanLog = account.address + ' block error, ignored new ' + newBalance.balance + ' block ' + newBalance.balanceScanBlock + ', old balance ' + account.balance + ' block ' + account.balanceScanBlock
-            } else if (newBalance.balance.toString() !== account.balance.toString() || newBalance.unconfirmed.toString() !== account.unconfirmed.toString()) {
+            } else if (typeof account.balance === 'undefined' || (newBalance.balance.toString() !== account.balance.toString() || newBalance.unconfirmed.toString() !== account.unconfirmed.toString())) {
                 updateObj.balanceFix = newBalance.balance // lets send to db totally not changed big number string
                 updateObj.balanceTxt = newBalance.balance.toString() // and string for any case
                 updateObj.unconfirmedFix = newBalance.unconfirmed || 0 // lets send to db totally not changed big number string
@@ -311,6 +337,24 @@ class UpdateAccountBalanceAndTransactions {
         } catch (e) {
             e.message += ' while accountDS.updateAccount'
             throw e
+        }
+
+
+        CACHE_ONE_ACCOUNTS[account.currencyCode + '_' + account.address] = 1
+
+        if (account.currencyCode === 'TRX') {
+            for (const sub of accounts) {
+                if (sub.currencyCode === 'TRX_USDT') {
+                    await this._accountRun(sub, accounts, source + ' GONE INNER', CACHE_VALID_TIME, true)
+
+                    break
+                }
+            }
+            for (const sub of accounts) {
+                if (sub.currencyCode !== 'TRX_USDT' && sub.currencyCode.indexOf('TRX_') === 0) {
+                    await this._accountRun(sub, accounts, source + ' GONE INNER2', CACHE_VALID_TIME, true)
+                }
+            }
         }
 
         await this.loadFioData(account.currencyCode)
