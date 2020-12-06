@@ -126,7 +126,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 if (typeof data.transactionSpeedUp !== 'undefined' || typeof data.transactionReplaceByFee !== 'undefined') {
                     feeForByte = feeForByte * 2
                 }
-                if (typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.feeForByte !== 'undefined') {
+                if (typeof data.transactionJson !== 'undefined' && data.transactionJson !== null && typeof data.transactionJson.feeForByte !== 'undefined') {
                     if (feeForByte * 1 < data.transactionJson.feeForByte * 1) {
                         feeForByte = Math.ceil(data.transactionJson.feeForByte * 1.5)
                     }
@@ -159,7 +159,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     autoFeeLimitReadable
                 }, subtitle)
                 // @ts-ignore
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' preparedInputsOutputs', preparedInputsOutputs)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + ' preparedInputsOutputs', preparedInputsOutputs)
                 if (preparedInputsOutputs.inputs.length === 0) {
                     // do noting
                     continue
@@ -172,12 +172,87 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 MarketingEvent.logOnlyRealTime('v20_doge_error_getfeerate_' + key + ' ' + feeForByte + ' ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, unspents)
                 throw e
             }
-            const logInputsOutputs = DogeLogs.logInputsOutputs(data, unspents, preparedInputsOutputs, this._settings, subtitle)
-            let blockchainData, txSize, actualFeeForByte
+            let logInputsOutputs, blockchainData, txSize, actualFeeForByte, actualFeeForByteNotRounded
             try {
-                blockchainData = await this.txBuilder.getRawTx(data, privateData, preparedInputsOutputs)
-                txSize = Math.ceil(blockchainData.rawTxHex.length / 2)
-                actualFeeForByte = Math.floor(BlocksoftUtils.div(logInputsOutputs.diffInOut, txSize))
+                let doBuild = false
+                let actualFeeRebuild = false
+                do {
+                    doBuild = false
+                    logInputsOutputs = DogeLogs.logInputsOutputs(data, unspents, preparedInputsOutputs, this._settings, subtitle)
+                    blockchainData = await this.txBuilder.getRawTx(data, privateData, preparedInputsOutputs)
+                    txSize = Math.ceil(blockchainData.rawTxHex.length / 2)
+                    actualFeeForByteNotRounded = BlocksoftUtils.div(logInputsOutputs.diffInOut, txSize)
+                    actualFeeForByte = Math.floor(actualFeeForByteNotRounded)
+                    if (!actualFeeRebuild && actualFeeForByte.toString() !== feeForByte.toString()) {
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate will correct as ' + actualFeeForByte.toString() + ' != ' + feeForByte.toString())
+                        let outputForCorrecting = -1
+                        for (let i = 0, ic = preparedInputsOutputs.outputs.length; i < ic; i++) {
+                            const output = preparedInputsOutputs.outputs[i]
+                            if (typeof output.isUsdt !== 'undefined') continue
+                            if (typeof output.isChange !== 'undefined' && output.isChange) {
+                                outputForCorrecting = i
+                            }
+                        }
+                        if (outputForCorrecting >= 0) {
+                            const diff = BlocksoftUtils.diff(actualFeeForByteNotRounded.toString(), feeForByte.toString())
+
+                            const part = BlocksoftUtils.mul(txSize.toString(), diff.toString()).toString()
+                            let newAmount
+                            if (part.indexOf('-') === 0) {
+                                newAmount = BlocksoftUtils.diff(preparedInputsOutputs.outputs[outputForCorrecting].amount, part.replace('-', ''))
+                            } else {
+                                newAmount = BlocksoftUtils.add(preparedInputsOutputs.outputs[outputForCorrecting].amount, part)
+                            }
+
+
+                            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate diff ' +  diff + ' part ' + part + ' amount ' + preparedInputsOutputs.outputs[outputForCorrecting].amount + ' => ' + newAmount)
+
+                            // @ts-ignore
+                            if (newAmount * 1 < 0) {
+                                preparedInputsOutputs.outputs[outputForCorrecting].amount = 'removed'
+                                outputForCorrecting = -1
+                            } else {
+                                preparedInputsOutputs.outputs[outputForCorrecting].amount = newAmount
+                            }
+                        }
+                        doBuild = true
+                        actualFeeRebuild = true
+                        if (outputForCorrecting === -1) {
+                            let foundToMore = false
+                            for (let i = 0, ic = unspents.length; i < ic; i++) {
+                                const unspent = unspents[i]
+                                if (unspent.confirmations > 0 && !unspent.isRequired) {
+                                    unspents[i].isRequired = true
+                                    foundToMore = true
+                                }
+                            }
+                            if (!foundToMore) {
+                                for (let i = 0, ic = unspents.length; i < ic; i++) {
+                                    const unspent = unspents[i]
+                                    if (!unspent.isRequired) {
+                                        unspents[i].isRequired = true
+                                        foundToMore = true
+                                    }
+                                }
+                            }
+                            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate foundToMore ' + JSON.stringify(foundToMore))
+                            if (foundToMore) {
+                                try {
+                                    const preparedInputsOutputs2 = this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
+                                        feeForByte,
+                                        autoFeeLimitReadable
+                                    }, subtitle + ' foundToMore')
+                                    actualFeeRebuild = false
+                                    if (preparedInputsOutputs2.inputs.length > 0) {
+                                        preparedInputsOutputs = preparedInputsOutputs2
+                                    }
+                                } catch (e) {
+                                    // do nothing
+                                }
+                            }
+                        }
+                    }
+                } while (doBuild)
             } catch (e) {
                 if (config.debug.cryptoErrors) {
                     console.log('getRawTx error', e, blockchainData)
@@ -187,8 +262,6 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             }
             // @ts-ignore
             blockchainData.unspents = unspents
-
-            // console.log('logInputsOutputs', JSON.parse(JSON.stringify(logInputsOutputs)))
 
             if (typeof uniqueFees[logInputsOutputs.diffInOut] !== 'undefined') {
                 continue

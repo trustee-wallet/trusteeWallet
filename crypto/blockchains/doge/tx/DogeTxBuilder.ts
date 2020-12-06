@@ -60,7 +60,12 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
 
     _getRawTxAddOutput(txb: TransactionBuilder, output: BlocksoftBlockchainTypes.OutputTx): void {
         // @ts-ignore
-        txb.addOutput(output.to, output.amount * 1)
+        const amount = output.amount * 1
+        if (amount === 0) {
+            // do nothing or txb.addOutput(output.to, 546)
+        } else {
+            txb.addOutput(output.to, amount)
+        }
     }
 
     async getRawTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, preparedInputsOutputs: BlocksoftBlockchainTypes.PreparedInputsOutputsTx):
@@ -124,7 +129,9 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
         let output
         for (output of preparedInputsOutputs.outputs) {
             try {
-                this._getRawTxAddOutput(txb, output)
+                if (output.amount !== 'removed') {
+                    this._getRawTxAddOutput(txb, output)
+                }
                 // @ts-ignore
                 log.outputs.push({ addressTo: output.to, amount: output.amount })
                 // @ts-ignore

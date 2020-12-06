@@ -49,6 +49,7 @@ export namespace DogeLogs {
                 leftBalanceBN.diff(input.value)
             }
             for (output of preparedInputsOutputs.outputs) {
+                if (output.amount === 'removed') continue
                 logInputsOutputs.outputs.push(output)
                 totalOutBN.add(output.amount)
                 if (typeof output.isChange === 'undefined' || !output.isChange) {
