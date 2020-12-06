@@ -22,7 +22,7 @@ export namespace BlocksoftTransfer {
     const CACHE_VALID_TIME = 20000 // 2 minute
 
     export const getTransferAllBalance = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
-        console.log('getTransferAllBalance', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
+        console.log('BlocksoftTransfer.getTransferAllBalance', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
         let transferAllCount
         try {
@@ -37,7 +37,7 @@ export namespace BlocksoftTransfer {
             transferAllCount = await (BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)).getTransferAllBalance(data, privateData, additionalDataTmp)
 
             BlocksoftCryptoLog.log(`BlocksoftTransfer.getTransferAllBalance ${data.currencyCode} got ${data.addressFrom} result is ok`)
-            console.log('transferAllCount result', transferAllCount)
+            console.log('BlocksoftTransfer.getTransferAllBalance result', JSON.parse(JSON.stringify(transferAllCount)))
         } catch (e) {
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
                 // noinspection ES6MissingAwait
@@ -51,7 +51,7 @@ export namespace BlocksoftTransfer {
     }
 
     export const getFeeRate = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
-        console.log('getFeeRate', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
+        console.log('BlocksoftTransfer.getFeeRate', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
         let feesCount
         try {
@@ -67,7 +67,7 @@ export namespace BlocksoftTransfer {
             feesCount = await processor.getFeeRate(data, privateData, additionalDataTmp)
 
             BlocksoftCryptoLog.log(`BlocksoftTransfer.getFeeRate ${data.currencyCode} got ${data.addressFrom} result is ok`)
-            console.log('getFeeRate result', feesCount)
+            console.log('BlocksoftTransfer.getFeeRate result', JSON.parse(JSON.stringify(feesCount)))
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('BlocksoftTransfer.getFeeRate error ', e)

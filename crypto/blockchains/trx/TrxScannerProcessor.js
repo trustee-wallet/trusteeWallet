@@ -25,7 +25,7 @@ export default class TrxScannerProcessor {
     /**
      * https://developers.tron.network/reference#addresses-accounts
      * @param {string} address
-     * @return {Promise<{balance, frozen, unconfirmed, provider}>}
+     * @return {Promise<{balance, frozen, frozenEnergy, unconfirmed, provider}>}
      */
     async getBalanceBlockchain(address) {
         address = address.trim()
@@ -36,7 +36,7 @@ export default class TrxScannerProcessor {
         } else {
             address = await TronUtils.addressHexToStr(addressHex)
         }
-        let result = await this._tronscanProvider.get(address, this._tokenName)
+        let result = false // await this._tronscanProvider.get(address, this._tokenName)
         if (result === false) {
             result = await this._trongridProvider.get(addressHex, this._tokenName)
         }
