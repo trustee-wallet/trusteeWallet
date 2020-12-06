@@ -28,7 +28,6 @@ import AddCardScreen from '../modules/Card'
 import SendScreen from '../modules/Send/SendScreen'
 import SendAdvancedSettingsScreen from '../modules/Send/SendAdvancedSettings'
 import ReceiptScreen from '../modules/Send/ReceiptScreen'
-import ConfirmSendScreen from '../modules/Send/ConfirmSendScreen'
 
 import LoadScreen from '../modules/Load/LoadScreen'
 
@@ -64,13 +63,6 @@ const MainNavigator = createStackNavigator({
 
         ErrorScreen: {
             screen: ErrorScreen,
-            navigationOptions: {
-                headerShown: false
-            }
-        },
-
-        ConfirmSendScreen: {
-            screen: ConfirmSendScreen,
             navigationOptions: {
                 headerShown: false
             }
