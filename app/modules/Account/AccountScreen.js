@@ -164,7 +164,7 @@ class Account extends Component {
     }
 
     accountSetting = (account) => {
-        NavStore.goNext('AccountSettings', {account} )
+        NavStore.goNext('AccountSettings', { account })
         // this.setState({
         //     mode: this.state.mode === 'TRANSACTIONS' ? 'SETTINGS' : 'TRANSACTIONS'
         // })
@@ -322,34 +322,42 @@ class Account extends Component {
         const isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
         return (
-            <View style={{ marginTop: 24, flexDirection: 'row' }}>
-                <View style={{ flexDirection: 'column' }}>
-                    <Text style={styles.transaction_title}>{strings('account.history')}</Text>
-                    {
-                        !props.transactionsToView.length ?
-                            <View>
-                                {isSynchronized ? <Text
-                                    style={styles.transaction__empty_text}>
-                                    {strings('account.noTransactions')}
-                                </Text> :
-                                    <View style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        marginRight: 10,
-                                        marginLeft: 30
-                                    }}><Loader size={14} color={'#999999'} /><Text style={{
-                                        ...styles.transaction__empty_text, ...{
-                                            marginLeft: 10,
-                                            marginTop: 0
-                                        }
-                                    }}>{strings('homeScreen.synchronizing')}</Text></View>}
+            <View style={{ flexDirection: 'column' }}>
+                <View style={{ marginTop: 24, flexDirection: 'row' }}>
+                    <View style={{ flexDirection: 'column' }}>
+                        <Text style={styles.transaction_title}>{strings('account.history')}</Text>
+                    </View>
+                    <View style={stl.scan}>
+                        {isSynchronized ?
+                            <Text style={stl.scan__text}>{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? strings('account.justScan') : strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
+                            :
+                            <View style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                marginRight: 10,
+                                marginTop: -12
+                            }}><Text style={{
+                                ...styles.transaction__empty_text, ...{
+                                    marginLeft: 10,
+                                    marginRight: 10,
+                                    marginTop: 0
+                                }
+                            }}>{strings('homeScreen.synchronizing')}</Text>
+                                <Loader size={14} color={'#999999'} />
                             </View>
-                            : null
-                    }
+                        }
+                    </View>
                 </View>
-                <View style={stl.scan}>
-                    <Text style={stl.scan__text}>{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? strings('account.justScan') : strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
-                </View>
+                {
+                    !props.transactionsToView.length ?
+                        <View>
+                            {isSynchronized && <Text
+                                style={styles.transaction__empty_text}>
+                                {strings('account.noTransactions')}
+                            </Text>}
+                        </View>
+                        : null
+                }
             </View>
         )
 
@@ -572,19 +580,19 @@ class Account extends Component {
             return (
                 <View style={styles.topContent__top}>
                     <View style={styles.topContent__title}>
-                        <Text style={{...styles.topContent__title_first, color: colors.accountScreen.balanceColor }}>
+                        <Text style={{ ...styles.topContent__title_first, color: colors.accountScreen.balanceColor }}>
                             {
                                 balancePrettyPrep1
                             }
                         </Text>
-                        <Text style={{...styles.topContent__title_last, color: colors.accountScreen.balanceColor }}>
+                        <Text style={{ ...styles.topContent__title_last, color: colors.accountScreen.balanceColor }}>
                             {
                                 balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol
                             }
                         </Text>
                     </View>
                     <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
-                        textStyle={{...styles.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent}} letterSpacing={.5} />
+                        textStyle={{ ...styles.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
                 </View>
             )
         } else {
@@ -643,35 +651,35 @@ class Account extends Component {
             <>
                 <View style={stl.topContent__top}>
                     <View style={stl.topContent__title}>
-                        <Text style={{...stl.topContent__title_first, color: colors.accountScreen.balanceColor }}>
+                        <Text style={{ ...stl.topContent__title_first, color: colors.accountScreen.balanceColor }}>
                             {
                                 balancePrettyPrep1
                             }
                         </Text>
-                        <Text style={{...stl.topContent__title_last, color: colors.accountScreen.balanceColor }}>
+                        <Text style={{ ...stl.topContent__title_last, color: colors.accountScreen.balanceColor }}>
                             {
                                 balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol
                             }
                         </Text>
                     </View>
                     <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
-                        textStyle={{...stl.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent}} letterSpacing={.5} />
+                        textStyle={{ ...stl.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
                 </View>
                 <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', paddingTop: 24 }}>
                     <TrxButton
                         action={this.handleReceive}
                         type={'receive'}
-                        style={{...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+                        style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
                     />
                     <TrxButton
                         action={this.handleBuy}
                         type={'buy'}
-                        style={{...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+                        style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
                     />
                     <TrxButton
                         action={this.handleSend}
                         type={'send'}
-                        style={{...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+                        style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
                     />
                 </View>
             </>
@@ -841,7 +849,7 @@ class Account extends Component {
                                 array={colors.accountScreen.containerBG} start={styles.containerBG.start}
                                 end={styles.containerBG.end} />
                             <View style={stl.topContent__bg}>
-                                <View style={{...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground}} />
+                                <View style={{ ...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground }} />
                             </View>
                         </View>
                         <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -849,19 +857,19 @@ class Account extends Component {
                                 text={strings('account.receive', { receive: strings('repeat.receive') })}
                                 action={this.handleReceive}
                                 type={'receive'}
-                                style={{...stl.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+                                style={{ ...stl.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
                             />
                             <TrxButton
                                 text={strings('dashboardStack.buy')}
                                 action={this.handleBuy}
                                 type={'buy'}
-                                style={{...stl.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+                                style={{ ...stl.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
                             />
                             <TrxButton
                                 text={strings('account.send')}
                                 action={this.handleSend}
                                 type={'send'}
-                                style={{...stl.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+                                style={{ ...stl.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
                             />
                         </View>
                         <View style={{
@@ -906,12 +914,12 @@ class Account extends Component {
                                 this.state.amountToView < transactionsToViewLength ?
                                     <View style={{ width: '100%', alignItems: 'center' }}>
                                         <TouchableOpacity style={styles.showMore} onPress={this.handleShowMore}>
-                                            <Text style={{...styles.showMore__btn, color: colors.accountScreen.showMoreColor }}>
+                                            <Text style={{ ...styles.showMore__btn, color: colors.accountScreen.showMoreColor }}>
                                                 {strings('account.showMore')}
                                             </Text>
                                             <Ionicons name='ios-arrow-down' size={12} color={colors.accountScreen.showMoreColor} />
                                         </TouchableOpacity>
-                                    </View> : 
+                                    </View> :
                                     <View style={{ marginBottom: 60 }} />
                             }
                         </View>
@@ -1195,7 +1203,7 @@ const stl = {
         height: 60,
         flexDirection: 'column',
         justifyContent: 'center',
-        alignItems: 'center' 
+        alignItems: 'center'
     },
     buttonHeader: {
         borderRadius: 10,

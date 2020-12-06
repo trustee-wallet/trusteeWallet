@@ -6,59 +6,28 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 
-import { View, ScrollView, Keyboard, Text, TouchableOpacity, Dimensions, SafeAreaView } from 'react-native'
-
-import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
+import { View, ScrollView, Text, } from 'react-native'
 
 import firebase from 'react-native-firebase'
-import AsyncStorage from '@react-native-community/async-storage'
 
-
-import TextView from '../../components/elements/Text'
-import AddressInput from '../../components/elements/Input'
-import AmountInput from './elements/Input'
-import MemoInput from '../../components/elements/Input'
-import Input from '../../components/elements/Input'
-import TextareaInput from '../../components/elements/Input'
-import Navigation from '../../components/navigation/Navigation'
-import GradientView from '../../components/elements/GradientView'
-import Button from '../../components/elements/Button'
 import NavStore from '../../components/navigation/NavStore'
 
-import { setQRConfig, setQRValue } from '../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
 import { strings } from '../../services/i18n'
 
-import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
-import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
-
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
-
-import DaemonCache from '../../daemons/DaemonCache'
 
 import Log from '../../services/Log/Log'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-
-import Theme from '../../themes/Themes'
-import CurrencyIcon from '../../components/elements/CurrencyIcon'
 import LetterSpacing from '../../components/elements/LetterSpacing'
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 
-import config from '../../config/config'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
-import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
-import api from '../../services/Api/Api'
-import { getAccountFioName, getPubAddress, isFioAddressRegistered, isFioAddressValid, resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
 
 import TwoButtons from '../../components/elements/new/buttons/TwoButtons'
 import Header from '../../components/elements/new/Header'
-import PartBalanceButton from './elements/partBalanceButton'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
@@ -69,7 +38,7 @@ import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyString
 import UIDict from '../../services/UIDict/UIDict'
 
 import CheckData from './elements/CheckData'
-import { handleFee } from '../../appstores/Stores/Send/SendActions'
+import CustomIcon from '../../components/elements/CustomIcon'
 
 class ReceiptScreen extends Component {
     constructor(props) {
@@ -89,17 +58,13 @@ class ReceiptScreen extends Component {
     // eslint-disable-next-line camelcase
     async UNSAFE_componentWillMount() {
 
-        const data = this.props.navigation.getParam('ReceiptScreen') ? this.props.navigation.getParam('ReceiptScreen') : this.props.navigation.getParam('ReceiptScreen')
+        const data = this.props.navigation.getParam('ReceiptScreen')
 
         if (data.currencyCode) {
             const newData = this.getData(data)
             this.setState({
                 data: newData
             })
-
-            if (newData.countedFees === 'undefined') {
-                this.handleGetFee(newData.amount)
-            }
 
         } else {
             if (typeof data.walletUseUnconfirmed === 'undefined') {
@@ -125,10 +90,6 @@ class ReceiptScreen extends Component {
                 })
             }
         })
-
-        if (data.countedFees === 'undefined') {
-            this.handleGetFee(data.amount)
-        }
 
         setLoaderStatus(false)
     }
@@ -165,67 +126,6 @@ class ReceiptScreen extends Component {
         return newData
     }
 
-    handleGetFee = async (value) => {
-
-        const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee, walletUseLegacy, walletIsHd } = this.props.wallet
-
-        const { address, derivationPath, currencyCode, balance, unconfirmed, accountJson } = this.props.account
-
-        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
-
-        try {
-            Log.log(`SendScreen.handleGetFee balance ${currencyCode} ${address} data ${balance} + ${unconfirmed}`)
-
-            let addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
-
-            // const addressValidate = handleInput ? await this.addressInput.handleValidate() : { status: 'fail' }
-
-            // if (addressValidate.status === 'success') {
-            //     addressToForTransferAll = addressValidate.value
-            // }
-
-            Log.log(`SendScreen.handleTransferAll balance ${currencyCode} ${address} addressToForTransferAll`, addressToForTransferAll)
-
-            const countedFeesData = {
-                currencyCode,
-                walletHash,
-                derivationPath,
-                addressFrom: address,
-                addressTo: addressToForTransferAll,
-
-                amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(value),
-                balance: balance,
-                unconfirmed: walletUseUnconfirmed === 1 ? unconfirmed : 0,
-
-                isTransferAll: false,
-                useOnlyConfirmed: !(walletUseUnconfirmed === 1),
-                allowReplaceByFee: walletAllowReplaceByFee === 1,
-                useLegacy: walletUseLegacy,
-                isHd: walletIsHd,
-
-                accountJson
-            }
-
-            const transferCount = await BlocksoftTransfer.getFeeRate(countedFeesData)
-            transferCount.feesCountedForData = countedFeesData
-
-            const selectedFee = transferCount.fees[transferCount.selectedFeeIndex]
-            handleFee(transferCount, selectedFee)
-
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferCount.feesCountedForData.amount)
-
-            this.setState({
-                data: {
-                    ...this.state.data,
-                    countedFees: transferCount
-                }
-            })
-
-        } catch (e) {
-            console.log(e)
-        }
-    }
-
 
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0);
@@ -233,12 +133,6 @@ class ReceiptScreen extends Component {
     }
 
     closeAction = () => {
-        // const { toTransactionJSON } = this.props.send.data
-
-        // if (typeof toTransactionJSON !== 'undefined' && typeof toTransactionJSON.bseOrderID !== 'undefined') {
-        //     api.setExchangeStatus(toTransactionJSON.bseOrderID, 'close')
-        // }
-
         NavStore.goBack()
     }
 
@@ -251,266 +145,16 @@ class ReceiptScreen extends Component {
         })
     }
 
-    handleSend = async (passwordCheck = true, uiErrorConfirmed = false) => {
+    handleSend = async () => {
 
-        const { settingsStore } = this.props
 
-        let selectedFee = this.state.data.countedFees.fees[this.state.data.countedFees.selectedFeeIndex]
-
-        if (typeof selectedFee === 'undefined' || !selectedFee) {
-            return false
-        }
-
-        // try {
-        //     selectedFee = await this.fee.getFee()
-        // } catch (e) {
-        //     if (config.debug.appErrors) {
-        //         console.log('ConfirmSendScreen.handleSend', e)
-        //     }
-        //     return false
+        // todo 
+        // after send trx
+        // if (type === 'TRADE_SEND') {
+        //     NavStore.goNext('TransactionScreen', {
+        //         transaction: {}
+        //     })
         // }
-
-        const {
-            needPasswordConfirm,
-            fioRequestDetails,
-        } = this.state
-
-        if (needPasswordConfirm && passwordCheck && typeof settingsStore.data.askPinCodeWhenSending !== 'undefined' && +settingsStore.data.askPinCodeWhenSending) {
-            lockScreenAction.setFlowType({ flowType: 'CONFIRM_SEND_CRYPTO' })
-            lockScreenAction.setActionCallback({ actionCallback: this.handleSend })
-            NavStore.goNext('LockScreen')
-            return
-        }
-
-        this.setState({ isSendDisabled: true })
-
-        const {
-            amountRaw,
-            address: addressTo,
-            account,
-            wallet,
-            useAllFunds,
-            memo,
-            toTransactionJSON,
-            transactionSpeedUp,
-            transactionReplaceByFee
-        } = this.state.data
-
-        const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = wallet
-        const {
-            address: addressFrom,
-            derivationPath,
-            accountJson,
-            currencyCode,
-            accountId
-        } = account
-        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
-
-
-        try {
-            const txData = {
-                currencyCode,
-                walletHash,
-                derivationPath: derivationPath,
-                addressFrom: addressFrom,
-                addressTo: addressTo,
-                amount: amountRaw,
-                isTransferAll: useAllFunds,
-                useOnlyConfirmed: !(walletUseUnconfirmed === 1),
-                allowReplaceByFee: walletAllowReplaceByFee === 1,
-                transactionReplaceByFee,
-                transactionSpeedUp,
-                memo,
-                accountJson,
-                transactionJson: toTransactionJSON
-            }
-            const tx = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed, selectedFee })
-
-            const transactionJson = { memo: '', ...toTransactionJSON }
-            if (typeof tx.transactionJson !== 'undefined') {
-                let key
-                for (key in tx.transactionJson) {
-                    transactionJson[key] = tx.transactionJson[key]
-                }
-            }
-
-            const now = new Date().toISOString()
-            if (transactionReplaceByFee) {
-                const transaction = {
-                    currencyCode,
-                    accountId,
-                    addressAmount: tx.amountForTx,
-                    addressTo: tx.addressTo,
-                    transactionHash: tx.transactionHash,
-                    transactionStatus: 'new',
-                    transactionUpdateHash: transactionReplaceByFee,
-                    transactionsOtherHashes: transactionReplaceByFee,
-                    transactionJson,
-                    transactionsScanLog: now + ' RBFed '
-                }
-                if (typeof tx.transactionFeeCurrencyCode !== 'undefined') {
-                    transaction.transactionFeeCurrencyCode = tx.transactionFeeCurrencyCode
-                }
-                if (typeof tx.transactionFee !== 'undefined') {
-                    transaction.transactionFee = tx.transactionFee
-                }
-                if (typeof tx.amountForTx !== 'undefined') {
-                    transaction.addressAmount = tx.amountForTx
-                }
-                await transactionActions.updateTransaction(transaction)
-            } else {
-                const transaction = {
-                    currencyCode: currencyCode,
-                    accountId: accountId,
-                    walletHash: walletHash,
-                    transactionHash: tx.transactionHash,
-                    transactionStatus: 'new',
-                    addressTo: addressTo,
-                    addressFrom: '',
-                    addressFromBasic: addressFrom.toLowerCase(),
-                    addressAmount: amountRaw,
-                    transactionFee: tx.transactionFee,
-                    transactionFeeCurrencyCode: tx.transactionFeeCurrencyCode || '',
-                    transactionOfTrusteeWallet: 1,
-                    transactionJson,
-                    blockConfirmations: 0,
-                    createdAt: now,
-                    updatedAt: now,
-                    transactionDirection: 'outcome',
-                    transactionsScanLog: now + ' CREATED'
-                }
-                if (typeof tx.amountForTx !== 'undefined') {
-                    transaction.addressAmount = tx.amountForTx
-                }
-                if (typeof tx.blockHash !== 'undefined') {
-                    transaction.blockHash = tx.blockHash
-                }
-                if (typeof tx.transactionStatus !== 'undefined') {
-                    transaction.transactionStatus = tx.transactionStatus
-                }
-                if (transaction.addressTo === addressFrom) {
-                    transaction.addressTo = ''
-                    transaction.transactionDirection = 'self'
-                }
-                if (typeof tx.transactionTimestamp !== 'undefined' && tx.transactionTimestamp) {
-                    transaction.createdAt = new Date(tx.transactionTimestamp).toISOString()
-                    transaction.updatedAt = new Date(tx.transactionTimestamp).toISOString()
-                }
-
-                const logData = {
-                    walletHash: walletHash,
-                    currencyCode: currencyCode,
-                    transactionHash: tx.transactionHash,
-                    addressTo: addressTo,
-                    addressFrom: addressFrom,
-                    addressAmount: amountRaw,
-                    fee: JSON.stringify(selectedFee)
-                }
-                if (transactionReplaceByFee) {
-                    logData.transactionReplaceByFee = transactionReplaceByFee
-                }
-                if (transactionSpeedUp) {
-                    logData.transactionSpeedUp = transactionSpeedUp
-                }
-                MarketingEvent.checkSellSendTx(logData)
-
-                const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
-                await transactionActions.saveTransaction(transaction, line + ' HANDLE SEND ')
-            }
-
-            if (fioRequestDetails) {
-                await recordFioObtData({
-                    fioRequestId: fioRequestDetails.fio_request_id,
-                    payerFioAddress: fioRequestDetails.payer_fio_address,
-                    payeeFioAddress: fioRequestDetails.payee_fio_address,
-                    payerTokenPublicAddress: addressFrom,
-                    payeeTokenPublicAddress: addressTo,
-                    amount: amountRaw,
-                    chainCode: currencyCode,
-                    tokenCode: currencyCode,
-                    obtId: tx.hash,
-                    memo: fioRequestDetails.memo,
-                })
-            }
-
-            hideModal()
-
-            let successMessage = strings('modal.send.txSuccess')
-            if (typeof tx.successMessage !== 'undefined') {
-                successMessage = tx.successMessage
-            }
-            showModal({
-                type: 'INFO_MODAL',
-                icon: true,
-                title: strings('modal.send.success'),
-                description: successMessage
-            }, () => {
-
-                const { type } = this.props.sendStore.data
-
-                if (type === 'MAIN_SCANNER' || fioRequestDetails) {
-                    NavStore.goNext('DashboardStack')
-                } else if (type === 'SEND_SCANNER') {
-                    NavStore.goNext('AccountScreen')
-                } else if (type === 'TRADE_SEND') {
-                    NavStore.goNext('FinishScreen', {
-                        finishScreenParam: {
-                            selectedCryptoCurrency: this.props.sendStore.data.cryptoCurrency
-                        }
-                    })
-                } else {
-                    if (transactionReplaceByFee) {
-                        NavStore.goBack(null)
-                    } else {
-                        NavStore.goBack(null)
-                        NavStore.goBack(null)
-                    }
-                }
-            })
-
-        } catch (e) {
-
-            Keyboard.dismiss()
-
-            if (e.message.indexOf('UI_') === 0) {
-                Log.log('Send.ConfirmSendScreen.handleSend protection ' + e.message)
-
-                this.setState({ isSendDisabled: false })
-
-                const allData = this.state.data
-
-                showModal({
-                    type: 'YES_NO_MODAL',
-                    icon: 'WARNING',
-                    title: strings('send.confirmModal.title'),
-                    description: strings('send.errors.' + e.message)
-                }, async () => {
-                    if (typeof e.newAmount !== 'undefined') {
-                        allData.amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(e.newAmount)
-                        this.setState({ amountRaw: e.newAmount, data: allData })
-                        await this.fee.changeAmountRaw(e.newAmount)
-                    } else {
-                        this.handleSend(passwordCheck, e.message)
-                    }
-                })
-
-            } else {
-                if (config.debug.appErrors) {
-                    console.log('Send.ConfirmSendScreen.handleSend error', e)
-                }
-                Log.errorTranslate(e, 'Send.ConfirmSendScreen.handleSend', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
-
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: null,
-                    title: strings('modal.exchange.sorry'),
-                    description: e.message
-                })
-            }
-            this.setState({ isSendDisabled: false })
-        }
-
-        setLoaderStatus(false)
     }
 
     minerFee = (countedFees) => {
@@ -527,6 +171,7 @@ class ReceiptScreen extends Component {
         let feeBasicCurrencySymbol = basicCurrencySymbol
         let feeBasicAmount = 0
 
+        // fee.hasOwnProperty('feeForTxDelegated') &&
         if (typeof fee.feeForTxDelegated !== 'undefined') {
             prettyFeeSymbol = currencySymbol
             prettyFee = fee.feeForTxCurrencyAmount
@@ -552,7 +197,7 @@ class ReceiptScreen extends Component {
         // `${feeBasicCurrencySymbol} ${feeBasicAmount}`
         return (
             <CheckData
-                name={'Miner fee'}
+                name={strings('send.receiptScreen.minerFee')}
                 value={`${prettyFee} ${prettyFeeSymbol}`}
                 subvalue={fiatFee}
             />
@@ -561,7 +206,6 @@ class ReceiptScreen extends Component {
 
     render() {
         UpdateOneByOneDaemon.pause()
-        UpdateAccountListDaemon.pause()
 
         const { colors, GRID_SIZE } = this.context
 
@@ -569,7 +213,7 @@ class ReceiptScreen extends Component {
             headerHeight
         } = this.state
 
-        let { isBottomFunctionEnabled, amount, address, account, cryptoCurrency, wallet, type, transactionSpeedUp, transactionReplaceByFee, multiAddress } = this.state.data
+        let { amount, address, account, cryptoCurrency, type, multiAddress } = this.state.data
 
         const { currencySymbol } = cryptoCurrency
         const basicCurrencySymbol = account.basicCurrencySymbol
@@ -598,7 +242,7 @@ class ReceiptScreen extends Component {
                     leftAction={this.closeAction}
                     rightType="close"
                     rightAction={this.closeAction}
-                    title={strings('send.setting.title')}
+                    title={strings('send.receiptScreen.title')}
                     setHeaderHeight={this.setHeaderHeight}
                 />
                 <ScrollView
@@ -612,7 +256,7 @@ class ReceiptScreen extends Component {
                 >
                     <View style={{ flex: 1 }}>
                         <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }} >
-                            <Text style={styles.title}>{'Total send:'}</Text>
+                            <Text style={styles.title}>{strings('send.receiptScreen.totalSend')}</Text>
                             <Text style={{ ...styles.value, color: color }} >{`${amount} ${currencySymbol}`}</Text>
                             {
                                 type !== 'TRADE_SEND' ?
@@ -628,48 +272,34 @@ class ReceiptScreen extends Component {
                         </View>
                         <View style={{ marginTop: 12 }}>
                             <CheckData
-                                name={'@ rate per 1 BTC'}
+                                name={strings('send.receiptScreen.rate', {currencyCode: currencySymbol})}
                                 value={`${account.basicCurrencySymbol} ${account.basicCurrencyRate}`}
                             />
-                            <CheckData
-                                name={'Destination address'}
-                                value={BlocksoftPrettyStrings.makeCut(address, 6)}
-                            />
+                            {multiShow ?
+                                multiShow.map((item, index) => {
+                                    return (
+                                        <CheckData
+                                            name={`${strings('send.receiptScreen.recepient')} ${index + 1}`}
+                                            value={BlocksoftPrettyStrings.makeCut(item, 6)}
+                                        />
+                                    )
+                                })
+                                :
+                                <CheckData
+                                    name={strings('send.receiptScreen.destinationAddress')}
+                                    value={BlocksoftPrettyStrings.makeCut(address, 6)}
+                                />}
                             {this.state.data.countedFees && this.minerFee(this.state.data.countedFees)}
+                            <View style={{ paddingHorizontal: GRID_SIZE, flexDirection: 'row', marginTop: 44 }}>
+                                <CustomIcon name="shield" size={28} style={{ color: '#5C5C5C' }} />
+                                <Text style={styles.info}>{strings('send.receiptScreen.trusteeInfo')}</Text>
+                            </View>
                         </View>
-                        {/* {
-                            multiShow
-                                ?
-                                (
-                                    <TouchableOpacity
-                                        style={{
-                                            flex: 1,
-                                            height: 30,
-                                            paddingLeft: 0,
-                                            justifyContent: 'center'
-                                        }}
-                                        onPress={() => this.showMultiAddresses(multiShow)}>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            <Text
-                                                style={styles.description__text}>{strings('send.confirmModal.multiRecipient', { total: multiShow.length })}</Text>
-                                            <View style={{ marginLeft: 5, marginBottom: 0 }}>
-                                                <AntDesing name={'caretdown'} size={13}
-                                                    color="#f4f4f4" />
-                                            </View>
-                                        </View>
-                                    </TouchableOpacity>
-                                )
-                                : (
-                                    <Text style={styles.description__text}>
-                                        {BlocksoftPrettyStrings.makeCut(address, 10)}
-                                    </Text>
-                                )
-                        } */}
                     </View>
                     <TwoButtons
                         mainButton={{
                             onPress: () => this.handleSend(),
-                            title: strings('walletBackup.step0Screen.next')
+                            title: strings('send.receiptScreen.send')
                         }}
                         secondaryButton={{
                             type: 'settings',
@@ -730,5 +360,14 @@ const styles = {
         borderBottomColor: '#DADADA',
         height: 24,
         width: '70%',
+    },
+    info: {
+        paddingHorizontal: 12,
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18,
+        color: '#5C5C5C',
+        letterSpacing: 1,
+        textAlign: 'left'
     }
 }

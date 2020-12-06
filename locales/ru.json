@@ -681,6 +681,12 @@
     "setting": {
       "title": "Advanced"
     },
+    "infoModal": {
+      "title": "Информация",
+      "XRP": "Тег назначения Ripple это ...",
+      "XMR": "Идентификатор платежа Monero это ...",
+      "FIO": "FIO Сообщение это ..."
+    },
     "confirmModal": {
       "title": "Подтверждение отправки",
       "titleSpeedUp": "Подтверждение ускорения входящей транзакции %{hash}",
@@ -790,6 +796,18 @@
           "feeForByte": "Цена за байт",
           "satoshi": "SATOSHI"
         }
+      },
+      "receiptScreen": {
+        "title": "Квитанция",
+        "totalSend": "Сумма отправки",
+        "rate": "Цена за 1 %{currencyCode}",
+        "recepient": "Получатель",
+        "destinationAddress": "Адрес получателя",
+        "minerFee": "Комиссия майнера",
+        "totalMinerFee": "Общая комиссия майнера",
+        "trusteeInfo": "Криптовалютние транзакции не тарифицируются",
+        "send": "Отправить",
+        "sending": "Отправка"
       }
     },
     "errors": {

@@ -49,25 +49,41 @@ const TrxItem = (props) => {
     const {
         title,
         subtitle,
-        iconType
+        iconType,
+        withoutBack
     } = props
 
     return (
         <View style={{ marginTop: 16 }}>
-            <View style={{ ...styles.wrapper, padding: GRID_SIZE, flexDirection: 'row' }} >
-                <View style={styles.icon}>
-                    {getIcon(iconType, colors.common.text1)}
-                </View>
-                <View style={styles.mainContent}>
-                    <View style={[styles.textContent, { paddingVertical: 3 }]}>
-                        <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
-                        {!!subtitle && <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>}
+            {withoutBack ?
+                <View style={styles.withoutBack}>
+                    <View style={styles.mainContent}>
+                        <View style={[styles.textContent, { paddingVertical: 3 }]}>
+                            <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
+                            {!!subtitle && <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>}
+                        </View>
                     </View>
                 </View>
-            </View>
-            <View style={styles.shadow}>
-                <View style={styles.shadowItem} />
-            </View>
+                :
+                <>
+                    <View style={{ ...styles.wrapper, padding: GRID_SIZE, flexDirection: 'row' }} >
+                        {iconType && (
+                            <View style={styles.icon}>
+                                {getIcon(iconType, colors.common.text1)}
+                            </View>
+                        )}
+                        <View style={styles.mainContent}>
+                            <View style={[styles.textContent, { paddingVertical: 3 }]}>
+                                <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
+                                {!!subtitle && <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>}
+                            </View>
+                        </View>
+                    </View>
+                    <View style={styles.shadow}>
+                        <View style={styles.shadowItem} />
+                    </View>
+                </>
+            }
         </View>
     )
 
@@ -80,6 +96,14 @@ const styles = {
         borderRadius: 16,
         width: '100%',
         backgroundColor: '#F2F2F2',
+        position: 'relative',
+
+        zIndex: 2,
+    },
+    withoutBack: {
+        // borderRadius: 16,
+        width: '100%',
+        // backgroundColor: '#F2F2F2',
         position: 'relative',
 
         zIndex: 2,

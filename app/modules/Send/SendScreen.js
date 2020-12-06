@@ -5,23 +5,16 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 
-import { View, ScrollView, Keyboard, Text, TouchableOpacity, Dimensions, SafeAreaView } from 'react-native'
+import { View, ScrollView, Keyboard, Text, TouchableOpacity, Dimensions } from 'react-native'
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
 import firebase from 'react-native-firebase'
 import AsyncStorage from '@react-native-community/async-storage'
 
-
-import TextView from '../../components/elements/Text'
 import AddressInput from '../../components/elements/Input'
 import AmountInput from './elements/Input'
 import MemoInput from '../../components/elements/Input'
-import Input from '../../components/elements/Input'
-import TextareaInput from '../../components/elements/Input'
-import Navigation from '../../components/navigation/Navigation'
-import GradientView from '../../components/elements/GradientView'
-import Button from '../../components/elements/Button'
 import NavStore from '../../components/navigation/NavStore'
 
 import { setQRConfig, setQRValue } from '../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
@@ -68,6 +61,8 @@ import PartBalanceButton from './elements/partBalanceButton'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import { handleFee } from '../../appstores/Stores/Send/SendActions'
 
+import CheckData from './elements/CheckData'
+
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let styles
@@ -91,6 +86,18 @@ const amountInput = {
 
 let IS_CALLED_BACK = false
 let BASIC_INPUT_TYPE = 'CRYPTO'
+
+const dummyFees = {
+    countedFees: {"countedForBasicBalance": "50168270000000000", 
+    "fees": [{"amountForTx": "25079611127023976", "feeForTx": "472500000000000", "gasLimit": "21000", "gasPrice": "22500000000", "langMsg": "eth_speed_slow", "nonceForTx": 2}, 
+    {"amountForTx": "25079611127023976", "feeForTx": "497700000000000", "gasLimit": "21000", "gasPrice": "23700000000", "langMsg": "eth_speed_medium", "nonceForTx": 2}, 
+    {"amountForTx": "25079611127023976", "feeForTx": "567000000000000", "gasLimit": "21000", "gasPrice": "27000000000", "langMsg": "eth_speed_fast", "nonceForTx": 2}], 
+    "feesCountedForData": {"accountJson": false, "addressFrom": "0x6514Fc6B1032fcE0639764954eEAe1810e28412D", 
+    "addressTo": "0x6514Fc6B1032fcE0639764954eEAe1810e28412D", "allowReplaceByFee": true, "amount": "25079611127023976", 
+    "balance": "50168270000000000", "currencyCode": "ETH", "derivationPath": "m/44'/60'/0'/0/0", "isHd": 0, "isTransferAll": false, 
+    "unconfirmed": "0", "useLegacy": 0, "useOnlyConfirmed": false, "walletHash": "4ff05c9856ab4e905519e5259d2e8089"}, "selectedFeeIndex": 2},
+    selecetedFee: {"amountForTx": "25079611127023976", "feeForTx": "567000000000000", "gasLimit": "21000", "gasPrice": "27000000000", "langMsg": "eth_speed_fast", "nonceForTx": 2}
+}
 
 class SendScreen extends Component {
 
@@ -314,101 +321,6 @@ class SendScreen extends Component {
         })
     }
 
-    handleGetFee = async (value, inputType, equivalent) => {
-        const { countedFees, selectedFee, useAllFunds } = this.state
-        console.log('Send.SendScreen.handleGetFee ', JSON.parse(JSON.stringify({ value, inputType, equivalent })))
-        console.log('Send.SendScreen.handleGetFee state', { countedFees, selectedFee, useAllFunds })
-        const {
-            walletHash,
-            walletUseUnconfirmed,
-            walletAllowReplaceByFee,
-            walletUseLegacy,
-            walletIsHd
-        } = this.props.wallet
-
-        const { address, derivationPath, currencyCode, balance, unconfirmed, accountJson } = this.state.account
-
-        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
-
-        try {
-            Log.log(`SendScreen.handleGetFee balance ${currencyCode} ${address} data ${balance} + ${unconfirmed}`)
-
-            let addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
-
-            // YURA, its important to use entered address as its very important and fees need to be recalculated when destination is changed!
-            const addressValidate = await this.addressInput.handleValidate()
-            if (addressValidate.status === 'success') {
-                addressToForTransferAll = addressValidate.value
-            }
-
-            Log.log(`SendScreen.handleTransferAll balance ${currencyCode} ${address} addressToTransfer`, addressToForTransferAll)
-
-            const countedFeesData = {
-                currencyCode,
-                walletHash,
-                derivationPath,
-                addressFrom: address,
-                addressTo: addressToForTransferAll,
-
-                amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(inputType === 'CRYPTO' ? value : equivalent),
-                balance: balance,
-                unconfirmed: walletUseUnconfirmed === 1 ? unconfirmed : 0,
-
-                isTransferAll: false,
-                useOnlyConfirmed: !(walletUseUnconfirmed === 1),
-                allowReplaceByFee: walletAllowReplaceByFee === 1,
-                useLegacy: walletUseLegacy,
-                isHd: walletIsHd,
-
-                accountJson
-            }
-            let addData = {}
-            if (typeof selectedFee !== 'undefined') {
-                addData = selectedFee
-                if (typeof selectedFee.blockchainData !== 'undefined' && typeof selectedFee.blockchainData.unspents !== 'undefined') {
-                    addData.unspents = selectedFee.blockchainData.unspents
-                }
-            }
-
-            const transferCount = await BlocksoftTransfer.getFeeRate(countedFeesData, addData)
-            transferCount.feesCountedForData = countedFeesData
-
-            let newSelectedFee = transferCount.fees[transferCount.selectedFeeIndex]
-            if (typeof selectedFee !== 'undefined' && typeof selectedFee.isCustomFee !== 'undefined') {
-                newSelectedFee = selectedFee.isCustomFee
-            }
-            handleFee(transferCount, newSelectedFee)
-
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferCount.feesCountedForData.amount)
-
-            this.setState({
-                useAllFunds: false,
-                countedFees: transferCount,
-                selectedFee: newSelectedFee
-            })
-
-            // setLoaderStatus(false)
-            console.log('Send.SendScreen.handleGetFee currencyBalanceAmount: ', amount, 'currencyBalanceAmountRaw: ', transferCount.feesCountedForData.amount)
-            return { currencyBalanceAmount: amount, currencyBalanceAmountRaw: transferCount.feesCountedForData.amount }
-
-
-        } catch (e) {
-            if (config.debug.cryptoErrors) {
-                console.log('Send.SendScreen.handleGetFee', e)
-            }
-            Log.errorTranslate(e, 'Send.SendScreen.handleGetFee', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
-
-            Keyboard.dismiss()
-
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.qrScanner.sorry'),
-                description: e.message,
-                error: e
-            })
-        }
-    }
 
     handleTransferAll = async (handleInput = true) => {
         console.log('Send.SendScreen.handlTransferAll')
@@ -560,7 +472,6 @@ class SendScreen extends Component {
 
         const addressValidation = await this.addressInput.handleValidate()
         const valueValidation = await this.valueInput.handleValidate()
-        // const commentValidation = await this.commentInput.handleValidate()
         const destinationTagValidation = typeof this.memoInput.handleInput !== 'undefined' ? await this.memoInput.handleValidate() : {
             status: 'success',
             value: false
@@ -582,10 +493,6 @@ class SendScreen extends Component {
             Log.log('Send.SendScreen.handleSendTransaction value is 0 ' + JSON.stringify(valueValidation))
             return
         }
-        // if (commentValidation.status !== 'success') {
-        //     Log.log('Send.SendScreen.handleSendTransaction invalid comment ' + JSON.stringify(commentValidation))
-        //     return
-        // }
         if (destinationTagValidation.status !== 'success') {
             Log.log('Send.SendScreen.handleSendTransaction invalid destination ' + JSON.stringify(destinationTagValidation))
             return
@@ -645,7 +552,6 @@ class SendScreen extends Component {
         setLoaderStatus(true)
 
         const amount = this.state.inputType === 'FIAT' ? this.state.amountEquivalent : valueValidation.value
-        // const comment = commentValidation.value
         const memo = destinationTagValidation.value.toString()
 
         let fioPaymentData
@@ -694,7 +600,6 @@ class SendScreen extends Component {
         }
 
         try {
-            // toTransactionJSON.comment = comment
 
             const amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makeUnPretty(amount)
             if (typeof amountRaw === 'undefined') {
@@ -862,8 +767,11 @@ class SendScreen extends Component {
 
         if (amount > 0) {
 
-            if (!this.state.useAllFunds) {
-                this.handleGetFee(value, this.state.inputType, amount)
+            if(!this.state.useAllFunds) {
+                this.setState({
+                    countedFees: dummyFees.countedFees,
+                    selectedFee: dummyFees.selecetedFee
+                })
             }
 
             this.setState({
@@ -882,7 +790,7 @@ class SendScreen extends Component {
 
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: 120 })
+                this.scrollView.scrollTo({ y: 220 })
             } catch (e) {
             }
         }, 500)
@@ -908,7 +816,7 @@ class SendScreen extends Component {
                                     </View>
                                     <View>
                                         <TouchableOpacity style={styles.texts__item} delayLongPress={500}
-                                                          onLongPress={() => this.handleOkForce()}>
+                                            onLongPress={() => this.handleOkForce()}>
                                             <Text>
                                                 {item}
                                             </Text>
@@ -949,11 +857,10 @@ class SendScreen extends Component {
         }
 
         return (
-            // <View style={styles.accountDetail}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View>
                     <CurrencyIcon currencyCode={currencyCode}
-                                  containerStyle={{}} />
+                        containerStyle={{}} />
                 </View>
                 <View style={styles.accountDetail__content}>
                     <View style={{}}>
@@ -966,11 +873,15 @@ class SendScreen extends Component {
                     </View>
                 </View>
             </View>
-            // </View>
         )
     }
 
     minerFee = () => {
+
+        if (!this.state.useAllFunds || !this.state.selectedFee) {
+            return false
+        }
+
         const { countedFees, selectedFee, useAllFunds } = this.state
         console.log('Send.SendScreen.minerFee state', JSON.parse(JSON.stringify({
             countedFees,
@@ -1009,20 +920,12 @@ class SendScreen extends Component {
             fiatFee = `${feeBasicCurrencySymbol} ${feeBasicAmount}`
         }
 
-        // `${feeBasicCurrencySymbol} ${feeBasicAmount}`
         return (
-            <View style={{ flexDirection: 'row', paddingHorizontal: 16, justifyContent: 'space-between' }}>
-                <View style={{ width: '50%' }}>
-                    <LetterSpacing numberOfLines={2} text={'Miner fee'} textStyle={style.minerFee}
-                                   letterSpacing={0.5} />
-                </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                    <LetterSpacing text={`${prettyFee} ${prettyFeeSymbol}`} textStyle={style.minerFee}
-                                   letterSpacing={0.5} />
-                    <LetterSpacing text={fiatFee} textStyle={{ ...style.fiatFee, paddingTop: 5, color: '#999999' }}
-                                   letterSpacing={1.5} />
-                </View>
-            </View>
+            <CheckData
+                name={'Miner fee'}
+                value={`${prettyFee} ${prettyFeeSymbol}`}
+                subvalue={fiatFee}
+            />
         )
     }
 
@@ -1056,12 +959,16 @@ class SendScreen extends Component {
         }
     }
 
-    modalInfo = (currencyCode) => {
+    modalInfo = () => {
+        const currencyCode = this.state.account.currencyCode
+
+        const description = strings(`send.infoModal.${currencyCode}`)
+
         showModal({
             type: 'INFO_MODAL',
             icon: null,
-            title: strings('modal.qrScanner.sorry'),
-            description: currencyCode === 'XRP' ? 'xrp' : currencyCode === 'XMR' ? 'xmr' : 'fio' // ehhhh
+            title: strings('send.infoModal.title'),
+            description
         })
     }
 
@@ -1121,8 +1028,6 @@ class SendScreen extends Component {
         const prev = NavStore.getPrevRoute().routeName
 
         const notEquivalentValue = this.state.amountInputMark ? this.state.amountInputMark : '0.00'
-        //  this.state.inputType === 'CRYPTO' ?
-        //     `~ ${this.state.account.basicCurrencySymbol || '$'} 0.00` : `0.00 ${this.state.cryptoCurrency.currencySymbol}`
 
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
@@ -1136,11 +1041,6 @@ class SendScreen extends Component {
                     setHeaderHeight={this.setHeaderHeight}
                 />
                 <KeyboardAwareView>
-                    {/* <SafeAreaView style={[styles.content, {
-                                backgroundColor: colors.common.background,
-                                marginTop: headerHeight,
-                                height: WINDOW_HEIGHT - headerHeight
-                            }]}> */}
                     <ScrollView
                         ref={(ref) => {
                             this.scrollView = ref
@@ -1148,12 +1048,12 @@ class SendScreen extends Component {
                         keyboardShouldPersistTaps={'handled'}
                         showsVerticalScrollIndicator={false}
                         // contentContainerStyle={focused ? styles.wrapper__content_active : styles.wrapper__content}
-                        // style={styles.wrapper__scrollView}>
                         contentContainerStyle={{
                             flexGrow: 1,
                             justifyContent: 'space-between',
                             padding: GRID_SIZE,
-                            paddingBottom: GRID_SIZE * 2
+                            paddingBottom: GRID_SIZE * 2,
+                            minHeight: focused ? 400 : WINDOW_HEIGHT/2
                         }}
                         style={{ marginTop: headerHeight }}
                     >
@@ -1162,9 +1062,7 @@ class SendScreen extends Component {
                                 ref={component => this.valueInput = component}
                                 id={amountInput.id}
                                 additional={amountInput.additional}
-                                tapText={this.state.inputType === 'FIAT' ? basicCurrencyCode : currencySymbol}
                                 onFocus={() => this.onFocus()}
-                                // autoFocus={true}
                                 name={strings('send.value')}
                                 type={amountInput.type}
                                 decimals={decimals < 10 ? decimals : 10}
@@ -1177,13 +1075,13 @@ class SendScreen extends Component {
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <View style={style.line} />
                                 <TouchableOpacity style={{ position: 'absolute', right: 22, marginTop: -2 }}
-                                                  onPress={this.handleChangeEquivalentType}>
+                                    onPress={this.handleChangeEquivalentType}>
                                     <Text>{'<>'}</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 32 }}>
                                 <LetterSpacing text={notEquivalentValue} textStyle={style.notEquivalentValue}
-                                               letterSpacing={1.5} />
+                                    letterSpacing={1.5} />
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <PartBalanceButton
@@ -1253,7 +1151,7 @@ class SendScreen extends Component {
 
                             {this.renderEnoughFundsError()}
 
-                            <View style={{ marginTop: 20 }}>
+                            <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 2 }}>
                                 <AddressInput
                                     ref={component => this.addressInput = component}
                                     id={addressInput.id}
@@ -1291,63 +1189,56 @@ class SendScreen extends Component {
                             </View>
                             {
                                 currencyCode === 'XRP' ?
-                                    <MemoInput
-                                        ref={component => this.memoInput = component}
-                                        id={memoInput.id}
-                                        disabled={disabled}
-                                        name={strings('send.xrp_memo')}
-                                        type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
-                                        keyboardType={'numeric'}
-                                        decimals={0}
-                                        additional={'NUMBER'}
-                                        info={true}
-                                        tabInfo={() => this.modalInfo(currencyCode)}
-                                    /> : null
+                                    <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 2, marginBottom: GRID_SIZE }}>
+                                        <MemoInput
+                                            ref={component => this.memoInput = component}
+                                            id={memoInput.id}
+                                            disabled={disabled}
+                                            name={strings('send.xrp_memo')}
+                                            type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
+                                            keyboardType={'numeric'}
+                                            decimals={0}
+                                            additional={'NUMBER'}
+                                            info={true}
+                                            tabInfo={() => this.modalInfo()}
+                                        />
+                                    </View> : null
                             }
 
                             {
                                 currencyCode === 'XMR' ?
-                                    <MemoInput
-                                        ref={component => this.memoInput = component}
-                                        id={memoInput.id}
-                                        disabled={disabled}
-                                        name={strings('send.xmr_memo')}
-                                        type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
-                                        keyboardType={'default'}
-                                        info={true}
-                                        tabInfo={() => this.modalInfo(currencyCode)}
-                                    /> : null
+                                    <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 2, marginBottom: GRID_SIZE }}>
+                                        <MemoInput
+                                            ref={component => this.memoInput = component}
+                                            id={memoInput.id}
+                                            disabled={disabled}
+                                            name={strings('send.xmr_memo')}
+                                            type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
+                                            keyboardType={'default'}
+                                            info={true}
+                                            tabInfo={() => this.modalInfo(currencyCode)}
+                                        />
+                                    </View> : null
                             }
 
-                            {/* <View style={{ flexDirection: 'row' }}>
-                                        <Input
-                                            ref={component => this.commentInput = component}
-                                            id={'comment'}
-                                            // onFocus={() => this.onFocus()}
-                                            name={strings('send.comment')}
-                                            type={'OPTIONAL'}
-                                            isTextarea={true}
-                                            style={{ marginRight: 2, marginHorizontal: 16 }} />
-                                    </View> */}
 
                             {
                                 isFioPayment ?
-                                    <MemoInput
-                                        ref={component => this.memoInput = component}
-                                        id={memoInput.id}
-                                        disabled={disabled}
-                                        name={strings('send.fio_memo')}
-                                        type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
-                                        keyboardType={'default'}
-                                        info={true}
-                                        tabInfo={() => this.modalInfo('FIO')}
-                                    /> : null
+                                    <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 2, marginBottom: GRID_SIZE }}>
+                                        <MemoInput
+                                            ref={component => this.memoInput = component}
+                                            id={memoInput.id}
+                                            disabled={disabled}
+                                            name={strings('send.fio_memo')}
+                                            type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
+                                            keyboardType={'default'}
+                                            info={true}
+                                            tabInfo={() => this.modalInfo()}
+                                        /></View> : null
                             }
 
-                            {(this.state.selectedFee && this.state.useAllFunds) &&
-                            <>
-                                {this.minerFee()}
-                            </>}
+                            {this.minerFee()}
+
                         </View>
                         <TwoButtons
                             mainButton={{
@@ -1410,10 +1301,22 @@ const style = {
         lineHeight: 17,
         color: '#5C5C5C'
     },
-    currencyFee: {},
     fiatFee: {
         fontFamily: 'Montserrat-Bold',
         fontSize: 12,
         lineHeight: 12
+    },
+    inputWrapper: {
+        justifyContent: 'center',
+        height: 50,
+        borderRadius: 10,
+        elevation: 10,
+        shadowColor: '#000',
+        shadowRadius: 16,
+        shadowOpacity: 0.1,
+        shadowOffset: {
+            width: 0,
+            height: 0
+        },
     }
 }

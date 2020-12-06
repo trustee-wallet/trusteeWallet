@@ -256,116 +256,99 @@ class Input extends Component {
         }
 
         return (
-            <View>
-                <View style={{ ...styles.wrapper, ...elementStyle }}>
+            <View style={{ ...styles.wrapper, ...elementStyle }}>
+                {
+                    show ?
+                        <View style={{ backgroundColor: '#F5F5F5', width: '100%', borderRadius: 10 }} >
+                            <TextField
+                                ref={ref => this.inputRef = ref}
+                                keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'default'}
+                                tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
+                                labelHeight={styles.labelHeight}
+                                fontSize={19}
+                                lineWidth={0}
+                                activeLineWidth={0}
+                                placeholder={placeholder}
+                                placeholderStyle={{ ...styles.fontFamily, fontFamily: 'Montserrat-Semibold' }}
+                                value={validPlaceholder ? !this.state.errors.length && value !== '' && focus === false ? BlocksoftPrettyStrings.makeCut(value, 8) : value : value}
+                                returnKeyLabel={'Buy'}
+                                returnKeyType={'done'}
+                                onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
+                                }}
+                                autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
+                                disabled={isDisabled}
+                                disabledLineType={'none'}
+                                onChangeText={(value) => this.handleInput(value)}
+                                style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: error ? '#864DD9' : '#5C5C5C', }}
+                                multiline={isTextarea}
+                                autoCorrect={false}
+                                spellCheck={false}
+                                onBlur={() => {
+                                    this.setState({ focus: false })
+                                }}
+                                onContentSizeChange={(e) => {
+                                    const h = e.nativeEvent.contentSize.height
+                                    if (h > 1) {
+                                        this.setState({ inputHeight: h })
+                                    }
+                                }}
+                                onFocus={typeof onFocus === 'undefined' ? () => {
+                                    this.setState({ focus: true })
+                                } : () => {
+                                    this.setState({ focus: true })
+                                    onFocus()
+                                }}
+                            />
+                        </View>
+                        : null
+                }
+                <View style={styles.actions}>
                     {
-                        show ?
-                            <View style={{ backgroundColor: '#F5F5F5', width: '100%', borderRadius: 10 }} >
-                                <TextField
-                                    ref={ref => this.inputRef = ref}
-                                    labelHeight={styles.labelHeight}
-                                    fontSize={19}
-                                    lineWidth={0}
-                                    activeLineWidth={0}
-                                    placeholder={placeholder}
-                                    placeholderStyle={{ ...styles.fontFamily, fontFamily: 'Montserrat-Semibold' }}
-                                    value={validPlaceholder ? !this.state.errors.length && value !== '' && focus === false ? BlocksoftPrettyStrings.makeCut(value, 8) : value : value}
-                                    returnKeyLabel={'Buy'}
-                                    returnKeyType={'done'}
-                                    onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
-                                    }}
-                                    autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
-                                    disabled={isDisabled}
-                                    disabledLineType={'none'}
-                                    onChangeText={(value) => this.handleInput(value)}
-                                    style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: error ? '#864DD9' : '#5C5C5C', }}
-                                    multiline={isTextarea}
-                                    autoCorrect={false}
-                                    spellCheck={false}
-                                    onBlur={() => {
-                                        this.setState({ focus: false })
-                                    }}
-                                    onContentSizeChange={(e) => {
-                                        const h = e.nativeEvent.contentSize.height
-                                        if (h > 1) {
-                                            this.setState({ inputHeight: h })
-                                        }
-                                    }}
-                                    onFocus={typeof onFocus === 'undefined' ? () => {
-                                        this.setState({ focus: true })
-                                    } : () => {
-                                        this.setState({ focus: true })
-                                        onFocus()
-                                    }}
-                                />
-                            </View>
-                            : null
-                    }
-                    <View style={styles.actions}>
-                        {
-                            typeof fio !== 'undefined' && fio ?
-                                <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
-                                    <MaterialCommunityIcons style={styles.actionBtn__icon} name="contacts" size={25} color={error ? '#864DD9' : "#404040"} />
-                                </TouchableOpacity> : null
-                        }
-                        {
-                            typeof copy !== 'undefined' && copy ?
-                                <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
-                                    <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-copy" size={25} color={error ? '#864DD9' : "#404040"} />
-                                </TouchableOpacity> : null
-                        }
-                        {
-                            typeof paste !== 'undefined' && paste ?
-                                <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
-                                    <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-paste" size={25} color={error ? '#864DD9' : "#404040"} />
-                                </TouchableOpacity> : null
-                        }
-                        {
-                            typeof qr !== 'undefined' && qr ?
-                                <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
-                                    <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }} name="qrcode" size={25} color={error ? '#864DD9' : "#404040"} />
-                                </TouchableOpacity> : null
-                        }
-                        {
-                            typeof info !== 'undefined' && typeof tabInfo !== 'undefined' && info && tabInfo ?
-                                <TouchableOpacity onPress={tabInfo} style={styles.actionBtn}>
-                                    <Icon
-                                        name="information-outline"
-                                        size={25}
-                                        color={error ? '#864DD9' : "#404040"}
-                                        style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }}
-                                    />
-                                </TouchableOpacity> : null
-                        }
-                    </View>
-                    {
-                        typeof action !== 'undefined' && !disabled ?
-                            <TouchableOpacity onPress={action.callback} style={[styles.action, actionBtnStyles]}>
-                                <View style={styles.action__title}>
-                                    <Text style={styles.action__title__text}>
-                                        {action.title}
-                                    </Text>
-                                </View>
+                        typeof fio !== 'undefined' && fio ?
+                            <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
+                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="contacts" size={25} color={error ? '#864DD9' : "#404040"} />
                             </TouchableOpacity> : null
                     }
-                    {/* {
-                        typeof subTitle !== 'undefined' ?
-                            <Text style={styles.subTitle}>{subTitle}</Text> : null
-                    } */}
-                    {/* <View style={styles.bottomTexts}>
-                        <Text numberOfLines={1}>
-                            <Text style={{ ...styles.mark, ...markStyle }}>
-                                {typeof bottomLeftText !== 'undefined' ? bottomLeftText : ''}
-                            </Text>
-                            <Text style={{ ...styles.mark, ...markStyle }}>
-                                {typeof mark !== 'undefined' ? mark : ''}
-                            </Text>
-                        </Text>
-                    </View> */}
+                    {
+                        typeof copy !== 'undefined' && copy ?
+                            <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
+                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-copy" size={25} color={error ? '#864DD9' : "#404040"} />
+                            </TouchableOpacity> : null
+                    }
+                    {
+                        typeof paste !== 'undefined' && paste ?
+                            <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
+                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-paste" size={25} color={error ? '#864DD9' : "#404040"} />
+                            </TouchableOpacity> : null
+                    }
+                    {
+                        typeof qr !== 'undefined' && qr ?
+                            <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
+                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }} name="qrcode" size={25} color={error ? '#864DD9' : "#404040"} />
+                            </TouchableOpacity> : null
+                    }
+                    {
+                        typeof info !== 'undefined' && typeof tabInfo !== 'undefined' && info && tabInfo ?
+                            <TouchableOpacity onPress={tabInfo} style={styles.actionBtn}>
+                                <Icon
+                                    name="information-outline"
+                                    size={25}
+                                    color={error ? '#864DD9' : "#404040"}
+                                    style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }}
+                                />
+                            </TouchableOpacity> : null
+                    }
                 </View>
-                <View style={styles.shadow}>
-                    <View style={{ ...styles.shadow__item }} />
-                </View>
+                {
+                    typeof action !== 'undefined' && !disabled ?
+                        <TouchableOpacity onPress={action.callback} style={[styles.action, actionBtnStyles]}>
+                            <View style={styles.action__title}>
+                                <Text style={styles.action__title__text}>
+                                    {action.title}
+                                </Text>
+                            </View>
+                        </TouchableOpacity> : null
+                }
             </View>
         )
     }

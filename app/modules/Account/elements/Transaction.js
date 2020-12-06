@@ -705,7 +705,7 @@ class Transaction extends Component {
 
     }
 
-
+    
     handleReplaceByFeeBtn = async (mode = 'usual') => {
 
         const { cryptoCurrency, transaction, account } = this.props
@@ -1123,8 +1123,8 @@ class Transaction extends Component {
     //     })
     // }
 
-    getTransactionData(data) {
-        let datetime = new Date(data)
+    getTransactionDate(date) {
+        let datetime = new Date(date)
         datetime = (datetime.getDate().toString().length === 1 ? '0' + datetime.getDate() : datetime.getDate()) + '.' +
             ((datetime.getMonth() + 1).toString().length === 1 ? '0' + (datetime.getMonth() + 1) : (datetime.getMonth() + 1)) + '.' + datetime.getFullYear()
         return datetime
@@ -1214,7 +1214,7 @@ class Transaction extends Component {
                                         </View>
                                         <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
                                             <Text style={{ ...styles.transaction__data, color: colors.accountScreen.transactions.transactionData }}>
-                                                {this.getTransactionData(transaction.createdAt)}</Text>
+                                                {this.getTransactionDate(transaction.createdAt)}</Text>
                                             <Text style={{ ...styles.transaction__data, color: colors.accountScreen.transactions.transactionData }}>
                                                 {new Date(transaction.createdAt).toTimeString().slice(0, 5)}</Text>
 
