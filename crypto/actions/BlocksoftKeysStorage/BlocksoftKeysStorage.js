@@ -64,7 +64,12 @@ export class BlocksoftKeysStorage {
      * @private
      */
     async _getKeyValue(key) {
-        const res = await Keychain.getInternetCredentials(this._serviceName + '_' + key,{ authenticationPrompt: { title: "Fingerprint title", cancel: "Cancel" }})
+        const res = await Keychain.getInternetCredentials(this._serviceName + '_' + key, {
+            authenticationPrompt: {
+                title: 'Fingerprint title',
+                cancel: 'Cancel'
+            }
+        })
         if (!res) return false
         return { 'pub': res.username, 'priv': res.password }
     }
@@ -104,7 +109,21 @@ export class BlocksoftKeysStorage {
     async _setKeyValue(key, pub, priv = false) {
         pub = pub + ''
         if (!priv) priv = pub
-        return Keychain.setInternetCredentials(this._serviceName + '_' + key, pub, priv,{ authenticationPrompt: { title: "Fingerprint title", cancel: "Cancel" }})
+        let res = false
+        try {
+            res = await Keychain.setInternetCredentials(this._serviceName + '_' + key, pub, priv, {
+                authenticationPrompt: {
+                    title: 'Fingerprint title',
+                    cancel: 'Cancel'
+                }
+            })
+        } catch (e) {
+            console.log(e)
+            if (key.indexOf('wallet') !== -1) {
+                throw e
+            }
+        }
+        return res
     }
 
     /**
@@ -225,6 +244,7 @@ export class BlocksoftKeysStorage {
         await this._init()
         const msg = 'BlocksoftKeysStorage setSelectedWallet ' + source + ' ' + hashOrId + ' '
 
+        let isChanged = false
         if (!hashOrId || typeof hashOrId === 'undefined' || hashOrId === 'first') {
             if (typeof this.publicWallets[0] === 'undefined') {
                 this._serviceWasInited = false
@@ -239,17 +259,26 @@ export class BlocksoftKeysStorage {
             } else {
                 // do nothing
             }
+            isChanged = true
         } else {
             if (!this._serviceWallets[hashOrId]) {
                 throw new Error('undefined wallet with hash ' + hashOrId)
             }
-            this.publicSelectedWallet = hashOrId
-            await this._setKeyValue('selected_hash', hashOrId)
+            try {
+                await this._setKeyValue('selected_hash', hashOrId)
+                this.publicSelectedWallet = hashOrId
+                isChanged = true
+            } catch (e) {
+                console.log(e.message)
+                return this.publicSelectedWallet
+            }
         }
-        BlocksoftCryptoLog.log(msg + this.publicSelectedWallet)
+        BlocksoftCryptoLog.log(msg + 'new publicSelectedWallet = ' + this.publicSelectedWallet + ' ' + JSON.stringify({ isChanged }))
 
-        const mnemonic = await this.getWalletMnemonic(hashOrId)
-        await fioSdkWrapper.init(mnemonic)
+        if (isChanged) {
+            const mnemonic = await this.getWalletMnemonic(hashOrId)
+            await fioSdkWrapper.init(mnemonic)
+        }
         return this.publicSelectedWallet
     }
 

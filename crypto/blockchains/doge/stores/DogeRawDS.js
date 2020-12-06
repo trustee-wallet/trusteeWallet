@@ -150,7 +150,7 @@ class DogeRawDS {
             WHERE currency_code='${data.currencyCode}'
             AND transaction_unique_key='inputs_${data.transactionHash}' LIMIT 1`
         const res = await dbInterface.setQueryString(sql).query()
-        if (!res || !res.array) {
+        if (!res || !res.array || typeof res.array[0] === 'undefined' || typeof res.array[0].transactionRaw === 'undefined') {
             return false
         }
         try {
