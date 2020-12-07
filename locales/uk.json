@@ -394,7 +394,7 @@
     "receive": "%{receive}",
     "send": "Відправити",
     "history": "Транзакції",
-    "scan": "відскановано %{time} мін назад",
+    "scan": "відскановано %{time} хв назад",
     "justScan": "щойно відскановано",
     "noTransactions": "У Вас ще немає транзакцій",
     "showMore": "Показати ще",
@@ -429,7 +429,8 @@
       "sell": "Продаж",
       "mobile_phone": "Поповнення мобільного",
       "date": "Дата",
-      "confirmations": "Підтверджень:",
+      "confirmations": "Підтверджень",
+      "blockNumber": "Номер блоку",
       "moreInformation": "Більше інформації",
       "cardNumberDestination": "Номер картки для виводу",
       "advAccountDestination": "Номер рахунку для виводу",
@@ -678,7 +679,15 @@
     "notEnoughForFeeConfirmed": "Для надсилання токенів потрібно мати позитивний підтверджений баланс у нативній монеті %{symbol}, зачекайте на підтвердження або ввімкніть використання непідтвердженних транзакцій",
     "publicFioAddressNotFound": "%{symbol} публічна адреса не пов'язана з вказаною FIO адресою",
     "setting": {
-      "title": "Advanced"
+      "title": "Додатково",
+      "apply": "Застосувати",
+      "feeSettings": "Налаштування комісії",
+      "selectFee": "Виберіть комісію",
+      "inputSettings": "Налаштування входів",
+      "selectInput": "Виберіть входи",
+      "descriptionInput": "За замовчуванням",
+      "optionalSettings": "Необов'язковго",
+      "note": "Замітка"
     },
     "infoModal": {
       "title": "Інформація",

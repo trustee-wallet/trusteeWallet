@@ -819,10 +819,10 @@ class SendScreen extends SendBasicScreenScreen {
 
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: 220 })
+                this.scrollView.scrollTo({ y: 120 })
             } catch (e) {
             }
-        }, 500)
+        }, 100)
     }
 
     renderEnoughFundsError = () => {
@@ -997,7 +997,7 @@ class SendScreen extends SendBasicScreenScreen {
                             justifyContent: 'space-between',
                             padding: GRID_SIZE,
                             paddingBottom: GRID_SIZE * 2,
-                            minHeight: focused ? 400 : WINDOW_HEIGHT/2
+                            minHeight: focused ? 500 : WINDOW_HEIGHT/2
                         }}
                         style={{ marginTop: headerHeight }}
                     >
@@ -1006,13 +1006,12 @@ class SendScreen extends SendBasicScreenScreen {
                                 ref={component => this.valueInput = component}
                                 id={amountInput.id}
                                 additional={amountInput.additional}
-                                onFocus={() => this.onFocus()}
+                                // onFocus={() => this.onFocus()}
                                 name={strings('send.value')}
                                 type={amountInput.type}
                                 decimals={decimals < 10 ? decimals : 10}
                                 keyboardType={'numeric'}
                                 enoughFunds={!this.state.enoughFunds.isAvailable}
-                                disabled={disabled}
                                 noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
                                 callback={(value) => this.amountInputCallback(value, true)}
                             />
@@ -1099,7 +1098,7 @@ class SendScreen extends SendBasicScreenScreen {
                                 <AddressInput
                                     ref={component => this.addressInput = component}
                                     id={addressInput.id}
-                                    // onFocus={() => this.onFocus()}
+                                    onFocus={() => this.onFocus()}
                                     name={strings('send.address')}
                                     type={extendedAddressUiChecker.toUpperCase() + '_ADDRESS'}
                                     subtype={network}

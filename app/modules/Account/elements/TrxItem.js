@@ -50,7 +50,10 @@ const TrxItem = (props) => {
         title,
         subtitle,
         iconType,
-        withoutBack
+        withoutBack,
+        isLink,
+        linkUrl,
+        handleLink
     } = props
 
     return (
@@ -60,7 +63,11 @@ const TrxItem = (props) => {
                     <View style={styles.mainContent}>
                         <View style={[styles.textContent, { paddingVertical: 3 }]}>
                             <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
-                            {!!subtitle && <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>}
+                            {!!subtitle ?
+                                isLink ?
+                                    <TouchableOpacity onPress={() => handleLink(linkUrl)}>
+                                        <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>
+                                    </TouchableOpacity> : <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text> : null}
                         </View>
                     </View>
                 </View>

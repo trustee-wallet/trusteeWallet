@@ -21,7 +21,7 @@ import { HIT_SLOP } from '../../../themes/Themes'
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 const headerHeight = Platform.OS === 'android' ? 79 : 44
-const headerHeightSticky = Platform.OS === 'android' ? 123 : 203
+const headerHeightSticky = Platform.OS === 'android' ? 213 : 203
 
 export default class Header extends React.Component {
 

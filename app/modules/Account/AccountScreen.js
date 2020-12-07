@@ -797,7 +797,7 @@ class Account extends Component {
                     <View style={styles.wrapper__content}>
                         <View style={styles.topContent}>
                             <View style={stl.topContent__content}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }} >
+                                <View style={{ flexDirection: 'row' }} >
                                     <View style={{ marginTop: 16 }}>
                                         <TouchableOpacity style={{
                                             position: 'relative',
@@ -824,7 +824,7 @@ class Account extends Component {
                                             </View>
                                         </TouchableOpacity>
                                     </View>
-                                    <View style={{ marginTop: 22, marginLeft: typeof leftComponent !== 'undefined' ? -62 : -102 }}>
+                                    <View style={{ marginTop: 22 }}>
                                         <Text style={styles.currencyName}>{cryptoCurrency.currencyName}</Text>
                                         <TouchableOpacity style={styles.topContent__middle}
                                             onPress={() => this.handleBtcAddressCopy(shownAddress)}>
@@ -839,7 +839,7 @@ class Account extends Component {
                                             </View>
                                         </TouchableOpacity>
                                     </View>
-                                    <View style={stl.settings}>
+                                    <View style={{...stl.settings, right: 0, position: 'absolute'}}>
                                         {typeof leftComponent !== 'undefined' ? leftComponent() : null}
                                     </View>
                                 </View>
@@ -893,7 +893,6 @@ class Account extends Component {
                                 <View style={{ position: 'relative', width: '100%', zIndex: 1 }}>
                                     {
                                         show ? transactionsToView.map((item, index) => {
-                                            // console.log(item)
                                             return <Transaction key={item.id} index={item.id}
                                                 count={index}
                                                 cards={mainStore.cards}

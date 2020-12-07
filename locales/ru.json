@@ -431,7 +431,8 @@
       "sell": "Продажа",
       "mobile_phone": "Пополнение мобильного",
       "date": "Дата",
-      "confirmations": "Подтверждений:",
+      "confirmations": "Подтверждений",
+      "blockNumber": "Номер блока",
       "moreInformation": "Больше информации",
       "cardNumberDestination": "Номер карты для вывода",
       "advAccountDestination": "Номер счета для вывода",
@@ -679,7 +680,15 @@
     "notEnoughForFeeConfirmed": "Для отправки токенов необходимо иметь положительный подтвержденный баланс в нативной монете %{symbol}, подождите подтверждения или включите использование неподтвержденных транзакций",
     "publicFioAddressNotFound": "%{symbol} публичный адрес не связан с указаным FIO адресом",
     "setting": {
-      "title": "Advanced"
+      "title": "Допольнительно",
+      "apply": "Применить",
+      "feeSettings": "Настройки комиссии",
+      "selectFee": "Выберите комиссию",
+      "inputSettings": "Настройки входов",
+      "selectInput": "Выберите входы",
+      "descriptionInput": "По умолчанию",
+      "optionalSettings": "Необязательно",
+      "note": "Заметка"
     },
     "infoModal": {
       "title": "Информация",

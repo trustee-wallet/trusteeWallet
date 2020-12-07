@@ -231,7 +231,7 @@ class Input extends Component {
                         value={value}
                         onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
                         }}
-                        disabled={isDisabled}
+                        editable={!noEdit ? true : false}
                         onChangeText={(value) => this.handleInput(value)}
                         style={noEdit ? { ...styles.fontFamily, color: '#999999' } : {...styles.fontFamily, color: enoughFunds ? '#864DD9' : ''}}
                         autoCorrect={false}

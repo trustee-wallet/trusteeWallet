@@ -436,7 +436,8 @@
       "sell": "Sell",
       "mobile_phone": "Mobile phone",
       "date": "Date",
-      "confirmations": "Confirmations:",
+      "confirmations": "Confirmations",
+      "blockNumber": "Block number",
       "moreInformation": "More information",
       "cardNumberDestination": "Withdraw card number",
       "advAccountDestination": "Withdraw account number",
@@ -694,7 +695,15 @@
     "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations or turn on usage of unconfirmed transactions",
     "publicFioAddressNotFound": "%{symbol} public address is not associated with specified FIO address",
     "setting": {
-      "title": "Advanced"
+      "title": "Advanced",
+      "apply": "Apply",
+      "feeSettings": "Fee settings",
+      "selectFee": "Select fee amount",
+      "inputSettings": "Input settings",
+      "selectInput": "Select input",
+      "descriptionInput": "Default",
+      "optionalSettings": "Optinal",
+      "note": "Note"
     },
     "infoModal": {
       "title": "Info",

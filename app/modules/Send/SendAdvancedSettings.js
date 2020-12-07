@@ -280,23 +280,23 @@ class SendAdvancedSettingsScreen extends Component {
                         style={{ marginTop: 70 }}
                     >
                         <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
-                            <LetterSpacing text={strings('account.assetSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
+                            <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
                             <ListItem
-                                title={'Fee select'}
+                                title={strings('send.setting.selectFee')}
                                 iconType="pinCode"
                                 onPress={this.toggleDropMenu}
                                 rightContent={this.state.dropMenu ? 'arrow_up' : "arrow_down"}
                                 switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
                                 type={'dropdown'}
                                 ExtraView={() => this.showFee(basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode)}
-                                subtitle={'FEE'}
+                                subtitle={this.state.selectedFee.langMsg ? strings(`send.fee.text.${this.state.selectedFee.langMsg}`) : null}
                             />
                         </View>
                         <TwoButtons
                             mainButton={{
                                 disabled: this.disabled(),
                                 onPress: () => this.handleApply(),
-                                title: strings('walletBackup.step0Screen.next')
+                                title: strings('send.setting.apply')
                             }}
                             secondaryButton={{
                                 type: 'back',

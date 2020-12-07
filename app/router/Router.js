@@ -46,6 +46,7 @@ import AccountScreen from '../modules/Account/AccountScreen'
 import AccountSettingScreen from '../modules/Account/AccountSettings'
 import ReceiveScreen from '../modules/Account/ReceiveScreen'
 import TransactionScreen from '../modules/Account/TransactionScreen'
+import CheckV3DataScreen from '../modules/Account/CheckV3'
 import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
 import AddCustomTokenScreen from '../modules/AddCustomToken/AddCustomTokenScreen'
 import SMSCodeScreen from '../modules/Trade/SMSCodeScreen'
@@ -161,6 +162,13 @@ const MainNavigator = createStackNavigator({
 
         TransactionScreen: {
             screen: TransactionScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        CheckV3DataScreen: {
+            screen: CheckV3DataScreen,
             navigationOptions: {
                 headerShown: false
             }

@@ -272,7 +272,7 @@ class Input extends Component {
                                 placeholderStyle={{ ...styles.fontFamily, fontFamily: 'Montserrat-Semibold' }}
                                 value={validPlaceholder ? !this.state.errors.length && value !== '' && focus === false ? BlocksoftPrettyStrings.makeCut(value, 8) : value : value}
                                 returnKeyLabel={'Buy'}
-                                returnKeyType={'done'}
+                                // returnKeyType={'done'}
                                 onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
                                 }}
                                 autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
@@ -334,7 +334,7 @@ class Input extends Component {
                                     name="information-outline"
                                     size={25}
                                     color={error ? '#864DD9' : "#404040"}
-                                    style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }}
+                                    style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 3 }}
                                 />
                             </TouchableOpacity> : null
                     }
