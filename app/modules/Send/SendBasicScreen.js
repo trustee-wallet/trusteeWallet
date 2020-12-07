@@ -11,12 +11,13 @@ import config from '../../config/config'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import Log from '../../services/Log/Log'
 import { Keyboard } from 'react-native'
+import SendTmpConstants from './elements/SendTmpConstants'
 
 export default class SendBasicScreen extends Component {
 
 
     recountFees = async (params) => {
-        console.log('SendBasicScreen.recountFees init ')
+        // console.log('SendBasicScreen.recountFees init ')
         let countedFees, selectedFee, currencyCode
 
         try {
@@ -67,24 +68,41 @@ export default class SendBasicScreen extends Component {
 
             if (typeof params.amountRaw !== 'undefined') {
                 txData.amount = params.amountRaw
-                console.log('SendBasicScreen.recountFees amountRaw ' + txData.amount)
+                // console.log('SendBasicScreen.recountFees amountRaw ' + txData.amount)
             }
             if (typeof params.addressTo !== 'undefined') {
                 txData.addressTo = params.addressTo
-                console.log('SendBasicScreen.recountFees addressTo ' + txData.addressTo)
+                // console.log('SendBasicScreen.recountFees addressTo ' + txData.addressTo)
             }
 
-            console.log('SendBasicScreen.recountFees txData ', JSON.parse(JSON.stringify(txData)))
+            // console.log('SendBasicScreen.recountFees txData ', JSON.parse(JSON.stringify(txData)))
             countedFees = await BlocksoftTransfer.getFeeRate(txData)
             countedFees.feesCountedForData = txData
-            if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >=0) {
+            let foundSelected = false
+            if (this.state.selectedFee && this.state.selectedFee.langMsg) {
+                for (const fee of countedFees.fees) {
+                    if (fee.langMsg === this.state.selectedFee.langMsg) {
+                        selectedFee = fee
+                        foundSelected = true
+                        break
+                    }
+                }
+            }
+            if (!foundSelected && typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >=0) {
                 selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
             }
 
-            console.log('SendBasicScreen.recountFees result ', JSON.parse(JSON.stringify(countedFees)))
+            if (this._screenName === 'Receipt') {
+                console.log('set for back to receipt')
+                SendTmpConstants.PRESET_FROM_RECEIPT = true
+                SendTmpConstants.COUNTED_FEES = countedFees
+                SendTmpConstants.SELECTED_FEE = selectedFee
+            }
+
+            // console.log('SendBasicScreen.recountFees result ', JSON.parse(JSON.stringify(countedFees)))
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('SendBasicScreen.recountFees', e)
+                // console.log('SendBasicScreen.recountFees', e)
             }
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
             Log.errorTranslate(e, 'SendBasicScreen.recountFees', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
@@ -104,13 +122,9 @@ export default class SendBasicScreen extends Component {
 
     openAdvancedSettings = () => {
         const { countedFees, selectedFee, useAllFunds } = this.state
-        console.log('Send.SendBasicScreen.openAdvancedSettings state', JSON.parse(JSON.stringify({
-            countedFees,
-            selectedFee,
-            useAllFunds
-        })))
+        // console.log('Send.SendBasicScreen.openAdvancedSettings state', JSON.parse(JSON.stringify({countedFees,selectedFee,useAllFunds})))
         if (!countedFees) {
-            console.log('YURA, plz show loaded here')
+            // console.log('YURA, plz show loaded here')
         } else {
             NavStore.goNext('SendAdvancedScreen', {
                 data: {

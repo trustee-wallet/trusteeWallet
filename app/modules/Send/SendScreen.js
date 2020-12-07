@@ -64,6 +64,7 @@ import { handleFee } from '../../appstores/Stores/Send/SendActions'
 import CheckData from './elements/CheckData'
 
 import SendBasicScreenScreen from './SendBasicScreen'
+import SendTmpConstants from './elements/SendTmpConstants'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -89,19 +90,9 @@ const amountInput = {
 let IS_CALLED_BACK = false
 let BASIC_INPUT_TYPE = 'CRYPTO'
 
-const dummyFees = {
-    countedFees: {"countedForBasicBalance": "50168270000000000", 
-    "fees": [{"amountForTx": "25079611127023976", "feeForTx": "472500000000000", "gasLimit": "21000", "gasPrice": "22500000000", "langMsg": "eth_speed_slow", "nonceForTx": 2}, 
-    {"amountForTx": "25079611127023976", "feeForTx": "497700000000000", "gasLimit": "21000", "gasPrice": "23700000000", "langMsg": "eth_speed_medium", "nonceForTx": 2}, 
-    {"amountForTx": "25079611127023976", "feeForTx": "567000000000000", "gasLimit": "21000", "gasPrice": "27000000000", "langMsg": "eth_speed_fast", "nonceForTx": 2}], 
-    "feesCountedForData": {"accountJson": false, "addressFrom": "0x6514Fc6B1032fcE0639764954eEAe1810e28412D", 
-    "addressTo": "0x6514Fc6B1032fcE0639764954eEAe1810e28412D", "allowReplaceByFee": true, "amount": "25079611127023976", 
-    "balance": "50168270000000000", "currencyCode": "ETH", "derivationPath": "m/44'/60'/0'/0/0", "isHd": 0, "isTransferAll": false, 
-    "unconfirmed": "0", "useLegacy": 0, "useOnlyConfirmed": false, "walletHash": "4ff05c9856ab4e905519e5259d2e8089"}, "selectedFeeIndex": 2},
-    selecetedFee: {"amountForTx": "25079611127023976", "feeForTx": "567000000000000", "gasLimit": "21000", "gasPrice": "27000000000", "langMsg": "eth_speed_fast", "nonceForTx": 2}
-}
-
 class SendScreen extends SendBasicScreenScreen {
+
+    _screenName = 'SEND'
 
     constructor(props) {
         super(props)
@@ -168,11 +159,10 @@ class SendScreen extends SendBasicScreenScreen {
         this.init()
 
         // when back by history
-        /*
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
             this.init()
         })
-        */
+
 
         const fioRequest = this.props.navigation.getParam('fioRequestDetails')
         if (fioRequest) {
@@ -194,7 +184,28 @@ class SendScreen extends SendBasicScreenScreen {
     init = async () => {
         console.log('')
         console.log('')
-        console.log('Send.SendScreen.init')
+        console.log('Send.SendScreen.init', JSON.parse(JSON.stringify(SendTmpConstants)))
+
+        let countedFees = false
+        let selectedFee = false
+
+
+        if (SendTmpConstants.PRESET || SendTmpConstants.PRESET_FROM_RECEIPT) {
+            countedFees = SendTmpConstants.COUNTED_FEES
+            selectedFee = SendTmpConstants.SELECTED_FEE
+        } else {
+            if (typeof this.props.send.countedFees !== 'undefined' && this.props.send.countedFees && this.props.send.countedFees !== {}) {
+                countedFees = this.props.send.countedFees
+            }
+            if (typeof this.props.send.selectedFee !== 'undefined' && this.props.send.selectedFee && this.props.send.selectedFee !== {}) {
+                selectedFee = this.props.send.selectedFee
+            }
+        }
+        SendTmpConstants.PRESET = false
+        SendTmpConstants.PRESET_FROM_RECEIPT = false
+        console.log('Send.SendScreen.init preresult', JSON.parse(JSON.stringify({countedFees, selectedFee})))
+
+
         if (Object.keys(this.props.send.data).length !== 0) {
             // console.log('INIT SEND DATA', this.props.send.data)
             console.log('Send.SendScreen.init with data', { send: this.props.send })
@@ -217,7 +228,7 @@ class SendScreen extends SendBasicScreenScreen {
             if (type === 'TRADE_SEND') {
                 inputType = 'CRYPTO'
             }
-            // console.log(inputType, type)
+            // // console.log(inputType, type)
 
             const toState = {
                 account,
@@ -225,6 +236,8 @@ class SendScreen extends SendBasicScreenScreen {
                 description,
                 destinationTag,
                 useAllFunds,
+                countedFees,
+                selectedFee,
                 inputType: inputType || BASIC_INPUT_TYPE,
                 init: true
             }
@@ -273,15 +286,6 @@ class SendScreen extends SendBasicScreenScreen {
             console.log('Send.SendScreen.init without data', { send: this.props.send })
             const { account, cryptoCurrency, wallet } = this.props
 
-
-            let countedFees = false
-            let selectedFee = false
-            if (typeof this.props.send.countedFees !== 'undefined' && this.props.send.countedFees && this.props.send.countedFees !== {}) {
-                countedFees = this.props.send.countedFees
-            }
-            if (typeof this.props.send.selectedFee !== 'undefined' && this.props.send.selectedFee && this.props.send.selectedFee !== {}) {
-                selectedFee = this.props.send.selectedFee
-            }
             setLoaderStatus(false)
 
             this.setState({
@@ -305,7 +309,7 @@ class SendScreen extends SendBasicScreenScreen {
 
     // @yurka if there is no button - remove
     handleChangeEquivalentType = () => {
-        console.log('Send.SendScreen.handleChangeEquivalentType')
+        // console.log('Send.SendScreen.handleChangeEquivalentType')
         const { currencySymbol } = this.state.cryptoCurrency
         const { basicCurrencySymbol } = this.state.account
 
@@ -334,7 +338,7 @@ class SendScreen extends SendBasicScreenScreen {
     }
 
     handleTransferAll = async () => {
-        console.log('Send.SendScreen.handleTransferAll')
+        // console.log('Send.SendScreen.handleTransferAll')
         Keyboard.dismiss()
 
         setLoaderStatus(true)
@@ -353,7 +357,7 @@ class SendScreen extends SendBasicScreenScreen {
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} data ${balance} + ${unconfirmed}`)
+            // console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} data ${balance} + ${unconfirmed}`)
 
             let addressToForTransferAll
             const addressValidate = await this.addressInput.handleValidate()
@@ -363,7 +367,7 @@ class SendScreen extends SendBasicScreenScreen {
                 addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
             }
 
-            console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} addressToForTransferAll ${addressToForTransferAll}`)
+            // console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} addressToForTransferAll ${addressToForTransferAll}`)
 
             const countedFeesData = {
                 currencyCode,
@@ -388,7 +392,7 @@ class SendScreen extends SendBasicScreenScreen {
             const selectedFee = transferAllCount.fees[transferAllCount.selectedFeeIndex]
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance)
 
-            console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} transferAllCount result ${amount}`, JSON.parse(JSON.stringify(transferAllCount)) )
+            // console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} transferAllCount result ${amount}`, JSON.parse(JSON.stringify(transferAllCount)) )
 
             this.setState({
                 inputType: 'CRYPTO',
@@ -412,14 +416,14 @@ class SendScreen extends SendBasicScreenScreen {
             }
 
             setLoaderStatus(false)
-            console.log('Send.SendScreen.handleTransferAll currencyBalanceAmount: ', amount, 'currencyBalanceAmountRaw: ', transferAllCount.selectedTransferAllBalance)
+            // console.log('Send.SendScreen.handleTransferAll currencyBalanceAmount: ', amount, 'currencyBalanceAmountRaw: ', transferAllCount.selectedTransferAllBalance)
             return {
                 currencyBalanceAmount: amount,
                 currencyBalanceAmountRaw: transferAllCount.selectedTransferAllBalance
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('Send.SendScreen.handleTransferAll', e)
+                // console.log('Send.SendScreen.handleTransferAll', e)
             }
             Log.errorTranslate(e, 'Send.SendScreen.handleTransferAll', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
 
@@ -454,11 +458,7 @@ class SendScreen extends SendBasicScreenScreen {
             await this.handleTransferAll()
         }
 
-        console.log('Send.SendScreen.handleSendTransaction started ' + JSON.stringify({
-            forceSendAmount,
-            forceSendAll,
-            fromModal
-        }))
+        //console.log('Send.SendScreen.handleSendTransaction started ' + JSON.stringify({forceSendAmount,forceSendAll,fromModal}))
 
         const {
             account,
@@ -473,10 +473,7 @@ class SendScreen extends SendBasicScreenScreen {
             selectedFee
         } = this.state
 
-        console.log('Send.SendScreen.handleSendTransaction state', JSON.parse(JSON.stringify({
-            countedFees,
-            selectedFee
-        })))
+        // console.log('Send.SendScreen.handleSendTransaction state', JSON.parse(JSON.stringify({countedFees,selectedFee})))
 
         const addressValidation = await this.addressInput.handleValidate()
         const valueValidation = await this.valueInput.handleValidate()
@@ -490,19 +487,19 @@ class SendScreen extends SendBasicScreenScreen {
         const extend = BlocksoftDict.getCurrencyAllSettings(cryptoCurrency.currencyCode)
 
         if (addressValidation.status !== 'success') {
-            console.log('Send.SendScreen.handleSendTransaction invalid address ' + JSON.stringify(addressValidation))
+            // console.log('Send.SendScreen.handleSendTransaction invalid address ' + JSON.stringify(addressValidation))
             return
         }
         if (!forceSendAmount && valueValidation.status !== 'success') {
-            console.log('Send.SendScreen.handleSendTransaction invalid value ' + JSON.stringify(valueValidation))
+            // console.log('Send.SendScreen.handleSendTransaction invalid value ' + JSON.stringify(valueValidation))
             return
         }
         if (!forceSendAmount && valueValidation.value === 0) {
-            console.log('Send.SendScreen.handleSendTransaction value is 0 ' + JSON.stringify(valueValidation))
+            // console.log('Send.SendScreen.handleSendTransaction value is 0 ' + JSON.stringify(valueValidation))
             return
         }
         if (destinationTagValidation.status !== 'success') {
-            console.log('Send.SendScreen.handleSendTransaction invalid destination ' + JSON.stringify(destinationTagValidation))
+            // console.log('Send.SendScreen.handleSendTransaction invalid destination ' + JSON.stringify(destinationTagValidation))
             return
         }
 
@@ -526,9 +523,9 @@ class SendScreen extends SendBasicScreenScreen {
                         msg = strings('send.notEnoughForFee', { symbol: extend.addressCurrencyCode })
                     }
                     enoughFunds.messages.push(msg)
-                    console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
+                    // console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
                     if (config.debug.appErrors) {
-                        console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
+                        // console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
                     }
                 } else if (cryptoCurrency.currencyCode === 'USDT' && parentBalance < 550) {
                     let msg
@@ -539,15 +536,15 @@ class SendScreen extends SendBasicScreenScreen {
                     }
                     enoughFunds.isAvailable = false
                     enoughFunds.messages.push(msg)
-                    console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
+                    // console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
                     if (config.debug.appErrors) {
-                        console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
+                        // console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
                     }
                 } else {
-                    console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance is ok ' + parentBalance, parentCurrency)
+                    // console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance is ok ' + parentBalance, parentCurrency)
                 }
             } else {
-                console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentCurrency not found ' + parentCurrency, parentCurrency)
+                // console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentCurrency not found ' + parentCurrency, parentCurrency)
             }
 
 
@@ -567,15 +564,15 @@ class SendScreen extends SendBasicScreenScreen {
 
         try {
             if (this.isFioAddress(recipientAddress)) {
-                console.log('Send.SendScreen.handleSendTransaction isFioAddress checked ' + recipientAddress)
+                // console.log('Send.SendScreen.handleSendTransaction isFioAddress checked ' + recipientAddress)
                 if (await isFioAddressRegistered(recipientAddress)) {
-                    console.log('Send.SendScreen.handleSendTransaction isFioAddressRegistered checked ' + recipientAddress)
+                    // console.log('Send.SendScreen.handleSendTransaction isFioAddressRegistered checked ' + recipientAddress)
                     const chainCode = resolveChainCode(cryptoCurrency.currencyCode, cryptoCurrency.currencySymbol)
                     const publicFioAddress = await getPubAddress(addressValidation.value, chainCode, cryptoCurrency.currencySymbol)
-                    console.log('Send.SendScreen.handleSendTransaction public for ' + recipientAddress + ' ' + chainCode + ' =>' + publicFioAddress)
+                    // console.log('Send.SendScreen.handleSendTransaction public for ' + recipientAddress + ' ' + chainCode + ' =>' + publicFioAddress)
                     if (!publicFioAddress || publicFioAddress === '0') {
                         const msg = strings('send.publicFioAddressNotFound', { symbol: cryptoCurrency.currencyCode })
-                        console.log('Send.SendScreen.handleSendTransaction ' + msg)
+                        // console.log('Send.SendScreen.handleSendTransaction ' + msg)
                         enoughFunds.isAvailable = false
                         enoughFunds.messages.push(msg)
                         setLoaderStatus(false)
@@ -593,9 +590,9 @@ class SendScreen extends SendBasicScreenScreen {
                         }
                     }
                 } else {
-                    console.log('Send.SendScreen.handleSendTransaction isFioAddressRegistered no result ' + recipientAddress)
+                    // console.log('Send.SendScreen.handleSendTransaction isFioAddressRegistered no result ' + recipientAddress)
                     const msg = strings('send.publicFioAddressNotFound', { symbol: cryptoCurrency.currencyCode })
-                    console.log('Send.SendScreen.handleSendTransaction ' + msg)
+                    // console.log('Send.SendScreen.handleSendTransaction ' + msg)
                     enoughFunds.isAvailable = false
                     enoughFunds.messages.push(msg)
                     setLoaderStatus(false)
@@ -604,7 +601,7 @@ class SendScreen extends SendBasicScreenScreen {
                 }
             }
         } catch (e) {
-            console.log('Send.SendScreen.handleSendTransaction isFioAddress error ' + recipientAddress + ' => ' + e.message)
+            // console.log('Send.SendScreen.handleSendTransaction isFioAddress error ' + recipientAddress + ' => ' + e.message)
         }
 
         try {
@@ -626,10 +623,7 @@ class SendScreen extends SendBasicScreenScreen {
                     diff = BlocksoftUtils.add(diff, 20)
                 }
                 if (diff > 0) {
-                    console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' not ok diff ' + diff, {
-                        amountRaw,
-                        balanceRaw
-                    })
+                    // console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' not ok diff ' + diff, {amountRaw,balanceRaw})
                     enoughFunds.isAvailable = false
                     enoughFunds.messages.push(strings('send.notEnough'))
                 }
@@ -656,19 +650,9 @@ class SendScreen extends SendBasicScreenScreen {
                         diffCheck = BlocksoftUtils.diff(account.balancePretty, valueValidation.value)
                     }
 
-                    console.log('input', {
-                        amountCrypto: valueValidation.value,
-                        percentCheck,
-                        diffCheck,
-                        useAll: useAllFunds
-                    })
+                    // console.log('input', {amountCrypto: valueValidation.value, percentCheck, diffCheck, useAll: useAllFunds})
 
-                    console.log('Send.SendScreen.handleSendTransaction input', {
-                        amountCrypto: valueValidation.value,
-                        percentCheck,
-                        diffCheck,
-                        useAll: useAllFunds
-                    })
+                    // console.log('Send.SendScreen.handleSendTransaction input', {amountCrypto: valueValidation.value,percentCheck, diffCheck, useAll: useAllFunds})
 
                     if (useAllFunds === false && percentCheck * 1 > 0) {
                         showModal({
@@ -689,7 +673,7 @@ class SendScreen extends SendBasicScreenScreen {
                     }
                 }
             } catch (e) {
-                console.log('Send.SendScreen.handleSendTransaction infoSendAllModal error ' + e.message)
+                // console.log('Send.SendScreen.handleSendTransaction infoSendAllModal error ' + e.message)
             }
 
 
@@ -718,7 +702,7 @@ class SendScreen extends SendBasicScreenScreen {
                     countedFees,
                     selectedFee
                 }
-                console.log('Send.SendScreen.handleSendTransaction amount ' + amount + ' recipientAddress ' + recipientAddress, JSON.parse(JSON.stringify(data)))
+                // console.log('Send.SendScreen.handleSendTransaction amount ' + amount + ' recipientAddress ' + recipientAddress, JSON.parse(JSON.stringify(data)))
 
                 NavStore.goNext('ReceiptScreen', {
                     ReceiptScreen: data,
@@ -740,13 +724,13 @@ class SendScreen extends SendBasicScreenScreen {
             Log.err('Send.SendScreen.handleSendTransaction error', e)
         }
 
-        console.log('Send.SendScreen.handleSendTransaction finished')
+        // console.log('Send.SendScreen.handleSendTransaction finished')
 
     }
 
     amountInputCallback = async (value, changeUseAllFunds) => {
         const { countedFees, selectedFee, useAllFunds } = this.state
-        console.log('Send.SendScreen.amountInputCallback state', { countedFees, selectedFee, useAllFunds })
+        // console.log('Send.SendScreen.amountInputCallback state', { countedFees, selectedFee, useAllFunds })
 
         let addressToForTransferAll = false
         if (value === 'current') {
@@ -785,7 +769,7 @@ class SendScreen extends SendBasicScreenScreen {
                 amount = RateEquivalent.div({ value, currencyCode, basicCurrencyRate })
             }
         } catch (e) {
-            console.log('Send.SendScreen equivalent error ' + e.message + ' ' + JSON.stringify({ value, currencyCode, basicCurrencyRate }))
+            // console.log('Send.SendScreen equivalent error ' + e.message + ' ' + JSON.stringify({ value, currencyCode, basicCurrencyRate }))
         }
 
         if (amount > 0) {
@@ -837,7 +821,7 @@ class SendScreen extends SendBasicScreenScreen {
     renderEnoughFundsError = () => {
         const { enoughFunds } = this.state
 
-        console.log('Send.SendScreen renderEnoughFundsError', enoughFunds)
+        // console.log('Send.SendScreen renderEnoughFundsError', enoughFunds)
         if (!enoughFunds.isAvailable) {
             return (
                 <View style={{ marginTop: 14 }}>
@@ -897,7 +881,7 @@ class SendScreen extends SendBasicScreenScreen {
                     sumPrep = '~' + basicCurrencySymbol + ' ' + basicAmountPrep + ' / ' + sumPrep
                 }
             } catch (e) {
-                console.log('Send.SendScreen renderAccountDetail error ' + e.message)
+                // console.log('Send.SendScreen renderAccountDetail error ' + e.message)
             }
         }
 
@@ -975,6 +959,10 @@ class SendScreen extends SendBasicScreenScreen {
         const { type } = this.props.send.data
 
         const prev = NavStore.getPrevRoute().routeName
+
+        // console.log('')
+        // console.log('prev ', prev)
+        // console.log('')
 
         const notEquivalentValue = this.state.amountInputMark ? this.state.amountInputMark : '0.00'
 

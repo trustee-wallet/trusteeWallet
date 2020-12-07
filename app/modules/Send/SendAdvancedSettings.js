@@ -31,6 +31,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 
 import CustomFee from './elements/FeeCustom/CustomFee'
 import { handleFee } from '../../appstores/Stores/Send/SendActions'
+import SendTmpConstants from './elements/SendTmpConstants'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -57,9 +58,9 @@ class SendAdvancedSettingsScreen extends Component {
         const devMode = await AsyncStorage.getItem('devMode')
         const data = this.props.navigation.getParam('data')
 
-        console.log('')
-        console.log('')
-        console.log('Send.SendAdvancedSettings.Unsafe', data)
+        // console.log('')
+        // console.log('')
+        // console.log('Send.SendAdvancedSettings.Unsafe', data)
         this.setState({
             countedFees: data.countedFees,
             selectedFee: data.selectedFee,
@@ -78,7 +79,7 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     setFee = (item) => {
-        console.log('Send.SendAdvancedSettings.setFee', JSON.parse(JSON.stringify({ item })))
+        // console.log('Send.SendAdvancedSettings.setFee', JSON.parse(JSON.stringify({ item })))
         this.setState({
             selectedFee: item,
             isCustomFee: false
@@ -87,7 +88,7 @@ class SendAdvancedSettingsScreen extends Component {
 
     // customFee
     setCustomFee = () => {
-        console.log('Send.SendAdvancedSettings.setCustomFee')
+        // console.log('Send.SendAdvancedSettings.setCustomFee')
         this.setState({
             isCustomFee: true
         })
@@ -96,8 +97,8 @@ class SendAdvancedSettingsScreen extends Component {
 
     renderCustomFee = (currencyCode, feesCurrencyCode, basicCurrencySymbol, basicCurrencyRate) => {
         const { countedFees, selectedFee } = this.state
-        console.log('Send.SendAdvancedSettings.renderCustomFee', JSON.parse(JSON.stringify({ currencyCode, feesCurrencyCode, basicCurrencySymbol, basicCurrencyRate })))
-        console.log('Send.SendAdvancedSettings.renderCustomFee state', JSON.parse(JSON.stringify({ countedFees, selectedFee })))
+        // console.log('Send.SendAdvancedSettings.renderCustomFee', JSON.parse(JSON.stringify({ currencyCode, feesCurrencyCode, basicCurrencySymbol, basicCurrencyRate })))
+        // console.log('Send.SendAdvancedSettings.renderCustomFee state', JSON.parse(JSON.stringify({ countedFees, selectedFee })))
         return (
             <CustomFee
                 ref={ref => this.customFee = ref}
@@ -109,10 +110,10 @@ class SendAdvancedSettingsScreen extends Component {
 
     showFee = (basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode) => {
         const { countedFees, selectedFee, isCustomFee } = this.state
-        console.log('Send.SendAdvancedSettings.showFee', JSON.parse(JSON.stringify({ basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode })))
-        console.log('Send.SendAdvancedSettings.showFee state', JSON.parse(JSON.stringify({ countedFees, selectedFee, isCustomFee })))
+        // console.log('Send.SendAdvancedSettings.showFee', JSON.parse(JSON.stringify({ basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode })))
+        // console.log('Send.SendAdvancedSettings.showFee state', JSON.parse(JSON.stringify({ countedFees, selectedFee, isCustomFee })))
         if (!countedFees.fees) {
-            console.log('Send.SendAdvancedSettings.showFee noFees')
+            // console.log('Send.SendAdvancedSettings.showFee noFees')
             return false
         }
 
@@ -216,13 +217,14 @@ class SendAdvancedSettingsScreen extends Component {
             selectedFee = await this.customFee.handleGetCustomFee()
         }
 
-        console.log('Send.SendAdvancedSettings.handleApply ', JSON.parse(JSON.stringify({ countedFees, selectedFee })))
-        handleFee(countedFees, selectedFee)
+        SendTmpConstants.PRESET = true
+        SendTmpConstants.COUNTED_FEES = countedFees
+        SendTmpConstants.SELECTED_FEE = selectedFee
         NavStore.goBack()
     }
 
     onFocus = () => {
-        console.log('hello')
+        // console.log('hello')
         this.setState({
             focused: true
         })

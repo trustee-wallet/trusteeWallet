@@ -50,8 +50,12 @@ import { hideModal, showModal } from '../../appstores/Stores/Modal/ModalActions'
 
 import config from '../../config/config'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
+import SendTmpConstants from './elements/SendTmpConstants'
 
 class ReceiptScreen extends SendBasicScreenScreen {
+
+    _screenName = 'Receipt'
+
     constructor(props) {
         super(props)
         this.state = {
@@ -69,24 +73,29 @@ class ReceiptScreen extends SendBasicScreenScreen {
     componentDidMount() {
         // when usual open (moved from unsafe)
         this.init()
+
+        // when back by history
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+            this.init()
+        })
     }
 
 
     init = async () => {
         console.log('')
         console.log('')
-        console.log('Send.ReceiptScreen.init')
+        console.log('Send.ReceiptScreen.init ', JSON.parse(JSON.stringify(SendTmpConstants)))
         const data = this.props.navigation.getParam('ReceiptScreen')
 
 
         let newData, countedFees, selectedFee
         if (data.currencyCode && (typeof data.account === 'undefined' || !data.account)) {
-            console.log('Send.ReceiptScreen.init data1', JSON.parse(JSON.stringify(data)))
+            // console.log('Send.ReceiptScreen.init data1', JSON.parse(JSON.stringify(data)))
             newData = this.getData(data)
-            console.log('Send.ReceiptScreen.init newData1', JSON.parse(JSON.stringify(newData)))
+            // console.log('Send.ReceiptScreen.init newData1', JSON.parse(JSON.stringify(newData)))
 
         } else {
-            console.log('Send.ReceiptScreen.init data2', JSON.parse(JSON.stringify(data)))
+            // console.log('Send.ReceiptScreen.init data2', JSON.parse(JSON.stringify(data)))
             if (typeof data.walletUseUnconfirmed === 'undefined') {
                 const { selectedWallet } = store.getState().mainStore
                 if (typeof data.wallet.walletHash !== 'undefined' && data.wallet.walletHash) {
@@ -95,18 +104,30 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     data.wallet = { ...selectedWallet }
                 }
             }
-            console.log('Send.ReceiptScreen.init newData2', JSON.parse(JSON.stringify(data)))
+            // console.log('Send.ReceiptScreen.init newData2', JSON.parse(JSON.stringify(data)))
             newData = data
         }
         let toCount = true
-        if (typeof data.countedFees !== 'undefined') {
-            countedFees = data.countedFees
+
+
+        if (SendTmpConstants.PRESET) {
+            countedFees = SendTmpConstants.COUNTED_FEES
+            selectedFee = SendTmpConstants.SELECTED_FEE
             toCount = false
+        } else {
+            if (typeof data.countedFees !== 'undefined') {
+                countedFees = data.countedFees
+                toCount = false
+            }
+            if (typeof data.selectedFee !== 'undefined') {
+                selectedFee = data.selectedFee
+                toCount = false
+            }
         }
-        if (typeof data.selectedFee !== 'undefined') {
-            selectedFee = data.selectedFee
-            toCount = false
-        }
+        SendTmpConstants.PRESET = false
+        SendTmpConstants.PRESET_FROM_RECEIPT = true // for history back from receipt to send screen
+
+        console.log('Send.ReceiptScreen.init preresult', JSON.parse(JSON.stringify({countedFees, selectedFee})))
 
         // was loaded without fees (direct sell etc)
         if (toCount) {
@@ -170,7 +191,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
     handleSend = async (passwordCheck = true, uiErrorConfirmed = false) => {
 
-        console.log('Send.ReceiptScreen.handleSend state', JSON.parse(JSON.stringify(this.state)))
+        // console.log('Send.ReceiptScreen.handleSend state', JSON.parse(JSON.stringify(this.state)))
 
         const { settingsStore } = this.props
 
@@ -228,6 +249,14 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 memo,
                 accountJson,
                 transactionJson: toTransactionJSON
+            }
+            if (typeof selectedFee !== 'undefined') {
+                if (typeof selectedFee.amountForTx !== 'undefined') {
+                    txData.amountRaw = this.state.selectedFee.amountForTx
+                }
+                if (typeof selectedFee.addressToTx !== 'undefined') {
+                    txData.addressTo = selectedFee.addressToTx
+                }
             }
             const tx = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed, selectedFee })
 
@@ -405,7 +434,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
             } else {
                 if (config.debug.appErrors) {
-                    console.log('Send.ConfirmSendScreen.handleSend error', e)
+                    // console.log('Send.ConfirmSendScreen.handleSend error', e)
                 }
                 Log.errorTranslate(e, 'Send.ConfirmSendScreen.handleSend', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
 
@@ -434,7 +463,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
         let { amount, address, account, cryptoCurrency, type, multiAddress } = this.state.data
 
 
-        console.log('Send.ReceiptScreen.render data', JSON.parse(JSON.stringify(this.state.data)))
+        // console.log('Send.ReceiptScreen.render data', JSON.parse(JSON.stringify(this.state.data)))
         if (typeof account === 'undefined' || typeof account.basicCurrencySymbol === 'undefined') {
             return <View><Text>Loading</Text></View>
         }
@@ -442,11 +471,11 @@ class ReceiptScreen extends SendBasicScreenScreen {
         if (typeof selectedFee !== 'undefined') {
             if (typeof selectedFee.amountForTx !== 'undefined') {
                 amount = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makePretty(this.state.selectedFee.amountForTx)
-                console.log('Send.ReceiptScreen amountFromFee ' + amount)
+                // console.log('Send.ReceiptScreen amountFromFee ' + amount)
             }
             if (typeof selectedFee.addressToTx !== 'undefined') {
                 address = selectedFee.addressToTx
-                console.log('Send.ReceiptScreen addressToTx ' + address)
+                // console.log('Send.ReceiptScreen addressToTx ' + address)
             }
         }
 
