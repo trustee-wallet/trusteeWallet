@@ -115,7 +115,8 @@ export class BlocksoftKeysStorage {
                 authenticationPrompt: {
                     title: 'Fingerprint title',
                     cancel: 'Cancel'
-                }
+                },
+                // if will be breaking again try accessControl : 'BiometryAnyOrDevicePasscode'
             })
         } catch (e) {
             console.log(e)

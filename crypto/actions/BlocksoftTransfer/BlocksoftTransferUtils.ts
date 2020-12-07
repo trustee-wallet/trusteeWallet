@@ -5,6 +5,7 @@
 import { BlocksoftDictTypes } from '../../common/BlocksoftDictTypes'
 import { BlocksoftTransferDispatcher } from '../../blockchains/BlocksoftTransferDispatcher'
 import { BlocksoftBlockchainTypes } from '../../blockchains/BlocksoftBlockchainTypes'
+import BlocksoftUtils from '../../common/BlocksoftUtils'
 
 export namespace BlocksoftTransferUtils {
 
@@ -26,5 +27,30 @@ export namespace BlocksoftTransferUtils {
             return {isOk : true}
         }
         return processor.checkTransferHasError(data)
+    }
+
+    export const getBalanceForTransfer = function(data : {
+        walletUseUnconfirmed : boolean,
+        balancePretty : string,
+        unconfirmedPretty : string,
+        currencyCode: BlocksoftDictTypes.Code
+    }) : string {
+        if (!data.walletUseUnconfirmed) {
+            return data.balancePretty
+        }
+        // @ts-ignore
+        if (data.unconfirmedPretty * 1 < 0) {
+            return data.balancePretty
+        }
+        if (data.currencyCode === BlocksoftDictTypes.Code.XRP) {
+            return data.balancePretty
+        }
+        if (data.currencyCode === BlocksoftDictTypes.Code.ETH || data.currencyCode.indexOf('ETH_') === 0) {
+            return data.balancePretty
+        }
+        if (data.currencyCode === BlocksoftDictTypes.Code.TRX || data.currencyCode.indexOf('TRX_') === 0) {
+            return data.balancePretty
+        }
+        return BlocksoftUtils.add(data.balancePretty, data.unconfirmedPretty).toString()
     }
 }

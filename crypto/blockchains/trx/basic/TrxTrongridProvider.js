@@ -14,10 +14,10 @@ const CACHE_VALID_TIME = 3000 // 3 seconds
 export default class TrxTrongridProvider {
 
     /**
-     * https://apilist.tronscan.org/api/account?address=TUbHxAdhPk9ykkc7SDP5e9zUBEN14K65wk
+     * https://api.trongrid.io/walletsolidity/getaccount?address=41d4eead2ea047881ce54cae1a765dfe92a8bfdbe9
      * @param {string} address
      * @param {string} tokenName
-     * @returns {Promise<boolean|{unconfirmed: number, frozen: *, voteTotal: *, balance: *, provider: string}>}
+     * @returns {Promise<boolean|{unconfirmed: number, frozen: *, frozenEnergy:*, voteTotal: *, balance: *, provider: string}>}
      */
     async get(address, tokenName) {
         const now = new Date().getTime()
@@ -26,7 +26,8 @@ export default class TrxTrongridProvider {
                 BlocksoftCryptoLog.log('TrxTrongridProvider.get from cache', address + ' => ' + tokenName + ' : ' + CACHE_TRONGRID[address][tokenName])
                 const voteTotal = typeof CACHE_TRONGRID[address].voteTotal !== 'undefined' ? CACHE_TRONGRID[address].voteTotal : 0
                 const frozen = typeof CACHE_TRONGRID[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozen'] : 0
-                return { balance: CACHE_TRONGRID[address][tokenName], voteTotal, frozen, unconfirmed: 0, provider: 'trongrid-cache' }
+                const frozenEnergy = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] : 0
+                return { balance: CACHE_TRONGRID[address][tokenName], voteTotal, frozen, frozenEnergy, unconfirmed: 0, provider: 'trongrid-cache' }
             }
         }
 
@@ -41,6 +42,7 @@ export default class TrxTrongridProvider {
         CACHE_TRONGRID[address].time = now
         CACHE_TRONGRID[address]._ = typeof res.data.balance !== 'undefined' ? res.data.balance : 0
         CACHE_TRONGRID[address]._frozen = typeof res.data.frozen !== 'undefined' && typeof res.data.frozen[0] !== 'undefined' ? res.data.frozen[0].frozen_balance : 0
+        CACHE_TRONGRID[address]._frozenEnergy = typeof res.data.account_resource.frozen_balance_for_energy.frozen_balance !== 'undefined' ? res.data.account_resource.frozen_balance_for_energy.frozen_balance : 0
         CACHE_TRONGRID[address].voteTotal = typeof res.data.votes !== 'undefined' && typeof res.data.votes[0] !== 'undefined' ? res.data.votes[0].vote_count : 0
 
         if (res.data.assetV2) {
@@ -56,7 +58,8 @@ export default class TrxTrongridProvider {
 
         const balance = CACHE_TRONGRID[address][tokenName]
         const frozen = typeof CACHE_TRONGRID[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozen'] : 0
+        const frozenEnergy = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] : 0
         const voteTotal = typeof CACHE_TRONGRID[address].voteTotal !== 'undefined' ? CACHE_TRONGRID[address].voteTotal : 0
-        return { balance, voteTotal, frozen, unconfirmed: 0, provider: 'trongrid' }
+        return { balance, voteTotal, frozen, frozenEnergy, unconfirmed: 0, provider: 'trongrid' }
     }
 }

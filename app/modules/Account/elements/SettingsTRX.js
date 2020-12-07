@@ -31,7 +31,9 @@ class SettingsTRX extends Component {
                 balance: '0',
                 prettyBalance: '0',
                 frozen: '0',
+                frozenEnergy: '0',
                 prettyFrozen: '0',
+                prettyFrozenEnergy : '0',
                 voteTotal: '0',
                 prettyVote: '0'
             },
@@ -61,6 +63,7 @@ class SettingsTRX extends Component {
             const reward = tmp.data.reward
             balance.prettyBalance = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balance)
             balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
+            balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
             balance.prettyVote = balance.prettyFrozen.toString().split('.')[0]
             this.setState({
                 currentBalance: balance,
@@ -278,10 +281,21 @@ class SettingsTRX extends Component {
                 <View style={styles.settings__row}>
                     <View style={styles.settings__content}>
                         <View style={{ flex: 1, paddingLeft: 15, paddingRight: 5 }}>
-                            <Text>Frozen:</Text>
+                            <Text>Frozen for BAND:</Text>
+                        </View>
+                        <View style={{ flex: 3, paddingLeft: 10, paddingRight: 5 }}>
+                            <Text>{currentBalanceChecked ? currentBalance.prettyFrozen : '?'} TRX</Text>
+                        </View>
+                    </View>
+                </View>
+
+                <View style={styles.settings__row}>
+                    <View style={styles.settings__content}>
+                        <View style={{ flex: 1, paddingLeft: 15, paddingRight: 5 }}>
+                            <Text>Frozen for ENERGY:</Text>
                         </View>
                         <View style={{ flex: 1, paddingLeft: 10, paddingRight: 5 }}>
-                            <Text>{currentBalanceChecked ? currentBalance.prettyFrozen : '?'} TRX</Text>
+                            <Text>{currentBalanceChecked ? currentBalance.prettyFrozenEnergy : '?'} TRX</Text>
                         </View>
                         <View style={{ flex: 2, paddingLeft: 5, paddingRight: 15 }}>
                             <TouchableOpacity style={[styles.btn, styles.btn__text_add]} onPress={this.handleScan}>
@@ -292,6 +306,7 @@ class SettingsTRX extends Component {
                         </View>
                     </View>
                 </View>
+
                 <View style={{paddingHorizontal: 16,  paddingTop: 0}}>
                     <View style={styles.settings__content}>
                         <View style={{ flex: 4, paddingLeft: 15, paddingRight: 5, paddingTop:0, paddingBottom:0 }}>
