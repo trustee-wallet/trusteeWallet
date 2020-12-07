@@ -273,6 +273,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     needSpeed: feeForByte.toString(),
                     feeForTx: logInputsOutputs.diffInOut,
                     amountForTx: logInputsOutputs.sendBalance,
+                    addressToTx : data.addressTo,
                     blockchainData
                 }
             )

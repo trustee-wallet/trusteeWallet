@@ -159,12 +159,25 @@ class SendAdvancedSettingsScreen extends Component {
                             needSpeed = ''
                         }
 
+                        let subtitle
+                        if (item.langMsg === selectedFee.langMsg && !isCustomFee) {
+                            subtitle = ` ${prettyFee} ${prettyFeeSymbol}`
+                            if (devFee) {
+                                subtitle += ` ${devFee}`
+                                if (devMode) {
+                                    if (!needSpeed) {
+                                        needSpeed = ''
+                                    }
+                                    subtitle += ` ${needSpeed}`
+                                }
+                            }
+                            subtitle += ` / ${feeBasicCurrencySymbol} ${feeBasicAmount}`
+                        }
+
                         return (
                             <SubSetting
                                 title={strings(`send.fee.text.${item.langMsg}`)}
-                                subtitle={(item.langMsg === selectedFee.langMsg) && !isCustomFee && (devFee ?
-                                    (devFee + (devMode ? needSpeed : ''))
-                                    : '') + ` / ${feeBasicCurrencySymbol} ${feeBasicAmount}`}
+                                subtitle={subtitle}
                                 checked={(item.langMsg === selectedFee.langMsg) && !isCustomFee}
                                 radioButtonFirst={true}
                                 withoutLine={true}

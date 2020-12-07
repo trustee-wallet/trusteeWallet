@@ -294,10 +294,10 @@ class SendScreen extends SendBasicScreenScreen {
                 description: strings('send.description')
             }, () => {
                 if (countedFees || selectedFee) {
-                    console.log('Send.SendScreen.init amount input callback as countedFees or selectedFee in not null')
+                    Log.log('Send.SendScreen.init amount input callback as countedFees or selectedFee in not null')
                     this.amountInputCallback()
                 } else {
-                    console.log('Send.SendScreen.init amount input callback not needed')
+                    Log.log('Send.SendScreen.init amount input callback not needed')
                 }
             })
         }
@@ -744,12 +744,26 @@ class SendScreen extends SendBasicScreenScreen {
 
     }
 
-    amountInputCallback = (value, changeUseAllFunds) => {
+    amountInputCallback = async (value, changeUseAllFunds) => {
         const { countedFees, selectedFee, useAllFunds } = this.state
         console.log('Send.SendScreen.amountInputCallback state', { countedFees, selectedFee, useAllFunds })
 
+        let addressToForTransferAll = false
+        if (value === 'current') {
+            const addressValidate = await this.addressInput.handleValidate()
+            if (addressValidate.status === 'success') {
+                addressToForTransferAll = addressValidate.value
+            } else {
+                return false
+            }
+            const valueValidate = await this.valueInput.handleValidate()
+            if (typeof valueValidate.value !== 'undefined') {
+                value = valueValidate.value
+            }
+        }
+
         const { currencySymbol, currencyCode } = this.state.cryptoCurrency
-        const { basicCurrencySymbol, basicCurrencyRate } = this.state.account
+        const { basicCurrencySymbol, basicCurrencyRate, address } = this.state.account
 
         if (useAllFunds && changeUseAllFunds) {
             this.setState({
@@ -771,15 +785,30 @@ class SendScreen extends SendBasicScreenScreen {
                 amount = RateEquivalent.div({ value, currencyCode, basicCurrencyRate })
             }
         } catch (e) {
-            console.log('Send.SendScreen equivalent error ' + e.message)
+            console.log('Send.SendScreen equivalent error ' + e.message + ' ' + JSON.stringify({ value, currencyCode, basicCurrencyRate }))
         }
 
         if (amount > 0) {
 
             if(!this.state.useAllFunds) {
+
+                if (!addressToForTransferAll) {
+                    const addressValidate = await this.addressInput.handleValidate()
+                    if (addressValidate.status === 'success') {
+                        addressToForTransferAll = addressValidate.value
+                    } else {
+                        addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
+                    }
+                }
+
+                const {countedFees, selectedFee} = await this.recountFees({
+                    amountRaw:  BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(value),
+                    addressTo : addressToForTransferAll
+                })
+
                 this.setState({
-                    countedFees: dummyFees.countedFees,
-                    selectedFee: dummyFees.selecetedFee
+                    countedFees,
+                    selectedFee
                 })
             }
 
@@ -1099,11 +1128,9 @@ class SendScreen extends SendBasicScreenScreen {
                                     }}
                                     disabled={disabled}
                                     validPlaceholder={true}
-                                    // callback={(value) => {
-                                    //     console.log(value)
-                                    //     this.setState({
-                                    //     destinationAddress: value
-                                    // })}}
+                                    callback={(value) => {
+                                        this.amountInputCallback('current', false)
+                                    }}
                                     noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
                                 />
                             </View>

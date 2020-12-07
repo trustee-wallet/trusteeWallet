@@ -6,8 +6,101 @@ import api from '../../services/Api/Api'
 import NavStore from '../../components/navigation/NavStore'
 import { strings } from '../../services/i18n'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import config from '../../config/config'
+import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import Log from '../../services/Log/Log'
+import { Keyboard } from 'react-native'
 
 export default class SendBasicScreen extends Component {
+
+
+    recountFees = async (params) => {
+        console.log('SendBasicScreen.recountFees init ')
+        let countedFees, selectedFee, currencyCode
+
+        try {
+            let data
+            if (typeof params.data !== 'undefined') {
+                data = params.data
+            } else {
+                data = this.state
+            }
+
+            const {
+                amountRaw,
+                address: addressTo,
+                useAllFunds,
+                memo,
+                toTransactionJSON,
+                transactionSpeedUp,
+                transactionReplaceByFee
+            } = data
+
+            const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = data.wallet
+            const {
+                address: addressFrom,
+                derivationPath,
+                accountJson,
+            } = data.account
+
+            currencyCode = data.account.currencyCode
+
+
+            const txData = {
+                currencyCode,
+                walletHash,
+                derivationPath: derivationPath,
+                addressFrom: addressFrom,
+                addressTo: addressTo,
+                amount: amountRaw,
+                isTransferAll: useAllFunds,
+                useOnlyConfirmed: !(walletUseUnconfirmed === 1),
+                allowReplaceByFee: walletAllowReplaceByFee === 1,
+                transactionReplaceByFee,
+                transactionSpeedUp,
+                memo,
+                accountJson,
+                transactionJson: toTransactionJSON
+            }
+
+
+            if (typeof params.amountRaw !== 'undefined') {
+                txData.amount = params.amountRaw
+                console.log('SendBasicScreen.recountFees amountRaw ' + txData.amount)
+            }
+            if (typeof params.addressTo !== 'undefined') {
+                txData.addressTo = params.addressTo
+                console.log('SendBasicScreen.recountFees addressTo ' + txData.addressTo)
+            }
+
+            console.log('SendBasicScreen.recountFees txData ', JSON.parse(JSON.stringify(txData)))
+            countedFees = await BlocksoftTransfer.getFeeRate(txData)
+            countedFees.feesCountedForData = txData
+            if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >=0) {
+                selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
+            }
+
+            console.log('SendBasicScreen.recountFees result ', JSON.parse(JSON.stringify(countedFees)))
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('SendBasicScreen.recountFees', e)
+            }
+            const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+            Log.errorTranslate(e, 'SendBasicScreen.recountFees', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
+
+            Keyboard.dismiss()
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.qrScanner.sorry'),
+                description: e.message,
+                error: e
+            })
+        }
+        return { countedFees, selectedFee }
+    }
 
     openAdvancedSettings = () => {
         const { countedFees, selectedFee, useAllFunds } = this.state
@@ -28,9 +121,9 @@ export default class SendBasicScreen extends Component {
             })
         }
     }
-    
+
     setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
+        const headerHeight = Math.round(height || 0)
         this.setState(() => ({ headerHeight }))
     }
 
@@ -57,25 +150,29 @@ export default class SendBasicScreen extends Component {
             description
         })
     }
-    
+
     renderMinerFee = (onlyUseAllFunds = false) => {
 
         const { countedFees, selectedFee, useAllFunds } = this.state
 
-        console.log('Send.SendBasicScreen.renderMinerFee state', JSON.parse(JSON.stringify({
+        Log.log('Send.SendBasicScreen.renderMinerFee state', JSON.parse(JSON.stringify({
             countedFees,
             selectedFee,
-            useAllFunds
+            useAllFunds,
+            onlyUseAllFunds
         })))
 
-        if (!useAllFunds) {
-            return null
+        if (onlyUseAllFunds && !useAllFunds) {
+            Log.log('Send.SendBasicScreen.renderMinerFee not shown as not useAllFunds')
+            return false
         }
         if (typeof selectedFee === 'undefined' || !selectedFee || typeof selectedFee.feeForTx === 'undefined') {
-            return null
+            Log.log('Send.SendBasicScreen.renderMinerFee not shown as not selectedFee')
+            return false
         }
 
         const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates } = this.props.account
+
 
         let prettyFee
         let prettyFeeSymbol = feesCurrencySymbol
@@ -104,6 +201,7 @@ export default class SendBasicScreen extends Component {
             fiatFee = `${feeBasicCurrencySymbol} ${feeBasicAmount}`
         }
 
+        Log.log('Send.SendBasicScreen.renderMinerFee prettyFee ' + prettyFee + ' prettyFeeSymbol ' + prettyFeeSymbol + ' fiatFee ' + fiatFee)
         return (
             <CheckData
                 name={'Miner fee'}

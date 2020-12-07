@@ -82,6 +82,7 @@ export namespace BlocksoftBlockchainTypes {
         feeForTx: string,
         nonceForTx?: number | string,
         amountForTx: string,
+        addressToTx?: string,
         isCustomFee?: boolean,
         feeForTxBasicAmount?: number,
         feeForTxBasicSymbol?: string,
