@@ -25,7 +25,7 @@ class CustomFee extends Component {
 
     renderFee = () => {
 
-        let { currencyCode, useAllFunds, onFocus } = this.props
+        const { currencyCode, useAllFunds, countedFees, selectedFee, feesCurrencyCode, basicCurrencySymbol, basicCurrencyRate, updateSelectedFeeBack, onFocus } = this.props
 
         let prefix = currencyCode
         if (typeof currencyCode !== 'undefined' && currencyCode) {
@@ -41,7 +41,13 @@ class CustomFee extends Component {
                 return <CustomFeeEthereum
                     ref={ref => this.customFeeEthereum = ref}
                     currencyCode={currencyCode}
+                    feesCurrencyCode={feesCurrencyCode}
+                    basicCurrencySymbol={basicCurrencySymbol}
+                    basicCurrencyRate={basicCurrencyRate}
+                    countedFees={countedFees}
+                    selectedFee={selectedFee}
                     useAllFunds={useAllFunds}
+                    updateSelectedFeeBack={updateSelectedFeeBack}
                 />
             case 'BTC':
             case 'LTC':
@@ -55,8 +61,13 @@ class CustomFee extends Component {
                 return <CustomFeeBitcoin
                     ref={ref => this.customFeeBitcoin = ref}
                     currencyCode={currencyCode}
-                    callTransferAll={this.callTransferAll}
-                    useAllFunds={useAllFunds} 
+                    feesCurrencyCode={feesCurrencyCode}
+                    basicCurrencySymbol={basicCurrencySymbol}
+                    basicCurrencyRate={basicCurrencyRate}
+                    countedFees={countedFees}
+                    selectedFee={selectedFee}
+                    useAllFunds={useAllFunds}
+                    updateSelectedFeeBack={updateSelectedFeeBack}
                     />
             default:
 

@@ -203,6 +203,7 @@ class SendScreen extends SendBasicScreenScreen {
         }
         SendTmpConstants.PRESET = false
         SendTmpConstants.PRESET_FROM_RECEIPT = false
+
         console.log('Send.SendScreen.init preresult', JSON.parse(JSON.stringify({countedFees, selectedFee})))
 
 
@@ -299,7 +300,13 @@ class SendScreen extends SendBasicScreenScreen {
             }, () => {
                 if (countedFees || selectedFee) {
                     Log.log('Send.SendScreen.init amount input callback as countedFees or selectedFee in not null')
-                    this.amountInputCallback()
+                    if (typeof selectedFee !== 'undefined' && typeof selectedFee.amountForTx !== 'undefined') {
+                        const amount = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makePretty(selectedFee.amountForTx)
+                        this.valueInput.handleInput(amount.toString(), false)
+                        this.amountInputCallback(amount, false)
+                    } else {
+                        this.amountInputCallback()
+                    }
                 } else {
                     Log.log('Send.SendScreen.init amount input callback not needed')
                 }
@@ -307,7 +314,7 @@ class SendScreen extends SendBasicScreenScreen {
         }
     }
 
-    // @yurka if there is no button - remove
+    // @yura if there is no button - remove
     handleChangeEquivalentType = () => {
         // console.log('Send.SendScreen.handleChangeEquivalentType')
         const { currencySymbol } = this.state.cryptoCurrency

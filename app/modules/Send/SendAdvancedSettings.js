@@ -23,17 +23,17 @@ import SubSetting from '../../components/elements/new/list/ListItem/SubSetting'
 import LetterSpacing from '../../components/elements/LetterSpacing'
 
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 
 import AsyncStorage from '@react-native-community/async-storage'
 
 import CustomFee from './elements/FeeCustom/CustomFee'
-import { handleFee } from '../../appstores/Stores/Send/SendActions'
 import SendTmpConstants from './elements/SendTmpConstants'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
+
+let CACHE_FROM_CUSTOM_FEE = false
 
 class SendAdvancedSettingsScreen extends Component {
 
@@ -53,14 +53,14 @@ class SendAdvancedSettingsScreen extends Component {
         this.customFee = React.createRef()
     }
 
-    async UNSAFE_componentWillMount() {
+    async componentDidMount() {
 
         const devMode = await AsyncStorage.getItem('devMode')
         const data = this.props.navigation.getParam('data')
 
         // console.log('')
         // console.log('')
-        // console.log('Send.SendAdvancedSettings.Unsafe', data)
+        // console.log('Send.SendAdvancedSettings.init', data)
         this.setState({
             countedFees: data.countedFees,
             selectedFee: data.selectedFee,
@@ -70,6 +70,10 @@ class SendAdvancedSettingsScreen extends Component {
             devMode: devMode && devMode.toString() === '1'
         })
 
+        // if back without apply
+        SendTmpConstants.PRESET = true
+        SendTmpConstants.COUNTED_FEES = data.countedFees
+        SendTmpConstants.SELECTED_FEE = data.selectedFee
     }
 
     toggleDropMenu = () => {
@@ -84,6 +88,7 @@ class SendAdvancedSettingsScreen extends Component {
             selectedFee: item,
             isCustomFee: false
         })
+        CACHE_FROM_CUSTOM_FEE = false
     }
 
     // customFee
@@ -103,7 +108,13 @@ class SendAdvancedSettingsScreen extends Component {
             <CustomFee
                 ref={ref => this.customFee = ref}
                 currencyCode={currencyCode}
+                feesCurrencyCode={feesCurrencyCode}
+                basicCurrencySymbol={basicCurrencySymbol}
+                basicCurrencyRate={basicCurrencyRate}
+                selectedFee={this.state.selectedFee}
+                countedFees={this.state.countedFees}
                 useAllFunds={this.state.useAllFunds}
+                updateSelectedFeeBack={this.updateSelectedFeeBack}
             />
         )
     }
@@ -205,22 +216,27 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     disabled = () => {
-        return this.state.selectedFee === this.state.selectedFeeFromProps
+
+        return false // !CACHE_FROM_CUSTOM_FEE && this.state.selectedFee === this.state.selectedFeeFromProps
     }
 
     handleApply = async () => {
         const countedFees = this.state.countedFees
         countedFees.selectedFeeIndex = this.state.selectedIndex
 
-        let selectedFee = this.state.selectedFee
-        if (this.state.isCustomFee) {
-            selectedFee = await this.customFee.handleGetCustomFee()
-        }
+        const selectedFee = CACHE_FROM_CUSTOM_FEE ? CACHE_FROM_CUSTOM_FEE : this.state.selectedFee
 
         SendTmpConstants.PRESET = true
         SendTmpConstants.COUNTED_FEES = countedFees
         SendTmpConstants.SELECTED_FEE = selectedFee
         NavStore.goBack()
+    }
+
+    updateSelectedFeeBack = async (selectedFee) => {
+        console.log('@yura plz set here manual button "next" without state update - then uncomment "disabled "')
+        selectedFee.isCustomFee = true
+        // this will repaint all break smooth - so need cache this.setState({ selectedFee })
+        CACHE_FROM_CUSTOM_FEE = selectedFee
     }
 
     onFocus = () => {

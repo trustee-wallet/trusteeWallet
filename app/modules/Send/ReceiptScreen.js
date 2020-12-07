@@ -252,7 +252,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             }
             if (typeof selectedFee !== 'undefined') {
                 if (typeof selectedFee.amountForTx !== 'undefined') {
-                    txData.amountRaw = this.state.selectedFee.amountForTx
+                    txData.amount = this.state.selectedFee.amountForTx
                 }
                 if (typeof selectedFee.addressToTx !== 'undefined') {
                     txData.addressTo = selectedFee.addressToTx
