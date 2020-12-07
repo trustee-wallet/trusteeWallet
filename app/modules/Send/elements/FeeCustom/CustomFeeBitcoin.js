@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.1
  */
 import React, { Component } from 'react'
 
@@ -86,7 +86,7 @@ class CustomFee extends Component {
         const { colors, GRID_SIZE } = this.context
 
         const prettyFeeSymbol = this.props.feesCurrencyCode || this.props.currencyCode
-        const customFee = `Sum for ${this.state.selectedFee.feeForByte} SAT : ${this.state.prettyFee} ${prettyFeeSymbol} / ${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`
+        const customFee = `Sum ${this.state.selectedFee.feeForByte} SAT : ${this.state.prettyFee} ${prettyFeeSymbol} / ${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`
 
         return (
             <View style={{ marginTop: 10 }}>
@@ -105,7 +105,7 @@ class CustomFee extends Component {
                         inputBaseColor={'#f4f4f4'}
                         inputTextColor={'#f4f4f4'}
                         tintColor={'#7127ac'}
-                        callback={(value) => this.handleRecount(value)} //todo
+                        callback={(value) => this.handleRecount(value)}
                     />
                 </View>
             </View>

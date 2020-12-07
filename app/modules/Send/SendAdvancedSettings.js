@@ -233,7 +233,7 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     updateSelectedFeeBack = async (selectedFee) => {
-        console.log('@yura plz set here manual button "next" without state update - then uncomment "disabled "')
+        console.log('@yura plz set here manual button "next" without state update - then uncomment "disabled "', JSON.parse(JSON.stringify(selectedFee)))
         selectedFee.isCustomFee = true
         // this will repaint all break smooth - so need cache this.setState({ selectedFee })
         CACHE_FROM_CUSTOM_FEE = selectedFee
