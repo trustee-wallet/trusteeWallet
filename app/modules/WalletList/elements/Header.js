@@ -11,8 +11,6 @@ import {
     Text
 } from 'react-native'
 
-import moment from 'moment'
-import 'moment/min/locales.min'
 
 import MenuIcon from '../../../assets/images/menu_icon'
 import NotificationIcon from '../../../assets/images/notification_icon'
@@ -83,6 +81,8 @@ class WalletInfo extends React.Component {
 
     handleOpenSettings = () => NavStore.goNext('SettingsScreenStack')
 
+    handleOpenNotifications = () => NavStore.goNext('NotificationsScreen')
+
     qrPermissionCallback = () => {
         Log.log('WalletInfo handleScanQr started')
 
@@ -122,7 +122,7 @@ class WalletInfo extends React.Component {
 
                     <View style={styles.header}>
                         <View style={styles.header__left}>
-                            <TouchableOpacity style={styles.notificationButton} hitSlop={HIT_SLOP}>
+                            <TouchableOpacity style={styles.notificationButton} onPress={this.handleOpenNotifications} hitSlop={HIT_SLOP}>
                                 <NotificationIcon color={colors.common.text1} />
                             </TouchableOpacity>
                         </View>

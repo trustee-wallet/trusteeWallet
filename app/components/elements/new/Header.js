@@ -91,7 +91,7 @@ export default class Header extends React.Component {
                         </View>
 
                         <View style={styles.header__center}>
-                            {title && <Text style={[styles.title, { color: colors.common.text3 }]}>{title}</Text>}
+                            {title && <Text numberOfLines={2} style={[styles.title, { color: colors.common.text3 }]}>{title}</Text>}
                         </View>
 
                         <View style={styles.header__right}>

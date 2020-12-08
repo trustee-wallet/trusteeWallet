@@ -206,6 +206,13 @@
     "openLink" : "To go to payment please click directly on this link",
     "openLinkError": "Not found default browser - link is copied to clipboard"
   },
+  "notifications": {
+    "title": "Notifications",
+    "tabAll": "All",
+    "tabNews": "News",
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
   "settings": {
     "title": "Settings",
     "wallets": {
