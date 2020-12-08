@@ -125,13 +125,15 @@ export default class SendBasicScreen extends Component {
 
         const { countedFees, selectedFee, useAllFunds } = this.state
 
-        // console.log('Send.SendBasicScreen.openAdvancedSettings state', JSON.parse(JSON.stringify({countedFees,selectedFee,useAllFunds})))
-        setLoaderStatus(true)        
+        // const countedFees = SendTmpConstants.COUNTED_FEES
+        // const selectedFee = SendTmpConstants.
+
+        // console.log('Send.SendBasicScreen.openAdvancedSettings state', JSON.parse(JSON.stringify({countedFees,selectedFee,useAllFunds})))  
         if (Object.keys(countedFees).length === 0) {
             setLoaderStatus(true)
             setTimeout(() => {
                 try {
-                    setLoaderStatus(true)
+                    // setLoaderStatus(true)
                     this.openAdvancedSettings()
                 } catch (e) {
                 }
