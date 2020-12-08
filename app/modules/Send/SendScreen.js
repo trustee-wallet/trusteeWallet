@@ -131,7 +131,9 @@ class SendScreen extends SendBasicScreenScreen {
 
             balancePart: 0,
             headerHeight: 0,
-            destinationAddress: null
+            destinationAddress: null,
+
+            loadFee: false
         }
         this.addressInput = React.createRef()
         this.memoInput = React.createRef()
@@ -419,8 +421,8 @@ class SendScreen extends SendBasicScreenScreen {
                     && typeof this.valueInput.handleInput !== 'undefined' && this.valueInput.handleInput
                     && typeof amount !== 'undefined' && amount !== null
                 ) {
-                    this.valueInput.handleInput(UtilsService.cutNumber(amount, 7), false)
-                    this.amountInputCallback(UtilsService.cutNumber(amount, 7), false)
+                    this.valueInput.handleInput(UtilsService.cutNumber(amount, 7).toString(), false)
+                    this.amountInputCallback(UtilsService.cutNumber(amount, 7).toString(), false)
                 }
             } catch (e) {
                 e.message += ' while this.valueInput.handleInput amount ' + amount
@@ -770,6 +772,10 @@ class SendScreen extends SendBasicScreenScreen {
         let amount = 0
         let symbol = currencySymbol
 
+        this.setState({
+            loadFee: true
+        })
+
         try {
             if (!value || value === 0) {
                 amount = 0
@@ -816,7 +822,12 @@ class SendScreen extends SendBasicScreenScreen {
             this.setState({
                 amountEquivalent: amount,
                 amountInputMark: `${amount} ${symbol}`,
-                balancePart: 0
+                balancePart: 0,
+                loadFee: false
+            })
+        } else {
+            this.setState({
+                loadFee: false
             })
         }
         IS_CALLED_BACK = false
@@ -983,7 +994,8 @@ class SendScreen extends SendBasicScreenScreen {
             focused,
             copyAddress,
             isFioPayment,
-            headerHeight
+            headerHeight,
+            loadFee
         } = this.state
 
         const {
@@ -1061,11 +1073,11 @@ class SendScreen extends SendBasicScreenScreen {
                                 <View style={style.line} />
                                 <TouchableOpacity style={{ position: 'absolute', right: 22, marginTop: -2 }}
                                     onPress={this.handleChangeEquivalentType}>
-                                    <Text>{'<>'}</Text>
+                                    <Text>{'swap'}</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 32 }}>
-                                <LetterSpacing text={notEquivalentValue} textStyle={style.notEquivalentValue}
+                                <LetterSpacing text={loadFee ? 'Loading...' : notEquivalentValue} textStyle={style.notEquivalentValue}
                                     letterSpacing={1.5} />
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -1117,7 +1129,7 @@ class SendScreen extends SendBasicScreenScreen {
                             </View>
 
                             {this.renderEnoughFundsError()}
-                            
+
                             <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 2 }}>
                                 <AddressInput
                                     ref={component => this.addressInput = component}
@@ -1212,6 +1224,7 @@ class SendScreen extends SendBasicScreenScreen {
                                 title: strings('walletBackup.step0Screen.next')
                             }}
                             secondaryButton={{
+                                disabled: !this.state.amountInputMark,
                                 type: 'settings',
                                 onPress: this.openAdvancedSettings
                             }}

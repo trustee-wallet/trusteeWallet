@@ -191,7 +191,7 @@ class Input extends Component {
         let error = errors.find(item => item.field === id)
         error = typeof error !== 'undefined' ? error.msg : ''
         const isDisabled = typeof disabled !== 'undefined' ? disabled : false
-        
+
         return (
             <View style={styles.wrapper}>
                 <TextField
