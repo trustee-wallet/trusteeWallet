@@ -1,5 +1,6 @@
 /**
- * @version 0.11
+ * @version 0.30
+ * @todo clear commented code
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -124,7 +125,12 @@ class BackupStep0Screen extends Component {
                 }
             }
 
-            if (flowSubtype === 'createFirst') {
+
+        if (flowType === 'BACKUP_WALLET_XMR') {
+                this.headerProps.rightType = 'close'
+                this.headerProps.rightAction = this.handleBack
+                this.headerProps.title = strings('walletBackup.titleBackup')
+            } else if (flowSubtype === 'createFirst') {
                 this.headerProps.rightType = 'close'
                 this.headerProps.rightAction = this.handleBack
                 this.headerProps.title = strings('walletBackup.titleCreate')
@@ -269,23 +275,23 @@ class BackupStep0Screen extends Component {
             animationProgress,
             flowSubtype
         } = this.state
+        const { flowType, mnemonicLength } = this.props.createWalletStore
+
         const isShowingPhrase = flowSubtype === 'show'
         const isBackUp = flowSubtype === 'backup'
         const isCreate = flowSubtype === 'createFirst' || flowSubtype === 'createAnother'
-
+        const isXMR = flowType === 'BACKUP_WALLET_XMR'
         const { GRID_SIZE, colors } = this.context
 
         firebase.analytics().setCurrentScreen('WalletBackup.BackupStep0Screen')
 
-        const { flowType, mnemonicLength } = this.props.createWalletStore
+        const halfArrayNum = Math.ceil(walletMnemonicArray.length / 2);
 
-        let totalWords = 12
-        if (mnemonicLength === 256 || (typeof this.state.walletMnemonicArray !== 'undefined' && this.state.walletMnemonicArray.length > 12)) {
-            totalWords = 24
+
+        let infoText = strings('walletBackup.step0Screen.info')
+        if ( isXMR ) {
+            infoText = strings('walletBackup.descriptionXMR')
         }
-
-        const halfArrayNum = (walletMnemonicArray.length / 2);
-
 
         return (
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>
@@ -309,7 +315,7 @@ class BackupStep0Screen extends Component {
                                 ) : (
                                     <KeyIcon color={colors.createWalletScreen.showMnemonic.showButtonText} />
                                 )}
-                                <Text style={[styles.infoText, { color: colors.common.text3 }]}>{strings('walletBackup.step0Screen.info')}</Text>
+                                <Text style={[styles.infoText, { color: colors.common.text3 }]}>{infoText}</Text>
                             </View>
 
                             <TouchableOpacity
@@ -343,7 +349,7 @@ class BackupStep0Screen extends Component {
                                 >{strings('walletBackup.step0Screen.showButton')}</Text>
                             </TouchableOpacity>
 
-                            {!isShowingPhrase && (
+                            {!isShowingPhrase && !isXMR && (
                                 <CheckBox
                                     checked={approvedBackup}
                                     onPress={this.handleApproveBackup}
@@ -352,7 +358,7 @@ class BackupStep0Screen extends Component {
                             )}
                         </View>
 
-                        {!isShowingPhrase && (
+                        {!isShowingPhrase && !isXMR && (
                             <View style={{
                                 paddingHorizontal: GRID_SIZE,
                                 paddingVertical: GRID_SIZE * 1.5,

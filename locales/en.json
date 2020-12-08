@@ -316,7 +316,21 @@
       "serverSendInputTitleXMR" : "or node.moneroworld.com:18089",
       "needReinstallXMR"  : "Something wrong with XMR address generation - please save mnemonic and reinstall application or contact support",
       "saveSettings" : "Save",
-      "getMnemonicXMR" : "View secrets"
+      "getMnemonicXMR" : "View secrets",
+      "availableTRX" : "Available",
+      "frozenTRX" : "Frozen",
+      "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",
+      "enterToFreezeTRX" : "enter freeze amount TRX",
+      "freezeForBandTRX" : "Freeze for BAND",
+      "freezeForEnergyTRX" : "Freeze for ENERGY",
+      "unfreezeTRX" : "Unfreeze",
+      "votedTRX" : "Votes",
+      "votedBalanceTRX" : "Voted %{voteTotal} / Total %{prettyVote}",
+      "voteTRX" : "Vote",
+      "rewardTRX" : "Voting reward",
+      "rewardBalanceTRX" : "Available %{prettyReward} TRX",
+      "claimTRX" : "Claim Reward",
+      "refreshTRX" : "Reload"
     },
     "about": {
       "title": "About",

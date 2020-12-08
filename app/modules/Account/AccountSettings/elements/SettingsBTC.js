@@ -1,33 +1,36 @@
 /**
- * @version 0.9
+ * @version 0.30
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, Platform, Switch, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 
-import LetterSpacing from '../../../components/elements/LetterSpacing'
+import LetterSpacing from '../../../../components/elements/LetterSpacing'
 
-import { strings } from '../../../services/i18n'
+import { strings } from '../../../../services/i18n'
 
-import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
+import { showModal } from '../../../../appstores/Stores/Modal/ModalActions'
 
-import walletActions from '../../../appstores/Stores/Wallet/WalletActions'
-import walletHDActions from '../../../appstores/Actions/WalletHDActions'
-import WalletPub from '../../../appstores/DataSource/Wallet/WalletPub'
+import walletActions from '../../../../appstores/Stores/Wallet/WalletActions'
+import walletHDActions from '../../../../appstores/Actions/WalletHDActions'
+import WalletPub from '../../../../appstores/DataSource/Wallet/WalletPub'
 
-import { setLoaderStatus, setSelectedAccount } from '../../../appstores/Stores/Main/MainStoreActions'
-import Log from '../../../services/Log/Log'
-import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
-import UIDict from '../../../services/UIDict/UIDict'
+import { setLoaderStatus, setSelectedAccount } from '../../../../appstores/Stores/Main/MainStoreActions'
+import Log from '../../../../services/Log/Log'
+import settingsActions from '../../../../appstores/Stores/Settings/SettingsActions'
+import UIDict from '../../../../services/UIDict/UIDict'
 
-import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboard'
-import Toast from '../../../services/UI/Toast/Toast'
-import BlocksoftPrettyStrings from '../../../../crypto/common/BlocksoftPrettyStrings'
+import copyToClipboard from '../../../../services/UI/CopyToClipboard/CopyToClipboard'
+import Toast from '../../../../services/UI/Toast/Toast'
+import BlocksoftPrettyStrings from '../../../../../crypto/common/BlocksoftPrettyStrings'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
-import ListItem from '../../../components/elements/new/list/ListItem/Setting'
-import SubSetting from '../../../components/elements/new/list/ListItem/SubSetting'
+import { ThemeContext } from '../../../theme/ThemeProvider'
+import styles from './styles'
+
+import ListItem from '../../../../components/elements/new/list/ListItem/Setting'
+import SubSetting from '../../../../components/elements/new/list/ListItem/SubSetting'
 import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
+
 
 class SettingsBTC extends Component {
 
@@ -352,92 +355,3 @@ const mapDispatchToProps = (dispatch) => {
 SettingsBTC.contextType = ThemeContext
 
 export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(SettingsBTC)
-
-const styles = {
-    settings: {
-        position: 'relative',
-        justifyContent: 'space-between',
-        alignContent: 'flex-end',
-
-        marginBottom: 100,
-
-        borderRadius: 16,
-
-        zIndex: 2
-    },
-    settings__main__title: {
-        marginLeft: 15,
-        marginTop: -8,
-        color: '#404040',
-        fontSize: 12,
-        fontFamily: 'Montserrat-Bold'
-    },
-    settings__title: {
-        fontFamily: 'SFUIDisplay-Semibold',
-        fontSize: 12,
-        color: '#404040'
-    },
-    settings__row: {
-
-        paddingHorizontal: 16,
-        paddingTop: 8
-    },
-    settings__content: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-    },
-    settings__close: {
-        position: 'absolute',
-        top: 24,
-        right: 0,
-
-        padding: 15
-    },
-    settings__close__icon: {
-        fontSize: 24,
-        color: '#864DD9'
-    },
-    settings__line: {
-        height: 1
-    },
-    settings__line__item: {
-        height: '100%',
-        backgroundColor: '#000'
-    },
-    mnemonicLength__item: {
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-
-        paddingVertical: 10,
-        marginRight: 20
-    },
-    radio: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 17,
-        height: 17,
-        marginRight: 8,
-        borderWidth: 1,
-        borderColor: '#404040',
-        borderRadius: 16
-    },
-    radio__dot: {
-        width: 10,
-        height: 10,
-        borderRadius: 10,
-        backgroundColor: '#6B36A8'
-    },
-    copyBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 3,
-        marginLeft: 10
-    },
-    publicKey: {
-        fontFamily: 'Montserrat-Medium',
-        fontSize: 14,
-        color: '#404040'
-    }
-}

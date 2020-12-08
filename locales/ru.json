@@ -315,7 +315,21 @@
       "serverSendInputTitleXMR" : "или node.moneroworld.com:18089",
       "needReinstallXMR"  : "Системная ошибка адреса XMR - пожайлуста, сохраните мнемоническую фразу и переустановите приложение, или свяжитесь со службой поддержки для подробный инструкций",
       "saveSettings" : "Сохранить",
-      "getMnemonicXMR" : "Просмотреть секреты"
+      "getMnemonicXMR" : "Просмотреть секреты",
+      "availableTRX" : "Доступно",
+      "frozenTRX" : "Заморожено",
+      "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Энергия %{prettyFrozenEnergy} TRX",
+      "enterToFreezeTRX" : "введите количество TRX",
+      "freezeForBandTRX" : "Заморозить",
+      "freezeForEnergyTRX" : "Для энергии",
+      "unfreezeTRX" : "Разморозить",
+      "votedTRX" : "Голоса",
+      "votedBalanceTRX" : "Использовано %{voteTotal} / Всего %{prettyVote}",
+      "voteTRX" : "Проголосовать",
+      "rewardTRX" : "Награда за голосование",
+      "rewardBalanceTRX" : "Доступно %{prettyReward} TRX",
+      "claimTRX" : "Забрать награду",
+      "refreshTRX" : "Перегрузить"
     },
     "about": {
       "title": "О кошельке",

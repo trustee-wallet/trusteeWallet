@@ -313,7 +313,21 @@
       "serverSendInputTitleXMR" : "або node.moneroworld.com:18089",
       "needReinstallXMR"  : "Системна помилка адреси XMR - будь ласка, збережіть мнемонічну фразу та переінсталюйте додаток, або напишіть в службу підтримки для детальних інструкцій",
       "saveSettings" : "Зберегти",
-      "getMnemonicXMR" : "Переглянути секрети"
+      "getMnemonicXMR" : "Переглянути секрети",
+      "availableTRX" : "Доступно",
+      "frozenTRX" : "Заморожено",
+      "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Енергія %{prettyFrozenEnergy} TRX",
+      "enterToFreezeTRX" : "введіть кількість TRX",
+      "freezeForBandTRX" : "Заморозити",
+      "freezeForEnergyTRX" : "Для енергії",
+      "unfreezeTRX" : "Розморозити",
+      "votedTRX" : "Голоса",
+      "votedBalanceTRX" : "Використано %{voteTotal} / Всього %{prettyVote}",
+      "voteTRX" : "Проголосувати",
+      "rewardTRX" : "Нагорода за голосування",
+      "rewardBalanceTRX" : "Доступно %{prettyReward} TRX",
+      "claimTRX" : "Забрать награду",
+      "refreshTRX" : "Перегрузить"
     },
     "about": {
       "title": "Про гаманець",
