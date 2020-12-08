@@ -173,7 +173,7 @@ class NotificationsScreen extends React.Component {
                 subtitle={title ? subtitle : null}
                 iconType={getIconType(item)}
                 onPress={() => this.handleOpenNotification(item, title || subtitle)}
-                rightContent={item.newsGroup === NOTIFIES_GROUP.BSE_ORDERS ? 'arrow' : null}
+                rightContent={(item.newsGroup === NOTIFIES_GROUP.BSE_ORDERS || item.newsGroup === NOTIFIES_GROUP.NEWS) ? 'arrow' : null}
                 isNew={item.newsOpenedAt === null}
                 last={index === section.data.length - 1}
             />
