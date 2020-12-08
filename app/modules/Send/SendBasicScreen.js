@@ -12,6 +12,7 @@ import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import Log from '../../services/Log/Log'
 import { Keyboard } from 'react-native'
 import SendTmpConstants from './elements/SendTmpConstants'
+import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 
 export default class SendBasicScreen extends Component {
 
@@ -120,12 +121,23 @@ export default class SendBasicScreen extends Component {
         return { countedFees, selectedFee }
     }
 
-    openAdvancedSettings = () => {
+    openAdvancedSettings = async () => {
+
         const { countedFees, selectedFee, useAllFunds } = this.state
+
         // console.log('Send.SendBasicScreen.openAdvancedSettings state', JSON.parse(JSON.stringify({countedFees,selectedFee,useAllFunds})))
-        if (!countedFees) {
-            // console.log('YURA, plz show loaded here')
+        setLoaderStatus(true)        
+        if (Object.keys(countedFees).length === 0) {
+            setLoaderStatus(true)
+            setTimeout(() => {
+                try {
+                    setLoaderStatus(true)
+                    this.openAdvancedSettings()
+                } catch (e) {
+                }
+            }, 100)
         } else {
+            setLoaderStatus(false)
             NavStore.goNext('SendAdvancedScreen', {
                 data: {
                     countedFees,
@@ -167,7 +179,10 @@ export default class SendBasicScreen extends Component {
 
     renderMinerFee = (onlyUseAllFunds = false) => {
 
-        const { countedFees, selectedFee, useAllFunds } = this.state
+        const { useAllFunds } = this.state
+
+        countedFees = SendTmpConstants.COUNTED_FEES
+        selectedFee = SendTmpConstants.SELECTED_FEE
 
         Log.log('Send.SendBasicScreen.renderMinerFee state', JSON.parse(JSON.stringify({
             countedFees,

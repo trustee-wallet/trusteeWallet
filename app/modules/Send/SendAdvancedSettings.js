@@ -120,7 +120,9 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     showFee = (basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode) => {
-        const { countedFees, selectedFee, isCustomFee } = this.state
+        const { isCustomFee } = this.state
+        const countedFees = SendTmpConstants.COUNTED_FEES
+        const selectedFee = SendTmpConstants.SELECTED_FEE
         // console.log('Send.SendAdvancedSettings.showFee', JSON.parse(JSON.stringify({ basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode })))
         // console.log('Send.SendAdvancedSettings.showFee state', JSON.parse(JSON.stringify({ countedFees, selectedFee, isCustomFee })))
         if (!countedFees.fees) {
@@ -129,7 +131,7 @@ class SendAdvancedSettingsScreen extends Component {
         }
 
         return (
-            <View style={{ paddingHorizontal: 30 }}>
+            <View style={{ paddingLeft: 30 }}>
                 {
                     countedFees ? countedFees.fees.map((item, index) => {
                         let prettyFee
@@ -173,14 +175,14 @@ class SendAdvancedSettingsScreen extends Component {
 
                         let subtitle
                         if (item.langMsg === selectedFee.langMsg && !isCustomFee) {
-                            subtitle = ` ${prettyFee} ${prettyFeeSymbol}`
+                            subtitle = `${prettyFee} ${prettyFeeSymbol}`
                             if (devFee) {
                                 subtitle += ` ${devFee}`
                                 if (devMode) {
                                     if (!needSpeed) {
                                         needSpeed = ''
                                     }
-                                    subtitle += ` ${needSpeed}`
+                                    subtitle += `\n${needSpeed}`
                                 }
                             }
                             subtitle += ` / ${feeBasicCurrencySymbol} ${feeBasicAmount}`
@@ -240,7 +242,6 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     onFocus = () => {
-        // console.log('hello')
         this.setState({
             focused: true
         })
@@ -289,7 +290,8 @@ class SendAdvancedSettingsScreen extends Component {
                                 switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
                                 type={'dropdown'}
                                 ExtraView={() => this.showFee(basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode)}
-                                subtitle={this.state.selectedFee.langMsg ? strings(`send.fee.text.${this.state.selectedFee.langMsg}`) : null}
+                                subtitle={this.state.selectedFee.langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) : 
+                                    strings(`send.fee.text.${this.state.selectedFee.langMsg}`) : null}
                             />
                         </View>
                         <TwoButtons

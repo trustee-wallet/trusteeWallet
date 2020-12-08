@@ -35,34 +35,34 @@ class Input extends Component {
             errors: [],
             focus: false,
             autoFocus: false,
-            show: false,
+            show: true,
             tap: true,
             inputHeight: 0
         }
         this.inputRef = React.createRef()
     }
 
-    componentDidMount() {
-        setTimeout(() => {
-            this.setState({
-                show: true
-            })
-        }, 200)
+    // componentDidMount() {
+        // setTimeout(() => {
+        //     this.setState({
+        //         show: true
+        //     })
+        // }, 200)
 
-        setTimeout(() => {
-            const { autoFocus } = this.props
-            if (typeof autoFocus !== 'undefined') {
-                this.setState({
-                    autoFocus,
-                    show: false
-                }, () => {
-                    this.setState({
-                        show: true
-                    })
-                })
-            }
-        }, 500)
-    }
+        // setTimeout(() => {
+        //     const { autoFocus } = this.props
+        //     if (typeof autoFocus !== 'undefined') {
+        //         this.setState({
+        //             autoFocus,
+        //             show: false
+        //         }, () => {
+        //             this.setState({
+        //                 show: true
+        //             })
+        //         })
+        //     }
+        // }, 500)
+    // }
 
     // eslint-disable-next-line camelcase
     UNSAFE_componentWillReceiveProps(props) {
