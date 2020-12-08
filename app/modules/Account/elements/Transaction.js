@@ -1,5 +1,5 @@
 /**
- * @version 0.10
+ * @version 0.11
  */
 import React, { Component } from 'react'
 import {
@@ -299,9 +299,16 @@ class Transaction extends Component {
         return datetime
     }
 
-    transactionDetalis = (trx) => {
+    transactionDetalis = (tx) => {
+        let hash
+        hash = tx.transactionHash || tx.orderId
+
         NavStore.goNext('TransactionScreen', {
-            transaction: trx
+            txData: {
+                transaction: tx,
+                hash,
+                currencyCode: tx.currencyCode
+            } 
         })
     }
 

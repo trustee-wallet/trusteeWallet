@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.11
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'

@@ -1,9 +1,13 @@
+/**
+ * @version 0.30
+ */
 import React, { Component } from 'react'
 import {
     Platform,
     View,
     Text,
-    ScrollView, Linking, TextInput
+    ScrollView, Linking, TextInput,
+    TouchableOpacity
 } from 'react-native'
 import { connect } from 'react-redux'
 import { strings } from '../../services/i18n'
@@ -34,8 +38,14 @@ import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 import Api from '../../services/Api/ApiV3'
 import transactionDS from '../../appstores/DataSource/Transaction/Transaction'
+import transactionActions from '../../appstores/Actions/TransactionActions'
+import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+
 import { capitalize } from '../../services/UI/Capitalize/Capitalize'
-import { TouchableOpacity } from 'react-native-gesture-handler'
+
+import store from '../../store'
+import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
 class TransactionScreen extends Component {
 
@@ -54,14 +64,43 @@ class TransactionScreen extends Component {
             commentEditable: false
         }
     }
+    // @ksu this is bugplace plz see
+    async UNSAFE_componentWillMount() {
+        const data = this.props.navigation.getParam('txData')
 
-    componentDidMount() {
-        const transaction = this.props.navigation.getParam('transaction')
-        this.init(transaction)
+        const { hash, currencyCode, transaction } = data
+        let tx
 
-        this.setState({
-            transaction
-        })
+        if (!transaction) {
+            const wallet = store.getState().mainStore.selectedWallet
+
+            const { exchangeStore } = this.props
+
+            let tmpTx = {}
+            try {
+                const tmp = await transactionDS.getTransactions({
+                    walletHash: wallet.walletHash,
+                    transactionHash: hash
+                }, 'ACT/MStore setSelectedAccount')
+                if (tmp) {
+                    tmp.map((item) => {
+                        tmpTx[item.transactionsHash] = item
+                    })
+                }
+            } catch (e) {
+                console.log('TransactionScreen.error ' + e)
+            }
+            let transactionsToView = this.prepareTransactions(tmpTx, exchangeStore.exchangeOrders)
+            tx = transactionsToView.find(item => item.orderId === hash || item.transactionHash === hash)
+        } else {
+            tx = transaction
+        }
+
+        this.init(tx)
+
+        this.setState(() => ({
+            transaction: tx
+        }))
     }
 
     init = (transaction) => {
@@ -133,6 +172,179 @@ class TransactionScreen extends Component {
         } catch (e) {
             Log.err(`TransactionScreen init error - ${JSON.stringify(e)} ; Transaction - ${JSON.stringify(transaction)}`)
         }
+    }
+
+    prepareTransactions = (transactions, exchangeOrders) => {
+
+        const { mainStore } = this.props
+        const walletCashBackToken = CashBackUtils.getWalletToken()
+
+        let transactionsTmp = []
+        const unique = {}
+        const uniqueOrderId = {}
+        const byIds = {}
+        let byIdsLength = 0
+
+        if (exchangeOrders && exchangeOrders.length > 0) {
+            let item
+            for (item of exchangeOrders) {
+                if (item.cashbackToken !== walletCashBackToken) {
+                    continue
+                }
+                if (item.requestedOutAmount.currencyCode !== this.props.cryptoCurrency.currencyCode && item.requestedInAmount.currencyCode !== this.props.cryptoCurrency.currencyCode) {
+                    continue
+                }
+
+                const direction = item.requestedOutAmount.currencyCode === this.props.cryptoCurrency.currencyCode ? 'income' : 'outcome'
+                const amount = direction === 'income' ? item.requestedOutAmount.amount : item.requestedInAmount.amount
+                let subtitle = ''
+                if (item.exchangeWayType === 'EXCHANGE') {
+                    subtitle = item.requestedInAmount.currencyCode + '-' + item.requestedOutAmount.currencyCode
+                } else if (item.exchangeWayType === 'BUY') {
+                    // do nothing
+                } else {
+                    subtitle = item.outDestination
+                }
+
+                const order = {
+                    orderId: item.orderId,
+                    exchangeWayType: item.exchangeWayType,
+                    status: item.status,
+                    transactionDirection: direction,
+                    createdAt: item.createdAt,
+                    addressAmountPretty: amount,
+                    outDestination: item.outDestination,
+                    depositAddress: item.depositAddress,
+                    subtitle
+                }
+
+                order.addressAmountPretty = BlocksoftPrettyNumbers.makeCut(order.addressAmountPretty).separated
+
+                if (typeof order.id === 'undefined') {
+                    order.id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+                }
+
+                if (typeof item.orderJSON !== 'undefined' && item.orderJSON !== null) {
+                    order.orderJSON = JSON.parse(item.orderJSON)
+                }
+
+                if (typeof item.payinUrl !== 'undefined' && item.payinUrl !== null) {
+                    order.payinUrl = item.payinUrl
+                }
+
+                if (typeof item.payUpdateTime !== 'undefined') {
+                    order.payUpdateTime = item.payUpdateTime
+                }
+
+                if (transactions) {
+                    let added = false
+
+                    const hash2 = item.outTxHash
+                    if (hash2 && typeof transactions[hash2] !== 'undefined') {
+                        if (typeof unique[hash2] === 'undefined') {
+                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
+                                uniqueOrderId[item.orderId] = 1
+                                transactionsTmp.push({ ...transactions[hash2], ...order })
+                                unique[hash2] = 1
+                                added = true
+                            }
+                        }
+                    }
+
+                    const hash = item.inTxHash
+                    if (hash && typeof transactions[hash] !== 'undefined') {
+                        if (typeof unique[hash] === 'undefined') {
+                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
+                                uniqueOrderId[item.orderId] = 1
+                                transactionsTmp.push({ ...transactions[hash], ...order })
+                                unique[hash] = 1
+                                added = true
+                            }
+
+                        }
+                    }
+
+                    if (!added) {
+                        byIds[item.orderId + ''] = order
+                        byIdsLength++
+                    }
+                } else {
+                    order.blockConfirmations = 0
+                    if (typeof uniqueOrderId[item.orderId] === 'undefined') {
+                        uniqueOrderId[item.orderId] = 1
+                        transactionsTmp.push(order)
+                    }
+                }
+            }
+        }
+
+        if (transactions) {
+            let hash
+            for (hash in transactions) {
+                if (typeof unique[hash] !== 'undefined') continue
+                const tx = transactions[hash]
+                let added = false
+                if (byIdsLength > 0) {
+                    if (typeof tx.transactionJson !== 'undefined' && tx.transactionJson && typeof tx.transactionJson.bseOrderID !== 'undefined') {
+                        const tmpKey = tx.transactionJson.bseOrderID + ''
+                        if (typeof byIds[tmpKey] !== 'undefined') {
+                            const item = byIds[tmpKey]
+                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
+                                uniqueOrderId[item.orderId] = 1
+                                transactionsTmp.push({ ...tx, ...item })
+                                added = true
+                                delete byIds[tmpKey]
+                                byIdsLength--
+                            }
+                        }
+                    }
+                }
+                if (!added) {
+                    if (mainStore.selectedWallet.walletIsHideTransactionForFee !== null && +mainStore.selectedWallet.walletIsHideTransactionForFee === 1) {
+                        if (tx.addressAmount === 0) {
+                            if (tx.transactionOfTrusteeWallet === 1 && tx.transactionsOtherHashes !== '') {
+                                // do nothing as its removed ones
+                            } else {
+                                continue
+                            }
+                        }
+                    }
+                    if (typeof tx.id === 'undefined') {
+                        tx.id = hash
+                    }
+                    transactionsTmp.push(tx)
+                }
+            }
+        }
+
+        if (byIdsLength > 0) {
+            let orderId
+            for (orderId in byIds) {
+                const order = byIds[orderId]
+                if (order) {
+                    transactionsTmp.push(order)
+                }
+            }
+        }
+
+        transactionsTmp = transactionsTmp.sort((a, b) => {
+            if (a.createdAt === b.createdAt) {
+                if (a.transactionDirection === b.transactionDirection) {
+                    return b.id - a.id
+                }
+                const sortingB = b.transactionDirection === 'outcome' ? 2 : b.transactionDirection === 'self' ? 1 : 0
+                const sortingA = a.transactionDirection === 'outcome' ? 2 : a.transactionDirection === 'self' ? 1 : 0
+                if (sortingA === sortingB) {
+                    return b.id - a.id
+                } else {
+                    return sortingB - sortingA
+                }
+            }
+            return new Date(b.createdAt) - new Date(a.createdAt)
+        })
+
+
+        return transactionsTmp
     }
 
     prepareAddressToToView = (transaction, exchangeWayType) => {
@@ -490,9 +702,13 @@ class TransactionScreen extends Component {
         }
     }
 
-    headerTrx = (color, currencyCode) => {
+    headerTrx = (transaction, color, currencyCode) => {
 
-        const transaction = this.props.navigation.getParam('transaction')
+        if (Object.keys(transaction).length === 0) {
+            return (
+                <View></View>
+            )
+        }        
 
         const status = transaction.transactionStatus
 
@@ -774,7 +990,7 @@ class TransactionScreen extends Component {
                     rightType="close"
                     rightAction={this.closeAction}
                     setHeaderHeight={this.setHeaderHeight}
-                    ExtraView={() => this.headerTrx(color, cryptoCurrency.currencyCode)}
+                    ExtraView={() => transaction ? this.headerTrx(transaction, color, cryptoCurrency.currencyCode) : null}
                     anime={false}
                 />
                 <ScrollView

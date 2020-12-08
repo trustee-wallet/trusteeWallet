@@ -176,6 +176,9 @@ class Transaction {
         if (params.accountId) {
             where.push(`account_id='${params.accountId}'`)
         }
+        if (params.transactionHash) {
+            where.push(`transaction_hash='${params.transactionHash}'`)
+        }
 
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params.noOrder) {
