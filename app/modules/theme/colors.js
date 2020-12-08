@@ -46,9 +46,13 @@ export const lightColors = {
         listItem: {
           basic: {
             borderColor: '#DADADA',
-            iconBgLight: '#E8E8E8'
+            iconBgLight: '#E8E8E8',
+            iconBgDark: '#404040',
           }
         }
+    },
+    notifications: {
+      newNotiesIndicator: '#864DD9',
     },
     homeScreen: {
       listItemGradient: ['#fff', '#f4f4f4'],
@@ -159,9 +163,13 @@ export const darkColors = {
         listItem: {
           basic: {
             borderColor: '#DADADA',
-            iconBgLight: '#E8E8E8'
+            iconBgLight: '#E8E8E8',
+            iconBgDark: '#404040',
           }
         }
+    },
+    notifications: {
+      newNotiesIndicator: '#864DD9',
     },
     homeScreen: {
       listItemGradient: ['#252525', '#1E1E1E'],

@@ -24,6 +24,10 @@ import TradeScreenStack from './TradeScreenStack'
 import TradeV3ScreenStack from './TradeV3ScreenStack'
 import SettingsScreenStack from './SettingsStack'
 
+import NotificationsScreen from '../modules/Notifications'
+
+import WebViewScreen from '../modules/WebView'
+
 import AddCardScreen from '../modules/Card'
 import SendScreen from '../modules/Send/SendScreen'
 import SendAdvancedSettingsScreen from '../modules/Send/SendAdvancedSettings'
@@ -228,6 +232,20 @@ const MainNavigator = createStackNavigator({
 
         AgreementScreen: {
             screen: AgreementScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        NotificationsScreen: {
+            screen: NotificationsScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        WebViewScreen: {
+            screen: WebViewScreen,
             navigationOptions: {
                 headerShown: false
             }
