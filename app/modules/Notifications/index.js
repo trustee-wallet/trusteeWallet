@@ -42,6 +42,23 @@ const ALLOWED_NOTIFICATIONS = [
     NOTIFIES_GROUP.NEWS
 ]
 
+const getIconType = (notif) => {
+    switch (notif.newsGroup) {
+        case (NOTIFIES_GROUP.NEWS): return 'news'
+        case (NOTIFIES_GROUP.RATES_CHANGING): {
+            if (typeof notif.rateSide === 'boolean') return notif.rateSide ? 'ratesUp' : 'ratesDown'
+            return ''
+        }
+        case (NOTIFIES_GROUP.BSE_ORDERS): {
+            if (notif.orderHash) return 'exchange'
+            if (notif.payinTxHash) return 'incoming'
+            if (notif.payoutTxHash) return 'outgoing'
+            return ''
+        }
+        default: return ''
+    }
+}
+
 class NotificationsScreen extends React.Component {
     state = {
         headerHeight: 0,
@@ -154,7 +171,7 @@ class NotificationsScreen extends React.Component {
             <ListItem
                 title={title || subtitle}
                 subtitle={title ? subtitle : null}
-                iconType=""
+                iconType={getIconType(item)}
                 onPress={() => this.handleOpenNotification(item, title || subtitle)}
                 rightContent={item.newsGroup === NOTIFIES_GROUP.BSE_ORDERS ? 'arrow' : null}
                 isNew={item.newsOpenedAt === null}

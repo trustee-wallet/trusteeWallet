@@ -30,6 +30,8 @@ class WebViewScreen extends React.Component {
 
     handleBack = () => { NavStore.goBack() }
 
+    handleClose = () => { NavStore.reset('DashboardStack') }
+
     render() {
         const { colors, GRID_SIZE } = this.context
         const { headerHeight, title, url } = this.state
@@ -41,6 +43,8 @@ class WebViewScreen extends React.Component {
                 <Header
                     leftType="back"
                     leftAction={this.handleBack}
+                    rightType="close"
+                    rightAction={this.handleClose}
                     title={title}
                     setHeaderHeight={this.setHeaderHeight}
                 />
