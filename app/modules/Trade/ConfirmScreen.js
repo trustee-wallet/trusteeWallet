@@ -16,7 +16,6 @@ import NavStore from '../../components/navigation/NavStore'
 import ExchangeActions, {setExchangeData} from '../../appstores/Stores/Exchange/ExchangeActions'
 import {setLoaderStatus} from '../../appstores/Stores/Main/MainStoreActions'
 import {showModal} from '../../appstores/Stores/Modal/ModalActions'
-import {setSendData} from '../../appstores/Stores/Send/SendActions'
 
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
@@ -32,7 +31,8 @@ import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 import TmpConstants from './elements/TmpConstants'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
-import api from '../../services/Api/Api'
+import SendTmpConstants from '../Send/elements/SendTmpConstants'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
 class ConfirmScreen extends Component {
 
@@ -178,8 +178,6 @@ class ConfirmScreen extends Component {
     handleSellSubmit = async () => {
         let dataToSend
         try {
-            AsyncStorage.setItem('TRADE_SELL_DATA', JSON.stringify({lastSellCache: this.state}))
-
             const {
                 selectedCryptocurrency,
                 selectedCard,
@@ -216,45 +214,34 @@ class ConfirmScreen extends Component {
                 dataToSend.outDestination = uniqueParams.wallet
             }
 
-
-            let res = false
-
             setLoaderStatus(true)
 
-            res = await Api.createOrder(dataToSend)
-
+            // @todo simplify goto receipt to one function
+            const res = await Api.createOrder(dataToSend)
+            const recipientAmount = res.data.amount.toString()
+            const recipientAddress = res.data.address
+            SendTmpConstants.COUNTED_FEES = false
+            SendTmpConstants.SELECTED_FEE = false
             const dataToScreen = {
-                disabled: true,
-                address: res.data.address,
-                value: res.data.amount || res.data.amount.toString(),
-                account: selectedAccount,
+                amount : recipientAmount,
+                amountRaw: BlocksoftPrettyNumbers.setCurrencyCode(selectedCryptocurrency.currencyCode).makeUnPretty(recipientAmount),
+                address: recipientAddress,
                 cryptoCurrency: selectedCryptocurrency,
-                description: strings('send.descriptionExchange'),
+                account: selectedAccount,
                 useAllFunds,
-                type: 'TRADE_SEND',
-                copyAddress: true,
                 toTransactionJSON: {
                     bseOrderID: res.data.orderId
-                }
+                },
+                type: 'TRADE_SEND',
+                apiVersion : 'v2',
+                currencyCode: selectedCryptocurrency.currencyCode
             }
-
             if (typeof res.data.memo !== 'undefined') {
-                dataToScreen.destinationTag = res.data.memo
+                dataToScreen.memo = res.data.memo
             }
-
-            MarketingEvent.startSell({
-                orderId: res.data.orderId + '',
-                currencyCode: dataToScreen.cryptoCurrency.currencyCode,
-                addressFrom: dataToScreen.account.address,
-                addressFromShort: dataToScreen.account.address ? dataToScreen.account.address.slice(0, 10) : 'none',
-                addressTo: dataToScreen.address,
-                addressAmount: dataToScreen.value,
-                walletHash: dataToScreen.account.walletHash
+            NavStore.goNext('ReceiptScreen', {
+                ReceiptScreen: dataToScreen
             })
-
-            setSendData(dataToScreen)
-
-            NavStore.goNext('SendScreen')
 
             setLoaderStatus(false)
 

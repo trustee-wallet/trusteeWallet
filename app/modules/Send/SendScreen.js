@@ -59,7 +59,6 @@ import Header from '../../components/elements/new/Header'
 import PartBalanceButton from './elements/partBalanceButton'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import { handleFee } from '../../appstores/Stores/Send/SendActions'
 
 import CheckData from './elements/CheckData'
 
@@ -711,7 +710,7 @@ class SendScreen extends SendBasicScreenScreen {
                     account,
                     useAllFunds,
                     toTransactionJSON,
-                    type: this.props.send.data.type,
+                    type: this.props.send.data.type || 'DEFAULT_SEND',
                     currencyCode: cryptoCurrency.currencyCode,
                     countedFees,
                     selectedFee
@@ -723,14 +722,6 @@ class SendScreen extends SendBasicScreenScreen {
                     ...(isFioPayment && { fioRequestDetails: fioPaymentData })
                 })
 
-                MarketingEvent.checkSellConfirm({
-                    memo: memo.toString(),
-                    currencyCode: cryptoCurrency.currencyCode,
-                    addressFrom: account.address,
-                    addressTo: data.address,
-                    addressAmount: data.amount,
-                    walletHash: account.walletHash
-                })
             }, 500)
         } catch (e) {
 

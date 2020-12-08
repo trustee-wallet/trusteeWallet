@@ -1,5 +1,5 @@
 /**
- * @version 0.1
+ * @version 0.30
  * @author yura
  */
 import React, { Component } from 'react'
@@ -235,7 +235,7 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     updateSelectedFeeBack = async (selectedFee) => {
-        console.log('@yura plz set here manual button "next" without state update - then uncomment "disabled "', JSON.parse(JSON.stringify(selectedFee)))
+        // @todo @yura plz set here manual button "next" without state update - then uncomment "disabled"
         selectedFee.isCustomFee = true
         // this will repaint all break smooth - so need cache this.setState({ selectedFee })
         CACHE_FROM_CUSTOM_FEE = selectedFee
@@ -262,8 +262,7 @@ class SendAdvancedSettingsScreen extends Component {
             focused,
         } = this.state
 
-        const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates } = this.props.account
-        const { currencyCode } = this.props.cryptoCurrency
+        const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode } = SendTmpConstants.ACCOUNT_DATA
 
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>

@@ -43,7 +43,8 @@ import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
 import store from '../../store'
-import { setSendData } from '../../appstores/Stores/Send/SendActions'
+import SendTmpConstants from '../Send/elements/SendTmpConstants'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -311,42 +312,36 @@ class MainV3DataScreen extends Component {
         const { accountList } = store.getState().accountStore
         const walletHash = store.getState().mainStore.selectedWallet.walletHash
         const account = accountList[walletHash]
-
         const { cryptoCurrencies } = store.getState().currencyStore
-        const cryptoCurrencyNew = _.find(cryptoCurrencies, { currencyCode: dataSell.currencyCode})
+        const selectedCryptocurrency = _.find(cryptoCurrencies, { currencyCode: dataSell.currencyCode})
+        const selectedAccount = account[dataSell.currencyCode]
 
+        // @todo simplify goto receipt to one function
+        const recipientAmount = dataSell.amount.toString()
+        const recipientAddress = dataSell.address
+        SendTmpConstants.COUNTED_FEES = false
+        SendTmpConstants.SELECTED_FEE = false
         const dataToScreen = {
-            disabled: true,
-            address: dataSell.address,
-            value: dataSell.amount.toString(),
-            account: account[dataSell.currencyCode],
-            cryptoCurrency: cryptoCurrencyNew,
-            description: strings('send.descriptionExchange'),
-            useAllFunds: dataSell.useAllFunds,
-            type: 'TRADE_SEND',
-            copyAddress: true,
+            amount : recipientAmount,
+            amountRaw: BlocksoftPrettyNumbers.setCurrencyCode(selectedCryptocurrency.currencyCode).makeUnPretty(recipientAmount),
+            address: recipientAddress,
+            cryptoCurrency: selectedCryptocurrency,
+            account: selectedAccount,
+            useAllFunds : dataSell.useAllFunds,
             toTransactionJSON: {
                 bseOrderID: dataSell.orderId
-            }
+            },
+            type: 'TRADE_SEND',
+            apiVersion : 'v3',
+            currencyCode: selectedCryptocurrency.currencyCode
         }
-
         if (typeof dataSell.memo !== 'undefined') {
-            dataToScreen.destinationTag = dataSell.memo
+            dataToScreen.memo = dataSell.memo
         }
 
-        MarketingEvent.startSell({
-            orderId: dataSell.orderId + '',
-            currencyCode: dataToScreen.cryptoCurrency.currencyCode,
-            addressFrom: dataToScreen.account.address,
-            addressFromShort: dataToScreen.account.address ? dataToScreen.account.address.slice(0, 10) : 'none',
-            addressTo: dataToScreen.address,
-            addressAmount: dataToScreen.value,
-            walletHash: dataToScreen.account.walletHash
+        NavStore.goNext('ReceiptScreen', {
+            ReceiptScreen: dataToScreen
         })
-
-        setSendData(dataToScreen)
-
-        NavStore.goNext('SendScreen')
     }
 
     async onTakePhoto(cardData) {

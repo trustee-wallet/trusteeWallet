@@ -271,6 +271,10 @@ export default {
                 transactions_scan_log TEXT NULL,
                 transactions_other_hashes TEXT NULL,
                 
+                bse_order_id VARCHAR(256) NULL,
+                bse_order_id_in VARCHAR(256) NULL,
+                bse_order_id_out VARCHAR(256) NULL,         
+                       
                 lock_time DATETIME NULL,
                 block_time DATETIME NULL,
                 created_at DATETIME NULL,

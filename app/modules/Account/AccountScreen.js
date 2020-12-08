@@ -374,11 +374,8 @@ class Account extends Component {
 
 
         let transactionsTmp = []
-        const unique = {}
-        const uniqueOrderId = {}
-        const byIds = {}
-        let byIdsLength = 0
 
+        const indexedOrders = {}
         if (exchangeOrders && exchangeOrders.length > 0) {
             let item
             for (item of exchangeOrders) {
@@ -431,70 +428,32 @@ class Account extends Component {
                     order.payUpdateTime = item.payUpdateTime
                 }
 
-                if (transactions) {
-                    let added = false
-
-                    const hash2 = item.outTxHash
-                    if (hash2 && typeof transactions[hash2] !== 'undefined') {
-                        if (typeof unique[hash2] === 'undefined') {
-                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
-                                uniqueOrderId[item.orderId] = 1
-                                transactionsTmp.push({ ...transactions[hash2], ...order })
-                                unique[hash2] = 1
-                                added = true
-                            }
-                        }
-                    }
-
-                    const hash = item.inTxHash
-                    if (hash && typeof transactions[hash] !== 'undefined') {
-                        if (typeof unique[hash] === 'undefined') {
-                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
-                                uniqueOrderId[item.orderId] = 1
-                                transactionsTmp.push({ ...transactions[hash], ...order })
-                                unique[hash] = 1
-                                added = true
-                            }
-
-                        }
-                    }
-
-                    if (!added) {
-                        byIds[item.orderId + ''] = order
-                        byIdsLength++
-                    }
-                } else {
-                    order.blockConfirmations = 0
-                    if (typeof uniqueOrderId[item.orderId] === 'undefined') {
-                        uniqueOrderId[item.orderId] = 1
-                        transactionsTmp.push(order)
-                    }
-                }
+                indexedOrders[order.orderId] = order
             }
         }
 
         if (transactions) {
             let hash
             for (hash in transactions) {
-                if (typeof unique[hash] !== 'undefined') continue
                 const tx = transactions[hash]
+
                 let added = false
-                if (byIdsLength > 0) {
-                    if (typeof tx.transactionJson !== 'undefined' && tx.transactionJson && typeof tx.transactionJson.bseOrderID !== 'undefined') {
-                        const tmpKey = tx.transactionJson.bseOrderID + ''
-                        if (typeof byIds[tmpKey] !== 'undefined') {
-                            const item = byIds[tmpKey]
-                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
-                                uniqueOrderId[item.orderId] = 1
-                                transactionsTmp.push({ ...tx, ...item })
-                                added = true
-                                delete byIds[tmpKey]
-                                byIdsLength--
-                            }
-                        }
-                    }
+                const bseOrderID = tx.bseOrderID
+                const bseOrderID2 = tx.bseOrderInID
+                const bseOrderID3 = tx.bseOrderInID
+                if (bseOrderID && typeof indexedOrders[bseOrderID] !== 'undefined') {
+                    added = indexedOrders[bseOrderID]
                 }
-                if (!added) {
+                if (!added && bseOrderID2 && typeof indexedOrders[bseOrderID2] !== 'undefined') {
+                    added = indexedOrders[bseOrderID2]
+                }
+                if (!added && bseOrderID3 && typeof indexedOrders[bseOrderID3] !== 'undefined') {
+                    added = indexedOrders[bseOrderID3]
+                }
+                if (added) {
+                    transactionsTmp.push({ ...tx, ...added })
+                    delete indexedOrders[added.orderId]
+                } else {
                     if (mainStore.selectedWallet.walletIsHideTransactionForFee !== null && +mainStore.selectedWallet.walletIsHideTransactionForFee === 1) {
                         if (tx.addressAmount === 0) {
                             if (tx.transactionOfTrusteeWallet === 1 && tx.transactionsOtherHashes !== '') {
@@ -512,10 +471,10 @@ class Account extends Component {
             }
         }
 
-        if (byIdsLength > 0) {
+        if (indexedOrders) {
             let orderId
-            for (orderId in byIds) {
-                const order = byIds[orderId]
+            for (orderId in indexedOrders) {
+                const order = indexedOrders[orderId]
                 if (order) {
                     transactionsTmp.push(order)
                 }

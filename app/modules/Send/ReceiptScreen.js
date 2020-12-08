@@ -85,76 +85,80 @@ class ReceiptScreen extends SendBasicScreenScreen {
         console.log('')
         console.log('')
         console.log('Send.ReceiptScreen.init ', JSON.parse(JSON.stringify(SendTmpConstants)))
-        const data = this.props.navigation.getParam('ReceiptScreen')
+        try {
+            const data = this.props.navigation.getParam('ReceiptScreen')
+
+            let newData, countedFees, selectedFee
+            if (data.currencyCode && (typeof data.account === 'undefined' || !data.account)) {
+                // @todo recheck if we still need it
+                // console.log('Send.ReceiptScreen.init data1', JSON.parse(JSON.stringify(data)))
+                newData = this.getData(data)
+                // console.log('Send.ReceiptScreen.init newData1', JSON.parse(JSON.stringify(newData)))
+            } else {
+                // console.log('Send.ReceiptScreen.init data2', JSON.parse(JSON.stringify(data)))
+                if (typeof data.walletUseUnconfirmed === 'undefined') {
+                    const { selectedWallet } = store.getState().mainStore
+                    if (typeof data.wallet !== 'undefined' && typeof data.wallet.walletHash !== 'undefined' && data.wallet.walletHash) {
+                        data.wallet = { ...selectedWallet, walletHash: data.wallet.walletHash }
+                    } else {
+                        data.wallet = { ...selectedWallet }
+                    }
+                }
+                // console.log('Send.ReceiptScreen.init newData2', JSON.parse(JSON.stringify(data)))
+                newData = data
+            }
+            let toCount = true
 
 
-        let newData, countedFees, selectedFee
-        if (data.currencyCode && (typeof data.account === 'undefined' || !data.account)) {
-            // console.log('Send.ReceiptScreen.init data1', JSON.parse(JSON.stringify(data)))
-            newData = this.getData(data)
-            // console.log('Send.ReceiptScreen.init newData1', JSON.parse(JSON.stringify(newData)))
-
-        } else {
-            // console.log('Send.ReceiptScreen.init data2', JSON.parse(JSON.stringify(data)))
-            if (typeof data.walletUseUnconfirmed === 'undefined') {
-                const { selectedWallet } = store.getState().mainStore
-                if (typeof data.wallet.walletHash !== 'undefined' && data.wallet.walletHash) {
-                    data.wallet = { ...selectedWallet, walletHash: data.wallet.walletHash }
-                } else {
-                    data.wallet = { ...selectedWallet }
+            if (SendTmpConstants.PRESET) {
+                countedFees = SendTmpConstants.COUNTED_FEES
+                selectedFee = SendTmpConstants.SELECTED_FEE
+                toCount = false
+            } else {
+                if (typeof data.countedFees !== 'undefined') {
+                    countedFees = data.countedFees
+                    toCount = false
+                }
+                if (typeof data.selectedFee !== 'undefined') {
+                    selectedFee = data.selectedFee
+                    toCount = false
                 }
             }
-            // console.log('Send.ReceiptScreen.init newData2', JSON.parse(JSON.stringify(data)))
-            newData = data
-        }
-        let toCount = true
+            SendTmpConstants.PRESET = false
+            SendTmpConstants.PRESET_FROM_RECEIPT = true // for history back from receipt to send screen
 
+            console.log('Send.ReceiptScreen.init preresult', JSON.parse(JSON.stringify({ countedFees, selectedFee })))
 
-        if (SendTmpConstants.PRESET) {
-            countedFees = SendTmpConstants.COUNTED_FEES
-            selectedFee = SendTmpConstants.SELECTED_FEE
-            toCount = false
-        } else {
-            if (typeof data.countedFees !== 'undefined') {
-                countedFees = data.countedFees
-                toCount = false
+            // was loaded without fees (direct sell etc)
+            if (toCount) {
+                const tmp = await this.recountFees({ data })
+                countedFees = tmp.countedFees
+                selectedFee = tmp.selectedFee
             }
-            if (typeof data.selectedFee !== 'undefined') {
-                selectedFee = data.selectedFee
-                toCount = false
+
+            this.setState({
+                data: newData,
+                countedFees,
+                selectedFee,
+                init: true
+            })
+
+            this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+                const settings = this.props.settingsStore.data
+                if (+settings.lock_screen_status) {
+                    this.setState({
+                        needPasswordConfirm: true
+                    })
+                }
+            })
+
+            setLoaderStatus(false)
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('Send.ReceiptScreen.init error ', e)
             }
+            Log.err('Send.ReceiptScreen.init error ' + e.message)
         }
-        SendTmpConstants.PRESET = false
-        SendTmpConstants.PRESET_FROM_RECEIPT = true // for history back from receipt to send screen
-
-        console.log('Send.ReceiptScreen.init preresult', JSON.parse(JSON.stringify({countedFees, selectedFee})))
-
-        // was loaded without fees (direct sell etc)
-        if (toCount) {
-            const tmp = await this.recountFees({data})
-            countedFees = tmp.countedFees
-            selectedFee = tmp.selectedFee
-        }
-
-        this.setState({
-            data: newData,
-            countedFees,
-            selectedFee,
-            init: true
-        })
-
-        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-
-            const settings = this.props.settingsStore.data
-
-            if (+settings.lock_screen_status) {
-                this.setState({
-                    needPasswordConfirm: true
-                })
-            }
-        })
-
-        setLoaderStatus(false)
     }
 
     getData(data) {
@@ -346,7 +350,11 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 if (transactionSpeedUp) {
                     logData.transactionSpeedUp = transactionSpeedUp
                 }
-                MarketingEvent.checkSellSendTx(logData)
+                if (typeof transactionJson !== 'undefined' && transactionJson && typeof transactionJson.bseOrderID !== 'undefined' && transactionJson.bseOrderID) {
+                    transaction.bse_order_id = transactionJson.bseOrderID
+                    transaction.bse_order_id_out =  transactionJson.bseOrderID
+                    logData.bseOrderID = transactionJson.bseOrderID.toString()
+                }
 
                 const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
                 await transactionActions.saveTransaction(transaction, line + ' HANDLE SEND ')
@@ -380,7 +388,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 description: successMessage
             }, () => {
 
-                const { type } = this.props.sendStore.data
+                const { type } = this.state.data
 
                 // @yura to finish all that needed
                 //     NavStore.goNext('TransactionScreen', {
@@ -460,12 +468,11 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         const { headerHeight,selectedFee } = this.state
 
-        let { amount, address, account, cryptoCurrency, type, multiAddress } = this.state.data
-
+        let { amount, address, cryptoCurrency, type, multiAddress, account } = this.state.data
 
         // console.log('Send.ReceiptScreen.render data', JSON.parse(JSON.stringify(this.state.data)))
         if (typeof account === 'undefined' || typeof account.basicCurrencySymbol === 'undefined') {
-            return <View><Text>Loading</Text></View>
+            return <View><Text></Text></View>
         }
 
         if (typeof selectedFee !== 'undefined') {
@@ -480,10 +487,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
         }
 
 
-        const currencySymbol = cryptoCurrency.currencySymbol
+        const currencySymbol = typeof cryptoCurrency !== 'undefined' && cryptoCurrency.currencySymbol ? cryptoCurrency.currencySymbol : ''
         const basicCurrencySymbol = account.basicCurrencySymbol
 
-        const dict = new UIDict(cryptoCurrency.currencyCode)
+        const dict = new UIDict(account.currencyCode)
         const color = dict.settings.colors.mainColor
 
         const equivalent = BlocksoftPrettyNumbers.makeCut(RateEquivalent.mul({

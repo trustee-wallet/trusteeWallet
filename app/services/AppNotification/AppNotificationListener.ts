@@ -151,7 +151,9 @@ export default new class AppNotificationListener {
         if (typeof fcmToken === 'undefined' || fcmToken === '') {
             fcmToken = MarketingEvent.DATA.LOG_TOKEN
         }
-        await settingsActions.setSettings('notifsSavedToken', fcmToken)
+        if (typeof settings.dbVersion !== 'undefined' && settings.dbVersion) {
+            await settingsActions.setSettings('notifsSavedToken', fcmToken)
+        }
     }
 
     async updateSubscriptionsLater(): Promise<void> {

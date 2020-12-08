@@ -46,6 +46,7 @@ import { capitalize } from '../../services/UI/Capitalize/Capitalize'
 import store from '../../store'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 
 class TransactionScreen extends Component {
 

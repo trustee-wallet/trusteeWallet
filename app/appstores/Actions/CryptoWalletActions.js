@@ -8,6 +8,7 @@ import App from './App/App'
 import { setLoaderStatus } from '../Stores/Main/MainStoreActions'
 
 import Log from '../../services/Log/Log'
+import settingsActions from '../Stores/Settings/SettingsActions'
 
 const cryptoWalletActions = {
 
@@ -18,6 +19,11 @@ const cryptoWalletActions = {
         }
 
         try {
+
+            const settings = await settingsActions.getSettings(false)
+            if (typeof settings.dbVersion === 'undefined' || !settings.dbVersion) {
+                return false
+            }
 
             Log.log('ACT/CryptoWallet setSelectedWallet called', walletHash)
 
