@@ -299,7 +299,7 @@
       "accountAddress": "Виберіть адресу",
       "showSegWitAndLegacy": "Показувати SegWit і Legacy",
       "hideCommissionTrans": "Сховати транзакції оплати за комісію",
-      "checkFrozen" : "Сканувати заморожений баланс",
+      "checkFrozen" : "Сканувати застейканий баланс",
       "manualAddressFromHD" : "Вставити адресу HD",
       "scanAddressesFromHD" : "Сканувати адреси HD на наявність балансів",
       "setAddressesFromHD" : {
@@ -322,10 +322,10 @@
       "saveSettings" : "Зберегти",
       "getMnemonicXMR" : "Переглянути секрети",
       "availableTRX" : "Доступно",
-      "frozenTRX" : "Заморожено",
+      "frozenTRX" : "Застейкано",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Енергія %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "введіть кількість TRX",
-      "freezeForBandTRX" : "Заморозити",
+      "freezeForBandTRX" : "Застейкати",
       "freezeForEnergyTRX" : "Для енергії",
       "unfreezeTRX" : "Розморозити",
       "votedTRX" : "Голоса",
@@ -333,8 +333,8 @@
       "voteTRX" : "Проголосувати",
       "rewardTRX" : "Нагорода за голосування",
       "rewardBalanceTRX" : "Доступно %{prettyReward} TRX",
-      "claimTRX" : "Забрать награду",
-      "refreshTRX" : "Перегрузить"
+      "claimTRX" : "Забрати награду",
+      "refreshTRX" : "Перевантажити"
     },
     "about": {
       "title": "Про гаманець",
