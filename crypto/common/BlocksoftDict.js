@@ -608,7 +608,7 @@ function addAndUnifyCustomCurrency(currencyObject) {
         buyable: 0
 
     }
-    tmp.currencyType = 'token'
+    tmp.currencyType = 'custom'
     if (currencyObject.tokenType === 'ETH_ERC_20') {
         tmp.extendsProcessor = 'ETH_TRUE_USD'
         tmp.addressUiChecker = 'ETH'
