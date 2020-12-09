@@ -85,7 +85,7 @@ class BackupStep0Screen extends Component {
                 const selectedWallet = this.props.selectedWallet
                 if (selectedWallet && selectedWallet.walletHash) {
                     try {
-                        mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(selectedWallet.walletHash)
+                        mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(selectedWallet.walletHash, 'BackupStep0Screen.mount')
                     } catch {
                         Log.log('WalletBackup.BackupStep0Screen error mnemonic for ' + selectedWallet.walletHash)
                     }

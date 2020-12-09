@@ -35,7 +35,7 @@ class Account {
         Log.daemon('DS/Account discoverAddresses called')
         let mnemonic
         if (typeof params.mnemonic === 'undefined' || !params.mnemonic) {
-            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash)
+            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash, 'Account.discoverAccounts')
         } else {
             mnemonic = params.mnemonic
         }

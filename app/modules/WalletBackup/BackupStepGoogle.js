@@ -54,7 +54,7 @@ class BackupStepGoogle extends Component {
             if (checked) {
 
                 const selectedWallet = this.props.selectedWallet
-                const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(selectedWallet.walletHash)
+                const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(selectedWallet.walletHash, 'BackupStepGoogle.navigatorChange')
 
                 const files = await GoogleDrive.getFiles(selectedWallet.walletHash)
                 if (files) {

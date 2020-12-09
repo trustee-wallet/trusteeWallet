@@ -143,7 +143,7 @@ class WalletPub {
         let xpubs = await this.getWalletPubs(params)
         if (!xpubs || typeof xpubs['btc.44'] === 'undefined' || typeof xpubs['btc.84'] === 'undefined' || typeof xpubs['btc.49'] === 'undefined') {
             Log.daemon('DS/WalletPub called BTC pub generation')
-            const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash)
+            const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash, 'WalletPub.getOrGenerate')
             if (!xpubs || typeof xpubs['btc.44'] === 'undefined') {
                 const tmp = await BlocksoftKeys.discoverXpub({ mnemonic, currencyCode: params.currencyCode })
                 await this.saveWalletPub({ walletHash: params.walletHash, currencyCode: params.currencyCode, walletPubType: 'btc.44', walletPubValue: tmp }, 'getOrGenerate')
@@ -265,7 +265,7 @@ class WalletPub {
     discoverFromTrezor = async (params, source) => {
         let mnemonic
         if (typeof params.mnemonic === 'undefined' || !params.mnemonic) {
-            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash)
+            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash, 'WalletPub.discoverFromTrezor ' + source)
         } else {
             mnemonic = params.mnemonic
         }
