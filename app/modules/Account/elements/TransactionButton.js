@@ -11,7 +11,7 @@ import {
     StyleSheet,
 } from 'react-native'
 
-import { useTheme } from '../../../modules/theme/ThemeProvider'
+import { useTheme } from '../../theme/ThemeProvider'
 
 import { strings } from '../../../services/i18n'
 import styles from '../../../themes/assets/styles'
@@ -39,7 +39,7 @@ const iconButton = (type) => {
     }
 }
 
-const TrxButton = (props) => {
+const TransactionButton = (props) => {
 
     const { text, type, action, style } = props
 
@@ -53,4 +53,4 @@ const TrxButton = (props) => {
     )
 }
 
-export default TrxButton
+export default TransactionButton

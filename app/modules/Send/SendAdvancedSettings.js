@@ -280,30 +280,49 @@ class SendAdvancedSettingsScreen extends Component {
                         style={{ marginTop: 70 }}
                     >
                         <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
-                            <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
-                            <ListItem
-                                title={strings('send.setting.selectFee')}
-                                iconType="pinCode"
-                                onPress={this.toggleDropMenu}
-                                rightContent={this.state.dropMenu ? 'arrow_up' : "arrow_down"}
-                                switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
-                                type={'dropdown'}
-                                ExtraView={() => this.showFee(basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode)}
-                                subtitle={this.state.selectedFee.langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) : 
-                                    strings(`send.fee.text.${this.state.selectedFee.langMsg}`) : null}
+                            <View>
+                                <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
+                                <ListItem
+                                    title={strings('send.setting.selectFee')}
+                                    iconType="pinCode"
+                                    onPress={this.toggleDropMenu}
+                                    rightContent={this.state.dropMenu ? 'arrow_up' : "arrow_down"}
+                                    switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
+                                    type={'dropdown'}
+                                    ExtraView={() => this.showFee(basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode)}
+                                    subtitle={this.state.selectedFee.langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) : 
+                                        strings(`send.fee.text.${this.state.selectedFee.langMsg}`) : null}
+                                />
+                            </View>
+                            {/* {console.log(SendTmpConstants.SELECTED_FEE.blockchainData.preparedInputsOutputs)} */}
+                            { typeof SendTmpConstants.SELECTED_FEE.blockchainData !== 'undefined' && (
+                            <View style={{ paddingTop: GRID_SIZE * 2 }}>
+                                <LetterSpacing text={strings('send.setting.inputSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
+                                <ListItem
+                                    title={strings('send.setting.selectInput')}
+                                    iconType="pinCode"
+                                    onPress={() => console.log('')}
+                                    rightContent={'arrow'}
+                                    type={'dropdown'}
+                                    // subtitle={this.state.selectedFee.langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) : 
+                                    //     strings(`send.fee.text.${this.state.selectedFee.langMsg}`) : null}
+                                />
+                            </View>)
+                            }
+                        </View>
+                        <View style={{ paddingTop: GRID_SIZE }}>
+                            <TwoButtons
+                                mainButton={{
+                                    disabled: this.disabled(),
+                                    onPress: () => this.handleApply(),
+                                    title: strings('send.setting.apply')
+                                }}
+                                secondaryButton={{
+                                    type: 'back',
+                                    onPress: () => NavStore.goBack(),
+                                }}
                             />
                         </View>
-                        <TwoButtons
-                            mainButton={{
-                                disabled: this.disabled(),
-                                onPress: () => this.handleApply(),
-                                title: strings('send.setting.apply')
-                            }}
-                            secondaryButton={{
-                                type: 'back',
-                                onPress: () => NavStore.goBack(),
-                            }}
-                        />
                     </ScrollView>
                 </KeyboardAwareView>
             </View>

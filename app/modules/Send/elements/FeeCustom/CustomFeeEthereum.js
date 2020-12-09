@@ -7,9 +7,9 @@ import { View, Text, TouchableOpacity } from 'react-native'
 
 import { strings } from '../../../../services/i18n'
 
-import GasPriceAmountInput from '../../../../components/elements/Input'
-import GasLimitAmountInput from '../../../../components/elements/Input'
-import Nonce from '../../../../components/elements/Input'
+import GasPriceAmountInput from '../../../../components/elements/NewInput'
+import GasLimitAmountInput from '../../../../components/elements/NewInput'
+import Nonce from '../../../../components/elements/NewInput'
 
 import { ThemeContext } from '../../../../modules/theme/ThemeProvider'
 import BlocksoftPrettyNumbers from '../../../../../crypto/common/BlocksoftPrettyNumbers'

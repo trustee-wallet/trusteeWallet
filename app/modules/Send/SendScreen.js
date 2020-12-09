@@ -12,9 +12,9 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import firebase from 'react-native-firebase'
 import AsyncStorage from '@react-native-community/async-storage'
 
-import AddressInput from '../../components/elements/Input'
+import AddressInput from '../../components/elements/NewInput'
 import AmountInput from './elements/Input'
-import MemoInput from '../../components/elements/Input'
+import MemoInput from '../../components/elements/NewInput'
 import NavStore from '../../components/navigation/NavStore'
 
 import { setQRConfig, setQRValue } from '../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
@@ -187,7 +187,7 @@ class SendScreen extends SendBasicScreenScreen {
     init = async () => {
         console.log('')
         console.log('')
-        console.log('Send.SendScreen.init', JSON.parse(JSON.stringify(SendTmpConstants)))
+        console.log('Send.SendScreen.init', JSON.stringify(SendTmpConstants))
 
         let countedFees = false
         let selectedFee = false

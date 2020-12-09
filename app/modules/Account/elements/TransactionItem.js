@@ -12,7 +12,7 @@ import { connect } from 'react-redux'
 import { strings } from '../../../services/i18n'
 import Header from '../../../components/elements/new/Header'
 import NavStore from '../../../components/navigation/NavStore'
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '../../theme/ThemeProvider'
 import Feather from 'react-native-vector-icons/Feather'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 import AntIcon from 'react-native-vector-icons/AntDesign'
@@ -27,7 +27,7 @@ import UIDict from '../../../services/UIDict/UIDict'
 import LetterSpacing from '../../../components/elements/LetterSpacing'
 import Loader from '../../../components/elements/LoaderItem'
 
-import { useTheme } from '../../../modules/theme/ThemeProvider'
+import { useTheme } from '../../theme/ThemeProvider'
 
 const getIcon = (iconType, color) => {
     switch (iconType) {
@@ -41,7 +41,7 @@ const getIcon = (iconType, color) => {
     }
 }
 
-const TrxItem = (props) => {
+const TransactionItem = (props) => {
 
 
     const { colors, GRID_SIZE } = useTheme()
@@ -96,7 +96,7 @@ const TrxItem = (props) => {
 
 }
 
-export default TrxItem
+export default TransactionItem
 
 const styles = {
     wrapper: {

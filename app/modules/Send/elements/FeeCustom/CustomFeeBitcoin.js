@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 
 import { Text, View } from 'react-native'
 
-import FeeForByteInput from '../../../../components/elements/Input'
+import FeeForByteInput from '../../../../components/elements/NewInput'
 
 import { strings } from '../../../../services/i18n'
 

@@ -19,7 +19,7 @@ import UpdateAccountListDaemon from '../../../../daemons/view/UpdateAccountListD
 import Log from '../../../../services/Log/Log'
 import UpdateAccountBalanceAndTransactions from '../../../../daemons/back/UpdateAccountBalanceAndTransactions'
 import BlocksoftPrettyStrings from '../../../../../crypto/common/BlocksoftPrettyStrings'
-import Input from '../../../../components/elements/Input'
+import Input from '../../../../components/elements/NewInput'
 import { ThemeContext } from '../../../theme/ThemeProvider'
 import styles from './styles'
 import ListItem from '../../../../components/elements/new/list/ListItem/Setting'

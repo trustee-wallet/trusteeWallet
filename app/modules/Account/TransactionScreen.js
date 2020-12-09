@@ -24,7 +24,7 @@ import UIDict from '../../services/UIDict/UIDict'
 
 import LetterSpacing from '../../components/elements/LetterSpacing'
 import Loader from '../../components/elements/LoaderItem'
-import TrxItem from './elements/TrxItem'
+import TransactionItem from './elements/TransactionItem'
 
 import Buttons from './elements/buttons'
 
@@ -915,7 +915,7 @@ class TransactionScreen extends Component {
                 {commentToView ?
                     !commentEditable ?
                         <TouchableOpacity onLongPress={this.onLongPressEditableCallback} >
-                            <TrxItem
+                            <TransactionItem
                                 title={commentToView.title}
                                 iconType="pinCode"
                                 subtitle={commentToView.description}
@@ -1005,22 +1005,22 @@ class TransactionScreen extends Component {
                     <View style={{ marginTop: headerHeight }}>
                         <View>
                             {outDestinationCardToView ?
-                                <TrxItem
+                                <TransactionItem
                                     title={outDestinationCardToView.title}
                                     iconType="pinCode"
                                     subtitle={outDestinationCardToView.description}
                                 /> : fromToView ?
-                                    <TrxItem
+                                    <TransactionItem
                                         title={fromToView.title}
                                         iconType="pinCode"
                                         subtitle={fromToView.description}
                                     /> : addressToToView ?
-                                        <TrxItem
+                                        <TransactionItem
                                             title={addressToToView.title}
                                             iconType="pinCode"
                                             subtitle={addressToToView.description}
                                         /> : addressExchangeToView ?
-                                            <TrxItem
+                                            <TransactionItem
                                                 title={addressExchangeToView.title}
                                                 iconType="pinCode"
                                                 subtitle={addressExchangeToView.description}
@@ -1048,7 +1048,7 @@ class TransactionScreen extends Component {
                             <View style={styles.moreInfo}>
                                 {this.state.subContent.map((item) => {
                                     return (
-                                        <TrxItem
+                                        <TransactionItem
                                             title={item.title}
                                             subtitle={item.description}
                                             isLink={item.isLink}
