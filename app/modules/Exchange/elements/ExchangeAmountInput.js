@@ -17,6 +17,7 @@ import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNum
 import Log from '../../../services/Log/Log'
 import { strings } from '../../../services/i18n'
 import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
+import SendTmpConstants from '../../Send/elements/SendTmpConstants'
 
 
 class ExchangeAmountInput extends Component {
@@ -103,6 +104,7 @@ class ExchangeAmountInput extends Component {
             }
             Log.log(`EXC/AmountInput.handleSellAll balance ${currencyCode} ${address} data`, balancesData)
 
+            // @todo simplify goto receipt with transfer all to one function
             const countedFeesData = {
                 currencyCode,
                 walletHash,
@@ -120,6 +122,13 @@ class ExchangeAmountInput extends Component {
             }
             const transferAllCount = await BlocksoftTransfer.getTransferAllBalance(countedFeesData)
             transferAllCount.feesCountedForData = countedFeesData
+            SendTmpConstants.PRESET = true
+            SendTmpConstants.COUNTED_FEES = transferAllCount
+            if (typeof transferAllCount.selectedFeeIndex !== 'undefined' && transferAllCount.selectedFeeIndex >= 0) {
+                SendTmpConstants.SELECTED_FEE = transferAllCount.fees[transferAllCount.selectedFeeIndex]
+            } else {
+                SendTmpConstants.SELECTED_FEE = false
+            }
 
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance, 'exchangeAmountInput.amount')
 

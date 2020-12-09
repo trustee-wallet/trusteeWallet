@@ -379,30 +379,33 @@ class SendScreen extends SendBasicScreenScreen {
 
             // console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} addressToForTransferAll ${addressToForTransferAll}`)
 
+            // @todo simplify goto receipt with transfer all to one function
             const countedFeesData = {
                 currencyCode,
                 walletHash,
                 derivationPath,
                 addressFrom: address,
                 addressTo: addressToForTransferAll,
-
                 amount: balance,
                 unconfirmed: walletUseUnconfirmed === 1 ? unconfirmed : 0,
-
                 isTransferAll: true,
                 useOnlyConfirmed: !(walletUseUnconfirmed === 1),
                 allowReplaceByFee: walletAllowReplaceByFee === 1,
                 useLegacy: walletUseLegacy,
                 isHd: walletIsHd,
-
                 accountJson
             }
             const transferAllCount = await BlocksoftTransfer.getTransferAllBalance(countedFeesData)
             transferAllCount.feesCountedForData = countedFeesData
-            const selectedFee = transferAllCount.fees[transferAllCount.selectedFeeIndex]
+            let selectedFee = false
+            if (typeof transferAllCount.selectedFeeIndex !== 'undefined' && transferAllCount.selectedFeeIndex >= 0) {
+                selectedFee = transferAllCount.fees[transferAllCount.selectedFeeIndex]
+            }
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance)
 
-            // console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} transferAllCount result ${amount}`, JSON.parse(JSON.stringify(transferAllCount)) )
+            SendTmpConstants.PRESET = true
+            SendTmpConstants.SELECTED_FEE = selectedFee
+            SendTmpConstants.COUNTED_FEES = transferAllCount
 
             this.setState({
                 inputType: 'CRYPTO',
@@ -411,8 +414,7 @@ class SendScreen extends SendBasicScreenScreen {
                 selectedFee
             })
 
-            SendTmpConstants.SELECTED_FEE = selectedFee
-            SendTmpConstants.COUNTED_FEES = countedFees
+            // console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} transferAllCount result ${amount}`, JSON.parse(JSON.stringify(transferAllCount)) )
 
             try {
                 if (

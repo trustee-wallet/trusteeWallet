@@ -131,20 +131,6 @@ class ConfirmScreen extends Component {
                 delete dataToSend.uniqueParams.segwitOutDestination
             }
 
-            MarketingEvent.startBuy({
-                orderId: res.data.orderId + '',
-                currencyCode: selectedCryptocurrency.currencyCode,
-                addressTo: dataToSend.outDestination,
-                addressToShort: dataToSend.outDestination ? dataToSend.outDestination.slice(0, 10) : 'none',
-                addressAmount: dataToSend.outAmount + '',
-                inAmount: dataToSend.inAmount + '',
-                inCurrencyCode: tradeWay.inCurrencyCode + '',
-                tradeWay: tradeWay.id + '',
-                tradeProvider: tradeWay.provider + '',
-                tradeInCode: tradeWay.inPaywayCode + '',
-                walletHash: selectedAccount.walletHash
-            })
-
             NavStore.goNext('SMSCodeScreen')
 
 
@@ -220,8 +206,6 @@ class ConfirmScreen extends Component {
             const res = await Api.createOrder(dataToSend)
             const recipientAmount = res.data.amount.toString()
             const recipientAddress = res.data.address
-            SendTmpConstants.COUNTED_FEES = false
-            SendTmpConstants.SELECTED_FEE = false
             const dataToScreen = {
                 amount : recipientAmount,
                 amountRaw: BlocksoftPrettyNumbers.setCurrencyCode(selectedCryptocurrency.currencyCode).makeUnPretty(recipientAmount),
@@ -238,6 +222,11 @@ class ConfirmScreen extends Component {
             }
             if (typeof res.data.memo !== 'undefined') {
                 dataToScreen.memo = res.data.memo
+            }
+            if (!useAllFunds) {
+                SendTmpConstants.PRESET = false
+                SendTmpConstants.COUNTED_FEES = false
+                SendTmpConstants.SELECTED_FEE = false
             }
             NavStore.goNext('ReceiptScreen', {
                 ReceiptScreen: dataToScreen

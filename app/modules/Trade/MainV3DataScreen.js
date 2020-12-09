@@ -329,8 +329,7 @@ class MainV3DataScreen extends Component {
         // @todo simplify goto receipt to one function
         const recipientAmount = dataSell.amount.toString()
         const recipientAddress = dataSell.address
-        SendTmpConstants.COUNTED_FEES = dataSell.countedFees
-        SendTmpConstants.SELECTED_FEE = dataSell.selectedFee
+
         const dataToScreen = {
             amount : recipientAmount,
             amountRaw: BlocksoftPrettyNumbers.setCurrencyCode(selectedCryptocurrency.currencyCode).makeUnPretty(recipientAmount),
@@ -348,6 +347,22 @@ class MainV3DataScreen extends Component {
         }
         if (typeof dataSell.memo !== 'undefined') {
             dataToScreen.memo = dataSell.memo
+        }
+        if (!dataSell.useAllFunds) {
+            SendTmpConstants.PRESET = false
+            SendTmpConstants.SELECTED_FEE = false
+            SendTmpConstants.COUNTED_FEES = false
+        } else {
+            SendTmpConstants.PRESET = true
+            SendTmpConstants.COUNTED_FEES = dataSell.countedFees
+            SendTmpConstants.SELECTED_FEE = dataSell.selectedFee
+            if (dataToScreen.providerType === 'FIXED') {
+                // only one left
+                if (SendTmpConstants.COUNTED_FEES && SendTmpConstants.COUNTED_FEES.fees.length > 1) {
+                    SendTmpConstants.COUNTED_FEES.fees = [SendTmpConstants.SELECTED_FEE]
+                    SendTmpConstants.COUNTED_FEES.selectedFeeIndex = 0
+                }
+            }
         }
 
         NavStore.goNext('ReceiptScreen', {
@@ -643,32 +658,38 @@ class MainV3DataScreen extends Component {
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
+            const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
 
+            // @todo simplify goto receipt with transfer all to one function
             const countedFeesData = {
                 currencyCode,
                 walletHash,
                 derivationPath,
                 addressFrom: address,
                 addressTo: addressToForTransferAll,
-
                 amount: balance,
                 unconfirmed: walletUseUnconfirmed === 1 ? unconfirmed : 0,
-
                 isTransferAll: true,
                 useOnlyConfirmed: !(walletUseUnconfirmed === 1),
                 allowReplaceByFee: walletAllowReplaceByFee === 1,
                 useLegacy: walletUseLegacy,
                 isHd: walletIsHd,
-
                 accountJson
             }
             console.log('Trade.MainV3Screen.countedFeesData ', JSON.stringify(countedFeesData))
             
             const transferAllCount = await BlocksoftTransfer.getTransferAllBalance(countedFeesData)
             transferAllCount.feesCountedForData = countedFeesData
-            const selectedFee = transferAllCount.fees[transferAllCount.selectedFeeIndex]
+            let selectedFee
+            if (typeof transferAllCount.selectedFeeIndex !== 'undefined' && transferAllCount.selectedFeeIndex >= 0) {
+                selectedFee = transferAllCount.fees[transferAllCount.selectedFeeIndex]
+            }
+
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance)
+
+            SendTmpConstants.PRESET = true
+            SendTmpConstants.COUNTED_FEES = transferAllCount
+            SendTmpConstants.SELECTED_FEE = selectedFee
 
             this.setState({
                 countedFees: transferAllCount,
@@ -677,9 +698,10 @@ class MainV3DataScreen extends Component {
 
             console.log('Trade.MainV3Screen.transferAllCount', JSON.stringify(transferAllCount))
             console.log('Trade.MainV3Screen.selectedFee', JSON.stringify(selectedFee))
-            
+
+            // @yura do we actually needed transfer fees here? - could be big data arrays
             this.webref.postMessage(JSON.stringify({ "fees": { 'countedFees': transferAllCount, selectedFee, amount } }))
-            
+
             return {
                 currencyBalanceAmount: amount,
                 currencyBalanceAmountRaw: transferAllCount.selectedTransferAllBalance

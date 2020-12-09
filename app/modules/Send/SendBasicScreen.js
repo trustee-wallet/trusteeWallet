@@ -175,12 +175,13 @@ export default class SendBasicScreen extends Component {
             const version = data.apiVersion || 'v3'
             const removeId = this.state.data.toTransactionJSON.bseOrderID
             if (version === 'v2') {
-                await Api.setExchangeStatus(removeId, 'close')
+                Api.setExchangeStatus(removeId, 'close')
             } else {
-                await ApiV3.setExchangeStatus(removeId, 'close')
+                ApiV3.setExchangeStatus(removeId, 'close')
             }
             UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({force: true, removeId, source: 'CANCEL'})
         }
+        console.log('goBack')
 
         NavStore.goBack()
     }

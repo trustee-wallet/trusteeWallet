@@ -124,7 +124,6 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     toCount = false
                 }
             }
-            SendTmpConstants.PRESET = false
             SendTmpConstants.PRESET_FROM_RECEIPT = true // for history back from receipt to send screen
 
             console.log('Send.ReceiptScreen.init preresult', JSON.parse(JSON.stringify({ countedFees, selectedFee })))
@@ -214,7 +213,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         this.setState({ isSendDisabled: true })
 
-        const {
+        let {
             amountRaw,
             address: addressTo,
             account,
@@ -225,6 +224,14 @@ class ReceiptScreen extends SendBasicScreenScreen {
             transactionSpeedUp,
             transactionReplaceByFee
         } = this.state.data
+
+        if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined') {
+            const newAmount = selectedFee.amountForTx.toString()
+            if (newAmount !== amountRaw.toString()) {
+                amountRaw = newAmount
+                // @yura here should be alert when fixed receipt and no tx
+            }
+        }
 
         const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = wallet
         const {
@@ -466,7 +473,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         const { colors, GRID_SIZE } = this.context
 
-        const { headerHeight,selectedFee } = this.state
+        const { headerHeight, selectedFee } = this.state
 
         let { amount, address, cryptoCurrency, type, multiAddress, account } = this.state.data
 
@@ -476,8 +483,12 @@ class ReceiptScreen extends SendBasicScreenScreen {
         }
 
         if (typeof selectedFee !== 'undefined') {
-            if (typeof selectedFee.amountForTx !== 'undefined') {
-                amount = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makePretty(this.state.selectedFee.amountForTx)
+            if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined') {
+                const newAmount = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makePretty(selectedFee.amountForTx)
+                if (newAmount.toString() !== amount.toString()) {
+                    amount = newAmount
+                    // @yura here should be alert when fixed receipt
+                }
                 // console.log('Send.ReceiptScreen amountFromFee ' + amount)
             }
             if (typeof selectedFee.addressToTx !== 'undefined') {

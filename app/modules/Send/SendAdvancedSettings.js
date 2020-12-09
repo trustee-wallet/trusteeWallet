@@ -295,7 +295,7 @@ class SendAdvancedSettingsScreen extends Component {
                                 />
                             </View>
                             {/* {console.log(SendTmpConstants.SELECTED_FEE.blockchainData.preparedInputsOutputs)} */}
-                            { typeof SendTmpConstants.SELECTED_FEE.blockchainData !== 'undefined' && (
+                            { typeof SendTmpConstants.SELECTED_FEE !== 'undefined' && typeof SendTmpConstants.SELECTED_FEE.blockchainData !== 'undefined' && (
                             <View style={{ paddingTop: GRID_SIZE * 2 }}>
                                 <LetterSpacing text={strings('send.setting.inputSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
                                 <ListItem
