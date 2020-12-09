@@ -172,10 +172,7 @@ export class BlocksoftKeysStorage {
         this._serviceWasInited = true
 
         if (this.publicSelectedWallet) {
-            if (!await fioSdkWrapper.initCache(this.publicSelectedWallet)) {
-                const mnemonic = await this.getWalletMnemonic(this.publicSelectedWallet, 'BlocksoftKeysStorage.setSelectedWallet init for Fio')
-                await fioSdkWrapper.init(mnemonic)
-            }
+            await fioSdkWrapper.init(this.publicSelectedWallet)
         }
     }
 
@@ -281,11 +278,9 @@ export class BlocksoftKeysStorage {
         BlocksoftCryptoLog.log(msg + 'new publicSelectedWallet = ' + this.publicSelectedWallet + ' ' + JSON.stringify({ isChanged }))
 
         if (isChanged) {
-            if (!await fioSdkWrapper.initCache(this.publicSelectedWallet)) {
-                const mnemonic = await this.getWalletMnemonic(this.publicSelectedWallet, 'BlocksoftKeysStorage.setSelectedWallet for Fio')
-                await fioSdkWrapper.init(this.publicSelectedWallet, mnemonic)
-            }
+            await fioSdkWrapper.init(this.publicSelectedWallet)
         }
+
         return this.publicSelectedWallet
     }
 
