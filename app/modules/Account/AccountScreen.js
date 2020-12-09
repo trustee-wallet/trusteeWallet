@@ -45,7 +45,7 @@ import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 
 import { strings } from '../../services/i18n'
 
-import Theme from '../../themes/Themes'
+import Theme, { HIT_SLOP } from '../../themes/Themes'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
@@ -329,7 +329,7 @@ class Account extends Component {
                     </View>
                     <View style={stl.scan}>
                         {isSynchronized ?
-                            <Text style={stl.scan__text}>{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? strings('account.justScan') : strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
+                            <Text style={stl.scan__text} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? strings('account.justScan') : strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
                             :
                             <View style={{
                                 flexDirection: 'row',
@@ -519,14 +519,16 @@ class Account extends Component {
 
     renderBalance = (cryptoCurrency, account) => {
 
-        const { colors, isLight } = this.context
+        const { colors, isLight, GRID_SIZE } = this.context
 
         const isSyncronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
-        const tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
+        let tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
         if (typeof tmp.split === 'undefined') {
             throw new Error('AccountScreen.renderBalance split is undefined')
         }
+
+        tmp = tmp.slice(0,11)
         const tmps = tmp.split('.')
         let balancePrettyPrep1 = tmps[0]
         let balancePrettyPrep2 = ''
@@ -537,17 +539,13 @@ class Account extends Component {
 
         if (isSyncronized) {
             return (
-                <View style={styles.topContent__top}>
-                    <View style={styles.topContent__title}>
-                        <Text style={{ ...styles.topContent__title_first, color: colors.accountScreen.balanceColor }}>
-                            {
-                                balancePrettyPrep1
-                            }
-                        </Text>
-                        <Text style={{ ...styles.topContent__title_last, color: colors.accountScreen.balanceColor }}>
-                            {
-                                balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol
-                            }
+                <View style={{...styles.topContent__top, marginHorizontal: GRID_SIZE}}>
+                    <View style={{...styles.topContent__title, flexGrow: 1 }}>
+                        <Text style={{ ...styles.topContent__title_first, color: colors.accountScreen.balanceColor }} numberOfLines={1} >
+                            { balancePrettyPrep1 }
+                            <Text style={{ ...styles.topContent__title_last, color: colors.accountScreen.balanceColor }}>
+                                { balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol }
+                            </Text>
                         </Text>
                     </View>
                     <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
@@ -871,7 +869,7 @@ class Account extends Component {
                             {
                                 this.state.amountToView < transactionsToViewLength ?
                                     <View style={{ width: '100%', alignItems: 'center' }}>
-                                        <TouchableOpacity style={styles.showMore} onPress={this.handleShowMore}>
+                                        <TouchableOpacity style={styles.showMore} onPress={this.handleShowMore} hitSlop={HIT_SLOP} >
                                             <Text style={{ ...styles.showMore__btn, color: colors.accountScreen.showMoreColor }}>
                                                 {strings('account.showMore')}
                                             </Text>
@@ -1074,7 +1072,7 @@ const stl = {
         left: 0,
 
         width: '100%',
-        height: 72,
+        height: 66,
         paddingBottom: Platform.OS === 'ios' ? 30 : 0
     },
     bottomButton: {

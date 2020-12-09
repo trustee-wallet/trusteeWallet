@@ -1,5 +1,5 @@
 /**
- * @version 0.1
+ * @version 0.30
  * @author yura
  */
 import React, { Component } from 'react'
@@ -66,7 +66,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
             countedFees: null,
             selectedFee: false,
             needPasswordConfirm: false,
-            fioRequestDetails: null
+            fioRequestDetails: null,
+            providerType: null,
+            useAllFunds: null
         }
     }
 
@@ -139,6 +141,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 data: newData,
                 countedFees,
                 selectedFee,
+                useAllFunds: newData.useAllFunds,
                 init: true
             })
 
@@ -161,8 +164,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
     }
 
     getData(data) {
-        const { address, amount, memo, useAllFunds, toTransactionJSON, type, currencyCode, countedFees } = data
-
+        const { address, amount, memo, useAllFunds, toTransactionJSON, type, currencyCode, countedFees, providerType } = data
+        
         const { selectedWallet } = store.getState().mainStore
 
         const { cryptoCurrencies } = store.getState().currencyStore
@@ -187,7 +190,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
             useAllFunds,
             toTransactionJSON,
             type,
-            countedFees
+            countedFees,
+            providerType
         }
         return newData
     }
@@ -230,6 +234,12 @@ class ReceiptScreen extends SendBasicScreenScreen {
             if (newAmount !== amountRaw.toString()) {
                 amountRaw = newAmount
                 // @yura here should be alert when fixed receipt and no tx
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: true,
+                    title: strings('modal.titles.attention'),
+                    description: strings('modal.send.feeChangeAmount')
+                })
             }
         }
 
@@ -488,6 +498,12 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 if (newAmount.toString() !== amount.toString()) {
                     amount = newAmount
                     // @yura here should be alert when fixed receipt
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: true,
+                        title: strings('modal.titles.attention'),
+                        description: strings('modal.send.feeChangeAmount')
+                    })
                 }
                 // console.log('Send.ReceiptScreen amountFromFee ' + amount)
             }

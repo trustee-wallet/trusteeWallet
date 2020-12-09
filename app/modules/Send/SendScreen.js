@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.30
  */
 import React, { Component } from 'react'
 

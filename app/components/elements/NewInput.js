@@ -269,6 +269,7 @@ class Input extends Component {
                                 lineWidth={0}
                                 activeLineWidth={0}
                                 placeholder={placeholder}
+                                placeholderTextColor="#999999"
                                 placeholderStyle={{ ...styles.fontFamily, fontFamily: 'Montserrat-Semibold' }}
                                 value={validPlaceholder ? !this.state.errors.length && value !== '' && focus === false ? BlocksoftPrettyStrings.makeCut(value, 8) : value : value}
                                 returnKeyLabel={'Buy'}

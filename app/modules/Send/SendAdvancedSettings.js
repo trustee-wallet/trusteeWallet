@@ -47,7 +47,8 @@ class SendAdvancedSettingsScreen extends Component {
             countedFees: {},
             useAllFunds: false,
             isCustomFee: false,
-            selectedFeeFromProps: {}
+            selectedFeeFromProps: {},
+            providerType: null
         }
 
         this.customFee = React.createRef()
@@ -67,7 +68,8 @@ class SendAdvancedSettingsScreen extends Component {
             selectedFeeFromProps: data.selectedFee,
             useAllFunds: data.useAllFunds,
             isCustomFee: typeof data.selectedFee.isCustomFee !== 'undefined' ? data.selectedFee.isCustomFee : false,
-            devMode: devMode && devMode.toString() === '1'
+            devMode: devMode && devMode.toString() === '1',
+            providerType: data.providerType
         })
 
         // if back without apply
@@ -120,7 +122,7 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     showFee = (basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode) => {
-        const { isCustomFee } = this.state
+        const { isCustomFee, providerType, useAllFunds } = this.state
         const countedFees = SendTmpConstants.COUNTED_FEES
         const selectedFee = SendTmpConstants.SELECTED_FEE
         // console.log('Send.SendAdvancedSettings.showFee', JSON.parse(JSON.stringify({ basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode })))
@@ -202,7 +204,8 @@ class SendAdvancedSettingsScreen extends Component {
                     }).reverse() : <View></View>
 
                 }
-                {countedFees && (
+
+                {(countedFees && providerType === 'FLOATING' ) ? 
                     <SubSetting
                         title={strings(`send.fee.customFee.title`)}
                         checked={isCustomFee}
@@ -211,8 +214,17 @@ class SendAdvancedSettingsScreen extends Component {
                         onPress={() => this.setCustomFee()}
                         checkedStyle={true}
                         ExtraView={() => this.renderCustomFee(currencyCode, feesCurrencyCode, basicCurrencySymbol, feeRates.basicCurrencyRate)}
-                    />
-                )}
+                    /> : (countedFees && providerType === 'FIXED' && !useAllFunds) ? 
+                    <SubSetting
+                        title={strings(`send.fee.customFee.title`)}
+                        checked={isCustomFee}
+                        radioButtonFirst={true}
+                        withoutLine={true}
+                        onPress={() => this.setCustomFee()}
+                        checkedStyle={true}
+                        ExtraView={() => this.renderCustomFee(currencyCode, feesCurrencyCode, basicCurrencySymbol, feeRates.basicCurrencyRate)}
+                    /> : null
+                }
             </View>
         )
     }

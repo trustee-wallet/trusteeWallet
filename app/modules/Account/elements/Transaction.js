@@ -295,7 +295,8 @@ class Transaction extends Component {
     getTransactionDate(date) {
         let datetime = new Date(date)
         datetime = (datetime.getDate().toString().length === 1 ? '0' + datetime.getDate() : datetime.getDate()) + '.' +
-            ((datetime.getMonth() + 1).toString().length === 1 ? '0' + (datetime.getMonth() + 1) : (datetime.getMonth() + 1)) + '.' + datetime.getFullYear()
+            ((datetime.getMonth() + 1).toString().length === 1 ? '0' + (datetime.getMonth() + 1) : (datetime.getMonth() + 1)) + 
+            '.' + datetime.getFullYear().toString().slice(-2)
         return datetime
     }
 
@@ -362,15 +363,14 @@ class Transaction extends Component {
                                     start={styles.transaction__item_bg.start}
                                     end={styles.transaction__item_bg.end}>
                                     <View style={{ ...styles.transaction__item__content, opacity: status === 'fail' || status === 'missing' ? 0.5 : null }}>
-                                        <View style={{ justifyContent: 'center' }}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                                <Text style={styles.transaction__item__title}>
+                                        <View style={{ justifyContent: 'center', width: '75%' }}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'flex-end', width: subtitle ? '45%' : '100%'}}>
+                                                <Text style={{...styles.transaction__item__title}} numberOfLines={1}>
                                                     {valueToView}
-                                                </Text>
-                                                <Text
-                                                    style={[styles.transaction__item__title__subtitle, { color: new UIDict(cryptoCurrency.currencyCode).settings.colors.mainColor }]}>
-                                                    {currencySymbolToView}
-                                                </Text>
+                                                    </Text>
+                                                    <Text style={[styles.transaction__item__title__subtitle, { color: new UIDict(cryptoCurrency.currencyCode).settings.colors.mainColor }]}>
+                                                        {currencySymbolToView}
+                                                    </Text>
                                                 {
                                                     subtitle ?
                                                         <>
@@ -378,7 +378,7 @@ class Transaction extends Component {
                                                                 transform: [{ rotate: transaction.transactionDirection === 'outcome' ? "90deg" : "-90deg" }],
                                                                 marginHorizontal: 7, marginBottom: Platform.OS === 'ios' ? -1 : null
                                                             }} />
-                                                            <Text style={{ ...styles.transaction__item__subtitle, marginBottom: Platform.OS === 'ios' ? 2 : null }}>
+                                                            <Text style={{ ...styles.transaction__item__subtitle, marginBottom: Platform.OS === 'ios' ? 2 : null }} >
                                                                 {subtitleMini}
                                                             </Text>
                                                         </>
@@ -390,7 +390,7 @@ class Transaction extends Component {
                                                     {basicValueToView}
                                                 </Text> : null}
                                         </View>
-                                        <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
+                                        <View style={{ flexDirection: 'column', alignItems: 'flex-end', width: '25%' }}>
                                             <Text style={{ ...styles.transaction__data, color: colors.accountScreen.transactions.transactionData }}>
                                                 {this.getTransactionDate(transaction.createdAt)}</Text>
                                             <Text style={{ ...styles.transaction__data, color: colors.accountScreen.transactions.transactionData }}>

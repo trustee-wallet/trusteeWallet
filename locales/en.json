@@ -1243,7 +1243,8 @@
     "send": {
       "success": "Success!",
       "txSuccess": "Your transaction has been successfully sent!",
-      "fail": "Fail..."
+      "fail": "Fail...",
+      "feeChangeAmount": "Your amount was change after change fee"
     },
     "walletLog": {
       "sorry": "Sorry....",

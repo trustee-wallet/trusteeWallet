@@ -1,3 +1,7 @@
+/**
+ * @version 0.30
+ */
+
 import React, { Component } from 'react'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
@@ -17,7 +21,6 @@ import { Keyboard } from 'react-native'
 import SendTmpConstants from './elements/SendTmpConstants'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
-import updateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 
 export default class SendBasicScreen extends Component {
 
@@ -157,7 +160,8 @@ export default class SendBasicScreen extends Component {
                 data: {
                     countedFees,
                     selectedFee,
-                    useAllFunds
+                    useAllFunds,
+                    providerType: this.state.data.providerType
                 }
             })
         }
