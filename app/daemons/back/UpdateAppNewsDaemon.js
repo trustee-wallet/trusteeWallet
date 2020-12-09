@@ -20,8 +20,25 @@ class UpdateAppNewsDaemon {
 
         const walletHash = await cryptoWalletsDS.getSelectedWallet()
         const forServer = await appNewsDS.getAppNewsForServer()
+        const forServerIds = []
+        if (forServer) {
+            for(const row of forServer) {
+                forServerIds.push(row.id)
+                if (row.receivedAt) {
+                    row.receivedAt = row.receivedAt + '000'
+                }
+                if (row.openedAt) {
+                    row.openedAt = row.openedAt + '000'
+                }
+            }
+        }
         const res = await Api.getNews(forServer)
-        if (!res || res.length === 0) return false
+        if (!res || res.length === 0) {
+            if (forServerIds.length > 0) {
+                await appNewsDS.saveAppNewsSentForServer(forServerIds)
+            }
+            return false
+        }
         const keys = {
             currencyCode: 'currencyCode',
             newsSource: 'source',
@@ -59,14 +76,9 @@ class UpdateAppNewsDaemon {
             await appNewsDS.saveAppNews(toSave)
         }
 
-        if (forServer) {
-            const ids = []
-            for (const row of forServer) {
-                ids.push(row.id)
-            }
-            await appNewsDS.saveAppNewsSentForServer(ids)
+        if (forServerIds.length > 0) {
+            await appNewsDS.saveAppNewsSentForServer(forServerIds)
         }
-
     }
 }
 
