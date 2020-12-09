@@ -31,6 +31,7 @@ export function clearSendData() {
     console.log('SendActions.clearSendData')
     SendTmpConstants.SELECTED_FEE = false
     SendTmpConstants.COUNTED_FEES = false
+    SendTmpConstants.ACCOUNT_DATA = false
     dispatch({
         type: 'CLEAR_SEND_DATA'
     })

@@ -572,7 +572,8 @@ class SendScreen extends SendBasicScreenScreen {
         setLoaderStatus(true)
 
         const amount = this.state.inputType === 'FIAT' ? this.state.amountEquivalent : valueValidation.value
-        const memo = destinationTagValidation.value.toString()
+        const memo = destinationTagValidation.value ? destinationTagValidation.value.toString() : false
+
 
         let fioPaymentData
         let recipientAddress = addressValidation.value
