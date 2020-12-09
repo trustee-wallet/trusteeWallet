@@ -23,8 +23,8 @@ import AppNewsActions from '../../appstores/Stores/AppNews/AppNewsActions'
 import { strings, sublocale } from '../../services/i18n'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
+import Tabs from '../../components/elements/new/Tabs'
 import ListItem from '../../components/elements/new/list/ListItem/Notification'
-import Tabs from './elements/Tabs'
 
 
 const NOTIFIES_GROUP = {

@@ -12,15 +12,17 @@ import { useTheme } from '../../../modules/theme/ThemeProvider'
 export default function Tabs(props) {
     const {
         tabs,
-        changeTab
+        changeTab,
+        containerStyle,
+        tabStyle
     } = props
     const { colors } = useTheme()
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, containerStyle]}>
             {tabs.map(tab => (
                 <TouchableOpacity
-                    style={styles.tab}
+                    style={[styles.tab, tabStyle]}
                     activeOpacity={0.8}
                     key={tab.index}
                     disabled={tab.active}

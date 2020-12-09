@@ -1,398 +1,322 @@
-/**
- * @version 0.9
- */
-import React, { Component } from 'react'
+
+import React from 'react'
 import { connect } from 'react-redux'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import {
+    View,
+    Text,
+    ScrollView,
+    SafeAreaView,
+    SectionList,
+    FlatList,
+    StyleSheet,
+    TouchableOpacity,
+    InteractionManager
+} from 'react-native'
+import firebase from 'react-native-firebase'
+import _forEach from 'lodash/forEach'
+import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 
 import NavStore from '../../components/navigation/NavStore'
-import Navigation from '../../components/navigation/Navigation'
-
-import CurrencyIcon from '../../components/elements/CurrencyIcon'
 
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
+import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 
 import { strings } from '../../services/i18n'
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import Header from '../../components/elements/new/Header'
+import TextInput from '../../components/elements/new/TextInput'
+import ListItem from '../../components/elements/new/list/ListItem/Asset'
+import Tabs from '../../components/elements/new/Tabs'
+import QrCodeIcon from '../../assets/images/qrCodeBtn';
 
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import firebase from 'react-native-firebase'
+
+const ASSESTS_GROUP = {
+    ALL: 'ALL',
+    COINS: 'COINS',
+    TOKENS: 'TOKENS',
+    CUSTOM: 'CUSTOM',
+}
+
+const ALLOWED_ASSETS = [
+    ASSESTS_GROUP.ALL,
+    ASSESTS_GROUP.COINS,
+    ASSESTS_GROUP.TOKENS,
+    ASSESTS_GROUP.CUSTOM,
+]
 
 
-class AddAssetScreen extends Component {
-
-    constructor(props) {
-        super(props)
-        this.state = {
-            availableCurrencies: [],
-            viewCurrencies: [],
-            currentSearch: false,
-            size: 0,
-            initSize: 0
-        }
-    }
-
-    UNSAFE_componentWillMount() {
-        this.setAvailableCurrencies()
-        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-            this.setAvailableCurrencies()
-        })
-    }
-
-    componentWillUnmount() {
-        this._onFocusListener.remove()
+class AddAssetScreen extends React.Component {
+    state = {
+        headerHeight: 0,
+        searchQuery: '',
+        tabs: [
+            {
+                title: strings('assets.tabAll'),
+                index: 0,
+                active: true,
+                group: ASSESTS_GROUP.ALL
+            },
+            {
+                title: strings('assets.tabCoins'),
+                index: 1,
+                active: false,
+                group: ASSESTS_GROUP.COINS
+            },
+            {
+                title: strings('assets.tabTokens'),
+                index: 2,
+                active: false,
+                group: ASSESTS_GROUP.TOKENS
+            },
+            {
+                title: strings('assets.tabCustom'),
+                index: 3,
+                active: false,
+                group: ASSESTS_GROUP.CUSTOM
+            },
+        ],
+        data: []
     }
 
     componentDidMount() {
-        setTimeout(() => {
-            this.setState({ size: this.state.initSize })
-        }, 200)
+        this.prepareData()
     }
 
-    setAvailableCurrencies = (cryptoCurrencies) => {
+    prepareData = (assets = this.props.assets, newTab, searchQuery) => {
+        if (typeof searchQuery !== 'string') searchQuery = this.state.searchQuery
+        const { tabs } = this.state
+        const activeTab = newTab || tabs.find(tab => tab.active)
+        const newTabs = tabs.map(tab => ({ ...tab, active: tab.index === activeTab.index }))
 
-
-        const { currentSearch } = this.state
-
-        let addedCurrencies = []
-        let notAddedCurrencies = []
-
-        const tmpCurrencies = JSON.parse(JSON.stringify(typeof cryptoCurrencies === 'undefined' ? this.props.currencyStore.cryptoCurrencies : cryptoCurrencies))
-
-        for (let currency in BlocksoftDict.Currencies) {
-
-            const tmpCurrency = tmpCurrencies.find((item) => item.currencyCode === currency)
-
-            if (typeof tmpCurrency != 'undefined') {
-                const tmp = JSON.parse(JSON.stringify(tmpCurrency))
-                addedCurrencies.push(tmp)
-            } else {
-                const tmp = JSON.parse(JSON.stringify(BlocksoftDict.Currencies[currency]))
-                tmp.isHidden = null
-                notAddedCurrencies.push(tmp)
+        const notAddedAssets = []
+        _forEach(BlocksoftDict.Currencies, (currency, currencyCode) => {
+            let tmpCurrency = assets.find(as => as.currencyCode === currencyCode)
+            if (typeof tmpCurrency === 'undefined') {
+                tmpCurrency = JSON.parse(JSON.stringify(BlocksoftDict.Currencies[currencyCode]))
+                tmpCurrency.isHidden = null
+                notAddedAssets.push(tmpCurrency)
             }
-        }
+        })
+        const fullData = [...assets, ...notAddedAssets]
+        let data = []
 
-        addedCurrencies = addedCurrencies.concat(notAddedCurrencies)
+        if (searchQuery) data = this.filterBySearchQuery(fullData, searchQuery)
 
+        if (activeTab.group === ASSESTS_GROUP.ALL && !searchQuery) data = fullData
 
-        let newArray
-        if (currentSearch) {
-            newArray = this._searchInputToViewArray(addedCurrencies, currentSearch)
-        }
-        if (newArray && newArray.length > 0) {
-            this.setState({
-                availableCurrencies: addedCurrencies,
-                viewCurrencies: newArray
+        if (activeTab.group === ASSESTS_GROUP.COINS && !searchQuery) data = fullData.filter(as => as.currencyType === 'coin')
+
+        if (activeTab.group === ASSESTS_GROUP.TOKENS && !searchQuery) {
+            const dataGrouped = fullData.reduce((grouped, asset) => {
+                if (asset.currencyType !== 'token') return grouped
+                if (!grouped[asset.tokenBlockchain]) grouped[asset.tokenBlockchain] = []
+                grouped[asset.tokenBlockchain].push(asset)
+                return grouped
+            }, {})
+
+            _forEach(dataGrouped, (arr, tokenBlockchain) => {
+                data.push({
+                    title: tokenBlockchain,
+                    data: arr
+                })
             })
+        }
+
+        this.setState(() => ({ data, tabs: newTabs, searchQuery }))
+    }
+
+    filterBySearchQuery = (assets, value) => {
+        value = value.toLowerCase()
+        return assets.filter(as => (
+            as.currencySymbol.toLowerCase().includes(value)
+            || as.currencyName.toLowerCase().includes(value)
+        ))
+    }
+
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
+    }
+
+    handleSearch = (value) => {
+        this.prepareData(undefined, undefined, value)
+    }
+
+    handleBack = () => { NavStore.goBack() }
+
+    handleChangeTab = (newTab) => {
+        this.prepareData(undefined, { ...newTab, active: true })
+    }
+
+    renderTabs = (isSection) => (
+        <Tabs
+            tabs={this.state.tabs}
+            changeTab={this.handleChangeTab}
+            containerStyle={[styles.tabs, {}]}
+            tabStyle={[styles.tab, { paddingTop: this.context.GRID_SIZE / 2, paddingBottom: isSection ? (this.context.GRID_SIZE * 1.5) : this.context.GRID_SIZE, }]}
+        />
+    )
+
+    renderSearch = () => (
+        <View style={{ marginHorizontal: -this.context.GRID_SIZE }}>
+            <TextInput
+                placeholder={strings('assets.searchPlaceholder')}
+                value={this.state.searchQuery}
+                onChangeText={this.handleSearch}
+                HelperAction={() => <AntDesignIcon name="search1" size={23} color={this.context.colors.common.text2} />}
+            />
+        </View>
+    )
+
+    renderListItem = ({ item }) => {
+        return (
+            <ListItem
+                title={item.currencyName}
+                subtitle={item.currencySymbol}
+                iconType={item.currencyCode}
+                onPress={() => this.handleChangeCurrencyStatus(item)}
+                rightContent="switch"
+                switchParams={{ value: item.isHidden === 0, onPress: () => this.handleChangeCurrencyStatus(item) }}
+            />
+        )
+    }
+
+    handleChangeCurrencyStatus = (currency) => {
+        if (currency.isHidden === null) {
+            this.handleAddCurrency(currency)
         } else {
-            this.setState({
-                availableCurrencies: addedCurrencies,
-                viewCurrencies: addedCurrencies
-            })
+            this.toggleCurrencyVisibility(currency.currencyCode, +currency.isHidden)
         }
     }
-
-    _searchInputToViewArray(cryptoCurrencies, value) {
-        let newArray = []
-        const lastArray = []
-
-        for (const item of cryptoCurrencies) {
-            const currencyName = item.currencyName.toLowerCase()
-            const currencyCode = item.currencyCode.toLowerCase()
-            if (currencyName.indexOf(value) !== -1 || currencyCode.indexOf(value) !== -1) {
-                if (currencyName.indexOf(value) === 0 || currencyCode.indexOf(value) === 0) {
-                    newArray.push(item)
-                } else {
-                    lastArray.push(item)
-                }
-            } else if (typeof item.tokenAddress !== 'undefined' && item.tokenAddress) {
-                if (item.tokenAddress.toLowerCase().indexOf(value) !== -1) {
-                    lastArray.push(item)
-                }
-            }
-        }
-
-        if (lastArray && lastArray.length > 0) {
-            newArray = newArray.concat(lastArray)
-        }
-        return newArray
-    }
-
-    searchInputCallback = (value) => {
-        const tmpArray = this.state.availableCurrencies
-
-        if (value) {
-            value = value.trim().toLowerCase()
-        }
-
-        if (!value) {
-            this.setState({
-                viewCurrencies: tmpArray,
-                currentSearch: value
-            })
-        } else {
-            const newArray = this._searchInputToViewArray(tmpArray, value)
-            this.setState({
-                viewCurrencies: newArray,
-                currentSearch: value
-            })
-        }
-    }
-
 
     handleAddCurrency = async (currencyToAdd) => {
         await currencyActions.addCurrency(currencyToAdd)
         const cryptoCurrencies = await currencyActions.setCryptoCurrencies()
-        this.setAvailableCurrencies(cryptoCurrencies)
+        this.prepareData(cryptoCurrencies)
     }
 
-    handleModal = () => {
-        NavStore.goNext('AddCustomTokenScreen')
-    }
-
-    /**
-     * @param {string} currencyCode
-     * @param {integer} isHidden
-     */
     toggleCurrencyVisibility = async (currencyCode, isHidden) => {
         currencyActions.toggleCurrencyVisibility({ currencyCode, isHidden })
         const cryptoCurrencies = await currencyActions.setCryptoCurrencies()
-        this.setAvailableCurrencies(cryptoCurrencies)
-    }
-
-    renderControlButton = (currency) => {
-
-        if (currency.isHidden === null) {
-            return (
-                <View style={{ minWidth: this.state.size }} onLayout={this.handleOnLayout}>
-                    <TouchableOpacity style={[styles.btn, styles.btn__text_add]} onPress={() => {
-                        this.handleAddCurrency(currency)
-                    }}>
-                        <Text style={[styles.btn__text, styles.btn__text_add]}>
-                            {strings('assets.addAsset')}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            )
-        } else if (currency.isHidden) {
-            return (
-                <View style={{ minWidth: this.state.size }} onLayout={this.handleOnLayout}>
-                    <TouchableOpacity style={styles.btn} onPress={() => {
-                        this.toggleCurrencyVisibility(currency.currencyCode, +currency.isHidden)
-                    }}>
-                        <Text style={[styles.btn__text, styles.btn__text_disabled]}>
-                            {strings('assets.showAsset')}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            )
-        } else if (!currency.isHidden) {
-            return (
-                <View style={{ minWidth: this.state.size }} onLayout={this.handleOnLayout}>
-                    <TouchableOpacity style={[styles.btn]} onPress={() => {
-                        this.toggleCurrencyVisibility(currency.currencyCode, +currency.isHidden)
-                    }}>
-                        <Text style={[styles.btn__text]}>
-                            {strings('assets.hideAsset')}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            )
-        }
-    }
-
-    handleOnLayout = (event) => {
-        this.state.initSize = this.state.initSize < event.nativeEvent.layout.width ? event.nativeEvent.layout.width : this.state.initSize
+        this.prepareData(cryptoCurrencies)
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('AddAssetScreen.index')
+        const { colors, GRID_SIZE } = this.context
+        const {
+            headerHeight,
+            data,
+            searchQuery,
+            tabs
+        } = this.state
+        const activeGroup = tabs.find(tab => tab.active).group
 
-        const { viewCurrencies } = this.state
+        firebase.analytics().setCurrentScreen('AddAssetScreen')
 
         return (
-            <View style={styles.wrapper}>
-                <Navigation
-                    title={strings('assets.mainTitle')}
-                    searchInputCallback={this.searchInputCallback}
+            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
+                <Header
+                    rightType="close"
+                    rightAction={this.handleBack}
+                    title={strings('assets.title')}
+                    setHeaderHeight={this.setHeaderHeight}
+                    ExtraView={this.renderSearch}
                 />
-                <View style={styles.wrapper__content}>
-                    <View>
-                        <TouchableOpacity style={styles.addButton} onPress={() => this.handleModal()}>
-                            <Text style={styles.addButton__text}>
-                                {strings('assets.addCustomAsset')}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.content}>
-                        <View style={styles.content__left}>
-                            <View style={styles.content__left__bg}/>
-                            <ScrollView
-                                style={styles.availableCurrencies}
-                                showsVerticalScrollIndicator={false}>
-                                {
-                                    viewCurrencies.map((item, index) => {
-                                        return (
-                                            <View key={index}>
-                                                <View
-                                                    key={index}
-                                                    style={styles.availableCurrencies__item}>
-                                                    <CurrencyIcon currencyCode={item.currencyCode}
-                                                                  markStyle={{ top: 30 }}/>
-                                                    <View style={styles.availableCurrencies__text}>
-                                                        <Text style={styles.availableCurrencies__text_name}
-                                                              numberOfLines={1}>{item.currencyName}</Text>
-                                                        <Text
-                                                            style={styles.availableCurrencies__text_symbol}>{item.currencySymbol}</Text>
-                                                    </View>
-                                                    {
-                                                        this.renderControlButton(item)
-                                                    }
-                                                </View>
-                                                <View style={styles.availableCurrencies__line}/>
-                                            </View>
-
-                                        )
-                                    })
-                                }
-                            </ScrollView>
-                        </View>
-                        <View style={styles.content__right}>
+                <SafeAreaView style={[styles.content, {
+                    backgroundColor: colors.common.background,
+                    marginTop: headerHeight,
+                }]}>
+                    {
+                        activeGroup === ASSESTS_GROUP.CUSTOM ? (
                             <View>
-
+                                <View style={[{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE, paddingBottom: GRID_SIZE / 2 }]}>
+                                    {this.renderTabs()}
+                                </View>
+                                <View style={{ paddingHorizontal: GRID_SIZE }}>
+                                    <TextInput
+                                        label={strings('assets.addCustomLabel')}
+                                        labelColor={colors.common.text3}
+                                        placeholder={strings('assets.addCustomPlaceholder')}
+                                        HelperAction={() => (
+                                            <TouchableOpacity>
+                                                <QrCodeIcon width={20} height={20} color={colors.common.text1} />
+                                            </TouchableOpacity>
+                                        )}
+                                    />
+                                </View>
                             </View>
-                            <ScrollView>
-
-                            </ScrollView>
-                        </View>
-                    </View>
-                </View>
+                        ) : activeGroup === ASSESTS_GROUP.TOKENS && !searchQuery
+                                ? (
+                                    <SectionList
+                                        showsVerticalScrollIndicator={false}
+                                        sections={data}
+                                        stickySectionHeadersEnabled={false}
+                                        ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(true)}
+                                        contentContainerStyle={{ paddingHorizontal: GRID_SIZE * 2, paddingVertical: GRID_SIZE }}
+                                        renderItem={this.renderListItem}
+                                        renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>}
+                                        renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
+                                        ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
+                                        keyExtractor={item => item.currencyCode}
+                                        keyboardDismissMode="on-drag"
+                                    />
+                                ) : (
+                                    <FlatList
+                                        data={data}
+                                        renderItem={this.renderListItem}
+                                        keyExtractor={item => item.currencyCode}
+                                        contentContainerStyle={{ paddingHorizontal: GRID_SIZE * 2, paddingVertical: GRID_SIZE }}
+                                        ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
+                                        showsVerticalScrollIndicator={false}
+                                        ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
+                                        keyboardDismissMode="on-drag"
+                                    />
+                                )
+                    }
+                </SafeAreaView>
             </View>
         )
     }
 }
 
+
 const mapStateToProps = (state) => {
     return {
-        currencyStore: state.currencyStore
+        assets: state.currencyStore.cryptoCurrencies
     }
 }
 
-export default connect(mapStateToProps, {})(AddAssetScreen)
+const mapDispatchToProps = (dispatch) => {
+    return {
+        dispatch
+    }
+}
 
-const styles = {
-    wrapper: {
-        flex: 1,
+AddAssetScreen.contextType = ThemeContext
 
-        backgroundColor: '#fff'
-    },
-    wrapper__content: {
-        flex: 1,
+export default connect(mapStateToProps, mapDispatchToProps)(AddAssetScreen)
 
-        paddingRight: 15,
-        paddingLeft: 15,
-        marginTop: 130
+const styles = StyleSheet.create({
+    container: {
+        flex: 1
     },
     content: {
         flex: 1,
-        flexDirection: 'row',
-        width: '100%'
     },
-    content__left: {
-        flex: 1,
-        alignItems: 'center',
-        position: 'relative',
-        backgroundColor: '#f9f9f9',
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10
+    tabs: {
+        // borderWidth: 1,
+        justifyContent: 'space-around',
+        marginBottom: 0
     },
-    content__left__bg: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: 1000
-
+    tab: {
+        // borderWidth: 1,
+        flex: 0
     },
-    content__right: {},
-    addButton: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 44
-    },
-    addButton__text: {
-        fontSize: 10,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#864dd9'
-    },
-    availableCurrencies: {
-        flex: 1,
-        width: '100%'
-    },
-    availableCurrencies__item: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingLeft: 15,
-        paddingRight: 15,
-        marginTop: 10
-    },
-    availableCurrencies__line: {
-        marginLeft: 15,
-        marginRight: 15,
-        height: 1,
-        marginTop: 10,
-        backgroundColor: '#f0f0f0'
-    },
-    availableCurrencies__text: {
-        flex: 1,
-        justifyContent: 'center',
-        marginLeft: 15
-    },
-    availableCurrencies__text_symbol: {
+    blockTitle: {
+        fontFamily: 'Montserrat-Bold',
         fontSize: 12,
-        color: '#999999'
+        lineHeight: 12,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
     },
-    availableCurrencies__text_name: {
-        paddingRight: 10,
-
-        fontSize: 16,
-        color: '#404040'
-    },
-    availableCurrencies__btn: {
-        paddingLeft: 15,
-        paddingRight: 15,
-        height: 35,
-        marginLeft: 'auto'
-    },
-    btn: {
-        alignItems: 'center',
-
-        padding: 10,
-
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1
-        },
-        shadowOpacity: 0.20,
-        shadowRadius: 1.41,
-
-        elevation: 2,
-
-        backgroundColor: '#fff',
-        borderRadius: 10
-    },
-    btn__text: {
-        fontSize: 12,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#864dd9'
-    },
-    btn__text_disabled: {
-        color: '#404040'
-    },
-    btn__text_add: {
-        color: '#f4f4f4',
-        backgroundColor: '#864dd9'
-        // color: '#7127ac',
-    }
-}
+})

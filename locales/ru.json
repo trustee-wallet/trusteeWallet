@@ -371,6 +371,14 @@
     "tester": "Тестировщик/пользователь изменен на: %{testerMode}"
   },
   "assets": {
+    "title": "Добавить актив",
+    "tabAll": "Все",
+    "tabCoins": "Coins",
+    "tabTokens": "Tokens",
+    "tabCustom": "Custom",
+    "searchPlaceholder": "Search",
+    "addCustomPlaceholder": "Asset address",
+    "addCustomLabel": "Ethereum and Tron tokens addresses are supported",
     "mainTitle": "Добавить актив",
     "addCustomAsset": "Добавить актив не из списка",
     "addAsset": "Добавить",
