@@ -379,6 +379,7 @@
     "searchPlaceholder": "Search",
     "addCustomPlaceholder": "Asset address",
     "addCustomLabel": "Ethereum and Tron tokens addresses are supported",
+    "addAssetButton": "Добавить актив",
     "mainTitle": "Добавить актив",
     "addCustomAsset": "Добавить актив не из списка",
     "addAsset": "Добавить",

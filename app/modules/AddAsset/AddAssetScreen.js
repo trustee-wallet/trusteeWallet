@@ -19,123 +19,63 @@ import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 import NavStore from '../../components/navigation/NavStore'
 
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import Validator from '../../services/UI/Validator/Validator'
+import { setQRConfig, setQRValue } from '../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { setSendData } from '../../appstores/Stores/Send/SendActions'
 
 import { strings } from '../../services/i18n'
+import { checkQRPermission } from '../../services/UI/Qr/QrPermissions'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import TextInput from '../../components/elements/new/TextInput'
+import Button from '../../components/elements/new/buttons/Button'
 import ListItem from '../../components/elements/new/list/ListItem/Asset'
 import Tabs from '../../components/elements/new/Tabs'
+
 import QrCodeIcon from '../../assets/images/qrCodeBtn';
 
-
-const ASSESTS_GROUP = {
-    ALL: 'ALL',
-    COINS: 'COINS',
-    TOKENS: 'TOKENS',
-    CUSTOM: 'CUSTOM',
-}
-
-const ALLOWED_ASSETS = [
-    ASSESTS_GROUP.ALL,
-    ASSESTS_GROUP.COINS,
-    ASSESTS_GROUP.TOKENS,
-    ASSESTS_GROUP.CUSTOM,
-]
+import {
+    TABS,
+    ASSESTS_GROUP,
+    prepareDataForDisplaying,
+    addCustomToken
+} from './helpers'
 
 
 class AddAssetScreen extends React.Component {
     state = {
         headerHeight: 0,
         searchQuery: '',
-        tabs: [
-            {
-                title: strings('assets.tabAll'),
-                index: 0,
-                active: true,
-                group: ASSESTS_GROUP.ALL
-            },
-            {
-                title: strings('assets.tabCoins'),
-                index: 1,
-                active: false,
-                group: ASSESTS_GROUP.COINS
-            },
-            {
-                title: strings('assets.tabTokens'),
-                index: 2,
-                active: false,
-                group: ASSESTS_GROUP.TOKENS
-            },
-            {
-                title: strings('assets.tabCustom'),
-                index: 3,
-                active: false,
-                group: ASSESTS_GROUP.CUSTOM
-            },
-        ],
+        customAddress: '',
+        tabs: TABS,
         data: []
     }
 
+    navigationListener;
+
     componentDidMount() {
         this.prepareData()
+        this.navigationListener = this.props.navigation.addListener('didFocus', this.checkIfWasScanned)
+    }
+
+    checkIfWasScanned = () => {
+        if (Object.keys(this.props.sendStore).length !== 0) {
+            const { isToken, address } = this.props.sendStore
+
+            if (isToken) {
+                this.setState(() => ({ customAddress: address }))
+                setSendData({})
+            }
+        }
     }
 
     prepareData = (assets = this.props.assets, newTab, searchQuery) => {
-        if (typeof searchQuery !== 'string') searchQuery = this.state.searchQuery
-        const { tabs } = this.state
-        const activeTab = newTab || tabs.find(tab => tab.active)
-        const newTabs = tabs.map(tab => ({ ...tab, active: tab.index === activeTab.index }))
-
-        const notAddedAssets = []
-        _forEach(BlocksoftDict.Currencies, (currency, currencyCode) => {
-            let tmpCurrency = assets.find(as => as.currencyCode === currencyCode)
-            if (typeof tmpCurrency === 'undefined') {
-                tmpCurrency = JSON.parse(JSON.stringify(BlocksoftDict.Currencies[currencyCode]))
-                tmpCurrency.isHidden = null
-                notAddedAssets.push(tmpCurrency)
-            }
-        })
-        const fullData = [...assets, ...notAddedAssets]
-        let data = []
-
-        if (searchQuery) data = this.filterBySearchQuery(fullData, searchQuery)
-
-        if (activeTab.group === ASSESTS_GROUP.ALL && !searchQuery) data = fullData
-
-        if (activeTab.group === ASSESTS_GROUP.COINS && !searchQuery) data = fullData.filter(as => as.currencyType === 'coin')
-
-        if (activeTab.group === ASSESTS_GROUP.TOKENS && !searchQuery) {
-            const dataGrouped = fullData.reduce((grouped, asset) => {
-                if (asset.currencyType !== 'token') return grouped
-                if (!grouped[asset.tokenBlockchain]) grouped[asset.tokenBlockchain] = []
-                grouped[asset.tokenBlockchain].push(asset)
-                return grouped
-            }, {})
-
-            _forEach(dataGrouped, (arr, tokenBlockchain) => {
-                data.push({
-                    title: tokenBlockchain,
-                    data: arr
-                })
-            })
-        }
-
-        this.setState(() => ({ data, tabs: newTabs, searchQuery }))
-    }
-
-    filterBySearchQuery = (assets, value) => {
-        value = value.toLowerCase()
-        return assets.filter(as => (
-            as.currencySymbol.toLowerCase().includes(value)
-            || as.currencyName.toLowerCase().includes(value)
-        ))
+        prepareDataForDisplaying.call(this, assets, newTab, searchQuery)
     }
 
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
+        if (headerHeight > this.state.headerHeight) this.setState(() => ({ headerHeight }))
     }
 
     handleSearch = (value) => {
@@ -146,6 +86,137 @@ class AddAssetScreen extends React.Component {
 
     handleChangeTab = (newTab) => {
         this.prepareData(undefined, { ...newTab, active: true })
+    }
+
+    handleChangeCurrencyStatus = (currency) => {
+        if (currency.isHidden === null) {
+            this.handleAddCurrency(currency)
+        } else {
+            this.toggleCurrencyVisibility(currency.currencyCode, +currency.isHidden)
+        }
+        return;
+    }
+
+    handleAddCurrency = async (currencyToAdd) => {
+        await currencyActions.addCurrency(currencyToAdd)
+        const cryptoCurrencies = await currencyActions.setCryptoCurrencies()
+        this.prepareData(cryptoCurrencies)
+    }
+
+    toggleCurrencyVisibility = async (currencyCode, isHidden) => {
+        currencyActions.toggleCurrencyVisibility({ currencyCode, isHidden })
+        const cryptoCurrencies = await currencyActions.setCryptoCurrencies()
+        this.prepareData(cryptoCurrencies)
+    }
+
+    handleOpenQr = () => {
+        setQRConfig({
+            title: strings('modal.qrScanner.success.title'),
+            description: strings('modal.qrScanner.success.description'),
+            type: 'ADD_CUSTOM_TOKEN_SCANNER'
+        })
+        setQRValue('')
+        NavStore.goNext('QRCodeScannerScreen')
+    }
+
+    handleChangeCustomAddress = (value) => { this.setState(() => ({ customAddress: value })) }
+
+    handleAddCustomToken = async () => {
+        const types = ['ETH_ADDRESS', 'TRX_ADDRESS', 'TRX_TOKEN']
+        const { customAddress } = this.state
+        const tmps = types.map(type => ({
+            type,
+            id: 'address',
+            value: customAddress
+        }))
+        const validation = await Validator.arrayValidation(tmps)
+
+        if (validation.errorArr.length !== types.length) addCustomToken(customAddress)
+    }
+
+    render() {
+        const { colors, GRID_SIZE } = this.context
+        const {
+            headerHeight,
+            data,
+            searchQuery,
+            tabs,
+            customAddress
+        } = this.state
+        const activeGroup = tabs.find(tab => tab.active).group
+
+        firebase.analytics().setCurrentScreen('AddAssetScreen')
+
+        return (
+            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
+                <Header
+                    rightType="close"
+                    rightAction={this.handleBack}
+                    title={strings('assets.title')}
+                    setHeaderHeight={this.setHeaderHeight}
+                    ExtraView={this.renderSearch}
+                />
+                <SafeAreaView style={[styles.content, {
+                    backgroundColor: colors.common.background,
+                    marginTop: headerHeight,
+                }]}>
+                    {
+                        activeGroup === ASSESTS_GROUP.CUSTOM && !searchQuery ? (
+                            <View style={{ flex: 1, paddingBottom: GRID_SIZE * 2 }}>
+                                <View style={[{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE, paddingBottom: GRID_SIZE / 2 }]}>
+                                    {this.renderTabs()}
+                                </View>
+                                <View style={[styles.customAddressConent, { paddingHorizontal: GRID_SIZE }]}>
+                                    <TextInput
+                                        label={strings('assets.addCustomLabel')}
+                                        labelColor={colors.common.text3}
+                                        placeholder={strings('assets.addCustomPlaceholder')}
+                                        onChangeText={this.handleChangeCustomAddress}
+                                        value={customAddress}
+                                        HelperAction={() => (
+                                            <TouchableOpacity onPress={() => checkQRPermission(this.handleOpenQr)}>
+                                                <QrCodeIcon width={20} height={20} color={colors.common.text1} />
+                                            </TouchableOpacity>
+                                        )}
+                                    />
+                                    <Button
+                                        title={strings('assets.addAssetButton')}
+                                        onPress={this.handleAddCustomToken}
+                                        disabled={!customAddress}
+                                    />
+                                </View>
+                            </View>
+                        ) : activeGroup === ASSESTS_GROUP.TOKENS && !searchQuery
+                            ? (
+                                <SectionList
+                                    showsVerticalScrollIndicator={false}
+                                    sections={data}
+                                    stickySectionHeadersEnabled={false}
+                                    ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(true)}
+                                    contentContainerStyle={{ paddingHorizontal: GRID_SIZE * 2, paddingVertical: GRID_SIZE }}
+                                    renderItem={this.renderListItem}
+                                    renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>}
+                                    renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
+                                    ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
+                                    keyExtractor={item => item.currencyCode}
+                                    keyboardDismissMode="on-drag"
+                                />
+                            ) : (
+                                <FlatList
+                                    data={data}
+                                    renderItem={this.renderListItem}
+                                    keyExtractor={item => item.currencyCode}
+                                    contentContainerStyle={{ paddingHorizontal: GRID_SIZE * 2, paddingVertical: GRID_SIZE }}
+                                    ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
+                                    showsVerticalScrollIndicator={false}
+                                    ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
+                                    keyboardDismissMode="on-drag"
+                                />
+                            )
+                    }
+                </SafeAreaView>
+            </View>
+        )
     }
 
     renderTabs = (isSection) => (
@@ -180,109 +251,13 @@ class AddAssetScreen extends React.Component {
             />
         )
     }
-
-    handleChangeCurrencyStatus = (currency) => {
-        if (currency.isHidden === null) {
-            this.handleAddCurrency(currency)
-        } else {
-            this.toggleCurrencyVisibility(currency.currencyCode, +currency.isHidden)
-        }
-    }
-
-    handleAddCurrency = async (currencyToAdd) => {
-        await currencyActions.addCurrency(currencyToAdd)
-        const cryptoCurrencies = await currencyActions.setCryptoCurrencies()
-        this.prepareData(cryptoCurrencies)
-    }
-
-    toggleCurrencyVisibility = async (currencyCode, isHidden) => {
-        currencyActions.toggleCurrencyVisibility({ currencyCode, isHidden })
-        const cryptoCurrencies = await currencyActions.setCryptoCurrencies()
-        this.prepareData(cryptoCurrencies)
-    }
-
-    render() {
-        const { colors, GRID_SIZE } = this.context
-        const {
-            headerHeight,
-            data,
-            searchQuery,
-            tabs
-        } = this.state
-        const activeGroup = tabs.find(tab => tab.active).group
-
-        firebase.analytics().setCurrentScreen('AddAssetScreen')
-
-        return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    rightType="close"
-                    rightAction={this.handleBack}
-                    title={strings('assets.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                    ExtraView={this.renderSearch}
-                />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
-                    {
-                        activeGroup === ASSESTS_GROUP.CUSTOM ? (
-                            <View>
-                                <View style={[{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE, paddingBottom: GRID_SIZE / 2 }]}>
-                                    {this.renderTabs()}
-                                </View>
-                                <View style={{ paddingHorizontal: GRID_SIZE }}>
-                                    <TextInput
-                                        label={strings('assets.addCustomLabel')}
-                                        labelColor={colors.common.text3}
-                                        placeholder={strings('assets.addCustomPlaceholder')}
-                                        HelperAction={() => (
-                                            <TouchableOpacity>
-                                                <QrCodeIcon width={20} height={20} color={colors.common.text1} />
-                                            </TouchableOpacity>
-                                        )}
-                                    />
-                                </View>
-                            </View>
-                        ) : activeGroup === ASSESTS_GROUP.TOKENS && !searchQuery
-                                ? (
-                                    <SectionList
-                                        showsVerticalScrollIndicator={false}
-                                        sections={data}
-                                        stickySectionHeadersEnabled={false}
-                                        ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(true)}
-                                        contentContainerStyle={{ paddingHorizontal: GRID_SIZE * 2, paddingVertical: GRID_SIZE }}
-                                        renderItem={this.renderListItem}
-                                        renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>}
-                                        renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
-                                        ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
-                                        keyExtractor={item => item.currencyCode}
-                                        keyboardDismissMode="on-drag"
-                                    />
-                                ) : (
-                                    <FlatList
-                                        data={data}
-                                        renderItem={this.renderListItem}
-                                        keyExtractor={item => item.currencyCode}
-                                        contentContainerStyle={{ paddingHorizontal: GRID_SIZE * 2, paddingVertical: GRID_SIZE }}
-                                        ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
-                                        showsVerticalScrollIndicator={false}
-                                        ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
-                                        keyboardDismissMode="on-drag"
-                                    />
-                                )
-                    }
-                </SafeAreaView>
-            </View>
-        )
-    }
 }
 
 
 const mapStateToProps = (state) => {
     return {
-        assets: state.currencyStore.cryptoCurrencies
+        assets: state.currencyStore.cryptoCurrencies,
+        sendStore: state.sendStore.data
     }
 }
 
@@ -303,13 +278,15 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
     },
+    customAddressConent: {
+        flex: 1,
+        justifyContent: 'space-between'
+    },
     tabs: {
-        // borderWidth: 1,
         justifyContent: 'space-around',
         marginBottom: 0
     },
     tab: {
-        // borderWidth: 1,
         flex: 0
     },
     blockTitle: {

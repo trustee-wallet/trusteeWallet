@@ -380,6 +380,7 @@
     "searchPlaceholder": "Search",
     "addCustomPlaceholder": "Asset address",
     "addCustomLabel": "Ethereum and Tron tokens addresses are supported",
+    "addAssetButton": "Add asset",
     "mainTitle": "Add asset",
     "addCustomAsset": "Add custom asset",
     "addAsset": "Add",

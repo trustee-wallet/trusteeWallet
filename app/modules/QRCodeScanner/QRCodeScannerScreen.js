@@ -154,7 +154,7 @@ class QRCodeScannerScreen extends Component {
                     isToken: true,
                     address: res.data.address || res.data.parsedUrl
                 })
-                NavStore.goNext('AddCustomTokenScreen')
+                NavStore.goNext('AddAssetScreen')
             } else if (type === 'SEND_SCANNER') {
                 if (res.status === 'success' && res.data.currencyCode === currencyCode) {
 
