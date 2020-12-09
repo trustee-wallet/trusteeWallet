@@ -651,5 +651,9 @@ export default {
         88: {
             queryString: `ALTER TABLE transactions ADD COLUMN bse_order_id_out VARCHAR(256) NULL`
         },
+
+        89 : {
+            queryString: `ALTER TABLE app_news ADD COLUMN news_server_hash VARCHAR(256) NULL`
+        }
     }
 }

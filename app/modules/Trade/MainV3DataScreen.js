@@ -498,7 +498,6 @@ class MainV3DataScreen extends Component {
 
         try {
             const deviceToken = MarketingEvent.DATA.LOG_TOKEN
-            const cashbackToken = MarketingEvent.DATA.LOG_CASHBACK
             const locale = sublocale()
 
             let msg = ''
@@ -514,6 +513,7 @@ class MainV3DataScreen extends Component {
             }
 
             const sign = await CashBackUtils.createWalletSignature(true, msg)
+            const cashbackToken = CashBackUtils.getWalletToken()
 
             const data = new FormData()
             data.append('cardNumber', cardData.number)

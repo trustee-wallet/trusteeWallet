@@ -21,28 +21,39 @@ class UpdateAppNewsDaemon {
         const walletHash = await cryptoWalletsDS.getSelectedWallet()
         const forServer = await appNewsDS.getAppNewsForServer()
         const res = await Api.getNews(forServer)
-
         if (!res || res.length === 0) return false
+        const keys = {
+            currencyCode: 'currencyCode',
+            newsSource: 'source',
+            newsGroup: 'group',
+            newsPriority: 'priority',
+            newsName: 'name',
+            newsJson: 'data',
+            newsCustomTitle: 'title',
+            newsCustomText: 'text',
+            newsImage: 'image',
+            newsUrl: 'url',
+            newsCustomCreated: 'createdAt',
+            newsUniqueKey: 'serverId',
+            newsServerId: 'serverId',
+            newsServerHash : 'status'
+        }
         for (const row of res) {
             const toSave = {
-                currencyCode: row.currencyCode,
-                newsSource: row.source,
-                newsGroup: row.group,
-                newsPriority: row.priority,
-                newsName: row.name,
-                newsJson: row.data,
-                newsCustomTitle: row.title,
-                newsCustomText: row.text,
-                newsImage: row.image,
-                newsUrl: row.url,
-                newsCustomCreated: row.createdAt,
-                newsUniqueKey: row.serverId,
                 newsNeedPopup: row.needPopup ? 1 : 0,
-                newsServerId: row.serverId,
                 newsLog: new Date().toISOString() + ' loaded from Server'
+            }
+            for (const saveField in keys) {
+                const serverField = keys[saveField]
+                if (typeof row[serverField] !== 'undefined' && row[serverField] ) {
+                    toSave[saveField] = row[serverField]
+                }
             }
             if (typeof row.isBroadcast === 'undefined' || row.isBroadcast === false) {
                 toSave.walletHash = walletHash
+            }
+            if (typeof row.status !== 'undefined' && row.status && row.status.toString() === '33') {
+                toSave.removed = 33
             }
             Log.daemon('UpdateAppNews adding from Server ', toSave)
             await appNewsDS.saveAppNews(toSave)
