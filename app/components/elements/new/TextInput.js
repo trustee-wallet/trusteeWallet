@@ -13,9 +13,11 @@ import { strings } from '../../../services/i18n'
 
 
 export default function Input(props) {
+    const { colors } = useTheme()
     const {
         placeholder = '',
         label = '',
+        labelColor = colors.common.text1,
         autoCorrect = false,
         onChangeText = null,
         value,
@@ -23,11 +25,10 @@ export default function Input(props) {
         HelperAction,
         ...nativeProps
     } = props
-    const { colors } = useTheme()
 
     return (
         <View>
-            {!!label && <Text style={[styles.label, { color: colors.common.text1 }]}>{label}</Text>}
+            {!!label && <Text style={[styles.label, { color: labelColor }]}>{label}</Text>}
             <View style={styles.inputWrapper}>
                 <TextInput
                     style={[

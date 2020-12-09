@@ -372,6 +372,14 @@
     "tester": "Tester/user changed to: %{testerMode}"
   },
   "assets": {
+    "title": "Add asset",
+    "tabAll": "All",
+    "tabCoins": "Coins",
+    "tabTokens": "Tokens",
+    "tabCustom": "Custom",
+    "searchPlaceholder": "Search",
+    "addCustomPlaceholder": "Asset address",
+    "addCustomLabel": "Ethereum and Tron tokens addresses are supported",
     "mainTitle": "Add asset",
     "addCustomAsset": "Add custom asset",
     "addAsset": "Add",
