@@ -160,9 +160,9 @@ class NotificationsScreen extends React.Component {
     renderTabs = () => <Tabs tabs={this.state.tabs} changeTab={this.handleChangeTab} />
 
     renderListItem = ({ item, section, index }) => {
-        let title;
-        let subtitle;
-        const notifData = item.newsJson.notification?.[this.currentLocale]
+        let title = item.newsCustomTitle || '';
+        let subtitle = item.newsCustomText || '';
+        const notifData = item.newsJson?.notification?.[this.currentLocale]
         if (notifData) {
             title = notifData.title
             subtitle = notifData.description

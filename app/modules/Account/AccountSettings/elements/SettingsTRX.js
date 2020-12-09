@@ -21,7 +21,7 @@ import BlocksoftPrettyNumbers from '../../../../../crypto/common/BlocksoftPretty
 import { BlocksoftTransfer } from '../../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import TronUtils from '../../../../../crypto/blockchains/trx/ext/TronUtils'
 
-import Input from '../../../../components/elements/Input'
+import Input from '../../../../components/elements/NewInput'
 import ListItem from '../../../../components/elements/new/list/ListItem/Setting'
 
 import config from '../../../../config/config'
@@ -286,7 +286,7 @@ class SettingsTRX extends Component {
     render() {
         const { account, containerStyle, mainStore } = this.props
         const { currentBalance, prettyReward } = this.state
-        const { colors, isLight } = this.context
+        const { colors, isLight, GRID_SIZE } = this.context
 
         return (
             <>
@@ -308,7 +308,7 @@ class SettingsTRX extends Component {
                     />
 
                     <View style={{ paddingTop: 20 }}>
-                        <View style={{ ...styles.inputWrapper, flex: 4 }}>
+                        <View style={{ ...styles.inputWrapper, marginTop: GRID_SIZE, marginBottom: GRID_SIZE }}>
                             <Input
                                 ref={ref => this.freezeAmountInput = ref}
                                 id={'freezeAmount'}

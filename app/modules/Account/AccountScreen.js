@@ -61,7 +61,7 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 
 import Header from '../../modules/Send/elements/Header'
-import TrxButton from './elements/TrxButton'
+import TransactionButton from './elements/TransactionButton'
 
 
 let CACHE_ASKED = false
@@ -589,61 +589,61 @@ class Account extends Component {
         this.setState(() => ({ headerHeight }))
     }
 
-    renderBalanceHeader = (account, cryptoCurrency) => {
+    // renderBalanceHeader = (account, cryptoCurrency) => {
 
-        const { colors, isLight } = this.context
+    //     const { colors, isLight } = this.context
 
-        const tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
+    //     const tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
 
-        if (typeof tmp.split === 'undefined') {
-            throw new Error('AccountScreen.renderBalance split is undefined')
-        }
-        const tmps = tmp.split('.')
-        let balancePrettyPrep1 = tmps[0]
-        let balancePrettyPrep2 = ''
-        if (typeof tmps[1] !== 'undefined' && tmps[1]) {
-            balancePrettyPrep1 = tmps[0] + '.'
-            balancePrettyPrep2 = tmps[1]
-        }
+    //     if (typeof tmp.split === 'undefined') {
+    //         throw new Error('AccountScreen.renderBalance split is undefined')
+    //     }
+    //     const tmps = tmp.split('.')
+    //     let balancePrettyPrep1 = tmps[0]
+    //     let balancePrettyPrep2 = ''
+    //     if (typeof tmps[1] !== 'undefined' && tmps[1]) {
+    //         balancePrettyPrep1 = tmps[0] + '.'
+    //         balancePrettyPrep2 = tmps[1]
+    //     }
 
-        return (
-            <>
-                <View style={stl.topContent__top}>
-                    <View style={stl.topContent__title}>
-                        <Text style={{ ...stl.topContent__title_first, color: colors.accountScreen.balanceColor }}>
-                            {
-                                balancePrettyPrep1
-                            }
-                        </Text>
-                        <Text style={{ ...stl.topContent__title_last, color: colors.accountScreen.balanceColor }}>
-                            {
-                                balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol
-                            }
-                        </Text>
-                    </View>
-                    <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
-                        textStyle={{ ...stl.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
-                </View>
-                <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', paddingTop: 24 }}>
-                    <TrxButton
-                        action={this.handleReceive}
-                        type={'receive'}
-                        style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
-                    />
-                    <TrxButton
-                        action={this.handleBuy}
-                        type={'buy'}
-                        style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
-                    />
-                    <TrxButton
-                        action={this.handleSend}
-                        type={'send'}
-                        style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
-                    />
-                </View>
-            </>
-        )
-    }
+    //     return (
+    //         <>
+    //             <View style={stl.topContent__top}>
+    //                 <View style={stl.topContent__title}>
+    //                     <Text style={{ ...stl.topContent__title_first, color: colors.accountScreen.balanceColor }}>
+    //                         {
+    //                             balancePrettyPrep1
+    //                         }
+    //                     </Text>
+    //                     <Text style={{ ...stl.topContent__title_last, color: colors.accountScreen.balanceColor }}>
+    //                         {
+    //                             balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol
+    //                         }
+    //                     </Text>
+    //                 </View>
+    //                 <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
+    //                     textStyle={{ ...stl.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
+    //             </View>
+    //             <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', paddingTop: 24 }}>
+    //                 <TransactionButton
+    //                     action={this.handleReceive}
+    //                     type={'receive'}
+    //                     style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+    //                 />
+    //                 <TransactionButton
+    //                     action={this.handleBuy}
+    //                     type={'buy'}
+    //                     style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+    //                 />
+    //                 <TransactionButton
+    //                     action={this.handleSend}
+    //                     type={'send'}
+    //                     style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+    //                 />
+    //             </View>
+    //         </>
+    //     )
+    // }
 
     render() {
         // noinspection ES6MissingAwait
@@ -733,8 +733,8 @@ class Account extends Component {
                     rightAction={this.closeAction}
                     title={strings('account.title').toUpperCase()}
                     setHeaderHeight={this.setHeaderHeight}
-                    ExtraView={() => this.renderBalanceHeader(mainStore.selectedAccount, cryptoCurrency)}
-                    scrollOffset={this.state.scrollOffset}
+                    // ExtraView={() => this.renderBalanceHeader(mainStore.selectedAccount, cryptoCurrency)}
+                    // scrollOffset={this.state.scrollOffset}
                 />
                 {/* <Navigation
                     title={strings('account.title').toUpperCase()}
@@ -812,19 +812,19 @@ class Account extends Component {
                             </View>
                         </View>
                         <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <TrxButton
+                            <TransactionButton
                                 text={strings('account.receive', { receive: strings('repeat.receive') })}
                                 action={this.handleReceive}
                                 type={'receive'}
                                 style={{ ...stl.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
                             />
-                            <TrxButton
+                            <TransactionButton
                                 text={strings('dashboardStack.buy')}
                                 action={this.handleBuy}
                                 type={'buy'}
                                 style={{ ...stl.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
                             />
-                            <TrxButton
+                            <TransactionButton
                                 text={strings('account.send')}
                                 action={this.handleSend}
                                 type={'send'}
