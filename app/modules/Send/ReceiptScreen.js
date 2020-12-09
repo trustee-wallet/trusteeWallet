@@ -475,7 +475,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         const { headerHeight, selectedFee } = this.state
 
-        let { amount, address, cryptoCurrency, type, multiAddress, account } = this.state.data
+        let { amount, address, cryptoCurrency, type, multiAddress, account, memo } = this.state.data
 
         // console.log('Send.ReceiptScreen.render data', JSON.parse(JSON.stringify(this.state.data)))
         if (typeof account === 'undefined' || typeof account.basicCurrencySymbol === 'undefined') {
@@ -514,6 +514,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
         if (typeof multiAddress !== 'undefined' && multiAddress) {
             address = multiAddress[0]
             multiShow = multiAddress
+        }
+        let memoTitle = strings('send.receiptScreen.destinationTag')
+        if (account.currencyCode === 'XMR') {
+            memoTitle = strings('send.receiptScreen.paymentId')
         }
 
 
@@ -571,6 +575,13 @@ class ReceiptScreen extends SendBasicScreenScreen {
                                     name={strings('send.receiptScreen.destinationAddress')}
                                     value={BlocksoftPrettyStrings.makeCut(address, 6)}
                                 />}
+
+                            {memo ?
+                                <CheckData
+                                    name={memoTitle}
+                                    value={memo}
+                                /> : null
+                            }
 
                             {this.renderMinerFee()}
 

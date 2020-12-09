@@ -881,6 +881,8 @@
       "rate": "@ rate per 1 %{currencyCode}",
       "recepient": "Recepient",
       "destinationAddress": "Destination address",
+      "destinationTag": "Destination tag",
+      "paymentId": "Payment ID",
       "minerFee": "Miner fee",
       "totalMinerFee": "Total miner fee",
       "trusteeInfo": "Cryptocurrency transactions are not charged",

@@ -833,6 +833,8 @@
         "rate": "Цена за 1 %{currencyCode}",
         "recepient": "Получатель",
         "destinationAddress": "Адрес получателя",
+        "destinationTag": "Тег назначения",
+        "paymentId": "Идентификатор платежа",
         "minerFee": "Комиссия майнера",
         "totalMinerFee": "Общая комиссия майнера",
         "trusteeInfo": "Криптовалютние транзакции не тарифицируются",
