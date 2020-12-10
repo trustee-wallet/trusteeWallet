@@ -331,7 +331,7 @@ class SettingsBTC extends Component {
                         switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
                         type={'dropdown'}
                         ExtraView={() => this.showLegaceSegwitHandle(btcLegacyOrSegWit, color)}
-                        subtitle={'DEFALUT'}
+                        subtitle={btcLegacyOrSegWit === 'segwit' ? strings('settings.walletList.showSegWit') : strings('settings.walletList.showLegacy')}
                     />
                 </View>
             </>
