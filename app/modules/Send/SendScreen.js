@@ -101,7 +101,7 @@ class SendScreen extends SendBasicScreenScreen {
             init: false,
             account: {},
             cryptoCurrency: {
-                currencyCode : 'DOGE'
+                currencyCode: 'DOGE'
             },
             wallet: {},
 
@@ -207,8 +207,8 @@ class SendScreen extends SendBasicScreenScreen {
         SendTmpConstants.PRESET = false
         SendTmpConstants.PRESET_FROM_RECEIPT = false
 
-        console.log('Send.SendScreen.init preresult', JSON.parse(JSON.stringify({countedFees, selectedFee})))
- 
+        console.log('Send.SendScreen.init preresult', JSON.parse(JSON.stringify({ countedFees, selectedFee })))
+
 
         if (Object.keys(this.props.send.data).length !== 0) {
             // console.log('INIT SEND DATA', this.props.send.data)
@@ -353,15 +353,7 @@ class SendScreen extends SendBasicScreenScreen {
 
         setLoaderStatus(true)
 
-        const {
-            walletHash,
-            walletUseUnconfirmed,
-            walletAllowReplaceByFee,
-            walletUseLegacy,
-            walletIsHd
-        } = this.props.wallet
-
-        const { address, derivationPath, currencyCode, balance, unconfirmed, accountJson } = this.state.account
+        const { address, currencyCode, balance, unconfirmed } = this.state.account
 
 
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
@@ -379,38 +371,27 @@ class SendScreen extends SendBasicScreenScreen {
 
             // console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} addressToForTransferAll ${addressToForTransferAll}`)
 
-            // @todo simplify goto receipt with transfer all to one function
-            const countedFeesData = {
-                currencyCode,
-                walletHash,
-                derivationPath,
-                addressFrom: address,
+            let { countedFees, selectedFee } = await this.recountFees({
+                amountRaw: balance,
+                unconfirmedRaw: unconfirmed,
                 addressTo: addressToForTransferAll,
-                amount: balance,
-                unconfirmed: walletUseUnconfirmed === 1 ? unconfirmed : 0,
-                isTransferAll: true,
-                useOnlyConfirmed: !(walletUseUnconfirmed === 1),
-                allowReplaceByFee: walletAllowReplaceByFee === 1,
-                useLegacy: walletUseLegacy,
-                isHd: walletIsHd,
-                accountJson
+                doTransferAllCount: true
+            })
+
+
+            if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
+                selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
             }
-            const transferAllCount = await BlocksoftTransfer.getTransferAllBalance(countedFeesData)
-            transferAllCount.feesCountedForData = countedFeesData
-            let selectedFee = false
-            if (typeof transferAllCount.selectedFeeIndex !== 'undefined' && transferAllCount.selectedFeeIndex >= 0) {
-                selectedFee = transferAllCount.fees[transferAllCount.selectedFeeIndex]
-            }
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance)
+            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(countedFees.selectedTransferAllBalance)
 
             SendTmpConstants.PRESET = true
             SendTmpConstants.SELECTED_FEE = selectedFee
-            SendTmpConstants.COUNTED_FEES = transferAllCount
+            SendTmpConstants.COUNTED_FEES = countedFees
 
             this.setState({
                 inputType: 'CRYPTO',
                 useAllFunds: true,
-                countedFees: transferAllCount,
+                countedFees: countedFees,
                 selectedFee
             })
 
@@ -434,7 +415,7 @@ class SendScreen extends SendBasicScreenScreen {
             // console.log('Send.SendScreen.handleTransferAll currencyBalanceAmount: ', amount, 'currencyBalanceAmountRaw: ', transferAllCount.selectedTransferAllBalance)
             return {
                 currencyBalanceAmount: amount,
-                currencyBalanceAmountRaw: transferAllCount.selectedTransferAllBalance
+                currencyBalanceAmountRaw: countedFees.selectedTransferAllBalance
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
@@ -736,18 +717,12 @@ class SendScreen extends SendBasicScreenScreen {
 
     }
 
-    amountInputCallback = async (value, changeUseAllFunds) => {
+    amountInputCallback = async (value, changeUseAllFunds, newAddressTo = false) => {
         const { countedFees, selectedFee, useAllFunds } = this.state
         // console.log('Send.SendScreen.amountInputCallback state', { countedFees, selectedFee, useAllFunds })
 
-        let addressToForTransferAll = false
+        let addressTo = false
         if (value === 'current') {
-            const addressValidate = await this.addressInput.handleValidate()
-            if (addressValidate.status === 'success') {
-                addressToForTransferAll = addressValidate.value
-            } else {
-                return false
-            }
             const valueValidate = await this.valueInput.handleValidate()
             if (typeof valueValidate.value !== 'undefined') {
                 value = valueValidate.value
@@ -786,21 +761,25 @@ class SendScreen extends SendBasicScreenScreen {
 
         if (amount > 0) {
 
-            if (!this.state.useAllFunds) {
-
-                if (!addressToForTransferAll) {
+            if (!this.state.useAllFunds || newAddressTo) {
+                if (!addressTo) {
                     const addressValidate = await this.addressInput.handleValidate()
                     if (addressValidate.status === 'success') {
-                        addressToForTransferAll = addressValidate.value
+                        addressTo = addressValidate.value
                     } else {
-                        addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
+                        addressTo = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
                     }
                 }
-
-                const {countedFees, selectedFee} = await this.recountFees({
+                const recountParams = {
                     amountRaw: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(value),
-                    addressTo: addressToForTransferAll
-                })
+                    addressTo: addressTo
+                }
+                // changed address for transfer all - need to recount also!
+                if (this.state.useAllFunds && addressTo) {
+                    recountParams.doTransferAllCount = true
+                }
+
+                const { countedFees, selectedFee } = await this.recountFees(recountParams)
 
                 this.setState({
                     countedFees,
@@ -853,14 +832,14 @@ class SendScreen extends SendBasicScreenScreen {
                                 <View key={index} style={styles.texts}>
                                     <View style={styles.texts__icon}>
                                         <Icon
-                                            name="information-outline"
+                                            name='information-outline'
                                             size={22}
-                                            color="#864DD9"
+                                            color='#864DD9'
                                         />
                                     </View>
                                     <View>
                                         <TouchableOpacity style={styles.texts__item} delayLongPress={500}
-                                            onLongPress={() => this.handleOkForce()}>
+                                                          onLongPress={() => this.handleOkForce()}>
                                             <Text>
                                                 {item}
                                             </Text>
@@ -882,11 +861,11 @@ class SendScreen extends SendBasicScreenScreen {
         const { walletUseUnconfirmed } = this.state.wallet
 
         const amountPretty = BlocksoftTransferUtils.getBalanceForTransfer({
-            walletUseUnconfirmed : walletUseUnconfirmed === 1,
-            balancePretty,
-            unconfirmedPretty,
-            currencyCode
-        }
+                walletUseUnconfirmed: walletUseUnconfirmed === 1,
+                balancePretty,
+                unconfirmedPretty,
+                currencyCode
+            }
         )
 
         const amountPrep = BlocksoftPrettyNumbers.makeCut(amountPretty).cutted
@@ -911,7 +890,7 @@ class SendScreen extends SendBasicScreenScreen {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View>
                     <CurrencyIcon currencyCode={currencyCode}
-                        containerStyle={{}} />
+                                  containerStyle={{}} />
                 </View>
                 <View style={styles.accountDetail__content}>
                     <View style={{}}>
@@ -1026,7 +1005,7 @@ class SendScreen extends SendBasicScreenScreen {
                 <Header
                     leftType='back'
                     leftAction={this.closeAction}
-                    rightType="close"
+                    rightType='close'
                     rightAction={this.closeAction}
                     title={strings('send.title')}
                     ExtraView={this.renderAccountDetail}
@@ -1045,7 +1024,7 @@ class SendScreen extends SendBasicScreenScreen {
                             justifyContent: 'space-between',
                             padding: GRID_SIZE,
                             paddingBottom: GRID_SIZE * 2,
-                            minHeight: focused ? 500 : WINDOW_HEIGHT/2
+                            minHeight: focused ? 500 : WINDOW_HEIGHT / 2
                         }}
                         style={{ marginTop: headerHeight }}
                     >
@@ -1066,13 +1045,13 @@ class SendScreen extends SendBasicScreenScreen {
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <View style={style.line} />
                                 <TouchableOpacity style={{ position: 'absolute', right: 22, marginTop: -2 }}
-                                    onPress={this.handleChangeEquivalentType}>
+                                                  onPress={this.handleChangeEquivalentType}>
                                     <Text>{'swap'}</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 32 }}>
                                 <LetterSpacing text={loadFee ? 'Loading...' : notEquivalentValue} textStyle={style.notEquivalentValue}
-                                    letterSpacing={1.5} />
+                                               letterSpacing={1.5} />
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <PartBalanceButton
@@ -1153,7 +1132,7 @@ class SendScreen extends SendBasicScreenScreen {
                                     disabled={disabled}
                                     validPlaceholder={true}
                                     callback={(value) => {
-                                        this.amountInputCallback('current', false)
+                                        this.amountInputCallback('current', false, value)
                                     }}
                                     noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
                                 />
@@ -1289,6 +1268,6 @@ const style = {
         shadowOffset: {
             width: 0,
             height: 0
-        },
+        }
     }
 }

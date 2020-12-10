@@ -25,6 +25,11 @@ import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 export default class SendBasicScreen extends Component {
 
 
+    /**
+     *
+     * @param params.doTransferAllCount - for transfer all recount when put new address
+     * @returns {Promise<{countedFees, selectedFee}>}
+     */
     recountFees = async (params) => {
         // console.log('SendBasicScreen.recountFees init ')
         let countedFees, selectedFee, currencyCode
@@ -74,7 +79,6 @@ export default class SendBasicScreen extends Component {
                 transactionJson: toTransactionJSON
             }
 
-
             if (typeof params.amountRaw !== 'undefined') {
                 txData.amount = params.amountRaw
                 // console.log('SendBasicScreen.recountFees amountRaw ' + txData.amount)
@@ -84,8 +88,22 @@ export default class SendBasicScreen extends Component {
                 // console.log('SendBasicScreen.recountFees addressTo ' + txData.addressTo)
             }
 
+            selectedFee = this.state.selectedFee
+            const addData = {}
+            if (selectedFee && typeof selectedFee.blockchainData !== 'undefined' && typeof selectedFee.blockchainData.unspents !== 'undefined') {
+                addData.unspents = selectedFee.blockchainData.unspents
+            }
+
             // console.log('SendBasicScreen.recountFees txData ', JSON.parse(JSON.stringify(txData)))
-            countedFees = await BlocksoftTransfer.getFeeRate(txData)
+            if (typeof params.doTransferAllCount !== 'undefined' && params.doTransferAllCount) {
+                txData.isTransferAll = true
+                if (typeof params.unconfirmedRaw !== 'undefined') {
+                    txData.unconfirmed =  walletUseUnconfirmed === 1 ? params.unconfirmedRaw : 0
+                }
+                countedFees = await BlocksoftTransfer.getTransferAllBalance(txData, addData)
+            } else {
+                countedFees = await BlocksoftTransfer.getFeeRate(txData, addData)
+            }
             countedFees.feesCountedForData = txData
             let foundSelected = false
             if (this.state.selectedFee && this.state.selectedFee.langMsg) {
@@ -110,7 +128,7 @@ export default class SendBasicScreen extends Component {
             // console.log('SendBasicScreen.recountFees result ', JSON.parse(JSON.stringify(countedFees)))
         } catch (e) {
             if (config.debug.appErrors) {
-                // console.log('SendBasicScreen.recountFees', e)
+                console.log('SendBasicScreen.recountFees', e)
             }
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
             Log.errorTranslate(e, 'SendBasicScreen.recountFees', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))

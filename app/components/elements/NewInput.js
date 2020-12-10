@@ -81,10 +81,15 @@ class Input extends Component {
     getValue = () => this.state.value
 
     handleReadFromClipboard = async () => {
+        const { callback } = this.props
+
         const clipboardContent = await Clipboard.getString()
         this.setState({ value: clipboardContent }, () => {
             this.handleValidate()
         })
+        if (typeof callback !== 'undefined') {
+            callback(clipboardContent)
+        }
 
     }
 

@@ -231,7 +231,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined') {
             const newAmount = selectedFee.amountForTx.toString()
-            if (newAmount !== amountRaw.toString()) {
+            const tmp = amountRaw.toString()
+            if (newAmount.substring(0, tmp.length) !== tmp) {
                 amountRaw = newAmount
                 // @yura here should be alert when fixed receipt and no tx
                 showModal({
@@ -495,7 +496,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
         if (typeof selectedFee !== 'undefined') {
             if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined') {
                 const newAmount = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makePretty(selectedFee.amountForTx)
-                if (newAmount.toString() !== amount.toString()) {
+                const tmp = amount.toString()
+                if (newAmount.toString().substring(0, tmp.length) !== tmp) {
                     amount = newAmount
                     // @yura here should be alert when fixed receipt
                     showModal({
