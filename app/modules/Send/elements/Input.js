@@ -195,7 +195,7 @@ class Input extends Component {
         return (
             <View style={styles.wrapper}>
                 <TextField
-                    color={'#404040'}
+                    // this is breaking android color={'#404040'}
                     ref={ref => this.inputRef = ref}
                     keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'numeric'}
                     tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
