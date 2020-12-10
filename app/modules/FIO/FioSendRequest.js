@@ -101,6 +101,10 @@ class FioSendRequest extends Component {
             return
         }
 
+        if (!amount) {
+            return
+        }
+
         try {
             await Netinfo.isInternetReachable()
         } catch (e) {
@@ -249,7 +253,7 @@ class FioSendRequest extends Component {
                                             <Feather style={styles.wrapper__icon} name='edit'/>
                                         </View>
                                         <TextInput
-                                            style={styles.input}
+                                            style={[styles.input, {opacity: 0.8}]}
                                             editable={false}
                                             value={this.state.payeeFioAddress}
                                         />
@@ -305,9 +309,6 @@ class FioSendRequest extends Component {
                             </ScrollView>
                             : null
                         }
-
-
-
 
                     </View>
                 </View>
@@ -411,15 +412,17 @@ const styles = {
     },
 
     input: {
+        marginTop: 5,
+        marginBottom: 10,
+        paddingLeft: 3,
+        paddingRight: 3,
+        paddingTop: 0,
+        paddingBottom: 2,
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 17,
-        lineHeight: 1,
         color: '#404040',
-        marginTop: 0,
-        marginBottom: 10,
-        padding: 0,
         borderColor: '#6B36A8',
-        borderBottomWidth: 1
+        borderBottomWidth: 1,
     },
 
     txt: {
