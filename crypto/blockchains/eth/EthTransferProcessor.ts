@@ -180,6 +180,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             const tmp = {
                 langMsg: titles[index],
                 gasPrice: newGasPrice,
+                gasPriceGwei: BlocksoftUtils.toGwei(newGasPrice).toString(),
                 gasLimit: gasLimit.toString(),
                 feeForTx: fee.toString(),
                 nonceForTx,
@@ -239,6 +240,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     const tmp = {
                         langMsg: title,
                         gasPrice: newGasPrice.toString(),
+                        gasPriceGwei: BlocksoftUtils.toGwei(newGasPrice).toString(),
                         gasLimit: gasLimit.toString(),
                         feeForTx: fee.toString(),
                         amountForTx: amount,
@@ -292,6 +294,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             const tmp = {
                 langMsg: 'eth_speed_slowest',
                 gasPrice: fee.toString(),
+                gasPriceGwei: BlocksoftUtils.toGwei(fee).toString(),
                 gasLimit: gasLimit.toString(),
                 feeForTx,
                 amountForTx,

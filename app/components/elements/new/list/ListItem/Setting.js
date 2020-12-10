@@ -40,6 +40,8 @@ const getIcon = (iconType, color) => {
             return <NotificationIcon color={color} />
         case 'about':
             return <MaterialCommunityIcon name="information" size={22} style={{ marginLeft: 1, marginTop: 2 }} />
+        case 'darkMode':
+            return <FontAwesomeIcon name="moon-o" color={color} size={23} style={{ marginLeft: 2 }} />
         case 'localCurrency':
             return null; // TODO: add icon when custom icon set is ready
         case 'changePinCode':
@@ -61,6 +63,10 @@ const getIcon = (iconType, color) => {
         case 'exchangeRates':
             return null; // TODO: add icon when custom icon set is ready
         case 'news':
+            return null; // TODO: add icon when custom icon set is ready
+        case 'key':
+            return null; // TODO: add icon when custom icon set is ready
+        case 'importWallet':
             return null; // TODO: add icon when custom icon set is ready
         default: return null
     }
@@ -85,10 +91,19 @@ const getRightContent = (rightContent, params) => {
                     circleActiveColor={colors.common.switch.circleBg}
                     circleInActiveColor={colors.common.switch.circleBg}
                     circleSize={18}
+                    changeValueImmediately={true}
                     switchWidthMultiplier={1.6}
                     outerCircleStyle={{ paddingRight: value ? 5 : 0, paddingLeft: value ? 0 : 5 }}
-                    innerCircleStyle={{ borderColor: value ? colors.common.switch.bgActive : colors.common.switch.bgInactive }}
+                    innerCircleStyle={[!disabled && styles.switchShadow, { borderColor: value ? colors.common.switch.bgActive : colors.common.switch.bgInactive}]}
                 />
+            )
+        case 'arrow_down':
+            return (
+                <AntIcon name="down" color={colors.common.text1} size={16} />
+            )
+        case 'arrow_up':
+            return (
+                <AntIcon name="up" color={colors.common.text1} size={16} />
             )
         default: return null
     }
@@ -104,36 +119,78 @@ export default function SettingListItem(props) {
         rightContent,
         switchParams = {},
         disabled,
+        disabledRightContent,
         onLongPress,
-        delayLongPress = 5000
+        delayLongPress = 5000,
+        type,
+        ExtraView
     } = props
-    const { colors } = useTheme()
+    const { colors, GRID_SIZE } = useTheme()
 
-    return (
-        <TouchableOpacity
-            style={styles.container}
-            onPress={onPress}
-            onLongPress={onLongPress}
-            delayLongPress={delayLongPress}
-            activeOpacity={0.8}
-            disabled={disabled}
-        >
-            <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: disabled ? 0.5 : 1 }]}>
-                {getIcon(iconType, colors.common.text1)}
-            </View>
-            <View style={[styles.mainContent, last && styles.noBorder, { borderColor: colors.common.listItem.basic.borderColor }]}>
-                <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
-                    <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
-                    {!!subtitle && <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
-                </View>
-                {!!rightContent && (
-                    <View style={[styles.rightContent, { opacity: disabled ? 0.3 : 1 }]}>
-                        {getRightContent(rightContent, { ...switchParams, disabled })}
+    if (type === 'dropdown') {
+        return (
+            <>
+                <TouchableOpacity
+                    style={styles.container}
+                    onPress={onPress}
+                    onLongPress={onLongPress}
+                    delayLongPress={delayLongPress}
+                    activeOpacity={0.8}
+                    disabled={disabled}
+                >
+                    <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: disabled ? 0.5 : 1 }]}>
+                        {getIcon(iconType, colors.common.text1)}
                     </View>
+                    <View style={[styles.mainContent, last && styles.noBorder, { borderColor: colors.common.listItem.basic.borderColor }]}>
+                        <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
+                            <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                            {!!subtitle && <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
+                        </View>
+                        {!!rightContent && (
+                            <View style={[styles.rightContent, { opacity: disabled || disabledRightContent ? 0.3 : 1 }]}>
+                                {getRightContent(rightContent, { ...switchParams, disabled })}
+                            </View>
+                        )}
+                    </View>
+                </TouchableOpacity>
+                {(ExtraView && switchParams.value) && (
+                    <ExtraView />
                 )}
+            </>
+        )
+    } else {
+        return (
+            <View style={{ flexDirection: 'column' }}>
+                <TouchableOpacity
+                    style={styles.container}
+                    onPress={onPress}
+                    onLongPress={onLongPress}
+                    delayLongPress={delayLongPress}
+                    activeOpacity={0.8}
+                    disabled={disabled}
+                >
+                    <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: disabled ? 0.5 : 1 }]}>
+                        {getIcon(iconType, colors.common.text1)}
+                    </View>
+                    <View style={styles.mainContent}>
+                        <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
+                            <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                            {!!subtitle && <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
+                        </View>
+                        {!!rightContent && (
+                            <View style={[styles.rightContent, { opacity: disabled || disabledRightContent ? 0.3 : 1 }]}>
+                                {getRightContent(rightContent, { ...switchParams, disabled })}
+                            </View>
+                        )}
+                    </View>
+                </TouchableOpacity>
+                {ExtraView && (
+                    <ExtraView />
+                )}
+                { !last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }} />}
             </View>
-        </TouchableOpacity>
-    )
+        )
+    }
 }
 
 const styles = StyleSheet.create({
@@ -153,7 +210,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderBottomWidth: 1,
         paddingLeft: 4,
         flex: 1,
     },
@@ -179,5 +235,15 @@ const styles = StyleSheet.create({
         fontSize: 13,
         lineHeight: 15,
         letterSpacing: 1.75
+    },
+    switchShadow: {
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        shadowOffset: {
+            width: 0,
+            height: 4
+        },
+        elevation: 4
     }
 })

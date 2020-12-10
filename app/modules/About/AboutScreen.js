@@ -99,8 +99,7 @@ class AboutScreen extends React.Component {
 
     handleSupport = async () => {
         const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
-        MarketingEvent.logEvent('taki_support', { link, screen: 'SETTINGS' })
-        Linking.openURL(link)
+        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
     }
 
     handleLogs = async () => {

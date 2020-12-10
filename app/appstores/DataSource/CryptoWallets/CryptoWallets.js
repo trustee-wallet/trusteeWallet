@@ -62,7 +62,7 @@ const cryptoWallets = {
         try {
             // Log.log('DS/cryptoWallets getWallet ' + source  + ' ' + walletHash + ' started')
 
-            storedWalletMnemonic = await BlocksoftKeysStorage.getWalletMnemonic(walletHash)
+            storedWalletMnemonic = await BlocksoftKeysStorage.getWalletMnemonic(walletHash, 'CryptoWallets.getWallet ' + source)
 
             // Log.log('DS/cryptoWallets getWallet ' + source + ' finished')
         } catch (e) {
@@ -73,6 +73,14 @@ const cryptoWallets = {
 
     getFirstWallet() {
         return BlocksoftKeysStorage.getFirstWallet()
+    },
+
+    async getAllWalletsText() {
+        return BlocksoftKeysStorage.getAllWalletsText()
+    },
+
+    async getOneWalletText(walletHash, discoverPath, currencyCode) {
+        return BlocksoftKeysStorage.getOneWalletText(walletHash, discoverPath, currencyCode)
     },
 
     async setSelectedWallet(walletHash, source) {

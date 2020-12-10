@@ -139,10 +139,23 @@ const transactionActions = {
         }
     },
 
-    preformat(transaction, account) {
+    /**
+     *
+     * @param transaction
+     * @param params.currencyCode
+     * @param params.account
+     */
+    preformat(transaction, params) {
         if (!transaction) return
 
         let addressAmountSatoshi = false
+
+        let account
+        if (typeof params.account !== 'undefined') {
+            account = params.account
+        } else {
+            throw new Error('something wrong with TransactionActions.preformat params')
+        }
 
         try {
             transaction.addressAmountNorm = BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(transaction.addressAmount, 'transactionActions.addressAmount')
@@ -241,30 +254,8 @@ const transactionActions = {
             throw e
         }
 
-    },
+        return transaction
 
-    /**
-     * @param {string} account.walletHash
-     * @param {string} account.currencyCode
-     * @return {Promise<Array>}
-     */
-    getTransactions: async (account) => {
-
-        let transactions = []
-
-        try {
-
-            transactions = await transactionDS.getTransactions({
-                walletHash: account.walletHash,
-                currencyCode: account.currencyCode
-            }, 'ACT/Transaction getTransactions')
-
-        } catch (e) {
-
-            Log.err('ACT/Transaction getTransactions ' + e.message)
-        }
-
-        return transactions
     }
 
 }

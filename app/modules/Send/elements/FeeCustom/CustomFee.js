@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.1
  */
 import React, { Component } from 'react'
 
@@ -23,26 +23,9 @@ class CustomFee extends Component {
 
     }
 
-    handleGetCustomFee = async () => {
-
-        const fee = await this[`${this.state.selectedCustomFeeComponent}`].getCustomFee()
-
-        if (typeof fee === 'undefined')
-            throw new Error('validate error')
-
-        return fee
-    }
-
-    callTransferAll = (fee) => {
-
-        const { handleSelectUpdateAmount } = this.props
-
-        handleSelectUpdateAmount(fee)
-    }
-
     renderFee = () => {
 
-        let { currencyCode, getCustomFee, useAllFunds } = this.props
+        const { currencyCode, useAllFunds, countedFees, selectedFee, feesCurrencyCode, basicCurrencySymbol, basicCurrencyRate, updateSelectedFeeBack, onFocus } = this.props
 
         let prefix = currencyCode
         if (typeof currencyCode !== 'undefined' && currencyCode) {
@@ -51,23 +34,20 @@ class CustomFee extends Component {
                 prefix = tmp[0]
             }
         }
-        if (typeof getCustomFee === 'undefined') {
-            getCustomFee = ''
-        }
+
         switch (prefix) {
             case 'ETH':
                 this.state.selectedCustomFeeComponent = 'customFeeEthereum'
                 return <CustomFeeEthereum
                     ref={ref => this.customFeeEthereum = ref}
-                    getCustomFee={getCustomFee}
-                    fee={this.props.fee}
-                    countedFees={this.props.countedFees}
-                    basicCurrencySymbol={this.props.basicCurrencySymbol}
-                    basicCurrencyRate={this.props.basicCurrencyRate}
-                    amountForTx={this.props.amountForTx}
                     currencyCode={currencyCode}
-                    callTransferAll={this.callTransferAll}
+                    feesCurrencyCode={feesCurrencyCode}
+                    basicCurrencySymbol={basicCurrencySymbol}
+                    basicCurrencyRate={basicCurrencyRate}
+                    countedFees={countedFees}
+                    selectedFee={selectedFee}
                     useAllFunds={useAllFunds}
+                    updateSelectedFeeBack={updateSelectedFeeBack}
                 />
             case 'BTC':
             case 'LTC':
@@ -80,16 +60,15 @@ class CustomFee extends Component {
                 this.state.selectedCustomFeeComponent = 'customFeeBitcoin'
                 return <CustomFeeBitcoin
                     ref={ref => this.customFeeBitcoin = ref}
-                    getCustomFee={getCustomFee}
-                    fee={this.props.fee}
-                    countedFees={this.props.countedFees}
-                    basicCurrencySymbol={this.props.basicCurrencySymbol}
-                    basicCurrencyRate={this.props.basicCurrencyRate}
-                    amountForTx={this.props.amountForTx}
                     currencyCode={currencyCode}
-                    feesCurrencyCode={this.props.feesCurrencyCode}
-                    callTransferAll={this.callTransferAll}
-                    useAllFunds={useAllFunds} />
+                    feesCurrencyCode={feesCurrencyCode}
+                    basicCurrencySymbol={basicCurrencySymbol}
+                    basicCurrencyRate={basicCurrencyRate}
+                    countedFees={countedFees}
+                    selectedFee={selectedFee}
+                    useAllFunds={useAllFunds}
+                    updateSelectedFeeBack={updateSelectedFeeBack}
+                    />
             default:
 
                 return <View><Text>Default</Text></View>

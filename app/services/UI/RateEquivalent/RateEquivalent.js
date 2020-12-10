@@ -22,6 +22,9 @@ export default class {
         if (params.basicCurrencyRate === 1 || params.basicCurrencyRate === '1') {
             return betterValue
         }
+        if (betterValue === "0") {
+            return betterValue
+        }
         if (CACHE_FOR_MUL.key  === params.basicCurrencyRate + '_' + betterValue) {
             return CACHE_FOR_MUL.value
         }
@@ -31,6 +34,9 @@ export default class {
         if (rate < 1) {
             toUnifyRate = true
             rate =  BlocksoftUtils.fromUnified(params.basicCurrencyRate, 6) // ETH is enough
+        }
+        if (valueRaw === "") {
+            return 0
         }
         let amount = BlocksoftUtils.mul(valueRaw, rate).toString()
         amount = BlocksoftUtils.fromENumber(amount)

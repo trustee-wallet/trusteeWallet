@@ -205,6 +205,13 @@
     "openLink" : "To go to payment, please, click directly on this link",
     "openLinkError": "Not found default browser - link is copied to clipboard"
   },
+  "notifications": {
+    "title": "Notifications",
+    "tabAll": "All",
+    "tabNews": "News",
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
   "settings": {
     "title": "Settings",
     "wallets": {
@@ -221,7 +228,18 @@
       "import": "Import wallet",
       "create": "Create new wallet",
       "select": "Select wallet",
-      "turnOnHD": "Turn on HD"
+      "addWallet": {
+        "title": "Add wallet",
+        "importTitle": "Import wallet",
+        "importSubtitle": "Add wallet with a recovery phrase",
+        "createTitle": "Create new wallet"
+      },
+      "advanced": {
+        "title": "Advanced",
+        "walletNameLabel": "Wallet name",
+        "recoveryPhraseTitle": "Recovery phrase",
+        "recoveryPhraseSubtitle": "Your secret recovery phrase"
+      }
     },
     "security": {
       "title": "Security",
@@ -237,6 +255,9 @@
     },
     "other": {
       "title": "Other",
+      "darkModeTitle": "Dark mode",
+      "darkModeEnabledSubtitle": "Enabled",
+      "darkModeDisabledSubtitle": "Disabled",
       "support": "Support",
       "supportSubtitle": "Our telegram support bot",
       "lock": "Lock screen",
@@ -261,7 +282,9 @@
       "testerMode": "Tester"
     },
     "walletList": {
-      "title": "Wallet list",
+      "title": "My wallets",
+      "addWallet": "Add wallet",
+      "backupNeeded": "Back up needed",
       "addedAssets": "Added assets",
       "balance": "Balance",
       "backup": "Backup",
@@ -273,9 +296,9 @@
       "changeSetting": "Address for the change",
       "useLegacy": "Use Legacy",
       "useSegWit": "Use SegWit",
-      "showLegacy": "Show Legacy",
-      "showSegWit": "Show SegWit",
-      "accountSetting": "Account settings",
+      "showLegacy": "Legacy",
+      "showSegWit": "SegWit",
+      "accountAddress": "Select visible address",
       "showSegWitAndLegacy": "Show SegWit and Legacy",
       "hideCommissionTrans": "Hide commission payment transactions",
       "manualAddressFromHD" : "Paste address HD",
@@ -298,7 +321,21 @@
       "serverSendInputTitleXMR" : "or node.moneroworld.com:18089",
       "needReinstallXMR"  : "Something wrong with XMR address generation - please, save mnemonic and reinstall application or contact support",
       "saveSettings" : "Save",
-      "getMnemonicXMR" : "View secrets"
+      "getMnemonicXMR" : "View secrets",
+      "availableTRX" : "Available",
+      "frozenTRX" : "Frozen",
+      "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",
+      "enterToFreezeTRX" : "enter freeze amount TRX",
+      "freezeForBandTRX" : "Freeze for BAND",
+      "freezeForEnergyTRX" : "Freeze for ENERGY",
+      "unfreezeTRX" : "Unfreeze",
+      "votedTRX" : "Votes",
+      "votedBalanceTRX" : "Voted %{voteTotal} / Total %{prettyVote}",
+      "voteTRX" : "Vote",
+      "rewardTRX" : "Voting reward",
+      "rewardBalanceTRX" : "Available %{prettyReward} TRX",
+      "claimTRX" : "Claim Reward",
+      "refreshTRX" : "Reload"
     },
     "about": {
       "title": "About",
@@ -333,6 +370,15 @@
     "tester": "Tester/user changed to: %{testerMode}"
   },
   "assets": {
+    "title": "Add asset",
+    "tabAll": "All",
+    "tabCoins": "Coins",
+    "tabTokens": "Tokens",
+    "tabCustom": "Custom",
+    "searchPlaceholder": "Search",
+    "addCustomPlaceholder": "Asset address",
+    "addCustomLabel": "Ethereum and Tron tokens addresses are supported",
+    "addAssetButton": "Add asset",
     "mainTitle": "Add asset",
     "addCustomAsset": "Add custom asset",
     "addAsset": "Add",
@@ -418,7 +464,8 @@
       "sell": "Sell",
       "mobile_phone": "Mobile phone",
       "date": "Date",
-      "confirmations": "Confirmations:",
+      "confirmations": "Confirmations",
+      "blockNumber": "Block number",
       "moreInformation": "More information",
       "cardNumberDestination": "Withdraw card number",
       "advAccountDestination": "Withdraw account number",
@@ -671,6 +718,23 @@
     "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}",
     "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations or turn on usage of unconfirmed transactions",
     "publicFioAddressNotFound": "%{symbol} public address is not associated with specified FIO address",
+    "setting": {
+      "title": "Advanced",
+      "apply": "Apply",
+      "feeSettings": "Fee settings",
+      "selectFee": "Select fee amount",
+      "inputSettings": "Input settings",
+      "selectInput": "Select input",
+      "descriptionInput": "Default",
+      "optionalSettings": "Optinal",
+      "note": "Note"
+    },
+    "infoModal": {
+      "title": "Info",
+      "XRP": "Destination tag Ripple is ...",
+      "XMR": "Payment ID Monero is ...",
+      "FIO": "FIO Memo is ..."
+    },
     "confirmModal": {
       "title": "Do you confirm sending?",
       "titleSpeedUp": "Do you confirm speeding up incoming transaction %{hash}?",
@@ -758,6 +822,7 @@
         "xrp_speed_one": ""
       },
       "customFee": {
+        "title": "Manually",
         "fixedFeeTitle": "FIXED FEE",
         "customFeeTitle": "SET\nMANUALLY",
         "eth": {
@@ -812,10 +877,26 @@
      "SERVER_RESPONSE_BAD_SEND_NODE" : "No access to sending server",
      "SERVER_RESPONSE_DOUBLE_SPEND" : "Please, regenerate transaction as outputs are changed or wait for the other transactions to be mined",
      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Transaction for speedup not found"
+    },
+    "receiptScreen": {
+      "title": "Receipt",
+      "totalSend": "Total send",
+      "rate": "@ rate per 1 %{currencyCode}",
+      "recepient": "Recepient",
+      "destinationAddress": "Destination address",
+      "destinationTag": "Destination tag",
+      "paymentId": "Payment ID",
+      "minerFee": "Miner fee",
+      "totalMinerFee": "Total miner fee",
+      "trusteeInfo": "Cryptocurrency transactions are not charged",
+      "send": "Send",
+      "sending": "Sending"
     }
   },
   "walletBackup": {
-    "pageTitle": "Create new wallet",
+    "titleCreate": "Create wallet",
+    "titleBackup": "Backup wallet",
+    "titleShow": "Recovery phrase",
     "infoScreen": {
       "continue": "Continue",
       "text1": "TRUSTEE WALLET never sends your recovery phrase anywhere. Therefore, in case of device loss or failure, the only way to restore access to your funds is to use a recovery phrase.",
@@ -825,13 +906,13 @@
     },
     "step0Screen": {
       "info": "The recovery phrase is the only secret key to your assets. Store it securely!",
-      "showButton": "Click and hold to watch",
+      "showButton": "Press and hold to reveal",
       "next": "Next"
     },
     "step1Screen": {
       "title": "Check",
       "placeholder": "Please, tap each word in the correct order to verify recovery phrase. To remove word from field tap on it again",
-      "showButton": "Click and hold to watch",
+      "showButton": "Press and hold to reveal",
       "next": "Next"
     },
     "settingsScreen": {
@@ -1151,7 +1232,8 @@
     "send": {
       "success": "Success!",
       "txSuccess": "Your transaction has been successfully sent!",
-      "fail": "Fail..."
+      "fail": "Fail...",
+      "feeChangeAmount": "Your amount was change after change fee"
     },
     "walletLog": {
       "sorry": "Sorry....",

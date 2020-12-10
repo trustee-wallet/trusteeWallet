@@ -12,12 +12,17 @@ import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/B
 import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
 import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 import MarketingEvent from '../Marketing/MarketingEvent'
+import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
+import config from '../../config/config'
 
 
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
 const ASYNC_CACHE_TIME = 'pushTokenTime'
 const ASYNC_ALL_CACHE = 'allPushTokens'
 const CACHE_VALID_TIME = 120000000 // 2000 minute
+
+
+const TOPICS = ['transactions', 'exchangeRates', 'news']
 
 export default new class AppNotificationListener {
 
@@ -46,6 +51,9 @@ export default new class AppNotificationListener {
                 res = await this.requestPermission()
             }
         } catch (e) {
+            if (config.debug.appErrors) {
+                Log.log('PUSH checkPermission error ' + e.message)
+            }
             Log.log('PUSH checkPermission error ' + e.message)
         }
         Log.log('PUSH checkPermission result ', res)
@@ -62,49 +70,96 @@ export default new class AppNotificationListener {
         return res
     }
 
-    async unsetLang(): Promise<void> {
-        const locale: string = sublocale()
-        try {
-            await firebase.messaging().unsubscribeFromTopic('trustee_all_' + locale)
-        } catch (e) {
-            Log.log('PUSH unsetLang ' + locale + ' error ' + e.message)
+    async _subscribe(topic: string, locale: string, isDev: boolean): Promise<void> {
+        const { languageList } = config.language
+        Log.log('PUSH subscribe ' + topic + ' started')
+
+        for (const lang of languageList) {
+            const sub = sublocale(lang.code)
+            if (sub === locale) {
+                Log.log('PUSH subscribe ' + topic + ' lang ' + locale)
+                await firebase.messaging().subscribeToTopic(topic)
+                await firebase.messaging().subscribeToTopic(topic + '_' + locale)
+                if (isDev) {
+                    await firebase.messaging().subscribeToTopic(topic + '_dev')
+                    await firebase.messaging().subscribeToTopic(topic + '_dev_' + locale)
+                } else {
+                    await firebase.messaging().unsubscribeFromTopic(topic + '_dev')
+                    await firebase.messaging().unsubscribeFromTopic(topic + '_dev_' + locale)
+                }
+            } else {
+                Log.log('PUSH subscribe ' + topic + ' unlang ' + sub)
+                await firebase.messaging().unsubscribeFromTopic(topic + '_' + sub)
+                await firebase.messaging().unsubscribeFromTopic(topic + '_dev_' + sub)
+            }
         }
-        try {
-            await firebase.messaging().unsubscribeFromTopic('trustee_dev_' + locale)
-        } catch (e) {
-            Log.log('PUSH unsetLang ' + locale + ' error ' + e.message)
+
+        Log.log('PUSH subscribe ' + topic + ' finished')
+    }
+
+    async _unsubscribe(topic: string): Promise<void> {
+        const { languageList } = config.language
+
+        Log.log('PUSH unsubscribe ' + topic + ' started')
+
+        await firebase.messaging().unsubscribeFromTopic(topic)
+        await firebase.messaging().unsubscribeFromTopic(topic + '_dev')
+        for (const lang of languageList) {
+            const sub = sublocale(lang.code)
+            await firebase.messaging().unsubscribeFromTopic(topic + '_' + sub)
+            await firebase.messaging().unsubscribeFromTopic(topic + '_dev_' + sub)
+        }
+
+        Log.log('PUSH unsubscribe ' + topic + ' finished')
+    }
+
+    async rmvOld() : Promise<void> {
+        const { languageList } = config.language
+        await firebase.messaging().unsubscribeFromTopic('trustee_all')
+        await firebase.messaging().unsubscribeFromTopic('trustee_dev')
+        for (const lang of languageList) {
+            const sub = sublocale(lang.code)
+            await firebase.messaging().unsubscribeFromTopic('trustee_all_' + sub)
+            await firebase.messaging().unsubscribeFromTopic('trustee_dev_' + sub)
         }
     }
 
-    async setLang(): Promise<void> {
+    async updateSubscriptions(fcmToken : string = ''): Promise<void> {
+        Log.log('PUSH updateSubscriptions ' + fcmToken)
+        const settings = await settingsActions.getSettings(false)
+        const notifsStatus = settings.notifsStatus || '1'
         const locale: string = sublocale()
-        try {
-            await firebase.messaging().subscribeToTopic('trustee_all_' + locale)
-        } catch (e) {
-            Log.log('PUSH setLang ' + locale + ' error ' + e.message)
-        }
         const devMode = await AsyncStorage.getItem('devMode')
-        if (devMode && devMode.toString() === '1') {
-            try {
-                await firebase.messaging().subscribeToTopic('trustee_dev_' + locale)
-            } catch (e) {
-                Log.log('PUSH setLang ' + locale + ' error ' + e.message)
+        const isDev = devMode && devMode.toString() === '1'
+
+
+        if (notifsStatus === '1') {
+            for (const key of TOPICS) {
+                // @ts-ignore
+                if (typeof settings[key + 'Notifs'] === 'undefined' || settings[key + 'Notifs'] === '1') {
+                    await this._subscribe(key, locale, isDev as boolean)
+                } else {
+                    await this._unsubscribe(key)
+                }
             }
+        } else {
+            for (const key of TOPICS) {
+                await this._unsubscribe(key)
+            }
+        }
+
+        if (typeof fcmToken === 'undefined' || fcmToken === '') {
+            fcmToken = MarketingEvent.DATA.LOG_TOKEN
+        }
+        if (typeof settings.dbVersion !== 'undefined' && settings.dbVersion) {
+            await settingsActions.setSettings('notifsSavedToken', fcmToken)
         }
     }
 
-    async unsetDev(): Promise<void> {
-        const locale: string = sublocale()
-        const keys = ['trustee_dev', 'trustee_dev_' + locale, 'trustee_dev_ua', 'trustee_dev_en', 'trustee_dev_ru']
-        for (const key of keys) {
-            try {
-                await firebase.messaging().unsubscribeFromTopic(key)
-            } catch (e) {
-                Log.log('PUSH unsetDev ' + locale + ' error ' + e.message)
-            }
-        }
+    async updateSubscriptionsLater(): Promise<void> {
+        Log.log('PUSH updateSubscriptionsLater')
+        await settingsActions.setSettings('notifsSavedToken', '')
     }
-
 
     async getToken(): Promise<void> {
         let fcmToken: string | null = await AsyncStorage.getItem(ASYNC_CACHE_TITLE)
@@ -122,16 +177,12 @@ export default new class AppNotificationListener {
             }
         }
 
-        const locale: string = sublocale()
+        const notifsSavedToken = await settingsActions.getSetting('notifsSavedToken')
 
-        if (!time || !fcmToken || fcmToken === '') {
-            await firebase.messaging().subscribeToTopic('trustee_all')
-            await firebase.messaging().subscribeToTopic('trustee_all_' + locale)
-            const devMode = await AsyncStorage.getItem('devMode')
-            if (devMode && devMode.toString() === '1') {
-                await firebase.messaging().subscribeToTopic('trustee_dev')
-                await firebase.messaging().subscribeToTopic('trustee_dev_' + locale)
-            }
+        Log.log('notifsSavedToken', notifsSavedToken)
+        if (!time || !fcmToken || fcmToken === '' || notifsSavedToken !== fcmToken) {
+            await this.updateSubscriptions(fcmToken)
+            await this.rmvOld()
             fcmToken = await firebase.messaging().getToken()
             Log.log('PUSH getToken subscribed token ' + fcmToken)
             await this._onRefresh(fcmToken)
@@ -220,7 +271,6 @@ export default new class AppNotificationListener {
         await AsyncStorage.setItem(ASYNC_ALL_CACHE, JSON.stringify(all))
     }
 
-
     createRefreshListener = async (): Promise<void> => {
         /*
         * Triggered for data only payload in foreground
@@ -270,7 +320,6 @@ export default new class AppNotificationListener {
             Log.log('PUSH _isAppOpenViaNotification show error ' + e.message, { data, notificationId })
         }
     }
-
 
     _unifyAnyPush(notification: RNFirebase.notifications.Notification): { toSave: NotificationUnified, toShow: AppNewsItem, needReload: boolean } {
 

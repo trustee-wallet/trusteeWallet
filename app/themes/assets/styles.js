@@ -990,9 +990,10 @@ export default {
             marginRight: 30
         },
         texts__item: {
-            fontSize: 12,
-            fontFamily: 'SFUIDisplay-Regular',
-            color: '#e77ca3'
+            fontSize: 14,
+            fontFamily: 'SFUIDisplay-Semibold',
+            color: '#5C5C5C',
+            letterSpacing: 1,
         },
         texts__icon: {
             marginRight: 10,

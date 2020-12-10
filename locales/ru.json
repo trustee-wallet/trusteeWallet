@@ -205,6 +205,13 @@
     "openLink" : "Для перехода на платежную систему, пожайлуста, перейдите по этой ссылке",
     "openLinkError": "Не найден браузер - ссылка скопирована в буфер"
   },
+  "notifications": {
+    "title": "Уведомления",
+    "tabAll": "Все",
+    "tabNews": "Новости",
+    "today": "Сегодня",
+    "yesterday": "Вчера"
+  },
   "settings": {
     "title": "Настройки",
     "wallets": {
@@ -221,7 +228,18 @@
       "import": "Импортировать кошелек",
       "create": "Создать новый кошелек",
       "select": "Выбрать кошелек",
-      "turnOnHD" : "Включить древовидные адреса BTC"
+      "addWallet": {
+        "title": "Add wallet",
+        "importTitle": "Импортировать кошелек",
+        "importSubtitle": "Add wallet with a recovery phrase",
+        "createTitle": "Создать новый кошелек"
+      },
+      "advanced": {
+        "title": "Advanced",
+        "walletNameLabel": "Wallet name",
+        "recoveryPhraseTitle": "Recovery phrase",
+        "recoveryPhraseSubtitle": "Your secret recovery phrase"
+      }
     },
     "security": {
       "title": "Безопасность",
@@ -237,6 +255,9 @@
     },
     "other": {
       "title": "Поддержка и справка",
+      "darkModeTitle": "Dark mode",
+      "darkModeEnabledSubtitle": "Enabled",
+      "darkModeDisabledSubtitle": "Disabled",
       "support": "Поддержка",
       "supportSubtitle": "Наш бот в telegram",
       "lock": "Блокирование экрана",
@@ -261,7 +282,9 @@
       "testerMode": "Тестировщик"
     },
     "walletList": {
-      "title": "Список кошельков",
+      "title": "My wallets",
+      "addWallet": "Add wallet",
+      "backupNeeded": "Back up needed",
       "addedAssets": "Добавленные активы",
       "balance": "Баланс",
       "backup": "Резервировать",
@@ -273,9 +296,9 @@
       "changeSetting" : "Адрес для сдачи",
       "useLegacy": "Использовать Legacy",
       "useSegWit": "Использовать Segwit",
-      "showLegacy": "Показывать Legacy",
-      "showSegWit": "Показывать SegWit",
-      "accountSetting": "Настройки аккаунта",
+      "showLegacy": "Legacy",
+      "showSegWit": "SegWit",
+      "accountAddress": "Выбрать адресс",
       "showSegWitAndLegacy": "Показывать SegWit и Legacy",
       "hideCommissionTrans": "Скрыть транзакции оплаты за комиссию",
       "manualAddressFromHD" : "Вставить адрес HD",
@@ -298,7 +321,21 @@
       "serverSendInputTitleXMR" : "или node.moneroworld.com:18089",
       "needReinstallXMR"  : "Системная ошибка адреса XMR - пожайлуста, сохраните мнемоническую фразу и переустановите приложение, или свяжитесь со службой поддержки для подробный инструкций",
       "saveSettings" : "Сохранить",
-      "getMnemonicXMR" : "Просмотреть секреты"
+      "getMnemonicXMR" : "Просмотреть секреты",
+      "availableTRX" : "Доступно",
+      "frozenTRX" : "Застейкано",
+      "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Энергия %{prettyFrozenEnergy} TRX",
+      "enterToFreezeTRX" : "введите количество TRX",
+      "freezeForBandTRX" : "Застейкать",
+      "freezeForEnergyTRX" : "Для энергии",
+      "unfreezeTRX" : "Разморозить",
+      "votedTRX" : "Голоса",
+      "votedBalanceTRX" : "Использовано %{voteTotal} / Всего %{prettyVote}",
+      "voteTRX" : "Проголосовать",
+      "rewardTRX" : "Награда за голосование",
+      "rewardBalanceTRX" : "Доступно %{prettyReward} TRX",
+      "claimTRX" : "Забрать награду",
+      "refreshTRX" : "Перегрузить"
     },
     "about": {
       "title": "О кошельке",
@@ -333,6 +370,15 @@
     "tester": "Тестировщик/пользователь изменен на: %{testerMode}"
   },
   "assets": {
+    "title": "Добавить актив",
+    "tabAll": "Все",
+    "tabCoins": "Coins",
+    "tabTokens": "Tokens",
+    "tabCustom": "Custom",
+    "searchPlaceholder": "Search",
+    "addCustomPlaceholder": "Asset address",
+    "addCustomLabel": "Ethereum and Tron tokens addresses are supported",
+    "addAssetButton": "Добавить актив",
     "mainTitle": "Добавить актив",
     "addCustomAsset": "Добавить актив не из списка",
     "addAsset": "Добавить",
@@ -418,7 +464,8 @@
       "sell": "Продажа",
       "mobile_phone": "Пополнение мобильного",
       "date": "Дата",
-      "confirmations": "Подтверждений:",
+      "confirmations": "Подтверждений",
+      "blockNumber": "Номер блока",
       "moreInformation": "Больше информации",
       "cardNumberDestination": "Номер карты для вывода",
       "advAccountDestination": "Номер счета для вывода",
@@ -671,6 +718,23 @@
     "notEnoughForFee": "Для отправки токенов необходимо иметь положительный баланс в нативной монете %{symbol}",
     "notEnoughForFeeConfirmed": "Для отправки токенов необходимо иметь положительный подтвержденный баланс в нативной монете %{symbol}, подождите подтверждения или включите использование неподтвержденных транзакций",
     "publicFioAddressNotFound": "%{symbol} публичный адрес не связан с указаным FIO адресом",
+    "setting": {
+      "title": "Дополнительно",
+      "apply": "Применить",
+      "feeSettings": "Настройки комиссии",
+      "selectFee": "Выберите комиссию",
+      "inputSettings": "Настройки входов",
+      "selectInput": "Выберите входы",
+      "descriptionInput": "По умолчанию",
+      "optionalSettings": "Необязательно",
+      "note": "Заметка"
+    },
+    "infoModal": {
+      "title": "Информация",
+      "XRP": "Тег назначения Ripple это ...",
+      "XMR": "Идентификатор платежа Monero это ...",
+      "FIO": "FIO Сообщение это ..."
+    },
     "confirmModal": {
       "title": "Подтверждение отправки",
       "titleSpeedUp": "Подтверждение ускорения входящей транзакции %{hash}",
@@ -758,6 +822,7 @@
         "xrp_speed_one" : ""
       },
       "customFee": {
+        "title": "Ручная",
         "fixedFeeTitle": "ФИКСИРОВАННАЯ\nКОМИССИЯ",
         "customFeeTitle": "УСТАНОВИТЬ\nВРУЧНУЮ",
         "eth": {
@@ -771,6 +836,20 @@
           "feeForByte": "Цена за байт",
           "satoshi": "SATOSHI"
         }
+      },
+      "receiptScreen": {
+        "title": "Квитанция",
+        "totalSend": "Сумма отправки",
+        "rate": "Цена за 1 %{currencyCode}",
+        "recepient": "Получатель",
+        "destinationAddress": "Адрес получателя",
+        "destinationTag": "Тег назначения",
+        "paymentId": "Идентификатор платежа",
+        "minerFee": "Комиссия майнера",
+        "totalMinerFee": "Общая комиссия майнера",
+        "trusteeInfo": "Криптовалютние транзакции не тарифицируются",
+        "send": "Отправить",
+        "sending": "Отправка"
       }
     },
     "errors": {
@@ -815,7 +894,9 @@
     }
   },
   "walletBackup": {
-    "pageTitle": "Создать новый кошелек",
+    "titleCreate": "Создать кошелек",
+    "titleBackup": "Резервное копирование",
+    "titleShow": "Recovery phrase",
     "infoScreen": {
       "continue": "Продолжить",
       "text1": "TRUSTEE WALLET никогда и никуда не отправит Вашу фразу восстановления. Поэтому, в случае потери или выхода устройства из строя, единственный способ получить доступ к своим средствам - использовать фразу восстановления",
@@ -1151,7 +1232,8 @@
     "send": {
       "success": "Успех!",
       "txSuccess": "Ваша транзакция успешно отправлена!",
-      "fail": "Ошибка..."
+      "fail": "Ошибка...",
+      "feeChangeAmount": "Сумма отправки изменилась после изименние комиссии"
     },
     "walletLog" : {
       "sorry" : "Ошибка....",

@@ -5,7 +5,6 @@ import React, {Component} from 'react'
 
 import {View, Text, Dimensions, PixelRatio} from 'react-native'
 import {connect} from 'react-redux'
-import AsyncStorage from '@react-native-community/async-storage'
 
 import ButtonLine from '../../components/elements/ButtonLine'
 import Button from '../../components/elements/Button'
@@ -14,9 +13,6 @@ import NavStore from '../../components/navigation/NavStore'
 
 import {setLoaderStatus} from '../../appstores/Stores/Main/MainStoreActions'
 import {showModal} from '../../appstores/Stores/Modal/ModalActions'
-import {setSendData} from '../../appstores/Stores/Send/SendActions'
-
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 import updateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 
@@ -79,13 +75,12 @@ class ExchangeConfirmScreen extends Component {
         } = this.state
 
         try {
-            AsyncStorage.setItem('TRADE_EXCHANGE_DATA', JSON.stringify({lastSellCache: this.state}))
 
             const {
                 currencyStore
             } = this.props
 
-            const {amountEquivalentInCryptoToApi, amountEquivalentOutCryptoToApi, useAllFunds} = amount
+            const { amountEquivalentInCryptoToApi, amountEquivalentOutCryptoToApi, useAllFunds } = amount
 
             dataToSend = {
                 inAmount: amountEquivalentInCryptoToApi,
@@ -95,52 +90,42 @@ class ExchangeConfirmScreen extends Component {
                 exchangeWayId: tradeWay.id,
                 refundAddress: selectedInAccount.address,
                 currencyCode: selectedInAccount.currencyCode,
-                outCurrencyCode: selectedOutAccount.currencyCode,
+                outCurrencyCode: selectedOutAccount.currencyCode
             }
 
             if (dataToSend.outCurrencyCode === dataToSend.currencyCode) {
-                Log.err('EXC/ConfirmScreen bad data to send (same codes) ' + dataToSend.outCurrencyCode + ' ' + dataToSend.currencyCode + ' ' + JSON.stringify({dataToSend, prevInAccount, prevOutAccount}))
+                Log.err('EXC/ConfirmScreen bad data to send (same codes) ' + dataToSend.outCurrencyCode + ' ' + dataToSend.currencyCode + ' ' + JSON.stringify({ dataToSend, prevInAccount, prevOutAccount }))
             }
-
-            let res = false
 
             setLoaderStatus(true)
 
-            res = await Api.createOrder(dataToSend)
+            const res = await Api.createOrder(dataToSend)
 
+            // @todo simplify goto receipt to one function
+            const recipientAmount = res.data.amount.toString()
+            const recipientAddress = res.data.address
+            SendTmpConstants.COUNTED_FEES = false
+            SendTmpConstants.SELECTED_FEE = false
             const dataToScreen = {
-                disabled: true,
-                address: res.data.address,
-                value: res.data.amount.toString(),
-                account: selectedInAccount,
+                amount : recipientAmount,
+                amountRaw: BlocksoftPrettyNumbers.setCurrencyCode(selectedInCurrency.currencyCode).makeUnPretty(recipientAmount),
+                address: recipientAddress,
                 cryptoCurrency: selectedInCurrency,
-                description: strings('send.descriptionExchange'),
+                account: selectedInAccount,
                 useAllFunds,
-                type: 'TRADE_SEND',
-                copyAddress: true,
                 toTransactionJSON: {
                     bseOrderID: res.data.orderId
-                }
+                },
+                type: 'TRADE_SEND',
+                apiVersion : 'v2',
+                currencyCode: selectedInCurrency.currencyCode
             }
-
             if (typeof res.data.memo !== 'undefined') {
-                dataToScreen.destinationTag = res.data.memo
+                dataToScreen.memo = res.data.memo
             }
-
-            MarketingEvent.startExchange({
-                orderId: res.data.orderId + '',
-                currencyCode: selectedInAccount.currencyCode,
-                outCurrencyCode: selectedOutAccount.currencyCode,
-                addressFrom: dataToScreen.account.address,
-                addressFromShort: dataToScreen.account.address ? dataToScreen.account.address.slice(0, 10) : 'none',
-                addressTo: dataToScreen.address,
-                addressAmount: dataToScreen.value,
-                walletHash: dataToScreen.account.walletHash
+            NavStore.goNext('ReceiptScreen', {
+                ReceiptScreen: dataToScreen
             })
-
-            setSendData(dataToScreen)
-
-            NavStore.goNext('SendScreen')
 
             setLoaderStatus(false)
 
@@ -263,7 +248,7 @@ class ExchangeConfirmScreen extends Component {
                         {strings('confirmScreen.withdrawAddress')}
                     </Text>
                     <Text style={[styles.wrapper__text, styles.wrapper__text_40]}>
-                        { BlocksoftPrettyStrings.makeCut(selectedOutAccount.address, 6, 4) }
+                        {BlocksoftPrettyStrings.makeCut(selectedOutAccount.address, 6, 4)}
                     </Text>
                 </View>
 

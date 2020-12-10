@@ -4,8 +4,6 @@
 import { getFioSdk } from './FioSdkWrapper'
 import { getFioBalance, transferTokens } from './FioUtils'
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
-import TrxTronscanProvider from '../trx/basic/TrxTronscanProvider'
-import TrxTrongridProvider from '../trx/basic/TrxTrongridProvider'
 import BlocksoftUtils from '../../common/BlocksoftUtils'
 
 export default class FioTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {

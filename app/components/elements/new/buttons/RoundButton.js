@@ -27,7 +27,9 @@ const ICON_SET = {
     twitter: props => <EvilIcon name="sc-twitter" {...props} size={34} style={{ left: 1 }} />,
     facebook: props => <EvilIcon name="sc-facebook" {...props} size={32} style={{ top: 0.5, left: 0.5 }} />,
     vk: props => <EvilIcon name="sc-vk" {...props} size={34} />,
-    github: props => <EvilIcon name="sc-github" {...props} size={36} style={{ top: 0.5, left: 0.5 }} />
+    github: props => <EvilIcon name="sc-github" {...props} size={36} style={{ top: 0.5, left: 0.5 }} />,
+    edit: null, // TODO: add icon from custom set
+    delete: null, // TODO: add icon from custom set
 }
 
 export default function ButtonIcon(props) {

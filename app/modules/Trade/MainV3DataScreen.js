@@ -43,7 +43,13 @@ import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
 import store from '../../store'
-import { setSendData } from '../../appstores/Stores/Send/SendActions'
+import SendTmpConstants from '../Send/elements/SendTmpConstants'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+
+import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
+import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import config from '../../config/config'
 
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -63,10 +69,9 @@ class MainV3DataScreen extends Component {
             imagePickerOptions: {
                 title: 'Select Avatar',
                 customButtons: [{ name: '', title: '' }]
-                // storageOptions: {
-                //     cameraRoll: true
-                // },
             },
+            countedFees: {},
+            selectedFee: {}
         }
     }
 
@@ -241,7 +246,7 @@ class MainV3DataScreen extends Component {
         try {
             const allData = JSON.parse(event.nativeEvent.data)
             const { error, backToOld, close, homePage, cardData, tradeType, takePhoto, scanCard, deleteCard, 
-                updateCard, orderData, injectScript, currencySelect, dataSell, didMount, navigationState, message, exchangeStatus } = allData
+                updateCard, orderData, injectScript, currencySelect, dataSell, didMount, navigationState, message, exchangeStatus, useAllFunds } = allData
 
             Log.log('Trade/MainV3Screen.onMessage parsed', event.nativeEvent.data)
 
@@ -283,6 +288,10 @@ class MainV3DataScreen extends Component {
                 this.onUpdateCard(updateCard)
             }
 
+            if (useAllFunds) {
+                this.handleTransferAll(useAllFunds)
+            }
+
             if (injectScript && orderData) {
                 NavStore.goNext('SMSV3CodeScreen', {
                     tradeWebParam: {
@@ -311,42 +320,54 @@ class MainV3DataScreen extends Component {
         const { accountList } = store.getState().accountStore
         const walletHash = store.getState().mainStore.selectedWallet.walletHash
         const account = accountList[walletHash]
-
         const { cryptoCurrencies } = store.getState().currencyStore
-        const cryptoCurrencyNew = _.find(cryptoCurrencies, { currencyCode: dataSell.currencyCode})
+        const selectedCryptocurrency = _.find(cryptoCurrencies, { currencyCode: dataSell.currencyCode})
+        const selectedAccount = account[dataSell.currencyCode]
+
+        console.log('MainV3DataScreen.Trade dataSell', JSON.stringify(dataSell))
+
+        // @todo simplify goto receipt to one function
+        const recipientAmount = dataSell.amount.toString()
+        const recipientAddress = dataSell.address
 
         const dataToScreen = {
-            disabled: true,
-            address: dataSell.address,
-            value: dataSell.amount.toString(),
-            account: account[dataSell.currencyCode],
-            cryptoCurrency: cryptoCurrencyNew,
-            description: strings('send.descriptionExchange'),
-            useAllFunds: dataSell.useAllFunds,
-            type: 'TRADE_SEND',
-            copyAddress: true,
+            amount : recipientAmount,
+            amountRaw: BlocksoftPrettyNumbers.setCurrencyCode(selectedCryptocurrency.currencyCode).makeUnPretty(recipientAmount),
+            address: recipientAddress,
+            cryptoCurrency: selectedCryptocurrency,
+            account: selectedAccount,
+            useAllFunds : dataSell.useAllFunds,
             toTransactionJSON: {
                 bseOrderID: dataSell.orderId
+            },
+            type: 'TRADE_SEND',
+            apiVersion : 'v3',
+            currencyCode: selectedCryptocurrency.currencyCode,
+            providerType: dataSell.providerType // 'FIXED' || 'FLOATING'
+        }
+        if (typeof dataSell.memo !== 'undefined') {
+            dataToScreen.memo = dataSell.memo
+        }
+        if (!dataSell.useAllFunds) {
+            SendTmpConstants.PRESET = false
+            SendTmpConstants.SELECTED_FEE = false
+            SendTmpConstants.COUNTED_FEES = false
+        } else {
+            SendTmpConstants.PRESET = true
+            SendTmpConstants.COUNTED_FEES = dataSell.countedFees
+            SendTmpConstants.SELECTED_FEE = dataSell.selectedFee
+            if (dataToScreen.providerType === 'FIXED') {
+                // only one left
+                if (SendTmpConstants.COUNTED_FEES && SendTmpConstants.COUNTED_FEES.fees.length > 1) {
+                    SendTmpConstants.COUNTED_FEES.fees = [SendTmpConstants.SELECTED_FEE]
+                    SendTmpConstants.COUNTED_FEES.selectedFeeIndex = 0
+                }
             }
         }
 
-        if (typeof dataSell.memo !== 'undefined') {
-            dataToScreen.destinationTag = dataSell.memo
-        }
-
-        MarketingEvent.startSell({
-            orderId: dataSell.orderId + '',
-            currencyCode: dataToScreen.cryptoCurrency.currencyCode,
-            addressFrom: dataToScreen.account.address,
-            addressFromShort: dataToScreen.account.address ? dataToScreen.account.address.slice(0, 10) : 'none',
-            addressTo: dataToScreen.address,
-            addressAmount: dataToScreen.value,
-            walletHash: dataToScreen.account.walletHash
+        NavStore.goNext('ReceiptScreen', {
+            ReceiptScreen: dataToScreen
         })
-
-        setSendData(dataToScreen)
-
-        NavStore.goNext('SendScreen')
     }
 
     async onTakePhoto(cardData) {
@@ -477,7 +498,6 @@ class MainV3DataScreen extends Component {
 
         try {
             const deviceToken = MarketingEvent.DATA.LOG_TOKEN
-            const cashbackToken = MarketingEvent.DATA.LOG_CASHBACK
             const locale = sublocale()
 
             let msg = ''
@@ -493,6 +513,7 @@ class MainV3DataScreen extends Component {
             }
 
             const sign = await CashBackUtils.createWalletSignature(true, msg)
+            const cashbackToken = CashBackUtils.getWalletToken()
 
             const data = new FormData()
             data.append('cardNumber', cardData.number)
@@ -611,6 +632,97 @@ class MainV3DataScreen extends Component {
             }
         }   
     }
+
+    handleTransferAll = async (params) => {
+        console.log(params)
+        const currencyCode = params.currencyCode
+        const address = params.address
+
+        const { selectedWallet } = store.getState().mainStore
+        
+        const {
+            walletHash,
+            walletUseUnconfirmed,
+            walletAllowReplaceByFee,
+            walletUseLegacy,
+            walletIsHd
+        } = selectedWallet
+
+        const { accountList } = store.getState().accountStore
+        const account = accountList[selectedWallet.walletHash][currencyCode]
+        
+        // ksu plz check address BTC (legacy/segwit) - default from v3 segwit
+        // const { address, derivationPath, balance, unconfirmed, accountJson } = account
+        const { derivationPath, balance, unconfirmed, accountJson } = account
+
+        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+
+        try {
+            const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
+
+            // @todo simplify goto receipt with transfer all to one function
+            const countedFeesData = {
+                currencyCode,
+                walletHash,
+                derivationPath,
+                addressFrom: address,
+                addressTo: addressToForTransferAll,
+                amount: balance,
+                unconfirmed: walletUseUnconfirmed === 1 ? unconfirmed : 0,
+                isTransferAll: true,
+                useOnlyConfirmed: !(walletUseUnconfirmed === 1),
+                allowReplaceByFee: walletAllowReplaceByFee === 1,
+                useLegacy: walletUseLegacy,
+                isHd: walletIsHd,
+                accountJson
+            }
+            console.log('Trade.MainV3Screen.countedFeesData ', JSON.stringify(countedFeesData))
+            
+            const transferAllCount = await BlocksoftTransfer.getTransferAllBalance(countedFeesData)
+            transferAllCount.feesCountedForData = countedFeesData
+            let selectedFee
+            if (typeof transferAllCount.selectedFeeIndex !== 'undefined' && transferAllCount.selectedFeeIndex >= 0) {
+                selectedFee = transferAllCount.fees[transferAllCount.selectedFeeIndex]
+            }
+
+            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance)
+
+            SendTmpConstants.PRESET = true
+            SendTmpConstants.COUNTED_FEES = transferAllCount
+            SendTmpConstants.SELECTED_FEE = selectedFee
+
+            this.setState({
+                countedFees: transferAllCount,
+                selectedFee
+            })
+
+            console.log('Trade.MainV3Screen.transferAllCount', JSON.stringify(transferAllCount))
+            console.log('Trade.MainV3Screen.selectedFee', JSON.stringify(selectedFee))
+
+            // @yura do we actually needed transfer fees here? - could be big data arrays
+            this.webref.postMessage(JSON.stringify({ "fees": { 'countedFees': transferAllCount, selectedFee, amount } }))
+
+            return {
+                currencyBalanceAmount: amount,
+                currencyBalanceAmountRaw: transferAllCount.selectedTransferAllBalance
+            }
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                // console.log('Trade.MainV3Screen.handleTransferAll', e)
+            }
+
+            Log.errorTranslate(e, 'Trade.MainV3Screen.handleTransferAll', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.qrScanner.sorry'),
+                description: e.message,
+                error: e
+            })
+        }
+    }
+
 
     modal(){
         showModal({

@@ -52,7 +52,7 @@ class App {
         const navigateToInit = typeof params.navigateToInit !== 'undefined' ? params.navigateToInit : true
         const source = typeof params.source !== 'undefined' ? params.source : ''
         try {
-            // console.log(new Date().toISOString() + ' start ' + source)
+            console.log(new Date().toISOString() + ' start ' + source)
 
             await FilePermissions.init()
 
@@ -131,11 +131,7 @@ class App {
 
             this.initStatus = 'updateAppNewsDaemon.fromServer'
 
-            await UpdateAppNewsDaemon.updateAppNewsDaemon()
-
-            this.initStatus = 'updateTradeOrdersDaemon.fromDB'
-
-            await UpdateTradeOrdersDaemon.fromDB()
+            await UpdateAppNewsDaemon.updateAppNewsDaemon({force: true})
 
             this.initStatus = 'AppLockScreenIdleTime.init'
 
@@ -151,6 +147,7 @@ class App {
             // console.log(new Date().toISOString() + ' done')
 
         } catch (e) {
+            console.log(e)
             Log.err('ACT/App init application error ' + this.initStatus + ' ' + e.message)
             this.initError = e.message
             dispatch(setInitError(e.message))

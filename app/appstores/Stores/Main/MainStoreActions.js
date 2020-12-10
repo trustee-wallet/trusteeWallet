@@ -259,21 +259,6 @@ export async function setSelectedAccount(setting) {
 
         account.feeRates = DaemonCache.getCacheRates(account.feesCurrencyCode)
 
-        const tmp = await transactionDS.getTransactions({
-            walletHash: wallet.walletHash,
-            currencyCode: currency.currencyCode
-        }, 'ACT/MStore setSelectedAccount')
-        if (tmp && tmp.length > 0) {
-            let transaction
-            account.transactions = {}
-            for (transaction of tmp) {
-                transactionActions.preformat(transaction, account)
-                account.transactions[transaction.transactionHash] = transaction
-            }
-        } else {
-            account.transactions = false
-        }
-
         dispatch({
             type: 'SET_SELECTED_ACCOUNT',
             selectedAccount: account

@@ -96,9 +96,9 @@ class WalletCreateScreen extends Component {
         setMnemonicLength({ mnemonicLength: 128 })
 
         if (data.flowType === 'CREATE_NEW_WALLET') {
-            NavStore.goNext('BackupStep0Screen')
+            NavStore.goNext('BackupStep0Screen', { flowSubtype: 'createFirst' })
         } else {
-            NavStore.goNext('EnterMnemonicPhrase')
+            NavStore.goNext('EnterMnemonicPhrase', { flowSubtype: 'importFirst' })
         }
         setTimeout(() => { this.setState(() => ({ checked: false })) }, 500)
     }

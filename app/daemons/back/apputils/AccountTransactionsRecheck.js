@@ -5,6 +5,7 @@ import Log from '../../../services/Log/Log'
 import transactionDS from '../../../appstores/DataSource/Transaction/Transaction'
 import appNewsDS from '../../../appstores/DataSource/AppNews/AppNews'
 import { BlocksoftTransfer } from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
 
 const CACHE_TO_REMOVE = {} // couldnt remove on first scan - as BTC is scanned in few accounts
 
@@ -193,18 +194,7 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
                 }, dbTransaction.id, 'missing')
 
                 if (dbTransaction.addressAmount > 0 && minutes < minutesToInform) {
-                    await appNewsDS.saveAppNews(
-                        {
-                            walletHash: account.walletHash,
-                            currencyCode: account.currencyCode,
-                            newsSource: source,
-                            newsNeedPopup: 1,
-                            newsGroup: 'TX_SCANNER',
-                            newsName: 'FOUND_OUT_TX_STATUS_MISSING',
-                            newsJson: dbTransaction,
-                            newsUniqueKey: dbTransaction.transactionHash
-                        }
-                    )
+                   await addNews(dbTransaction, account, source, 'FOUND_OUT_TX_STATUS_MISSING')
                 }
             }
         }
@@ -380,6 +370,10 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
 }
 
 async function addNews(transaction, account, source, type) {
+    const transactionsNotifs = await settingsActions.getSetting('transactionsNotifs')
+    if (transactionsNotifs !== '1') {
+        return
+    }
     if (type === 'new') {
         const now = new Date().getTime()
         const time = transaction.createdAt
@@ -394,10 +388,15 @@ async function addNews(transaction, account, source, type) {
     } else if (transaction.transactionStatus === 'delegated') {
         needToPopup = 0
     }
-    let name = 'FOUND_OUT_TX_STATUS_' + transaction.transactionStatus.toUpperCase()
-    if (transaction.transactionDirection === 'income') {
+    let name = ''
+    if (type === 'FOUND_OUT_TX_STATUS_MISSING') {
+        name = type
+    } else if (transaction.transactionDirection === 'income') {
         name = 'FOUND_IN_TX'
+    } else {
+        name = 'FOUND_OUT_TX_STATUS_' + transaction.transactionStatus.toUpperCase()
     }
+
     const data = {
         walletHash: account.walletHash,
         currencyCode: account.currencyCode,

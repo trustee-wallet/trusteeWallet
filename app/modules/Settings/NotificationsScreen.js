@@ -22,6 +22,7 @@ import { strings } from '../../services/i18n'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import ListItem from '../../components/elements/new/list/ListItem/Setting'
+import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
 
 
 class NotificationsSettingScreen extends React.Component {
@@ -39,23 +40,28 @@ class NotificationsSettingScreen extends React.Component {
     handleClose = () => { NavStore.reset('DashboardStack') }
 
     handleChangeNotifications = async () => {
-        const { notifs_status } = this.props.settings
-        await settingsActions.setSettings('notifs_status', +notifs_status ? '0' : '1')
+        const { notifsStatus } = this.props.settings
+        await settingsActions.setSettings('notifsStatus', +notifsStatus ? '0' : '1')
+        // use "later" function as usual makes some mess when a lot of clicking
+        await AppNotificationListener.updateSubscriptionsLater()
     }
 
     handleChangeTransactions = async () => {
-        const { transactions_notifs } = this.props.settings
-        await settingsActions.setSettings('transactions_notifs', +transactions_notifs ? '0' : '1')
+        const { transactionsNotifs } = this.props.settings
+        await settingsActions.setSettings('transactionsNotifs', +transactionsNotifs ? '0' : '1')
+        await AppNotificationListener.updateSubscriptionsLater()
     }
 
     handleChangeRates = async () => {
-        const { exchange_rates_notifs } = this.props.settings
-        await settingsActions.setSettings('exchange_rates_notifs', +exchange_rates_notifs ? '0' : '1')
+        const { exchangeRatesNotifs } = this.props.settings
+        await settingsActions.setSettings('exchangeRatesNotifs', +exchangeRatesNotifs ? '0' : '1')
+        await AppNotificationListener.updateSubscriptionsLater()
     }
 
     handleChangeNews = async () => {
-        const { news_notifs } = this.props.settings
-        await settingsActions.setSettings('news_notifs', +news_notifs ? '0' : '1')
+        const { newsNotifs } = this.props.settings
+        await settingsActions.setSettings('newsNotifs', +newsNotifs ? '0' : '1')
+        await AppNotificationListener.updateSubscriptionsLater()
     }
 
     render() {
@@ -65,15 +71,15 @@ class NotificationsSettingScreen extends React.Component {
         const { headerHeight } = this.state
 
         const {
-            notifs_status,
-            transactions_notifs,
-            exchange_rates_notifs,
-            news_notifs,
+            notifsStatus,
+            transactionsNotifs,
+            exchangeRatesNotifs,
+            newsNotifs,
         } = this.props.settings
-        const notificationsEnabled = notifs_status === '1'
-        const transactionsNotifications = transactions_notifs === '1'
-        const exchangeRatesNotifications = exchange_rates_notifs === '1'
-        const newsNotifications = news_notifs === '1'
+        const notificationsEnabled = notifsStatus === '1'
+        const transactionsNotifications = transactionsNotifs === '1'
+        const exchangeRatesNotifications = exchangeRatesNotifs === '1'
+        const newsNotifications = newsNotifs === '1'
 
 
         return (

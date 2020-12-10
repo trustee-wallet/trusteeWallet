@@ -21,7 +21,7 @@ export namespace BlocksoftTransferPrivate {
         const privateData = {} as BlocksoftBlockchainTypes.TransferPrivateData
         let mnemonic = (typeof additionalData !== 'undefined' && typeof additionalData.mnemonic !== 'undefined') ? additionalData.mnemonic : CACHE_PRIVATE[data.walletHash]
         if (!mnemonic) {
-            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(data.walletHash)
+            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(data.walletHash, 'initTransferPrivate')
             CACHE_PRIVATE[data.walletHash] = mnemonic
         }
         if (!mnemonic) {

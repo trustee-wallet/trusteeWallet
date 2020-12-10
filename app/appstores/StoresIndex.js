@@ -12,6 +12,7 @@ import modalReducer from './Stores/Modal/ModalStore'
 import qrCodeScannerReducer from './Stores/QRCodeScanner/QRCodeScannerStore'
 import cardStoreReducer from './Stores/Card/CardStore'
 import exchangeReducer from './Stores/Exchange/ExchangeStore'
+import exchangeOrdersReducer from './Stores/ExchangeOrders/ExchangeOrdersStore'
 import sendStoreReducer from './Stores/Send/SendStore'
 import settingsReducer from './Stores/Settings/SettingsStore'
 import lockScreenReducer from './Stores/LockScreen/LockScreenStore'
@@ -31,6 +32,7 @@ export default combineReducers({
     cardStore: cardStoreReducer,
     modalStore: modalReducer,
     exchangeStore: exchangeReducer,
+    exchangeOrdersStore : exchangeOrdersReducer,
     sendStore: sendStoreReducer,
     settingsStore: settingsReducer,
     lockScreenStore: lockScreenReducer,

@@ -205,6 +205,13 @@
      "openLink" : "Для переходу на платіжну систему, будь ласка, перейдіть по цьому посиланню",
      "openLinkError": "Не знайдено браузер - посилання скопійовано в буфер"
    },
+   "notifications": {
+     "title": "Повідомлення",
+     "tabAll": "Всі",
+     "tabNews": "Новини",
+     "today": "Сьогодні",
+     "yesterday": "Вчора"
+   },
   "settings": {
     "title": "Налаштування",
     "wallets": {
@@ -221,7 +228,18 @@
       "import": "Імпортувати гаманець",
       "create": "Створити новий гаманець",
       "select": "Обрати гаманець",
-      "turnOnHD" : "Увiмкнути деревовиднi адреси BTC"
+      "addWallet": {
+        "title": "Add wallet",
+        "importTitle": "Импортировать кошелек",
+        "importSubtitle": "Add wallet with a recovery phrase",
+        "createTitle": "Создать новый кошелек"
+      },
+      "advanced": {
+        "title": "Advanced",
+        "walletNameLabel": "Wallet name",
+        "recoveryPhraseTitle": "Recovery phrase",
+        "recoveryPhraseSubtitle": "Your secret recovery phrase"
+      }
     },
     "security": {
       "title": "Безпека",
@@ -237,6 +255,9 @@
     },
     "other": {
       "title": "Підтримка та довідка",
+      "darkModeTitle": "Dark mode",
+      "darkModeEnabledSubtitle": "Enabled",
+      "darkModeDisabledSubtitle": "Disabled",
       "support": "Підтримка",
       "supportSubtitle": "Наш бот в telegram",
       "lock": "Блокування екрану",
@@ -273,9 +294,9 @@
       "changeSetting" : "Адреса для решти",
       "useLegacy": "Використовувати Legacy",
       "useSegWit": "Використовувати Segwit",
-      "showLegacy": "Показувати Legacy",
-      "showSegWit": "Показувати SegWit",
-      "accountSetting": "Налаштування акаунту",
+      "showLegacy": "Legacy",
+      "showSegWit": "SegWit",
+      "accountAddress": "Виберіть адресу",
       "showSegWitAndLegacy": "Показувати SegWit і Legacy",
       "hideCommissionTrans": "Сховати транзакції оплати за комісію",
       "manualAddressFromHD" : "Вставити адресу HD",
@@ -298,7 +319,21 @@
       "serverSendInputTitleXMR" : "або node.moneroworld.com:18089",
       "needReinstallXMR"  : "Системна помилка адреси XMR - будь ласка, збережіть мнемонічну фразу та переінсталюйте додаток, або напишіть в службу підтримки для детальних інструкцій",
       "saveSettings" : "Зберегти",
-      "getMnemonicXMR" : "Переглянути секрети"
+      "getMnemonicXMR" : "Переглянути секрети",
+      "availableTRX" : "Доступно",
+      "frozenTRX" : "Застейкано",
+      "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Енергія %{prettyFrozenEnergy} TRX",
+      "enterToFreezeTRX" : "введіть кількість TRX",
+      "freezeForBandTRX" : "Застейкати",
+      "freezeForEnergyTRX" : "Для енергії",
+      "unfreezeTRX" : "Розморозити",
+      "votedTRX" : "Голоса",
+      "votedBalanceTRX" : "Використано %{voteTotal} / Всього %{prettyVote}",
+      "voteTRX" : "Проголосувати",
+      "rewardTRX" : "Нагорода за голосування",
+      "rewardBalanceTRX" : "Доступно %{prettyReward} TRX",
+      "claimTRX" : "Забрати награду",
+      "refreshTRX" : "Перевантажити"
     },
     "about": {
       "title": "Про гаманець",
@@ -333,6 +368,15 @@
     "tester": "Тестувальник/користувач змінений на: %{testerMode}"
   },
   "assets": {
+    "title": "Додати актив",
+    "tabAll": "Все",
+    "tabCoins": "Coins",
+    "tabTokens": "Tokens",
+    "tabCustom": "Custom",
+    "searchPlaceholder": "Search",
+    "addCustomPlaceholder": "Asset address",
+    "addCustomLabel": "Ethereum and Tron tokens addresses are supported",
+    "addAssetButton": "Додати актив",
     "mainTitle": "Додати актив",
     "addCustomAsset": "Додати актив не із списку",
     "addAsset": "Додати",
@@ -379,7 +423,7 @@
     "receive": "%{receive}",
     "send": "Відправити",
     "history": "Транзакції",
-    "scan": "відскановано %{time} мін назад",
+    "scan": "відскановано %{time} хв назад",
     "justScan": "щойно відскановано",
     "noTransactions": "У Вас ще немає транзакцій",
     "showMore": "Показати ще",
@@ -418,7 +462,8 @@
       "sell": "Продаж",
       "mobile_phone": "Поповнення мобільного",
       "date": "Дата",
-      "confirmations": "Підтверджень:",
+      "confirmations": "Підтверджень",
+      "blockNumber": "Номер блоку",
       "moreInformation": "Більше інформації",
       "cardNumberDestination": "Номер картки для виводу",
       "advAccountDestination": "Номер рахунку для виводу",
@@ -671,6 +716,23 @@
     "notEnoughForFee": "Для надсилання токенів потрібно мати позитивний баланс у нативній монеті %{symbol}",
     "notEnoughForFeeConfirmed": "Для надсилання токенів потрібно мати позитивний підтверджений баланс у нативній монеті %{symbol}, зачекайте на підтвердження або ввімкніть використання непідтвердженних транзакцій",
     "publicFioAddressNotFound": "%{symbol} публічна адреса не пов'язана з вказаною FIO адресою",
+    "setting": {
+      "title": "Додатково",
+      "apply": "Застосувати",
+      "feeSettings": "Налаштування комісії",
+      "selectFee": "Виберіть комісію",
+      "inputSettings": "Налаштування входів",
+      "selectInput": "Виберіть входи",
+      "descriptionInput": "За замовчуванням",
+      "optionalSettings": "Необов'язковго",
+      "note": "Замітка"
+    },
+    "infoModal": {
+      "title": "Інформація",
+      "XRP": "Тег призначення Ripple це ...",
+      "XRM": "Ідентифікатор платежу Monero це ...",
+      "FIO": "FIO коментар це ..."
+    },
     "confirmModal": {
       "title": "Підтвердження відправлення",
       "titleSpeedUp": "Підтвердження прискорення вхідної транзакції %{hash}",
@@ -758,6 +820,7 @@
         "xrp_speed_one" : ""
       },
       "customFee": {
+        "title": "Власноруч",
         "fixedFeeTitle": "ФІКСОВАНА\nКОМІСІЯ",
         "customFeeTitle": "ВСТАНОВИТИ\nВЛАСНОРУЧ",
         "eth": {
@@ -812,10 +875,26 @@
       "SERVER_RESPONSE_BAD_SEND_NODE" :  "Немає доступу до сервера відправки",
       "SERVER_RESPONSE_DOUBLE_SPEND" : "Будь ласка, створіть повторно транзакцію, оскільки ця використовує вже застарілі входи або зачекайте доки інші транзакції замайняться",
       "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Транзакцію для прискорення не знайдено"
+    },
+    "receiptScreen": {
+      "title": "Квитанція",
+      "totalSend": "Сума відправки",
+      "rate": "Ціна за 1 %{currencyCode}",
+      "recepient": "Отримувач",
+      "destinationAddress": "Адреса отримувача",
+      "destinationTag": "Тег призначення",
+      "paymentId": "Ідентифікатор платежу",
+      "minerFee": "Комісія майнера",
+      "totalMinerFee": "Загальна комісія майнера",
+      "trusteeInfo": "Криптовалютні транзакції не тарифікуються",
+      "send": "Надіслати",
+      "sending": "Відправка"
     }
   },
   "walletBackup": {
-    "pageTitle": "Створити новий гаманець",
+    "titleCreate": "Створити гаманець",
+    "titleBackup": "Резервне копіювання",
+    "titleShow": "Recovery phrase",
     "infoScreen": {
       "continue": "Продовжити",
       "text1": "TRUSTEE WALLET ніколи і нікуди не надсилає фразу відновлення. Тому, у випадку втрати чи виходу пристрою з ладу, єдиним способом отримати доступ до Ваших коштів є використання фрази відновлення",
@@ -1151,7 +1230,8 @@
     "send": {
       "success": "Успіх!",
       "txSuccess": "Ваша транзакція успішно відправлена!",
-      "fail": "Помилка..."
+      "fail": "Помилка...",
+      "feeChangeAmount": "Сума відправки змінилась після зміни комісії"
     },
     "walletLog" : {
       "sorry" : "Помилка....",

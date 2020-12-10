@@ -4,6 +4,8 @@
 import { createStackNavigator } from 'react-navigation-stack'
 import SettingsMainScreen from '../modules/Settings/SettingsMainScreen'
 import WalletListScreen from '../modules/Settings/WalletListScreen'
+import AddWalletScreen from '../modules/Settings/AddWalletScreen'
+import AdvancedWalletScreen from '../modules/Settings/AdvancedWalletScreen'
 import LanguageListScreen from '../modules/Settings/LanguageListScreen'
 import ScannerSettingsScreen from '../modules/Settings/ScannerSettingsScreen'
 import CashbackScreen from '../modules/Settings/CashbackScreen'
@@ -98,6 +100,20 @@ const SettingsStack = createStackNavigator(
 
         WalletListScreen: {
             screen: WalletListScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        AddWalletScreen: {
+            screen: AddWalletScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        AdvancedWalletScreen: {
+            screen: AdvancedWalletScreen,
             navigationOptions: {
                 headerShown: false
             }

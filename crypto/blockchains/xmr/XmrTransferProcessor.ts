@@ -114,6 +114,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         tmp.amountForTx = data.amount
                         logTmp.amountForTx = data.amount
                     }
+                    tmp.addressToTx = data.addressTo
                     result.fees.push(tmp)
                     logFees.push(logTmp)
                 }

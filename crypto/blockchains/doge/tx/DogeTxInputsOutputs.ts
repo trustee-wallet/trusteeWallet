@@ -96,6 +96,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         : BlocksoftBlockchainTypes.PreparedInputsOutputsTx {
         const utxos = []
         const isRequired: any = {}
+        let isAllRequired : boolean = true
         for (const unspent of unspents) {
             utxos.push({
                 txId: unspent.txid,
@@ -104,11 +105,17 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 value: unspent.value * 1,
                 my: unspent
             })
-            if (unspent.isRequired && typeof isRequired[unspent.txid] === 'undefined') {
-                isRequired[unspent.txid] = unspent
+            if (unspent.isRequired) {
+                if (typeof isRequired[unspent.txid] === 'undefined') {
+                    isRequired[unspent.txid] = unspent
+                }
+            } else {
+                isAllRequired = false
             }
         }
-
+        if (isAllRequired) {
+            data.isTransferAll = true
+        }
         const targets = this._coinSelectTargets(data, unspents, feeForByte, multiAddress, subtitle)
         let res
         if (data.isTransferAll) {
@@ -118,12 +125,12 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         }
         const { inputs, outputs, fee } = res
 
-        /*
-        console.log('CS targets ' + feeForByte, JSON.parse(JSON.stringify(targets)))
-        console.log('CS inputs', inputs ? JSON.parse(JSON.stringify(inputs)) : 'none')
-        console.log('CS outputs', outputs ? JSON.parse(JSON.stringify(outputs)) : 'none')
-        console.log('CS fee ', fee ? JSON.parse(JSON.stringify(fee)) : 'none')
-        */
+        // console.log('CS isAllRequired ', JSON.stringify(isAllRequired))
+        // console.log('CS targets ' + feeForByte, JSON.parse(JSON.stringify(targets)))
+        // console.log('CS inputs', inputs ? JSON.parse(JSON.stringify(inputs)) : 'none')
+        // console.log('CS outputs', outputs ? JSON.parse(JSON.stringify(outputs)) : 'none')
+        // console.log('CS fee ', fee ? JSON.parse(JSON.stringify(fee)) : 'none')
+
         const formatted = {
             inputs: [],
             outputs: [],
@@ -233,7 +240,6 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
 
         const filteredUnspents = []
         const unconfirmedBN = new BlocksoftBN(0)
-
 
         const isRequired: any = {}
         let isFoundSpeedUp = false

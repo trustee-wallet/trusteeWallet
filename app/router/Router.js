@@ -24,10 +24,14 @@ import TradeScreenStack from './TradeScreenStack'
 import TradeV3ScreenStack from './TradeV3ScreenStack'
 import SettingsScreenStack from './SettingsStack'
 
+import NotificationsScreen from '../modules/Notifications'
+
+import WebViewScreen from '../modules/WebView'
+
 import AddCardScreen from '../modules/Card'
 import SendScreen from '../modules/Send/SendScreen'
 import SendAdvancedSettingsScreen from '../modules/Send/SendAdvancedSettings'
-import ConfirmSendScreen from '../modules/Send/ConfirmSendScreen'
+import ReceiptScreen from '../modules/Send/ReceiptScreen'
 
 import LoadScreen from '../modules/Load/LoadScreen'
 
@@ -43,8 +47,10 @@ import FioAddresses from '../modules/FIO/FioAddresses'
 import FioMainSettings from '../modules/FIO/FioMainSettings'
 import FioSettings from '../modules/FIO/FioSettings'
 import AccountScreen from '../modules/Account/AccountScreen'
+import AccountSettingScreen from '../modules/Account/AccountSettings/AccountSettingsScreen'
 import ReceiveScreen from '../modules/Account/ReceiveScreen'
 import TransactionScreen from '../modules/Account/TransactionScreen'
+import CheckV3DataScreen from '../modules/Account/CheckV3'
 import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
 import AddCustomTokenScreen from '../modules/AddCustomToken/AddCustomTokenScreen'
 import SMSCodeScreen from '../modules/Trade/SMSCodeScreen'
@@ -67,13 +73,6 @@ const MainNavigator = createStackNavigator({
             }
         },
 
-        ConfirmSendScreen: {
-            screen: ConfirmSendScreen,
-            navigationOptions: {
-                headerShown: false
-            }
-        },
-
         SendScreen: {
             screen: SendScreen,
             navigationOptions: {
@@ -83,6 +82,13 @@ const MainNavigator = createStackNavigator({
 
         SendAdvancedScreen: {
             screen: SendAdvancedSettingsScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        ReceiptScreen: {
+            screen: ReceiptScreen,
             navigationOptions: {
                 headerShown: false
             }
@@ -151,8 +157,22 @@ const MainNavigator = createStackNavigator({
             }
         },
 
+        AccountSettings: {
+            screen: AccountSettingScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
         TransactionScreen: {
             screen: TransactionScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        CheckV3DataScreen: {
+            screen: CheckV3DataScreen,
             navigationOptions: {
                 headerShown: false
             }
@@ -212,6 +232,20 @@ const MainNavigator = createStackNavigator({
 
         AgreementScreen: {
             screen: AgreementScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        NotificationsScreen: {
+            screen: NotificationsScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        WebViewScreen: {
+            screen: WebViewScreen,
             navigationOptions: {
                 headerShown: false
             }

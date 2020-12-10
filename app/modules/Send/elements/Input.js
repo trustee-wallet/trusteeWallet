@@ -34,33 +34,10 @@ class Input extends Component {
             errors: [],
             focus: false,
             autoFocus: false,
-            show: false,
             tap: true,
             inputHeight: 0
         }
         this.inputRef = React.createRef()
-    }
-
-    componentDidMount() {
-        setTimeout(() => {
-            this.setState({
-                show: true
-            })
-        }, 200)
-
-        setTimeout(() => {
-            const { autoFocus } = this.props
-            if (typeof autoFocus !== 'undefined') {
-                this.setState({
-                    autoFocus,
-                    show: false
-                }, () => {
-                    this.setState({
-                        show: true
-                    })
-                })
-            }
-        }, 500)
     }
 
     // eslint-disable-next-line camelcase
@@ -191,40 +168,23 @@ class Input extends Component {
 
     render() {
 
-        const { value, show, focus, errors, autoFocus } = this.state
+        const { value, focus, errors, autoFocus } = this.state
         const {
             id,
             name,
-            mark,
-            action,
-            actionBtnStyles,
-            paste,
-            copy,
-            fio,
-            qr,
             style,
             onFocus,
-            subTitle,
             disabled,
-            qrCallback,
-            bottomLeftText,
             keyboardType,
             inputBaseColor,
             inputTextColor,
-            markStyle,
-            tapText,
-            tapCallback,
-            tapWrapperStyles,
-            tapContentStyles,
-            tapTextStyles,
-            tapIconStyle = {},
+            tabText,
             tintColor,
-            validPlaceholder,
             onSubmitEditing,
             noEdit,
             isCapitalize = true,
-            isLine = true,
-            isTextarea = false
+            isTextarea = false,
+            enoughFunds = false
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
@@ -232,103 +192,43 @@ class Input extends Component {
         error = typeof error !== 'undefined' ? error.msg : ''
         const isDisabled = typeof disabled !== 'undefined' ? disabled : false
 
-        const lineStyle = {}
-        let elementStyle = {}
-        if (typeof style !== 'undefined') {
-            elementStyle = style
-        }
-
-
-        if (isTextarea) {
-            let height = this.state.inputHeight + 30
-            if (height < 70) {
-                height = 70
-            }
-            elementStyle.minHeight = height
-            elementStyle.maxHeight = height
-            lineStyle.top = height - 10
-            if (error && height === 70) {
-                lineStyle.top = height - 20
-            }
-        }
-
         return (
-            <View style={{ ...styles.wrapper, ...elementStyle }}>
-                {/* {
-                    typeof isLine !== 'undefined' && isLine ? <GradientView style={{ ...styles.line, ...lineStyle }} array={error ? lineStyles_.arrayError : noEdit ? lineStyles_.arrayEdit : lineStyles_.array} start={lineStyles_.start} end={lineStyles_.end} /> : null
-                } */}
-                {
-                    show ? <TextField
-                        ref={ref => this.inputRef = ref}
-                        keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'numeric'}
-                        tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
-                        baseColor={typeof inputBaseColor !== 'undefined' ? inputBaseColor : '#404040'}
-                        textColor={typeof inputTextColor !== 'undefined' ? inputTextColor : '#0D0D0D'}
-                        fontSize={40}
-                        lineWidth={0}
-                        activeLineWidth={0}
-                        placeholder={'0.00'}
-                        placeholderTextColor = "#404040"
-                        textAlign={'center'}
-                        value={value}
-                        returnKeyLabel={'Buy'}
-                        returnKeyType={'done'}
-                        onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
-                        }}
-                        // autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
-                        disabled={isDisabled}
-                        disabledLineType={'none'}
-                        // error={error ? error.toString() : ''}
-                        onChangeText={(value) => this.handleInput(value)}
-                        style={noEdit ? { ...styles.fontFamily, color: '#999999' } : styles.fontFamily}
-                        // style={styles.fontFamily}
-                        multiline={isTextarea}
-                        autoCorrect={false}
-                        spellCheck={false}
-                        onBlur={() => {
-                            this.setState({ focus: false })
-                        }}
-                        onContentSizeChange={(e) => {
-                            const h = e.nativeEvent.contentSize.height
-                            if (h > 1) {
-                                this.setState({ inputHeight: h })
-                            }
-                        }}
-                        onFocus={typeof onFocus === 'undefined' ? () => {
-                            this.setState({ focus: true })
-                        } : () => {
-                            this.setState({ focus: true })
-                            onFocus()
-                        }}
-                    /> : null
-                }
+            <View style={styles.wrapper}>
+                <TextField
+                    // this is breaking android color={'#404040'}
+                    ref={ref => this.inputRef = ref}
+                    keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'numeric'}
+                    tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
+                    fontSize={40}
+                    lineWidth={0}
+                    activeLineWidth={0}
+                    placeholder={'0.00'}
+                    placeholderTextColor="#404040"
+                    textAlign={'center'}
+                    value={value}
+                    onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
+                    }}
+                    editable={!noEdit ? true : false}
+                    onChangeText={(value) => this.handleInput(value)}
+                    style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : '' }}
+                    autoCorrect={false}
+                    spellCheck={false}
+                    onBlur={() => {
+                        this.setState({ focus: false })
+                    }}
+                    onFocus={typeof onFocus === 'undefined' ? () => {
+                        this.setState({ focus: true })
+                    } : () => {
+                        this.setState({ focus: true })
+                        onFocus()
+                    }}
+                />
             </View>
         )
     }
 }
 
-
-const mapStateToProps = (state) => {
-    return {
-        qrCodeScanner: state.qrCodeScannerStore
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(Input)
-
-const lineStyles_ = {
-    array: ['#7127ac', '#864dd9'],
-    arrayError: ['#e77ca3', '#f0a5af'],
-    arrayEdit: ['#999999', '#999999'],
-    start: { x: 0, y: 0 },
-    end: { x: 1, y: 0 }
-}
+export default connect(null, null, null, { forwardRef: true })(Input)
 
 const styles = {
     wrapper: {
@@ -338,134 +238,11 @@ const styles = {
         minHeight: 70,
         marginBottom: 10
     },
-    content: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-    },
-    label: {
-        fontSize: 30,
-        fontFamily: 'SFUIDisplay-Regular'
-    },
-    input: {
-        padding: 0,
-        fontSize: 19
-    },
-    line: {
-        position: 'absolute',
-        top: 50,
-        width: '100%',
-        height: 2,
-        borderRadius: 2
-    },
-    error: {
-        marginTop: 5,
-        fontSize: 14,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#e77ca3'
-    },
     fontFamily: {
         fontFamily: 'Montserrat-Medium',
         height: 52
-        // marginRight: 110,
-        // textDecoration: 'none'
-    },
-    mark: {
-        // position: 'absolute',
-        right: 0,
-        bottom: 0,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 12,
-        color: '#808080'
-    },
-    action: {
-        position: 'absolute',
-        right: 0,
-        top: -2
-    },
-    action__title: {
-        marginTop: -5,
-        height: 30,
-        justifyContent: 'center'
-    },
-    action__title__text: {
-        fontSize: 10,
-        fontFamily: 'SFUIDisplay-Bold',
-        color: '#864dd9'
-    },
-    actions: {
-        position: 'absolute',
-        top: -5,
-        right: 0,
-        flexDirection: 'row'
-    },
-    actionBtn: {},
-    actionBtn__icon: {
-        marginLeft: 15,
-        marginTop: 20
-    },
-    actionBtn__icon_qr: {
-        marginTop: 2
     },
     tintColor: '#7127ac',
     errorColor: '#e77ca3',
-    labelHeight: 15,
-    subTitle: {
-        marginTop: -5,
-        fontSize: 14,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#808080'
-    },
-    bottomLeftText: {
-        fontSize: 19
-    },
-    bottomTexts: {
-        marginTop: -4,
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        flexWrap: 'nowrap'
-    },
-    validPlaceholder: {
-        position: 'absolute',
-        top: 20,
-        left: 0,
-
-        width: '100%',
-        maxHeight: 0,
-        padding: 0,
-
-        color: '#0D0D0D',
-        fontSize: 19,
-        fontFamily: 'SFUIDisplay-Regular',
-
-        backgroundColor: '#f9f9f9',
-        overflow: 'hidden',
-    },
-    validPlaceholder_active: {
-        maxHeight: 200
-    },
-    tap: {
-        position: 'absolute',
-        right: 0,
-        top: 20
-    },
-    tap__content: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 10,
-        paddingVertical: 5,
-        borderRadius: 5,
-        backgroundColor: '#f2f2f2'
-    },
-    tap__text: {
-        marginLeft: 4,
-
-        fontSize: 12,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#7127ac'
-    },
-    tap__content_disabled: {
-        backgroundColor: '#f9f9f9'
-    }
+    labelHeight: 15
 }
