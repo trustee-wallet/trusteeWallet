@@ -334,9 +334,9 @@ class Account extends Component {
             <>
                 <View style={styles.topContent__top}>
                     <View style={styles.topContent__title}>
-                        <Text style={{ ...styles.topContent__title_first, color: colors.accountScreen.balanceColor }} numberOfLines={1} >
+                        <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
                             { balancePrettyPrep1 }
-                            <Text style={{ ...styles.topContent__title_last, color: colors.accountScreen.balanceColor }}>
+                            <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
                                 { balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol }
                             </Text>
                         </Text>
@@ -345,51 +345,6 @@ class Account extends Component {
                         textStyle={{ ...styles.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
                 </View>
                 <View style={{ paddingTop: 12 }}>
-                    <AccountButtons />
-                </View>
-            </>
-        )
-    }
-
-    renderBalanceHeader = (account, cryptoCurrency) => {
-
-        const { colors, isLight } = this.context
-
-        let tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
-
-        if (typeof tmp.split === 'undefined') {
-            throw new Error('AccountScreen.renderBalance split is undefined')
-        }
-
-        tmp = tmp.slice(0,11)
-
-        const tmps = tmp.split('.')
-        let balancePrettyPrep1 = tmps[0]
-        let balancePrettyPrep2 = ''
-        if (typeof tmps[1] !== 'undefined' && tmps[1]) {
-            balancePrettyPrep1 = tmps[0] + '.'
-            balancePrettyPrep2 = tmps[1]
-        }
-
-        return (
-            <>
-                <View style={styles.topContent__top}>
-                    <View style={styles.topContent__title}>
-                        <Text style={{ ...styles.topContent__title_first, color: colors.accountScreen.balanceColor }}>
-                            {
-                                balancePrettyPrep1
-                            }
-                        </Text>
-                        <Text style={{ ...styles.topContent__title_last, color: colors.accountScreen.balanceColor }}>
-                            {
-                                balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol
-                            }
-                        </Text>
-                    </View>
-                    <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
-                        textStyle={{ ...styles.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
-                </View>
-                <View style={{ paddingTop: 24 }}>
                     <AccountButtons />
                 </View>
             </>

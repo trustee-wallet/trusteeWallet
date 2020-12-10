@@ -1,31 +1,16 @@
-import React, { Component } from 'react'
+/**
+ * @version 0.30
+ */
+import React from 'react'
 import {
     Platform,
     View,
     Text,
     TouchableOpacity,
-    Linking,
-    TextInput, Dimensions, PixelRatio,
-    SafeAreaView, ScrollView
 } from 'react-native'
-import { connect } from 'react-redux'
-import { strings } from '../../../services/i18n'
-import Header from '../../../components/elements/new/Header'
-import NavStore from '../../../components/navigation/NavStore'
-import { ThemeContext } from '../../theme/ThemeProvider'
-import Feather from 'react-native-vector-icons/Feather'
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
-import AntIcon from 'react-native-vector-icons/AntDesign'
-import EntypoIcon from 'react-native-vector-icons/Entypo'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
-
-import Theme from '../../../themes/Themes'
-import UIDict from '../../../services/UIDict/UIDict'
-
-import LetterSpacing from '../../../components/elements/LetterSpacing'
-import Loader from '../../../components/elements/LoaderItem'
 
 import { useTheme } from '../../theme/ThemeProvider'
 
@@ -53,7 +38,8 @@ const TransactionItem = (props) => {
         withoutBack,
         isLink,
         linkUrl,
-        handleLink
+        handleLink,
+        copyAction
     } = props
 
     return (
@@ -64,10 +50,9 @@ const TransactionItem = (props) => {
                         <View style={[styles.textContent, { paddingVertical: 3 }]}>
                             <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
                             {!!subtitle ?
-                                isLink ?
-                                    <TouchableOpacity onPress={() => handleLink(linkUrl)}>
-                                        <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>
-                                    </TouchableOpacity> : <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text> : null}
+                                    <TouchableOpacity onPress={() => isLink ? handleLink(linkUrl) : null} onLongPress={copyAction}>
+                                        <Text style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>
+                                    </TouchableOpacity> : null}
                         </View>
                     </View>
                 </View>
@@ -82,7 +67,8 @@ const TransactionItem = (props) => {
                         <View style={styles.mainContent}>
                             <View style={[styles.textContent, { paddingVertical: 3 }]}>
                                 <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
-                                {!!subtitle && <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>}
+                                {!!subtitle && 
+                                    <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>}
                             </View>
                         </View>
                     </View>
@@ -108,9 +94,7 @@ const styles = {
         zIndex: 2,
     },
     withoutBack: {
-        // borderRadius: 16,
         width: '100%',
-        // backgroundColor: '#F2F2F2',
         position: 'relative',
 
         zIndex: 2,
