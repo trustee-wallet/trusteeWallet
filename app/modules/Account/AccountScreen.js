@@ -21,10 +21,7 @@ import LetterSpacing from '../../components/elements/LetterSpacing'
 import Loader from '../../components/elements/LoaderItem'
 
 import Transaction from './elements/Transaction'
-import SettingsBTC from './AccountSettings/elements/SettingsBTC'
-import SettingsUSDT from './AccountSettings/elements/SettingsUSDT'
-import SettingsXMR from './AccountSettings/elements/SettingsXMR'
-import SettingsTRX from './AccountSettings/elements/SettingsTRX'
+
 
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
@@ -63,6 +60,9 @@ import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 import Header from '../../modules/Send/elements/Header'
 import TransactionButton from './elements/TransactionButton'
 
+import transactionDS from '../../appstores/DataSource/Transaction/Transaction'
+import transactionActions from '../../appstores/Actions/TransactionActions'
+
 
 let CACHE_ASKED = false
 
@@ -75,8 +75,12 @@ class Account extends Component {
         this.state = {
             refreshing: false,
             amountToView: 5,
-            transactions: [],
             transactionsToView: [],
+            transactionsTotalLength: 0,
+            transactionsShownLength: 0,
+
+            ordersWithoutTransactions : [],
+
             show: true,
             mode: 'TRANSACTIONS',
             openTransactionList: [],
@@ -110,6 +114,9 @@ class Account extends Component {
         }
         UpdateOneByOneDaemon._canUpdate = true
         CACHE_ASKED = await AsyncStorage.getItem('asked')
+
+        this.transactionInfinity()
+        this.ordersWithoutTransactions()
     }
 
     async componentDidMount() {
@@ -125,23 +132,13 @@ class Account extends Component {
                 }, this.handleRegisterFIOAddress)
             }
         }
+        this.transactionInfinity()
+        this.ordersWithoutTransactions()
     }
 
     updateOffset = (offset) => {
         const newOffset = Math.round(offset)
         if (this.state.scrollOffset !== newOffset) this.setState(() => ({ scrollOffset: newOffset }))
-    }
-
-    componentDidUpdate(prevProps) {
-        if (prevProps.account.transactions.length !== this.props.account.transactions.length) {
-            this.setState({
-                show: false
-            }, () => {
-                this.setState({
-                    show: true
-                })
-            })
-        }
     }
 
     handleRegisterFIOAddress = async () => {
@@ -367,144 +364,6 @@ class Account extends Component {
         this.setState({ dash: this.state.dash })
     }
 
-    prepareTransactions = (transactions, exchangeOrders) => {
-
-        const { mainStore } = this.props
-        const walletCashBackToken = CashBackUtils.getWalletToken()
-
-
-        let transactionsTmp = []
-
-        const indexedOrders = {}
-        if (exchangeOrders && exchangeOrders.length > 0) {
-            let item
-            for (item of exchangeOrders) {
-                if (item.cashbackToken !== walletCashBackToken) {
-                    continue
-                }
-                if (item.requestedOutAmount.currencyCode !== this.props.cryptoCurrency.currencyCode && item.requestedInAmount.currencyCode !== this.props.cryptoCurrency.currencyCode) {
-                    continue
-                }
-
-                const direction = item.requestedOutAmount.currencyCode === this.props.cryptoCurrency.currencyCode ? 'income' : 'outcome'
-                const amount = direction === 'income' ? item.requestedOutAmount.amount : item.requestedInAmount.amount
-                let subtitle = ''
-                if (item.exchangeWayType === 'EXCHANGE') {
-                    subtitle = item.requestedInAmount.currencyCode + '-' + item.requestedOutAmount.currencyCode
-                } else if (item.exchangeWayType === 'BUY') {
-                    // do nothing
-                } else {
-                    subtitle = item.outDestination
-                }
-
-
-                const order = {
-                    orderId: item.orderId,
-                    exchangeWayType: item.exchangeWayType,
-                    status: item.status,
-                    transactionDirection: direction,
-                    createdAt: item.createdAt,
-                    addressAmountPretty: amount,
-                    outDestination: item.outDestination,
-                    depositAddress: item.depositAddress,
-                    subtitle
-                }
-
-                order.addressAmountPretty = BlocksoftPrettyNumbers.makeCut(order.addressAmountPretty).separated
-
-                if (typeof order.id === 'undefined') {
-                    order.id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-                }
-
-                if (typeof item.orderJSON !== 'undefined' && item.orderJSON !== null) {
-                    order.orderJSON = JSON.parse(item.orderJSON)
-                }
-
-                if (typeof item.payinUrl !== 'undefined' && item.payinUrl !== null) {
-                    order.payinUrl = item.payinUrl
-                }
-
-                if (typeof item.payUpdateTime !== 'undefined') {
-                    order.payUpdateTime = item.payUpdateTime
-                }
-
-                indexedOrders[order.orderId] = order
-            }
-        }
-
-        if (transactions) {
-            let hash
-            for (hash in transactions) {
-                const tx = transactions[hash]
-
-                let added = false
-                const bseOrderID = tx.bseOrderID
-                const bseOrderID2 = tx.bseOrderInID
-                const bseOrderID3 = tx.bseOrderInID
-                if (bseOrderID && typeof indexedOrders[bseOrderID] !== 'undefined') {
-                    added = indexedOrders[bseOrderID]
-                }
-                if (!added && bseOrderID2 && typeof indexedOrders[bseOrderID2] !== 'undefined') {
-                    added = indexedOrders[bseOrderID2]
-                }
-                if (!added && bseOrderID3 && typeof indexedOrders[bseOrderID3] !== 'undefined') {
-                    added = indexedOrders[bseOrderID3]
-                }
-                if (added) {
-                    transactionsTmp.push({ ...tx, ...added })
-                    delete indexedOrders[added.orderId]
-                } else {
-                    if (mainStore.selectedWallet.walletIsHideTransactionForFee !== null && +mainStore.selectedWallet.walletIsHideTransactionForFee === 1) {
-                        if (tx.addressAmount === 0) {
-                            if (tx.transactionOfTrusteeWallet === 1 && tx.transactionsOtherHashes !== '') {
-                                // do nothing as its removed ones
-                            } else {
-                                continue
-                            }
-                        }
-                    }
-                    if (typeof tx.id === 'undefined') {
-                        tx.id = hash
-                    }
-                    transactionsTmp.push(tx)
-                }
-            }
-        }
-
-        if (indexedOrders) {
-            let orderId
-            for (orderId in indexedOrders) {
-                const order = indexedOrders[orderId]
-                if (order) {
-                    transactionsTmp.push(order)
-                }
-            }
-        }
-
-        transactionsTmp = transactionsTmp.sort((a, b) => {
-            if (a.createdAt === b.createdAt) {
-                if (a.transactionDirection === b.transactionDirection) {
-                    return b.id - a.id
-                }
-                const sortingB = b.transactionDirection === 'outcome' ? 2 : b.transactionDirection === 'self' ? 1 : 0
-                const sortingA = a.transactionDirection === 'outcome' ? 2 : a.transactionDirection === 'self' ? 1 : 0
-                if (sortingA === sortingB) {
-                    return b.id - a.id
-                } else {
-                    return sortingB - sortingA
-                }
-            }
-            return new Date(b.createdAt) - new Date(a.createdAt)
-        })
-
-
-        return transactionsTmp
-    }
-
-    handleShowMore = () => {
-        this.setState({ amountToView: this.state.amountToView + 5 })
-    }
-
     renderAddressTooltip = (props) => {
         const address = props.address || ''
         const addressPrep = BlocksoftPrettyStrings.makeCut(address, 6, 6)
@@ -643,6 +502,48 @@ class Account extends Component {
     //     )
     // }
 
+    handleShowMore = () => {
+        this.transactionInfinity(0, this.state.transactionsShownLength + 10)
+    }
+
+    async transactionInfinity(from = 0, perPage = 10) {
+        const { account } = this.props
+        let transactionsTotalLength = 0
+        if (from === 0) {
+            transactionsTotalLength = await transactionDS.getTransactionsCount({
+                walletHash: account.walletHash,
+                currencyCode: account.currencyCode
+            }, 'AccountScreen.transactionInfinity count')
+        }
+
+        const tmp = await transactionDS.getTransactions({
+            walletHash: account.walletHash,
+            currencyCode: account.currencyCode,
+            limitFrom: from,
+            limitPerPage: perPage
+        }, 'AccountScreen.transactionInfinity list')
+        const transactionsToView = []
+        if (tmp && tmp.length > 0) {
+            for (let transaction of tmp) {
+                transaction = transactionActions.preformat(transaction, { account })
+                transactionsToView.push(transaction)
+            }
+        }
+
+        if (transactionsTotalLength > 0) {
+            this.setState({ transactionsToView, transactionsTotalLength, transactionsShownLength: perPage })
+        } else {
+            this.setState({ transactionsToView })
+        }
+    }
+
+    async ordersWithoutTransactions() {
+        const { account, exchangeOrdersStore } = this.props
+        this.setState({
+            ordersWithoutTransactions : exchangeOrdersStore.exchangeOrders[account.currencyCode] || []
+        })
+    }
+
     render() {
         // noinspection ES6MissingAwait
         firebase.analytics().setCurrentScreen('Account.AccountScreen')
@@ -651,24 +552,14 @@ class Account extends Component {
 
         const { colors, isLight } = this.context
         const { mode, openTransactionList } = this.state
-        const { mainStore, account, cryptoCurrency, exchangeStore, settingsStore } = this.props
+        const { mainStore, account, cryptoCurrency, settingsStore } = this.props
         const { btcShowTwoAddress = 1 } = settingsStore.data
-        const { amountToView, show } = this.state
-        const transactions = account.transactions
-        const address = account.address
+        const { amountToView, show, transactionsToView, transactionsTotalLength, transactionsShownLength } = this.state
 
-        let transactionsToView = this.prepareTransactions(transactions, exchangeStore.exchangeOrders)
-        let transactionsToViewLength = 0
-        if (transactionsToView) {
-            transactionsToViewLength = transactionsToView.length
-            transactionsToView = transactionsToView.slice(0, this.state.amountToView)
-        } else {
-            transactionsToView = []
-        }
+        const address = account.address
 
         const fioMemo = DaemonCache.getFioMemo(cryptoCurrency.currencyCode)
 
-        Log.log('AccountScreen.render amountToView ' + this.state.amountToView + ' transactionsToViewLength ' + transactionsToViewLength)
         const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
 
         const shownAddress = cryptoCurrency.currencyCode === 'BTC' ? btcAddress : address
@@ -696,7 +587,6 @@ class Account extends Component {
         }
 
         let leftComponent
-        let settingsComponent = null
         if (account.currencyCode === 'BTC') {
             leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
                 onPress={() => this.accountSetting(account.currencyCode)}><View
@@ -724,6 +614,9 @@ class Account extends Component {
         }
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor
+
+        // @todo yura
+        console.log('PLZ SHOW SOMEWHERE IT TOP - ITS LIKE TRANSACTIONS BUT NOT ', this.state.ordersWithoutTransactions)
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
@@ -859,7 +752,7 @@ class Account extends Component {
                                                 fioMemo={fioMemo[item.transactionHash]}
                                                 account={account}
                                                 cryptoCurrency={cryptoCurrency}
-                                                dash={(transactionsToViewLength - 1 === index) ? this.renderDash : !this.renderDash}
+                                                dash={(transactionsTotalLength - 1 === index) ? this.renderDash : !this.renderDash}
 
                                             />
                                         }) : null
@@ -867,7 +760,7 @@ class Account extends Component {
                                 </View>
                             </View>
                             {
-                                this.state.amountToView < transactionsToViewLength ?
+                                transactionsTotalLength > transactionsShownLength ?
                                     <View style={{ width: '100%', alignItems: 'center' }}>
                                         <TouchableOpacity style={styles.showMore} onPress={this.handleShowMore} hitSlop={HIT_SLOP} >
                                             <Text style={{ ...styles.showMore__btn, color: colors.accountScreen.showMoreColor }}>
@@ -895,7 +788,7 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         cryptoCurrency: state.mainStore.selectedCryptoCurrency,
         account: state.mainStore.selectedAccount,
-        exchangeStore: state.exchangeStore,
+        exchangeOrdersStore: state.exchangeOrdersStore,
         settingsStore: state.settingsStore,
         cashBackStore: state.cashBackStore
     }

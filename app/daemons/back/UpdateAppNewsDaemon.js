@@ -1,8 +1,7 @@
 /**
- * @version 0.20
+ * @version 0.30
  */
 import Log from '../../services/Log/Log'
-
 import Api from '../../services/Api/Api'
 
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
@@ -33,7 +32,10 @@ class UpdateAppNewsDaemon {
             }
         }
         const res = await Api.getNews(forServer)
-        if (!res || res.length === 0) {
+        if (res.isError) {
+            return false
+        }
+        if (!res.data || res.data.length === 0) {
             if (forServerIds.length > 0) {
                 await appNewsDS.saveAppNewsSentForServer(forServerIds)
             }
@@ -55,7 +57,7 @@ class UpdateAppNewsDaemon {
             newsServerId: 'serverId',
             newsServerHash : 'status'
         }
-        for (const row of res) {
+        for (const row of res.data) {
             const toSave = {
                 newsNeedPopup: row.needPopup ? 1 : 0,
                 newsLog: new Date().toISOString() + ' loaded from Server'

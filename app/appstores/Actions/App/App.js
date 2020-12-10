@@ -131,11 +131,11 @@ class App {
 
             this.initStatus = 'updateAppNewsDaemon.fromServer'
 
-            await UpdateAppNewsDaemon.updateAppNewsDaemon()
+            await UpdateAppNewsDaemon.updateAppNewsDaemon({force: true})
 
             this.initStatus = 'updateTradeOrdersDaemon.fromDB'
 
-            await UpdateTradeOrdersDaemon.fromDB()
+            await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({force: true}) // fromDB()
 
             this.initStatus = 'AppLockScreenIdleTime.init'
 
@@ -151,6 +151,7 @@ class App {
             // console.log(new Date().toISOString() + ' done')
 
         } catch (e) {
+            console.log(e)
             Log.err('ACT/App init application error ' + this.initStatus + ' ' + e.message)
             this.initError = e.message
             dispatch(setInitError(e.message))

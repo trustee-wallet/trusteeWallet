@@ -274,7 +274,8 @@ export default {
                 
                 bse_order_id VARCHAR(256) NULL,
                 bse_order_id_in VARCHAR(256) NULL,
-                bse_order_id_out VARCHAR(256) NULL,         
+                bse_order_id_out VARCHAR(256) NULL,      
+                bse_order_data TEXT NULL,   
                        
                 lock_time DATETIME NULL,
                 block_time DATETIME NULL,

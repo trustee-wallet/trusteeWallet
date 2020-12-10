@@ -301,14 +301,9 @@ class Transaction extends Component {
     }
 
     transactionDetalis = (tx) => {
-        let hash
-        hash = tx.transactionHash || tx.orderId
-
         NavStore.goNext('TransactionScreen', {
             txData: {
-                transaction: tx,
-                hash,
-                currencyCode: tx.currencyCode
+                transaction: tx
             } 
         })
     }

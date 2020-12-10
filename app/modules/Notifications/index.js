@@ -188,7 +188,26 @@ class NotificationsScreen extends React.Component {
             NavStore.goNext('WebViewScreen', { url: notification.newsUrl, title })
             return
         }
-        // TODO: add orders processing
+
+        // orders processing
+        const transactionHash = notification.newsJson?.payinTxHash || notification.newsJson?.payoutTxHash
+        const orderHash = notification.newsJson?.orderHash || false
+
+        if (transactionHash) {
+            NavStore.goNext('TransactionScreen', {
+                txData: {
+                    transactionHash
+                }
+            })
+        } else if (orderHash) {
+            NavStore.goNext('TransactionScreen', {
+                txData: {
+                    orderHash
+                }
+            })
+        }
+
+
     }
 
     render() {

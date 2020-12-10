@@ -186,11 +186,10 @@ export default {
         if (!deviceToken) {
             await AppNotificationListener.getToken()
             deviceToken = MarketingEvent.DATA.LOG_TOKEN
-
         }
         const signedData = await CashBackUtils.createWalletSignature(true)
         if (!signedData) {
-            throw new Error('No signed for getExchangeOrders')
+            throw new Error('No signed for getNews')
         }
         const data = {
             cashbackToken: CashBackUtils.getWalletToken(),
@@ -204,13 +203,13 @@ export default {
             if (!res || typeof res.data === 'undefined' || !res.data || typeof res.data[0] === 'undefined') {
                 return []
             }
-            return res.data
+            return {isError : false, data : res.data}
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('Api.getNews error ', data, e)
             }
             Log.log('Api.getNews error ' + e.message, data)
-            return []
+            return { isError : true, data : [] }
         }
     },
 

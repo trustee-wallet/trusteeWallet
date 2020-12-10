@@ -12,6 +12,7 @@ import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 import config from '../../config/config'
 import DBInterface from '../../appstores/DataSource/DB/DBInterface'
+import ExchangeOrdersActions from '../../appstores/Stores/ExchangeOrders/ExchangeOrdersActions'
 
 const settingsDS = new Settings()
 
@@ -25,29 +26,6 @@ let TRY_COUNTER = 0
 const LIMIT_FOR_CURRENCY = 20
 
 class UpdateTradeOrdersDaemon {
-
-    fromDB = async (walletToken) => {
-        if (typeof walletToken === 'undefined') {
-            walletToken = CashBackUtils.getWalletToken()
-        }
-        const tmpTradeOrders = await settingsDS.getSetting('bseOrders_' + walletToken)
-
-        if (typeof tmpTradeOrders !== 'undefined' && tmpTradeOrders) {
-            try {
-                const tmpTradeOrders2 = JSON.parse(tmpTradeOrders.paramValue)
-                const tradeOrders = []
-                let item
-                for (item of tmpTradeOrders2.ordersList) {
-                    if (typeof CACHE_REMOVED[item.orderId] === 'undefined') {
-                        tradeOrders.push(item)
-                    }
-                }
-                ExchangeActions.setExchangeOrderList(tradeOrders)
-            } catch (e) {
-                Log.errDaemon('UpdateTradeOrders orders from db error ' + e.message, tmpTradeOrders)
-            }
-        }
-    }
 
     removedFromDb = async () => {
         const tmpRemoved = await settingsDS.getSetting('bseRemoved')
@@ -94,7 +72,6 @@ class UpdateTradeOrdersDaemon {
         }
 
         try {
-            const tradeOrdersToMarketingEvent = []
             let tmpTradeOrders = await Api.getExchangeOrders()
             const tmpTradeOrdersV3 = await ApiV3.getExchangeOrders()
             if (typeof tmpTradeOrdersV3 !== 'undefined' && tmpTradeOrdersV3 && tmpTradeOrdersV3.length > 0) {
@@ -129,19 +106,17 @@ class UpdateTradeOrdersDaemon {
                 if (typeof tmpTradeOrders !== 'undefined' && tmpTradeOrders && tmpTradeOrders.length > 0 && typeof tmpTradeOrders.sort !== 'undefined') {
 
                     tmpTradeOrders = tmpTradeOrders.sort((item1, item2) => item2.createdAt - item1.createdAt)
+
                     let item
 
                     const index = {}
                     let total = 0
 
-                    const tradeOrders = []
+                    const tradeOrders = {}
 
                     for (item of tmpTradeOrders) {
                         if (total > 100) {
                             break
-                        }
-                        if (item.exchangeWayType === 'BUY') {
-                            tradeOrdersToMarketingEvent.push(item)
                         }
                         if (typeof CACHE_REMOVED[item.orderId] !== 'undefined') {
                             continue
@@ -150,7 +125,7 @@ class UpdateTradeOrdersDaemon {
                             {
                                 currencyCode: item.requestedInAmount.currencyCode || false,
                                 updateHash: item.inTxHash || false,
-                                suffix: 'out'
+                                suffix: 'in'
                             },
                             {
                                 currencyCode: item.requestedOutAmount.currencyCode || false,
@@ -160,6 +135,8 @@ class UpdateTradeOrdersDaemon {
                         ]
 
                         let needAdd = false
+                        let savedToTx = false
+                        let currencyCode = 'NONE'
                         for (const tmp of tmps) {
                             if (!tmp.currencyCode) continue
                             if (typeof index[tmp.currencyCode] === 'undefined') {
@@ -167,36 +144,52 @@ class UpdateTradeOrdersDaemon {
                             } else {
                                 index[tmp.currencyCode]++
                             }
+                            currencyCode = tmp.currencyCode
                             if (index[tmp.currencyCode] < LIMIT_FOR_CURRENCY) {
+                                let sql
                                 if (tmp.updateHash) {
-                                    const sql = `
+                                    sql = `
                                      UPDATE transactions 
-                                     SET bse_order_id_${tmp.suffix}='${item.orderId}'
+                                     SET bse_order_id_${tmp.suffix}='${item.orderId}', bse_order_data='${dbInterface.escapeString(JSON.stringify(item))}'
                                      WHERE transaction_hash='${tmp.updateHash}'
                                      AND currency_code='${tmp.currencyCode}'
                                      `
-                                    await dbInterface.setQueryString(sql).query(true)
+                                    savedToTx = true
+                                } else {
+                                    sql = `
+                                     UPDATE transactions 
+                                     SET bse_order_data='${dbInterface.escapeString(JSON.stringify(item))}'
+                                     WHERE bse_order_id='${item.orderId}'
+                                     `
+                                    // could be true could be not
                                 }
+                                await dbInterface.setQueryString(sql).query(true)
                                 needAdd = true
                             }
                         }
 
                         if (needAdd) {
-                            tradeOrders.push(item)
+                            if (!savedToTx) {
+                                if (typeof tradeOrders[currencyCode] === 'undefined') {
+                                    tradeOrders[currencyCode] = []
+                                }
+                                tradeOrders[currencyCode].push(item)
+                            }
                             total++
                         }
                     }
 
-                    ExchangeActions.setExchangeOrderList(tradeOrders)
+                    ExchangeOrdersActions.setExchangeOrderList(tradeOrders)
 
-                    await settingsDS.setSettings('bseOrders_' + walletToken, JSON.stringify({ ordersList: tradeOrders }))
+                    for (const currencyCode in tradeOrders) {
+                        // here will be only orders without txs
+                        await settingsDS.setSettings('bseOrders_' + walletToken + '_' + currencyCode, JSON.stringify({ ordersList: tradeOrders[currencyCode] }))
+                    }
 
                     Log.daemon('UpdateTradeOrders success')
 
                     TRY_COUNTER = 0
 
-                } else {
-                    await this.fromDB(walletToken)
                 }
             } catch (e) {
                 if (config.debug.appErrors) {

@@ -153,6 +153,65 @@ class Transaction {
         await dbInterface.setQueryString(sql).query()
     }
 
+    getTransactionsCount = async (params, source = '?') => {
+        const dbInterface = new DBInterface()
+
+        // Log.daemon('DS/Transaction getTransactions called')
+
+        let where = []
+        if (params.walletHash) {
+            where.push(`wallet_hash='${params.walletHash}'`)
+        }
+        if (params.currencyCode) {
+            where.push(`currency_code='${params.currencyCode}'`)
+        }
+        if (params.accountId) {
+            where.push(`account_id='${params.accountId}'`)
+        }
+        if (params.transactionHash) {
+            where.push(`transaction_hash='${params.transactionHash}'`)
+        }
+        if (params.bseOrderHash) {
+            where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
+        }
+
+        let order = ' ORDER BY created_at DESC, id DESC'
+        if (params.noOrder) {
+            order = ''
+        } else {
+            where.push(`hidden_at IS NULL`)
+        }
+
+        // where.push(`'${source}' = '${source}'`)
+
+        if (where.length > 0) {
+            where = ' WHERE ' + where.join(' AND ')
+        } else {
+            where = ''
+        }
+
+
+        const sql = ` 
+            SELECT COUNT(id) AS cn
+            FROM transactions 
+            ${where}
+            `
+        let res = []
+        try {
+            res = await dbInterface.setQueryString(sql).query()
+            if (typeof res.array !== 'undefined') {
+                res = res.array
+            }
+        } catch (e) {
+            Log.errDaemon('DS/Transaction getTransactions error ' + sql, e)
+        }
+
+        if (!res || res.length === 0) {
+            // Log.daemon('DS/Transaction getTransactions finished empty ' + where + ' ' + order)
+            return false
+        }
+        return res[0]['cn']
+    }
     /**
      * @param {Object} params
      * @param {string} params.walletHash
@@ -179,6 +238,9 @@ class Transaction {
         if (params.transactionHash) {
             where.push(`transaction_hash='${params.transactionHash}'`)
         }
+        if (params.bseOrderHash) {
+            where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
+        }
 
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params.noOrder) {
@@ -195,6 +257,13 @@ class Transaction {
             where = ''
         }
 
+        let limit = ''
+        if (typeof params.limitPerPage !== 'undefined') {
+            limit = ' LIMIT ' + params.limitPerPage
+        }
+        if (typeof params.limitFrom !== 'undefined') {
+            limit += ' OFFSET ' + params.limitFrom
+        }
 
         const sql = ` 
             SELECT id, 
@@ -222,10 +291,12 @@ class Transaction {
             transactions_other_hashes AS transactionsOtherHashes,
             bse_order_id AS bseOrderID,
             bse_order_id_out AS bseOrderOutID,
-            bse_order_id_in AS bseOrderInID
+            bse_order_id_in AS bseOrderInID,
+            bse_order_data AS bseOrderData
             FROM transactions 
             ${where}
             ${order}
+            ${limit}
             `
         let res = []
         try {
@@ -285,6 +356,16 @@ class Transaction {
                     }
                 }
             }
+
+            if (typeof tx.bseOrderData !== 'undefined' && tx.bseOrderData !== null && tx.bseOrderData !== 'undefined') {
+                try {
+                    tx.bseOrderData = JSON.parse(tx.bseOrderData)
+                } catch (e) {
+                    e.message += ' while parsing tx 1 ' + tx.bseOrderData
+                    throw e
+                }
+            }
+
             txArray.push(tx)
         }
 
