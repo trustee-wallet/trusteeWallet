@@ -57,11 +57,11 @@
     "title": "BUY SELL EXCHANGE ANONYMOUSLY",
     "createWallet": "Create wallet",
     "importWallet": "Import wallet",
-    "acceptTerms": "You don`t agree with Term of Service and Privacy Policy",
+    "acceptTerms": "You don`t agree with Terms of Service and Privacy Policy",
     "agreement1": "I have read, understand and agree to the",
     "terms": "Terms of use",
     "agreement2": "and",
-    "privacyPolicy": "Privacy policy",
+    "privacyPolicy": "Privacy Policy",
     "slider1": "Innovative security and anonymity technologies",
     "slider2": "Endless possibilities in an intuitive design",
     "slider3": "Built-in monitoring of exchange offices",
@@ -201,9 +201,9 @@
     "confirmScreenTimeout" : "Please, check Internet access and try again",
     "confirmScreenInvalidOut" : "Invalid out account, please, check and try again",
     "confirmScreenTemporaryOff" : "Temporary disabled destination on the provider side",
-    "confirmScreenAdvNotVerified" : "Email not verified, please use verified Adv account and try again",
+    "confirmScreenAdvNotVerified" : "Email not verified, please, use verified ADV account and try again",
     "confirmScreenInvalidAddress" : "System error of the trading pair on the provider side, please, try again",
-    "openLink" : "To go to payment please click directly on this link",
+    "openLink" : "To go to payment, please, click directly on this link",
     "openLinkError": "Not found default browser - link is copied to clipboard"
   },
   "settings": {
@@ -271,7 +271,7 @@
       "totalBalance": "Total balance",
       "useUnconfirmed": "Use unconfirmed transactions",
       "allowReplaceByFee": "Edit the transaction before confirmation by miners",
-      "changeSetting": "Collect Change to",
+      "changeSetting": "Address for the change",
       "useLegacy": "Use Legacy",
       "useSegWit": "Use SegWit",
       "showLegacy": "Show Legacy",
@@ -287,8 +287,8 @@
         "description" : "You will be using balance from address %{newAddress}"
       },
       "backupModal": {
-        "title": "Mnemonic phrase not saved!",
-        "description": "The mnemonic phrase (seed phrase) is the only key to your assets! In case of failure of the phone or other similar situations, it will be impossible to restore access to your assets without this phrase! We recommend that you save the phrase in a safe place right now! \n \n If you are asked for a seed phrase, then you are dealing with scammers! \n Do not tell the seed phrase under any circumstances!"
+        "title": "Recovery phrase not saved!",
+        "description": "The recovery phrase (seed phrase) is the only key to your assets! In case of failure of the phone or other similar situations, it will be impossible to restore access to your assets without this phrase! We recommend that you save the phrase in a safe place right now! \n \n If you are asked for a seed phrase, then you are dealing with scammers! \n Do not tell the seed phrase under any circumstances!"
       },
       "hdEnableModal": {
         "title": "Switch wallet to HD mode?",
@@ -298,7 +298,7 @@
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Server for Send TX (default api.mymonero.com)",
       "serverSendInputTitleXMR" : "or node.moneroworld.com:18089",
-      "needReinstallXMR"  : "Something wrong with XMR address generation - please save mnemonic and reinstall application or contact support",
+      "needReinstallXMR"  : "Something wrong with XMR address generation - please, save mnemonic and reinstall application or contact support",
       "saveSettings" : "Save",
       "getMnemonicXMR" : "View secrets"
     },
