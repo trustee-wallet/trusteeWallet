@@ -247,6 +247,7 @@ class FioSettings extends Component {
 
         return (
             <View>
+                {/*fio settings*/}
                 <Navigation
                     title={strings('FioSettings.title')}
                 />
