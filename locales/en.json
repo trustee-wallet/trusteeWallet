@@ -57,11 +57,11 @@
     "title": "BUY SELL EXCHANGE ANONYMOUSLY",
     "createWallet": "Create wallet",
     "importWallet": "Import wallet",
-    "acceptTerms": "You don`t agree with Term of Service and Privacy Policy",
+    "acceptTerms": "You don`t agree with Terms of Service and Privacy Policy",
     "agreement1": "I have read, understand and agree to the",
     "terms": "Terms of use",
     "agreement2": "and",
-    "privacyPolicy": "Privacy policy",
+    "privacyPolicy": "Privacy Policy",
     "slider1": "Innovative security and anonymity technologies",
     "slider2": "Endless possibilities in an intuitive design",
     "slider3": "Built-in monitoring of exchange offices",
@@ -155,7 +155,6 @@
         "title": "Sorry...",
         "desc": "Card verification failed. Please, try again"
       }
-
     },
     "paymentInformation": "Payment method info",
     "urkCardOnly": "Ukranian cards only!",
@@ -201,9 +200,9 @@
     "confirmScreenTimeout" : "Please, check Internet access and try again",
     "confirmScreenInvalidOut" : "Invalid out account, please, check and try again",
     "confirmScreenTemporaryOff" : "Temporary disabled destination on the provider side",
-    "confirmScreenAdvNotVerified" : "Email not verified, please use verified Adv account and try again",
+    "confirmScreenAdvNotVerified" : "Email not verified, please, use verified ADV account and try again",
     "confirmScreenInvalidAddress" : "System error of the trading pair on the provider side, please, try again",
-    "openLink" : "To go to payment please click directly on this link",
+    "openLink" : "To go to payment, please, click directly on this link",
     "openLinkError": "Not found default browser - link is copied to clipboard"
   },
   "notifications": {
@@ -293,8 +292,8 @@
       "on": "On",
       "totalBalance": "Total balance",
       "useUnconfirmed": "Use unconfirmed transactions",
-      "allowReplaceByFee": "Editing the transaction before confirmation by miners",
-      "changeSetting": "Collect Change to SegWit",
+      "allowReplaceByFee": "Edit the transaction before confirmation by miners",
+      "changeSetting": "Address for the change",
       "useLegacy": "Use Legacy",
       "useSegWit": "Use SegWit",
       "showLegacy": "Legacy",
@@ -302,7 +301,6 @@
       "accountAddress": "Select visible address",
       "showSegWitAndLegacy": "Show SegWit and Legacy",
       "hideCommissionTrans": "Hide commission payment transactions",
-      "checkFrozen" : "Scan frozen balance",
       "manualAddressFromHD" : "Paste address HD",
       "scanAddressesFromHD" : "Scan addresses from HD for balances",
       "setAddressesFromHD" : {
@@ -310,8 +308,8 @@
         "description" : "You will be using balance from address %{newAddress}"
       },
       "backupModal": {
-        "title": "Mnemonic phrase not saved!",
-        "description": "The mnemonic phrase (seed phrase) is the only key to your assets! In case of failure of the phone or other similar situations, it will be impossible to restore access to your assets without this phrase! We recommend that you save the phrase in a safe place right now! \n \n If you are asked for a seed phrase, then you are dealing with scammers! \n Do not tell the seed phrase under any circumstances!"
+        "title": "Recovery phrase not saved!",
+        "description": "The recovery phrase (seed phrase) is the only key to your assets! In case of failure of the phone or other similar situations, it will be impossible to restore access to your assets without this phrase! We recommend that you save the phrase in a safe place right now! \n \n If you are asked for a seed phrase, then you are dealing with scammers! \n Do not tell the seed phrase under any circumstances!"
       },
       "hdEnableModal": {
         "title": "Switch wallet to HD mode?",
@@ -321,7 +319,7 @@
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Server for Send TX (default api.mymonero.com)",
       "serverSendInputTitleXMR" : "or node.moneroworld.com:18089",
-      "needReinstallXMR"  : "Something wrong with XMR address generation - please save mnemonic and reinstall application or contact support",
+      "needReinstallXMR"  : "Something wrong with XMR address generation - please, save mnemonic and reinstall application or contact support",
       "saveSettings" : "Save",
       "getMnemonicXMR" : "View secrets",
       "availableTRX" : "Available",
@@ -363,7 +361,7 @@
       "newsTitle": "News"
     },
     "error": {
-      "title": "Oooops, app error",
+      "title": "Oooops, smth went wrong",
       "contactSupport": "Support",
       "tryAgain": "Reload",
       "text": "If you're seeing this, smth went wrong, please, send us logs via support or try to reload the app"
@@ -516,7 +514,6 @@
     }
   },
 
-
   "fioMainSettings": {
     "title": "FIO Settings",
     "description": "Control all available FIO options",
@@ -541,13 +538,11 @@
     "description": "Enter address to request payment from",
     "btnText": "Select FIO Address"
   },
-
   "FioAddresses": {
     "title": "Fio Names",
     "description": "Fio Addresses",
     "btnText": "Register new FIO address"
   },
-
   "FioSettings": {
     "title": "Fio Settings",
     "description": "Choose wallets to connect to your FIO address",
@@ -572,8 +567,8 @@
     "fioSettings": "FIO Settings",
     "registerFioAddress": "Register FIO Address",
     "noCoinSelected": "You need to choose coin in which you make request",
-    "goToFioSettings": "You need go to Fio Settings and associate coins with your fio address",
-    "needRegisterFio": "You need to register your Fio Address first "
+    "goToFioSettings": "You need go to Fio Settings and associate coins with your FIO address",
+    "needRegisterFio": "You need to register your FIO Address first "
   },
 
   "FioRequestsList": {
@@ -596,7 +591,6 @@
     "btnTextReject": "Reject",
     "btnTextConfirm": "Confirm"
   },
-
 
   "exchangeInit": {
     "ordersHistory": "Orders history",
@@ -860,7 +854,7 @@
      "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "The transaction has not received a network confirmation - please wait for the other transactions to be mined or place higher fee",
      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Insufficient balance of native currency %{symbol} to pay the network fee - please wait for the other transactions to be mined",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Transaction fee is too small",
-     "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Transaction replacement fee is too small - click yes to take some fee from the recipient's amount, then in the next step you will see the recalculated transaction data",
+     "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Insufficient balance of native currency %{symbol} to pay - click yes, to take some fee from the recipient's amount, then in the next step you will see the recalculated transaction data",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Transaction replacement fee is too small",
      "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Transaction already mined",
      "SERVER_RESPONSE_NOT_CONNECTED": "Network is unreachable - please repeat the operation later",
@@ -996,13 +990,7 @@
     "optional": "optional",
     "enterMnemonic": {
       "description": "Insert the entire recovery phrase or enter all words manually (usually 12 or 24 words)",
-      "mnemonic": "mnemonic phrase"
-    },
-    "congratsModal": {
-      "title": "Congratulations!",
-      "description": "Trustee has generated you a new wallet. Backup the recovery phrase later in the settings menu - “Skip” button. Or now, it will take a few minutes - \"Copy\" button.",
-      "backup": "Copy",
-      "skip": "Skip"
+      "mnemonic": "recovery phrase"
     }
   },
   "walletList": {
@@ -1254,7 +1242,7 @@
     },
     "walletBackup": {
       "success": "Success!",
-      "seedConfirm": "Seed phrase was confirmed!",
+      "seedConfirm": "Recovery phrase was confirmed!",
       "walletCreated": "Your wallet was created!"
     },
     "walletCreate": {
@@ -1305,14 +1293,6 @@
     "noInternet": "No internet access",
     "badInternet": "Bad internet access, please, try reconnect with another provider",
     "saved" : "Saved"
-  },
-  "tips": {
-    "homeScreen": {
-      "sellBuyBtn": {
-        "title": "Hey, Friend!",
-        "description": "Hold the button to switch between sell and buy crypto."
-      }
-    }
   },
   "appNews": {
     "title": "Technical messages",
