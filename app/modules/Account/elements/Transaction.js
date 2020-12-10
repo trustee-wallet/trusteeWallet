@@ -76,7 +76,7 @@ class Transaction extends Component {
 
             const direction = this.prepareType(transaction.transactionDirection)
 
-            const wayType = this.prepareWayType(transaction.exchangeWayType)
+            const wayType = this.prepareWayType()
 
             const styles = JSON.parse(JSON.stringify(this.prepareStyles(status, direction)))
 
@@ -124,15 +124,17 @@ class Transaction extends Component {
         return transactionDirection
     }
 
-    prepareWayType = (wayType) => {
+    prepareWayType = () => {
 
         const { transaction } = this.props
 
-        if (typeof transaction.outDestination !== 'undefined' && transaction.outDestination !== null && transaction.outDestination.includes('+')) {
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null && transaction.bseOrderData.outDestination && transaction.bseOrderData.outDestination.includes('+')) {
             return 'MOBILE_PHONE'
         }
 
-        return typeof wayType !== 'undefined' ? wayType : null
+        const wayType = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.exchangeWayType : null
+
+        return wayType
     }
 
     prepareStatus = (transactionStatus, orderStatus) => {
@@ -322,12 +324,23 @@ class Transaction extends Component {
 
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor
-        const subtitle = typeof transaction.subtitle !== 'undefined' && transaction.subtitle ? transaction.subtitle : false
+        const subtitle = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null && transaction.bseOrderData.exchangeWayType !== 'BUY' ? true : false
 
-        const doteSlice = subtitle ? subtitle.indexOf('-') : -1
-        const subtitleMini = doteSlice && transaction.exchangeWayType === 'EXCHANGE' ? transaction.transactionDirection === 'income' ?
-            transaction.subtitle.slice(0, doteSlice) : transaction.transactionDirection === 'outcome' ?
-                transaction.subtitle.slice(doteSlice + 1, transaction.subtitle.length) : transaction.subtitle : transaction.subtitle
+        // const doteSlice = subtitle ? subtitle.indexOf('-') : -1
+        // const subtitleMini = transaction.bseOrderData.exchangeWayType === 'EXCHANGE' ? transaction.transactionDirection === 'income' ?
+        //     transaction.subtitle.slice(0, doteSlice) : transaction.transactionDirection === 'outcome' ?
+        //         transaction.subtitle.slice(doteSlice + 1, transaction.subtitle.length) : transaction.subtitle : transaction.subtitle
+
+        let subtitleMini
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null) {
+            if (transaction.bseOrderData.exchangeWayType === 'SELL') {
+                subtitleMini = transaction.bseOrderData.outDestination
+            } else if (transaction.bseOrderData.exchangeWayType === 'EXCHANGE'){
+                subtitleMini = transaction.transactionDirection === 'income' ?
+                transaction.requestedOutAmount.currencyCode : transaction.requestedInAmount.currencyCode
+            }
+        }
+
 
         return show ? (
             <View style={styles.transaction}>
@@ -359,7 +372,8 @@ class Transaction extends Component {
                                     end={styles.transaction__item_bg.end}>
                                     <View style={{ ...styles.transaction__item__content, opacity: status === 'fail' || status === 'missing' ? 0.5 : null }}>
                                         <View style={{ justifyContent: 'center', width: '75%' }}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'flex-end', width: subtitle ? '45%' : '100%'}}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'flex-end', width: subtitle ? '45%' : '100%' }}>
+                                                {/* width: subtitle ? '45%' : '100%' */}
                                                 <Text style={{...styles.transaction__item__title}} numberOfLines={1}>
                                                     {valueToView}
                                                     </Text>

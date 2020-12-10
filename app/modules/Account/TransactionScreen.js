@@ -47,6 +47,8 @@ import store from '../../store'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import Toast from '../../services/UI/Toast/Toast'
+import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 
 class TransactionScreen extends Component {
 
@@ -109,7 +111,7 @@ class TransactionScreen extends Component {
         } else {
             tx = transaction
         }
-
+        console.log(tx)
         this.init(tx)
 
         this.setState(() => ({
@@ -128,11 +130,11 @@ class TransactionScreen extends Component {
 
             const fromToView = this.prepareAddressFromToView(transaction)
 
-            const addressToToView = this.prepareAddressToToView(transaction, transaction.exchangeWayType)
+            const addressToToView = this.prepareAddressToToView(transaction)
 
-            const addressExchangeToView = this.prepareAddressExchangeToView(transaction, transaction.exchangeWayType)
+            const addressExchangeToView = this.prepareAddressExchangeToView(transaction)
 
-            const status = this.prepareStatus(transaction.transactionStatus, transaction.status)
+            const status = this.prepareStatus(transaction.transactionStatus, typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.status : null)
 
             const commentToView = this.prepareCommentToView(transaction)
 
@@ -188,39 +190,44 @@ class TransactionScreen extends Component {
         }
     }
 
-    prepareAddressToToView = (transaction, exchangeWayType) => {
-        if (typeof transaction.addressTo !== 'undefined' && transaction.addressTo && typeof exchangeWayType === 'undefined') {
-            return {
-                title: strings(`account.transaction.to`),
-                description: transaction.addressTo.toString()
-            }
-        }
-
-        return false
-    }
-
-    prepareAddressFromToView = (transaction, exchangeWayType) => {
-        if (typeof transaction.addressFrom !== 'undefined' && transaction.addressFrom && transaction.addressFrom.indexOf(',') === -1 && typeof exchangeWayType === 'undefined') {
-            return {
-                title: strings(`account.transaction.from`),
-                description: transaction.addressFrom.toString()
-            }
-        }
-
-        return false
-    }
-
-    prepareAddressExchangeToView = (transaction, exchangeWayType) => {
-        if (typeof transaction.transactionDirection !== 'undefined' && typeof exchangeWayType !== 'undefined' && exchangeWayType === 'EXCHANGE') {
-            if (transaction.transactionDirection === 'income') {
-                return {
-                    title: strings(`account.transaction.from`),
-                    description: transaction.depositAddress.toString()
-                }
-            } else {
+    prepareAddressToToView = (transaction) => {
+        if (typeof transaction.bseOrderData === 'undefined' || transaction.bseOrderData === null) {
+            if (typeof transaction.addressTo !== 'undefined' && transaction.addressTo) {
                 return {
                     title: strings(`account.transaction.to`),
-                    description: transaction.outDestination.toString()
+                    description: transaction.addressTo.toString()
+                }
+            }
+        }
+
+        return false
+    }
+
+    prepareAddressFromToView = (transaction) => {
+        if (typeof transaction.bseOrderData === 'undefined' || transaction.bseOrderData === null) {
+            if (typeof transaction.addressFrom !== 'undefined' && transaction.addressFrom && transaction.addressFrom.indexOf(',') === -1) {
+                return {
+                    title: strings(`account.transaction.from`),
+                    description: transaction.addressFrom.toString()
+                }
+            }
+        }
+        return false
+    }
+
+    prepareAddressExchangeToView = (transaction) => {
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null){
+            if (typeof transaction.transactionDirection !== 'undefined' && typeof transaction.bseOrderData.exchangeWayType !== 'undefined' && transaction.bseOrderData.exchangeWayType === 'EXCHANGE') {
+                if (transaction.transactionDirection === 'income') {
+                    return {
+                        title: strings(`account.transaction.from`),
+                        description: transaction.depositAddress.toString()
+                    }
+                } else {
+                    return {
+                        title: strings(`account.transaction.to`),
+                        description: transaction.outDestination.toString()
+                    }
                 }
             }
         }
@@ -230,10 +237,10 @@ class TransactionScreen extends Component {
 
     prepareOrderIdToView = (transaction) => {
 
-        if (typeof transaction.orderId !== 'undefined') {
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null) {
             return {
                 title: strings(`account.transaction.orderId`),
-                description: transaction.orderId.toString()
+                description: transaction.bseOrderData.orderHash.toString()
             }
         }
 
@@ -271,21 +278,23 @@ class TransactionScreen extends Component {
 
     prepareOutDestinationCard = (transaction) => {
 
-        if (typeof transaction.outDestination !== 'undefined' && transaction.outDestination !== null && transaction.outDestination.includes('***')) {
-            if (transaction.outDestination.includes('+')) {
-                return {
-                    title: strings(`account.transaction.phoneDestination`),
-                    description: transaction.outDestination.toString()
-                }
-            } else if (transaction.outDestination.substr(0, 1) === 'U') {
-                return {
-                    title: strings(`account.transaction.advAccountDestination`),
-                    description: transaction.outDestination.toString()
-                }
-            } else {
-                return {
-                    title: strings(`account.transaction.cardNumberDestination`),
-                    description: transaction.outDestination.toString()
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null) {
+            if (typeof transaction.bseOrderData.outDestination !== 'undefined' && transaction.bseOrderData.outDestination !== null && transaction.bseOrderData.outDestination.includes('***')) {
+                if (transaction.bseOrderData.outDestination.includes('+')) {
+                    return {
+                        title: strings(`account.transaction.phoneDestination`),
+                        description: transaction.bseOrderData.outDestination.toString()
+                    }
+                } else if (transaction.bseOrderData.outDestination.substr(0, 1) === 'U') {
+                    return {
+                        title: strings(`account.transaction.advAccountDestination`),
+                        description: transaction.bseOrderData.outDestination.toString()
+                    }
+                } else {
+                    return {
+                        title: strings(`account.transaction.cardNumberDestination`),
+                        description: transaction.bseOrderData.outDestination.toString()
+                    }
                 }
             }
         }
@@ -294,14 +303,7 @@ class TransactionScreen extends Component {
     }
 
     handleLink = (link) => {
-
-        Linking.canOpenURL(link).then(supported => {
-            if (supported) {
-                Linking.openURL(link)
-            } else {
-                Log.err('Account.AccountScreen Dont know how to open URI', `${link}`)
-            }
-        })
+        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
     }
 
     prepareTransactionFeeToView = (transaction) => {
@@ -363,12 +365,14 @@ class TransactionScreen extends Component {
 
         return null
     }
-
+    
     prepareStatusToView = (status, transaction) => {
-        if (transaction.exchangeWayType) {
-            return {
-                title: strings(`account.transaction.status`),
-                description: strings(`exchange.ordersStatus.${transaction.exchangeWayType.toLowerCase()}.${transaction.status.toLowerCase()}`)
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null){
+            if (transaction.bseOrderData.exchangeWayType) {
+                return {
+                    title: strings(`account.transaction.status`),
+                    description: strings(`exchange.ordersStatus.${transaction.bseOrderData.exchangeWayType.toLowerCase()}.${transaction.bseOrderData.status.toLowerCase()}`)
+                }
             }
         }
 
@@ -415,24 +419,21 @@ class TransactionScreen extends Component {
         }
     }
 
-    prepareType = (transactionDirection) => {
-
-        return transactionDirection
-    }
-
-    prepareWayType = (wayType) => {
+    prepareWayType = () => {
 
         const { transaction } = this.props
 
-        if (typeof transaction.outDestination !== 'undefined' && transaction.outDestination !== null && transaction.outDestination.includes('+')) {
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null && transaction.bseOrderData.outDestination && transaction.bseOrderData.outDestination.includes('+')) {
             return 'MOBILE_PHONE'
         }
 
-        return typeof wayType !== 'undefined' ? wayType : null
+        const wayType = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.exchangeWayType : null
+
+        return wayType
     }
 
     prepareStatus = (transactionStatus, orderStatus) => {
-
+        
         if (orderStatus) {
             return orderStatus
         }
@@ -557,7 +558,9 @@ class TransactionScreen extends Component {
 
         const { cryptoCurrency } = this.props
 
-        const transactionStatus = this.getTransactionStatus(transaction.status || status.toUpperCase())
+        const orderStatus = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.status : null
+
+        const transactionStatus = this.getTransactionStatus(orderStatus || status.toUpperCase())
 
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ color: '#404040', fontSize: 17 }} />
 
@@ -573,8 +576,8 @@ class TransactionScreen extends Component {
 
         let exchangeWay
 
-        if (transaction.exchangeWayType) {
-            exchangeWay = transaction.exchangeWayType
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null && transaction.bseOrderData.exchangeWayType) {
+            exchangeWay = transaction.bseOrderData.exchangeWayType
         } else {
             exchangeWay = transaction.transactionDirection
         }
@@ -697,11 +700,11 @@ class TransactionScreen extends Component {
     handlerCheckV3 = (array) => {
         const { transaction } = this.state
 
-        if (typeof transaction.exchangeWayType === 'undefined' && typeof transaction.orderId === 'undefined') {
+        if (typeof transaction.bseOrderData === 'undefined' || typeof transaction.orderId === 'undefined' || transaction.bseOrderData === null ) {
             return false
         }
 
-        array.push({ icon: 'pinCode', title: 'Check', action: async () => NavStore.goNext('CheckV3DataScreen', { orderHash: transaction.orderId }) })
+        array.push({ icon: 'pinCode', title: 'Check', action: async () => NavStore.goNext('CheckV3DataScreen', { orderHash: transaction.bseOrderData.orderHash }) })
     }
 
 
@@ -733,7 +736,7 @@ class TransactionScreen extends Component {
 
     shareTransaction = (transaction) => {
         let shareOptions = {}
-        shareOptions.message = `Sum: ${transaction.addressAmountPretty} ${transaction.currencyCode}\nStatus: ${transaction.transactionStatus}\nLink: ${this.props.cashBackStore.dataFromApi.cashbackLink}\nThank you for choosing Trustee Wallet`
+        shareOptions.message = `${transaction.transactionHash}\nThank you for choosing Trustee Wallet`
         shareOptions.url = this.props.cashBackStore.dataFromApi.cashbackLink
         prettyShare(shareOptions, 'yura_share_transaction')
     }
@@ -741,7 +744,7 @@ class TransactionScreen extends Component {
     shareSupport = async () => {
         const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
         MarketingEvent.logEvent('taki_support', { link, screen: 'TRANSACTION' })
-        Linking.openURL(link)
+        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
     }
 
     commentHandler = () => {
@@ -788,6 +791,11 @@ class TransactionScreen extends Component {
                 }
             </>
         )
+    }
+
+    handleSubContentPress = (item) => {
+        copyToClipboard(item.description)
+        Toast.setMessage(strings('toast.copied')).show()
     }
 
 
@@ -895,6 +903,7 @@ class TransactionScreen extends Component {
                                             linkUrl={item.linkUrl}
                                             withoutBack={true}
                                             handleLink={this.handleLink}
+                                            copyAction={() => this.handleSubContentPress(item)}
                                         />
                                     )
                                 })}
