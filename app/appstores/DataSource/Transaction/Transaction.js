@@ -174,6 +174,9 @@ class Transaction {
         if (params.bseOrderHash) {
             where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
         }
+        if (typeof params.minAmount !== 'undefined') {
+            where.push(`address_amount>${params.minAmount}`)
+        }
 
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params.noOrder) {
@@ -240,6 +243,9 @@ class Transaction {
         }
         if (params.bseOrderHash) {
             where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
+        }
+        if (typeof params.minAmount !== 'undefined') {
+            where.push(`address_amount>${params.minAmount}`)
         }
 
         let order = ' ORDER BY created_at DESC, id DESC'

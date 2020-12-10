@@ -512,13 +512,15 @@ class Account extends Component {
         if (from === 0) {
             transactionsTotalLength = await transactionDS.getTransactionsCount({
                 walletHash: account.walletHash,
-                currencyCode: account.currencyCode
+                currencyCode: account.currencyCode,
+                minAmount : 0,
             }, 'AccountScreen.transactionInfinity count')
         }
 
         const tmp = await transactionDS.getTransactions({
             walletHash: account.walletHash,
             currencyCode: account.currencyCode,
+            minAmount: 0,
             limitFrom: from,
             limitPerPage: perPage
         }, 'AccountScreen.transactionInfinity list')
