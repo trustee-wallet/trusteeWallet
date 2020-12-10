@@ -2,7 +2,7 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Linking, Image, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, Linking, Image, SafeAreaView, TouchableOpacity } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
 import { strings } from '../../services/i18n'
@@ -13,10 +13,22 @@ import Icon from '../../components/elements/CustomIcon.js'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import config from '../../config/config'
 
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import Header from '../../components/elements/new/Header'
+
 class FioMainSettings extends Component {
 
     constructor(props) {
         super(props)
+    }
+
+    state = {
+        headerHeight: 0,
+    }
+
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
     }
 
     handleRegisterFIOAddress = async () => {
@@ -32,15 +44,32 @@ class FioMainSettings extends Component {
         }
     }
 
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('DashboardStack') }
+
     render() {
 
+        const { colors, GRID_SIZE } = this.context
+
+        const { headerHeight } = this.state
+
         return (
-            <View>
-                <Navigation
-                    title= {strings('fioMainSettings.title')}
+            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
+                <Header
+                    leftType="back"
+                    leftAction={this.handleBack}
+                    rightType="close"
+                    rightAction={this.handleClose}
+                    title={strings('fioMainSettings.title')}
+                    setHeaderHeight={this.setHeaderHeight}
                 />
 
-                <View style={{paddingTop: 80, height: '100%'}}>
+                <SafeAreaView style={[styles.content, {
+                    backgroundColor: colors.common.background,
+                    marginTop: headerHeight,
+                    height: '100%',
+                }]}>
 
                     <GradientView
                         array={styles_.array}
@@ -110,7 +139,7 @@ class FioMainSettings extends Component {
                         </View>
                     </View>
 
-                </View>
+                </SafeAreaView>
             </View>
         );
     }
@@ -120,6 +149,8 @@ const mapStateToProps = (state) => ({
     mainStore: state.mainStore,
     accountStore: state.accountStore
 })
+
+FioMainSettings.contextType = ThemeContext
 
 export default connect(mapStateToProps, {})(FioMainSettings)
 
