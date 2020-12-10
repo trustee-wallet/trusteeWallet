@@ -278,7 +278,6 @@
       "accountSetting": "Налаштування акаунту",
       "showSegWitAndLegacy": "Показувати SegWit і Legacy",
       "hideCommissionTrans": "Сховати транзакції оплати за комісію",
-      "checkFrozen" : "Сканувати заморожений баланс",
       "manualAddressFromHD" : "Вставити адресу HD",
       "scanAddressesFromHD" : "Сканувати адреси HD на наявність балансів",
       "setAddressesFromHD" : {
@@ -389,6 +388,10 @@
       "title": "Перехід до блокчейн експлореру",
       "description": "Ви перейдете на зовнішній ресурс"
     },
+    "fioAccount": {
+      "title": "FIO account not registered",
+      "description": "Go to the registration page and register it now?"
+    },
     "transaction": {
       "pay": "Оплатити",
       "remove" : "Приховати",
@@ -488,7 +491,11 @@
      "description": "Введіть адресу, щоб запросити платіж від",
      "btnText": "Оберіть FIO адресу"
    },
-
+   "FioAddresses": {
+    "title": "Fio Names",
+    "description": "Fio Addresses",
+    "btnText": "Register new FIO address"
+  },
    "FioSettings": {
      "title": "FIO налаштування",
      "description": "Оберіть гаманець, який бажаєте з'єднати зі своєю FIO адресою",
@@ -526,6 +533,8 @@
 
    "FioRequestDetails": {
      "title": "Деталі FIO запита",
+     "sentTitle": "Recieve to My",
+     "pendingTitle": "Send from My",
      "balance": "Баланс",
      "fee": "Комісія",
      "to": "До",
@@ -600,7 +609,6 @@
       "selectCurrency": "Вибір криптовалюти",
       "selectPayment": "Select type of payment",
       "estimateAmount": "Введіть суму",
-
       "addCard": "Додати картку",
       "address": "Адреса зарахування криптовалюти:",
       "titleBuy": "Купівля",
@@ -687,26 +695,20 @@
         "eth_speed_medium": "Середньо",
         "eth_speed_fast": "Швидко",
         "eth_speed_delegated" : "Делегована ERC865",
-
         "xmr_speed_1": "Повільно",
         "xmr_speed_2" : "Середньо",
         "xmr_speed_3" : "Швидко",
         "xmr_speed_4" : "Дуже швидко",
-
         "btc_speed_blocks_24": "Мінімально",
         "btc_speed_blocks_12": "Повільно",
         "btc_speed_blocks_6": "Середньо",
         "btc_speed_blocks_2": "Швидко",
-        "corrected_speed_blocks_2": "Авто",
-
         "bch_speed_blocks_12": "Повільно",
         "bch_speed_blocks_6": "Середньо",
         "bch_speed_blocks_2": "Швидко",
-
         "ltc_speed_blocks_12": "Повільно",
         "ltc_speed_blocks_6": "Середньо",
         "ltc_speed_blocks_2": "Швидко",
-
         "btc_corrected_speed_blocks_2": "Авто",
         "btc_corrected_speed_blocks_6": "Авто",
         "btc_corrected_speed_blocks_12": "Авто",
@@ -719,7 +721,6 @@
         "ltc_corrected_speed_blocks_2_protection": "Авто (захист вiд переплати)",
         "ltc_corrected_speed_blocks_6_protection": "Авто (захист вiд переплати)",
         "ltc_corrected_speed_blocks_12_protection": "Авто (захист вiд переплати)",
-
         "xrp_speed_one" : "Швидко"
       },
       "time": {
@@ -728,25 +729,20 @@
         "eth_speed_medium": "",
         "eth_speed_fast": "",
         "eth_speed_delegated" : "Транзакція буде відправлена за рахунок третьої сторони. Комісія стягується в %{symbol} згідно ERC865",
-
         "xmr_speed_1": "",
         "xmr_speed_2" : "",
         "xmr_speed_3" : "",
         "xmr_speed_4" : "",
-
         "btc_speed_blocks_24": "",
         "btc_speed_blocks_12": "",
         "btc_speed_blocks_6": "",
         "btc_speed_blocks_2": "",
-
         "bch_speed_blocks_12": "",
         "bch_speed_blocks_6": "",
         "bch_speed_blocks_2": "",
-
         "ltc_speed_blocks_12": "",
         "ltc_speed_blocks_6": "",
         "ltc_speed_blocks_2": "",
-
         "btc_corrected_speed_blocks_2": "> 35 хвилин",
         "btc_corrected_speed_blocks_6": "> 95 хвилин",
         "btc_corrected_speed_blocks_12": "> 135+ хвилин",
@@ -759,7 +755,6 @@
         "ltc_corrected_speed_blocks_2_protection": "> 15 хвилин",
         "ltc_corrected_speed_blocks_6_protection": "> 35 хвилин",
         "ltc_corrected_speed_blocks_12_protection": "> 135+ хвилин",
-
         "xrp_speed_one" : ""
       },
       "customFee": {
@@ -915,12 +910,6 @@
     "enterMnemonic": {
       "description": "Вставте фразу відновлення повністю або введіть її вручну (звичайно це 12 або 24 слова).",
       "mnemonic": "Фраза відновлення"
-    },
-    "congratsModal": {
-      "title": "Вітаємо!",
-      "description": "Trustee згенерував для Вас новий гаманець. Зробіть резервну копію фрази відновлення пізніше в меню налаштувань - кнопка \"Пропустити\". Або зараз, це займе кілька хвилин - кнопка \"Копіювати\".",
-      "backup": "Копіювати",
-      "skip": "Пропустити"
     }
   },
   "walletList": {
@@ -1052,10 +1041,6 @@
       "try": "Спробувати",
       "notNow": "Не зараз"
     },
-    "modalV3": {
-      "title": "Ой",
-      "description": "Сервіс тимчасово недоступний. Перевірте доступ до інтернету та спробуйте, будь ласка, пізніше"
-    },
     "tbkModal": {
       "enable": "Увімкнути",
       "disable": "Вимкнути",
@@ -1063,6 +1048,10 @@
       "statusEnable": "увімкнений",
       "statusDisable": "відключений",
       "cancel": "Відміна"
+    },
+    "modalV3": {
+      "title": "Ой",
+      "description": "Сервіс тимчасово недоступний. Перевірте доступ до інтернету та спробуйте, будь ласка, пізніше"
     },
     "infoPayOrder": {
       "error": {
@@ -1149,17 +1138,14 @@
       "added": "Картка додана"
     },
     "qrScanner": {
-
       "success": {
         "title": "Успіх!",
         "description": "Гаманець успішно скопійовано в буфер обміну!"
       },
-
       "error": {
         "title": "Вибачте...",
         "description": "Недійсний гаманець. Повторіть спробу."
       },
-
       "sorry": "Вибачте..."
     },
     "send": {
@@ -1226,21 +1212,12 @@
     "badInternet": "Нестабільний доступ  до інтернету, будь ласка, спробуйте іншого провайдера або точку доступу",
     "saved" : "Збережено"
   },
-   "tips": {
-     "homeScreen": {
-       "sellBuyBtn": {
-         "title": "Привіт, Друже!",
-         "description": "Утримуй кнопку для переключення між покупкою та продажем криптовалюти."
-       }
-     }
-   },
    "appNews" : {
      "title" : "Технічні повідомлення",
      "subtitle" : "Всі повідомлення",
      "subtitleSmall" : "Всі повідомлення",
      "clearAll" : "Очистити все",
      "newsNull" : "У Вашому гаманці нічого нового"
-
    },
    "pushNotifications":  {
      "FOUND_OUT_TX_STATUS_NEW": {
@@ -1282,8 +1259,24 @@
      "DAEMON_HAS_FOUND_BALANCE": {
        "title": "%{currencyName} не показано, але містить баланс",
        "description": "%{walletName} на адресі %{address} знайдено %{amountPretty} %{currencySymbol}"
-     }
-   },
+     },
+     "CURRENCY_RATE_UPDATED": {
+       "title": "%{currencyName} rate updated",
+       "description": "current value is %{currencyRateUsd}$"
+     },
+     "CURRENCY_RATE_SCANNED_LAST_TIME": {
+       "title": "Currency rates are scanned",
+       "description": "but cached values are the same - so no changes"
+     },
+     "TXS_SCANNED_LAST_TIME" : {
+       "title" : "%{currencyName} transactions are scanned",
+       "description" : "%{walletName} log %{log}"
+     },
+    "HD_SCANNED_LAST_TIME" : {
+      "title" : "HD transactions are scanned",
+      "description" : "%{walletName} log %{log}"
+    }
+  },
   "currencyList": {
     "AUD": {
       "currencyCode":"AUD",

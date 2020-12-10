@@ -278,7 +278,6 @@
       "accountSetting": "Настройки аккаунта",
       "showSegWitAndLegacy": "Показывать SegWit и Legacy",
       "hideCommissionTrans": "Скрыть транзакции оплаты за комиссию",
-      "checkFrozen" : "Сканировать замороженный баланс",
       "manualAddressFromHD" : "Вставить адрес HD",
       "scanAddressesFromHD" : "Сканировать адреса HD на наличие балансов",
       "setAddressesFromHD" : {
@@ -389,6 +388,10 @@
       "title": "Переход к блокчейн эксплореру",
       "description": "Вы перейдете на внешний ресурс"
     },
+    "fioAccount": {
+      "title": "FIO account not registered",
+      "description": "Go to the registration page and register it now?"
+    },
     "transaction": {
       "pay": "Оплатить",
       "remove" : "Скрыть",
@@ -488,7 +491,11 @@
     "description": "Введите адрес чтоб запросить платёж от",
     "btnText": "Выберите FIO адрес"
   },
-
+  "FioAddresses": {
+    "title": "Fio Names",
+    "description": "Fio Addresses",
+    "btnText": "Register new FIO address"
+  },
   "FioSettings": {
     "title": "Fio Настройки",
     "description": "Выберите кошелёк, который хотите связать с своим FIO адресом",
@@ -526,6 +533,8 @@
 
   "FioRequestDetails": {
     "title": "Детали FIO запроса",
+    "sentTitle": "Recieve to My",
+    "pendingTitle": "Send from My",
     "balance": "Баланс",
     "fee": "Комисия",
     "to": "К",
@@ -686,12 +695,10 @@
         "eth_speed_medium": "Средне",
         "eth_speed_fast": "Быстро",
         "eth_speed_delegated" : "Делегированная ERC865",
-
         "xmr_speed_1": "Медленно",
         "xmr_speed_2" : "Средне",
         "xmr_speed_3" : "Быстро",
         "xmr_speed_4" : "Очень быстро",
-
         "btc_speed_blocks_24": "Минимально",
         "btc_speed_blocks_12": "Медленно",
         "btc_speed_blocks_6": "Средне",
@@ -702,7 +709,6 @@
         "ltc_speed_blocks_12": "Медленно",
         "ltc_speed_blocks_6": "Средне",
         "ltc_speed_blocks_2": "Быстро",
-
         "btc_corrected_speed_blocks_2": "Авто",
         "btc_corrected_speed_blocks_6": "Авто",
         "btc_corrected_speed_blocks_12": "Авто",
@@ -715,7 +721,6 @@
         "ltc_corrected_speed_blocks_2_protection": "Авто (защита от переплаты)",
         "ltc_corrected_speed_blocks_6_protection": "Авто (защита от переплаты)",
         "ltc_corrected_speed_blocks_12_protection": "Авто (защита от переплаты)",
-
         "xrp_speed_one" : "Быстро"
       },
       "time": {
@@ -724,12 +729,10 @@
         "eth_speed_medium": "",
         "eth_speed_fast": "",
         "eth_speed_delegated" : "Транзакция будет отправлена за счет третьей стороны. Комиссия взимается в %{symbol} согласно ERC865",
-
         "xmr_speed_1": "",
         "xmr_speed_2" : "",
         "xmr_speed_3" : "",
         "xmr_speed_4" : "",
-
         "btc_speed_blocks_24": "",
         "btc_speed_blocks_12": "",
         "btc_speed_blocks_6": "",
@@ -740,7 +743,6 @@
         "ltc_speed_blocks_12": "",
         "ltc_speed_blocks_6": "",
         "ltc_speed_blocks_2": "",
-
         "btc_corrected_speed_blocks_2": "> 35 минут",
         "btc_corrected_speed_blocks_6": "> 95 минут",
         "btc_corrected_speed_blocks_12": "> 135+ минут",
@@ -753,7 +755,6 @@
         "ltc_corrected_speed_blocks_2_protection": "> 15 минут",
         "ltc_corrected_speed_blocks_6_protection": "> 35 минут",
         "ltc_corrected_speed_blocks_12_protection": "> 135+ минут",
-
         "xrp_speed_one" : ""
       },
       "customFee": {
@@ -909,12 +910,6 @@
     "enterMnemonic": {
       "description": "Вставьте фразу восстановления целиком или введите ее вручную (обычно это 12 или 24 слова ).",
       "mnemonic": "Мнемоническая фраза"
-    },
-    "congratsModal": {
-      "title": "Поздравляем!",
-      "description": "Trustee сгенерировал для Вас новый кошелек. Сделайте резервную копию фразы восстановления позднее в меню настроек - кнопка \"Пропустить\". Либо сейчас, это займент несколько минут - кнопка \"Копировать\". ",
-      "backup": "Копировать",
-      "skip": "Пропустить"
     }
   },
   "walletList": {
@@ -1217,21 +1212,12 @@
     "badInternet": "Нестабильный доступ к интернету, пожалуйста, попробуйте другого провайдера или точку доступа",
     "saved" : "Сохранено"
   },
-  "tips": {
-    "homeScreen": {
-      "sellBuyBtn": {
-        "title": "Привет, Друг!",
-        "description": "Удерживай кнопку для переключения между покупкой и продажей криптовалюты."
-      }
-    }
-  },
   "appNews" : {
     "title" : "Технические сообщения",
     "subtitle" : "Все нотификации и сообщения",
     "subtitleSmall": "Все нотификации",
     "clearAll" : "Очистить все",
     "newsNull" : "В Вашем кошельке ничего нового"
-
   },
   "pushNotifications":  {
     "FOUND_OUT_TX_STATUS_NEW": {
@@ -1273,6 +1259,22 @@
     "DAEMON_HAS_FOUND_BALANCE": {
       "title": "%{currencyName} не показан, но есть баланс",
       "description": "%{walletName} на адресе %{address} есть %{amountPretty} %{currencySymbol}"
+    },
+    "CURRENCY_RATE_UPDATED": {
+      "title": "%{currencyName} rate updated",
+      "description": "current value is %{currencyRateUsd}$"
+    },
+    "CURRENCY_RATE_SCANNED_LAST_TIME": {
+      "title": "Currency rates are scanned",
+      "description": "but cached values are the same - so no changes"
+    },
+    "TXS_SCANNED_LAST_TIME" : {
+      "title" : "%{currencyName} transactions are scanned",
+      "description" : "%{walletName} log %{log}"
+    },
+    "HD_SCANNED_LAST_TIME" : {
+      "title" : "HD transactions are scanned",
+      "description" : "%{walletName} log %{log}"
     }
   },
   "currencyList": {
