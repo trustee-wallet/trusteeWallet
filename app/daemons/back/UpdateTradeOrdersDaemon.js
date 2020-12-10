@@ -1,33 +1,71 @@
 /**
  * @version 0.30
  */
-import Log from '../../services/Log/Log'
 
+import DBInterface from '../../appstores/DataSource/DB/DBInterface'
+
+import Log from '../../services/Log/Log'
 import Api from '../../services/Api/Api'
 import ApiV3 from '../../services/Api/ApiV3'
 
 import Settings from '../../appstores/DataSource/Settings/Settings'
-import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
-import config from '../../config/config'
-import DBInterface from '../../appstores/DataSource/DB/DBInterface'
 import ExchangeOrdersActions from '../../appstores/Stores/ExchangeOrders/ExchangeOrdersActions'
+
+import config from '../../config/config'
 
 const settingsDS = new Settings()
 
 
 const CACHE_VALID_TIME = 20000 // 2 minute
-let CACHE_REMOVED = false
-
 let CACHE_LAST_TIME = false
 let TRY_COUNTER = 0
+
+const CACHE_ORDERS = {}
+let CACHE_REMOVED = false
+
 
 const LIMIT_FOR_CURRENCY = 20
 
 class UpdateTradeOrdersDaemon {
 
-    removedFromDb = async () => {
+    fromDB = async (walletHash) => {
+        if (typeof walletHash === 'undefined' || walletHash) {
+            walletHash = await BlocksoftKeysStorage.getSelectedWallet()
+        }
+        if (CACHE_REMOVED === false) {
+            await this._removedFromDb()
+        }
+        try {
+            if (typeof CACHE_ORDERS[walletHash] === 'undefined' || ! CACHE_ORDERS[walletHash]) {
+                const tmpTradeOrders = await settingsDS.getSetting('bseOrdersNew_' + walletHash)
+                if (typeof tmpTradeOrders !== 'undefined' && tmpTradeOrders) {
+                    const tmpTradeOrders2 = JSON.parse(tmpTradeOrders.paramValue)
+                    if (tmpTradeOrders2 && typeof tmpTradeOrders2 !== 'undefined') {
+                        CACHE_ORDERS[walletHash] = tmpTradeOrders2
+                    }
+                }
+                for (const key in CACHE_ORDERS[walletHash]) {
+                    for (const item of CACHE_ORDERS[walletHash][key]) {
+                        if (typeof CACHE_REMOVED[item.orderId] !== 'undefined') {
+                            item.isRemovedByUser = true
+                        } else {
+                            item.isRemovedByUser = false
+                        }
+                    }
+                }
+            }
+            ExchangeOrdersActions.setExchangeOrderList({walletHash, tradeOrders : CACHE_ORDERS[walletHash]})
+        } catch (e) {
+            Log.errDaemon('UpdateTradeOrders orders from db error ' + e.message)
+        }
+    }
+
+    /**
+     * @returns {Promise<void>}
+     * @private
+     */
+    _removedFromDb = async () => {
         const tmpRemoved = await settingsDS.getSetting('bseRemoved')
 
         CACHE_REMOVED = {}
@@ -54,11 +92,11 @@ class UpdateTradeOrdersDaemon {
 
         Log.daemon('UpdateTradeOrders called ' + JSON.stringify(params))
         if (CACHE_REMOVED === false) {
-            await this.removedFromDb()
+            await this._removedFromDb()
         }
 
-        const tmpAuthHash = await BlocksoftKeysStorage.getSelectedWallet()
-        if (!tmpAuthHash) {
+        const walletHash = await BlocksoftKeysStorage.getSelectedWallet()
+        if (!walletHash) {
             return false
         }
 
@@ -89,12 +127,6 @@ class UpdateTradeOrdersDaemon {
                 }
             }
 
-            let walletToken = CashBackUtils.getWalletToken()
-            if (!walletToken || typeof walletToken === 'undefined') {
-                walletToken = ''
-            }
-
-
             if (typeof params.removeId !== 'undefined') {
                 if (typeof CACHE_REMOVED[params.removeId] === 'undefined') {
                     CACHE_REMOVED[params.removeId] = 1
@@ -117,9 +149,6 @@ class UpdateTradeOrdersDaemon {
                     for (item of tmpTradeOrders) {
                         if (total > 100) {
                             break
-                        }
-                        if (typeof CACHE_REMOVED[item.orderId] !== 'undefined') {
-                            continue
                         }
                         const tmps = [
                             {
@@ -173,24 +202,32 @@ class UpdateTradeOrdersDaemon {
                                 if (typeof tradeOrders[currencyCode] === 'undefined') {
                                     tradeOrders[currencyCode] = []
                                 }
-                                tradeOrders[currencyCode].push(item)
+                                if (typeof CACHE_REMOVED[item.orderId] !== 'undefined') {
+                                    continue
+                                }
+                                if (tradeOrders[currencyCode].length < 3) {
+                                    tradeOrders[currencyCode].push(item)
+                                }
                             }
                             total++
                         }
                     }
 
-                    ExchangeOrdersActions.setExchangeOrderList(tradeOrders)
-
-                    for (const currencyCode in tradeOrders) {
-                        // here will be only orders without txs
-                        await settingsDS.setSettings('bseOrders_' + walletToken + '_' + currencyCode, JSON.stringify({ ordersList: tradeOrders[currencyCode] }))
+                    const txt = JSON.stringify(tradeOrders)
+                    if (typeof CACHE_ORDERS[walletHash] === 'undefined' || JSON.stringify(CACHE_ORDERS[walletHash]) !== txt) {
+                        CACHE_ORDERS[walletHash] = tradeOrders
+                        ExchangeOrdersActions.setExchangeOrderList({walletHash, tradeOrders})
+                        await settingsDS.setSettings('bseOrdersNew_' + walletHash, txt)
                     }
 
                     Log.daemon('UpdateTradeOrders success')
 
                     TRY_COUNTER = 0
 
+                } else {
+                    await this.fromDB(walletHash)
                 }
+
             } catch (e) {
                 if (config.debug.appErrors) {
                     console.log(e.message + ' tmpTradeOrders', e, JSON.parse(JSON.stringify(tmpTradeOrders)))

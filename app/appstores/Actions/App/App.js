@@ -133,10 +133,6 @@ class App {
 
             await UpdateAppNewsDaemon.updateAppNewsDaemon({force: true})
 
-            this.initStatus = 'updateTradeOrdersDaemon.fromDB'
-
-            await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({force: true}) // fromDB()
-
             this.initStatus = 'AppLockScreenIdleTime.init'
 
             AppLockScreenIdleTime.init()

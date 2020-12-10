@@ -1,9 +1,10 @@
 /**
- * @version 0.9
+ * @version 0.30
  */
 
 const INITIAL_STATE = {
     exchangeOrders: [],
+    walletHash : ''
 }
 
 const exchangeOrdersStoreReducer = (state = INITIAL_STATE, action) => {
@@ -11,7 +12,8 @@ const exchangeOrdersStoreReducer = (state = INITIAL_STATE, action) => {
         case 'SET_EXCHANGE_ORDERS_DATA':
             return new Object({
                 ...state,
-                exchangeOrders: action.exchangeOrders
+                exchangeOrders: action.exchangeOrders,
+                walletHash : action.walletHash
             })
         default:
             return state
