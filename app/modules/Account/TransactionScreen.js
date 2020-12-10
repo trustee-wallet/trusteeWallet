@@ -135,7 +135,8 @@ class TransactionScreen extends Component {
 
             const addressExchangeToView = this.prepareAddressExchangeToView(transaction)
 
-            const status = this.prepareStatus(transaction.transactionStatus, typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.status : null)
+            const status = this.prepareStatus(transaction.transactionStatus, typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? 
+                transaction.bseOrderData.status : null)
 
             const commentToView = this.prepareCommentToView(transaction)
 
@@ -424,7 +425,8 @@ class TransactionScreen extends Component {
 
         const { transaction } = this.props
 
-        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null && transaction.bseOrderData.outDestination && transaction.bseOrderData.outDestination.includes('+')) {
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null && transaction.bseOrderData.outDestination && 
+            transaction.bseOrderData.outDestination.includes('+')) {
             return 'MOBILE_PHONE'
         }
 
@@ -553,7 +555,7 @@ class TransactionScreen extends Component {
             )
         }        
 
-        const status = transaction.transactionStatus
+        const status = transaction.transactionStatus || transaction.status
 
         const { colors, isLight } = this.context
 
@@ -563,9 +565,24 @@ class TransactionScreen extends Component {
 
         const transactionStatus = this.getTransactionStatus(orderStatus || status.toUpperCase())
 
+        let direction
+        if (typeof transaction.exchangeWayType !== 'undefined') {
+            if (transaction.exchangeWayType === 'BUY') {
+                direction = 'income'
+            } else if (transaction.exchangeWayType === 'SELL') {
+                direction = 'outcome'
+            } else if (transaction.exchangeWayType === 'EXCHANGE') {
+                if (transaction.requestedOutAmount.currencyCode !== currencyCode) {
+                    direction = 'income'
+                } else {
+                    direction = 'outcome'
+                }
+            }
+        }
+
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ color: '#404040', fontSize: 17 }} />
 
-        if (transaction.transactionDirection === 'income' || transaction.transactionDirection === 'claim') {
+        if (transaction.transactionDirection === 'income' || transaction.transactionDirection === 'claim' || direction === 'income') {
             arrowIcon = <Feather name={'arrow-down-left'} style={{ color: '#404040', fontSize: 17 }} />
         }
         if (transaction.transactionDirection === 'self') {
@@ -580,7 +597,7 @@ class TransactionScreen extends Component {
         if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null && transaction.bseOrderData.exchangeWayType) {
             exchangeWay = transaction.bseOrderData.exchangeWayType
         } else {
-            exchangeWay = transaction.transactionDirection
+            exchangeWay = transaction.transactionDirection || transaction.exchangeWayType
         }
 
         return (
@@ -608,7 +625,7 @@ class TransactionScreen extends Component {
                     {/* {(trx.status ? trx.status.toUpperCase() !== 'PENDING_PAYIN' : false) || (status ? status.toUpperCase() !== 'PENDING' : false) ? */}
                     <>
                         <Text style={styles.amount}>
-                            {this.prepareValueToView(transaction.addressAmountPretty, transaction.transactionDirection)}
+                            {this.prepareValueToView(transaction.addressAmountPretty || transaction.requestedOutAmount.amount, transaction.transactionDirection || direction)}
                         </Text>
                         <Text style={{ ...styles.code, color: color }}>{cryptoCurrency.currencySymbol}</Text>
                     </>

@@ -11,7 +11,10 @@ const BalanceHeader = (props) => {
 
     const {
         account, 
-        cryptoCurrency
+        cryptoCurrency,
+        actionReceive,
+        actionBuy,
+        actionSend
     } = props
 
     const { colors, isLight } = useTheme()
@@ -47,7 +50,11 @@ const BalanceHeader = (props) => {
                     textStyle={{ ...styles.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
             </View>
             <View style={{ paddingTop: 12 }}>
-                <AccountButtons />
+                <AccountButtons 
+                    actionBuy={() => actionBuy()}
+                    actionSend={() => actionSend()}
+                    actionReceive={() => actionReceive()}
+                />
             </View>
         </>
     )

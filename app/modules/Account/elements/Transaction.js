@@ -58,6 +58,8 @@ class Transaction extends Component {
 
             show: false,
             removed: false,
+
+            orderDirection: false
         }
     }
 
@@ -80,15 +82,30 @@ class Transaction extends Component {
 
             const styles = JSON.parse(JSON.stringify(this.prepareStyles(status, direction)))
 
+            let orderDirection
+            if (typeof transaction.exchangeWayType !== 'undefined') {
+                if (transaction.exchangeWayType === 'BUY') {
+                    orderDirection = 'income'
+                } else if (transaction.exchangeWayType === 'SELL') {
+                    orderDirection = 'outcome'
+                } else if (transaction.exchangeWayType === 'EXCHANGE') {
+                    if (transaction.requestedOutAmount.currencyCode !== cryptoCurrency.currencyCode) {
+                        orderDirection = 'income'
+                    } else {
+                        orderDirection = 'outcome'
+                    }
+                }
+            }
+
             let value, valueToView, currencySymbolToView
 
             if (transaction.addressAmountSatoshi && (cryptoCurrency.currencyCode === 'BTC' || cryptoCurrency.currencyCode === 'DOGE')) {
                 value = this.prepareValue(transaction.addressAmountSatoshi, cryptoCurrency.currencyCode)
-                valueToView = this.prepareValueToView(value, 'SAT', direction)
+                valueToView = this.prepareValueToView(value, 'SAT', direction || orderDirection)
                 currencySymbolToView = 'sat'
             } else {
-                value = this.prepareValue(transaction.addressAmountPretty, cryptoCurrency.currencyCode)
-                valueToView = this.prepareValueToView(value, cryptoCurrency.currencySymbol, direction)
+                value = this.prepareValue(transaction.addressAmountPretty || transaction.requestedOutAmount.amount, cryptoCurrency.currencyCode)
+                valueToView = this.prepareValueToView(value, cryptoCurrency.currencySymbol, direction || orderDirection)
                 currencySymbolToView = cryptoCurrency.currencySymbol
             }
 
@@ -120,7 +137,6 @@ class Transaction extends Component {
     }
 
     prepareType = (transactionDirection) => {
-
         return transactionDirection
     }
 
@@ -132,7 +148,8 @@ class Transaction extends Component {
             return 'MOBILE_PHONE'
         }
 
-        const wayType = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.exchangeWayType : null
+        const wayType = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.exchangeWayType : transaction.exchangeWayType ? 
+            transaction.exchangeWayType : null
 
         return wayType
     }
@@ -312,7 +329,7 @@ class Transaction extends Component {
 
     render() {
 
-        const { wayType, direction, status, valueToView, isExpanded, blockConfirmations, basicValueToView, styles, show, currencySymbolToView, removed } = this.state
+        const { wayType, direction, status, valueToView, isExpanded, blockConfirmations, basicValueToView, styles, show, currencySymbolToView, removed, orderDirection } = this.state
 
         const { colors, isLight } = this.context
 
@@ -344,7 +361,7 @@ class Transaction extends Component {
 
         return show ? (
             <View style={styles.transaction}>
-                {this.renderStatusCircle(isStatus, status, transaction.transactionDirection)}
+                {this.renderStatusCircle(isStatus, status, transaction.transactionDirection || orderDirection)}
                 <View style={[styles.transaction__col, styles.transaction__col2]}>
                     <TouchableOpacity style={{ ...styles.transaction__top }} onLongPress={this.handleCopyAll}>
                         <Text style={{ ...styles.transaction__top__title, color: colors.accountScreen.transactions.transactionTitleColor }}>

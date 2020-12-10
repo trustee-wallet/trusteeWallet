@@ -242,7 +242,7 @@ class Account extends Component {
 
     renderTooltip = (props) => {
 
-        const { cryptoCurrency, account } = props
+        const { cryptoCurrency, account, allTransactionsToView } = props
 
         const isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
@@ -254,7 +254,8 @@ class Account extends Component {
                     </View>
                     <View style={styles.scan}>
                         {isSynchronized ?
-                            <Text style={styles.scan__text} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? strings('account.justScan') : strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
+                            <Text style={styles.scan__text} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? 
+                                strings('account.justScan') : strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
                             :
                             <View style={{
                                 flexDirection: 'row',
@@ -274,7 +275,7 @@ class Account extends Component {
                     </View>
                 </View>
                 {
-                    !props.transactionsToView.length ?
+                    !props.allTransactionsToView.length ?
                         <View>
                             {isSynchronized && <Text
                                 style={styles.transaction__empty_text}>
@@ -353,6 +354,9 @@ class Account extends Component {
         this.setState({
             ordersWithoutTransactions : exchangeOrdersStore.exchangeOrders[account.currencyCode] || []
         })
+
+        // exchangeOrdersStore don't have walletHash
+
         // const { account, exchangeOrdersStore } = this.props
         // if (account.walletHash === exchangeOrdersStore.walletHash) {
         //     this.setState({
@@ -377,6 +381,8 @@ class Account extends Component {
         const { mainStore, account, cryptoCurrency, settingsStore } = this.props
         // const { btcShowTwoAddress = 1 } = settingsStore.data
         const { amountToView, show, transactionsToView, transactionsTotalLength, transactionsShownLength } = this.state
+
+        const allTransactionsToView = this.state.ordersWithoutTransactions.slice(0,3).concat(transactionsToView)
 
         const address = account.address
 
@@ -421,6 +427,9 @@ class Account extends Component {
                         <BalanceHeader 
                             account={account}
                             cryptoCurrency={cryptoCurrency}
+                            actionReceive={this.handleReceive}
+                            actionBuy={this.handleBuy}
+                            actionSend={this.handleSend}
                         />
                     ) }}
                     scrollOffset={this.state.scrollOffset}
@@ -464,13 +473,14 @@ class Account extends Component {
                                     mainComponentProps={{
                                         transactionsToView,
                                         cryptoCurrency,
-                                        account
+                                        account,
+                                        allTransactionsToView
                                     }} />
                             </View>
                             <View style={{ position: 'relative', width: '100%' }}>
                                 <View style={{ position: 'relative', width: '100%', zIndex: 1 }}>
                                     {
-                                        show ? transactionsToView.map((item, index) => {
+                                        show ? allTransactionsToView.map((item, index) => {
                                             return <Transaction key={item.id} index={item.id}
                                                 count={index}
                                                 cards={mainStore.cards}

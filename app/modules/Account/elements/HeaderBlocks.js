@@ -2,7 +2,6 @@
  * @version 0.30
  */
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 
 import { Linking, Platform, Text, TouchableOpacity, View } from 'react-native'
 

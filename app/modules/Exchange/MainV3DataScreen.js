@@ -1,5 +1,5 @@
 /**
- * @version 0.13
+ * @version 0.30
  * @author yura
  */
 import React, { Component } from 'react'
@@ -31,6 +31,16 @@ import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalS
 import AsyncStorage from '@react-native-community/async-storage'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
+import store from '../../store'
+import SendTmpConstants from '../Send/elements/SendTmpConstants'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
+import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import BlocksoftBalances from '../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import config from '../../config/config'
+import _ from 'lodash'
+
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
@@ -45,6 +55,8 @@ class MainV3DataScreen extends Component {
             apiUrl: 'https://testexchange.trustee.deals/waiting',
             navigationViewV3 : true,
             homePage: false,
+            countedFees: false,
+            selectedFee: false
         }
     }
 
@@ -102,7 +114,9 @@ class MainV3DataScreen extends Component {
 
     onMessage(event) {
         try {
-            const { address, amount, orderHash, comment, inCurrencyCode, dataExchange, error, backToOld, close, homePage } = JSON.parse(event.nativeEvent.data)
+            const allData = JSON.parse(event.nativeEvent.data)
+            const { address, amount, orderHash, comment, inCurrencyCode, dataExchange, error, 
+                backToOld, close, homePage, useAllFunds } = allData
 
             Log.log('EXC/MainV3Screen.onMessage parsed', event.nativeEvent.data)
 
@@ -124,6 +138,10 @@ class MainV3DataScreen extends Component {
                 return
             }
 
+            if (useAllFunds) {
+                this.handleTransferAll(useAllFunds)
+            }
+
             if (address && amount && orderHash) {
                 const data = {
                     memo: false,
@@ -139,21 +157,152 @@ class MainV3DataScreen extends Component {
             }
 
             if (dataExchange) {
-                const data = {
-                    memo: dataExchange.memo,
-                    amount: dataExchange.amount,
-                    address: dataExchange.address,
-                    useAllFunds: dataExchange.useAllFunds,
-                    toTransactionJSON: { 'bseOrderID': dataExchange.orderHash, 'comment': dataExchange.comment || '' },
-                    currencyCode: dataExchange.currencyCode,
-                    type: 'TRADE_SEND'
-                }
-
-                NavStore.goNext('ConfirmSendScreen', { confirmWebViewParam: data })
+                this.exchangeV3(dataExchange)
             }
 
         } catch {
             Log.err('EXC/MainV3Screen.onMessage parse error ', event.nativeEvent)
+        }
+    }
+
+    exchangeV3 = (dataExchange) => {
+        
+        const { accountList } = store.getState().accountStore
+        const walletHash = store.getState().mainStore.selectedWallet.walletHash
+        const account = accountList[walletHash]
+        const { cryptoCurrencies } = store.getState().currencyStore
+        const selectedCryptocurrency = _.find(cryptoCurrencies, { currencyCode: dataExchange.currencyCode})
+        const selectedAccount = account[dataExchange.currencyCode]
+
+        console.log('EXC/ManV3Screen dataExchange', JSON.stringify(dataExchange))
+
+        // @todo simplify goto receipt with transfer all to one function
+        const recipientAmount = dataExchange.amount.toString()
+        const recipientAddress = dataExchange.address
+        SendTmpConstants.COUNTED_FEES = dataExchange.useAllFunds ? SendTmpConstants.COUNTED_FEES : false
+        SendTmpConstants.SELECTED_FEE = dataExchange.useAllFunds ? SendTmpConstants.SELECTED_FEE : false
+
+        const dataToScreen = {
+            memo: dataExchange.memo,
+            amount: recipientAmount,
+            address: recipientAddress,
+            cryptoCurrency: selectedCryptocurrency,
+            account: selectedAccount,
+            useAllFunds: dataExchange.useAllFunds,
+            toTransactionJSON: { 'bseOrderID': dataExchange.orderHash, 'comment': dataExchange.comment || '' },
+            type: 'TRADE_SEND',
+            apiVersion : 'v3',
+            currencyCode: selectedCryptocurrency.currencyCode,
+            providerType: dataExchange.providerType // 'FIXED' || 'FLOATING'
+        }
+
+        if (!dataExchange.useAllFunds) {
+            SendTmpConstants.PRESET = false
+            SendTmpConstants.SELECTED_FEE = false
+            SendTmpConstants.COUNTED_FEES = false
+        } else {
+            SendTmpConstants.PRESET = true
+            SendTmpConstants.COUNTED_FEES = dataExchange.countedFees
+            SendTmpConstants.SELECTED_FEE = dataExchange.selectedFee
+            if (dataToScreen.providerType === 'FIXED') {
+                // only one left
+                if (SendTmpConstants.COUNTED_FEES && SendTmpConstants.COUNTED_FEES.fees.length > 1) {
+                    SendTmpConstants.COUNTED_FEES.fees = [SendTmpConstants.SELECTED_FEE]
+                    SendTmpConstants.COUNTED_FEES.selectedFeeIndex = 0
+                }
+            }
+        }
+        
+        NavStore.goNext('ReceiptScreen', {
+            ReceiptScreen: dataToScreen
+        })
+    }
+
+    handleTransferAll = async (params) => {
+        const currencyCode = params.currencyCode
+        const address = params.address
+        // const balance = params.balance
+        const { selectedWallet } = store.getState().mainStore
+        
+        const {
+            walletHash,
+            walletUseUnconfirmed,
+            walletAllowReplaceByFee,
+            walletUseLegacy,
+            walletIsHd
+        } = selectedWallet
+
+        const { accountList } = store.getState().accountStore
+        const account = accountList[selectedWallet.walletHash][currencyCode]
+        
+        // ksu plz check address BTC (legacy/segwit) - default from v3 segwit
+        // const { address, derivationPath, balance, unconfirmed, accountJson } = account
+        const { derivationPath, balance, unconfirmed, accountJson } = account
+
+        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+
+        try {
+            const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
+
+            // @todo simplify goto receipt with transfer all to one function
+            const countedFeesData = {
+                currencyCode,
+                walletHash,
+                derivationPath,
+                addressFrom: address,
+                addressTo: addressToForTransferAll,
+                amount: balance,
+                unconfirmed: walletUseUnconfirmed,
+                isTransferAll: true,
+                useOnlyConfirmed: !(walletUseUnconfirmed === 1),
+                allowReplaceByFee: walletAllowReplaceByFee === 1,
+                useLegacy: walletUseLegacy,
+                isHd: walletIsHd,
+                accountJson
+            }
+            console.log('EXC.MainV3Screen.countedFeesData ', JSON.stringify(countedFeesData))
+            
+            const transferAllCount = await BlocksoftTransfer.getTransferAllBalance(countedFeesData)
+            transferAllCount.feesCountedForData = countedFeesData
+            let selectedFee
+            if (typeof transferAllCount.selectedFeeIndex !== 'undefined' && transferAllCount.selectedFeeIndex >= 0) {
+                selectedFee = transferAllCount.fees[transferAllCount.selectedFeeIndex]
+            }
+
+            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance)
+
+            SendTmpConstants.PRESET = true
+            SendTmpConstants.COUNTED_FEES = transferAllCount
+            SendTmpConstants.SELECTED_FEE = selectedFee
+
+            this.setState({
+                countedFees: transferAllCount,
+                selectedFee
+            })
+
+            console.log('EXC.MainV3Screen.transferAllCount', JSON.stringify(transferAllCount))
+            console.log('EXC.MainV3Screen.selectedFee', JSON.stringify(selectedFee))
+
+            this.webref.postMessage(JSON.stringify({ "fees": { 'amount': amount } }))
+
+            return {
+                currencyBalanceAmount: amount,
+                currencyBalanceAmountRaw: transferAllCount.selectedTransferAllBalance
+            }
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('EXC.MainV3Screen.handleTransferAll', e)
+            }
+
+            Log.errorTranslate(e, 'EXC.MainV3Screen.handleTransferAll', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.qrScanner.sorry'),
+                description: e.message,
+                error: e
+            })
         }
     }
 
