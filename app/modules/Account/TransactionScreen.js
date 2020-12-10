@@ -67,6 +67,7 @@ class TransactionScreen extends Component {
             commentEditable: false
         }
     }
+
     // @ksu this is bugplace plz see
     async UNSAFE_componentWillMount() {
         const data = this.props.navigation.getParam('txData')
@@ -111,7 +112,7 @@ class TransactionScreen extends Component {
         } else {
             tx = transaction
         }
-        console.log(tx)
+
         this.init(tx)
 
         this.setState(() => ({

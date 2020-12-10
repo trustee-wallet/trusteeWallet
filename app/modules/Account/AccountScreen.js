@@ -54,6 +54,7 @@ import AccountButtons from './elements/accountButtons'
 
 import transactionDS from '../../appstores/DataSource/Transaction/Transaction'
 import transactionActions from '../../appstores/Actions/TransactionActions'
+import BalanceHeader from './elements/AccountData'
 
 
 let CACHE_ASKED = false
@@ -310,47 +311,6 @@ class Account extends Component {
         this.setState(() => ({ headerHeight }))
     }
 
-    renderBalanceHeader = (account, cryptoCurrency) => {
-
-        const { colors, isLight } = this.context
-
-        let tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
-
-        if (typeof tmp.split === 'undefined') {
-            throw new Error('AccountScreen.renderBalance split is undefined')
-        }
-        
-        tmp = tmp.slice(0,11)
-
-        const tmps = tmp.split('.')
-        let balancePrettyPrep1 = tmps[0]
-        let balancePrettyPrep2 = ''
-        if (typeof tmps[1] !== 'undefined' && tmps[1]) {
-            balancePrettyPrep1 = tmps[0] + '.'
-            balancePrettyPrep2 = tmps[1]
-        }
-
-        return (
-            <>
-                <View style={styles.topContent__top}>
-                    <View style={styles.topContent__title}>
-                        <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
-                            { balancePrettyPrep1 }
-                            <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
-                                { balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol }
-                            </Text>
-                        </Text>
-                    </View>
-                    <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
-                        textStyle={{ ...styles.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
-                </View>
-                <View style={{ paddingTop: 12 }}>
-                    <AccountButtons />
-                </View>
-            </>
-        )
-    }
-
     handleShowMore = () => {
         this.transactionInfinity(0, this.state.transactionsShownLength + 10)
     }
@@ -393,6 +353,17 @@ class Account extends Component {
         this.setState({
             ordersWithoutTransactions : exchangeOrdersStore.exchangeOrders[account.currencyCode] || []
         })
+        // const { account, exchangeOrdersStore } = this.props
+        // if (account.walletHash === exchangeOrdersStore.walletHash) {
+        //     this.setState({
+        //         ordersWithoutTransactions: exchangeOrdersStore.exchangeOrders[account.currencyCode] || []
+        //     })
+        // } else {
+        //     this.setState({
+        //         ordersWithoutTransactions: []
+        //     })
+        // }
+
     }
 
     render() {
@@ -438,7 +409,7 @@ class Account extends Component {
         }
 
         // @todo yura
-        console.log('PLZ SHOW SOMEWHERE IT TOP - ITS LIKE TRANSACTIONS BUT NOT ', this.state.ordersWithoutTransactions)
+        console.log('PLZ SHOW SOMEWHERE IT TOP - ITS LIKE TRANSACTIONS BUT NOT ', this.state.ordersWithoutTransactions.slice(0,3))
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
@@ -446,7 +417,12 @@ class Account extends Component {
                     rightAction={this.closeAction}
                     title={strings('account.title').toUpperCase()}
                     setHeaderHeight={this.setHeaderHeight}
-                    ExtraView={() => this.renderBalanceHeader(mainStore.selectedAccount, cryptoCurrency)}
+                    ExtraView={() => { return (
+                        <BalanceHeader 
+                            account={account}
+                            cryptoCurrency={cryptoCurrency}
+                        />
+                    ) }}
                     scrollOffset={this.state.scrollOffset}
                 />
                 <ScrollView
@@ -470,6 +446,9 @@ class Account extends Component {
                         />
                         <AccountButtons 
                             title={true}
+                            actionReceive={this.handleReceive}
+                            actionBuy={this.handleBuy}
+                            actionSend={this.handleSend}
                         />
                         <View style={{
                             flex: 1,
@@ -582,36 +561,6 @@ const styles = {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 14,
         lineHeight: 18
-    },
-    topContent__top: {
-        position: 'relative',
-        alignItems: 'center',
-        marginTop: 6
-    },
-    topContent__title: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 10,
-        marginTop: 16,
-    },
-    topContent__title_first: {
-        height: 34,
-        fontSize: 30,
-        fontFamily: 'Montserrat-Regular',
-        lineHeight: 30
-    },
-    topContent__title_last: {
-        height: 32,
-        fontSize: 24,
-        fontFamily: 'Montserrat-Medium',
-        lineHeight: 28,
-        opacity: 1,
-    },
-    topContent__subtitle: {
-        fontFamily: 'SFUIDisplay-SemiBold',
-        fontSize: 14,
-        textAlign: 'center'
     },
     containerBG: {
         start: { x: 1, y: 0 },
