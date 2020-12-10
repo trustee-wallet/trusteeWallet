@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.11
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -21,10 +21,10 @@ import LetterSpacing from '../../components/elements/LetterSpacing'
 import Loader from '../../components/elements/LoaderItem'
 
 import Transaction from './elements/Transaction'
-import SettingsBTC from './elements/SettingsBTC'
-import SettingsUSDT from './elements/SettingsUSDT'
-import SettingsXMR from './elements/SettingsXMR'
-import SettingsTRX from './elements/SettingsTRX'
+import SettingsBTC from './AccountSettings/elements/SettingsBTC'
+import SettingsUSDT from './AccountSettings/elements/SettingsUSDT'
+import SettingsXMR from './AccountSettings/elements/SettingsXMR'
+import SettingsTRX from './AccountSettings/elements/SettingsTRX'
 
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
@@ -45,7 +45,7 @@ import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 
 import { strings } from '../../services/i18n'
 
-import Theme from '../../themes/Themes'
+import Theme, { HIT_SLOP } from '../../themes/Themes'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
@@ -61,7 +61,7 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 
 import Header from '../../modules/Send/elements/Header'
-import TrxButton from './elements/TrxButton'
+import TransactionButton from './elements/TransactionButton'
 
 
 let CACHE_ASKED = false
@@ -329,7 +329,7 @@ class Account extends Component {
                     </View>
                     <View style={stl.scan}>
                         {isSynchronized ?
-                            <Text style={stl.scan__text}>{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? strings('account.justScan') : strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
+                            <Text style={stl.scan__text} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? strings('account.justScan') : strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
                             :
                             <View style={{
                                 flexDirection: 'row',
@@ -374,11 +374,8 @@ class Account extends Component {
 
 
         let transactionsTmp = []
-        const unique = {}
-        const uniqueOrderId = {}
-        const byIds = {}
-        let byIdsLength = 0
 
+        const indexedOrders = {}
         if (exchangeOrders && exchangeOrders.length > 0) {
             let item
             for (item of exchangeOrders) {
@@ -431,70 +428,32 @@ class Account extends Component {
                     order.payUpdateTime = item.payUpdateTime
                 }
 
-                if (transactions) {
-                    let added = false
-
-                    const hash2 = item.outTxHash
-                    if (hash2 && typeof transactions[hash2] !== 'undefined') {
-                        if (typeof unique[hash2] === 'undefined') {
-                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
-                                uniqueOrderId[item.orderId] = 1
-                                transactionsTmp.push({ ...transactions[hash2], ...order })
-                                unique[hash2] = 1
-                                added = true
-                            }
-                        }
-                    }
-
-                    const hash = item.inTxHash
-                    if (hash && typeof transactions[hash] !== 'undefined') {
-                        if (typeof unique[hash] === 'undefined') {
-                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
-                                uniqueOrderId[item.orderId] = 1
-                                transactionsTmp.push({ ...transactions[hash], ...order })
-                                unique[hash] = 1
-                                added = true
-                            }
-
-                        }
-                    }
-
-                    if (!added) {
-                        byIds[item.orderId + ''] = order
-                        byIdsLength++
-                    }
-                } else {
-                    order.blockConfirmations = 0
-                    if (typeof uniqueOrderId[item.orderId] === 'undefined') {
-                        uniqueOrderId[item.orderId] = 1
-                        transactionsTmp.push(order)
-                    }
-                }
+                indexedOrders[order.orderId] = order
             }
         }
 
         if (transactions) {
             let hash
             for (hash in transactions) {
-                if (typeof unique[hash] !== 'undefined') continue
                 const tx = transactions[hash]
+
                 let added = false
-                if (byIdsLength > 0) {
-                    if (typeof tx.transactionJson !== 'undefined' && tx.transactionJson && typeof tx.transactionJson.bseOrderID !== 'undefined') {
-                        const tmpKey = tx.transactionJson.bseOrderID + ''
-                        if (typeof byIds[tmpKey] !== 'undefined') {
-                            const item = byIds[tmpKey]
-                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
-                                uniqueOrderId[item.orderId] = 1
-                                transactionsTmp.push({ ...tx, ...item })
-                                added = true
-                                delete byIds[tmpKey]
-                                byIdsLength--
-                            }
-                        }
-                    }
+                const bseOrderID = tx.bseOrderID
+                const bseOrderID2 = tx.bseOrderInID
+                const bseOrderID3 = tx.bseOrderInID
+                if (bseOrderID && typeof indexedOrders[bseOrderID] !== 'undefined') {
+                    added = indexedOrders[bseOrderID]
                 }
-                if (!added) {
+                if (!added && bseOrderID2 && typeof indexedOrders[bseOrderID2] !== 'undefined') {
+                    added = indexedOrders[bseOrderID2]
+                }
+                if (!added && bseOrderID3 && typeof indexedOrders[bseOrderID3] !== 'undefined') {
+                    added = indexedOrders[bseOrderID3]
+                }
+                if (added) {
+                    transactionsTmp.push({ ...tx, ...added })
+                    delete indexedOrders[added.orderId]
+                } else {
                     if (mainStore.selectedWallet.walletIsHideTransactionForFee !== null && +mainStore.selectedWallet.walletIsHideTransactionForFee === 1) {
                         if (tx.addressAmount === 0) {
                             if (tx.transactionOfTrusteeWallet === 1 && tx.transactionsOtherHashes !== '') {
@@ -512,10 +471,10 @@ class Account extends Component {
             }
         }
 
-        if (byIdsLength > 0) {
+        if (indexedOrders) {
             let orderId
-            for (orderId in byIds) {
-                const order = byIds[orderId]
+            for (orderId in indexedOrders) {
+                const order = indexedOrders[orderId]
                 if (order) {
                     transactionsTmp.push(order)
                 }
@@ -560,14 +519,16 @@ class Account extends Component {
 
     renderBalance = (cryptoCurrency, account) => {
 
-        const { colors, isLight } = this.context
+        const { colors, isLight, GRID_SIZE } = this.context
 
         const isSyncronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
-        const tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
+        let tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
         if (typeof tmp.split === 'undefined') {
             throw new Error('AccountScreen.renderBalance split is undefined')
         }
+
+        tmp = tmp.slice(0,11)
         const tmps = tmp.split('.')
         let balancePrettyPrep1 = tmps[0]
         let balancePrettyPrep2 = ''
@@ -578,17 +539,13 @@ class Account extends Component {
 
         if (isSyncronized) {
             return (
-                <View style={styles.topContent__top}>
-                    <View style={styles.topContent__title}>
-                        <Text style={{ ...styles.topContent__title_first, color: colors.accountScreen.balanceColor }}>
-                            {
-                                balancePrettyPrep1
-                            }
-                        </Text>
-                        <Text style={{ ...styles.topContent__title_last, color: colors.accountScreen.balanceColor }}>
-                            {
-                                balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol
-                            }
+                <View style={{...styles.topContent__top, marginHorizontal: GRID_SIZE}}>
+                    <View style={{...styles.topContent__title, flexGrow: 1 }}>
+                        <Text style={{ ...styles.topContent__title_first, color: colors.accountScreen.balanceColor }} numberOfLines={1} >
+                            { balancePrettyPrep1 }
+                            <Text style={{ ...styles.topContent__title_last, color: colors.accountScreen.balanceColor }}>
+                                { balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol }
+                            </Text>
                         </Text>
                     </View>
                     <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
@@ -630,61 +587,61 @@ class Account extends Component {
         this.setState(() => ({ headerHeight }))
     }
 
-    renderBalanceHeader = (account, cryptoCurrency) => {
+    // renderBalanceHeader = (account, cryptoCurrency) => {
 
-        const { colors, isLight } = this.context
+    //     const { colors, isLight } = this.context
 
-        const tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
+    //     const tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
 
-        if (typeof tmp.split === 'undefined') {
-            throw new Error('AccountScreen.renderBalance split is undefined')
-        }
-        const tmps = tmp.split('.')
-        let balancePrettyPrep1 = tmps[0]
-        let balancePrettyPrep2 = ''
-        if (typeof tmps[1] !== 'undefined' && tmps[1]) {
-            balancePrettyPrep1 = tmps[0] + '.'
-            balancePrettyPrep2 = tmps[1]
-        }
+    //     if (typeof tmp.split === 'undefined') {
+    //         throw new Error('AccountScreen.renderBalance split is undefined')
+    //     }
+    //     const tmps = tmp.split('.')
+    //     let balancePrettyPrep1 = tmps[0]
+    //     let balancePrettyPrep2 = ''
+    //     if (typeof tmps[1] !== 'undefined' && tmps[1]) {
+    //         balancePrettyPrep1 = tmps[0] + '.'
+    //         balancePrettyPrep2 = tmps[1]
+    //     }
 
-        return (
-            <>
-                <View style={stl.topContent__top}>
-                    <View style={stl.topContent__title}>
-                        <Text style={{ ...stl.topContent__title_first, color: colors.accountScreen.balanceColor }}>
-                            {
-                                balancePrettyPrep1
-                            }
-                        </Text>
-                        <Text style={{ ...stl.topContent__title_last, color: colors.accountScreen.balanceColor }}>
-                            {
-                                balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol
-                            }
-                        </Text>
-                    </View>
-                    <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
-                        textStyle={{ ...stl.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
-                </View>
-                <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', paddingTop: 24 }}>
-                    <TrxButton
-                        action={this.handleReceive}
-                        type={'receive'}
-                        style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
-                    />
-                    <TrxButton
-                        action={this.handleBuy}
-                        type={'buy'}
-                        style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
-                    />
-                    <TrxButton
-                        action={this.handleSend}
-                        type={'send'}
-                        style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
-                    />
-                </View>
-            </>
-        )
-    }
+    //     return (
+    //         <>
+    //             <View style={stl.topContent__top}>
+    //                 <View style={stl.topContent__title}>
+    //                     <Text style={{ ...stl.topContent__title_first, color: colors.accountScreen.balanceColor }}>
+    //                         {
+    //                             balancePrettyPrep1
+    //                         }
+    //                     </Text>
+    //                     <Text style={{ ...stl.topContent__title_last, color: colors.accountScreen.balanceColor }}>
+    //                         {
+    //                             balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol
+    //                         }
+    //                     </Text>
+    //                 </View>
+    //                 <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
+    //                     textStyle={{ ...stl.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
+    //             </View>
+    //             <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', paddingTop: 24 }}>
+    //                 <TransactionButton
+    //                     action={this.handleReceive}
+    //                     type={'receive'}
+    //                     style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+    //                 />
+    //                 <TransactionButton
+    //                     action={this.handleBuy}
+    //                     type={'buy'}
+    //                     style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+    //                 />
+    //                 <TransactionButton
+    //                     action={this.handleSend}
+    //                     type={'send'}
+    //                     style={{ ...stl.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+    //                 />
+    //             </View>
+    //         </>
+    //     )
+    // }
 
     render() {
         // noinspection ES6MissingAwait
@@ -774,8 +731,8 @@ class Account extends Component {
                     rightAction={this.closeAction}
                     title={strings('account.title').toUpperCase()}
                     setHeaderHeight={this.setHeaderHeight}
-                    ExtraView={() => this.renderBalanceHeader(mainStore.selectedAccount, cryptoCurrency)}
-                    scrollOffset={this.state.scrollOffset}
+                    // ExtraView={() => this.renderBalanceHeader(mainStore.selectedAccount, cryptoCurrency)}
+                    // scrollOffset={this.state.scrollOffset}
                 />
                 {/* <Navigation
                     title={strings('account.title').toUpperCase()}
@@ -797,7 +754,7 @@ class Account extends Component {
                     <View style={styles.wrapper__content}>
                         <View style={styles.topContent}>
                             <View style={stl.topContent__content}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }} >
+                                <View style={{ flexDirection: 'row' }} >
                                     <View style={{ marginTop: 16 }}>
                                         <TouchableOpacity style={{
                                             position: 'relative',
@@ -824,7 +781,7 @@ class Account extends Component {
                                             </View>
                                         </TouchableOpacity>
                                     </View>
-                                    <View style={{ marginTop: 22, marginLeft: typeof leftComponent !== 'undefined' ? -62 : -102 }}>
+                                    <View style={{ marginTop: 22 }}>
                                         <Text style={styles.currencyName}>{cryptoCurrency.currencyName}</Text>
                                         <TouchableOpacity style={styles.topContent__middle}
                                             onPress={() => this.handleBtcAddressCopy(shownAddress)}>
@@ -839,7 +796,7 @@ class Account extends Component {
                                             </View>
                                         </TouchableOpacity>
                                     </View>
-                                    <View style={stl.settings}>
+                                    <View style={{...stl.settings, right: 0, position: 'absolute'}}>
                                         {typeof leftComponent !== 'undefined' ? leftComponent() : null}
                                     </View>
                                 </View>
@@ -853,19 +810,19 @@ class Account extends Component {
                             </View>
                         </View>
                         <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <TrxButton
+                            <TransactionButton
                                 text={strings('account.receive', { receive: strings('repeat.receive') })}
                                 action={this.handleReceive}
                                 type={'receive'}
                                 style={{ ...stl.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
                             />
-                            <TrxButton
+                            <TransactionButton
                                 text={strings('dashboardStack.buy')}
                                 action={this.handleBuy}
                                 type={'buy'}
                                 style={{ ...stl.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
                             />
-                            <TrxButton
+                            <TransactionButton
                                 text={strings('account.send')}
                                 action={this.handleSend}
                                 type={'send'}
@@ -893,7 +850,6 @@ class Account extends Component {
                                 <View style={{ position: 'relative', width: '100%', zIndex: 1 }}>
                                     {
                                         show ? transactionsToView.map((item, index) => {
-                                            // console.log(item)
                                             return <Transaction key={item.id} index={item.id}
                                                 count={index}
                                                 cards={mainStore.cards}
@@ -913,7 +869,7 @@ class Account extends Component {
                             {
                                 this.state.amountToView < transactionsToViewLength ?
                                     <View style={{ width: '100%', alignItems: 'center' }}>
-                                        <TouchableOpacity style={styles.showMore} onPress={this.handleShowMore}>
+                                        <TouchableOpacity style={styles.showMore} onPress={this.handleShowMore} hitSlop={HIT_SLOP} >
                                             <Text style={{ ...styles.showMore__btn, color: colors.accountScreen.showMoreColor }}>
                                                 {strings('account.showMore')}
                                             </Text>
@@ -1116,7 +1072,7 @@ const stl = {
         left: 0,
 
         width: '100%',
-        height: 72,
+        height: 66,
         paddingBottom: Platform.OS === 'ios' ? 30 : 0
     },
     bottomButton: {

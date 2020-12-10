@@ -1,8 +1,15 @@
+/**
+ * @version 0.30
+ */
+
 import React, { Component } from 'react'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 import CheckData from './elements/CheckData'
-import api from '../../services/Api/Api'
+
+import Api from '../../services/Api/Api'
+import ApiV3 from '../../services/Api/ApiV3'
+
 import NavStore from '../../components/navigation/NavStore'
 import { strings } from '../../services/i18n'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
@@ -12,6 +19,8 @@ import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import Log from '../../services/Log/Log'
 import { Keyboard } from 'react-native'
 import SendTmpConstants from './elements/SendTmpConstants'
+import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 
 export default class SendBasicScreen extends Component {
 
@@ -93,7 +102,6 @@ export default class SendBasicScreen extends Component {
             }
 
             if (this._screenName === 'Receipt') {
-                console.log('set for back to receipt')
                 SendTmpConstants.PRESET_FROM_RECEIPT = true
                 SendTmpConstants.COUNTED_FEES = countedFees
                 SendTmpConstants.SELECTED_FEE = selectedFee
@@ -120,17 +128,40 @@ export default class SendBasicScreen extends Component {
         return { countedFees, selectedFee }
     }
 
-    openAdvancedSettings = () => {
+    openAdvancedSettings = async () => {
+
         const { countedFees, selectedFee, useAllFunds } = this.state
+
+        // const countedFees = SendTmpConstants.COUNTED_FEES
+        // const selectedFee = SendTmpConstants.
+
         // console.log('Send.SendBasicScreen.openAdvancedSettings state', JSON.parse(JSON.stringify({countedFees,selectedFee,useAllFunds})))
-        if (!countedFees) {
-            // console.log('YURA, plz show loaded here')
+
+        let account
+        if (typeof this.state.data !== 'undefined' && this.state.data && typeof this.state.data.account !== 'undefined') {
+            account = this.state.data.account
         } else {
+            account = this.props.account
+        }
+        SendTmpConstants.ACCOUNT_DATA = account
+
+        if (Object.keys(countedFees).length === 0) {
+            setLoaderStatus(true)
+            setTimeout(() => {
+                try {
+                    // setLoaderStatus(true)
+                    this.openAdvancedSettings()
+                } catch (e) {
+                }
+            }, 100)
+        } else {
+            setLoaderStatus(false)
             NavStore.goNext('SendAdvancedScreen', {
                 data: {
                     countedFees,
                     selectedFee,
-                    useAllFunds
+                    useAllFunds,
+                    providerType: this.state.data.providerType
                 }
             })
         }
@@ -141,13 +172,20 @@ export default class SendBasicScreen extends Component {
         this.setState(() => ({ headerHeight }))
     }
 
-    closeAction = () => {
-        if (typeof this.props.send !== 'undefined' && this.props.send && typeof this.props.send.data !== 'undefined') {
-            const { toTransactionJSON } = this.props.send.data
-            if (typeof toTransactionJSON !== 'undefined' && typeof toTransactionJSON.bseOrderID !== 'undefined') {
-                api.setExchangeStatus(toTransactionJSON.bseOrderID, 'close')
+    closeAction = async () => {
+
+        const { data } = this.state
+        if (typeof data !== 'undefined' && data && typeof data.toTransactionJSON !== 'undefined' && data.toTransactionJSON && data.toTransactionJSON.bseOrderID !== 'undefined') {
+            const version = data.apiVersion || 'v3'
+            const removeId = this.state.data.toTransactionJSON.bseOrderID
+            if (version === 'v2') {
+                Api.setExchangeStatus(removeId, 'close')
+            } else {
+                ApiV3.setExchangeStatus(removeId, 'close')
             }
+            UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({force: true, removeId, source: 'CANCEL'})
         }
+        console.log('goBack')
 
         NavStore.goBack()
     }
@@ -167,14 +205,14 @@ export default class SendBasicScreen extends Component {
 
     renderMinerFee = (onlyUseAllFunds = false) => {
 
-        const { countedFees, selectedFee, useAllFunds } = this.state
+        const { useAllFunds } = this.state
 
-        Log.log('Send.SendBasicScreen.renderMinerFee state', JSON.parse(JSON.stringify({
-            countedFees,
-            selectedFee,
-            useAllFunds,
-            onlyUseAllFunds
-        })))
+        let selectedFee = SendTmpConstants.SELECTED_FEE
+        if (!selectedFee) {
+            selectedFee = this.state.selectedFee
+        }
+
+        Log.log('Send.SendBasicScreen.renderMinerFee state', JSON.parse(JSON.stringify({ selectedFee, useAllFunds, onlyUseAllFunds })))
 
         if (onlyUseAllFunds && !useAllFunds) {
             Log.log('Send.SendBasicScreen.renderMinerFee not shown as not useAllFunds')
@@ -185,7 +223,13 @@ export default class SendBasicScreen extends Component {
             return false
         }
 
-        const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates } = this.props.account
+        let account
+        if (typeof this.state.data !== 'undefined' && this.state.data && typeof this.state.data.account !== 'undefined') {
+            account = this.state.data.account
+        } else {
+            account = this.props.account
+        }
+        const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates } = account
 
 
         let prettyFee
@@ -217,11 +261,20 @@ export default class SendBasicScreen extends Component {
 
         Log.log('Send.SendBasicScreen.renderMinerFee prettyFee ' + prettyFee + ' prettyFeeSymbol ' + prettyFeeSymbol + ' fiatFee ' + fiatFee)
         return (
+            <>
             <CheckData
                 name={'Miner fee'}
                 value={`${prettyFee} ${prettyFeeSymbol}`}
                 subvalue={fiatFee}
             />
+            {
+                selectedFee.isCustomFee && selectedFee.nonceForTx ?
+                    <CheckData
+                        name={'Custom nonce'}
+                        value={selectedFee.nonceForTx + ''}
+                    /> : null
+            }
+            </>
         )
     }
 

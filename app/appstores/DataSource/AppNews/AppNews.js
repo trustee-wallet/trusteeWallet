@@ -57,6 +57,7 @@ class AppNews {
      * @param {integer} appNews.newsToSendStatus
      * @param {string} appNews.newsLog
      * @param {boolean} appNews.onlyOne
+     * @param {string} appNews.newsServerHash
      */
     saveAppNews = async (appNews) => {
         const dbInterface = new DBInterface()
@@ -78,29 +79,57 @@ class AppNews {
         }
         appNews.newsCreated = now
         if (typeof appNews.onlyOne !== 'undefined') {
-            let sql = `DELETE FROM app_news WHERE currency_code='${appNews.currencyCode}' AND news_name='${appNews.newsName}'`
+            let sql = `DELETE FROM app_news WHERE news_name='${appNews.newsName}'`
+            if (typeof appNews.currencyCode !== 'undefined' && appNews.currencyCode) {
+                sql += ` AND currency_code='${appNews.currencyCode}' `
+            }
             if (typeof appNews.walletHash !== 'undefined') {
                 sql += ` AND wallet_hash='${appNews.walletHash}'`
             }
             await dbInterface.setQueryString(sql).query()
             delete appNews.onlyOne
         }
+        let isUpdate = false
+        let updateId = 0
+        let updateLog = ''
         if (typeof appNews.newsUniqueKey !== 'undefined' && appNews.newsUniqueKey) {
-            let where = `WHERE currency_code='${appNews.currencyCode}' AND news_unique_key='${appNews.newsUniqueKey}'`
+            let where = `news_unique_key='${appNews.newsUniqueKey}'`
+            if (typeof appNews.currencyCode !== 'undefined' && appNews.currencyCode) {
+                where += ` AND currency_code='${appNews.currencyCode}' `
+            }
             if (typeof appNews.walletHash !== 'undefined') {
                 where += ` AND wallet_hash='${appNews.walletHash}'`
+            } else {
+                where += ` AND (wallet_hash IS NULL OR wallet_hash = '')`
             }
-            const saved = `SELECT * FROM app_news ${where}`
+            const saved = `SELECT id, news_name, news_server_hash, news_log FROM app_news WHERE ${where}`
             const tmp = await dbInterface.setQueryString(saved).query()
             if (tmp && tmp.array && typeof tmp.array[0] !== 'undefined' && tmp.array[0]) {
-                if (tmp.array[0].news_name === appNews.newsName) {
-                    return false
+                const found = tmp.array[0]
+                if (typeof appNews.newsServerHash !== 'undefined' && appNews.newsServerHash) {
+                    if (found.news_server_hash === appNews.newsServerHash) {
+                        return false
+                    }
+                } else {
+                    if (found.news_name === appNews.newsName) {
+                        return false
+                    }
                 }
-                const sql = `DELETE FROM app_news ${where}`
-                await dbInterface.setQueryString(sql).query()
+                isUpdate = true
+                updateId = found.id
+                updateLog = found.news_log
             }
         }
-        await dbInterface.setTableName(tableName).setInsertData({ insertObjs: [appNews] }).insert()
+        if (isUpdate) {
+            if (typeof appNews.newsLog !== 'undefined') {
+                appNews.newsLog = (appNews.newsLog + ' ' + updateLog).substring(0, 500)
+            } else {
+                appNews.newsLog = ' UPDATE / ' + updateLog
+            }
+            await dbInterface.setTableName(tableName).setUpdateData( {key: { id: updateId }, updateObj: appNews }).update()
+        } else {
+            await dbInterface.setTableName(tableName).setInsertData({ insertObjs: [appNews] }).insert()
+        }
     }
 
     clear = async() => {

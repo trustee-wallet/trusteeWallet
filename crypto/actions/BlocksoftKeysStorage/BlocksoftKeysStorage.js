@@ -171,8 +171,9 @@ export class BlocksoftKeysStorage {
         BlocksoftCryptoLog.log('BlocksoftKeysStorage init ended')
         this._serviceWasInited = true
 
-        const mnemonic = await this.getWalletMnemonic(this.publicSelectedWallet)
-        await fioSdkWrapper.init(mnemonic)
+        if (this.publicSelectedWallet) {
+            await fioSdkWrapper.init(this.publicSelectedWallet)
+        }
     }
 
     async reInit() {
@@ -277,9 +278,9 @@ export class BlocksoftKeysStorage {
         BlocksoftCryptoLog.log(msg + 'new publicSelectedWallet = ' + this.publicSelectedWallet + ' ' + JSON.stringify({ isChanged }))
 
         if (isChanged) {
-            const mnemonic = await this.getWalletMnemonic(hashOrId)
-            await fioSdkWrapper.init(mnemonic)
+            await fioSdkWrapper.init(this.publicSelectedWallet)
         }
+
         return this.publicSelectedWallet
     }
 
@@ -298,10 +299,10 @@ export class BlocksoftKeysStorage {
      * public wallet mnemonic by hash
      * @return {string}
      */
-    async getWalletMnemonic(hashOrId) {
+    async getWalletMnemonic(hashOrId, source = 'default') {
         await this._init()
         if (!this._serviceWallets[hashOrId]) {
-            throw new Error('undefined wallet with hash ' + hashOrId)
+            throw new Error('undefined wallet with hash ' + hashOrId + ' source ' + source)
         }
         return this._serviceWallets[hashOrId]
     }

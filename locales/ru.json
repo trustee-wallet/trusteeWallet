@@ -205,6 +205,13 @@
     "openLink" : "Для перехода на платежную систему, пожайлуста, перейдите по этой ссылке",
     "openLinkError": "Не найден браузер - ссылка скопирована в буфер"
   },
+  "notifications": {
+    "title": "Уведомления",
+    "tabAll": "Все",
+    "tabNews": "Новости",
+    "today": "Сегодня",
+    "yesterday": "Вчера"
+  },
   "settings": {
     "title": "Настройки",
     "wallets": {
@@ -315,7 +322,21 @@
       "serverSendInputTitleXMR" : "или node.moneroworld.com:18089",
       "needReinstallXMR"  : "Системная ошибка адреса XMR - пожайлуста, сохраните мнемоническую фразу и переустановите приложение, или свяжитесь со службой поддержки для подробный инструкций",
       "saveSettings" : "Сохранить",
-      "getMnemonicXMR" : "Просмотреть секреты"
+      "getMnemonicXMR" : "Просмотреть секреты",
+      "availableTRX" : "Доступно",
+      "frozenTRX" : "Застейкано",
+      "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Энергия %{prettyFrozenEnergy} TRX",
+      "enterToFreezeTRX" : "введите количество TRX",
+      "freezeForBandTRX" : "Застейкать",
+      "freezeForEnergyTRX" : "Для энергии",
+      "unfreezeTRX" : "Разморозить",
+      "votedTRX" : "Голоса",
+      "votedBalanceTRX" : "Использовано %{voteTotal} / Всего %{prettyVote}",
+      "voteTRX" : "Проголосовать",
+      "rewardTRX" : "Награда за голосование",
+      "rewardBalanceTRX" : "Доступно %{prettyReward} TRX",
+      "claimTRX" : "Забрать награду",
+      "refreshTRX" : "Перегрузить"
     },
     "about": {
       "title": "О кошельке",
@@ -350,6 +371,15 @@
     "tester": "Тестировщик/пользователь изменен на: %{testerMode}"
   },
   "assets": {
+    "title": "Добавить актив",
+    "tabAll": "Все",
+    "tabCoins": "Coins",
+    "tabTokens": "Tokens",
+    "tabCustom": "Custom",
+    "searchPlaceholder": "Search",
+    "addCustomPlaceholder": "Asset address",
+    "addCustomLabel": "Ethereum and Tron tokens addresses are supported",
+    "addAssetButton": "Добавить актив",
     "mainTitle": "Добавить актив",
     "addCustomAsset": "Добавить актив не из списка",
     "addAsset": "Добавить",
@@ -431,7 +461,8 @@
       "sell": "Продажа",
       "mobile_phone": "Пополнение мобильного",
       "date": "Дата",
-      "confirmations": "Подтверждений:",
+      "confirmations": "Подтверждений",
+      "blockNumber": "Номер блока",
       "moreInformation": "Больше информации",
       "cardNumberDestination": "Номер карты для вывода",
       "advAccountDestination": "Номер счета для вывода",
@@ -679,7 +710,15 @@
     "notEnoughForFeeConfirmed": "Для отправки токенов необходимо иметь положительный подтвержденный баланс в нативной монете %{symbol}, подождите подтверждения или включите использование неподтвержденных транзакций",
     "publicFioAddressNotFound": "%{symbol} публичный адрес не связан с указаным FIO адресом",
     "setting": {
-      "title": "Advanced"
+      "title": "Дополнительно",
+      "apply": "Применить",
+      "feeSettings": "Настройки комиссии",
+      "selectFee": "Выберите комиссию",
+      "inputSettings": "Настройки входов",
+      "selectInput": "Выберите входы",
+      "descriptionInput": "По умолчанию",
+      "optionalSettings": "Необязательно",
+      "note": "Заметка"
     },
     "infoModal": {
       "title": "Информация",
@@ -803,6 +842,8 @@
         "rate": "Цена за 1 %{currencyCode}",
         "recepient": "Получатель",
         "destinationAddress": "Адрес получателя",
+        "destinationTag": "Тег назначения",
+        "paymentId": "Идентификатор платежа",
         "minerFee": "Комиссия майнера",
         "totalMinerFee": "Общая комиссия майнера",
         "trusteeInfo": "Криптовалютние транзакции не тарифицируются",
@@ -1196,7 +1237,8 @@
     "send": {
       "success": "Успех!",
       "txSuccess": "Ваша транзакция успешно отправлена!",
-      "fail": "Ошибка..."
+      "fail": "Ошибка...",
+      "feeChangeAmount": "Сумма отправки изменилась после изименние комиссии"
     },
     "walletLog" : {
       "sorry" : "Ошибка....",

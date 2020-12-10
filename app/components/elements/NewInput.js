@@ -9,8 +9,9 @@ import { TextField } from 'react-native-material-textfield'
 import QR from 'react-native-vector-icons/FontAwesome'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
-import GradientView from '../../components/elements/GradientView'
+import GradientView from './GradientView'
 
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 import { capitalize } from '../../services/UI/Capitalize/Capitalize'
@@ -21,7 +22,8 @@ import { strings } from '../../services/i18n'
 import { normalizeInputWithDecimals } from '../../services/UI/Normalize/NormalizeInput'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 import Log from '../../services/Log/Log'
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '../navigation/NavStore'
+import LetterSpacing from './LetterSpacing'
 
 
 class Input extends Component {
@@ -33,34 +35,34 @@ class Input extends Component {
             errors: [],
             focus: false,
             autoFocus: false,
-            show: false,
+            show: true,
             tap: true,
-            inputHeight : 0
+            inputHeight: 0
         }
         this.inputRef = React.createRef()
     }
 
-    componentDidMount() {
-        setTimeout(() => {
-            this.setState({
-                show: true
-            })
-        }, 200)
+    // componentDidMount() {
+        // setTimeout(() => {
+        //     this.setState({
+        //         show: true
+        //     })
+        // }, 200)
 
-        setTimeout(() => {
-            const { autoFocus } = this.props
-            if (typeof autoFocus !== 'undefined') {
-                this.setState({
-                    autoFocus,
-                    show: false
-                }, () => {
-                    this.setState({
-                        show: true
-                    })
-                })
-            }
-        }, 500)
-    }
+        // setTimeout(() => {
+        //     const { autoFocus } = this.props
+        //     if (typeof autoFocus !== 'undefined') {
+        //         this.setState({
+        //             autoFocus,
+        //             show: false
+        //         }, () => {
+        //             this.setState({
+        //                 show: true
+        //             })
+        //         })
+        //     }
+        // }, 500)
+    // }
 
     // eslint-disable-next-line camelcase
     UNSAFE_componentWillReceiveProps(props) {
@@ -128,7 +130,7 @@ class Input extends Component {
             if (tmpIndex !== -1) {
                 valueNew = valueNew.slice(tmpIndex + 9).trim()
             }
-            if (cuttype === 'TRX' && value.length<=34 || cuttype === 'FIO') {
+            if (cuttype === 'TRX' && value.length <= 34 || cuttype === 'FIO') {
                 // do nothing
                 // TRX addresses can start with TRX
             } else if (valueNew.indexOf(cuttype) === 0) {
@@ -173,7 +175,7 @@ class Input extends Component {
                 value
             }
             validation = await Validator.arrayValidation([params])
-            Log.log('Input.handleValidate one', {validation, params})
+            Log.log('Input.handleValidate one', { validation, params })
         }
 
         this.setState({
@@ -183,8 +185,8 @@ class Input extends Component {
 
         return {
             status: validation.status,
-            value : value,
-            valueState : valueState
+            value: value,
+            valueState: valueState
         }
     }
 
@@ -223,7 +225,9 @@ class Input extends Component {
             noEdit,
             isCapitalize = true,
             isLine = true,
-            isTextarea = false
+            isTextarea = false,
+            info,
+            tabInfo
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
@@ -254,107 +258,85 @@ class Input extends Component {
         return (
             <View style={{ ...styles.wrapper, ...elementStyle }}>
                 {
-                    typeof isLine !== 'undefined' && isLine ? <GradientView style={{...styles.line, ...lineStyle}} array={error ? lineStyles_.arrayError : noEdit ? lineStyles_.arrayEdit : lineStyles_.array} start={lineStyles_.start} end={lineStyles_.end}/> : null
-                }
-                {
-                    show ? <TextField
-                        ref={ref => this.inputRef = ref}
-                        keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'default'}
-                        tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
-                        errorColor={styles.errorColor}
-                        labelHeight={styles.labelHeight}
-                        baseColor={typeof inputBaseColor !== 'undefined' ? inputBaseColor : '#404040'}
-                        textColor={typeof inputTextColor !== 'undefined' ? inputTextColor : '#0D0D0D'}
-                        fontSize={19}
-                        lineWidth={0}
-                        activeLineWidth={0}
-                        label={placeholder}
-                        value={value}
-                        //  returnKeyLabel={'Buy'}
-                        // returnKeyType={'done'}
-                        onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
-                        }}
-                        autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
-                        disabled={isDisabled}
-                        disabledLineType={'none'}
-                        error={error ? error.toString() : ''}
-                        onChangeText={(value) => this.handleInput(value)}
-                        style={ noEdit ? {...styles.fontFamily, color: '#999999'} : styles.fontFamily}
-                        // style={styles.fontFamily}
-                        multiline={isTextarea}
-                        autoCorrect={false}
-                        spellCheck={false}
-                        onBlur={() => {
-                            this.setState({ focus: false })
-                        }}
-                        onContentSizeChange={(e) => {
-                            const h =  e.nativeEvent.contentSize.height
-                            if (h > 1) {
-                                this.setState({ inputHeight: h })
-                            }
-                        }}
-                        onFocus={typeof onFocus === 'undefined' ? () => {
-                            this.setState({ focus: true })
-                        } : () => {
-                            this.setState({ focus: true })
-                            onFocus()
-                        }}
-                    /> : null
-                }
-                {
-                    validPlaceholder ?
-                        <TextInput
-                            style={[styles.validPlaceholder, !this.state.errors.length && value !== '' && focus === false ? styles.validPlaceholder_active : null, {color: noEdit ? '#999999' : '#0D0D0D'}]}
-                            value={BlocksoftPrettyStrings.makeCut(value, 8)}
-                            editable={!isDisabled}
-                            autoCorrect={false}
-                            spellCheck={false}
-                            onFocus={() => {
-                                this.inputRef.focus()
-                            }}
-                        /> : null
-                }
-                {
-                    typeof tapText !== 'undefined' ?
-                        <TouchableOpacity disabled={typeof disabled !== 'undefined' ? disabled : false} style={[styles.tap, tapWrapperStyles]} onPress={() => {
-                            tapCallback()
-                            this.setState({ tap: !this.state.tap })
-                        }}>
-                            <View style={[styles.tap__content, typeof disabled !== 'undefined' && disabled ? styles.tap__content_disabled : null, tapContentStyles]}>
-                                <View style={{
-                                    height: 12, transform: [
-                                        { rotateX: `${this.state.tap ? '0' : '180'}deg` }
-                                    ]
-                                }}>
-                                    {typeof disabled !== 'undefined' && !disabled ? <Ionicons size={12} name='ios-swap' style={[{ color: '#7127ac', ...tapIconStyle }]}/> : null}
-                                </View>
-                                 <Text style={{...styles.tap__text, ...tapTextStyles, color: noEdit ? '#999999' : '#7127ac'}}>{tapText}</Text>
-                            </View>
-                        </TouchableOpacity> : null
+                    show ?
+                        <View style={{ backgroundColor: '#F5F5F5', width: '100%', borderRadius: 10 }} >
+                            <TextField
+                                ref={ref => this.inputRef = ref}
+                                keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'default'}
+                                tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
+                                labelHeight={styles.labelHeight}
+                                fontSize={19}
+                                lineWidth={0}
+                                activeLineWidth={0}
+                                placeholder={placeholder}
+                                placeholderTextColor="#999999"
+                                placeholderStyle={{ ...styles.fontFamily, fontFamily: 'Montserrat-Semibold' }}
+                                value={validPlaceholder ? !this.state.errors.length && value !== '' && focus === false ? BlocksoftPrettyStrings.makeCut(value, 8) : value : value}
+                                returnKeyLabel={'Buy'}
+                                // returnKeyType={'done'}
+                                onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
+                                }}
+                                autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
+                                disabled={isDisabled}
+                                disabledLineType={'none'}
+                                onChangeText={(value) => this.handleInput(value)}
+                                style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: error ? '#864DD9' : '#5C5C5C', }}
+                                multiline={isTextarea}
+                                autoCorrect={false}
+                                spellCheck={false}
+                                onBlur={() => {
+                                    this.setState({ focus: false })
+                                }}
+                                onContentSizeChange={(e) => {
+                                    const h = e.nativeEvent.contentSize.height
+                                    if (h > 1) {
+                                        this.setState({ inputHeight: h })
+                                    }
+                                }}
+                                onFocus={typeof onFocus === 'undefined' ? () => {
+                                    this.setState({ focus: true })
+                                } : () => {
+                                    this.setState({ focus: true })
+                                    onFocus()
+                                }}
+                            />
+                        </View>
+                        : null
                 }
                 <View style={styles.actions}>
                     {
                         typeof fio !== 'undefined' && fio ?
                             <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
-                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="contacts" size={25} color="#855eab"/>
+                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="contacts" size={25} color={error ? '#864DD9' : "#404040"} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof copy !== 'undefined' && copy ?
                             <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-copy" size={25} color="#855eab"/>
+                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-copy" size={25} color={error ? '#864DD9' : "#404040"} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof paste !== 'undefined' && paste ?
                             <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-paste" size={25} color="#855eab"/>
+                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-paste" size={25} color={error ? '#864DD9' : "#404040"} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof qr !== 'undefined' && qr ?
                             <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
-                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }} name="qrcode" size={25} color="#855eab"/>
+                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }} name="qrcode" size={25} color={error ? '#864DD9' : "#404040"} />
+                            </TouchableOpacity> : null
+                    }
+                    {
+                        typeof info !== 'undefined' && typeof tabInfo !== 'undefined' && info && tabInfo ?
+                            <TouchableOpacity onPress={tabInfo} style={styles.actionBtn}>
+                                <Icon
+                                    name="information-outline"
+                                    size={25}
+                                    color={error ? '#864DD9' : "#404040"}
+                                    style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 3 }}
+                                />
                             </TouchableOpacity> : null
                     }
                 </View>
@@ -368,21 +350,6 @@ class Input extends Component {
                             </View>
                         </TouchableOpacity> : null
                 }
-                {
-                    typeof subTitle !== 'undefined' ?
-                        <Text style={styles.subTitle}>{subTitle}</Text> : null
-                }
-                <View style={styles.bottomTexts}>
-                    <Text numberOfLines={1}>
-                        <Text style={{ ...styles.mark, ...markStyle }}>
-                            {typeof bottomLeftText !== 'undefined' ? bottomLeftText : ''}
-                        </Text>
-                        <Text style={{ ...styles.mark, ...markStyle }}>
-                            {typeof mark !== 'undefined' ? mark : ''}
-                        </Text>
-                    </Text>
-                </View>
-
             </View>
         )
     }
@@ -416,7 +383,9 @@ const styles = {
         position: 'relative',
         maxHeight: 70,
         minHeight: 70,
-        marginBottom: 10
+        marginBottom: 10,
+
+        zIndex: 3,
     },
     content: {
         flexDirection: 'row',
@@ -433,7 +402,7 @@ const styles = {
     },
     line: {
         position: 'absolute',
-        top: 50,
+        // top: 50, 
         width: '100%',
         height: 2,
         borderRadius: 2
@@ -445,8 +414,12 @@ const styles = {
         color: '#e77ca3'
     },
     fontFamily: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'SFUIDisplay-Semibold',
         marginRight: 110,
+        marginLeft: 16,
+        marginTop: -4,
+        letterSpacing: 1,
+        color: '#5C5C5C',
         // textDecoration: 'none'
     },
     mark: {
@@ -475,7 +448,7 @@ const styles = {
     actions: {
         position: 'absolute',
         top: -5,
-        right: 0,
+        right: 16,
         flexDirection: 'row'
     },
     actionBtn: {},
@@ -507,7 +480,7 @@ const styles = {
     },
     validPlaceholder: {
         position: 'absolute',
-        top: 20,
+        top: -20,
         left: 0,
 
         width: '100%',
@@ -518,11 +491,12 @@ const styles = {
         fontSize: 19,
         fontFamily: 'SFUIDisplay-Regular',
 
-        backgroundColor: '#f9f9f9',
         overflow: 'hidden',
+        backgroundColor: 'red'
     },
     validPlaceholder_active: {
-        maxHeight: 200
+        maxHeight: 200,
+        backgroundColor: 'green'
     },
     tap: {
         position: 'absolute',
@@ -546,5 +520,75 @@ const styles = {
     },
     tap__content_disabled: {
         backgroundColor: '#f9f9f9'
-    }
+    },
+    inputShadow: {
+
+        shadowColor: '#000',
+
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+
+        elevation: 5
+    },
+    shadow: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+
+        width: '100%',
+        height: 58,
+
+        zIndex: 1
+    },
+    shadow__item: {
+        flex: 1,
+
+        marginHorizontal: 4,
+        // marginTop: 11,
+        marginBottom: Platform.OS === 'android' ? 6 : 0,
+
+        backgroundColor: '#fff',
+
+        borderRadius: 10,
+
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 5
+        },
+        shadowOpacity: 0.34,
+        shadowRadius: 6.27,
+
+        elevation: 10
+    },
+
+    shadow__item__android: {
+        flex: 1,
+
+        marginHorizontal: 4,
+        marginTop: 11,
+        marginBottom: Platform.OS === 'android' ? 6 : 0,
+
+        backgroundColor: '#fff',
+
+        // borderRadius: 16,
+
+        width: 350,
+        height: 63,
+        border: 6,
+        radius: 16,
+        opacity: 0.07,
+        x: 0,
+        y: 0,
+        style: {
+            flexDirection: 'row',
+            // marginVertical: 5,
+            position: 'absolute',
+            // margin: 1
+        }
+    },
 }

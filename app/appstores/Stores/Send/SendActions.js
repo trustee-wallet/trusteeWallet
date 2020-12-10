@@ -12,12 +12,14 @@ import { strings } from '../../../services/i18n'
 import _ from 'lodash'
 import accountDS from '../../DataSource/Account/Account'
 import Log from '../../../services/Log/Log'
+import SendTmpConstants from '../../../modules/Send/elements/SendTmpConstants'
 
 const NativeLinking = require('../../../../node_modules/react-native/Libraries/Linking/NativeLinking').default
 const { dispatch } = store
 
 
 export function setSendData(data) {
+    // @todo unify with usual
     console.log('SendActions.setSendData', {...data})
     dispatch({
         type: 'SET_SEND_DATA',
@@ -27,20 +29,13 @@ export function setSendData(data) {
 
 export function clearSendData() {
     console.log('SendActions.clearSendData')
+    SendTmpConstants.SELECTED_FEE = false
+    SendTmpConstants.COUNTED_FEES = false
+    SendTmpConstants.ACCOUNT_DATA = false
     dispatch({
         type: 'CLEAR_SEND_DATA'
     })
 }
-
-export function handleFee (countedFees, selectedFee) {
-    console.log('SendActions.handleFee', {countedFees, selectedFee})
-    dispatch({
-        type: 'SET_FEE',
-        countedFees,
-        selectedFee
-    })
-}
-
 
 export default new class SendActions {
 

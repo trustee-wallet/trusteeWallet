@@ -17,7 +17,7 @@ class AppTasksDiscoverBalancesNotAdded {
      */
     run = async (appTask) => {
 
-        const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(appTask.walletHash)
+        const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(appTask.walletHash, 'AppTasksDiscoverBalancesNotAdded.run')
         const accounts = await BlocksoftKeys.discoverAddresses({ mnemonic, fullTree: false, fromIndex: 0, toIndex: 1, currencyCode: appTask.currencyCode }, 'APP_TASK')
         if (!accounts) return 'no address'
         const account = accounts[appTask.currencyCode][0]

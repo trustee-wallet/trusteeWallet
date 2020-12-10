@@ -1,0 +1,420 @@
+/**
+ * @version 0.30
+ */
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { View, Text, TouchableOpacity } from 'react-native'
+
+import LetterSpacing from '../../../../components/elements/LetterSpacing'
+
+import { strings } from '../../../../services/i18n'
+
+import { showModal } from '../../../../appstores/Stores/Modal/ModalActions'
+import { setLoaderStatus } from '../../../../appstores/Stores/Main/MainStoreActions'
+
+
+import Log from '../../../../services/Log/Log'
+import BlocksoftBalances from '../../../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import BlocksoftAxios from '../../../../../crypto/common/BlocksoftAxios'
+import BlocksoftExternalSettings from '../../../../../crypto/common/BlocksoftExternalSettings'
+import BlocksoftPrettyNumbers from '../../../../../crypto/common/BlocksoftPrettyNumbers'
+import { BlocksoftTransfer } from '../../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import TronUtils from '../../../../../crypto/blockchains/trx/ext/TronUtils'
+
+import Input from '../../../../components/elements/NewInput'
+import ListItem from '../../../../components/elements/new/list/ListItem/Setting'
+
+import config from '../../../../config/config'
+
+import { ThemeContext } from '../../../theme/ThemeProvider'
+import styles from './styles'
+
+const CACHE_TIMEOUT = 3000
+
+class SettingsTRX extends Component {
+
+    constructor(props) {
+        super(props)
+        this.state = {
+            currentBalance: {
+                balance: '0',
+                prettyBalance: '?',
+                frozen: '0',
+                frozenEnergy: '0',
+                prettyFrozen: '?',
+                prettyFrozenEnergy: '?',
+                voteTotal: '0',
+                prettyVote: '0'
+            },
+            currentReward: '0',
+            prettyReward: '0',
+            currentBalanceChecked: false
+        }
+
+        this.freezeAmountInput = React.createRef()
+    }
+
+    componentDidMount() {
+        this.handleScan()
+    }
+
+    handleScan = async () => {
+        const { account } = this.props
+
+        setLoaderStatus(true)
+
+        const address = account.address
+
+        Log.log('SettingsTRX.handleScan scan started', address)
+
+        const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getBalance())
+
+        const tmp = await BlocksoftAxios.postWithoutBraking('https://api.trongrid.io/wallet/getReward', { address })
+        if (typeof tmp.data === 'undefined' || typeof tmp.data.reward === 'undefined') {
+            Log.log('SettingsTRX.handleScan noReward', tmp)
+        } else if (balance) {
+            Log.log('SettingsTRX.handleScan balance', balance)
+            const reward = tmp.data.reward
+            balance.prettyBalance = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balance)
+            balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
+            balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
+            balance.prettyVote = balance.prettyFrozen.toString().split('.')[0]
+
+            const prettyReward = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(reward)
+            this.setState({
+                currentBalance: balance,
+                currentReward: reward,
+                prettyReward,
+                currentBalanceChecked: true
+            })
+        } else {
+            Log.log('SettingsTRX.handleScan noBalance', balance)
+        }
+
+        setLoaderStatus(false)
+        return balance
+    }
+
+
+    // https://developers.tron.network/reference#walletvotewitnessaccount
+    // https://developers.tron.network/reference#walletfreezebalance-1
+    // only freeze can have amount actually
+    handleFreeze = async (isAll, type) => {
+        const { account } = this.props
+        const { currentBalanceChecked, currentBalance } = this.state
+        let actualBalance = currentBalance
+        if (currentBalanceChecked === false) {
+            actualBalance = await this.handleScan()
+        }
+
+        setLoaderStatus(true)
+
+        const address = account.address
+        let freeze = actualBalance.balance
+
+        try {
+
+            if (!isAll) {
+                const inputValidate = await this.freezeAmountInput.handleValidate()
+                if (inputValidate.status !== 'success') {
+                    throw new Error('invalid custom freeze value')
+                }
+                freeze = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makeUnPretty(inputValidate.value)
+            }
+
+            await this._sendTx('https://api.trongrid.io/wallet/freezebalance', {
+                owner_address: TronUtils.addressToHex(address),
+                frozen_balance: freeze * 1,
+                frozen_duration: 3,
+                resource: type
+            })
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('SettingsTRX.handleFreeze error ', e)
+            }
+            const msg = e.toString()
+            showModal({
+                type: 'INFO_MODAL',
+                icon: true,
+                title: strings('modal.exchange.sorry'),
+                description: msg
+            })
+
+            this.handleScan()
+        }
+        setLoaderStatus(false)
+    }
+
+    handleUnFreeze = async (isAll, type) => {
+
+        const { account } = this.props
+
+        setLoaderStatus(true)
+
+        const address = account.address
+
+        try {
+            await this._sendTx('https://api.trongrid.io/wallet/unfreezebalance', {
+                owner_address: TronUtils.addressToHex(address),
+                resource: type
+            })
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('SettingsTRX.handleUnFreeze error ', e)
+            }
+            const msg = e.toString()
+            showModal({
+                type: 'INFO_MODAL',
+                icon: true,
+                title: strings('modal.exchange.sorry'),
+                description: msg
+            })
+            this.handleScan()
+        }
+        setLoaderStatus(false)
+    }
+
+
+    handleVote = async () => {
+        const { account } = this.props
+        const { currentBalanceChecked, currentBalance } = this.state
+        let actualBalance = currentBalance
+        if (currentBalanceChecked === false) {
+            actualBalance = await this.handleScan()
+        }
+
+        setLoaderStatus(true)
+
+        const address = account.address
+
+        try {
+            await this._sendTx('https://api.trongrid.io/wallet/votewitnessaccount', {
+                owner_address: TronUtils.addressToHex(address),
+                votes: [
+                    {
+                        vote_address: TronUtils.addressToHex(BlocksoftExternalSettings.getStatic('TRX_VOTE_BEST')),
+                        vote_count: actualBalance.prettyVote * 1
+                    }
+                ]
+            })
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('SettingsTRX.handleVote error ', e)
+            }
+            const msg = e.toString()
+            showModal({
+                type: 'INFO_MODAL',
+                icon: true,
+                title: strings('modal.exchange.sorry'),
+                description: msg
+            })
+            this.handleScan()
+        }
+        setLoaderStatus(false)
+    }
+
+
+    handleGetReward = async () => {
+        const { account } = this.props
+
+        setLoaderStatus(true)
+
+        const address = account.address
+
+        try {
+            await this._sendTx('https://api.trongrid.io/wallet/withdrawbalance', {
+                owner_address: TronUtils.addressToHex(address)
+            })
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('SettingsTRX.handleGetReward error ', e)
+            }
+            let msg = e.toString()
+            if (msg.indexOf('less than 24 hours') !== -1) {
+                msg = 'Last claim was less than 24 hours ago'
+            }
+            showModal({
+                type: 'INFO_MODAL',
+                icon: true,
+                title: strings('modal.exchange.sorry'),
+                description: msg
+            })
+            this.handleScan()
+        }
+        setLoaderStatus(false)
+    }
+
+    _sendTx = async (link, params) => {
+
+        const tmp = await BlocksoftAxios.post(link, params)
+        let blockchainData
+        if (typeof tmp.data !== 'undefined') {
+            if (typeof tmp.data.raw_data_hex !== 'undefined') {
+                blockchainData = tmp.data
+            } else {
+                Log.log('SettingsTRX.handleFreeze no rawHex ' + link, params, tmp.data)
+                throw new Error(JSON.stringify(tmp.data))
+            }
+        } else {
+            Log.log('SettingsTRX._sendTx no rawHex empty data ' + link, params)
+            throw new Error('Empty data')
+        }
+
+        const { account, wallet } = this.props
+        const txData = {
+            currencyCode: 'TRX',
+            walletHash: wallet.walletHash,
+            derivationPath: account.derivationPath,
+            addressFrom: account.address,
+            addressTo: '',
+            blockchainData
+        }
+        const result = await BlocksoftTransfer.sendTx(txData)
+        if (result) {
+            showModal({
+                type: 'INFO_MODAL',
+                icon: true,
+                title: strings('modal.send.success'),
+                description: result.transactionHash
+            })
+            this.handleScan()
+        } else {
+            throw new Error('no transaction')
+        }
+    }
+
+    render() {
+        const { account, containerStyle, mainStore } = this.props
+        const { currentBalance, prettyReward } = this.state
+        const { colors, isLight, GRID_SIZE } = this.context
+
+        return (
+            <>
+                <View style={styles.settings__row}>
+                    <LetterSpacing text={strings('account.assetSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
+                </View>
+                <View>
+                    <ListItem
+                        title={strings('settings.walletList.availableTRX')}
+                        subtitle={currentBalance.prettyBalance + ' TRX'}
+                        onPress={this.handleScan}
+                        iconType='wallet'
+                    />
+                    <ListItem
+                        title={strings('settings.walletList.frozenTRX')}
+                        subtitle={strings('settings.walletList.frozenBalanceTRX', currentBalance)}
+                        onPress={this.handleScan}
+                        iconType='pinCode'
+                    />
+
+                    <View style={{ paddingTop: 20 }}>
+                        <View style={{ ...styles.inputWrapper, marginTop: GRID_SIZE, marginBottom: GRID_SIZE }}>
+                            <Input
+                                ref={ref => this.freezeAmountInput = ref}
+                                id={'freezeAmount'}
+                                name={strings('settings.walletList.enterToFreezeTRX')}
+                                keyboardType={'numeric'}
+                                inputBaseColor={'#f4f4f4'}
+                                inputTextColor={'#f4f4f4'}
+                                tintColor={'#7127ac'}
+                            />
+                        </View>
+                    </View>
+
+                    <View style={{ paddingTop: 5, flexDirection: 'row' }}>
+                        <View style={{ paddingLeft: 15, paddingRight: 5, flex: 2 }}>
+                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                <TouchableOpacity onPress={() => this.handleFreeze(false, 'BANDWIDTH')}>
+                                    <LetterSpacing text={strings('settings.walletList.freezeForBandTRX')} letterSpacing={0.5} numberOfLines={2} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={{ paddingLeft: 5, paddingRight: 15, flex: 2 }}>
+                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                <TouchableOpacity onPress={() => this.handleFreeze(false, 'ENERGY')}>
+                                    <LetterSpacing text={strings('settings.walletList.freezeForEnergyTRX')} letterSpacing={0.5} numberOfLines={2} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+
+
+                    <View style={{ paddingTop: 10, paddingBottom: 15, flexDirection: 'row' }}>
+                        <View style={{ paddingLeft: 15, paddingRight: 5, flex: 2 }}>
+                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                <TouchableOpacity onPress={() => this.handleUnFreeze(false, 'BANDWIDTH')}>
+                                    <LetterSpacing text={strings('settings.walletList.unfreezeTRX')} letterSpacing={0.5} numberOfLines={2} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={{ paddingLeft: 5, paddingRight: 15, flex: 2 }}>
+                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                <TouchableOpacity onPress={() => this.handleUnFreeze(false, 'ENERGY')}>
+                                    <LetterSpacing text={strings('settings.walletList.unfreezeTRX')} numberOfLines={2} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+
+                    <ListItem
+                        title={strings('settings.walletList.votedTRX')}
+                        subtitle={strings('settings.walletList.votedBalanceTRX', currentBalance)}
+                        onPress={this.handleScan}
+                        iconType='pinCode'
+                    />
+
+                    <ListItem
+                        title={strings('settings.walletList.rewardTRX')}
+                        subtitle={strings('settings.walletList.rewardBalanceTRX', { prettyReward })}
+                        onPress={this.handleScan}
+                        iconType='pinCode'
+                    />
+
+                    <View style={{ paddingTop: 15, paddingBottom: 5, flexDirection: 'row' }}>
+                        <View style={{ paddingLeft: 15, paddingRight: 5, flex: 2 }}>
+                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                <TouchableOpacity onPress={() => this.handleVote()}>
+                                    <LetterSpacing text={strings('settings.walletList.voteTRX')} letterSpacing={0.5} numberOfLines={2} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={{ paddingLeft: 5, paddingRight: 15, flex: 2 }}>
+                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                <TouchableOpacity onPress={() => this.handleGetReward()}>
+                                    <LetterSpacing text={strings('settings.walletList.claimTRX')} numberOfLines={2} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+
+                    <View style={{ paddingTop: 5, flexDirection: 'row' }}>
+                        <View style={{ paddingLeft: 15, paddingRight: 15, flex: 2 }}>
+                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                <TouchableOpacity onPress={() => this.handleScan()}>
+                                    <LetterSpacing text={strings('settings.walletList.refreshTRX')} numberOfLines={2} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+
+                </View>
+            </>
+        )
+    }
+}
+
+const mapStateToProps = (state) => {
+    return {
+        mainStore: state.mainStore
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        dispatch
+    }
+}
+
+SettingsTRX.contextType = ThemeContext
+
+export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(SettingsTRX)

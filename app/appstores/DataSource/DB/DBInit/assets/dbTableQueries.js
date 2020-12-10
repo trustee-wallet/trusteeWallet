@@ -45,6 +45,7 @@ export default {
                 news_shown_popup INTEGER NULL,
                 news_shown_list INTEGER NULL,
                 news_server_id VARCHAR(256) NULL,
+                news_server_hash VARCHAR(256) NULL,
                 news_to_send_status INTEGER NULL,
                 news_received_at INTEGER NULL,
                 news_opened_at INTEGER NULL,
@@ -271,6 +272,10 @@ export default {
                 transactions_scan_log TEXT NULL,
                 transactions_other_hashes TEXT NULL,
                 
+                bse_order_id VARCHAR(256) NULL,
+                bse_order_id_in VARCHAR(256) NULL,
+                bse_order_id_out VARCHAR(256) NULL,         
+                       
                 lock_time DATETIME NULL,
                 block_time DATETIME NULL,
                 created_at DATETIME NULL,

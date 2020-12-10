@@ -1,5 +1,5 @@
 /**
- * @version 0.1
+ * @version 0.30
  * @author yura
  */
 import React, { Component } from 'react'
@@ -47,7 +47,8 @@ class SendAdvancedSettingsScreen extends Component {
             countedFees: {},
             useAllFunds: false,
             isCustomFee: false,
-            selectedFeeFromProps: {}
+            selectedFeeFromProps: {},
+            providerType: null
         }
 
         this.customFee = React.createRef()
@@ -67,7 +68,8 @@ class SendAdvancedSettingsScreen extends Component {
             selectedFeeFromProps: data.selectedFee,
             useAllFunds: data.useAllFunds,
             isCustomFee: typeof data.selectedFee.isCustomFee !== 'undefined' ? data.selectedFee.isCustomFee : false,
-            devMode: devMode && devMode.toString() === '1'
+            devMode: devMode && devMode.toString() === '1',
+            providerType: data.providerType
         })
 
         // if back without apply
@@ -120,7 +122,9 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     showFee = (basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode) => {
-        const { countedFees, selectedFee, isCustomFee } = this.state
+        const { isCustomFee, providerType, useAllFunds } = this.state
+        const countedFees = SendTmpConstants.COUNTED_FEES
+        const selectedFee = SendTmpConstants.SELECTED_FEE
         // console.log('Send.SendAdvancedSettings.showFee', JSON.parse(JSON.stringify({ basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode })))
         // console.log('Send.SendAdvancedSettings.showFee state', JSON.parse(JSON.stringify({ countedFees, selectedFee, isCustomFee })))
         if (!countedFees.fees) {
@@ -129,7 +133,7 @@ class SendAdvancedSettingsScreen extends Component {
         }
 
         return (
-            <View style={{ paddingHorizontal: 30 }}>
+            <View style={{ paddingLeft: 30 }}>
                 {
                     countedFees ? countedFees.fees.map((item, index) => {
                         let prettyFee
@@ -173,14 +177,14 @@ class SendAdvancedSettingsScreen extends Component {
 
                         let subtitle
                         if (item.langMsg === selectedFee.langMsg && !isCustomFee) {
-                            subtitle = ` ${prettyFee} ${prettyFeeSymbol}`
+                            subtitle = `${prettyFee} ${prettyFeeSymbol}`
                             if (devFee) {
                                 subtitle += ` ${devFee}`
                                 if (devMode) {
                                     if (!needSpeed) {
                                         needSpeed = ''
                                     }
-                                    subtitle += ` ${needSpeed}`
+                                    subtitle += `\n${needSpeed}`
                                 }
                             }
                             subtitle += ` / ${feeBasicCurrencySymbol} ${feeBasicAmount}`
@@ -200,7 +204,8 @@ class SendAdvancedSettingsScreen extends Component {
                     }).reverse() : <View></View>
 
                 }
-                {countedFees && (
+
+                {(countedFees && providerType === 'FLOATING' ) ? 
                     <SubSetting
                         title={strings(`send.fee.customFee.title`)}
                         checked={isCustomFee}
@@ -209,8 +214,17 @@ class SendAdvancedSettingsScreen extends Component {
                         onPress={() => this.setCustomFee()}
                         checkedStyle={true}
                         ExtraView={() => this.renderCustomFee(currencyCode, feesCurrencyCode, basicCurrencySymbol, feeRates.basicCurrencyRate)}
-                    />
-                )}
+                    /> : (countedFees && providerType === 'FIXED' && !useAllFunds) ? 
+                    <SubSetting
+                        title={strings(`send.fee.customFee.title`)}
+                        checked={isCustomFee}
+                        radioButtonFirst={true}
+                        withoutLine={true}
+                        onPress={() => this.setCustomFee()}
+                        checkedStyle={true}
+                        ExtraView={() => this.renderCustomFee(currencyCode, feesCurrencyCode, basicCurrencySymbol, feeRates.basicCurrencyRate)}
+                    /> : null
+                }
             </View>
         )
     }
@@ -233,14 +247,13 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     updateSelectedFeeBack = async (selectedFee) => {
-        console.log('@yura plz set here manual button "next" without state update - then uncomment "disabled "', JSON.parse(JSON.stringify(selectedFee)))
+        // @todo @yura plz set here manual button "next" without state update - then uncomment "disabled"
         selectedFee.isCustomFee = true
         // this will repaint all break smooth - so need cache this.setState({ selectedFee })
         CACHE_FROM_CUSTOM_FEE = selectedFee
     }
 
     onFocus = () => {
-        // console.log('hello')
         this.setState({
             focused: true
         })
@@ -261,8 +274,7 @@ class SendAdvancedSettingsScreen extends Component {
             focused,
         } = this.state
 
-        const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates } = this.props.account
-        const { currencyCode } = this.props.cryptoCurrency
+        const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode } = SendTmpConstants.ACCOUNT_DATA
 
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
@@ -280,29 +292,49 @@ class SendAdvancedSettingsScreen extends Component {
                         style={{ marginTop: 70 }}
                     >
                         <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
-                            <LetterSpacing text={strings('account.assetSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
-                            <ListItem
-                                title={'Fee select'}
-                                iconType="pinCode"
-                                onPress={this.toggleDropMenu}
-                                rightContent={this.state.dropMenu ? 'arrow_up' : "arrow_down"}
-                                switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
-                                type={'dropdown'}
-                                ExtraView={() => this.showFee(basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode)}
-                                subtitle={'FEE'}
+                            <View>
+                                <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
+                                <ListItem
+                                    title={strings('send.setting.selectFee')}
+                                    iconType="pinCode"
+                                    onPress={this.toggleDropMenu}
+                                    rightContent={this.state.dropMenu ? 'arrow_up' : "arrow_down"}
+                                    switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
+                                    type={'dropdown'}
+                                    ExtraView={() => this.showFee(basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode)}
+                                    subtitle={this.state.selectedFee.langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) : 
+                                        strings(`send.fee.text.${this.state.selectedFee.langMsg}`) : null}
+                                />
+                            </View>
+                            {/* {console.log(SendTmpConstants.SELECTED_FEE.blockchainData.preparedInputsOutputs)} */}
+                            { typeof SendTmpConstants.SELECTED_FEE !== 'undefined' && typeof SendTmpConstants.SELECTED_FEE.blockchainData !== 'undefined' && (
+                            <View style={{ paddingTop: GRID_SIZE * 2 }}>
+                                <LetterSpacing text={strings('send.setting.inputSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
+                                <ListItem
+                                    title={strings('send.setting.selectInput')}
+                                    iconType="pinCode"
+                                    onPress={() => console.log('')}
+                                    rightContent={'arrow'}
+                                    type={'dropdown'}
+                                    // subtitle={this.state.selectedFee.langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) : 
+                                    //     strings(`send.fee.text.${this.state.selectedFee.langMsg}`) : null}
+                                />
+                            </View>)
+                            }
+                        </View>
+                        <View style={{ paddingTop: GRID_SIZE }}>
+                            <TwoButtons
+                                mainButton={{
+                                    disabled: this.disabled(),
+                                    onPress: () => this.handleApply(),
+                                    title: strings('send.setting.apply')
+                                }}
+                                secondaryButton={{
+                                    type: 'back',
+                                    onPress: () => NavStore.goBack(),
+                                }}
                             />
                         </View>
-                        <TwoButtons
-                            mainButton={{
-                                disabled: this.disabled(),
-                                onPress: () => this.handleApply(),
-                                title: strings('walletBackup.step0Screen.next')
-                            }}
-                            secondaryButton={{
-                                type: 'back',
-                                onPress: () => NavStore.goBack(),
-                            }}
-                        />
                     </ScrollView>
                 </KeyboardAwareView>
             </View>

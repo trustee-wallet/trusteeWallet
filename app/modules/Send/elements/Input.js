@@ -34,33 +34,10 @@ class Input extends Component {
             errors: [],
             focus: false,
             autoFocus: false,
-            show: false,
             tap: true,
             inputHeight: 0
         }
         this.inputRef = React.createRef()
-    }
-
-    componentDidMount() {
-        setTimeout(() => {
-            this.setState({
-                show: true
-            })
-        }, 200)
-
-        setTimeout(() => {
-            const { autoFocus } = this.props
-            if (typeof autoFocus !== 'undefined') {
-                this.setState({
-                    autoFocus,
-                    show: false
-                }, () => {
-                    this.setState({
-                        show: true
-                    })
-                })
-            }
-        }, 500)
     }
 
     // eslint-disable-next-line camelcase
@@ -191,7 +168,7 @@ class Input extends Component {
 
     render() {
 
-        const { value, show, focus, errors, autoFocus } = this.state
+        const { value, focus, errors, autoFocus } = this.state
         const {
             id,
             name,
@@ -216,37 +193,36 @@ class Input extends Component {
         const isDisabled = typeof disabled !== 'undefined' ? disabled : false
 
         return (
-            <View style={ styles.wrapper }>
-                {
-                    show ? <TextField
-                        ref={ref => this.inputRef = ref}
-                        keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'numeric'}
-                        tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
-                        fontSize={40}
-                        lineWidth={0}
-                        activeLineWidth={0}
-                        placeholder={'0.00'}
-                        placeholderTextColor = "#404040"
-                        textAlign={'center'}
-                        value={value}
-                        onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
-                        }}
-                        disabled={isDisabled}
-                        onChangeText={(value) => this.handleInput(value)}
-                        style={noEdit ? { ...styles.fontFamily, color: '#999999' } : {...styles.fontFamily, color: enoughFunds ? '#864DD9' : ''}}
-                        autoCorrect={false}
-                        spellCheck={false}
-                        onBlur={() => {
-                            this.setState({ focus: false })
-                        }}
-                        onFocus={typeof onFocus === 'undefined' ? () => {
-                            this.setState({ focus: true })
-                        } : () => {
-                            this.setState({ focus: true })
-                            onFocus()
-                        }}
-                    /> : null
-                }
+            <View style={styles.wrapper}>
+                <TextField
+                    color={'#404040'}
+                    ref={ref => this.inputRef = ref}
+                    keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'numeric'}
+                    tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
+                    fontSize={40}
+                    lineWidth={0}
+                    activeLineWidth={0}
+                    placeholder={'0.00'}
+                    placeholderTextColor="#404040"
+                    textAlign={'center'}
+                    value={value}
+                    onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
+                    }}
+                    editable={!noEdit ? true : false}
+                    onChangeText={(value) => this.handleInput(value)}
+                    style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : '' }}
+                    autoCorrect={false}
+                    spellCheck={false}
+                    onBlur={() => {
+                        this.setState({ focus: false })
+                    }}
+                    onFocus={typeof onFocus === 'undefined' ? () => {
+                        this.setState({ focus: true })
+                    } : () => {
+                        this.setState({ focus: true })
+                        onFocus()
+                    }}
+                />
             </View>
         )
     }

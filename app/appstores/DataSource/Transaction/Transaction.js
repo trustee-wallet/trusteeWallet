@@ -176,6 +176,9 @@ class Transaction {
         if (params.accountId) {
             where.push(`account_id='${params.accountId}'`)
         }
+        if (params.transactionHash) {
+            where.push(`transaction_hash='${params.transactionHash}'`)
+        }
 
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params.noOrder) {
@@ -216,7 +219,10 @@ class Transaction {
             transaction_of_trustee_wallet AS transactionOfTrusteeWallet, 
             transaction_json AS transactionJson,
             transactions_scan_log AS transactionsScanLog,
-            transactions_other_hashes AS transactionsOtherHashes
+            transactions_other_hashes AS transactionsOtherHashes,
+            bse_order_id AS bseOrderID,
+            bse_order_id_out AS bseOrderOutID,
+            bse_order_id_in AS bseOrderInID
             FROM transactions 
             ${where}
             ${order}

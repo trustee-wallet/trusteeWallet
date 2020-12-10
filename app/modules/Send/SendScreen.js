@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.30
  */
 import React, { Component } from 'react'
 
@@ -12,9 +12,9 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import firebase from 'react-native-firebase'
 import AsyncStorage from '@react-native-community/async-storage'
 
-import AddressInput from '../../components/elements/Input'
+import AddressInput from '../../components/elements/NewInput'
 import AmountInput from './elements/Input'
-import MemoInput from '../../components/elements/Input'
+import MemoInput from '../../components/elements/NewInput'
 import NavStore from '../../components/navigation/NavStore'
 
 import { setQRConfig, setQRValue } from '../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
@@ -59,12 +59,13 @@ import Header from '../../components/elements/new/Header'
 import PartBalanceButton from './elements/partBalanceButton'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import { handleFee } from '../../appstores/Stores/Send/SendActions'
 
 import CheckData from './elements/CheckData'
 
 import SendBasicScreenScreen from './SendBasicScreen'
 import SendTmpConstants from './elements/SendTmpConstants'
+
+import UtilsService from '../../services/UI/PrettyNumber/UtilsService'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -129,7 +130,9 @@ class SendScreen extends SendBasicScreenScreen {
 
             balancePart: 0,
             headerHeight: 0,
-            destinationAddress: null
+            destinationAddress: null,
+
+            loadFee: false
         }
         this.addressInput = React.createRef()
         this.memoInput = React.createRef()
@@ -184,7 +187,7 @@ class SendScreen extends SendBasicScreenScreen {
     init = async () => {
         console.log('')
         console.log('')
-        console.log('Send.SendScreen.init', JSON.parse(JSON.stringify(SendTmpConstants)))
+        console.log('Send.SendScreen.init', JSON.stringify(SendTmpConstants))
 
         let countedFees = false
         let selectedFee = false
@@ -205,7 +208,7 @@ class SendScreen extends SendBasicScreenScreen {
         SendTmpConstants.PRESET_FROM_RECEIPT = false
 
         console.log('Send.SendScreen.init preresult', JSON.parse(JSON.stringify({countedFees, selectedFee})))
-
+ 
 
         if (Object.keys(this.props.send.data).length !== 0) {
             // console.log('INIT SEND DATA', this.props.send.data)
@@ -376,30 +379,33 @@ class SendScreen extends SendBasicScreenScreen {
 
             // console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} addressToForTransferAll ${addressToForTransferAll}`)
 
+            // @todo simplify goto receipt with transfer all to one function
             const countedFeesData = {
                 currencyCode,
                 walletHash,
                 derivationPath,
                 addressFrom: address,
                 addressTo: addressToForTransferAll,
-
                 amount: balance,
                 unconfirmed: walletUseUnconfirmed === 1 ? unconfirmed : 0,
-
                 isTransferAll: true,
                 useOnlyConfirmed: !(walletUseUnconfirmed === 1),
                 allowReplaceByFee: walletAllowReplaceByFee === 1,
                 useLegacy: walletUseLegacy,
                 isHd: walletIsHd,
-
                 accountJson
             }
             const transferAllCount = await BlocksoftTransfer.getTransferAllBalance(countedFeesData)
             transferAllCount.feesCountedForData = countedFeesData
-            const selectedFee = transferAllCount.fees[transferAllCount.selectedFeeIndex]
+            let selectedFee = false
+            if (typeof transferAllCount.selectedFeeIndex !== 'undefined' && transferAllCount.selectedFeeIndex >= 0) {
+                selectedFee = transferAllCount.fees[transferAllCount.selectedFeeIndex]
+            }
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance)
 
-            // console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} transferAllCount result ${amount}`, JSON.parse(JSON.stringify(transferAllCount)) )
+            SendTmpConstants.PRESET = true
+            SendTmpConstants.SELECTED_FEE = selectedFee
+            SendTmpConstants.COUNTED_FEES = transferAllCount
 
             this.setState({
                 inputType: 'CRYPTO',
@@ -408,14 +414,16 @@ class SendScreen extends SendBasicScreenScreen {
                 selectedFee
             })
 
+            // console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} transferAllCount result ${amount}`, JSON.parse(JSON.stringify(transferAllCount)) )
+
             try {
                 if (
                     typeof this.valueInput !== 'undefined' && this.valueInput
                     && typeof this.valueInput.handleInput !== 'undefined' && this.valueInput.handleInput
                     && typeof amount !== 'undefined' && amount !== null
                 ) {
-                    this.valueInput.handleInput(amount, false)
-                    this.amountInputCallback(amount, false)
+                    this.valueInput.handleInput(UtilsService.cutNumber(amount, 7).toString(), false)
+                    this.amountInputCallback(UtilsService.cutNumber(amount, 7).toString(), false)
                 }
             } catch (e) {
                 e.message += ' while this.valueInput.handleInput amount ' + amount
@@ -564,7 +572,8 @@ class SendScreen extends SendBasicScreenScreen {
         setLoaderStatus(true)
 
         const amount = this.state.inputType === 'FIAT' ? this.state.amountEquivalent : valueValidation.value
-        const memo = destinationTagValidation.value.toString()
+        const memo = destinationTagValidation.value ? destinationTagValidation.value.toString() : false
+
 
         let fioPaymentData
         let recipientAddress = addressValidation.value
@@ -704,7 +713,7 @@ class SendScreen extends SendBasicScreenScreen {
                     account,
                     useAllFunds,
                     toTransactionJSON,
-                    type: this.props.send.data.type,
+                    type: this.props.send.data.type || 'DEFAULT_SEND',
                     currencyCode: cryptoCurrency.currencyCode,
                     countedFees,
                     selectedFee
@@ -716,14 +725,6 @@ class SendScreen extends SendBasicScreenScreen {
                     ...(isFioPayment && { fioRequestDetails: fioPaymentData })
                 })
 
-                MarketingEvent.checkSellConfirm({
-                    memo: memo.toString(),
-                    currencyCode: cryptoCurrency.currencyCode,
-                    addressFrom: account.address,
-                    addressTo: data.address,
-                    addressAmount: data.amount,
-                    walletHash: account.walletHash
-                })
             }, 500)
         } catch (e) {
 
@@ -765,6 +766,10 @@ class SendScreen extends SendBasicScreenScreen {
         let amount = 0
         let symbol = currencySymbol
 
+        this.setState({
+            loadFee: true
+        })
+
         try {
             if (!value || value === 0) {
                 amount = 0
@@ -781,7 +786,7 @@ class SendScreen extends SendBasicScreenScreen {
 
         if (amount > 0) {
 
-            if(!this.state.useAllFunds) {
+            if (!this.state.useAllFunds) {
 
                 if (!addressToForTransferAll) {
                     const addressValidate = await this.addressInput.handleValidate()
@@ -793,20 +798,30 @@ class SendScreen extends SendBasicScreenScreen {
                 }
 
                 const {countedFees, selectedFee} = await this.recountFees({
-                    amountRaw:  BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(value),
-                    addressTo : addressToForTransferAll
+                    amountRaw: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(value),
+                    addressTo: addressToForTransferAll
                 })
 
                 this.setState({
                     countedFees,
                     selectedFee
                 })
+
+                SendTmpConstants.COUNTED_FEES = countedFees
+                SendTmpConstants.SELECTED_FEE = selectedFee
             }
+
+            amount = UtilsService.cutNumber(amount, this.state.inputType === 'CRYPTO' ? 7 : 2)
 
             this.setState({
                 amountEquivalent: amount,
                 amountInputMark: `${amount} ${symbol}`,
-                balancePart: 0
+                balancePart: 0,
+                loadFee: false
+            })
+        } else {
+            this.setState({
+                loadFee: false
             })
         }
         IS_CALLED_BACK = false
@@ -819,10 +834,10 @@ class SendScreen extends SendBasicScreenScreen {
 
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: 220 })
+                this.scrollView.scrollTo({ y: 120 })
             } catch (e) {
             }
-        }, 500)
+        }, 100)
     }
 
     renderEnoughFundsError = () => {
@@ -867,11 +882,11 @@ class SendScreen extends SendBasicScreenScreen {
         const { walletUseUnconfirmed } = this.state.wallet
 
         const amountPretty = BlocksoftTransferUtils.getBalanceForTransfer({
-                walletUseUnconfirmed : walletUseUnconfirmed === 1,
-                balancePretty,
-                unconfirmedPretty,
-                currencyCode
-            }
+            walletUseUnconfirmed : walletUseUnconfirmed === 1,
+            balancePretty,
+            unconfirmedPretty,
+            currencyCode
+        }
         )
 
         const amountPrep = BlocksoftPrettyNumbers.makeCut(amountPretty).cutted
@@ -912,6 +927,38 @@ class SendScreen extends SendBasicScreenScreen {
         )
     }
 
+    handlerPartBalance = (inputType, part) => {
+        if (inputType === 'FIAT') {
+            let value = this.state.account.basicCurrencyBalance * part
+            value = UtilsService.cutNumber(value, 2)
+            this.valueInput.state.value = value.toString()
+            this.amountInputCallback(value, true)
+        } else {
+            let value = this.state.account.balancePretty * part
+            value = UtilsService.cutNumber(value, 7)
+            this.valueInput.state.value = value.toString()
+            this.amountInputCallback(value, true)
+        }
+    }
+
+    disabled = () => {
+        if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '') {
+            return true
+        }
+        // console.log(this.addressInput.state)
+        // if (typeof this.addressInput.state === 'undefined' || this.addressInput.state.value === '') {
+        //     return true
+        // }
+
+        const value = this.valueInput.state.value
+        // const address = this.addressInput.state.value
+        if (value) {
+            return false
+        } else {
+            return true
+        }
+    }
+
     render() {
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
@@ -941,7 +988,8 @@ class SendScreen extends SendBasicScreenScreen {
             focused,
             copyAddress,
             isFioPayment,
-            headerHeight
+            headerHeight,
+            loadFee
         } = this.state
 
         const {
@@ -997,7 +1045,7 @@ class SendScreen extends SendBasicScreenScreen {
                             justifyContent: 'space-between',
                             padding: GRID_SIZE,
                             paddingBottom: GRID_SIZE * 2,
-                            minHeight: focused ? 400 : WINDOW_HEIGHT/2
+                            minHeight: focused ? 500 : WINDOW_HEIGHT/2
                         }}
                         style={{ marginTop: headerHeight }}
                     >
@@ -1006,13 +1054,12 @@ class SendScreen extends SendBasicScreenScreen {
                                 ref={component => this.valueInput = component}
                                 id={amountInput.id}
                                 additional={amountInput.additional}
-                                onFocus={() => this.onFocus()}
+                                // onFocus={() => this.onFocus()}
                                 name={strings('send.value')}
                                 type={amountInput.type}
                                 decimals={decimals < 10 ? decimals : 10}
                                 keyboardType={'numeric'}
                                 enoughFunds={!this.state.enoughFunds.isAvailable}
-                                disabled={disabled}
                                 noEdit={prev === 'TradeScreenStack' || prev === 'ExchangeScreenStack' || prev === 'TradeV3ScreenStack' ? true : 0}
                                 callback={(value) => this.amountInputCallback(value, true)}
                             />
@@ -1020,23 +1067,17 @@ class SendScreen extends SendBasicScreenScreen {
                                 <View style={style.line} />
                                 <TouchableOpacity style={{ position: 'absolute', right: 22, marginTop: -2 }}
                                     onPress={this.handleChangeEquivalentType}>
-                                    <Text>{'<>'}</Text>
+                                    <Text>{'swap'}</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 32 }}>
-                                <LetterSpacing text={notEquivalentValue} textStyle={style.notEquivalentValue}
+                                <LetterSpacing text={loadFee ? 'Loading...' : notEquivalentValue} textStyle={style.notEquivalentValue}
                                     letterSpacing={1.5} />
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <PartBalanceButton
                                     action={() => {
-                                        if (this.state.inputType === 'FIAT') {
-                                            this.valueInput.state.value = (this.state.account.basicCurrencyBalance * 0.25).toString()
-                                            this.amountInputCallback((this.state.account.basicCurrencyBalance * 0.25), true)
-                                        } else {
-                                            this.valueInput.state.value = (this.state.account.balancePretty * 0.25).toString()
-                                            this.amountInputCallback((this.state.account.balancePretty * 0.25), true)
-                                        }
+                                        this.handlerPartBalance(this.state.inputType, 0.25)
 
                                         this.setState({
                                             balancePart: 0.25,
@@ -1048,13 +1089,7 @@ class SendScreen extends SendBasicScreenScreen {
                                 />
                                 <PartBalanceButton
                                     action={() => {
-                                        if (this.state.inputType === 'FIAT') {
-                                            this.valueInput.state.value = (this.state.account.basicCurrencyBalance * 0.5).toString()
-                                            this.amountInputCallback((this.state.account.basicCurrencyBalance * 0.5), true)
-                                        } else {
-                                            this.valueInput.state.value = (this.state.account.balancePretty * 0.5).toString()
-                                            this.amountInputCallback((this.state.account.balancePretty * 0.5), true)
-                                        }
+                                        this.handlerPartBalance(this.state.inputType, 0.5)
                                         this.setState({
                                             balancePart: 0.5,
                                             useAllFunds: false
@@ -1065,13 +1100,7 @@ class SendScreen extends SendBasicScreenScreen {
                                 />
                                 <PartBalanceButton
                                     action={() => {
-                                        if (this.state.inputType === 'FIAT') {
-                                            this.valueInput.state.value = (this.state.account.basicCurrencyBalance * 0.75).toString()
-                                            this.amountInputCallback((this.state.account.basicCurrencyBalance * 0.75), true)
-                                        } else {
-                                            this.valueInput.state.value = (this.state.account.balancePretty * 0.75).toString()
-                                            this.amountInputCallback((this.state.account.balancePretty * 0.75), true)
-                                        }
+                                        this.handlerPartBalance(this.state.inputType, 0.75)
                                         this.setState({
                                             balancePart: 0.75,
                                             useAllFunds: false
@@ -1099,7 +1128,7 @@ class SendScreen extends SendBasicScreenScreen {
                                 <AddressInput
                                     ref={component => this.addressInput = component}
                                     id={addressInput.id}
-                                    // onFocus={() => this.onFocus()}
+                                    onFocus={() => this.onFocus()}
                                     name={strings('send.address')}
                                     type={extendedAddressUiChecker.toUpperCase() + '_ADDRESS'}
                                     subtype={network}
@@ -1184,11 +1213,12 @@ class SendScreen extends SendBasicScreenScreen {
                         </View>
                         <TwoButtons
                             mainButton={{
-                                disabled: !this.state.amountInputMark,
+                                disabled: this.disabled(),
                                 onPress: () => this.handleSendTransaction(false),
                                 title: strings('walletBackup.step0Screen.next')
                             }}
                             secondaryButton={{
+                                disabled: !this.state.amountInputMark,
                                 type: 'settings',
                                 onPress: this.openAdvancedSettings
                             }}

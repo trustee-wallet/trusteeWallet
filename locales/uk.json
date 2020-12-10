@@ -205,6 +205,13 @@
      "openLink" : "Для переходу на платіжну систему, будь ласка, перейдіть по цьому посиланню",
      "openLinkError": "Не знайдено браузер - посилання скопійовано в буфер"
    },
+   "notifications": {
+     "title": "Повідомлення",
+     "tabAll": "Всі",
+     "tabNews": "Новини",
+     "today": "Сьогодні",
+     "yesterday": "Вчора"
+   },
   "settings": {
     "title": "Налаштування",
     "wallets": {
@@ -292,7 +299,7 @@
       "accountAddress": "Виберіть адресу",
       "showSegWitAndLegacy": "Показувати SegWit і Legacy",
       "hideCommissionTrans": "Сховати транзакції оплати за комісію",
-      "checkFrozen" : "Сканувати заморожений баланс",
+      "checkFrozen" : "Сканувати застейканий баланс",
       "manualAddressFromHD" : "Вставити адресу HD",
       "scanAddressesFromHD" : "Сканувати адреси HD на наявність балансів",
       "setAddressesFromHD" : {
@@ -313,7 +320,21 @@
       "serverSendInputTitleXMR" : "або node.moneroworld.com:18089",
       "needReinstallXMR"  : "Системна помилка адреси XMR - будь ласка, збережіть мнемонічну фразу та переінсталюйте додаток, або напишіть в службу підтримки для детальних інструкцій",
       "saveSettings" : "Зберегти",
-      "getMnemonicXMR" : "Переглянути секрети"
+      "getMnemonicXMR" : "Переглянути секрети",
+      "availableTRX" : "Доступно",
+      "frozenTRX" : "Застейкано",
+      "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Енергія %{prettyFrozenEnergy} TRX",
+      "enterToFreezeTRX" : "введіть кількість TRX",
+      "freezeForBandTRX" : "Застейкати",
+      "freezeForEnergyTRX" : "Для енергії",
+      "unfreezeTRX" : "Розморозити",
+      "votedTRX" : "Голоса",
+      "votedBalanceTRX" : "Використано %{voteTotal} / Всього %{prettyVote}",
+      "voteTRX" : "Проголосувати",
+      "rewardTRX" : "Нагорода за голосування",
+      "rewardBalanceTRX" : "Доступно %{prettyReward} TRX",
+      "claimTRX" : "Забрати награду",
+      "refreshTRX" : "Перевантажити"
     },
     "about": {
       "title": "Про гаманець",
@@ -348,6 +369,15 @@
     "tester": "Тестувальник/користувач змінений на: %{testerMode}"
   },
   "assets": {
+    "title": "Додати актив",
+    "tabAll": "Все",
+    "tabCoins": "Coins",
+    "tabTokens": "Tokens",
+    "tabCustom": "Custom",
+    "searchPlaceholder": "Search",
+    "addCustomPlaceholder": "Asset address",
+    "addCustomLabel": "Ethereum and Tron tokens addresses are supported",
+    "addAssetButton": "Додати актив",
     "mainTitle": "Додати актив",
     "addCustomAsset": "Додати актив не із списку",
     "addAsset": "Додати",
@@ -394,7 +424,7 @@
     "receive": "%{receive}",
     "send": "Відправити",
     "history": "Транзакції",
-    "scan": "відскановано %{time} мін назад",
+    "scan": "відскановано %{time} хв назад",
     "justScan": "щойно відскановано",
     "noTransactions": "У Вас ще немає транзакцій",
     "showMore": "Показати ще",
@@ -429,7 +459,8 @@
       "sell": "Продаж",
       "mobile_phone": "Поповнення мобільного",
       "date": "Дата",
-      "confirmations": "Підтверджень:",
+      "confirmations": "Підтверджень",
+      "blockNumber": "Номер блоку",
       "moreInformation": "Більше інформації",
       "cardNumberDestination": "Номер картки для виводу",
       "advAccountDestination": "Номер рахунку для виводу",
@@ -678,7 +709,15 @@
     "notEnoughForFeeConfirmed": "Для надсилання токенів потрібно мати позитивний підтверджений баланс у нативній монеті %{symbol}, зачекайте на підтвердження або ввімкніть використання непідтвердженних транзакцій",
     "publicFioAddressNotFound": "%{symbol} публічна адреса не пов'язана з вказаною FIO адресою",
     "setting": {
-      "title": "Advanced"
+      "title": "Додатково",
+      "apply": "Застосувати",
+      "feeSettings": "Налаштування комісії",
+      "selectFee": "Виберіть комісію",
+      "inputSettings": "Налаштування входів",
+      "selectInput": "Виберіть входи",
+      "descriptionInput": "За замовчуванням",
+      "optionalSettings": "Необов'язковго",
+      "note": "Замітка"
     },
     "infoModal": {
       "title": "Інформація",
@@ -848,6 +887,8 @@
       "rate": "Ціна за 1 %{currencyCode}",
       "recepient": "Отримувач",
       "destinationAddress": "Адреса отримувача",
+      "destinationTag": "Тег призначення",
+      "paymentId": "Ідентифікатор платежу",
       "minerFee": "Комісія майнера",
       "totalMinerFee": "Загальна комісія майнера",
       "trusteeInfo": "Криптовалютні транзакції не тарифікуються",
@@ -1203,7 +1244,8 @@
     "send": {
       "success": "Успіх!",
       "txSuccess": "Ваша транзакція успішно відправлена!",
-      "fail": "Помилка..."
+      "fail": "Помилка...",
+      "feeChangeAmount": "Сума відправки змінилась після зміни комісії"
     },
     "walletLog" : {
       "sorry" : "Помилка....",

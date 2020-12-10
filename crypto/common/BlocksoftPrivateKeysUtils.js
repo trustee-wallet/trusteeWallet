@@ -30,7 +30,7 @@ class BlocksoftPrivateKeysUtils {
                 try {
                     if (typeof discoverFor.mnemonic === 'undefined' || !discoverFor.mnemonic) {
                         BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover.getPrivateKey actually redo mnemonic ' + discoverFor.walletHash),
-                        discoverFor.mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(discoverFor.walletHash)
+                        discoverFor.mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(discoverFor.walletHash, 'getPrivateKey')
                     }
                     result = await BlocksoftKeys.discoverOne(discoverFor)
 

@@ -12,6 +12,7 @@ import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import CashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
 
 import MarketingEvent from '../Marketing/MarketingEvent'
+import AppNotificationListener from '../AppNotification/AppNotificationListener'
 
 
 export default {
@@ -181,13 +182,19 @@ export default {
 
     getNews: async (userNotifications) => {
         const baseUrl = 'https://notifications.trustee.deals/notifications/history'
+        let deviceToken = MarketingEvent.DATA.LOG_TOKEN
+        if (!deviceToken) {
+            await AppNotificationListener.getToken()
+            deviceToken = MarketingEvent.DATA.LOG_TOKEN
+
+        }
         const signedData = await CashBackUtils.createWalletSignature(true)
         if (!signedData) {
             throw new Error('No signed for getExchangeOrders')
         }
         const data = {
-            cashbackToken: Log.DATA.LOG_CASHBACK,
-            deviceToken: Log.DATA.LOG_TOKEN,
+            cashbackToken: CashBackUtils.getWalletToken(),
+            deviceToken,
             sign : signedData,
             userNotifications : userNotifications ? userNotifications : [],
             locale : sublocale()

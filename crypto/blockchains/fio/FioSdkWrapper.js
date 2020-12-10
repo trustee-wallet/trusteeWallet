@@ -1,6 +1,7 @@
 import { FIOSDK } from '@fioprotocol/fiosdk'
 import config from '../../../app/config/config'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import BlocksoftKeysStorage from '../../actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
 const fetchJson = async (uri, opts = {}) => {
     // eslint-disable-next-line no-undef
@@ -16,16 +17,31 @@ export class FioSdkWrapper {
         this.sdk = new FIOSDK(null, null, baseURL, fetchJson)
     }
 
-    async init(mnemonic) {
-        try {
-            const { fioKey } = await FIOSDK.createPrivateKeyMnemonic(mnemonic)
-            const { publicKey } = FIOSDK.derivedPublicKey(fioKey)
 
-            BlocksoftCryptoLog.log(`FIO SDK initiated for ${publicKey}`)
+    async init(walletHash) {
+        try {
+            const res = await BlocksoftKeysStorage.getAddressCache(walletHash + 'SpecialFio')
+            let publicKey, fioKey
+            if (res) {
+                publicKey = res.address
+                fioKey = res.privateKey
+            } else {
+                const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(walletHash, 'BlocksoftKeysStorage.setSelectedWallet init for Fio')
+                let tmp = await FIOSDK.createPrivateKeyMnemonic(mnemonic)
+                fioKey = tmp.fioKey
+                tmp = FIOSDK.derivedPublicKey(fioKey)
+                publicKey = tmp.publicKey
+                await BlocksoftKeysStorage.setAddressCache(walletHash + 'SpecialFio', {address : publicKey, privateKey : fioKey})
+            }
             this.sdk = new FIOSDK(fioKey, publicKey, baseURL, fetchJson)
+            BlocksoftCryptoLog.log(`FioSdkWrapper.inited for ${walletHash}`)
         } catch (e) {
-            await BlocksoftCryptoLog.err(e, e.json, 'FIO init SDK')
+            if (config.debug.fioErrors) {
+                console.log('FioSdkWrapper.init error ' + e.message, e.json)
+            }
+            BlocksoftCryptoLog.err('FioSdkWrapper.init error ' + e.message, e.json)
         }
+        return true
     }
 }
 

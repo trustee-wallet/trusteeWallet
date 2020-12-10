@@ -206,6 +206,13 @@
     "openLink" : "To go to payment please click directly on this link",
     "openLinkError": "Not found default browser - link is copied to clipboard"
   },
+  "notifications": {
+    "title": "Notifications",
+    "tabAll": "All",
+    "tabNews": "News",
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
   "settings": {
     "title": "Settings",
     "wallets": {
@@ -316,7 +323,21 @@
       "serverSendInputTitleXMR" : "or node.moneroworld.com:18089",
       "needReinstallXMR"  : "Something wrong with XMR address generation - please save mnemonic and reinstall application or contact support",
       "saveSettings" : "Save",
-      "getMnemonicXMR" : "View secrets"
+      "getMnemonicXMR" : "View secrets",
+      "availableTRX" : "Available",
+      "frozenTRX" : "Frozen",
+      "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",
+      "enterToFreezeTRX" : "enter freeze amount TRX",
+      "freezeForBandTRX" : "Freeze for BAND",
+      "freezeForEnergyTRX" : "Freeze for ENERGY",
+      "unfreezeTRX" : "Unfreeze",
+      "votedTRX" : "Votes",
+      "votedBalanceTRX" : "Voted %{voteTotal} / Total %{prettyVote}",
+      "voteTRX" : "Vote",
+      "rewardTRX" : "Voting reward",
+      "rewardBalanceTRX" : "Available %{prettyReward} TRX",
+      "claimTRX" : "Claim Reward",
+      "refreshTRX" : "Reload"
     },
     "about": {
       "title": "About",
@@ -351,6 +372,15 @@
     "tester": "Tester/user changed to: %{testerMode}"
   },
   "assets": {
+    "title": "Add asset",
+    "tabAll": "All",
+    "tabCoins": "Coins",
+    "tabTokens": "Tokens",
+    "tabCustom": "Custom",
+    "searchPlaceholder": "Search",
+    "addCustomPlaceholder": "Asset address",
+    "addCustomLabel": "Ethereum and Tron tokens addresses are supported",
+    "addAssetButton": "Add asset",
     "mainTitle": "Add asset",
     "addCustomAsset": "Add custom asset",
     "addAsset": "Add",
@@ -436,7 +466,8 @@
       "sell": "Sell",
       "mobile_phone": "Mobile phone",
       "date": "Date",
-      "confirmations": "Confirmations:",
+      "confirmations": "Confirmations",
+      "blockNumber": "Block number",
       "moreInformation": "More information",
       "cardNumberDestination": "Withdraw card number",
       "advAccountDestination": "Withdraw account number",
@@ -694,7 +725,15 @@
     "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations or turn on usage of unconfirmed transactions",
     "publicFioAddressNotFound": "%{symbol} public address is not associated with specified FIO address",
     "setting": {
-      "title": "Advanced"
+      "title": "Advanced",
+      "apply": "Apply",
+      "feeSettings": "Fee settings",
+      "selectFee": "Select fee amount",
+      "inputSettings": "Input settings",
+      "selectInput": "Select input",
+      "descriptionInput": "Default",
+      "optionalSettings": "Optinal",
+      "note": "Note"
     },
     "infoModal": {
       "title": "Info",
@@ -851,6 +890,8 @@
       "rate": "@ rate per 1 %{currencyCode}",
       "recepient": "Recepient",
       "destinationAddress": "Destination address",
+      "destinationTag": "Destination tag",
+      "paymentId": "Payment ID",
       "minerFee": "Miner fee",
       "totalMinerFee": "Total miner fee",
       "trusteeInfo": "Cryptocurrency transactions are not charged",
@@ -1203,7 +1244,8 @@
     "send": {
       "success": "Success!",
       "txSuccess": "Your transaction has been successfully sent!",
-      "fail": "Fail..."
+      "fail": "Fail...",
+      "feeChangeAmount": "Your amount was change after change fee"
     },
     "walletLog": {
       "sorry": "Sorry....",

@@ -1,8 +1,7 @@
 /**
- * @version 0.11
+ * @version 0.30
  */
 import Log from '../../services/Log/Log'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 import Api from '../../services/Api/Api'
 import ApiV3 from '../../services/Api/ApiV3'
@@ -12,6 +11,7 @@ import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 import config from '../../config/config'
+import DBInterface from '../../appstores/DataSource/DB/DBInterface'
 
 const settingsDS = new Settings()
 
@@ -21,6 +21,8 @@ let CACHE_REMOVED = false
 
 let CACHE_LAST_TIME = false
 let TRY_COUNTER = 0
+
+const LIMIT_FOR_CURRENCY = 20
 
 class UpdateTradeOrdersDaemon {
 
@@ -70,6 +72,8 @@ class UpdateTradeOrdersDaemon {
      * @returns {Promise<boolean>}
      */
     updateTradeOrdersDaemon = async (params) => {
+        const dbInterface = new DBInterface()
+
         Log.daemon('UpdateTradeOrders called ' + JSON.stringify(params))
         if (CACHE_REMOVED === false) {
             await this.removedFromDb()
@@ -96,7 +100,7 @@ class UpdateTradeOrdersDaemon {
             if (typeof tmpTradeOrdersV3 !== 'undefined' && tmpTradeOrdersV3 && tmpTradeOrdersV3.length > 0) {
                 if (tmpTradeOrders && typeof tmpTradeOrders.length !== 'undefined' && tmpTradeOrders.length > 0) {
                     try {
-                        for (let one of tmpTradeOrdersV3) {
+                        for (const one of tmpTradeOrdersV3) {
                             one.orderId = one.orderHash
                             tmpTradeOrders.push(one)
                         }
@@ -117,7 +121,7 @@ class UpdateTradeOrdersDaemon {
             if (typeof params.removeId !== 'undefined') {
                 if (typeof CACHE_REMOVED[params.removeId] === 'undefined') {
                     CACHE_REMOVED[params.removeId] = 1
-                    await settingsDS.setSettings('bseRemoved', JSON.stringify({removed : CACHE_REMOVED}))
+                    await settingsDS.setSettings('bseRemoved', JSON.stringify({ removed: CACHE_REMOVED }))
                 }
             }
 
@@ -131,46 +135,57 @@ class UpdateTradeOrdersDaemon {
                     let total = 0
 
                     const tradeOrders = []
+
                     for (item of tmpTradeOrders) {
+                        if (total > 100) {
+                            break
+                        }
                         if (item.exchangeWayType === 'BUY') {
                             tradeOrdersToMarketingEvent.push(item)
                         }
                         if (typeof CACHE_REMOVED[item.orderId] !== 'undefined') {
                             continue
                         }
-                        const currencyCode1 = item.requestedInAmount.currencyCode || false
-                        const currencyCode2 = item.requestedOutAmount.currencyCode || false
+                        const tmps = [
+                            {
+                                currencyCode: item.requestedInAmount.currencyCode || false,
+                                updateHash: item.inTxHash || false,
+                                suffix: 'out'
+                            },
+                            {
+                                currencyCode: item.requestedOutAmount.currencyCode || false,
+                                updateHash: item.outTxHash || false,
+                                suffix: 'out'
+                            }
+                        ]
+
                         let needAdd = false
-                        if (currencyCode1) {
-                            if (typeof index[currencyCode1] === 'undefined') {
-                                index[currencyCode1] = 1
+                        for (const tmp of tmps) {
+                            if (!tmp.currencyCode) continue
+                            if (typeof index[tmp.currencyCode] === 'undefined') {
+                                index[tmp.currencyCode] = 1
                             } else {
-                                index[currencyCode1]++
+                                index[tmp.currencyCode]++
                             }
-                            if (index[currencyCode1] < 20) {
+                            if (index[tmp.currencyCode] < LIMIT_FOR_CURRENCY) {
+                                if (tmp.updateHash) {
+                                    const sql = `
+                                     UPDATE transactions 
+                                     SET bse_order_id_${tmp.suffix}='${item.orderId}'
+                                     WHERE transaction_hash='${tmp.updateHash}'
+                                     AND currency_code='${tmp.currencyCode}'
+                                     `
+                                    await dbInterface.setQueryString(sql).query(true)
+                                }
                                 needAdd = true
                             }
                         }
-                        if (currencyCode2) {
-                            if (typeof index[currencyCode2] === 'undefined') {
-                                index[currencyCode2] = 1
-                            } else {
-                                index[currencyCode2]++
-                            }
-                            if (index[currencyCode2] < 20) {
-                                needAdd = true
-                            }
-                        }
+
                         if (needAdd) {
                             tradeOrders.push(item)
                             total++
-                            if (total > 100) {
-                                break
-                            }
                         }
                     }
-
-                    MarketingEvent.checkBuyResults(tradeOrdersToMarketingEvent)
 
                     ExchangeActions.setExchangeOrderList(tradeOrders)
 

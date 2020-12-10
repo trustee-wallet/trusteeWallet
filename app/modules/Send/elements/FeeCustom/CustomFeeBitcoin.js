@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 
 import { Text, View } from 'react-native'
 
-import FeeForByteInput from '../../../../components/elements/Input'
+import FeeForByteInput from '../../../../components/elements/NewInput'
 
 import { strings } from '../../../../services/i18n'
 
@@ -130,5 +130,10 @@ const styles = {
             width: 0,
             height: 0
         },
+    },
+    customFee: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 14,
+        paddingBottom: 4
     }
 }

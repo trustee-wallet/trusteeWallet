@@ -24,6 +24,8 @@ import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
 const V3_ENTRY_POINT_EXCHANGE = '/mobile-exchanger'
 const V3_ENTRY_POINT_SELL = '/mobile-sell'
 const V3_ENTRY_POINT_BUY = '/mobile-buy'
+const V3_ENTRY_POINT_CHECK = '/mobile-check'
+const V3_ENTRY_POINT_SET_STATUS = '/order/update-payment-status'
 
 const V3_API = 'https://api.v3.trustee.deals'
 const V3_PUB = '818ef87763ee0f9eaee49ff1f27d4b87e76dc1a8309187b82de52687783d832705f4bafe4a51efad26ccca9367419f9e28e07cea849b8b15108a56e054128a8c'
@@ -233,6 +235,62 @@ export default {
             return link
         } catch (e) {
             Log.err('ApiV3.initData error ' + e.message)
+            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+        }
+    },
+
+    getMobileCheck: async (orderHash) => {
+
+        const { mode: exchangeMode, apiEndpoints } = config.exchange
+        const entryUrl = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
+        const entryPoint = V3_ENTRY_POINT_CHECK
+    
+
+        const sign = await CashBackUtils.createWalletSignature(true)
+
+        const currentToken = CashBackUtils.getWalletToken()
+
+        try {
+
+            const link = entryUrl + entryPoint
+                + '?signature=' + sign.signature
+                + '&signMessage=' + sign.message
+                + '&signMessageHash=' + sign.messageHash
+                + '&cashbackToken=' + currentToken
+                + '&locale=' + sublocale()
+                + '&orderHash=' + orderHash
+            Log.log('ApiV3 getMobileCheck link ' + link)
+            return link
+        } catch (e) {
+            Log.err('ApiV3 getMobileCheck error ' + e.message)
+            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+        }
+    },
+
+    setExchangeStatus: async (orderHash, status) => {
+
+        const { mode: exchangeMode, apiEndpoints } = config.exchange
+        const entryUrl = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
+        const entryPoint = V3_ENTRY_POINT_SET_STATUS
+
+        const sign = await CashBackUtils.createWalletSignature(true)
+
+        const currentToken = CashBackUtils.getWalletToken()
+
+        try {
+
+            const link = entryUrl + entryPoint
+                + '?signature=' + sign.signature
+                + '&signMessage=' + sign.message
+                + '&signMessageHash=' + sign.messageHash
+                + '&cashbackToken=' + currentToken
+                + '&locale=' + sublocale()
+                + '&status=' + status.toUpperCase()
+                + '&orderHash=' + orderHash
+            Log.log('ApiV3 setExchangeStatus link ' + link)
+            return link
+        } catch (e) {
+            Log.err('ApiV3 setExchangeStatus error ' + e.message)
             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
         }
     },

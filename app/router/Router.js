@@ -24,6 +24,10 @@ import TradeScreenStack from './TradeScreenStack'
 import TradeV3ScreenStack from './TradeV3ScreenStack'
 import SettingsScreenStack from './SettingsStack'
 
+import NotificationsScreen from '../modules/Notifications'
+
+import WebViewScreen from '../modules/WebView'
+
 import AddCardScreen from '../modules/Card'
 import SendScreen from '../modules/Send/SendScreen'
 import SendAdvancedSettingsScreen from '../modules/Send/SendAdvancedSettings'
@@ -43,9 +47,10 @@ import FioAddresses from '../modules/FIO/FioAddresses'
 import FioMainSettings from '../modules/FIO/FioMainSettings'
 import FioSettings from '../modules/FIO/FioSettings'
 import AccountScreen from '../modules/Account/AccountScreen'
-import AccountSettingScreen from '../modules/Account/AccountSettings'
+import AccountSettingScreen from '../modules/Account/AccountSettings/AccountSettingsScreen'
 import ReceiveScreen from '../modules/Account/ReceiveScreen'
 import TransactionScreen from '../modules/Account/TransactionScreen'
+import CheckV3DataScreen from '../modules/Account/CheckV3'
 import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
 import AddCustomTokenScreen from '../modules/AddCustomToken/AddCustomTokenScreen'
 import SMSCodeScreen from '../modules/Trade/SMSCodeScreen'
@@ -166,6 +171,13 @@ const MainNavigator = createStackNavigator({
             }
         },
 
+        CheckV3DataScreen: {
+            screen: CheckV3DataScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
         ReceiveScreen: {
             screen: ReceiveScreen,
             navigationOptions: {
@@ -220,6 +232,20 @@ const MainNavigator = createStackNavigator({
 
         AgreementScreen: {
             screen: AgreementScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        NotificationsScreen: {
+            screen: NotificationsScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        WebViewScreen: {
+            screen: WebViewScreen,
             navigationOptions: {
                 headerShown: false
             }

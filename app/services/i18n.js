@@ -2,6 +2,7 @@
  * @version 0.9
  */
 import i18n from 'i18n-js'
+import moment from 'moment'
 import store from '../store'
 import * as RNLocalize from 'react-native-localize'
 
@@ -16,6 +17,7 @@ store.subscribe(() => {
 
     if (typeof language !== 'undefined' && i18n.locale.toString() !== language.toString()) {
         i18n.locale = language
+        setupMoment()
     }
 })
 
@@ -41,5 +43,18 @@ export function sublocale(locale) {
     }
     return sub
 }
+
+function setupMoment() {
+    const subloc = sublocale()
+    moment.locale(subloc, {
+        calendar: {
+            lastDay: `[${strings('notifications.yesterday')}]`,
+            sameDay: `[${strings('notifications.today')}]`,
+            lastWeek: subloc === 'en' ? 'MMM DD, YYYY' : 'MMMM DD, YYYY',
+            sameElse: subloc === 'en' ? 'MMM DD, YYYY' : 'MMMM DD, YYYY',
+        }
+    })
+}
+setupMoment()
 
 export default i18n

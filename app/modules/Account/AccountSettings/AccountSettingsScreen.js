@@ -1,5 +1,5 @@
 /**
- * @version 0.1
+ * @version 0.30
  * @author yura
  */
 import React, { Component } from 'react'
@@ -10,33 +10,33 @@ import { Linking, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, 
 import firebase from 'react-native-firebase'
 
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '../../../components/navigation/NavStore'
 
 import AsyncStorage from '@react-native-community/async-storage'
 
-import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import CashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
+import ExchangeActions from '../../../appstores/Stores/Exchange/ExchangeActions'
+import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
+import lockScreenAction from '../../../appstores/Stores/LockScreen/LockScreenActions'
+import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
+import CashBackSettings from '../../../appstores/Stores/CashBack/CashBackSettings'
 
-import UIDict from '../../services/UIDict/UIDict'
+import UIDict from '../../../services/UIDict/UIDict'
 
 import SettingsBTC from './elements/SettingsBTC'
 import SettingsUSDT from './elements/SettingsUSDT'
 import SettingsXMR from './elements/SettingsXMR'
 import SettingsTRX from './elements/SettingsTRX'
 
-import config from '../../config/config'
+import config from '../../../config/config'
 
-import { strings } from '../../services/i18n'
-import Toast from '../../services/UI/Toast/Toast'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
+import { strings } from '../../../services/i18n'
+import Toast from '../../../services/UI/Toast/Toast'
+import MarketingEvent from '../../../services/Marketing/MarketingEvent'
+import AppNotificationListener from '../../../services/AppNotification/AppNotificationListener'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
-import ListItem from '../../components/elements/new/list/ListItem/Setting'
+import { ThemeContext } from '../../theme/ThemeProvider'
+import Header from '../../../components/elements/new/Header'
+import ListItem from '../../../components/elements/new/list/ListItem/Setting'
 
 class AccountSettingScreen extends React.Component {
     constructor() {
@@ -59,11 +59,11 @@ class AccountSettingScreen extends React.Component {
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('Account.SettingScreen')
-
         const { colors, GRID_SIZE } = this.context
 
         const { mainStore, cryptoCurrency, account } = this.props
+
+        firebase.analytics().setCurrentScreen('Account.AccountSettingsScreen.' + cryptoCurrency.currencyCode)
 
         const {
             headerHeight,
