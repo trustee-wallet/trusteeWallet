@@ -223,8 +223,8 @@ export const requestFunds = async ({payerFioAddress, payeeFioAddress, payeeToken
         BlocksoftCryptoLog.log(`FIO requestFunds started ${payerFioAddress} -> ${payeeFioAddress} ${amount} ${tokenCode} (${chainCode})`)
         const { fee = 0 } = await getFioSdk().getFeeForNewFundsRequest(payeeFioAddress)
         const response = await getFioSdk().requestFunds(
-            payerFioAddress,
-            payeeFioAddress,
+            payerFioAddress?.toLowerCase() ?? '',
+            payeeFioAddress?.toLowerCase() ?? '',
             payeeTokenPublicAddress,
             amount,
             chainCode,

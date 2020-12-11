@@ -560,7 +560,7 @@ class SendScreen extends SendBasicScreenScreen {
         let recipientAddress = addressValidation.value
 
         try {
-            if (this.isFioAddress(recipientAddress)) {
+            if (isFioAddressValid(recipientAddress)) {
                 // console.log('Send.SendScreen.handleSendTransaction isFioAddress checked ' + recipientAddress)
                 if (await isFioAddressRegistered(recipientAddress)) {
                     // console.log('Send.SendScreen.handleSendTransaction isFioAddressRegistered checked ' + recipientAddress)
