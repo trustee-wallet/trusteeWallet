@@ -2,10 +2,10 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Linking, Image, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, Linking, Image, SafeAreaView, TouchableOpacity } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/Button'
+import Button from '../../components/elements/new/buttons/Button'
 import { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
 import { connect } from 'react-redux'
@@ -17,13 +17,22 @@ import DaemonCache from '../../daemons/DaemonCache'
 import { getFioNames } from '../../../crypto/blockchains/fio/FioUtils'
 import Netinfo from '../../services/Netinfo/Netinfo'
 
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import Header from '../../components/elements/new/Header'
+
 class FioAddresses extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
             fioAddresses: [],
+            headerHeight: 0,
         }
+    }
+
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
     }
 
     async componentDidMount() {
@@ -68,16 +77,31 @@ class FioAddresses extends Component {
         NavStore.goNext('FioSettings', { fioAddress })
     }
 
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('DashboardStack') }
+
     render() {
         Moment.locale('en');
+        const { colors, GRID_SIZE } = this.context
+        const { headerHeight } = this.state
 
         return (
-            <View>
-                <Navigation
-                    title= {strings('FioAddresses.title')}
+            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
+                <Header
+                    leftType="back"
+                    leftAction={this.handleBack}
+                    rightType="close"
+                    rightAction={this.handleClose}
+                    title={strings('fioMainSettings.title')}
+                    setHeaderHeight={this.setHeaderHeight}
                 />
 
-                <View style={{paddingTop: 80, height: '100%'}}>
+                <SafeAreaView style={[styles.content, {
+                    backgroundColor: colors.common.background,
+                    marginTop: headerHeight,
+                    height: '100%',
+                }]}>
 
                     <GradientView
                         array={styles_.array}
@@ -89,10 +113,9 @@ class FioAddresses extends Component {
                         </View>
                     </GradientView>
 
-                    <View style={styles.container}>
+                    <View style={styles.content2}>
 
-
-                        <View style={{flex: 1, paddingVertical: 20}}>
+                        <View style={{ paddingVertical: 20}}>
                             <ScrollView>
                                 {
                                     this.state.fioAddresses.map(address => (
@@ -109,17 +132,16 @@ class FioAddresses extends Component {
                             </ScrollView>
                         </View>
 
-
                         <View style={{marginTop: 20}}>
-                            <Button press={this.handleRegisterFIOAddress}>
-                                {strings('FioAddresses.btnText')}
-                            </Button>
+                            <Button
+                                title={strings('FioAddresses.btnText')}
+                                onPress={this.handleRegisterFIOAddress}
+                            />
                         </View>
-
 
                     </View>
 
-                </View>
+                </SafeAreaView>
             </View>
         );
     }
@@ -131,10 +153,12 @@ const mapStateToProps = (state) => ({
     currencyStore: state.currencyStore
 })
 
+FioAddresses.contextType = ThemeContext
+
 export default connect(mapStateToProps, {})(FioAddresses)
 
 const styles_ = {
-    array: ['#43156d', '#7127ab'],
+    array: ['#000000', '#222222'],
     start: { x: 0.0, y: 0.5 },
     end: { x: 1, y: 0.5 }
 }
@@ -142,11 +166,24 @@ const styles_ = {
 const styles = {
 
     container: {
-        padding: 30,
-        paddingTop: 10,
+        paddingTop: 0,
         height: '100%',
         flexDirection: 'column',
         flex: 1,
+        justifyContent: 'space-between'
+    },
+
+    content: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'space-between'
+    },
+
+    content2: {
+        padding: 30,
+        paddingTop: 5,
+        flex: 1,
+        flexDirection: 'column',
         justifyContent: 'space-between'
     },
 
