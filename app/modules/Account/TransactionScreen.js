@@ -72,15 +72,18 @@ class TransactionScreen extends Component {
     async UNSAFE_componentWillMount() {
         const data = this.props.navigation.getParam('txData')
 
-        const { transactionHash, orderHash, transaction } = data
+        let { transactionHash, orderHash, walletHash, transaction } = data
         let tx
 
         if (!transaction) {
-            const wallet = store.getState().mainStore.selectedWallet
+            if (typeof walletHash === 'undefined' || !walletHash) {
+                const wallet = store.getState().mainStore.selectedWallet
+                walletHash = wallet.walletHash
+            }
             if (transactionHash) {
                 try {
                     const tmp = await transactionDS.getTransactions({
-                        walletHash: wallet.walletHash,
+                        walletHash,
                         transactionHash
                     }, 'TransactionScreen.init with transactionHash ' + transactionHash)
                     if (tmp) {
@@ -94,7 +97,7 @@ class TransactionScreen extends Component {
             } else if (orderHash) {
                 try {
                     const tmp = await transactionDS.getTransactions({
-                        walletHash: wallet.walletHash,
+                        walletHash,
                         bseOrderHash : orderHash,
                     }, 'TransactionScreen.init with orderHash ' + orderHash)
                     if (tmp) {
