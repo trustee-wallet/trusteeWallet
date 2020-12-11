@@ -2,7 +2,7 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Linking, Image, SafeAreaView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, Image, SafeAreaView, TouchableOpacity } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/new/buttons/Button'
@@ -67,7 +67,7 @@ class FioAddresses extends Component {
 
         const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
         if (publicFioAddress) {
-            Linking.openURL(`${apiEndpoints.registrationSiteURL}${publicFioAddress}`)
+            NavStore.goNext('WebViewScreen', { url: `${apiEndpoints.registrationSiteURL}${publicFioAddress}`, title: strings('FioAddresses.btnText') })
         } else {
             // TODO show some warning tooltip
         }
