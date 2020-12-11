@@ -90,7 +90,7 @@ class FioRequestDetails extends Component {
                                                           iconStyle={styles.cryptoList__icon}/>
                                             <Text style={styles.txt3}>
                                                 {
-                                                    this.state.requestDetailType == 'sent' ? (
+                                                    this.state.requestDetailType === 'sent' ? (
                                                         /*if type of page is sent*/
                                                         <Text>{strings('FioRequestDetails.sentTitle') } </Text>
                                                     ) : (
@@ -103,7 +103,7 @@ class FioRequestDetails extends Component {
 
                                         <View style={styles.flex__container}>
                                             <Text style={styles.txt}>{this.state.requestDetailData?.content?.token_code}</Text>
-                                            <Text style={styles.txt}>{this.state.requestDetailData?.content?.amount}</Text>
+                                            <Text style={styles.txt}>{this.state.requestDetailData?.content?.amount && this.state.requestDetailData?.content?.amount !== 'null' ? this.state.requestDetailData?.content?.amount : '-'}</Text>
                                         </View>
 
                                         <View style={styles.flex__container}>
