@@ -154,7 +154,13 @@ class ReceiptScreen extends SendBasicScreenScreen {
         }
         CACHE_IS_SENDING = true
 
-        const { account, wallet, sendScreenData, selectedFee } = this.state
+        const { account, wallet, sendScreenData } = this.state
+
+        let selectedFee = typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
+        if (!selectedFee) {
+            const tmp = SendTmpData.getCountedFees()
+            selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
+        }
 
         if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined') {
             const newAmount = selectedFee.amountForTx.toString()
@@ -204,9 +210,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
             if (typeof sendScreenData.comment !== 'undefined') {
                 comment = sendScreenData.comment
             }
-            if (typeof selectedFee !== 'undefined') {
+            if (typeof selectedFee !== 'undefined' && selectedFee) {
                 if (typeof selectedFee.amountForTx !== 'undefined') {
-                    txData.amount = this.state.selectedFee.amountForTx
+                    txData.amount = selectedFee.amountForTx
                 }
                 if (typeof selectedFee.addressToTx !== 'undefined') {
                     txData.addressTo = selectedFee.addressToTx
@@ -433,7 +439,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
 
-        let amount = sendScreenData.amount
+        let amount = sendScreenData.amountPretty
         let address = sendScreenData.addressTo || ''
         let memo = sendScreenData.memo || ''
         if (typeof selectedFee !== 'undefined' && selectedFee) {
@@ -464,7 +470,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 // console.log('Send.ReceiptScreen addressToTx ' + address)
             }
         }
-
+        console.log(amount)
 
         const currencySymbol = typeof cryptoCurrency !== 'undefined' && cryptoCurrency.currencySymbol ? cryptoCurrency.currencySymbol : ''
         const basicCurrencySymbol = account.basicCurrencySymbol
