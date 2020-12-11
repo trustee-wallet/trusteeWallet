@@ -196,13 +196,15 @@ class NotificationsScreen extends React.Component {
         if (transactionHash) {
             NavStore.goNext('TransactionScreen', {
                 txData: {
-                    transactionHash
+                    transactionHash,
+                    walletHash : notification.walletHash
                 }
             })
         } else if (orderHash) {
             NavStore.goNext('TransactionScreen', {
                 txData: {
-                    orderHash
+                    orderHash,
+                    walletHash : notification.walletHash
                 }
             })
         }
