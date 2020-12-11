@@ -29,7 +29,6 @@ import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 import AsyncStorage from '@react-native-community/async-storage'
 
 import CustomFee from './elements/FeeCustom/CustomFee'
-import SendTmpConstants from './elements/SendTmpConstants'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 

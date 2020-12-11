@@ -440,6 +440,11 @@ async function _validateMnemonic(obj) {
 
 
 module.exports = {
+    userDataValidation : async function(obj) {
+        obj.id = 'any'
+        return _userDataValidation(obj)
+    },
+
     arrayValidation: async function(array) {
         let resultArray = []
         if (!array || typeof (array) === 'undefined' || !array.length) {

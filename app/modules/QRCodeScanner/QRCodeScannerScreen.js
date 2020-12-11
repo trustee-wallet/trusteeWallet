@@ -11,7 +11,7 @@ import NavStore from '../../components/navigation/NavStore'
 
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { strings } from '../../services/i18n'
-import { setSendData } from '../../appstores/Stores/Send/SendActions'
+import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import _ from 'lodash'
 
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
@@ -52,20 +52,18 @@ class QRCodeScannerScreen extends Component {
             } = this.props.qrCodeScanner.config
 
             if (type === 'CASHBACK_LINK') {
-                setSendData({
-                    isCashbackLink: true,
-                    qrCashbackLink: param.data
-                })
-                NavStore.goNext('CashbackScreen')
+                // @todo cashback scanner without sendStore
+                NavStore.goNext('CashbackScreen', {qrData : {
+                        isCashbackLink: true,
+                        qrCashbackLink: param.data
+                    }})
                 return
             }
 
             const res = await decodeTransactionQrCode(param, currencyCode)
 
             if (type === 'MAIN_SCANNER') {
-
-                const { selectedWallet } = this.props.main
-                const { cryptoCurrencies, accountStore } = this.props
+                const { cryptoCurrencies } = this.props
 
                 let cryptoCurrency
                 if (typeof res.data.currencyCode !== 'undefined' && res.data.currencyCode) {
@@ -77,11 +75,8 @@ class QRCodeScannerScreen extends Component {
                     }
                 }
 
-                let account = JSON.parse(JSON.stringify(accountStore.accountList))
-                account = account[selectedWallet.walletHash][res.data.currencyCode]
-
                 if (res.status !== 'success') {
-                    let tmp = res.data.parsedUrl || res.data.address
+                    const tmp = res.data.parsedUrl || res.data.address
                     copyToClipboard(tmp)
 
                     showModal({
@@ -133,47 +128,37 @@ class QRCodeScannerScreen extends Component {
                     return
                 }
 
-                setSendData({
-                    disabled: typeof res.data.needToDisable !== 'undefined' && !!(+res.data.needToDisable),
-                    address: res.data.address,
-                    value: res.data.amount.toString(),
+                const parsed = res.data
 
-                    account: account,
-                    cryptoCurrency: cryptoCurrency,
-
-                    comment: res.data.label,
-                    description: strings('send.description'),
-                    useAllFunds: false,
-                    type
+                SendActions.startSend({
+                    uiType: type,
+                    gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
+                    addressTo: parsed.address,
+                    amountPretty: parsed.amount ? parsed.toString() : '0',
+                    currencyCode: parsed.currencyCode,
+                    comment: parsed.label
                 })
-
-                NavStore.goNext('SendScreen')
-
             } else if (type === 'ADD_CUSTOM_TOKEN_SCANNER') {
-                setSendData({
-                    isToken: true,
-                    address: res.data.address || res.data.parsedUrl
-                })
-                NavStore.goNext('AddAssetScreen')
+                // @todo qr code scanner for add asset without sendStore
+                //     setSendData({
+                //         isToken: true,
+                //        address: res.data.address || res.data.parsedUrl
+                //     })
+                //    NavStore.goNext('AddAssetScreen' )
             } else if (type === 'SEND_SCANNER') {
                 if (res.status === 'success' && res.data.currencyCode === currencyCode) {
 
-                    setSendData({
-                        disabled: typeof res.data.needToDisable !== 'undefined' && !!(+res.data.needToDisable),
-                        address: res.data.address,
-                        value: res.data.amount.toString(),
-
-                        account: oldAccount,
-                        cryptoCurrency: oldCurrency,
-                        inputType,
-
-                        comment: res.data.label,
-                        description: strings('send.description'),
-                        useAllFunds: false,
-                        type
+                    const parsed = res.data
+                    parsed.currencyCode = oldCurrency.currencyCode
+                    SendActions.startSend({
+                        uiType: type,
+                        gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
+                        addressTo: parsed.address,
+                        amountPretty: parsed.amount ? parsed.toString() : '0',
+                        currencyCode: parsed.currencyCode,
+                        comment: parsed.label
                     })
 
-                    NavStore.goNext('SendScreen')
                 } else if (res.status === 'success' && res.data.currencyCode !== currencyCode) {
                     showModal({
                         type: 'INFO_MODAL',
@@ -187,21 +172,11 @@ class QRCodeScannerScreen extends Component {
                         }
                     })
                 } else {
-                    setSendData({
-                        disabled: false,
-                        address: res.data.parsedUrl,
-                        value: '',
-
-                        account: oldAccount,
-                        cryptoCurrency: oldCurrency,
-                        inputType,
-
-                        description: strings('send.description'),
-                        useAllFunds: false,
-                        type
+                    SendActions.startSend({
+                        uiType: type,
+                        addressTo: res.data.parsedUrl,
+                        currencyCode: oldCurrency.currencyCode
                     })
-
-                    NavStore.goNext('SendScreen')
                 }
             }
         } catch (e) {
@@ -248,8 +223,8 @@ class QRCodeScannerScreen extends Component {
     renderOpenGallery() {
         return (
             <TouchableOpacity onPress={this.onOpenGallery.bind(this)}>
-                <View style={{ paddingLeft: 23, paddingRight:23 }} >
-                    <MaterialCommunityIcons name="file-find" size={24} color="#855eab"/>
+                <View style={{ paddingLeft: 23, paddingRight: 23 }}>
+                    <MaterialCommunityIcons name='file-find' size={24} color='#855eab' />
                 </View>
             </TouchableOpacity>
         )
@@ -276,7 +251,7 @@ class QRCodeScannerScreen extends Component {
                             <View style={styles.topOverlay}>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
-                                <View style={styles.leftAndRightOverlay}/>
+                                <View style={styles.leftAndRightOverlay} />
 
                                 <View style={styles.rectangle}>
                                     <View style={styles.rectangle__topLeft}>
@@ -297,7 +272,7 @@ class QRCodeScannerScreen extends Component {
                                     </View>
                                 </View>
 
-                                <View style={styles.leftAndRightOverlay}/>
+                                <View style={styles.leftAndRightOverlay} />
                             </View>
 
                             <View style={styles.bottomOverlay}>
@@ -321,7 +296,6 @@ const mapStateToProps = (state) => {
         main: state.mainStore,
         cryptoCurrencies: state.currencyStore.cryptoCurrencies,
         qrCodeScanner: state.qrCodeScannerStore,
-        sendStore: state.sendStore,
         accountStore: state.accountStore
     }
 }

@@ -13,26 +13,21 @@ import Button from '../../components/elements/Button'
 import Navigation from '../../components/navigation/Navigation'
 import NavStore from '../../components/navigation/NavStore'
 
-import ExchangeActions, {setExchangeData} from '../../appstores/Stores/Exchange/ExchangeActions'
+import {setExchangeData} from '../../appstores/Stores/Exchange/ExchangeActions'
 import {setLoaderStatus} from '../../appstores/Stores/Main/MainStoreActions'
 import {showModal} from '../../appstores/Stores/Modal/ModalActions'
 
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-
 import updateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 
-import Log from '../../services/Log/Log'
 import {strings} from '../../services/i18n'
 import Api from '../../services/Api/Api'
 
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 import TmpConstants from './elements/TmpConstants'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
-import SendTmpConstants from '../Send/elements/SendTmpConstants'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
 class ConfirmScreen extends Component {
 
@@ -189,8 +184,6 @@ class ConfirmScreen extends Component {
                 uniqueParams : uniqueParams
             }
 
-            // TODO: fix this
-
             dataToSend.outDestination = selectedCard.number
 
             if (tradeWay.outPaywayCode === 'MOBILE_PHONE') {
@@ -202,34 +195,20 @@ class ConfirmScreen extends Component {
 
             setLoaderStatus(true)
 
-            // @todo simplify goto receipt to one function
             const res = await Api.createOrder(dataToSend)
-            const recipientAmount = res.data.amount.toString()
-            const recipientAddress = res.data.address
-            const dataToScreen = {
-                amount : recipientAmount,
-                amountRaw: BlocksoftPrettyNumbers.setCurrencyCode(selectedCryptocurrency.currencyCode).makeUnPretty(recipientAmount),
-                address: recipientAddress,
-                cryptoCurrency: selectedCryptocurrency,
-                account: selectedAccount,
-                useAllFunds,
-                toTransactionJSON: {
+
+            SendActions.startSend({
+                gotoReceipt: true,
+                addressTo : res.data.address,
+                amountPretty : res.data.amount.toString(),
+                memo : res.data.memo,
+                currencyCode : selectedCryptocurrency.currencyCode,
+                isTransferAll : useAllFunds,
+                toTransactionJSON : {
                     bseOrderID: res.data.orderId
                 },
-                type: 'TRADE_SEND',
-                apiVersion : 'v2',
-                currencyCode: selectedCryptocurrency.currencyCode
-            }
-            if (typeof res.data.memo !== 'undefined') {
-                dataToScreen.memo = res.data.memo
-            }
-            if (!useAllFunds) {
-                SendTmpConstants.PRESET = false
-                SendTmpConstants.COUNTED_FEES = false
-                SendTmpConstants.SELECTED_FEE = false
-            }
-            NavStore.goNext('ReceiptScreen', {
-                ReceiptScreen: dataToScreen
+                uiType: 'TRADE_SEND',
+                uiApiVersion : 'v2'
             })
 
             setLoaderStatus(false)

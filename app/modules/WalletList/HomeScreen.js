@@ -32,7 +32,6 @@ import Header from './elements/Header'
 import Log from '../../services/Log/Log'
 import { strings } from '../../services/i18n'
 
-import SendActions from '../../appstores/Stores/Send/SendActions'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
@@ -47,6 +46,9 @@ import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
 import { SIZE } from './helpers'
+import { SendDeepLinking } from '../../appstores/Stores/Send/SendDeepLinking'
+import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
 
 class HomeScreen extends Component {
@@ -63,7 +65,7 @@ class HomeScreen extends Component {
         }
         this.getBalanceVisibility();
         this.getCurrenciesOrder();
-        SendActions.init()
+        SendDeepLinking.init()
     }
 
     componentDidMount() {
@@ -138,6 +140,13 @@ class HomeScreen extends Component {
         } catch (e) {
             Log.err('WalletList.HomeScreen handleRefresh error ' + e.message)
         }
+    }
+
+    handleSend = (currencyCode) => {
+
+             SendActions.startSend({
+                 currencyCode
+             })
     }
 
     // handleSend = () => {
@@ -292,7 +301,7 @@ class HomeScreen extends Component {
                                         isActive={isActive}
                                         // TODO: add handlers
                                         handleReceive={null}
-                                        handleSend={null}
+                                        handleSend={() => this.handleSend(item.currencyCode)}
                                         handleHide={null}
                                     />
                                 );

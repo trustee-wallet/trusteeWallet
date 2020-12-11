@@ -47,12 +47,22 @@ class CustomFee extends Component {
             return false
         }
         // can be loader here
-        const feesCountedForData = this.props.countedFees.feesCountedForData
+        const countedFeesData = this.props.countedFeesData
         const addData = {
-            unspents : this.state.selectedFee.blockchainData.unspents,
             feeForByte
         }
-        const countedFees = await BlocksoftTransfer.getFeeRate(feesCountedForData, addData)
+
+        const selectedFee = this.state.selectedFee
+        if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.blockchainData !== 'undefined' && typeof selectedFee.blockchainData.unspents !== 'undefined') {
+            // @ts-ignore
+            if (selectedFee.blockchainData.isTransferAll === countedFeesData.isTransferAll) {
+                addData.unspents = selectedFee.blockchainData.unspents
+            }
+        }
+        if (typeof countedFeesData.addressTo === 'undefined' || !countedFeesData.addressTo || countedFeesData.addressTo === '') {
+            return false
+        }
+        const countedFees = await BlocksoftTransfer.getFeeRate(countedFeesData, addData)
         if (countedFees && countedFees.selectedFeeIndex > -1) {
             const selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
             this._setSelectedFee(selectedFee)

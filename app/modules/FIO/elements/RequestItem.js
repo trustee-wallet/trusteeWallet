@@ -2,7 +2,8 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, Dimensions, PixelRatio  } from 'react-native'
+import { View, Text, ScrollView, Image, KeyboardAvoidingView, SafeAreaView, TouchableOpacity, Dimensions, PixelRatio  } from 'react-native'
+import { strings } from '../../../services/i18n'
 import Icon from '../../../components/elements/CustomIcon.js'
 import CurrencyIcon from '../../../components/elements/CurrencyIcon'
 import Moment from 'moment';
@@ -17,12 +18,8 @@ if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
 
 class RequestItem extends Component {
 
-    humanize = (str) => str
-        .replace(/^[\s_]+|[\s_]+$/g, '')
-        .replace(/[_\s]+/g, ' ')
-        .replace(/^[a-z]/, (m) => m.toUpperCase());
-
     render() {
+
         const { data, type, callback } = this.props
         const currencyCode = data?.content?.token_code || 'NOCOIN'
         const chainCode = data?.content?.chain_code || 'NOCOIN'
@@ -37,9 +34,10 @@ class RequestItem extends Component {
                                 <View style={styles.request__col1}>
                                     <Icon name="selectWallet" size={25} style={styles.icon1}/>
                                     <View>
-                                        <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{type === 'sent' ? data?.payer_fio_address :  data?.payee_fio_address}</Text>
-                                        <Text style={styles.txt2}>{Moment(data?.time_stamp).format('lll')} {data?.content?.memo && `- ${data?.content?.memo}`}</Text>
-                                        {data.status && <Text style={[styles.status, data.status === 'rejected' ? styles.error : styles.success]} >{this.humanize(data.status)}</Text>  }
+                                        {type === 'sent' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{data?.payer_fio_address}</Text>}
+                                        {type === 'pending' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{strings('FioRequestsList.RequestedTxt')} {data?.content?.token_code}</Text>}
+                                        <Text style={styles.txt2}>{Moment(data?.time_stamp).format('lll')} - {data?.content?.memo}</Text>
+                                        {type === 'sent' && <Text style={[styles.status, data.status === 'rejected' ? styles.error : styles.success]} >{data.status}</Text>  }
                                     </View>
                                 </View>
 
@@ -50,7 +48,7 @@ class RequestItem extends Component {
                                                   markTextStyle={styles.cryptoList__icon__mark__text}
                                                   iconStyle={styles.cryptoList__icon}/>
                                     <View>
-                                        <Text style={styles.txt3}>{data?.content?.amount && data?.content?.amount !== 'null' ? data.content.amount : '-'}</Text>
+                                        <Text style={styles.txt3}>{data?.content?.amount}</Text>
                                         {/* <Text style={styles.txt4}>$ 0.0 {data?.content?.sumUSD}</Text> */}
                                     </View>
                                 </View>
@@ -149,7 +147,6 @@ const styles = {
     status: {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 14,
-        marginTop: 5,
     },
 
     error: {

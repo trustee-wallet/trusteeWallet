@@ -27,6 +27,7 @@ import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumber
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
+import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -101,30 +102,18 @@ class ExchangeConfirmScreen extends Component {
 
             const res = await Api.createOrder(dataToSend)
 
-            // @todo simplify goto receipt to one function
-            const recipientAmount = res.data.amount.toString()
-            const recipientAddress = res.data.address
-            SendTmpConstants.COUNTED_FEES = false
-            SendTmpConstants.SELECTED_FEE = false
-            const dataToScreen = {
-                amount : recipientAmount,
-                amountRaw: BlocksoftPrettyNumbers.setCurrencyCode(selectedInCurrency.currencyCode).makeUnPretty(recipientAmount),
-                address: recipientAddress,
-                cryptoCurrency: selectedInCurrency,
-                account: selectedInAccount,
-                useAllFunds,
-                toTransactionJSON: {
+            SendActions.startSend({
+                gotoReceipt: true,
+                addressTo : res.data.address,
+                amountPretty : res.data.amount.toString(),
+                memo : res.data.memo,
+                currencyCode : selectedInCurrency.currencyCode,
+                isTransferAll : useAllFunds,
+                toTransactionJSON : {
                     bseOrderID: res.data.orderId
                 },
-                type: 'TRADE_SEND',
-                apiVersion : 'v2',
-                currencyCode: selectedInCurrency.currencyCode
-            }
-            if (typeof res.data.memo !== 'undefined') {
-                dataToScreen.memo = res.data.memo
-            }
-            NavStore.goNext('ReceiptScreen', {
-                ReceiptScreen: dataToScreen
+                uiType: 'TRADE_SEND',
+                uiApiVersion : 'v2'
             })
 
             setLoaderStatus(false)

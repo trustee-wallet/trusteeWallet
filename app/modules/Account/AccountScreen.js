@@ -20,7 +20,7 @@ import Transaction from './elements/Transaction'
 
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { clearSendData } from '../../appstores/Stores/Send/SendActions'
+import { clearSendData, SendActions } from '../../appstores/Stores/Send/SendActions'
 import { setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
 
 import Log from '../../services/Log/Log'
@@ -156,9 +156,9 @@ class Account extends Component {
 
         if (isSynchronized) {
 
-            clearSendData()
-
-            NavStore.goNext('SendScreen')
+            SendActions.startSend({
+                currencyCode : account.currencyCode,
+            })
 
         } else {
             showModal({

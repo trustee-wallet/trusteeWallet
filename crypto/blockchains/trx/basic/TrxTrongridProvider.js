@@ -42,7 +42,10 @@ export default class TrxTrongridProvider {
         CACHE_TRONGRID[address].time = now
         CACHE_TRONGRID[address]._ = typeof res.data.balance !== 'undefined' ? res.data.balance : 0
         CACHE_TRONGRID[address]._frozen = typeof res.data.frozen !== 'undefined' && typeof res.data.frozen[0] !== 'undefined' ? res.data.frozen[0].frozen_balance : 0
-        CACHE_TRONGRID[address]._frozenEnergy = typeof res.data.account_resource.frozen_balance_for_energy.frozen_balance !== 'undefined' ? res.data.account_resource.frozen_balance_for_energy.frozen_balance : 0
+        CACHE_TRONGRID[address]._frozenEnergy = typeof res.data.account_resource !== 'undefined'
+                                            && typeof res.data.account_resource.frozen_balance_for_energy !== 'undefined'
+                                            && typeof res.data.account_resource.frozen_balance_for_energy.frozen_balance !== 'undefined'
+                                                ? res.data.account_resource.frozen_balance_for_energy.frozen_balance : 0
         CACHE_TRONGRID[address].voteTotal = typeof res.data.votes !== 'undefined' && typeof res.data.votes[0] !== 'undefined' ? res.data.votes[0].vote_count : 0
 
         if (res.data.assetV2) {
