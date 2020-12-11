@@ -183,7 +183,6 @@ class MainV3DataScreen extends Component {
         SendTmpConstants.SELECTED_FEE = dataExchange.useAllFunds ? SendTmpConstants.SELECTED_FEE : false
 
         const dataToScreen = {
-            memo: dataExchange.memo,
             amount: recipientAmount,
             address: recipientAddress,
             cryptoCurrency: selectedCryptocurrency,
@@ -195,6 +194,9 @@ class MainV3DataScreen extends Component {
             currencyCode: selectedCryptocurrency.currencyCode,
             providerType: dataExchange.providerType // 'FIXED' || 'FLOATING'
         }
+        if (typeof dataExchange.memo !== 'undefined') {
+            dataToScreen.memo = dataExchange.memo
+        }
 
         if (!dataExchange.useAllFunds) {
             SendTmpConstants.PRESET = false
@@ -202,8 +204,8 @@ class MainV3DataScreen extends Component {
             SendTmpConstants.COUNTED_FEES = false
         } else {
             SendTmpConstants.PRESET = true
-            SendTmpConstants.COUNTED_FEES = dataExchange.countedFees
-            SendTmpConstants.SELECTED_FEE = dataExchange.selectedFee
+            SendTmpConstants.COUNTED_FEES = this.state.countedFees
+            SendTmpConstants.SELECTED_FEE = this.state.selectedFee
             if (dataToScreen.providerType === 'FIXED') {
                 // only one left
                 if (SendTmpConstants.COUNTED_FEES && SendTmpConstants.COUNTED_FEES.fees.length > 1) {
@@ -219,6 +221,7 @@ class MainV3DataScreen extends Component {
     }
 
     handleTransferAll = async (params) => {
+
         const currencyCode = params.currencyCode
         const address = params.address
         // const balance = params.balance
