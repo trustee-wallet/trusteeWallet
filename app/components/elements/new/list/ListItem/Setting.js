@@ -68,6 +68,15 @@ const getIcon = (iconType, color) => {
             return null; // TODO: add icon when custom icon set is ready
         case 'importWallet':
             return null; // TODO: add icon when custom icon set is ready
+        case 'cashMultiple':
+            return <MaterialCommunityIcon name="cash-multiple" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
+        case 'accountBoxMultiple':
+            return <MaterialCommunityIcon name="account-box-multiple" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
+        case 'cogs':
+            return <MaterialCommunityIcon name="cogs" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
+        case 'information':
+            return <MaterialCommunityIcon name="information" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
+
         default: return null
     }
 }

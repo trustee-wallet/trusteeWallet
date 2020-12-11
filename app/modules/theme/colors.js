@@ -112,6 +112,9 @@ export const lightColors = {
       walletItemBgActive: ['#F3F1F6', '#F3F1F6'],
       walletItemBorderColor: '#864DD9',
       advanceWalletNameBg: '#EBEBEB'
+    },
+    fio: {
+        borderColorLight: '#e3e6e9',
     }
 };
 
@@ -229,5 +232,8 @@ export const darkColors = {
       walletItemBgActive: ['#F3F1F6', '#F3F1F6'],
       walletItemBorderColor: '#864DD9',
       advanceWalletNameBg: '#EBEBEB'
+    },
+    fio: {
+        borderColorLight: '#404040',
     }
 };
