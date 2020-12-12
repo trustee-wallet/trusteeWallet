@@ -144,6 +144,7 @@ export default new class CashBackUtils {
             await AsyncStorage.setItem('walletToken', cashbackToken)
             this.walletToken = cashbackToken
             this.walletPublicAddress = address
+            tmp.cashbackToken = cashbackToken
             return tmp
         } catch (e) {
             Log.err('SRV/CashBack createWalletSignature error ' + e.message, e)
