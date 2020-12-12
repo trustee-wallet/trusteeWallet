@@ -1055,7 +1055,7 @@ class SendScreen extends SendBasicScreenScreen {
                                     subtype={network}
                                     cuttype={currencySymbol}
                                     paste={true}
-                                    fio={true} // disabled => receipt!
+                                    fio={false} // @todo later
                                     copy={false}
                                     qr={true}
                                     qrCallback={() => {
