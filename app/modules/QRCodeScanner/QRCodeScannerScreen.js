@@ -139,12 +139,11 @@ class QRCodeScannerScreen extends Component {
                     comment: parsed.label
                 })
             } else if (type === 'ADD_CUSTOM_TOKEN_SCANNER') {
-                // @todo qr code scanner for add asset without sendStore
-                //     setSendData({
-                //         isToken: true,
-                //        address: res.data.address || res.data.parsedUrl
-                //     })
-                //    NavStore.goNext('AddAssetScreen' )
+                NavStore.goNext('AddAssetScreen', {
+                    tokenData : {
+                        address: res.data.address || res.data.parsedUrl
+                    }
+                } )
             } else if (type === 'SEND_SCANNER') {
                 if (res.status === 'success' && res.data.currencyCode === currencyCode) {
 

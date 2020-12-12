@@ -58,16 +58,10 @@ class AddAssetScreen extends React.Component {
     }
 
     checkIfWasScanned = () => {
-        // @todo qr code scanner for add asset without sendStore
-        /*
-        if (Object.keys(this.props.sendStore).length !== 0) {
-            const { isToken, address } = this.props.sendStore
-
-            if (isToken) {
-                this.setState(() => ({ customAddress: address }))
-            }
+        const data = this.props.navigation.getParam('tokenData')
+        if (data && typeof data !== 'undefined' && typeof data.address !== 'undefined' && data.address) {
+            this.setState({ customAddress: data.address })
         }
-        */
     }
 
     prepareData = (assets = this.props.assets, newTab, searchQuery) => {
