@@ -196,7 +196,7 @@ class FioSendRequest extends Component {
                     leftAction={this.handleBack}
                     rightType="close"
                     rightAction={this.handleClose}
-                    title={strings('fioMainSettings.title')}
+                    title={strings('FioSendRequest.title')}
                     setHeaderHeight={this.setHeaderHeight}
                 />
 
