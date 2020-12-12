@@ -25,6 +25,7 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import Tabs from '../../components/elements/new/Tabs'
 import ListItem from '../../components/elements/new/list/ListItem/Notification'
+import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
 
 const NOTIFIES_GROUP = {
@@ -172,7 +173,7 @@ class NotificationsScreen extends React.Component {
                 title={title || subtitle}
                 subtitle={title ? subtitle : null}
                 iconType={getIconType(item)}
-                onPress={() => this.handleOpenNotification(item, title || subtitle)}
+                onPress={() => this.handleOpenNotification(item, title || subtitle, subtitle)}
                 rightContent={(item.newsGroup === NOTIFIES_GROUP.BSE_ORDERS || item.newsGroup === NOTIFIES_GROUP.NEWS) ? 'arrow' : null}
                 isNew={item.newsOpenedAt === null}
                 last={index === section.data.length - 1}
@@ -180,7 +181,7 @@ class NotificationsScreen extends React.Component {
         )
     }
 
-    handleOpenNotification = async (notification, title) => {
+    handleOpenNotification = async (notification, title, subtitle) => {
         if (notification.newsOpenedAt === null) {
             await AppNewsActions.markAsOpened(notification.id)
         }
@@ -206,6 +207,13 @@ class NotificationsScreen extends React.Component {
                     orderHash,
                     walletHash : notification.walletHash
                 }
+            })
+        } else {
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: title,
+                description: subtitle
             })
         }
 
