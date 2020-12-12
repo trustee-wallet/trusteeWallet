@@ -195,17 +195,29 @@ class SendScreen extends SendBasicScreenScreen {
                 }
                 if (typeof sendScreenData.amountPretty !== 'undefined' && sendScreenData.amountPretty && sendScreenData.amountPretty !== '') {
                     try {
+                        let value = ''
+                        let amount = ''
                         if (this.state.inputType === 'FIAT') {
-                            const value = sendScreenData.amountPretty.toString()
+                            value = sendScreenData.amountPretty.toString()
                             const {currencyCode, basicCurrencyRate} = account
-                            let amount = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
+                            amount = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
                             amount = UtilsService.cutNumber(amount, 2)
+                            console.log('_SendScreen.setStateFromInit amount1 ', amount)
                             this.valueInput.handleInput(amount, false)
-                            this.recountFees(sendScreenData)
                         } else {
-                            this.valueInput.handleInput(sendScreenData.amountPretty.toString(), false)
-                            this.recountFees(sendScreenData)
+                            value = sendScreenData.amountPretty.toString()
+                            amount = sendScreenData.amountPretty.toString()
+                            console.log('_SendScreen.setStateFromInit amount2 ', amount)
+                            this.valueInput.handleInput(amount, false)
                         }
+                        const { amountEquivalent, amountInputMark} = this.amountEquivalent(value)
+                        this.setState({
+                            amountEquivalent: amountEquivalent,
+                            amountInputMark: amountInputMark,
+                            balancePart: 0,
+                        })
+                        this.recountFees(sendScreenData)
+
                     } catch (e) {
 
                     }
@@ -230,10 +242,12 @@ class SendScreen extends SendBasicScreenScreen {
 
         if (inputType === 'FIAT') {
             amountEquivalent = toEquivalent
-            this.valueInput.handleInput(toInput)
+            console.log('_SendScreen.handleChangeEquivalentType amount1 ', toInput)
+            this.valueInput.handleInput(toInput, false)
         } else {
             amountEquivalent = toEquivalent
-            this.valueInput.handleInput(toInput)
+            console.log('_SendScreen.handleChangeEquivalentType amount2 ', toInput)
+            this.valueInput.handleInput(toInput, false)
         }
 
         this.setState({
@@ -287,15 +301,24 @@ class SendScreen extends SendBasicScreenScreen {
             // console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} addressToForTransferAll ${addressToForTransferAll}`)
 
             const { countedFees, selectedFee } = await this.recountFees(newSendScreenData)
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(countedFees.selectedTransferAllBalance)
+            let amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(countedFees.selectedTransferAllBalance)
             newSendScreenData.amountPretty = amount
             newSendScreenData.inputValue = amount
             newSendScreenData.selectedFee = selectedFee
 
             // console.log(`Send.SendScreen.handleTransferAll`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))
+
+            if (typeof amount !== 'undefined' && amount !== null) {
+                amount = UtilsService.cutNumber(amount, 7).toString()
+            } else {
+                amount = 0
+            }
+            const { amountEquivalent, amountInputMark} = this.amountEquivalent(amount, 'CRYPTO')
             this.setState({
                 inputType: 'CRYPTO',
                 useAllFunds: true,
+                amountEquivalent: amountEquivalent,
+                amountInputMark: amountInputMark,
                 sendScreenData : newSendScreenData
             })
 
@@ -305,7 +328,8 @@ class SendScreen extends SendBasicScreenScreen {
                     && typeof this.valueInput.handleInput !== 'undefined' && this.valueInput.handleInput
                     && typeof amount !== 'undefined' && amount !== null
                 ) {
-                    this.valueInput.handleInput(UtilsService.cutNumber(amount, 7).toString(), false)
+                    console.log('_SendScreen.handleTransferAll amount ', amount)
+                    this.valueInput.handleInput(amount, false)
                 }
             } catch (e) {
                 e.message += ' while this.valueInput.handleInput amount ' + amount
@@ -569,6 +593,42 @@ class SendScreen extends SendBasicScreenScreen {
 
     }
 
+    amountEquivalent = (value, inputType = false) => {
+        const { currencySymbol, currencyCode } = this.state.cryptoCurrency
+        const { basicCurrencySymbol, basicCurrencyRate } = this.state.account
+        if (inputType === false) {
+            inputType = this.state.inputType
+        }
+        let amountEquivalent = 0
+        let symbolEquivalent = currencySymbol
+        let valueCrypto = 0
+        try {
+            if (!value || value === 0) {
+                amountEquivalent = 0
+                symbolEquivalent = ''
+            } else if (inputType === 'CRYPTO') {
+                valueCrypto = value
+                amountEquivalent = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
+                amountEquivalent = UtilsService.cutNumber(amountEquivalent, 2)
+                symbolEquivalent = basicCurrencySymbol
+            } else {
+                amountEquivalent = RateEquivalent.div({ value, currencyCode, basicCurrencyRate })
+                amountEquivalent = UtilsService.cutNumber(amountEquivalent, 7)
+                if (amountEquivalent === '0') {
+                    amountEquivalent = UtilsService.cutNumber(amountEquivalent, 10)
+                }
+                valueCrypto = amountEquivalent
+            }
+        } catch (e) {
+            // console.log('Send.SendScreen equivalent error ' + e.message + ' ' + JSON.stringify({ value, currencyCode, basicCurrencyRate }))
+        }
+        return {
+            amountEquivalent,
+            amountInputMark: `${amountEquivalent} ${symbolEquivalent}`,
+            valueCrypto
+        }
+    }
+
     amountInputCallback = async (value, changeUseAllFunds, addressTo = false, memo = false, addressValidateType = '') => {
         try {
             const { useAllFunds } = this.state
@@ -587,7 +647,7 @@ class SendScreen extends SendBasicScreenScreen {
             if (addressTo === false) {
                 if (this.state.contactAddress) {
                     addressTo = this.state.contactAddress
-                    this.valueInput.handleInput(this.state.contactName.toString(), false)
+                    this.addressInput.handleInput(this.state.contactName.toString(), false)
                 } else {
                     const addressValidate = await this.addressInput.handleValidate()
                     if (addressValidate.status === 'success') {
@@ -642,34 +702,15 @@ class SendScreen extends SendBasicScreenScreen {
                 })
             }
 
-            let amount = 0
-            let symbol = currencySymbol
-            let valueCrypto = 0
-            try {
-                if (!value || value === 0) {
-                    amount = 0
-                    symbol = ''
-                } else if (this.state.inputType === 'CRYPTO') {
-                    valueCrypto = value
-                    amount = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
-                    amount = UtilsService.cutNumber(amount, 2)
-                    symbol = basicCurrencySymbol
-                } else {
-                    amount = RateEquivalent.div({ value, currencyCode, basicCurrencyRate })
-                    amount = UtilsService.cutNumber(amount, 7)
-                    if (amount === '0') {
-                        amount = UtilsService.cutNumber(amount, 10)
-                    }
-                    valueCrypto = amount
-                }
-            } catch (e) {
-                // console.log('Send.SendScreen equivalent error ' + e.message + ' ' + JSON.stringify({ value, currencyCode, basicCurrencyRate }))
-            }
+            const { amountEquivalent, amountInputMark, valueCrypto } = this.amountEquivalent(value)
 
             const valueCryptoRaw = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(valueCrypto)
             if (value.toString() === '0' || valueCryptoRaw === "" || valueCryptoRaw === "000000000" || valueCryptoRaw === "00000000") {
                 this.setState({
-                    loadFee: false
+                    loadFee: false,
+                    amountEquivalent: amountEquivalent,
+                    amountInputMark: amountInputMark,
+                    balancePart: 0,
                 })
                 IS_CALLED_BACK = false
                 return true
@@ -707,8 +748,8 @@ class SendScreen extends SendBasicScreenScreen {
 
 
             this.setState({
-                amountEquivalent: amount,
-                amountInputMark: `${amount} ${symbol}`,
+                amountEquivalent: amountEquivalent,
+                amountInputMark: amountInputMark,
                 balancePart: 0,
                 loadFee: false,
                 sendScreenData: newSendScreenData
