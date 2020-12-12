@@ -55,6 +55,7 @@ class FioRequestDetails extends Component {
 
             SendActions.startSend({
                 gotoReceipt : true,
+                uiType : 'FIO_REQUESTS',
                 fioRequestDetails : this.state.requestDetailData,
                 currencyCode : currency.currencyCode,
             })

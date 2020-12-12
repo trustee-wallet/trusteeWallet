@@ -318,22 +318,23 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 await transactionActions.saveTransaction(transaction, line + ' HANDLE SEND ')
             }
 
-            /*
-            if (fioRequestDetails) {
+
+            if (typeof sendScreenData.fioRequestDetails !== 'undefined' && sendScreenData.fioRequestDetails) {
+                const tmp = sendScreenData.fioRequestDetails
                 await recordFioObtData({
-                    fioRequestId: fioRequestDetails.fio_request_id,
-                    payerFioAddress: fioRequestDetails.payer_fio_address,
-                    payeeFioAddress: fioRequestDetails.payee_fio_address,
-                    payerTokenPublicAddress: addressFrom,
-                    payeeTokenPublicAddress: addressTo,
-                    amount: amountRaw,
+                    fioRequestId: tmp.fio_request_id,
+                    payerFioAddress: tmp.payer_fio_address,
+                    payeeFioAddress: tmp.payee_fio_address,
+                    payerTokenPublicAddress: txData.addressFrom,
+                    payeeTokenPublicAddress: txData.addressTo,
+                    amount: txData.amountRaw,
                     chainCode: currencyCode,
                     tokenCode: currencyCode,
-                    obtId: tx.hash,
-                    memo: fioRequestDetails.memo
+                    obtId: tx.transactionHash,
+                    memo: tmp.memo
                 })
             }
-            */
+
             hideModal()
 
             let successMessage = strings('modal.send.txSuccess')
@@ -446,6 +447,13 @@ class ReceiptScreen extends SendBasicScreenScreen {
         if (contactName === address) {
             contactName = false
         }
+        let isFioRequest = false
+        if (typeof sendScreenData.fioRequestDetails !== 'undefined' && typeof sendScreenData.fioRequestDetails.content !== 'undefined') {
+            memo = sendScreenData.fioRequestDetails.content.memo // dont do inside is different fields actually!
+            isFioRequest = true
+        }
+
+
         if (typeof selectedFee !== 'undefined' && selectedFee) {
             if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined') {
                 const newAmount = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makePretty(selectedFee.amountForTx)
@@ -503,9 +511,11 @@ class ReceiptScreen extends SendBasicScreenScreen {
             address = multiAddress[0]
             multiShow = multiAddress
         }
-        let memoTitle = strings('send.receiptScreen.destinationTag')
+        let memoTitle = strings('send.xrp_memo')
         if (account.currencyCode === 'XMR') {
-            memoTitle = strings('send.receiptScreen.paymentId')
+            memoTitle = strings('send.xmr_memo')
+        } else if (isFioRequest) {
+            memoTitle = strings('send.fio_memo')
         }
 
 
