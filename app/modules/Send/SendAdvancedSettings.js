@@ -177,8 +177,10 @@ class SendAdvancedSettingsScreen extends Component {
                             needSpeed = ''
                         }
 
+                        const fiatFee = Number(feeBasicAmount) < 0.01 ? `${feeBasicCurrencySymbol} ${feeBasicAmount}` : `> ${feeBasicCurrencySymbol} 0.01`
+
                         let subtitle
-                        if (item.langMsg === selectedFee.langMsg && !isCustomFee) {
+                        // if (item.langMsg === selectedFee.langMsg && !isCustomFee) {
                             subtitle = `${prettyFee} ${prettyFeeSymbol}`
                             if (devFee) {
                                 subtitle += ` ${devFee}`
@@ -189,10 +191,10 @@ class SendAdvancedSettingsScreen extends Component {
                                     subtitle += `\n${needSpeed}`
                                 }
                             }
-                            subtitle += ` / ${feeBasicCurrencySymbol} ${feeBasicAmount}`
-                        }
+                            subtitle += `\n${fiatFee}`
 
                         return (
+                            // eslint-disable-next-line react/jsx-key
                             <SubSetting
                                 title={strings(`send.fee.text.${item.langMsg}`)}
                                 subtitle={subtitle}

@@ -96,7 +96,7 @@ class CustomFee extends Component {
         const { colors, GRID_SIZE } = this.context
 
         const prettyFeeSymbol = this.props.feesCurrencyCode || this.props.currencyCode
-        const customFee = `Sum ${this.state.selectedFee.feeForByte} SAT : ${this.state.prettyFee} ${prettyFeeSymbol} / ${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`
+        const customFee = `Calculeted fee: ${this.state.selectedFee.feeForByte} SAT : \n${this.state.prettyFee} ${prettyFeeSymbol} / ` + (Number(this.state.feeBasicAmount) < 0.01 ? ` > ${this.props.basicCurrencySymbol} 0.01` : `${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`)
 
         return (
             <View style={{ marginTop: 10 }}>

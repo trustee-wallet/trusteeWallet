@@ -15,6 +15,7 @@ import ToolTips from '../../components/elements/ToolTips'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
 import LetterSpacing from '../../components/elements/LetterSpacing'
 import Loader from '../../components/elements/LoaderItem'
+import IconAwesome from 'react-native-vector-icons/FontAwesome'
 
 import Transaction from './elements/Transaction'
 
@@ -79,8 +80,11 @@ class Account extends Component {
 
             firstCall: true,
             fioMemo: {},
-            scrollOffset: 0
+            scrollOffset: 0,
+            isBalanceVisible: false,
+            originalVisibility: false
         }
+        this.getBalanceVisibility()
     }
 
     // eslint-disable-next-line camelcase
@@ -124,6 +128,23 @@ class Account extends Component {
         }
         this.transactionInfinity()
         this.ordersWithoutTransactions()
+    }
+
+    getBalanceVisibility = async () => {
+        try {
+            const res = await AsyncStorage.getItem('isBalanceVisible')
+            const originalVisibility = res !== null ? JSON.parse(res) : true
+
+            this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
+        } catch (e) {
+            Log.err(`AccountScreen getBalanceVisibility error ${e.message}`)
+        }
+    }
+
+    triggerBalanceVisibility = () => {
+        console.log('hsfj sdljf ls')
+        if (this.state.originalVisibility) return
+        this.setState(state => ({ isBalanceVisible: !state.isBalanceVisible }))
     }
 
     updateOffset = (offset) => {
@@ -246,33 +267,38 @@ class Account extends Component {
 
         const isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
+        const { colors, GRID_SIZE } = this.context
+
         return (
-            <View style={{ flexDirection: 'column' }}>
-                <View style={{ marginTop: 24, flexDirection: 'row' }}>
-                    <View style={{ flexDirection: 'column' }}>
+            <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE }}>
+                <View style={{ marginTop: 24, flexDirection: 'row', position: 'relative', justifyContent: 'space-between' }}>
+                    <View style={{ flexDirection: 'row' }} >
                         <Text style={styles.transaction_title}>{strings('account.history')}</Text>
-                    </View>
-                    <View style={styles.scan}>
-                        {isSynchronized ?
-                            <Text style={styles.scan__text} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? 
-                                strings('account.justScan') : strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
-                            :
-                            <View style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                marginRight: 10,
-                                marginTop: -12
-                            }}><Text style={{
-                                ...styles.transaction__empty_text, ...{
-                                    marginLeft: 10,
+                        <View style={styles.scan}>
+                            {isSynchronized ?
+                                <Text style={styles.scan__text} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? 
+                                    strings('account.justScan') : strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
+                                :
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
                                     marginRight: 10,
-                                    marginTop: 0
-                                }
-                            }}>{strings('homeScreen.synchronizing')}</Text>
-                                <Loader size={14} color={'#999999'} />
-                            </View>
-                        }
+                                    marginTop: -12
+                                }}><Text style={{
+                                    ...styles.transaction__empty_text, ...{
+                                        marginLeft: 10,
+                                        marginRight: 10,
+                                        marginTop: 0
+                                    }
+                                }}>{strings('homeScreen.synchronizing')}</Text>
+                                    <Loader size={14} color={'#999999'} />
+                                </View>
+                            }
+                        </View>
                     </View>
+                    <TouchableOpacity style={{ justifyContent: 'center', marginRight: 16}} onPress={() => this.handleRefresh()} >
+                        <IconAwesome name='gear' size={24} color={colors.accountScreen.showMoreColor} />
+                    </TouchableOpacity>
                 </View>
                 {
                     !props.allTransactionsToView.length ?
@@ -370,6 +396,19 @@ class Account extends Component {
 
     }
 
+    getPrettyCurrenceName = (currencyCode, currencyName) => {
+        switch(currencyCode){
+            case 'USDT':
+                return 'Tether Bitcoin'
+            case 'ETH_USDT':
+                return 'Tether Etherium'
+            case 'TRX_USDT':
+                return 'Tether Tron'
+            default:
+                return currencyName
+        }
+    }
+
     render() {
         // noinspection ES6MissingAwait
         firebase.analytics().setCurrentScreen('Account.AccountScreen')
@@ -379,8 +418,8 @@ class Account extends Component {
         const { colors, isLight } = this.context
         const { mode, openTransactionList } = this.state
         const { mainStore, account, cryptoCurrency, settingsStore } = this.props
-        // const { btcShowTwoAddress = 1 } = settingsStore.data
-        const { amountToView, show, transactionsToView, transactionsTotalLength, transactionsShownLength } = this.state
+        const { btcShowTwoAddress = 1 } = settingsStore.data
+        const { amountToView, show, transactionsToView, transactionsTotalLength, transactionsShownLength, isBalanceVisible } = this.state
 
         const allTransactionsToView = this.state.ordersWithoutTransactions.slice(0,3).concat(transactionsToView)
 
@@ -414,14 +453,16 @@ class Account extends Component {
             MarketingEvent.logEvent('view_account', logData)
         }
 
+
         // @todo yura
-        console.log('PLZ SHOW SOMEWHERE IT TOP - ITS LIKE TRANSACTIONS BUT NOT ', this.state.ordersWithoutTransactions.slice(0,3))
+        // console.log('PLZ SHOW SOMEWHERE IT TOP - ITS LIKE TRANSACTIONS BUT NOT ', this.state.ordersWithoutTransactions.slice(0,3))
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
                     rightType="close"
                     rightAction={this.closeAction}
-                    title={strings('account.title').toUpperCase()}
+                    // title={strings('account.title').toUpperCase()}
+                    title={this.getPrettyCurrenceName(cryptoCurrency.currencyCode, cryptoCurrency.currencyName)}
                     setHeaderHeight={this.setHeaderHeight}
                     ExtraView={() => { return (
                         <BalanceHeader 
@@ -430,6 +471,8 @@ class Account extends Component {
                             actionReceive={this.handleReceive}
                             actionBuy={this.handleBuy}
                             actionSend={this.handleSend}
+                            isBalanceVisible={isBalanceVisible}
+                            visibleAction={this.triggerBalanceVisibility}
                         />
                     ) }}
                     scrollOffset={this.state.scrollOffset}
@@ -452,6 +495,8 @@ class Account extends Component {
                             cryptoCurrency={cryptoCurrency}
                             settingsStore={settingsStore}
                             cacheAsked={CACHE_ASKED}
+                            isBalanceVisible={isBalanceVisible}
+                            visibleAction={this.triggerBalanceVisibility}
                         />
                         <AccountButtons 
                             title={true}
@@ -461,7 +506,7 @@ class Account extends Component {
                         />
                         <View style={{
                             flex: 1,
-                            alignItems: 'flex-start',
+                            // alignItems: 'flex-start',
                             height: mode === 'TRANSACTIONS' ? 'auto' : 0,
                             overflow: 'hidden'
                         }}>
@@ -490,7 +535,7 @@ class Account extends Component {
                                                 fioMemo={fioMemo[item.transactionHash]}
                                                 account={account}
                                                 cryptoCurrency={cryptoCurrency}
-                                                dash={(transactionsTotalLength - 1 === index) ? this.renderDash : !this.renderDash}
+                                                dash={(allTransactionsToView - 1 === index) ? this.renderDash : !this.renderDash}
 
                                             />
                                         }) : null
@@ -577,7 +622,7 @@ const styles = {
         end: { x: 1, y: 1 }
     },
     transaction_title: {
-        marginLeft: 31,
+        marginLeft: 16,
         marginBottom: 10,
         color: '#404040',
         fontSize: 17,

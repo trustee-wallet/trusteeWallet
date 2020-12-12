@@ -421,7 +421,7 @@
     "receive": "%{receive}",
     "send": "Send",
     "history": "Transactions",
-    "scan": "scanned %{time} min ago ",
+    "scan": " %{time} min ago ",
     "justScan": "just scanned",
     "noTransactions": "You don’t have any transaction yet.",
     "showMore": "Show more",

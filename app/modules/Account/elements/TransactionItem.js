@@ -14,6 +14,8 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 
 import { useTheme } from '../../theme/ThemeProvider'
 
+import InsertShadow from 'react-native-inset-shadow'
+
 const getIcon = (iconType, color) => {
     switch (iconType) {
         case 'wallet':
@@ -57,24 +59,26 @@ const TransactionItem = (props) => {
                     </View>
                 </View>
                 :
-                <>
-                    <View style={{ ...styles.wrapper, padding: GRID_SIZE, flexDirection: 'row' }} >
-                        {iconType && (
-                            <View style={styles.icon}>
-                                {getIcon(iconType, colors.common.text1)}
-                            </View>
-                        )}
-                        <View style={styles.mainContent}>
-                            <View style={[styles.textContent, { paddingVertical: 3 }]}>
-                                <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
-                                {!!subtitle && 
-                                    <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>}
+                <>  
+                    <InsertShadow containerStyle={{ flex: 1, borderRadius: 16, justifyContent: 'center', backgroundColor: '#F2F2F2' }} shadowRadius={5} shadowColor={'#999999'} >
+                        <View style={{ ...styles.wrapper, flexDirection: 'row', padding: GRID_SIZE }} >
+                            {iconType && (
+                                <View style={styles.icon}>
+                                    {getIcon(iconType, colors.common.text1)}
+                                </View>
+                            )}
+                            <View style={styles.mainContent}>
+                                <View style={[styles.textContent, { paddingVertical: 3 }]}>
+                                    <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
+                                    {!!subtitle && 
+                                        <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>}
+                                </View>
                             </View>
                         </View>
-                    </View>
-                    <View style={styles.shadow}>
+                    </InsertShadow>
+                    {/* <View style={styles.shadow} >
                         <View style={styles.shadowItem} />
-                    </View>
+                    </View> */}
                 </>
             }
         </View>
@@ -88,7 +92,7 @@ const styles = {
     wrapper: {
         borderRadius: 16,
         width: '100%',
-        backgroundColor: '#F2F2F2',
+        // backgroundColor: '#F2F2F2',
         position: 'relative',
 
         zIndex: 2,
