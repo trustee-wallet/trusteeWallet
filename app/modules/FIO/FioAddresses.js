@@ -93,7 +93,7 @@ class FioAddresses extends Component {
                     leftAction={this.handleBack}
                     rightType="close"
                     rightAction={this.handleClose}
-                    title={strings('fioMainSettings.title')}
+                    title={strings('FioAddresses.title')}
                     setHeaderHeight={this.setHeaderHeight}
                 />
 
