@@ -443,6 +443,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
         let address = sendScreenData.addressTo || ''
         let memo = sendScreenData.memo || ''
         let contactName = sendScreenData.contactName || false
+        if (contactName === address) {
+            contactName = false
+        }
         if (typeof selectedFee !== 'undefined' && selectedFee) {
             if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined') {
                 const newAmount = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makePretty(selectedFee.amountForTx)
