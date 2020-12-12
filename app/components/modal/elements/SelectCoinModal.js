@@ -115,7 +115,7 @@ export class SelectCoinModal extends Component {
 }
 
 const styles_ = {
-    array: ['#43156d', '#7127ab'],
+    array: ['#222', '#555'],
     start: { x: 0.0, y: 0.5 },
     end: { x: 1, y: 0.5 }
 }
@@ -130,7 +130,7 @@ const styles = {
     content: {
         //height: 450,
         borderRadius: 14,
-        backgroundColor: '#43156d',
+        backgroundColor: '#333',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,

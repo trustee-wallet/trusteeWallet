@@ -2,10 +2,10 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, TextInput, KeyboardAvoidingView, TouchableOpacity, Linking, ScrollView  } from 'react-native'
+import { View, Text, KeyboardAvoidingView, TouchableOpacity, SafeAreaView, ScrollView  } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/Button'
+import Button from '../../components/elements/new/buttons/Button'
 import { strings } from '../../services/i18n'
 import Feather from 'react-native-vector-icons/Feather'
 import NavStore from '../../components/navigation/NavStore'
@@ -19,6 +19,10 @@ import config from '../../config/config'
 
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import Netinfo from '../../services/Netinfo/Netinfo'
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import Header from '../../components/elements/new/Header'
+import TextInput from '../../components/elements/new/TextInput'
+import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 
 
 
@@ -35,7 +39,13 @@ class FioSendRequest extends Component {
             enabledCryptoCurrencies: [],
             availableCryptoCurrencies: [],
             isLoading: false,
+            headerHeight: 0,
         }
+    }
+
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
     }
 
     async componentDidMount() {
@@ -142,7 +152,7 @@ class FioSendRequest extends Component {
 
         const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
         if (fioAccount && fioAccount.address) {
-            Linking.openURL(`${apiEndpoints.registrationSiteURL}${fioAccount.address}`)
+            NavStore.goNext('WebViewScreen', { url: `${apiEndpoints.registrationSiteURL}${fioAccount.address}`, title: strings('FioSendRequest.registerFioAddress') })
         }
     }
 
@@ -168,14 +178,33 @@ class FioSendRequest extends Component {
         return this.state.availableCryptoCurrencies.find(i => i.currencyCode === this.state.currencyCode)
     }
 
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('DashboardStack') }
+
     render() {
         const selectedCurrencyName = this.getSelectedCurrency()?.currencyName
 
-        return (
-            <View>
-                <Navigation title={strings('FioSendRequest.title')}/>
+        const { colors, GRID_SIZE } = this.context
 
-                <View style={{paddingTop: 90, height: '100%'}}>
+        const { headerHeight } = this.state
+
+        return (
+            <View style={[styles.containerMain, { backgroundColor: colors.common.background }]}>
+                <Header
+                    leftType="back"
+                    leftAction={this.handleBack}
+                    rightType="close"
+                    rightAction={this.handleClose}
+                    title={strings('fioMainSettings.title')}
+                    setHeaderHeight={this.setHeaderHeight}
+                />
+
+                <SafeAreaView style={[styles.content, {
+                    backgroundColor: colors.common.background,
+                    marginTop: headerHeight,
+                    height: '100%',
+                }]}>
                     <View style={styles.container}>
                         {
                             !this.state.isLoading ?
@@ -236,7 +265,8 @@ class FioSendRequest extends Component {
                                                     markStyle={styles.cryptoList__icon__mark}
                                                     markTextStyle={styles.cryptoList__icon__mark__text}
                                                     iconStyle={styles.cryptoList__icon}/>
-                                                <Text style={styles.subheaderTxt}>{selectedCurrencyName}</Text>
+                                                <Text style={[styles.subheaderTxt, { color: colors.common.text3 }]} >{selectedCurrencyName}</Text>
+
                                             </TouchableOpacity> : null
                                     }
 
@@ -246,64 +276,55 @@ class FioSendRequest extends Component {
 
                         { this.state.payeeFioAddress ?
                             <ScrollView showsVerticalScrollIndicator={false}>
-                                <KeyboardAvoidingView style={{flex: 1,}} behavior="padding" enabled>
-                                    <View style={styles.input__wrapper}>
-                                        <View style={styles.input__desc__wrapper}>
-                                            <Text style={styles.txt}>{strings('FioSendRequest.from')}</Text>
-                                            <Feather style={styles.wrapper__icon} name='edit'/>
+                                <KeyboardAvoidingView style={{flex: 1}} behavior="padding" enabled>
+
+                                    <View style={{marginHorizontal: 0}}>
+                                        <View style={styles.input__wrapper}>
+                                            <TextInput
+                                                placeholder={strings('FioSendRequest.from')}
+                                                value={this.state.payeeFioAddress}
+                                                editable={false}
+                                            />
                                         </View>
-                                        <TextInput
-                                            style={[styles.input, {opacity: 0.8}]}
-                                            editable={false}
-                                            value={this.state.payeeFioAddress}
-                                        />
+
+                                        <View style={styles.input__wrapper}>
+                                            <TextInput
+                                                placeholder={strings('FioSendRequest.to')}
+                                                value={this.state.payerFioAddress}
+                                                onChangeText={(text) => this.setState({payerFioAddress: text})}
+                                                HelperAction={() => <AntDesignIcon name="edit" size={23}
+                                                                                   color={this.context.colors.common.text2}/>}
+                                            />
+                                        </View>
+
+                                        <View style={styles.input__wrapper}>
+                                            <TextInput
+                                                placeholder={strings('FioSendRequest.amount')}
+                                                value={this.state.amount}
+                                                onChangeText={(text) => this.setState({amount: text})}
+                                                HelperAction={() => <AntDesignIcon name="edit" size={23}
+                                                                                   color={this.context.colors.common.text2}/>}
+                                            />
+                                        </View>
+
+                                        <View style={styles.input__wrapper}>
+                                            <TextInput
+                                                placeholder={strings('FioSendRequest.memo')}
+                                                value={this.state.memo}
+                                                onChangeText={(text) => this.setState({memo: text})}
+                                                HelperAction={() => <AntDesignIcon name="edit" size={23}
+                                                                                   color={this.context.colors.common.text2}/>}
+                                            />
+                                        </View>
                                     </View>
 
 
-                                    <View style={styles.input__wrapper}>
-                                        <View style={styles.input__desc__wrapper}>
-                                            <Text style={styles.txt}>{strings('FioSendRequest.to')}</Text>
-                                            <Feather style={styles.wrapper__icon} name='edit'/>
-                                        </View>
-                                        <TextInput
-                                            style={styles.input}
-                                            onChangeText={(text) => this.setState({payerFioAddress: text})}
-                                            value={this.state.payerFioAddress}
+
+                                    <View style={{marginTop: 20, paddingHorizontal: 8}}>
+                                        <Button
+                                            title={strings('FioSendRequest.btnText')}
+                                            onPress={this.handleNext}
                                         />
-                                    </View>
-
-                                    <View style={styles.input__wrapper}>
-                                        <View style={styles.input__desc__wrapper}>
-                                            <Text style={styles.txt}>{strings('FioSendRequest.amount')}</Text>
-                                            <Feather style={styles.wrapper__icon} name='edit'/>
-                                        </View>
-                                        <TextInput
-                                            style={styles.input}
-                                            onChangeText={(text) => this.setState({amount: text})}
-                                            value={this.state.amount}
-                                        />
-                                    </View>
-
-
-                                    <View style={styles.input__wrapper}>
-                                        <View style={styles.input__desc__wrapper}>
-                                            <Text style={styles.txt}>{strings('FioSendRequest.memo')}</Text>
-                                            <Feather style={styles.wrapper__icon} name='edit'/>
-                                        </View>
-                                        <TextInput
-                                            multiline={false}
-                                            numberOfLines={1}
-                                            style={styles.input}
-                                            onChangeText={(text) => this.setState({memo: text})}
-                                            value={this.state.memo}
-                                        />
-                                    </View>
-
-
-                                    <View style={{marginTop: 20}}>
-                                        <Button press={this.handleNext}>
-                                            {strings('FioSendRequest.btnText')}
-                                        </Button>
                                     </View>
                                 </KeyboardAvoidingView>
                             </ScrollView>
@@ -311,7 +332,7 @@ class FioSendRequest extends Component {
                         }
 
                     </View>
-                </View>
+                </SafeAreaView>
             </View>
         );
     }
@@ -323,12 +344,18 @@ const mapStateToProps = (state) => ({
     currencyStore: state.currencyStore
 })
 
+FioSendRequest.contextType = ThemeContext
+
 export default connect(mapStateToProps, {})(FioSendRequest)
 
 const styles = {
 
+    containerMain: {
+        flex: 1,
+    },
+
     container: {
-        padding: 30,
+        padding: 20,
         height: '100%',
         flexDirection: 'column',
         flex: 1,
@@ -339,7 +366,7 @@ const styles = {
         paddingHorizontal: 20,
         margin: 10,
         borderRadius: 10,
-        backgroundColor: '#6B36A8',
+        backgroundColor: '#404040',
     },
 
     popup_txt: {
@@ -385,8 +412,8 @@ const styles = {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: -25,
-        marginBottom: 15,
+        marginTop: 0,
+        marginBottom: 10,
     },
 
     subheaderTxt: {
@@ -397,7 +424,7 @@ const styles = {
     },
 
     input__wrapper: {
-        paddingBottom: 5,
+        padding: 8,
     },
 
     input__desc__wrapper: {
