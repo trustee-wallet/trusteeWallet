@@ -52,6 +52,7 @@ import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 
 import InsertShadow from 'react-native-inset-shadow'
 import GradientView from '../../components/elements/GradientView'
+import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 
 
 class TransactionScreen extends Component {
@@ -101,13 +102,22 @@ class TransactionScreen extends Component {
             } else if (orderHash) {
                 try {
                     const tmp = await transactionDS.getTransactions({
-                        walletHash,
                         bseOrderHash : orderHash,
                     }, 'TransactionScreen.init with orderHash ' + orderHash)
                     if (tmp) {
                         tx = tmp[0]
                     } else {
-                        // order for buy !!!!
+                        const exchangeOrder = await UpdateTradeOrdersDaemon.fromApi(walletHash, orderHash)
+                        if (exchangeOrder) {
+                            // @yura - its basic object for order without transaction
+                            tx = {
+                                transactionHash : orderHash,
+                                createdAt : exchangeOrder.createdAt,
+                                bseOrderData: exchangeOrder
+                            }
+                        } else {
+                            // do some alert as nothing found
+                        }
                     }
                 } catch (e) {
                     console.log('TransactionScreen.init with orderHash error  ' + e)
@@ -572,18 +582,34 @@ class TransactionScreen extends Component {
 
         const transactionStatus = this.getTransactionStatus(orderStatus || status.toUpperCase())
 
-        let direction
-        if (typeof transaction.exchangeWayType !== 'undefined') {
-            if (transaction.exchangeWayType === 'BUY') {
-                direction = 'income'
-            } else if (transaction.exchangeWayType === 'SELL') {
-                direction = 'outcome'
-            } else if (transaction.exchangeWayType === 'EXCHANGE') {
-                if (transaction.requestedOutAmount.currencyCode !== currencyCode) {
+        // @yura thats default
+        let direction = 'outcone'
+        let amount = transaction.addressAmountPretty
+        let exchangeWay = transaction.transactionDirection || transaction.exchangeWayType
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData) {
+
+            if (typeof transaction.bseOrderData.exchangeWayType !== 'undefined') {
+
+                exchangeWay = transaction.bseOrderData.exchangeWayType
+
+                if (transaction.bseOrderData.exchangeWayType === 'BUY') {
                     direction = 'income'
-                } else {
+                } else if (transaction.bseOrderData.exchangeWayType === 'SELL') {
                     direction = 'outcome'
+                } else if (transaction.bseOrderData.exchangeWayType === 'EXCHANGE') {
+                    if (typeof transaction.bseOrderData.requestedOutAmount !== 'undefined' && typeof transaction.bseOrderData.requestedOutAmount.currencyCode !== 'undefined') {
+                        if (transaction.bseOrderData.requestedOutAmount.currencyCode !== currencyCode) {
+                            direction = 'income'
+                        } else {
+                            direction = 'outcome'
+                        }
+                    }
                 }
+
+            }
+
+            if (typeof transaction.bseOrderData.requestedOutAmount !== 'undefined' && typeof transaction.bseOrderData.requestedOutAmount.amount !== 'undefined') {
+                amount = transaction.bseOrderData.requestedOutAmount.amount
             }
         }
 
@@ -599,19 +625,12 @@ class TransactionScreen extends Component {
             arrowIcon = <Feather name="x" style={{ color: '#404040', fontSize: 17 }} />
         }
 
-        let exchangeWay
-
-        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null && transaction.bseOrderData.exchangeWayType) {
-            exchangeWay = transaction.bseOrderData.exchangeWayType
-        } else {
-            exchangeWay = transaction.transactionDirection || transaction.exchangeWayType
-        }
 
         return (
             <View style={{ width: '100%', flexDirection: 'column', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row' }}>
                     <Text style={styles.txDirection}>
-                        {capitalize(exchangeWay.toLowerCase())}
+                        {capitalize(strings('account.transaction.' + exchangeWay.toLowerCase()))}
                     </Text>
                     <View>
                         {arrowIcon}
@@ -632,7 +651,7 @@ class TransactionScreen extends Component {
                     {/* {(trx.status ? trx.status.toUpperCase() !== 'PENDING_PAYIN' : false) || (status ? status.toUpperCase() !== 'PENDING' : false) ? */}
                     <>
                         <Text style={styles.amount}>
-                            {this.prepareValueToView(transaction.addressAmountPretty || transaction.requestedOutAmount.amount, transaction.transactionDirection || direction)}
+                            {this.prepareValueToView(amount, transaction.transactionDirection || direction)}
                         </Text>
                         <Text style={{ ...styles.code, color: color }}>{cryptoCurrency.currencySymbol}</Text>
                     </>
@@ -841,6 +860,11 @@ class TransactionScreen extends Component {
 
         const { headerHeight, transaction, showMoreDetails, outDestinationCardToView,
             fromToView, addressToToView, addressExchangeToView, commentToView, commentEditable } = this.state
+
+        if (!transaction || typeof transaction === 'undefined') {
+            // @yura - its loader when state is initing from notice open - could have some "loader" mark
+            return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
+        }
 
         // console.log()
         // console.log()

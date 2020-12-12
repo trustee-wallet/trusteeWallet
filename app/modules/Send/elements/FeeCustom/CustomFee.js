@@ -72,7 +72,7 @@ class CustomFee extends Component {
                     />
             default:
 
-                return <View><Text>Default</Text></View>
+                return <View><Text></Text></View>
         }
     }
 

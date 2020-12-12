@@ -139,7 +139,7 @@ export default class SendBasicScreen extends Component {
         Log.log('Send.SendBasicScreen.renderMinerFee state', JSON.parse(JSON.stringify({ selectedFee, useAllFunds, onlyUseAllFunds })))
 
         if (typeof account === 'undefined' || !account || !sendScreenData || typeof account.basicCurrencySymbol === 'undefined' || account.basicCurrencySymbol === "") {
-            return <View></View>
+            return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
         }
 
         if (onlyUseAllFunds && !useAllFunds) {

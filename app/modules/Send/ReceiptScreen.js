@@ -432,8 +432,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
         console.log('Send.ReceiptScreen.render data', JSON.parse(JSON.stringify(sendScreenData)))
 
         if (typeof account === 'undefined' || typeof account.basicCurrencySymbol === 'undefined') {
-            return <View><Text></Text></View>
+            return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
         }
+
         let selectedFee = typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
         if (!selectedFee) {
             const tmp = SendTmpData.getCountedFees()

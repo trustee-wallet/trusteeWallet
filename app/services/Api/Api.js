@@ -55,14 +55,14 @@ export default {
         return BlocksoftAxios.get(link, false, false)
     },
 
-    getExchangeOrders: async () => {
+    getExchangeOrders: async (_requestAuthHash) => {
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
-        const signedData = await CashBackUtils.createWalletSignature(true)
+        const signedData = await CashBackUtils.createWalletSignature(true, false, _requestAuthHash)
         if (!signedData) {
             throw new Error('No signed for getExchangeOrders')
         }
-        const cashbackToken = CashBackUtils.getWalletToken()
+        const cashbackToken = signedData.cashbackToken
         if (!cashbackToken) {
             throw new Error('No cashbackToken for getExchangeOrders')
         }
@@ -104,7 +104,9 @@ export default {
                             throw new Error('UI_ERROR_IME_ERROR')
                         } else {
                             Log.daemon('Api getExchangeOrders will retry with time ' + serverTime)
-                            tmp.signedData = await CashBackUtils.createWalletSignature(true, serverTime)
+                            const tmp2 = await CashBackUtils.createWalletSignature(true, serverTime, _requestAuthHash)
+                            tmp.signedData = tmp2
+                            tmp.cashbackToken = tmp2.cashbackToken
                         }
                     } else {
                         throw new Error('UI_ERROR_NETWORK_ERROR')

@@ -23,11 +23,54 @@ let TRY_COUNTER = 0
 
 const CACHE_ORDERS = {}
 let CACHE_REMOVED = false
-
+const CACHE_ONE_ORDER = {}
 
 const LIMIT_FOR_CURRENCY = 20
 
 class UpdateTradeOrdersDaemon {
+
+    fromApi = async (walletHash, orderHash) => {
+
+        const now = new Date().getTime()
+        if ( typeof CACHE_ONE_ORDER[orderHash] !== 'undefined') {
+            const diff = now - CACHE_ONE_ORDER[orderHash].now
+            if (diff < CACHE_VALID_TIME) {
+                Log.daemon('UpdateTradeOrders.fromApi ' + orderHash + ' skipped by diff ' + diff)
+                return CACHE_ONE_ORDER[orderHash].one
+            }
+        }
+
+        Log.daemon('UpdateTradeOrders.fromApi ' + orderHash + ' loading start')
+
+        try {
+
+            const tmpTradeOrdersV3 = await ApiV3.getExchangeOrders(walletHash)
+            if (typeof tmpTradeOrdersV3 !== 'undefined' && tmpTradeOrdersV3 && tmpTradeOrdersV3.length > 0) {
+                for (const one of tmpTradeOrdersV3) {
+                    if (one.orderHash === orderHash) {
+                        CACHE_ONE_ORDER[orderHash] = {one, now}
+                        return one
+                    }
+                }
+            }
+
+            const tmpTradeOrders = await Api.getExchangeOrders(walletHash)
+            if (tmpTradeOrders && typeof tmpTradeOrders.length !== 'undefined' && tmpTradeOrders.length > 0) {
+                for (const one of tmpTradeOrders) {
+                    if (one.orderId === orderHash) {
+                        CACHE_ONE_ORDER[orderHash] = {one, now}
+                        return one
+                    }
+                }
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log(e.message + ' tmpOneOrder')
+            }
+            throw new Error(e.message + ' tmpOneOrder')
+        }
+        return false
+    }
 
     fromDB = async (walletHash) => {
         if (typeof walletHash === 'undefined' || walletHash) {

@@ -271,10 +271,9 @@ class SendAdvancedSettingsScreen extends Component {
         const { focused, countedFeesData } = this.state
 
         if (typeof countedFeesData === 'undefined' || typeof countedFeesData.currencyCode === 'undefined') {
-            return (
-                <View></View>
-            )
+            return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
         }
+
         const { account } = SendActions.findWalletPlus(this.state.countedFeesData.currencyCode)
         const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode } = account
 
