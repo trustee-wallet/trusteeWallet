@@ -50,6 +50,10 @@ import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/Blo
 import Toast from '../../services/UI/Toast/Toast'
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 
+import InsertShadow from 'react-native-inset-shadow'
+import GradientView from '../../components/elements/GradientView'
+
+
 class TransactionScreen extends Component {
 
     constructor(props) {
@@ -124,7 +128,7 @@ class TransactionScreen extends Component {
     }
 
     init = (transaction) => {
-
+        console.log('transaction', transaction)
         try {
             const { cryptoCurrency } = this.props
 
@@ -308,6 +312,7 @@ class TransactionScreen extends Component {
     }
 
     handleLink = (link) => {
+        console.log(link)
         NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
     }
 
@@ -538,7 +543,6 @@ class TransactionScreen extends Component {
     getTransactionStatus = (status) => {
         switch (status.toUpperCase()) {
             case 'DONE_PAYOUT':
-            case 'DONE_TRADE':
             case 'SUCCESS':
                 return 'SUCCESS'
             case 'CANCELED_PAYOUT':
@@ -679,18 +683,22 @@ class TransactionScreen extends Component {
     handlerRemoveButton = (array) => {
 
         const { transaction } = this.state
-        const { status, exchangeWayType } = transaction
 
-        if (typeof exchangeWayType === 'undefined' || exchangeWayType === null || !exchangeWayType) {
-            return null
-        }
-        if (typeof status === 'undefined' || status === null || !status) {
-            return null
-        }
+        // const status = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.status : null
+        // const exchangeWayType = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.exchangeWayType : null
 
-        if (typeof transaction.transactionHash === 'string') {
-            return null
-        }
+        // if (typeof exchangeWayType === 'undefined' || exchangeWayType === null || !exchangeWayType) {
+        //     return null
+        // }
+        // if (typeof status === 'undefined' || status === null || !status) {
+        //     return null
+        // }
+
+
+        // @ksu need this?
+        // if (typeof transaction.transactionHash === 'string') {
+        //     return null
+        // }
 
         array.push({ icon: 'pinCode', title: 'Remove', action: () => this.renderRemove() })
     }
@@ -815,7 +823,11 @@ class TransactionScreen extends Component {
     }
 
     handleSubContentPress = (item) => {
-        copyToClipboard(item.description)
+        if (item.isLink) {
+            copyToClipboard(item.title + ': ' + item.linkUrl)
+        } else {
+            copyToClipboard(item.title + ': ' + item.description)
+        }
         Toast.setMessage(strings('toast.copied')).show()
     }
 
@@ -836,12 +848,6 @@ class TransactionScreen extends Component {
 
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor
-        const subtitle = typeof transaction.subtitle !== 'undefined' && transaction.subtitle ? transaction.subtitle : false
-
-        const doteSlice = subtitle ? subtitle.indexOf('-') : -1
-        const subtitleMini = doteSlice && transaction.exchangeWayType === 'EXCHANGE' ? transaction.transactionDirection === 'income' ?
-            transaction.subtitle.slice(0, doteSlice) : transaction.transactionDirection === 'outcome' ?
-                transaction.subtitle.slice(doteSlice + 1, transaction.subtitle.length) : transaction.subtitle : transaction.subtitle
 
         const descriptionValue = typeof transaction.description !== 'undefined' ? transaction.description.replace(/[\u2006]/g, '').split('').join(String.fromCodePoint(parseInt('2006', 16))) : ''
 
@@ -849,7 +855,7 @@ class TransactionScreen extends Component {
             [
                 { icon: 'pinCode', title: 'Share', action: () => this.shareTransaction(transaction) },
                 { icon: 'accounts', title: 'Support', action: () => this.shareSupport() },
-                { icon: 'wallet', title: 'Details', action: () => this.showMoreDetails() }
+                { icon: showMoreDetails ? 'x' : 'wallet', title: 'Details', action: () => this.showMoreDetails() }
             ], []]
 
         return (
@@ -896,7 +902,7 @@ class TransactionScreen extends Component {
                                             /> : null
                             }
                         </View>
-                        <View style={{ marginVertical: GRID_SIZE }}>
+                        <View style={{ marginVertical: GRID_SIZE, marginTop: 6 }}>
                             {this.commentHandler()}
                         </View>
                     </View>
@@ -913,10 +919,11 @@ class TransactionScreen extends Component {
                             </Pages>}
                     </View>
                     {showMoreDetails && (
-                        <View style={{ marginTop: 20 }} >
-                            <View style={styles.moreInfo}>
+                        <View style={{ marginTop: 20, borderRadius: 16 }} >
+                            <InsertShadow containerStyle={{...styles.moreInfo, flex: 1, borderRadius: 16, backgroundColor: '#F2F2F2'}} shadowRadius={9} shadowColor={'#999999'} >
                                 {this.state.subContent.map((item) => {
                                     return (
+                                        // eslint-disable-next-line react/jsx-key
                                         <TransactionItem
                                             title={item.title}
                                             subtitle={item.description}
@@ -928,12 +935,13 @@ class TransactionScreen extends Component {
                                         />
                                     )
                                 })}
-                            </View>
-                            <View style={styles.shadow}>
+                            </InsertShadow>
+                            {/* <View style={styles.shadow}>
                                 <View style={styles.shadowItem} />
-                            </View>
+                            </View> */}
                         </View>)}
                 </ScrollView>
+                <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient} start={styles.containerBG.start} end={styles.containerBG.end} />
             </View>
         )
     }
@@ -1040,7 +1048,7 @@ const styles = {
     },
     moreInfo: {
         backgroundColor: '#F2F2F2',
-        borderRadius: 16,
+        // borderRadius: 16,
         paddingHorizontal: 20,
         paddingVertical: 10,
 
@@ -1085,5 +1093,18 @@ const styles = {
             width: 0,
             height: 0
         },
-    }
+    },
+    bottomButtons: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+
+        width: '100%',
+        height: 72,
+        paddingBottom: Platform.OS === 'ios' ? 30 : 0
+    },
+    containerBG: {
+        start: { x: 1, y: 0 },
+        end: { x: 1, y: 1 }
+    },
 }

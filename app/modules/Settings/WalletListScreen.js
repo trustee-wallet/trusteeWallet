@@ -30,6 +30,8 @@ import Header from '../../components/elements/new/Header'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
+import Log from '../../services/Log/Log'
+
 
 class WalletListScreen extends Component {
 

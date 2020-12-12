@@ -264,7 +264,7 @@ class Input extends Component {
             <View style={{ ...styles.wrapper, ...elementStyle }}>
                 {
                     show ?
-                        <View style={{ backgroundColor: '#F5F5F5', width: '100%', borderRadius: 10 }} >
+                        <View style={{ backgroundColor: '#F5F5F5', width: '100%', borderRadius: 10}} >
                             <TextField
                                 ref={ref => this.inputRef = ref}
                                 keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'default'}
@@ -312,25 +312,25 @@ class Input extends Component {
                     {
                         typeof fio !== 'undefined' && fio ?
                             <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
-                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="contacts" size={25} color={error ? '#864DD9' : "#404040"} />
+                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="contacts" size={25} color={error ? '#864DD9' : "#404040"} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof copy !== 'undefined' && copy ?
                             <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-copy" size={25} color={error ? '#864DD9' : "#404040"} />
+                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-copy" size={25} color={error ? '#864DD9' : "#404040"} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof paste !== 'undefined' && paste ?
                             <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-paste" size={25} color={error ? '#864DD9' : "#404040"} />
+                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-paste" size={25} color={error ? '#864DD9' : "#404040"} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof qr !== 'undefined' && qr ?
                             <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
-                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }} name="qrcode" size={25} color={error ? '#864DD9' : "#404040"} />
+                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }} name="qrcode" size={25} color={error ? '#864DD9' : "#404040"} />
                             </TouchableOpacity> : null
                     }
                     {
@@ -340,7 +340,7 @@ class Input extends Component {
                                     name="information-outline"
                                     size={25}
                                     color={error ? '#864DD9' : "#404040"}
-                                    style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 3 }}
+                                    style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }}
                                 />
                             </TouchableOpacity> : null
                     }
@@ -422,7 +422,7 @@ const styles = {
         fontFamily: 'SFUIDisplay-Semibold',
         marginRight: 110,
         marginLeft: 16,
-        marginTop: -4,
+        marginTop: -3,
         letterSpacing: 1,
         color: '#5C5C5C',
         // textDecoration: 'none'
