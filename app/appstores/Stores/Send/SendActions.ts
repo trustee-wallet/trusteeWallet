@@ -8,9 +8,55 @@ import { BlocksoftTransfer } from '../../../../crypto/actions/BlocksoftTransfer/
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 import { SendTmpData } from './SendTmpData'
 
+
+import {  isFioAddressValid, isFioAddressRegistered, resolveChainCode, getPubAddress} from '../../../../crypto/blockchains/fio/FioUtils'
+
+import config from '../../../config/config'
 import store from '../../../store'
+import { strings } from '../../../services/i18n'
+import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
+import Log from '../../../services/Log/Log'
 
 export namespace SendActions {
+
+    export const getContactAddress = async function (data : {addressName : string, currencyCode: string}) : Promise<string | boolean> {
+
+        let isUiError = false
+        let uiError = ''
+        try {
+            if (isFioAddressValid(data.addressName)) {
+                Log.log('SendActions.getContactAddress isFioAddress checked ' + data.addressName)
+                if (await isFioAddressRegistered(data.addressName)) {
+                    Log.log('SendActions.getContactAddress isFioAddressRegistered checked ' + data.addressName)
+
+                    const extend = BlocksoftDict.getCurrencyAllSettings(data.currencyCode)
+
+                    const chainCode = resolveChainCode(data.currencyCode, extend.currencySymbol)
+                    const publicFioAddress = await getPubAddress(data.addressName, chainCode, extend.currencySymbol)
+                    Log.log('SendActions.getContactAddress public for ' + data.addressName + ' ' + chainCode + ' =>' + publicFioAddress)
+                    if (!publicFioAddress || publicFioAddress === '0') {
+                        uiError = strings('send.publicFioAddressNotFound', { symbol: data.currencyCode })
+                        isUiError = true
+                    } else {
+                        return publicFioAddress
+                    }
+                } else {
+                    Log.log('SendActions.getContactAddress isFioAddressRegistered no result ' + data.addressName)
+                    uiError = strings('send.publicFioAddressNotFound', { symbol: data.currencyCode })
+                    isUiError = true
+                }
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('SendActions.getContactAddress isFioAddress error ' + data.addressName + ' => ' + e.message)
+            }
+            Log.log('SendActions.getContactAddress isFioAddress error ' + data.addressName + ' => ' + e.message)
+        }
+        if (isUiError) {
+            throw new Error(uiError)
+        }
+        return false
+    }
 
     export const countTransferAllBeforeStartSend = async function(data: {
         addressTo: string,
@@ -81,7 +127,7 @@ export namespace SendActions {
             }
         }
 
-        console.log('selectedFee', JSON.parse(JSON.stringify(data.selectedFee || 'none')))
+        // console.log('selectedFee', JSON.parse(JSON.stringify(data.selectedFee || 'none')))
         const countedFeesData = {
             currencyCode: currencyCode,
             walletHash: walletHash,

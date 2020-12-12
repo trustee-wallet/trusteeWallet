@@ -59,15 +59,17 @@ class SendAdvancedSettingsScreen extends Component {
 
         const devMode = await AsyncStorage.getItem('devMode')
 
-        console.log('')
-        console.log('')
         const sendScreenData = SendTmpData.getData()
         const {selectedFee, countedFees, countedFeesData} = SendTmpData.getCountedFees()
+        /*
+        console.log('')
+        console.log('')
         console.log('Send.SendAdvancedSettingsScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
         console.log('countedFeesData', JSON.parse(JSON.stringify(countedFeesData)))
         console.log('countedFees', JSON.parse(JSON.stringify(countedFees)))
         console.log('selectedFee', JSON.parse(JSON.stringify(selectedFee)))
         console.log('')
+         */
         this.setState({
             sendScreenData,
             countedFees,

@@ -295,7 +295,7 @@
       "allowReplaceByFee" : "Редактирование транзакции до подтверждения майнерами",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
-      "accountAddress": "Выбрать адресс",
+      "accountAddress": "Выбрать адрес",
       "hideCommissionTrans": "Скрыть транзакции оплаты за комиссию",
       "manualAddressFromHD" : "Вставить адрес HD",
       "scanAddressesFromHD" : "Сканировать адреса HD на наличие балансов",

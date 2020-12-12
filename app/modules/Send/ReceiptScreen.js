@@ -442,6 +442,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
         let amount = sendScreenData.amountPretty
         let address = sendScreenData.addressTo || ''
         let memo = sendScreenData.memo || ''
+        let contactName = sendScreenData.contactName || false
         if (typeof selectedFee !== 'undefined' && selectedFee) {
             if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined') {
                 const newAmount = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makePretty(selectedFee.amountForTx)
@@ -548,8 +549,14 @@ class ReceiptScreen extends SendBasicScreenScreen {
                         <View style={{ marginTop: 12 }}>
                             <CheckData
                                 name={strings('send.receiptScreen.rate', { currencyCode: currencySymbol })}
-                                value={`${account.basicCurrencySymbol} ${account.basicCurrencyRate}`}
+                                value={`${account.basicCurrencySymbol} ${BlocksoftPrettyNumbers.makeCut(account.basicCurrencyRate).cutted}`}
                             />
+                            {contactName ?
+                                <CheckData
+                                    name={strings('send.receiptScreen.recepient')}
+                                    value={contactName}
+                                />
+                            : null}
                             {multiShow ?
                                 multiShow.map((item, index) => {
                                     return (

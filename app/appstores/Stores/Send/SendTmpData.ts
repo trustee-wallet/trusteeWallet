@@ -24,6 +24,9 @@ export namespace SendTmpData {
         comment ?: string, // user memo
         memo ?: string, // blockchain memo
 
+        contactName?: boolean | string,
+        contactAddress ?: boolean | string,
+
         fioRequestDetails ?: any,
         toTransactionJSON ?: any
     }

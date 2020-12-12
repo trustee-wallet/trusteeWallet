@@ -46,15 +46,7 @@ const transactionActions = {
 
             if (transaction.currencyCode === account.currencyCode) {
 
-                const prepared = { ...account }
-                const tx = JSON.parse(JSON.stringify(transaction))
-                transactionActions.preformat(tx, account)
-                prepared.transactions[tx.transactionHash] = tx
-
-                dispatch({
-                    type: 'SET_SELECTED_ACCOUNT',
-                    selectedAccount: prepared
-                })
+                // @todo page reload
             }
 
             if (typeof transaction.transactionJson.bseOrderID !== 'undefined') {

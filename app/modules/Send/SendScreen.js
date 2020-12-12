@@ -109,6 +109,9 @@ class SendScreen extends SendBasicScreenScreen {
             sendScreenData: {},
 
             // all other are more about ui
+            contactName: false, // name of fio contact address
+            contactAddress: false, // found address for contact
+
             useAllFunds: false,
             amountInputMark: '',
             amountEquivalent : '',
@@ -193,8 +196,8 @@ class SendScreen extends SendBasicScreenScreen {
                 if (typeof sendScreenData.amountPretty !== 'undefined' && sendScreenData.amountPretty && sendScreenData.amountPretty !== '') {
                     try {
                         if (this.state.inputType === 'FIAT') {
-                            let value = sendScreenData.amountPretty.toString()
-                            let {currencyCode, basicCurrencyRate} = account
+                            const value = sendScreenData.amountPretty.toString()
+                            const {currencyCode, basicCurrencyRate} = account
                             let amount = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
                             amount = UtilsService.cutNumber(amount, 2)
                             this.valueInput.handleInput(amount, false)
@@ -257,11 +260,18 @@ class SendScreen extends SendBasicScreenScreen {
             const newSendScreenData = JSON.parse(JSON.stringify(this.state.sendScreenData))
 
             let addressToForTransferAll
-            const addressValidate = await this.addressInput.handleValidate()
-            if (addressValidate.status === 'success') {
-                addressToForTransferAll = addressValidate.value
+            if (this.state.contactAddress) {
+                addressToForTransferAll = this.state.contactAddress
             } else {
-                addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
+                const addressValidate = await this.addressInput.handleValidate()
+                if (addressValidate.status === 'success') {
+                    addressToForTransferAll = addressValidate.value
+                } else {
+                    addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({
+                        currencyCode,
+                        address
+                    })
+                }
             }
             if (typeof this.memoInput.handleValidate !== 'undefined') {
                 const memoValidate = await this.memoInput.handleValidate()
@@ -366,7 +376,7 @@ class SendScreen extends SendBasicScreenScreen {
         const extend = BlocksoftDict.getCurrencyAllSettings(cryptoCurrency.currencyCode)
 
         if (addressValidation.status !== 'success') {
-            // console.log('Send.SendScreen.handleSendTransaction invalid address ' + JSON.stringify(addressValidation))
+            console.log('Send.SendScreen.handleSendTransaction invalid address ' + JSON.stringify(addressValidation))
             return
         }
         if (!forceSendAmount && valueValidation.status !== 'success') {
@@ -435,7 +445,25 @@ class SendScreen extends SendBasicScreenScreen {
 
         setLoaderStatus(true)
 
+        let contactName = this.state.contactName
+        let contactAddress = this.state.contactAddress
+
         try {
+            const tmp = addressValidation.value
+            if (tmp && (tmp !== contactName || !contactAddress)) {
+                let toContactAddress = false
+                try {
+                    toContactAddress = await SendActions.getContactAddress({ addressName: tmp, currencyCode : cryptoCurrency.currencyCode })
+                    contactName = tmp
+                    contactAddress = toContactAddress
+                } catch (e) {
+                    enoughFunds.isAvailable = false
+                    enoughFunds.messages.push(e.message)
+                    setLoaderStatus(false)
+                    this.setState({ enoughFunds })
+                    return
+                }
+            }
             const amount = this.state.inputType === 'FIAT' ? this.state.amountEquivalent : valueValidation.value
             const amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makeUnPretty(amount)
             if (typeof amountRaw === 'undefined') {
@@ -523,6 +551,8 @@ class SendScreen extends SendBasicScreenScreen {
                 newSendScreenData.gotoWithCleanData = false
                 newSendScreenData.amount = amount
                 newSendScreenData.amountRaw = amountRaw
+                newSendScreenData.contactName = contactName
+                newSendScreenData.contactAddress = contactAddress
                 // memo and destination will be autocomplited
                 SendActions.startSend(newSendScreenData)
 
@@ -555,17 +585,41 @@ class SendScreen extends SendBasicScreenScreen {
             }
 
             if (addressTo === false) {
-                const addressValidate = await this.addressInput.handleValidate()
-                if (addressValidate.status === 'success') {
-                    addressTo = addressValidate.value
+                if (this.state.contactAddress) {
+                    addressTo = this.state.contactAddress
+                    this.valueInput.handleInput(this.state.contactName.toString(), false)
                 } else {
-                    addressTo = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
+                    const addressValidate = await this.addressInput.handleValidate()
+                    if (addressValidate.status === 'success') {
+                        addressTo = addressValidate.value
+                    } else {
+                        addressTo = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
+                    }
                 }
             } else {
-                const errors = await Validator.userDataValidation({type : addressValidateType, value : addressTo})
-                if (!errors || typeof errors.success === 'undefined') {
-                    return false
+                let toContactAddress = false
+                try {
+                    toContactAddress = await SendActions.getContactAddress({ addressName: addressTo, currencyCode })
+                } catch (e) {
+                    // do nothing - will be in send to receipt action rechecked the same
                 }
+                if (toContactAddress) {
+                    this.setState({
+                        contactName : addressTo,
+                        contactAddress : toContactAddress
+                    })
+                    addressTo = toContactAddress
+                } else {
+                    this.setState({
+                        contactName : false,
+                        contactAddress : false
+                    })
+                    const errors = await Validator.userDataValidation({ type: addressValidateType, value: addressTo })
+                    if (!errors || typeof errors.success === 'undefined') {
+                        return false
+                    }
+                }
+
             }
 
             if (memo === false && typeof this.memoInput.handleValidate !== 'undefined') {
@@ -960,7 +1014,7 @@ class SendScreen extends SendBasicScreenScreen {
                                     subtype={network}
                                     cuttype={currencySymbol}
                                     paste={true}
-                                    fio={false}
+                                    fio={true} // disabled => receipt!
                                     copy={false}
                                     qr={true}
                                     qrCallback={() => {
@@ -982,6 +1036,7 @@ class SendScreen extends SendBasicScreenScreen {
                                     }}
                                 />
                             </View>
+
                             {
                                 currencyCode === 'XRP' ?
                                     <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 2, marginBottom: GRID_SIZE }}>
