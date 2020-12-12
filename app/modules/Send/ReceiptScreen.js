@@ -482,7 +482,6 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 // console.log('Send.ReceiptScreen addressToTx ' + address)
             }
         }
-        console.log(amount)
 
         const currencySymbol = typeof cryptoCurrency !== 'undefined' && cryptoCurrency.currencySymbol ? cryptoCurrency.currencySymbol : ''
         const basicCurrencySymbol = account.basicCurrencySymbol

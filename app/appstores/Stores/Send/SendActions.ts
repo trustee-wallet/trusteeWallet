@@ -224,11 +224,11 @@ export namespace SendActions {
         } else if (typeof data.amountRaw !== 'undefined') {
             data.amountPretty = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.amountRaw)
         }
-        if (typeof data.fioRequestDetails !== 'undefined' && typeof data.fioRequestDetails.content !== 'undefined') {
-            data.amountPretty = data.fioRequestDetails.content.amount
+        if (typeof data.fioRequestDetails !== 'undefined' && typeof data.fioRequestDetails.content !== 'undefined' && typeof data.fioRequestDetails.content.amount !== 'undefined') {
+            data.amountPretty = data.fioRequestDetails.content.amount as string
             data.amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amountPretty)
             data.contactName = data.fioRequestDetails.payee_fio_address
-            data.addressTo = data.fioRequestDetails.payee_fio_public_key
+            data.addressTo = data.fioRequestDetails.content.payee_public_address || data.fioRequestDetails.payee_fio_public_key
         }
 
         SendTmpData.setData(data)
