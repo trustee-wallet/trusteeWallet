@@ -585,6 +585,7 @@
 
   "FioRequestDetails": {
     "title": "FIO Request Details",
+    "reqCreated": "Request created",
     "sentTitle": "Recieve to My",
     "pendingTitle": "Send from My",
     "balance": "Balance",

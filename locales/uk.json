@@ -571,6 +571,7 @@
 
    "FioRequestDetails": {
      "title": "Деталі FIO запита",
+     "reqCreated": "Запит створено",
      "balance": "Баланс",
      "fee": "Комісія",
      "to": "До",
