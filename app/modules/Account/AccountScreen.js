@@ -178,6 +178,7 @@ class Account extends Component {
         if (isSynchronized) {
 
             SendActions.startSend({
+                uiType: 'ACCOUNT_SCREEN',
                 currencyCode : account.currencyCode,
             })
 

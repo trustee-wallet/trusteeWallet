@@ -5,7 +5,7 @@ export namespace SendTmpData {
     export interface SendScreenDataRequest  {
         gotoReceipt ?: boolean
         gotoWithCleanData ?: boolean,
-        uiType ?: 'MAIN_SCANNER' | 'SEND_SCANNER' | 'TRADE_SEND', // from where
+        uiType ?: 'MAIN_SCANNER' | 'HOME_SCREEN' | 'SEND_SCANNER' | 'TRADE_SEND' | 'DEEP_LINKING' | 'ACCOUNT_SCREEN' | 'FIO_REQUESTS', // from where
         uiApiVersion ?: 'v2' | 'v3', // for trades version of api
         uiProviderType ?: 'FIXED' | 'FLOATING', // for trades types
 

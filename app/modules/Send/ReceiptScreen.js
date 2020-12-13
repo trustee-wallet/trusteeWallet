@@ -47,7 +47,11 @@ import config from '../../config/config'
 import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
 import { SendTmpData } from '../../appstores/Stores/Send/SendTmpData'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import {
+    setLoaderStatus,
+    setSelectedAccount,
+    setSelectedCryptoCurrency
+} from '../../appstores/Stores/Main/MainStoreActions'
 
 let CACHE_WARNING_AMOUNT = ''
 let CACHE_IS_SENDING = false
@@ -351,7 +355,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 icon: true,
                 title: strings('modal.send.success'),
                 description: successMessage
-            }, () => {
+            }, async () => {
 
                 const { uiType } = this.state.sendScreenData
 
@@ -361,21 +365,22 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 //     })
                 if (uiType === 'MAIN_SCANNER') {
                     NavStore.reset('DashboardStack')
-                } else if (uiType === 'SEND_SCANNER') {
-                    NavStore.goNext('AccountScreen')
+                } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {
+                    NavStore.reset('AccountScreen')
                 } else if (uiType === 'TRADE_SEND') {
                     NavStore.goNext('FinishScreen', {
                         finishScreenParam: {
                             selectedCryptoCurrency: this.state.cryptoCurrency
                         }
                     })
+                } else if (uiType === 'DEEP_LINKING' || uiType === 'HOME_SCREEN') {
+                    // account was not opened before
+                    setSelectedCryptoCurrency(this.state.cryptoCurrency)
+                    await setSelectedAccount()
+                    NavStore.reset('AccountScreen')
                 } else {
-                    if (transactionReplaceByFee) {
-                        NavStore.goBack(null)
-                    } else {
-                        NavStore.goBack(null)
-                        NavStore.goBack(null)
-                    }
+                    // fio request etc - direct to receipt
+                    NavStore.goBack(null)
                 }
             })
 

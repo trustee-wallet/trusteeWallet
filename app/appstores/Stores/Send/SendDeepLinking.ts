@@ -67,7 +67,8 @@ export namespace SendDeepLinking {
                         addressTo : parsed.address,
                         amountPretty : parsed.amount ? parsed.toString() : '0',
                         currencyCode : parsed.currencyCode,
-                        comment : parsed.label
+                        comment : parsed.label,
+                        uiType : 'DEEP_LINKING'
                     })
 
                 }
