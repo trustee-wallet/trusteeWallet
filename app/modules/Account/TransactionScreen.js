@@ -585,11 +585,10 @@ class TransactionScreen extends Component {
         // @yura thats default
         let direction = 'outcone'
         let amount = transaction.addressAmountPretty
-        let exchangeWay = transaction.transactionDirection || transaction.exchangeWayType
+        let exchangeWay = transaction.transactionDirection
+
         if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData) {
-
             if (typeof transaction.bseOrderData.exchangeWayType !== 'undefined') {
-
                 exchangeWay = transaction.bseOrderData.exchangeWayType
 
                 if (transaction.bseOrderData.exchangeWayType === 'BUY') {
@@ -607,9 +606,11 @@ class TransactionScreen extends Component {
                 }
 
             }
-
             if (typeof transaction.bseOrderData.requestedOutAmount !== 'undefined' && typeof transaction.bseOrderData.requestedOutAmount.amount !== 'undefined') {
                 amount = transaction.bseOrderData.requestedOutAmount.amount
+            }
+            if (typeof transaction.bseOrderData.requestedInAmount !== 'undefined' && typeof transaction.bseOrderData.requestedInAmount.amount !== 'undefined') {
+                amount = transaction.bseOrderData.requestedInAmount.amount
             }
         }
 

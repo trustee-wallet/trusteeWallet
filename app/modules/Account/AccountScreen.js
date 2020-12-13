@@ -375,25 +375,25 @@ class Account extends Component {
         }
     }
 
+    // @yura HERE YOU CAN ADD ANY LOGIC FOR NOT RECHECK ALL ELEMENTS INSIDE TXS
+    // plus you can use it as transactionActions.preformatOrder in ONE place
     async ordersWithoutTransactions() {
         const { account, exchangeOrdersStore } = this.props
+        const preformatOrders = []
+        // it there is no wallet hash in store - just update code IN STORE if its bug or show me how you done it - not comment out logic
+        if (account.walletHash === exchangeOrdersStore.walletHash && exchangeOrdersStore.exchangeOrders[account.currencyCode]) {
+             for (const exchangeOrder of exchangeOrdersStore.exchangeOrders[account.currencyCode] ) {
+                 preformatOrders.push({
+                     transactionHash: exchangeOrder.orderHash,
+                     addressAmountPretty: exchangeOrder.requestedOutAmount.amount,
+                     createdAt: exchangeOrder.createdAt,
+                     bseOrderData: exchangeOrder
+                 })
+             }
+         }
         this.setState({
-            ordersWithoutTransactions : exchangeOrdersStore.exchangeOrders[account.currencyCode] || []
+            ordersWithoutTransactions: preformatOrders
         })
-
-        // exchangeOrdersStore don't have walletHash
-
-        // const { account, exchangeOrdersStore } = this.props
-        // if (account.walletHash === exchangeOrdersStore.walletHash) {
-        //     this.setState({
-        //         ordersWithoutTransactions: exchangeOrdersStore.exchangeOrders[account.currencyCode] || []
-        //     })
-        // } else {
-        //     this.setState({
-        //         ordersWithoutTransactions: []
-        //     })
-        // }
-
     }
 
     getPrettyCurrenceName = (currencyCode, currencyName) => {

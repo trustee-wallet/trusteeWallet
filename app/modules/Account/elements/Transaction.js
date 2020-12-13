@@ -36,6 +36,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import updateTradeOrdersDaemon from '../../../daemons/back/UpdateTradeOrdersDaemon'
 
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import config from '../../../config/config'
 
 class Transaction extends Component {
 
@@ -82,20 +83,23 @@ class Transaction extends Component {
 
             const styles = JSON.parse(JSON.stringify(this.prepareStyles(status, direction)))
 
-            let orderDirection
-            if (typeof transaction.exchangeWayType !== 'undefined') {
-                if (transaction.exchangeWayType === 'BUY') {
-                    orderDirection = 'income'
-                } else if (transaction.exchangeWayType === 'SELL') {
-                    orderDirection = 'outcome'
-                } else if (transaction.exchangeWayType === 'EXCHANGE') {
-                    if (transaction.requestedOutAmount.currencyCode !== cryptoCurrency.currencyCode) {
+            let orderDirection = 'outcome'
+            if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData) {
+                if (typeof transaction.bseOrderData.exchangeWayType !== 'undefined') {
+                    if (transaction.bseOrderData.exchangeWayType === 'BUY') {
                         orderDirection = 'income'
-                    } else {
+                    } else if (transaction.bseOrderData.exchangeWayType === 'SELL') {
                         orderDirection = 'outcome'
+                    } else if (transaction.bseOrderData.exchangeWayType === 'EXCHANGE') {
+                        if (transaction.bseOrderData.requestedOutAmount.currencyCode !== cryptoCurrency.currencyCode) {
+                            orderDirection = 'income'
+                        } else {
+                            orderDirection = 'outcome'
+                        }
                     }
                 }
             }
+
 
             let value, valueToView, currencySymbolToView
 
@@ -104,7 +108,7 @@ class Transaction extends Component {
                 valueToView = this.prepareValueToView(value, 'SAT', direction || orderDirection)
                 currencySymbolToView = 'sat'
             } else {
-                value = this.prepareValue(transaction.addressAmountPretty || transaction.requestedOutAmount.amount, cryptoCurrency.currencyCode)
+                value = this.prepareValue(transaction.addressAmountPretty, cryptoCurrency.currencyCode)
                 valueToView = this.prepareValueToView(value, cryptoCurrency.currencySymbol, direction || orderDirection)
                 currencySymbolToView = cryptoCurrency.currencySymbol
             }
@@ -126,6 +130,9 @@ class Transaction extends Component {
                 show: true
             })
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('AccountScreen.Transaction init error ', e)
+            }
             Log.err(`AccountScreen.Transaction init error - ${JSON.stringify(e)} ; Transaction - ${JSON.stringify(transaction)}`)
         }
     }
@@ -144,12 +151,13 @@ class Transaction extends Component {
 
         const { transaction } = this.props
 
-        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null && transaction.bseOrderData.outDestination && transaction.bseOrderData.outDestination.includes('+')) {
-            return 'MOBILE_PHONE'
+        let wayType = null
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null) {
+            if (transaction.bseOrderData.outDestination && transaction.bseOrderData.outDestination.includes('+')) {
+                return 'MOBILE_PHONE'
+            }
+            wayType = transaction.bseOrderData.exchangeWayType
         }
-
-        const wayType = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.exchangeWayType : transaction.exchangeWayType ? 
-            transaction.exchangeWayType : null
 
         return wayType
     }
@@ -341,20 +349,25 @@ class Transaction extends Component {
 
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor
-        const subtitle = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null && transaction.bseOrderData.exchangeWayType !== 'BUY' ? true : false
+
+
 
         // const doteSlice = subtitle ? subtitle.indexOf('-') : -1
         // const subtitleMini = transaction.bseOrderData.exchangeWayType === 'EXCHANGE' ? transaction.transactionDirection === 'income' ?
         //     transaction.subtitle.slice(0, doteSlice) : transaction.transactionDirection === 'outcome' ?
         //         transaction.subtitle.slice(doteSlice + 1, transaction.subtitle.length) : transaction.subtitle : transaction.subtitle
 
-        let subtitleMini
+        let subtitle = false
+        let subtitleMini = ''
         if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null) {
+            if (transaction.bseOrderData.exchangeWayType !== 'BUY') {
+                subtitle = true
+            }
             if (transaction.bseOrderData.exchangeWayType === 'SELL') {
                 subtitleMini = transaction.bseOrderData.outDestination
             } else if (transaction.bseOrderData.exchangeWayType === 'EXCHANGE'){
                 subtitleMini = transaction.transactionDirection === 'income' ?
-                transaction.requestedOutAmount.currencyCode : transaction.requestedInAmount.currencyCode
+                transaction.bseOrderData.requestedOutAmount.currencyCode : transaction.bseOrderData.requestedInAmount.currencyCode
             }
         }
 

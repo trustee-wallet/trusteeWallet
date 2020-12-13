@@ -128,6 +128,8 @@ export default class SendBasicScreen extends Component {
 
     renderMinerFee = (onlyUseAllFunds = false) => {
 
+        const { GRID_SIZE, colors } = this.context
+
         const { useAllFunds, sendScreenData, account } = this.state
 
         let selectedFee = false // typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee
