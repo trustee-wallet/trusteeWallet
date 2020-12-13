@@ -128,7 +128,7 @@
     "selectFiat": "Выберите валюту",
     "submit": "Дальше",
     "modalError": {
-      "selectPhoto" : "Выберите фото карты из галлереи",
+      "selectPhoto" : "Выберите фото карты из галереи",
       "selectCryptocurrency": "Выберите криптовалюту",
       "selectWhatYouGet": "Выберите, что Вы получаете",
       "selectWhatYouGive": "Выберите, что Вы отдаете",
@@ -199,10 +199,10 @@
     "confirmScreenInvalidCard": "Пожалуйста, используйте другую карту",
     "confirmScreenTimeout" : "Пожалуйста, проверьте доступ к интернету и попробуйте еще раз",
     "confirmScreenInvalidOut" : "Неверный счет для вывода, пожалуйста, проверьте и попробуйте еще раз",
-    "confirmScreenAdvNotVerified" : "Email не верифицирован, пожалуйста, используйте верифицированный Adv счет и попробуйте еще раз",
+    "confirmScreenAdvNotVerified" : "Email не верифицирован, пожалуйста, используйте верифицированный ADV счет и попробуйте еще раз",
     "confirmScreenTemporaryOff" : "Временное отключение торговой пары на стороне провайдера",
     "confirmScreenInvalidAddress" : "Системная ошибка торговой пары на стороне провайдера, пожалуйста, попробуйте еще раз",
-    "openLink" : "Для перехода на платежную систему, пожайлуста, перейдите по этой ссылке",
+    "openLink" : "Для перехода на платежную систему, пожалуйста, перейдите по этой ссылке",
     "openLinkError": "Не найден браузер - ссылка скопирована в буфер"
   },
   "notifications": {
@@ -229,16 +229,16 @@
       "create": "Создать новый кошелек",
       "select": "Выбрать кошелек",
       "addWallet": {
-        "title": "Add wallet",
+        "title": "Добавить кошелек",
         "importTitle": "Импортировать кошелек",
-        "importSubtitle": "Add wallet with a recovery phrase",
+        "importSubtitle": "Добавить кошелек с фразой восстановления",
         "createTitle": "Создать новый кошелек"
       },
       "advanced": {
-        "title": "Advanced",
-        "walletNameLabel": "Wallet name",
-        "recoveryPhraseTitle": "Recovery phrase",
-        "recoveryPhraseSubtitle": "Your secret recovery phrase"
+        "title": "Настройки кошелька",
+        "walletNameLabel": "Имя кошелька",
+        "recoveryPhraseTitle": "Фраза восстановления",
+        "recoveryPhraseSubtitle": "Ваша секретная фраза восстановления"
       }
     },
     "security": {
@@ -254,10 +254,10 @@
       "addAsset": "Добавить актив"
     },
     "other": {
-      "title": "Поддержка и справка",
-      "darkModeTitle": "Dark mode",
-      "darkModeEnabledSubtitle": "Enabled",
-      "darkModeDisabledSubtitle": "Disabled",
+      "title": "Другое",
+      "darkModeTitle": "Темный режим",
+      "darkModeEnabledSubtitle": "Включен",
+      "darkModeDisabledSubtitle": "Выключен",
       "support": "Поддержка",
       "supportSubtitle": "Наш бот в telegram",
       "lock": "Блокирование экрана",
@@ -282,9 +282,9 @@
       "testerMode": "Тестировщик"
     },
     "walletList": {
-      "title": "My wallets",
-      "addWallet": "Add wallet",
-      "backupNeeded": "Back up needed",
+      "title": "Мои кошельки",
+      "addWallet": "Добавить кошелек",
+      "backupNeeded": "Требуется резервное копирование",
       "addedAssets": "Добавленные активы",
       "balance": "Баланс",
       "backup": "Резервировать",
@@ -295,10 +295,10 @@
       "allowReplaceByFee" : "Редактирование транзакции до подтверждения майнерами",
       "changeSetting" : "Адрес для сдачи",
       "useLegacy": "Использовать Legacy",
-      "useSegWit": "Использовать Segwit",
+      "useSegWit": "Использовать SegWit",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
-      "accountAddress": "Выбрать адресс",
+      "accountAddress": "Выбрать адрес",
       "showSegWitAndLegacy": "Показывать SegWit и Legacy",
       "hideCommissionTrans": "Скрыть транзакции оплаты за комиссию",
       "manualAddressFromHD" : "Вставить адрес HD",
@@ -308,8 +308,8 @@
         "description" : "Вы будете использовать баланс адреса %{newAddress}"
       },
       "backupModal": {
-        "title": "Мнемоническая фраза не сохранена!",
-        "description": "Мнемоническая фраза ( Seed-фраза) это единственный ключ к Вашим активам! В случае выхода из строя телефона или в других подобных ситуациях, восстановить доступ без этой фразы к Вашим активам будет невозможно! Рекомендуем сохранить фразу в безопасном месте прямо сейчас! \n \n  Если у Вас просят сид-фразу, то Вы имеете дело с мошенниками! \n Никому и ни при каких обстоятельствах, не сообщайте сид-фразу!"
+        "title": "Фраза восстановления не сохранена!",
+        "description": "Фраза восстановления (Seed-фраза) это единственный ключ к Вашим активам! В случае выхода из строя телефона или в других подобных ситуациях, возобновить доступ к Вашим активам без этой фразы будет невозможно! Рекомендуем сохранить фразу в безопасном месте прямо сейчас! \n \n  Если у Вас просят фразу восстановления, то Вы имеете дело с мошенниками! \n Никому и ни при каких обстоятельствах, не сообщайте фразу восстановления!"
       },
       "hdEnableModal": {
         "title": "Переключить кошелек в режим HD?",
@@ -319,12 +319,12 @@
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Сервер для отправки транзакций (например, api.mymonero.com)",
       "serverSendInputTitleXMR" : "или node.moneroworld.com:18089",
-      "needReinstallXMR"  : "Системная ошибка адреса XMR - пожайлуста, сохраните мнемоническую фразу и переустановите приложение, или свяжитесь со службой поддержки для подробный инструкций",
+      "needReinstallXMR"  : "Системная ошибка адреса XMR - пожалуйста, сохраните мнемоническую фразу и переустановите приложение, или свяжитесь со службой поддержки для подробных инструкций",
       "saveSettings" : "Сохранить",
       "getMnemonicXMR" : "Просмотреть секреты",
       "availableTRX" : "Доступно",
       "frozenTRX" : "Застейкано",
-      "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Энергия %{prettyFrozenEnergy} TRX",
+      "frozenBalanceTRX" : "Пропускная способность: %{prettyFrozen} TRX / Энергия %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "введите количество TRX",
       "freezeForBandTRX" : "Застейкать",
       "freezeForEnergyTRX" : "Для энергии",
@@ -361,7 +361,7 @@
       "newsTitle": "Новости"
     },
     "error": {
-      "title": "Ой, ошибка",
+      "title": "Ой, что-то пошло не так",
       "contactSupport": "Поддержка",
       "tryAgain": "Обновить",
       "text": "Если Вы видите это, что-то пошло не так, пожалуйста, отправьте нам логи через службу поддержки или попробуйте перезагрузить приложение"
@@ -372,12 +372,12 @@
   "assets": {
     "title": "Добавить актив",
     "tabAll": "Все",
-    "tabCoins": "Coins",
-    "tabTokens": "Tokens",
+    "tabCoins": "Монеты",
+    "tabTokens": "Токены",
     "tabCustom": "Custom",
-    "searchPlaceholder": "Search",
-    "addCustomPlaceholder": "Asset address",
-    "addCustomLabel": "Ethereum and Tron tokens addresses are supported",
+    "searchPlaceholder": "Поиск",
+    "addCustomPlaceholder": "Адрес актива",
+    "addCustomLabel": "Поддерживаются адреса токенов Ethereum и Tron",
     "addAssetButton": "Добавить актив",
     "mainTitle": "Добавить актив",
     "addCustomAsset": "Добавить актив не из списка",
@@ -388,7 +388,7 @@
   "AddCustomToken": {
     "mainTitle": "Добавить актив",
     "tokenInputTitle": "Адрес актива",
-    "description": "Поддерживаются Ethereum (ETH) и Tron (TRX) адреса токенов/активов",
+    "description": "Поддерживаются адреса токенов / активов Ethereum (ETH) и Tron (TRX)",
     "add": "Добавить"
   },
   "cashback": {
@@ -406,7 +406,7 @@
     "cashbackError" : {
       "title" : "Не удалось получить данные",
       "UI_ERROR_CASHBACK_NETWORK_ERROR": "Нет доступа к интернету",
-      "UI_ERROR_CASHBACK_SIGN_ERROR" : "Некорректная подпись в хранилище - пожайлуста,зайдите в раздел кешбэк еще раз",
+      "UI_ERROR_CASHBACK_SIGN_ERROR" : "Некорректная подпись в хранилище - пожалуйста, зайдите в раздел кешбэк еще раз",
       "UI_ERROR_CASHBACK_TIME_ERROR" : "Неактуальная дата или время устройства",
       "UI_ERROR_CASHBACK_TIME_ERROR_LOG" : "Сервис может не работать в результате нестабильного интернета или некорректных настроек даты и времени на Вашем мобильном устройстве"
     },
@@ -435,8 +435,8 @@
       "description": "Вы перейдете на внешний ресурс"
     },
     "fioAccount": {
-      "title": "FIO account not registered",
-      "description": "Go to the registration page and register it now?"
+      "title": "Аккаунт FIO не зарегистрирован",
+      "description": "Перейти на страницу регистрации и зарегистрировать сейчас?"
     },
     "transaction": {
       "pay": "Оплатить",
@@ -515,37 +515,37 @@
   },
 
   "fioMainSettings": {
-    "title": "FIO Настройки",
+    "title": "FIO настройки",
     "description": "Контролируйте все доступные FIO настройки",
-    "sendFioRequest": "Отправить FIO Запрос",
+    "sendFioRequest": "Отправить FIO запрос",
     "sendFioRequestDesc": "отправляйте FIO запросы",
     "fioRequest": "FIO запросы",
     "fioRequestDesc": "список всех активных Ожидающих/Отправленых FIO запросов",
-    "fioAddresses": "FIO Адреса",
+    "fioAddresses": "FIO адреса",
     "fioAddressesDesc": "все зарегистрированные FIO адреса и их опции",
     "registerFioAddress": "Зарегистрировать FIO адрес",
     "registerFioAddressDesc": "зарегистрируйте FIO адрес"
   },
 
   "FioChooseRecipient": {
-    "title": "Выбрать Fio получателя",
+    "title": "Выбрать FIO получателя",
     "description": "Введите FIO, ENS или публичный адрес получателя",
     "btnText": "Выбрать FIO"
   },
 
   "FioChooseAddress": {
-    "title": "Выберите Fio адрес",
+    "title": "Выберите FIO адрес",
     "description": "Введите адрес чтоб запросить платёж от",
     "btnText": "Выберите FIO адрес"
   },
   "FioAddresses": {
-    "title": "Fio Names",
-    "description": "Fio Addresses",
-    "btnText": "Register new FIO address"
+    "title": "Имена FIO",
+    "description": "FIO адреса",
+    "btnText": "Зарегистрируйте новый адрес FIO"
   },
   "FioSettings": {
-    "title": "Fio Настройки",
-    "description": "Выберите кошелёк, который хотите связать с своим FIO адресом",
+    "title": "FIO настройки",
+    "description": "Выберите кошелёк, который хотите связать со своим FIO адресом",
     "Expire": "Истекает",
     "connectAllWallets": "Связать все кошельки",
     "btnText": "Сохранить",
@@ -556,19 +556,19 @@
   },
 
   "FioSendRequest": {
-    "title": "Послать FIO запрос",
-    "selectCoin": "Кликнете чтобы выбрать валюту",
-    "from": "Послать запрос от",
-    "to": "Послать запрос к",
+    "title": "Отправить FIO запрос",
+    "selectCoin": "Кликнете, чтобы выбрать валюту",
+    "from": "Отправить запрос от",
+    "to": "Отправить запрос к",
     "amount": "Количество",
     "memo": "Комментарий",
     "btnText": "Создать",
     "created": "FIO запрос создан",
-    "fioSettings": "FIO Настройки",
+    "fioSettings": "FIO настройки",
     "registerFioAddress": "Зарегистрировать FIO адрес",
     "noCoinSelected": "Вам нужно выбрать валюту, для которой нужно сделать запрос",
-    "goToFioSettings": "Вам нужно перейти в FIO настройки, чтобы связать валюты с вашим FIO адресом",
-    "needRegisterFio": "Сначала вам нужно зарегистрировать FIO адрес"
+    "goToFioSettings": "Вам нужно перейти в FIO настройки, чтобы связать валюты с Вашим FIO адресом",
+    "needRegisterFio": "Сначала Вам нужно зарегистрировать FIO адрес"
   },
 
   "FioRequestsList": {
@@ -580,10 +580,10 @@
 
   "FioRequestDetails": {
     "title": "Детали FIO запроса",
-    "sentTitle": "Recieve to My",
-    "pendingTitle": "Send from My",
+    "sentTitle": "Получить на мой",
+    "pendingTitle": "Отправить из моего",
     "balance": "Баланс",
-    "fee": "Комисия",
+    "fee": "Комиссия",
     "to": "К",
     "from": "От",
     "memo": "FIO комментарий",
@@ -672,7 +672,7 @@
       "minAmountToBuy": "Минимальная сумма для покупки криптовалюты:",
       "minAmountToSell": "Минимальная сумма для продажи криптовалюты:",
       "minExchange": "%{fiat}",
-      "maxAmountBuy": "Максимальная сумма покупки с одной карты %{maxAmountToBuy} %{fiatSymbol} в день частями по %{maxAmountToBuyPart} %{fiatSymbol}",
+      "maxAmountBuy": "Максимальная сумма покупки с одной карты %{maxAmountToBuy} %{fiatSymbol} в день, частями по %{maxAmountToBuyPart} %{fiatSymbol}",
       "maxAmountSell": "Максимальная сумма продажи на одну карту %{maxAmountToBuy} %{fiatSymbol} в день",
       "maxFiat": "",
       "next": "Дальше",
@@ -711,13 +711,13 @@
     "send": "Дальше",
     "xrp_memo": "Тег назначения",
     "xmr_memo": "Идентификатор платежа",
-    "fio_memo": "FIO Сообщение",
+    "fio_memo": "FIO сообщение",
     "useAllFunds": "Использовать все средства",
     "equivalent": "Эквивалент: ~ %{amount} %{symbol}",
     "notEnough": "У Вас недостаточно средств для отправки",
     "notEnoughForFee": "Для отправки токенов необходимо иметь положительный баланс в нативной монете %{symbol}",
     "notEnoughForFeeConfirmed": "Для отправки токенов необходимо иметь положительный подтвержденный баланс в нативной монете %{symbol}, подождите подтверждения или включите использование неподтвержденных транзакций",
-    "publicFioAddressNotFound": "%{symbol} публичный адрес не связан с указаным FIO адресом",
+    "publicFioAddressNotFound": "%{symbol} публичный адрес не связан с указанным FIO адресом",
     "setting": {
       "title": "Дополнительно",
       "apply": "Применить",
@@ -733,7 +733,7 @@
       "title": "Информация",
       "XRP": "Тег назначения Ripple это ...",
       "XMR": "Идентификатор платежа Monero это ...",
-      "FIO": "FIO Сообщение это ..."
+      "FIO": "FIO сообщение это ..."
     },
     "confirmModal": {
       "title": "Подтверждение отправки",
@@ -751,7 +751,7 @@
       "smallFeeNoticeTitle" : "Пожалуйста, будьте внимательны",
       "smallFeeNoticeDesc" : "Недостаточно баланса для быстрой транзакции",
       "customFeeCalculated" : "Общая сумма",
-      "changeAmountNoticeDesc" : "Сумма транзакции измена",
+      "changeAmountNoticeDesc" : "Сумма транзакции изменена",
       "title": "Изменить\nкомиссию",
       "text": {
         "eth_speed_slowest": "Минимально",
@@ -847,7 +847,7 @@
         "paymentId": "Идентификатор платежа",
         "minerFee": "Комиссия майнера",
         "totalMinerFee": "Общая комиссия майнера",
-        "trusteeInfo": "Криптовалютние транзакции не тарифицируются",
+        "trusteeInfo": "Криптовалютные транзакции не тарифицируются",
         "send": "Отправить",
         "sending": "Отправка"
       }
@@ -855,7 +855,7 @@
     "errors": {
       "UI_CONFIRM_DOUBLE_SEND" : "Транзакция на этот адрес уже отправлена, Вы уверены, что хотите повторить транзакцию?",
       "UI_CALCULATE_CUSTOM_FEE" : "Пожалуйста, просчитайте полную стоимость для выбранной цены за байт",
-      "SERVER_RESPONSE_BAD_CODE" : "Что-то пошло не так, пожайлуста, свяжитесь со службой поддержки",
+      "SERVER_RESPONSE_BAD_CODE" : "Что-то пошло не так, пожалуйста, свяжитесь со службой поддержки",
       "SERVER_RESPONSE_BAD_INTERNET" : "Нет доступа к интернету",
       "SERVER_RESPONSE_BAD_TX_TO_REPLACE" : "Транзакция не найдена, пожалуйста, проверьте доступ к интернету. Возможны задержки в отображении информации",
       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Недостаточно средств нативной монеты %{symbol} для оплаты комиссии сети",
@@ -882,11 +882,11 @@
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT" : "Недостаточный баланс BTC на связанном с USDT биткоин адресе - пожалуйста, переведите на него немного сатоши",
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM" : "Недостаточный или неподтвержденный баланс на связанном с USDT биткоин адресе - пожалуйста, подождите или включите функцию \"Использовать неподтвержденные транзакции\" ",
       "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Сеть не приняла транзакцию - пожалуйста, подождите пока другие транзакции будут подтверждены или используйте обычную отправку ERC20",
-      "SERVER_RESPONSE_NO_SSL" : "SSL библиотека не найдена - пожайлуста, попробуйте обновить систему",
+      "SERVER_RESPONSE_NO_SSL" : "SSL библиотека не найдена - пожалуйста, попробуйте обновить систему",
       "SERVER_RESPONSE_PLEASE_SELECT_FEE": "Пожалуйста, выберите стоимость комиссии из списка",
       "SERVER_RESPONSE_MIN_GAS_ETH" : "Минимальный лимит газа равен 21000",
       "SERVER_RESPONSE_TOO_MUCH_GAS_ETH": "Для транзакции требуется слишком много газа - пожалуйста, проверьте адрес получателя, возможно это смартконтракт",
-      "SERVER_RESPONSE_TOO_MUCH_GAS_ETH_ERC20": "Для транзакции токенов требуется слишком много газа - пожайлутса, проверьте смартконтракт - возможно, ваш баланс заморожен",
+      "SERVER_RESPONSE_TOO_MUCH_GAS_ETH_ERC20": "Для транзакции токенов требуется слишком много газа - пожалуйтса, проверьте смартконтракт - возможно, Ваш баланс заморожен",
       "SERVER_RESPONSE_BAD_DESTINATION" : "Адрес получателя невалиден",
       "SERVER_RESPONSE_BAD_SEND_NODE" : "Нет доступа к серверу отправки",
       "SERVER_RESPONSE_DOUBLE_SPEND" : "Пожалуйста, пересоздайте транзакцию, так как текущая использует уже устаревшие входы или подождите пока другие транзакции будут подтверждены",
@@ -896,7 +896,7 @@
   "walletBackup": {
     "titleCreate": "Создать кошелек",
     "titleBackup": "Резервное копирование",
-    "titleShow": "Recovery phrase",
+    "titleShow": "Фраза восстановления",
     "infoScreen": {
       "continue": "Продолжить",
       "text1": "TRUSTEE WALLET никогда и никуда не отправит Вашу фразу восстановления. Поэтому, в случае потери или выхода устройства из строя, единственный способ получить доступ к своим средствам - использовать фразу восстановления",
@@ -932,8 +932,8 @@
     "titleNewWallet": "Генерация кошелька",
     "titleNewWalletSmall": "Генерация",
     "skip": "Пропустить",
-    "description": "Любой, у кого есть Ваша фраза восстановления может получить доступ к кошельку. Пожалуйста, внимательно запишите эти %{mnemonicLength} %{words}.\nНикому и ни при каких обстоятельствах, не сообщайте сид-фразу!",
-    "pinProtected": "Вам нужно будет ввести PIN для доступа к фразе восстановления",
+    "description": "Любой, у кого есть Ваша фраза восстановления может получить доступ к кошельку. Пожалуйста, внимательно запишите эти %{mnemonicLength} %{words}.\nНикому и ни при каких обстоятельствах, не сообщайте фразу восстановления!",
+    "pinProtected": "Вам нужно будет ввести PIN код для доступа к фразе восстановления",
     "attention": "Эту фразу нужно подтвердить на следующем шаге",
     "written": "Фраза записана",
     "words": "слова",
@@ -942,7 +942,7 @@
     },
     "mnemonicFail": {
       "title": "Ой, нет...",
-      "description": "Вы сделали ошибку в восстановительной фразе. Попробуйте еще раз."
+      "description": "Вы сделали ошибку в фразе восстановления. Попробуйте еще раз."
     },
     "skipElement": {
       "title": "Вы уверены?",
@@ -963,24 +963,24 @@
     "phrasePlaceholder": "Фраза восстановления",
     "importButton": "Импортировать кошелек",
     "errors": {
-      "phraseShouldBeLonger": "Recovery phrase should be longer than 11 words",
-      "wordDoesNotExist": "Such word was not found in dictionary"
+      "phraseShouldBeLonger": "Фраза восстановления должна быть длиннее 11 слов",
+      "wordDoesNotExist": "Такого слова нет в словаре"
     },
     "importGoogleError": {
-      "title" : "Not Connected",
-      "description" : "Please try again or check access permissions"
+      "title" : "Не подключен",
+      "description" : "Пожалуйста, попробуйте еще раз или проверьте права доступа"
     },
     "importGoogleNoWallet": {
-      "title" : "No Backup File",
-      "description" : "Encrypted backup file not found"
+      "title" : "Нет файла резервной копии",
+      "description" : "Зашифрованный файл резервной копии не найден"
     },
     "backupGoogleHasWallet" : {
-      "title" : "Already Created Backup File",
-      "description" : "Remove backup file to recreate"
+      "title" : "Файл резервной копии уже создан",
+      "description" : "Удалите файл резервной копии для воссоздания"
     },
     "backupGoogleSuccess" : {
-      "title" : "Created Backup File",
-      "description" : "Dont remove backup file to restore after application installation"
+      "title" : "Создан файл резервной копии",
+      "description" : "Не удаляйте файл резервной копии для восстановления после установки приложения"
     },
     "name": "Назовите кошелек",
     "submit": "Дальше",
@@ -990,7 +990,7 @@
     "optional": "необязательный",
     "enterMnemonic": {
       "description": "Вставьте фразу восстановления целиком или введите ее вручную (обычно это 12 или 24 слова ).",
-      "mnemonic": "Мнемоническая фраза"
+      "mnemonic": "Фраза восстановления"
     }
   },
   "walletList": {
@@ -1108,7 +1108,7 @@
       "description": "Устройство не поддерживает кешбэк"
     },
     "infoSendAllModal": {
-      "description": "Похоже Вы пытаетесь отправить весь свой баланс %{coin}. Для корректной обработки, пожалуйста, воспользуйтесь функцией 'отправить все'. Воспользоваться сейчас сейчас?"
+      "description": "Похоже Вы пытаетесь отправить весь свой баланс %{coin}. Для корректной обработки, пожалуйста, воспользуйтесь функцией 'отправить все'. Воспользоваться сейчас?"
     },
     "infoUpdateModal": {
       "title": "Внимание!",
@@ -1118,7 +1118,7 @@
     },
     "infoNewInterface": {
       "title": "Доступен новый интерфейс",
-      "description": "Посмотрите, что мы изменили для вас",
+      "description": "Посмотрите, что мы изменили для Вас",
       "try": "Попробовать",
       "notNow": "Не сейчас"
     },
@@ -1137,7 +1137,7 @@
     "infoPayOrder": {
       "error": {
         "title": "Извините...",
-        "description": "Возникла проблема. Пожалуйста, создайте новый ордер"
+        "description": "Ордер не обработан. Пожалуйста, создайте новый ордер"
       }
     },
     "toggleBitcoinTypeAddressModal": {
@@ -1154,7 +1154,7 @@
       "description": "У Вас есть незарезервированные кошельки, поэтому установка PIN-кода не разрешена в целях безопасности хранения Ваших активов."
     },
     "disabledSkipModal": {
-      "description": "У Вас установлен PIN-код, поэтому Вы не можете пропустить это этап."
+      "description": "У Вас установлен PIN-код, поэтому Вы не можете пропустить этот этап."
     },
     "infoAddCustomAssetModal": {
       "success": {
@@ -1183,7 +1183,7 @@
     "selectCoinFio": {
       "title": "Выберите валюту для запроса",
       "description": "Пожалуйста, выберите валюту для которой вы хотите сделать запрос",
-      "description2": "выбраная валюта будет передана в FIO запрос",
+      "description2": "выбранная валюта будет передана в FIO запрос",
       "btn": "Выбрать"
     },
     "login": {
@@ -1197,7 +1197,7 @@
     "exchange": {
       "sorry": "Простите...",
       "descriptionCard": "Выберите существующую карту или добавьте новую",
-      "failed": "Ошибка...",
+      "failed": "Внимание!",
       "txCanceled": "Транзакция отменена",
       "success": "Успех!",
       "txSuccess": "Транзакция успешно отправлена"
@@ -1232,17 +1232,17 @@
     "send": {
       "success": "Успех!",
       "txSuccess": "Ваша транзакция успешно отправлена!",
-      "fail": "Ошибка...",
-      "feeChangeAmount": "Сумма отправки изменилась после изименние комиссии"
+      "fail": "Внимание!",
+      "feeChangeAmount": "Сумма отправки изменилась после изименния комиссии"
     },
     "walletLog" : {
-      "sorry" : "Ошибка....",
+      "sorry" : "Внимание!",
       "noMailApp" : "Нет доступного приложения для отправки email",
-      "notComplited" : "Пожайлуста, выберите какой либо канал для отправки"
+      "notComplited" : "Пожалуйста, выберите какой либо канал для отправки"
     },
     "walletBackup": {
       "success": "Успех!",
-      "seedConfirm": "Фраза резервного копирования подтверждена!",
+      "seedConfirm": "Фраза восстановления подтверждена!",
       "walletCreated": "Кошелек создан!"
     },
     "walletCreate": {
@@ -1343,19 +1343,19 @@
       "description": "%{walletName} на адресе %{address} есть %{amountPretty} %{currencySymbol}"
     },
     "CURRENCY_RATE_UPDATED": {
-      "title": "%{currencyName} rate updated",
-      "description": "current value is %{currencyRateUsd}$"
+      "title": "%{currencyName} курс обновлен",
+      "description": "цена %{currencyRateUsd}$"
     },
     "CURRENCY_RATE_SCANNED_LAST_TIME": {
-      "title": "Currency rates are scanned",
-      "description": "but cached values are the same - so no changes"
+      "title": "Курсы валют сканируются",
+      "description": "но кешированные значения такие же, поэтому никаких изменений"
     },
     "TXS_SCANNED_LAST_TIME" : {
-      "title" : "%{currencyName} transactions are scanned",
+      "title" : "%{currencyName} транзакции сканируются",
       "description" : "%{walletName} log %{log}"
     },
     "HD_SCANNED_LAST_TIME" : {
-      "title" : "HD transactions are scanned",
+      "title" : "Сканируются транзакции HD",
       "description" : "%{walletName} log %{log}"
     }
   },

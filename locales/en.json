@@ -235,7 +235,7 @@
         "createTitle": "Create new wallet"
       },
       "advanced": {
-        "title": "Advanced",
+        "title": "Wallet settings",
         "walletNameLabel": "Wallet name",
         "recoveryPhraseTitle": "Recovery phrase",
         "recoveryPhraseSubtitle": "Your secret recovery phrase"
@@ -1137,7 +1137,7 @@
     "infoPayOrder": {
       "error": {
         "title": "Sorry...",
-        "description": "Some error occurred. Please, create new order"
+        "description": "The order is not processed. Please, create new order"
       }
     },
     "toggleBitcoinTypeAddressModal": {
@@ -1197,7 +1197,7 @@
     "exchange": {
       "sorry": "Sorry....",
       "descriptionCard": "Please, select an existing card or add a new one.",
-      "failed": "Failed...",
+      "failed": "Attention!",
       "txCanceled": "Transaction has been canceled",
       "success": "Success!",
       "txSuccess": "Transaction was successfully sent."
@@ -1232,11 +1232,11 @@
     "send": {
       "success": "Success!",
       "txSuccess": "Your transaction has been successfully sent!",
-      "fail": "Fail...",
+      "fail": "Attention!",
       "feeChangeAmount": "Your amount was change after change fee"
     },
     "walletLog": {
-      "sorry": "Sorry....",
+      "sorry": "Attention!",
       "noMailApp": "No mail apps found",
       "notComplited": "Please, select some channel to complete share"
     },
