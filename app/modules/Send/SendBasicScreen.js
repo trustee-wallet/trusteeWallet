@@ -34,7 +34,7 @@ export default class SendBasicScreen extends Component {
 
         const currencyCode = data.currencyCode
 
-        if (data.addressTo === "") {
+        if (data.addressTo === '') {
             return false
         }
 
@@ -70,22 +70,14 @@ export default class SendBasicScreen extends Component {
     }
 
     openAdvancedSettings = async () => {
-        if (this.state.loadFee) {
-            setLoaderStatus(true)
-            setTimeout(() => {
-                try {
-                    // setLoaderStatus(true)
-                    this.openAdvancedSettings()
-                } catch (e) {
-                    console.log('SendBasicScreen.openAdvancedSettings loading fees')
-                }
-            }, 100)
-        } else {
-            setLoaderStatus(false)
-            NavStore.goNext('SendAdvancedScreen', {
-                sendScreenData : this.state.sendScreenData
-            })
-        }
+        // late count
+        const newSendScreenData = JSON.parse(JSON.stringify(this.state.sendScreenData))
+        const { selectedFee } = await this.recountFees(newSendScreenData)
+        newSendScreenData.selectedFee = selectedFee
+        setLoaderStatus(false)
+        NavStore.goNext('SendAdvancedScreen', {
+            sendScreenData: newSendScreenData
+        })
     }
 
     setHeaderHeight = (height) => {
@@ -105,7 +97,7 @@ export default class SendBasicScreen extends Component {
             } else {
                 ApiV3.setExchangeStatus(removeId, 'close')
             }
-            UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({force: true, removeId, source: 'CANCEL'})
+            UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, removeId, source: 'CANCEL' })
         } else {
             console.log('SendBasicScreen.goBack')
         }
@@ -138,9 +130,13 @@ export default class SendBasicScreen extends Component {
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
 
-        Log.log('Send.SendBasicScreen.renderMinerFee state', JSON.parse(JSON.stringify({ selectedFee, useAllFunds, onlyUseAllFunds })))
+        Log.log('Send.SendBasicScreen.renderMinerFee state', JSON.parse(JSON.stringify({
+            selectedFee,
+            useAllFunds,
+            onlyUseAllFunds
+        })))
 
-        if (typeof account === 'undefined' || !account || !sendScreenData || typeof account.basicCurrencySymbol === 'undefined' || account.basicCurrencySymbol === "") {
+        if (typeof account === 'undefined' || !account || !sendScreenData || typeof account.basicCurrencySymbol === 'undefined' || account.basicCurrencySymbol === '') {
             return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
         }
 
@@ -186,18 +182,18 @@ export default class SendBasicScreen extends Component {
         Log.log('Send.SendBasicScreen.renderMinerFee prettyFee ' + prettyFee + ' prettyFeeSymbol ' + prettyFeeSymbol + ' fiatFee ' + fiatFee)
         return (
             <>
-            <CheckData
-                name={'Miner fee'}
-                value={`${prettyFee} ${prettyFeeSymbol}`}
-                subvalue={fiatFee}
-            />
-            {
-                selectedFee.isCustomFee && selectedFee.nonceForTx ?
-                    <CheckData
-                        name={'Custom nonce'}
-                        value={selectedFee.nonceForTx + ''}
-                    /> : null
-            }
+                <CheckData
+                    name={'Miner fee'}
+                    value={`${prettyFee} ${prettyFeeSymbol}`}
+                    subvalue={fiatFee}
+                />
+                {
+                    selectedFee.isCustomFee && selectedFee.nonceForTx ?
+                        <CheckData
+                            name={'Custom nonce'}
+                            value={selectedFee.nonceForTx + ''}
+                        /> : null
+                }
             </>
         )
     }

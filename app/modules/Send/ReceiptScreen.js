@@ -142,11 +142,16 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         const { needPasswordConfirm } = this.state
 
-        if (needPasswordConfirm && passwordCheck && typeof settingsStore.data.askPinCodeWhenSending !== 'undefined' && +settingsStore.data.askPinCodeWhenSending) {
-            lockScreenAction.setFlowType({ flowType: 'CONFIRM_SEND_CRYPTO' })
-            lockScreenAction.setActionCallback({ actionCallback: this.handleSend })
-            NavStore.goNext('LockScreen')
-            return
+        let passwordChecked = false
+        if (needPasswordConfirm && typeof settingsStore.data.askPinCodeWhenSending !== 'undefined' && +settingsStore.data.askPinCodeWhenSending) {
+            if (passwordCheck) {
+                lockScreenAction.setFlowType({ flowType: 'CONFIRM_SEND_CRYPTO' })
+                lockScreenAction.setActionCallback({ actionCallback: this.handleSend })
+                NavStore.goNext('LockScreen')
+                return
+            } else {
+                passwordChecked = true
+            }
         }
 
         if (CACHE_IS_SENDING) {
@@ -162,7 +167,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
 
-        if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined') {
+        if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined' && !passwordChecked) {
             const newAmount = selectedFee.amountForTx.toString()
             const tmp = sendScreenData.amountRaw.toString()
             if (newAmount.substring(0, tmp.length) !== tmp) {

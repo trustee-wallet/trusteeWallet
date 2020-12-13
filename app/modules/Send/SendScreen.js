@@ -568,7 +568,7 @@ class SendScreen extends SendBasicScreenScreen {
                 balance: cryptoCurrency.currencyBalanceAmount
             })
 
-            setTimeout(() => {
+            setTimeout(async () => {
 
                 const newSendScreenData = sendScreenData
                 newSendScreenData.gotoReceipt = true
@@ -577,6 +577,13 @@ class SendScreen extends SendBasicScreenScreen {
                 newSendScreenData.amountRaw = amountRaw
                 newSendScreenData.contactName = contactName
                 newSendScreenData.contactAddress = contactAddress
+
+                // when late count
+                if (!newSendScreenData.isTransferAll) {
+                    const { selectedFee } = await this.recountFees(newSendScreenData)
+                    newSendScreenData.selectedFee = selectedFee
+                }
+
                 // memo and destination will be autocomplited
                 SendActions.startSend(newSendScreenData)
 
@@ -630,6 +637,7 @@ class SendScreen extends SendBasicScreenScreen {
     }
 
     amountInputCallback = async (value, changeUseAllFunds, addressTo = false, memo = false, addressValidateType = '') => {
+
         try {
             const { useAllFunds } = this.state
             // console.log('Send.SendScreen.amountInputCallback state', { value, changeUseAllFunds, addressTo, memo })
@@ -674,7 +682,11 @@ class SendScreen extends SendBasicScreenScreen {
                         contactName : false,
                         contactAddress : false
                     })
-                    const errors = await Validator.userDataValidation({ type: addressValidateType, value: addressTo })
+                    const obj = { type: addressValidateType, value: addressTo, ...this.state.cryptoCurrency }
+                    if (typeof this.state.cryptoCurrency.network !== 'undefined') {
+                        obj.subtype = this.state.cryptoCurrency.network
+                    }
+                    const errors = await Validator.userDataValidation(obj)
                     if (!errors || typeof errors.success === 'undefined') {
                         return false
                     }
@@ -738,8 +750,9 @@ class SendScreen extends SendBasicScreenScreen {
                     newSendScreenData.amountRaw = valueCryptoRaw
                     newSendScreenData.unconfirmedRaw = 0
                 }
-                const {selectedFee} = await this.recountFees(newSendScreenData)
-                newSendScreenData.selectedFee = selectedFee
+                // lets try late count
+                // const {selectedFee} = await this.recountFees(newSendScreenData)
+                // newSendScreenData.selectedFee = selectedFee
                 // console.log(`Send.SendScreen.amountInputCallback`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))
 
             } else {
