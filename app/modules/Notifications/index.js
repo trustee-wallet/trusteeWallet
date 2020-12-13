@@ -213,7 +213,7 @@ class NotificationsScreen extends React.Component {
                 type: 'INFO_MODAL',
                 icon: null,
                 title: title,
-                description: subtitle
+                description: title !== subtitle ? subtitle : ''
             })
         }
 

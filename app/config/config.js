@@ -71,14 +71,14 @@ const config = {
         appLogs: false, // set false to see usual logs in files only
         appDaemonLogs: false, // set false to see cron jobs logs in files only
         cryptoLogs: false, // set false to see crypto logs in files only
-        cryptoErrors: true, // set false to get crypto errors  in tg only
-        appErrors: true, // set false to get errors in tg only
+        cryptoErrors: false, // set false to get crypto errors  in tg only
+        appErrors: false, // set false to get errors in tg only
         fioErrors: false, //
         appDBLogs: false, // set false to get db query in files only
         firebaseLogs: true // set false not to collect data to firebase live db
     },
     tg: {
-        appDefaultTg: '927739199:AAFAX6rdFBRNnKRS4D5q6ZkqfAyd_Ad9vN0', // bot id for app errors https://t.me/trusteeAppErrorsBot
+        appDefaultTg: '1470482129:AAFLkM-rSvOckqNRr7nSO_BSrOLTXERZwdQ', // bot id for app errors https://t.me/trusteeV20ProdAppErrorsBot
         trusteeCore: ['272629139', '121249105', '231261669']
     },
 }
