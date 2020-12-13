@@ -6,7 +6,6 @@ const INITIAL_STATE = {
     accountList: [],
     cryptocurrencyList: [],
     exchangeType: '',
-    exchangeOrders: [],
     data: {},
     tradeType: '',
     tradePrevCC: 'BTC',
@@ -75,16 +74,6 @@ const exchangeStoreReducer = (state = INITIAL_STATE, action) => {
             return new Object({
                 ...state,
                 cryptocurrencyList: action.cryptocurrencyList
-            })
-        case 'SET_EXCHANGE_ORDERS_DATA':
-            return new Object({
-                ...state,
-                exchangeOrders: action.exchangeOrders
-            })
-        case 'CLEAR_EXCHANGE_ORDERS_DATA':
-            return new Object({
-                ...state,
-                exchangeOrders: []
             })
         case 'SET_NEWINERFACE_SELL':
             return new Object({

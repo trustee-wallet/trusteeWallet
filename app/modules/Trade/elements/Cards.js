@@ -106,10 +106,14 @@ class Cards extends Component {
             })
 
             let selectedCardIndex = cards.length - 1
-            if (!isNewAdded) {
-                selectedCardIndex = cards.findIndex(item => item.id === this.props.selectedCard.id)
-                if (typeof cards[selectedCardIndex] === 'undefined') {
-                    throw new Error('no card index ' + selectedCardIndex)
+            if (!isNewAdded && typeof this.props.selectedCard !== 'undefined' && typeof this.props.selectedCard.id !== 'undefined' && this.props.selectedCard) {
+                try {
+                    selectedCardIndex = cards.findIndex(item => item.id === this.props.selectedCard.id)
+                    if (typeof cards[selectedCardIndex] === 'undefined') {
+                        throw new Error('no card index ' + selectedCardIndex)
+                    }
+                } catch (e) {
+                    // do nothing
                 }
             }
 
@@ -377,7 +381,15 @@ class Cards extends Component {
             const { imagePickerOptions } = this.state
             const data = new FormData()
 
-            let selectedCardIndex = cards.findIndex(item => item.id === selectedCard.id)
+            let selectedCardIndex = cards.length - 1
+            if (typeof selectedCard !== 'undefined' && typeof selectedCard.id !== 'undefined' && selectedCard) {
+                try {
+                    selectedCardIndex = cards.findIndex(item => item.id === selectedCard.id)
+                } catch (e) {
+                    // do nothing
+                }
+            }
+
             let tmpCards
             let cardsToCheck = cards
             if (selectedCardIndex === -1) {
@@ -660,7 +672,14 @@ class Cards extends Component {
         const { cards, enabled, showCards } = this.state
         const { selectedCard } = this.props
 
-        const selectedCardIndex = cards.findIndex(item => item.id === selectedCard.id)
+        let selectedCardIndex = cards.length - 1
+        if (typeof selectedCard !== 'undefined' && typeof selectedCard.id !== 'undefined' && selectedCard) {
+            try {
+                selectedCardIndex = cards.findIndex(item => item.id === selectedCard.id)
+            } catch (e) {
+                // do nothing
+            }
+        }
 
         return (
             <View style={{ width: '100%', maxHeight: !enabled ? 0 : 500, overflow: !enabled ? 'hidden' : 'visible' }}>

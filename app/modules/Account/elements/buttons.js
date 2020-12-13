@@ -8,11 +8,6 @@ import {
     TextInput, Dimensions, PixelRatio,
     SafeAreaView, ScrollView
 } from 'react-native'
-import { connect } from 'react-redux'
-import { strings } from '../../../services/i18n'
-import Header from '../../../components/elements/new/Header'
-import NavStore from '../../../components/navigation/NavStore'
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 import Feather from 'react-native-vector-icons/Feather'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 import AntIcon from 'react-native-vector-icons/AntDesign'
@@ -22,10 +17,6 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 
 import Theme from '../../../themes/Themes'
-import UIDict from '../../../services/UIDict/UIDict'
-
-import LetterSpacing from '../../../components/elements/LetterSpacing'
-import Loader from '../../../components/elements/LoaderItem'
 
 import { useTheme } from '../../../modules/theme/ThemeProvider'
 
@@ -39,6 +30,8 @@ const getIcon = (iconType, color) => {
             return <FontAwesomeIcon name="address-book" color={color} size={19} style={{ marginLeft: 2 }} />
         case 'pinCode':
             return <MaterialIcon name="lock" color={color} size={30} style={{ marginLeft: 2 }} />
+        case 'x':
+            return <Feather name="x" style={{ marginTop: 2, marginLeft: 1 }} size={30} color={color} />
         default: return null
     }
 }

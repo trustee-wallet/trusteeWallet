@@ -21,7 +21,7 @@ import { HIT_SLOP } from '../../../themes/Themes'
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 const headerHeight = Platform.OS === 'android' ? 79 : 44
-const headerHeightSticky = Platform.OS === 'android' ? 213 : 203
+const headerHeightSticky = Platform.OS === 'android' ? 148 : 138
 
 export default class Header extends React.Component {
 
@@ -31,14 +31,12 @@ export default class Header extends React.Component {
         const hasStickyHeader = this.props.scrollOffset > 260
         const opacity = hasStickyHeader ? 1 : 0
         const height = hasStickyHeader ? headerHeightSticky : headerHeight
-        const shadowOpacity = hasStickyHeader ? 0.1 : 0
         const elevation = hasStickyHeader ? 10 : 0
 
         this.state = {
             hasStickyHeader,
             opacity: new Animated.Value(opacity),
             height: new Animated.Value(height),
-            shadowOpacity: new Animated.Value(shadowOpacity),
             elevation: new Animated.Value(elevation),
         }
     }
@@ -96,15 +94,13 @@ export default class Header extends React.Component {
     static getDerivedStateFromProps(nextProps, state) {
         const hasStickyHeader = nextProps.scrollOffset > 260;
         if (!state.hasStickyHeader && hasStickyHeader) {
-            Animated.timing(state.height, { toValue: headerHeightSticky, duration: 300 }).start();
+            Animated.timing(state.height, { toValue: headerHeightSticky, duration: 50 }).start();
             Animated.timing(state.opacity, { toValue: 1, duration: 300 }).start();
-            Animated.timing(state.shadowOpacity, { toValue: 0.1, duration: 300 }).start();
             Animated.timing(state.elevation, { toValue: 10, duration: 300 }).start();
         }
         if (state.hasStickyHeader && !hasStickyHeader) {
-            Animated.timing(state.height, { toValue: headerHeight, duration: 300 }).start();
+            Animated.timing(state.height, { toValue: headerHeight, duration: 100 }).start();
             Animated.timing(state.opacity, { toValue: 0, duration: 100 }).start();
-            Animated.timing(state.shadowOpacity, { toValue: 0, duration: 300 }).start();
             Animated.timing(state.elevation, { toValue: 0, duration: 300 }).start();
         }
         return {
@@ -125,7 +121,6 @@ export default class Header extends React.Component {
             elevation,
             height,
             opacity,
-            shadowOpacity,
         } = this.state
 
         return (
@@ -154,13 +149,6 @@ export default class Header extends React.Component {
                         </Animated.View>
                     )}
                 </Animated.View>
-
-                {/* {(ExtraView && !anime) && (
-                    <View style={[styles.extraView, { backgroundColor: colors.common.header.bg, opacity }]}>
-                        <ExtraView />
-                    </View>
-                )} */}
-
 
                 <View style={styles.shadow__container}>
                     <Animated.View style={[styles.shadow__item]} />
@@ -239,7 +227,6 @@ const styles = {
         fontSize: 14,
         lineHeight: 15,
         letterSpacing: 1,
-        textTransform: 'uppercase',
         textAlign: 'center'
     },
 }

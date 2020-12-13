@@ -295,13 +295,13 @@ export default {
         }
     },
 
-    getExchangeOrders: async () => {
+    getExchangeOrders: async (_requestAuthHash = false) => {
 
-        let signedData = await CashBackUtils.createWalletSignature(true)
+        let signedData = await CashBackUtils.createWalletSignature(true, false, _requestAuthHash)
         if (!signedData) {
             throw new Error('No signed for getExchangeOrders')
         }
-        const cashbackToken = CashBackUtils.getWalletToken()
+        const cashbackToken = signedData.cashbackToken
         if (!cashbackToken) {
             throw new Error('No cashbackToken for getExchangeOrders')
         }
@@ -318,7 +318,7 @@ export default {
                 Log.daemon('ApiV3 getExchangeOrders axios ' + index + ' ' + link)
                 try {
                     link = `${V3_API}/order/history-for-wallet?`
-                         + `cashbackToken=${cashbackToken}&message=${signedData.message}&messageHash=${signedData.messageHash}`
+                         + `cashbackToken=${signedData.cashbackToken}&message=${signedData.message}&messageHash=${signedData.messageHash}`
                          + `&signature=${signedData.signature}&timestamp=${+new Date()}`
 
                     now = +new Date()
@@ -343,7 +343,7 @@ export default {
                             throw new Error('UI_ERROR_IME_ERROR')
                         } else {
                             Log.daemon('ApiV3 getExchangeOrders will retry with time ' + serverTime)
-                            signedData = await CashBackUtils.createWalletSignature(true, serverTime)
+                            signedData = await CashBackUtils.createWalletSignature(true, serverTime, _requestAuthHash)
                         }
                     } else {
                         throw new Error('UI_ERROR_NETWORK_ERROR')

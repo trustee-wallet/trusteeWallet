@@ -46,15 +46,7 @@ const transactionActions = {
 
             if (transaction.currencyCode === account.currencyCode) {
 
-                const prepared = { ...account }
-                const tx = JSON.parse(JSON.stringify(transaction))
-                transactionActions.preformat(tx, account)
-                prepared.transactions[tx.transactionHash] = tx
-
-                dispatch({
-                    type: 'SET_SELECTED_ACCOUNT',
-                    selectedAccount: prepared
-                })
+                // @todo page reload
             }
 
             if (typeof transaction.transactionJson.bseOrderID !== 'undefined') {
@@ -139,10 +131,23 @@ const transactionActions = {
         }
     },
 
-    preformat(transaction, account) {
+    /**
+     *
+     * @param transaction
+     * @param params.currencyCode
+     * @param params.account
+     */
+    preformat(transaction, params) {
         if (!transaction) return
 
         let addressAmountSatoshi = false
+
+        let account
+        if (typeof params.account !== 'undefined') {
+            account = params.account
+        } else {
+            throw new Error('something wrong with TransactionActions.preformat params')
+        }
 
         try {
             transaction.addressAmountNorm = BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(transaction.addressAmount, 'transactionActions.addressAmount')
@@ -241,30 +246,8 @@ const transactionActions = {
             throw e
         }
 
-    },
+        return transaction
 
-    /**
-     * @param {string} account.walletHash
-     * @param {string} account.currencyCode
-     * @return {Promise<Array>}
-     */
-    getTransactions: async (account) => {
-
-        let transactions = []
-
-        try {
-
-            transactions = await transactionDS.getTransactions({
-                walletHash: account.walletHash,
-                currencyCode: account.currencyCode
-            }, 'ACT/Transaction getTransactions')
-
-        } catch (e) {
-
-            Log.err('ACT/Transaction getTransactions ' + e.message)
-        }
-
-        return transactions
     }
 
 }
