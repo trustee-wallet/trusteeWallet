@@ -576,8 +576,9 @@
 
   "FioRequestDetails": {
     "title": "Детали FIO запроса",
-    "sentTitle": "Recieve to My",
-    "pendingTitle": "Send from My",
+    "reqCreated": "Запрос создан",
+     "sentTitle": "Recieve to My",
+     "pendingTitle": "Send from My",
     "balance": "Баланс",
     "fee": "Комисия",
     "to": "К",

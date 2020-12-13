@@ -16,6 +16,9 @@ import { connect } from 'react-redux'
 import NavStore from '../../components/navigation/NavStore'
 import Netinfo from '../../services/Netinfo/Netinfo'
 
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import Header from '../../components/elements/new/Header'
+
 class FioRequestsList extends Component {
 
     constructor(props) {
@@ -23,8 +26,14 @@ class FioRequestsList extends Component {
         this.state = {
             pendingRequestsData: [],
             sentRequestsData: [],
-            status: false
+            status: false,
+            headerHeight: 0,
         }
+    }
+
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
     }
 
     async componentDidMount() {
@@ -72,14 +81,35 @@ class FioRequestsList extends Component {
         )
     }
 
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('DashboardStack') }
+
     render() {
+
+        const { colors, GRID_SIZE } = this.context
+
+        const { headerHeight } = this.state
+
         return (
-            <View>
-                <SafeAreaView style={{flex: 0, backgroundColor: '#f5f5f5'}}>
-                    <Navigation title={strings('FioRequestsList.title')}/>
+            <View style={[styles.container_main, { backgroundColor: colors.common.background }]}>
+                <Header
+                    leftType="back"
+                    leftAction={this.handleBack}
+                    rightType="close"
+                    rightAction={this.handleClose}
+                    title={strings('FioRequestsList.title')}
+                    setHeaderHeight={this.setHeaderHeight}
+                />
+
+                <SafeAreaView style={[styles.content, {
+                    backgroundColor: colors.common.background,
+                    marginTop: headerHeight,
+                    height: '100%',
+                }]}>
 
 
-                    <View style={{paddingTop: 80, height: '100%'}}>
+                    <View style={{height: '100%'}}>
                         <GradientView
                                       array={styles_.array}
                                       start={styles_.start} end={styles_.end}>
@@ -110,7 +140,7 @@ class FioRequestsList extends Component {
                         </GradientView>
 
                         <ScrollView>
-                            <View style={styles.container}>
+                            <View  style={[styles.container, styles.pad1]}>
 
                                 {this.renderRequestList(this.state.sentRequestsData, 'sent')}
 
@@ -139,10 +169,12 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
+FioRequestsList.contextType = ThemeContext
+
 export default connect(mapStateToProps, mapDispatchToProps)(FioRequestsList)
 
 const styles_ = {
-    array: ['#555', '#999'],
+    array: ['#222', '#555'],
     start: { x: 0.0, y: 0.5 },
     end: { x: 1, y: 0.5 }
 }
@@ -168,11 +200,19 @@ const styles = {
         color: '#fff'
     },
 
+    container_main: {
+        flex: 1,
+    },
+
     container: {
         padding: 15,
         height: '100%',
         minHeight: 180,
         flexDirection: 'column',
         flex: 1,
+    },
+
+    pad1: {
+        paddingBottom: 55,
     },
 }

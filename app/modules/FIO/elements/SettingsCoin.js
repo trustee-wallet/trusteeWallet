@@ -4,6 +4,7 @@
 import React, { Component } from 'react'
 import { View, Text,  Switch  } from 'react-native'
 import CurrencyIcon from '../../../components/elements/CurrencyIcon'
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 
 class SettingsCoin extends Component {
@@ -17,9 +18,10 @@ class SettingsCoin extends Component {
         const { cryptoCurrency, isSelected } = this.props
         const currencyCode = cryptoCurrency.currencyCode || 'NOCOIN'
         const isFIO = currencyCode === 'FIO'
+        const { colors } = this.context
 
         return (
-            <View style={styles.coinRow}>
+            <View style={[styles.coinRow, { borderColor: colors.fio.borderColorLight }]} >
                 <View  style={styles.coinRowInfo}>
                     <CurrencyIcon currencyCode={currencyCode}
                                   containerStyle={styles.cryptoList__icoWrap}
@@ -27,8 +29,8 @@ class SettingsCoin extends Component {
                                   markTextStyle={styles.cryptoList__icon__mark__text}
                                   iconStyle={styles.cryptoList__icon}/>
                     <View>
-                        <Text style={styles.txt2}>{cryptoCurrency.currencySymbol}</Text>
-                        <Text style={styles.txt3}>{cryptoCurrency.currencyName}</Text>
+                        <Text style={[styles.txt2, { color: colors.common.text3 }]}>{cryptoCurrency.currencySymbol}</Text>
+                        <Text style={[styles.txt3, { color: colors.common.text3 }]}>{cryptoCurrency.currencyName}</Text>
                         <Text style={styles.txtAddress} numberOfLines={1} ellipsizeMode='middle'>{cryptoCurrency.address}</Text>
                     </View>
                 </View>
@@ -44,6 +46,8 @@ class SettingsCoin extends Component {
         );
     }
 }
+
+SettingsCoin.contextType = ThemeContext
 
 export default SettingsCoin
 
