@@ -21,7 +21,7 @@ import Transaction from './elements/Transaction'
 
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { clearSendData, SendActions } from '../../appstores/Stores/Send/SendActions'
+import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import { setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
 
 import Log from '../../services/Log/Log'
@@ -363,7 +363,7 @@ class Account extends Component {
         const transactionsToView = []
         if (tmp && tmp.length > 0) {
             for (let transaction of tmp) {
-                transaction = transactionActions.preformat(transaction, { account })
+                transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData)
                 transactionsToView.push(transaction)
             }
         }
@@ -382,14 +382,10 @@ class Account extends Component {
         const preformatOrders = []
         // it there is no wallet hash in store - just update code IN STORE if its bug or show me how you done it - not comment out logic
         if (account.walletHash === exchangeOrdersStore.walletHash && exchangeOrdersStore.exchangeOrders[account.currencyCode]) {
-             for (const exchangeOrder of exchangeOrdersStore.exchangeOrders[account.currencyCode] ) {
-                 preformatOrders.push({
-                     transactionHash: exchangeOrder.orderHash,
-                     addressAmountPretty: exchangeOrder.requestedOutAmount.amount,
-                     createdAt: exchangeOrder.createdAt,
-                     bseOrderData: exchangeOrder
-                 })
-             }
+            for (const exchangeOrder of exchangeOrdersStore.exchangeOrders[account.currencyCode] ) {
+                const preformatOrder = transactionActions.preformatWithBSEforShow(false, exchangeOrder, account.currencyCode)
+                preformatOrders.push(preformatOrder)
+            }
          }
         this.setState({
             ordersWithoutTransactions: preformatOrders
@@ -418,7 +414,6 @@ class Account extends Component {
         const { colors, isLight } = this.context
         const { mode, openTransactionList } = this.state
         const { mainStore, account, cryptoCurrency, settingsStore } = this.props
-        const { btcShowTwoAddress = 1 } = settingsStore.data
         const { amountToView, show, transactionsToView, transactionsTotalLength, transactionsShownLength, isBalanceVisible } = this.state
 
         const allTransactionsToView = this.state.ordersWithoutTransactions.slice(0,3).concat(transactionsToView)
@@ -454,8 +449,6 @@ class Account extends Component {
         }
 
 
-        // @todo yura
-        // console.log('PLZ SHOW SOMEWHERE IT TOP - ITS LIKE TRANSACTIONS BUT NOT ', this.state.ordersWithoutTransactions.slice(0,3))
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
