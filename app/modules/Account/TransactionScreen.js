@@ -426,7 +426,7 @@ class TransactionScreen extends Component {
     }
 
     prepareBlockNumber = (blockNumber) => {
-        if (typeof blockNumber === 'undefined') return false
+        if (typeof blockNumber === 'undefined' || !blockNumber || blockNumber === null) return false
         return {
             title: strings(`account.transaction.blockNumber`),
             description: blockNumber.toString()

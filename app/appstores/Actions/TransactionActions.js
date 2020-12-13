@@ -157,7 +157,8 @@ const transactionActions = {
             addressTo : '?',
             addressFrom : '?',
             addressAmountPretty: '?',
-            blockConfirmations : '?',
+            blockConfirmations : false,
+            blockNumber : false,
             createdAt: exchangeOrder.createdAt,
             bseOrderData : exchangeOrder
         }
