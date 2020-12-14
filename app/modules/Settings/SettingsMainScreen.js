@@ -294,6 +294,7 @@ class SettingsMainScreen extends React.Component {
             mode,
         } = this.state
 
+        // @todo uncomment payment accounts
         return (
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>
                 <Header
@@ -321,7 +322,8 @@ class SettingsMainScreen extends React.Component {
                                     onPress={this.handleWalletManagment}
                                     rightContent="arrow"
                                 />
-                                <ListItem
+                                { false ? (
+                                    <ListItem
                                     title={strings('settings.paymentAccounts.listTitle')}
                                     subtitle={strings('settings.paymentAccounts.listSubtitle', { number: 0 })}
                                     iconType="accounts"
@@ -329,6 +331,7 @@ class SettingsMainScreen extends React.Component {
                                     rightContent="arrow"
                                     last
                                 />
+                                ) : null }
                             </View>
 
 
