@@ -1,4 +1,4 @@
- {
+{
   "appName": "Trustee",
   "auth": {
     "navigation": {
@@ -7,11 +7,11 @@
     },
     "logOut": "Вийти"
   },
-   "finishTradeScreen": {
-     "title": "Вітаємо!",
-     "description": "Ваш ордер був створений. \n Щойно транзакція отримає необхідні підтвердження, вона буде виконана відповідно. \n Ви можете відстежувати стан ордеру в історії ордерів.",
-     "orderHistoryBtn": "Історія ордерів"
-   },
+  "finishTradeScreen": {
+   "title": "Вітаємо!",
+    "description": "Ваш ордер був створений. \n Щойно транзакція отримає необхідні підтвердження, вона буде виконана відповідно. \n Ви можете відстежувати стан ордеру в історії ордерів.",
+    "orderHistoryBtn": "Історія ордерів"
+  },
    "finishTradeErrorScreen": {
      "title": "Банк не підтвердив Ваш платіж!",
      "description": "Ордер не оплачений"
@@ -282,7 +282,9 @@
       "testerMode": "Тестувальник"
     },
     "walletList": {
-      "title": "Список гаманців",
+      "title": "Мої гаманців",
+      "addWallet": "Додати гаманець",
+      "backupNeeded": "Незарезервований",
       "addedAssets": "Додані активи",
       "balance": "Баланс",
       "backup": "Резервувати",
@@ -408,8 +410,8 @@
     "setParentToken": "Задати посилання-запрошення Вашого друга",
     "hasParentToken": "Запросив %{cashbackParentToken}",
     "inputParentCashbackLink": "https://trustee.deals/link/example",
-    "minWithdraw": "Мінімальна сума для виводу",
     "withdraw": "Вивести",
+    "minWithdraw": "Мінімальна сума для виводу",
     "performWithdraw": "Щоб здійснити вивід, будь ласка, напишіть в telegram на нікнейм @TrusteeWallet"
   },
   "account": {
@@ -523,8 +525,12 @@
           "pending": "Опрацьовується",
           "canceled": "Відменено"
         }
+      },
+      "transactionHash": "Transaction hash:",
+      "cashbackLink": "Cashback link:",
+      "thanks": "Thank you for choosing Trustee Wallet!",
+      "self": "This transaction was send to own address"
       }
-    }
   },
 
    "fioMainSettings": {
@@ -746,7 +752,7 @@
     "infoModal": {
       "title": "Інформація",
       "XRP": "Тег призначення Ripple це ...",
-      "XRM": "Ідентифікатор платежу Monero це ...",
+      "XMR": "Ідентифікатор платежу Monero це ...",
       "FIO": "FIO коментар це ..."
     },
     "confirmModal": {
@@ -851,6 +857,21 @@
           "feeForByte": "Ціна за байт",
           "satoshi": "SATOSHI"
         }
+      },
+      "receiptScreen": {
+        "title": "Квитанція",
+        "totalSend": "Сума відправки",
+        "rate": "Ціна за 1 %{currencyCode}",
+        "replaceTransactionHash" : "Заміна транзакції",
+        "speedUpTransactionHash" : "Прискорення транзакції",
+        "recepient": "Отримувач",
+        "destinationAddress": "Адреса отримувача",
+        "minerFee": "Комісія майнера",
+        "totalMinerFee": "Загальна комісія майнера",
+        "customNonce": "Custom nonce",
+        "trusteeInfo": "Криптовалютні транзакції не тарифікуються",
+        "send": "Надіслати",
+        "sending": "Відправка"
       }
     },
     "errors": {
@@ -892,20 +913,6 @@
       "SERVER_RESPONSE_BAD_SEND_NODE" :  "Немає доступу до сервера відправки",
       "SERVER_RESPONSE_DOUBLE_SPEND" : "Будь ласка, створіть повторно транзакцію, оскільки ця використовує вже застарілі входи або зачекайте доки інші транзакції замайняться",
       "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Транзакцію для прискорення не знайдено"
-    },
-    "receiptScreen": {
-      "title": "Квитанція",
-      "totalSend": "Сума відправки",
-      "rate": "Ціна за 1 %{currencyCode}",
-      "replaceTransactionHash" : "Заміна транзакції",
-      "speedUpTransactionHash" : "Прискорення транзакції",
-      "recepient": "Отримувач",
-      "destinationAddress": "Адреса отримувача",
-      "minerFee": "Комісія майнера",
-      "totalMinerFee": "Загальна комісія майнера",
-      "trusteeInfo": "Криптовалютні транзакції не тарифікуються",
-      "send": "Надіслати",
-      "sending": "Відправка"
     }
   },
   "walletBackup": {

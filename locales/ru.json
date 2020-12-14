@@ -284,7 +284,7 @@
     "walletList": {
       "title": "Мои кошельки",
       "addWallet": "Добавить кошелек",
-      "backupNeeded": "Требуется резервное копирование",
+      "backupNeeded": "Незарезирвирован",
       "addedAssets": "Добавленные активы",
       "balance": "Баланс",
       "backup": "Резервировать",
@@ -525,7 +525,11 @@
           "pending": "Обрабатывается",
           "canceled": "Отменено"
         }
-      }
+      },
+    "transactionHash": "Transaction hash:",
+    "cashbackLink": "Cashback link:",
+    "thanks": "Thank you for choosing Trustee Wallet!",
+    "self": "This transaction was send to own address"
     }
   },
 
@@ -861,9 +865,10 @@
         "replaceTransactionHash" : "Замена транзакции",
         "speedUpTransactionHash" : "Ускорение транзакции",
         "recepient": "Получатель",
-        "paymentId": "Идентификатор платежа",
+        "destinationAddress": "Destination address",
         "minerFee": "Комиссия майнера",
         "totalMinerFee": "Общая комиссия майнера",
+        "customNonce": "Custom nonce",
         "trusteeInfo": "Криптовалютные транзакции не тарифицируются",
         "send": "Отправить",
         "sending": "Отправка"
