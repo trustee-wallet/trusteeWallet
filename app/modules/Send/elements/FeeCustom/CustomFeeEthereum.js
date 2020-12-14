@@ -186,13 +186,16 @@ class CustomFee extends Component {
         const { colors, GRID_SIZE } = this.context
 
         const prettyFeeSymbol = 'ETH'
-        const customFee = `Calculeted fee:  \n${this.state.prettyFee} ${prettyFeeSymbol} / ` + (Number(this.state.feeBasicAmount) < 0.01 ? ` > ${this.props.basicCurrencySymbol} 0.01` : `${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`)
+        const customFee = strings(`send.fee.customFee.calculetedFee`) +  `\n${this.state.prettyFee} ${prettyFeeSymbol} / ` + (Number(this.state.feeBasicAmount) < 0.01 ? ` > ${this.props.basicCurrencySymbol} 0.01` : `${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`)
         // ${this.state.selectedFee.gasPriceGwei} gwei :
 
         return (
             <View style={{ marginTop: 10 }}>
-                <View style={{ paddingBottom: 20, paddingLeft: 10 }}>
+                <View>
                     <Text style={{ ...styles.customFee, color: colors.common.text1 }}>{customFee}</Text>
+                </View>
+                <View style={{ paddingTop: 10, marginBottom: GRID_SIZE }}>
+                    <Text style={{...styles.customFee, color: colors.common.text1}} >{strings(`send.fee.customFee.eth.gasPrice`)}</Text>
                 </View>
                 <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
                     <GasPriceAmountInput
@@ -207,7 +210,11 @@ class CustomFee extends Component {
                         inputTextColor={'#f4f4f4'}
                         tintColor={'#7127ac'}
                         callback={(value) => this.handleRecount('gasPrice', value)}
+                        onFocus={this.props.onFocus}
                     />
+                </View>
+                <View style={{ marginBottom: GRID_SIZE}}>
+                    <Text style={{...styles.customFee, color: colors.common.text1}} >{strings(`send.fee.customFee.eth.gasLimit`)}</Text>
                 </View>
                 <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
                     <GasLimitAmountInput
@@ -223,7 +230,11 @@ class CustomFee extends Component {
                         tintColor={'#7127ac'}
                         disabled={this.props.useAllFunds}
                         callback={(value) => this.handleRecount('gasLimit', value)}
+                        onFocus={this.props.onFocus}
                     />
+                </View>
+                <View style={{ marginBottom: GRID_SIZE }}>
+                    <Text style={{...styles.customFee, color: colors.common.text1}} >{strings(`send.fee.customFee.eth.nonce`)}</Text>
                 </View>
                 <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
                     <Nonce
@@ -238,6 +249,7 @@ class CustomFee extends Component {
                         inputTextColor={'#f4f4f4'}
                         tintColor={'#7127ac'}
                         callback={(value) => this.handleRecount('nonce', value)}
+                        onFocus={this.props.onFocus}
                     />
                 </View>
             </View>

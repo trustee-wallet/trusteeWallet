@@ -839,6 +839,7 @@
         "title": "Власноруч",
         "fixedFeeTitle": "ФІКСОВАНА\nКОМІСІЯ",
         "customFeeTitle": "ВСТАНОВИТИ\nВЛАСНОРУЧ",
+        "calculetedFee": "Розрахована комісія:",
         "eth": {
           "gasPrice": "Ціна за газ",
           "gasLimit": "Ліміт газу",

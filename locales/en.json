@@ -420,7 +420,7 @@
     "refresh": "Refresh",
     "receive": "%{receive}",
     "send": "Send",
-    "history": "Transactions",
+    "history": "Transactions:",
     "scan": " %{time} min ago ",
     "justScan": "just",
     "noTransactions": "You don’t have any transaction yet.",
@@ -841,6 +841,7 @@
         "title": "Manually",
         "fixedFeeTitle": "FIXED FEE",
         "customFeeTitle": "SET\nMANUALLY",
+        "calculetedFee": "Calculeted fee:",
         "eth": {
           "gasPrice": "Gas price",
           "gasLimit": "Gas limit",
