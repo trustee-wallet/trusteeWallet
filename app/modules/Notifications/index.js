@@ -194,18 +194,22 @@ class NotificationsScreen extends React.Component {
         const transactionHash = notification.newsJson?.payinTxHash || notification.newsJson?.payoutTxHash
         const orderHash = notification.newsJson?.orderHash || false
 
+        const notificationToTx = {title, subtitle, newsName: notification.newsName, createdAt : notification.newsCreated}
         if (transactionHash) {
             NavStore.goNext('TransactionScreen', {
                 txData: {
                     transactionHash,
-                    walletHash : notification.walletHash
+                    orderHash,
+                    walletHash : notification.walletHash,
+                    notification : notificationToTx
                 }
             })
         } else if (orderHash) {
             NavStore.goNext('TransactionScreen', {
                 txData: {
                     orderHash,
-                    walletHash : notification.walletHash
+                    walletHash : notification.walletHash,
+                    notification : notificationToTx
                 }
             })
         } else {
