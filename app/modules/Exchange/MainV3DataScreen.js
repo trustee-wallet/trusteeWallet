@@ -162,10 +162,10 @@ class MainV3DataScreen extends Component {
         }
     }
 
-    exchangeV3 = (data) => {
+    exchangeV3 = async (data) => {
         console.log('Exchange/MainV3Screen dataExchange', JSON.stringify(data))
         try {
-            SendActions.startSend({
+            await SendActions.startSend({
                 gotoReceipt: true,
                 addressTo: data.address,
                 amountPretty: data.amount.toString(),

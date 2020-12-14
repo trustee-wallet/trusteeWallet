@@ -593,7 +593,7 @@ class SendScreen extends SendBasicScreenScreen {
                 }
 
                 // memo and destination will be autocomplited
-                SendActions.startSend(newSendScreenData)
+                await SendActions.startSend(newSendScreenData)
 
             }, 500)
         } catch (e) {

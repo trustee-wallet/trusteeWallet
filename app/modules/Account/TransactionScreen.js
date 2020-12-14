@@ -645,7 +645,7 @@ class TransactionScreen extends Component {
                 gotoReceipt: true,
                 addressTo : account.address,
                 amountRaw : 0,
-                transactionReplaceByFee : transaction,
+                transactionBoost : transaction,
                 uiType : 'TRANSACTION_SCREEN'
             })
         }})
@@ -681,9 +681,9 @@ class TransactionScreen extends Component {
         array.push({ icon: 'accounts', title: strings('account.transactionScreen.booster'), action: async () => {
                 await SendActions.startSend({
                     gotoReceipt: true,
-                    addressTo : transaction.addressTo !== '' ? transaction.addressTo : transaction.addressFromBasic,
+                    addressTo : transaction.addressTo !== '' ? transaction.addressTo : account.address,
                     amountRaw : transaction.addressAmount,
-                    transactionReplaceByFee : transaction,
+                    transactionBoost : transaction,
                     uiType : 'TRANSACTION_SCREEN'
                 })
         }})

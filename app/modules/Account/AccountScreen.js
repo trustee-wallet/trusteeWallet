@@ -170,14 +170,14 @@ class Account extends Component {
         NavStore.goNext('ReceiveScreen')
     }
 
-    handleSend = () => {
+    handleSend = async () => {
         const { cryptoCurrency, account } = this.props
 
         const isSynchronized = currencyActions.checkIsCurrencySynchronized({ cryptoCurrency, account })
 
         if (isSynchronized) {
 
-            SendActions.startSend({
+            await SendActions.startSend({
                 uiType: 'ACCOUNT_SCREEN',
                 currencyCode : account.currencyCode,
             })

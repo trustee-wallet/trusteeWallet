@@ -167,8 +167,8 @@ class HomeScreen extends Component {
     }
 
     // separated from stores not to be updated from outside
-    handleSend = (cryptoCurrency) => {
-        SendActions.startSend({
+    handleSend = async (cryptoCurrency) => {
+        await SendActions.startSend({
             uiType : 'HOME_SCREEN',
             currencyCode : cryptoCurrency.currencyCode
         })

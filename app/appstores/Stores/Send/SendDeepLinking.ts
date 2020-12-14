@@ -62,7 +62,7 @@ export namespace SendDeepLinking {
 
                 if (initialURL.indexOf('trustee.page.link') === -1) {
 
-                    SendActions.startSend({
+                    await SendActions.startSend({
                         gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
                         addressTo : parsed.address,
                         amountPretty : parsed.amount ? parsed.toString() : '0',
