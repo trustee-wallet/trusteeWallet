@@ -35,6 +35,7 @@ import DaemonCache from '../../daemons/DaemonCache'
 import Log from '../../services/Log/Log'
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import CustomIcon from '../../components/elements/CustomIcon'
 
 import Theme from '../../themes/Themes'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
@@ -1006,9 +1007,9 @@ class SendScreen extends SendBasicScreenScreen {
                             />
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <View style={style.line} />
-                                <TouchableOpacity style={{ position: 'absolute', right: 22, marginTop: -2 }}
+                                <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
                                                   onPress={this.handleChangeEquivalentType}>
-                                    <Text>{'swap'}</Text>
+                                    <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
                                 </TouchableOpacity>
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 32 }}>

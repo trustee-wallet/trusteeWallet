@@ -76,12 +76,21 @@ const getIcon = (iconType, color) => {
             return <MaterialCommunityIcon name="cogs" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
         case 'information':
             return <MaterialCommunityIcon name="information" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
-
+        case 'hd':
+            return <CustomIcon name={'multiAddress'} size={18} color={color} />
+        case 'rbf':
+            return <CustomIcon name={'editingTx'} size={18} color={color} />
+        case 'unconfirmed':
+            return <CustomIcon name={'unconfirmed'} size={18} color={color} />
+        case 'address':
+            return <CustomIcon name={'selectVisibleAddress'} size={18} color={color} />
+        case 'fee':
+            return <CustomIcon name={'fee'} size={22} color={color} />
         default: return null
     }
 }
 
-const getRightContent = (rightContent, params) => {
+const getRightContent = (rightContent, params, color) => {
     const { onPress, value, disabled } = params
     const { colors } = useTheme()
     switch (rightContent) {
@@ -107,13 +116,9 @@ const getRightContent = (rightContent, params) => {
                 />
             )
         case 'arrow_down':
-            return (
-                <AntIcon name="down" color={colors.common.text1} size={16} />
-            )
+            return <CustomIcon name={'down'} size={18} color={color} />
         case 'arrow_up':
-            return (
-                <AntIcon name="up" color={colors.common.text1} size={16} />
-            )
+            return <CustomIcon name={'up'} size={18} color={color} />
         default: return null
     }
 }
@@ -157,7 +162,7 @@ export default function SettingListItem(props) {
                         </View>
                         {!!rightContent && (
                             <View style={[styles.rightContent, { opacity: disabled || disabledRightContent ? 0.3 : 1 }]}>
-                                {getRightContent(rightContent, { ...switchParams, disabled })}
+                                {getRightContent(rightContent, { ...switchParams, disabled }, colors.common.text1)}
                             </View>
                         )}
                     </View>

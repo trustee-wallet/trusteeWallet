@@ -298,7 +298,7 @@ class Account extends Component {
                         </View>
                     </View>
                     <TouchableOpacity style={{ justifyContent: 'center', marginRight: 16}} onPress={() => this.handleRefresh()} >
-                        <IconAwesome name='gear' size={24} color={colors.accountScreen.showMoreColor} />
+                        <CustomIcon name={'reloadTx'} size={20} color={colors.accountScreen.showMoreColor} />
                     </TouchableOpacity>
                 </View>
                 {
@@ -530,7 +530,6 @@ class Account extends Component {
                                                 account={account}
                                                 cryptoCurrency={cryptoCurrency}
                                                 dash={(allTransactionsToView - 1 === index) ? this.renderDash : !this.renderDash}
-
                                             />
                                         }) : null
                                     }

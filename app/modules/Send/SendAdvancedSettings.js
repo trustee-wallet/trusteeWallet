@@ -196,15 +196,17 @@ class SendAdvancedSettingsScreen extends Component {
 
                         return (
                             // eslint-disable-next-line react/jsx-key
-                            <SubSetting
-                                title={strings(`send.fee.text.${item.langMsg}`)}
-                                subtitle={subtitle}
-                                checked={(item.langMsg === selectedFee.langMsg) && !isCustomFee}
-                                radioButtonFirst={true}
-                                withoutLine={true}
-                                onPress={() => this.setFee(item)}
-                                checkedStyle={true}
-                            />
+                            <View style={{ marginBottom: -10 }}>
+                                <SubSetting
+                                    title={strings(`send.fee.text.${item.langMsg}`)}
+                                    subtitle={subtitle}
+                                    checked={(item.langMsg === selectedFee.langMsg) && !isCustomFee}
+                                    radioButtonFirst={true}
+                                    withoutLine={true}
+                                    onPress={() => this.setFee(item)}
+                                    checkedStyle={true}
+                                />
+                            </View>
                         )
                     }).reverse() : <View></View>
 
@@ -293,12 +295,12 @@ class SendAdvancedSettingsScreen extends Component {
                         contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', padding: GRID_SIZE, paddingBottom: GRID_SIZE * 2,  minHeight: WINDOW_HEIGHT/2 }}
                         style={{ marginTop: 70 }}
                     >
-                        <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
+                        <View style={{ paddingTop: GRID_SIZE * 1.5 }}>
                             <View>
                                 <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
                                 <ListItem
                                     title={strings('send.setting.selectFee')}
-                                    iconType="pinCode"
+                                    iconType="fee"
                                     onPress={this.toggleDropMenu}
                                     rightContent={this.state.dropMenu ? 'arrow_up' : "arrow_down"}
                                     switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
@@ -368,6 +370,7 @@ const styles = {
     settings__title: {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 12,
-        color: '#404040'
+        color: '#404040',
+        marginLeft: 20
     },
 }

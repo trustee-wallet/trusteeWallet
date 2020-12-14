@@ -15,15 +15,26 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import { useTheme } from '../../theme/ThemeProvider'
 
 import InsertShadow from 'react-native-inset-shadow'
+import CustomIcon from '../../../components/elements/CustomIcon'
 
 const getIcon = (iconType, color) => {
     switch (iconType) {
-        case 'wallet':
-            return <MaterialCommunityIcon name="wallet" color={color} size={22} style={{ marginTop: 2, marginLeft: 1 }} />
-        case 'accounts':
-            return <FontAwesomeIcon name="address-book" color={color} size={19} style={{ marginLeft: 2 }} />
-        case 'pinCode':
-            return <MaterialIcon name="lock" color={color} size={20} style={{ marginLeft: 2 }} />
+        case 'share':
+            return <CustomIcon name={'share'} color={color} size={20} />
+        case 'support':
+            return <CustomIcon name={'reload'} color={color} size={20} />
+        case 'details':
+            return <CustomIcon name={'share'} color={color} size={20} />
+        case 'notes':
+            return <CustomIcon name={'notes'} color={color} size={20} />
+        case 'card':
+            return <CustomIcon name={'card'} color={color} size={20} />
+        case 'addressFrom':
+            return <CustomIcon name={'user'} color={color} size={20} />
+        case 'addressTo':
+            return <CustomIcon name={'user'} color={color} size={20} />
+        case 'exchangeTo':
+            return <CustomIcon name={'user'} color={color} size={20} />
         default: return null
     }
 }

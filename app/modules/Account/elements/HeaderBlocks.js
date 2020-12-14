@@ -30,6 +30,7 @@ import { strings } from '../../../services/i18n'
 
 import IconAwesome from 'react-native-vector-icons/FontAwesome'
 import NavStore from '../../../components/navigation/NavStore'
+import CustomIcon from '../../../components/elements/CustomIcon'
 
 class HeaderBlocks extends Component {
     constructor(props) {
@@ -183,7 +184,7 @@ class HeaderBlocks extends Component {
         return (
             <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={() => this.accountSetting(currencyCode)}>
                 <View style={{ paddingVertical: 12 }}>
-                    <IconAwesome size={20} name="gear" color={`#404040`} />
+                    <CustomIcon name={'coinSettings'} size={20} color={`#404040`} />
                 </View>
             </TouchableOpacity>
         )
