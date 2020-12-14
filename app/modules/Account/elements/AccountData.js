@@ -76,7 +76,7 @@ const styles = {
         height: 34,
         fontSize: 30,
         fontFamily: 'Montserrat-Regular',
-        lineHeight: 30
+        lineHeight: 34
     },
     topContent__title_last: {
         height: 32,

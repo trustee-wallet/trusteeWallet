@@ -174,7 +174,7 @@ export default class SendBasicScreen extends Component {
 
         let fiatFee
         if (Number(feeBasicAmount) < 0.01) {
-            fiatFee = `> ${feeBasicCurrencySymbol} 0.01`
+            fiatFee = `< ${feeBasicCurrencySymbol} 0.01`
         } else {
             fiatFee = `${feeBasicCurrencySymbol} ${feeBasicAmount}`
         }
@@ -183,14 +183,14 @@ export default class SendBasicScreen extends Component {
         return (
             <>
                 <CheckData
-                    name={'Miner fee'}
+                    name={strings('send.receiptScreen.minerFee')}
                     value={`${prettyFee} ${prettyFeeSymbol}`}
                     subvalue={fiatFee}
                 />
                 {
                     selectedFee.isCustomFee && selectedFee.nonceForTx ?
                         <CheckData
-                            name={'Custom nonce'}
+                            name={strings('send.receiptScreen.customNonce')}
                             value={selectedFee.nonceForTx + ''}
                         /> : null
                 }

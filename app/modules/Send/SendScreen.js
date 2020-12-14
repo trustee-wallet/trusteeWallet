@@ -183,7 +183,7 @@ class SendScreen extends SendBasicScreenScreen {
                 wallet,
                 useAllFunds: sendScreenData.isTransferAll,
                 init: true,
-                amountInputMark: this.state.inputType === 'FIAT' ? `~ 0.00 ${cryptoCurrency.currencyCode}` : ` ~ ${account.basicCurrencySymbol} 0.00` 
+                amountInputMark: this.state.amountInputMark ? this.state.amountInputMark : this.state.inputType === 'FIAT' ? `~ 0.00 ${cryptoCurrency.currencyCode}` : ` ~ ${account.basicCurrencySymbol} 0.00` 
             }, () => {
 
                 if (typeof sendScreenData.addressTo !== 'undefined' && sendScreenData.addressTo) {
