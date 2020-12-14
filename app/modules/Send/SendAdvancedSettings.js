@@ -178,7 +178,7 @@ class SendAdvancedSettingsScreen extends Component {
                             needSpeed = ''
                         }
 
-                        const fiatFee = Number(feeBasicAmount) > 0.01 ? `${feeBasicCurrencySymbol} ${feeBasicAmount}` : `> ${feeBasicCurrencySymbol} 0.01`
+                        const fiatFee = Number(feeBasicAmount) > 0.01 ? `${feeBasicCurrencySymbol} ${feeBasicAmount}` : `< ${feeBasicCurrencySymbol} 0.01`
 
                         let subtitle
                         // if (item.langMsg === selectedFee.langMsg && !isCustomFee) {

@@ -87,6 +87,7 @@ class TransactionScreen extends Component {
 
         let { transactionHash, orderHash, walletHash, transaction, notification } = data
         let tx
+        let account
 
 
         if (!transaction) {
@@ -94,6 +95,9 @@ class TransactionScreen extends Component {
                 const wallet = store.getState().mainStore.selectedWallet
                 walletHash = wallet.walletHash
             }
+            
+            account = store.getState().accountStore.accountList[walletHash]
+            
             if (transactionHash) {
                 try {
                     const tmp = await transactionDS.getTransactions({
@@ -102,7 +106,8 @@ class TransactionScreen extends Component {
                     }, 'TransactionScreen.init with transactionHash ' + transactionHash)
                     if (tmp) {
                         // if you need = add also transactionActions.preformat for basic rates
-                        tx = transactionActions.preformatWithBSEforShow(tmp[0], tmp[0].bseOrderData)
+                        account = account[tmp[0].currencyCode]
+                        tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData)
                     } else {
                         tx = transactionActions.preformatWithBSEforShow( false,{ orderHash, createdAt : notification.createdAt })
                     }
@@ -116,7 +121,8 @@ class TransactionScreen extends Component {
                     }, 'TransactionScreen.init with orderHash ' + orderHash)
                     if (tmp) {
                         // if you need = add also transactionActions.preformat for basic rates
-                        tx = transactionActions.preformatWithBSEforShow(tmp[0], tmp[0].bseOrderData)
+                        account = account[tmp[0].currencyCode]
+                        tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData)
                     } else {
                         const exchangeOrder = await UpdateTradeOrdersDaemon.fromApi(walletHash, orderHash)
                         if (exchangeOrder) {
@@ -153,6 +159,7 @@ class TransactionScreen extends Component {
     }
 
     init = (transaction) => {
+        console.log('init transaction transaction', transaction)
         try {
             const { cryptoCurrency } = this.props
 
@@ -346,7 +353,7 @@ class TransactionScreen extends Component {
             return null
         }
 
-        const fiatFee = Number(transaction.basicFeePretty) < 0.01 ? `>${transaction.basicFeeCurrencySymbol} 0.01` : `${transaction.basicFeeCurrencySymbol} ${transaction.basicFeePretty}`
+        const fiatFee = Number(transaction.basicFeePretty) < 0.01 ? `< ${transaction.basicFeeCurrencySymbol} 0.01` : `${transaction.basicFeeCurrencySymbol} ${transaction.basicFeePretty}`
 
         return {
             title,
@@ -717,8 +724,9 @@ class TransactionScreen extends Component {
 
     shareTransaction = (transaction, linkUrl) => {
         const shareOptions = {}
-        shareOptions.message = `${linkUrl}\nThank you for choosing Trustee Wallet`
-        shareOptions.url = this.props.cashBackStore.dataFromApi.cashbackLink
+        shareOptions.message = strings('account.transactionScreen.transactionHash') + ` ${linkUrl}\n` + 
+            strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackStore.dataFromApi.cashbackLink}\n` + strings('account.transactionScreen.thanks')
+        // shareOptions.url = this.props.cashBackStore.dataFromApi.cashbackLink
         prettyShare(shareOptions, 'taki_share_transaction')
     }
 
@@ -875,6 +883,13 @@ class TransactionScreen extends Component {
                                                 subtitle={addressExchangeToView.description}
                                             /> : null
                             }
+                            {transaction.wayType === 'self' && (
+                                <TransactionItem
+                                    title={strings('account.transactionScreen.self')}
+                                    iconType='pinCode'
+                                    // subtitle={'self'}
+                            /> 
+                            ) }
                         </View>
                         {this.state.notification ?
                             <View style={{ marginVertical: GRID_SIZE, marginTop: 6 }}>

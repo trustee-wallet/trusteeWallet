@@ -525,7 +525,11 @@
           "pending": "Pending",
           "canceled": "Canceled"
         }
-      }
+      },
+      "transactionHash": "Transaction hash:",
+      "cashbackLink": "Cashback link:",
+      "thanks": "Thank you for choosing Trustee Wallet!",
+      "self": "This transaction was send to own address"
     }
   },
 
@@ -903,6 +907,7 @@
       "destinationAddress": "Destination address",
       "minerFee": "Miner fee",
       "totalMinerFee": "Total miner fee",
+      "customNonce": "Custom nonce",
       "trusteeInfo": "Cryptocurrency transactions are not charged",
       "send": "Send",
       "sending": "Sending"
