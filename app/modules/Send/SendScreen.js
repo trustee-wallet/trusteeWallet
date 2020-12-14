@@ -136,7 +136,8 @@ class SendScreen extends SendBasicScreenScreen {
             if (res !== null) {
                 BASIC_INPUT_TYPE = res
                 this.setState({
-                    inputType: res
+                    inputType: res,
+                    amountInputMark: ''
                 })
             }
         })
@@ -181,7 +182,8 @@ class SendScreen extends SendBasicScreenScreen {
                 cryptoCurrency,
                 wallet,
                 useAllFunds: sendScreenData.isTransferAll,
-                init: true
+                init: true,
+                amountInputMark: this.state.inputType === 'FIAT' ? `~ 0.00 ${cryptoCurrency.currencyCode}` : ` ~ ${account.basicCurrencySymbol} 0.00` 
             }, () => {
 
                 if (typeof sendScreenData.addressTo !== 'undefined' && sendScreenData.addressTo) {
@@ -617,8 +619,8 @@ class SendScreen extends SendBasicScreenScreen {
         let valueCrypto = 0
         try {
             if (!value || value === 0) {
-                amountEquivalent = 0
-                symbolEquivalent = ''
+                amountEquivalent = '0.00'
+                symbolEquivalent = inputType === 'CRYPTO' ? `${basicCurrencySymbol}` : `${currencyCode}`
             } else if (inputType === 'CRYPTO') {
                 valueCrypto = value
                 amountEquivalent = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
@@ -637,7 +639,7 @@ class SendScreen extends SendBasicScreenScreen {
         }
         return {
             amountEquivalent,
-            amountInputMark: `${amountEquivalent} ${symbolEquivalent}`,
+            amountInputMark: inputType === 'CRYPTO' ? `~ ${symbolEquivalent} ${amountEquivalent}` : `~ ${amountEquivalent} ${symbolEquivalent}`,
             valueCrypto
         }
     }
@@ -901,14 +903,14 @@ class SendScreen extends SendBasicScreenScreen {
         if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '') {
             return true
         }
-        // console.log(this.addressInput.state)
-        // if (typeof this.addressInput.state === 'undefined' || this.addressInput.state.value === '') {
-        //     return true
-        // }
+
+        if (typeof this.addressInput.state === 'undefined' || this.addressInput.state.value === '') {
+            return true
+        }
 
         const value = this.valueInput.state.value
-        // const address = this.addressInput.state.value
-        if (value) {
+        const address = this.addressInput.state.value
+        if (value && address) {
             return false
         } else {
             return true
@@ -980,13 +982,12 @@ class SendScreen extends SendBasicScreenScreen {
                         }}
                         keyboardShouldPersistTaps={'handled'}
                         showsVerticalScrollIndicator={false}
-                        // contentContainerStyle={focused ? styles.wrapper__content_active : styles.wrapper__content}
                         contentContainerStyle={{
                             flexGrow: 1,
                             justifyContent: 'space-between',
                             padding: GRID_SIZE,
                             paddingBottom: GRID_SIZE * 2,
-                            minHeight: focused ? 500 : WINDOW_HEIGHT / 2
+                            minHeight: focused ? 420 : WINDOW_HEIGHT / 2
                         }}
                         style={{ marginTop: headerHeight }}
                     >

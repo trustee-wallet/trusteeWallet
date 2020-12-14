@@ -371,13 +371,23 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 if (uiType === 'MAIN_SCANNER') {
                     NavStore.reset('DashboardStack')
                 } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {
-                    NavStore.reset('AccountScreen')
-                } else if (uiType === 'TRADE_SEND') {
-                    NavStore.goNext('FinishScreen', {
-                        finishScreenParam: {
-                            selectedCryptoCurrency: this.state.cryptoCurrency
-                        }
+                    // NavStore.reset('AccountScreen')
+                    NavStore.goNext('TransactionScreen', {
+                        txData: {
+                            transactionHash: tx.transactionHash,
+                        } 
                     })
+                } else if (uiType === 'TRADE_SEND') {
+                    NavStore.goNext('TransactionScreen', {
+                        txData: {
+                            transactionHash: tx.transactionHash,
+                        } 
+                    })
+                    // NavStore.goNext('FinishScreen', {
+                    //     finishScreenParam: {
+                    //         selectedCryptoCurrency: this.state.cryptoCurrency
+                    //     }
+                    // })
                 } else if (uiType === 'DEEP_LINKING' || uiType === 'HOME_SCREEN') {
                     // account was not opened before
                     setSelectedCryptoCurrency(this.state.cryptoCurrency)
@@ -586,7 +596,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             {contactName ?
                                 <CheckData
                                     name={strings('send.receiptScreen.recepient')}
-                                    value={contactName}
+                                    value={BlocksoftPrettyStrings.makeCut(contactName, 6)}
                                 />
                             : null}
                             {multiShow ?

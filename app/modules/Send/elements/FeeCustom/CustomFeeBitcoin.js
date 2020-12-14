@@ -96,12 +96,16 @@ class CustomFee extends Component {
         const { colors, GRID_SIZE } = this.context
 
         const prettyFeeSymbol = this.props.feesCurrencyCode || this.props.currencyCode
-        const customFee = `Calculeted fee: ${this.state.selectedFee.feeForByte} SAT : \n${this.state.prettyFee} ${prettyFeeSymbol} / ` + (Number(this.state.feeBasicAmount) < 0.01 ? ` > ${this.props.basicCurrencySymbol} 0.01` : `${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`)
+        const customFee = strings(`send.fee.customFee.calculetedFee`) + `\n${this.state.prettyFee} ${prettyFeeSymbol} / ` + (Number(this.state.feeBasicAmount) < 0.01 ? ` > ${this.props.basicCurrencySymbol} 0.01` : `${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`)
+        // ${this.state.selectedFee.feeForByte} SAT :
 
         return (
             <View style={{ marginTop: 10 }}>
-                <View style={{ paddingBottom: 20, paddingLeft: 10 }}>
+                <View>
                     <Text style={{...styles.customFee, color: colors.common.text1}} >{ customFee }</Text>
+                </View>
+                <View style={{ paddingTop: 10, marginBottom: GRID_SIZE }}>
+                    <Text style={{...styles.customFee, color: colors.common.text1}} >{strings(`send.fee.customFee.btc.feeForByte`)}</Text>
                 </View>
                 <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
                     <FeeForByteInput
@@ -116,6 +120,7 @@ class CustomFee extends Component {
                         inputTextColor={'#f4f4f4'}
                         tintColor={'#7127ac'}
                         callback={(value) => this.handleRecount(value)}
+                        onFocus={this.props.onFocus}
                     />
                 </View>
             </View>

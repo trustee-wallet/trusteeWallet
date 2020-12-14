@@ -120,6 +120,7 @@ class SendAdvancedSettingsScreen extends Component {
                 countedFeesData={this.state.countedFeesData}
                 useAllFunds={this.state.sendScreenData.isTransferAll}
                 updateSelectedFeeBack={this.updateSelectedFeeBack}
+                onFocus={() => this.onFocus()}
             />
         )
     }
@@ -177,7 +178,7 @@ class SendAdvancedSettingsScreen extends Component {
                             needSpeed = ''
                         }
 
-                        const fiatFee = Number(feeBasicAmount) < 0.01 ? `${feeBasicCurrencySymbol} ${feeBasicAmount}` : `> ${feeBasicCurrencySymbol} 0.01`
+                        const fiatFee = Number(feeBasicAmount) > 0.01 ? `${feeBasicCurrencySymbol} ${feeBasicAmount}` : `> ${feeBasicCurrencySymbol} 0.01`
 
                         let subtitle
                         // if (item.langMsg === selectedFee.langMsg && !isCustomFee) {
@@ -252,16 +253,16 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     onFocus = () => {
-        this.setState({
-            focused: true
-        })
+        // this.setState({
+        //     focused: true
+        // })
 
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: 120 })
+                this.scrollView.scrollTo({ y: 320 })
             } catch (e) {
             }
-        }, 500)
+        }, 100)
     }
 
     render() {
@@ -289,7 +290,7 @@ class SendAdvancedSettingsScreen extends Component {
                         }}
                         keyboardShouldPersistTaps={'handled'}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', padding: GRID_SIZE, paddingBottom: GRID_SIZE * 2, minHeight: focused ? 400 : WINDOW_HEIGHT/2 }}
+                        contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', padding: GRID_SIZE, paddingBottom: GRID_SIZE * 2,  minHeight: WINDOW_HEIGHT/2 }}
                         style={{ marginTop: 70 }}
                     >
                         <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
