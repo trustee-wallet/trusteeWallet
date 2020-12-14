@@ -55,6 +55,7 @@ import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
 import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 
+let CACHE_SET_WALLET_HASH = false
 
 class HomeScreen extends Component {
 
@@ -304,9 +305,12 @@ class HomeScreen extends Component {
 
         let walletHash = this.props.mainStore.selectedWallet.walletHash
         if (!walletHash || typeof walletHash === 'undefined') {
-            walletHash = cryptoWalletActions.setFirstWallet()
-            Log.log('HomeScreen empty wallet hash changed to ' + walletHash)
-            cryptoWalletActions.setSelectedWallet(walletHash, 'WalletList.HomeScreen', false)
+            if (!CACHE_SET_WALLET_HASH) {
+                CACHE_SET_WALLET_HASH = true
+                walletHash = cryptoWalletActions.setFirstWallet()
+                Log.log('HomeScreen empty wallet hash changed to ' + walletHash)
+                cryptoWalletActions.setSelectedWallet(walletHash, 'WalletList.HomeScreen', false)
+            }
         }
         const accountListByWallet = this.props.accountStore.accountList[walletHash] || {}
         const balanceData = this.getBalanceData()
