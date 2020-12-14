@@ -13,6 +13,7 @@ import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/B
 import ExchangeOrdersActions from '../../appstores/Stores/ExchangeOrders/ExchangeOrdersActions'
 
 import config from '../../config/config'
+import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 
 const settingsDS = new Settings()
 
@@ -152,6 +153,9 @@ class UpdateTradeOrdersDaemon {
             }
         }
 
+        const exchangeWayTypes = BlocksoftExternalSettings.getStatic('TRADE_ORDERS_NO_TX_WAY_TYPES', 'UpdateTradeOrdersDaemon')
+        const allowedToShow = BlocksoftExternalSettings.getStatic('TRADE_ORDERS_NO_TX_MAX_COUNT', 'UpdateTradeOrdersDaemon')
+        const now = new Date().getTime()
         try {
             let tmpTradeOrders = await Api.getExchangeOrders()
             const tmpTradeOrdersV3 = await ApiV3.getExchangeOrders()
@@ -223,8 +227,8 @@ class UpdateTradeOrdersDaemon {
                                     sql = `
                                      UPDATE transactions 
                                      SET bse_order_id_${tmp.suffix}='${item.orderId}', bse_order_data='${dbInterface.escapeString(JSON.stringify(item))}'
-                                     WHERE transaction_hash='${tmp.updateHash}'
-                                     AND currency_code='${tmp.currencyCode}'
+                                     WHERE (transaction_hash='${tmp.updateHash}' AND currency_code='${tmp.currencyCode}')
+                                     OR bse_order_id='${item.orderId}'
                                      `
                                     savedToTx = true
                                 } else {
@@ -242,15 +246,28 @@ class UpdateTradeOrdersDaemon {
 
                         if (needAdd) {
                             if (!savedToTx) {
-                                if (typeof tradeOrders[currencyCode] === 'undefined') {
-                                    tradeOrders[currencyCode] = []
-                                }
                                 if (typeof CACHE_REMOVED[item.orderId] !== 'undefined') {
                                     continue
                                 }
-                                if (tradeOrders[currencyCode].length < 3) {
+                                if (typeof item.exchangeWayType !== 'undefined' && typeof exchangeWayTypes[item.exchangeWayType.toUpperCase()] === 'undefined') {
+                                    continue
+                                }
+                                let tmp = exchangeWayTypes[item.exchangeWayType.toUpperCase()]
+                                if (typeof item.status !== 'undefined' && typeof tmp[item.status.toLowerCase()] === 'undefined') {
+                                    continue
+                                }
+                                tmp = tmp[item.status.toLowerCase()] * 60000
+                                if (now - tmp > item.createdAt) {
+                                    continue
+                                }
+
+                                if (typeof tradeOrders[currencyCode] === 'undefined') {
+                                    tradeOrders[currencyCode] = []
+                                }
+                                if (tradeOrders[currencyCode].length < allowedToShow) {
                                     tradeOrders[currencyCode].push(item)
                                 }
+
                             }
                             total++
                         }
@@ -259,11 +276,12 @@ class UpdateTradeOrdersDaemon {
                     const txt = JSON.stringify(tradeOrders)
                     if (typeof CACHE_ORDERS[walletHash] === 'undefined' || JSON.stringify(CACHE_ORDERS[walletHash]) !== txt) {
                         CACHE_ORDERS[walletHash] = tradeOrders
-                        ExchangeOrdersActions.setExchangeOrderList({walletHash, tradeOrders})
+                        ExchangeOrdersActions.setExchangeOrderList({ walletHash, tradeOrders })
                         await settingsDS.setSettings('bseOrdersNew_' + walletHash, txt)
+                        Log.daemon('UpdateTradeOrders success and updated', tradeOrders)
+                    } else {
+                        Log.daemon('UpdateTradeOrders success but is cached the same')
                     }
-
-                    Log.daemon('UpdateTradeOrders success')
 
                     TRY_COUNTER = 0
 
