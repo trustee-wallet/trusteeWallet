@@ -204,9 +204,7 @@ class ConfirmScreen extends Component {
                 memo : res.data.memo,
                 currencyCode : selectedCryptocurrency.currencyCode,
                 isTransferAll : useAllFunds,
-                toTransactionJSON : {
-                    bseOrderID: res.data.orderId
-                },
+                bseOrderID: res.data.orderId,
                 uiType: 'TRADE_SEND',
                 uiApiVersion : 'v2'
             })

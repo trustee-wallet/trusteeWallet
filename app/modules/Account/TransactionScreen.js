@@ -833,8 +833,7 @@ class TransactionScreen extends Component {
                 { icon: 'accounts', title: strings('account.transactionScreen.support'), action: () => this.shareSupport() },
                 { icon: showMoreDetails ? 'x' : 'wallet', title: strings('account.transactionScreen.details'), action: () => this.showMoreDetails() }
             ], []]
-
-        console.log('state', this.state.notification)
+        
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header

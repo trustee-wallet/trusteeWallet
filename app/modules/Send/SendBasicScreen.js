@@ -88,9 +88,9 @@ export default class SendBasicScreen extends Component {
     closeAction = async () => {
 
         const { sendScreenData } = this.state
-        if (typeof sendScreenData !== 'undefined' && sendScreenData && typeof sendScreenData.toTransactionJSON !== 'undefined' && sendScreenData.toTransactionJSON && sendScreenData.toTransactionJSON.bseOrderID !== 'undefined') {
+        if (typeof sendScreenData !== 'undefined' && sendScreenData && typeof sendScreenData.bseOrderID !== 'undefined' && sendScreenData.bseOrderID) {
             const version = sendScreenData.uiApiVersion || 'v3'
-            const removeId = sendScreenData.toTransactionJSON.bseOrderID
+            const removeId = sendScreenData.bseOrderID
             console.log('SendBasicScreen.goBack with version ' + version + ' removeId ' + removeId)
             if (version === 'v2') {
                 Api.setExchangeStatus(removeId, 'close')

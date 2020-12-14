@@ -28,7 +28,10 @@ export namespace SendTmpData {
         contactAddress ?: boolean | string,
 
         fioRequestDetails ?: any,
-        toTransactionJSON ?: any
+
+        bseOrderID ?: string,
+
+        transactionJson : any,
 
         transactionReplaceByFee : string | boolean,
         transactionSpeedUp : string | boolean,

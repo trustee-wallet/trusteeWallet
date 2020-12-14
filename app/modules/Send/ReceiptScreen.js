@@ -208,7 +208,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 useOnlyConfirmed: !(walletUseUnconfirmed === 1),
                 allowReplaceByFee: walletAllowReplaceByFee === 1,
                 accountJson,
-                toTransactionJSON: sendScreenData.toTransactionJSON,
+                transactionJson: sendScreenData.transactionJson,
             }
             let memo = false
             let comment = false
@@ -240,7 +240,13 @@ class ReceiptScreen extends SendBasicScreenScreen {
             console.log('txData', txData)
             const tx = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed, selectedFee })
 
-            const transactionJson = { memo, comment, ...sendScreenData.toTransactionJSON }
+            const transactionJson = sendScreenData.transactionJson
+            if (memo) {
+                transactionJson.memo = memo
+            }
+            if (comment) {
+                transactionJson.comment = comment
+            }
             if (typeof tx.transactionJson !== 'undefined') {
                 let key
                 for (key in tx.transactionJson) {
@@ -330,10 +336,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 if (sendScreenData.transactionSpeedUp) {
                     logData.transactionSpeedUp = sendScreenData.transactionSpeedUp
                 }
-                if (typeof transactionJson !== 'undefined' && transactionJson && typeof transactionJson.bseOrderID !== 'undefined' && transactionJson.bseOrderID) {
-                    transaction.bse_order_id = transactionJson.bseOrderID
-                    transaction.bse_order_id_out = transactionJson.bseOrderID
-                    logData.bseOrderID = transactionJson.bseOrderID.toString()
+                if (typeof sendScreenData.bseOrderID !== 'undefined' && sendScreenData.bseOrderID) {
+                    transaction.bse_order_id = sendScreenData.bseOrderID
+                    transaction.bse_order_id_out = sendScreenData.bseOrderID
+                    logData.bseOrderID = sendScreenData.bseOrderID.toString()
                 }
 
                 const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')

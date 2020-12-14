@@ -9,7 +9,12 @@ import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNum
 import { SendTmpData } from './SendTmpData'
 
 
-import {  isFioAddressValid, isFioAddressRegistered, resolveChainCode, getPubAddress} from '../../../../crypto/blockchains/fio/FioUtils'
+import {
+    isFioAddressValid,
+    isFioAddressRegistered,
+    resolveChainCode,
+    getPubAddress
+} from '../../../../crypto/blockchains/fio/FioUtils'
 
 import config from '../../../config/config'
 import store from '../../../store'
@@ -20,7 +25,7 @@ import { BlocksoftBlockchainTypes } from '../../../../crypto/blockchains/Blockso
 
 export namespace SendActions {
 
-    export const getContactAddress = async function (data : {addressName : string, currencyCode: string}) : Promise<string | boolean> {
+    export const getContactAddress = async function(data: { addressName: string, currencyCode: string }): Promise<string | boolean> {
 
         let isUiError = false
         let uiError = ''
@@ -112,7 +117,7 @@ export namespace SendActions {
         const { address, currencyCode, derivationPath, accountJson } = account
 
         let amount = data.amountRaw || '0'
-        if (typeof data.addressTo  === 'undefined' || !data.addressTo || data.addressTo === '') {
+        if (typeof data.addressTo === 'undefined' || !data.addressTo || data.addressTo === '') {
             return {
                 countedFees: false,
                 selectedFee: false
@@ -142,23 +147,19 @@ export namespace SendActions {
             // @ts-ignore
             countedFeesData.memo = data.memo
         }
-        if (typeof data.transactionBoost !== 'undefined' && data.transactionBoost && data.transactionBoost.transactionHash !== 'undefined') {
-            if (data.transactionBoost.transactionDirection === 'income') {
-                countedFeesData.transactionSpeedUp = data.transactionBoost.transactionHash
-            } else {
-                countedFeesData.transactionReplaceByFee = data.transactionBoost.transactionHash
+        if (data.transactionSpeedUp || data.transactionReplaceByFee) {
+            // any amount is ok
+        } else if (amount === '0') {
+            return {
+                countedFees: false,
+                selectedFee: false
             }
-        } else {
-            if (amount === '0') {
-                return {
-                    countedFees: false,
-                    selectedFee: false
-                }
-            }
+
         }
-        if (typeof data.toTransactionJSON !== 'undefined' &&  data.toTransactionJSON) {
-            countedFeesData.transactionJson = data.toTransactionJSON
+        if (typeof data.transactionJson !== 'undefined' && data.transactionJson && data.transactionJson !== {}) {
+            countedFeesData.transactionJson = data.transactionJson
         }
+
         const addData = {} as BlocksoftBlockchainTypes.TransferAdditionalData
         if (typeof data.selectedFee !== 'undefined' && data.selectedFee) {
             if (typeof data.selectedFee.blockchainData !== 'undefined' && typeof data.selectedFee.blockchainData.unspents !== 'undefined') {
@@ -232,10 +233,11 @@ export namespace SendActions {
 
         data.transactionReplaceByFee = false
         data.transactionSpeedUp = false
+        data.transactionJson = {}
         if (typeof data.transactionBoost !== 'undefined' && data.transactionBoost && typeof data.transactionBoost.transactionHash !== 'undefined') {
             data.currencyCode = data.transactionBoost.currencyCode
             if (data.transactionBoost.transactionDirection !== 'income') {
-                data.toTransactionJSON = data.transactionBoost.transactionJson
+                data.transactionJson = data.transactionBoost.transactionJson
                 data.transactionReplaceByFee = data.transactionBoost.transactionHash
             } else {
                 data.transactionSpeedUp = data.transactionBoost.transactionHash

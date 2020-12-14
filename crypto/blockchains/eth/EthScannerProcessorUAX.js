@@ -8,6 +8,13 @@ import BlocksoftUtils from '../../common/BlocksoftUtils'
 import DBInterface from '../../../app/appstores/DataSource/DB/DBInterface'
 const TXS_PATH = 'https://api.xreserve.fund/delegated-transactions?address='
 
+const CACHE_VALID_TIME = 300000 // 300 sec
+
+const CACHED = {
+    time : 0,
+    data : {}
+}
+
 async function replaceTx(old, txid, notReplacing) {
 
     const now = new Date().toISOString()
@@ -100,10 +107,18 @@ export default class EthScannerProcessorUAX extends EthScannerProcessorErc20 {
         BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions started ' + address)
 
         const txsBasic = await super.getTransactionsBlockchain(address)
-        const link = TXS_PATH + address
-        const txs = await BlocksoftAxios.getWithoutBraking(link)
-        if (!txs || typeof txs.data === 'undefined' || txs.data.length === 0) {
-            return txsBasic
+        const now = new Date().getTime()
+        let txs
+        if (CACHED.time > 0 && now - CACHED.time < CACHE_VALID_TIME) {
+            txs = CACHED.data
+        } else {
+            const link = TXS_PATH + address
+            txs = await BlocksoftAxios.getWithoutBraking(link)
+            if (!txs || typeof txs.data === 'undefined' || txs.data.length === 0) {
+                return txsBasic
+            }
+            CACHED.time = now
+            CACHED.data = txs
         }
 
         // BlocksoftCryptoLog.log('txs', JSON.parse(JSON.stringify(txs.data)))
