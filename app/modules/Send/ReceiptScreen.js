@@ -219,6 +219,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
             if (typeof sendScreenData.comment !== 'undefined') {
                 comment = sendScreenData.comment
             }
+            const contactName = sendScreenData.contactName || false
+            if ((!txData.addressTo || txData.addressTo === '') && contactName) {
+                txData.addressTo = contactName
+            }
             if (typeof selectedFee !== 'undefined' && selectedFee) {
                 if (typeof selectedFee.amountForTx !== 'undefined') {
                     txData.amount = selectedFee.amountForTx
@@ -237,6 +241,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     transactionJson[key] = tx.transactionJson[key]
                 }
             }
+
 
             const now = new Date().toISOString()
             const transactionReplaceByFee = false
@@ -456,6 +461,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
         let memo = sendScreenData.memo || ''
         let contactName = sendScreenData.contactName || false
         if (contactName === address) {
+            contactName = false
+        }
+        if (!address && contactName) {
+            address = contactName
             contactName = false
         }
         let isFioRequest = false
