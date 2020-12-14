@@ -143,7 +143,7 @@ class BottomNavigation extends Component {
         const { colors } = this.context
         return (
             <View style={{ alignItems: 'center' }}>
-                <CustomIcon name="exchangeMain" style={{ marginTop: 2, color: colors.common.text1, fontSize: 18 }} />
+                <CustomIcon name="exchange" style={{ marginTop: 2, color: colors.common.text1, fontSize: 18 }} />
                 <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 3 }}>{strings('dashboardStack.exchange')}</Text>
             </View>
         )

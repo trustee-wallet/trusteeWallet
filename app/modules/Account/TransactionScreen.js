@@ -833,14 +833,18 @@ class TransactionScreen extends Component {
                 { icon: 'accounts', title: strings('account.transactionScreen.support'), action: () => this.shareSupport() },
                 { icon: showMoreDetails ? 'x' : 'wallet', title: strings('account.transactionScreen.details'), action: () => this.showMoreDetails() }
             ], []]
-        
+
+        console.log('state', this.state.notification)
+
+        const prev = NavStore.getPrevRoute().routeName
+
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
-                    leftType='back'
+                    leftType={prev === 'ReceiptScreen' || prev === 'NotificationsScreen' ? null : 'back'}
                     leftAction={this.closeAction}
                     rightType='close'
-                    rightAction={this.closeAction}
+                    rightAction={prev === 'ReceiptScreen' || prev === 'NotificationsScreen' ? () => NavStore.goNext('HomeScreen') : this.closeAction}
                     setHeaderHeight={this.setHeaderHeight}
                     ExtraView={() => transaction ? this.headerTrx(transaction, color, cryptoCurrency.currencyCode) : null}
                 />
