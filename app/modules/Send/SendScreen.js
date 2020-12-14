@@ -578,8 +578,14 @@ class SendScreen extends SendBasicScreenScreen {
                 newSendScreenData.contactName = contactName
                 newSendScreenData.contactAddress = contactAddress
 
+                let isChanged = false
+                if ((!newSendScreenData.addressTo || newSendScreenData.addressTo === '') && contactName) {
+                    newSendScreenData.addressTo = contactName
+                    isChanged = true
+                }
+
                 // when late count
-                if (!newSendScreenData.isTransferAll) {
+                if (!newSendScreenData.isTransferAll || isChanged) {
                     const { selectedFee } = await this.recountFees(newSendScreenData)
                     newSendScreenData.selectedFee = selectedFee
                 }
