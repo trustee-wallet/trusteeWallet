@@ -627,7 +627,7 @@ const styles = {
     },
     transaction__empty_text: {
         marginTop: -5,
-        marginLeft: 30,
+        marginLeft: 16,
         color: '#999999',
         fontSize: 12,
         fontFamily: 'SFUIDisplay-Semibold',

@@ -422,7 +422,7 @@
     "send": "Send",
     "history": "Transactions",
     "scan": " %{time} min ago ",
-    "justScan": "just scanned",
+    "justScan": "just",
     "noTransactions": "You don’t have any transaction yet.",
     "showMore": "Show more",
     "assetSettings": "Asset settings",
@@ -507,6 +507,25 @@
     },
     "accountList": {
       "list": "Account list"
+    },
+    "transactionScreen": {
+      "explorer": "Explorer",
+      "share": "Share",
+      "booster": "Booster",
+      "remove": "Remove",
+      "removeRbf": "Remove with rbf",
+      "check": "Check",
+      "support": "Support",
+      "details": "Details",
+      "commentPlaceholder": "Comment (optional)",
+      "viewExplorer": "View on explorer",
+      "header": {
+        "status": {
+          "success": "Success",
+          "pending": "Pending",
+          "canceled": "Canceled"
+        }
+      }
     }
   },
 

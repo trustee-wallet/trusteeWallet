@@ -420,7 +420,7 @@
     "send": "Відправити",
     "history": "Транзакції",
     "scan": "%{time} хв назад",
-    "justScan": "щойно відскановано",
+    "justScan": "щойно",
     "noTransactions": "У Вас ще немає транзакцій",
     "showMore": "Показати ще",
     "assetSettings": "Налаштування активу",
@@ -505,6 +505,25 @@
     },
     "accountList": {
       "list": "Облікові записи"
+    },
+    "transactionScreen": {
+      "explorer": "Explorer",
+      "share": "Поширити",
+      "booster": "Ускорити",
+      "remove": "Видалити",
+      "removeRbf": "Видалити заміною",
+      "check": "Чек",
+      "support": "Підтримка",
+      "details": "Деталі",
+      "commentPlaceholder": "Коментарій (необов'язково)",
+      "viewExplorer": "Переглянути на Explorer",
+      "header": {
+        "status": {
+          "success": "Успішно",
+          "pending": "Опрацьовується",
+          "canceled": "Відменено"
+        }
+      }
     }
   },
 

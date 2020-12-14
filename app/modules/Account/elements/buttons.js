@@ -44,7 +44,8 @@ const renderItem = (data) => {
         <>
             {data.map((item) => {
                 return (
-                    <View style={{ flexDirection: 'column', paddingHorizontal: 25 }}>
+                    // eslint-disable-next-line react/jsx-key
+                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minWidth: 90 }}>
                         <TouchableOpacity style={styles.icon} onPress={item.action}>
                             {getIcon(item.icon.toString(), '#f7f7f7')}
                         </TouchableOpacity>

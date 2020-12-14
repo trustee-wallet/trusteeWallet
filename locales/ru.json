@@ -422,7 +422,7 @@
     "send": "Отправить",
     "history": "Транзакции",
     "scan": "%{time} мин назад",
-    "justScan": "отсканировано только что",
+    "justScan": "только что",
     "noTransactions": "У Вас еще нет транзакций",
     "showMore": "Показать еще",
     "assetSettings": "Настройки актива",
@@ -507,6 +507,25 @@
     },
     "accountList": {
       "list": "Учетные записи"
+    },
+    "transactionScreen": {
+      "explorer": "Explorer",
+      "share": "Поделиться",
+      "booster": "Ускорить",
+      "remove": "Удалить",
+      "removeRbf": "Удалить заменой",
+      "check": "Чек",
+      "support": "Поддержка",
+      "details": "Детали",
+      "commentPlaceholder": "Комментарий (не обязательно)",
+      "viewExplorer": "Посмотреть на Explorer",
+      "header": {
+        "status": {
+          "success": "Успешно",
+          "pending": "Обрабатывается",
+          "canceled": "Отменино"
+        }
+      }
     }
   },
 
