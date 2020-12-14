@@ -197,79 +197,86 @@ class UpdateTradeOrdersDaemon {
                         if (total > 100) {
                             break
                         }
-                        const tmps = [
-                            {
-                                currencyCode: item.requestedInAmount.currencyCode || false,
-                                updateHash: item.inTxHash || false,
-                                suffix: 'in'
-                            },
-                            {
-                                currencyCode: item.requestedOutAmount.currencyCode || false,
-                                updateHash: item.outTxHash || false,
-                                suffix: 'out'
-                            }
-                        ]
+                        try {
+                            const tmps = [
+                                {
+                                    currencyCode: item.requestedInAmount.currencyCode || false,
+                                    updateHash: item.inTxHash || false,
+                                    suffix: 'in'
+                                },
+                                {
+                                    currencyCode: item.requestedOutAmount.currencyCode || false,
+                                    updateHash: item.outTxHash || false,
+                                    suffix: 'out'
+                                }
+                            ]
 
-                        let needAdd = false
-                        let savedToTx = false
-                        let currencyCode = 'NONE'
-                        for (const tmp of tmps) {
-                            if (!tmp.currencyCode) continue
-                            if (typeof index[tmp.currencyCode] === 'undefined') {
-                                index[tmp.currencyCode] = 1
-                            } else {
-                                index[tmp.currencyCode]++
-                            }
-                            currencyCode = tmp.currencyCode
-                            if (index[tmp.currencyCode] < LIMIT_FOR_CURRENCY) {
-                                let sql
-                                if (tmp.updateHash) {
-                                    sql = `
+                            let needAdd = false
+                            let savedToTx = false
+                            let currencyCode = 'NONE'
+                            for (const tmp of tmps) {
+                                if (!tmp.currencyCode) continue
+                                if (typeof index[tmp.currencyCode] === 'undefined') {
+                                    index[tmp.currencyCode] = 1
+                                } else {
+                                    index[tmp.currencyCode]++
+                                }
+                                currencyCode = tmp.currencyCode
+                                if (index[tmp.currencyCode] < LIMIT_FOR_CURRENCY) {
+                                    let sql
+                                    if (tmp.updateHash) {
+                                        sql = `
                                      UPDATE transactions 
                                      SET bse_order_id_${tmp.suffix}='${item.orderId}', bse_order_data='${dbInterface.escapeString(JSON.stringify(item))}'
                                      WHERE (transaction_hash='${tmp.updateHash}' AND currency_code='${tmp.currencyCode}')
                                      OR bse_order_id='${item.orderId}'
                                      `
-                                    savedToTx = true
-                                } else {
-                                    sql = `
+                                        savedToTx = true
+                                    } else {
+                                        sql = `
                                      UPDATE transactions 
                                      SET bse_order_data='${dbInterface.escapeString(JSON.stringify(item))}'
                                      WHERE bse_order_id='${item.orderId}'
                                      `
-                                    // could be true could be not
+                                        // could be true could be not
+                                    }
+                                    await dbInterface.setQueryString(sql).query(true)
+                                    needAdd = true
                                 }
-                                await dbInterface.setQueryString(sql).query(true)
-                                needAdd = true
                             }
-                        }
 
-                        if (needAdd) {
-                            if (!savedToTx) {
-                                if (typeof CACHE_REMOVED[item.orderId] !== 'undefined') {
-                                    continue
-                                }
-                                if (typeof item.exchangeWayType !== 'undefined' && typeof exchangeWayTypes[item.exchangeWayType.toUpperCase()] === 'undefined') {
-                                    continue
-                                }
-                                let tmp = exchangeWayTypes[item.exchangeWayType.toUpperCase()]
-                                if (typeof item.status !== 'undefined' && typeof tmp[item.status.toLowerCase()] === 'undefined') {
-                                    continue
-                                }
-                                tmp = tmp[item.status.toLowerCase()] * 60000
-                                if (now - tmp > item.createdAt) {
-                                    continue
-                                }
+                            if (needAdd) {
+                                if (!savedToTx) {
+                                    if (typeof CACHE_REMOVED[item.orderId] !== 'undefined') {
+                                        continue
+                                    }
+                                    if (typeof item.exchangeWayType !== 'undefined' && typeof exchangeWayTypes[item.exchangeWayType.toUpperCase()] === 'undefined') {
+                                        continue
+                                    }
+                                    let tmp = exchangeWayTypes[item.exchangeWayType.toUpperCase()]
+                                    if (typeof item.status !== 'undefined' && typeof tmp[item.status.toLowerCase()] === 'undefined') {
+                                        continue
+                                    }
+                                    tmp = tmp[item.status.toLowerCase()] * 60000
+                                    if (now - tmp > item.createdAt) {
+                                        continue
+                                    }
 
-                                if (typeof tradeOrders[currencyCode] === 'undefined') {
-                                    tradeOrders[currencyCode] = []
-                                }
-                                if (tradeOrders[currencyCode].length < allowedToShow) {
-                                    tradeOrders[currencyCode].push(item)
-                                }
+                                    if (typeof tradeOrders[currencyCode] === 'undefined') {
+                                        tradeOrders[currencyCode] = []
+                                    }
+                                    if (tradeOrders[currencyCode].length < allowedToShow) {
+                                        tradeOrders[currencyCode].push(item)
+                                    }
 
+                                }
+                                total++
                             }
-                            total++
+                        } catch (e) {
+                            if (config.debug.appErrors) {
+                                console.log('UpdateTradeOrders one order error ' + e.message, e, JSON.parse(JSON.stringify(item)))
+                            }
+                            Log.err('UpdateTradeOrders one order error ' + e.message, item)
                         }
                     }
 
@@ -291,9 +298,9 @@ class UpdateTradeOrdersDaemon {
 
             } catch (e) {
                 if (config.debug.appErrors) {
-                    console.log(e.message + ' tmpTradeOrders', e, JSON.parse(JSON.stringify(tmpTradeOrders)))
+                    console.log('UpdateTradeOrders all orders error ' + e.message, e, JSON.parse(JSON.stringify(tmpTradeOrders)))
                 }
-                throw new Error(e.message + ' tmpTradeOrders' + JSON.stringify(tmpTradeOrders))
+                throw new Error('UpdateTradeOrders all orders error ' + e.message + ' ' + JSON.stringify(tmpTradeOrders))
             }
 
         } catch (e) {
