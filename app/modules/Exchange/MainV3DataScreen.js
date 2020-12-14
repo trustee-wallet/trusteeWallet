@@ -145,7 +145,8 @@ class MainV3DataScreen extends Component {
                     amount: amount,
                     address: address,
                     useAllFunds: false,
-                    toTransactionJSON: { 'bseOrderID': orderHash, 'comment': comment || '' },
+                    bseOrderID: orderHash,
+                    comment: comment || '' ,
                     currencyCode: inCurrencyCode,
                     type: 'TRADE_SEND'
                 }
@@ -162,19 +163,17 @@ class MainV3DataScreen extends Component {
         }
     }
 
-    exchangeV3 = (data) => {
+    exchangeV3 = async (data) => {
         console.log('Exchange/MainV3Screen dataExchange', JSON.stringify(data))
         try {
-            SendActions.startSend({
+            await SendActions.startSend({
                 gotoReceipt: true,
                 addressTo: data.address,
                 amountPretty: data.amount.toString(),
                 memo: data.memo,
                 currencyCode: data.currencyCode,
                 isTransferAll: data.useAllFunds,
-                toTransactionJSON: {
-                    bseOrderID: data.orderHash || data.orderId,
-                },
+                bseOrderID: data.orderHash || data.orderId,
                 comment: data.comment || '',
                 uiType: 'TRADE_SEND',
                 uiApiVersion: 'v3',

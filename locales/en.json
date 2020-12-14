@@ -420,7 +420,7 @@
     "refresh": "Refresh",
     "receive": "%{receive}",
     "send": "Send",
-    "history": "Transactions",
+    "history": "Transactions:",
     "scan": " %{time} min ago ",
     "justScan": "just",
     "noTransactions": "You don’t have any transaction yet.",
@@ -525,7 +525,11 @@
           "pending": "Pending",
           "canceled": "Canceled"
         }
-      }
+      },
+      "transactionHash": "Transaction hash:",
+      "cashbackLink": "Cashback link:",
+      "thanks": "Thank you for choosing Trustee Wallet!",
+      "self": "This transaction was send to own address"
     }
   },
 
@@ -841,6 +845,7 @@
         "title": "Manually",
         "fixedFeeTitle": "FIXED FEE",
         "customFeeTitle": "SET\nMANUALLY",
+        "calculetedFee": "Calculeted fee:",
         "eth": {
           "gasPrice": "Gas price",
           "gasLimit": "Gas limit",
@@ -898,10 +903,13 @@
       "title": "Receipt",
       "totalSend": "Total send",
       "rate": "@ rate per 1 %{currencyCode}",
+      "replaceTransactionHash" : "Replacing Tx",
+      "speedUpTransactionHash" : "SpeedUp Tx",
       "recepient": "Recepient",
       "destinationAddress": "Destination address",
       "minerFee": "Miner fee",
       "totalMinerFee": "Total miner fee",
+      "customNonce": "Custom nonce",
       "trusteeInfo": "Cryptocurrency transactions are not charged",
       "send": "Send",
       "sending": "Sending"

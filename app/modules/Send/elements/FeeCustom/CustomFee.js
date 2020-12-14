@@ -48,6 +48,7 @@ class CustomFee extends Component {
                     selectedFee={selectedFee}
                     useAllFunds={useAllFunds}
                     updateSelectedFeeBack={updateSelectedFeeBack}
+                    onFocus={onFocus}
                 />
             case 'BTC':
             case 'LTC':
@@ -69,6 +70,7 @@ class CustomFee extends Component {
                     useAllFunds={useAllFunds}
                     countedFeesData={countedFeesData}
                     updateSelectedFeeBack={updateSelectedFeeBack}
+                    onFocus={onFocus}
                     />
             default:
 

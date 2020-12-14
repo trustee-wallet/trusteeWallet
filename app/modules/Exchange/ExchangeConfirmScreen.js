@@ -102,16 +102,14 @@ class ExchangeConfirmScreen extends Component {
 
             const res = await Api.createOrder(dataToSend)
 
-            SendActions.startSend({
+            await SendActions.startSend({
                 gotoReceipt: true,
                 addressTo : res.data.address,
                 amountPretty : res.data.amount.toString(),
                 memo : res.data.memo,
                 currencyCode : selectedInCurrency.currencyCode,
                 isTransferAll : useAllFunds,
-                toTransactionJSON : {
-                    bseOrderID: res.data.orderId
-                },
+                bseOrderID: res.data.orderId,
                 uiType: 'TRADE_SEND',
                 uiApiVersion : 'v2'
             })

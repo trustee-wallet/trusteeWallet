@@ -9,17 +9,23 @@ import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNum
 import { SendTmpData } from './SendTmpData'
 
 
-import {  isFioAddressValid, isFioAddressRegistered, resolveChainCode, getPubAddress} from '../../../../crypto/blockchains/fio/FioUtils'
+import {
+    isFioAddressValid,
+    isFioAddressRegistered,
+    resolveChainCode,
+    getPubAddress
+} from '../../../../crypto/blockchains/fio/FioUtils'
 
 import config from '../../../config/config'
 import store from '../../../store'
 import { strings } from '../../../services/i18n'
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import Log from '../../../services/Log/Log'
+import { BlocksoftBlockchainTypes } from '../../../../crypto/blockchains/BlocksoftBlockchainTypes'
 
 export namespace SendActions {
 
-    export const getContactAddress = async function (data : {addressName : string, currencyCode: string}) : Promise<string | boolean> {
+    export const getContactAddress = async function(data: { addressName: string, currencyCode: string }): Promise<string | boolean> {
 
         let isUiError = false
         let uiError = ''
@@ -111,7 +117,7 @@ export namespace SendActions {
         const { address, currencyCode, derivationPath, accountJson } = account
 
         let amount = data.amountRaw || '0'
-        if (typeof data.addressTo  === 'undefined' || !data.addressTo || data.addressTo === '') {
+        if (typeof data.addressTo === 'undefined' || !data.addressTo || data.addressTo === '') {
             return {
                 countedFees: false,
                 selectedFee: false
@@ -119,12 +125,6 @@ export namespace SendActions {
         }
         if (data.inputValue && !data.isTransferAll) {
             amount = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.inputValue)
-        }
-        if (amount === '0') {
-            return {
-                countedFees: false,
-                selectedFee: false
-            }
         }
 
         // console.log('selectedFee', JSON.parse(JSON.stringify(data.selectedFee || 'none')))
@@ -142,22 +142,32 @@ export namespace SendActions {
             useLegacy: walletUseLegacy,
             isHd: walletIsHd,
             accountJson
-            /*
-            toTransactionJSON,
-            transactionSpeedUp,
-            transactionReplaceByFee
-            */
-        }
+        } as BlocksoftBlockchainTypes.TransferData
         if (typeof data.memo !== 'undefined' && data.memo) {
             // @ts-ignore
             countedFeesData.memo = data.memo
         }
-        const addData = {}
-        if (typeof data.selectedFee !== 'undefined' && data.selectedFee && typeof data.selectedFee.blockchainData !== 'undefined' && typeof data.selectedFee.blockchainData.unspents !== 'undefined') {
-            // @ts-ignore
-            if (data.selectedFee.blockchainData.isTransferAll === countedFeesData.isTransferAll) {
+        if (data.transactionSpeedUp || data.transactionReplaceByFee) {
+            // any amount is ok
+        } else if (amount === '0') {
+            return {
+                countedFees: false,
+                selectedFee: false
+            }
+
+        }
+        if (typeof data.transactionJson !== 'undefined' && data.transactionJson && data.transactionJson !== {}) {
+            countedFeesData.transactionJson = data.transactionJson
+        }
+
+        const addData = {} as BlocksoftBlockchainTypes.TransferAdditionalData
+        if (typeof data.selectedFee !== 'undefined' && data.selectedFee) {
+            if (typeof data.selectedFee.blockchainData !== 'undefined' && typeof data.selectedFee.blockchainData.unspents !== 'undefined') {
                 // @ts-ignore
-                addData.unspents = data.selectedFee.blockchainData.unspents
+                if (data.selectedFee.blockchainData.isTransferAll === countedFeesData.isTransferAll) {
+                    // @ts-ignore
+                    addData.unspents = data.selectedFee.blockchainData.unspents
+                }
             }
         }
 
@@ -205,16 +215,33 @@ export namespace SendActions {
         return { countedFees, selectedFee }
     }
 
-    export const startSend = function(data: SendTmpData.SendScreenDataRequest): boolean {
+    export const startSend = async function(data: SendTmpData.SendScreenDataRequest): Promise<boolean> {
+
+        let needToCount = false
         if (typeof data.uiType !== 'undefined' && data.uiType === 'TRADE_SEND') {
             if (!data.isTransferAll) {
                 SendTmpData.cleanCountedFees()
+                needToCount = true
             }
         } else if (typeof data.gotoWithCleanData !== 'undefined' && !data.gotoWithCleanData) {
             // do nothing for send => receipt
         } else {
             // for all others also clean
             SendTmpData.cleanCountedFees()
+            needToCount = true
+        }
+
+        data.transactionReplaceByFee = false
+        data.transactionSpeedUp = false
+        data.transactionJson = {}
+        if (typeof data.transactionBoost !== 'undefined' && data.transactionBoost && typeof data.transactionBoost.transactionHash !== 'undefined') {
+            data.currencyCode = data.transactionBoost.currencyCode
+            if (data.transactionBoost.transactionDirection !== 'income') {
+                data.transactionJson = data.transactionBoost.transactionJson
+                data.transactionReplaceByFee = data.transactionBoost.transactionHash
+            } else {
+                data.transactionSpeedUp = data.transactionBoost.transactionHash
+            }
         }
 
         if (typeof data.amountPretty !== 'undefined') {
@@ -232,8 +259,12 @@ export namespace SendActions {
         }
 
         SendTmpData.setData(data)
-
         if (data.gotoReceipt) {
+            if (needToCount) {
+                const { selectedFee } = await countFees(data)
+                data.selectedFee = selectedFee
+                SendTmpData.setData(data)
+            }
             NavStore.goNext('ReceiptScreen', { fioRequestDetails: data.fioRequestDetails })
         } else {
             NavStore.goNext('SendScreen')

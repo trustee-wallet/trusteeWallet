@@ -523,7 +523,7 @@
         "status": {
           "success": "Успешно",
           "pending": "Обрабатывается",
-          "canceled": "Отменино"
+          "canceled": "Отменено"
         }
       }
     }
@@ -841,6 +841,7 @@
         "title": "Ручная",
         "fixedFeeTitle": "ФИКСИРОВАННАЯ\nКОМИССИЯ",
         "customFeeTitle": "УСТАНОВИТЬ\nВРУЧНУЮ",
+        "calculetedFee": "Расчетная комиссия:",
         "eth": {
           "gasPrice": "Цена за газ",
           "gasLimit": "Лимит газа",
@@ -857,6 +858,8 @@
         "title": "Квитанция",
         "totalSend": "Сумма отправки",
         "rate": "Цена за 1 %{currencyCode}",
+        "replaceTransactionHash" : "Замена транзакции",
+        "speedUpTransactionHash" : "Ускорение транзакции",
         "recepient": "Получатель",
         "paymentId": "Идентификатор платежа",
         "minerFee": "Комиссия майнера",

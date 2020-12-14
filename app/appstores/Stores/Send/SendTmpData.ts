@@ -5,7 +5,7 @@ export namespace SendTmpData {
     export interface SendScreenDataRequest  {
         gotoReceipt ?: boolean
         gotoWithCleanData ?: boolean,
-        uiType ?: 'MAIN_SCANNER' | 'HOME_SCREEN' | 'SEND_SCANNER' | 'TRADE_SEND' | 'DEEP_LINKING' | 'ACCOUNT_SCREEN' | 'FIO_REQUESTS', // from where
+        uiType ?: 'MAIN_SCANNER' | 'HOME_SCREEN' | 'SEND_SCANNER' | 'TRADE_SEND' | 'DEEP_LINKING' | 'ACCOUNT_SCREEN' | 'FIO_REQUESTS' | 'TRANSACTION_SCREEN', // from where
         uiApiVersion ?: 'v2' | 'v3', // for trades version of api
         uiProviderType ?: 'FIXED' | 'FLOATING', // for trades types
 
@@ -28,7 +28,20 @@ export namespace SendTmpData {
         contactAddress ?: boolean | string,
 
         fioRequestDetails ?: any,
-        toTransactionJSON ?: any
+
+        bseOrderID ?: string,
+
+        transactionJson : any,
+
+        transactionReplaceByFee : string | boolean,
+        transactionSpeedUp : string | boolean,
+
+        transactionBoost ?: {
+            currencyCode : string,
+            transactionHash : string,
+            transactionJson : any,
+            transactionDirection : 'income' | 'outcome' | 'self'
+        }
     }
 
     let CACHE_REQUEST = {} as SendScreenDataRequest

@@ -53,7 +53,7 @@ class FioRequestDetails extends Component {
         setLoaderStatus(true)
         try {
 
-            SendActions.startSend({
+            await SendActions.startSend({
                 gotoReceipt : true,
                 uiType : 'FIO_REQUESTS',
                 fioRequestDetails : this.state.requestDetailData,

@@ -164,6 +164,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
         CACHE_IS_SENDING = true
 
         const { account, wallet, sendScreenData } = this.state
+        const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = wallet
+        const { address, derivationPath,  accountJson, currencyCode, accountId } = account
 
         let selectedFee = typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
         if (!selectedFee) {
@@ -173,10 +175,11 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined' && !passwordChecked) {
             const newAmount = selectedFee.amountForTx.toString()
-            const tmp = sendScreenData.amountRaw.toString()
-            if (newAmount.substring(0, tmp.length) !== tmp) {
+            const tmp = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(sendScreenData.amountRaw)
+            const newTmp = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newAmount)
+            if (newTmp.substring(0, tmp.length) !== tmp) {
                 sendScreenData.amountRaw = newAmount
-                if (CACHE_WARNING_AMOUNT !== sendScreenData.amountRaw) {
+                if (CACHE_WARNING_AMOUNT !== newTmp) {
                     // @yura here should be alert when fixed receipt and no tx
                     showModal({
                         type: 'INFO_MODAL',
@@ -190,12 +193,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
             }
         }
 
-        // also will go to actions lates
-        const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = wallet
-        const { address, derivationPath,  accountJson, currencyCode, accountId } = account
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
-
+        // also will go to actions later
         try {
             const txData = {
                 currencyCode,
@@ -208,7 +208,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 useOnlyConfirmed: !(walletUseUnconfirmed === 1),
                 allowReplaceByFee: walletAllowReplaceByFee === 1,
                 accountJson,
-                toTransactionJSON: sendScreenData.toTransactionJSON,
+                transactionJson: sendScreenData.transactionJson,
             }
             let memo = false
             let comment = false
@@ -219,6 +219,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
             if (typeof sendScreenData.comment !== 'undefined') {
                 comment = sendScreenData.comment
             }
+            const contactName = sendScreenData.contactName || false
+            if ((!txData.addressTo || txData.addressTo === '') && contactName) {
+                txData.addressTo = contactName
+            }
             if (typeof selectedFee !== 'undefined' && selectedFee) {
                 if (typeof selectedFee.amountForTx !== 'undefined') {
                     txData.amount = selectedFee.amountForTx
@@ -227,10 +231,22 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     txData.addressTo = selectedFee.addressToTx
                 }
             }
+            if (sendScreenData.transactionReplaceByFee !== 'undefined') {
+                txData.transactionReplaceByFee = sendScreenData.transactionReplaceByFee
+            }
+            if (sendScreenData.transactionSpeedUp) {
+                txData.transactionSpeedUp = sendScreenData.transactionSpeedUp
+            }
             console.log('txData', txData)
             const tx = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed, selectedFee })
 
-            const transactionJson = { memo, comment, ...sendScreenData.toTransactionJSON }
+            const transactionJson = sendScreenData.transactionJson
+            if (memo) {
+                transactionJson.memo = memo
+            }
+            if (comment) {
+                transactionJson.comment = comment
+            }
             if (typeof tx.transactionJson !== 'undefined') {
                 let key
                 for (key in tx.transactionJson) {
@@ -238,9 +254,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 }
             }
 
+
             const now = new Date().toISOString()
-            const transactionReplaceByFee = false
-            if (transactionReplaceByFee) {
+            if (sendScreenData.transactionReplaceByFee) {
                 const transaction = {
                     currencyCode,
                     accountId,
@@ -248,10 +264,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     addressTo: tx.addressTo,
                     transactionHash: tx.transactionHash,
                     transactionStatus: 'new',
-                    transactionUpdateHash: transactionReplaceByFee,
-                    transactionsOtherHashes: transactionReplaceByFee,
+                    transactionUpdateHash: sendScreenData.transactionReplaceByFee,
+                    transactionsOtherHashes: sendScreenData.transactionReplaceByFee,
                     transactionJson,
-                    transactionsScanLog: now + ' RBFed '
+                    transactionsScanLog: now + ' RBFed ' + sendScreenData.transactionReplaceByFee + ' => ' + tx.transactionHash + ' '
                 }
                 if (typeof tx.transactionFeeCurrencyCode !== 'undefined') {
                     transaction.transactionFeeCurrencyCode = tx.transactionFeeCurrencyCode
@@ -282,7 +298,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     createdAt: now,
                     updatedAt: now,
                     transactionDirection: 'outcome',
-                    transactionsScanLog: now + ' CREATED'
+                    transactionsScanLog: now + ' CREATED '
+                }
+                if (sendScreenData.transactionSpeedUp) {
+                    transaction.transactionsScanLog += 'SPEED UP ' + sendScreenData.transactionSpeedUp + ' '
                 }
                 if (typeof tx.amountForTx !== 'undefined') {
                     transaction.addressAmount = tx.amountForTx
@@ -311,16 +330,16 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     addressAmount: txData.amountRaw,
                     fee: JSON.stringify(selectedFee)
                 }
-                if (transactionReplaceByFee) {
-                    logData.transactionReplaceByFee = transactionReplaceByFee
+                if (sendScreenData.transactionReplaceByFee) {
+                    logData.transactionReplaceByFee = sendScreenData.transactionReplaceByFee
                 }
-                //if (transactionSpeedUp) {
-                //    logData.transactionSpeedUp = transactionSpeedUp
-                //}
-                if (typeof transactionJson !== 'undefined' && transactionJson && typeof transactionJson.bseOrderID !== 'undefined' && transactionJson.bseOrderID) {
-                    transaction.bse_order_id = transactionJson.bseOrderID
-                    transaction.bse_order_id_out = transactionJson.bseOrderID
-                    logData.bseOrderID = transactionJson.bseOrderID.toString()
+                if (sendScreenData.transactionSpeedUp) {
+                    logData.transactionSpeedUp = sendScreenData.transactionSpeedUp
+                }
+                if (typeof sendScreenData.bseOrderID !== 'undefined' && sendScreenData.bseOrderID) {
+                    transaction.bse_order_id = sendScreenData.bseOrderID
+                    transaction.bse_order_id_out = sendScreenData.bseOrderID
+                    logData.bseOrderID = sendScreenData.bseOrderID.toString()
                 }
 
                 const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
@@ -366,13 +385,23 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 if (uiType === 'MAIN_SCANNER') {
                     NavStore.reset('DashboardStack')
                 } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {
-                    NavStore.reset('AccountScreen')
-                } else if (uiType === 'TRADE_SEND') {
-                    NavStore.goNext('FinishScreen', {
-                        finishScreenParam: {
-                            selectedCryptoCurrency: this.state.cryptoCurrency
-                        }
+                    // NavStore.reset('AccountScreen')
+                    NavStore.goNext('TransactionScreen', {
+                        txData: {
+                            transactionHash: tx.transactionHash,
+                        } 
                     })
+                } else if (uiType === 'TRADE_SEND') {
+                    NavStore.goNext('TransactionScreen', {
+                        txData: {
+                            transactionHash: tx.transactionHash,
+                        } 
+                    })
+                    // NavStore.goNext('FinishScreen', {
+                    //     finishScreenParam: {
+                    //         selectedCryptoCurrency: this.state.cryptoCurrency
+                    //     }
+                    // })
                 } else if (uiType === 'DEEP_LINKING' || uiType === 'HOME_SCREEN') {
                     // account was not opened before
                     setSelectedCryptoCurrency(this.state.cryptoCurrency)
@@ -439,7 +468,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         const { headerHeight, sendScreenData, cryptoCurrency, account } = this.state
 
-        console.log('Send.ReceiptScreen.render data', JSON.parse(JSON.stringify(sendScreenData)))
+        Log.log('Send.ReceiptScreen.render data', JSON.parse(JSON.stringify(sendScreenData)))
 
         if (typeof account === 'undefined' || typeof account.basicCurrencySymbol === 'undefined') {
             return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
@@ -456,6 +485,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
         let memo = sendScreenData.memo || ''
         let contactName = sendScreenData.contactName || false
         if (contactName === address) {
+            contactName = false
+        }
+        if (!address && contactName) {
+            address = contactName
             contactName = false
         }
         let isFioRequest = false
@@ -574,10 +607,22 @@ class ReceiptScreen extends SendBasicScreenScreen {
                                 name={strings('send.receiptScreen.rate', { currencyCode: currencySymbol })}
                                 value={`${account.basicCurrencySymbol} ${BlocksoftPrettyNumbers.makeCut(account.basicCurrencyRate).cutted}`}
                             />
+                            {sendScreenData.transactionReplaceByFee ?
+                                <CheckData
+                                    name={strings('send.receiptScreen.replaceTransactionHash')}
+                                    value={BlocksoftPrettyStrings.makeCut(sendScreenData.transactionReplaceByFee, 6)}
+                                />
+                                : null}
+                            {sendScreenData.transactionSpeedUp ?
+                                <CheckData
+                                    name={strings('send.receiptScreen.speedUpTransactionHash')}
+                                    value={BlocksoftPrettyStrings.makeCut(sendScreenData.transactionSpeedUp, 6)}
+                                />
+                                : null}
                             {contactName ?
                                 <CheckData
                                     name={strings('send.receiptScreen.recepient')}
-                                    value={contactName}
+                                    value={BlocksoftPrettyStrings.makeCut(contactName, 6)}
                                 />
                             : null}
                             {multiShow ?
