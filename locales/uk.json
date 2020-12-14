@@ -291,13 +291,9 @@
       "totalBalance": "Загальний баланс",
       "useUnconfirmed": "Використовувати непідтверджені транзакції",
       "allowReplaceByFee" : "Редагування транзакції до підтвердження майнерами",
-      "changeSetting" : "Адреса для решти",
-      "useLegacy": "Використовувати Legacy",
-      "useSegWit": "Використовувати SegWit",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
       "accountAddress": "Оберіть адресу",
-      "showSegWitAndLegacy": "Показувати SegWit і Legacy",
       "hideCommissionTrans": "Сховати транзакції оплати за комісію",
       "manualAddressFromHD" : "Вставити адресу HD",
       "scanAddressesFromHD" : "Сканувати адреси HD на наявність балансів",
@@ -423,8 +419,8 @@
     "receive": "%{receive}",
     "send": "Відправити",
     "history": "Транзакції",
-    "scan": "відскановано %{time} хв назад",
-    "justScan": "щойно відскановано",
+    "scan": "%{time} хв назад",
+    "justScan": "щойно",
     "noTransactions": "У Вас ще немає транзакцій",
     "showMore": "Показати ще",
     "assetSettings": "Налаштування активу",
@@ -509,6 +505,25 @@
     },
     "accountList": {
       "list": "Облікові записи"
+    },
+    "transactionScreen": {
+      "explorer": "Explorer",
+      "share": "Поширити",
+      "booster": "Ускорити",
+      "remove": "Видалити",
+      "removeRbf": "Видалити заміною",
+      "check": "Чек",
+      "support": "Підтримка",
+      "details": "Деталі",
+      "commentPlaceholder": "Коментарій (необов'язково)",
+      "viewExplorer": "Переглянути на Explorer",
+      "header": {
+        "status": {
+          "success": "Успішно",
+          "pending": "Опрацьовується",
+          "canceled": "Відменено"
+        }
+      }
     }
   },
 
@@ -578,6 +593,7 @@
 
    "FioRequestDetails": {
      "title": "Деталі FIO запиту",
+     "reqCreated": "Запит створено",
      "sentTitle": "Отримати на мій",
      "pendingTitle": "Надіслати з мойого",
      "balance": "Баланс",
@@ -882,8 +898,6 @@
       "rate": "Ціна за 1 %{currencyCode}",
       "recepient": "Отримувач",
       "destinationAddress": "Адреса отримувача",
-      "destinationTag": "Тег призначення",
-      "paymentId": "Ідентифікатор платежу",
       "minerFee": "Комісія майнера",
       "totalMinerFee": "Загальна комісія майнера",
       "trusteeInfo": "Криптовалютні транзакції не тарифікуються",

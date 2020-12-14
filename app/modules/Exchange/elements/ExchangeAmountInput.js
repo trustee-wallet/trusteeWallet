@@ -10,15 +10,11 @@ import Input from '../../../components/elements/Input'
 import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
 import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
 
-import BlocksoftBalances from '../../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
-import { BlocksoftTransfer } from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
-import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
-
 import Log from '../../../services/Log/Log'
 import { strings } from '../../../services/i18n'
-import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
-import SendTmpConstants from '../../Send/elements/SendTmpConstants'
 
+import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
+import { SendActions } from '../../../appstores/Stores/Send/SendActions'
 
 class ExchangeAmountInput extends Component {
 
@@ -82,15 +78,9 @@ class ExchangeAmountInput extends Component {
         let errorCurrencyCode = ''
         let balancesData
         try {
-
-            const {
-                selectedWallet
-            } = this.props.mainStore
-            const { walletHash, walletUseUnconfirmed,walletAllowReplaceByFee, walletUseLegacy, walletIsHd } = selectedWallet
-
             const { selectedInCurrency, selectedPaymentSystem } = this.props
 
-            const { address, currencyCode, derivationPath, accountJson } = this.props.selectedInAccount
+            const { currencyCode, address } = this.props.selectedInAccount
             errorCurrencyCode = currencyCode
 
             const { addressForEstimateSellAll } = this.handleGetTradeWay(selectedInCurrency, selectedPaymentSystem)
@@ -98,39 +88,13 @@ class ExchangeAmountInput extends Component {
 
             Log.log('EXC/AmountInput.handleSellAll start')
 
-            balancesData = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash)).getBalance()
-            if (typeof balancesData.balance === 'undefined' || !balancesData.balance) {
-                balancesData = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash)).getBalance()
-            }
-            Log.log(`EXC/AmountInput.handleSellAll balance ${currencyCode} ${address} data`, balancesData)
-
-            // @todo simplify goto receipt with transfer all to one function
-            const countedFeesData = {
+            const { transferBalance } = await SendActions.countTransferAllBeforeStartSend({
                 currencyCode,
-                walletHash,
-                derivationPath,
-                addressFrom: address,
-                addressTo: tmpAddressForEstimate,
-                amount: balancesData ? balancesData.balance : 0,
-                unconfirmed : balancesData ? balancesData.unconfirmed : 0,
-                isTransferAll: true,
-                useOnlyConfirmed : !(walletUseUnconfirmed === 1),
-                allowReplaceByFee : walletAllowReplaceByFee === 1,
-                useLegacy : walletUseLegacy,
-                isHd : walletIsHd,
-                accountJson
-            }
-            const transferAllCount = await BlocksoftTransfer.getTransferAllBalance(countedFeesData)
-            transferAllCount.feesCountedForData = countedFeesData
-            SendTmpConstants.PRESET = true
-            SendTmpConstants.COUNTED_FEES = transferAllCount
-            if (typeof transferAllCount.selectedFeeIndex !== 'undefined' && transferAllCount.selectedFeeIndex >= 0) {
-                SendTmpConstants.SELECTED_FEE = transferAllCount.fees[transferAllCount.selectedFeeIndex]
-            } else {
-                SendTmpConstants.SELECTED_FEE = false
-            }
+                addressTo: tmpAddressForEstimate
+            })
+            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'exchangeAmountInput.amount')
 
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance, 'exchangeAmountInput.amount')
+            Log.log('EXC/AmountInput.handleSellAll done with amount ' + amount)
 
             this.setState({
                 moneyType: 'IN'

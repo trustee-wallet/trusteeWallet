@@ -2,7 +2,6 @@
  * @version 0.30
  */
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 
 import { Linking, Platform, Text, TouchableOpacity, View } from 'react-native'
 
@@ -121,6 +120,8 @@ class HeaderBlocks extends Component {
 
         const { colors, GRID_SIZE } = this.context
 
+        const { isBalanceVisible, visibleAction } = this.props
+
         const isSyncronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
         let tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
@@ -141,15 +142,28 @@ class HeaderBlocks extends Component {
             return (
                 <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE }}>
                     <View style={{ ...styles.topContent__title, flexGrow: 1 }}>
+                        {isBalanceVisible ?
                         <Text style={{ ...styles.topContent__title_first, color: colors.accountScreen.balanceColor }} numberOfLines={1} >
                             {balancePrettyPrep1}
                             <Text style={{ ...styles.topContent__title_last, color: colors.accountScreen.balanceColor }}>
-                                {balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol}
+                                {balancePrettyPrep2}
                             </Text>
                         </Text>
+                        : 
+                        // <TouchableOpacity
+                        //         onPressIn={() => visibleAction()}
+                        //         onPressOut={() => console.log('out')}
+                        //         activeOpacity={0.9}
+                        //     >
+                            <Text style={{ ...styles.topContent__title_last, color: colors.accountScreen.balanceColor, marginTop: 10, paddingHorizontal: 15, fontSize: 52, lineHeight: 60 }}>
+                                ****</Text>
+                        // </TouchableOpacity>
+                        }
                     </View>
+                    { isBalanceVisible &&
                     <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
                         textStyle={{ ...styles.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
+                    }
                 </View>
             )
         } else {
@@ -203,7 +217,7 @@ class HeaderBlocks extends Component {
 
         const { colors } = this.context
 
-        const { mainStore, account, cryptoCurrency, settingsStore, leftComponent } = this.props
+        const { mainStore, account, cryptoCurrency, settingsStore } = this.props
         const { btcShowTwoAddress = 1 } = settingsStore.data
         const address = account.address
 
@@ -242,7 +256,7 @@ class HeaderBlocks extends Component {
                             </TouchableOpacity>
                         </View>
                         <View style={{ marginTop: 22 }}>
-                            <Text style={styles.currencyName}>{cryptoCurrency.currencyName}</Text>
+                            <Text style={styles.currencyName}>{cryptoCurrency.currencySymbol}</Text>
                             <TouchableOpacity style={styles.topContent__middle}
                                 onPress={() => this.handleBtcAddressCopy(shownAddress)}>
                                 <ToolTips showAfterRender={true} height={150}

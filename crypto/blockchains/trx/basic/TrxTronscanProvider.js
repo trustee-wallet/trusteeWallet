@@ -42,7 +42,9 @@ export default class TrxTronscanProvider {
         CACHE_TRONSCAN[address].time = now
         CACHE_TRONSCAN[address]._ = res.data.balance
         CACHE_TRONSCAN[address]._frozen = typeof res.data.frozen.total !== 'undefined' ? res.data.frozen.total : 0
-        CACHE_TRONSCAN[address]._frozenEnergy = typeof res.data.accountResource.frozen_balance_for_energy.frozen_balance !== 'undefined' ? res.data.accountResource.frozen_balance_for_energy.frozen_balance : 0
+        CACHE_TRONSCAN[address]._frozenEnergy = typeof res.data.accountResource !== 'undefined'
+                                    && typeof res.data.accountResource.frozen_balance_for_energy !== 'undefined'
+                                    && typeof res.data.accountResource.frozen_balance_for_energy.frozen_balance !== 'undefined' ? res.data.accountResource.frozen_balance_for_energy.frozen_balance : 0
 
         CACHE_TRONSCAN[address].voteTotal = typeof res.data.voteTotal !== 'undefined' ? res.data.voteTotal : 0
         let token

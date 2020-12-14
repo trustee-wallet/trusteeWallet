@@ -2,7 +2,7 @@
  * @version 0.30
  */
 
-import React, { Component } from 'react'
+import React from 'react'
 import TransactionButton from './TransactionButton'
 import { View } from 'react-native'
 import { useTheme } from '../../theme/ThemeProvider'

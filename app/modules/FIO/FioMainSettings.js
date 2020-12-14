@@ -2,7 +2,7 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Linking, Image, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, Image, SafeAreaView, TouchableOpacity } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
 import { strings } from '../../services/i18n'
@@ -13,10 +13,23 @@ import Icon from '../../components/elements/CustomIcon.js'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import config from '../../config/config'
 
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import Header from '../../components/elements/new/Header'
+import ListItem from '../../components/elements/new/list/ListItem/Setting'
+
 class FioMainSettings extends Component {
 
     constructor(props) {
         super(props)
+    }
+
+    state = {
+        headerHeight: 0,
+    }
+
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
     }
 
     handleRegisterFIOAddress = async () => {
@@ -26,21 +39,47 @@ class FioMainSettings extends Component {
 
         const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
         if (publicFioAddress) {
-            Linking.openURL(`${apiEndpoints.registrationSiteURL}${publicFioAddress}`)
+            NavStore.goNext('WebViewScreen', { url: `${apiEndpoints.registrationSiteURL}${publicFioAddress}`, title: strings('fioMainSettings.registerFioAddress') })
         } else {
             // TODO show some warning tooltip
         }
     }
 
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('DashboardStack') }
+
+    handleSendFioRequest = () => { NavStore.goNext('FioSendRequest') }
+
+    handleFioRequests = () => { NavStore.goNext('FioRequestsList') }
+    
+    handleFioAddresses = () => { NavStore.goNext('FioAddresses') }
+
+    
+
+
     render() {
 
+        const { colors, GRID_SIZE } = this.context
+
+        const { headerHeight } = this.state
+
         return (
-            <View>
-                <Navigation
-                    title= {strings('fioMainSettings.title')}
+            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
+                <Header
+                    leftType="back"
+                    leftAction={this.handleBack}
+                    rightType="close"
+                    rightAction={this.handleClose}
+                    title={strings('fioMainSettings.title')}
+                    setHeaderHeight={this.setHeaderHeight}
                 />
 
-                <View style={{paddingTop: 80, height: '100%'}}>
+                <SafeAreaView style={[styles.content, {
+                    backgroundColor: colors.common.background,
+                    marginTop: headerHeight,
+                    height: '100%',
+                }]}>
 
                     <GradientView
                         array={styles_.array}
@@ -56,61 +95,48 @@ class FioMainSettings extends Component {
                         <View style={{flex: 1}}>
                             <ScrollView>
 
-                                <TouchableOpacity style={styles.block__item} onPress={() => NavStore.goNext('FioSendRequest')}>
-                                    <Icon name="exchangeRates" size={20} style={styles.icon}/>
-                                    <View style={styles.block__item__content}>
-                                        <Text style={styles.block__text}>{strings('fioMainSettings.sendFioRequest')}</Text>
-                                        <Text style={styles.block__text__desc}>{strings('fioMainSettings.sendFioRequestDesc')}</Text>
-                                    </View>
-                                    <View style={styles.block__item__arrow}>
-                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
-                                    </View>
-                                </TouchableOpacity>
+                                <View style={{ paddingHorizontal: GRID_SIZE }}>
+                                    <View style={{ marginVertical: GRID_SIZE }}>
+                                        <ListItem
+                                            title={strings('fioMainSettings.sendFioRequest')}
+                                            subtitle={strings('fioMainSettings.sendFioRequestDesc')}
+                                            iconType="cashMultiple"
+                                            onPress={this.handleSendFioRequest}
+                                            rightContent="arrow"
+                                        />
 
-                                <View style={styles.divider}/>
+                                        <ListItem
+                                            title={strings('fioMainSettings.fioRequest')}
+                                            subtitle={strings('fioMainSettings.fioRequestDesc')}
+                                            iconType="accountBoxMultiple"
+                                            onPress={this.handleFioRequests}
+                                            rightContent="arrow"
+                                        />
 
-                                <TouchableOpacity style={styles.block__item} onPress={() => NavStore.goNext('FioRequestsList')}>
-                                    <Icon name="addressBook" size={20} style={styles.icon}/>
-                                    <View style={styles.block__item__content}>
-                                        <Text style={styles.block__text}>{strings('fioMainSettings.fioRequest')}</Text>
-                                        <Text style={styles.block__text__desc}>{strings('fioMainSettings.fioRequestDesc')}</Text>
-                                    </View>
-                                    <View style={styles.block__item__arrow}>
-                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
-                                    </View>
-                                </TouchableOpacity>
+                                        <ListItem
+                                            title={strings('fioMainSettings.fioAddresses')}
+                                            subtitle={strings('fioMainSettings.fioAddressesDesc')}
+                                            iconType="cogs"
+                                            onPress={this.handleFioAddresses}
+                                            rightContent="arrow"
+                                        />
 
-                                <View style={styles.divider}/>
+                                        <ListItem
+                                            title={strings('fioMainSettings.registerFioAddress')}
+                                            subtitle={strings('fioMainSettings.registerFioAddressDesc')}
+                                            iconType="information"
+                                            onPress={this.handleRegisterFIOAddress}
+                                            rightContent="arrow"
+                                        />
 
-                                <TouchableOpacity style={styles.block__item} onPress={() => NavStore.goNext('FioAddresses')}>
-                                    <Icon name="settings" size={20} style={styles.icon}/>
-                                    <View style={styles.block__item__content}>
-                                        <Text style={styles.block__text}>{strings('fioMainSettings.fioAddresses')}</Text>
-                                        <Text style={styles.block__text__desc}>{strings('fioMainSettings.fioAddressesDesc')}</Text>
                                     </View>
-                                    <View style={styles.block__item__arrow}>
-                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
-                                    </View>
-                                </TouchableOpacity>
-
-                                <View style={styles.divider}/>
-
-                                <TouchableOpacity style={styles.block__item} onPress={() => this.handleRegisterFIOAddress()}>
-                                    <Icon name="info" size={20} style={styles.icon}/>
-                                    <View style={styles.block__item__content}>
-                                        <Text style={styles.block__text}>{strings('fioMainSettings.registerFioAddress')}</Text>
-                                        <Text style={styles.block__text__desc}>{strings('fioMainSettings.registerFioAddressDesc')}</Text>
-                                    </View>
-                                    <View style={styles.block__item__arrow}>
-                                        <Ionicons name="ios-arrow-forward" size={20} style={styles.block__arrow}/>
-                                    </View>
-                                </TouchableOpacity>
+                                </View>
 
                             </ScrollView>
                         </View>
                     </View>
 
-                </View>
+                </SafeAreaView>
             </View>
         );
     }
@@ -121,10 +147,12 @@ const mapStateToProps = (state) => ({
     accountStore: state.accountStore
 })
 
+FioMainSettings.contextType = ThemeContext
+
 export default connect(mapStateToProps, {})(FioMainSettings)
 
 const styles_ = {
-    array: ['#43156d', '#7127ab'],
+    array: ['#000000', '#222222'],
     start: { x: 0.0, y: 0.5 },
     end: { x: 1, y: 0.5 }
 }
@@ -132,7 +160,7 @@ const styles_ = {
 const styles = {
 
     container: {
-        paddingTop: 10,
+        paddingTop: 0,
         height: '100%',
         flexDirection: 'column',
         flex: 1,
@@ -149,55 +177,6 @@ const styles = {
         fontSize: 19,
         color: '#fff',
         textAlign: 'center',
-    },
-
-    block__item: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 20,
-        paddingVertical: 10,
-    },
-
-    block__item__content: {
-        paddingTop: 10,
-        paddingBottom: 10
-    },
-
-    divider: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#e3e6e9'
-    },
-
-    icon: {
-        marginRight: 15,
-        marginBottom: 1,
-        color: '#b676e8',
-        borderRadius: 50,
-        padding: 10,
-        backgroundColor: '#efefef'
-    },
-
-    block__text: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 19,
-        color: '#404040'
-    },
-
-    block__text__desc: {
-        marginTop: -2,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 13,
-        color: '#999999',
-        maxWidth: '90%'
-    },
-
-    block__item__arrow: {
-        marginLeft: 'auto'
-    },
-
-    block__arrow: {
-        marginLeft: 15,
-        color: '#999999'
     },
 
 }

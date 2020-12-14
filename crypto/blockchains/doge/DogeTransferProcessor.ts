@@ -262,6 +262,8 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             }
             // @ts-ignore
             blockchainData.unspents = unspents
+            // @ts-ignore
+            blockchainData.isTransferAll = data.isTransferAll
 
             if (typeof uniqueFees[logInputsOutputs.diffInOut] !== 'undefined') {
                 continue

@@ -46,15 +46,7 @@ const transactionActions = {
 
             if (transaction.currencyCode === account.currencyCode) {
 
-                const prepared = { ...account }
-                const tx = JSON.parse(JSON.stringify(transaction))
-                transactionActions.preformat(tx, account)
-                prepared.transactions[tx.transactionHash] = tx
-
-                dispatch({
-                    type: 'SET_SELECTED_ACCOUNT',
-                    selectedAccount: prepared
-                })
+                // @todo page reload
             }
 
             if (typeof transaction.transactionJson.bseOrderID !== 'undefined') {
@@ -137,6 +129,77 @@ const transactionActions = {
             }
             Log.err('ACT/Transaction updateTransaction ' + e.message)
         }
+    },
+
+    preformatWithBSEforShowInner(transaction) {
+        const direction = transaction.transactionDirection
+        transaction.addressAmountPrettyPrefix = (direction === 'outcome' || direction === 'self' || direction === 'freeze') ? '-' : '+'
+        if (typeof transaction.wayType === 'undefined' || !transaction.wayType) {
+            transaction.wayType = transaction.transactionDirection
+        }
+        return transaction
+    },
+
+    preformatWithBSEforShow(_transaction, exchangeOrder, _currencyCode = false) {
+        if (typeof exchangeOrder === 'undefined' || !exchangeOrder || exchangeOrder === null) {
+            _transaction.bseOrderData = false // for easy checks
+            _transaction.transactionOfTrusteeWallet = false
+            _transaction = this.preformatWithBSEforShowInner(_transaction)
+            return _transaction
+        }
+
+        const transaction = _transaction ? JSON.parse(JSON.stringify(_transaction)) : {
+            currencyCode: _currencyCode,
+            transactionHash: exchangeOrder.orderHash,
+            transactionDirection : 'outcome',
+            transactionOfTrusteeWallet : false,
+            transactionStatus : '?',
+            addressTo : '?',
+            addressFrom : '?',
+            addressAmountPretty: '?',
+            blockConfirmations : false,
+            blockNumber : false,
+            createdAt: exchangeOrder.createdAt,
+            bseOrderData : exchangeOrder
+        }
+
+        if (typeof exchangeOrder.status !== 'undefined' && exchangeOrder.status) {
+            transaction.transactionStatus = exchangeOrder.status
+        }
+        if (typeof exchangeOrder.exchangeWayType !== 'undefined') {
+            transaction.wayType = exchangeOrder.exchangeWayType
+            if (exchangeOrder.outDestination && exchangeOrder.outDestination.includes('+')) {
+                transaction.wayType = 'MOBILE_PHONE'
+            }
+
+            if (exchangeOrder.exchangeWayType === 'BUY') {
+                transaction.transactionDirection = 'income'
+            } else if (exchangeOrder.exchangeWayType === 'SELL') {
+                transaction.transactionDirection = 'outcome'
+            } else if (exchangeOrder.exchangeWayType === 'EXCHANGE') {
+                if (typeof exchangeOrder.requestedOutAmount !== 'undefined' && typeof exchangeOrder.requestedOutAmount.currencyCode !== 'undefined') {
+                    if (exchangeOrder.requestedOutAmount.currencyCode !== transaction.currencyCode) {
+                        transaction.transactionDirection = 'income'
+                    } else {
+                        transaction.transactionDirection = 'outcome'
+                    }
+                }
+            }
+        }
+
+        if (transaction.transactionDirection === 'income' && typeof exchangeOrder.requestedOutAmount !== 'undefined' && typeof exchangeOrder.requestedOutAmount.amount !== 'undefined') {
+            transaction.addressAmountPretty = exchangeOrder.requestedOutAmount.amount
+            if (!transaction.currencyCode) {
+                transaction.currencyCode = exchangeOrder.requestedOutAmount.currencyCode
+            }
+        }
+        if (transaction.transactionDirection === 'outcome' && typeof exchangeOrder.requestedInAmount !== 'undefined' && typeof exchangeOrder.requestedInAmount.amount !== 'undefined') {
+            transaction.addressAmountPretty = exchangeOrder.requestedInAmount.amount
+            if (!transaction.currencyCode) {
+                transaction.currencyCode = exchangeOrder.requestedInAmount.currencyCode
+            }
+        }
+        return this.preformatWithBSEforShowInner(transaction)
     },
 
     /**

@@ -21,7 +21,6 @@ import NavStore from '../../components/navigation/NavStore'
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import Validator from '../../services/UI/Validator/Validator'
 import { setQRConfig, setQRValue } from '../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import { setSendData } from '../../appstores/Stores/Send/SendActions'
 
 import { strings } from '../../services/i18n'
 import { checkQRPermission } from '../../services/UI/Qr/QrPermissions'
@@ -59,13 +58,9 @@ class AddAssetScreen extends React.Component {
     }
 
     checkIfWasScanned = () => {
-        if (Object.keys(this.props.sendStore).length !== 0) {
-            const { isToken, address } = this.props.sendStore
-
-            if (isToken) {
-                this.setState(() => ({ customAddress: address }))
-                setSendData({})
-            }
+        const data = this.props.navigation.getParam('tokenData')
+        if (data && typeof data !== 'undefined' && typeof data.address !== 'undefined' && data.address) {
+            this.setState({ customAddress: data.address })
         }
     }
 
@@ -257,7 +252,6 @@ class AddAssetScreen extends React.Component {
 const mapStateToProps = (state) => {
     return {
         assets: state.currencyStore.cryptoCurrencies,
-        sendStore: state.sendStore.data
     }
 }
 

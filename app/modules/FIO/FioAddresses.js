@@ -2,10 +2,10 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Linking, Image, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, Image, SafeAreaView, TouchableOpacity } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/Button'
+import Button from '../../components/elements/new/buttons/Button'
 import { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
 import { connect } from 'react-redux'
@@ -17,13 +17,22 @@ import DaemonCache from '../../daemons/DaemonCache'
 import { getFioNames } from '../../../crypto/blockchains/fio/FioUtils'
 import Netinfo from '../../services/Netinfo/Netinfo'
 
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import Header from '../../components/elements/new/Header'
+
 class FioAddresses extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
             fioAddresses: [],
+            headerHeight: 0,
         }
+    }
+
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
     }
 
     async componentDidMount() {
@@ -58,7 +67,7 @@ class FioAddresses extends Component {
 
         const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
         if (publicFioAddress) {
-            Linking.openURL(`${apiEndpoints.registrationSiteURL}${publicFioAddress}`)
+            NavStore.goNext('WebViewScreen', { url: `${apiEndpoints.registrationSiteURL}${publicFioAddress}`, title: strings('FioAddresses.btnText') })
         } else {
             // TODO show some warning tooltip
         }
@@ -68,16 +77,31 @@ class FioAddresses extends Component {
         NavStore.goNext('FioSettings', { fioAddress })
     }
 
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('DashboardStack') }
+
     render() {
         Moment.locale('en');
+        const { colors, GRID_SIZE } = this.context
+        const { headerHeight } = this.state
 
         return (
-            <View>
-                <Navigation
-                    title= {strings('FioAddresses.title')}
+            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
+                <Header
+                    leftType="back"
+                    leftAction={this.handleBack}
+                    rightType="close"
+                    rightAction={this.handleClose}
+                    title={strings('FioAddresses.title')}
+                    setHeaderHeight={this.setHeaderHeight}
                 />
 
-                <View style={{paddingTop: 80, height: '100%'}}>
+                <SafeAreaView style={[styles.content, {
+                    backgroundColor: colors.common.background,
+                    marginTop: headerHeight,
+                    height: '100%',
+                }]}>
 
                     <GradientView
                         array={styles_.array}
@@ -89,19 +113,21 @@ class FioAddresses extends Component {
                         </View>
                     </GradientView>
 
-                    <View style={styles.container}>
+                    <View style={styles.content2}>
 
-
-                        <View style={{flex: 1, paddingVertical: 20}}>
+                        <View style={{ paddingVertical: 20}}>
                             <ScrollView>
                                 {
                                     this.state.fioAddresses.map(address => (
                                         <TouchableOpacity key={address.fio_address}
                                                           onPress={() => this.gotoFioSettings(address)}>
-                                            <View style={styles.fio_item}>
-                                                <Image style={styles.fio_img} resize={'stretch'}
+                                            <View style={[styles.fio_item, {
+                                                backgroundColor: colors.common.roundButtonContent,
+                                                borderBottomColor: colors.fio.borderColorLight
+                                            }]} >
+                                                <Image  style={[styles.fio_img, { borderColor: colors.fio.borderColorLight }]}   resize={'stretch'}
                                                        source={require('../../assets/images/fio-logo.png')}/>
-                                                <Text style={styles.fio_txt}>{address.fio_address}</Text>
+                                                <Text style={[styles.fio_txt, { color: colors.common.text3 }]} >{address.fio_address}</Text>
                                             </View>
                                         </TouchableOpacity>
                                     ))
@@ -109,17 +135,16 @@ class FioAddresses extends Component {
                             </ScrollView>
                         </View>
 
-
                         <View style={{marginTop: 20}}>
-                            <Button press={this.handleRegisterFIOAddress}>
-                                {strings('FioAddresses.btnText')}
-                            </Button>
+                            <Button
+                                title={strings('FioAddresses.btnText')}
+                                onPress={this.handleRegisterFIOAddress}
+                            />
                         </View>
-
 
                     </View>
 
-                </View>
+                </SafeAreaView>
             </View>
         );
     }
@@ -131,10 +156,12 @@ const mapStateToProps = (state) => ({
     currencyStore: state.currencyStore
 })
 
+FioAddresses.contextType = ThemeContext
+
 export default connect(mapStateToProps, {})(FioAddresses)
 
 const styles_ = {
-    array: ['#43156d', '#7127ab'],
+    array: ['#000000', '#333333'],
     start: { x: 0.0, y: 0.5 },
     end: { x: 1, y: 0.5 }
 }
@@ -142,11 +169,24 @@ const styles_ = {
 const styles = {
 
     container: {
-        padding: 30,
-        paddingTop: 10,
+        paddingTop: 0,
         height: '100%',
         flexDirection: 'column',
         flex: 1,
+        justifyContent: 'space-between'
+    },
+
+    content: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'space-between'
+    },
+
+    content2: {
+        padding: 30,
+        paddingTop: 5,
+        flex: 1,
+        flexDirection: 'column',
         justifyContent: 'space-between'
     },
 
@@ -163,18 +203,14 @@ const styles = {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-
         marginBottom: 20,
         borderBottomWidth: 1,
-        borderBottomColor: '#e3e6e9',
-        backgroundColor: '#fff',
         borderRadius: 20
     },
 
     fio_txt: {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 19,
-        color: '#404040',
     },
 
     fio_img: {
@@ -182,11 +218,9 @@ const styles = {
         height: 25,
         marginRight: 20,
         borderWidth: 1,
-        borderColor: '#e3e6e9',
         padding: 20,
         borderRadius: 100
     },
-
 
     titleTxt1: {
         fontFamily: 'SFUIDisplay-Regular',
@@ -201,6 +235,5 @@ const styles = {
         color: '#777',
         textAlign: 'center',
     },
-
 
 }

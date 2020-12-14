@@ -293,13 +293,9 @@
       "totalBalance": "Общий баланс",
       "useUnconfirmed": "Использовать неподтвержденные транзакции",
       "allowReplaceByFee" : "Редактирование транзакции до подтверждения майнерами",
-      "changeSetting" : "Адрес для сдачи",
-      "useLegacy": "Использовать Legacy",
-      "useSegWit": "Использовать SegWit",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
       "accountAddress": "Выбрать адрес",
-      "showSegWitAndLegacy": "Показывать SegWit и Legacy",
       "hideCommissionTrans": "Скрыть транзакции оплаты за комиссию",
       "manualAddressFromHD" : "Вставить адрес HD",
       "scanAddressesFromHD" : "Сканировать адреса HD на наличие балансов",
@@ -425,8 +421,8 @@
     "receive": "%{receive}",
     "send": "Отправить",
     "history": "Транзакции",
-    "scan": "отсканировано %{time} мин назад",
-    "justScan": "отсканировано только что",
+    "scan": "%{time} мин назад",
+    "justScan": "только что",
     "noTransactions": "У Вас еще нет транзакций",
     "showMore": "Показать еще",
     "assetSettings": "Настройки актива",
@@ -511,6 +507,25 @@
     },
     "accountList": {
       "list": "Учетные записи"
+    },
+    "transactionScreen": {
+      "explorer": "Explorer",
+      "share": "Поделиться",
+      "booster": "Ускорить",
+      "remove": "Удалить",
+      "removeRbf": "Удалить заменой",
+      "check": "Чек",
+      "support": "Поддержка",
+      "details": "Детали",
+      "commentPlaceholder": "Комментарий (не обязательно)",
+      "viewExplorer": "Посмотреть на Explorer",
+      "header": {
+        "status": {
+          "success": "Успешно",
+          "pending": "Обрабатывается",
+          "canceled": "Отменино"
+        }
+      }
     }
   },
 
@@ -580,6 +595,7 @@
 
   "FioRequestDetails": {
     "title": "Детали FIO запроса",
+    "reqCreated": "Запрос создан",
     "sentTitle": "Получить на мой",
     "pendingTitle": "Отправить из моего",
     "balance": "Баланс",
@@ -842,8 +858,6 @@
         "totalSend": "Сумма отправки",
         "rate": "Цена за 1 %{currencyCode}",
         "recepient": "Получатель",
-        "destinationAddress": "Адрес получателя",
-        "destinationTag": "Тег назначения",
         "paymentId": "Идентификатор платежа",
         "minerFee": "Комиссия майнера",
         "totalMinerFee": "Общая комиссия майнера",

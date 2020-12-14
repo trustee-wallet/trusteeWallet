@@ -10,8 +10,12 @@ import { useTheme } from '../../../modules/theme/ThemeProvider'
 const BalanceHeader = (props) => {
 
     const {
-        account, 
-        cryptoCurrency
+        account,
+        cryptoCurrency,
+        actionReceive,
+        actionBuy,
+        actionSend,
+        isBalanceVisible
     } = props
 
     const { colors, isLight } = useTheme()
@@ -36,19 +40,21 @@ const BalanceHeader = (props) => {
         <>
             <View style={styles.topContent__top}>
                 <View style={styles.topContent__title}>
+                    {isBalanceVisible ? 
                     <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
                         {balancePrettyPrep1}
                         <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
                             {balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol}
                         </Text>
-                    </Text>
+                    </Text> : 
+                    <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, fontSize: 32, lineHeight: 40 }} >****</Text>}
                 </View>
-                <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
-                    textStyle={{ ...styles.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
             </View>
-            <View style={{ paddingTop: 12 }}>
-                <AccountButtons />
-            </View>
+            <AccountButtons
+                actionBuy={() => actionBuy()}
+                actionSend={() => actionSend()}
+                actionReceive={() => actionReceive()}
+            />
         </>
     )
 }
@@ -59,14 +65,12 @@ const styles = {
     topContent__top: {
         position: 'relative',
         alignItems: 'center',
-        marginTop: 6
     },
     topContent__title: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 10,
-        marginTop: 16,
     },
     topContent__title_first: {
         height: 34,

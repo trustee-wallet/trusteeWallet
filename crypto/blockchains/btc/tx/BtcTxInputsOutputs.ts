@@ -14,7 +14,9 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
         const btcLegacyOrSegwit = settingsActions.getSettingStatic('btc_legacy_or_segwit')
 
         let needFindSegwit = false
-        if (data.useLegacy === 1) {
+        if (btcShowTwoAddress === "1" || data.useLegacy === 1) {
+            // @todo as btcShowTwoAddress this will be deprecated simplify the code
+            // its only for wallets with old setting of two addresses where there was useLegacy on
             // console.log('will legacy')
         } else if (btcShowTwoAddress === "1" || btcLegacyOrSegwit === "segwit") {
             needFindSegwit = true

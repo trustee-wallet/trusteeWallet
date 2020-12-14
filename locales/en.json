@@ -293,13 +293,9 @@
       "totalBalance": "Total balance",
       "useUnconfirmed": "Use unconfirmed transactions",
       "allowReplaceByFee": "Edit the transaction before confirmation by miners",
-      "changeSetting": "Address for the change",
-      "useLegacy": "Use Legacy",
-      "useSegWit": "Use SegWit",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
       "accountAddress": "Select visible address",
-      "showSegWitAndLegacy": "Show SegWit and Legacy",
       "hideCommissionTrans": "Hide commission payment transactions",
       "manualAddressFromHD" : "Paste address HD",
       "scanAddressesFromHD" : "Scan addresses from HD for balances",
@@ -425,8 +421,8 @@
     "receive": "%{receive}",
     "send": "Send",
     "history": "Transactions",
-    "scan": "scanned %{time} min ago ",
-    "justScan": "just scanned",
+    "scan": " %{time} min ago ",
+    "justScan": "just",
     "noTransactions": "You don’t have any transaction yet.",
     "showMore": "Show more",
     "assetSettings": "Asset settings",
@@ -511,6 +507,25 @@
     },
     "accountList": {
       "list": "Account list"
+    },
+    "transactionScreen": {
+      "explorer": "Explorer",
+      "share": "Share",
+      "booster": "Booster",
+      "remove": "Remove",
+      "removeRbf": "Remove with rbf",
+      "check": "Check",
+      "support": "Support",
+      "details": "Details",
+      "commentPlaceholder": "Comment (optional)",
+      "viewExplorer": "View on explorer",
+      "header": {
+        "status": {
+          "success": "Success",
+          "pending": "Pending",
+          "canceled": "Canceled"
+        }
+      }
     }
   },
 
@@ -580,6 +595,7 @@
 
   "FioRequestDetails": {
     "title": "FIO Request Details",
+    "reqCreated": "Request created",
     "sentTitle": "Recieve to My",
     "pendingTitle": "Send from My",
     "balance": "Balance",
@@ -884,8 +900,6 @@
       "rate": "@ rate per 1 %{currencyCode}",
       "recepient": "Recepient",
       "destinationAddress": "Destination address",
-      "destinationTag": "Destination tag",
-      "paymentId": "Payment ID",
       "minerFee": "Miner fee",
       "totalMinerFee": "Total miner fee",
       "trusteeInfo": "Cryptocurrency transactions are not charged",

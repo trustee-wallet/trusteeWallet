@@ -14,7 +14,6 @@ import {
 import { useTheme } from '../../theme/ThemeProvider'
 
 import { strings } from '../../../services/i18n'
-import styles from '../../../themes/assets/styles'
 import ReceiveIcon from '../../../assets/images/HomePage/receive';
 import SendIcon from '../../../assets/images/HomePage/send';
 import FontistoIcon from 'react-native-vector-icons/Fontisto'
@@ -48,7 +47,7 @@ const TransactionButton = (props) => {
         <TouchableOpacity style={style} onPress={action}>
             {iconButton(type)}
             {text &&
-            <Text>{text}</Text>}
+            <Text style={{ paddingTop: 4 }} >{text}</Text>}
         </TouchableOpacity>
     )
 }

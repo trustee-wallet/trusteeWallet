@@ -186,7 +186,8 @@ class CustomFee extends Component {
         const { colors, GRID_SIZE } = this.context
 
         const prettyFeeSymbol = 'ETH'
-        const customFee = `Sum ${this.state.selectedFee.gasPriceGwei} gwei : ${this.state.prettyFee} ${prettyFeeSymbol} / ${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`
+        const customFee = `Calculeted fee:  \n${this.state.prettyFee} ${prettyFeeSymbol} / ` + (Number(this.state.feeBasicAmount) < 0.01 ? ` > ${this.props.basicCurrencySymbol} 0.01` : `${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`)
+        // ${this.state.selectedFee.gasPriceGwei} gwei :
 
         return (
             <View style={{ marginTop: 10 }}>
@@ -255,11 +256,11 @@ const styles = {
         borderRadius: 10,
         elevation: 10,
         shadowColor: '#000',
-        shadowRadius: 16,
+        shadowRadius: 3,
         shadowOpacity: 0.1,
         shadowOffset: {
             width: 0,
-            height: 0
+            height: 1
         }
     },
     customFee: {

@@ -7,11 +7,11 @@ import {
     View,
     Text,
     ScrollView, Linking, TextInput,
-    TouchableOpacity
+    TouchableOpacity, Dimensions
 } from 'react-native'
 import { connect } from 'react-redux'
 import { strings } from '../../services/i18n'
-import Header from '../../components/elements/new/Header'
+import Header from './elements/transactionHeader'
 import NavStore from '../../components/navigation/NavStore'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Feather from 'react-native-vector-icons/Feather'
@@ -50,6 +50,13 @@ import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/Blo
 import Toast from '../../services/UI/Toast/Toast'
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 
+import InsertShadow from 'react-native-inset-shadow'
+import GradientView from '../../components/elements/GradientView'
+import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
+import config from '../../config/config'
+
+const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
+
 class TransactionScreen extends Component {
 
     constructor(props) {
@@ -64,7 +71,11 @@ class TransactionScreen extends Component {
             addressToToView: null,
             addressExchangeToView: null,
             commentToView: null,
-            commentEditable: false
+            commentEditable: false,
+            
+            linkExplorer: null,
+            
+            focused: false
         }
     }
 
@@ -72,19 +83,23 @@ class TransactionScreen extends Component {
     async UNSAFE_componentWillMount() {
         const data = this.props.navigation.getParam('txData')
 
-        const { transactionHash, orderHash, transaction } = data
+        let { transactionHash, orderHash, walletHash, transaction } = data
         let tx
 
         if (!transaction) {
-            const wallet = store.getState().mainStore.selectedWallet
+            if (typeof walletHash === 'undefined' || !walletHash) {
+                const wallet = store.getState().mainStore.selectedWallet
+                walletHash = wallet.walletHash
+            }
             if (transactionHash) {
                 try {
                     const tmp = await transactionDS.getTransactions({
-                        walletHash: wallet.walletHash,
+                        walletHash,
                         transactionHash
                     }, 'TransactionScreen.init with transactionHash ' + transactionHash)
                     if (tmp) {
-                        tx = tmp[0]
+                        // if you need = add also transactionActions.preformat for basic rates
+                        tx = transactionActions.preformatWithBSEforShow(tmp[0], tmp[0].bseOrderData)
                     } else {
                         console.log('WTF? something wrong need rescan daemon')
                     }
@@ -94,13 +109,19 @@ class TransactionScreen extends Component {
             } else if (orderHash) {
                 try {
                     const tmp = await transactionDS.getTransactions({
-                        walletHash: wallet.walletHash,
-                        bseOrderHash : orderHash,
+                        bseOrderHash: orderHash
                     }, 'TransactionScreen.init with orderHash ' + orderHash)
                     if (tmp) {
-                        tx = tmp[0]
+                        // if you need = add also transactionActions.preformat for basic rates
+                        tx = transactionActions.preformatWithBSEforShow(tmp[0], tmp[0].bseOrderData)
                     } else {
-                        // order for buy !!!!
+                        const exchangeOrder = await UpdateTradeOrdersDaemon.fromApi(walletHash, orderHash)
+                        if (exchangeOrder) {
+                            // basic object for order without transaction
+                            tx = transactionActions.preformatWithBSEforShow(false, exchangeOrder)
+                        } else {
+                            // do some alert as nothing found
+                        }
                     }
                 } catch (e) {
                     console.log('TransactionScreen.init with orderHash error  ' + e)
@@ -121,7 +142,6 @@ class TransactionScreen extends Component {
     }
 
     init = (transaction) => {
-
         try {
             const { cryptoCurrency } = this.props
 
@@ -135,16 +155,14 @@ class TransactionScreen extends Component {
 
             const addressExchangeToView = this.prepareAddressExchangeToView(transaction)
 
-            const status = this.prepareStatus(transaction.transactionStatus, typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.status : null)
-
             const commentToView = this.prepareCommentToView(transaction)
 
             const subContent = []
 
-            const transactionHashToView = this.prepareTransactionHashToView(cryptoCurrency, transaction)
+            const transactionHashToView = this.prepareTransactionHashToView(transaction, cryptoCurrency)
             transactionHashToView ? subContent.push(transactionHashToView) : null
 
-            const transactionsOtherHashesToView = this.prepareTransactionsOtherHashesToView(cryptoCurrency, transaction)
+            const transactionsOtherHashesToView = this.prepareTransactionsOtherHashesToView(transaction, cryptoCurrency)
             transactionsOtherHashesToView ? subContent.push(transactionsOtherHashesToView) : null
 
             const transactionFeeToView = this.prepareTransactionFeeToView(transaction)
@@ -153,8 +171,8 @@ class TransactionScreen extends Component {
             const orderIdToView = this.prepareOrderIdToView(transaction)
             orderIdToView ? subContent.push(orderIdToView) : null
 
-            const statusToView = this.prepareStatusToView(status, transaction)
-            statusToView ? subContent.push(statusToView) : null
+            const transactionStatus = this.prepareStatusToView(transaction)
+            transactionStatus ? subContent.push(transactionStatus) : null
 
             const blockTime = this.prepareDate(transaction.blockTime)
             blockTime ? subContent.push(blockTime) : null
@@ -168,13 +186,13 @@ class TransactionScreen extends Component {
             const fioMemoToView = this.prepareFioMemoToView(fioMemo[transaction.transactionHash])
             fioMemoToView ? subContent.push(fioMemoToView) : null
 
-            const transactionDestinationTag = this.prepareTransactionDestinationTag(transaction.transactionJson, cryptoCurrency.currencyCode)
+            const transactionDestinationTag = this.prepareTransactionDestinationTag(transaction, cryptoCurrency.currencyCode)
             transactionDestinationTag ? subContent.push(transactionDestinationTag) : null
 
-            const transactionNonce = this.prepareTransactionNonce(transaction.transactionJson, cryptoCurrency.currencyCode)
+            const transactionNonce = this.prepareTransactionNonce(transaction, cryptoCurrency.currencyCode)
             transactionNonce ? subContent.push(transactionNonce) : null
 
-            const transactionDelegatedNonce = this.prepareTransactionDelegatedNonce(transaction.transactionJson, cryptoCurrency.currencyCode)
+            const transactionDelegatedNonce = this.prepareTransactionDelegatedNonce(transaction, cryptoCurrency.currencyCode)
             transactionDelegatedNonce ? subContent.push(transactionDelegatedNonce) : null
 
             this.setState({
@@ -183,212 +201,199 @@ class TransactionScreen extends Component {
                 fromToView,
                 addressToToView,
                 addressExchangeToView,
-                commentToView
+                commentToView,
+                linkExplorer: transactionHashToView !== null ? transactionHashToView.linkUrl : null
             })
 
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('TransactionScreen init error ', e)
+            }
             Log.err(`TransactionScreen init error - ${JSON.stringify(e)} ; Transaction - ${JSON.stringify(transaction)}`)
         }
     }
 
     prepareAddressToToView = (transaction) => {
-        if (typeof transaction.bseOrderData === 'undefined' || transaction.bseOrderData === null) {
-            if (typeof transaction.addressTo !== 'undefined' && transaction.addressTo) {
-                return {
-                    title: strings(`account.transaction.to`),
-                    description: transaction.addressTo.toString()
-                }
-            }
+        if (transaction.bseOrderData) return false // added wrapper in preformatWithBSEforShow
+        if (typeof transaction.addressTo === 'undefined' || !transaction.addressTo) return false
+        return {
+            title: strings(`account.transaction.to`),
+            description: transaction.addressTo.toString()
         }
 
-        return false
     }
 
     prepareAddressFromToView = (transaction) => {
-        if (typeof transaction.bseOrderData === 'undefined' || transaction.bseOrderData === null) {
-            if (typeof transaction.addressFrom !== 'undefined' && transaction.addressFrom && transaction.addressFrom.indexOf(',') === -1) {
-                return {
-                    title: strings(`account.transaction.from`),
-                    description: transaction.addressFrom.toString()
-                }
+        if (transaction.bseOrderData) return false
+        if (typeof transaction.addressFrom === 'undefined' || !transaction.addressFrom) return false
+        if (transaction.addressFrom.indexOf(',') !== -1) {
+            return {
+                title: strings(`account.transaction.from`),
+                description: transaction.addressFrom.toString().slice(0, transaction.addressFrom.indexOf(','))
+            }
+        } else {
+            return {
+                title: strings(`account.transaction.from`),
+                description: transaction.addressFrom.toString()
             }
         }
-        return false
+
     }
 
     prepareAddressExchangeToView = (transaction) => {
-        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null){
-            if (typeof transaction.transactionDirection !== 'undefined' && typeof transaction.bseOrderData.exchangeWayType !== 'undefined' && transaction.bseOrderData.exchangeWayType === 'EXCHANGE') {
-                if (transaction.transactionDirection === 'income') {
-                    return {
-                        title: strings(`account.transaction.from`),
-                        description: transaction.depositAddress.toString()
-                    }
-                } else {
-                    return {
-                        title: strings(`account.transaction.to`),
-                        description: transaction.outDestination.toString()
-                    }
-                }
+        if (!transaction.bseOrderData) return false
+        if (transaction.wayType !== 'EXCHANGE') return false
+        if (transaction.transactionDirection === 'income') {
+            return {
+                title: strings(`account.transaction.from`),
+                description: transaction.bseOrderData.depositAddress.toString()
+            }
+        } else {
+            return {
+                title: strings(`account.transaction.to`),
+                description: transaction.bseOrderData.outDestination.toString()
             }
         }
-
-        return false
     }
 
     prepareOrderIdToView = (transaction) => {
-
-        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null) {
+        // bseOrderID will be for created from this wallet orders
+        if (typeof transaction.bseOrderID !== 'undefined' && transaction.bseOrderID) {
             return {
                 title: strings(`account.transaction.orderId`),
-                description: transaction.bseOrderData.orderHash.toString()
+                description: transaction.bseOrderID
             }
         }
 
-        return false
+        if (!transaction.bseOrderData) return false
+        if (typeof transaction.bseOrderData.orderId === 'undefined') return false
+        return {
+            title: strings(`account.transaction.orderId`),
+            description: transaction.bseOrderData.orderId.toString()
+        }
     }
 
     prepareCommentToView = (transaction) => {
+        if (typeof transaction.transactionJson === 'undefined' || transaction.transactionJson === null) return null
 
-        if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson !== null &&
-            typeof transaction.transactionJson.comment !== 'undefined' && transaction.transactionStatus.toUpperCase() === 'SUCCESS') {
-            return {
-                title: strings(`send.comment`),
-                description: transactionJson.comment,
-            }
-        } else if (transaction.transactionJson === null && transaction.transactionStatus.toUpperCase() === 'SUCCESS') {
-            return {
-                title: strings(`send.comment`),
-                description: '',
-            }
+        if (transaction.transactionStatus.toUpperCase() !== 'SUCCESS') {
+            return null
         }
 
-        return null
+        if (typeof transaction.transactionJson.comment !== 'undefined') {
+            return {
+                title: strings(`send.comment`),
+                description: transaction.transactionJson.comment
+            }
+        } else {
+            return {
+                title: strings(`send.comment`),
+                description: ''
+            }
+        }
     }
 
     prepareFioMemoToView = (fioMemo) => {
-        if (typeof fioMemo !== 'undefined' && fioMemo !== null) {
-            return {
-                title: strings(`send.fio_memo`),
-                description: fioMemo,
-            }
+        if (typeof fioMemo === 'undefined' || fioMemo === null) return null
+        return {
+            title: strings(`send.fio_memo`),
+            description: fioMemo
         }
-
-        return null
     }
 
     prepareOutDestinationCard = (transaction) => {
-
-        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null) {
-            if (typeof transaction.bseOrderData.outDestination !== 'undefined' && transaction.bseOrderData.outDestination !== null && transaction.bseOrderData.outDestination.includes('***')) {
-                if (transaction.bseOrderData.outDestination.includes('+')) {
-                    return {
-                        title: strings(`account.transaction.phoneDestination`),
-                        description: transaction.bseOrderData.outDestination.toString()
-                    }
-                } else if (transaction.bseOrderData.outDestination.substr(0, 1) === 'U') {
-                    return {
-                        title: strings(`account.transaction.advAccountDestination`),
-                        description: transaction.bseOrderData.outDestination.toString()
-                    }
-                } else {
-                    return {
-                        title: strings(`account.transaction.cardNumberDestination`),
-                        description: transaction.bseOrderData.outDestination.toString()
-                    }
-                }
+        if (!transaction.bseOrderData) return null
+        if (typeof transaction.bseOrderData.outDestination === 'undefined' || transaction.bseOrderData.outDestination === null || !transaction.bseOrderData.outDestination.includes('***')) return null
+        if (transaction.bseOrderData.outDestination.includes('+')) {
+            return {
+                title: strings(`account.transaction.phoneDestination`),
+                description: transaction.bseOrderData.outDestination.toString()
+            }
+        } else if (transaction.bseOrderData.outDestination.substr(0, 1) === 'U') {
+            return {
+                title: strings(`account.transaction.advAccountDestination`),
+                description: transaction.bseOrderData.outDestination.toString()
+            }
+        } else {
+            return {
+                title: strings(`account.transaction.cardNumberDestination`),
+                description: transaction.bseOrderData.outDestination.toString()
             }
         }
-
-        return null
     }
 
     handleLink = (link) => {
-        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
+        NavStore.goNext('WebViewScreen', { url: link, title: strings('account.transactionScreen.explorer') })
     }
 
     prepareTransactionFeeToView = (transaction) => {
-
-        if (!transaction || typeof transaction.transactionFee === 'undefined' || !transaction.transactionFee) return null
-
+        if (typeof transaction.transactionFee === 'undefined' || !transaction.transactionFee) return null
         const title = strings(`account.transaction.fee`)
         if (transaction.transactionDirection === 'income') {
             // not my txs no fees to show
             // title = strings(`account.transaction.feeIncome`)
             return null
         }
+
+        const fiatFee = Number(transaction.basicFeePretty) < 0.01 ? `>${transaction.basicFeeCurrencySymbol} 0.01` : `${transaction.basicFeeCurrencySymbol} ${transaction.basicFeePretty}`
+
         return {
             title,
-            description: `${transaction.transactionFeePretty} ${transaction.feesCurrencySymbol} (${transaction.basicFeeCurrencySymbol} ${transaction.basicFeePretty})`
+            description: `${transaction.transactionFeePretty} ${transaction.feesCurrencySymbol} (${fiatFee})`
         }
 
     }
 
-    prepareTransactionDestinationTag = (transactionJson, currencyCode) => {
-        if (typeof transactionJson !== 'undefined' && transactionJson !== null && typeof transactionJson.memo !== 'undefined') {
-            const txt = transactionJson.memo.toString().trim()
-            if (txt !== '') {
-                if (currencyCode === 'XRP') {
-                    return {
-                        title: strings(`account.transaction.destinationTag`),
-                        description: txt
-                    }
-                } else if (currencyCode === 'XMR') {
-                    return {
-                        title: strings(`account.transaction.paymentId`),
-                        description: txt
-                    }
-                }
-            }
-        }
-
-        return null
-    }
-
-    prepareTransactionNonce = (transactionJson, currencyCode) => {
-        if (typeof transactionJson !== 'undefined' && transactionJson !== null && transactionJson && typeof transactionJson.nonce !== 'undefined') {
+    prepareTransactionDestinationTag = (transaction, currencyCode) => {
+        if (typeof transaction.transactionJson === 'undefined' || transaction.transactionJson === null || !transaction.transactionJson || typeof transaction.transactionJson.memo === 'undefined') return null
+        let txt = transaction.transactionJson.memo
+        if (!txt || txt === null) return null
+        txt = txt.toString().trim()
+        if (txt === '') return null
+        if (currencyCode === 'XRP') {
             return {
-                title: strings(`account.transaction.nonce`),
-                description: transactionJson.nonce.toString() || '(none)'
+                title: strings(`account.transaction.destinationTag`),
+                description: txt
             }
-        }
-
-        return null
-    }
-
-    prepareTransactionDelegatedNonce = (transactionJson, currencyCode) => {
-        if (typeof transactionJson !== 'undefined' && transactionJson !== null && transactionJson && typeof transactionJson.delegatedNonce !== 'undefined') {
+        } else if (currencyCode === 'XMR') {
             return {
-                title: strings(`account.transaction.delegatedNonce`),
-                description: transactionJson.delegatedNonce.toString()
+                title: strings(`account.transaction.paymentId`),
+                description: txt
             }
         }
-
-        return null
     }
-    
-    prepareStatusToView = (status, transaction) => {
-        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null){
-            if (transaction.bseOrderData.exchangeWayType) {
-                return {
-                    title: strings(`account.transaction.status`),
-                    description: strings(`exchange.ordersStatus.${transaction.bseOrderData.exchangeWayType.toLowerCase()}.${transaction.bseOrderData.status.toLowerCase()}`)
-                }
+
+    prepareTransactionNonce = (transaction, currencyCode) => {
+        if (typeof transaction.transactionJson === 'undefined' || transaction.transactionJson === null || !transaction.transactionJson || typeof transaction.transactionJson.nonce === 'undefined') return null
+        return {
+            title: strings(`account.transaction.nonce`),
+            description: transaction.transactionJson.nonce.toString() || '(none)'
+        }
+    }
+
+    prepareTransactionDelegatedNonce = (transaction, currencyCode) => {
+        if (typeof transaction.transactionJson === 'undefined' || transaction.transactionJson === null || !transaction.transactionJson || typeof transaction.transactionJson.delegatedNonce === 'undefined') return null
+        return {
+            title: strings(`account.transaction.delegatedNonce`),
+            description: transaction.transactionJson.delegatedNonce.toString()
+        }
+    }
+
+    prepareStatusToView = (transaction) => {
+        if (!transaction.bseOrderData || typeof transaction.bseOrderData.exchangeWayType === 'undefined' || !transaction.bseOrderData.exchangeWayType) {
+            return {
+                title: strings(`account.transaction.status`),
+                description: strings(`account.transactionStatuses.${transaction.transactionStatus.toLowerCase()}`)
             }
         }
-
         return {
             title: strings(`account.transaction.status`),
-            description: strings(`account.transactionStatuses.${status.toLowerCase()}`)
-
-            // description: strings(`exchange.ordersStatus.error_order`)
+            description: strings(`exchange.ordersStatus.${transaction.bseOrderData.exchangeWayType.toLowerCase()}.${transaction.bseOrderData.status.toLowerCase()}`)
         }
     }
 
-    prepareTransactionHashToView = (cryptoCurrency, transaction) => {
-
+    prepareTransactionHashToView = (transaction, cryptoCurrency) => {
         if (!transaction.transactionHash) return null
-
         let linkUrl = cryptoCurrency.currencyExplorerTxLink + transaction.transactionHash
         if (linkUrl.indexOf('?') === -1) {
             linkUrl += '?from=trustee'
@@ -401,13 +406,10 @@ class TransactionScreen extends Component {
         }
     }
 
-    prepareTransactionsOtherHashesToView = (cryptoCurrency, transaction) => {
-
+    prepareTransactionsOtherHashesToView = (transaction, cryptoCurrency) => {
         if (!transaction.transactionsOtherHashes) return null
-
         let tmp = transaction.transactionsOtherHashes.split(',')
         tmp = tmp[0]
-
         let linkUrl = cryptoCurrency.currencyExplorerTxLink + tmp
         if (linkUrl.indexOf('?') === -1) {
             linkUrl += '?from=trustee'
@@ -420,52 +422,27 @@ class TransactionScreen extends Component {
         }
     }
 
-    prepareWayType = () => {
-
-        const { transaction } = this.props
-
-        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null && transaction.bseOrderData.outDestination && transaction.bseOrderData.outDestination.includes('+')) {
-            return 'MOBILE_PHONE'
-        }
-
-        const wayType = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.exchangeWayType : null
-
-        return wayType
-    }
-
-    prepareStatus = (transactionStatus, orderStatus) => {
-        
-        if (orderStatus) {
-            return orderStatus
-        }
-
+    prepareStatus = (transactionStatus) => {
+        // orderStatus => transactionStatus moved to preformatWithBSEforShow - also this one could be as doubles with element/Transaction
         const transactionStatusTmp = typeof (transactionStatus) !== 'undefined' ? transactionStatus : 'new'
         return !transactionStatusTmp ? 'new' : transactionStatusTmp
     }
 
     prepareDate = (createdAt) => {
-
+        if (!createdAt) return false
         const tmp = {
             title: strings('account.transaction.date'),
             description: '...'
         }
-
-        if (createdAt) {
-            tmp.description = new Date(createdAt).toLocaleTimeString() + ' ' + new Date(createdAt).toLocaleDateString()
-            return tmp
-        }
-
-        return false
+        tmp.description = new Date(createdAt).toLocaleTimeString() + ' ' + new Date(createdAt).toLocaleDateString()
+        return tmp
     }
 
     prepareBlockConfirmations = (blockConfirmations) => {
-
         let tmp = 0
-
         if (typeof blockConfirmations !== 'undefined' && blockConfirmations > 0) {
             tmp = blockConfirmations.toString()
         }
-
         return {
             title: strings(`account.transaction.confirmations`),
             description: tmp.toString()
@@ -473,14 +450,11 @@ class TransactionScreen extends Component {
     }
 
     prepareBlockNumber = (blockNumber) => {
-        if (typeof blockNumber !== 'undefined') {
-            return {
-                title: strings(`account.transaction.blockNumber`),
-                description: blockNumber.toString()
-            }
+        if (typeof blockNumber === 'undefined' || !blockNumber || blockNumber === null) return false
+        return {
+            title: strings(`account.transaction.blockNumber`),
+            description: blockNumber.toString()
         }
-
-        return false
     }
 
     onLongPressEditableCallback = () => {
@@ -491,10 +465,11 @@ class TransactionScreen extends Component {
         this.commentInput.focus()
     }
 
-    onBlurComment = (item) => {
+    onBlurComment = async (item) => {
         try {
             this.setState({
-                commentEditable: false
+                commentEditable: false,
+                focused: false
             })
 
             const { id: updateID, transactionJson } = this.state.transaction
@@ -512,10 +487,10 @@ class TransactionScreen extends Component {
             }
 
             if (transactionJson.comment !== comment) {
-                transactionDS.saveTransaction(transaction, updateID, 'onBlurComment')
+                await transactionDS.saveTransaction(transaction, updateID, 'onBlurComment')
             }
         } catch (e) {
-            Log.err(`AccountScreen.Transaction/onBlurComment error - ${JSON.stringify(e)} ; Transaction - ${JSON.stringify(this.state.transaction)}`)
+            Log.err(`AccountScreen.Transaction/onBlurComment error ${e.message}; Transaction - ${JSON.stringify(this.state.transaction)}`)
         }
     }
 
@@ -523,17 +498,16 @@ class TransactionScreen extends Component {
         NavStore.goBack()
     }
 
-    getTransactionDate(date) {
-        let datetime = new Date(date)
-        datetime = (datetime.getDate().toString().length === 1 ? '0' + datetime.getDate() : datetime.getDate()) + '/' +
+    getTransactionDate(transaction) {
+        const datetime = new Date(transaction.createdAt)
+        return datetime.toTimeString().slice(0, 8) + ' ' +
+            (datetime.getDate().toString().length === 1 ? '0' + datetime.getDate() : datetime.getDate()) + '/' +
             ((datetime.getMonth() + 1).toString().length === 1 ? '0' + (datetime.getMonth() + 1) : (datetime.getMonth() + 1)) + '/' + datetime.getFullYear()
-        return datetime
     }
 
     getTransactionStatus = (status) => {
         switch (status.toUpperCase()) {
             case 'DONE_PAYOUT':
-            case 'DONE_TRADE':
             case 'SUCCESS':
                 return 'SUCCESS'
             case 'CANCELED_PAYOUT':
@@ -545,62 +519,57 @@ class TransactionScreen extends Component {
         }
     }
 
+    prepareStatusHeaderToView = (status) => {
+        return strings(`account.transactionScreen.header.status.${status.toLowerCase()}`).toUpperCase()
+    }
+
     headerTrx = (transaction, color, currencyCode) => {
 
         if (Object.keys(transaction).length === 0) {
             return (
                 <View></View>
             )
-        }        
-
-        const status = transaction.transactionStatus
+        }
 
         const { colors, isLight } = this.context
 
         const { cryptoCurrency } = this.props
 
-        const orderStatus = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.status : null
+        const { transactionStatus, transactionDirection, addressAmountPretty, addressAmountPrettyPrefix, wayType } = transaction
 
-        const transactionStatus = this.getTransactionStatus(orderStatus || status.toUpperCase())
+        const status = this.getTransactionStatus(transactionStatus)
 
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ color: '#404040', fontSize: 17 }} />
 
-        if (transaction.transactionDirection === 'income' || transaction.transactionDirection === 'claim') {
+        if (transactionDirection === 'income' || transactionDirection === 'claim' || transactionDirection === 'income') {
             arrowIcon = <Feather name={'arrow-down-left'} style={{ color: '#404040', fontSize: 17 }} />
         }
-        if (transaction.transactionDirection === 'self') {
-            arrowIcon = <FontAwesome5 name="infinity" style={{ color: '#404040', fontSize: 17 }} />
+        if (transactionDirection === 'self') {
+            arrowIcon = <FontAwesome5 name='infinity' style={{ color: '#404040', fontSize: 17 }} />
         }
-        if (status === 'fail' || status === 'missing' || status === 'replaced') {
-            arrowIcon = <Feather name="x" style={{ color: '#404040', fontSize: 17 }} />
-        }
-
-        let exchangeWay
-
-        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null && transaction.bseOrderData.exchangeWayType) {
-            exchangeWay = transaction.bseOrderData.exchangeWayType
-        } else {
-            exchangeWay = transaction.transactionDirection
+        if (transactionStatus === 'fail' || transactionStatus === 'missing' || transactionStatus === 'replaced') {
+            arrowIcon = <Feather name='x' style={{ color: '#404040', fontSize: 17 }} />
         }
 
         return (
             <View style={{ width: '100%', flexDirection: 'column', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row' }}>
                     <Text style={styles.txDirection}>
-                        {capitalize(exchangeWay.toLowerCase())}
+                        {capitalize(strings('account.transaction.' + wayType.toLowerCase()))}
                     </Text>
                     <View>
                         {arrowIcon}
                     </View>
                 </View>
                 <View style={{ paddingVertical: 8 }}>
-                    <Text style={styles.date} >{new Date(transaction.createdAt).toTimeString().slice(0, 8)} {this.getTransactionDate(transaction.createdAt)}</Text>
+                    <Text
+                        style={styles.date}>{this.getTransactionDate(transaction)}</Text>
                 </View>
                 <View style={{ width: '100%', justifyContent: 'center', flexDirection: 'row' }}>
                     <View style={{ ...styles.statusLine, borderBottomColor: color }} />
                     <View style={{ paddingHorizontal: 17, backgroundColor: colors.common.header.bg }}>
                         <View style={{ ...styles.statusBlock, backgroundColor: color }}>
-                            <LetterSpacing text={transactionStatus} textStyle={styles.status} letterSpacing={1.5} />
+                            <LetterSpacing text={this.prepareStatusHeaderToView(status)} textStyle={styles.status} letterSpacing={1.5} />
                         </View>
                     </View>
                 </View>
@@ -608,7 +577,7 @@ class TransactionScreen extends Component {
                     {/* {(trx.status ? trx.status.toUpperCase() !== 'PENDING_PAYIN' : false) || (status ? status.toUpperCase() !== 'PENDING' : false) ? */}
                     <>
                         <Text style={styles.amount}>
-                            {this.prepareValueToView(transaction.addressAmountPretty, transaction.transactionDirection)}
+                            {addressAmountPrettyPrefix  + ' ' + addressAmountPretty}
                         </Text>
                         <Text style={{ ...styles.code, color: color }}>{cryptoCurrency.currencySymbol}</Text>
                     </>
@@ -621,10 +590,8 @@ class TransactionScreen extends Component {
         )
     }
 
-    prepareValueToView = (value, direction) => `${(direction === 'outcome' || direction === 'self' || direction === 'freeze') ? '-' : '+'} ${value}`
-
     setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
+        const headerHeight = Math.round(height || 0)
         this.setState(() => ({ headerHeight }))
     }
 
@@ -643,69 +610,67 @@ class TransactionScreen extends Component {
         if (transaction.transactionDirection === 'income') {
             return false
         }
-
         if (transaction.transactionStatus !== 'new' && transaction.transactionStatus !== 'missing') {
             return false
         }
-
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REMOVE')) {
             return false
         }
-
-        array.push({ icon: 'wallet', title: 'Remove rbf', action: () => this.renderRemoveRbf() })
+        array.push({ icon: 'wallet', title: strings('account.transactionScreen.removeRbf'), action: () => this.renderRemoveRbf() })
 
     }
 
     handlerRemoveButton = (array) => {
 
         const { transaction } = this.state
-        const { status, exchangeWayType } = transaction
 
-        if (typeof exchangeWayType === 'undefined' || exchangeWayType === null || !exchangeWayType) {
-            return null
-        }
-        if (typeof status === 'undefined' || status === null || !status) {
-            return null
-        }
+        // const status = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.status : null
+        // const exchangeWayType = typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData !== null ? transaction.bseOrderData.exchangeWayType : null
 
-        if (typeof transaction.transactionHash === 'string') {
-            return null
-        }
+        // if (typeof exchangeWayType === 'undefined' || exchangeWayType === null || !exchangeWayType) {
+        //     return null
+        // }
+        // if (typeof status === 'undefined' || status === null || !status) {
+        //     return null
+        // }
 
-        array.push({ icon: 'pinCode', title: 'Remove', action: () => this.renderRemove() })
+
+        // @ksu need this?
+        // if (typeof transaction.transactionHash === 'string') {
+        //     return null
+        // }
+
+        array.push({ icon: 'pinCode', title: strings('account.transactionScreen.remove'), action: () => this.renderRemove() })
     }
 
     handlerReplaceByFee = (array) => {
         const { cryptoCurrency, account } = this.props
         const { transaction } = this.state
-
         if (transaction.transactionHash === 'undefined' || !transaction.transactionHash) {
             return false
         }
-
         if (transaction.transactionStatus !== 'new' && transaction.transactionStatus !== 'pending_payin' && transaction.transactionStatus !== 'missing') {
             return false
         }
-
         if (cryptoCurrency.currencyCode === 'BTC' && transaction.addressTo.indexOf('OMNI') !== -1) {
             return
         }
-
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {
             return false
         }
-
-        array.push({ icon: 'accounts', title: 'Booster', action: () => this.handlerRbf() })
+        array.push({ icon: 'accounts', title: strings('account.transactionScreen.booster'), action: () => this.handlerRbf() })
     }
 
     handlerCheckV3 = (array) => {
         const { transaction } = this.state
-
-        if (typeof transaction.bseOrderData === 'undefined' || typeof transaction.orderId === 'undefined' || transaction.bseOrderData === null ) {
+        if (typeof transaction.bseOrderData === 'undefined' || transaction.bseOrderData === null) {
             return false
         }
-
-        array.push({ icon: 'pinCode', title: 'Check', action: async () => NavStore.goNext('CheckV3DataScreen', { orderHash: transaction.bseOrderData.orderHash }) })
+        array.push({
+            icon: 'pinCode',
+            title: strings('account.transactionScreen.check'),
+            action: async () => NavStore.goNext('CheckV3DataScreen', { orderHash: transaction.bseOrderData.orderHash })
+        })
     }
 
 
@@ -735,17 +700,30 @@ class TransactionScreen extends Component {
 
     }
 
-    shareTransaction = (transaction) => {
-        let shareOptions = {}
-        shareOptions.message = `${transaction.transactionHash}\nThank you for choosing Trustee Wallet`
+    shareTransaction = (transaction, linkUrl) => {
+        const shareOptions = {}
+        shareOptions.message = `${linkUrl}\nThank you for choosing Trustee Wallet`
         shareOptions.url = this.props.cashBackStore.dataFromApi.cashbackLink
-        prettyShare(shareOptions, 'yura_share_transaction')
+        prettyShare(shareOptions, 'taki_share_transaction')
     }
 
     shareSupport = async () => {
         const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
         MarketingEvent.logEvent('taki_support', { link, screen: 'TRANSACTION' })
         NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
+    }
+
+    onFocus = () => {
+        this.setState({
+            focused: true
+        })
+
+        setTimeout(() => {
+            try {
+                this.scrollView.scrollTo({ y: 20 })
+            } catch (e) {
+            }
+        }, 100)
     }
 
     commentHandler = () => {
@@ -758,18 +736,17 @@ class TransactionScreen extends Component {
             <>
                 {commentToView ?
                     !commentEditable ?
-                        <TouchableOpacity onLongPress={this.onLongPressEditableCallback} >
+                        <TouchableOpacity onLongPress={this.onLongPressEditableCallback}>
                             <TransactionItem
                                 title={commentToView.title}
-                                iconType="pinCode"
+                                iconType='pinCode'
                                 subtitle={commentToView.description}
                             />
                         </TouchableOpacity> :
-                        <View style={{ ...styles.inputWrapper, marginTop: 20, marginBottom: GRID_SIZE, backgroundColor: '#f5f5f5' }}>
+                            <View style={{...styles.textInputWrapper, backgroundColor: '#f5f5f5'}}>
                             <TextInput
                                 ref={ref => this.commentInput = ref}
-                                name={'None (optional)'}
-                                placeholder={'None (optional)'}
+                                placeholder={strings('account.transactionScreen.commentPlaceholder')}
                                 onBlur={() => this.onBlurComment(commentToView)}
                                 multiline={true}
                                 onChangeText={(value) => {
@@ -781,10 +758,11 @@ class TransactionScreen extends Component {
                                         commentEditable: true
                                     })
                                 }}
+                                onFocus={this.onFocus}
                                 value={commentToView !== null ? commentToView.description : commentToView}
                                 inputBaseColor={'#f4f4f4'}
                                 inputTextColor={'#f4f4f4'}
-                                tintColor={'#7127ac'}
+                                style={{...styles.input, color: colors.common.text2}}
                             />
                         </View>
                     :
@@ -795,7 +773,11 @@ class TransactionScreen extends Component {
     }
 
     handleSubContentPress = (item) => {
-        copyToClipboard(item.description)
+        if (item.isLink) {
+            copyToClipboard(item.title + ': ' + item.linkUrl)
+        } else {
+            copyToClipboard(item.title + ': ' + item.description)
+        }
         Toast.setMessage(strings('toast.copied')).show()
     }
 
@@ -805,10 +787,13 @@ class TransactionScreen extends Component {
         firebase.analytics().setCurrentScreen('Account.TransactionScreen')
 
         const { colors, GRID_SIZE, isLight } = this.context
-        const { mainStore, account, cryptoCurrency, exchangeStore, settingsStore } = this.props
+        const { cryptoCurrency } = this.props
 
-        const { headerHeight, transaction, showMoreDetails, outDestinationCardToView,
-            fromToView, addressToToView, addressExchangeToView, commentToView, commentEditable } = this.state
+        const { headerHeight, transaction, showMoreDetails, outDestinationCardToView, fromToView, addressToToView, addressExchangeToView, subContent, linkExplorer, focused } = this.state
+        if (!transaction || typeof transaction === 'undefined') {
+            // @yura - its loader when state is initing from notice open - could have some "loader" mark
+            return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
+        }
 
         // console.log()
         // console.log()
@@ -816,67 +801,66 @@ class TransactionScreen extends Component {
 
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor
-        const subtitle = typeof transaction.subtitle !== 'undefined' && transaction.subtitle ? transaction.subtitle : false
-
-        const doteSlice = subtitle ? subtitle.indexOf('-') : -1
-        const subtitleMini = doteSlice && transaction.exchangeWayType === 'EXCHANGE' ? transaction.transactionDirection === 'income' ?
-            transaction.subtitle.slice(0, doteSlice) : transaction.transactionDirection === 'outcome' ?
-                transaction.subtitle.slice(doteSlice + 1, transaction.subtitle.length) : transaction.subtitle : transaction.subtitle
 
         const descriptionValue = typeof transaction.description !== 'undefined' ? transaction.description.replace(/[\u2006]/g, '').split('').join(String.fromCodePoint(parseInt('2006', 16))) : ''
 
         const buttonsArray = [
             [
-                { icon: 'pinCode', title: 'Share', action: () => this.shareTransaction(transaction) },
-                { icon: 'accounts', title: 'Support', action: () => this.shareSupport() },
-                { icon: 'wallet', title: 'Details', action: () => this.showMoreDetails() }
+                { icon: 'pinCode', title: strings('account.transactionScreen.share'), action: () => this.shareTransaction(transaction, linkExplorer) },
+                { icon: 'accounts', title: strings('account.transactionScreen.support'), action: () => this.shareSupport() },
+                { icon: showMoreDetails ? 'x' : 'wallet', title: strings('account.transactionScreen.details'), action: () => this.showMoreDetails() }
             ], []]
 
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
-                    leftType="back"
+                    leftType='back'
                     leftAction={this.closeAction}
-                    rightType="close"
+                    rightType='close'
                     rightAction={this.closeAction}
                     setHeaderHeight={this.setHeaderHeight}
                     ExtraView={() => transaction ? this.headerTrx(transaction, color, cryptoCurrency.currencyCode) : null}
-                    anime={false}
                 />
                 <ScrollView
                     ref={(ref) => {
                         this.scrollView = ref
                     }}
                     showsVerticalScrollIndicator={false}
-                    keyboardShouldPersistTaps="handled"
-                    contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', padding: GRID_SIZE, paddingBottom: GRID_SIZE * 2 }}
+                    keyboardShouldPersistTaps='handled'
+                    contentContainerStyle={{
+                        flexGrow: 1,
+                        justifyContent: 'space-between',
+                        padding: GRID_SIZE,
+                        paddingBottom: GRID_SIZE * 2,
+                        minHeight: focused ? 100 : WINDOW_HEIGHT/2,
+                    }}
                 >
-                    <View style={{ marginTop: headerHeight }}>
+                    <View style={{ marginTop: focused ? headerHeight - 100 : headerHeight }}>
                         <View>
                             {outDestinationCardToView ?
                                 <TransactionItem
                                     title={outDestinationCardToView.title}
-                                    iconType="pinCode"
+                                    iconType='pinCode'
                                     subtitle={outDestinationCardToView.description}
                                 /> : fromToView ?
                                     <TransactionItem
                                         title={fromToView.title}
-                                        iconType="pinCode"
+                                        iconType='pinCode'
                                         subtitle={fromToView.description}
                                     /> : addressToToView ?
                                         <TransactionItem
                                             title={addressToToView.title}
-                                            iconType="pinCode"
+                                            iconType='pinCode'
                                             subtitle={addressToToView.description}
                                         /> : addressExchangeToView ?
                                             <TransactionItem
                                                 title={addressExchangeToView.title}
-                                                iconType="pinCode"
+                                                iconType='pinCode'
                                                 subtitle={addressExchangeToView.description}
                                             /> : null
                             }
                         </View>
-                        <View style={{ marginVertical: GRID_SIZE }}>
+                        <View style={{ marginVertical: GRID_SIZE, marginTop: 6 }}>
                             {this.commentHandler()}
                         </View>
                     </View>
@@ -888,15 +872,21 @@ class TransactionScreen extends Component {
                         {buttonsArray[1].length === 0 ?
                             this.renderButton(buttonsArray[0])
                             :
-                            <Pages indicatorColor={'#5C5C5C'} >
+                            <Pages indicatorColor={'#5C5C5C'}>
                                 {buttonsArray.map(this.renderButton)}
                             </Pages>}
                     </View>
                     {showMoreDetails && (
-                        <View style={{ marginTop: 20 }} >
-                            <View style={styles.moreInfo}>
-                                {this.state.subContent.map((item) => {
+                        <View style={{ marginTop: 20, borderRadius: 16, marginBottom: 15 }}>
+                            <InsertShadow containerStyle={{
+                                ...styles.moreInfo,
+                                flex: 1,
+                                borderRadius: 16,
+                                backgroundColor: '#F2F2F2'
+                            }} shadowRadius={9} shadowColor={'#999999'}>
+                                {subContent.map((item) => {
                                     return (
+                                        // eslint-disable-next-line react/jsx-key
                                         <TransactionItem
                                             title={item.title}
                                             subtitle={item.description}
@@ -908,12 +898,19 @@ class TransactionScreen extends Component {
                                         />
                                     )
                                 })}
-                            </View>
-                            <View style={styles.shadow}>
+                                {linkExplorer !== null ?
+                                <TouchableOpacity onPress={() => this.handleLink(linkExplorer)}>
+                                    <LetterSpacing textStyle={{...styles.viewExplorer, color: colors.common.text1}} text={strings('account.transactionScreen.viewExplorer').toUpperCase()} letterSpacing={1.5}
+                                    />
+                                </TouchableOpacity> : null}
+                            </InsertShadow>
+                            {/* <View style={styles.shadow}>
                                 <View style={styles.shadowItem} />
-                            </View>
+                            </View> */}
                         </View>)}
                 </ScrollView>
+                <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient}
+                              start={styles.containerBG.start} end={styles.containerBG.end} />
             </View>
         )
     }
@@ -993,7 +990,7 @@ const styles = {
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 20,
-        marginTop: 16,
+        marginTop: 16
     },
     content: {
         justifyContent: 'center',
@@ -1020,7 +1017,7 @@ const styles = {
     },
     moreInfo: {
         backgroundColor: '#F2F2F2',
-        borderRadius: 16,
+        // borderRadius: 16,
         paddingHorizontal: 20,
         paddingVertical: 10,
 
@@ -1043,15 +1040,15 @@ const styles = {
 
         borderRadius: 16,
 
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 1,
+            height: 1
         },
         shadowOpacity: 0.22,
         shadowRadius: 2.22,
 
-        elevation: 3,
+        elevation: 3
     },
     inputWrapper: {
         justifyContent: 'center',
@@ -1064,6 +1061,52 @@ const styles = {
         shadowOffset: {
             width: 0,
             height: 0
+        }
+    },
+    bottomButtons: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+
+        width: '100%',
+        height: 72,
+        paddingBottom: Platform.OS === 'ios' ? 30 : 0
+    },
+    containerBG: {
+        start: { x: 1, y: 0 },
+        end: { x: 1, y: 1 }
+    },
+    viewExplorer: {
+        flex: 1,
+        textAlign: 'center',
+        paddingBottom: 10,
+        paddingTop: 20,
+
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 12
+    },
+    input: {
+        flex: 1,
+        borderRadius: 10,
+        padding: 16,
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 16,
+        lineHeight: 20,
+        letterSpacing: 0.3,
+        paddingTop: 15
+    },
+    textInputWrapper: {
+        justifyContent: 'center',
+        height: 50,
+        borderRadius: 10,
+        elevation: 10,
+        shadowColor: '#000',
+        shadowRadius: 16,
+        shadowOpacity: 0.1,
+        shadowOffset: {
+            width: 0,
+            height: 0
         },
-    }
+        marginTop: 16
+    },
 }

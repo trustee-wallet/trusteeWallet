@@ -12,7 +12,7 @@ import firebase from 'react-native-firebase'
 
 import GradientView from '../../components/elements/GradientView'
 import NavStore from '../../components/navigation/NavStore'
-import Navigation from '../../components/navigation/Navigation'
+import Header from '../../components/elements/new/Header'
 
 import { strings } from '../../services/i18n'
 
@@ -141,11 +141,20 @@ class LockScreen extends Component {
         )
     }
 
-    renderNavigation = () => {
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('DashboardStack') }
+
+    renderHeader = () => {
         const { flowType } = this.props.lockScreen
 
         if(flowType !== '') {
-            return <Navigation backAction={this.backNavigationAction} />
+            return <Header
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+            />
         }
     }
 
@@ -169,7 +178,7 @@ class LockScreen extends Component {
         touchIDStatus = +touchIDStatus
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
-                {this.renderNavigation()}
+                {this.renderHeader()}
                 {
                     this.state.passwordState !== null && this.state.show ?
 
@@ -200,7 +209,7 @@ class LockScreen extends Component {
                                 }}
                                 stylePinCodeViewTitle={{ height: 10 }}
                                 stylePinCodeTextTitle={{
-                                    height: 20,
+                                    height: 40,
                                     fontFamily: 'SFUIDisplay-Regular',
                                     fontSize: 16
                                 }}
