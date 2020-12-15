@@ -86,11 +86,13 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.amount)
 
         let prices = {}
+        let autocorrectFee = false
         if (typeof additionalData.feeForByte === 'undefined') {
             prices = typeof additionalData.prices !== 'undefined' ? additionalData.prices : await this.networkPrices.getNetworkPrices(this._settings.currencyCode)
         } else {
             // @ts-ignore
             prices.speed_blocks_12 = additionalData.feeForByte
+            autocorrectFee = true
         }
 
         let unspents = typeof additionalData.unspents !== 'undefined' ? additionalData.unspents : await this.unspentsProvider.getUnspents(data.addressFrom)
@@ -183,7 +185,11 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     txSize = Math.ceil(blockchainData.rawTxHex.length / 2)
                     actualFeeForByteNotRounded = BlocksoftUtils.div(logInputsOutputs.diffInOut, txSize)
                     actualFeeForByte = Math.floor(actualFeeForByteNotRounded)
-                    if (!actualFeeRebuild && actualFeeForByte.toString() !== feeForByte.toString()) {
+                    let needAutoCorrect = false
+                    if (autocorrectFee) {
+                        needAutoCorrect = actualFeeForByte.toString() !== feeForByte.toString()
+                    }
+                    if (!actualFeeRebuild && needAutoCorrect) {
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate will correct as ' + actualFeeForByte.toString() + ' != ' + feeForByte.toString())
                         let outputForCorrecting = -1
                         for (let i = 0, ic = preparedInputsOutputs.outputs.length; i < ic; i++) {

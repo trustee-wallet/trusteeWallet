@@ -868,7 +868,7 @@
         "replaceTransactionHash" : "Замена транзакции",
         "speedUpTransactionHash" : "Ускорение транзакции",
         "recepient": "Получатель",
-        "destinationAddress": "Destination address",
+        "destinationAddress": "Адрес получателя",
         "minerFee": "Комиссия майнера",
         "totalMinerFee": "Общая комиссия майнера",
         "customNonce": "Custom nonce",
