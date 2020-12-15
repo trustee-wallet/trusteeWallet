@@ -163,7 +163,7 @@
     "minAmount": "Min amount",
     "maxAmount": "Max amount",
     "RUB": "Russia & Belarus",
-    "KZ" : "Kazakhstan",
+    "KZ": "Kazakhstan",
     "UAH": "Ukraine",
     "QIWI": "QIWI wallet",
     "ADVCASH": "Commission ADV",
@@ -235,7 +235,7 @@
         "createTitle": "Create new wallet"
       },
       "advanced": {
-        "title": "Advanced",
+        "title": "Wallet settings",
         "walletNameLabel": "Wallet name",
         "recoveryPhraseTitle": "Recovery phrase",
         "recoveryPhraseSubtitle": "Your secret recovery phrase"
@@ -730,10 +730,10 @@
     "address": "Destination address",
     "value": "value",
     "comment": "Comment",
+    "send": "Next",
     "xrp_memo": "Destination tag",
     "xmr_memo": "Payment ID",
     "fio_memo": "FIO Memo",
-    "send": "Next",
     "useAllFunds": "Use all funds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
     "notEnough": "You don't have enough funds to send",
@@ -859,6 +859,21 @@
           "feeForByte": "Fee for byte",
           "satoshi": "SATOSHI"
         }
+      },
+      "receiptScreen": {
+        "title": "Receipt",
+        "totalSend": "Total send",
+        "rate": "@ rate per 1 %{currencyCode}",
+        "replaceTransactionHash" : "Replacing Tx",
+        "speedUpTransactionHash" : "SpeedUp Tx",
+        "recepient": "Recepient",
+        "destinationAddress": "Destination address",
+        "minerFee": "Miner fee",
+        "totalMinerFee": "Total miner fee",
+        "customNonce": "Custom nonce",
+        "trusteeInfo": "Cryptocurrency transactions are not charged",
+        "send": "Send",
+        "sending": "Sending"
       }
     },
     "errors": {
@@ -900,21 +915,6 @@
      "SERVER_RESPONSE_BAD_SEND_NODE" : "No access to sending server",
      "SERVER_RESPONSE_DOUBLE_SPEND" : "Please, regenerate transaction as outputs are changed or wait for the other transactions to be mined",
      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Transaction for speedup not found"
-    },
-    "receiptScreen": {
-      "title": "Receipt",
-      "totalSend": "Total send",
-      "rate": "@ rate per 1 %{currencyCode}",
-      "replaceTransactionHash" : "Replacing Tx",
-      "speedUpTransactionHash" : "SpeedUp Tx",
-      "recepient": "Recepient",
-      "destinationAddress": "Destination address",
-      "minerFee": "Miner fee",
-      "totalMinerFee": "Total miner fee",
-      "customNonce": "Custom nonce",
-      "trusteeInfo": "Cryptocurrency transactions are not charged",
-      "send": "Send",
-      "sending": "Sending"
     }
   },
   "walletBackup": {
@@ -1161,7 +1161,7 @@
     "infoPayOrder": {
       "error": {
         "title": "Sorry...",
-        "description": "Some error occurred. Please, create new order"
+        "description": "The order is not processed. Please, create new order"
       }
     },
     "toggleBitcoinTypeAddressModal": {
@@ -1221,7 +1221,7 @@
     "exchange": {
       "sorry": "Sorry....",
       "descriptionCard": "Please, select an existing card or add a new one.",
-      "failed": "Failed...",
+      "failed": "Attention!",
       "txCanceled": "Transaction has been canceled",
       "success": "Success!",
       "txSuccess": "Transaction was successfully sent."
@@ -1256,11 +1256,11 @@
     "send": {
       "success": "Success!",
       "txSuccess": "Your transaction has been successfully sent!",
-      "fail": "Fail...",
+      "fail": "Attention!",
       "feeChangeAmount": "Your amount was change after change fee"
     },
     "walletLog": {
-      "sorry": "Sorry....",
+      "sorry": "Attention!",
       "noMailApp": "No mail apps found",
       "notComplited": "Please, select some channel to complete share"
     },
