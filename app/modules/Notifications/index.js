@@ -33,13 +33,14 @@ const getIconType = (notif) => {
     switch (notif.newsGroup) {
         case (NOTIFIES_GROUP.NEWS): return 'news'
         case (NOTIFIES_GROUP.RATES_CHANGING): {
-            if (typeof notif.rateSide === 'boolean') return notif.rateSide ? 'ratesUp' : 'ratesDown'
+            if (typeof notif.newsJson?.rateSide === 'boolean') return notif.newsJson.rateSide ? 'ratesUp' : 'ratesDown'
             return ''
         }
         case (NOTIFIES_GROUP.BSE_ORDERS): {
-            if (notif.orderHash) return 'exchange'
-            if (notif.payinTxHash) return 'incoming'
-            if (notif.payoutTxHash) return 'outgoing'
+            if (typeof notif.newsJson !== 'object') return ''
+            if (notif.newsJson.orderHash) return 'exchange'
+            if (notif.newsJson.payinTxHash) return 'incoming'
+            if (notif.newsJson.payoutTxHash) return 'outgoing'
             return ''
         }
         default: return ''

@@ -7,7 +7,7 @@ import {
     StyleSheet,
 } from 'react-native'
 
-import AntIcon from 'react-native-vector-icons/AntDesign'
+import CustomIcon from '../../../CustomIcon'
 
 import { useTheme } from '../../../../../modules/theme/ThemeProvider'
 
@@ -16,20 +16,20 @@ import { strings } from '../../../../../services/i18n'
 
 const getIcon = (iconType, color) => {
     switch (iconType) {
-        case 'exchange': // TODO: add icon when custom set ready
-            return null
-        case 'news': // TODO: add icon when custom set ready
-            return null
-        case 'blog': // TODO: add icon when custom set ready
-            return null
-        case 'ratesUp': // TODO: add icon when custom set ready
-            return null
-        case 'ratesDown': // TODO: add icon when custom set ready
-            return null
-        case 'incoming': // TODO: add icon when custom set ready
-            return null
-        case 'outgoing': // TODO: add icon when custom set ready
-            return null
+        case 'exchange':
+            return <CustomIcon name="exchange" size={20} color={color} style={{ left: 0.5 }} />
+        case 'news':
+            return <CustomIcon name="news" size={22} color={color} style={{ left: 0.5 }} />
+        case 'blog':
+            return <CustomIcon name="blog" size={22} color={color} style={{ left: 0.5 }} />
+        case 'ratesUp':
+            return <CustomIcon name="rateUp_notif" size={20} color={color} style={{ left: 0.5 }} />
+        case 'ratesDown':
+            return <CustomIcon name="rateDown_notif" size={20} color={color} style={{ left: 0.5 }} />
+        case 'incoming':
+            return <CustomIcon name="receive" size={17} color={color} style={{ left: 0.5 }} />
+        case 'outgoing':
+            return <CustomIcon name="send" size={17} color={color} style={{ left: 0.5 }} />
         default: return null
     }
 }
@@ -39,7 +39,7 @@ const getRightContent = (rightContent, params) => {
     const { colors } = useTheme()
     switch (rightContent) {
         case 'arrow':
-            return <AntIcon name="right" color={colors.common.text1} size={16} />
+            return <CustomIcon name="next" size={17} color={colors.common.text1} style={{ left: 0.5 }} />
         default: return null
     }
 }
@@ -74,7 +74,7 @@ export default function SettingListItem(props) {
             >
                 <View style={styles.iconContainer}>
                     <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgDark, opacity: disabled ? 0.5 : 1 }]}>
-                        {getIcon(iconType, colors.common.text1)}
+                        {getIcon(iconType, colors.common.roundButtonContent)}
                         {isNew && <View style={[styles.newIndicator, { borderColor: colors.common.background, backgroundColor: colors.notifications.newNotiesIndicator }]} />}
                     </View>
                 </View>

@@ -9,14 +9,8 @@ import {
 
 import { Switch } from 'react-native-switch'
 
-import AntIcon from 'react-native-vector-icons/AntDesign'
-import EntypoIcon from 'react-native-vector-icons/Entypo'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
-
-import NotificationIcon from '../../../../../assets/images/notification_icon'
-
 import CustomIcon from '../../../CustomIcon'
 
 import { useTheme } from '../../../../../modules/theme/ThemeProvider'
@@ -97,7 +91,7 @@ const getRightContent = (rightContent, params, color) => {
     const reversedValue = !value
     switch (rightContent) {
         case 'arrow':
-            return <AntIcon name="right" color={colors.common.text1} size={16} />
+            return <CustomIcon name="next" size={17} color={colors.common.text1} style={{ left: 0.5 }} />
         case 'switch':
             return (
                 <Switch
