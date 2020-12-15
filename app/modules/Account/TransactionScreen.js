@@ -794,8 +794,11 @@ class TransactionScreen extends Component {
     }
 
     handleSubContentPress = (item) => {
-        if (item.isLink) {
-            copyToClipboard(item.title + ': ' + item.linkUrl)
+        console.log('item', item)
+        if (typeof item.plain !== 'undefined') {
+            copyToClipboard(item.plain)
+        } else if (item.isLink) {
+            copyToClipboard(item.linkUrl)
         } else {
             copyToClipboard(item.title + ': ' + item.description)
         }
@@ -870,21 +873,25 @@ class TransactionScreen extends Component {
                                     title={outDestinationCardToView.title}
                                     iconType='card'
                                     subtitle={outDestinationCardToView.description}
+                                    copyAction={() => this.handleSubContentPress({plain : outDestinationCardToView.description})}
                                 /> : fromToView ?
                                     <TransactionItem
                                         title={fromToView.title}
                                         iconType='addressFrom'
                                         subtitle={fromToView.description}
+                                        copyAction={() => this.handleSubContentPress({plain : fromToView.description})}
                                     /> : addressToToView ?
                                         <TransactionItem
                                             title={addressToToView.title}
                                             iconType='addressTo'
                                             subtitle={addressToToView.description}
+                                            copyAction={() => this.handleSubContentPress({plain : addressToToView.description})}
                                         /> : addressExchangeToView ?
                                             <TransactionItem
                                                 title={addressExchangeToView.title}
                                                 iconType='exchangeTo'
                                                 subtitle={addressExchangeToView.description}
+                                                copyAction={() => this.handleSubContentPress({plain : addressExchangeToView.description})}
                                             /> : null
                             }
                             {transaction.wayType === 'self' && (
