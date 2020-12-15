@@ -213,7 +213,6 @@ class Transaction {
             // Log.daemon('DS/Transaction getTransactions finished empty ' + where + ' ' + order)
             return false
         }
-        console.log('where ' + where + ' res ', res[0]['cn'])
         return res[0]['cn']
     }
 

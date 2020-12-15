@@ -414,7 +414,7 @@ class Account extends Component {
         const { mainStore, account, cryptoCurrency, settingsStore } = this.props
         const { amountToView, show, transactionsToView, transactionsShownLength, isBalanceVisible } = this.state
 
-        const allTransactionsToView = this.state.ordersWithoutTransactions.slice(0,3).concat(transactionsToView)
+        const allTransactionsToView = this.state.ordersWithoutTransactions.concat(transactionsToView)
 
         const address = account.address
 

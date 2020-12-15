@@ -40,6 +40,7 @@ const transactionActions = {
     saveTransaction: async (transaction, source = '') => {
 
         try {
+
             await transactionDS.saveTransaction(transaction, false,source)
 
             const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
@@ -52,6 +53,8 @@ const transactionActions = {
             if (typeof transaction.bseOrderID !== 'undefined') {
                 UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true })
             }
+
+            DaemonCache.cleanCacheTxsCount(transaction)
 
         } catch (e) {
 
