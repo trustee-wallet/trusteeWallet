@@ -196,7 +196,7 @@ class SendScreen extends SendBasicScreenScreen {
                         this.memoInput.handleInput(sendScreenData.memo.toString(), false)
                     }
                 }
-                if (typeof sendScreenData.amountPretty !== 'undefined' && sendScreenData.amountPretty && sendScreenData.amountPretty !== '') {
+                if (typeof sendScreenData.amountPretty !== 'undefined' && sendScreenData.amountPretty && sendScreenData.amountPretty !== '' && sendScreenData.amountPretty !== '0') {
                     try {
                         let value = ''
                         let amount = ''
