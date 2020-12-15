@@ -175,7 +175,8 @@ class Transaction {
             where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
         }
         if (typeof params.minAmount !== 'undefined') {
-            where.push(`address_amount>${params.minAmount}`)
+            where.push(`(address_amount>${params.minAmount} AND address_amount IS NOT NULL)`)
+            where.push(`address_to NOT LIKE '% Simple Send%'`)
         }
 
         let order = ' ORDER BY created_at DESC, id DESC'
@@ -192,7 +193,6 @@ class Transaction {
         } else {
             where = ''
         }
-
 
         const sql = ` 
             SELECT COUNT(id) AS cn
@@ -213,8 +213,10 @@ class Transaction {
             // Log.daemon('DS/Transaction getTransactions finished empty ' + where + ' ' + order)
             return false
         }
+        console.log('where ' + where + ' res ', res[0]['cn'])
         return res[0]['cn']
     }
+
     /**
      * @param {Object} params
      * @param {string} params.walletHash
@@ -245,7 +247,8 @@ class Transaction {
             where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
         }
         if (typeof params.minAmount !== 'undefined') {
-            where.push(`address_amount>${params.minAmount}`)
+            where.push(`(address_amount>${params.minAmount} AND address_amount IS NOT NULL)`)
+            where.push(`address_to NOT LIKE '% Simple Send%'`)
         }
 
         let order = ' ORDER BY created_at DESC, id DESC'

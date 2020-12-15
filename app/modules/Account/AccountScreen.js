@@ -68,7 +68,6 @@ class Account extends Component {
             refreshing: false,
             amountToView: 5,
             transactionsToView: [],
-            transactionsTotalLength: 0,
             transactionsShownLength: 0,
 
             ordersWithoutTransactions : [],
@@ -305,7 +304,7 @@ class Account extends Component {
                     </TouchableOpacity>
                 </View>
                 {
-                    !props.allTransactionsToView.length ?
+                    account.transactionsTotalLength === 0 ?
                         <View>
                             {isSynchronized && <Text
                                 style={styles.transaction__empty_text}>
@@ -348,40 +347,27 @@ class Account extends Component {
 
     async transactionInfinity(from = 0, perPage = 10) {
         const { account, mainStore } = this.props
-        let transactionsTotalLength = 0
-        if (from === 0) {
-            transactionsTotalLength = await transactionDS.getTransactionsCount({
-                walletHash: account.walletHash,
-                currencyCode: account.currencyCode,
-                minAmount : 0,
-            }, 'AccountScreen.transactionInfinity count')
-        }
 
-        const tmp = await transactionDS.getTransactions({
+        const params = {
             walletHash: account.walletHash,
             currencyCode: account.currencyCode,
-            minAmount: 0,
             limitFrom: from,
             limitPerPage: perPage
-        }, 'AccountScreen.transactionInfinity list')
+        }
+        if (mainStore.selectedWallet.walletIsHideTransactionForFee !== null && +mainStore.selectedWallet.walletIsHideTransactionForFee === 1) {
+            params.minAmount = 0
+        }
+        const tmp = await transactionDS.getTransactions(params, 'AccountScreen.transactionInfinity list')
         const transactionsToView = []
         if (tmp && tmp.length > 0) {
             for (let transaction of tmp) {
                 transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData)
-                // @ksu check plz
-                if (mainStore.selectedWallet.walletIsHideTransactionForFee !== null && +mainStore.selectedWallet.walletIsHideTransactionForFee === 1) {
-                    if (transaction.addressTo.toString().indexOf('OMNI Simple Send:') !== -1) {
-                        // if (transaction.transactionOfTrusteeWallet === 1 && transaction.transactionsOtherHashes !== '') {  // old code
-                        // do nothing as its removed ones
-                    } else {
-                        transactionsToView.push(transaction)
-                    }
-                }
+                transactionsToView.push(transaction)
             }
         }
 
-        if (transactionsTotalLength > 0) {
-            this.setState({ transactionsToView, transactionsTotalLength, transactionsShownLength: perPage })
+        if (account.transactionsTotalLength > 0) {
+            this.setState({ transactionsToView, transactionsShownLength: perPage })
         } else {
             this.setState({ transactionsToView })
         }
@@ -426,7 +412,7 @@ class Account extends Component {
         const { colors, isLight } = this.context
         const { mode, headerHeight } = this.state
         const { mainStore, account, cryptoCurrency, settingsStore } = this.props
-        const { amountToView, show, transactionsToView, transactionsTotalLength, transactionsShownLength, isBalanceVisible } = this.state
+        const { amountToView, show, transactionsToView, transactionsShownLength, isBalanceVisible } = this.state
 
         const allTransactionsToView = this.state.ordersWithoutTransactions.slice(0,3).concat(transactionsToView)
 
@@ -548,7 +534,7 @@ class Account extends Component {
                                 </View>
                             </View>
                             {
-                                transactionsTotalLength > transactionsShownLength ?
+                                account.transactionsTotalLength > transactionsShownLength ?
                                     <View style={{ width: '100%', alignItems: 'center' }}>
                                         <TouchableOpacity style={styles.showMore} onPress={this.handleShowMore} hitSlop={HIT_SLOP} >
                                             <Text style={{ ...styles.showMore__btn, color: colors.accountScreen.showMoreColor }}>

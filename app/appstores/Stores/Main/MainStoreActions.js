@@ -259,6 +259,16 @@ export async function setSelectedAccount(setting) {
 
         account.feeRates = DaemonCache.getCacheRates(account.feesCurrencyCode)
 
+        const params = {
+            walletHash: account.walletHash,
+            currencyCode: account.currencyCode,
+            minAmount : 0,
+        }
+        if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
+            params.minAmount = 0
+        }
+        account.transactionsTotalLength = await transactionDS.getTransactionsCount(params, 'AccountScreen.transactionInfinity count')
+
         dispatch({
             type: 'SET_SELECTED_ACCOUNT',
             selectedAccount: account

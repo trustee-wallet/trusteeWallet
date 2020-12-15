@@ -832,7 +832,6 @@ class TransactionScreen extends Component {
                 { icon: showMoreDetails ? 'x' : 'details', title: strings('account.transactionScreen.details'), action: () => this.showMoreDetails() }
             ], []]
 
-        console.log('state', this.state.notification)
 
         if (transaction.addressAmountPretty === '?') {
             buttonsArray[0].splice(2,1)
