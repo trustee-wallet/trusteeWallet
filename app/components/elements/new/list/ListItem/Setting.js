@@ -80,6 +80,8 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name={'selectVisibleAddress'} size={18} color={color} />
         case 'fee':
             return <CustomIcon name={'fee'} size={22} color={color} />
+        case 'keyMonero':
+            return <CustomIcon name={'secretKeyMonero'} size={22} color={color} />
         default: return null
     }
 }
