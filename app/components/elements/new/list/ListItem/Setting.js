@@ -43,7 +43,7 @@ const getIcon = (iconType, color) => {
         case 'language':
             return <CustomIcon name="language" size={24} color={color} style={{ left: 0.5 }} />
         case 'scanning':
-            return null; // TODO: add icon when custom icon set is ready
+            return <CustomIcon name="scanning" size={24} color={color} style={{ left: 0.5 }} />
         case 'shareLogs':
             return <CustomIcon name="logs" size={22} color={color} style={{ left: 0.5 }} />
         case 'contactSupport':
@@ -59,7 +59,7 @@ const getIcon = (iconType, color) => {
         case 'news':
             return <CustomIcon name="news" size={22} color={color} style={{ left: 0.5 }} />
         case 'key':
-            return null; // TODO: add icon when custom icon set is ready
+            return <CustomIcon name="recoveryPhrase" size={22} color={color} style={{ left: 0.5 }} />
         case 'importWallet':
             return <CustomIcon name="importWallet" size={22} color={color} style={{ left: 0.5 }} />
         case 'cashMultiple':
@@ -80,6 +80,8 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name={'selectVisibleAddress'} size={18} color={color} />
         case 'fee':
             return <CustomIcon name={'fee'} size={22} color={color} />
+        case 'keyMonero':
+            return <CustomIcon name={'secretKeyMonero'} size={22} color={color} />
         default: return null
     }
 }

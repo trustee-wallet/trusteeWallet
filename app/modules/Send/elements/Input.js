@@ -210,7 +210,7 @@ class Input extends Component {
                     }}
                     editable={!noEdit ? true : false}
                     onChangeText={(value) => this.handleInput(value)}
-                    style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : '' }}
+                    style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : '#404040' }}
                     autoCorrect={false}
                     spellCheck={false}
                     onBlur={() => {

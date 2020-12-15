@@ -920,7 +920,7 @@ class TransactionScreen extends Component {
                             </Pages>}
                     </View>
                     {showMoreDetails && (
-                        <View style={{ ...styles.moreInfo, marginTop: 20, borderRadius: 16, marginBottom: 15, backgroundColor: '#f2f2f2' }}>
+                        <View style={{ ...styles.moreInfo, borderRadius: 16, marginBottom: 15, backgroundColor: '#f2f2f2' }}>
                             {/* <InsertShadow containerStyle={{
                                 ...styles.moreInfo,
                                 flex: 1,
@@ -943,7 +943,7 @@ class TransactionScreen extends Component {
                                 })}
                                 {linkExplorer !== null ?
                                 <TouchableOpacity onPress={() => this.handleLink(linkExplorer)}>
-                                    <LetterSpacing textStyle={{...styles.viewExplorer, color: colors.common.text1}} text={strings('account.transactionScreen.viewExplorer').toUpperCase()} letterSpacing={1.5}
+                                    <LetterSpacing textStyle={{...styles.viewExplorer, color: color}} text={strings('account.transactionScreen.viewExplorer').toUpperCase()} letterSpacing={1.5}
                                     />
                                 </TouchableOpacity> : null}
                             {/* </InsertShadow> */}
@@ -1126,7 +1126,8 @@ const styles = {
         paddingTop: 20,
 
         fontFamily: 'Montserrat-Bold',
-        fontSize: 12
+        fontSize: 12,
+        textDecorationLine: 'underline'
     },
     input: {
         flex: 1,
