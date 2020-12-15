@@ -770,10 +770,10 @@
       "force": "Do anyway?"
     },
     "fee": {
-      "smallFeeNoticeTitle" : "Please, be careful",
-      "smallFeeNoticeDesc" : "Not enough balance for recommended fast transaction fee",
-      "customFeeCalculated" : "Calculated Fee",
-      "changeAmountNoticeDesc" : "Amount is changed",
+      "smallFeeNoticeTitle": "Please, be careful",
+      "smallFeeNoticeDesc": "Not enough balance for recommended fast transaction fee",
+      "customFeeCalculated": "Calculated Fee",
+      "changeAmountNoticeDesc": "Amount is changed",
       "title": "Change\nfee",
       "text": {
         "eth_speed_slowest": "Slowest",
@@ -782,9 +782,9 @@
         "eth_speed_fast": "Fast",
         "eth_speed_delegated": "Delegated ERC865",
         "xmr_speed_1": "Slow",
-        "xmr_speed_2" : "Medium",
-        "xmr_speed_3" : "High",
-        "xmr_speed_4" : "Very High",
+        "xmr_speed_2": "Medium",
+        "xmr_speed_3": "High",
+        "xmr_speed_4": "Very High",
         "btc_speed_blocks_24": "Slowest",
         "btc_speed_blocks_12": "Slow",
         "btc_speed_blocks_6": "Medium",
@@ -816,9 +816,9 @@
         "eth_speed_fast": "",
         "eth_speed_delegated": "The transaction will be sent at the expense of a third party. Commission is charged in %{symbol} according to ERC865",
         "xmr_speed_1": "",
-        "xmr_speed_2" : "",
-        "xmr_speed_3" : "",
-        "xmr_speed_4" : "",
+        "xmr_speed_2": "",
+        "xmr_speed_3": "",
+        "xmr_speed_4": "",
         "btc_speed_blocks_24": "",
         "btc_speed_blocks_12": "",
         "btc_speed_blocks_6": "",
@@ -859,8 +859,9 @@
           "feeForByte": "Fee for byte",
           "satoshi": "SATOSHI"
         }
-      },
-      "receiptScreen": {
+      }
+    },
+    "receiptScreen": {
         "title": "Receipt",
         "totalSend": "Total send",
         "rate": "@ rate per 1 %{currencyCode}",
@@ -874,7 +875,7 @@
         "trusteeInfo": "Cryptocurrency transactions are not charged",
         "send": "Send",
         "sending": "Sending"
-      }
+
     },
     "errors": {
      "UI_CONFIRM_DOUBLE_SEND": "The transaction has been sent to this address already, are you sure that you want to repeat the transaction?",

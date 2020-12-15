@@ -770,21 +770,21 @@
       "force" : "Отправить принудительно?"
     },
     "fee": {
-      "smallFeeNoticeTitle" : "Пожалуйста, будьте внимательны",
-      "smallFeeNoticeDesc" : "Недостаточно баланса для быстрой транзакции",
-      "customFeeCalculated" : "Общая сумма",
-      "changeAmountNoticeDesc" : "Сумма транзакции изменена",
+      "smallFeeNoticeTitle": "Пожалуйста, будьте внимательны",
+      "smallFeeNoticeDesc": "Недостаточно баланса для быстрой транзакции",
+      "customFeeCalculated": "Общая сумма",
+      "changeAmountNoticeDesc": "Сумма транзакции изменена",
       "title": "Изменить\nкомиссию",
       "text": {
         "eth_speed_slowest": "Минимально",
         "eth_speed_slow": "Медленно",
         "eth_speed_medium": "Средне",
         "eth_speed_fast": "Быстро",
-        "eth_speed_delegated" : "Делегированная ERC865",
+        "eth_speed_delegated": "Делегированная ERC865",
         "xmr_speed_1": "Медленно",
-        "xmr_speed_2" : "Средне",
-        "xmr_speed_3" : "Быстро",
-        "xmr_speed_4" : "Очень быстро",
+        "xmr_speed_2": "Средне",
+        "xmr_speed_3": "Быстро",
+        "xmr_speed_4": "Очень быстро",
         "btc_speed_blocks_24": "Минимально",
         "btc_speed_blocks_12": "Медленно",
         "btc_speed_blocks_6": "Средне",
@@ -807,18 +807,18 @@
         "ltc_corrected_speed_blocks_2_protection": "Авто (защита от переплаты)",
         "ltc_corrected_speed_blocks_6_protection": "Авто (защита от переплаты)",
         "ltc_corrected_speed_blocks_12_protection": "Авто (защита от переплаты)",
-        "xrp_speed_one" : "Быстро"
+        "xrp_speed_one": "Быстро"
       },
       "time": {
         "eth_speed_slowest": "",
         "eth_speed_slow": "",
         "eth_speed_medium": "",
         "eth_speed_fast": "",
-        "eth_speed_delegated" : "Транзакция будет отправлена за счет третьей стороны. Комиссия взимается в %{symbol} согласно ERC865",
+        "eth_speed_delegated": "Транзакция будет отправлена за счет третьей стороны. Комиссия взимается в %{symbol} согласно ERC865",
         "xmr_speed_1": "",
-        "xmr_speed_2" : "",
-        "xmr_speed_3" : "",
-        "xmr_speed_4" : "",
+        "xmr_speed_2": "",
+        "xmr_speed_3": "",
+        "xmr_speed_4": "",
         "btc_speed_blocks_24": "",
         "btc_speed_blocks_12": "",
         "btc_speed_blocks_6": "",
@@ -841,7 +841,7 @@
         "ltc_corrected_speed_blocks_2_protection": "> 15 минут",
         "ltc_corrected_speed_blocks_6_protection": "> 35 минут",
         "ltc_corrected_speed_blocks_12_protection": "> 135+ минут",
-        "xrp_speed_one" : ""
+        "xrp_speed_one": ""
       },
       "customFee": {
         "title": "Ручная",
@@ -859,8 +859,9 @@
           "feeForByte": "Цена за байт",
           "satoshi": "SATOSHI"
         }
-      },
-      "receiptScreen": {
+      }
+    },
+    "receiptScreen": {
         "title": "Квитанция",
         "totalSend": "Сумма отправки",
         "rate": "Цена за 1 %{currencyCode}",
@@ -874,7 +875,6 @@
         "trusteeInfo": "Криптовалютные транзакции не тарифицируются",
         "send": "Отправить",
         "sending": "Отправка"
-      }
     },
     "errors": {
       "UI_CONFIRM_DOUBLE_SEND" : "Транзакция на этот адрес уже отправлена, Вы уверены, что хотите повторить транзакцию?",

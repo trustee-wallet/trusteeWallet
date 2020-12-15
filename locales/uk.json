@@ -770,21 +770,21 @@
       "force" : "Відправити примусово?"
     },
     "fee": {
-      "smallFeeNoticeTitle" : "Будь ласка, будьте обережні",
-      "smallFeeNoticeDesc" : "Недостатньо балансу для швидкої транзакції",
-      "customFeeCalculated" : "Загальна сума",
-      "changeAmountNoticeDesc" : "Сума транзакції змінена",
+      "smallFeeNoticeTitle": "Будь ласка, будьте обережні",
+      "smallFeeNoticeDesc": "Недостатньо балансу для швидкої транзакції",
+      "customFeeCalculated": "Загальна сума",
+      "changeAmountNoticeDesc": "Сума транзакції змінена",
       "title": "Змінити\nкомісію",
       "text": {
         "eth_speed_slowest": "Мінімально",
         "eth_speed_slow": "Повільно",
         "eth_speed_medium": "Середньо",
         "eth_speed_fast": "Швидко",
-        "eth_speed_delegated" : "Делегована ERC865",
+        "eth_speed_delegated": "Делегована ERC865",
         "xmr_speed_1": "Повільно",
-        "xmr_speed_2" : "Середньо",
-        "xmr_speed_3" : "Швидко",
-        "xmr_speed_4" : "Дуже швидко",
+        "xmr_speed_2": "Середньо",
+        "xmr_speed_3": "Швидко",
+        "xmr_speed_4": "Дуже швидко",
         "btc_speed_blocks_24": "Мінімально",
         "btc_speed_blocks_12": "Повільно",
         "btc_speed_blocks_6": "Середньо",
@@ -807,18 +807,18 @@
         "ltc_corrected_speed_blocks_2_protection": "Авто (захист вiд переплати)",
         "ltc_corrected_speed_blocks_6_protection": "Авто (захист вiд переплати)",
         "ltc_corrected_speed_blocks_12_protection": "Авто (захист вiд переплати)",
-        "xrp_speed_one" : "Швидко"
+        "xrp_speed_one": "Швидко"
       },
       "time": {
         "eth_speed_slowest": "",
         "eth_speed_slow": "",
         "eth_speed_medium": "",
         "eth_speed_fast": "",
-        "eth_speed_delegated" : "Транзакція буде відправлена за рахунок третьої сторони. Комісія стягується в %{symbol} згідно ERC865",
+        "eth_speed_delegated": "Транзакція буде відправлена за рахунок третьої сторони. Комісія стягується в %{symbol} згідно ERC865",
         "xmr_speed_1": "",
-        "xmr_speed_2" : "",
-        "xmr_speed_3" : "",
-        "xmr_speed_4" : "",
+        "xmr_speed_2": "",
+        "xmr_speed_3": "",
+        "xmr_speed_4": "",
         "btc_speed_blocks_24": "",
         "btc_speed_blocks_12": "",
         "btc_speed_blocks_6": "",
@@ -841,7 +841,7 @@
         "ltc_corrected_speed_blocks_2_protection": "> 15 хвилин",
         "ltc_corrected_speed_blocks_6_protection": "> 35 хвилин",
         "ltc_corrected_speed_blocks_12_protection": "> 135+ хвилин",
-        "xrp_speed_one" : ""
+        "xrp_speed_one": ""
       },
       "customFee": {
         "title": "Власноруч",
@@ -859,8 +859,9 @@
           "feeForByte": "Ціна за байт",
           "satoshi": "SATOSHI"
         }
-      },
-      "receiptScreen": {
+      }
+    },
+    "receiptScreen": {
         "title": "Квитанція",
         "totalSend": "Сума відправки",
         "rate": "Ціна за 1 %{currencyCode}",
@@ -874,7 +875,6 @@
         "trusteeInfo": "Криптовалютні транзакції не тарифікуються",
         "send": "Надіслати",
         "sending": "Відправка"
-      }
     },
     "errors": {
       "UI_CONFIRM_DOUBLE_SEND" : "Транзакція на цю адресу вже відправлена, Ви впевнені, що хочете повторити транзакцію?",
