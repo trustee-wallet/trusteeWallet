@@ -2,10 +2,9 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Image, TextInput, KeyboardAvoidingView  } from 'react-native'
+import { View, Text, ScrollView, Image, TextInput, SafeAreaView, KeyboardAvoidingView  } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/Button'
+import Button from '../../components/elements/new/buttons/Button'
 import { strings } from '../../services/i18n'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
 import { rejectFioFundsRequest } from '../../../crypto/blockchains/fio/FioUtils'
@@ -16,13 +15,22 @@ import Log from '../../services/Log/Log'
 import { connect } from 'react-redux'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import Header from '../../components/elements/new/Header'
+
 class FioRequestDetails extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
             requestDetailData: {},
+            headerHeight: 0,
         }
+    }
+
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
     }
 
     async componentDidMount() {
@@ -67,12 +75,32 @@ class FioRequestDetails extends Component {
         }
     }
 
-    render() {
-        return (
-            <View>
-                <Navigation title={strings('FioRequestDetails.title')}/>
+    handleBack = () => { NavStore.goBack() }
 
-                <View style={{paddingTop: 90, height: '100%'}}>
+    handleClose = () => { NavStore.reset('DashboardStack') }
+
+    render() {
+
+        const { colors, GRID_SIZE } = this.context
+
+        const { headerHeight } = this.state
+
+        return (
+            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
+                <Header
+                    leftType="back"
+                    leftAction={this.handleBack}
+                    rightType="close"
+                    rightAction={this.handleClose}
+                    title={strings('FioRequestDetails.title')}
+                    setHeaderHeight={this.setHeaderHeight}
+                />
+
+                <SafeAreaView style={[styles.content, {
+                    backgroundColor: colors.common.background,
+                    marginTop: headerHeight,
+                    height: '100%',
+                }]}>
                     <View style={styles.container}>
 
                         <KeyboardAvoidingView behavior="padding">
@@ -80,7 +108,7 @@ class FioRequestDetails extends Component {
                             <View>
                                 {/*<Text style={styles.txt}>{strings('FioRequestDetails.balance')}: 0.000025 BTC ($0.24)</Text>*/}
                                 {/*<Text style={styles.txt}>1 BTC = $9,700.70 USD</Text>*/}
-                                <Text style={styles.txt2}>Request created: {Moment(this.state.requestDetailData?.time_stamp).format('lll')}</Text>
+                                <Text style={[styles.txt2, { color: colors.common.text3 }]}>{strings('FioRequestDetails.reqCreated')}: {Moment(this.state.requestDetailData?.time_stamp).format('lll')}</Text>
 
 
                                 <View style={styles.info__section}>
@@ -124,9 +152,9 @@ class FioRequestDetails extends Component {
                                 </View>
 
                                 {/*<Text style={styles.txt}>{strings('FioRequestDetails.fee')}: + B 0.000033 ($0.03)</Text>*/}
-                                <Text style={styles.txt2}>{strings('FioRequestDetails.to')}: {this.state.requestDetailData?.payee_fio_address}</Text>
-                                <Text style={styles.txt2}>{strings('FioRequestDetails.from')}: {this.state.requestDetailData?.payer_fio_address}</Text>
-                                <Text style={styles.txt2}>{strings('FioRequestDetails.memo')}: {this.state.requestDetailData?.content?.memo}</Text>
+                                <Text style={[styles.txt2, { color: colors.common.text3 }]}>{strings('FioRequestDetails.to')}: {this.state.requestDetailData?.payee_fio_address}</Text>
+                                <Text style={[styles.txt2, { color: colors.common.text3 }]}>{strings('FioRequestDetails.from')}: {this.state.requestDetailData?.payer_fio_address}</Text>
+                                <Text style={[styles.txt2, { color: colors.common.text3 }]}>{strings('FioRequestDetails.memo')}: {this.state.requestDetailData?.content?.memo}</Text>
                             </View>
 
                         </KeyboardAvoidingView>
@@ -135,14 +163,16 @@ class FioRequestDetails extends Component {
                             <View style={{marginTop: 20}}>
                                 <View style={styles.btn__container}>
                                     <View style={styles.btn__holder}>
-                                        <Button press={this.handleReject}>
-                                            {strings('FioRequestDetails.btnTextReject')}
-                                        </Button>
+                                        <Button
+                                        title={strings('FioRequestDetails.btnTextReject')}
+                                        onPress={this.handleReject}
+                                        />
                                     </View>
                                     <View style={styles.btn__holder}>
-                                        <Button press={this.handleConfirm}>
-                                            {strings('FioRequestDetails.btnTextConfirm')}
-                                        </Button>
+                                        <Button
+                                        title={strings('FioRequestDetails.btnTextConfirm')}
+                                        onPress={this.handleConfirm}
+                                        />
                                     </View>
                                 </View>
                             </View>
@@ -150,7 +180,7 @@ class FioRequestDetails extends Component {
 
 
                     </View>
-                </View>
+                </SafeAreaView>
             </View>
         );
     }
@@ -168,6 +198,8 @@ const mapDispatchToProps = (dispatch) => {
         dispatch
     }
 }
+
+FioRequestDetails.contextType = ThemeContext
 
 export default connect(mapStateToProps, mapDispatchToProps)(FioRequestDetails)
 

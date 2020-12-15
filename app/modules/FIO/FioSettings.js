@@ -2,10 +2,9 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Switch, Linking } from 'react-native'
+import { View, Text, ScrollView, SafeAreaView, Switch } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/Button'
+import Button from '../../components/elements/new/buttons/Button'
 import SettingsCoin from './elements/SettingsCoin'
 import { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
@@ -19,6 +18,9 @@ import accountDS from '../../appstores/DataSource/Account/Account'
 import Toast from '../../services/UI/Toast/Toast'
 import Netinfo from '../../services/Netinfo/Netinfo'
 
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import Header from '../../components/elements/new/Header'
+
 class FioSettings extends Component {
 
     constructor(props) {
@@ -31,7 +33,13 @@ class FioSettings extends Component {
             initialCryptoCurrencies: {},
             fioAddress: null,
             fioAddressExpiration: null,
+            headerHeight: 0,
         }
+    }
+
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
     }
 
     async componentDidMount() {
@@ -235,24 +243,40 @@ class FioSettings extends Component {
 
         const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
         if (publicFioAddress) {
-            Linking.openURL(`${apiEndpoints.registrationSiteURL}${publicFioAddress}`)
+            NavStore.goNext('WebViewScreen', { url: `${apiEndpoints.registrationSiteURL}${publicFioAddress}`, title: strings('FioSettings.noFioBtn') })
         } else {
             // TODO show some warning tooltip
         }
     }
 
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('DashboardStack') }
+
     render() {
         const { fioAddress, fioAddressExpiration } = this.state
         Moment.locale('en');
 
+        const { colors, GRID_SIZE } = this.context
+
+        const { headerHeight } = this.state
+
         return (
-            <View>
-                {/*fio settings*/}
-                <Navigation
+            <View style={[styles.containerMain, { backgroundColor: colors.common.background }]}>
+                <Header
+                    leftType="back"
+                    leftAction={this.handleBack}
+                    rightType="close"
+                    rightAction={this.handleClose}
                     title={strings('FioSettings.title')}
+                    setHeaderHeight={this.setHeaderHeight}
                 />
 
-                <View style={{paddingTop: 80, height: '100%'}}>
+                <SafeAreaView style={[styles.content, {
+                    backgroundColor: colors.common.background,
+                    marginTop: headerHeight,
+                    height: '100%',
+                }]}>
 
                     <GradientView
                         array={styles_.array}
@@ -284,9 +308,9 @@ class FioSettings extends Component {
                                 <View style={{ flex: 1, paddingVertical: 20 }}>
                                     <ScrollView style={{ marginHorizontal: -20, paddingHorizontal: 20 }}>
 
-                                        <View style={styles.coinRow}>
+                                        <View style={[styles.coinRow, { borderColor: colors.fio.borderColorLight }]} >
                                             <View style={styles.coinRowInfo}>
-                                                <Text style={styles.txt2}>{strings('FioSettings.connectAllWallets')} </Text>
+                                                <Text  style={[styles.txt2, { color: colors.common.text3 }]}>{strings('FioSettings.connectAllWallets')} </Text>
                                             </View>
 
                                             <Switch
@@ -302,9 +326,10 @@ class FioSettings extends Component {
                                 </View>
 
                                 <View style={{ marginTop: 20 }}>
-                                    <Button press={this.handleNext}>
-                                        {strings('FioSettings.btnText')}
-                                    </Button>
+                                    <Button
+                                        title={strings('FioSettings.btnText')}
+                                        onPress={this.handleNext}
+                                    />
                                 </View>
 
                             </View>
@@ -316,14 +341,15 @@ class FioSettings extends Component {
                                 </View>
 
                                 <View style={{ marginTop: 20 }}>
-                                    <Button press={this.handleRegisterFIOAddress}>
-                                        {strings('FioSettings.noFioBtn')}
-                                    </Button>
+                                    <Button
+                                        title={strings('FioSettings.noFioBtn')}
+                                        onPress={this.handleRegisterFIOAddress}
+                                    />
                                 </View>
                             </View>
                         )
                     }
-                </View>
+                </SafeAreaView>
             </View>
         );
     }
@@ -335,15 +361,23 @@ const mapStateToProps = (state) => ({
     currencyStore: state.currencyStore
 })
 
+FioSettings.contextType = ThemeContext
+
 export default connect(mapStateToProps, {})(FioSettings)
 
 const styles_ = {
-    array: ['#43156d', '#7127ab'],
+    array: ['#000000', '#333333'],
     start: { x: 0.0, y: 0.5 },
     end: { x: 1, y: 0.5 }
 }
 
 const styles = {
+
+    containerMain: {
+        flex: 1,
+        height: '100%',
+        paddingBottom: 40,
+    },
 
     container: {
         padding: 30,
