@@ -32,6 +32,7 @@ class LockScreen extends Component {
             progress: new Animated.Value(0),
             show: false,
             lastStatus: 'status1',
+            pinLocked: null,
         }
     }
 
@@ -125,7 +126,7 @@ class LockScreen extends Component {
 
     renderSubtitle = () => {
         return (
-            <View><Text> {this.state.lastStatus} </Text></View>
+            <View><Text> {this.state.pinLocked} </Text></View>
         )
     }
 
@@ -143,7 +144,7 @@ class LockScreen extends Component {
 
     renderIconComponentLockedPage = () => {
         return (
-            <View><Text> {this.state.lastStatus} </Text></View>
+            <View><Text> {this.state.pinLocked} </Text></View>
             /*<View style={styles.icon}>
                 <MaterialIcons size={25} name={'lock'} color={'#5c5c5c'}/>
             </View>*/
@@ -211,6 +212,13 @@ class LockScreen extends Component {
 
                             </View>
                             <PINCode
+                                changeInternalStatus = {
+                                    (status: PinResultStatus) => {
+                                        console.log('changeInternalStatus status', status)
+                                        if (status === PinResultStatus.initial) this.setState({ pinLocked: false });
+                                        this.setState({ pinLocked: status });
+                                    }
+                                }
                                 status={this.state.passwordState}
                                 finishProcess={this.finishProcess}
                                 passwordLength={6}
@@ -308,7 +316,6 @@ class LockScreen extends Component {
                                 }}
                                 iconComponentLockedPage={this.renderIconComponentLockedPage}
                                 buttonComponentLockedPage={this.renderButtonComponentLockedPage}
-                                changeInternalStatus={this.updateLastStatus}
                                 handleResultEnterPin={this.updateLastStatus}
                                 handleResult={this.updateLastStatus}
                                 styleLockScreenTextTimer={{
