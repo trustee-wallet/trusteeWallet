@@ -27,47 +27,47 @@ import { strings } from '../../../../../services/i18n'
 const getIcon = (iconType, color) => {
     switch (iconType) {
         case 'wallet':
-            return <MaterialCommunityIcon name="wallet" color={color} size={22} style={{ marginTop: 2, marginLeft: 1 }} />
+            return <CustomIcon name="wallet" size={21} color={color} style={{ left: 1 }} />
         case 'accounts':
-            return <FontAwesomeIcon name="address-book" color={color} size={19} style={{ marginLeft: 2 }} />
+            return <CustomIcon name="addressBook" size={21} color={color} style={{ left: 1 }} />
         case 'pinCode':
-            return <MaterialIcon name="lock" color={color} size={20} style={{ marginLeft: 2 }} />
+            return <CustomIcon name="pin" size={24} color={color} />
         case 'biometricLock':
-            return <MaterialCommunityIcon name="face" color={color} size={22} style={{ marginLeft: 1, marginTop: 1 }} />
+            return <CustomIcon name="faceId" size={24} color={color} />
         case 'transactionConfirmation':
             return <MaterialCommunityIcon name="lock-question" color={color} size={22} style={{ marginLeft: 1, marginTop: 1 }} />
         case 'notifications':
-            return <NotificationIcon color={color} />
+            return <CustomIcon name="notifications" size={24} color={color} style={{ left: 0.5 }} />
         case 'about':
             return <MaterialCommunityIcon name="information" size={22} style={{ marginLeft: 1, marginTop: 2 }} />
         case 'darkMode':
             return <FontAwesomeIcon name="moon-o" color={color} size={23} style={{ marginLeft: 2 }} />
         case 'localCurrency':
-            return null; // TODO: add icon when custom icon set is ready
+            return <CustomIcon name="localCurrency" size={24} color={color} style={{ left: 0.5 }} />
         case 'changePinCode':
-            return null; // TODO: add icon when custom icon set is ready
+            return <CustomIcon name="changePin" size={24} color={color} style={{ left: 1 }} />
         case 'language':
-            return null; // TODO: add icon when custom icon set is ready
+            return <CustomIcon name="language" size={24} color={color} style={{ left: 0.5 }} />
         case 'scanning':
             return null; // TODO: add icon when custom icon set is ready
         case 'shareLogs':
-            return null; // TODO: add icon when custom icon set is ready
+            return <CustomIcon name="logs" size={22} color={color} style={{ left: 0.5 }} />
         case 'contactSupport':
-            return null; // TODO: add icon when custom icon set is ready
+            return <CustomIcon name="support" size={23} color={color} style={{ left: 0.5 }} />
         case 'termsOfUse':
-            return null; // TODO: add icon when custom icon set is ready
+            return <CustomIcon name="terms" size={24} color={color} style={{ left: 0.5 }} />
         case 'transactions':
-            return <CustomIcon name="exchangeMain" size={19} color={color} style={{ left: 1 }} />
+            return <CustomIcon name="exchange" size={22} color={color} style={{ left: 0.5 }} />
         case 'privacyPolicy':
-            return <CustomIcon name="privacy" size={18} color={color} style={{ top: 1 }} />
+            return <CustomIcon name="privacy" size={24} color={color} style={{ left: 0.5 }} />
         case 'exchangeRates':
-            return null; // TODO: add icon when custom icon set is ready
+            return <CustomIcon name="exchangeRates" size={22} color={color} style={{ left: 0.5 }} />
         case 'news':
-            return null; // TODO: add icon when custom icon set is ready
+            return <CustomIcon name="news" size={22} color={color} style={{ left: 0.5 }} />
         case 'key':
             return null; // TODO: add icon when custom icon set is ready
         case 'importWallet':
-            return null; // TODO: add icon when custom icon set is ready
+            return <CustomIcon name="importWallet" size={22} color={color} style={{ left: 0.5 }} />
         case 'cashMultiple':
             return <MaterialCommunityIcon name="cash-multiple" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
         case 'accountBoxMultiple':
@@ -93,6 +93,8 @@ const getIcon = (iconType, color) => {
 const getRightContent = (rightContent, params, color) => {
     const { onPress, value, disabled } = params
     const { colors } = useTheme()
+    // next value needed to corret switch component rendering
+    const reversedValue = !value
     switch (rightContent) {
         case 'arrow':
             return <AntIcon name="right" color={colors.common.text1} size={16} />
@@ -100,19 +102,21 @@ const getRightContent = (rightContent, params, color) => {
             return (
                 <Switch
                     onValueChange={onPress}
-                    value={value}
+                    value={reversedValue}
                     disabled={disabled}
                     renderActiveText={false}
                     renderInActiveText={false}
-                    backgroundActive={colors.common.switch.bgActive}
-                    backgroundInactive={colors.common.switch.bgInactive}
+                    backgroundActive={colors.common.switch.bgInactive}
+                    backgroundInactive={colors.common.switch.bgActive}
                     circleActiveColor={colors.common.switch.circleBg}
                     circleInActiveColor={colors.common.switch.circleBg}
-                    circleSize={18}
-                    changeValueImmediately={true}
+                    circleSize={20}
+                    changeValueImmediately={false}
                     switchWidthMultiplier={1.6}
-                    outerCircleStyle={{ paddingRight: value ? 5 : 0, paddingLeft: value ? 0 : 5 }}
-                    innerCircleStyle={[!disabled && styles.switchShadow, { borderColor: value ? colors.common.switch.bgActive : colors.common.switch.bgInactive}]}
+                    switchLeftPx={-5}
+                    switchRightPx={-5}
+                    outerCircleStyle={{ paddingRight: reversedValue ? 5 : 0, paddingLeft: reversedValue ? 0 : 5 }}
+                    innerCircleStyle={[!disabled && styles.switchShadow, { borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive}]}
                 />
             )
         case 'arrow_down':

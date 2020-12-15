@@ -143,7 +143,7 @@ class BottomNavigation extends Component {
         const { colors } = this.context
         return (
             <View style={{ alignItems: 'center' }}>
-                <CustomIcon name="exchange" style={{ marginTop: 2, color: colors.common.text1, fontSize: 18 }} />
+                <CustomIcon name="exchange" style={{ marginTop: 0, color: colors.common.text1, fontSize: 20 }} />
                 <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 3 }}>{strings('dashboardStack.exchange')}</Text>
             </View>
         )
@@ -203,10 +203,10 @@ const styles = {
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: -13
+            height: -14
         },
-        shadowOpacity: 0.07,
-        shadowRadius: 14,
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
     },
     itemStub: {
         flex: 1,

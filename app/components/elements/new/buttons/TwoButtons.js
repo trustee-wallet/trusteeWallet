@@ -7,9 +7,7 @@ import {
     StyleSheet,
 } from 'react-native'
 
-import IconMaterial from 'react-native-vector-icons/MaterialIcons'
-import IconAwesome from 'react-native-vector-icons/FontAwesome'
-import AntIcon from 'react-native-vector-icons/AntDesign'
+import CustomIcon from '../../CustomIcon'
 
 import Button from './Button'
 
@@ -21,8 +19,10 @@ import { strings } from '../../../../services/i18n'
 const getIcon = (type) => {
     const { colors } = useTheme()
     switch (type) {
-        case 'settings': return <IconAwesome name="gear" size={22} color={colors.common.text3} />
-        case 'back': return <AntIcon name="left" size={20} color={colors.common.text3} />
+        case 'settings':
+            return <CustomIcon name="settings" size={28} color={colors.common.text3} style={{ left: 0.5 }} />
+        case 'back':
+            return <CustomIcon name="back" size={24} color={colors.common.text3} style={{ left: 0.5 }} />
         default: return null
     }
 }

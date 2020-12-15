@@ -7,22 +7,19 @@ import {
     StyleSheet,
 } from 'react-native'
 
-import AntIcon from 'react-native-vector-icons/AntDesign'
+import CustomIcon from '../../../CustomIcon'
 
 import { useTheme } from '../../../../../modules/theme/ThemeProvider'
 
 import { strings } from '../../../../../services/i18n'
 
-import SupportIcon from '../../../../../assets/images/support'
-
-
 
 const getIcon = (iconType, color) => {
     switch (iconType) {
         case 'support':
-            return <SupportIcon color={color} />
+            return <CustomIcon name="support" size={22} color={color} style={{ left: 0.5 }} />
         case 'skip':
-            return <AntIcon name="arrowright" color={color} size={20} />
+            return <CustomIcon name="arrow_skip" size={22} color={color} style={{ left: 0.5 }} />
         default: return null
     }
 }
