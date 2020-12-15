@@ -34,7 +34,7 @@ import Header from './elements/Header'
 import QrCodeIcon from '../../assets/images/qrCodeBtn';
 
 import {
-    TABS,
+    getTabs,
     ASSESTS_GROUP,
     prepareDataForDisplaying,
     addCustomToken
@@ -46,7 +46,7 @@ class AddAssetScreen extends React.Component {
         headerHeight: 109,
         searchQuery: '',
         customAddress: '',
-        tabs: TABS,
+        tabs: getTabs(),
         data: [],
         headerHasExtraView: true
     }
