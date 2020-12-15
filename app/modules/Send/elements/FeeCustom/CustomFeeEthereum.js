@@ -197,7 +197,7 @@ class CustomFee extends Component {
                 <View style={{ paddingTop: 10, marginBottom: GRID_SIZE }}>
                     <Text style={{...styles.customFee, color: colors.common.text1}} >{strings(`send.fee.customFee.eth.gasPrice`)}</Text>
                 </View>
-                <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
+                <View style={{ ...styles.inputWrapper, marginBottom: GRID_SIZE }}>
                     <GasPriceAmountInput
                         ref={ref => this.gasPriceInput = ref}
                         id={'gasPrice'}
@@ -216,7 +216,7 @@ class CustomFee extends Component {
                 <View style={{ marginBottom: GRID_SIZE}}>
                     <Text style={{...styles.customFee, color: colors.common.text1}} >{strings(`send.fee.customFee.eth.gasLimit`)}</Text>
                 </View>
-                <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
+                <View style={{ ...styles.inputWrapper, marginBottom: GRID_SIZE }}>
                     <GasLimitAmountInput
                         ref={ref => this.gasLimitInput = ref}
                         id={'gasLimit'}
@@ -236,7 +236,7 @@ class CustomFee extends Component {
                 <View style={{ marginBottom: GRID_SIZE }}>
                     <Text style={{...styles.customFee, color: colors.common.text1}} >{strings(`send.fee.customFee.eth.nonce`)}</Text>
                 </View>
-                <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
+                <View style={{ ...styles.inputWrapper, marginBottom: GRID_SIZE }}>
                     <Nonce
                         ref={ref => this.nonceInput = ref}
                         id={'nonce'}
@@ -264,9 +264,8 @@ export default CustomFee
 const styles = {
     inputWrapper: {
         justifyContent: 'center',
-        height: 50,
         borderRadius: 10,
-        elevation: 10,
+        elevation: 8,
         shadowColor: '#000',
         shadowRadius: 3,
         shadowOpacity: 0.1,
@@ -278,6 +277,5 @@ const styles = {
     customFee: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
-        paddingBottom: 4
     }
 }

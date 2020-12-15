@@ -5,6 +5,7 @@ import {
     TextInput,
     View,
     StyleSheet,
+    Animated
 } from 'react-native'
 
 import { useTheme } from '../../../modules/theme/ThemeProvider'
@@ -22,6 +23,7 @@ export default function Input(props) {
         onChangeText = null,
         value,
         inputStyle,
+        containerStyle,
         HelperAction,
         ...nativeProps
     } = props
@@ -29,7 +31,7 @@ export default function Input(props) {
     return (
         <View>
             {!!label && <Text style={[styles.label, { color: labelColor }]}>{label}</Text>}
-            <View style={styles.inputWrapper}>
+            <Animated.View style={[styles.inputWrapper, containerStyle]}>
                 <TextInput
                     style={[
                         styles.input,
@@ -49,7 +51,7 @@ export default function Input(props) {
                         <HelperAction />
                     </View>
                 )}
-            </View>
+            </Animated.View>
         </View>
     )
 }

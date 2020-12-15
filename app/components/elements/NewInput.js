@@ -386,9 +386,9 @@ const styles = {
     wrapper: {
         flex: 1,
         position: 'relative',
-        maxHeight: 70,
-        minHeight: 70,
-        marginBottom: 10,
+        // maxHeight: 70,
+        // minHeight: 70,
+        // marginBottom: 10,
 
         zIndex: 3,
     },
@@ -420,7 +420,7 @@ const styles = {
     },
     fontFamily: {
         fontFamily: 'SFUIDisplay-Semibold',
-        marginRight: 110,
+        marginRight: 100,
         marginLeft: 16,
         marginTop: -3,
         letterSpacing: 1,

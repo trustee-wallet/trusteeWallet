@@ -8,11 +8,7 @@ import {
     StyleSheet,
 } from 'react-native'
 
-import EvilIcon from 'react-native-vector-icons/EvilIcons'
-
-import ReceiveIcon from '../../../../assets/images/HomePage/receive';
-import SendIcon from '../../../../assets/images/HomePage/send';
-import HideIcon from '../../../../assets/images/HomePage/hide';
+import CustomIcon from '../../CustomIcon'
 
 import { useTheme } from '../../../../modules/theme/ThemeProvider'
 
@@ -20,16 +16,18 @@ import { strings } from '../../../../services/i18n'
 
 
 const ICON_SET = {
-    receive: ReceiveIcon,
-    send: SendIcon,
-    hide: HideIcon,
-    telegram: props => <EvilIcon name="sc-telegram" {...props} size={32} />,
-    twitter: props => <EvilIcon name="sc-twitter" {...props} size={34} style={{ left: 1 }} />,
-    facebook: props => <EvilIcon name="sc-facebook" {...props} size={32} style={{ top: 0.5, left: 0.5 }} />,
-    vk: props => <EvilIcon name="sc-vk" {...props} size={34} />,
-    github: props => <EvilIcon name="sc-github" {...props} size={36} style={{ top: 0.5, left: 0.5 }} />,
-    edit: null, // TODO: add icon from custom set
-    delete: null, // TODO: add icon from custom set
+    receive: props => <CustomIcon {...props} name="receive" size={18} style={{ left: 0.5 }} />,
+    send: props => <CustomIcon {...props} name="send" size={18} style={{ left: 0.5 }} />,
+    hide: props => <CustomIcon {...props} name="hide" size={24} style={{ left: 0.5 }} />,
+    telegram: props => <CustomIcon {...props} name="telegram" size={25} style={{ left: 0.5 }} />,
+    twitter: props => <CustomIcon {...props} name="twitter" size={25} style={{ left: 0.5 }} />,
+    facebook: props => <CustomIcon {...props} name="facebook" size={25} style={{ left: 0.5 }} />,
+    instagram: props => <CustomIcon {...props} name="insta" size={25} style={{ left: 0.5 }} />,
+    vk: props => <CustomIcon {...props} name="vk" size={25} style={{ left: 0.5 }} />,
+    github: props => <CustomIcon {...props} name="git" size={25} style={{ left: 0.5 }} />,
+    faq: props => <CustomIcon {...props} name="faq" size={27} style={{ left: 0.5 }} />,
+    edit: props => <CustomIcon {...props} name="edit" size={22} style={{ left: 0.5 }} />,
+    delete: props => <CustomIcon {...props} name="delete" size={22} style={{ left: 0.5 }} />,
 }
 
 export default function ButtonIcon(props) {

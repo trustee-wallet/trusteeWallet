@@ -82,7 +82,9 @@ class Account extends Component {
             fioMemo: {},
             scrollOffset: 0,
             isBalanceVisible: false,
-            originalVisibility: false
+            originalVisibility: false,
+
+            headerHeight: 0
         }
         this.getBalanceVisibility()
     }
@@ -278,7 +280,8 @@ class Account extends Component {
                         <View style={styles.scan}>
                             {isSynchronized ?
                                 <Text style={styles.scan__text} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? 
-                                    strings('account.justScan') : strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
+                                    strings('account.justScan') : this.diffTimeScan(this.props.account.balanceScanTime * 1000) > 60 ? strings('account.soLong') :
+                                    strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
                                 :
                                 <View style={{
                                     flexDirection: 'row',
@@ -298,7 +301,7 @@ class Account extends Component {
                         </View>
                     </View>
                     <TouchableOpacity style={{ justifyContent: 'center', marginRight: 16}} onPress={() => this.handleRefresh()} >
-                        <IconAwesome name='gear' size={24} color={colors.accountScreen.showMoreColor} />
+                        <CustomIcon name={'reloadTx'} size={20} color={colors.accountScreen.showMoreColor} />
                     </TouchableOpacity>
                 </View>
                 {
@@ -413,7 +416,7 @@ class Account extends Component {
         UpdateAccountListDaemon.pause()
 
         const { colors, isLight } = this.context
-        const { mode, openTransactionList } = this.state
+        const { mode, headerHeight } = this.state
         const { mainStore, account, cryptoCurrency, settingsStore } = this.props
         const { amountToView, show, transactionsToView, transactionsTotalLength, transactionsShownLength, isBalanceVisible } = this.state
 
@@ -471,6 +474,7 @@ class Account extends Component {
                     ) }}
                     scrollOffset={this.state.scrollOffset}
                 />
+                <View style={{ height: headerHeight }} />
                 <ScrollView
                     style={styles.wrapper__scrollView}
                     showsVerticalScrollIndicator={false}
@@ -482,7 +486,7 @@ class Account extends Component {
                             onRefresh={this.handleRefresh}
                         />
                     }>
-                    <View style={styles.wrapper__content}>
+                    <View style={{...styles.wrapper__content }}>
                         <HeaderBlocks
                             mainStore={mainStore}
                             account={account}
@@ -530,7 +534,6 @@ class Account extends Component {
                                                 account={account}
                                                 cryptoCurrency={cryptoCurrency}
                                                 dash={(allTransactionsToView - 1 === index) ? this.renderDash : !this.renderDash}
-
                                             />
                                         }) : null
                                     }
@@ -581,14 +584,10 @@ export default connect(mapStateToProps, mapDispatchToProps)(Account)
 
 const styles = {
     wrapper__scrollView: {
-        flex: 1,
-
-        marginTop: 60
+        flex: 1
     },
     wrapper__content: {
-        flex: 1,
-
-        paddingTop: 20
+        flex: 1
     },
     bottomButtons: {
         position: 'absolute',

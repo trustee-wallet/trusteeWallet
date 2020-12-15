@@ -29,23 +29,27 @@ import { strings } from '../../../../../services/i18n'
 const getRightContent = (rightContent, params) => {
     const { onPress, value, disabled } = params
     const { colors } = useTheme()
+    // next value needed to corret switch component rendering
+    const reversedValue = !value
     switch (rightContent) {
         case 'switch':
             return (
                 <Switch
                     onValueChange={onPress}
-                    value={value}
+                    value={reversedValue}
                     renderActiveText={false}
                     renderInActiveText={false}
-                    backgroundActive={colors.common.switch.bgActive}
-                    backgroundInactive={colors.common.switch.bgInactive}
+                    backgroundActive={colors.common.switch.bgInactive}
+                    backgroundInactive={colors.common.switch.bgActive}
                     circleActiveColor={colors.common.switch.circleBg}
                     circleInActiveColor={colors.common.switch.circleBg}
-                    circleSize={18}
+                    circleSize={20}
                     changeValueImmediately={false}
                     switchWidthMultiplier={1.6}
-                    outerCircleStyle={{ paddingRight: value ? 5 : 0, paddingLeft: value ? 0 : 5 }}
-                    innerCircleStyle={[!disabled && styles.switchShadow, { borderColor: value ? colors.common.switch.bgActive : colors.common.switch.bgInactive }]}
+                    switchLeftPx={-5}
+                    switchRightPx={-5}
+                    outerCircleStyle={{ paddingRight: reversedValue ? 5 : 0, paddingLeft: reversedValue ? 0 : 5 }}
+                    innerCircleStyle={[!disabled && styles.switchShadow, { borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive}]}
                 />
             )
         default: return null

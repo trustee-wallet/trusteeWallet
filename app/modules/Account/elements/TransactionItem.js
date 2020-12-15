@@ -15,15 +15,25 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import { useTheme } from '../../theme/ThemeProvider'
 
 import InsertShadow from 'react-native-inset-shadow'
+import CustomIcon from '../../../components/elements/CustomIcon'
 
 const getIcon = (iconType, color) => {
     switch (iconType) {
-        case 'wallet':
-            return <MaterialCommunityIcon name="wallet" color={color} size={22} style={{ marginTop: 2, marginLeft: 1 }} />
-        case 'accounts':
-            return <FontAwesomeIcon name="address-book" color={color} size={19} style={{ marginLeft: 2 }} />
-        case 'pinCode':
-            return <MaterialIcon name="lock" color={color} size={20} style={{ marginLeft: 2 }} />
+        case 'share':
+            return <CustomIcon name={'share'} color={color} size={20} />
+        case 'support':
+            return <CustomIcon name={'reload'} color={color} size={20} />
+        case 'details':
+            return <CustomIcon name={'share'} color={color} size={20} />
+        case 'notes':
+            return <CustomIcon name={'notes'} color={color} size={20} />
+        case 'card':
+            return <CustomIcon name={'card'} color={color} size={20} />
+        case 'addressFrom':
+        case 'addressTo':
+        case 'exchangeTo':
+        case 'self':
+            return <CustomIcon name={'user'} color={color} size={20} />
         default: return null
     }
 }
@@ -60,8 +70,8 @@ const TransactionItem = (props) => {
                 </View>
                 :
                 <>  
-                    <InsertShadow containerStyle={{ flex: 1, borderRadius: 16, justifyContent: 'center', backgroundColor: '#F2F2F2' }} shadowRadius={5} shadowColor={'#999999'} >
-                        <View style={{ ...styles.wrapper, flexDirection: 'row', padding: GRID_SIZE }} >
+                    {/* <InsertShadow containerStyle={{ flex: 1, borderRadius: 16, justifyContent: 'center', backgroundColor: '#F2F2F2' }} shadowRadius={5} shadowColor={'#999999'} > */}
+                        <View style={{ ...styles.wrapper, flexDirection: 'row', padding: GRID_SIZE, backgroundColor: '#F2F2F2'  }} >
                             {iconType && (
                                 <View style={styles.icon}>
                                     {getIcon(iconType, colors.common.text1)}
@@ -75,7 +85,7 @@ const TransactionItem = (props) => {
                                 </View>
                             </View>
                         </View>
-                    </InsertShadow>
+                    {/* </InsertShadow> */}
                     {/* <View style={styles.shadow} >
                         <View style={styles.shadowItem} />
                     </View> */}

@@ -16,7 +16,6 @@ import {
 import AsyncStorage from '@react-native-community/async-storage'
 import Entypo from 'react-native-vector-icons/Entypo'
 import moment from 'moment'
-import 'moment/min/locales.min'
 
 import IconVisible from '../../../assets/images/icon_visible'
 import IconHidden from '../../../assets/images/icon_hidden'
@@ -29,7 +28,6 @@ import { setQRConfig, setQRValue } from '../../../appstores/Stores/QRCodeScanner
 import { sublocale, strings } from '../../../services/i18n'
 
 import Log from '../../../services/Log/Log'
-import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 
 import { capitalize } from '../../../services/UI/Capitalize/Capitalize'
 import { checkQRPermission } from '../../../services/UI/Qr/QrPermissions'
@@ -62,16 +60,10 @@ class WalletInfo extends Component {
         }
     }
 
-    _oneFunction(cryptoCurrencies, selectedBasicCurrency, accountList) {
-        //MarketingEvent.setBalance(walletHash, 'TOTAL', totalBalanceString, { totalBalance, totalBalanceString, basicCurrencyCode: selectedBasicCurrency.currencyCode, walletHash })
-    }
-
     // eslint-disable-next-line camelcase
     async UNSAFE_componentWillMount() {
 
         try {
-            moment.locale(sublocale())
-
             AsyncStorage.getItem('isViolet').then(res => {
                 let isViolet = res
                 isViolet = isViolet !== null ? JSON.parse(isViolet) : false
@@ -173,7 +165,9 @@ class WalletInfo extends Component {
     render() {
         const {
             changeBalanceVisibility,
+            triggerBalanceVisibility,
             isBalanceVisible,
+            originalVisibility,
             selectedBasicCurrency,
             balanceData
         } = this.props
@@ -221,7 +215,13 @@ class WalletInfo extends Component {
                         </View>
 
                         <View style={styles.walletInfo__content}>
-                            <View style={styles.walletInfo__content__balance}>
+                            <TouchableOpacity
+                                activeOpacity={0.8}
+                                style={styles.walletInfo__content__balance}
+                                onPressIn={() => triggerBalanceVisibility(true)}
+                                onPressOut={() => triggerBalanceVisibility(false)}
+                                disabled={originalVisibility}
+                            >
                                 {
                                     isBalanceVisible ? (
                                         <React.Fragment>
@@ -246,7 +246,7 @@ class WalletInfo extends Component {
                                         )
                                 }
 
-                            </View>
+                            </TouchableOpacity>
 
                             <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
                                 {isBalanceVisible ? (

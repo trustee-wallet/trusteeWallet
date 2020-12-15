@@ -1,8 +1,7 @@
 /**
  * @version 0.1
- * @author yura
+ * @author vlad
  */
-
 import React from 'react'
 import {
     View,
@@ -10,34 +9,37 @@ import {
     Text,
     StatusBar,
     SafeAreaView,
-    Animated, Platform
+    Animated,
+    Platform
 } from 'react-native'
 import { connect } from 'react-redux'
 
 import AntIcon from 'react-native-vector-icons/AntDesign'
 
+import { strings } from '../../../services/i18n'
 import { HIT_SLOP } from '../../../themes/Themes'
+import TextInput from '../../../components/elements/new/TextInput'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '../../theme/ThemeProvider'
 
-const headerHeight = Platform.OS === 'android' ? 49 : 44
-const headerHeightSticky = Platform.OS === 'android' ? 148 : 138
+
+const HEADER_MIN_HEIGHT = 44
+const HEADER_MAX_HEIGHT = 109
 
 export default class Header extends React.Component {
+    state = {
+        headerHeight: new Animated.Value(HEADER_MAX_HEIGHT),
+        inputHeight: new Animated.Value(50),
+        overflow: 'visible'
+    }
 
-    constructor(props) {
-        super(props)
-
-        const hasStickyHeader = this.props.scrollOffset > 260
-        const opacity = hasStickyHeader ? 1 : 0
-        const height = hasStickyHeader ? headerHeightSticky : headerHeight
-        const elevation = hasStickyHeader ? 10 : 0
-
-        this.state = {
-            hasStickyHeader,
-            opacity: new Animated.Value(opacity),
-            height: new Animated.Value(height),
-            elevation: new Animated.Value(elevation),
+    static getDerivedStateFromProps(nextProps, state) {
+        const headerHasExtraView = nextProps.headerHasExtraView
+        Animated.timing(state.headerHeight, { toValue: headerHasExtraView ? HEADER_MAX_HEIGHT : HEADER_MIN_HEIGHT, duration: 200 }).start()
+        Animated.timing(state.inputHeight, { toValue: headerHasExtraView ? 50 : 0, duration: 200 }).start()
+        return {
+            ...state,
+            overflow: headerHasExtraView ? 'visible' : 'hidden'
         }
     }
 
@@ -89,53 +91,32 @@ export default class Header extends React.Component {
         )
     }
 
-    processHeaderHeight = (e) => { this.props.setHeaderHeight?.(e.nativeEvent.layout.height) }
-
-    static getDerivedStateFromProps(nextProps, state) {
-        const hasStickyHeader = nextProps.scrollOffset > 260;
-        if (!state.hasStickyHeader && hasStickyHeader) {
-            Animated.timing(state.height, { toValue: headerHeightSticky, duration: 50 }).start();
-            Animated.timing(state.opacity, { toValue: 1, duration: 300 }).start();
-            Animated.timing(state.elevation, { toValue: 10, duration: 300 }).start();
-        }
-        if (state.hasStickyHeader && !hasStickyHeader) {
-            Animated.timing(state.height, { toValue: headerHeight, duration: 100 }).start();
-            Animated.timing(state.opacity, { toValue: 0, duration: 100 }).start();
-            Animated.timing(state.elevation, { toValue: 0, duration: 300 }).start();
-        }
-        return {
-            ...state,
-            hasStickyHeader
-        }
-    }
-
     render() {
-        const { title, setHeaderHeight, ExtraView, anime } = this.props
+        const {
+            title,
+            searchQuery,
+            onSearch
+        } = this.props
         const {
             colors,
             isLight,
             GRID_SIZE
         } = this.context
-        const {
-            hasStickyHeader,
-            elevation,
-            height,
-            opacity,
-        } = this.state
+        const { headerHeight, inputHeight, scrollOffset, overflow } = this.state
 
         return (
-            <View style={styles.wrapper} onLayout={this.processHeaderHeight}>
+            <View style={styles.wrapper}>
                 <SafeAreaView style={{ flex: 0, backgroundColor: colors.common.header.bg }} />
                 <StatusBar translucent={false} backgroundColor={colors.common.header.bg} barStyle={isLight ? 'dark-content' : 'light-content'} />
 
-                <Animated.View style={[styles.container, { backgroundColor: colors.common.header.bg, height }]}>
-                    <View style={[styles.header, { paddingHorizontal: GRID_SIZE * 2 }]}>
+                <Animated.View style={[styles.container, { backgroundColor: colors.common.header.bg, height: headerHeight }]}>
+                    <View style={[styles.header, { paddingHorizontal: GRID_SIZE * 1.8 }]}>
                         <View style={styles.header__left}>
                             {this.getLeftAction()}
                         </View>
 
                         <View style={styles.header__center}>
-                            {title && <Text style={[styles.title, { color: colors.common.text3 }]}>{title}</Text>}
+                            {title && <Text numberOfLines={2} style={[styles.title, { color: colors.common.text3 }]}>{title}</Text>}
                         </View>
 
                         <View style={styles.header__right}>
@@ -143,15 +124,21 @@ export default class Header extends React.Component {
                         </View>
                     </View>
 
-                    {(ExtraView && this.state.hasStickyHeader) && (
-                        <Animated.View style={[styles.extraView, { backgroundColor: colors.common.header.bg, opacity }]}>
-                            <ExtraView />
+                    <View style={[styles.extraView, { overflow, backgroundColor: colors.common.bg, paddingHorizontal: GRID_SIZE * 2 }]}>
+                        <Animated.View style={{ marginHorizontal: -this.context.GRID_SIZE }}>
+                            <TextInput
+                                placeholder={strings('assets.searchPlaceholder')}
+                                containerStyle={{ height: inputHeight }}
+                                value={searchQuery}
+                                onChangeText={onSearch}
+                                HelperAction={() => <AntIcon name="search1" size={23} color={colors.common.text2} />}
+                            />
                         </Animated.View>
-                    )}
+                    </View>
                 </Animated.View>
 
                 <View style={styles.shadow__container}>
-                    <Animated.View style={[styles.shadow__item]} />
+                    <View style={[styles.shadow__item]} />
                 </View>
             </View>
         )
@@ -168,7 +155,6 @@ const styles = {
         left: 0,
         right: 0,
         zIndex: 10,
-        // borderWidth: 1
     },
     shadow__container: {
         position: 'absolute',
@@ -198,8 +184,6 @@ const styles = {
     extraView: {
         flex: 1,
         zIndex: 20,
-        // alignItems: 'center',
-        // justifyContent: 'center',
     },
     header: {
         flexDirection: 'row',
@@ -227,7 +211,7 @@ const styles = {
         fontSize: 14,
         lineHeight: 15,
         letterSpacing: 1,
+        textTransform: 'uppercase',
         textAlign: 'center'
     },
 }
-

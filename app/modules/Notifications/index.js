@@ -19,6 +19,7 @@ import moment from 'moment'
 import NavStore from '../../components/navigation/NavStore'
 
 import AppNewsActions from '../../appstores/Stores/AppNews/AppNewsActions'
+import { NOTIFIES_GROUP, ALLOWED_NOTIFICATIONS } from '../../appstores/Stores/AppNews/AppNewsReducer'
 
 import { strings, sublocale } from '../../services/i18n'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
@@ -28,32 +29,18 @@ import ListItem from '../../components/elements/new/list/ListItem/Notification'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
 
-const NOTIFIES_GROUP = {
-    BSE_ORDERS: 'BSE_ORDERS',
-    PAYMENT_DETAILS: 'PAYMENT_DETAILS',
-    RATES_CHANGING: 'RATES_CHANGING',
-    NEWS: 'NEWS',
-    ALL: 'ALL',
-}
-
-const ALLOWED_NOTIFICATIONS = [
-    NOTIFIES_GROUP.BSE_ORDERS,
-    NOTIFIES_GROUP.PAYMENT_DETAILS,
-    NOTIFIES_GROUP.RATES_CHANGING,
-    NOTIFIES_GROUP.NEWS
-]
-
 const getIconType = (notif) => {
     switch (notif.newsGroup) {
         case (NOTIFIES_GROUP.NEWS): return 'news'
         case (NOTIFIES_GROUP.RATES_CHANGING): {
-            if (typeof notif.rateSide === 'boolean') return notif.rateSide ? 'ratesUp' : 'ratesDown'
+            if (typeof notif.newsJson?.rateSide === 'boolean') return notif.newsJson.rateSide ? 'ratesUp' : 'ratesDown'
             return ''
         }
         case (NOTIFIES_GROUP.BSE_ORDERS): {
-            if (notif.orderHash) return 'exchange'
-            if (notif.payinTxHash) return 'incoming'
-            if (notif.payoutTxHash) return 'outgoing'
+            if (typeof notif.newsJson !== 'object') return ''
+            if (notif.newsJson.orderHash) return 'exchange'
+            if (notif.newsJson.payinTxHash) return 'incoming'
+            if (notif.newsJson.payoutTxHash) return 'outgoing'
             return ''
         }
         default: return ''
@@ -129,7 +116,7 @@ class NotificationsScreen extends React.Component {
 
         tabs.forEach((tab) => {
             if (tab.group === NOTIFIES_GROUP.ALL) {
-                tab.hasNewNoties = !!tabsThatHaveNoties.length
+                tab.hasNewNoties = this.props.hasNoties
             } else {
                 tab.hasNewNoties = tabsThatHaveNoties.includes(tab.group)
             }
@@ -263,7 +250,8 @@ class NotificationsScreen extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        notifications: state.appNewsStore.appNewsList
+        notifications: state.appNewsStore.appNewsList,
+        hasNoties: state.appNewsStore.hasNews,
     }
 }
 

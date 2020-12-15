@@ -107,7 +107,7 @@ class CustomFee extends Component {
                 <View style={{ paddingTop: 10, marginBottom: GRID_SIZE }}>
                     <Text style={{...styles.customFee, color: colors.common.text1}} >{strings(`send.fee.customFee.btc.feeForByte`)}</Text>
                 </View>
-                <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
+                <View style={{ ...styles.inputWrapper, marginBottom: GRID_SIZE * 1.5 }}>
                     <FeeForByteInput
                         ref={component => this.feeForByteInput = component}
                         id={'feeForByte'}
@@ -135,9 +135,8 @@ export default CustomFee
 const styles = {
     inputWrapper: {
         justifyContent: 'center',
-        height: 50,
         borderRadius: 10,
-        elevation: 10,
+        elevation: 6,
         shadowColor: '#000',
         shadowRadius: 16,
         shadowOpacity: 0.1,

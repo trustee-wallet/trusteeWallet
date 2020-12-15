@@ -321,6 +321,7 @@ class SettingsMainScreen extends React.Component {
                                     iconType="wallet"
                                     onPress={this.handleWalletManagment}
                                     rightContent="arrow"
+                                    last
                                 />
                                 { false ? (
                                     <ListItem

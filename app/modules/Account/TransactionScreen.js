@@ -605,16 +605,12 @@ class TransactionScreen extends Component {
                     </View>
                 </View>
                 <View style={styles.topContent__title}>
-                    {/* {(trx.status ? trx.status.toUpperCase() !== 'PENDING_PAYIN' : false) || (status ? status.toUpperCase() !== 'PENDING' : false) ? */}
                     <>
                         <Text style={styles.amount}>
                             {amountTxt}
                         </Text>
                         <Text style={{ ...styles.code, color: color }}>{cryptoCurrency.currencySymbol}</Text>
                     </>
-                    {/* :
-                        <Loader size={20} color={colors.accountScreen.loaderColor} />
-                    } */}
                 </View>
 
             </View>
@@ -630,6 +626,7 @@ class TransactionScreen extends Component {
         return (
             <Buttons
                 data={item}
+                title={this.state.showMoreDetails ? false : true}
             />
         )
     }
@@ -647,7 +644,7 @@ class TransactionScreen extends Component {
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REMOVE')) {
             return false
         }
-        array.push({ icon: 'wallet', title: strings('account.transactionScreen.removeRbf'), action: async () => {
+        array.push({ icon: 'canceled', title: strings('account.transactionScreen.removeRbf'), action: async () => {
             await SendActions.startSend({
                 gotoReceipt: true,
                 addressTo : account.address,
@@ -664,7 +661,7 @@ class TransactionScreen extends Component {
         if (!transaction.bseOrderData) {
             return false
         }
-        array.push({ icon: 'pinCode', title: strings('account.transactionScreen.remove'), action: async () => {
+        array.push({ icon: 'remove', title: strings('account.transactionScreen.remove'), action: async () => {
             await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({force: true, removeId : transaction.bseOrderData.orderId})
                 NavStore.goBack()
         }})
@@ -685,7 +682,7 @@ class TransactionScreen extends Component {
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {
             return false
         }
-        array.push({ icon: 'accounts', title: strings('account.transactionScreen.booster'), action: async () => {
+        array.push({ icon: 'rbf', title: strings('account.transactionScreen.booster'), action: async () => {
                 await SendActions.startSend({
                     gotoReceipt: true,
                     addressTo : transaction.addressTo !== '' ? transaction.addressTo : account.address,
@@ -702,7 +699,7 @@ class TransactionScreen extends Component {
             return false
         }
         array.push({
-            icon: 'pinCode',
+            icon: 'check',
             title: strings('account.transactionScreen.check'),
             action: async () => NavStore.goNext('CheckV3DataScreen', { orderHash: transaction.bseOrderData.orderHash })
         })
@@ -762,7 +759,7 @@ class TransactionScreen extends Component {
                         <TouchableOpacity onLongPress={this.onLongPressEditableCallback}>
                             <TransactionItem
                                 title={commentToView.title}
-                                iconType='pinCode'
+                                iconType='notes'
                                 subtitle={commentToView.description}
                             />
                         </TouchableOpacity> :
@@ -829,9 +826,9 @@ class TransactionScreen extends Component {
 
         const buttonsArray = [
             [
-                { icon: 'pinCode', title: strings('account.transactionScreen.share'), action: () => this.shareTransaction(transaction, linkExplorer) },
-                { icon: 'accounts', title: strings('account.transactionScreen.support'), action: () => this.shareSupport() },
-                { icon: showMoreDetails ? 'x' : 'wallet', title: strings('account.transactionScreen.details'), action: () => this.showMoreDetails() }
+                { icon: 'share', title: strings('account.transactionScreen.share'), action: () => this.shareTransaction(transaction, linkExplorer) },
+                { icon: 'support', title: strings('account.transactionScreen.support'), action: () => this.shareSupport() },
+                { icon: showMoreDetails ? 'x' : 'details', title: strings('account.transactionScreen.details'), action: () => this.showMoreDetails() }
             ], []]
 
         console.log('state', this.state.notification)
@@ -844,7 +841,7 @@ class TransactionScreen extends Component {
                     leftType={prev === 'ReceiptScreen' || prev === 'NotificationsScreen' ? null : 'back'}
                     leftAction={this.closeAction}
                     rightType='close'
-                    rightAction={prev === 'ReceiptScreen' || prev === 'NotificationsScreen' ? () => NavStore.goNext('HomeScreen') : this.closeAction}
+                    rightAction={prev === 'ReceiptScreen' || prev === 'NotificationsScreen' ? () => NavStore.reset('DashboardStack') : this.closeAction}
                     setHeaderHeight={this.setHeaderHeight}
                     ExtraView={() => transaction ? this.headerTrx(transaction, color, cryptoCurrency.currencyCode) : null}
                 />
@@ -867,29 +864,29 @@ class TransactionScreen extends Component {
                             {outDestinationCardToView ?
                                 <TransactionItem
                                     title={outDestinationCardToView.title}
-                                    iconType='pinCode'
+                                    iconType='card'
                                     subtitle={outDestinationCardToView.description}
                                 /> : fromToView ?
                                     <TransactionItem
                                         title={fromToView.title}
-                                        iconType='pinCode'
+                                        iconType='addressFrom'
                                         subtitle={fromToView.description}
                                     /> : addressToToView ?
                                         <TransactionItem
                                             title={addressToToView.title}
-                                            iconType='pinCode'
+                                            iconType='addressTo'
                                             subtitle={addressToToView.description}
                                         /> : addressExchangeToView ?
                                             <TransactionItem
                                                 title={addressExchangeToView.title}
-                                                iconType='pinCode'
+                                                iconType='exchangeTo'
                                                 subtitle={addressExchangeToView.description}
                                             /> : null
                             }
                             {transaction.wayType === 'self' && (
                                 <TransactionItem
                                     title={strings('account.transactionScreen.self')}
-                                    iconType='pinCode'
+                                    iconType='self'
                                     // subtitle={'self'}
                             /> 
                             ) }
@@ -916,13 +913,13 @@ class TransactionScreen extends Component {
                             </Pages>}
                     </View>
                     {showMoreDetails && (
-                        <View style={{ marginTop: 20, borderRadius: 16, marginBottom: 15 }}>
-                            <InsertShadow containerStyle={{
+                        <View style={{ ...styles.moreInfo, marginTop: 20, borderRadius: 16, marginBottom: 15, backgroundColor: '#f2f2f2' }}>
+                            {/* <InsertShadow containerStyle={{
                                 ...styles.moreInfo,
                                 flex: 1,
                                 borderRadius: 16,
                                 backgroundColor: '#F2F2F2'
-                            }} shadowRadius={9} shadowColor={'#999999'}>
+                            }} shadowRadius={9} shadowColor={'#999999'} > */}
                                 {subContent.map((item) => {
                                     return (
                                         // eslint-disable-next-line react/jsx-key
@@ -942,7 +939,7 @@ class TransactionScreen extends Component {
                                     <LetterSpacing textStyle={{...styles.viewExplorer, color: colors.common.text1}} text={strings('account.transactionScreen.viewExplorer').toUpperCase()} letterSpacing={1.5}
                                     />
                                 </TouchableOpacity> : null}
-                            </InsertShadow>
+                            {/* </InsertShadow> */}
                             {/* <View style={styles.shadow}>
                                 <View style={styles.shadowItem} />
                             </View> */}
@@ -1028,8 +1025,8 @@ const styles = {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 20,
-        marginTop: 16
+        marginBottom: -6,
+        marginTop: 6
     },
     content: {
         justifyContent: 'center',

@@ -35,6 +35,7 @@ import DaemonCache from '../../daemons/DaemonCache'
 import Log from '../../services/Log/Log'
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import CustomIcon from '../../components/elements/CustomIcon'
 
 import Theme from '../../themes/Themes'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
@@ -987,7 +988,7 @@ class SendScreen extends SendBasicScreenScreen {
                             justifyContent: 'space-between',
                             padding: GRID_SIZE,
                             paddingBottom: GRID_SIZE * 2,
-                            minHeight: focused ? 420 : WINDOW_HEIGHT / 2
+                            minHeight: 420
                         }}
                         style={{ marginTop: headerHeight }}
                     >
@@ -1006,9 +1007,9 @@ class SendScreen extends SendBasicScreenScreen {
                             />
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <View style={style.line} />
-                                <TouchableOpacity style={{ position: 'absolute', right: 22, marginTop: -2 }}
+                                <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
                                                   onPress={this.handleChangeEquivalentType}>
-                                    <Text>{'swap'}</Text>
+                                    <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
                                 </TouchableOpacity>
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 32 }}>
@@ -1065,7 +1066,7 @@ class SendScreen extends SendBasicScreenScreen {
 
                             {this.renderEnoughFundsError()}
 
-                            <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 2 }}>
+                            <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 1.5 }}>
                                 <AddressInput
                                     ref={component => this.addressInput = component}
                                     id={addressInput.id}
@@ -1100,7 +1101,7 @@ class SendScreen extends SendBasicScreenScreen {
 
                             {
                                 currencyCode === 'XRP' ?
-                                    <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 2, marginBottom: GRID_SIZE }}>
+                                    <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 1.5}}>
                                         <MemoInput
                                             ref={component => this.memoInput = component}
                                             id={memoInput.id}
@@ -1120,7 +1121,7 @@ class SendScreen extends SendBasicScreenScreen {
 
                             {
                                 currencyCode === 'XMR' ?
-                                    <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 2, marginBottom: GRID_SIZE }}>
+                                    <View style={{  ...style.inputWrapper, marginTop: GRID_SIZE * 1.5 }}>
                                         <MemoInput
                                             ref={component => this.memoInput = component}
                                             id={memoInput.id}
@@ -1206,9 +1207,10 @@ const style = {
     },
     inputWrapper: {
         justifyContent: 'center',
-        height: 50,
+        // height: 50,
         borderRadius: 10,
-        elevation: 10,
+        elevation: 8,
+        // marginTop: 32,
         shadowColor: '#000',
         shadowRadius: 16,
         shadowOpacity: 0.1,

@@ -35,7 +35,10 @@ import { strings } from '../../services/i18n'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
-import SliderImage1 from '../../assets/images/createWallet_slider1.png';
+import SliderImage1 from '../../assets/images/slider/1.png';
+import SliderImage2 from '../../assets/images/slider/2.png';
+import SliderImage3 from '../../assets/images/slider/3.png';
+import SliderImage4 from '../../assets/images/slider/4.png';
 
 
 const screenWidth = Dimensions.get('window').width;
@@ -46,15 +49,15 @@ const getSliderData = () => [
         text: strings('walletCreateScreen.slider1')
     },
     {
-        image: null,
+        image: SliderImage2,
         text: strings('walletCreateScreen.slider2')
     },
     {
-        image: null,
+        image: SliderImage3,
         text: strings('walletCreateScreen.slider3')
     },
     {
-        image: null,
+        image: SliderImage4,
         text: strings('walletCreateScreen.slider4'),
         textStyle: { textDecorationLine: 'line-through' }
     },

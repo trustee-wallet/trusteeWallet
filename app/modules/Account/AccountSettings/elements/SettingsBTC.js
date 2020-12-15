@@ -282,21 +282,21 @@ class SettingsBTC extends Component {
                 <View >
                     <ListItem
                         title={strings('settings.walletList.useUnconfirmed')}
-                        iconType="pinCode"
+                        iconType="unconfirmed"
                         onPress={this.handleUseUnconfirmed}
                         rightContent="switch"
                         switchParams={{ value: !!wallet.walletUseUnconfirmed, onPress: this.handleUseUnconfirmed }}
                     />
                     <ListItem
                         title={strings('settings.walletList.allowReplaceByFee')}
-                        iconType="pinCode"
+                        iconType="rbf"
                         onPress={this.handleAllowReplaceByFee}
                         rightContent="switch"
                         switchParams={{ value: !!wallet.walletAllowReplaceByFee, onPress: this.handleAllowReplaceByFee }}
                     />
                     <ListItem
                         title={'HD'}
-                        iconType="pinCode"
+                        iconType="hd"
                         onPress={this.handleEnableHD}
                         rightContent="switch"
                         switchParams={{ value: !!wallet.walletIsHd, onPress: this.handleEnableHD }}
@@ -309,7 +309,7 @@ class SettingsBTC extends Component {
 
                     <ListItem
                         title={strings('settings.walletList.accountAddress')}
-                        iconType="pinCode"
+                        iconType="address"
                         onPress={this.toggleDropMenu}
                         rightContent={this.state.dropMenu ? 'arrow_up' : "arrow_down"}
                         switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}

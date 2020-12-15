@@ -11,10 +11,13 @@ import {
     RefreshControl,
     Platform,
     TouchableOpacity,
-    StatusBar
+    StatusBar,
+    Vibration
 } from 'react-native'
 import { connect } from 'react-redux'
 import _sortBy from 'lodash/sortBy'
+import _orderBy from 'lodash/orderBy'
+import _isEqual from 'lodash/isEqual'
 import DraggableFlatList from 'react-native-draggable-flatlist'
 
 import AsyncStorage from '@react-native-community/async-storage'
@@ -57,6 +60,11 @@ import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 
 let CACHE_SET_WALLET_HASH = false
 
+
+async function storeCurrenciesOrder(walletHash, data) {
+    AsyncStorage.setItem(`${walletHash}:currenciesOrder`, JSON.stringify(data))
+}
+
 class HomeScreen extends Component {
 
     constructor(props) {
@@ -64,6 +72,7 @@ class HomeScreen extends Component {
         this.state = {
             refreshing: false,
             isBalanceVisible: true,
+            originalVisibility: true,
             data: [],
             currenciesOrder: [],
             isCurrentlyDraggable: false,
@@ -79,12 +88,17 @@ class HomeScreen extends Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-        const currenciesOrder = prevState.currenciesOrder.length ? prevState.currenciesOrder : nextProps.cryptoCurrenciesStore.cryptoCurrencies.map(c => c.currencyCode)
-        const data = _sortBy(nextProps.cryptoCurrenciesStore.cryptoCurrencies, c => currenciesOrder.indexOf(c.currencyCode))
+        const currenciesOrder = prevState.currenciesOrder
+        const currenciesLength = nextProps.currencies.length
+        const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+        const newOrder = data.map(c => c.currencyCode)
+        if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
+            storeCurrenciesOrder(nextProps.mainStore.selectedWallet.walletHash, newOrder)
+        }
         return {
             ...prevState,
             data,
-            currenciesOrder
+            currenciesOrder: newOrder
         }
     }
 
@@ -93,7 +107,7 @@ class HomeScreen extends Component {
             const res = await AsyncStorage.getItem('isBalanceVisible')
             const isBalanceVisible = res !== null ? JSON.parse(res) : true
 
-            this.setState(() => ({ isBalanceVisible }))
+            this.setState(() => ({ isBalanceVisible, originalVisibility: isBalanceVisible }))
         } catch (e) {
             Log.err(`HomeScreen getBalanceVisibility error ${e.message}`)
         }
@@ -105,10 +119,11 @@ class HomeScreen extends Component {
         try {
             const res = await AsyncStorage.getItem(`${walletToken}:currenciesOrder`)
             const currenciesOrder = res !== null ? JSON.parse(res) : []
+            const currenciesLength = this.state.data.length
 
             this.setState(state => ({
                 currenciesOrder,
-                data: _sortBy(state.data, c => currenciesOrder.indexOf(c.currencyCode))
+                data: _orderBy(state.data, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
             }))
         } catch (e) {
             Log.err(`HomeScreen getCurrenciesOrder error ${e.message}`)
@@ -159,8 +174,8 @@ class HomeScreen extends Component {
     // linked to stores
     handleHide = async (cryptoCurrency) => {
         await currencyActions.toggleCurrencyVisibility({
-            currencyCode : cryptoCurrency.currencyCode,
-            isHidden : 0
+            currencyCode: cryptoCurrency.currencyCode,
+            isHidden: 0
         })
         // this is for store reload
         await currencyActions.setCryptoCurrencies()
@@ -169,13 +184,13 @@ class HomeScreen extends Component {
     // separated from stores not to be updated from outside
     handleSend = async (cryptoCurrency) => {
         await SendActions.startSend({
-            uiType : 'HOME_SCREEN',
-            currencyCode : cryptoCurrency.currencyCode
+            uiType: 'HOME_SCREEN',
+            currencyCode: cryptoCurrency.currencyCode
         })
     }
 
     // linked to stores as rates / addresses could be changed outside
-    handleReceive = async(cryptoCurrency, account) => {
+    handleReceive = async (cryptoCurrency, account) => {
         let status = ''
         try {
             if (typeof account !== 'undefined' && account) {
@@ -251,10 +266,15 @@ class HomeScreen extends Component {
     changeBalanceVisibility = async () => {
         const newVisibilityValue = !this.state.isBalanceVisible
         await AsyncStorage.setItem('isBalanceVisible', JSON.stringify(newVisibilityValue))
-        this.setState(() => ({ isBalanceVisible: newVisibilityValue }))
+        this.setState(() => ({ isBalanceVisible: newVisibilityValue, originalVisibility: newVisibilityValue }))
+    }
+
+    triggerBalanceVisibility = (value) => {
+        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
     }
 
     onDragBegin = () => {
+        Vibration.vibrate(100)
         this.setState(() => ({ isCurrentlyDraggable: true }))
     }
 
@@ -262,7 +282,7 @@ class HomeScreen extends Component {
         const { selectedWallet } = this.props.mainStore
         const walletToken = selectedWallet.walletHash
         const currenciesOrder = data.map(c => c.currencyCode)
-        AsyncStorage.setItem(`${walletToken}:currenciesOrder`, JSON.stringify(currenciesOrder))
+        storeCurrenciesOrder(walletToken, currenciesOrder)
         this.setState(() => ({ currenciesOrder, isCurrentlyDraggable: false }))
     }
 
@@ -324,17 +344,17 @@ class HomeScreen extends Component {
                         <Header
                             scrollOffset={this.state.scrollOffset}
                             isBalanceVisible={this.state.isBalanceVisible}
-                            changeBalanceVisibility={this.changeBalanceVisibility}
+                            originalVisibility={this.state.originalVisibility}
+                            triggerBalanceVisibility={this.triggerBalanceVisibility}
                             balanceData={balanceData}
                         />
+                        <View style={{ height: Platform.OS === 'android' ? 85 : 50 }} />
                         <DraggableFlatList
                             data={this.state.data}
                             showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{
-                                paddingBottom: 20,
-                                paddingTop: Platform.OS === 'android' ? 85 : 50
-                            }}
+                            contentContainerStyle={{ paddingBottom: 20 }}
                             onScrollOffsetChange={this.updateOffset}
+                            autoscrollSpeed={300}
                             refreshControl={
                                 <RefreshControl
                                     style={{ marginTop: 0 }}
@@ -348,24 +368,24 @@ class HomeScreen extends Component {
                                 <WalletInfo
                                     accountListByWallet={accountListByWallet}
                                     isBalanceVisible={this.state.isBalanceVisible}
+                                    originalVisibility={this.state.originalVisibility}
                                     changeBalanceVisibility={this.changeBalanceVisibility}
+                                    triggerBalanceVisibility={this.triggerBalanceVisibility}
                                     balanceData={balanceData}
                                 />
                             )}
-                            renderItem={({ item, drag, isActive }) => {
-                                return !item.isHidden && (
-                                    <CryptoCurrency
-                                        cryptoCurrency={item}
-                                        accountListByWallet={accountListByWallet}
-                                        isBalanceVisible={this.state.isBalanceVisible}
-                                        onDrag={drag}
-                                        isActive={isActive}
-                                        handleReceive={() => this.handleReceive(item, accountListByWallet[item.currencyCode])}
-                                        handleSend={() => this.handleSend(item)}
-                                        handleHide={() => this.handleHide(item)}
-                                    />
-                                )
-                            }}
+                            renderItem={({ item, drag, isActive }) => (
+                                <CryptoCurrency
+                                    cryptoCurrency={item}
+                                    accountListByWallet={accountListByWallet}
+                                    isBalanceVisible={this.state.isBalanceVisible}
+                                    onDrag={drag}
+                                    isActive={isActive}
+                                    handleReceive={() => this.handleReceive(item, accountListByWallet[item.currencyCode])}
+                                    handleSend={() => this.handleSend(item)}
+                                    handleHide={() => this.handleHide(item)}
+                                />
+                            )}
                             keyExtractor={item => item.currencyCode}
                             activationDistance={15}
                             onDragEnd={this.onDragEnd}
@@ -384,6 +404,7 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         toolTipsStore: state.toolTipsStore,
         cryptoCurrenciesStore: state.currencyStore,
+        currencies: state.currencyStore.cryptoCurrencies.filter(c => !c.isHidden),
         accountStore: state.accountStore
     }
 }

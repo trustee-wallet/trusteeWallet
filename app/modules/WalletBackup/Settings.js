@@ -7,6 +7,8 @@ import {
     TouchableOpacity,
     SafeAreaView,
     Linking,
+    TouchableWithoutFeedback,
+    Keyboard,
 } from 'react-native'
 import { connect } from 'react-redux'
 import firebase from 'react-native-firebase'
@@ -96,7 +98,7 @@ class BackupSettingsScreen extends Component {
     handleSupport = async () => {
         const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
         MarketingEvent.logEvent('taki_support', { link, screen: 'SETTINGS' })
-        Linking.openURL(link)
+        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
     }
 
     render() {
@@ -116,84 +118,86 @@ class BackupSettingsScreen extends Component {
         firebase.analytics().setCurrentScreen('WalletBackup.Settings')
 
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    title={strings('walletBackup.settingsScreen.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                {!!headerHeight && (
-                    <SafeAreaView style={[styles.content, {
-                        backgroundColor: colors.common.background,
-                        marginTop: headerHeight,
-                    }]}>
-                        <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
-                            {isCreating && (
-                                <View style={[styles.phraseSetting, { marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE * 2 }]}>
-                                    <Text style={[styles.phraseSettingLabel, { color: colors.common.text1 }]}>{strings('walletBackup.settingsScreen.phraseLengthLabel')}</Text>
-                                    <View style={styles.radioButtons}>
-                                        <RadioButton
-                                            label={strings('walletBackup.settingsScreen.12wordsLabel')}
-                                            value={128}
-                                            onChange={this.changeMnemonicLength}
-                                            checked={mnemonicLength === 128}
-                                        />
-                                        <RadioButton
-                                            label={strings('walletBackup.settingsScreen.24wordsLabel')}
-                                            value={256}
-                                            onChange={this.changeMnemonicLength}
-                                            checked={mnemonicLength === 256}
-                                            containerStyle={styles.secondRadioValue}
-                                        />
-                                    </View>
-                                </View>
-                            )}
-
-                            <TextInput
-                                label={strings('walletBackup.settingsScreen.walletNameLabel')}
-                                placeholder={strings('walletBackup.settingsScreen.walletNamePlaceholder')}
-                                onChangeText={this.changeWalletName}
-                                value={walletName}
-                            />
-
-                            <View style={{ marginTop: GRID_SIZE * 1.5 }}>
-                                <ListItem
-                                    title={strings('walletBackup.settingsScreen.contactTitle')}
-                                    subtitle={strings('walletBackup.settingsScreen.contactSubtitle')}
-                                    iconType="support"
-                                    onPress={this.handleSupport}
-                                    last={!isCreating}
-                                />
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={[styles.container, { backgroundColor: colors.common.background }]}>
+                    <Header
+                        title={strings('walletBackup.settingsScreen.title')}
+                        setHeaderHeight={this.setHeaderHeight}
+                    />
+                    {!!headerHeight && (
+                        <SafeAreaView style={[styles.content, {
+                            backgroundColor: colors.common.background,
+                            marginTop: headerHeight,
+                        }]}>
+                            <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
                                 {isCreating && (
-                                    <ListItem
-                                        title={strings('walletBackup.settingsScreen.skipTitle')}
-                                        subtitle={strings('walletBackup.settingsScreen.skipSubtitle')}
-                                        iconType="skip"
-                                        last
-                                        onPress={this.handleSkip}
-                                    />
+                                    <View style={[styles.phraseSetting, { marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE * 2 }]}>
+                                        <Text style={[styles.phraseSettingLabel, { color: colors.common.text1 }]}>{strings('walletBackup.settingsScreen.phraseLengthLabel')}</Text>
+                                        <View style={styles.radioButtons}>
+                                            <RadioButton
+                                                label={strings('walletBackup.settingsScreen.12wordsLabel')}
+                                                value={128}
+                                                onChange={this.changeMnemonicLength}
+                                                checked={mnemonicLength === 128}
+                                            />
+                                            <RadioButton
+                                                label={strings('walletBackup.settingsScreen.24wordsLabel')}
+                                                value={256}
+                                                onChange={this.changeMnemonicLength}
+                                                checked={mnemonicLength === 256}
+                                                containerStyle={styles.secondRadioValue}
+                                            />
+                                        </View>
+                                    </View>
                                 )}
-                            </View>
-                        </View>
 
-                        <View style={{
-                            paddingHorizontal: GRID_SIZE,
-                            paddingVertical: GRID_SIZE * 1.5,
-                        }}>
-                            <TwoButtons
-                                mainButton={{
-                                    disabled: !hasChanges,
-                                    onPress: this.handleApply,
-                                    title: strings('walletBackup.settingsScreen.apply')
-                                }}
-                                secondaryButton={{
-                                    type: 'back',
-                                    onPress: this.handleBack,
-                                }}
-                            />
-                        </View>
-                    </SafeAreaView>
-                )}
-            </View>
+                                <TextInput
+                                    label={strings('walletBackup.settingsScreen.walletNameLabel')}
+                                    placeholder={strings('walletBackup.settingsScreen.walletNamePlaceholder')}
+                                    onChangeText={this.changeWalletName}
+                                    value={walletName}
+                                />
+
+                                <View style={{ marginTop: GRID_SIZE * 1.5 }}>
+                                    <ListItem
+                                        title={strings('walletBackup.settingsScreen.contactTitle')}
+                                        subtitle={strings('walletBackup.settingsScreen.contactSubtitle')}
+                                        iconType="support"
+                                        onPress={this.handleSupport}
+                                        last={!isCreating}
+                                    />
+                                    {isCreating && (
+                                        <ListItem
+                                            title={strings('walletBackup.settingsScreen.skipTitle')}
+                                            subtitle={strings('walletBackup.settingsScreen.skipSubtitle')}
+                                            iconType="skip"
+                                            last
+                                            onPress={this.handleSkip}
+                                        />
+                                    )}
+                                </View>
+                            </View>
+
+                            <View style={{
+                                paddingHorizontal: GRID_SIZE,
+                                paddingVertical: GRID_SIZE * 1.5,
+                            }}>
+                                <TwoButtons
+                                    mainButton={{
+                                        disabled: !hasChanges,
+                                        onPress: this.handleApply,
+                                        title: strings('walletBackup.settingsScreen.apply')
+                                    }}
+                                    secondaryButton={{
+                                        type: 'back',
+                                        onPress: this.handleBack,
+                                    }}
+                                />
+                            </View>
+                        </SafeAreaView>
+                    )}
+                </View>
+            </TouchableWithoutFeedback>
         )
     }
 }
