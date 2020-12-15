@@ -258,13 +258,15 @@ export namespace SendActions {
             data.addressTo = data.fioRequestDetails.content.payee_public_address || data.fioRequestDetails.payee_fio_public_key
         }
 
+        data.uiNeedToCountFees = (data.gotoReceipt && needToCount)
+
         SendTmpData.setData(data)
         if (data.gotoReceipt) {
-            if (needToCount) {
+            /*if (needToCount) {
                 const { selectedFee } = await countFees(data)
                 data.selectedFee = selectedFee
                 SendTmpData.setData(data)
-            }
+            }*/
             NavStore.goNext('ReceiptScreen', { fioRequestDetails: data.fioRequestDetails })
         } else {
             NavStore.goNext('SendScreen')

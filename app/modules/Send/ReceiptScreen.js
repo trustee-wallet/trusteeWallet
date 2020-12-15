@@ -80,7 +80,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
             sendScreenData: {},
 
             headerHeight: 0,
-            needPasswordConfirm: false
+            needPasswordConfirm: false,
+
+            loadFee : false
         }
     }
 
@@ -95,6 +97,27 @@ class ReceiptScreen extends SendBasicScreenScreen {
     }
 
 
+    startLoadFee = async () => {
+        const { sendScreenData } = this.state
+        // typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee
+
+        let tmp = SendTmpData.getCountedFees()
+        let selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
+        if (!selectedFee || sendScreenData.uiNeedToCountFees) {
+            this.setState({
+                loadFee: true
+            })
+            tmp = await SendActions.countFees(sendScreenData)
+            selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
+        }
+        sendScreenData.selectedFee = selectedFee
+        sendScreenData.uiNeedToCountFees = false
+        this.setState({
+            sendScreenData,
+            loadFee: false
+        })
+    }
+
     init = async () => {
         console.log('')
         console.log('')
@@ -102,17 +125,6 @@ class ReceiptScreen extends SendBasicScreenScreen {
         console.log('Send.ReceiptScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
 
         const { account, cryptoCurrency, wallet } = SendActions.findWalletPlus(sendScreenData.currencyCode)
-
-        let selectedFee = false // typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee
-        if (!selectedFee) {
-            let tmp = SendTmpData.getCountedFees()
-            selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
-            if (!selectedFee) {
-                tmp = SendActions.countFees(sendScreenData)
-                selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
-            }
-            sendScreenData.selectedFee = selectedFee
-        }
 
         this.setState(
             {
@@ -123,6 +135,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 useAllFunds: sendScreenData.isTransferAll,
                 init: true
             }, () => {
+
+                this.startLoadFee()
 
                 this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
                     const settings = this.props.settingsStore.data
@@ -170,6 +184,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
         let selectedFee = typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
         if (!selectedFee) {
             const tmp = SendTmpData.getCountedFees()
+            selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
+        }
+        if (!selectedFee || sendScreenData.uiNeedToCountFees) {
+            const tmp = await SendActions.countFees(sendScreenData)
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
 
@@ -657,6 +675,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     </View>
                     <TwoButtons
                         mainButton={{
+                            disabled: this.disabled(),
                             onPress: this.handleSend,
                             title: strings('send.receiptScreen.send')
                         }}

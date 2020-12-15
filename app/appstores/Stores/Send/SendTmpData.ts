@@ -8,6 +8,7 @@ export namespace SendTmpData {
         uiType ?: 'MAIN_SCANNER' | 'HOME_SCREEN' | 'SEND_SCANNER' | 'TRADE_SEND' | 'DEEP_LINKING' | 'ACCOUNT_SCREEN' | 'FIO_REQUESTS' | 'TRANSACTION_SCREEN', // from where
         uiApiVersion ?: 'v2' | 'v3', // for trades version of api
         uiProviderType ?: 'FIXED' | 'FLOATING', // for trades types
+        uiNeedToCountFees ?: boolean,
 
         // this is actually for redo
         inputValue ?: string, // 0.1
