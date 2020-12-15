@@ -347,7 +347,7 @@ class Account extends Component {
     }
 
     async transactionInfinity(from = 0, perPage = 10) {
-        const { account } = this.props
+        const { account, mainStore } = this.props
         let transactionsTotalLength = 0
         if (from === 0) {
             transactionsTotalLength = await transactionDS.getTransactionsCount({
@@ -368,7 +368,15 @@ class Account extends Component {
         if (tmp && tmp.length > 0) {
             for (let transaction of tmp) {
                 transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData)
-                transactionsToView.push(transaction)
+                // @ksu check plz
+                if (mainStore.selectedWallet.walletIsHideTransactionForFee !== null && +mainStore.selectedWallet.walletIsHideTransactionForFee === 1) {
+                    if (transaction.addressTo.toString().indexOf('OMNI Simple Send:') !== -1) {
+                        // if (transaction.transactionOfTrusteeWallet === 1 && transaction.transactionsOtherHashes !== '') {  // old code
+                        // do nothing as its removed ones
+                    } else {
+                        transactionsToView.push(transaction)
+                    }
+                }
             }
         }
 
@@ -474,9 +482,9 @@ class Account extends Component {
                     ) }}
                     scrollOffset={this.state.scrollOffset}
                 />
-                <View style={{ height: headerHeight }} />
+                {/* <View style={{ height: headerHeight }} /> */}
                 <ScrollView
-                    style={styles.wrapper__scrollView}
+                    style={{...styles.wrapper__scrollView, marginTop: 84 }}
                     showsVerticalScrollIndicator={false}
                     scrollEventThrottle={16}
                     onScroll={(event) => this.updateOffset(event.nativeEvent.contentOffset.y)}

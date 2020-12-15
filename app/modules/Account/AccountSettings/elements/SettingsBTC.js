@@ -295,7 +295,8 @@ class SettingsBTC extends Component {
                         switchParams={{ value: !!wallet.walletAllowReplaceByFee, onPress: this.handleAllowReplaceByFee }}
                     />
                     <ListItem
-                        title={'HD'}
+                        title={strings('settings.walletList.hd')}
+                        subtitle={strings('settings.walletList.hdDescription')}
                         iconType="hd"
                         onPress={this.handleEnableHD}
                         rightContent="switch"

@@ -28,7 +28,7 @@ const getIcon = (iconType, color) => {
         case 'notes':
             return <CustomIcon name={'notes'} color={color} size={20} />
         case 'card':
-            return <CustomIcon name={'card'} color={color} size={20} />
+            return <CustomIcon name={'user'} color={color} size={20} />
         case 'addressFrom':
         case 'addressTo':
         case 'exchangeTo':

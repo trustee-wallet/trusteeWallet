@@ -28,7 +28,7 @@ export default class Header extends React.Component {
     constructor(props) {
         super(props)
 
-        const hasStickyHeader = this.props.scrollOffset > 260
+        const hasStickyHeader = this.props.scrollOffset > 300
         const opacity = hasStickyHeader ? 1 : 0
         const height = hasStickyHeader ? headerHeightSticky : headerHeight
         const elevation = hasStickyHeader ? 10 : 0

@@ -96,8 +96,8 @@ class TransactionScreen extends Component {
                 walletHash = wallet.walletHash
             }
             
+            // @yura this is bugplace plz see
             account = store.getState().accountStore.accountList[walletHash]
-            
             if (transactionHash) {
                 try {
                     const tmp = await transactionDS.getTransactions({
@@ -146,6 +146,7 @@ class TransactionScreen extends Component {
         this.init(tx)
 
         if (typeof notification !== 'undefined') {
+            console.log(notification)
             this.setState(() => ({
                 transaction: tx,
                 notification
@@ -833,6 +834,10 @@ class TransactionScreen extends Component {
 
         console.log('state', this.state.notification)
 
+        if (transaction.addressAmountPretty === '?') {
+            buttonsArray[0].splice(2,1)
+        }
+
         const prev = NavStore.getPrevRoute().routeName
 
         return (
@@ -891,11 +896,13 @@ class TransactionScreen extends Component {
                             /> 
                             ) }
                         </View>
-                        {this.state.notification ?
-                            <View style={{ marginVertical: GRID_SIZE, marginTop: 6 }}>
-                                <Text>{this.state.notification.subtitle}</Text>
-                            </View>
-                        : null}
+                        {this.state.notification && (
+                            <TransactionItem
+                                title={this.state.notification.subtitle}
+                                iconType='exchangeTo'
+                                // subtitle={addressExchangeToView.description}
+                                />
+                        )}
                         <View style={{ marginVertical: GRID_SIZE, marginTop: 6 }}>
                             {this.commentHandler()}
                         </View>

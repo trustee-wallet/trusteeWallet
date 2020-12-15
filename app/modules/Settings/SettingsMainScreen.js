@@ -394,14 +394,14 @@ class SettingsMainScreen extends React.Component {
                                         delayLongPress={1000}
                                     />
                                 )}
-                                <ListItem
+                                {/* <ListItem
                                     title={strings('settings.other.darkModeTitle')}
                                     subtitle={strings(`settings.other.${isLight ? 'darkModeDisabledSubtitle' : 'darkModeEnabledSubtitle'}`)}
                                     iconType="darkMode"
                                     onPress={changeTheme}
                                     rightContent="switch"
                                     switchParams={{ value: !isLight, onPress: changeTheme }}
-                                />
+                                /> */}
                                 <ListItem
                                     title={strings('settings.other.notifications')}
                                     iconType="notifications"
