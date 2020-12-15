@@ -477,6 +477,15 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
     }
 
+    disabled = () => {
+
+        if (this.state.loadFee) {
+            return true
+        }
+
+        return false
+    }
+
     render() {
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
