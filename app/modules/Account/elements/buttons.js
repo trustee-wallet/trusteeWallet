@@ -34,7 +34,7 @@ const getIcon = (iconType, color) => {
     }
 }
 
-const renderItem = (data) => {
+const renderItem = (data, title) => {
 
     const { colors } = useTheme()
 
@@ -47,7 +47,9 @@ const renderItem = (data) => {
                         <TouchableOpacity style={styles.icon} onPress={item.action}>
                             {getIcon(item.icon.toString(), '#f7f7f7')}
                         </TouchableOpacity>
-                        <Text style={styles.title} >{item.title}</Text>
+                        {title && (
+                            <Text style={styles.title}>{item.title}</Text>
+                        )}
                     </View>
                 )
             })}
@@ -58,7 +60,8 @@ const renderItem = (data) => {
 const Buttons = (props) => {
 
     const {
-        data
+        data,
+        title
     } = props
 
     const { colors, GRID_SIZE } = useTheme()
@@ -66,7 +69,7 @@ const Buttons = (props) => {
     return (
         <View style={{ width: SCREEN_WIDTH < 300 ? '80%' : 300, alignSelf: 'center' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                {renderItem(data)}
+                {renderItem(data, title)}
             </View>
         </View>
     )

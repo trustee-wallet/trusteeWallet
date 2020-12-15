@@ -1211,12 +1211,12 @@ const style = {
         borderRadius: 10,
         elevation: 8,
         // marginTop: 32,
-        // shadowColor: '#000',
-        // shadowRadius: 16,
-        // shadowOpacity: 0.1,
-        // shadowOffset: {
-        //     width: 0,
-        //     height: 0
-        // }
+        shadowColor: '#000',
+        shadowRadius: 16,
+        shadowOpacity: 0.1,
+        shadowOffset: {
+            width: 0,
+            height: 0
+        }
     }
 }

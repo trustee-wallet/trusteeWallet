@@ -424,6 +424,7 @@
     "history": "Transactions:",
     "scan": " %{time} min ago ",
     "justScan": "just",
+    "soLong": "so long",
     "noTransactions": "You don’t have any transaction yet.",
     "showMore": "Show more",
     "assetSettings": "Asset settings",

@@ -422,6 +422,7 @@
     "history": "Транзакції",
     "scan": "%{time} хв назад",
     "justScan": "щойно",
+    "soLong": "давно",
     "noTransactions": "У Вас ще немає транзакцій",
     "showMore": "Показати ще",
     "assetSettings": "Налаштування активу",

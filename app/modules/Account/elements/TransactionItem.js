@@ -30,10 +30,9 @@ const getIcon = (iconType, color) => {
         case 'card':
             return <CustomIcon name={'card'} color={color} size={20} />
         case 'addressFrom':
-            return <CustomIcon name={'user'} color={color} size={20} />
         case 'addressTo':
-            return <CustomIcon name={'user'} color={color} size={20} />
         case 'exchangeTo':
+        case 'self':
             return <CustomIcon name={'user'} color={color} size={20} />
         default: return null
     }

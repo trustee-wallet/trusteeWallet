@@ -280,7 +280,8 @@ class Account extends Component {
                         <View style={styles.scan}>
                             {isSynchronized ?
                                 <Text style={styles.scan__text} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? 
-                                    strings('account.justScan') : strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
+                                    strings('account.justScan') : this.diffTimeScan(this.props.account.balanceScanTime * 1000) > 60 ? strings('account.soLong') :
+                                    strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
                                 :
                                 <View style={{
                                     flexDirection: 'row',
@@ -473,6 +474,7 @@ class Account extends Component {
                     ) }}
                     scrollOffset={this.state.scrollOffset}
                 />
+                <View style={{ height: headerHeight }} />
                 <ScrollView
                     style={styles.wrapper__scrollView}
                     showsVerticalScrollIndicator={false}
@@ -484,7 +486,7 @@ class Account extends Component {
                             onRefresh={this.handleRefresh}
                         />
                     }>
-                    <View style={{...styles.wrapper__content, marginTop: headerHeight }}>
+                    <View style={{...styles.wrapper__content }}>
                         <HeaderBlocks
                             mainStore={mainStore}
                             account={account}

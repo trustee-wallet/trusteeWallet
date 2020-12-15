@@ -626,6 +626,7 @@ class TransactionScreen extends Component {
         return (
             <Buttons
                 data={item}
+                title={this.state.showMoreDetails ? false : true}
             />
         )
     }

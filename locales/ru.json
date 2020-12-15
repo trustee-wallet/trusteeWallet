@@ -424,6 +424,7 @@
     "history": "Транзакции",
     "scan": "%{time} мин назад",
     "justScan": "только что",
+    "soLong": "давно",
     "noTransactions": "У Вас еще нет транзакций",
     "showMore": "Показать еще",
     "assetSettings": "Настройки актива",
