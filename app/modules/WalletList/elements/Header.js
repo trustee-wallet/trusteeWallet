@@ -32,7 +32,6 @@ import { HIT_SLOP } from '../../../themes/Themes';
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 import { SIZE } from '../helpers';
-import { abs } from 'react-native-reanimated'
 
 
 const headerHeight = Platform.OS === 'android' ? 79 : 44
@@ -101,9 +100,11 @@ class WalletInfo extends React.Component {
         const { colors } = this.context
         const {
             selectedWallet,
-            changeBalanceVisibility,
+            triggerBalanceVisibility,
             isBalanceVisible,
-            balanceData
+            originalVisibility,
+            balanceData,
+            hasNews
         } = this.props
         const {
             hasStickyHeader,
@@ -124,6 +125,7 @@ class WalletInfo extends React.Component {
                         <View style={styles.header__left}>
                             <TouchableOpacity style={styles.notificationButton} onPress={this.handleOpenNotifications} hitSlop={HIT_SLOP}>
                                 <NotificationIcon color={colors.common.text1} />
+                                {hasNews && <View style={[styles.notificationIndicator, { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }]} />}
                             </TouchableOpacity>
                         </View>
 
@@ -152,8 +154,10 @@ class WalletInfo extends React.Component {
                     <Animated.View style={[styles.extraView, { backgroundColor: colors.common.background, opacity }]}>
                         <TouchableOpacity
                             style={styles.balanceText__container}
-                            activeOpacity={0.6}
-                            onPress={changeBalanceVisibility}
+                            activeOpacity={1}
+                            onPressIn={() => triggerBalanceVisibility(true)}
+                            onPressOut={() => triggerBalanceVisibility(false)}
+                            disabled={originalVisibility}
                             hitSlop={{ top: 5, right: 10, bottom: 10, left: 10 }}
                         >
                             {isBalanceVisible ? (
@@ -182,6 +186,7 @@ class WalletInfo extends React.Component {
 const mapStateToProps = (state) => {
     return {
         selectedWallet: state.mainStore.selectedWallet,
+        hasNews: state.appNewsStore.hasNews
     }
 }
 
@@ -283,6 +288,15 @@ const styles = {
     },
     notificationButton: {
         paddingHorizontal: 12
+    },
+    notificationIndicator: {
+        position: 'absolute',
+        top: 0,
+        right: 10,
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        borderWidth: 2,
     },
     qrButton: {
         paddingHorizontal: 10
