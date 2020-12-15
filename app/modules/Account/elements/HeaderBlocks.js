@@ -390,7 +390,7 @@ const styles = {
     copyBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 3,
+        marginBottom: 8,
         marginLeft: 10
     },
     copyBtn__text: {

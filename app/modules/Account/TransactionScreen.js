@@ -605,16 +605,12 @@ class TransactionScreen extends Component {
                     </View>
                 </View>
                 <View style={styles.topContent__title}>
-                    {/* {(trx.status ? trx.status.toUpperCase() !== 'PENDING_PAYIN' : false) || (status ? status.toUpperCase() !== 'PENDING' : false) ? */}
                     <>
                         <Text style={styles.amount}>
                             {amountTxt}
                         </Text>
                         <Text style={{ ...styles.code, color: color }}>{cryptoCurrency.currencySymbol}</Text>
                     </>
-                    {/* :
-                        <Loader size={20} color={colors.accountScreen.loaderColor} />
-                    } */}
                 </View>
 
             </View>
@@ -916,13 +912,13 @@ class TransactionScreen extends Component {
                             </Pages>}
                     </View>
                     {showMoreDetails && (
-                        <View style={{ marginTop: 20, borderRadius: 16, marginBottom: 15 }}>
-                            <InsertShadow containerStyle={{
+                        <View style={{ ...styles.moreInfo, marginTop: 20, borderRadius: 16, marginBottom: 15, backgroundColor: '#f2f2f2' }}>
+                            {/* <InsertShadow containerStyle={{
                                 ...styles.moreInfo,
                                 flex: 1,
                                 borderRadius: 16,
                                 backgroundColor: '#F2F2F2'
-                            }} shadowRadius={9} shadowColor={'#999999'}>
+                            }} shadowRadius={9} shadowColor={'#999999'} > */}
                                 {subContent.map((item) => {
                                     return (
                                         // eslint-disable-next-line react/jsx-key
@@ -942,7 +938,7 @@ class TransactionScreen extends Component {
                                     <LetterSpacing textStyle={{...styles.viewExplorer, color: colors.common.text1}} text={strings('account.transactionScreen.viewExplorer').toUpperCase()} letterSpacing={1.5}
                                     />
                                 </TouchableOpacity> : null}
-                            </InsertShadow>
+                            {/* </InsertShadow> */}
                             {/* <View style={styles.shadow}>
                                 <View style={styles.shadowItem} />
                             </View> */}
@@ -1028,8 +1024,8 @@ const styles = {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 20,
-        marginTop: 16
+        marginBottom: -6,
+        marginTop: 6
     },
     content: {
         justifyContent: 'center',

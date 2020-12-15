@@ -82,7 +82,9 @@ class Account extends Component {
             fioMemo: {},
             scrollOffset: 0,
             isBalanceVisible: false,
-            originalVisibility: false
+            originalVisibility: false,
+
+            headerHeight: 0
         }
         this.getBalanceVisibility()
     }
@@ -413,7 +415,7 @@ class Account extends Component {
         UpdateAccountListDaemon.pause()
 
         const { colors, isLight } = this.context
-        const { mode, openTransactionList } = this.state
+        const { mode, headerHeight } = this.state
         const { mainStore, account, cryptoCurrency, settingsStore } = this.props
         const { amountToView, show, transactionsToView, transactionsTotalLength, transactionsShownLength, isBalanceVisible } = this.state
 
@@ -482,7 +484,7 @@ class Account extends Component {
                             onRefresh={this.handleRefresh}
                         />
                     }>
-                    <View style={styles.wrapper__content}>
+                    <View style={{...styles.wrapper__content, marginTop: headerHeight }}>
                         <HeaderBlocks
                             mainStore={mainStore}
                             account={account}
@@ -580,14 +582,10 @@ export default connect(mapStateToProps, mapDispatchToProps)(Account)
 
 const styles = {
     wrapper__scrollView: {
-        flex: 1,
-
-        marginTop: 60
+        flex: 1
     },
     wrapper__content: {
-        flex: 1,
-
-        paddingTop: 20
+        flex: 1
     },
     bottomButtons: {
         position: 'absolute',

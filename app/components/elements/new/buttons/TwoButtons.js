@@ -72,6 +72,6 @@ const styles = StyleSheet.create({
             width: 0,
             height: 6
         },
-        elevation: 12
+        elevation: 8
     }
 })
