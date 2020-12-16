@@ -185,7 +185,7 @@ class SendAdvancedSettingsScreen extends Component {
                                     if (!needSpeed) {
                                         needSpeed = ''
                                     }
-                                    subtitle += `\n${needSpeed}`
+                                    subtitle += `${needSpeed}`
                                 }
                             }
                             subtitle += `\n${fiatFee}`

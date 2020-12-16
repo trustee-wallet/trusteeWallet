@@ -26,19 +26,19 @@ const AccountButtons = (props) => {
                 text={title && strings('account.receive', { receive: strings('repeat.receive') })}
                 action={() => actionReceive()}
                 type={'receive'}
-                style={{ ...styles.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+                style={{ ...styles.button, backgroundColor: title ? colors.accountScreen.trxButtonBackgroundColor : colors.homeScreen.tabBarBackground, borderColor: colors.accountScreen.trxButtonBorderColor }}
             />
             <TransactionButton
                 text={title && strings('dashboardStack.buy')}
                 action={() => actionBuy()}
                 type={'buy'}
-                style={{ ...styles.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+                style={{ ...styles.button, backgroundColor: title ? colors.accountScreen.trxButtonBackgroundColor : colors.homeScreen.tabBarBackground, borderColor: colors.accountScreen.trxButtonBorderColor }}
             />
             <TransactionButton
                 text={title && strings('account.send')}
                 action={() => actionSend()}
                 type={'send'}
-                style={{ ...styles.button, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}
+                style={{ ...styles.button, backgroundColor: title ? colors.accountScreen.trxButtonBackgroundColor : colors.homeScreen.tabBarBackground, borderColor: colors.accountScreen.trxButtonBorderColor }}
             />
         </View>
     )

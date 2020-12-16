@@ -23,7 +23,8 @@ export default class Header extends React.Component {
     getLeftAction = () => {
         const {
             leftType,
-            leftAction
+            leftAction,
+            leftParams
         } = this.props
         const { colors } = this.context
 
@@ -38,7 +39,7 @@ export default class Header extends React.Component {
         if (!Icon) return null
 
         return (
-            <TouchableOpacity hitSlop={HIT_SLOP} onPress={leftAction}>
+            <TouchableOpacity hitSlop={HIT_SLOP} onPress={() => leftParams ? leftAction(leftParams.close) : leftAction()}>
                 <Icon color={colors.common.text1} />
             </TouchableOpacity>
         )
@@ -47,7 +48,8 @@ export default class Header extends React.Component {
     getRightAction = () => {
         const {
             rightType,
-            rightAction
+            rightAction,
+            rightParams
         } = this.props
         const { colors } = this.context
 
@@ -62,7 +64,7 @@ export default class Header extends React.Component {
         if (!Icon) return null
 
         return (
-            <TouchableOpacity hitSlop={{ top: 20, right: 20, bottom: 20, left: 20 }} onPress={rightAction}>
+            <TouchableOpacity hitSlop={{ top: 20, right: 20, bottom: 20, left: 20 }} onPress={() => rightParams ? rightAction(rightParams.close) : rightAction()}>
                 <Icon color={colors.common.text1} />
             </TouchableOpacity>
         )
@@ -71,7 +73,7 @@ export default class Header extends React.Component {
     processHeaderHeight = (e) => { this.props.setHeaderHeight?.(e.nativeEvent.layout.height) }
 
     render() {
-        const { title, setHeaderHeight, ExtraView, anime } = this.props
+        const { title, setHeaderHeight, ExtraView } = this.props
         const {
             colors,
             isLight,

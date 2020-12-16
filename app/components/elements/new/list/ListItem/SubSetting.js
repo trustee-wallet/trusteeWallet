@@ -46,7 +46,7 @@ export default function SubSettingListItem(props) {
                         </View>
                         <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
                             <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: checkedStyle && checked ? '#864DD9' : colors.common.text1 }]}>{title}</Text>
-                            {!!subtitle && <Text numberOfLines={2} style={[styles.subtitleFirst, { color: checkedStyle && checked ? '#864DD9' : colors.common.text2 }]}>{subtitle}</Text>}
+                            {!!subtitle && <Text numberOfLines={3} style={[styles.subtitleFirst, { color: checkedStyle && checked ? '#864DD9' : colors.common.text2 }]}>{subtitle}</Text>}
                         </View>
                     </View>
                     {(ExtraView && checked) && (

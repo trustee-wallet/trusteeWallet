@@ -232,7 +232,8 @@ class Input extends Component {
             isLine = true,
             isTextarea = false,
             info,
-            tabInfo
+            tabInfo,
+            adrressError
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
@@ -259,7 +260,7 @@ class Input extends Component {
                 lineStyle.top = height - 20
             }
         }
-
+        console.log(adrressError)
         return (
             <View style={{ ...styles.wrapper, ...elementStyle }}>
                 {
@@ -285,7 +286,7 @@ class Input extends Component {
                                 disabled={isDisabled}
                                 disabledLineType={'none'}
                                 onChangeText={(value) => this.handleInput(value)}
-                                style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: error ? '#864DD9' : '#5C5C5C', }}
+                                style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: adrressError ? '#864DD9' : '#5C5C5C' }}
                                 multiline={isTextarea}
                                 autoCorrect={false}
                                 spellCheck={false}
@@ -312,25 +313,25 @@ class Input extends Component {
                     {
                         typeof fio !== 'undefined' && fio ?
                             <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
-                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="contacts" size={25} color={error ? '#864DD9' : "#404040"} />
+                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="contacts" size={25} color={adrressError ? '#864DD9' : "#404040"} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof copy !== 'undefined' && copy ?
                             <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-copy" size={25} color={error ? '#864DD9' : "#404040"} />
+                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-copy" size={25} color={adrressError ? '#864DD9' : "#404040"} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof paste !== 'undefined' && paste ?
                             <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-paste" size={25} color={error ? '#864DD9' : "#404040"} />
+                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-paste" size={25} color={adrressError ? '#864DD9' : "#404040"} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof qr !== 'undefined' && qr ?
                             <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
-                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }} name="qrcode" size={25} color={error ? '#864DD9' : "#404040"} />
+                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }} name="qrcode" size={25} color={adrressError ? '#864DD9' : "#404040"} />
                             </TouchableOpacity> : null
                     }
                     {

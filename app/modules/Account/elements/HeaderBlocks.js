@@ -31,6 +31,7 @@ import { strings } from '../../../services/i18n'
 import IconAwesome from 'react-native-vector-icons/FontAwesome'
 import NavStore from '../../../components/navigation/NavStore'
 import CustomIcon from '../../../components/elements/CustomIcon'
+import { HIT_SLOP } from '../../../themes/Themes'
 
 class HeaderBlocks extends Component {
     constructor(props) {
@@ -144,9 +145,9 @@ class HeaderBlocks extends Component {
                 <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE }}>
                     <View style={{ ...styles.topContent__title, flexGrow: 1 }}>
                         {isBalanceVisible ?
-                        <Text style={{ ...styles.topContent__title_first, color: colors.accountScreen.balanceColor }} numberOfLines={1} >
+                        <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
                             {balancePrettyPrep1}
-                            <Text style={{ ...styles.topContent__title_last, color: colors.accountScreen.balanceColor }}>
+                            <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
                                 {balancePrettyPrep2}
                             </Text>
                         </Text>
@@ -156,14 +157,14 @@ class HeaderBlocks extends Component {
                         //         onPressOut={() => console.log('out')}
                         //         activeOpacity={0.9}
                         //     >
-                            <Text style={{ ...styles.topContent__title_last, color: colors.accountScreen.balanceColor, marginTop: 10, paddingHorizontal: 15, fontSize: 52, lineHeight: 60 }}>
+                            <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, marginTop: 10, paddingHorizontal: 15, fontSize: 52, lineHeight: 60 }}>
                                 ****</Text>
                         // </TouchableOpacity>
                         }
                     </View>
                     { isBalanceVisible &&
                     <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
-                        textStyle={{ ...styles.topContent__subtitle, color: colors.accountScreen.balanceNotEquivalent }} letterSpacing={.5} />
+                        textStyle={{ ...styles.topContent__subtitle, color: colors.common.text2 }} letterSpacing={.5} />
                     }
                 </View>
             )
@@ -181,10 +182,13 @@ class HeaderBlocks extends Component {
     }
 
     handleSettingAccount = (currencyCode) => {
+
+        const { colors } = this.context
+
         return (
-            <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={() => this.accountSetting(currencyCode)}>
+            <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={() => this.accountSetting(currencyCode)} hitSlop={HIT_SLOP}>
                 <View style={{ paddingVertical: 12 }}>
-                    <CustomIcon name={'coinSettings'} size={20} color={`#404040`} />
+                    <CustomIcon name={'coinSettings'} size={20} color={colors.common.text1} />
                 </View>
             </TouchableOpacity>
         )
@@ -240,7 +244,7 @@ class HeaderBlocks extends Component {
                                 onLongPress={() => this.handleOpenLinkLongPress()}
                                 delayLongPress={5000}>
                                 <View style={{ position: 'relative', width: 50, height: 50 }}>
-                                    <GradientView style={styles.topContent__icon} array={colors.accountScreen.containerBG}
+                                    <GradientView style={styles.topContent__icon} array={colors.accountScreen.containerBGIcon}
                                         start={styles.containerBG.start}
                                         end={styles.containerBG.end} />
                                     <View style={styles.icon}>
@@ -257,9 +261,10 @@ class HeaderBlocks extends Component {
                             </TouchableOpacity>
                         </View>
                         <View style={{ marginTop: 22 }}>
-                            <Text style={styles.currencyName}>{cryptoCurrency.currencySymbol}</Text>
+                            <Text style={{...styles.currencyName, color: colors.common.text1 }}>{cryptoCurrency.currencySymbol}</Text>
                             <TouchableOpacity style={styles.topContent__middle}
-                                onPress={() => this.handleBtcAddressCopy(shownAddress)}>
+                                onPress={() => this.handleBtcAddressCopy(shownAddress)}
+                                hitSlop={HIT_SLOP}>
                                 <ToolTips showAfterRender={true} height={150}
                                     type={'ACCOUNT_SCREEN_ADDRESS_TIP'}
                                     cryptoCurrency={cryptoCurrency}
@@ -307,7 +312,7 @@ const styles = {
 
         zIndex: 1,
 
-        borderRadius: 16
+        borderRadius: 16,
     },
 
     topContent: {
@@ -335,7 +340,6 @@ const styles = {
         right: 0,
         width: '100%',
         height: 140,
-        backgroundColor: 'red'
     },
     topContent__title: {
         flexDirection: 'row',

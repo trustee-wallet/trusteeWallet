@@ -739,6 +739,8 @@
     "useAllFunds": "Use all funds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
     "notEnough": "You don't have enough funds to send",
+    "addressError": "The recipient’s address is incorrect, please, check it",
+    "notValidAmount": "Please, input amount",
     "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}",
     "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations or turn on usage of unconfirmed transactions",
     "publicFioAddressNotFound": "%{symbol} public address is not associated with specified FIO address",
