@@ -603,6 +603,7 @@
      "title": "Деталі FIO запиту",
      "reqCreated": "Запит створено",
      "sentTitle": "Отримати на мій",
+     "pendingTitle": "Відправити з мого",
      "pendingTitle": "Надіслати з мойого",
      "balance": "Баланс",
      "fee": "Комісія",
