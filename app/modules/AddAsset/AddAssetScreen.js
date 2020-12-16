@@ -10,7 +10,7 @@ import {
     FlatList,
     StyleSheet,
     TouchableOpacity,
-    InteractionManager
+    Keyboard
 } from 'react-native'
 import firebase from 'react-native-firebase'
 import _forEach from 'lodash/forEach'
@@ -21,21 +21,20 @@ import NavStore from '../../components/navigation/NavStore'
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import Validator from '../../services/UI/Validator/Validator'
 import { setQRConfig, setQRValue } from '../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import { setSendData } from '../../appstores/Stores/Send/SendActions'
 
 import { strings } from '../../services/i18n'
 import { checkQRPermission } from '../../services/UI/Qr/QrPermissions'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
 import TextInput from '../../components/elements/new/TextInput'
 import Button from '../../components/elements/new/buttons/Button'
 import ListItem from '../../components/elements/new/list/ListItem/Asset'
 import Tabs from '../../components/elements/new/Tabs'
+import Header from './elements/Header'
 
 import QrCodeIcon from '../../assets/images/qrCodeBtn';
 
 import {
-    TABS,
+    getTabs,
     ASSESTS_GROUP,
     prepareDataForDisplaying,
     addCustomToken
@@ -44,11 +43,12 @@ import {
 
 class AddAssetScreen extends React.Component {
     state = {
-        headerHeight: 0,
+        headerHeight: 109,
         searchQuery: '',
         customAddress: '',
-        tabs: TABS,
-        data: []
+        tabs: getTabs(),
+        data: [],
+        headerHasExtraView: true
     }
 
     navigationListener;
@@ -59,23 +59,14 @@ class AddAssetScreen extends React.Component {
     }
 
     checkIfWasScanned = () => {
-        if (Object.keys(this.props.sendStore).length !== 0) {
-            const { isToken, address } = this.props.sendStore
-
-            if (isToken) {
-                this.setState(() => ({ customAddress: address }))
-                setSendData({})
-            }
+        const data = this.props.navigation.getParam('tokenData')
+        if (data && typeof data !== 'undefined' && typeof data.address !== 'undefined' && data.address) {
+            this.setState({ customAddress: data.address })
         }
     }
 
     prepareData = (assets = this.props.assets, newTab, searchQuery) => {
         prepareDataForDisplaying.call(this, assets, newTab, searchQuery)
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        if (headerHeight > this.state.headerHeight) this.setState(() => ({ headerHeight }))
     }
 
     handleSearch = (value) => {
@@ -134,6 +125,28 @@ class AddAssetScreen extends React.Component {
         if (validation.errorArr.length !== types.length) addCustomToken(customAddress)
     }
 
+    updateOffset = (event) => {
+        const scrollOffset = Math.round(event.nativeEvent.contentOffset.y)
+        if (this.state.headerHasExtraView && scrollOffset > 100) this.setState(() => ({ headerHasExtraView: false }))
+        if (!this.state.headerHasExtraView && scrollOffset < 100) this.setState(() => ({ headerHasExtraView: true }))
+    }
+
+    get commonHeaderProps() {
+        const { GRID_SIZE, colors } = this.context
+        const contentPaddingTop = this.state.headerHeight + GRID_SIZE / 2
+        return {
+            showsVerticalScrollIndicator: false,
+            contentContainerStyle: { paddingHorizontal: GRID_SIZE * 2, paddingBottom: GRID_SIZE, paddingTop: contentPaddingTop },
+            ItemSeparatorComponent: () => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />,
+            renderItem: params => this.renderListItem(params),
+            keyExtractor: item => item.currencyCode,
+            keyboardShouldPersistTaps: 'handled',
+            keyboardDismissMode: 'on-drag',
+            ListEmptyComponent: () => this.renderEmptyList(),
+            onScroll: e => this.updateOffset(e)
+        }
+    }
+
     render() {
         const { colors, GRID_SIZE } = this.context
         const {
@@ -141,11 +154,14 @@ class AddAssetScreen extends React.Component {
             data,
             searchQuery,
             tabs,
-            customAddress
+            customAddress,
+            headerHasExtraView
         } = this.state
         const activeGroup = tabs.find(tab => tab.active).group
 
         firebase.analytics().setCurrentScreen('AddAssetScreen')
+
+        const contentPaddingTop = headerHeight + GRID_SIZE / 2
 
         return (
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>
@@ -153,17 +169,15 @@ class AddAssetScreen extends React.Component {
                     rightType="close"
                     rightAction={this.handleBack}
                     title={strings('assets.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                    ExtraView={this.renderSearch}
+                    headerHasExtraView={headerHasExtraView}
+                    searchQuery={searchQuery}
+                    onSearch={this.handleSearch}
                 />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
+                <SafeAreaView style={[styles.content, { backgroundColor: colors.common.background }]}>
                     {
                         activeGroup === ASSESTS_GROUP.CUSTOM && !searchQuery ? (
-                            <View style={{ flex: 1, paddingBottom: GRID_SIZE * 2 }}>
-                                <View style={[{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE, paddingBottom: GRID_SIZE / 2 }]}>
+                            <TouchableOpacity style={{ flex: 1, paddingBottom: GRID_SIZE * 2, paddingTop: contentPaddingTop }} activeOpacity={1} onPress={Keyboard.dismiss}>
+                                <View style={[{ paddingHorizontal: GRID_SIZE * 2, paddingBottom: GRID_SIZE / 2 }]}>
                                     {this.renderTabs()}
                                 </View>
                                 <View style={[styles.customAddressConent, { paddingHorizontal: GRID_SIZE }]}>
@@ -185,36 +199,35 @@ class AddAssetScreen extends React.Component {
                                         disabled={!customAddress}
                                     />
                                 </View>
-                            </View>
+                            </TouchableOpacity>
                         ) : activeGroup === ASSESTS_GROUP.TOKENS && !searchQuery
-                            ? (
-                                <SectionList
-                                    showsVerticalScrollIndicator={false}
-                                    sections={data}
-                                    stickySectionHeadersEnabled={false}
-                                    ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(true)}
-                                    contentContainerStyle={{ paddingHorizontal: GRID_SIZE * 2, paddingVertical: GRID_SIZE }}
-                                    renderItem={this.renderListItem}
-                                    renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>}
-                                    renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
-                                    ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
-                                    keyExtractor={item => item.currencyCode}
-                                    keyboardDismissMode="on-drag"
-                                />
-                            ) : (
-                                <FlatList
-                                    data={data}
-                                    renderItem={this.renderListItem}
-                                    keyExtractor={item => item.currencyCode}
-                                    contentContainerStyle={{ paddingHorizontal: GRID_SIZE * 2, paddingVertical: GRID_SIZE }}
-                                    ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
-                                    showsVerticalScrollIndicator={false}
-                                    ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
-                                    keyboardDismissMode="on-drag"
-                                />
-                            )
+                                ? (
+                                    <SectionList
+                                        {...this.commonHeaderProps}
+                                        sections={data}
+                                        stickySectionHeadersEnabled={false}
+                                        ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(true)}
+                                        renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>}
+                                        renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
+                                    />
+                                ) : (
+                                    <FlatList
+                                        {...this.commonHeaderProps}
+                                        data={data}
+                                        ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
+                                    />
+                                )
                     }
                 </SafeAreaView>
+            </View>
+        )
+    }
+
+    renderEmptyList = () => {
+        const { colors, GRID_SIZE } = this.context
+        return (
+            <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 6 }}>
+                <Text style={[styles.emptyText, { color: colors.common.text2 }]}>{strings('assets.noAssetsFound')}</Text>
             </View>
         )
     }
@@ -226,17 +239,6 @@ class AddAssetScreen extends React.Component {
             containerStyle={[styles.tabs, {}]}
             tabStyle={[styles.tab, { paddingTop: this.context.GRID_SIZE / 2, paddingBottom: isSection ? (this.context.GRID_SIZE * 1.5) : this.context.GRID_SIZE, }]}
         />
-    )
-
-    renderSearch = () => (
-        <View style={{ marginHorizontal: -this.context.GRID_SIZE }}>
-            <TextInput
-                placeholder={strings('assets.searchPlaceholder')}
-                value={this.state.searchQuery}
-                onChangeText={this.handleSearch}
-                HelperAction={() => <AntDesignIcon name="search1" size={23} color={this.context.colors.common.text2} />}
-            />
-        </View>
     )
 
     renderListItem = ({ item }) => {
@@ -257,7 +259,6 @@ class AddAssetScreen extends React.Component {
 const mapStateToProps = (state) => {
     return {
         assets: state.currencyStore.cryptoCurrencies,
-        sendStore: state.sendStore.data
     }
 }
 
@@ -280,7 +281,7 @@ const styles = StyleSheet.create({
     },
     customAddressConent: {
         flex: 1,
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
     },
     tabs: {
         justifyContent: 'space-around',
@@ -295,5 +296,12 @@ const styles = StyleSheet.create({
         lineHeight: 12,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
+    },
+    emptyText: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 15,
+        lineHeight: 19,
+        letterSpacing: 1.5,
+        flex: 2,
     },
 })

@@ -73,10 +73,10 @@ export default class BasicNotification {
                 data.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
             }
         }
-        if (!title || title.length < 10) {
+        if (!title || title.length < 1) {
             title = strings('pushNotifications.' + item.newsName + '.title', data)
         }
-        if (!description || description.length < 10) {
+        if (!description || description.length < 1) {
             description = strings('pushNotifications.' + item.newsName + '.description', data)
         }
 

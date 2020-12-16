@@ -85,18 +85,19 @@ class CashbackScreen extends Component {
     }
 
     init = async () => {
+        // @todo cashback scanner without sendStore
+        /*
+            if (Object.keys(this.props.send.data).length !== 0) {
+                const {
+                    isCashBackLink,
+                    qrCashBackLink
+                } = this.props.send.data
 
-        if (Object.keys(this.props.send.data).length !== 0) {
-            const {
-                isCashBackLink,
-                qrCashBackLink
-            } = this.props.send.data
-
-            if (isCashBackLink) {
-                this.handleSetParentToken(qrCashBackLink)
+                if (isCashBackLink) {
+                    this.handleSetParentToken(qrCashBackLink)
+                }
             }
-        }
-
+        */
         this.setState({
             init: true
         })
@@ -544,8 +545,7 @@ class CashbackScreen extends Component {
 const mapStateToProps = (state) => {
     return {
         mainStore: state.mainStore,
-        cashBackStore: state.cashBackStore,
-        send: state.sendStore
+        cashBackStore: state.cashBackStore
     }
 }
 

@@ -9,11 +9,10 @@ import {
     Text,
     StatusBar,
     SafeAreaView,
-    Animated, Platform
 } from 'react-native'
 import { connect } from 'react-redux'
 
-import AntIcon from 'react-native-vector-icons/AntDesign'
+import CustomIcon from '../CustomIcon'
 
 import { HIT_SLOP } from '../../../themes/Themes'
 
@@ -32,7 +31,7 @@ export default class Header extends React.Component {
 
         switch (leftType) {
             case 'back': {
-                Icon = (props) => <AntIcon name="arrowleft" size={23} color={props.color} />
+                Icon = (props) => <CustomIcon name="arrow_back" size={20} color={props.color} />
             }
         }
 
@@ -56,7 +55,7 @@ export default class Header extends React.Component {
 
         switch (rightType) {
             case 'close': {
-                Icon = (props) => <AntIcon name="close" size={23} color={props.color} />
+                Icon = (props) => <CustomIcon name="close" size={18} color={props.color} />
             }
         }
 

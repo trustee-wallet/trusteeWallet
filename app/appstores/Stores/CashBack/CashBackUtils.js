@@ -114,9 +114,12 @@ export default new class CashBackUtils {
         return tmpPublicAndPrivateResult
     }
 
-    createWalletSignature = async (actualSign = true, msg = false) => {
+    createWalletSignature = async (actualSign = true, msg = false, _requestAuthHash = false) => {
         try {
-            const tmpAuthHash = await cryptoWalletsDS.getSelectedWallet()
+            let tmpAuthHash = _requestAuthHash
+            if (!tmpAuthHash) {
+                tmpAuthHash = await cryptoWalletsDS.getSelectedWallet()
+            }
             if (!tmpAuthHash) {
                 return false
             }
@@ -132,10 +135,16 @@ export default new class CashBackUtils {
                 tmp = await BlocksoftKeysForRef.signDataForApi(msg + '', privateKey)
                 tmp.signedAddress = address
             }
+            if (_requestAuthHash) {
+                // not changing settings
+                tmp.cashbackToken = cashbackToken
+                return tmp
+            }
+
             await AsyncStorage.setItem('walletToken', cashbackToken)
             this.walletToken = cashbackToken
             this.walletPublicAddress = address
-
+            tmp.cashbackToken = cashbackToken
             return tmp
         } catch (e) {
             Log.err('SRV/CashBack createWalletSignature error ' + e.message, e)

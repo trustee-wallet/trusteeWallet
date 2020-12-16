@@ -9,12 +9,9 @@ import walletDS from '../../DataSource/Wallet/Wallet'
 import walletPubDS from '../../DataSource/Wallet/WalletPub'
 import cryptoWalletsDS from '../../DataSource/CryptoWallets/CryptoWallets'
 import accountDS from '../../DataSource/Account/Account'
-import transactionDS from '../../DataSource/Transaction/Transaction'
 
 import settingsActions from '../Settings/SettingsActions'
 import currencyActions from '../Currency/CurrencyActions'
-import transactionActions from '../../Actions/TransactionActions'
-
 import DaemonCache from '../../../daemons/DaemonCache'
 
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
@@ -259,21 +256,7 @@ export async function setSelectedAccount(setting) {
 
         account.feeRates = DaemonCache.getCacheRates(account.feesCurrencyCode)
 
-        const tmp = await transactionDS.getTransactions({
-            walletHash: wallet.walletHash,
-            currencyCode: currency.currencyCode
-        }, 'ACT/MStore setSelectedAccount')
-        if (tmp && tmp.length > 0) {
-            let transaction
-            account.transactions = {}
-            for (transaction of tmp) {
-                transactionActions.preformat(transaction, account)
-                account.transactions[transaction.transactionHash] = transaction
-            }
-        } else {
-            account.transactions = false
-        }
-
+        account.transactionsTotalLength = await DaemonCache.getCacheTxsCount(account, wallet)
         dispatch({
             type: 'SET_SELECTED_ACCOUNT',
             selectedAccount: account

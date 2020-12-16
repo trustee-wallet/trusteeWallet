@@ -1,31 +1,12 @@
-import React, { Component } from 'react'
+import React from 'react'
 import {
-    Platform,
     View,
     Text,
     TouchableOpacity,
-    Linking,
-    TextInput, Dimensions, PixelRatio,
-    SafeAreaView, ScrollView
+    Dimensions
 } from 'react-native'
-import { connect } from 'react-redux'
-import { strings } from '../../../services/i18n'
-import Header from '../../../components/elements/new/Header'
-import NavStore from '../../../components/navigation/NavStore'
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 import Feather from 'react-native-vector-icons/Feather'
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
-import AntIcon from 'react-native-vector-icons/AntDesign'
-import EntypoIcon from 'react-native-vector-icons/Entypo'
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
-
-import Theme from '../../../themes/Themes'
-import UIDict from '../../../services/UIDict/UIDict'
-
-import LetterSpacing from '../../../components/elements/LetterSpacing'
-import Loader from '../../../components/elements/LoaderItem'
+import CustomIcon from '../../../components/elements/CustomIcon'
 
 import { useTheme } from '../../../modules/theme/ThemeProvider'
 
@@ -33,17 +14,27 @@ const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 const getIcon = (iconType, color) => {
     switch (iconType) {
-        case 'wallet':
-            return <MaterialCommunityIcon name="wallet" color={color} size={22} style={{ marginTop: 2, marginLeft: 1 }} />
-        case 'accounts':
-            return <FontAwesomeIcon name="address-book" color={color} size={19} style={{ marginLeft: 2 }} />
-        case 'pinCode':
-            return <MaterialIcon name="lock" color={color} size={30} style={{ marginLeft: 2 }} />
+        case 'x':
+            return <Feather name="x" style={{ marginTop: 2, marginLeft: 1 }} size={30} color={color} />
+        case 'share':
+            return <CustomIcon name={'share'} color={color} size={26} />
+        case 'support':
+            return <CustomIcon name={'support'} color={color} size={26} />
+        case 'details':
+            return <CustomIcon name={'details'} color={color} size={26} />
+        case 'check':
+            return <CustomIcon name={'receipt'} color={color} size={26} />
+        case 'canceled':
+            return <CustomIcon name={'cancel'} color={color} size={26} />
+        case 'remove':
+            return <CustomIcon name={'delete'} color={color} size={26} />
+        case 'rbf':
+            return <CustomIcon name={'rbf'} color={color} size={26} />
         default: return null
     }
 }
 
-const renderItem = (data) => {
+const renderItem = (data, title) => {
 
     const { colors } = useTheme()
 
@@ -51,11 +42,14 @@ const renderItem = (data) => {
         <>
             {data.map((item) => {
                 return (
-                    <View style={{ flexDirection: 'column', paddingHorizontal: 25 }}>
+                    // eslint-disable-next-line react/jsx-key
+                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minWidth: 90 }}>
                         <TouchableOpacity style={styles.icon} onPress={item.action}>
                             {getIcon(item.icon.toString(), '#f7f7f7')}
                         </TouchableOpacity>
-                        <Text style={styles.title} >{item.title}</Text>
+                        {title && (
+                            <Text style={styles.title}>{item.title}</Text>
+                        )}
                     </View>
                 )
             })}
@@ -66,7 +60,8 @@ const renderItem = (data) => {
 const Buttons = (props) => {
 
     const {
-        data
+        data,
+        title
     } = props
 
     const { colors, GRID_SIZE } = useTheme()
@@ -74,7 +69,7 @@ const Buttons = (props) => {
     return (
         <View style={{ width: SCREEN_WIDTH < 300 ? '80%' : 300, alignSelf: 'center' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                {renderItem(data)}
+                {renderItem(data, title)}
             </View>
         </View>
     )

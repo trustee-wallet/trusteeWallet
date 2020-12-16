@@ -15,13 +15,15 @@ export default {
         const unique = {}
         for (const news of appNewsList) {
             try {
-                const key = typeof news.newsJson.transactionHash !== 'undefined' ? news.newsJson.transactionHash : news.newsJson
+                const key = typeof news.newsJson !== 'undefined' && news.newsJson ? (
+                    typeof news.newsJson.transactionHash !== 'undefined' ? news.newsJson.transactionHash : news.newsServerId
+                ) : news.id
                 // @ts-ignore
                 if (typeof unique[key] === 'undefined') {
                     // @ts-ignore
                     unique[key] = 1
                     // somehow here its not breaking - but later is breaking android with 280000000000000000000000 values
-                    if (typeof news.newsJson !== 'undefined') {
+                    if (typeof news.newsJson !== 'undefined' && news.newsJson) {
                         if (typeof news.newsJson.addressAmount !== 'undefined' && news.newsJson.addressAmount !== '0' && news.newsJson.addressAmount !== 0) {
                             const tmp = BlocksoftPrettyNumbers.setCurrencyCode(news.currencyCode).makePretty(news.newsJson.addressAmount, 'appNewsActions.addressAmount')
                             news.newsJson.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
@@ -40,7 +42,7 @@ export default {
 
             } catch (e) {
                 if (config.debug.appErrors) {
-                    console.log('ACT/AppNewsActions error ' + e.message, news)
+                    console.log('ACT/AppNewsActions error ' + e.message, e, news)
                 }
                 Log.daemon('ACT/AppNewsActions error ' + e.message)
             }

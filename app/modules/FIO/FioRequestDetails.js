@@ -13,6 +13,7 @@ import Moment from 'moment';
 import { setLoaderStatus, setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
 import Log from '../../services/Log/Log'
 import { connect } from 'react-redux'
+import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
@@ -59,12 +60,14 @@ class FioRequestDetails extends Component {
 
         setLoaderStatus(true)
         try {
-            setSelectedCryptoCurrency(currency)
-            await setSelectedAccount()
 
-            NavStore.goNext('SendScreen', {
-                fioRequestDetails: this.state.requestDetailData
+            await SendActions.startSend({
+                gotoReceipt : true,
+                uiType : 'FIO_REQUESTS',
+                fioRequestDetails : this.state.requestDetailData,
+                currencyCode : currency.currencyCode,
             })
+
         } catch (e) {
             await Log.err('FioRequestDetails handleConfirm error ' + e.message, content?.chain_code)
         } finally {

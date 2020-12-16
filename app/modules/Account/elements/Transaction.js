@@ -36,156 +36,78 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import updateTradeOrdersDaemon from '../../../daemons/back/UpdateTradeOrdersDaemon'
 
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import config from '../../../config/config'
 
 class Transaction extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            wayType: null,
-            direction: null,
-            status: null,
-            blockConfirmations: null,
-            value: null,
-            valueToView: null,
-            currencySymbolToView: null,
-            basicValueToView: null,
-            payButtonTimeToEnable: 0,
-
-            isExpanded: false,
-
             styles: {},
-
-            show: false,
-            removed: false,
         }
     }
 
-    componentDidMount() {
-        this.init(this.props.transaction)
+    async UNSAFE_componentWillMount() {
+        this.init()
     }
 
-    init = (transaction) => {
+    async componentDidMount() {
+        this.init()
+    }
 
-        try {
-            const { cryptoCurrency } = this.props
+    async componentDidUpdate(prevProps, prevState) {
+    //    this.init()
+    }
 
-            const blockConfirmations = this.prepareBlockConfirmations(transaction.blockConfirmations)
+    init() {
+        const { transaction } = this.props
+        const transactionStatus = this.prepareStatus(transaction.transactionStatus)
+        const transactionDirection = this.prepareDirection(transaction.transactionDirection)
+        const styles = JSON.parse(JSON.stringify(this.prepareStyles(transactionStatus, transactionDirection)))
+        this.setState({
+            styles
+        })
+    }
 
-            const status = this.prepareStatus(transaction.transactionStatus, transaction.status)
-
-            const direction = this.prepareType(transaction.transactionDirection)
-
-            const wayType = this.prepareWayType(transaction.exchangeWayType)
-
-            const styles = JSON.parse(JSON.stringify(this.prepareStyles(status, direction)))
-
-            let value, valueToView, currencySymbolToView
-
-            if (transaction.addressAmountSatoshi && (cryptoCurrency.currencyCode === 'BTC' || cryptoCurrency.currencyCode === 'DOGE')) {
-                value = this.prepareValue(transaction.addressAmountSatoshi, cryptoCurrency.currencyCode)
-                valueToView = this.prepareValueToView(value, 'SAT', direction)
-                currencySymbolToView = 'sat'
-            } else {
-                value = this.prepareValue(transaction.addressAmountPretty, cryptoCurrency.currencyCode)
-                valueToView = this.prepareValueToView(value, cryptoCurrency.currencySymbol, direction)
-                currencySymbolToView = cryptoCurrency.currencySymbol
-            }
-
-
-            const basicValueToView = transaction.basicCurrencySymbol + ' ' + transaction.basicAmountPretty
-
-
-            this.setState({
-                direction,
-                wayType,
-                status,
-                styles,
-                blockConfirmations,
-                value,
-                valueToView,
-                basicValueToView,
-                currencySymbolToView,
-                show: true
-            })
-        } catch (e) {
-            Log.err(`AccountScreen.Transaction init error - ${JSON.stringify(e)} ; Transaction - ${JSON.stringify(transaction)}`)
+    prepareStyles = (status, direction) => {
+        let styles = globalStyles.themes[direction]
+        if (status === 'new' || status === 'confirming' || status === 'done_payin' || status === 'wait_trade' || status === 'done_trade' || status === 'pending_payin') {
+            styles = globalStyles.themes.new
         }
+        return _.merge(globalStyles.default, styles)
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (prevProps.transaction.blockConfirmations !== this.props.transaction.blockConfirmations) {
-            this.init(this.props.transaction)
-        }
-    }
-
-    prepareType = (transactionDirection) => {
-
+    prepareDirection = (transactionDirection) => {
         return transactionDirection
     }
 
     prepareWayType = (wayType) => {
-
-        const { transaction } = this.props
-
-        if (typeof transaction.outDestination !== 'undefined' && transaction.outDestination !== null && transaction.outDestination.includes('+')) {
-            return 'MOBILE_PHONE'
-        }
-
-        return typeof wayType !== 'undefined' ? wayType : null
+        return wayType // moved to preformatWithBSEforShow
     }
 
-    prepareStatus = (transactionStatus, orderStatus) => {
-
-        if (orderStatus) {
-            return orderStatus
-        }
-
+    prepareStatus = (transactionStatus) => {
+        // orderStatus => transactionStatus moved to preformatWithBSEforShow
         const transactionStatusTmp = typeof (transactionStatus) !== 'undefined' ? transactionStatus : 'new'
         return !transactionStatusTmp ? 'new' : transactionStatusTmp
     }
 
-    prepareStyles = (status, direction) => {
-
-        let styles = globalStyles.themes[direction]
-
-        if (status === 'new' || status === 'confirming' || status === 'done_payin' || status === 'wait_trade' || status === 'done_trade' || status === 'pending_payin') styles = globalStyles.themes.new
-
-        return _.merge(globalStyles.default, styles)
-    }
-
-    prepareValue = (value) => {
-        try {
-            return value
-        } catch (e) {
-            Log.err('AccountScreen/Transaction.prepareValueToView error ' + e.message)
-        }
-    }
-
-    prepareValueToView = (value, currencySymbol, direction) => `${(direction === 'outcome' || direction === 'self' || direction === 'freeze') ? '-' : '+'} ${value}`
-
     prepareBlockConfirmations = (blockConfirmations) => {
-
         let tmp = 0
-
         if (typeof blockConfirmations !== 'undefined' && blockConfirmations > 0) {
-
             tmp = blockConfirmations.toString()
-
-            if (blockConfirmations > 20)
+            if (blockConfirmations > 20) {
                 tmp = '20+'
+            }
         }
-
         return tmp
     }
 
-    handleCopyAll = () => {
-        const { valueToView, currencySymbolToView } = this.state
+    handleCopyAll = (valueToView, currencySymbolToView) => {
         const tx = this.props.transaction
         let text = ' ' + tx.transactionHash + ' ' + valueToView + ' ' + currencySymbolToView
         if (tx.transactionDirection === 'outcome') {
             text += ' => ' + tx.addressTo
-        } else if (text.transactionDirection === 'income') {
+        } else if (tx.transactionDirection === 'income') {
             text += ' ' + tx.addressFrom + ' => '
         } else {
             text += ' self '
@@ -195,11 +117,9 @@ class Transaction extends Component {
     }
 
     ifTxsTW = () => {
-
         const { styles } = this.state
         const { transaction } = this.props
-        const { colors, isLight } = this.context
-
+        const { colors } = this.context
         if (transaction.transactionOfTrusteeWallet && transaction.transactionOfTrusteeWallet === 1)
             return (
                 <View style={{ marginLeft: 'auto', marginRight: 20 }}>
@@ -209,9 +129,7 @@ class Transaction extends Component {
     }
 
     renderStatusCircle = (isStatus, status, transactionDirection) => {
-
-        const { colors, isLight } = this.context
-
+        const { colors } = this.context
         const { styles } = this.state
         const { amountToView, count, transactions, cryptoCurrency } = this.props
 
@@ -283,7 +201,7 @@ class Transaction extends Component {
                         height: '100%',
                         borderRadius: 25,
                         backgroundColor: isStatus ? color : colors.accountScreen.transactions.circle, ...circleStyle,
-                        marginLeft: Platform.OS === 'ios' && transactionDirection !== 'self' ? 1 : 0
+                        marginLeft: Platform.OS === 'ios' && transactionDirection !== 'self' && transactionDirection !== 'fail' ? 1 : 0
                     }}>
                         {arrowIcon}
                     </View>
@@ -300,47 +218,75 @@ class Transaction extends Component {
         return datetime
     }
 
-    transactionDetalis = (tx) => {
-        let hash
-        hash = tx.transactionHash || tx.orderId
-
+    transactionDetails = (tx) => {
         NavStore.goNext('TransactionScreen', {
             txData: {
-                transaction: tx,
-                hash,
-                currencyCode: tx.currencyCode
+                transaction: tx
             } 
         })
     }
 
     render() {
-
-        const { wayType, direction, status, valueToView, isExpanded, blockConfirmations, basicValueToView, styles, show, currencySymbolToView, removed } = this.state
-
+        const { styles } = this.state
         const { colors, isLight } = this.context
 
-        if (removed) {
-            return <View />
-        }
         const { cryptoCurrency, transaction } = this.props
-        const isStatus = status === 'new' || status === 'done_payin' || status === 'wait_trade' || status === 'done_trade' || status === 'pending_payin'
+        const { bseOrderData, createdAt } = transaction
+
+        // if any of this will be reused the same way at details screen -> move to preformatWithBSEforShowInner
+        const blockConfirmations = this.prepareBlockConfirmations(transaction.blockConfirmations)
+        const transactionStatus = this.prepareStatus(transaction.transactionStatus)
+        const transactionDirection = this.prepareDirection(transaction.transactionDirection)
+        const wayType = this.prepareWayType(transaction.wayType)
+
+        let value, valueToView, currencySymbolToView
+        if (transaction.addressAmountSatoshi && (cryptoCurrency.currencyCode === 'BTC' || cryptoCurrency.currencyCode === 'DOGE')) {
+            value = transaction.addressAmountSatoshi
+            valueToView = transaction.addressAmountPrettyPrefix + ' ' + value
+            currencySymbolToView = 'sat'
+        } else {
+            value = transaction.addressAmountPretty
+            valueToView = transaction.addressAmountPrettyPrefix + ' ' + value
+            currencySymbolToView = cryptoCurrency.currencySymbol
+        }
+        const basicValueToView = wayType !== 'EXCHANGE' && typeof transaction.basicAmountPretty !== 'undefined' ?
+            ( transaction.basicCurrencySymbol + ' ' + transaction.basicAmountPretty ) : false
+
+        const isStatus = transactionStatus === 'new' || transactionStatus === 'done_payin' || transactionStatus === 'wait_trade' || transactionStatus === 'done_trade' || transactionStatus === 'pending_payin'
+        // end preformat
+
 
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor
-        const subtitle = typeof transaction.subtitle !== 'undefined' && transaction.subtitle ? transaction.subtitle : false
 
-        const doteSlice = subtitle ? subtitle.indexOf('-') : -1
-        const subtitleMini = doteSlice && transaction.exchangeWayType === 'EXCHANGE' ? transaction.transactionDirection === 'income' ?
-            transaction.subtitle.slice(0, doteSlice) : transaction.transactionDirection === 'outcome' ?
-                transaction.subtitle.slice(doteSlice + 1, transaction.subtitle.length) : transaction.subtitle : transaction.subtitle
 
-        return show ? (
+
+        // const doteSlice = subtitle ? subtitle.indexOf('-') : -1
+        // const subtitleMini = transaction.bseOrderData.exchangeWayType === 'EXCHANGE' ? transaction.transactionDirection === 'income' ?
+        //     transaction.subtitle.slice(0, doteSlice) : transaction.transactionDirection === 'outcome' ?
+        //         transaction.subtitle.slice(doteSlice + 1, transaction.subtitle.length) : transaction.subtitle : transaction.subtitle
+
+        let subtitle = false
+        let subtitleMini = ''
+        if (bseOrderData) { // simplified in preformatWithBSEforShow
+            if (bseOrderData.exchangeWayType !== 'BUY') {
+                subtitle = true
+            }
+            if (bseOrderData.exchangeWayType === 'SELL') {
+                subtitleMini = bseOrderData.outDestination
+            } else if (bseOrderData.exchangeWayType === 'EXCHANGE'){
+                subtitleMini = transactionDirection === 'income' ?
+                    bseOrderData.requestedOutAmount.currencyCode : bseOrderData.requestedInAmount.currencyCode
+            }
+        }
+
+        return (
             <View style={styles.transaction}>
-                {this.renderStatusCircle(isStatus, status, transaction.transactionDirection)}
+                {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection)}
                 <View style={[styles.transaction__col, styles.transaction__col2]}>
-                    <TouchableOpacity style={{ ...styles.transaction__top }} onLongPress={this.handleCopyAll}>
+                    <TouchableOpacity style={{ ...styles.transaction__top }} onLongPress={() => this.handleCopyAll(valueToView, currencySymbolToView)}>
                         <Text style={{ ...styles.transaction__top__title, color: colors.accountScreen.transactions.transactionTitleColor }}>
-                            {strings(`account.transaction.${wayType === null ? direction : wayType.toLowerCase()}`)}
+                            {strings(`account.transaction.${wayType.toLowerCase()}`)}
                         </Text>
                         {
                             !isStatus ?
@@ -350,32 +296,33 @@ class Transaction extends Component {
                                 </View> : null
                         }
                         <Text style={[styles.transaction__top__type, { color: isStatus ? color : colors.accountScreen.transactions.transactionTitleColor }]}>
-                            {isStatus ? strings(`account.transactionStatuses.${status === 'confirming' ? 'confirming' : 'process'}`).toUpperCase() : blockConfirmations}
+                            {isStatus ? strings(`account.transactionStatuses.${transactionStatus === 'confirming' ? 'confirming' : 'process'}`).toUpperCase() : blockConfirmations}
                         </Text>
                         {this.ifTxsTW()}
                     </TouchableOpacity>
                     <View style={{ ...styles.transaction__content, backgroundColor: colors.accountScreen.transactions.transactionContentBack }}>
                         <View style={{ ...styles.transaction__content__item, backgroundColor: colors.accountScreen.transactions.transactionContentBack }}>
-                            <TouchableOpacity onPress={() => this.transactionDetalis(transaction)}>
+                            <TouchableOpacity onPress={() => this.transactionDetails(transaction)}>
                                 <GradientView
-                                    style={[styles.transaction__item, isExpanded ? styles.transaction__item_active : null]}
+                                    style={[styles.transaction__item, styles.transaction__item_active ]}
                                     array={colors.accountScreen.transactions.transactionGradientArray}
                                     start={styles.transaction__item_bg.start}
                                     end={styles.transaction__item_bg.end}>
-                                    <View style={{ ...styles.transaction__item__content, opacity: status === 'fail' || status === 'missing' ? 0.5 : null }}>
+                                    <View style={{ ...styles.transaction__item__content, opacity: transactionStatus === 'fail' || transactionStatus === 'missing' ? 0.5 : null }}>
                                         <View style={{ justifyContent: 'center', width: '75%' }}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'flex-end', width: subtitle ? '45%' : '100%'}}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'flex-end', width: subtitle ? '45%' : '100%' }}>
+                                                {/* width: subtitle ? '45%' : '100%' */}
                                                 <Text style={{...styles.transaction__item__title}} numberOfLines={1}>
                                                     {valueToView}
-                                                    </Text>
-                                                    <Text style={[styles.transaction__item__title__subtitle, { color: new UIDict(cryptoCurrency.currencyCode).settings.colors.mainColor }]}>
-                                                        {currencySymbolToView}
-                                                    </Text>
+                                                </Text>
+                                                <Text style={[styles.transaction__item__title__subtitle, { color: new UIDict(cryptoCurrency.currencyCode).settings.colors.mainColor }]}>
+                                                    {currencySymbolToView}
+                                                </Text>
                                                 {
                                                     subtitle ?
                                                         <>
                                                             <Ionicons name={'ios-arrow-round-up'} size={20} color={colors.accountScreen.transactions.circle} style={{
-                                                                transform: [{ rotate: transaction.transactionDirection === 'outcome' ? "90deg" : "-90deg" }],
+                                                                transform: [{ rotate: transactionDirection === 'outcome' ? "90deg" : "-90deg" }],
                                                                 marginHorizontal: 7, marginBottom: Platform.OS === 'ios' ? -1 : null
                                                             }} />
                                                             <Text style={{ ...styles.transaction__item__subtitle, marginBottom: Platform.OS === 'ios' ? 2 : null }} >
@@ -385,16 +332,16 @@ class Transaction extends Component {
                                                         : null
                                                 }
                                             </View>
-                                            {wayType !== 'EXCHANGE' && basicValueToView !== 'undefined undefined' ?
+                                            { basicValueToView ?
                                                 <Text style={{ ...styles.transaction__item__subtitle, color: '#999999' }}>
                                                     {basicValueToView}
                                                 </Text> : null}
                                         </View>
                                         <View style={{ flexDirection: 'column', alignItems: 'flex-end', width: '25%' }}>
                                             <Text style={{ ...styles.transaction__data, color: colors.accountScreen.transactions.transactionData }}>
-                                                {this.getTransactionDate(transaction.createdAt)}</Text>
+                                                {this.getTransactionDate(createdAt)}</Text>
                                             <Text style={{ ...styles.transaction__data, color: colors.accountScreen.transactions.transactionData }}>
-                                                {new Date(transaction.createdAt).toTimeString().slice(0, 5)}</Text>
+                                                {new Date(createdAt).toTimeString().slice(0, 5)}</Text>
 
                                         </View>
                                     </View>
@@ -413,7 +360,7 @@ class Transaction extends Component {
                     </View>
                 </View>
             </View>
-        ) : <View />
+        )
     }
 }
 

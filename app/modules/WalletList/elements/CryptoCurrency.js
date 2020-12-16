@@ -34,14 +34,16 @@ import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 import { SIZE } from '../helpers';
 
-
+let CACHE_CLICK = false
 class CryptoCurrency extends Component {
 
     handleCurrencySelect = async () => {
+        if (CACHE_CLICK) return
 
         const { cryptoCurrency } = this.props
 
         let status = ''
+        CACHE_CLICK = true
         try {
 
             // Log.log('HomeScreen.Currency handleCurrencySelect inited ', cryptoCurrency)
@@ -61,6 +63,7 @@ class CryptoCurrency extends Component {
         } catch (e) {
             Log.err('HomeScreen.Currency handleCurrencySelect error ' + status + ' ' + e.message, cryptoCurrency)
         }
+        CACHE_CLICK = false
     }
 
     renderSynchrinization = () => (

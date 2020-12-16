@@ -21,7 +21,7 @@ export const ASSESTS_GROUP = {
     CUSTOM: 'CUSTOM',
 }
 
-export const TABS = [
+export const getTabs = () => [
     {
         title: strings('assets.tabAll'),
         index: 0,

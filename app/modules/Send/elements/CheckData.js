@@ -24,7 +24,7 @@ const CheckData = (props) => {
     return (
         <View style={{ flexDirection: 'row', paddingHorizontal: 16, justifyContent: 'space-between', paddingTop: 22 }}>
             <View style={{ width: '40%' }}>
-                <LetterSpacing numberOfLines={2} text={name} textStyle={styles.name} letterSpacing={1} />
+                <Text style={styles.name}>{name}</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
                 <LetterSpacing numberOfLines={2} text={value} textStyle={styles.value} letterSpacing={1} />
@@ -43,7 +43,8 @@ const styles = {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 14,
         fontHeight: 18,
-        color: '#5C5C5C'
+        color: '#5C5C5C',
+        letterSpacing: 0.5
     },
     value: {
         fontFamily: 'SFUIDisplay-Bold',

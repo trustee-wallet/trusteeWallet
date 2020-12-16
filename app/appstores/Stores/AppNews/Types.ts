@@ -22,5 +22,6 @@ export interface AppNewsItem {
     newsCustomText: string | null,
     newsName: typeof FOUND_IN_TX | typeof FOUND_OUT_TX_STATUS_NEW | typeof FOUND_OUT_TX_STATUS_FAIL | typeof FOUND_OUT_TX_STATUS_CONFIRMING | typeof FOUND_OUT_TX_STATUS_SUCCESS | typeof FOUND_OUT_TX_STATUS_DELEGATED | typeof FOUND_OUT_TX_STATUS_MISSING
     newsNeedPopup: number,
-    newsJson: AppNewsJson
+    newsJson: AppNewsJson,
+    newsServerId : string
 }

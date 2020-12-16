@@ -42,14 +42,12 @@ import axios from 'axios'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
-import store from '../../store'
-import SendTmpConstants from '../Send/elements/SendTmpConstants'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
-import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import config from '../../config/config'
+import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -315,59 +313,28 @@ class MainV3DataScreen extends Component {
         }
     }
 
-    sellV3(dataSell) {
-
-        const { accountList } = store.getState().accountStore
-        const walletHash = store.getState().mainStore.selectedWallet.walletHash
-        const account = accountList[walletHash]
-        const { cryptoCurrencies } = store.getState().currencyStore
-        const selectedCryptocurrency = _.find(cryptoCurrencies, { currencyCode: dataSell.currencyCode})
-        const selectedAccount = account[dataSell.currencyCode]
-
-        console.log('MainV3DataScreen.Trade dataSell', JSON.stringify(dataSell))
-
-        // @todo simplify goto receipt to one function
-        const recipientAmount = dataSell.amount.toString()
-        const recipientAddress = dataSell.address
-
-        const dataToScreen = {
-            amount : recipientAmount,
-            amountRaw: BlocksoftPrettyNumbers.setCurrencyCode(selectedCryptocurrency.currencyCode).makeUnPretty(recipientAmount),
-            address: recipientAddress,
-            cryptoCurrency: selectedCryptocurrency,
-            account: selectedAccount,
-            useAllFunds : dataSell.useAllFunds,
-            toTransactionJSON: {
-                bseOrderID: dataSell.orderId
-            },
-            type: 'TRADE_SEND',
-            apiVersion : 'v3',
-            currencyCode: selectedCryptocurrency.currencyCode,
-            providerType: dataSell.providerType // 'FIXED' || 'FLOATING'
-        }
-        if (typeof dataSell.memo !== 'undefined') {
-            dataToScreen.memo = dataSell.memo
-        }
-        if (!dataSell.useAllFunds) {
-            SendTmpConstants.PRESET = false
-            SendTmpConstants.SELECTED_FEE = false
-            SendTmpConstants.COUNTED_FEES = false
-        } else {
-            SendTmpConstants.PRESET = true
-            SendTmpConstants.COUNTED_FEES = dataSell.countedFees
-            SendTmpConstants.SELECTED_FEE = dataSell.selectedFee
-            if (dataToScreen.providerType === 'FIXED') {
-                // only one left
-                if (SendTmpConstants.COUNTED_FEES && SendTmpConstants.COUNTED_FEES.fees.length > 1) {
-                    SendTmpConstants.COUNTED_FEES.fees = [SendTmpConstants.SELECTED_FEE]
-                    SendTmpConstants.COUNTED_FEES.selectedFeeIndex = 0
-                }
+    async sellV3(data) {
+        console.log('Trade/MainV3Screen dataSell', JSON.stringify(data))
+        try {
+            await SendActions.startSend({
+                gotoReceipt: true,
+                addressTo: data.address,
+                amountPretty: data.amount.toString(),
+                memo: data.memo,
+                currencyCode: data.currencyCode,
+                isTransferAll: data.useAllFunds,
+                bseOrderID: data.orderHash || data.orderId,
+                comment: data.comment || '',
+                uiType: 'TRADE_SEND',
+                uiApiVersion: 'v3',
+                uiProviderType: data.providerType // 'FIXED' || 'FLOATING'
+            })
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('Trade/MainV3Screen.sellV3', e)
             }
+            throw e
         }
-
-        NavStore.goNext('ReceiptScreen', {
-            ReceiptScreen: dataToScreen
-        })
     }
 
     async onTakePhoto(cardData) {
@@ -634,84 +601,29 @@ class MainV3DataScreen extends Component {
     }
 
     handleTransferAll = async (params) => {
-        console.log(params)
+        console.log('Trade/MainV3DataScreen.handleTransferAll', JSON.stringify(params))
         const currencyCode = params.currencyCode
         const address = params.address
-
-        const { selectedWallet } = store.getState().mainStore
-        
-        const {
-            walletHash,
-            walletUseUnconfirmed,
-            walletAllowReplaceByFee,
-            walletUseLegacy,
-            walletIsHd
-        } = selectedWallet
-
-        const { accountList } = store.getState().accountStore
-        const account = accountList[selectedWallet.walletHash][currencyCode]
-        
-        // ksu plz check address BTC (legacy/segwit) - default from v3 segwit
-        // const { address, derivationPath, balance, unconfirmed, accountJson } = account
-        const { derivationPath, balance, unconfirmed, accountJson } = account
-
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
             const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
-
-            // @todo simplify goto receipt with transfer all to one function
-            const countedFeesData = {
+            const { transferBalance } = await SendActions.countTransferAllBeforeStartSend({
                 currencyCode,
-                walletHash,
-                derivationPath,
-                addressFrom: address,
-                addressTo: addressToForTransferAll,
-                amount: balance,
-                unconfirmed: walletUseUnconfirmed === 1 ? unconfirmed : 0,
-                isTransferAll: true,
-                useOnlyConfirmed: !(walletUseUnconfirmed === 1),
-                allowReplaceByFee: walletAllowReplaceByFee === 1,
-                useLegacy: walletUseLegacy,
-                isHd: walletIsHd,
-                accountJson
-            }
-            console.log('Trade.MainV3Screen.countedFeesData ', JSON.stringify(countedFeesData))
-            
-            const transferAllCount = await BlocksoftTransfer.getTransferAllBalance(countedFeesData)
-            transferAllCount.feesCountedForData = countedFeesData
-            let selectedFee
-            if (typeof transferAllCount.selectedFeeIndex !== 'undefined' && transferAllCount.selectedFeeIndex >= 0) {
-                selectedFee = transferAllCount.fees[transferAllCount.selectedFeeIndex]
-            }
-
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferAllCount.selectedTransferAllBalance)
-
-            SendTmpConstants.PRESET = true
-            SendTmpConstants.COUNTED_FEES = transferAllCount
-            SendTmpConstants.SELECTED_FEE = selectedFee
-
-            this.setState({
-                countedFees: transferAllCount,
-                selectedFee
+                addressTo: addressToForTransferAll
             })
-
-            console.log('Trade.MainV3Screen.transferAllCount', JSON.stringify(transferAllCount))
-            console.log('Trade.MainV3Screen.selectedFee', JSON.stringify(selectedFee))
-
-            // @yura do we actually needed transfer fees here? - could be big data arrays
-            this.webref.postMessage(JSON.stringify({ "fees": { 'countedFees': transferAllCount, selectedFee, amount } }))
-
+            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
+            this.webref.postMessage(JSON.stringify({ fees: { countedFees: 'notUsedNotPassed', selectedFee : 'notUsedNotPassed', amount } }))
             return {
                 currencyBalanceAmount: amount,
-                currencyBalanceAmountRaw: transferAllCount.selectedTransferAllBalance
+                currencyBalanceAmountRaw: transferBalance
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                // console.log('Trade.MainV3Screen.handleTransferAll', e)
+                console.log('Trade/MainV3Screen.handleTransferAll', e)
             }
 
-            Log.errorTranslate(e, 'Trade.MainV3Screen.handleTransferAll', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
+            Log.errorTranslate(e, 'Trade/MainV3Screen.handleTransferAll', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
 
             showModal({
                 type: 'INFO_MODAL',
