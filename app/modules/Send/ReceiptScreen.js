@@ -52,8 +52,6 @@ import {
     setSelectedAccount,
     setSelectedCryptoCurrency
 } from '../../appstores/Stores/Main/MainStoreActions'
-import Animated from 'react-native-reanimated'
-import acc from 'module:react-native-reanimated.Animated.acc'
 
 let CACHE_WARNING_AMOUNT = ''
 let CACHE_IS_SENDING = false
@@ -587,6 +585,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             }
         }
 
+        console.log('sel', selectedFee)
         let multiShow = false
         let multiAddress = false
         if (typeof multiAddress !== 'undefined' && multiAddress) {
