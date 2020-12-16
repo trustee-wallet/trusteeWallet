@@ -126,7 +126,7 @@ class LockScreen extends Component {
 
     renderSubtitle = () => {
         return (
-            <View><Text> {this.state.pinLocked} </Text></View>
+            <View></View>
         )
     }
 
@@ -144,10 +144,9 @@ class LockScreen extends Component {
 
     renderIconComponentLockedPage = () => {
         return (
-            <View><Text> {this.state.pinLocked} </Text></View>
-            /*<View style={styles.icon}>
+            <View style={styles.icon}>
                 <MaterialIcons size={25} name={'lock'} color={'#5c5c5c'}/>
-            </View>*/
+            </View>
         )
     }
 
@@ -212,25 +211,20 @@ class LockScreen extends Component {
 
                             </View>
                             <PINCode
-                                changeInternalStatus = {
-                                    (status: PinResultStatus) => {
-                                        console.log('changeInternalStatus status', status)
-                                        if (status === PinResultStatus.initial) this.setState({ pinLocked: false });
-                                        this.setState({ pinLocked: status });
-                                    }
-                                }
+                                changeInternalStatus = {this.updateLastStatus}
                                 status={this.state.passwordState}
                                 finishProcess={this.finishProcess}
                                 passwordLength={6}
                                 timeLocked={300000}
-                                maxAttempts={1}
+                                maxAttempts={3}
                                 touchIDDisabled={!touchIDStatus}
                                 colorCircleButtons={'rgb(255, 255, 255)'}
                                 styleMainContainer={!this.state.show ? { height: 0, overflow: 'hidden',} : undefined}
                                 stylePinCodeButtonCircle={{
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    borderRadius: 40
+                                    borderRadius: 40,
+                                    backgroundColor: colors.common.background,
                                 }}
                                 buttonDeleteText={' '}
                                 stylePinCodeDeleteButtonText={{
@@ -251,7 +245,7 @@ class LockScreen extends Component {
                                 titleConfirm={strings('lockScreen.confirm')}
                                 titleAttemptFailed={strings('lockScreen.incorrect')}
                                 textTitleLockedPage={strings('lockScreen.maximumAttempts')}
-                                stylePinCodeButtonNumber={'#404040'}
+                                stylePinCodeButtonNumber={colors.common.text3}
                                 textDescriptionLockedPage={' '}
                                 textSubDescriptionLockedPage={' '}
                                 styleLockScreenColorIcon={colors.common.text3}
@@ -262,26 +256,28 @@ class LockScreen extends Component {
                                 stylePinCodeHiddenPasswordSizeEmpty={10}
                                 stylePinCodeHiddenPasswordSizeFull={15}
                                 stylePinCodeTextButtonCircle={{
-                                    fontSize: 34,
-                                    fontFamily: 'Montserrat-SemiBold'
+                                    fontSize: 28,
+                                    fontFamily: 'Montserrat-SemiBold',
                                 }}
-                                stylePinCodeChooseContainer={{}}
-                                numbersButtonOverlayColor={'#9969df'}
-                                stylePinCodeDeleteButtonColorShowUnderlay={'#9969df'}
+                                numbersButtonOverlayColor={'#864dd9'}
+                                stylePinCodeDeleteButtonColorShowUnderlay={''}
                                 stylePinCodeColumnDeleteButton={{
                                     alignItems: 'center',
                                     justifyContent: 'center',
+                                    opacity: 1,
                                 }}
                                 styleLockScreenMainContainer={{
-                                    marginTop: -40,
+                                    marginTop: 0,
                                     backgroundColor: colors.common.background,
                                 }}
+                                stylePinCodeChooseContainer={{
+                                }}
                                 styleLockScreenTitle={{
-                                    marginBottom: 15,
+                                    marginBottom: 25,
                                     fontFamily: 'Montserrat-SemiBold',
                                     fontSize: 17,
                                     textAlign: 'center',
-                                    color: colors.common.text3
+                                    color: colors.common.text1
                                 }}
                                 stylePinCodeHiddenPasswordCircle={{
                                     width: 230,
@@ -300,24 +296,12 @@ class LockScreen extends Component {
                                 stylePinCodeColumnButtons={{
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    backgroundColor: '#fff',
-
-                                    shadowColor: '#000',
-                                    shadowOffset: {
-                                        width: 0,
-                                        height: 3
-                                    },
-                                    shadowOpacity: 0.29,
-                                    shadowRadius: 4.65,
-
-                                    elevation: 7,
-
+                                    backgroundColor: colors.common.background,
                                     borderRadius: 40
                                 }}
                                 iconComponentLockedPage={this.renderIconComponentLockedPage}
                                 buttonComponentLockedPage={this.renderButtonComponentLockedPage}
-                                handleResultEnterPin={this.updateLastStatus}
-                                handleResult={this.updateLastStatus}
+                                /*handleResultEnterPin={this.updateLastStatus}*/
                                 styleLockScreenTextTimer={{
                                     fontFamily: 'Montserrat-SemiBold',
                                     color: colors.common.text3
@@ -326,11 +310,11 @@ class LockScreen extends Component {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     width: 140,
-                                    height: 35,
+                                    height: 50,
                                     marginBottom: 20,
                                     borderRadius: 10,
-                                    borderWidth: 1,
-                                    borderColor: colors.common.text3
+                                    borderWidth: 0,
+                                    backgroundColor: colors.pincode.bgTimerColor,
                                 }}
                                 stylePinCodeEmptyColumn={
                                     this.state.passwordState !== 'enter' ? null :
@@ -338,17 +322,7 @@ class LockScreen extends Component {
                                             borderRadius: 40,
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            backgroundColor: '#fff',
-
-                                            shadowColor: '#000',
-                                            shadowOffset: {
-                                                width: 0,
-                                                height: 3
-                                            },
-                                            shadowOpacity: 0.29,
-                                            shadowRadius: 4.65,
-
-                                            elevation: 7,
+                                            backgroundColor: colors.common.background,
                                         }
                                 }
                                 bottomLeftComponent={
@@ -442,8 +416,6 @@ const styles = {
         alignItems: 'center',
         width: 30,
         height: 30,
-        borderWidth: 1,
-        borderColor: '#5c5c5c',
         borderRadius: 45
     },
     iconContainer: {

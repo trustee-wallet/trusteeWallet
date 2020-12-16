@@ -115,6 +115,9 @@ export const lightColors = {
     },
     fio: {
         borderColorLight: '#e3e6e9',
+    },
+    pincode: {
+        bgTimerColor: '#ebebeb',
     }
 };
 
@@ -235,5 +238,8 @@ export const darkColors = {
     },
     fio: {
         borderColorLight: '#404040',
+    },
+    pincode: {
+        bgTimerColor: '#2c2c2c',
     }
 };
