@@ -585,12 +585,15 @@ class ReceiptScreen extends SendBasicScreenScreen {
             }
         }
 
-        console.log('sel', selectedFee)
         let multiShow = false
         let multiAddress = false
-        if (typeof multiAddress !== 'undefined' && multiAddress) {
-            address = multiAddress[0]
-            multiShow = multiAddress
+        if (selectedFee && typeof selectedFee.blockchainData !== 'undefined'
+            && typeof selectedFee.blockchainData.preparedInputsOutputs !== 'undefined'
+            && typeof selectedFee.blockchainData.preparedInputsOutputs.multiAddress !== 'undefined'
+            && selectedFee.blockchainData.preparedInputsOutputs.multiAddress) {
+            address = selectedFee.blockchainData.preparedInputsOutputs.multiAddress[0]
+            multiShow = true
+            multiAddress = selectedFee.blockchainData.preparedInputsOutputs.multiAddress
         }
         let memoTitle = strings('send.xrp_memo')
         if (account.currencyCode === 'XMR') {
@@ -664,7 +667,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                                 />
                             : null}
                             {multiShow ?
-                                multiShow.map((item, index) => {
+                                multiAddress.map((item, index) => {
                                     return (
                                         <CheckData
                                             name={`${strings('send.receiptScreen.recepient')} ${index + 1}`}
