@@ -119,21 +119,28 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         const keys = ['speed_blocks_12', 'speed_blocks_6', 'speed_blocks_2']
         const checkedPrices = {}
         let prevFeeForByte = 0
+
+        const transactionSpeedUp = data.transactionSpeedUp !== 'undefined' ? data.transactionSpeedUp : false
+        const transactionReplaceByFee = data.transactionReplaceByFee !== 'undefined' ? data.transactionReplaceByFee : false
+        if (transactionSpeedUp) {
+            autocorrectFee = true
+        }
         for (const key of keys) {
             // @ts-ignore
             if (typeof prices[key] === 'undefined' || !prices[key]) continue
             // @ts-ignore
             let feeForByte = prices[key]
             if (typeof additionalData.feeForByte === 'undefined') {
-                if (typeof data.transactionSpeedUp !== 'undefined' || typeof data.transactionReplaceByFee !== 'undefined') {
-                    feeForByte = feeForByte * 2
-                }
-                if (typeof data.transactionJson !== 'undefined' && data.transactionJson !== null && typeof data.transactionJson.feeForByte !== 'undefined') {
-                    if (feeForByte * 1 < data.transactionJson.feeForByte * 1) {
-                        feeForByte = Math.ceil(data.transactionJson.feeForByte * 1.5)
-                    }
-                    if (feeForByte * 1 <= prevFeeForByte * 1) {
-                        feeForByte = Math.ceil(prevFeeForByte * 1.5)
+                if (transactionSpeedUp || transactionReplaceByFee) {
+                    if (typeof data.transactionJson !== 'undefined' && data.transactionJson !== null && typeof data.transactionJson.feeForByte !== 'undefined') {
+                        if (feeForByte * 1 < data.transactionJson.feeForByte * 1) {
+                            feeForByte = Math.ceil(data.transactionJson.feeForByte * 1.5)
+                        }
+                        if (feeForByte * 1 <= prevFeeForByte * 1) {
+                            feeForByte = Math.ceil(prevFeeForByte * 1.5)
+                        }
+                    } else {
+                        feeForByte = feeForByte * 1.2
                     }
                 }
             }
@@ -141,6 +148,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             checkedPrices[key] = feeForByte
             prevFeeForByte = feeForByte
         }
+
         let uniqueFees = {}
         for (const key of keys) {
             // @ts-ignore
@@ -211,7 +219,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                             }
 
 
-                            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate diff ' +  diff + ' part ' + part + ' amount ' + preparedInputsOutputs.outputs[outputForCorrecting].amount + ' => ' + newAmount)
+                            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate diff ' + diff + ' part ' + part + ' amount ' + preparedInputsOutputs.outputs[outputForCorrecting].amount + ' => ' + newAmount)
 
                             // @ts-ignore
                             if (newAmount * 1 < 0) {
@@ -281,7 +289,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     needSpeed: feeForByte.toString(),
                     feeForTx: logInputsOutputs.diffInOut,
                     amountForTx: logInputsOutputs.sendBalance,
-                    addressToTx : data.addressTo,
+                    addressToTx: data.addressTo,
                     blockchainData
                 }
             )

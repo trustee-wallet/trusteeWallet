@@ -152,7 +152,12 @@ export namespace SendActions {
             countedFeesData.addressTo = data.contactAddress
         }
         if (data.transactionSpeedUp || data.transactionReplaceByFee) {
-            // any amount is ok
+           if (data.transactionSpeedUp) {
+               countedFeesData.transactionSpeedUp = data.transactionSpeedUp
+           }
+            if (data.transactionReplaceByFee) {
+                countedFeesData.transactionReplaceByFee = data.transactionReplaceByFee
+            }
         } else if (amount === '0') {
             return {
                 countedFees: false,
@@ -226,7 +231,7 @@ export namespace SendActions {
         data.transactionJson = {}
         if (typeof data.transactionBoost !== 'undefined' && data.transactionBoost && typeof data.transactionBoost.transactionHash !== 'undefined') {
             data.currencyCode = data.transactionBoost.currencyCode
-            if (data.transactionBoost.transactionDirection !== 'income') {
+            if (data.transactionBoost.transactionDirection !== 'income' && data.transactionBoost.transactionDirection !== 'self') {
                 data.transactionJson = data.transactionBoost.transactionJson
                 data.transactionReplaceByFee = data.transactionBoost.transactionHash
             } else {

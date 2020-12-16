@@ -52,9 +52,13 @@ import {
     setSelectedAccount,
     setSelectedCryptoCurrency
 } from '../../appstores/Stores/Main/MainStoreActions'
+import Animated from 'react-native-reanimated'
+import acc from 'module:react-native-reanimated.Animated.acc'
 
 let CACHE_WARNING_AMOUNT = ''
 let CACHE_IS_SENDING = false
+let CACHE_IS_FEE_LOADING = false
+
 class ReceiptScreen extends SendBasicScreenScreen {
 
     _screenName = 'Receipt'
@@ -95,9 +99,11 @@ class ReceiptScreen extends SendBasicScreenScreen {
             this.init()
         })
     }
-
-
+    
     startLoadFee = async () => {
+        if (CACHE_IS_FEE_LOADING) return
+        
+        CACHE_IS_FEE_LOADING = true
         const { sendScreenData } = this.state
         // typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee
 
@@ -116,6 +122,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             sendScreenData,
             loadFee: false
         })
+        CACHE_IS_FEE_LOADING = false
     }
 
     init = async () => {
@@ -320,6 +327,11 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 }
                 if (sendScreenData.transactionSpeedUp) {
                     transaction.transactionsScanLog += 'SPEED UP ' + sendScreenData.transactionSpeedUp + ' '
+                    transaction.addressTo = ''
+                    transaction.transactionDirection = 'self'
+                } else if (account.address === transaction.addressTo) {
+                    transaction.addressTo = ''
+                    transaction.transactionDirection = 'self'
                 }
                 if (typeof tx.amountForTx !== 'undefined') {
                     transaction.addressAmount = tx.amountForTx

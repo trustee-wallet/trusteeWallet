@@ -636,7 +636,7 @@ class TransactionScreen extends Component {
         const { account } = this.props
         const { transaction } = this.state
 
-        if (transaction.transactionDirection === 'income') {
+        if (transaction.transactionDirection === 'income' || transaction.transactionDirection === 'self') {
             return false
         }
         if (transaction.transactionStatus !== 'new' && transaction.transactionStatus !== 'missing') {
