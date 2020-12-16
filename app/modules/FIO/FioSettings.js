@@ -6,7 +6,7 @@ import { View, Text, ScrollView, SafeAreaView, Switch } from 'react-native'
 
 import Button from '../../components/elements/new/buttons/Button'
 import SettingsCoin from './elements/SettingsCoin'
-import { strings } from '../../services/i18n'
+import i18n, { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
 import { connect } from 'react-redux'
 import config from '../../config/config'
@@ -255,7 +255,7 @@ class FioSettings extends Component {
 
     render() {
         const { fioAddress, fioAddressExpiration } = this.state
-        Moment.locale('en');
+        Moment.locale( i18n.locale.split('-')[0] === 'uk' ? 'ru' : i18n.locale);
 
         const { colors, GRID_SIZE } = this.context
 
