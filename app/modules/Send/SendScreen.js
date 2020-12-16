@@ -705,7 +705,6 @@ class SendScreen extends SendBasicScreenScreen {
                     }
                     const errors = await Validator.userDataValidation(obj)
                     if (typeof errors.msg !== 'undefined') {
-                        console.log('errors', errors)
                         return false
                     }
                 }
