@@ -20,6 +20,9 @@ export default class AppNotificationDispatcher {
     }
 
     getNotificationProcessor = (): any => {
+        return AppNewsNotification
+        /*
+        @todo clean up if not needed
         switch(this.appNews.newsName) {
             case FOUND_IN_TX:
             case FOUND_OUT_TX_STATUS_NEW:
@@ -32,6 +35,7 @@ export default class AppNotificationDispatcher {
             default:
                 throw new Error('Not supported in AppNotificationDispatcher ' + this.appNews.newsName)
         }
+        */
     }
 
 }

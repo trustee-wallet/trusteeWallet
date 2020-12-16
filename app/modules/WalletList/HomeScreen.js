@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.30
  */
 import React, { Component } from 'react'
 import {
@@ -12,9 +12,12 @@ import {
     Platform,
     TouchableOpacity,
     StatusBar,
+    Vibration
 } from 'react-native'
 import { connect } from 'react-redux'
 import _sortBy from 'lodash/sortBy'
+import _orderBy from 'lodash/orderBy'
+import _isEqual from 'lodash/isEqual'
 import DraggableFlatList from 'react-native-draggable-flatlist'
 
 import AsyncStorage from '@react-native-community/async-storage'
@@ -32,10 +35,7 @@ import Header from './elements/Header'
 import Log from '../../services/Log/Log'
 import { strings } from '../../services/i18n'
 
-import SendActions from '../../appstores/Stores/Send/SendActions'
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import { setLoaderStatus, setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
 import UpdateCurrencyRateDaemon from '../../daemons/back/UpdateCurrencyRateDaemon'
 import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
 import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAccountBalanceAndTransactionsHD'
@@ -47,7 +47,23 @@ import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
 import { SIZE } from './helpers'
+import { SendDeepLinking } from '../../appstores/Stores/Send/SendDeepLinking'
+import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
+
+import NavStore from '../../components/navigation/NavStore'
+import checkTransferHasError from '../../services/UI/CheckTransferHasError/CheckTransferHasError'
+import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
+import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
+import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
+
+let CACHE_SET_WALLET_HASH = false
+
+
+async function storeCurrenciesOrder(walletHash, data) {
+    AsyncStorage.setItem(`${walletHash}:currenciesOrder`, JSON.stringify(data))
+}
 
 class HomeScreen extends Component {
 
@@ -56,14 +72,15 @@ class HomeScreen extends Component {
         this.state = {
             refreshing: false,
             isBalanceVisible: true,
+            originalVisibility: true,
             data: [],
             currenciesOrder: [],
             isCurrentlyDraggable: false,
-            scrollOffset: 0,
+            scrollOffset: 0
         }
-        this.getBalanceVisibility();
-        this.getCurrenciesOrder();
-        SendActions.init()
+        this.getBalanceVisibility()
+        this.getCurrenciesOrder()
+        SendDeepLinking.init()
     }
 
     componentDidMount() {
@@ -71,13 +88,18 @@ class HomeScreen extends Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-        const currenciesOrder = prevState.currenciesOrder.length ? prevState.currenciesOrder : nextProps.cryptoCurrenciesStore.cryptoCurrencies.map(c => c.currencyCode);
-        const data = _sortBy(nextProps.cryptoCurrenciesStore.cryptoCurrencies, c => currenciesOrder.indexOf(c.currencyCode))
+        const currenciesOrder = prevState.currenciesOrder
+        const currenciesLength = nextProps.currencies.length
+        const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+        const newOrder = data.map(c => c.currencyCode)
+        if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
+            storeCurrenciesOrder(nextProps.mainStore.selectedWallet.walletHash, newOrder)
+        }
         return {
             ...prevState,
             data,
-            currenciesOrder
-        };
+            currenciesOrder: newOrder
+        }
     }
 
     getBalanceVisibility = async () => {
@@ -85,26 +107,28 @@ class HomeScreen extends Component {
             const res = await AsyncStorage.getItem('isBalanceVisible')
             const isBalanceVisible = res !== null ? JSON.parse(res) : true
 
-            this.setState(() => ({ isBalanceVisible }))
+            this.setState(() => ({ isBalanceVisible, originalVisibility: isBalanceVisible }))
         } catch (e) {
             Log.err(`HomeScreen getBalanceVisibility error ${e.message}`)
         }
     }
 
     getCurrenciesOrder = async () => {
-        const walletToken = CashBackUtils.getWalletToken()
+        const { selectedWallet } = this.props.mainStore
+        const walletToken = selectedWallet.walletHash || ''
         try {
             const res = await AsyncStorage.getItem(`${walletToken}:currenciesOrder`)
             const currenciesOrder = res !== null ? JSON.parse(res) : []
+            const currenciesLength = this.state.data.length
 
             this.setState(state => ({
                 currenciesOrder,
-                data: _sortBy(state.data, c => currenciesOrder.indexOf(c.currencyCode))
+                data: _orderBy(state.data, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
             }))
         } catch (e) {
             Log.err(`HomeScreen getCurrenciesOrder error ${e.message}`)
         }
-    };
+    }
 
     handleRefresh = async () => {
         try {
@@ -114,6 +138,13 @@ class HomeScreen extends Component {
                 await UpdateCurrencyRateDaemon.updateCurrencyRate({ force: true, source: 'HomeScreen.handleRefresh' })
             } catch (e) {
                 Log.errDaemon('WalletList.HomeScreen handleRefresh error updateCurrencyRateDaemon ' + e.message)
+            }
+
+            try {
+                await UpdateAppNewsDaemon.updateAppNewsDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
+                await UpdateAppNewsListDaemon.updateAppNewsListDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
+            } catch (e) {
+                Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAppNewsDaemon both fromServer and forView ' + e.message)
             }
 
             try {
@@ -140,6 +171,54 @@ class HomeScreen extends Component {
         }
     }
 
+    // linked to stores
+    handleHide = async (cryptoCurrency) => {
+        await currencyActions.toggleCurrencyVisibility({
+            currencyCode: cryptoCurrency.currencyCode,
+            isHidden: 0
+        })
+        // this is for store reload
+        await currencyActions.setCryptoCurrencies()
+    }
+
+    // separated from stores not to be updated from outside
+    handleSend = async (cryptoCurrency) => {
+        await SendActions.startSend({
+            uiType: 'HOME_SCREEN',
+            currencyCode: cryptoCurrency.currencyCode
+        })
+    }
+
+    // linked to stores as rates / addresses could be changed outside
+    handleReceive = async (cryptoCurrency, account) => {
+        let status = ''
+        try {
+            if (typeof account !== 'undefined' && account) {
+                status = 'checkTransferHasError started'
+                await checkTransferHasError({
+                    walletHash: account.walletHash,
+                    currencyCode: cryptoCurrency.currencyCode,
+                    currencySymbol: cryptoCurrency.currencySymbol,
+                    addressFrom: account.address,
+                    addressTo: account.address
+                })
+            }
+
+            status = 'setSelectedCryptoCurrency started'
+
+            await setSelectedCryptoCurrency(cryptoCurrency)
+
+            status = 'setSelectedAccount started'
+
+            await setSelectedAccount()
+
+            NavStore.goNext('ReceiveScreen')
+        } catch (e) {
+            Log.err('HomeScreen.handleReceive error ' + status + ' ' + e.message, cryptoCurrency)
+        }
+    }
+
+    // ????? @todo remove it or use in upper functions
     // handleSend = () => {
     //     const cryptoCurrency = this.props.cryptoCurrenciesStore.cryptoCurrencies[0]
     //     const walletHash = this.props.mainStore.selectedWallet.walletHash
@@ -185,19 +264,25 @@ class HomeScreen extends Component {
     // }
 
     changeBalanceVisibility = async () => {
-        const newVisibilityValue = !this.state.isBalanceVisible;
+        const newVisibilityValue = !this.state.isBalanceVisible
         await AsyncStorage.setItem('isBalanceVisible', JSON.stringify(newVisibilityValue))
-        this.setState(() => ({ isBalanceVisible: newVisibilityValue }));
+        this.setState(() => ({ isBalanceVisible: newVisibilityValue, originalVisibility: newVisibilityValue }))
+    }
+
+    triggerBalanceVisibility = (value) => {
+        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
     }
 
     onDragBegin = () => {
-        this.setState(() => ({ isCurrentlyDraggable: true }));
-    };
+        Vibration.vibrate(100)
+        this.setState(() => ({ isCurrentlyDraggable: true }))
+    }
 
     onDragEnd = ({ data }) => {
-        const walletToken = CashBackUtils.getWalletToken()
-        const currenciesOrder = data.map(c => c.currencyCode);
-        AsyncStorage.setItem(`${walletToken}:currenciesOrder`, JSON.stringify(currenciesOrder))
+        const { selectedWallet } = this.props.mainStore
+        const walletToken = selectedWallet.walletHash
+        const currenciesOrder = data.map(c => c.currencyCode)
+        storeCurrenciesOrder(walletToken, currenciesOrder)
         this.setState(() => ({ currenciesOrder, isCurrentlyDraggable: false }))
     }
 
@@ -225,7 +310,7 @@ class HomeScreen extends Component {
             afterDecimal = '.' + tmp[1].substr(0, 2)
         }
 
-        return { currencySymbol, beforeDecimal, afterDecimal };
+        return { currencySymbol, beforeDecimal, afterDecimal }
     }
 
     updateOffset = (offset) => {
@@ -240,12 +325,14 @@ class HomeScreen extends Component {
 
         let walletHash = this.props.mainStore.selectedWallet.walletHash
         if (!walletHash || typeof walletHash === 'undefined') {
-            walletHash = cryptoWalletActions.setFirstWallet()
-            Log.log('HomeScreen empty wallet hash changed to ' + walletHash)
-            cryptoWalletActions.setSelectedWallet(walletHash, 'WalletList.HomeScreen', false)
+            if (!CACHE_SET_WALLET_HASH) {
+                CACHE_SET_WALLET_HASH = true
+                walletHash = cryptoWalletActions.setFirstWallet()
+                Log.log('HomeScreen empty wallet hash changed to ' + walletHash)
+                cryptoWalletActions.setSelectedWallet(walletHash, 'WalletList.HomeScreen', false)
+            }
         }
         const accountListByWallet = this.props.accountStore.accountList[walletHash] || {}
-
         const balanceData = this.getBalanceData()
 
         return (
@@ -257,17 +344,20 @@ class HomeScreen extends Component {
                         <Header
                             scrollOffset={this.state.scrollOffset}
                             isBalanceVisible={this.state.isBalanceVisible}
-                            changeBalanceVisibility={this.changeBalanceVisibility}
+                            originalVisibility={this.state.originalVisibility}
+                            triggerBalanceVisibility={this.triggerBalanceVisibility}
                             balanceData={balanceData}
                         />
+                        <View style={{ height: Platform.OS === 'android' ? 85 : 50 }} />
                         <DraggableFlatList
                             data={this.state.data}
                             showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{ paddingBottom: 20, paddingTop: Platform.OS === 'android' ? 85 : 50 }}
+                            contentContainerStyle={{ paddingBottom: 20 }}
                             onScrollOffsetChange={this.updateOffset}
+                            autoscrollSpeed={300}
                             refreshControl={
                                 <RefreshControl
-                                    style={{marginTop: 0}}
+                                    style={{ marginTop: 0 }}
                                     enabled={!this.state.isCurrentlyDraggable}
                                     tintColor={colors.common.text1}
                                     refreshing={this.state.refreshing}
@@ -278,25 +368,24 @@ class HomeScreen extends Component {
                                 <WalletInfo
                                     accountListByWallet={accountListByWallet}
                                     isBalanceVisible={this.state.isBalanceVisible}
+                                    originalVisibility={this.state.originalVisibility}
                                     changeBalanceVisibility={this.changeBalanceVisibility}
+                                    triggerBalanceVisibility={this.triggerBalanceVisibility}
                                     balanceData={balanceData}
                                 />
                             )}
-                            renderItem={({ item, drag, isActive }) => {
-                                return !item.isHidden && (
-                                    <CryptoCurrency
-                                        cryptoCurrency={item}
-                                        accountListByWallet={accountListByWallet}
-                                        isBalanceVisible={this.state.isBalanceVisible}
-                                        onDrag={drag}
-                                        isActive={isActive}
-                                        // TODO: add handlers
-                                        handleReceive={null}
-                                        handleSend={null}
-                                        handleHide={null}
-                                    />
-                                );
-                            }}
+                            renderItem={({ item, drag, isActive }) => (
+                                <CryptoCurrency
+                                    cryptoCurrency={item}
+                                    accountListByWallet={accountListByWallet}
+                                    isBalanceVisible={this.state.isBalanceVisible}
+                                    onDrag={drag}
+                                    isActive={isActive}
+                                    handleReceive={() => this.handleReceive(item, accountListByWallet[item.currencyCode])}
+                                    handleSend={() => this.handleSend(item)}
+                                    handleHide={() => this.handleHide(item)}
+                                />
+                            )}
                             keyExtractor={item => item.currencyCode}
                             activationDistance={15}
                             onDragEnd={this.onDragEnd}
@@ -315,6 +404,7 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         toolTipsStore: state.toolTipsStore,
         cryptoCurrenciesStore: state.currencyStore,
+        currencies: state.currencyStore.cryptoCurrencies.filter(c => !c.isHidden),
         accountStore: state.accountStore
     }
 }

@@ -17,100 +17,40 @@ import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/Blo
 import config from '../../config/config'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import Log from '../../services/Log/Log'
-import { Keyboard } from 'react-native'
-import SendTmpConstants from './elements/SendTmpConstants'
+import { Keyboard, Text, View } from 'react-native'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
+import { SendActions } from '../../appstores/Stores/Send/SendActions'
+import { SendTmpData } from '../../appstores/Stores/Send/SendTmpData'
 
 export default class SendBasicScreen extends Component {
 
+    /**
+     *
+     * @returns {Promise<{countedFees, selectedFee}>}
+     */
+    recountFees = async (data) => {
+        console.log('SendBasicScreen.recountFees init ', JSON.parse(JSON.stringify(data)))
 
-    recountFees = async (params) => {
-        // console.log('SendBasicScreen.recountFees init ')
-        let countedFees, selectedFee, currencyCode
+        const currencyCode = data.currencyCode
+
+        if (data.addressTo === '') {
+            return false
+        }
 
         try {
-            let data
-            if (typeof params.data !== 'undefined') {
-                data = params.data
+            const { countedFees, selectedFee } = await SendActions.countFees(data)
+
+            if (countedFees) {
+                console.log('SendBasicScreen.recountFees result ', JSON.parse(JSON.stringify(countedFees)))
             } else {
-                data = this.state
+                console.log('SendBasicScreen.recountFees result ', countedFees)
             }
 
-            const {
-                amountRaw,
-                address: addressTo,
-                useAllFunds,
-                memo,
-                toTransactionJSON,
-                transactionSpeedUp,
-                transactionReplaceByFee
-            } = data
-
-            const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = data.wallet
-            const {
-                address: addressFrom,
-                derivationPath,
-                accountJson,
-            } = data.account
-
-            currencyCode = data.account.currencyCode
-
-
-            const txData = {
-                currencyCode,
-                walletHash,
-                derivationPath: derivationPath,
-                addressFrom: addressFrom,
-                addressTo: addressTo,
-                amount: amountRaw,
-                isTransferAll: useAllFunds,
-                useOnlyConfirmed: !(walletUseUnconfirmed === 1),
-                allowReplaceByFee: walletAllowReplaceByFee === 1,
-                transactionReplaceByFee,
-                transactionSpeedUp,
-                memo,
-                accountJson,
-                transactionJson: toTransactionJSON
-            }
-
-
-            if (typeof params.amountRaw !== 'undefined') {
-                txData.amount = params.amountRaw
-                // console.log('SendBasicScreen.recountFees amountRaw ' + txData.amount)
-            }
-            if (typeof params.addressTo !== 'undefined') {
-                txData.addressTo = params.addressTo
-                // console.log('SendBasicScreen.recountFees addressTo ' + txData.addressTo)
-            }
-
-            // console.log('SendBasicScreen.recountFees txData ', JSON.parse(JSON.stringify(txData)))
-            countedFees = await BlocksoftTransfer.getFeeRate(txData)
-            countedFees.feesCountedForData = txData
-            let foundSelected = false
-            if (this.state.selectedFee && this.state.selectedFee.langMsg) {
-                for (const fee of countedFees.fees) {
-                    if (fee.langMsg === this.state.selectedFee.langMsg) {
-                        selectedFee = fee
-                        foundSelected = true
-                        break
-                    }
-                }
-            }
-            if (!foundSelected && typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >=0) {
-                selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
-            }
-
-            if (this._screenName === 'Receipt') {
-                SendTmpConstants.PRESET_FROM_RECEIPT = true
-                SendTmpConstants.COUNTED_FEES = countedFees
-                SendTmpConstants.SELECTED_FEE = selectedFee
-            }
-
-            // console.log('SendBasicScreen.recountFees result ', JSON.parse(JSON.stringify(countedFees)))
+            return { countedFees, selectedFee }
         } catch (e) {
             if (config.debug.appErrors) {
-                // console.log('SendBasicScreen.recountFees', e)
+                console.log('SendBasicScreen.recountFees', e)
             }
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
             Log.errorTranslate(e, 'SendBasicScreen.recountFees', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
@@ -124,47 +64,20 @@ export default class SendBasicScreen extends Component {
                 description: e.message,
                 error: e
             })
+
+            return false
         }
-        return { countedFees, selectedFee }
     }
 
     openAdvancedSettings = async () => {
-
-        const { countedFees, selectedFee, useAllFunds } = this.state
-
-        // const countedFees = SendTmpConstants.COUNTED_FEES
-        // const selectedFee = SendTmpConstants.
-
-        // console.log('Send.SendBasicScreen.openAdvancedSettings state', JSON.parse(JSON.stringify({countedFees,selectedFee,useAllFunds})))
-
-        let account
-        if (typeof this.state.data !== 'undefined' && this.state.data && typeof this.state.data.account !== 'undefined') {
-            account = this.state.data.account
-        } else {
-            account = this.props.account
-        }
-        SendTmpConstants.ACCOUNT_DATA = account
-
-        if (Object.keys(countedFees).length === 0) {
-            setLoaderStatus(true)
-            setTimeout(() => {
-                try {
-                    // setLoaderStatus(true)
-                    this.openAdvancedSettings()
-                } catch (e) {
-                }
-            }, 100)
-        } else {
-            setLoaderStatus(false)
-            NavStore.goNext('SendAdvancedScreen', {
-                data: {
-                    countedFees,
-                    selectedFee,
-                    useAllFunds,
-                    providerType: this.state.data.providerType
-                }
-            })
-        }
+        // late count
+        const newSendScreenData = JSON.parse(JSON.stringify(this.state.sendScreenData))
+        const { selectedFee } = await this.recountFees(newSendScreenData)
+        newSendScreenData.selectedFee = selectedFee
+        setLoaderStatus(false)
+        NavStore.goNext('SendAdvancedScreen', {
+            sendScreenData: newSendScreenData
+        })
     }
 
     setHeaderHeight = (height) => {
@@ -174,18 +87,20 @@ export default class SendBasicScreen extends Component {
 
     closeAction = async () => {
 
-        const { data } = this.state
-        if (typeof data !== 'undefined' && data && typeof data.toTransactionJSON !== 'undefined' && data.toTransactionJSON && data.toTransactionJSON.bseOrderID !== 'undefined') {
-            const version = data.apiVersion || 'v3'
-            const removeId = this.state.data.toTransactionJSON.bseOrderID
+        const { sendScreenData } = this.state
+        if (typeof sendScreenData !== 'undefined' && sendScreenData && typeof sendScreenData.bseOrderID !== 'undefined' && sendScreenData.bseOrderID) {
+            const version = sendScreenData.uiApiVersion || 'v3'
+            const removeId = sendScreenData.bseOrderID
+            console.log('SendBasicScreen.goBack with version ' + version + ' removeId ' + removeId)
             if (version === 'v2') {
                 Api.setExchangeStatus(removeId, 'close')
             } else {
                 ApiV3.setExchangeStatus(removeId, 'close')
             }
-            UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({force: true, removeId, source: 'CANCEL'})
+            UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, removeId, source: 'CANCEL' })
+        } else {
+            console.log('SendBasicScreen.goBack')
         }
-        console.log('goBack')
 
         NavStore.goBack()
     }
@@ -205,14 +120,25 @@ export default class SendBasicScreen extends Component {
 
     renderMinerFee = (onlyUseAllFunds = false) => {
 
-        const { useAllFunds } = this.state
+        const { GRID_SIZE, colors } = this.context
 
-        let selectedFee = SendTmpConstants.SELECTED_FEE
+        const { useAllFunds, sendScreenData, account } = this.state
+
+        let selectedFee = false // typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee
         if (!selectedFee) {
-            selectedFee = this.state.selectedFee
+            const tmp = SendTmpData.getCountedFees()
+            selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
 
-        Log.log('Send.SendBasicScreen.renderMinerFee state', JSON.parse(JSON.stringify({ selectedFee, useAllFunds, onlyUseAllFunds })))
+        Log.log('Send.SendBasicScreen.renderMinerFee state', JSON.parse(JSON.stringify({
+            selectedFee,
+            useAllFunds,
+            onlyUseAllFunds
+        })))
+
+        if (typeof account === 'undefined' || !account || !sendScreenData || typeof account.basicCurrencySymbol === 'undefined' || account.basicCurrencySymbol === '') {
+            return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
+        }
 
         if (onlyUseAllFunds && !useAllFunds) {
             Log.log('Send.SendBasicScreen.renderMinerFee not shown as not useAllFunds')
@@ -223,12 +149,6 @@ export default class SendBasicScreen extends Component {
             return false
         }
 
-        let account
-        if (typeof this.state.data !== 'undefined' && this.state.data && typeof this.state.data.account !== 'undefined') {
-            account = this.state.data.account
-        } else {
-            account = this.props.account
-        }
         const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates } = account
 
 
@@ -254,7 +174,7 @@ export default class SendBasicScreen extends Component {
 
         let fiatFee
         if (Number(feeBasicAmount) < 0.01) {
-            fiatFee = `> ${feeBasicCurrencySymbol} 0.01`
+            fiatFee = `< ${feeBasicCurrencySymbol} 0.01`
         } else {
             fiatFee = `${feeBasicCurrencySymbol} ${feeBasicAmount}`
         }
@@ -262,18 +182,18 @@ export default class SendBasicScreen extends Component {
         Log.log('Send.SendBasicScreen.renderMinerFee prettyFee ' + prettyFee + ' prettyFeeSymbol ' + prettyFeeSymbol + ' fiatFee ' + fiatFee)
         return (
             <>
-            <CheckData
-                name={'Miner fee'}
-                value={`${prettyFee} ${prettyFeeSymbol}`}
-                subvalue={fiatFee}
-            />
-            {
-                selectedFee.isCustomFee && selectedFee.nonceForTx ?
-                    <CheckData
-                        name={'Custom nonce'}
-                        value={selectedFee.nonceForTx + ''}
-                    /> : null
-            }
+                <CheckData
+                    name={strings('send.receiptScreen.minerFee')}
+                    value={`${prettyFee} ${prettyFeeSymbol}`}
+                    subvalue={fiatFee}
+                />
+                {
+                    selectedFee.isCustomFee && selectedFee.nonceForTx ?
+                        <CheckData
+                            name={strings('send.receiptScreen.customNonce')}
+                            value={selectedFee.nonceForTx + ''}
+                        /> : null
+                }
             </>
         )
     }

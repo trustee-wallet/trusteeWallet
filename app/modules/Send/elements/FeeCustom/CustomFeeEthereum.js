@@ -186,14 +186,18 @@ class CustomFee extends Component {
         const { colors, GRID_SIZE } = this.context
 
         const prettyFeeSymbol = 'ETH'
-        const customFee = `Sum ${this.state.selectedFee.gasPriceGwei} gwei : ${this.state.prettyFee} ${prettyFeeSymbol} / ${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`
+        const customFee = strings(`send.fee.customFee.calculetedFee`) +  `\n${this.state.prettyFee} ${prettyFeeSymbol} / ` + (Number(this.state.feeBasicAmount) < 0.01 ? ` < ${this.props.basicCurrencySymbol} 0.01` : `${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`)
+        // ${this.state.selectedFee.gasPriceGwei} gwei :
 
         return (
             <View style={{ marginTop: 10 }}>
-                <View style={{ paddingBottom: 20, paddingLeft: 10 }}>
+                <View>
                     <Text style={{ ...styles.customFee, color: colors.common.text1 }}>{customFee}</Text>
                 </View>
-                <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
+                <View style={{ paddingTop: 10, marginBottom: GRID_SIZE }}>
+                    <Text style={{...styles.customFee, color: colors.common.text1}} >{strings(`send.fee.customFee.eth.gasPrice`)}</Text>
+                </View>
+                <View style={{ ...styles.inputWrapper, marginBottom: GRID_SIZE }}>
                     <GasPriceAmountInput
                         ref={ref => this.gasPriceInput = ref}
                         id={'gasPrice'}
@@ -206,9 +210,13 @@ class CustomFee extends Component {
                         inputTextColor={'#f4f4f4'}
                         tintColor={'#7127ac'}
                         callback={(value) => this.handleRecount('gasPrice', value)}
+                        onFocus={this.props.onFocus}
                     />
                 </View>
-                <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
+                <View style={{ marginBottom: GRID_SIZE}}>
+                    <Text style={{...styles.customFee, color: colors.common.text1}} >{strings(`send.fee.customFee.eth.gasLimit`)}</Text>
+                </View>
+                <View style={{ ...styles.inputWrapper, marginBottom: GRID_SIZE }}>
                     <GasLimitAmountInput
                         ref={ref => this.gasLimitInput = ref}
                         id={'gasLimit'}
@@ -222,9 +230,13 @@ class CustomFee extends Component {
                         tintColor={'#7127ac'}
                         disabled={this.props.useAllFunds}
                         callback={(value) => this.handleRecount('gasLimit', value)}
+                        onFocus={this.props.onFocus}
                     />
                 </View>
-                <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
+                <View style={{ marginBottom: GRID_SIZE }}>
+                    <Text style={{...styles.customFee, color: colors.common.text1}} >{strings(`send.fee.customFee.eth.nonce`)}</Text>
+                </View>
+                <View style={{ ...styles.inputWrapper, marginBottom: GRID_SIZE }}>
                     <Nonce
                         ref={ref => this.nonceInput = ref}
                         id={'nonce'}
@@ -237,6 +249,7 @@ class CustomFee extends Component {
                         inputTextColor={'#f4f4f4'}
                         tintColor={'#7127ac'}
                         callback={(value) => this.handleRecount('nonce', value)}
+                        onFocus={this.props.onFocus}
                     />
                 </View>
             </View>
@@ -251,20 +264,18 @@ export default CustomFee
 const styles = {
     inputWrapper: {
         justifyContent: 'center',
-        height: 50,
         borderRadius: 10,
-        elevation: 10,
+        elevation: 8,
         shadowColor: '#000',
-        shadowRadius: 16,
+        shadowRadius: 3,
         shadowOpacity: 0.1,
         shadowOffset: {
             width: 0,
-            height: 0
+            height: 1
         }
     },
     customFee: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
-        paddingBottom: 4
     }
 }

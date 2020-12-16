@@ -232,8 +232,7 @@ class AddCustomTokenScreen extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore,
-        send: state.sendStore
+        mainStore: state.mainStore
     }
 }
 

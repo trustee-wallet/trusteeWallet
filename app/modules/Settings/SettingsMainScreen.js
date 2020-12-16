@@ -294,6 +294,7 @@ class SettingsMainScreen extends React.Component {
             mode,
         } = this.state
 
+        // @todo uncomment payment accounts
         return (
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>
                 <Header
@@ -320,8 +321,10 @@ class SettingsMainScreen extends React.Component {
                                     iconType="wallet"
                                     onPress={this.handleWalletManagment}
                                     rightContent="arrow"
+                                    last
                                 />
-                                <ListItem
+                                { false ? (
+                                    <ListItem
                                     title={strings('settings.paymentAccounts.listTitle')}
                                     subtitle={strings('settings.paymentAccounts.listSubtitle', { number: 0 })}
                                     iconType="accounts"
@@ -329,6 +332,7 @@ class SettingsMainScreen extends React.Component {
                                     rightContent="arrow"
                                     last
                                 />
+                                ) : null }
                             </View>
 
 
@@ -390,14 +394,14 @@ class SettingsMainScreen extends React.Component {
                                         delayLongPress={1000}
                                     />
                                 )}
-                                <ListItem
+                                {/* <ListItem
                                     title={strings('settings.other.darkModeTitle')}
                                     subtitle={strings(`settings.other.${isLight ? 'darkModeDisabledSubtitle' : 'darkModeEnabledSubtitle'}`)}
                                     iconType="darkMode"
                                     onPress={changeTheme}
                                     rightContent="switch"
                                     switchParams={{ value: !isLight, onPress: changeTheme }}
-                                />
+                                /> */}
                                 <ListItem
                                     title={strings('settings.other.notifications')}
                                     iconType="notifications"

@@ -106,7 +106,7 @@ class Input extends Component {
             if (tmpIndex !== -1) {
                 valueNew = valueNew.slice(tmpIndex + 9).trim()
             }
-            if (cuttype === 'TRX' && value.length <= 34 || cuttype === 'FIO') {
+            if ( ( cuttype === 'TRX' && value.length <= 34 ) || cuttype === 'FIO') {
                 // do nothing
                 // TRX addresses can start with TRX
             } else if (valueNew.indexOf(cuttype) === 0) {
@@ -195,7 +195,7 @@ class Input extends Component {
         return (
             <View style={styles.wrapper}>
                 <TextField
-                    color={'#404040'}
+                    // this is breaking android color={'#404040'}
                     ref={ref => this.inputRef = ref}
                     keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'numeric'}
                     tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
@@ -210,7 +210,7 @@ class Input extends Component {
                     }}
                     editable={!noEdit ? true : false}
                     onChangeText={(value) => this.handleInput(value)}
-                    style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : '' }}
+                    style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : '#404040' }}
                     autoCorrect={false}
                     spellCheck={false}
                     onBlur={() => {

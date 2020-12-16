@@ -33,33 +33,28 @@ const transactionActions = {
      * @param {string} transaction.transactionOfTrusteeWallet
      * @param {string} transaction.transactionsScanLog
      * @param {string} transaction.transactionJson
-     * @param {string} transaction.transactionJson.bseOrderID
+     * @param {string} transaction.bseOrderID
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
      */
     saveTransaction: async (transaction, source = '') => {
 
         try {
+
             await transactionDS.saveTransaction(transaction, false,source)
 
             const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
 
             if (transaction.currencyCode === account.currencyCode) {
 
-                const prepared = { ...account }
-                const tx = JSON.parse(JSON.stringify(transaction))
-                transactionActions.preformat(tx, account)
-                prepared.transactions[tx.transactionHash] = tx
-
-                dispatch({
-                    type: 'SET_SELECTED_ACCOUNT',
-                    selectedAccount: prepared
-                })
+                // @todo page reload
             }
 
-            if (typeof transaction.transactionJson.bseOrderID !== 'undefined') {
+            if (typeof transaction.bseOrderID !== 'undefined') {
                 UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true })
             }
+
+            DaemonCache.cleanCacheTxsCount(transaction)
 
         } catch (e) {
 
@@ -139,10 +134,94 @@ const transactionActions = {
         }
     },
 
-    preformat(transaction, account) {
+    preformatWithBSEforShowInner(transaction) {
+        const direction = transaction.transactionDirection
+        transaction.addressAmountPrettyPrefix = (direction === 'outcome' || direction === 'self' || direction === 'freeze') ? '-' : '+'
+        if (typeof transaction.wayType === 'undefined' || !transaction.wayType) {
+            transaction.wayType = transaction.transactionDirection
+        }
+        return transaction
+    },
+
+    preformatWithBSEforShow(_transaction, exchangeOrder, _currencyCode = false) {
+        if (typeof exchangeOrder === 'undefined' || !exchangeOrder || exchangeOrder === null) {
+            _transaction.bseOrderData = false // for easy checks
+            _transaction.transactionOfTrusteeWallet = false
+            _transaction = this.preformatWithBSEforShowInner(_transaction)
+            return _transaction
+        }
+
+        const transaction = _transaction ? JSON.parse(JSON.stringify(_transaction)) : {
+            currencyCode: _currencyCode,
+            transactionHash: exchangeOrder.orderHash,
+            transactionDirection : 'outcome',
+            transactionOfTrusteeWallet : false,
+            transactionStatus : '?',
+            addressTo : '?',
+            addressFrom : '?',
+            addressAmountPretty: '?',
+            blockConfirmations : false,
+            blockNumber : false,
+            createdAt: exchangeOrder.createdAt,
+            bseOrderData : exchangeOrder
+        }
+
+        if (typeof exchangeOrder.status !== 'undefined' && exchangeOrder.status) {
+            transaction.transactionStatus = exchangeOrder.status
+        }
+        if (typeof exchangeOrder.exchangeWayType !== 'undefined') {
+            transaction.wayType = exchangeOrder.exchangeWayType
+            if (exchangeOrder.outDestination && exchangeOrder.outDestination.includes('+')) {
+                transaction.wayType = 'MOBILE_PHONE'
+            }
+
+            if (exchangeOrder.exchangeWayType === 'BUY') {
+                transaction.transactionDirection = 'income'
+            } else if (exchangeOrder.exchangeWayType === 'SELL') {
+                transaction.transactionDirection = 'outcome'
+            } else if (exchangeOrder.exchangeWayType === 'EXCHANGE') {
+                if (typeof exchangeOrder.requestedOutAmount !== 'undefined' && typeof exchangeOrder.requestedOutAmount.currencyCode !== 'undefined') {
+                    if (exchangeOrder.requestedOutAmount.currencyCode !== transaction.currencyCode) {
+                        transaction.transactionDirection = 'income'
+                    } else {
+                        transaction.transactionDirection = 'outcome'
+                    }
+                }
+            }
+        }
+
+        if (transaction.transactionDirection === 'income' && typeof exchangeOrder.requestedOutAmount !== 'undefined' && typeof exchangeOrder.requestedOutAmount.amount !== 'undefined') {
+            transaction.addressAmountPretty = exchangeOrder.requestedOutAmount.amount
+            if (!transaction.currencyCode) {
+                transaction.currencyCode = exchangeOrder.requestedOutAmount.currencyCode
+            }
+        }
+        if (transaction.transactionDirection === 'outcome' && typeof exchangeOrder.requestedInAmount !== 'undefined' && typeof exchangeOrder.requestedInAmount.amount !== 'undefined') {
+            transaction.addressAmountPretty = exchangeOrder.requestedInAmount.amount
+            if (!transaction.currencyCode) {
+                transaction.currencyCode = exchangeOrder.requestedInAmount.currencyCode
+            }
+        }
+        return this.preformatWithBSEforShowInner(transaction)
+    },
+
+    /**
+     *
+     * @param transaction
+     * @param params.currencyCode
+     * @param params.account
+     */
+    preformat(transaction, params) {
         if (!transaction) return
 
         let addressAmountSatoshi = false
+
+        let account
+        if (typeof params.account !== 'undefined') {
+            account = params.account
+        } else {
+            throw new Error('something wrong with TransactionActions.preformat params')
+        }
 
         try {
             transaction.addressAmountNorm = BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(transaction.addressAmount, 'transactionActions.addressAmount')
@@ -241,30 +320,8 @@ const transactionActions = {
             throw e
         }
 
-    },
+        return transaction
 
-    /**
-     * @param {string} account.walletHash
-     * @param {string} account.currencyCode
-     * @return {Promise<Array>}
-     */
-    getTransactions: async (account) => {
-
-        let transactions = []
-
-        try {
-
-            transactions = await transactionDS.getTransactions({
-                walletHash: account.walletHash,
-                currencyCode: account.currencyCode
-            }, 'ACT/Transaction getTransactions')
-
-        } catch (e) {
-
-            Log.err('ACT/Transaction getTransactions ' + e.message)
-        }
-
-        return transactions
     }
 
 }

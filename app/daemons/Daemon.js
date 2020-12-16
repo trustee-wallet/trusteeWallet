@@ -10,6 +10,7 @@ import UpdateCurrencyListDaemon from './view/UpdateCurrencyListDaemon'
 
 import config from '../config/config'
 import UpdateAppNewsDaemon from './back/UpdateAppNewsDaemon'
+import UpdateTradeOrdersDaemon from './back/UpdateTradeOrdersDaemon'
 
 class Daemon {
 
@@ -37,6 +38,7 @@ class Daemon {
         await UpdateAccountListDaemon.forceDaemonUpdate(params)
         await UpdateAppNewsDaemon.updateAppNewsDaemon(params)
         await UpdateAppNewsListDaemon.updateAppNewsListDaemon(params)
+        await UpdateTradeOrdersDaemon.fromDB()
     }
 }
 

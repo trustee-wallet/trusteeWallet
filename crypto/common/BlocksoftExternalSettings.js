@@ -44,6 +44,28 @@ const CACHE = {
     'SOCIAL_LINK_VK': 'https://vk.com/trustee_wallet',
     'SOCIAL_LINK_GITHUB': 'https://github.com/trustee-wallet/trusteeWallet',
     'SOCIAL_LINK_FAQ': 'https://github.com/trustee-wallet/trusteeWallet/wiki',
+    'TRADE_ORDERS_NO_TX_MAX_COUNT' : 3,
+    'TRADE_ORDERS_NO_TX_WAY_TYPES': {
+        'EXCHANGE': {
+            'canceled_payin': 10,
+            'pending_payin': 30,
+            'done_payin' : 30
+        }, // time in minutes to be shown
+        'BUY': {
+            'canceled_payin': 60,
+            'pending_payin': 2880,
+            'refunded_order': 2880,
+            'done_payin': 2880,
+            'wait_trade': 2880,
+            'done_trade': 2880,
+            'wait_payout': 2880,
+            'canceled_payout': 2880,
+            'done_payout': 2880,
+            'wait_kyc': 2880,
+            'stopped_order': 2880,
+            'error_order': 2880
+        }, // time in minutes to be shown
+    },
 }
 
 

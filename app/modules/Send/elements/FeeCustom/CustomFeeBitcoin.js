@@ -47,12 +47,22 @@ class CustomFee extends Component {
             return false
         }
         // can be loader here
-        const feesCountedForData = this.props.countedFees.feesCountedForData
+        const countedFeesData = this.props.countedFeesData
         const addData = {
-            unspents : this.state.selectedFee.blockchainData.unspents,
             feeForByte
         }
-        const countedFees = await BlocksoftTransfer.getFeeRate(feesCountedForData, addData)
+
+        const selectedFee = this.state.selectedFee
+        if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.blockchainData !== 'undefined' && typeof selectedFee.blockchainData.unspents !== 'undefined') {
+            // @ts-ignore
+            if (selectedFee.blockchainData.isTransferAll === countedFeesData.isTransferAll) {
+                addData.unspents = selectedFee.blockchainData.unspents
+            }
+        }
+        if (typeof countedFeesData.addressTo === 'undefined' || !countedFeesData.addressTo || countedFeesData.addressTo === '') {
+            return false
+        }
+        const countedFees = await BlocksoftTransfer.getFeeRate(countedFeesData, addData)
         if (countedFees && countedFees.selectedFeeIndex > -1) {
             const selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
             this._setSelectedFee(selectedFee)
@@ -86,14 +96,18 @@ class CustomFee extends Component {
         const { colors, GRID_SIZE } = this.context
 
         const prettyFeeSymbol = this.props.feesCurrencyCode || this.props.currencyCode
-        const customFee = `Sum ${this.state.selectedFee.feeForByte} SAT : ${this.state.prettyFee} ${prettyFeeSymbol} / ${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`
+        const customFee = strings(`send.fee.customFee.calculetedFee`) + `\n${this.state.prettyFee} ${prettyFeeSymbol} / ` + (Number(this.state.feeBasicAmount) < 0.01 ? ` < ${this.props.basicCurrencySymbol} 0.01` : `${this.props.basicCurrencySymbol} ${this.state.feeBasicAmount}`)
+        // ${this.state.selectedFee.feeForByte} SAT :
 
         return (
             <View style={{ marginTop: 10 }}>
-                <View style={{ paddingBottom: 20, paddingLeft: 10 }}>
+                <View>
                     <Text style={{...styles.customFee, color: colors.common.text1}} >{ customFee }</Text>
                 </View>
-                <View style={{ ...styles.inputWrapper, paddingTop: 10, marginBottom: GRID_SIZE }}>
+                <View style={{ paddingTop: 10, marginBottom: GRID_SIZE }}>
+                    <Text style={{...styles.customFee, color: colors.common.text1}} >{strings(`send.fee.customFee.btc.feeForByte`)}</Text>
+                </View>
+                <View style={{ ...styles.inputWrapper, marginBottom: GRID_SIZE * 1.5 }}>
                     <FeeForByteInput
                         ref={component => this.feeForByteInput = component}
                         id={'feeForByte'}
@@ -106,6 +120,7 @@ class CustomFee extends Component {
                         inputTextColor={'#f4f4f4'}
                         tintColor={'#7127ac'}
                         callback={(value) => this.handleRecount(value)}
+                        onFocus={this.props.onFocus}
                     />
                 </View>
             </View>
@@ -120,9 +135,8 @@ export default CustomFee
 const styles = {
     inputWrapper: {
         justifyContent: 'center',
-        height: 50,
         borderRadius: 10,
-        elevation: 10,
+        elevation: 6,
         shadowColor: '#000',
         shadowRadius: 16,
         shadowOpacity: 0.1,

@@ -67,15 +67,11 @@ class SettingsBTC extends Component {
         walletActions.setUse({ walletHash, walletAllowReplaceByFee: walletAllowReplaceByFee > 0 ? 0 : 1 })
     }
 
-    handleUseLegacy = () => {
-        const { walletHash, walletUseLegacy } = this.props.wallet
-        walletActions.setUse({ walletHash, walletUseLegacy: walletUseLegacy > 0 ? 0 : 1 })
-    }
-
     toggleAddress = async (newValue, oldValue) => {
         try {
             setLoaderStatus(true)
             if (newValue === 'two_addresses') {
+                // @todo as btcShowTwoAddress this will be deprecated remove from code
                 await settingsActions.setSettings('btcShowTwoAddress', '1')
             } else {
                 await settingsActions.setSettings('btcShowTwoAddress', '0')
@@ -117,7 +113,7 @@ class SettingsBTC extends Component {
         Toast.setMessage(strings('toast.copied')).show()
     }
 
-    showLegaceSegwitHandle = (btcLegacyOrSegWit, color) => {
+    showLegacySegwitHandle = (btcLegacyOrSegWit, color) => {
         return (
             <View style={{ paddingHorizontal: 30 }}>
                 <SubSetting
@@ -205,11 +201,6 @@ class SettingsBTC extends Component {
             btcLegacyOrSegWit = 'two_addresses'
         }
 
-        let walletUseLegacy = wallet.walletUseLegacy
-        if (wallet.walletUseLegacy === 2 || wallet.walletUseLegacy === '2') {
-            walletUseLegacy = btcLegacyOrSegWit === 'legacy' ? 1 : 0
-        }
-
         if (wallet.walletIsHd && !this.state.xpubs) {
             this._loadXpubs()
         }
@@ -291,21 +282,22 @@ class SettingsBTC extends Component {
                 <View >
                     <ListItem
                         title={strings('settings.walletList.useUnconfirmed')}
-                        iconType="pinCode"
+                        iconType="unconfirmed"
                         onPress={this.handleUseUnconfirmed}
                         rightContent="switch"
                         switchParams={{ value: !!wallet.walletUseUnconfirmed, onPress: this.handleUseUnconfirmed }}
                     />
                     <ListItem
                         title={strings('settings.walletList.allowReplaceByFee')}
-                        iconType="pinCode"
+                        iconType="rbf"
                         onPress={this.handleAllowReplaceByFee}
                         rightContent="switch"
                         switchParams={{ value: !!wallet.walletAllowReplaceByFee, onPress: this.handleAllowReplaceByFee }}
                     />
                     <ListItem
-                        title={'HD'}
-                        iconType="pinCode"
+                        title={strings('settings.walletList.hd')}
+                        subtitle={strings('settings.walletList.hdDescription')}
+                        iconType="hd"
                         onPress={this.handleEnableHD}
                         rightContent="switch"
                         switchParams={{ value: !!wallet.walletIsHd, onPress: this.handleEnableHD }}
@@ -317,21 +309,14 @@ class SettingsBTC extends Component {
                     />
 
                     <ListItem
-                        title={strings('settings.walletList.changeSetting')}
-                        iconType="pinCode"
-                        onPress={this.handleUseLegacy}
-                        rightContent="switch"
-                        switchParams={{ value: !walletUseLegacy, onPress: this.handleUseLegacy }}
-                    />
-                    <ListItem
                         title={strings('settings.walletList.accountAddress')}
-                        iconType="pinCode"
+                        iconType="address"
                         onPress={this.toggleDropMenu}
                         rightContent={this.state.dropMenu ? 'arrow_up' : "arrow_down"}
                         switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
                         type={'dropdown'}
-                        ExtraView={() => this.showLegaceSegwitHandle(btcLegacyOrSegWit, color)}
-                        subtitle={'DEFALUT'}
+                        ExtraView={() => this.showLegacySegwitHandle(btcLegacyOrSegWit, color)}
+                        subtitle={btcLegacyOrSegWit === 'segwit' ? strings('settings.walletList.showSegWit') : strings('settings.walletList.showLegacy')}
                     />
                 </View>
             </>

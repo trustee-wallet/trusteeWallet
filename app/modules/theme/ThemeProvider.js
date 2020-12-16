@@ -29,19 +29,20 @@ export class ThemeProvider extends React.Component {
         super(props)
 
         this.state = {
-            isLight: SYSTEM_COLOR_SCHEME === 'light'
+            isLight: true // @todo dark mode will be back SYSTEM_COLOR_SCHEME === 'light'
         }
         this.getThemeSetting()
     }
 
     getThemeSetting = async () => {
+        return false // @even darker
         try {
             const res = await AsyncStorage.getItem('themeSetting')
             if (res !== null) {
                 this.setState(() => ({ isLight: res === 'light' }))
             }
         } catch (e) {
-            Log.err(`HomeScreen getBalanceVisibility error ${e.message}`)
+            // Log.err(`HomeScreen getBalanceVisibility error ${e.message}`)
         }
     }
 

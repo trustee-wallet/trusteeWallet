@@ -1,5 +1,5 @@
 /**
- * @version 0.13
+ * @version 0.30
  * @author yura
  */
 import React, { Component } from 'react'
@@ -31,6 +31,13 @@ import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalS
 import AsyncStorage from '@react-native-community/async-storage'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
+import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
+import { SendActions } from '../../appstores/Stores/Send/SendActions'
+
+import config from '../../config/config'
+
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
@@ -45,6 +52,8 @@ class MainV3DataScreen extends Component {
             apiUrl: 'https://testexchange.trustee.deals/waiting',
             navigationViewV3 : true,
             homePage: false,
+            countedFees: false,
+            selectedFee: false
         }
     }
 
@@ -102,7 +111,9 @@ class MainV3DataScreen extends Component {
 
     onMessage(event) {
         try {
-            const { address, amount, orderHash, comment, inCurrencyCode, dataExchange, error, backToOld, close, homePage } = JSON.parse(event.nativeEvent.data)
+            const allData = JSON.parse(event.nativeEvent.data)
+            const { address, amount, orderHash, comment, inCurrencyCode, dataExchange, error, 
+                backToOld, close, homePage, useAllFunds } = allData
 
             Log.log('EXC/MainV3Screen.onMessage parsed', event.nativeEvent.data)
 
@@ -124,13 +135,18 @@ class MainV3DataScreen extends Component {
                 return
             }
 
+            if (useAllFunds) {
+                this.handleTransferAll(useAllFunds)
+            }
+
             if (address && amount && orderHash) {
                 const data = {
                     memo: false,
                     amount: amount,
                     address: address,
                     useAllFunds: false,
-                    toTransactionJSON: { 'bseOrderID': orderHash, 'comment': comment || '' },
+                    bseOrderID: orderHash,
+                    comment: comment || '' ,
                     currencyCode: inCurrencyCode,
                     type: 'TRADE_SEND'
                 }
@@ -139,21 +155,70 @@ class MainV3DataScreen extends Component {
             }
 
             if (dataExchange) {
-                const data = {
-                    memo: dataExchange.memo,
-                    amount: dataExchange.amount,
-                    address: dataExchange.address,
-                    useAllFunds: dataExchange.useAllFunds,
-                    toTransactionJSON: { 'bseOrderID': dataExchange.orderHash, 'comment': dataExchange.comment || '' },
-                    currencyCode: dataExchange.currencyCode,
-                    type: 'TRADE_SEND'
-                }
-
-                NavStore.goNext('ConfirmSendScreen', { confirmWebViewParam: data })
+                this.exchangeV3(dataExchange)
             }
 
         } catch {
             Log.err('EXC/MainV3Screen.onMessage parse error ', event.nativeEvent)
+        }
+    }
+
+    exchangeV3 = async (data) => {
+        console.log('Exchange/MainV3Screen dataExchange', JSON.stringify(data))
+        try {
+            await SendActions.startSend({
+                gotoReceipt: true,
+                addressTo: data.address,
+                amountPretty: data.amount.toString(),
+                memo: data.memo,
+                currencyCode: data.currencyCode,
+                isTransferAll: data.useAllFunds,
+                bseOrderID: data.orderHash || data.orderId,
+                comment: data.comment || '',
+                uiType: 'TRADE_SEND',
+                uiApiVersion: 'v3',
+                uiProviderType: data.providerType // 'FIXED' || 'FLOATING'
+            })
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('Exchange/MainV3Screen exchangeV3', e)
+            }
+            throw e
+        }
+    }
+
+    handleTransferAll = async (params) => {
+        console.log('EXC/MainV3DataScreen.handleTransferAll', JSON.stringify(params))
+        const currencyCode = params.currencyCode
+        const address = params.address
+        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+
+        try {
+            const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
+            const { transferBalance } = await SendActions.countTransferAllBeforeStartSend({
+                currencyCode,
+                addressTo: addressToForTransferAll
+            })
+            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.exchangeAll')
+            this.webref.postMessage(JSON.stringify({ fees: { countedFees: 'notUsedNotPassed', selectedFee : 'notUsedNotPassed', amount } }))
+            return {
+                currencyBalanceAmount: amount,
+                currencyBalanceAmountRaw: transferBalance
+            }
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('EXC/MainV3Screen.handleTransferAll', e)
+            }
+
+            Log.errorTranslate(e, 'Trade/MainV3Screen.handleTransferAll', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.qrScanner.sorry'),
+                description: e.message,
+                error: e
+            })
         }
     }
 

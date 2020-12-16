@@ -159,7 +159,7 @@ class ReceiveScreen extends Component {
 
             await Netinfo.isInternetReachable(-120)
 
-            const isExist = ways.find(item => item.outCurrencyCode === currencyCode && item.exchangeWayType === wayType)
+            const isExist = ways.find(item => item.outCurrencyCode === currencyCode && item.bseOrderData.exchangeWayType === wayType)
 
             if (typeof isExist !== 'undefined') {
                 callback()

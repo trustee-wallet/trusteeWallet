@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
             width: 0,
             height: 6
         },
-        elevation: 10
+        elevation: 6
     },
     text: {
         fontFamily: 'Montserrat-SemiBold',

@@ -3,6 +3,7 @@
  */
 import i18n from 'i18n-js'
 import moment from 'moment'
+import 'moment/min/locales.min'
 import store from '../store'
 import * as RNLocalize from 'react-native-localize'
 

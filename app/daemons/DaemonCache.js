@@ -3,6 +3,8 @@
  */
 import DBInterface from '../appstores/DataSource/DB/DBInterface'
 
+import transactionDS from '../appstores/DataSource/Transaction/Transaction'
+
 import BlocksoftFixBalance from '../../crypto/common/BlocksoftFixBalance'
 
 class DaemonCache {
@@ -13,6 +15,8 @@ class DaemonCache {
     CACHE_ALL_ACCOUNTS = {}
     CACHE_WALLET_NAMES_AND_CB = {}
     CACHE_FIO_MEMOS = {}
+
+    CACHE_ACCOUNT_TX = {}
 
     /**
      * @param walletHash
@@ -35,6 +39,34 @@ class DaemonCache {
             return { basicCurrencySymbol: '', basicCurrencyRate: '' }
         }
         return this.CACHE_RATES[currencyCode]
+    }
+
+    cleanCacheTxsCount(account) {
+        let cacheTitle = account.walletHash + '_' + account.currencyCode
+        if (typeof this.CACHE_ACCOUNT_TX[cacheTitle] !== 'undefined') {
+            this.CACHE_ACCOUNT_TX[cacheTitle] = -1
+        }
+        cacheTitle += '_noZero'
+        if (typeof this.CACHE_ACCOUNT_TX[cacheTitle] !== 'undefined') {
+            this.CACHE_ACCOUNT_TX[cacheTitle] = -1
+        }
+    }
+
+    async getCacheTxsCount(account, wallet) {
+        const params = {
+            walletHash: account.walletHash,
+            currencyCode: account.currencyCode
+        }
+        let cacheTitle = account.walletHash + '_' + account.currencyCode
+        if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
+            params.minAmount = 0
+            cacheTitle += '_noZero'
+        }
+        if (typeof this.CACHE_ACCOUNT_TX[cacheTitle] === 'undefined' || this.CACHE_ACCOUNT_TX[cacheTitle] < 0) {
+            this.CACHE_ACCOUNT_TX[cacheTitle] = await transactionDS.getTransactionsCount(params, 'AccountScreen.transactionInfinity count')
+        }
+
+        return this.CACHE_ACCOUNT_TX[cacheTitle] > 0 ? this.CACHE_ACCOUNT_TX[cacheTitle] : 0
     }
 
     getFioMemo(currencyCode) {

@@ -100,13 +100,6 @@ export default new class ExchangeActions {
         })
     }
 
-    setExchangeOrderList = exchangeOrderList => {
-        dispatch({
-            type: 'SET_EXCHANGE_ORDERS_DATA',
-            exchangeOrders: exchangeOrderList
-        })
-    }
-
     handleSetNewInterface = (newInterface, type) => {
         if (type === 'SELL') {
             dispatch({

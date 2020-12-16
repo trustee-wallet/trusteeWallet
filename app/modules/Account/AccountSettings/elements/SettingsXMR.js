@@ -109,11 +109,10 @@ class SettingsXMR extends Component {
                 <View>
                     <ListItem
                         title={strings('settings.walletList.getMnemonicXMR')}
-                        iconType='key'
+                        iconType='keyMonero'
                         onPress={this.handleSecrets}
                         rightContent="arrow"
                     />
-
                 </View>
             </>
         )

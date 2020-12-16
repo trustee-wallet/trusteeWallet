@@ -5,7 +5,8 @@ import {
     Text,
     ScrollView,
     SafeAreaView,
-    StyleSheet
+    StyleSheet,
+    TouchableOpacity
 } from 'react-native'
 import firebase from 'react-native-firebase'
 import { connect } from 'react-redux'
@@ -23,6 +24,7 @@ import Header from '../../components/elements/new/Header'
 import TextInput from '../../components/elements/new/TextInput'
 import RoundButton from '../../components/elements/new/buttons/RoundButton'
 import ListItem from '../../components/elements/new/list/ListItem/Setting'
+import CustomIcon from '../../components/elements/CustomIcon'
 
 
 class AdvancedWalletScreen extends React.Component {
@@ -104,27 +106,28 @@ class AdvancedWalletScreen extends React.Component {
                                     />
                                 ) : (
                                         <SwipeRow
-                                            leftOpenValue={42 + GRID_SIZE}
-                                            rightOpenValue={-(42 + GRID_SIZE)}
-                                            stopLeftSwipe={GRID_SIZE + 70}
-                                            stopRightSwipe={-(GRID_SIZE + 70)}
+                                            leftOpenValue={50 + GRID_SIZE}
+                                            rightOpenValue={-(50 + GRID_SIZE)}
+                                            stopLeftSwipe={GRID_SIZE + 80}
+                                            stopRightSwipe={-(GRID_SIZE + 80)}
+                                            onRowPress={this.handleEdit}
                                         >
-                                            <View style={styles.hiddenLayer}>
+                                            <View style={[styles.hiddenLayer, { paddingHorizontal: GRID_SIZE / 2 }]}>
                                                 <RoundButton
-                                                    type="edit"
+                                                    type="delete"
                                                     noTitle
                                                     onPress={this.handleDelete}
                                                     size={42}
                                                 />
                                                 <RoundButton
-                                                    type="delete"
+                                                    type="edit"
                                                     noTitle
                                                     onPress={this.handleEdit}
                                                     size={42}
                                                 />
                                             </View>
                                             <View style={[styles.visibleLayer, { backgroundColor: colors.walletManagment.advanceWalletNameBg }]}>
-                                                <Text style={[styles.walletNameLabel, { color: colors.common.text2 }]}>{strings('settings.walletManagement.advanced.walletNameLabel')}</Text>
+                                                <Text style={[styles.walletNameLabel, { color: colors.common.text2 }]}>{strings('settings.walletManagement.advanced.walletNameLabel')} <CustomIcon name="edit" color={colors.common.text2} size={14} /></Text>
                                                 <Text style={[styles.walletNameValue, { color: colors.common.text1 }]}>{walletName}</Text>
                                             </View>
                                         </SwipeRow>
@@ -176,7 +179,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        flex: 1
+        flex: 1,
     },
     visibleLayer: {
         borderRadius: 16,
@@ -186,7 +189,7 @@ const styles = StyleSheet.create({
     walletNameLabel: {
         fontFamily: 'Montserrat-Semibold',
         fontSize: 14,
-        lineHeight: 14,
+        lineHeight: 16,
     },
     walletNameValue: {
         fontFamily: 'SFUIDisplay-Semibold',
