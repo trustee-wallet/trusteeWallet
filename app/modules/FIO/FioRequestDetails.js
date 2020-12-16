@@ -207,7 +207,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(FioRequestDetails)
 const styles = {
 
     container: {
-        padding: 30,
+        padding: 15,
+        paddingVertical: 30,
         height: '100%',
         flexDirection: 'column',
         flex: 1,
@@ -278,6 +279,7 @@ const styles = {
     },
 
     txt3: {
+        flex: 1,
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 22,
         color: '#333',

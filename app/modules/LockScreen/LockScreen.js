@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, Image, Animated, Text } from 'react-native'
+import { View, Image, Animated, Text, TouchableOpacity } from 'react-native'
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Orientation from 'react-native-orientation'
 
@@ -13,6 +13,7 @@ import firebase from 'react-native-firebase'
 import GradientView from '../../components/elements/GradientView'
 import NavStore from '../../components/navigation/NavStore'
 import Header from '../../components/elements/new/Header'
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
 import { strings } from '../../services/i18n'
 
@@ -29,7 +30,9 @@ class LockScreen extends Component {
         this.state = {
             passwordState: null,
             progress: new Animated.Value(0),
-            show: false
+            show: false,
+            lastStatus: 'status1',
+            pinLocked: null,
         }
     }
 
@@ -127,6 +130,12 @@ class LockScreen extends Component {
         )
     }
 
+    updateLastStatus = (status) => {
+        this.setState({
+            lastStatus: status
+        })
+    }
+
     renderButtonComponentLockedPage = () => {
         return (
             <View></View>
@@ -136,7 +145,7 @@ class LockScreen extends Component {
     renderIconComponentLockedPage = () => {
         return (
             <View style={styles.icon}>
-                <MaterialIcons size={25} name={'lock'} color={'#7229AE'}/>
+                <MaterialIcons size={25} name={'lock'} color={'#5c5c5c'}/>
             </View>
         )
     }
@@ -176,20 +185,33 @@ class LockScreen extends Component {
         const { flowType } = this.props.lockScreen
         let { touchID_status: touchIDStatus } = this.props.settings.data
         touchIDStatus = +touchIDStatus
+
+        const { colors, isLight } = this.context
+
         return (
-            <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
+            <View style={[styles.wrapper, { backgroundColor: colors.common.background }]}>
                 {this.renderHeader()}
                 {
                     this.state.passwordState !== null && this.state.show ?
 
                         <View style={{ flex: 1 }}>
                              <View style={[styles.top, flowType !== '' ? styles.top__navigation : null]}>
-                                <Image
-                                    style={styles.top__logo}
-                                    resizeMode='stretch'
-                                    source={require('../../assets/images/logo.png')}/>
+                                 {  isLight ? (
+                                     <Image
+                                         style={styles.top__logo}
+                                         resizeMode='stretch'
+                                         source={require('../../assets/images/logo.png')}/>
+                                     ) : (
+                                         <Image
+                                             style={styles.top__logo}
+                                             resizeMode='stretch'
+                                             source={require('../../assets/images/logoWhite.png')}/>
+                                     )
+                                 }
+
                             </View>
                             <PINCode
+                                changeInternalStatus = {this.updateLastStatus}
                                 status={this.state.passwordState}
                                 finishProcess={this.finishProcess}
                                 passwordLength={6}
@@ -197,23 +219,25 @@ class LockScreen extends Component {
                                 maxAttempts={3}
                                 touchIDDisabled={!touchIDStatus}
                                 colorCircleButtons={'rgb(255, 255, 255)'}
-                                styleMainContainer={!this.state.show ? { height: 0, overflow: 'hidden' } : undefined}
+                                styleMainContainer={!this.state.show ? { height: 0, overflow: 'hidden',} : undefined}
                                 stylePinCodeButtonCircle={{
-                                    width: 54, height: 54, alignItems: 'center',
+                                    alignItems: 'center',
                                     justifyContent: 'center',
-                                    borderRadius: 27
+                                    borderRadius: 40,
+                                    backgroundColor: colors.common.background,
                                 }}
                                 buttonDeleteText={' '}
                                 stylePinCodeDeleteButtonText={{
-                                    height: 0
+                                    height: 0,
+                                    display: 'none'
                                 }}
                                 stylePinCodeViewTitle={{ height: 10 }}
                                 stylePinCodeTextTitle={{
-                                    height: 40,
-                                    fontFamily: 'SFUIDisplay-Regular',
-                                    fontSize: 16
+                                    fontFamily: 'Montserrat-SemiBold',
+                                    fontSize: 17,
+                                    marginBottom: -10,
                                 }}
-                                stylePinCodeColorTitle={'#404040'}
+                                stylePinCodeColorTitle={colors.common.text3}
                                 stylePinCodeTextSubtitle={{ height: 0 }}
                                 titleEnter={strings('lockScreen.enter')}
                                 titleChoose={strings('lockScreen.create')}
@@ -221,10 +245,10 @@ class LockScreen extends Component {
                                 titleConfirm={strings('lockScreen.confirm')}
                                 titleAttemptFailed={strings('lockScreen.incorrect')}
                                 textTitleLockedPage={strings('lockScreen.maximumAttempts')}
-                                stylePinCodeButtonNumber={'#404040'}
+                                stylePinCodeButtonNumber={colors.common.text3}
                                 textDescriptionLockedPage={' '}
                                 textSubDescriptionLockedPage={' '}
-                                styleLockScreenColorIcon={'#000'}
+                                styleLockScreenColorIcon={colors.common.text3}
 
                                 colorPassword={'#864dd9'}
                                 subtitleComponent={() => this.renderSubtitle()}
@@ -232,26 +256,28 @@ class LockScreen extends Component {
                                 stylePinCodeHiddenPasswordSizeEmpty={10}
                                 stylePinCodeHiddenPasswordSizeFull={15}
                                 stylePinCodeTextButtonCircle={{
-                                    fontSize: 34,
-                                    fontFamily: 'SFUIDisplay-Regular'
+                                    fontSize: 28,
+                                    fontFamily: 'Montserrat-SemiBold',
                                 }}
-                                stylePinCodeChooseContainer={{}}
-                                numbersButtonOverlayColor={'#9969df'}
-                                stylePinCodeDeleteButtonColorShowUnderlay={'#9969df'}
+                                numbersButtonOverlayColor={'#864dd9'}
+                                stylePinCodeDeleteButtonColorShowUnderlay={''}
                                 stylePinCodeColumnDeleteButton={{
                                     alignItems: 'center',
                                     justifyContent: 'center',
-
-                                    marginTop: -3,
-                                    marginLeft: -5,
-
-                                    height: 54
+                                    opacity: 1,
+                                }}
+                                styleLockScreenMainContainer={{
+                                    marginTop: 0,
+                                    backgroundColor: colors.common.background,
+                                }}
+                                stylePinCodeChooseContainer={{
                                 }}
                                 styleLockScreenTitle={{
-                                    marginBottom: 35,
-                                    fontFamily: 'SFUIDisplay-Regular',
-                                    fontSize: 16,
-                                    color: '#404040'
+                                    marginBottom: 25,
+                                    fontFamily: 'Montserrat-SemiBold',
+                                    fontSize: 17,
+                                    textAlign: 'center',
+                                    color: colors.common.text1
                                 }}
                                 stylePinCodeHiddenPasswordCircle={{
                                     width: 230,
@@ -266,68 +292,53 @@ class LockScreen extends Component {
                                     borderBottomColor: '#7229ae'
                                 }}
                                 stylePinCodeRowButtons={{
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginTop: -10,
-                                    width: 250,
-                                    height: 75
                                 }}
                                 stylePinCodeColumnButtons={{
                                     alignItems: 'center',
                                     justifyContent: 'center',
-
-                                    width: 54,
-                                    marginHorizontal: 15,
-
-                                    backgroundColor: '#fff',
-
-                                    shadowColor: '#000',
-                                    shadowOffset: {
-                                        width: 0,
-                                        height: 3
-                                    },
-                                    shadowOpacity: 0.29,
-                                    shadowRadius: 4.65,
-
-                                    elevation: 7,
-
+                                    backgroundColor: colors.common.background,
                                     borderRadius: 40
                                 }}
                                 iconComponentLockedPage={this.renderIconComponentLockedPage}
                                 buttonComponentLockedPage={this.renderButtonComponentLockedPage}
+                                /*handleResultEnterPin={this.updateLastStatus}*/
                                 styleLockScreenTextTimer={{
-                                    fontFamily: 'SFUIDisplay-Regular',
-                                    color: '#404040'
+                                    fontFamily: 'Montserrat-SemiBold',
+                                    color: colors.common.text3
                                 }}
                                 styleLockScreenViewTimer={{
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    width: 80,
-                                    height: 35,
-                                    marginBottom: 50,
+                                    width: 140,
+                                    height: 50,
+                                    marginBottom: 20,
                                     borderRadius: 10,
-                                    borderWidth: 1,
-                                    borderColor: '#7229AE'
+                                    borderWidth: 0,
+                                    backgroundColor: colors.pincode.bgTimerColor,
                                 }}
                                 stylePinCodeEmptyColumn={
                                     this.state.passwordState !== 'enter' ? null :
                                         {
-                                            backgroundColor: '#0f0'// todo for faceid/touchid
+                                            borderRadius: 40,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            backgroundColor: colors.common.background,
                                         }
                                 }
                                 bottomLeftComponent={
                                     this.state.passwordState !== 'enter' ? null :
                                         (launchTouchID) => {
-                                            return <Button onPress={launchTouchID}>
-                                                <Text>faceid/touchid</Text>
-                                            </Button>
+                                            return <TouchableOpacity onPress={launchTouchID} style={[styles.iconContainer]}>
+                                                <MaterialIcons size={35} name={'fingerprint'} color={'#7229AE'}/>
+                                                {/*<Text>faceid/touchid</Text>*/}
+                                            </TouchableOpacity>
                                         }
                                 }
                             />
                         </View>
                         : null
                 }
-            </GradientView>
+            </View>
         )
     }
 }
@@ -338,6 +349,8 @@ const mapStateToProps = (state) => {
         lockScreen: state.lockScreenStore
     }
 }
+
+LockScreen.contextType = ThemeContext
 
 export default connect(mapStateToProps, {})(LockScreen)
 
@@ -357,14 +370,14 @@ const styles = {
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        height: 250,
-        paddingTop: 110,
-        marginBottom: 15,
+        height: 80,
+        paddingTop: 120,
+        marginBottom: 10,
+        zIndex: 2,
     },
     top__navigation: {
-        paddingTop: 50,
-        marginTop: 50,
-        marginBottom: -30
+        paddingTop: 120,
+        marginBottom: 10
     },
     top__bg: {
         position: 'absolute',
@@ -377,13 +390,13 @@ const styles = {
         position: 'relative',
         width: 95,
         height: 115,
-        marginBottom: 25
+        marginBottom: 1
     },
     titleLockedScreen: {
         position: 'relative',
         top: -35,
         fontSize: 16,
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         color: '#404040',
         backgroundColor: '#fff'
     },
@@ -395,16 +408,20 @@ const styles = {
     },
     quitBtn__text: {
         color: '#000',
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 16
     },
     icon: {
         justifyContent: 'center',
         alignItems: 'center',
-        width: 50,
-        height: 50,
-        borderWidth: 1,
-        borderColor: '#7229AE',
+        width: 30,
+        height: 30,
         borderRadius: 45
+    },
+    iconContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        height: '100%',
     }
 }
