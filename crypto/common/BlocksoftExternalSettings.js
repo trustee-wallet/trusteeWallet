@@ -210,10 +210,10 @@ class BlocksoftExternalSettings {
             currentServerIndex: 0
         }
         if (typeof currentServer === 'undefined' || !currentServer) {
-            BlocksoftCryptoLog.err('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' error with currentServer ' + JSON.stringify(TREZOR_SERVERS[key]))
+            BlocksoftCryptoLog.err('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' error with currentServer ', JSON.stringify(TREZOR_SERVERS[key]))
         }
 
-        BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' put to cache ' + JSON.stringify(TREZOR_SERVERS[key]))
+        BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' put to cache ', JSON.stringify(TREZOR_SERVERS[key]))
 
         return currentServer
     }

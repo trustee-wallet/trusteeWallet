@@ -159,7 +159,7 @@ export async function setSelectedAccount(setting) {
         }
 
 
-        Log.log('ACT/MStore setSelectedAccount rechecked')
+        // Log.log('ACT/MStore setSelectedAccount rechecked')
         if (typeof accounts.segwit === 'undefined' || !accounts.segwit || accounts.segwit.length === 0) {
             Log.log('ACT/MStore setSelectedAccount GENERATE SEGWIT')
             const tmp = await accountDS.discoverAccounts({

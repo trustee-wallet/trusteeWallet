@@ -1164,6 +1164,7 @@ class SendScreen extends SendBasicScreenScreen {
                                 title: strings('walletBackup.step0Screen.next')
                             }}
                             secondaryButton={{
+                                disabled: this.disabled(),
                                 type: 'settings',
                                 onPress: this.openAdvancedSettings
                             }}

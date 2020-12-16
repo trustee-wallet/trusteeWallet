@@ -347,6 +347,9 @@ const formatError = (title, e) => {
     if (e.message.indexOf('Error 404') === -1 && e.message.indexOf('Network request failed') === -1) {
         BlocksoftCryptoLog.err(title + ' error ' + e.message, e.json || false)
     } else {
-        BlocksoftCryptoLog.log(title + ' 404 notice ' + e.message, e.json || false)
+        const msg = title + ' 404 notice ' + e.message + ' ' + JSON.stringify(e.json)
+        if (msg.indexOf('No FIO Requests') === -1) {
+            BlocksoftCryptoLog.log(msg)
+        }
     }
 }

@@ -1,5 +1,5 @@
 /**
- * @version 0.11
+ * @version 0.31
  */
 import Log from '../../services/Log/Log'
 import Api from '../../services/Api/Api'
@@ -18,13 +18,14 @@ class UpdateCashBackDataDaemon {
         if (!this._canUpdate) return false
 
         this._canUpdate = false
-        Log.daemon('UpdateCashBackDataDaemon called')
-
         const authHash = await cryptoWalletsDS.getSelectedWallet()
         if (!authHash) {
             Log.daemon('UpdateCashBackDataDaemon skipped as no auth')
+            this._canUpdate = true
             return false
         }
+
+        Log.daemon('UpdateCashBackDataDaemon called')
         let data = false
         try {
             data = await Api.getCashbackData()
@@ -36,10 +37,15 @@ class UpdateCashBackDataDaemon {
             this._canUpdate = true
             return
         }
-        Log.daemon('updateCashBackDataDaemon result ', data)
-        data.time = new Date().getTime()
-        data.authHash = authHash
-        await CashBackUtils.setCashBackDataFromApi(data)
+        try {
+            Log.daemon('UpdateCashBackDataDaemon result ', data)
+            data.time = new Date().getTime()
+            data.authHash = authHash
+            await CashBackUtils.setCashBackDataFromApi(data)
+        } catch (e) {
+            this._canUpdate = true
+            Log.err('UpdateCashBackDataDaemon result error ' + e.message)
+        }
         this._canUpdate = true
     }
 

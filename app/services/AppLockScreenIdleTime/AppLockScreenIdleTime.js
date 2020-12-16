@@ -23,7 +23,6 @@ class AppLockScreenIdleTime {
         if (this._init) {
             return true
         }
-        Log.daemon('LockScreen inited')
         if (Platform.OS === 'android') {
             AppState.addEventListener('change', (state) => this.handleLockScreenStateAndroid({ state }))
         } else {
@@ -33,7 +32,6 @@ class AppLockScreenIdleTime {
     }
 
     handleLockScreenStateAndroid = (param) => {
-        Log.daemon('LockScreen param.state', param.state)
         if (param.state === 'background') {
 
             BackgroundTimer.runBackgroundTimer(() => {

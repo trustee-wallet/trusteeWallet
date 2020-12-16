@@ -28,7 +28,6 @@ import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalS
 
 import Toast from '../../services/UI/Toast/Toast'
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import SendLog from '../../services/Log/SendLog'
 import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
 import Log from '../../services/Log/Log'

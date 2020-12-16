@@ -33,10 +33,6 @@ import { capitalize } from '../../../services/UI/Capitalize/Capitalize'
 import { checkQRPermission } from '../../../services/UI/Qr/QrPermissions'
 import { saveSelectedBasicCurrencyCode } from '../../../appstores/Stores/Main/MainStoreActions'
 import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
-import BlocksoftBN from '../../../../crypto/common/BlocksoftBN'
-import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
-import { acc } from 'react-native-reanimated'
-import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
 
 import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
 
@@ -45,8 +41,6 @@ import { HIT_SLOP } from '../../../themes/Themes';
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 import { SIZE } from '../helpers';
-import { isValidOrNoPaymentID } from 'xmr-core/xmr-crypto-utils'
-
 
 let CACHE_PREV_CURRENCY = false
 

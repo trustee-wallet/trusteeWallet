@@ -43,9 +43,6 @@ class Log {
         this.DATA.LOG_VERSION = false
 
         this.TG_MSG = ''
-
-        this.FS.DAEMON.checkOverflow()
-        this.FS.ALL.checkOverflow()
     }
 
     _reinitTgMessage(testerMode, obj, msg) {
@@ -63,6 +60,9 @@ class Log {
         }
 
         this.TG_MSG = msg
+
+        this.FS.DAEMON.checkOverflow()
+        this.FS.ALL.checkOverflow()
     }
 
     consoleStart() {
@@ -80,23 +80,38 @@ class Log {
     }
 
 
-    simpleStringify(object, replacer, space) {
+    simpleStringify(object, replacer = null, space = '\t\t\t\t\t', level = 0) {
         const simpleObject = {}
-        let prop
-        for (prop in object) {
+        let setSimpleObject = false
+        for (const prop in object) {
             // eslint-disable-next-line no-prototype-builtins
             if (!object.hasOwnProperty(prop)) {
-                continue
-            }
-            if (typeof (object[prop]) === 'object') {
                 continue
             }
             if (typeof (object[prop]) === 'function') {
                 continue
             }
-            simpleObject[prop] = object[prop]
+            if (object[prop] === object) {
+                continue
+            }
+            if (typeof object[prop] === 'object') {
+                if (level > 1) {
+                    continue
+                }
+                const tmp = this.simpleStringify(object[prop], replacer, space, level+1)
+                if (tmp) {
+                    simpleObject[prop] = tmp
+                }
+            } else {
+                simpleObject[prop] = object[prop]
+                setSimpleObject = true
+            }
         }
-        return JSON.stringify(simpleObject, replacer, space) // returns cleaned up JSON
+        if (level > 0) {
+            return setSimpleObject ? simpleObject : false
+        } else {
+            return JSON.stringify(simpleObject, replacer, space) // returns cleaned up JSON
+        }
     }
 
     daemon(txtOrObj, txtOrObj2 = false, txtOrObj3 = false) {
@@ -141,11 +156,14 @@ class Log {
                 line += ' ' + this.simpleStringify(txtOrObj, null, '\t')
             }
         }
+
         if (txtOrObj2 && typeof txtOrObj2 !== 'undefined') {
             if (typeof txtOrObj2 === 'string') {
-                line += '\n\t\t\t' + txtOrObj2
+                line += '\n\t\t\t\t\t' + txtOrObj2
+            } else if (txtOrObj2 === {}) {
+                line += ' {} '
             } else if (typeof txtOrObj2.sourceURL === 'undefined') {
-                line += '\n\t\t\t' + this.simpleStringify(txtOrObj2, null, '\t\t\t')
+                line += '\n\t\t\t\t\t' + this.simpleStringify(txtOrObj2, null, '\t\t\t\t\t')
             }
         }
 
@@ -186,9 +204,9 @@ class Log {
 
         if (txtOrObj3 && typeof txtOrObj3 !== 'undefined') {
             if (typeof txtOrObj3 === 'string') {
-                line2 += '\t\t\t' + txtOrObj3
+                line2 += '\t\t\t\t\t' + txtOrObj3
             } else {
-                line2 += '\t\t\t' + this.simpleStringify(txtOrObj3, null, '\t\t\t')
+                line2 += '\t\t\t\t\t' + this.simpleStringify(txtOrObj3, null, '\t\t\t\t\t')
             }
             if (LOG_SUBTYPE !== 'DAEMON') {
                 if (DEBUG || this.localConsole) {

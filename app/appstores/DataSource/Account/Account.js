@@ -9,8 +9,6 @@ import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKey
 import currencyDS from '../Currency/Currency'
 
 import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
-import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
-import { acc } from 'react-native-reanimated'
 
 const tableName = 'account'
 let SAVED_UNIQUE = {}

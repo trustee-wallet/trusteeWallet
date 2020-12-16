@@ -56,7 +56,7 @@ export default new class AppNotificationListener {
             }
             Log.log('PUSH checkPermission error ' + e.message)
         }
-        Log.log('PUSH checkPermission result ', res)
+        Log.log('PUSH checkPermission result ' + JSON.stringify(res))
         if (res) {
             await appNewsDS.setRemoved({ newsName: 'PUSH_NOTIFICATION_DISABLED' })
         } else {
@@ -173,22 +173,24 @@ export default new class AppNotificationListener {
                 fcmToken = ''
                 Log.log('PUSH getToken cache invalidate ' + (now - time) + ' time ' + time)
             } else {
-                Log.log('PUSH getToken cache valid ' + (now - time) + ' time ' + time)
+                // Log.log('PUSH getToken cache valid ' + (now - time) + ' time ' + time)
             }
         }
 
         const notifsSavedToken = await settingsActions.getSetting('notifsSavedToken')
 
-        Log.log('notifsSavedToken', notifsSavedToken)
+        // Log.log('notifsSavedToken', notifsSavedToken)
         if (!time || !fcmToken || fcmToken === '' || notifsSavedToken !== fcmToken) {
-            await this.updateSubscriptions(fcmToken)
+            if (fcmToken) {
+                await this.updateSubscriptions(fcmToken)
+            }
             await this.rmvOld()
             fcmToken = await firebase.messaging().getToken()
             Log.log('PUSH getToken subscribed token ' + fcmToken)
             await this._onRefresh(fcmToken)
             await AsyncStorage.setItem(ASYNC_CACHE_TIME, now + '')
         } else {
-            Log.log('PUSH getToken cache result ' + fcmToken)
+            // Log.log('PUSH getToken cache result ' + fcmToken)
         }
 
         // @ts-ignore

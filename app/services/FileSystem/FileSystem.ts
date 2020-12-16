@@ -31,24 +31,15 @@ export class FileSystem {
                     fileName : string,
                     fileExtension : string
      }) {
-        if (RNFS.CachesDirectoryPath) {
-            this.coreDirname = RNFS.CachesDirectoryPath
-        } else {
+        if (RNFS.DocumentDirectoryPath) {
             this.coreDirname = RNFS.DocumentDirectoryPath
+        } else {
+            this.coreDirname = RNFS.CachesDirectoryPath
         }
         this._fileDir = this.coreDirname + '/' + (params.baseDir || 'logs')
         this._fileEncoding = params.fileEncoding || 'base64'
         this._fileName = params.fileName || 'noName'
         this._fileExtension = params.fileExtension || 'txt'
-    }
-
-    deleteFile = async (): Promise<void> => {
-        try {
-            await RNFS.unlink(this.getPath())
-        } catch (e) {
-            CACHE_ERROR.txt = 'ERROR!!! FS.deleteFile error ' + e.message
-            throw e
-        }
     }
 
     writeFile = async (content: string): Promise<void> => {
@@ -89,11 +80,15 @@ export class FileSystem {
         if (!items) return
         let item
         for (item of items) {
+            console.log('rmv ' + item.path)
             await RNFS.unlink(item.path)
         }
     }
 
     checkOverflow = async (): Promise<void> => {
+        if (!FilePermissions.isOk()) {
+            return
+        }
         try {
             const path = this.getPath()
             if (!await RNFS.exists(path)) {
@@ -101,9 +96,19 @@ export class FileSystem {
             }
             const res = await RNFS.stat(path)
             // @ts-ignore
-            if (res.size < 700000) { // 0.7 mb
+            if (res.size * 1 < 700000) { // 0.7 mb
                 return
             }
+            try {
+                for (let index = 5; index >= 1; index--) {
+                    if (await RNFS.exists(path + '-' + index + '.txt')) {
+                        await RNFS.moveFile(path + '-' + index + '.txt', path + '-' + (index + 1) + '.txt')
+                    }
+                }
+            } catch (e) {
+                // do nothing
+            }
+            await RNFS.moveFile(path, path + '-1.txt')
             await RNFS.unlink(path)
         } catch (e) {
             CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error ' + e.message
@@ -122,6 +127,7 @@ export class FileSystem {
             return
         }
         try {
+            // console.log('FILE ' + this.getPath() + ' ' + line)
             await RNFS.appendFile(this.getPath(), line + '\n', this._fileEncoding)
         } catch (e) {
             CACHE_ERROR.time = now

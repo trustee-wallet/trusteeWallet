@@ -30,10 +30,6 @@ class BlocksoftCryptoLog {
         this.DATA.LOG_VERSION = false
 
         this.TG_MSG = ''
-
-        // noinspection JSIgnoredPromiseFromCall
-        this.FS.checkOverflow()
-
     }
 
     _reinitTgMessage(testerMode, obj, msg) {
@@ -51,6 +47,9 @@ class BlocksoftCryptoLog {
         }
 
         this.TG_MSG = msg
+
+        // noinspection JSIgnoredPromiseFromCall
+        this.FS.checkOverflow()
     }
 
     log(txtOrObj, txtOrObj2 = false, txtOrObj3 = false) {
@@ -65,9 +64,11 @@ class BlocksoftCryptoLog {
         }
         if (txtOrObj2 && typeof txtOrObj2 !== 'undefined') {
             if (typeof txtOrObj2 === 'string') {
-                line += '\n\t\t\t' + txtOrObj2
+                line += '\n\t\t\t\t\t' + txtOrObj2
+            } else if (txtOrObj2 === {}) {
+                line += ' {} '
             } else if (typeof txtOrObj2.sourceURL === 'undefined') {
-                line += '\n\t\t\t' + JSON.stringify(txtOrObj2, null, '\t\t\t')
+                line += '\n\t\t\t\t\t' + JSON.stringify(txtOrObj2, null, '\t\t\t\t\t')
             }
         }
 
@@ -84,9 +85,9 @@ class BlocksoftCryptoLog {
 
         if (txtOrObj3 && typeof txtOrObj3 !== 'undefined') {
             if (typeof txtOrObj3 === 'string') {
-                line2 += '\t\t\t' + txtOrObj3
+                line2 += '\t\t\t\t\t' + txtOrObj3
             } else {
-                line2 += '\t\t\t' + JSON.stringify(txtOrObj3, null, '\t\t\t')
+                line2 += '\t\t\t\t\t' + JSON.stringify(txtOrObj3, null, '\t\t\t\t\t')
             }
             // noinspection JSUnresolvedFunction
             if (!config.debug.cryptoErrors && config.debug.firebaseLogs) {

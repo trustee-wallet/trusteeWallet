@@ -191,7 +191,7 @@ class AppNews {
         try {
             const res = await dbInterface.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
-                Log.daemon('AppNews getAppNewsForServer finished as empty')
+                Log.daemon('DS/AppNews getAppNewsForServer finished as empty')
                 return []
             }
             return res.array

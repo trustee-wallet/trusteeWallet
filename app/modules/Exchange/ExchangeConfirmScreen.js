@@ -25,7 +25,6 @@ import {capitalize} from '../../services/UI/Capitalize/Capitalize'
 
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
@@ -101,7 +100,7 @@ class ExchangeConfirmScreen extends Component {
             setLoaderStatus(true)
 
             const res = await Api.createOrder(dataToSend)
-
+            Log.log('EXC/V2 dataExchange', res.data)
             await SendActions.startSend({
                 gotoReceipt: true,
                 addressTo : res.data.address,

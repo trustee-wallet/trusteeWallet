@@ -17,7 +17,7 @@ export default {
 
         const dbInterface = new DBInterface()
 
-        Log.daemon('WalletPubScanning getWalletPubsForScancalled')
+        Log.daemon('WalletPubScanning getWalletPubsForScan called')
 
         let where = []
         if (typeof params.force === 'undefined' || !params.force) {

@@ -61,7 +61,7 @@ class SendAdvancedSettingsScreen extends Component {
 
         const sendScreenData = SendTmpData.getData()
         const {selectedFee, countedFees, countedFeesData} = SendTmpData.getCountedFees()
-        /*
+
         console.log('')
         console.log('')
         console.log('Send.SendAdvancedSettingsScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
@@ -69,7 +69,7 @@ class SendAdvancedSettingsScreen extends Component {
         console.log('countedFees', JSON.parse(JSON.stringify(countedFees)))
         console.log('selectedFee', JSON.parse(JSON.stringify(selectedFee)))
         console.log('')
-         */
+
         this.setState({
             sendScreenData,
             countedFees,
@@ -130,15 +130,11 @@ class SendAdvancedSettingsScreen extends Component {
         const { uiProviderType, isTransferAll } = this.state.sendScreenData
         // console.log('Send.SendAdvancedSettings.showFee', JSON.parse(JSON.stringify({ basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode })))
         // console.log('Send.SendAdvancedSettings.showFee state', JSON.parse(JSON.stringify({ countedFees, selectedFee, isCustomFee })))
-        if (!countedFees.fees) {
-            // console.log('Send.SendAdvancedSettings.showFee noFees')
-            return false
-        }
 
         return (
             <View style={{ paddingLeft: 40 }}>
                 {
-                    countedFees ? countedFees.fees.map((item, index) => {
+                    countedFees && countedFees.fees ? countedFees.fees.map((item, index) => {
                         let prettyFee
                         let prettyFeeSymbol = feesCurrencySymbol
                         let feeBasicCurrencySymbol = basicCurrencySymbol
@@ -212,19 +208,19 @@ class SendAdvancedSettingsScreen extends Component {
 
                 }
 
-                {(countedFees && uiProviderType != 'FIXED' ) ?
+                {(uiProviderType !== 'FIXED' ) ?
                     <SubSetting
                         title={strings(`send.fee.customFee.title`)}
-                        checked={isCustomFee}
+                        checked={!countedFees.fees || isCustomFee}
                         radioButtonFirst={true}
                         withoutLine={true}
                         onPress={() => this.setCustomFee()}
                         checkedStyle={true}
                         ExtraView={() => this.renderCustomFee(currencyCode, feesCurrencyCode, basicCurrencySymbol, feeRates.basicCurrencyRate)}
-                    /> : (countedFees && uiProviderType === 'FIXED' && !isTransferAll) ?
+                    /> : (uiProviderType === 'FIXED' && !isTransferAll) ?
                     <SubSetting
                         title={strings(`send.fee.customFee.title`)}
-                        checked={isCustomFee}
+                        checked={!countedFees.fees || isCustomFee}
                         radioButtonFirst={true}
                         withoutLine={true}
                         onPress={() => this.setCustomFee()}
@@ -276,15 +272,17 @@ class SendAdvancedSettingsScreen extends Component {
 
         const { colors, GRID_SIZE } = this.context
 
-        const { focused, countedFeesData, headerHeight } = this.state
+        const { focused, countedFeesData, sendScreenData, headerHeight } = this.state
 
-        if (typeof countedFeesData === 'undefined' || typeof countedFeesData.currencyCode === 'undefined') {
+        console.log('countedFeesData', countedFeesData, sendScreenData)
+        if (typeof sendScreenData === 'undefined' || typeof sendScreenData.currencyCode === 'undefined') {
             return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
         }
 
-        const { account } = SendActions.findWalletPlus(this.state.countedFeesData.currencyCode)
+        const { account } = SendActions.findWalletPlus(sendScreenData.currencyCode)
         const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode } = account
 
+        const langMsg = this.state.selectedFee ? this.state.selectedFee.langMsg : 'none'
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
@@ -311,8 +309,8 @@ class SendAdvancedSettingsScreen extends Component {
                                     switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
                                     type={'dropdown'}
                                     ExtraView={() => this.showFee(basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode)}
-                                    subtitle={this.state.selectedFee.langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) : 
-                                        strings(`send.fee.text.${this.state.selectedFee.langMsg}`) : null}
+                                    subtitle={langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) :
+                                        strings(`send.fee.text.${langMsg}`) : null}
                                 />
                             </View>
                             {/* {console.log(SendTmpConstants.SELECTED_FEE.blockchainData.preparedInputsOutputs)} */}

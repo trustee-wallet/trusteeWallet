@@ -1,6 +1,5 @@
 /**
- * @version todo
- * @misha to review
+ * @version 0.11
  */
 import React, {Component} from 'react'
 
@@ -28,6 +27,7 @@ import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import TmpConstants from './elements/TmpConstants'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
+import Log from '../../services/Log/Log'
 
 class ConfirmScreen extends Component {
 
@@ -196,6 +196,8 @@ class ConfirmScreen extends Component {
             setLoaderStatus(true)
 
             const res = await Api.createOrder(dataToSend)
+
+            Log.log('Trade/V2 dataSell', res.data)
 
             await SendActions.startSend({
                 gotoReceipt: true,

@@ -360,8 +360,8 @@ export default {
         if (res && typeof res.data !== 'undefined') {
             if (typeof res.data.serverTime !== 'undefined') {
                 const diff = Math.abs(now - res.data.serverTime)
-                Log.daemon('ApiV3 getExchangeOrders diff ' + diff + ' with time ' + res.data.serverTime)
                 if (diff > 6000) {
+                    Log.daemon('ApiV3 getExchangeOrders will ask server time diff ' + diff + ' with time ' + res.data.serverTime)
                     CACHE_SERVER_TIME_NEED_TO_ASK = true
                 } else {
                     CACHE_SERVER_TIME_NEED_TO_ASK = false

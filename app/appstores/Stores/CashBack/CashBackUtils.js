@@ -93,7 +93,7 @@ export default new class CashBackUtils {
     getByHash = async (tmpHash, source) => {
         let tmpPublicAndPrivateResult = await BlocksoftKeysForRefStorage.getPublicAndPrivateResultForHash(tmpHash)
         if (tmpPublicAndPrivateResult && typeof tmpPublicAndPrivateResult.cashbackToken !== 'undefined') {
-            Log.log('SRV/CashBack getByHash ' + tmpHash + ' => ' + tmpPublicAndPrivateResult.cashbackToken)
+            // Log.log('SRV/CashBack getByHash ' + tmpHash + ' => ' + tmpPublicAndPrivateResult.cashbackToken)
             return tmpPublicAndPrivateResult
         }
         Log.log('SRV/CashBack getByHash need to discoverPublic', tmpHash)

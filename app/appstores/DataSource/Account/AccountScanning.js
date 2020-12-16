@@ -30,11 +30,7 @@ class AccountScanning {
             limit = 20
         }
         where.push(`currency.is_hidden=0`)
-        where.push(`(account.currency_code!='BTC' 
-        OR account.derivation_path = 'm/49quote/0quote/0/1/0' 
-        OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub) 
-        OR wallet.wallet_is_hd NOT IN (1, '1') 
-        OR wallet.wallet_is_hd IS NULL)`)
+        where.push(`(account.currency_code!='BTC' OR account.derivation_path = 'm/49quote/0quote/0/1/0' OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub))`)
         if (typeof params.currencyCode !== 'undefined' && params.currencyCode) {
             where.push(`account.currency_code='${params.currencyCode}'`)
             where.push(`account.is_main=1`)

@@ -316,6 +316,7 @@ class MainV3DataScreen extends Component {
     async sellV3(data) {
         console.log('Trade/MainV3Screen dataSell', JSON.stringify(data))
         try {
+            Log.log('Trade/MainV3Screen dataSell', data)
             await SendActions.startSend({
                 gotoReceipt: true,
                 addressTo: data.address,

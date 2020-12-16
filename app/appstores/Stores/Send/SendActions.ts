@@ -19,8 +19,9 @@ import {
 import config from '../../../config/config'
 import store from '../../../store'
 import { strings } from '../../../services/i18n'
-import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import Log from '../../../services/Log/Log'
+
+import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import { BlocksoftBlockchainTypes } from '../../../../crypto/blockchains/BlocksoftBlockchainTypes'
 
 export namespace SendActions {
@@ -216,21 +217,6 @@ export namespace SendActions {
     }
 
     export const startSend = async function(data: SendTmpData.SendScreenDataRequest): Promise<boolean> {
-
-        let needToCount = false
-        if (typeof data.uiType !== 'undefined' && data.uiType === 'TRADE_SEND') {
-            if (!data.isTransferAll) {
-                SendTmpData.cleanCountedFees()
-                needToCount = true
-            }
-        } else if (typeof data.gotoWithCleanData !== 'undefined' && !data.gotoWithCleanData) {
-            // do nothing for send => receipt
-        } else {
-            // for all others also clean
-            SendTmpData.cleanCountedFees()
-            needToCount = true
-        }
-
         data.transactionReplaceByFee = false
         data.transactionSpeedUp = false
         data.transactionJson = {}
@@ -258,17 +244,41 @@ export namespace SendActions {
             data.addressTo = data.fioRequestDetails.content.payee_public_address || data.fioRequestDetails.payee_fio_public_key
         }
 
+        let needToCount = false
+        if (typeof data.uiType !== 'undefined' && data.uiType === 'TRADE_SEND') {
+            if (!data.isTransferAll) {
+                Log.log('SendActions.startSend WILL CLEAR COUNTED TRADE FEES')
+                SendTmpData.cleanCountedFees()
+                needToCount = true
+            } else {
+                Log.log('SendActions.startSend WILL NOT CLEAR COUNTED TRADE FEES')
+            }
+        } else if (typeof data.gotoWithCleanData !== 'undefined' && !data.gotoWithCleanData) {
+            // do nothing for send => receipt
+            Log.log('SendActions.startSend WILL NOT CLEAR COUNTED SPEC PARAM')
+        } else {
+            // for all others also clean
+            Log.log('SendActions.startSend WILL CLEAR COUNTED FEES')
+            SendTmpData.cleanCountedFees()
+            needToCount = true
+        }
         data.uiNeedToCountFees = (data.gotoReceipt && needToCount)
 
         SendTmpData.setData(data)
         if (data.gotoReceipt) {
-            /*if (needToCount) {
+            // @ts-ignore
+            Log.log('SendActions.startSend GO TO RECEIPT', data)
+            /*
+            if (needToCount) {
                 const { selectedFee } = await countFees(data)
                 data.selectedFee = selectedFee
                 SendTmpData.setData(data)
-            }*/
+            }
+            */
             NavStore.goNext('ReceiptScreen', { fioRequestDetails: data.fioRequestDetails })
         } else {
+            // @ts-ignore
+            Log.log('SendActions.startSend GO TO SEND', data)
             NavStore.goNext('SendScreen')
         }
         return true
