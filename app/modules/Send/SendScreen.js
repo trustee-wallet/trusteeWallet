@@ -475,18 +475,20 @@ class SendScreen extends SendBasicScreenScreen {
         let contactName = this.state.contactName
         let contactAddress =  this.state.contactAddress
 
+        let addressTo
         try {
-            const tmp = addressValidation.value
-            if (tmp && (tmp !== contactName || !contactAddress)) {
+            addressTo = addressValidation.value
+            if (addressTo && (addressTo !== contactName || !contactAddress)) {
                 let toContactAddress = false
                 try {
-                    toContactAddress = await SendActions.getContactAddress({ addressName: tmp, currencyCode : cryptoCurrency.currencyCode })
+                    toContactAddress = await SendActions.getContactAddress({ addressName: addressTo, currencyCode : cryptoCurrency.currencyCode })
                     if (!toContactAddress) {
                         contactName = false
                         contactAddress = false
                     } else {
-                        contactName = tmp
+                        contactName = addressTo
                         contactAddress = toContactAddress
+                        addressTo = false
                     }
                 } catch (e) {
                     enoughFunds.isAvailable = false
@@ -586,10 +588,14 @@ class SendScreen extends SendBasicScreenScreen {
                 newSendScreenData.amountRaw = amountRaw
                 newSendScreenData.contactName = contactName
                 newSendScreenData.contactAddress = contactAddress
-
                 let isChanged = false
-                if ((!newSendScreenData.addressTo || newSendScreenData.addressTo === '') && contactName) {
-                    newSendScreenData.addressTo = contactName
+                if (contactName) {
+                    if (newSendScreenData.addressTo !== contactName) {
+                        newSendScreenData.addressTo = contactName
+                        isChanged = true
+                    }
+                } else if (newSendScreenData.addressTo !== addressTo) {
+                    newSendScreenData.addressTo = addressTo
                     isChanged = true
                 }
 

@@ -274,7 +274,6 @@ class SendAdvancedSettingsScreen extends Component {
 
         const { focused, countedFeesData, sendScreenData, headerHeight } = this.state
 
-        console.log('countedFeesData', countedFeesData, sendScreenData)
         if (typeof sendScreenData === 'undefined' || typeof sendScreenData.currencyCode === 'undefined') {
             return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
         }
