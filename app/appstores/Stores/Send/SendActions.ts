@@ -69,7 +69,7 @@ export namespace SendActions {
         addressTo: string,
         currencyCode: string,
         memo: string
-    }): Promise<{ countedFees: any, transferBalance: string }> {
+    }): Promise<{ transferBalance: string }> {
 
         const { wallet, account } = findWalletPlus(data.currencyCode)
 
@@ -107,7 +107,7 @@ export namespace SendActions {
             selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
         }
         SendTmpData.setCountedFees({ countedFees, countedFeesData, selectedFee })
-        return { countedFees, transferBalance: countedFees.selectedTransferAllBalance }
+        return { transferBalance: countedFees.selectedTransferAllBalance }
     }
 
     export const countFees = async function(data: SendTmpData.SendScreenDataRequest): Promise<{ countedFees: any, selectedFee: any }> {
@@ -147,6 +147,9 @@ export namespace SendActions {
         if (typeof data.memo !== 'undefined' && data.memo) {
             // @ts-ignore
             countedFeesData.memo = data.memo
+        }
+        if (typeof data.contactAddress !== 'undefined' && data.contactAddress && data.contactAddress !== '') {
+            countedFeesData.addressTo = data.contactAddress
         }
         if (data.transactionSpeedUp || data.transactionReplaceByFee) {
             // any amount is ok
@@ -217,6 +220,7 @@ export namespace SendActions {
     }
 
     export const startSend = async function(data: SendTmpData.SendScreenDataRequest): Promise<boolean> {
+
         data.transactionReplaceByFee = false
         data.transactionSpeedUp = false
         data.transactionJson = {}
@@ -242,13 +246,15 @@ export namespace SendActions {
             data.amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amountPretty)
             data.contactName = data.fioRequestDetails.payee_fio_address
             data.addressTo = data.fioRequestDetails.content.payee_public_address || data.fioRequestDetails.payee_fio_public_key
+        } else if (typeof data.contactAddress !== 'undefined' && data.contactAddress && data.contactAddress !== '') {
+            data.addressTo = data.contactAddress
         }
+
 
         let needToCount = false
         if (typeof data.uiType !== 'undefined' && data.uiType === 'TRADE_SEND') {
             if (!data.isTransferAll) {
                 Log.log('SendActions.startSend WILL CLEAR COUNTED TRADE FEES')
-                SendTmpData.cleanCountedFees()
                 needToCount = true
             } else {
                 Log.log('SendActions.startSend WILL NOT CLEAR COUNTED TRADE FEES')
@@ -259,15 +265,18 @@ export namespace SendActions {
         } else {
             // for all others also clean
             Log.log('SendActions.startSend WILL CLEAR COUNTED FEES')
-            SendTmpData.cleanCountedFees()
             needToCount = true
         }
         data.uiNeedToCountFees = (data.gotoReceipt && needToCount)
+        if (needToCount) {
+            SendTmpData.cleanCountedFees()
+            data.selectedFee = false
+        }
 
         SendTmpData.setData(data)
         if (data.gotoReceipt) {
             // @ts-ignore
-            Log.log('SendActions.startSend GO TO RECEIPT', data)
+            console.log('SendActions.startSend GO TO RECEIPT', data)
             /*
             if (needToCount) {
                 const { selectedFee } = await countFees(data)
@@ -278,7 +287,7 @@ export namespace SendActions {
             NavStore.goNext('ReceiptScreen', { fioRequestDetails: data.fioRequestDetails })
         } else {
             // @ts-ignore
-            Log.log('SendActions.startSend GO TO SEND', data)
+            console.log('SendActions.startSend GO TO SEND', data)
             NavStore.goNext('SendScreen')
         }
         return true

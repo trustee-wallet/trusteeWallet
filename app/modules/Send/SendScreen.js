@@ -184,10 +184,12 @@ class SendScreen extends SendBasicScreenScreen {
                 wallet,
                 useAllFunds: sendScreenData.isTransferAll,
                 init: true,
-                amountInputMark: this.state.amountInputMark ? this.state.amountInputMark : this.state.inputType === 'FIAT' ? `~ 0.00 ${cryptoCurrency.currencyCode}` : ` ~ ${account.basicCurrencySymbol} 0.00` 
+                amountInputMark: this.state.amountInputMark ? this.state.amountInputMark : this.state.inputType === 'FIAT' ? `~ 0.00 ${cryptoCurrency.currencyCode}` : ` ~ ${account.basicCurrencySymbol} 0.00`
             }, () => {
 
-                if (typeof sendScreenData.addressTo !== 'undefined' && sendScreenData.addressTo) {
+                if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName) {
+                    this.addressInput.handleInput(sendScreenData.contactName, false)
+                } else if (typeof sendScreenData.addressTo !== 'undefined' && sendScreenData.addressTo) {
                     this.addressInput.handleInput(sendScreenData.addressTo, false)
                 }
 
@@ -205,15 +207,12 @@ class SendScreen extends SendBasicScreenScreen {
                             const {currencyCode, basicCurrencyRate} = account
                             amount = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
                             amount = UtilsService.cutNumber(amount, 2)
-                            console.log('_SendScreen.setStateFromInit amount1 ', amount)
                             this.valueInput.handleInput(amount, false)
                         } else {
-                            value = sendScreenData.amountPretty.toString()
                             amount = sendScreenData.amountPretty.toString()
-                            console.log('_SendScreen.setStateFromInit amount2 ', amount)
                             this.valueInput.handleInput(amount, false)
                         }
-                        const { amountEquivalent, amountInputMark} = this.amountEquivalent(value)
+                        const { amountEquivalent, amountInputMark} = this.amountEquivalent(amount)
                         this.setState({
                             amountEquivalent: amountEquivalent,
                             amountInputMark: amountInputMark,
@@ -308,6 +307,7 @@ class SendScreen extends SendBasicScreenScreen {
             newSendScreenData.amountPretty = amount
             newSendScreenData.inputValue = amount
             newSendScreenData.selectedFee = selectedFee
+            newSendScreenData.uiNeedToCountFees = false
 
             // console.log(`Send.SendScreen.handleTransferAll`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))
 
@@ -379,7 +379,7 @@ class SendScreen extends SendBasicScreenScreen {
             await this.handleTransferAll()
         }
 
-        console.log('Send.SendScreen.handleSendTransaction started ' + JSON.stringify({forceSendAmount,forceSendAll,fromModal}))
+        // console.log('Send.SendScreen.handleSendTransaction started ' + JSON.stringify({forceSendAmount,forceSendAll,fromModal}))
 
         const {
             wallet,
@@ -578,37 +578,36 @@ class SendScreen extends SendBasicScreenScreen {
                 balance: cryptoCurrency.currencyBalanceAmount
             })
 
-            setTimeout(async () => {
-
-                console.log('toSendContactName', contactName)
-                const newSendScreenData = sendScreenData
-                newSendScreenData.gotoReceipt = true
-                newSendScreenData.gotoWithCleanData = false
-                newSendScreenData.amount = amount
-                newSendScreenData.amountRaw = amountRaw
-                newSendScreenData.contactName = contactName
-                newSendScreenData.contactAddress = contactAddress
-                let isChanged = false
-                if (contactName) {
-                    if (newSendScreenData.addressTo !== contactName) {
-                        newSendScreenData.addressTo = contactName
-                        isChanged = true
-                    }
-                } else if (newSendScreenData.addressTo !== addressTo) {
-                    newSendScreenData.addressTo = addressTo
+            const newSendScreenData = sendScreenData
+            newSendScreenData.gotoReceipt = true
+            newSendScreenData.gotoWithCleanData = false
+            newSendScreenData.amount = amount
+            newSendScreenData.amountRaw = amountRaw
+            newSendScreenData.contactName = contactName
+            newSendScreenData.contactAddress = contactAddress
+            let isChanged = false
+            if (contactName) {
+                if (newSendScreenData.addressTo !== contactName) {
+                    newSendScreenData.addressTo = contactName
                     isChanged = true
                 }
+            } else if (newSendScreenData.addressTo !== addressTo) {
+                newSendScreenData.addressTo = addressTo
+                isChanged = true
+            }
 
-                // when late count
-                if (!newSendScreenData.isTransferAll || isChanged) {
-                    const { selectedFee } = await this.recountFees(newSendScreenData)
-                    newSendScreenData.selectedFee = selectedFee
-                }
+            // when late count
+            if (!newSendScreenData.isTransferAll || isChanged || (
+                typeof newSendScreenData.uiNeedToCountFees && newSendScreenData.uiNeedToCountFees
+            )) {
+                const { selectedFee } = await this.recountFees(newSendScreenData)
+                newSendScreenData.selectedFee = selectedFee
+                newSendScreenData.uiNeedToCountFees = false
+            }
 
-                // memo and destination will be autocomplited
-                await SendActions.startSend(newSendScreenData)
+            // memo and destination will be autocomplited
+            await SendActions.startSend(newSendScreenData)
 
-            }, 500)
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('Send.SendScreen.handleSendTransaction error', e)
@@ -660,7 +659,7 @@ class SendScreen extends SendBasicScreenScreen {
     amountInputCallback = async (value, changeUseAllFunds, addressTo = false, memo = false, addressValidateType = '') => {
 
         try {
-            const { useAllFunds } = this.state
+            let { useAllFunds, contactName, contactAddress } = this.state
             // console.log('Send.SendScreen.amountInputCallback state', { value, changeUseAllFunds, addressTo, memo })
 
             const { currencySymbol, currencyCode } = this.state.cryptoCurrency
@@ -673,10 +672,11 @@ class SendScreen extends SendBasicScreenScreen {
                 }
             }
 
+
             if (addressTo === false) {
-                if (this.state.contactAddress) {
-                    addressTo = this.state.contactAddress
-                    this.addressInput.handleInput(this.state.contactName.toString(), false)
+                if (contactAddress) {
+                    addressTo = contactAddress
+                    this.addressInput.handleInput(contactName.toString(), false)
                 } else {
                     const addressValidate = await this.addressInput.handleValidate()
                     if (addressValidate.status === 'success') {
@@ -693,30 +693,26 @@ class SendScreen extends SendBasicScreenScreen {
                     // do nothing - will be in send to receipt action rechecked the same
                 }
                 if (toContactAddress) {
-                    console.log('toContactAddressSet', {
-                        contactName : addressTo,
-                        contactAddress : toContactAddress
-                    })
-                    this.setState({
-                        contactName : addressTo,
-                        contactAddress : toContactAddress
-                    })
+                    contactName = addressTo
+                    contactAddress = toContactAddress
                     addressTo = toContactAddress
                 } else {
-                    this.setState({
-                        contactName : false,
-                        contactAddress : false
-                    })
+                    contactName = false
+                    contactAddress = false
                     const obj = { type: addressValidateType, value: addressTo, ...this.state.cryptoCurrency }
                     if (typeof this.state.cryptoCurrency.network !== 'undefined') {
                         obj.subtype = this.state.cryptoCurrency.network
                     }
                     const errors = await Validator.userDataValidation(obj)
                     if (typeof errors.msg !== 'undefined') {
+                        console.log('errors', errors)
                         return false
                     }
                 }
-
+                this.setState({
+                    contactName : contactName,
+                    contactAddress : contactAddress,
+                })
             }
 
             if (memo === false && typeof this.memoInput.handleValidate !== 'undefined') {
@@ -726,9 +722,8 @@ class SendScreen extends SendBasicScreenScreen {
                 }
             }
 
-            let isTransferAll = useAllFunds
             if (useAllFunds && changeUseAllFunds) {
-                isTransferAll = false
+                useAllFunds = false
                 this.setState({
                     useAllFunds: false,
                     loadFee: true
@@ -740,8 +735,8 @@ class SendScreen extends SendBasicScreenScreen {
             }
 
             const { amountEquivalent, amountInputMark, valueCrypto } = this.amountEquivalent(value)
-
             const valueCryptoRaw = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(valueCrypto)
+
             if (value.toString() === '0' || valueCryptoRaw === "" || valueCryptoRaw === "000000000" || valueCryptoRaw === "00000000") {
                 this.setState({
                     loadFee: false,
@@ -753,20 +748,19 @@ class SendScreen extends SendBasicScreenScreen {
                 return true
             }
 
-            
             const newSendScreenData = JSON.parse(JSON.stringify(this.state.sendScreenData))
             if (
                 (valueCrypto && newSendScreenData.inputValue !== valueCrypto) ||
-                (newSendScreenData.isTransferAll !== isTransferAll) ||
+                (newSendScreenData.isTransferAll !== useAllFunds) ||
                 (addressTo && newSendScreenData.addressTo !== addressTo) ||
                 (memo && newSendScreenData.memo !== memo)
             ) {
-                newSendScreenData.isTransferAll = isTransferAll
+                newSendScreenData.isTransferAll = useAllFunds
+                newSendScreenData.contactName = contactName
+                newSendScreenData.contactAddress = contactAddress
+                newSendScreenData.addressTo = addressTo
                 if (memo) {
                     newSendScreenData.memo = memo
-                }
-                if (addressTo) {
-                    newSendScreenData.addressTo = addressTo
                 }
 
                 newSendScreenData.inputValue = valueCrypto
@@ -774,14 +768,15 @@ class SendScreen extends SendBasicScreenScreen {
                     newSendScreenData.amountPretty = valueCrypto
                     newSendScreenData.amountRaw = valueCryptoRaw
                     newSendScreenData.unconfirmedRaw = 0
+                    newSendScreenData.uiNeedToCountFees = true
                 } else {
-                    console.log('!!!!!!!!!!!!!!')
                     // lets try late count - only transfer all requires
                     this.setState({
                         loadFee : true
                     })
                     const {selectedFee} = await this.recountFees(newSendScreenData)
                     newSendScreenData.selectedFee = selectedFee
+                    newSendScreenData.uiNeedToCountFees = false
                     console.log(`Send.SendScreen.amountInputCallback`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))
                 }
             } else {
@@ -789,6 +784,7 @@ class SendScreen extends SendBasicScreenScreen {
             }
 
 
+            console.log('afterCallback', JSON.parse(JSON.stringify(newSendScreenData)))
             this.setState({
                 amountEquivalent: amountEquivalent,
                 amountInputMark: amountInputMark,
