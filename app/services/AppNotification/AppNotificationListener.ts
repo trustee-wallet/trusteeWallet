@@ -127,12 +127,13 @@ export default new class AppNotificationListener {
     async updateSubscriptions(fcmToken : string = ''): Promise<void> {
         Log.log('PUSH updateSubscriptions ' + fcmToken)
         const settings = await settingsActions.getSettings(false)
-        const notifsStatus = settings.notifsStatus || '1'
+        const notifsStatus = settings && typeof settings.notifsStatus !== 'undefined' && settings.notifsStatus ? settings.notifsStatus : '1'
         const locale: string = sublocale()
         const devMode = await AsyncStorage.getItem('devMode')
         const isDev = devMode && devMode.toString() === '1'
 
 
+        await this._subscribe('trusteeAll', locale, isDev as boolean)
         if (notifsStatus === '1') {
             for (const key of TOPICS) {
                 // @ts-ignore
