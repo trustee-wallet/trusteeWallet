@@ -62,7 +62,7 @@ const TransactionItem = (props) => {
                         <View style={[styles.textContent, { paddingVertical: 3 }]}>
                             <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
                             {!!subtitle ?
-                                    <TouchableOpacity onPress={() => isLink ? handleLink(linkUrl) : null} onLongPress={copyAction}>
+                                    <TouchableOpacity onPress={copyAction}>
                                         <Text style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>
                                     </TouchableOpacity> : null}
                         </View>
@@ -83,7 +83,7 @@ const TransactionItem = (props) => {
                                     {
                                         copyAction ?
                                             (
-                                                <TouchableOpacity onPress={() => isLink ? handleLink(linkUrl) : copyAction} onLongPress={copyAction}>
+                                                <TouchableOpacity onPress={copyAction}>
                                                 {!!subtitle &&
                                                     <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>}
                                                 </TouchableOpacity>

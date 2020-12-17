@@ -88,6 +88,7 @@ class TransactionScreen extends Component {
         let { transactionHash, orderHash, walletHash, transaction, notification } = data
         let tx
         let account
+        let currencyCode
 
 
         if (!transaction) {
@@ -106,7 +107,8 @@ class TransactionScreen extends Component {
                     }, 'TransactionScreen.init with transactionHash ' + transactionHash)
                     if (tmp) {
                         // if you need = add also transactionActions.preformat for basic rates
-                        account = account[tmp[0].currencyCode]
+                        currencyCode = tmp[0].currencyCode
+                        account = account[currencyCode]
                         tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData)
                     } else {
                         tx = transactionActions.preformatWithBSEforShow( false,{ orderHash, createdAt : notification.createdAt })
@@ -121,7 +123,8 @@ class TransactionScreen extends Component {
                     }, 'TransactionScreen.init with orderHash ' + orderHash)
                     if (tmp) {
                         // if you need = add also transactionActions.preformat for basic rates
-                        account = account[tmp[0].currencyCode]
+                        currencyCode = tmp[0].currencyCode
+                        account = account[currencyCode]
                         tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData)
                     } else {
                         const exchangeOrder = await UpdateTradeOrdersDaemon.fromApi(walletHash, orderHash)
@@ -141,27 +144,31 @@ class TransactionScreen extends Component {
             console.log('TransactionScreen.tx search result ', JSON.parse(JSON.stringify(tx)))
         } else {
             tx = transaction
+            currencyCode = transaction.currencyCode
         }
 
-        this.init(tx)
+        const cryptoCurrency = store.getState().currencyStore.cryptoCurrencies.find(item => item.currencyCode === currencyCode)
+
+        this.init(tx, cryptoCurrency)
 
         if (typeof notification !== 'undefined') {
             this.setState(() => ({
                 transaction: tx,
-                notification
+                notification,
+                cryptoCurrency
             }))
         } else {
             this.setState(() => ({
-                transaction: tx
+                transaction: tx,
+                cryptoCurrency
             }))
         }
 
     }
 
-    init = (transaction) => {
+    init = (transaction, cryptoCurrency) => {
         console.log('init transaction transaction', transaction)
         try {
-            const { cryptoCurrency } = this.props
 
             const fioMemo = DaemonCache.getFioMemo(cryptoCurrency.currencyCode)
 
@@ -541,7 +548,7 @@ class TransactionScreen extends Component {
         return strings(`account.transactionScreen.header.status.${status.toLowerCase()}`).toUpperCase()
     }
 
-    headerTrx = (transaction, color, currencyCode) => {
+    headerTrx = (transaction, color, cryptoCurrency) => {
 
         if (Object.keys(transaction).length === 0) {
             return (
@@ -551,9 +558,9 @@ class TransactionScreen extends Component {
 
         const { colors, isLight } = this.context
 
-        const { cryptoCurrency } = this.props
-
         const { transactionStatus, transactionDirection, addressAmountPretty, addressAmountPrettyPrefix, wayType } = transaction
+
+        const currencySymbol = typeof cryptoCurrency !== 'undefined' ? cryptoCurrency.currencySymbol : ''
 
         let status = this.getTransactionStatus(transactionStatus)
 
@@ -609,7 +616,7 @@ class TransactionScreen extends Component {
                         <Text style={styles.amount}>
                             {amountTxt}
                         </Text>
-                        <Text style={{ ...styles.code, color: color }}>{cryptoCurrency.currencySymbol}</Text>
+                        <Text style={{ ...styles.code, color: color }}>{currencySymbol}</Text>
                     </>
                 </View>
 
@@ -810,11 +817,9 @@ class TransactionScreen extends Component {
         firebase.analytics().setCurrentScreen('Account.TransactionScreen')
 
         const { colors, GRID_SIZE, isLight } = this.context
-        const { cryptoCurrency } = this.props
-        console.log('cryptoCurrency', cryptoCurrency)
-        console.log('cryptoCurrency', this.props.mainStore)
+        // const { cryptoCurrency } = this.props
 
-        const { headerHeight, transaction, showMoreDetails, outDestinationCardToView, fromToView, addressToToView, addressExchangeToView, subContent, linkExplorer, focused } = this.state
+        const { headerHeight, transaction, showMoreDetails, outDestinationCardToView, fromToView, addressToToView, addressExchangeToView, subContent, linkExplorer, focused, cryptoCurrency } = this.state
         if (!transaction || typeof transaction === 'undefined') {
             // @yura - its loader when state is initing from notice open - could have some "loader" mark
             return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
@@ -824,7 +829,7 @@ class TransactionScreen extends Component {
         // console.log()
         // console.log('TransactionScreen.Transaction', JSON.stringify(transaction))
 
-        const dict = new UIDict(cryptoCurrency.currencyCode)
+        const dict = new UIDict(typeof cryptoCurrency !== 'undefined' ? cryptoCurrency.currencyCode : '')
         const color = dict.settings.colors.mainColor
 
         const descriptionValue = typeof transaction.description !== 'undefined' ? transaction.description.replace(/[\u2006]/g, '').split('').join(String.fromCodePoint(parseInt('2006', 16))) : ''
@@ -851,7 +856,7 @@ class TransactionScreen extends Component {
                     rightType='close'
                     rightAction={prev === 'ReceiptScreen' || prev === 'NotificationsScreen' ? () => NavStore.reset('DashboardStack') : this.closeAction}
                     setHeaderHeight={this.setHeaderHeight}
-                    ExtraView={() => transaction ? this.headerTrx(transaction, color, cryptoCurrency.currencyCode) : null}
+                    ExtraView={() => transaction ? this.headerTrx(transaction, color, cryptoCurrency) : null}
                 />
                 <ScrollView
                     ref={(ref) => {
@@ -927,7 +932,7 @@ class TransactionScreen extends Component {
                             </Pages>}
                     </View>
                     {showMoreDetails && (
-                        <View style={{ ...styles.moreInfo, borderRadius: 16, marginBottom: 15, backgroundColor: '#f2f2f2' }}>
+                        <View style={{ ...styles.moreInfo, borderRadius: 16, marginBottom: 20, backgroundColor: '#f2f2f2' }}>
                             {/* <InsertShadow containerStyle={{
                                 ...styles.moreInfo,
                                 flex: 1,
@@ -1119,7 +1124,7 @@ const styles = {
         left: 0,
 
         width: '100%',
-        height: 72,
+        height: 62,
         paddingBottom: Platform.OS === 'ios' ? 30 : 0
     },
     containerBG: {

@@ -686,6 +686,9 @@ class SendScreen extends SendBasicScreenScreen {
                     const addressValidate = await this.addressInput.handleValidate()
                     if (addressValidate.status === 'success') {
                         addressTo = addressValidate.value
+                        this.setState({
+                            addressError: false
+                        })
                     } else {
                         addressTo = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
                     }
@@ -794,7 +797,11 @@ class SendScreen extends SendBasicScreenScreen {
                 amountInputMark: amountInputMark,
                 balancePart: 0,
                 loadFee : false,
-                sendScreenData: newSendScreenData
+                sendScreenData: newSendScreenData,
+                enoughFunds: {
+                    isAvailable: true,
+                    messages: []
+                }
             })
 
             IS_CALLED_BACK = false
@@ -1170,6 +1177,7 @@ class SendScreen extends SendBasicScreenScreen {
                                     }}
                                 />
                             </View>
+                            { console.log(this.addressInput.state) }
                             { this.renderAddressError() }
                             {
                                 currencyCode === 'XRP' ?
