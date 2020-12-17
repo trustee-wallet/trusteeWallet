@@ -207,7 +207,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(FioRequestDetails)
 const styles = {
 
     container: {
-        padding: 15,
+        padding: 10,
         paddingVertical: 30,
         height: '100%',
         flexDirection: 'column',
@@ -216,6 +216,7 @@ const styles = {
 
     info__section: {
         position: 'relative',
+        display: 'flex'
     },
 
     info__section__content: {
@@ -223,7 +224,7 @@ const styles = {
         borderWidth: 1,
         backgroundColor: '#fff',
         borderColor: '#ddd',
-        padding: 20,
+        padding: 15,
         borderRadius: 10,
         marginVertical: 10,
         zIndex: 2,
@@ -234,7 +235,8 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingLeft: 50,
+        paddingLeft: 54,
+        paddingRight: 10,
     },
 
     btn__container: {
@@ -263,15 +265,15 @@ const styles = {
     },
 
     txt: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 19,
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 16,
         color: '#333',
         textAlign: 'center',
         marginVertical: 7,
     },
 
     txt2: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 16,
         color: '#000',
         textAlign: 'center',
@@ -280,15 +282,14 @@ const styles = {
 
     txt3: {
         flex: 1,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 22,
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 18,
         color: '#333',
-        textAlign: 'center',
         marginVertical: 7,
     },
 
     txt4: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 12,
         color: '#000',
         textAlign: 'center',
