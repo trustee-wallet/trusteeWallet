@@ -470,7 +470,7 @@ class Account extends Component {
                 />
                 {/* <View style={{ height: headerHeight }} /> */}
                 <ScrollView
-                    style={{...styles.wrapper__scrollView, marginTop: 84 }}
+                    style={{...styles.wrapper__scrollView, marginTop: Platform.OS === 'android' ? 50 : 84 }}
                     showsVerticalScrollIndicator={false}
                     scrollEventThrottle={16}
                     onScroll={(event) => this.updateOffset(event.nativeEvent.contentOffset.y)}
