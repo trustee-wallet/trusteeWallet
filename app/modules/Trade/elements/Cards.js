@@ -5,7 +5,6 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { View, TouchableWithoutFeedback, Keyboard, Platform, Linking } from 'react-native'
 
-import ImagePicker from 'react-native-image-picker'
 import AsyncStorage from '@react-native-community/async-storage'
 import { check, request, PERMISSIONS } from 'react-native-permissions'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
@@ -25,10 +24,12 @@ import Api from '../../../services/Api/Api'
 import cardDS from '../../../appstores/DataSource/Card/Card'
 import utils from '../../../services/utils'
 import { FileSystem } from '../../../services/FileSystem/FileSystem'
+import { Camera } from '../../../services/Camera/Camera'
 import CashBackUtils from '../../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
 import TmpConstants from './TmpConstants'
 import MarketingEvent from '../../../services/Marketing/MarketingEvent'
+import config from '../../../config/config'
 
 let CACHE_RUB_COUNTRIES = {}
 let CACHE_RUB_COUNTRIES_SET = false
@@ -42,13 +43,7 @@ class Cards extends Component {
             showCards: false,
             cards: [],
             firstItem: 0,
-            imagePickerOptions: {
-                title: 'Select Avatar',
-                customButtons: [{ name: '', title: '' }]
-                // storageOptions: {
-                //     cameraRoll: true
-                // },
-            },
+
             isPhotoValidation: false,
             photoValidationCurrencies: ['RUB'],
 
@@ -336,40 +331,6 @@ class Cards extends Component {
         }
     }
 
-    prepareImageUrl = (response) => {
-        try {
-            if (typeof response.didCancel !== 'undefined' && response.didCancel) {
-                setLoaderStatus(false)
-            }
-
-            let path = response.uri
-
-            if (typeof response.uri === 'undefined')
-                return
-
-            if (Platform.OS === 'ios') {
-                path = path.substring(path.indexOf('/Documents'))
-            }
-
-            if (response.didCancel) {
-                Log.log('Cards.prepareImageUrl User cancelled image picker')
-            } else if (response.error) {
-                Log.log('Cards.prepareImageUrl ImagePicker error ', response.error)
-            } else {
-                this.validateCard(path)
-            }
-        } catch (e) {
-            Log.err('Cards.prepareImageUrl error ' + e.message)
-
-            showModal({
-                type: 'INFO_MODAL',
-                icon: 'INFO',
-                title: strings('modal.exchange.sorry'),
-                description: strings('tradeScreen.modalError.serviceUnavailable')
-            })
-        }
-    }
-
     validateCard = async (photoSource) => {
         try {
             const deviceToken = MarketingEvent.DATA.LOG_TOKEN
@@ -378,7 +339,6 @@ class Cards extends Component {
 
             const { cards } = this.state
             const { selectedCard } = this.props
-            const { imagePickerOptions } = this.state
             const data = new FormData()
 
             let selectedCardIndex = cards.length - 1
@@ -449,9 +409,7 @@ class Cards extends Component {
             data.append('cardNumber', cardNumber)
 
             if (typeof photoSource !== 'undefined') {
-                const fs = new FileSystem({})
-                const base64 = await fs.handleImageBase64(photoSource)
-                data.append('image', 'data:image/jpeg;base64,' + base64)
+                data.append('image', 'data:image/jpeg;base64,' + photoSource)
             }
 
             typeof deviceToken !== 'undefined' && deviceToken !== null ?
@@ -483,79 +441,55 @@ class Cards extends Component {
                             firstItem: selectedCardIndex
                         })
 
-                        if (Platform.OS === 'ios') {
-                            const res = await check(PERMISSIONS.IOS.CAMERA)
-
-                            if (res === 'blocked') {
-                                showModal({
-                                    type: 'OPEN_SETTINGS_MODAL',
-                                    icon: false,
-                                    title: strings('modal.openSettingsModal.title'),
-                                    description: strings('modal.openSettingsModal.description'),
-                                    btnSubmitText: strings('modal.openSettingsModal.btnSubmitText')
-                                }, () => {
-                                    Linking.openURL('app-settings:')
-                                })
-                                return
-                            }
+                        if (!await Camera.checkCameraOn('TRADE/Cards validateCard')) {
+                            return
                         }
 
-                        Log.log('TRADE/Cards validateCard request photo started')
                         try {
-                            request(
-                                Platform.select({
-                                    android: PERMISSIONS.ANDROID.CAMERA,
-                                    ios: PERMISSIONS.IOS.CAMERA
+                            Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery started')
+                            const res = await Camera.openCameraOrGallery('TRADE/Cards validateCard')
+                            Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery res', res)
+
+                            let showError = true
+                            let msgError = typeof res.error !== 'undefined' ? res.error : ''
+                            if (!res) {
+                                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery no result')
+                                msgError += ' no result'
+                            } else if (res.didCancel) {
+                                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery cancelled')
+                                msgError += ', need to select from gallery'
+                                if (msgError.indexOf('file path of photo') !== 'undefined') {
+                                    msgError = strings('tradeScreen.modalError.selectPhoto')
+                                }
+                            } else if (res.error) {
+                                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ', res.error)
+                                msgError += ' ' + res.error
+                            } else if (typeof res.path === 'undefined' || !res.path || res.path === '') {
+                                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery no path')
+                                msgError += ' no path from gallery'
+                            } else if (typeof res.base64 === 'undefined' || !res.base64 || res.base64 === '') {
+                                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery not loaded from gallery')
+                                msgError += ' not loaded from gallery'
+                            } else {
+                                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery path ' + res.path)
+                                await this.validateCard(res.base64)
+                                showError = false
+                            }
+
+                            if (showError) {
+                                showModal({
+                                    type: 'INFO_MODAL',
+                                    icon: 'INFO',
+                                    title: strings('modal.exchange.sorry'),
+                                    description: msgError
                                 })
-                            ).then((res) => {
-                                Log.log('TRADE/Cards validateCard request photo result', res)
-                                setLoaderStatus(true)
-                                ImagePicker.launchCamera(imagePickerOptions, (response) => {
-                                    Log.log('TRADE/Cards validateCard take photo result', response)
-                                    if (typeof response.error === 'undefined') {
-                                        this.prepareImageUrl(response)
-                                    } else {
-                                        ImagePicker.launchImageLibrary({}, (response2) => {
-                                            Log.log('TRADE/Cards validateCard select photo result', response2)
-                                            let showError = true
-                                            let msgError = response.error
-                                            if (response2.didCancel) {
-                                                Log.log('TRADE/Cards validateCard select photo cancelled image picker')
-                                                msgError += ', need to select from gallery'
-                                                if (msgError.indexOf('file path of photo') !== 'undefined') {
-                                                    msgError = strings('tradeScreen.modalError.selectPhoto')
-                                                }
-                                            } else if (response2.error) {
-                                                Log.log('TRADE/Cards validateCard select photo error ', response2.error)
-                                                msgError += ' ' + response2.error
-                                            } else if (response2) {
-                                                let path = response2.path
-                                                if (!path) {
-                                                    path = response2.uri
-                                                }
-                                                if (!path) {
-                                                    Log.log('TRADE/Cards validateCard select photo  no path')
-                                                    msgError += ' no path from gallery'
-                                                } else {
-                                                    Log.log('TRADE/Cards validateCard select photo path ' + path)
-                                                    this.prepareImageUrl(response2)
-                                                    showError = false
-                                                }
-                                            }
-                                            if (showError) {
-                                                showModal({
-                                                    type: 'INFO_MODAL',
-                                                    icon: 'INFO',
-                                                    title: strings('modal.exchange.sorry'),
-                                                    description: msgError
-                                                })
-                                            }
-                                            setLoaderStatus(false)
-                                        })
-                                    }
-                                })
-                            })
+                            }
+
                         } catch (e) {
+                            if (config.debug.appErrors) {
+                                console.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ' + e.message, e)
+                            }
+                            Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ' + e.message)
                             showModal({
                                 type: 'INFO_MODAL',
                                 icon: 'INFO',
@@ -563,6 +497,7 @@ class Cards extends Component {
                                 description: strings('modal.openSettingsModal.description')
                             })
                         }
+
                     } else if (res.verificationStatus === 'pending') {
                         await cardDS.updateCard({
                             key: {
