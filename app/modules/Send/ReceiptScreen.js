@@ -86,7 +86,6 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
             loadFee : false,
 
-            comment: ''
         }
     }
 
@@ -131,9 +130,6 @@ class ReceiptScreen extends SendBasicScreenScreen {
         const sendScreenData = SendTmpData.getData()
         console.log('Send.ReceiptScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
 
-        // @ksu plz check this
-        const comment = SendTmpData.getComment()
-
         const { account, cryptoCurrency, wallet } = SendActions.findWalletPlus(sendScreenData.currencyCode)
 
         this.setState(
@@ -143,8 +139,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 cryptoCurrency,
                 wallet,
                 useAllFunds: sendScreenData.isTransferAll,
-                init: true,
-                comment
+                init: true
             }, () => {
 
                 this.startLoadFee()

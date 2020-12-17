@@ -72,7 +72,6 @@ class SendAdvancedSettingsScreen extends Component {
 
         const sendScreenData = SendTmpData.getData()
         const {selectedFee, countedFees, countedFeesData} = SendTmpData.getCountedFees()
-        const comment = SendTmpData.getComment()
 
         console.log('')
         console.log('')
@@ -89,7 +88,7 @@ class SendAdvancedSettingsScreen extends Component {
             selectedFee,
             isCustomFee: selectedFee && typeof selectedFee.isCustomFee !== 'undefined' ? selectedFee.isCustomFee : false,
             devMode: devMode && devMode.toString() === '1',
-            comment
+            comment: sendScreenData.comment
         })
     }
 

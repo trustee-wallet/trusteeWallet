@@ -752,7 +752,8 @@
       "selectInput": "Select input",
       "descriptionInput": "Default",
       "optionalSettings": "Optinal",
-      "note": "Note"
+      "note": "Note",
+      "optional" : "Optional"
     },
     "infoModal": {
       "title": "Info",
