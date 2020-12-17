@@ -311,7 +311,7 @@ class BackupStep0Screen extends Component {
                         <View style={{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE * 1.5 }}>
                             <View style={[styles.infoContainer, { marginBottom: GRID_SIZE }]}>
                                 {this.visibilityTimer ? (
-                                    <LottieView source={ProgressAnimation} style={{ width: 24, height: 24 }} progress={animationProgress} />
+                                    <LottieView color={colors.createWalletScreen.keyIcon} source={ProgressAnimation} style={{ width: 24, height: 24 }} progress={animationProgress} />
                                 ) : (
                                     <KeyIcon color={colors.createWalletScreen.showMnemonic.showButtonText} />
                                 )}

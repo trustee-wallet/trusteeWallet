@@ -215,6 +215,7 @@ class WalletInfo extends Component {
                                 onPressIn={() => triggerBalanceVisibility(true)}
                                 onPressOut={() => triggerBalanceVisibility(false)}
                                 disabled={originalVisibility}
+                                hitSlop={{ top: 20, left: 20, right: isBalanceVisible ? 100 : 20, bottom: 20 }}
                             >
                                 {
                                     isBalanceVisible ? (

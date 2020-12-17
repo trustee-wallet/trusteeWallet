@@ -47,7 +47,9 @@ export const lightColors = {
           basic: {
             borderColor: '#DADADA',
             iconBgLight: '#E8E8E8',
+            iconColorLight: '#404040',
             iconBgDark: '#404040',
+            iconColorDark: '#F7F7F7',
           }
         }
     },
@@ -69,6 +71,7 @@ export const lightColors = {
       dateColorViolet: '#c4c4c4'
     },
     createWalletScreen: {
+      keyIcon: '#864DD9',
       sliderBg: '#262626',
       sliderText: '#DADADA',
       showMnemonic: {
@@ -129,40 +132,40 @@ export const darkColors = {
         text1: '#dadada',
         text2: '#999',
         text3: '#c4c4c4',
-        roundButtonBg: '#C4C4C4',
-        roundButtonContent: '#303030',
+        roundButtonBg: '#6B6B6B',
+        roundButtonContent: '#F7F7F7',
         iconMarkBg: '#303030',
         button: {
           shadowColor: '#404040',
-          bg: '#404040',
-          text: '#f7f7f7',
-          disabledBg: '#C4C4C4',
-          disabledText: '#EBEBEB',
-          transparentText: '#404040',
-          transparentDisabledText: '#C4C4C4',
+          bg: '#6B6B6B',
+          text: '#F7F7F7',
+          disabledBg: '#1E1E1E',
+          disabledText: '#353535',
+          transparentText: '#DADADA',
+          transparentDisabledText: '#252525',
           secondary: {
-            bg: '#EBEBEB'
+            bg: '#353535'
           }
         },
         checkbox: {
-          bgChecked: '#864DD9',
-          borderColorUnchecked: '#999999'
+          bgChecked: '#9E71E1',
+          borderColorUnchecked: '#DADADA'
         },
         textInput: {
-          bg: '#f5f5f5',
-          text: '#404040',
+          bg: '#1E1E1E',
+          text: '#F7F7F7',
           placeholder: '#999'
         },
         radioButton: {
-          text: '#404040',
-          border: '#999',
-          checked: '#864DD9',
-          uncheckedBg: '#DADADA'
+          text: '#DADADA',
+          border: '#DADADA',
+          checked: '#9E71E1',
+          uncheckedBg: '#353535'
         },
         switch: {
-          bgActive: '#404040',
-          bgInactive: '#C4C4C4',
-          circleBg: '#FFF',
+          bgActive: '#999',
+          bgInactive: '#303030',
+          circleBg: '#6B6B6B',
         },
         header: {
           bg: '#2E2E2E',
@@ -170,14 +173,16 @@ export const darkColors = {
         },
         listItem: {
           basic: {
-            borderColor: '#DADADA',
-            iconBgLight: '#E8E8E8',
-            iconBgDark: '#404040',
+            borderColor: '#252525',
+            iconBgLight: '#252525',
+            iconColorLight: '#DADADA',
+            iconBgDark: '#DADADA',
+            iconColorDark: '#404040',
           }
         }
     },
     notifications: {
-      newNotiesIndicator: '#864DD9',
+      newNotiesIndicator: '#9E71E1',
     },
     homeScreen: {
       listItemGradient: ['#252525', '#1E1E1E'],
@@ -194,20 +199,21 @@ export const darkColors = {
       dateColorViolet: '#c4c4c4'
     },
     createWalletScreen: {
+      keyIcon: '#9E71E1',
       sliderBg: '#262626',
       sliderText: '#DADADA',
       showMnemonic: {
-        wordBg: '#EBEBEB',
+        wordBg: '#252525',
         wordShadow: '#000',
-        wordIndexBg: '#f7f7f7',
+        wordIndexBg: '#353535',
         wordIndexText: '#B8B8B8',
-        showButtonText: '#864DD9'
+        showButtonText: '#9E71E1'
       },
       importWallet: {
-        error: '#864DD9'
+        error: '#9E71E1'
       },
       confirmMnemonic: {
-        wordsContainerBg: '#EBEBEB',
+        wordsContainerBg: '#252525',
         wordsContainerPlaceholder: '#999'
       }
     },
@@ -235,10 +241,10 @@ export const darkColors = {
       }
     },
     walletManagment: {
-      walletItemBg: ['#ffffff', '#f2f2f2'],
-      walletItemBgActive: ['#F3F1F6', '#F3F1F6'],
-      walletItemBorderColor: '#864DD9',
-      advanceWalletNameBg: '#EBEBEB'
+      walletItemBg: ['#252525', '#1E1E1E'],
+      walletItemBgActive: ['#332743', '#332743'],
+      walletItemBorderColor: '#9E71E1',
+      advanceWalletNameBg: '#252525'
     },
     fio: {
         borderColorLight: '#404040',

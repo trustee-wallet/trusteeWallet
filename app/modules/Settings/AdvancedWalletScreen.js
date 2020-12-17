@@ -34,6 +34,8 @@ class AdvancedWalletScreen extends React.Component {
         walletName: this.props.wallet.walletName
     }
 
+    inputRef = React.createRef()
+
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0);
         this.setState(() => ({ headerHeight }))
@@ -44,6 +46,7 @@ class AdvancedWalletScreen extends React.Component {
     onBlurInput = async () => {
         const { walletName: oldName, walletHash } = this.props.wallet
         const { walletName: newName } = this.state
+        this.setState(() => ({ isEditing: false }))
 
         if (oldName === newName) return
 
@@ -51,9 +54,9 @@ class AdvancedWalletScreen extends React.Component {
 
         const success = await walletActions.setNewWalletName(walletHash, newName)
         if (success) {
-            this.setState(() => ({ walletName: newName, isEditing: false }))
+            this.setState(() => ({ walletName: newName }))
         } else {
-            this.setState(() => ({ walletName: oldName, isEditing: false }))
+            this.setState(() => ({ walletName: oldName }))
         }
     }
 
@@ -62,7 +65,7 @@ class AdvancedWalletScreen extends React.Component {
         NavStore.goNext('BackupStep0Screen', { flowSubtype: 'show' })
     }
 
-    handleEdit = () => { this.setState(() => ({ isEditing: true })) }
+    handleEdit = () => { this.setState(() => ({ isEditing: true }), () => { this.inputRef.focus() }) }
 
     handleDelete = () => { /* TODO: add handler */ }
 
@@ -103,13 +106,15 @@ class AdvancedWalletScreen extends React.Component {
                                         value={walletName}
                                         onBlur={this.onBlurInput}
                                         onChangeText={this.onChangeName}
+                                        compRef={(ref) => { this.inputRef = ref }}
                                     />
                                 ) : (
                                         <SwipeRow
                                             leftOpenValue={50 + GRID_SIZE}
                                             rightOpenValue={-(50 + GRID_SIZE)}
-                                            stopLeftSwipe={GRID_SIZE + 80}
-                                            stopRightSwipe={-(GRID_SIZE + 80)}
+                                            stopLeftSwipe={GRID_SIZE + 100}
+                                            stopRightSwipe={-(GRID_SIZE + 100)}
+                                            swipeToOpenPercent={30}
                                             onRowPress={this.handleEdit}
                                         >
                                             <View style={[styles.hiddenLayer, { paddingHorizontal: GRID_SIZE / 2 }]}>

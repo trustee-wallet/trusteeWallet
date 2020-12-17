@@ -159,7 +159,7 @@ class WalletInfo extends React.Component {
                             onPressIn={() => triggerBalanceVisibility(true)}
                             onPressOut={() => triggerBalanceVisibility(false)}
                             disabled={originalVisibility}
-                            hitSlop={{ top: 5, right: 10, bottom: 10, left: 10 }}
+                            hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
                         >
                             {isBalanceVisible ? (
                                 <React.Fragment>

@@ -107,7 +107,13 @@ export default class Header extends React.Component {
             isLight,
             GRID_SIZE
         } = this.context
-        const { headerHeight, inputHeight, scrollOffset, overflow } = this.state
+        const {
+            headerHeight,
+            inputHeight,
+            scrollOffset,
+            overflow,
+            headerHasExtraView
+        } = this.state
 
         return (
             <View style={styles.wrapper}>
@@ -142,8 +148,8 @@ export default class Header extends React.Component {
                     </View>
                 </Animated.View>
 
-                <View style={styles.shadow__container}>
-                    <View style={[styles.shadow__item]} />
+                <View style={[styles.shadow__container, !headerHasExtraView && { bottom: 10 }]}>
+                    <View style={[styles.shadow__item, !headerHasExtraView && { shadowRadius: 10 } ]} />
                 </View>
             </View>
         )

@@ -33,7 +33,7 @@ const getIcon = (iconType, color) => {
         case 'notifications':
             return <CustomIcon name="notifications" size={24} color={color} style={{ left: 0.5, bottom: 0.5 }} />
         case 'about':
-            return <MaterialCommunityIcon name="information" size={22} style={{ left: 0.5, top: 1 }} />
+            return <MaterialCommunityIcon name="information" size={22} color={color} style={{ left: 0.5, top: 1 }} />
         case 'darkMode':
             return <FontAwesomeIcon name="moon-o" color={color} size={23} style={{ marginLeft: 2 }} />
         case 'localCurrency':
@@ -157,7 +157,7 @@ export default function SettingListItem(props) {
                     disabled={disabled}
                 >
                     <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: disabled ? 0.5 : 1 }]}>
-                        {getIcon(iconType, colors.common.text1)}
+                        {getIcon(iconType, colors.common.listItem.basic.iconColorLight)}
                     </View>
                     <View style={[styles.mainContent, last && styles.noBorder, { borderColor: colors.common.listItem.basic.borderColor }]}>
                         <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
@@ -188,7 +188,7 @@ export default function SettingListItem(props) {
                     disabled={disabled}
                 >
                     <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: disabled ? 0.5 : 1 }]}>
-                        {getIcon(iconType, colors.common.text1)}
+                        {getIcon(iconType, colors.common.listItem.basic.iconColorLight)}
                     </View>
                     <View style={styles.mainContent}>
                         <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>

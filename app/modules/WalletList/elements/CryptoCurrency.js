@@ -225,7 +225,8 @@ class CryptoCurrency extends Component {
                 leftOpenValue={140}
                 rightOpenValue={-70}
                 stopLeftSwipe={160}
-                stopRightSwipe={-80}
+                stopRightSwipe={-90}
+                swipeToOpenPercent={30}
             >
                 {this.renderHiddenLayer()}
                 {this.renderVisibleLayer(props)}

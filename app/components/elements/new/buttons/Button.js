@@ -49,7 +49,6 @@ export default function Button(props) {
         disabled = false,
         activeOpacity = 0.5
     } = props
-    const { colors } = useTheme()
     const preparedStyles = getStyle(type, disabled, containerStyle, textStyle)
 
     return (

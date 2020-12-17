@@ -151,7 +151,7 @@ class AboutScreen extends React.Component {
     render() {
         firebase.analytics().setCurrentScreen('About.index')
 
-        const { colors, GRID_SIZE } = this.context
+        const { colors, GRID_SIZE, isLight } = this.context
         const { headerHeight } = this.state
 
         return (
@@ -181,7 +181,7 @@ class AboutScreen extends React.Component {
                                 <Image
                                     style={styles.logo}
                                     resizeMode='stretch'
-                                    source={require('../../assets/images/logo.png')}
+                                    source={isLight ? require('../../assets/images/logo.png') : require('../../assets/images/logoWhite.png')}
                                 />
                             </TouchableWithoutFeedback>
                             <TouchableOpacity activeOpacity={0.8} onPress={this.copyVersion}>

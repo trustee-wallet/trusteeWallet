@@ -121,11 +121,12 @@ class WalletListScreen extends Component {
                         contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE }]}
                         keyboardShouldPersistTaps="handled"
                     >
-                        <View style={[styles.topContent, { paddingHorizontal: GRID_SIZE / 2, paddingVertical: GRID_SIZE / 2 }]}>
+                        <View style={[styles.topContent, { paddingHorizontal: GRID_SIZE / 2, paddingTop: GRID_SIZE / 2, paddingBottom: GRID_SIZE }]}>
                             <TouchableOpacity
                                 onPressIn={this.triggerBalanceVisibility}
                                 onPressOut={this.triggerBalanceVisibility}
                                 activeOpacity={0.9}
+                                hitSlop={{ top: 20, left: 20, right: isBalanceVisible ? 60 : 20, bottom: 30 }}
                             >
                                 <Text style={[styles.balaneTitle, { color: colors.common.text2 }]}>{strings('settings.walletList.totalBalance')}</Text>
                                 {
@@ -147,7 +148,7 @@ class WalletListScreen extends Component {
                             </TouchableOpacity>
                         </View>
 
-                        <View style={{ paddingVertical: GRID_SIZE }}>
+                        <View style={{ paddingBottom: GRID_SIZE }}>
                             {
                                 wallets.map((item, index) => {
                                     return (

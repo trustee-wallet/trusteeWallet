@@ -76,7 +76,7 @@ export default function SettingListItem(props) {
             >
                 <View style={styles.iconContainer}>
                     <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgDark, opacity: disabled ? 0.5 : 1 }]}>
-                        {getIcon(iconType, colors.common.roundButtonContent)}
+                        {getIcon(iconType, colors.common.listItem.basic.iconColorDark)}
                         {isNew && <View style={[styles.newIndicator, { borderColor: colors.common.background, backgroundColor: colors.notifications.newNotiesIndicator }]} />}
                     </View>
                 </View>
