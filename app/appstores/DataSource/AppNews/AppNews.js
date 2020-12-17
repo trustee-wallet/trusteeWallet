@@ -62,6 +62,13 @@ class AppNews {
     saveAppNews = async (appNews) => {
         const dbInterface = new DBInterface()
         const now = Math.round(new Date().getTime() / 1000)
+
+        if (typeof appNews.newsCustomText !== 'undefined' && appNews.newsCustomText) {
+            appNews.newsCustomText = dbInterface.escapeString(appNews.newsCustomText)
+        }
+        if (typeof appNews.newsCustomTitle !== 'undefined' && appNews.newsCustomTitle) {
+            appNews.newsCustomTitle = dbInterface.escapeString(appNews.newsCustomTitle)
+        }
         if (typeof appNews.newsJson !== 'undefined' && appNews.newsJson) {
             if (typeof appNews.newsJson !== 'string') {
                 appNews.newsJson = dbInterface.escapeString(JSON.stringify(appNews.newsJson))
@@ -299,6 +306,8 @@ class AppNews {
                 if (!res[i].newsJson || res[i].newsJson === 'false') continue
 
                 const string = dbInterface.unEscapeString(res[i].newsJson)
+                res[i].newsCustomText = dbInterface.unEscapeString(res[i].newsCustomText)
+                res[i].newsCustomTitle = dbInterface.unEscapeString(res[i].newsCustomTitle)
                 try {
                     res[i].newsJson = JSON.parse(string)
                 } catch (e) {
