@@ -173,7 +173,7 @@ const styles = {
     },
 
     titleTxt1: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 19,
         color: '#fff',
         textAlign: 'center',
