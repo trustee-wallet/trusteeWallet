@@ -445,6 +445,8 @@ class Cards extends Component {
                             return
                         }
 
+
+                        setLoaderStatus(true)
                         try {
                             Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery started')
                             const res = await Camera.openCameraOrGallery('TRADE/Cards validateCard')
@@ -476,6 +478,7 @@ class Cards extends Component {
                                 showError = false
                             }
 
+                            setLoaderStatus(false)
                             if (showError) {
                                 showModal({
                                     type: 'INFO_MODAL',
@@ -489,6 +492,7 @@ class Cards extends Component {
                             if (config.debug.appErrors) {
                                 console.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ' + e.message, e)
                             }
+                            setLoaderStatus(false)
                             Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ' + e.message)
                             showModal({
                                 type: 'INFO_MODAL',
