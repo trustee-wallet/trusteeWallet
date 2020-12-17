@@ -263,8 +263,6 @@
       "supportSubtitle": "Our telegram support bot",
       "lock": "Lock screen",
       "bio": "Biometrics",
-      "appnews": "Technical Messages",
-      "appnewsSmall": "Tech Messages",
       "about": "About Trustee",
       "lang": "Language",
       "copyLogs": "Copy logs",
@@ -1284,13 +1282,6 @@
     "noInternet": "No internet access",
     "badInternet": "Bad internet access, please, try reconnect with another provider",
     "saved" : "Saved"
-  },
-  "appNews": {
-    "title": "Technical messages",
-    "subtitle": "All notifications and messages",
-    "subtitleSmall": "All notifications",
-    "clearAll": "Clear All",
-    "newsNull": "Nothing new in your wallet"
   },
   "pushNotifications": {
     "FOUND_OUT_TX_STATUS_NEW": {

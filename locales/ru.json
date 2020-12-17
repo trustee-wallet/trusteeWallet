@@ -263,8 +263,6 @@
       "supportSubtitle": "Наш бот в telegram",
       "lock": "Блокирование экрана",
       "bio": "Biometrics",
-      "appnews" : "Технические сообщения",
-      "appnewsSmall" : "Тех. сообщения",
       "about": "О кошельке Trustee",
       "lang": "Language",
       "copyLogs": "Копировать логи",
@@ -1279,13 +1277,6 @@
     "noInternet": "Нет доступа к интернету",
     "badInternet": "Нестабильный доступ к интернету, пожалуйста, попробуйте другого провайдера или точку доступа",
     "saved" : "Сохранено"
-  },
-  "appNews" : {
-    "title" : "Технические сообщения",
-    "subtitle" : "Все нотификации и сообщения",
-    "subtitleSmall": "Все нотификации",
-    "clearAll" : "Очистить все",
-    "newsNull" : "В Вашем кошельке ничего нового"
   },
   "pushNotifications":  {
     "FOUND_OUT_TX_STATUS_NEW": {
