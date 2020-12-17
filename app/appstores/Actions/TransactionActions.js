@@ -181,7 +181,7 @@ const transactionActions = {
                 transaction.transactionDirection = 'outcome'
             } else if (exchangeOrder.exchangeWayType === 'EXCHANGE') {
                 if (typeof exchangeOrder.requestedOutAmount !== 'undefined' && typeof exchangeOrder.requestedOutAmount.currencyCode !== 'undefined') {
-                    if (exchangeOrder.requestedOutAmount.currencyCode !== transaction.currencyCode) {
+                    if (exchangeOrder.requestedOutAmount.currencyCode === transaction.currencyCode) {
                         transaction.transactionDirection = 'income'
                     } else {
                         transaction.transactionDirection = 'outcome'

@@ -495,6 +495,7 @@ class Account extends Component {
                         <RefreshControl
                             refreshing={this.state.refreshing}
                             onRefresh={this.handleRefresh}
+                            tintColor={colors.common.text1}
                         />
                     }>
                     <View style={{...styles.wrapper__content }}>

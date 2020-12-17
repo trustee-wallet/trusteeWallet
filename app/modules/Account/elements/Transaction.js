@@ -275,7 +275,7 @@ class Transaction extends Component {
             if (bseOrderData.exchangeWayType === 'SELL') {
                 subtitleMini = bseOrderData.outDestination
             } else if (bseOrderData.exchangeWayType === 'EXCHANGE'){
-                subtitleMini = transactionDirection === 'income' ?
+                subtitleMini = transactionDirection !== 'income' ?
                     bseOrderData.requestedOutAmount.currencyCode : bseOrderData.requestedInAmount.currencyCode
             }
         }
@@ -325,7 +325,7 @@ class Transaction extends Component {
                                                                 transform: [{ rotate: transactionDirection === 'outcome' ? "90deg" : "-90deg" }],
                                                                 marginHorizontal: 7, marginBottom: Platform.OS === 'ios' ? -1 : null
                                                             }} />
-                                                            <Text style={{ ...styles.transaction__item__subtitle, marginBottom: Platform.OS === 'ios' ? 2 : null }} >
+                                                            <Text style={{ ...styles.transaction__item__subtitle, marginBottom: Platform.OS === 'ios' ? 2 : null, color: colors.common.text1 }} >
                                                                 {subtitleMini}
                                                             </Text>
                                                         </>
@@ -483,7 +483,6 @@ const globalStyles = {
         transaction__item__subtitle: {
             fontFamily: 'Montserrat-SemiBold',
             fontSize: 12,
-            color: '#404040'
         },
         circle: {},
         transaction__item__arrow: {
