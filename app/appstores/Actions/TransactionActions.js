@@ -146,7 +146,8 @@ const transactionActions = {
     preformatWithBSEforShow(_transaction, exchangeOrder, _currencyCode = false) {
         if (typeof exchangeOrder === 'undefined' || !exchangeOrder || exchangeOrder === null) {
             _transaction.bseOrderData = false // for easy checks
-            _transaction.transactionOfTrusteeWallet = false
+            _transaction.transactionOfTrusteeWallet =
+                typeof _transaction.transactionOfTrusteeWallet !== 'undefined' ? _transaction.transactionOfTrusteeWallet : false
             _transaction = this.preformatWithBSEforShowInner(_transaction)
             return _transaction
         }

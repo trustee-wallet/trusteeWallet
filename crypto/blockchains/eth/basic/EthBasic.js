@@ -105,6 +105,9 @@ export default class EthBasic {
         } else if (e.message.indexOf('transaction underpriced') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError2 ' + e.message + ' for ' + data.addressFrom)
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+        } else if (e.message.indexOf('already known') !== -1) {
+            BlocksoftCryptoLog.log('EthBasic checkError3 ' + e.message + ' for ' + data.addressFrom)
+            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
         } else if (e.message.indexOf('infura') !== -1) {
             throw new Error('SERVER_RESPONSE_BAD_INTERNET')
         } else {

@@ -59,9 +59,6 @@ export default class TrxTronscanProvider {
             }
         }
 
-        console.log('tokenNane', tokenName)
-        console.log('CACHE_TRONSCAN[address]', CACHE_TRONSCAN[address])
-
         if (typeof CACHE_TRONSCAN[address][tokenName] === 'undefined') {
             return false
         }

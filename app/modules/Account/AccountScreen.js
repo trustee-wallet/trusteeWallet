@@ -99,6 +99,8 @@ class Account extends Component {
                     if (this.state.firstCall) {
                         this.setState({ firstCall: false })
                     }
+                    this.transactionInfinity()
+                    this.ordersWithoutTransactions()
                 })
             }, 1000)
 
@@ -379,8 +381,20 @@ class Account extends Component {
         }
         const tmp = await transactionDS.getTransactions(params, 'AccountScreen.transactionInfinity list')
         const transactionsToView = []
+        console.log('')
+        console.log('')
+        console.log('')
+        console.log('')
+        console.log('-----------')
+
+        const params2 = JSON.parse(JSON.stringify(params))
+        params2.transactionOfTrusteeWallet = 1
+        const tmp2 = await transactionDS.getTransactions(params2, 'AccountScreen.transactionInfinity list')
+        console.log('TW', tmp2[0])
         if (tmp && tmp.length > 0) {
             for (let transaction of tmp) {
+                console.log('')
+                console.log('tx', JSON.parse(JSON.stringify(transaction)))
                 transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData)
                 transactionsToView.push(transaction)
             }

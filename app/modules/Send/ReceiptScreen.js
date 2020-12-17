@@ -411,7 +411,13 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 //     NavStore.goNext('TransactionScreen', {
                 //         transaction: {}
                 //     })
-                if (uiType === 'MAIN_SCANNER') {
+                if (sendScreenData.transactionSpeedUp || sendScreenData.transactionReplaceByFee) {
+                    NavStore.reset('TransactionScreen', {
+                        txData: {
+                            transactionHash: tx.transactionHash,
+                        }
+                    })
+                } else if (uiType === 'MAIN_SCANNER') {
                     NavStore.reset('DashboardStack')
                 } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {
                     // NavStore.reset('AccountScreen')
@@ -421,7 +427,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                         } 
                     })
                 } else if (uiType === 'TRADE_SEND') {
-                    NavStore.goNext('TransactionScreen', {
+                    NavStore.reset('TransactionScreen', {
                         txData: {
                             transactionHash: tx.transactionHash,
                         } 

@@ -238,6 +238,9 @@ export namespace SendActions {
             } else {
                 data.transactionSpeedUp = data.transactionBoost.transactionHash
             }
+            if (typeof data.transactionBoost.transactionJson !== 'undefined' && typeof data.transactionBoost.transactionJson.comment !== 'undefined') {
+                data.comment = data.transactionBoost.transactionJson.comment
+            }
         }
 
         if (typeof data.amountPretty !== 'undefined') {
