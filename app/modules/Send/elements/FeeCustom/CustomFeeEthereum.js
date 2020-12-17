@@ -51,8 +51,6 @@ class CustomFee extends Component {
             this.gasPriceInput.handleInput(selectedFee.gasPriceGwei.toString(), false)
             this.gasLimitInput.handleInput(selectedFee.gasLimit.toString(), false)
             this.nonceInput.handleInput(selectedFee.nonceForTx.toString(), false)
-        } else {
-            console.log('!!!! SHOULD NOT OPEN WITHOUT ANY FEE !!!!')
         }
     }
 

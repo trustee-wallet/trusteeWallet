@@ -25,10 +25,6 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
         }
 
         BlocksoftCryptoLog.log('BtcTxInputsOutputs needFindSegwit ' + JSON.stringify(needFindSegwit))
-        if (data.isHd) {
-            console.log('TODO')
-        }
-
         const CACHE_FOR_CHANGE = BtcUnspentsProvider.getCache()
         try {
             let addressForChange
@@ -45,7 +41,11 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
                     addressForChange = CACHE_FOR_CHANGE['1']
                 }
             }
-            return addressForChange
+            // @ts-ignore
+            BlocksoftCryptoLog.log('BtcTxInputsOutputs _addressForChange addressForChange logic ', {needFindSegwit, addressForChange, CACHE : CACHE_FOR_CHANGE})
+            if (addressForChange !== '') {
+                return addressForChange
+            }
         } catch (e) {
             BlocksoftCryptoLog.err('BtcTxInputsOutputs _addressForChange error ' + e.message)
         }

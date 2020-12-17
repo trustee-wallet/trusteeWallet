@@ -19,24 +19,24 @@ class BlocksoftPrivateKeysUtils {
     async getPrivateKey(discoverFor, source) {
         const path = typeof discoverFor.path !== 'undefined' && discoverFor.path ? discoverFor.path : discoverFor.derivationPath
         if (path === "false" || !path) {
-            BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover private key not discovered as path = false from ' + source)
+            await BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover private key not discovered as path = false from ' + source)
         }
         const discoverForKey = BlocksoftKeysStorage.getAddressCacheKey(discoverFor.walletHash, path.replace(/[']/g, "quote"), discoverFor.currencyCode)
-        BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover.getPrivateKey actually inited ', {address : discoverFor.addressToCheck, path, discoverForKey})
+        await BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover.getPrivateKey actually inited ', {address : discoverFor.addressToCheck, path, discoverForKey})
         let result = CACHE[discoverForKey]
         if (!result) {
             result = await BlocksoftKeysStorage.getAddressCache(discoverForKey)
             if (!result) {
                 try {
                     if (typeof discoverFor.mnemonic === 'undefined' || !discoverFor.mnemonic) {
-                        BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover.getPrivateKey actually redo mnemonic ' + discoverFor.walletHash),
+                        await BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover.getPrivateKey actually redo mnemonic ' + discoverFor.walletHash),
                         discoverFor.mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(discoverFor.walletHash, 'getPrivateKey')
                     }
                     result = await BlocksoftKeys.discoverOne(discoverFor)
 
                     if (discoverFor.addressToCheck && discoverFor.addressToCheck !== result.address) {
 
-                        BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover private key discovered is not for address you path=' + discoverFor.derivationPath + ' set ' + result.address + '!=' +  discoverFor.addressToCheck + ' key=' + discoverForKey + ' from ' + source)
+                        await BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover private key discovered is not for address you path=' + discoverFor.derivationPath + ' set ' + result.address + '!=' +  discoverFor.addressToCheck + ' key=' + discoverForKey + ' from ' + source)
 
                         const tmpPath = [
                             `m/84'/0'/0'/0/0`,
@@ -59,12 +59,12 @@ class BlocksoftPrivateKeysUtils {
                             clone.derivationPath = path
                             const result2 = await BlocksoftKeys.discoverOne(clone)
                             if (discoverFor.addressToCheck === result2.address) {
-                                BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover private key rediscovered FOUND address path=' + clone.derivationPath + '  set ' + result2.address + '=' + discoverFor.addressToCheck + ' from ' + source)
+                                await BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover private key rediscovered FOUND address path=' + clone.derivationPath + '  set ' + result2.address + '=' + discoverFor.addressToCheck + ' from ' + source)
                                 result = result2
                                 tmpFound = true
                                 break
                             } else {
-                                BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover private key rediscovered is not for address path=' + clone.derivationPath + '  set ' + result2.address + '!=' + discoverFor.addressToCheck + ' from ' + source)
+                                await BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover private key rediscovered is not for address path=' + clone.derivationPath + '  set ' + result2.address + '!=' + discoverFor.addressToCheck + ' from ' + source)
                             }
                         }
                         if (!tmpFound) {
@@ -74,8 +74,7 @@ class BlocksoftPrivateKeysUtils {
                     await BlocksoftKeysStorage.setAddressCache(discoverForKey, result)
                 } catch (e) {
                     if (config.debug.appErrors) {
-                        BlocksoftCryptoLog.log('BlocksoftTransferPrivateKeysDiscover private key error ' + e.message + ' from ' + source)
-                        BlocksoftCryptoLog.log(e)
+                        console.log('BlocksoftTransferPrivateKeysDiscover private key error ' + e.message + ' from ' + source, e)
                     }
                     const clone = JSON.parse(JSON.stringify(discoverFor))
                     const msg = e.message.toString().replace(discoverFor.mnemonic, '***')

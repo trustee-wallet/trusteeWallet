@@ -122,6 +122,7 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx input add error ', e, JSON.parse(JSON.stringify(input)))
                 }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx input add error ', input)
                 throw e
             }
         }
@@ -140,6 +141,7 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx output add error ', e, JSON.parse(JSON.stringify(output)))
                 }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx output add error ', output)
                 throw e
             }
         }
@@ -158,6 +160,7 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
                         console.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx input sign error ', e, JSON.parse(JSON.stringify(input)))
                     }
                 }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx input sign error ', input)
                 e.message = ' transaction ' + this._settings.currencyCode + ' DogeTxBuilder sign error: ' + e.message
                 throw e
             }

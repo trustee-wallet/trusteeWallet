@@ -54,6 +54,7 @@ class SendAdvancedSettingsScreen extends Component {
             selectedFee : false,
             countedFees : false,
             countedFeesData : false,
+            account : false,
 
             focused: false,
             dropMenu: false,
@@ -66,13 +67,25 @@ class SendAdvancedSettingsScreen extends Component {
         this.customFee = React.createRef()
     }
 
-    async componentDidMount() {
+    componentDidMount() {
+
+        // when usual open (moved from unsafe)
+        this.init()
+
+        // when back by history
+        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
+            this.init()
+        })
+    }
+
+    init = async () => {
 
         const devMode = await AsyncStorage.getItem('devMode')
 
         const sendScreenData = SendTmpData.getData()
         const {selectedFee, countedFees, countedFeesData} = SendTmpData.getCountedFees()
 
+        /*
         console.log('')
         console.log('')
         console.log('Send.SendAdvancedSettingsScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
@@ -80,12 +93,14 @@ class SendAdvancedSettingsScreen extends Component {
         console.log('countedFees', JSON.parse(JSON.stringify(countedFees)))
         console.log('selectedFee', JSON.parse(JSON.stringify(selectedFee)))
         console.log('')
-
+        */
+        const { account } = SendActions.findWalletPlus(sendScreenData.currencyCode)
         this.setState({
             sendScreenData,
             countedFees,
             countedFeesData,
             selectedFee,
+            account,
             isCustomFee: selectedFee && typeof selectedFee.isCustomFee !== 'undefined' ? selectedFee.isCustomFee : false,
             devMode: devMode && devMode.toString() === '1',
             comment: sendScreenData.comment
@@ -288,16 +303,23 @@ class SendAdvancedSettingsScreen extends Component {
 
         const { colors, GRID_SIZE } = this.context
 
-        const { focused, countedFeesData, sendScreenData, headerHeight } = this.state
+        let { focused, sendScreenData, selectedFee, account, headerHeight } = this.state
 
         if (typeof sendScreenData === 'undefined' || typeof sendScreenData.currencyCode === 'undefined') {
-            return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
+            sendScreenData = SendTmpData.getData()
+            if (typeof selectedFee === 'undefined') {
+                const tmp = SendTmpData.getCountedFees()
+                selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
+            }
+        }
+        if (typeof account === 'undefined' || typeof account.currencyCode === 'undefined') {
+            const tmp = SendActions.findWalletPlus(sendScreenData.currencyCode)
+            account = tmp.account
         }
 
-        const { account } = SendActions.findWalletPlus(sendScreenData.currencyCode)
         const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode } = account
 
-        const langMsg = this.state.selectedFee ? this.state.selectedFee.langMsg : 'none'
+        const langMsg = selectedFee ? selectedFee.langMsg : 'none'
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header

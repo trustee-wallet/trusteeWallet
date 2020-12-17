@@ -54,6 +54,22 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
                     }
                 }
             }
+
+            const sql = `SELECT account.address, account.derivation_path as derivationPath
+            FROM account
+            WHERE account.wallet_hash = (SELECT wallet_hash FROM account WHERE address='${address}')
+            AND currency_code='BTC' AND (already_shown IS NULL OR already_shown=0)
+            AND derivation_type!='main'
+            ORDER BY derivation_index ASC
+        `
+            const res = await dbInterface.setQueryString(sql).query()
+            for (const row of res.array) {
+                const prefix = row.address.substr(0,1)
+                if (CACHE_FOR_CHANGE[prefix] === "") {
+                    CACHE_FOR_CHANGE[prefix] = row.address
+                }
+            }
+
         } else {
 
             const sql = `SELECT account.address, account.derivation_path as derivationPath

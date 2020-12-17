@@ -32,12 +32,10 @@ class CustomFee extends Component {
     }
 
     componentDidMount() {
-        if (typeof this.props.selectedFee.feeForByte !== 'undefined') {
+        if (typeof this.props.selectedFee !== 'undefined' && this.props.selectedFee && typeof this.props.selectedFee.feeForByte !== 'undefined') {
             const selectedFee = this.props.selectedFee
             this._setSelectedFee(selectedFee, this.props.countedFees)
             this.feeForByteInput.handleInput(typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.feeForByte !== 'undefined' ? selectedFee.feeForByte.toString() : '1', false)
-        } else {
-            console.log('!!!! SHOULD NOT OPEN WITHOUT ANY FEE !!!!')
         }
     }
 
