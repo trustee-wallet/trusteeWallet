@@ -23,8 +23,7 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import TextInput from '../../components/elements/new/TextInput'
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
-
-
+import CustomIcon from '../../components/elements/CustomIcon'
 
 class FioSendRequest extends Component {
 
@@ -213,16 +212,19 @@ class FioSendRequest extends Component {
                                     {
                                         !this.state.enabledCryptoCurrencies?.length && this.state.payeeFioAddress ?
                                             <View style={styles.rowFlex}>
-                                                <TouchableOpacity style={styles.btn__container} onPress={() => NavStore.goNext('FioSettings')}>
+                                                <View style={styles.info_section}>
+                                                    <CustomIcon name="infoMessage" size={30} color={colors.notifications.newNotiesIndicator}  style={{ marginRight: 10, }}/>
+                                                    <Text style={styles.descr_txt}>
+                                                        {strings('FioSendRequest.goToFioSettings')}
+                                                    </Text>
+                                                </View>
+                                                <TouchableOpacity style={styles.btn__container2} onPress={() => NavStore.goNext('FioSettings')}>
                                                     <View style={styles.popup_btn}>
                                                         <Text style={styles.popup_txt}>
                                                             {strings('FioSendRequest.fioSettings')}
                                                         </Text>
                                                     </View>
                                                 </TouchableOpacity>
-                                                <Text style={styles.descr_txt}>
-                                                    {strings('FioSendRequest.goToFioSettings')}
-                                                </Text>
                                             </View>
                                             : null
                                     }
@@ -230,16 +232,20 @@ class FioSendRequest extends Component {
                                     {
                                         !this.state.payeeFioAddress ?
                                             <View style={styles.rowFlex}>
-                                                <TouchableOpacity style={styles.btn__container} onPress={this.handleRegisterFIOAddress}>
+                                                <View style={styles.info_section}>
+                                                    <CustomIcon name="infoMessage" size={30} color={colors.notifications.newNotiesIndicator}  style={{ marginRight: 10, }}/>
+                                                    <Text style={styles.descr_txt}>
+                                                        {strings('FioSendRequest.needRegisterFio')}
+                                                    </Text>
+                                                </View>
+
+                                                <TouchableOpacity style={styles.btn__container2} onPress={this.handleRegisterFIOAddress}>
                                                     <View style={styles.popup_btn}>
                                                         <Text style={styles.popup_txt}>
                                                             {strings('FioSendRequest.registerFioAddress')}
                                                         </Text>
                                                     </View>
                                                 </TouchableOpacity>
-                                                <Text style={styles.descr_txt}>
-                                                    {strings('FioSendRequest.needRegisterFio')}
-                                                </Text>
                                             </View>
 
                                             : null
@@ -358,19 +364,30 @@ const styles = {
 
     container: {
         padding: 20,
-        height: '100%',
         flexDirection: 'column',
         flex: 1,
     },
 
     btn__container: {
-        flex: 1,
+        paddingHorizontal: 10,
+        paddingBottom: 15,
+    },
+
+    btn__container2: {
+        paddingHorizontal: 10,
+        paddingBottom: 35,
+    },
+
+    info_section: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingRight: 20,
     },
 
     popup_btn: {
         width: '100%',
-        padding: 15,
-        paddingHorizontal: 20,
+        padding: 12,
         margin: 10,
         marginHorizontal: 0,
         borderRadius: 10,
@@ -386,15 +403,10 @@ const styles = {
 
     rowFlex: {
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        marginHorizontal: -10,
-        marginVertical: 5,
-        backgroundColor: '#eee',
-        padding: 2,
-        paddingRight: 10,
         borderRadius: 20,
+        height: '100%',
     },
 
     rowFlex2: {
@@ -402,23 +414,14 @@ const styles = {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
+        paddingBottom: 10,
     },
 
-   descr_txt: {
+    descr_txt: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 13,
-        color: '#777',
-       flex: 1,
-    },
-
-    subheader: {
-        display: 'flex',
-        width: '100%',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 0,
-        marginBottom: 10,
+        fontSize: 16,
+        color: '#5c5c5c',
+        maxWidth: '90%',
     },
 
     subheaderTxt: {
@@ -462,6 +465,5 @@ const styles = {
         fontSize: 14,
         color: '#777',
     },
-
 
 }

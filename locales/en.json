@@ -580,7 +580,7 @@
 
   "FioSendRequest": {
     "title": "Send FIO Request",
-    "selectCoin": "Click to Select Coin",
+    "selectCoin": "Select Coin",
     "from": "Send Request From",
     "to": "Send Request To",
     "amount": "Amount",
