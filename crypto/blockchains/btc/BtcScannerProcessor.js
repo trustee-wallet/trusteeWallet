@@ -8,6 +8,7 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 
 import BtcFindAddressFunction from './basic/BtcFindAddressFunction'
 import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
+import config from '../../../app/config/config'
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {}
@@ -123,9 +124,34 @@ export default class BtcScannerProcessor {
         address = address.trim()
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions started ' + address)
         let res = await this._get(address, data)
-        if (!res || typeof res.data === 'undefined') return []
+        if (typeof res.data !== 'undefined') {
+            res = res.data
+        } else {
+            res = false
+        }
+        try {
+            if (address.indexOf('pub') !== 1) {
+                for (const scanAddress in data.addresses) {
+                    if (scanAddress === address) continue
+                    const tmp = await this._get(scanAddress, data)
+                    if (typeof tmp.data === 'undefined' || typeof tmp.data.transactions === 'undefined') continue
+                    if (res === false || typeof res.transactions === 'undefined') {
+                        res = tmp.data
+                    } else {
+                        for (const row of tmp.data.transactions) {
+                            res.transactions.push(row)
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions load from all addresses error ' + e.message, e)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions load from all addresses error ' + e.message)
+        }
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions loaded from ' + res.provider + ' ' + res.time)
-        res = res.data
+
         if (typeof res.transactions === 'undefined' || !res.transactions) return []
         const transactions = []
         const addresses = res.plainAddresses
@@ -135,10 +161,38 @@ export default class BtcScannerProcessor {
                 addresses[tmp] = data.addresses[tmp]
             }
         }
-        let tx
-        for (tx of res.transactions) {
+
+        const vinsOrder = {}
+        for (const tx of res.transactions) {
+            vinsOrder[tx.txid] = tx.blockTime
+        }
+
+        let plussed = false
+        let i = 0
+        do {
+            for (const tx of res.transactions) {
+                if (typeof tx.vin === 'undefined' || tx.vin.length === 0) continue
+                for (const vin of tx.vin) {
+                    if (typeof vinsOrder[vin.txid] === 'undefined') {
+                        continue
+                    }
+                    const newTime = vinsOrder[vin.txid] + 1
+                    if (tx.blockTime < newTime) {
+                        tx.blockTime = newTime
+                        plussed = true
+                    }
+                    vinsOrder[tx.txid] = tx.blockTime
+                }
+            }
+            i++
+        } while (plussed && i < 100)
+
+        const uniqueTxs = {}
+        for (const tx of res.transactions) {
             const transaction = await this._unifyTransaction(address, addresses, tx)
             if (transaction) {
+                if (typeof uniqueTxs[transaction.transactionHash] !== 'undefined') continue
+                uniqueTxs[transaction.transactionHash] = 1
                 transactions.push(transaction)
             }
         }

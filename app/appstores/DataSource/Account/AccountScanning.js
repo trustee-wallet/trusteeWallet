@@ -20,7 +20,7 @@ class AccountScanning {
         const dbInterface = new DBInterface()
 
         let where = []
-        let limit = 2
+        let limit = 3
         //where.push(`account.currency_code='ETH_UAX'`)
 
         if (typeof params.force === 'undefined' || !params.force) {

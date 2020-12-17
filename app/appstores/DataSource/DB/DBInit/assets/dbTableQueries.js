@@ -280,6 +280,7 @@ export default {
                 lock_time DATETIME NULL,
                 block_time DATETIME NULL,
                 created_at DATETIME NULL,
+                mined_at DATETIME NULL,
                 updated_at DATETIME NULL,
                 hidden_at DATETIME NULL
             )`

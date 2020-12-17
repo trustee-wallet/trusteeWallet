@@ -119,9 +119,34 @@ export default class DogeScannerProcessor {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeScannerProcessor.getTransactions loaded from ' + res.provider + ' ' + res.time)
         res = res.data
         if (typeof res.transactions === 'undefined' || !res.transactions) return []
+
+        const vinsOrder = {}
+        for (const tx of res.transactions) {
+            vinsOrder[tx.txid] = tx.blockTime
+        }
+
+        let plussed = false
+        let i = 0
+        do {
+            for (const tx of res.transactions) {
+                if (typeof tx.vin === 'undefined' || tx.vin.length === 0) continue
+                for (const vin of tx.vin) {
+                    if (typeof vinsOrder[vin.txid] === 'undefined') {
+                        continue
+                    }
+                    const newTime = vinsOrder[vin.txid] + 1
+                    if (tx.blockTime < newTime) {
+                        tx.blockTime = newTime
+                        plussed = true
+                    }
+                    vinsOrder[tx.txid] = tx.blockTime
+                }
+            }
+            i++
+        } while (plussed && i < 100)
+
         const transactions = []
-        let tx
-        for (tx of res.transactions) {
+        for (const tx of res.transactions) {
             const transaction = await this._unifyTransaction(address, tx, jsonData)
             if (transaction) {
                 transactions.push(transaction)

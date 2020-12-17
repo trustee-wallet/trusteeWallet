@@ -252,6 +252,7 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
         transaction.walletHash = account.walletHash
         transaction.accountId = account.id
         transaction.createdAt = transaction.blockTime // to make created tx more accurate
+        transaction.minedAt = transaction.blockTime
         transaction.transactionsScanTime = Math.round(new Date().getTime() / 1000)
         transaction.transactionsScanLog = line + ' ' + tmpMsg
         if (!transaction.transactionDirection) {
@@ -296,7 +297,9 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
         }
 
         if (!old.createdAt) {
-            tmpMsg = ` TWALLET UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by CREATED NEW ${transaction.createdAt} OLD ${old.createdAt} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+            tmpMsg = ` TWALLET UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by CREATED NEW ${transaction.blockTime} OLD ${old.createdAt} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+        } else if (transaction.blockTime && (!old.minedAt || old.minedAt !== transaction.blockTime)) {
+            tmpMsg = ` TWALLET UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by MINED NEW ${transaction.blockTime} OLD ${old.minedAt} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
         } else if (old.transactionStatus !== transaction.transactionStatus || !old.createdAt) {
             tmpMsg = ` TWALLET UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by STATUS NEW ${transaction.transactionStatus} OLD ${old.transactionStatus} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
         } else if (!old.transactionFee && old.transactionFee !== transaction.transactionFee) {
@@ -318,6 +321,7 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
         if (!old.createdAt) {
             transactionPart.createdAt = transaction.blockTime
         }
+        transactionPart.minedAt = transaction.blockTime
         transactionPart.transactionsScanTime = Math.round(new Date().getTime() / 1000)
         transactionPart.transactionsScanLog = line + ' ' + tmpMsg
         if (old && old.transactionsScanLog) {
@@ -335,7 +339,9 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
     }
 
     if (!old.createdAt) {
-        tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by CREATED NEW ${transaction.createdAt} OLD ${old.createdAt} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+        tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by CREATED NEW ${transaction.blockTime} OLD ${old.createdAt} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+    } else  if (transaction.blockTime && (!old.minedAt || old.minedAt !== transaction.blockTime)) {
+        tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by MINED NEW ${transaction.blockTime} OLD ${old.minedAt} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
     } else if (old.transactionStatus !== transaction.transactionStatus) {
         tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by STATUS NEW ${transaction.transactionStatus} OLD ${old.transactionStatus} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
     } else if (oldAmount !== newAmount) {
@@ -351,10 +357,8 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
     } else {
         tmpMsg = ` FULL UPDATE ${account.currencyCode} HASH ${transaction.transactionHash} by CONF NEW ${transaction.blockConfirmations} OLD ${old.blockConfirmations} STATUS ${transaction.transactionStatus} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
     }
-
-    if (!old.createdAt) {
-        transaction.createdAt = transaction.blockTime
-    }
+    transaction.createdAt = transaction.blockTime
+    transaction.minedAt = transaction.blockTime
     if (old.transactionDirection !== transaction.transactionDirection) {
         Log.daemon('UpdateAccountTransactions ' + account.currencyCode + ' by DIRECTION id ' + old.id + ' address ' + account.address + ' hash ' + transaction.transactionHash + ' OLD ' + old.transactionDirection + ' NEW ' + transaction.transactionDirection)
         delete transaction.transactionDirection

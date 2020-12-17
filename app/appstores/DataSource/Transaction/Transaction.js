@@ -277,6 +277,7 @@ class Transaction {
             SELECT id, 
             created_at AS createdAt, 
             updated_at AS updatedAt, 
+            mined_at AS minedAt,
             block_time AS blockTime, 
             block_hash AS blockHash, 
             block_number AS blockNumber,  

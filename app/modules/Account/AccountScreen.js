@@ -264,6 +264,8 @@ class Account extends Component {
 
         UpdateOneByOneDaemon._canUpdate = true
 
+        this.transactionInfinity(0, this.state.transactionsShownLength)
+
         this.setState({
             refreshing: false
         })
