@@ -19,7 +19,7 @@ import firebase from 'react-native-firebase'
 
 import NavStore from '../../components/navigation/NavStore'
 
-import { strings } from '../../services/i18n'
+import { strings, sublocale } from '../../services/i18n'
 
 import CashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
@@ -89,11 +89,15 @@ class AboutScreen extends React.Component {
     handleClose = () => { NavStore.reset('DashboardStack') }
 
     handleTermsPress = () => {
-        NavStore.goNext('AgreementScreen', { type: 'terms' })
+        const lang = sublocale()
+        const url = BlocksoftExternalSettings.getStatic(`TERMS_${lang}`)
+        NavStore.goNext('WebViewScreen', { url, title: strings('settings.about.terms') })
     }
 
     handlePrivacyPolicyPress = () => {
-        NavStore.goNext('AgreementScreen', { type: 'privacyPolicy' })
+        const lang = sublocale()
+        const url = BlocksoftExternalSettings.getStatic(`PRIVACY_POLICY_${lang}`)
+        NavStore.goNext('WebViewScreen', { url, title: strings('settings.about.privacy') })
     }
 
     handleSupport = async () => {
@@ -199,6 +203,7 @@ class AboutScreen extends React.Component {
                                 subtitle={strings('settings.about.contactSupportSubtitle')}
                                 iconType="contactSupport"
                                 onPress={this.handleSupport}
+                                rightContent="arrow"
                                 last
                             />
                         </View>
@@ -279,7 +284,7 @@ const styles = StyleSheet.create({
     blockTitle: {
         fontFamily: 'Montserrat-Bold',
         fontSize: 12,
-        lineHeight: 12,
+        lineHeight: 14,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
     },

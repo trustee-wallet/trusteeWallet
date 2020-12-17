@@ -207,6 +207,7 @@
   },
   "notifications": {
     "title": "Notifications",
+    "newsTitle": "News",
     "tabAll": "All",
     "tabNews": "News",
     "today": "Today",

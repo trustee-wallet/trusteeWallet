@@ -8,7 +8,8 @@ import {
     Text,
     TouchableOpacity,
     Animated,
-    StyleSheet
+    StyleSheet,
+    Dimensions
 } from 'react-native'
 import IconMaterial from 'react-native-vector-icons/MaterialIcons'
 
@@ -29,6 +30,8 @@ import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNum
 
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
+
+const smallDevice = Dimensions.get('screen').width < 370
 
 class Wallet extends Component {
 
@@ -64,7 +67,6 @@ class Wallet extends Component {
 
     handleSelectWallet = async () => {
         await cryptoWalletActions.setSelectedWallet(this.props.wallet.walletHash, 'handleSelectWallet')
-        NavStore.reset('DashboardStack')
     }
 
     handleOpenAdvanced = () => { NavStore.goNext('AdvancedWalletScreen') }
@@ -117,8 +119,8 @@ class Wallet extends Component {
                     end={{ x: 1, y: 1 }}
                     style={styles.container}
                 >
-                    <View style={styles.balanceContainer}>
-                        <Text style={[styles.walletName, { color: colors.common.text3 }]}>{wallet.walletName}</Text>
+                    <View style={[styles.balanceContainer, !isBackedUp && { flex: 1 }]}>
+                        <Text style={[styles.walletName, { color: colors.common.text3 }]} numberOfLines={1}>{wallet.walletName}</Text>
                         {isBalanceVisible ? (
                             <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                 <Text style={[styles.balanceCurrencySymbol, { color: colors.common.text1 }]}>{balanceData.currencySymbol}</Text>
@@ -133,23 +135,24 @@ class Wallet extends Component {
                             hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                             activeOpacity={0.8}
                             onPress={this.handleOpenAdvanced}
+                            disabled={!isSelected}
                         >
                             <View style={styles.advancedButtonDotRow}>
-                                <View style={[styles.advancedButtonDot, { backgroundColor: colors.common.text1 }]} />
-                                <View style={[styles.advancedButtonDot, { backgroundColor: colors.common.text1 }]} />
+                                <View style={[styles.advancedButtonDot, { backgroundColor: isSelected ? colors.common.text1 : colors.common.text2 }]} />
+                                <View style={[styles.advancedButtonDot, { backgroundColor: isSelected ? colors.common.text1 : colors.common.text2 }]} />
                             </View>
                             <View style={styles.advancedButtonDotRow}>
-                                <View style={[styles.advancedButtonDot, { backgroundColor: colors.common.text1 }]} />
-                                <View style={[styles.advancedButtonDot, { backgroundColor: colors.common.text1 }]} />
+                                <View style={[styles.advancedButtonDot, { backgroundColor: isSelected ? colors.common.text1 : colors.common.text2 }]} />
+                                <View style={[styles.advancedButtonDot, { backgroundColor: isSelected ? colors.common.text1 : colors.common.text2 }]} />
                             </View>
                         </TouchableOpacity>
                     ) : (
                         <TouchableOpacity
-                            style={[styles.backupContainer, { borderColor: colors.walletManagment.walletItemBorderColor, paddingLeft: GRID_SIZE }]}
+                            style={[styles.backupContainer, { borderColor: colors.walletManagment.walletItemBorderColor, paddingLeft: GRID_SIZE }, smallDevice && { flex: 1.5 }]}
                             onPress={this.handleBackUpModal}
                             activeOpacity={0.8}
                         >
-                            <Text style={[styles.backupText, { color: colors.walletManagment.walletItemBorderColor, marginRight: GRID_SIZE }]}>{strings('settings.walletList.backupNeeded')}</Text>
+                            <Text style={[styles.backupText, { color: colors.walletManagment.walletItemBorderColor, marginRight: GRID_SIZE / 2 }]}>{strings('settings.walletList.backupNeeded')}</Text>
                             <IconMaterial name="error-outline" size={22} color={colors.walletManagment.walletItemBorderColor} />
                         </TouchableOpacity>
                     )}
@@ -189,6 +192,7 @@ const styles = StyleSheet.create({
     },
     balanceContainer: {
         flex: 1.8,
+        paddingRight: 5,
     },
     backupContainer: {
         flex: 1,
@@ -242,5 +246,6 @@ const styles = StyleSheet.create({
         fontSize: 13,
         lineHeight: 17,
         letterSpacing: 1.75,
+        flex: 1,
     }
 })

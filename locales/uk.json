@@ -207,6 +207,7 @@
    },
    "notifications": {
      "title": "Повідомлення",
+     "newsTitle": "Новина",
      "tabAll": "Всі",
      "tabNews": "Новини",
      "today": "Сьогодні",
@@ -284,7 +285,7 @@
     "walletList": {
       "title": "Мої гаманців",
       "addWallet": "Додати гаманець",
-      "backupNeeded": "Незарезервований",
+      "backupNeeded": "Резервне копіювання",
       "addedAssets": "Додані активи",
       "balance": "Баланс",
       "backup": "Резервувати",

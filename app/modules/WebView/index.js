@@ -55,6 +55,7 @@ class WebViewScreen extends React.Component {
                     <WebView
                         source={{ uri: url }}
                         style={{ flex: 1 }}
+                        originWhitelist={['*']}
                     />
                 </SafeAreaView>
             </View>

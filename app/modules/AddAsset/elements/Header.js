@@ -30,16 +30,21 @@ export default class Header extends React.Component {
     state = {
         headerHeight: new Animated.Value(HEADER_MAX_HEIGHT),
         inputHeight: new Animated.Value(50),
-        overflow: 'visible'
+        overflow: 'visible',
+        headerHasExtraView: true
     }
 
     static getDerivedStateFromProps(nextProps, state) {
+        if (nextProps.headerHasExtraView === state.headerHasExtraView) return null
         const headerHasExtraView = nextProps.headerHasExtraView
-        Animated.timing(state.headerHeight, { toValue: headerHasExtraView ? HEADER_MAX_HEIGHT : HEADER_MIN_HEIGHT, duration: 200 }).start()
-        Animated.timing(state.inputHeight, { toValue: headerHasExtraView ? 50 : 0, duration: 200 }).start()
+        Animated.parallel([
+            Animated.spring(state.headerHeight, { toValue: headerHasExtraView ? HEADER_MAX_HEIGHT : HEADER_MIN_HEIGHT }),
+            Animated.spring(state.inputHeight, { toValue: headerHasExtraView ? 50 : 0 }),
+        ], { stopTogether: false }).start()
         return {
             ...state,
-            overflow: headerHasExtraView ? 'visible' : 'hidden'
+            overflow: headerHasExtraView ? 'visible' : 'hidden',
+            headerHasExtraView
         }
     }
 
@@ -158,7 +163,7 @@ const styles = {
     },
     shadow__container: {
         position: 'absolute',
-        bottom: 0,
+        bottom: 15,
         right: 0,
         left: 0,
         height: 20,
@@ -169,14 +174,14 @@ const styles = {
 
         backgroundColor: '#fff',
         shadowColor: '#000',
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.5,
         shadowOffset: {
             width: 0,
             height: 5
         },
-        shadowRadius: 6.27,
+        shadowRadius: 15,
 
-        elevation: 15,
+        elevation: 25,
     },
     container: {
         zIndex: 20,

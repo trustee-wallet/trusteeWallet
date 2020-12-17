@@ -76,6 +76,7 @@ class AddAssetScreen extends React.Component {
     handleBack = () => { NavStore.goBack() }
 
     handleChangeTab = (newTab) => {
+        Keyboard.dismiss()
         this.prepareData(undefined, { ...newTab, active: true })
     }
 
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
     blockTitle: {
         fontFamily: 'Montserrat-Bold',
         fontSize: 12,
-        lineHeight: 12,
+        lineHeight: 14,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
     },

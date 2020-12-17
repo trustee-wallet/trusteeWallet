@@ -26,6 +26,7 @@ import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 import AsyncStorage from '@react-native-community/async-storage'
+import settingsStoreReducer from '../../../appstores/Stores/Settings/SettingsStore'
 
 
 class BottomNavigation extends Component {
@@ -69,7 +70,7 @@ class BottomNavigation extends Component {
             await ExchangeActions.init()
             setLoaderStatus(false)
         }
-        if(typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
+        if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
@@ -130,11 +131,9 @@ class BottomNavigation extends Component {
     returnBuyTooltip = () => {
         const { colors } = this.context
         return (
-            <View style={{ alignItems: 'center' }}>
-                <View style={{ marginTop: 1 }}>
-                    <FontistoIcon size={18} name={'shopping-basket-add'} color={colors.common.text1} />
-                </View>
-                <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 4 }}>{strings('dashboardStack.buy')}</Text>
+            <View style={styles.navigation__item}>
+                <FontistoIcon size={18} name={'shopping-basket-add'} color={colors.common.text1} />
+                <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 3 }}>{strings('dashboardStack.buy')}</Text>
             </View>
         )
     }
@@ -142,9 +141,9 @@ class BottomNavigation extends Component {
     renderExchangeTooltip = () => {
         const { colors } = this.context
         return (
-            <View style={{ alignItems: 'center' }}>
-                <CustomIcon name="exchange" style={{ marginTop: 0, color: colors.common.text1, fontSize: 20 }} />
-                <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 3 }}>{strings('dashboardStack.exchange')}</Text>
+            <View style={styles.navigation__item}>
+                <CustomIcon name="exchange" style={{ color: colors.common.text1, fontSize: 21 }} />
+                <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 2 }}>{strings('dashboardStack.exchange')}</Text>
             </View>
         )
     }
@@ -159,24 +158,22 @@ class BottomNavigation extends Component {
                 <View style={[styles.contentWrapper, { backgroundColor: colors.homeScreen.tabBarBackground }]}>
                     <View style={styles.itemStub} />
 
-                    <TouchableOpacity style={[styles.navigation__item]} onPress={() => this.handleMainBtn('BUY')}>
+                    <TouchableOpacity style={{ flex: 4 }} onPress={() => this.handleMainBtn('BUY')}>
                         <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={100} MainComponent={() => this.returnBuyTooltip()} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleModal()}>
+                    <TouchableOpacity style={{ flex: 4 }} onPress={() => this.handleModal()}>
                         <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={100} MainComponent={() => this.renderExchangeTooltip()} />
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleMainBtn('SELL')}>
-                        <View style={{ marginTop: 1 }}>
-                            <FontistoIcon size={18} name={'shopping-basket-remove'} color={colors.common.text1} />
-                        </View>
-                        <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 4 }}>{strings('dashboardStack.sell')}</Text>
+                        <FontistoIcon size={18} name={'shopping-basket-remove'} color={colors.common.text1} />
+                        <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.sell')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.navigation__item} onPress={this.handleCashback}>
-                        <CustomIcon name="earn" style={{ color: colors.common.text1, marginTop: 2 }} size={20} />
-                        <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText, marginTop: 2 }]}>{strings('dashboardStack.earn')}</Text>
+                        <CustomIcon name="earn" style={{ color: colors.common.text1 }} size={20} />
+                        <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.earn')}</Text>
                     </TouchableOpacity>
 
                     <View style={styles.itemStub} />
@@ -188,7 +185,8 @@ class BottomNavigation extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        exchangeStore: state.exchangeStore
+        exchangeStore: state.exchangeStore,
+        language: state.settingsStore.data.language
     }
 }
 
@@ -230,9 +228,11 @@ const styles = {
         flex: 4,
         paddingTop: 8,
         paddingBottom: 6,
+        justifyContent: 'space-between',
     },
     navigation__item__text: {
         fontSize: 12,
         fontFamily: 'SFUIDisplay-Regular',
+        marginTop: 3
     },
 }

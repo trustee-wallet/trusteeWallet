@@ -145,7 +145,8 @@ const styles = StyleSheet.create({
     },
     input: {
         fontFamily: 'Montserrat-Bold',
-        fontSize: 12,
+        fontSize: 14,
+        lineHeight: 18,
         textAlign: 'center'
     },
     touchableOpacity: {

@@ -207,6 +207,7 @@
   },
   "notifications": {
     "title": "Уведомления",
+    "newsTitle": "Новость",
     "tabAll": "Все",
     "tabNews": "Новости",
     "today": "Сегодня",
@@ -284,7 +285,7 @@
     "walletList": {
       "title": "Мои кошельки",
       "addWallet": "Добавить кошелек",
-      "backupNeeded": "Незарезирвирован",
+      "backupNeeded": "Резервное копирование",
       "addedAssets": "Добавленные активы",
       "balance": "Баланс",
       "backup": "Резервировать",
