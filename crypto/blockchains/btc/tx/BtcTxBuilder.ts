@@ -135,17 +135,17 @@ export default class BtcTxBuilder extends DogeTxBuilder implements BlocksoftBloc
         }
         if (typeof this.p2wpkhBTC[input.address] === 'undefined') {
             // @ts-ignore
-            BlocksoftCryptoLog.log('BtcTxBuilder.getRawTx sign usual', input)
+            await BlocksoftCryptoLog.log('BtcTxBuilder.getRawTx sign usual', input)
             // @ts-ignore
             txb.sign(i, this.keyPairBTC[input.address], null, null, input.value * 1)
         } else if (typeof this.p2shBTC[input.address] === 'undefined') {
             // @ts-ignore
-            BlocksoftCryptoLog.log('BtcTxBuilder.getRawTx sign segwit', input)
+            await BlocksoftCryptoLog.log('BtcTxBuilder.getRawTx sign segwit', input)
             // @ts-ignore
             txb.sign(i, this.keyPairBTC[input.address], null, null, input.value * 1)
         } else {
             // @ts-ignore
-            BlocksoftCryptoLog.log('BtcTxBuilder.getRawTx sign segwit compatible', input)
+            await BlocksoftCryptoLog.log('BtcTxBuilder.getRawTx sign segwit compatible', input)
             // @ts-ignore
             txb.sign(i, this.keyPairBTC[input.address], this.p2shBTC[input.address].redeem.output, null, input.value * 1)
         }

@@ -53,7 +53,7 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
     }
 
     async _getRawTxSign(txb: TransactionBuilder, i: number, input: BlocksoftBlockchainTypes.UnspentTx): Promise<void> {
-        BlocksoftCryptoLog.log('DogeTxBuilder.getRawTx sign', input)
+        await BlocksoftCryptoLog.log('DogeTxBuilder.getRawTx sign', input)
         // @ts-ignore
         txb.sign(i, this.keyPair, null, null, input.value * 1)
     }
@@ -77,7 +77,7 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
         }> {
 
         this._getRawTxValidateKeyPair(privateData, data)
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx validated address private key')
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx validated address private key')
 
         let nSequence = 0
         let txAllowReplaceByFee = false
@@ -85,11 +85,11 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
             if (data.allowReplaceByFee) {
                 nSequence = MIN_SEQ
                 txAllowReplaceByFee = true
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx allow RBF ' + nSequence)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx allow RBF ' + nSequence)
             } else {
                 nSequence = MAX_SEQ
                 txAllowReplaceByFee = false
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx no RBF ' + nSequence)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx no RBF ' + nSequence)
             }
         } else {
             nSequence = data.transactionJson.nSequence * 1 + 1
@@ -98,14 +98,14 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
             if (nSequence >= MAX_SEQ) {
                 nSequence = MAX_SEQ
                 txAllowReplaceByFee = false
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx no RBF by old nSeq ' + data.transactionJson.nSequence + ' +1 => ' + nSequence)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx no RBF by old nSeq ' + data.transactionJson.nSequence + ' +1 => ' + nSequence)
             } else {
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx allow RBF by old nSeq ' + data.transactionJson.nSequence + ' +1 => ' + nSequence)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx allow RBF by old nSeq ' + data.transactionJson.nSequence + ' +1 => ' + nSequence)
             }
         }
 
         const txb = new TransactionBuilder(this._bitcoinNetwork, this._feeMax)
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx started max ' + this._feeMax)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx started max ' + this._feeMax)
 
         txb.setVersion(1)
 
@@ -117,7 +117,7 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
                 // @ts-ignore
                 log.inputs.push({ txid: input.txid, vout: input.vout, nSequence })
                 // @ts-ignore
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx input added', input)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx input added', input)
             } catch (e) {
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx input add error ', e, JSON.parse(JSON.stringify(input)))
@@ -135,7 +135,7 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
                 // @ts-ignore
                 log.outputs.push({ addressTo: output.to, amount: output.amount })
                 // @ts-ignore
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx output added ', output)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx output added ', output)
             } catch (e) {
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx output add error ', e, JSON.parse(JSON.stringify(output)))
@@ -147,8 +147,9 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
         for (let i = 0, ic = preparedInputsOutputs.inputs.length; i < ic; i++) {
             const input = preparedInputsOutputs.inputs[i]
             try {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx sign adding')
                 await this._getRawTxSign(txb, i, input)
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx sign added')
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx sign added')
             } catch (e) {
                 if (config.debug.cryptoErrors) {
                     if (e.message.indexOf('Transaction needs outputs') !== -1) {
@@ -165,9 +166,9 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
         let rawTxHex
         try {
             rawTxHex = txb.build().toHex()
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx size ' + rawTxHex.length)
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx size ' + rawTxHex.length)
             // @ts-ignore
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx hex', rawTxHex)
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx hex', rawTxHex)
         } catch (e) {
             e.message = ' transaction ' + this._settings.currencyCode + ' DogeTxBuilder build error: ' + e.message
             throw e
