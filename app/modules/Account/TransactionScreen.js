@@ -55,6 +55,7 @@ import GradientView from '../../components/elements/GradientView'
 import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 import config from '../../config/config'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
+import { setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -77,7 +78,8 @@ class TransactionScreen extends Component {
             linkExplorer: null,
             
             focused: false,
-            notification : false
+            notification : false,
+            toOpenAccountBack : false
         }
     }
 
@@ -85,7 +87,7 @@ class TransactionScreen extends Component {
     async UNSAFE_componentWillMount() {
         const data = this.props.navigation.getParam('txData')
 
-        let { transactionHash, orderHash, walletHash, transaction, notification } = data
+        let { transactionHash, orderHash, walletHash, transaction, notification, toOpenAccountBack } = data
         let tx
         let account
         let currencyCode
@@ -114,7 +116,7 @@ class TransactionScreen extends Component {
                         tx = transactionActions.preformatWithBSEforShow( false,{ orderHash, createdAt : notification.createdAt })
                     }
                 } catch (e) {
-                    console.log('TransactionScreen.init with transactionHash error  ' + e)
+                    Log.log('TransactionScreen.init with transactionHash error  ' + e)
                 }
             } else if (orderHash) {
                 try {
@@ -136,12 +138,12 @@ class TransactionScreen extends Component {
                         }
                     }
                 } catch (e) {
-                    console.log('TransactionScreen.init with orderHash error  ' + e)
+                    Log.log('TransactionScreen.init with orderHash error  ' + e)
                 }
             } else {
-                console.log('WTF?')
+                Log.log('WTF?')
             }
-            console.log('TransactionScreen.tx search result ', JSON.parse(JSON.stringify(tx)))
+            Log.log('TransactionScreen.tx search result ', JSON.parse(JSON.stringify(tx)))
         } else {
             tx = transaction
             currencyCode = transaction.currencyCode
@@ -155,19 +157,21 @@ class TransactionScreen extends Component {
             this.setState(() => ({
                 transaction: tx,
                 notification,
-                cryptoCurrency
+                cryptoCurrency,
+                toOpenAccountBack
             }))
         } else {
             this.setState(() => ({
                 transaction: tx,
-                cryptoCurrency
+                cryptoCurrency,
+                toOpenAccountBack
             }))
         }
 
     }
 
     init = (transaction, cryptoCurrency) => {
-        console.log('init transaction transaction', transaction)
+        Log.log('init transaction transaction', transaction)
         try {
 
             const fioMemo = DaemonCache.getFioMemo(cryptoCurrency.currencyCode)
@@ -232,7 +236,7 @@ class TransactionScreen extends Component {
 
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('TransactionScreen init error ', e)
+                Log.log('TransactionScreen init error ', e)
             }
             Log.err(`TransactionScreen init error - ${JSON.stringify(e)} ; Transaction - ${JSON.stringify(transaction)}`)
         }
@@ -519,8 +523,15 @@ class TransactionScreen extends Component {
         }
     }
 
-    closeAction = () => {
-        NavStore.goBack()
+    closeAction = async () => {
+        if (this.state.toOpenAccountBack) {
+            const { cryptoCurrency, account } = this.props
+            setSelectedCryptoCurrency(cryptoCurrency)
+            await setSelectedAccount()
+            NavStore.reset('AccountScreen')
+        } else {
+            NavStore.goBack()
+        }
     }
 
     getTransactionDate(transaction) {
@@ -800,7 +811,6 @@ class TransactionScreen extends Component {
     }
 
     handleSubContentPress = (item) => {
-        console.log('item', item)
         if (typeof item.plain !== 'undefined') {
             copyToClipboard(item.plain)
         } else if (item.isLink) {
@@ -825,9 +835,9 @@ class TransactionScreen extends Component {
             return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
         }
 
-        // console.log()
-        // console.log()
-        // console.log('TransactionScreen.Transaction', JSON.stringify(transaction))
+        // Log.log()
+        // Log.log()
+        // Log.log('TransactionScreen.Transaction', JSON.stringify(transaction))
 
         const dict = new UIDict(typeof cryptoCurrency !== 'undefined' ? cryptoCurrency.currencyCode : '')
         const color = dict.settings.colors.mainColor

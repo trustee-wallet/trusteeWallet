@@ -415,7 +415,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     NavStore.reset('TransactionScreen', {
                         txData: {
                             transactionHash: tx.transactionHash,
-                        }
+                            toOpenAccountBack : true
+                        },
                     })
                 } else if (uiType === 'MAIN_SCANNER') {
                     NavStore.reset('DashboardStack')
