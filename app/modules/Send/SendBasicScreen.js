@@ -69,14 +69,14 @@ export default class SendBasicScreen extends Component {
         }
     }
 
-    openAdvancedSettings = async () => {
+    openAdvancedSettings = async (additionalParams) => {
         // late count
         const newSendScreenData = JSON.parse(JSON.stringify(this.state.sendScreenData))
         const { selectedFee } = await this.recountFees(newSendScreenData)
         newSendScreenData.selectedFee = selectedFee
         setLoaderStatus(false)
         NavStore.goNext('SendAdvancedScreen', {
-            sendScreenData: newSendScreenData
+            additionalParams
         })
     }
 

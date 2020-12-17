@@ -81,10 +81,17 @@ class SendAdvancedSettingsScreen extends Component {
     init = async () => {
 
         const devMode = await AsyncStorage.getItem('devMode')
+        const additionalParams = this.props.navigation.getParam('additionalParams')
 
         const sendScreenData = SendTmpData.getData()
         const {selectedFee, countedFees, countedFeesData} = SendTmpData.getCountedFees()
 
+        let isCustomFee = selectedFee && typeof selectedFee.isCustomFee !== 'undefined' ? selectedFee.isCustomFee : false
+        let dropMenu = false
+        if (typeof additionalParams!== 'undefined' && typeof additionalParams.toOpenCustom !== 'undefined') {
+            isCustomFee = true
+            dropMenu  = true
+        }
         /*
         console.log('')
         console.log('')
@@ -101,7 +108,8 @@ class SendAdvancedSettingsScreen extends Component {
             countedFeesData,
             selectedFee,
             account,
-            isCustomFee: selectedFee && typeof selectedFee.isCustomFee !== 'undefined' ? selectedFee.isCustomFee : false,
+            isCustomFee,
+            dropMenu,
             devMode: devMode && devMode.toString() === '1',
             comment: sendScreenData.comment
         })
@@ -320,6 +328,8 @@ class SendAdvancedSettingsScreen extends Component {
         const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode } = account
 
         const langMsg = selectedFee ? selectedFee.langMsg : 'none'
+        let dropMenu = langMsg !== 'none' ? !!this.state.dropMenu : true
+
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
@@ -342,8 +352,8 @@ class SendAdvancedSettingsScreen extends Component {
                                     title={strings('send.setting.selectFee')}
                                     iconType="fee"
                                     onPress={this.toggleDropMenu}
-                                    rightContent={this.state.dropMenu ? 'arrow_up' : "arrow_down"}
-                                    switchParams={{ value: !!this.state.dropMenu, onPress: this.toggleDropMenu }}
+                                    rightContent={dropMenu ? 'arrow_up' : "arrow_down"}
+                                    switchParams={{ value: dropMenu, onPress: this.toggleDropMenu }}
                                     type={'dropdown'}
                                     ExtraView={() => this.showFee(basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode)}
                                     subtitle={langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) :

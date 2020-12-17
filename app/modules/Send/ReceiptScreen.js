@@ -480,6 +480,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 })
 
             } else {
+                const msg = e.message
                 Log.errorTranslate(e, 'Send.ConfirmSendScreen.handleSend', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
 
                 showModal({
@@ -487,6 +488,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     icon: null,
                     title: strings('modal.exchange.sorry'),
                     description: e.message
+                }, async () => {
+                    if (msg.indexOf('SERVER_RESPONSE_PLEASE_SELECT_FEE') !== -1) {
+                        this.openAdvancedSettings({toOpenCustom : true})
+                    }
                 })
             }
             CACHE_IS_SENDING = false
