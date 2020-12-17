@@ -122,7 +122,7 @@ class HeaderBlocks extends Component {
 
         const { colors, GRID_SIZE } = this.context
 
-        const { isBalanceVisible, visibleAction } = this.props
+        const { isBalanceVisible, triggerBalanceVisibility, originalVisibility } = this.props
 
         const isSyncronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
@@ -144,23 +144,25 @@ class HeaderBlocks extends Component {
             return (
                 <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE }}>
                     <View style={{ ...styles.topContent__title, flexGrow: 1 }}>
-                        {isBalanceVisible ?
-                        <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
-                            {balancePrettyPrep1}
-                            <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
-                                {balancePrettyPrep2}
+                        <TouchableOpacity
+                            onPressIn={() => triggerBalanceVisibility(true)}
+                            onPressOut={() => triggerBalanceVisibility(false)}
+                            activeOpacity={1}
+                            disabled={originalVisibility}
+                            hitSlop={HIT_SLOP}
+                            >
+                            {isBalanceVisible ?
+                            <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
+                                {balancePrettyPrep1}
+                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
+                                    {balancePrettyPrep2}
+                                </Text>
                             </Text>
-                        </Text>
-                        : 
-                        // <TouchableOpacity
-                        //         onPressIn={() => visibleAction()}
-                        //         onPressOut={() => console.log('out')}
-                        //         activeOpacity={0.9}
-                        //     >
-                            <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, marginTop: 10, paddingHorizontal: 15, fontSize: 52, lineHeight: 60 }}>
-                                ****</Text>
-                        // </TouchableOpacity>
-                        }
+                            : 
+                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, marginTop: 10, paddingHorizontal: 15, fontSize: 52, lineHeight: 60 }}>
+                                    ****</Text>
+                            }
+                        </TouchableOpacity>
                     </View>
                     { isBalanceVisible &&
                     <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}

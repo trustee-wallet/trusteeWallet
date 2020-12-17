@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 
-import { View, ScrollView, Keyboard, Text, TouchableOpacity, Dimensions } from 'react-native'
+import { View, ScrollView, Keyboard, Text, TouchableOpacity, Dimensions, Platform } from 'react-native'
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
@@ -62,8 +62,6 @@ import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import Validator from '../../services/UI/Validator/Validator'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
-
-let styles
 
 const addressInput = {
     id: 'address',
@@ -144,8 +142,6 @@ class SendScreen extends SendBasicScreenScreen {
                 })
             }
         })
-        // @yura could it be in DidMount?
-        styles = Theme.getStyles().sendScreenStyles
     }
 
     componentDidMount() {
@@ -951,6 +947,8 @@ class SendScreen extends SendBasicScreenScreen {
     }
 
     disabled = () => {
+        const { balancePretty } = this.state.account
+
         if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '') {
             return true
         }
@@ -959,6 +957,10 @@ class SendScreen extends SendBasicScreenScreen {
             return true
         }
         if (this.state.loadFee) {
+            return true
+        }
+
+        if (balancePretty <= 0) {
             return true
         }
 
@@ -972,6 +974,19 @@ class SendScreen extends SendBasicScreenScreen {
     }
 
     disabledSettings = () => {
+
+        const { balancePretty } = this.state.account
+
+        if (balancePretty <= 0) {
+            this.setState({
+                enoughFunds: {
+                    isAvailable: false,
+                    messages: [strings('send.notEnough')]
+                },
+            })
+            return false
+        }
+
         if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '' || this.valueInput.state.value === 0) {
             this.setState({
                 enoughFunds: {
@@ -1255,12 +1270,6 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, {})(SendScreen)
 
-const styles_ = {
-    array: ['#f9f9f9', '#f9f9f9'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
-}
-
 const style = {
     line: {
         backgroundColor: '#DADADA',
@@ -1315,4 +1324,41 @@ const style = {
         marginRight: 10,
         transform: [{ rotate: '180deg' }]
     },
+}
+
+const styles = {
+    text: {
+        fontSize: 16,
+        color: '#999999',
+        textAlign: 'justify'
+    },
+    texts: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 30
+    },
+    texts__item: {
+        fontSize: 14,
+        fontFamily: 'SFUIDisplay-Semibold',
+        color: '#5C5C5C',
+        letterSpacing: 1,
+    },
+    accountDetail: {
+        marginLeft: 31
+    },
+    accountDetail__content: {
+        flexDirection: 'row',
+
+        marginLeft: 16
+    },
+    accountDetail__title: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 18,
+        color: '#404040'
+    },
+    accountDetail__text: {
+        fontSize: 14,
+        fontFamily: 'SFUIDisplay-Semibold',
+        color: '#939393'
+    }
 }

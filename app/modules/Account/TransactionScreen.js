@@ -305,10 +305,6 @@ class TransactionScreen extends Component {
     prepareCommentToView = (transaction) => {
         if (typeof transaction.transactionJson === 'undefined' || transaction.transactionJson === null) return null
 
-        if (transaction.transactionStatus.toUpperCase() !== 'SUCCESS') {
-            return null
-        }
-
         if (typeof transaction.transactionJson.comment !== 'undefined') {
             return {
                 title: strings(`send.comment`),
@@ -549,6 +545,7 @@ class TransactionScreen extends Component {
             case 'CANCELED_PAYOUT':
             case 'CANCELED_PAYIN':
             case 'FAIL':
+            case 'MISSING':
                 return 'CANCELED'
             default:
                 return 'PENDING'
@@ -575,16 +572,16 @@ class TransactionScreen extends Component {
 
         let status = this.getTransactionStatus(transactionStatus)
 
-        let arrowIcon = <Feather name={'arrow-up-right'} style={{ color: '#404040', fontSize: 17 }} />
+        let arrowIcon = <Feather name={'arrow-up-right'} style={{ color: colors.common.text1, fontSize: 17 }} />
 
-        if (transactionDirection === 'income' || transactionDirection === 'claim' || transactionDirection === 'income') {
-            arrowIcon = <Feather name={'arrow-down-left'} style={{ color: '#404040', fontSize: 17 }} />
+        if (transactionDirection === 'income' || transactionDirection === 'claim') {
+            arrowIcon = <Feather name={'arrow-down-left'} style={{ color: colors.common.text1, fontSize: 17 }} />
         }
         if (transactionDirection === 'self') {
-            arrowIcon = <FontAwesome5 name='infinity' style={{ color: '#404040', fontSize: 17 }} />
+            arrowIcon = <FontAwesome5 name='infinity' style={{ color: colors.common.text1, fontSize: 17 }} />
         }
         if (transactionStatus === 'fail' || transactionStatus === 'missing' || transactionStatus === 'replaced') {
-            arrowIcon = <Feather name='x' style={{ color: '#404040', fontSize: 17 }} />
+            arrowIcon = <Feather name='x' style={{ color: colors.common.text1, fontSize: 17 }} />
         }
 
         let amountTxt = addressAmountPrettyPrefix  + ' ' + addressAmountPretty
@@ -603,7 +600,7 @@ class TransactionScreen extends Component {
         return (
             <View style={{ width: '100%', flexDirection: 'column', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row' }}>
-                    <Text style={styles.txDirection}>
+                    <Text style={{...styles.txDirection, color: colors.common.text1 }}>
                         {capitalize(statusTxt)}
                     </Text>
                     <View>
@@ -618,13 +615,14 @@ class TransactionScreen extends Component {
                     <View style={{ ...styles.statusLine, borderBottomColor: color }} />
                     <View style={{ paddingHorizontal: 17, backgroundColor: colors.common.header.bg }}>
                         <View style={{ ...styles.statusBlock, backgroundColor: color }}>
-                            <LetterSpacing text={this.prepareStatusHeaderToView(status)} textStyle={styles.status} letterSpacing={1.5} />
+                            <LetterSpacing text={this.prepareStatusHeaderToView(status)} 
+                                textStyle={{...styles.status, color: colors.transactionScreen.status }} letterSpacing={1.5} />
                         </View>
                     </View>
                 </View>
                 <View style={styles.topContent__title}>
                     <>
-                        <Text style={styles.amount}>
+                        <Text style={{...styles.amount, color: colors.common.text1 }}>
                             {amountTxt}
                         </Text>
                         <Text style={{ ...styles.code, color: color }}>{currencySymbol}</Text>
@@ -781,7 +779,7 @@ class TransactionScreen extends Component {
                                 subtitle={commentToView.description}
                             />
                         </TouchableOpacity> :
-                            <View style={{...styles.textInputWrapper, backgroundColor: '#f5f5f5'}}>
+                            <View style={{...styles.textInputWrapper, backgroundColor: colors.transactionScreen.comment}}>
                             <TextInput
                                 ref={ref => this.commentInput = ref}
                                 placeholder={strings('account.transactionScreen.commentPlaceholder')}
@@ -840,7 +838,7 @@ class TransactionScreen extends Component {
         // Log.log('TransactionScreen.Transaction', JSON.stringify(transaction))
 
         const dict = new UIDict(typeof cryptoCurrency !== 'undefined' ? cryptoCurrency.currencyCode : '')
-        const color = dict.settings.colors.mainColor
+        const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
 
         const descriptionValue = typeof transaction.description !== 'undefined' ? transaction.description.replace(/[\u2006]/g, '').split('').join(String.fromCodePoint(parseInt('2006', 16))) : ''
 
@@ -942,7 +940,7 @@ class TransactionScreen extends Component {
                             </Pages>}
                     </View>
                     {showMoreDetails && (
-                        <View style={{ ...styles.moreInfo, borderRadius: 16, marginBottom: 20, backgroundColor: '#f2f2f2' }}>
+                        <View style={{ ...styles.moreInfo, borderRadius: 16, marginBottom: 20, backgroundColor: colors.transactionScreen.backgroundItem }}>
                             {/* <InsertShadow containerStyle={{
                                 ...styles.moreInfo,
                                 flex: 1,
@@ -1010,7 +1008,7 @@ const styles = {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 17,
         lineHeight: 17,
-        color: '#404040'
+        paddingRight: 4
     },
     date: {
         fontFamily: 'Montserrat-SemiBold',
@@ -1021,7 +1019,6 @@ const styles = {
     amount: {
         fontSize: 32,
         fontFamily: 'Montserrat-Medium',
-        color: '#404040'
     },
     code: {
         fontSize: 20,
@@ -1036,12 +1033,11 @@ const styles = {
         justifyContent: 'center',
         paddingHorizontal: 6,
         minWidth: 120,
-        maxWidth: 150
+        maxWidth: 180
     },
     status: {
         fontFamily: 'Montserrat-Bold',
         fontSize: 12,
-        color: '#FFFFFF'
     },
     statusLine: {
         position: 'absolute',

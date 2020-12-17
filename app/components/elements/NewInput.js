@@ -309,7 +309,7 @@ class Input extends Component {
                         </View>
                         : null
                 }
-                <View style={styles.actions}>
+                <View style={{...styles.actions }}>
                     {
                         typeof fio !== 'undefined' && fio ?
                             <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
@@ -453,14 +453,16 @@ const styles = {
     },
     actions: {
         position: 'absolute',
-        top: -5,
-        right: 16,
-        flexDirection: 'row'
+        // top: -5,
+        right: 0,
+        height: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingRight: 16,
     },
     actionBtn: {},
     actionBtn__icon: {
         marginLeft: 15,
-        marginTop: 20
     },
     actionBtn__icon_qr: {
         marginTop: 2

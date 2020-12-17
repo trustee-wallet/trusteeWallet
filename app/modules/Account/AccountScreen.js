@@ -146,7 +146,6 @@ class Account extends Component {
     }
 
     triggerBalanceVisibility = () => {
-        console.log('hsfj sdljf ls')
         if (this.state.originalVisibility) return
         this.setState(state => ({ isBalanceVisible: !state.isBalanceVisible }))
     }
@@ -284,7 +283,7 @@ class Account extends Component {
         return Math.abs(Math.round(diffTime));
     }
 
-    renderTooltip = (props) => {
+        renderTooltip = (props) => {
 
         const { cryptoCurrency, account, allTransactionsToView } = props
 
@@ -293,14 +292,11 @@ class Account extends Component {
         const { colors, GRID_SIZE } = this.context
 
         return (
-            <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE }}>
+            <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}>
                 <View style={{ marginTop: 24, flexDirection: 'row', position: 'relative', justifyContent: 'space-between' }}>
-                    <View style={{ flexDirection: 'row' }} >
+                    <View style={{ flexDirection: 'column' }} >
                         <Text style={{...styles.transaction_title, color: colors.common.text1}}>{strings('account.history')}</Text>
-                        <TouchableOpacity style={{ ...styles.scan, justifyContent: 'center', marginRight: 10, marginTop: 1}} onPress={() => this.handleRefresh()} >
-                            <CustomIcon name={'reloadTx'} size={20} color={colors.common.text1} />
-                        </TouchableOpacity>
-                        <View style={{...styles.scan, marginLeft: 0 }}>
+                        <View style={{...styles.scan, marginLeft: 16 }}>
                             {isSynchronized ?
                                 <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? 
                                     strings('account.justScan') : this.diffTimeScan(this.props.account.balanceScanTime * 1000) > 60 ? strings('account.soLong') :
@@ -310,10 +306,10 @@ class Account extends Component {
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                     marginRight: 10,
-                                    marginTop: -12
+                                    marginTop: 2
                                 }}><Text style={{
                                     ...styles.transaction__empty_text, ...{
-                                        marginLeft: 10,
+                                        marginLeft: 0,
                                         marginRight: 10,
                                         marginTop: 0,
                                         color: colors.common.text1
@@ -324,12 +320,15 @@ class Account extends Component {
                             }
                         </View>
                     </View>
+                    <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE}} onPress={this.handleRefresh} hitSlop={HIT_SLOP} >
+                            <CustomIcon name={'reloadTx'} size={20} color={this.state.refreshing ? 'green' : colors.common.text1} />
+                        </TouchableOpacity>
                 </View>
                 {
                     account.transactionsTotalLength === 0 ?
-                        <View>
+                        <View style={{ marginRight: GRID_SIZE }} >
                             {isSynchronized && <Text
-                                style={{...styles.transaction__empty_text, color: colors.common.text1}}>
+                                style={{...styles.transaction__empty_text, marginTop: GRID_SIZE, color: colors.common.text3}}>
                                 {strings('account.noTransactions')}
                             </Text>}
                         </View>
@@ -484,8 +483,9 @@ class Account extends Component {
                             actionReceive={this.handleReceive}
                             actionBuy={this.handleBuy}
                             actionSend={this.handleSend}
-                            isBalanceVisible={isBalanceVisible}
-                            visibleAction={this.triggerBalanceVisibility}
+                            isBalanceVisible={this.state.isBalanceVisible}
+                            originalVisibility={this.state.originalVisibility}
+                            triggerBalanceVisibility={this.triggerBalanceVisibility}
                         />
                     ) }}
                     scrollOffset={this.state.scrollOffset}
@@ -510,8 +510,9 @@ class Account extends Component {
                             cryptoCurrency={cryptoCurrency}
                             settingsStore={settingsStore}
                             cacheAsked={CACHE_ASKED}
-                            isBalanceVisible={isBalanceVisible}
-                            visibleAction={this.triggerBalanceVisibility}
+                            isBalanceVisible={this.state.isBalanceVisible}
+                            originalVisibility={this.state.originalVisibility}
+                            triggerBalanceVisibility={this.triggerBalanceVisibility}
                         />
                         <AccountButtons 
                             title={true}
@@ -560,10 +561,10 @@ class Account extends Component {
                                 account.transactionsTotalLength > transactionsShownLength ?
                                     <View style={{ width: '100%', alignItems: 'center' }}>
                                         <TouchableOpacity style={styles.showMore} onPress={this.handleShowMore} hitSlop={HIT_SLOP} >
-                                            <Text style={{ ...styles.showMore__btn, color: colors.accountScreen.showMoreColor }}>
+                                            <Text style={{ ...styles.showMore__btn, color: colors.common.text1 }}>
                                                 {strings('account.showMore')}
                                             </Text>
-                                            <Ionicons name='ios-arrow-down' size={12} color={colors.accountScreen.showMoreColor} />
+                                            <Ionicons name='ios-arrow-down' size={12} color={colors.common.text1} />
                                         </TouchableOpacity>
                                     </View> :
                                 <View style={{ marginBottom: 60 }} />
@@ -617,8 +618,8 @@ const styles = {
         paddingBottom: Platform.OS === 'ios' ? 30 : 0
     },
     scan: {
-        marginLeft: 10,
-        marginTop: 3,
+        // marginLeft: 10,
+        // marginTop: 3,
         flexDirection: 'row'
     },
     scan__text: {
@@ -633,16 +634,17 @@ const styles = {
     },
     transaction_title: {
         marginLeft: 16,
-        marginBottom: 10,
+        marginBottom: 4,
         fontSize: 17,
         fontFamily: 'Montserrat-Bold'
     },
     transaction__empty_text: {
         marginTop: -5,
         marginLeft: 16,
-        fontSize: 12,
+        fontSize: 15,
+        lineHeight: 19,
         fontFamily: 'SFUIDisplay-Semibold',
-        letterSpacing: 1
+        letterSpacing: 1.5
     },
     showMore: {
         flexDirection: 'row',

@@ -1,5 +1,9 @@
 import React from 'react'
-import { Text, View } from 'react-native'
+import { 
+    Text, 
+    View, 
+    TouchableOpacity 
+} from 'react-native'
 
 import LetterSpacing from '../../../components/elements/LetterSpacing'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
@@ -15,7 +19,9 @@ const BalanceHeader = (props) => {
         actionReceive,
         actionBuy,
         actionSend,
-        isBalanceVisible
+        isBalanceVisible,
+        originalVisibility,
+        triggerBalanceVisibility
     } = props
 
     const { colors, isLight } = useTheme()
@@ -40,14 +46,21 @@ const BalanceHeader = (props) => {
         <>
             <View style={styles.topContent__top}>
                 <View style={styles.topContent__title}>
-                    {isBalanceVisible ? 
-                    <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
-                        {balancePrettyPrep1}
-                        <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
-                            {balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol}
-                        </Text>
-                    </Text> : 
-                    <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, fontSize: 32, lineHeight: 40 }} >****</Text>}
+                    <TouchableOpacity
+                            onPressIn={() => triggerBalanceVisibility(true)}
+                            onPressOut={() => triggerBalanceVisibility(false)}
+                            activeOpacity={1}
+                            disabled={originalVisibility}
+                            >
+                        {isBalanceVisible ? 
+                        <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
+                            {balancePrettyPrep1}
+                            <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
+                                {balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol}
+                            </Text>
+                        </Text> : 
+                        <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, fontSize: 38, lineHeight: 40, height: 34 }} >****</Text>}
+                    </TouchableOpacity>
                 </View>
             </View>
             <AccountButtons

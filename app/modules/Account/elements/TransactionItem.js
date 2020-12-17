@@ -71,7 +71,7 @@ const TransactionItem = (props) => {
                 :
                 <>  
                     {/* <InsertShadow containerStyle={{ flex: 1, borderRadius: 16, justifyContent: 'center', backgroundColor: '#F2F2F2' }} shadowRadius={5} shadowColor={'#999999'} > */}
-                        <View style={{ ...styles.wrapper, flexDirection: 'row', padding: GRID_SIZE, backgroundColor: '#F2F2F2'  }} >
+                        <View style={{ ...styles.wrapper, flexDirection: 'row', padding: GRID_SIZE, backgroundColor: colors.transactionScreen.backgroundItem  }} >
                             {iconType && (
                                 <View style={styles.icon}>
                                     {getIcon(iconType, colors.common.text1)}

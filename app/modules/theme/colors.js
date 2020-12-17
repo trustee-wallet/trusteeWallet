@@ -58,7 +58,7 @@ export const lightColors = {
     },
     homeScreen: {
       listItemGradient: ['#fff', '#f4f4f4'],
-      listItemVioletGradient: ['#9D4AA2', '#43156D'],
+      listItemVioletGradient: ['#8A4DD1', '#2C0C56'],
       listItemShadowBg: '#fff',
       listItemSeparatorLine: '#e8e8e8',
       listItemArrowUp: '#31D182',
@@ -111,6 +111,11 @@ export const lightColors = {
         transactionGradientArray: ['#fff', '#f2f2f2'],
         transactionData: '#999999'
       }
+    },
+    transactionScreen: {
+      status: '#FFFFFF',
+      backgroundItem: '#F2F2F2',
+      comment: '#f5f5f5'
     },
     walletManagment: {
       walletItemBg: ['#ffffff', '#f2f2f2'],
@@ -186,7 +191,7 @@ export const darkColors = {
     },
     homeScreen: {
       listItemGradient: ['#252525', '#1E1E1E'],
-      listItemVioletGradient: ['#9D4AA2', '#43156D'],
+      listItemVioletGradient: ['#8A4DD1', '#2C0C56'],
       listItemShadowBg: '#000',
       listItemSeparatorLine: '#303030',
       listItemArrowUp: '#43B47C',
@@ -239,6 +244,11 @@ export const darkColors = {
         transactionGradientArray: ['#252525', '#1E1E1E'],
         transactionData: '#999999'
       }
+    },
+    transactionScreen: {
+      status: '#F7F7F7',
+      backgroundItem: '#252525',
+      comment: '#1E1E1E'
     },
     walletManagment: {
       walletItemBg: ['#252525', '#1E1E1E'],

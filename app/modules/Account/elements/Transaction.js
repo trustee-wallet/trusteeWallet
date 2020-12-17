@@ -129,12 +129,12 @@ class Transaction extends Component {
     }
 
     renderStatusCircle = (isStatus, status, transactionDirection) => {
-        const { colors } = this.context
+        const { colors, isLight } = this.context
         const { styles } = this.state
         const { amountToView, count, transactions, cryptoCurrency } = this.props
 
         const dict = new UIDict(cryptoCurrency.currencyCode)
-        const color = dict.settings.colors.mainColor
+        const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
 
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         let circleStyle = {}

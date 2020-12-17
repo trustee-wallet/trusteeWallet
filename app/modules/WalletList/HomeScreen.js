@@ -227,51 +227,6 @@ class HomeScreen extends Component {
         }
     }
 
-    // ????? @todo remove it or use in upper functions
-    // handleSend = () => {
-    //     const cryptoCurrency = this.props.cryptoCurrenciesStore.cryptoCurrencies[0]
-    //     const walletHash = this.props.mainStore.selectedWallet.walletHash
-    //     const account = this.props.accountStore.accountList[walletHash][0]
-    //     console.log(account)
-    //
-    //     const isSynchronized = currencyActions.checkIsCurrencySynchronized({ cryptoCurrency, account })
-    //
-    //     if (isSynchronized) {
-    //
-    //         clearSendData()
-    //
-    //         NavStore.goNext('SendScreen')
-    //
-    //     } else {
-    //         showModal({
-    //             type: 'INFO_MODAL',
-    //             icon: 'INFO',
-    //             title: strings('modal.cryptocurrencySynchronizing.title'),
-    //             description: strings('modal.cryptocurrencySynchronizing.description')
-    //         })
-    //     }
-    // }
-    // винести методи в компоненту та передавати атрибути через пропси - і буде тобі щастя!!!
-    // handleReceive = (cryptoCurrency, address) => {
-    //     const cryptoCurrency = this.props.cryptoCurrency
-    //     const { address } = this.props.account
-    //     noinspection ES6MissingAwait
-    //     checkTransferHasError({ currencyCode: cryptoCurrency.currencyCode, currencySymbol: cryptoCurrency.currencySymbol, address })
-    //     NavStore.goNext('ReceiveScreen')
-    // }
-
-    // renderItem = ({item, index, drag, isActive}) => {
-    //     const walletHash = this.props.mainStore.selectedWallet.walletHash
-    //     const accountListByWallet = this.props.accountStore.accountList[walletHash] || {}
-    //     return (
-    //         !item.isHidden ? <CryptoCurrency key={index} cryptoCurrency={item}
-    //                                          accountListByWallet={accountListByWallet}
-    //                                          drag={drag}
-    //                                          isActive={isActive}/> : <></>
-    //                                          // /> : <></>
-    //     )
-    // }
-
     changeBalanceVisibility = async () => {
         const newVisibilityValue = !this.state.isBalanceVisible
         await AsyncStorage.setItem('isBalanceVisible', JSON.stringify(newVisibilityValue))
