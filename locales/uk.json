@@ -560,9 +560,9 @@
      "btnText": "Оберіть FIO адресу"
    },
    "FioAddresses": {
-    "title": "Імена FIO",
-    "description": "FIO адреси",
-    "btnText": "Зареєструйте нову адресу FIO"
+    "title": "FIO адреси",
+    "btnText": "Зареєструйте адресу",
+     "WebViewTitle": "Зареєструйте адресу"
   },
    "FioSettings": {
      "title": "FIO налаштування",

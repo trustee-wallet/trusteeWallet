@@ -562,9 +562,9 @@
     "btnText": "Select FIO Address"
   },
   "FioAddresses": {
-    "title": "Fio Names",
-    "description": "Fio Addresses",
-    "btnText": "Register new FIO address"
+    "title": "Fio Addresses",
+    "btnText": "Register address",
+    "WebViewTitle": "Register address"
   },
   "FioSettings": {
     "title": "Fio Settings",
