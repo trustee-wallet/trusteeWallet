@@ -20,7 +20,7 @@ const imagePickerOptions = {
 }
 
 const requestCameraOn = async (source: string): Promise<boolean> => {
-    Log.logg(source + ' requestCameraOn started')
+    Log.log(source + ' requestCameraOn started')
     return new Promise((resolve) => {
         request(
             // @ts-ignore
@@ -29,14 +29,14 @@ const requestCameraOn = async (source: string): Promise<boolean> => {
                 ios: PERMISSIONS.IOS.CAMERA
             })
         ).then((res) => {
-            Log.logg(source + ' requestCameraOn result', res)
+            Log.log(source + ' requestCameraOn result', res)
             return resolve(res !== 'blocked')
         })
     })
 }
 
 const requestGalleryOn = async (source: string): Promise<boolean> => {
-    Log.logg(source + ' requestGalleryOn started')
+    Log.log(source + ' requestGalleryOn started')
     return new Promise((resolve) => {
         request(
             // @ts-ignore
@@ -45,17 +45,17 @@ const requestGalleryOn = async (source: string): Promise<boolean> => {
                 ios: PERMISSIONS.IOS.PHOTO_LIBRARY
             })
         ).then((res) => {
-            Log.logg(source + ' requestGalleryOn result', res)
+            Log.log(source + ' requestGalleryOn result', res)
             return resolve(res !== 'blocked')
         })
     })
 }
 
 const getCameraPhoto = async (source: string): Promise<any> => {
-    Log.logg(source + ' getCameraPhoto started')
+    Log.log(source + ' getCameraPhoto started')
     return new Promise((resolve) => {
         ImagePicker.launchCamera(imagePickerOptions, (res) => {
-                Log.logg(source + ' getCameraPhoto result', res)
+                Log.log(source + ' getCameraPhoto result', res)
                 resolve(res)
             }
         )
@@ -63,10 +63,10 @@ const getCameraPhoto = async (source: string): Promise<any> => {
 }
 
 const getGalleryPhoto = async (source: string): Promise<any> => {
-    Log.logg(source + ' getGalleryPhoto started')
+    Log.log(source + ' getGalleryPhoto started')
     return new Promise((resolve) => {
         ImagePicker.launchImageLibrary({}, (res) => {
-                Log.logg(source + ' getGalleryPhoto result', res)
+                Log.log(source + ' getGalleryPhoto result', res)
                 resolve(res)
             }
         )
@@ -79,9 +79,9 @@ export namespace Camera {
     export const checkCameraOn = async (source: string): Promise<boolean> => {
         if (Platform.OS !== 'ios') return true // @todo android
 
-        Log.logg(source + ' checkCameraOn started')
+        Log.log(source + ' checkCameraOn started')
         const res = await check(PERMISSIONS.IOS.CAMERA)
-        Log.logg(source + ' checkCameraOn result', res)
+        Log.log(source + ' checkCameraOn result', res)
         if (res !== 'blocked') {
             return true
         }
@@ -107,7 +107,7 @@ export namespace Camera {
             response = await getGalleryPhoto(source)
 
             if (typeof response.error !== 'undefined' && response.error) {
-                Log.logg(source + ' getGalleryPhoto error ' + response)
+                Log.log(source + ' getGalleryPhoto error ' + response)
                 if (response.error.indexOf('open failed') !== -1) {
                     await requestGalleryOn(source)
                 }
