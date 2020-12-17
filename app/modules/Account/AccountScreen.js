@@ -21,6 +21,7 @@ import Transaction from './elements/Transaction'
 
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import { setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
 
@@ -195,7 +196,7 @@ class Account extends Component {
 
     handleBuy = async () => {
         const isNewInterfaceBuy = await AsyncStorage.getItem('isNewInterfaceBuy')
-
+        console.log(isNewInterfaceBuy)
         ExchangeActions.handleSetTradeType({ tradeType: 'BUY' })
 
         if (isNewInterfaceBuy === 'true') {
@@ -205,6 +206,22 @@ class Account extends Component {
             await this._showModalNoOldConfigs()
             ExchangeActions.handleSetNewInterface(false, 'BUY')
             NavStore.goNext('TradeScreenStack')
+        }
+    }
+
+    _showModalNoOldConfigs = async () => {
+        if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
+            setLoaderStatus(true)
+            await ExchangeActions.init()
+            setLoaderStatus(false)
+        }
+        if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('tradeScreen.modalError.serviceUnavailable')
+            })
         }
     }
 
@@ -564,7 +581,8 @@ const mapStateToProps = (state) => {
         account: state.mainStore.selectedAccount,
         exchangeOrdersStore: state.exchangeOrdersStore,
         settingsStore: state.settingsStore,
-        cashBackStore: state.cashBackStore
+        cashBackStore: state.cashBackStore,
+        exchangeStore: state.exchangeStore
     }
 }
 
