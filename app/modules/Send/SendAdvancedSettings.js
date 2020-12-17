@@ -6,7 +6,14 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 
-import { View, ScrollView, Dimensions, Keyboard, Text, TouchableOpacity } from 'react-native'
+import { 
+    View, 
+    ScrollView,
+    Dimensions, 
+    Keyboard, 
+    Text, 
+    TouchableOpacity,
+} from 'react-native'
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
@@ -32,6 +39,8 @@ import CustomFee from './elements/FeeCustom/CustomFee'
 import { SendTmpData } from '../../appstores/Stores/Send/SendTmpData'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
+import TextInput from '../../components/elements/new/TextInput'
+
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_FROM_CUSTOM_FEE = false
@@ -50,6 +59,8 @@ class SendAdvancedSettingsScreen extends Component {
             dropMenu: false,
             devMode: false,
             isCustomFee: false,
+            
+            comment: ''
         }
 
         this.customFee = React.createRef()
@@ -61,6 +72,7 @@ class SendAdvancedSettingsScreen extends Component {
 
         const sendScreenData = SendTmpData.getData()
         const {selectedFee, countedFees, countedFeesData} = SendTmpData.getCountedFees()
+        const comment = SendTmpData.getComment()
 
         console.log('')
         console.log('')
@@ -77,6 +89,7 @@ class SendAdvancedSettingsScreen extends Component {
             selectedFee,
             isCustomFee: selectedFee && typeof selectedFee.isCustomFee !== 'undefined' ? selectedFee.isCustomFee : false,
             devMode: devMode && devMode.toString() === '1',
+            comment
         })
     }
 
@@ -240,7 +253,9 @@ class SendAdvancedSettingsScreen extends Component {
         const countedFees = this.state.countedFees
         const selectedFee = this.state.isCustomFee && CACHE_FROM_CUSTOM_FEE ? CACHE_FROM_CUSTOM_FEE : this.state.selectedFee
         const countedFeesData = this.state.countedFeesData
+        const comment = this.state.comment
         SendTmpData.setCountedFees({countedFees, selectedFee, countedFeesData})
+        SendTmpData.setComment(comment)
         NavStore.goBack()
     }
 
@@ -267,6 +282,8 @@ class SendAdvancedSettingsScreen extends Component {
         const headerHeight = Math.round(height || 0);
         this.setState(() => ({ headerHeight }))
     }
+
+    onChangeComment = (value) => { this.setState(() => ({ comment: value })) }
 
     render() {
 
@@ -299,7 +316,7 @@ class SendAdvancedSettingsScreen extends Component {
                     >
                         <View style={{ paddingTop: headerHeight }}>
                             <View>
-                                <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
+                                <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE }} letterSpacing={1.5} />
                                 <ListItem
                                     title={strings('send.setting.selectFee')}
                                     iconType="fee"
@@ -328,8 +345,17 @@ class SendAdvancedSettingsScreen extends Component {
                             </View>)
                             */
                             }
+                            <View style={{ marginVertical: GRID_SIZE }}>
+                                <LetterSpacing text={strings('send.setting.optional').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE }}  letterSpacing={1.5} />
+                                <TextInput
+                                    value={this.state.comment}
+                                    placeholder={strings('send.setting.note')}
+                                    onChangeText={this.onChangeComment}
+                                />
+                            </View>
                         </View>
-                        <View style={{ paddingTop: GRID_SIZE }}>
+                    </ScrollView>
+                    <View style={{ marginTop: GRID_SIZE, paddingBottom: GRID_SIZE * 2, marginHorizontal: GRID_SIZE }}>
                             <TwoButtons
                                 mainButton={{
                                     disabled: this.disabled(),
@@ -342,7 +368,6 @@ class SendAdvancedSettingsScreen extends Component {
                                 }}
                             />
                         </View>
-                    </ScrollView>
                 </KeyboardAwareView>
             </View>
         )
