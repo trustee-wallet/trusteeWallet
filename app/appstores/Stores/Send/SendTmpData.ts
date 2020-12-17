@@ -56,6 +56,7 @@ export namespace SendTmpData {
     let CACHE_COUNTED_FEES = {} as BlocksoftBlockchainTypes.FeeRateResult
     let CACHE_COUNTED_FEES_DATA = false
     let CACHE_SELECTED_FEE = false
+    let CASHE_COMMENT = ''
     export const setCountedFees = function (data : {countedFees : BlocksoftBlockchainTypes.FeeRateResult , countedFeesData : any, selectedFee : any}) : void {
         CACHE_COUNTED_FEES = data.countedFees
         CACHE_COUNTED_FEES_DATA = data.countedFeesData
@@ -75,6 +76,14 @@ export namespace SendTmpData {
     }
     export const setSelectedFee = function(selectedFee : any) : void {
         CACHE_SELECTED_FEE = selectedFee
+    }
+
+    export const setComment = function(comment : string) : void {
+        CASHE_COMMENT = comment
+    }
+
+    export const getComment = function() : string {
+        return CASHE_COMMENT
     }
 }
 

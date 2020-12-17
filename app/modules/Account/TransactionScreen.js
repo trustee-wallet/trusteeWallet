@@ -147,7 +147,7 @@ class TransactionScreen extends Component {
             currencyCode = transaction.currencyCode
         }
 
-        const cryptoCurrency = store.getState().currencyStore.cryptoCurrencies.find(item => item.currencyCode === currencyCode)
+        const { cryptoCurrency } = SendActions.findWalletPlus(currencyCode)
 
         this.init(tx, cryptoCurrency)
 
