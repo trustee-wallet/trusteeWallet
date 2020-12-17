@@ -509,8 +509,8 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             }
             if (typeof transaction.transactionJson.nonce !== 'undefined') {
                 const max = EthTmpDS.getMaxStatic(data.address)
-                if (max.scanned > -1) {
-                    return transaction.transactionJson.nonce >= max.scanned
+                if (max.success > -1) {
+                    return transaction.transactionJson.nonce > max.success
                 }
             }
         }

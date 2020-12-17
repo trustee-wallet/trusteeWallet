@@ -24,13 +24,17 @@ class EthTmpDS {
         CACHE_TMP[address] = {}
         let maxValue = -1
         let maxScanned = -1
+        let maxSuccess = -1
         if (res.array) {
-            let row
-            for (row of res.array) {
+            for (const row of res.array) {
                 const val = row.tmp_val * 1
                 if (row.tmp_sub_key === 'maxScanned') {
                     if (val > maxScanned) {
                         maxScanned = val
+                    }
+                } else if (row.tmp_sub_key === 'maxSuccess') {
+                    if (val > maxSuccess) {
+                        maxSuccess = val
                     }
                 } else {
                     if (val > maxValue) {
@@ -42,6 +46,7 @@ class EthTmpDS {
         }
         CACHE_TMP[address]['maxValue'] = maxValue
         CACHE_TMP[address]['maxScanned'] = maxScanned
+        CACHE_TMP[address]['maxSuccess'] = maxSuccess
         return CACHE_TMP[address]
     }
 
@@ -50,16 +55,16 @@ class EthTmpDS {
         if (typeof CACHE_TMP[address] === 'undefined' || typeof CACHE_TMP[address]['maxValue'] === 'undefined') {
             await this.getCache(address)
         }
-        return { value: CACHE_TMP[address]['maxValue'], scanned: CACHE_TMP[address]['maxScanned'] }
+        return { value: CACHE_TMP[address]['maxValue'], scanned: CACHE_TMP[address]['maxScanned'], success: CACHE_TMP[address]['maxSuccess'] }
     }
 
     getMaxStatic(scanAddress) {
         const address = scanAddress.toLowerCase()
         if (typeof CACHE_TMP[address] === 'undefined' || typeof CACHE_TMP[address]['maxValue'] === 'undefined') {
             this.getCache(address)
-            return { value: -1, scanned: -1 }
+            return { value: -1, scanned: -1, success: -1}
         }
-        return { value: CACHE_TMP[address]['maxValue'], scanned: CACHE_TMP[address]['maxScanned'] }
+        return { value: CACHE_TMP[address]['maxValue'], scanned: CACHE_TMP[address]['maxScanned'], success: CACHE_TMP[address]['maxSuccess'] }
     }
 
     async removeNonce(scanAddress, key) {

@@ -264,6 +264,7 @@ export default class EthScannerProcessor extends EthBasic {
         let tx
         const unique = {}
         let maxNonce = -1
+        let maxSuccessNonce = -1
 
         const notBroadcasted = await EthRawDS.getForAddress({ address, currencyCode: this._settings.currencyCode })
         for (tx of result) {
@@ -298,6 +299,11 @@ export default class EthScannerProcessor extends EthBasic {
                         if (transaction.transactionJson.nonce * 1 > maxNonce) {
                             maxNonce = transaction.transactionJson.nonce  * 1
                         }
+                        if ((transaction.transactionStatus === 'success' || transaction.transactionStatus === 'confirming')) {
+                            if (transaction.transactionJson.nonce * 1 > maxSuccessNonce) {
+                                maxSuccessNonce = transaction.transactionJson.nonce * 1
+                            }
+                        }
                     }
                 }
             } catch (e) {
@@ -307,6 +313,10 @@ export default class EthScannerProcessor extends EthBasic {
 
         if (maxNonce > -1) {
             await EthTmpDS.saveNonce(address, 'maxScanned', maxNonce)
+        }
+
+        if (maxSuccessNonce > -1) {
+            await EthTmpDS.saveNonce(address, 'maxSuccess', maxSuccessNonce)
         }
 
         return transactions
