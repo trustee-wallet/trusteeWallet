@@ -531,8 +531,7 @@ export default new class AppNotificationListener {
                     await cryptoWalletActions.setSelectedWallet(data.walletHash, 'showNewsModal')
                 }
             }
-            await UpdateAppNewsDaemon.updateAppNewsDaemon({ force: true })
-            await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true })
+            await UpdateAppNewsDaemon.updateAppNewsDaemon()
             NavStore.goNext('NotificationsScreen')
             hideModal()
         })
