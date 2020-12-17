@@ -311,13 +311,14 @@ class SendAdvancedSettingsScreen extends Component {
 
         const { colors, GRID_SIZE } = this.context
 
-        let { focused, sendScreenData, selectedFee, account, headerHeight } = this.state
+        let { focused, sendScreenData, countedFees, selectedFee, account, headerHeight } = this.state
 
         if (typeof sendScreenData === 'undefined' || typeof sendScreenData.currencyCode === 'undefined') {
             sendScreenData = SendTmpData.getData()
             if (typeof selectedFee === 'undefined') {
                 const tmp = SendTmpData.getCountedFees()
                 selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
+                countedFees = typeof tmp.countedFees !== 'undefined' ? tmp.countedFees : false
             }
         }
         if (typeof account === 'undefined' || typeof account.currencyCode === 'undefined') {
@@ -329,6 +330,7 @@ class SendAdvancedSettingsScreen extends Component {
 
         const langMsg = selectedFee ? selectedFee.langMsg : 'none'
         let dropMenu = langMsg !== 'none' ? !!this.state.dropMenu : true
+        const showFees = !(countedFees && typeof countedFees.selectedFeeIndex !== -1 && countedFees.selectedFeeIndex < -2)
 
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
@@ -346,6 +348,7 @@ class SendAdvancedSettingsScreen extends Component {
                         contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', padding: GRID_SIZE, paddingBottom: GRID_SIZE * 2,  minHeight: WINDOW_HEIGHT/2 }}
                     >
                         <View style={{ paddingTop: headerHeight }}>
+                            { showFees ?
                             <View>
                                 <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE }} letterSpacing={1.5} />
                                 <ListItem
@@ -360,6 +363,7 @@ class SendAdvancedSettingsScreen extends Component {
                                         strings(`send.fee.text.${langMsg}`) : null}
                                 />
                             </View>
+                                : null }
                             {/* {console.log(SendTmpConstants.SELECTED_FEE.blockchainData.preparedInputsOutputs)} */}
                             {/* typeof this.state.selectedFee !== 'undefined' && typeof this.state.selectedFee.blockchainData !== 'undefined' && (
                             <View style={{ paddingTop: GRID_SIZE * 2 }}>

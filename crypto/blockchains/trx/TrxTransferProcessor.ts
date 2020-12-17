@@ -39,7 +39,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         const result: BlocksoftBlockchainTypes.FeeRateResult = {
-            selectedFeeIndex: -1
+            selectedFeeIndex: -3
         } as BlocksoftBlockchainTypes.FeeRateResult
         if (data.addressTo && data.addressTo === data.addressFrom) {
             return result
@@ -80,7 +80,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         if (!fees || fees.selectedFeeIndex < 0) {
             return {
                 selectedTransferAllBalance: balance,
-                selectedFeeIndex: -2,
+                selectedFeeIndex: -3,
                 fees: [],
                 countedForBasicBalance: balance
             }
