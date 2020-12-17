@@ -99,7 +99,7 @@ export class SelectCoinModal extends Component {
                             {strings('modal.selectCoinFio.description')}
                         </Text>
 
-                        <ScrollView style={{ width: '100%', backgroundColor: '#fff', padding: 20, maxHeight: WINDOW_HEIGHT - 250 }}>
+                        <ScrollView style={{ width: '100%', backgroundColor: '#f5f5f5', padding: 20, maxHeight: WINDOW_HEIGHT - 250 }}>
                             {this.renderCoins(this.state.cryptoCurrencies)}
                         </ScrollView>
 
@@ -156,14 +156,14 @@ const styles = {
     },
     title: {
         marginBottom: 5,
-        fontFamily: 'SFUIDisplay-Semibold',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 18,
         color: '#f4f4f4'
     },
     subtitle: {
         marginBottom: 15,
         marginHorizontal: 20,
-        fontFamily: 'SFUIDisplay-Semibold',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 15,
         color: '#f4f4f4'
     },

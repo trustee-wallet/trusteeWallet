@@ -247,7 +247,7 @@ class FioSendRequest extends Component {
 
                                     {
                                         !this.state.currencyCode && this.state.enabledCryptoCurrencies?.length ?
-                                            <TouchableOpacity style={styles.terms__btn} onPress={this.showSelectCoinModal}>
+                                            <TouchableOpacity style={styles.btn__container} onPress={this.showSelectCoinModal}>
                                                 <View style={styles.popup_btn}>
                                                     <Text style={styles.popup_txt}>
                                                         {strings('FioSendRequest.selectCoin')}
@@ -276,11 +276,13 @@ class FioSendRequest extends Component {
 
                         { this.state.payeeFioAddress ?
                             <ScrollView showsVerticalScrollIndicator={false}>
-                                <KeyboardAvoidingView style={{flex: 1}} behavior="padding" enabled>
+                                <KeyboardAvoidingView style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}} behavior="padding" enabled>
 
                                     <View style={{marginHorizontal: 0}}>
                                         <View style={styles.input__wrapper}>
                                             <TextInput
+                                                containerStyle={{ shadowRadius: 0, elevation: 0}}
+                                                inputStyle={{ backgroundColor: '#ebebeb'}}
                                                 placeholder={strings('FioSendRequest.from')}
                                                 value={this.state.payeeFioAddress}
                                                 editable={false}
@@ -361,16 +363,22 @@ const styles = {
         flex: 1,
     },
 
+    btn__container: {
+        flex: 1,
+    },
+
     popup_btn: {
-        padding: 10,
+        width: '100%',
+        padding: 15,
         paddingHorizontal: 20,
         margin: 10,
+        marginHorizontal: 0,
         borderRadius: 10,
         backgroundColor: '#404040',
     },
 
     popup_txt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 16,
         color: '#fff',
         textAlign: 'center',
@@ -396,12 +404,8 @@ const styles = {
         alignItems: 'center',
     },
 
-    btn__container: {
-        flex: 1,
-    },
-
    descr_txt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 13,
         color: '#777',
        flex: 1,
@@ -409,7 +413,8 @@ const styles = {
 
     subheader: {
         display: 'flex',
-        flexDirection: 'column',
+        width: '100%',
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 0,
@@ -417,7 +422,7 @@ const styles = {
     },
 
     subheaderTxt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 18,
         color: '#333',
         textAlign: 'center',
@@ -445,7 +450,7 @@ const styles = {
         paddingRight: 3,
         paddingTop: 0,
         paddingBottom: 2,
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 17,
         color: '#404040',
         borderColor: '#6B36A8',
@@ -453,7 +458,7 @@ const styles = {
     },
 
     txt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
         color: '#777',
     },
