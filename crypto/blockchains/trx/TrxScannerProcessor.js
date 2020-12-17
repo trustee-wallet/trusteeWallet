@@ -36,7 +36,7 @@ export default class TrxScannerProcessor {
         } else {
             address = await TronUtils.addressHexToStr(addressHex)
         }
-        let result = false // await this._tronscanProvider.get(address, this._tokenName)
+        let result = await this._tronscanProvider.get(address, this._tokenName)
         if (result === false) {
             result = await this._trongridProvider.get(addressHex, this._tokenName)
         }

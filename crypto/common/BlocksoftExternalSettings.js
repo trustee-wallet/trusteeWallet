@@ -44,6 +44,12 @@ const CACHE = {
     'SOCIAL_LINK_VK': 'https://vk.com/trustee_wallet',
     'SOCIAL_LINK_GITHUB': 'https://github.com/trustee-wallet/trusteeWallet',
     'SOCIAL_LINK_FAQ': 'https://github.com/trustee-wallet/trusteeWallet/wiki',
+    'PRIVACY_POLICY_en': 'https://wptgterms.blocksoftlab.com/privacy-policy/?header_footer=none',
+    'PRIVACY_POLICY_ru': 'https://wptgterms.blocksoftlab.com/ru/politika-konfidencialnosti/?header_footer=none',
+    'PRIVACY_POLICY_uk': 'https://wptgterms.blocksoftlab.com/uk/poltika-konfidencijnosti/?header_footer=none',
+    'TERMS_en': 'https://wptgterms.blocksoftlab.com/terms-of-use/?header_footer=none',
+    'TERMS_ru': 'https://wptgterms.blocksoftlab.com/ru/usloviya-ispolzovaniya/?header_footer=none',
+    'TERMS_uk': 'https://wptgterms.blocksoftlab.com/uk/umovi-vikoristannya/?header_footer=none',
     'TRADE_ORDERS_NO_TX_MAX_COUNT' : 3,
     'TRADE_ORDERS_NO_TX_WAY_TYPES': {
         'EXCHANGE': {

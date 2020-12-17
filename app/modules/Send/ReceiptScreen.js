@@ -590,7 +590,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
         if (selectedFee && typeof selectedFee.blockchainData !== 'undefined'
             && typeof selectedFee.blockchainData.preparedInputsOutputs !== 'undefined'
             && typeof selectedFee.blockchainData.preparedInputsOutputs.multiAddress !== 'undefined'
-            && selectedFee.blockchainData.preparedInputsOutputs.multiAddress) {
+            && selectedFee.blockchainData.preparedInputsOutputs.multiAddress
+            && selectedFee.blockchainData.preparedInputsOutputs.multiAddress.length > 1) {
             address = selectedFee.blockchainData.preparedInputsOutputs.multiAddress[0]
             multiShow = true
             multiAddress = selectedFee.blockchainData.preparedInputsOutputs.multiAddress

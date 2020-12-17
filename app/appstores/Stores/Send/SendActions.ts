@@ -219,6 +219,7 @@ export namespace SendActions {
         if (!foundSelected && typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
             selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
         }
+        SendTmpData.setData(data)
         SendTmpData.setCountedFees({ countedFees, countedFeesData, selectedFee })
 
         return { countedFees, selectedFee }

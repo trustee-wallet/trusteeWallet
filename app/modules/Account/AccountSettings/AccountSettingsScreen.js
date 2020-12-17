@@ -149,7 +149,7 @@ const styles = {
     blockTitle: {
         fontFamily: 'Montserrat-Bold',
         fontSize: 12,
-        lineHeight: 12,
+        lineHeight: 14,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
     },

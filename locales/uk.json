@@ -206,7 +206,8 @@
      "openLinkError": "Не знайдено браузер - посилання скопійовано в буфер"
    },
    "notifications": {
-     "title": "Повідомлення",
+     "title": "Cповіщення",
+     "newsTitle": "Новина",
      "tabAll": "Всі",
      "tabNews": "Новини",
      "today": "Сьогодні",
@@ -262,8 +263,6 @@
       "supportSubtitle": "Наш бот в telegram",
       "lock": "Блокування екрану",
       "bio": "Biometrics",
-      "appnews" : "Технічні повідомлення",
-      "appnewsSmall" : "Тех. повідомлення",
       "about": "Про гаманець Trustee",
       "lang": "Language",
       "copyLogs": "Копiювати логи",
@@ -272,7 +271,7 @@
         "description": "Запрошуйте друзів та заробляйте гроші!",
         "descriptionSmall": "Запрошуйте друзів та заробляйте!"
       },
-      "notifications": "Повідомлення",
+      "notifications": "Сповіщення",
       "localCurrency": "Локальна валюта",
       "scannerSettings" : "Сканування",
       "scannerSubtitle": "Частота оновлення балансів",
@@ -284,7 +283,7 @@
     "walletList": {
       "title": "Мої гаманців",
       "addWallet": "Додати гаманець",
-      "backupNeeded": "Незарезервований",
+      "backupNeeded": "Резервне копіювання",
       "addedAssets": "Додані активи",
       "balance": "Баланс",
       "backup": "Резервувати",
@@ -347,7 +346,7 @@
       "copyright": "© BlockSoftLab Inc, 2020"
     },
     "notifications": {
-      "title": "Налаштування повідомлень",
+      "title": "Налаштування сповіщень",
       "additional": "Додаткові",
       "allNotificationsTitle": "Активувати всі",
       "transactionsTitle": "Транзакції",
@@ -1279,13 +1278,6 @@
     "badInternet": "Нестабільний доступ  до інтернету, будь ласка, спробуйте іншого провайдера або точку доступу",
     "saved" : "Збережено"
   },
-   "appNews" : {
-     "title" : "Технічні повідомлення",
-     "subtitle" : "Всі повідомлення",
-     "subtitleSmall" : "Всі повідомлення",
-     "clearAll" : "Очистити все",
-     "newsNull" : "У Вашому гаманці нічого нового"
-   },
    "pushNotifications":  {
      "FOUND_OUT_TX_STATUS_NEW": {
        "title": "%{currencyName} вихідну транзакцію створено",

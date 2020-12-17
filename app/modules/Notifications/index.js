@@ -34,16 +34,16 @@ const getIconType = (notif) => {
         case (NOTIFIES_GROUP.NEWS): return 'news'
         case (NOTIFIES_GROUP.RATES_CHANGING): {
             if (typeof notif.newsJson?.rateSide === 'boolean') return notif.newsJson.rateSide ? 'ratesUp' : 'ratesDown'
-            return ''
+            return 'default'
         }
         case (NOTIFIES_GROUP.BSE_ORDERS): {
-            if (typeof notif.newsJson !== 'object') return ''
+            if (typeof notif.newsJson !== 'object') return 'default'
             if (notif.newsJson.orderHash) return 'exchange'
             if (notif.newsJson.payinTxHash) return 'incoming'
             if (notif.newsJson.payoutTxHash) return 'outgoing'
-            return ''
+            return 'default'
         }
-        default: return ''
+        default: return 'default'
     }
 }
 
@@ -173,7 +173,7 @@ class NotificationsScreen extends React.Component {
             await AppNewsActions.markAsOpened(notification.id)
         }
         if (notification.newsUrl && notification.newsUrl !== 'null') {
-            NavStore.goNext('WebViewScreen', { url: notification.newsUrl, title })
+            NavStore.goNext('WebViewScreen', { url: notification.newsUrl, title: strings('notifications.newsTitle') })
             return
         }
 
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     blockTitle: {
         fontFamily: 'Montserrat-Bold',
         fontSize: 12,
-        lineHeight: 12,
+        lineHeight: 14,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
     },

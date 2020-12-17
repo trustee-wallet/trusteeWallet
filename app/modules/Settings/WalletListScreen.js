@@ -121,7 +121,7 @@ class WalletListScreen extends Component {
                         contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE }]}
                         keyboardShouldPersistTaps="handled"
                     >
-                        <View style={[styles.topContent, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE / 2 }]}>
+                        <View style={[styles.topContent, { paddingHorizontal: GRID_SIZE / 2, paddingVertical: GRID_SIZE / 2 }]}>
                             <TouchableOpacity
                                 onPressIn={this.triggerBalanceVisibility}
                                 onPressOut={this.triggerBalanceVisibility}

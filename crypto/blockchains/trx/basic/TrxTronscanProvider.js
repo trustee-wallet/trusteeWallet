@@ -55,9 +55,12 @@ export default class TrxTronscanProvider {
         }
         if (res.data.trc20token_balances) {
             for (token of res.data.trc20token_balances) {
-                CACHE_TRONSCAN[address][token.contract_address] = token.balance
+                CACHE_TRONSCAN[address][token.tokenId] = token.balance
             }
         }
+
+        console.log('tokenNane', tokenName)
+        console.log('CACHE_TRONSCAN[address]', CACHE_TRONSCAN[address])
 
         if (typeof CACHE_TRONSCAN[address][tokenName] === 'undefined') {
             return false

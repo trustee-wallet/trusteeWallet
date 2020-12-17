@@ -44,7 +44,7 @@ export default function BasicListItem(props) {
                 {getIcon(iconType, colors.common.text1)}
             </View>
             <View style={[styles.textContent, last && styles.noBorder, { borderColor: colors.common.listItem.basic.borderColor }]}>
-                <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
                 {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
             </View>
         </TouchableOpacity>

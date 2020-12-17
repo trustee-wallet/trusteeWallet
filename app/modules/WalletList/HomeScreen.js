@@ -12,7 +12,8 @@ import {
     Platform,
     TouchableOpacity,
     StatusBar,
-    Vibration
+    Vibration,
+    FlatList
 } from 'react-native'
 import { connect } from 'react-redux'
 import _sortBy from 'lodash/sortBy'
@@ -73,10 +74,13 @@ class HomeScreen extends Component {
             refreshing: false,
             isBalanceVisible: true,
             originalVisibility: true,
+            originalData: [],
             data: [],
             currenciesOrder: [],
             isCurrentlyDraggable: false,
-            scrollOffset: 0
+            scrollOffset: 0,
+            hasStickyHeader: false,
+            test: 0
         }
         this.getBalanceVisibility()
         this.getCurrenciesOrder()
@@ -88,18 +92,23 @@ class HomeScreen extends Component {
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-        const currenciesOrder = prevState.currenciesOrder
-        const currenciesLength = nextProps.currencies.length
-        const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
-        const newOrder = data.map(c => c.currencyCode)
-        if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
-            storeCurrenciesOrder(nextProps.mainStore.selectedWallet.walletHash, newOrder)
+        let newState = null
+
+        if (!_isEqual(nextProps.currencies, prevState.originalData)) {
+            newState = {}
+            const currenciesOrder = prevState.currenciesOrder
+            const currenciesLength = nextProps.currencies.length
+            const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+            newState.data = data
+            newState.originalData = nextProps.currencies
+            const newOrder = data.map(c => c.currencyCode)
+            if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
+                newState.currenciesOrder = newOrder
+                storeCurrenciesOrder(nextProps.mainStore.selectedWallet.walletHash, newOrder)
+            }
         }
-        return {
-            ...prevState,
-            data,
-            currenciesOrder: newOrder
-        }
+
+        return newState
     }
 
     getBalanceVisibility = async () => {
@@ -283,7 +292,7 @@ class HomeScreen extends Component {
         const walletToken = selectedWallet.walletHash
         const currenciesOrder = data.map(c => c.currencyCode)
         storeCurrenciesOrder(walletToken, currenciesOrder)
-        this.setState(() => ({ currenciesOrder, isCurrentlyDraggable: false }))
+        this.setState(() => ({ currenciesOrder, data, isCurrentlyDraggable: false }))
     }
 
     getBalanceData = () => {
@@ -315,7 +324,8 @@ class HomeScreen extends Component {
 
     updateOffset = (offset) => {
         const newOffset = Math.round(offset)
-        if (this.state.scrollOffset !== newOffset) this.setState(() => ({ scrollOffset: newOffset }))
+        if (!this.state.hasStickyHeader && newOffset > 110) this.setState(() => ({ hasStickyHeader: true }))
+        if (this.state.hasStickyHeader && newOffset < 110) this.setState(() => ({ hasStickyHeader: false }))
     }
 
     render() {
@@ -343,16 +353,18 @@ class HomeScreen extends Component {
                     <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                         <Header
                             scrollOffset={this.state.scrollOffset}
+                            hasStickyHeader={this.state.hasStickyHeader}
                             isBalanceVisible={this.state.isBalanceVisible}
                             originalVisibility={this.state.originalVisibility}
                             triggerBalanceVisibility={this.triggerBalanceVisibility}
                             balanceData={balanceData}
                         />
-                        <View style={{ height: Platform.OS === 'android' ? 85 : 50 }} />
+                        <View style={{ marginBottom: Platform.OS === 'android' ? 65 : 50 }} />
                         <DraggableFlatList
                             data={this.state.data}
+                            extraData={this.state.data}
                             showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{ paddingBottom: 20 }}
+                            contentContainerStyle={{ paddingBottom: 20, paddingTop: Platform.OS === 'android' ? 25 : 10 }}
                             onScrollOffsetChange={this.updateOffset}
                             autoscrollSpeed={300}
                             refreshControl={
@@ -403,7 +415,6 @@ const mapStateToProps = (state) => {
     return {
         mainStore: state.mainStore,
         toolTipsStore: state.toolTipsStore,
-        cryptoCurrenciesStore: state.currencyStore,
         currencies: state.currencyStore.cryptoCurrencies.filter(c => !c.isHidden),
         accountStore: state.accountStore
     }
