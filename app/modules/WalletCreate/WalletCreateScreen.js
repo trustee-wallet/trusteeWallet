@@ -31,7 +31,9 @@ import {
 } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
 
 import Log from '../../services/Log/Log'
-import { strings } from '../../services/i18n'
+import { strings, sublocale } from '../../services/i18n'
+
+import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
@@ -115,11 +117,15 @@ class WalletCreateScreen extends Component {
     }
 
     handleTermsPress = () => {
-        NavStore.goNext('AgreementScreen', { type: 'terms' })
+        const lang = sublocale()
+        const url = BlocksoftExternalSettings.getStatic(`TERMS_${lang}`)
+        NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.terms') })
     }
 
     handlePrivacyPolicyPress = () => {
-        NavStore.goNext('AgreementScreen', { type: 'privacyPolicy' })
+        const lang = sublocale()
+        const url = BlocksoftExternalSettings.getStatic(`PRIVACY_POLICY_${lang}`)
+        NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.privacyPolicy') })
     }
 
     renderSliderPage = ({ image, text, textStyle }) => {

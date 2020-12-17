@@ -85,7 +85,7 @@ export default class SendBasicScreen extends Component {
         this.setState(() => ({ headerHeight }))
     }
 
-    closeAction = async () => {
+    closeAction = async (closeScreen=false) => {
 
         const { sendScreenData } = this.state
         if (typeof sendScreenData !== 'undefined' && sendScreenData && typeof sendScreenData.bseOrderID !== 'undefined' && sendScreenData.bseOrderID) {
@@ -102,7 +102,11 @@ export default class SendBasicScreen extends Component {
             console.log('SendBasicScreen.goBack')
         }
 
-        NavStore.goBack()
+        if (closeScreen) {
+            NavStore.reset('DashboardStack')
+        } else {
+            NavStore.goBack()
+        }
     }
 
     modalInfo = () => {

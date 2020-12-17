@@ -88,6 +88,7 @@ export const lightColors = {
     },
     accountScreen: {
       containerBG: ['#ffffff', '#f2f2f2'],
+      containerBGIcon: ['#ffffff', '#f2f2f2'],
       headBlockBackground: '#fff',
       trxButtonBorderColor: '#404040',
       trxButtonBackgroundColor: '#f5f5f5',
@@ -97,6 +98,7 @@ export const lightColors = {
       balanceNotEquivalent: '#999999',
       loaderColor: '#999',
       transactions: {
+        color: '#F7F7F7',
         circleColor: '#f7f7f7',
         circleBackground: '#999999',
         dashColor: '#E3E6E9',
@@ -210,23 +212,25 @@ export const darkColors = {
       }
     },
     accountScreen: {
-      containerBG: ['#ffffff', '#f2f2f2'],
-      headBlockBackground: '#fff',
-      trxButtonBorderColor: '#404040',
-      trxButtonBackgroundColor: '#f5f5f5',
+      containerBG: ['#252525', '#1E1E1E'],
+      containerBGIcon: ['#5C5C5C', '#303030'],
+      headBlockBackground: '#008000',
+      trxButtonBorderColor: '#BBBBBB',
+      trxButtonBackgroundColor: '#141414',
       showMoreColor: '#404040',
-      bottomGradient: ['#f5f5f508', '#d1d1d1'],
+      bottomGradient: ['#14141408', '#141414'],
       balanceColor: '#404040',
       balanceNotEquivalent: '#999999',
       loaderColor: '#999',
       transactions: {
-        circleColor: '#f7f7f7',
+        color: '#404040',
+        circleColor: '#F7F7F7',
         circleBackground: '#999999',
         dashColor: '#E3E6E9',
-        circle: '#404040',
-        transactionTitleColor: '#5C5C5C',
-        transactionContentBack: '#fff',
-        transactionGradientArray: ['#fff', '#f2f2f2'],
+        circle: '#DADADA',
+        transactionTitleColor: '#B8B8B8',
+        transactionContentBack: '#404040',
+        transactionGradientArray: ['#252525', '#1E1E1E'],
         transactionData: '#999999'
       }
     },

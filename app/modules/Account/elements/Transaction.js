@@ -136,11 +136,11 @@ class Transaction extends Component {
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor
 
-        let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 15 }} />
+        let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         let circleStyle = {}
 
         if (transactionDirection === 'income' || transactionDirection === 'claim') {
-            arrowIcon = <Feather name={'arrow-down-left'} style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 15 }} />
+            arrowIcon = <Feather name={'arrow-down-left'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         }
         if (transactionDirection === 'self') {
             arrowIcon = <FontAwesome5 name="infinity" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 10 }} />
@@ -312,7 +312,7 @@ class Transaction extends Component {
                                         <View style={{ justifyContent: 'center', width: '75%' }}>
                                             <View style={{ flexDirection: 'row', alignItems: 'flex-end', width: subtitle ? '45%' : '100%' }}>
                                                 {/* width: subtitle ? '45%' : '100%' */}
-                                                <Text style={{...styles.transaction__item__title}} numberOfLines={1}>
+                                                <Text style={{...styles.transaction__item__title, color: colors.common.text1}} numberOfLines={1}>
                                                     {valueToView}
                                                 </Text>
                                                 <Text style={[styles.transaction__item__title__subtitle, { color: new UIDict(cryptoCurrency.currencyCode).settings.colors.mainColor }]}>
@@ -379,12 +379,12 @@ const globalStyles = {
         transaction__content: {
             position: 'relative',
 
-            borderRadius: 16
+            borderRadius: 18
         },
         transaction__content__item: {
             position: 'relative',
 
-            borderRadius: 16,
+            borderRadius: 18,
 
             zIndex: 2,
         },

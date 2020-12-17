@@ -275,10 +275,13 @@ class Account extends Component {
             <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE }}>
                 <View style={{ marginTop: 24, flexDirection: 'row', position: 'relative', justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'row' }} >
-                        <Text style={styles.transaction_title}>{strings('account.history')}</Text>
-                        <View style={styles.scan}>
+                        <Text style={{...styles.transaction_title, color: colors.common.text1}}>{strings('account.history')}</Text>
+                        <TouchableOpacity style={{ ...styles.scan, justifyContent: 'center', marginRight: 10, marginTop: 1}} onPress={() => this.handleRefresh()} >
+                            <CustomIcon name={'reloadTx'} size={20} color={colors.common.text1} />
+                        </TouchableOpacity>
+                        <View style={{...styles.scan, marginLeft: 0 }}>
                             {isSynchronized ?
-                                <Text style={styles.scan__text} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? 
+                                <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? 
                                     strings('account.justScan') : this.diffTimeScan(this.props.account.balanceScanTime * 1000) > 60 ? strings('account.soLong') :
                                     strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
                                 :
@@ -291,7 +294,8 @@ class Account extends Component {
                                     ...styles.transaction__empty_text, ...{
                                         marginLeft: 10,
                                         marginRight: 10,
-                                        marginTop: 0
+                                        marginTop: 0,
+                                        color: colors.common.text1
                                     }
                                 }}>{strings('homeScreen.synchronizing')}</Text>
                                     <Loader size={14} color={'#999999'} />
@@ -299,15 +303,12 @@ class Account extends Component {
                             }
                         </View>
                     </View>
-                    <TouchableOpacity style={{ justifyContent: 'center', marginRight: 16}} onPress={() => this.handleRefresh()} >
-                        <CustomIcon name={'reloadTx'} size={20} color={colors.accountScreen.showMoreColor} />
-                    </TouchableOpacity>
                 </View>
                 {
                     account.transactionsTotalLength === 0 ?
                         <View>
                             {isSynchronized && <Text
-                                style={styles.transaction__empty_text}>
+                                style={{...styles.transaction__empty_text, color: colors.common.text1}}>
                                 {strings('account.noTransactions')}
                             </Text>}
                         </View>
@@ -452,7 +453,6 @@ class Account extends Component {
                 <Header
                     rightType="close"
                     rightAction={this.closeAction}
-                    // title={strings('account.title').toUpperCase()}
                     title={this.getPrettyCurrenceName(cryptoCurrency.currencyCode, cryptoCurrency.currencyName)}
                     setHeaderHeight={this.setHeaderHeight}
                     ExtraView={() => { return (
@@ -598,7 +598,6 @@ const styles = {
         flexDirection: 'row'
     },
     scan__text: {
-        color: '#999999',
         letterSpacing: 1,
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 14,
@@ -611,17 +610,12 @@ const styles = {
     transaction_title: {
         marginLeft: 16,
         marginBottom: 10,
-        color: '#404040',
         fontSize: 17,
         fontFamily: 'Montserrat-Bold'
-    },
-    transaction__new: {
-        color: '#EA751D'
     },
     transaction__empty_text: {
         marginTop: -5,
         marginLeft: 16,
-        color: '#999999',
         fontSize: 12,
         fontFamily: 'SFUIDisplay-Semibold',
         letterSpacing: 1

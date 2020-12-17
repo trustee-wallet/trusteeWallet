@@ -25,21 +25,25 @@ const getIcon = (iconType, color) => {
         case 'accounts':
             return <CustomIcon name="addressBook" size={21} color={color} style={{ left: 1 }} />
         case 'pinCode':
-            return <CustomIcon name="pin" size={24} color={color} />
+            return <CustomIcon name="pin" size={24} color={color} style={{ left: 0.5 }} />
         case 'biometricLock':
             return <CustomIcon name="faceId" size={24} color={color} />
         case 'transactionConfirmation':
-            return <MaterialCommunityIcon name="lock-question" color={color} size={22} style={{ marginLeft: 1, marginTop: 1 }} />
+            return <MaterialCommunityIcon name="lock-question" color={color} size={22} style={{ left: 0, top: 0 }} />
         case 'notifications':
-            return <CustomIcon name="notifications" size={24} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name="notifications" size={24} color={color} style={{ left: 0.5, bottom: 0.5 }} />
         case 'about':
-            return <MaterialCommunityIcon name="information" size={22} style={{ marginLeft: 1, marginTop: 2 }} />
+            return <MaterialCommunityIcon name="information" size={22} style={{ left: 0.5, top: 1 }} />
         case 'darkMode':
             return <FontAwesomeIcon name="moon-o" color={color} size={23} style={{ marginLeft: 2 }} />
         case 'localCurrency':
-            return <CustomIcon name="localCurrency" size={24} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name="localCurrency" size={24} color={color} style={{ left: 0.5, top: 1 }} />
+        case 'config':
+            return <CustomIcon name="config" size={24} color={color} style={{ left: 0.5 }} />
+        case 'testerMode':
+            return <CustomIcon name="user" size={20} color={color} style={{ left: 1 }} />
         case 'changePinCode':
-            return <CustomIcon name="changePin" size={24} color={color} style={{ left: 1 }} />
+            return <CustomIcon name="changePin" size={24} color={color} style={{ left: 0 }} />
         case 'language':
             return <CustomIcon name="language" size={24} color={color} style={{ left: 0.5 }} />
         case 'scanning':
@@ -188,7 +192,7 @@ export default function SettingListItem(props) {
                     </View>
                     <View style={styles.mainContent}>
                         <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
-                            <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                            <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
                             {!!subtitle && <Text numberOfLines={3} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
                         </View>
                         {!!rightContent && (
@@ -241,7 +245,7 @@ const styles = StyleSheet.create({
     title: {
         fontFamily: 'Montserrat-Bold',
         fontSize: 16,
-        lineHeight: 21
+        lineHeight: 16
     },
     subtitle: {
         marginTop: 5,

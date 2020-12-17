@@ -37,7 +37,7 @@ import Log from '../../services/Log/Log'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import CustomIcon from '../../components/elements/CustomIcon'
 
-import Theme from '../../themes/Themes'
+import Theme, { HIT_SLOP } from '../../themes/Themes'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
 import LetterSpacing from '../../components/elements/LetterSpacing'
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
@@ -124,7 +124,9 @@ class SendScreen extends SendBasicScreenScreen {
             inputType: 'CRYPTO',
             balancePart: 0,
             headerHeight: 0,
-            loadFee: false
+            loadFee: false,
+
+            addressError: false
         }
         this.addressInput = React.createRef()
         this.memoInput = React.createRef()
@@ -184,7 +186,7 @@ class SendScreen extends SendBasicScreenScreen {
                 wallet,
                 useAllFunds: sendScreenData.isTransferAll,
                 init: true,
-                amountInputMark: this.state.amountInputMark ? this.state.amountInputMark : this.state.inputType === 'FIAT' ? `~ 0.00 ${cryptoCurrency.currencyCode}` : ` ~ ${account.basicCurrencySymbol} 0.00`
+                amountInputMark: this.state.amountInputMark ? this.state.amountInputMark : this.state.inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencyCode}` : `${account.basicCurrencySymbol} 0.00` 
             }, () => {
 
                 if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName) {
@@ -404,6 +406,9 @@ class SendScreen extends SendBasicScreenScreen {
 
         if (addressValidation.status !== 'success') {
             console.log('Send.SendScreen.handleSendTransaction invalid address ' + JSON.stringify(addressValidation))
+            this.setState({
+                addressError: true
+            })
             return
         }
         if (!forceSendAmount && valueValidation.status !== 'success') {
@@ -817,15 +822,17 @@ class SendScreen extends SendBasicScreenScreen {
     renderEnoughFundsError = () => {
         const { enoughFunds } = this.state
 
+        const { GRID_SIZE } = this.context
+
         // console.log('Send.SendScreen renderEnoughFundsError', enoughFunds)
         if (!enoughFunds.isAvailable) {
             return (
-                <View style={{ marginTop: 14 }}>
+                <View style={{ marginTop: GRID_SIZE }}>
                     {
                         enoughFunds.messages.map((item, index) => {
                             return (
-                                <View key={index} style={styles.texts}>
-                                    <View style={styles.texts__icon}>
+                                <View key={index} style={style.texts}>
+                                    <View style={style.texts__icon}>
                                         <Icon
                                             name='information-outline'
                                             size={22}
@@ -833,9 +840,8 @@ class SendScreen extends SendBasicScreenScreen {
                                         />
                                     </View>
                                     <View>
-                                        <TouchableOpacity style={styles.texts__item} delayLongPress={500}
-                                                          onLongPress={() => this.handleOkForce()}>
-                                            <Text>
+                                        <TouchableOpacity delayLongPress={500} onLongPress={() => this.handleOkForce()}>
+                                            <Text style={style.texts__item}>
                                                 {item}
                                             </Text>
                                         </TouchableOpacity>
@@ -844,6 +850,28 @@ class SendScreen extends SendBasicScreenScreen {
                             )
                         })
                     }
+                </View>
+            )
+        }
+    }
+
+    renderAddressError = () => {
+        const { addressError } = this.state
+        const { GRID_SIZE } = this.context
+
+        if (addressError) {
+            return (
+                <View style={{ marginVertical: GRID_SIZE }}>
+                    <View style={style.texts}>
+                        <View style={style.texts__icon}>
+                            <Icon
+                                name='information-outline'
+                                size={22}
+                                color='#864DD9'
+                            />
+                        </View>
+                        <Text style={style.texts__item}>{strings('send.addressError')}</Text>
+                    </View>
                 </View>
             )
         }
@@ -929,10 +957,29 @@ class SendScreen extends SendBasicScreenScreen {
 
         const value = this.valueInput.state.value
         const address = this.addressInput.state.value
-        if (value && address) {
+        if (Number(value) > 0 && address) {
             return false
         } else {
             return true
+        }
+    }
+
+    disabledSettings = () => {
+        if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '' || this.valueInput.state.value === 0) {
+            this.setState({
+                enoughFunds: {
+                    isAvailable: false,
+                    messages: [strings('send.notValidAmount')]
+                },
+            })
+            return false
+        }
+        // @ksu need this?
+        if (typeof this.addressInput.state === 'undefined' || this.addressInput.state.value === '') {
+            this.setState({
+                addressError: true
+            })
+            return false
         }
     }
 
@@ -973,6 +1020,8 @@ class SendScreen extends SendBasicScreenScreen {
             network
         } = this.state.cryptoCurrency
 
+        const { balancePretty } = this.state.account
+
         const { colors, GRID_SIZE, isLight } = this.context
 
         // actually should be dict[extendsProcessor].addressUIChecker check but not to take all store will keep simplier
@@ -988,8 +1037,10 @@ class SendScreen extends SendBasicScreenScreen {
                 <Header
                     leftType='back'
                     leftAction={this.closeAction}
+                    leftParams={{"close": false}}
                     rightType='close'
                     rightAction={this.closeAction}
+                    rightParams={{"close": true}}
                     title={strings('send.title')}
                     ExtraView={this.renderAccountDetail}
                     setHeaderHeight={this.setHeaderHeight}
@@ -1026,65 +1077,67 @@ class SendScreen extends SendBasicScreenScreen {
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <View style={style.line} />
                                 <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
-                                                  onPress={this.handleChangeEquivalentType}>
+                                                  onPress={this.handleChangeEquivalentType} hitSlop={HIT_SLOP} >
                                     <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
                                 </TouchableOpacity>
                             </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 32 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <LetterSpacing text={loadFee ? 'Loading...' : notEquivalentValue} textStyle={style.notEquivalentValue}
                                                letterSpacing={1.5} />
                             </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <PartBalanceButton
-                                    action={() => {
-                                        this.handlerPartBalance(this.state.inputType, 0.25)
+                            { balancePretty > 0  && (
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: GRID_SIZE }}>
+                                    <PartBalanceButton
+                                        action={() => {
+                                            this.handlerPartBalance(this.state.inputType, 0.25)
 
-                                        this.setState({
-                                            balancePart: 0.25,
-                                            useAllFunds: false
-                                        })
-                                    }}
-                                    text={'25%'}
-                                    inverse={this.state.balancePart === 0.25 ? true : false}
-                                />
-                                <PartBalanceButton
-                                    action={() => {
-                                        this.handlerPartBalance(this.state.inputType, 0.5)
-                                        this.setState({
-                                            balancePart: 0.5,
-                                            useAllFunds: false
-                                        })
-                                    }}
-                                    text={'50%'}
-                                    inverse={this.state.balancePart === 0.5 ? true : false}
-                                />
-                                <PartBalanceButton
-                                    action={() => {
-                                        this.handlerPartBalance(this.state.inputType, 0.75)
-                                        this.setState({
-                                            balancePart: 0.75,
-                                            useAllFunds: false
-                                        })
-                                    }}
-                                    text={'75%'}
-                                    inverse={this.state.balancePart === 0.75 ? true : false}
-                                />
-                                <PartBalanceButton
-                                    action={() => {
-                                        this.setState({
-                                            useAllFunds: !this.state.useAllFunds,
-                                            balancePart: 0
-                                        })
-                                        this.handleTransferAll()
-                                    }}
-                                    text={'100%'}
-                                    inverse={this.state.useAllFunds ? true : false}
-                                />
-                            </View>
+                                            this.setState({
+                                                balancePart: 0.25,
+                                                useAllFunds: false
+                                            })
+                                        }}
+                                        text={'25%'}
+                                        inverse={this.state.balancePart === 0.25 ? true : false}
+                                    />
+                                    <PartBalanceButton
+                                        action={() => {
+                                            this.handlerPartBalance(this.state.inputType, 0.5)
+                                            this.setState({
+                                                balancePart: 0.5,
+                                                useAllFunds: false
+                                            })
+                                        }}
+                                        text={'50%'}
+                                        inverse={this.state.balancePart === 0.5 ? true : false}
+                                    />
+                                    <PartBalanceButton
+                                        action={() => {
+                                            this.handlerPartBalance(this.state.inputType, 0.75)
+                                            this.setState({
+                                                balancePart: 0.75,
+                                                useAllFunds: false
+                                            })
+                                        }}
+                                        text={'75%'}
+                                        inverse={this.state.balancePart === 0.75 ? true : false}
+                                    />
+                                    <PartBalanceButton
+                                        action={() => {
+                                            this.setState({
+                                                useAllFunds: !this.state.useAllFunds,
+                                                balancePart: 0
+                                            })
+                                            this.handleTransferAll()
+                                        }}
+                                        text={'100%'}
+                                        inverse={this.state.useAllFunds ? true : false}
+                                    />
+                                </View>
+                            )}
 
                             {this.renderEnoughFundsError()}
-
-                            <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 1.5 }}>
+                            
+                            <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 1.5, }}>
                                 <AddressInput
                                     ref={component => this.addressInput = component}
                                     id={addressInput.id}
@@ -1097,6 +1150,7 @@ class SendScreen extends SendBasicScreenScreen {
                                     fio={false} // @todo later
                                     copy={false}
                                     qr={true}
+                                    adrressError={this.state.addressError}
                                     qrCallback={() => {
                                         setQRConfig({
                                             account: this.state.account,
@@ -1116,7 +1170,7 @@ class SendScreen extends SendBasicScreenScreen {
                                     }}
                                 />
                             </View>
-
+                            { this.renderAddressError() }
                             {
                                 currencyCode === 'XRP' ?
                                     <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 1.5}}>
@@ -1139,7 +1193,7 @@ class SendScreen extends SendBasicScreenScreen {
 
                             {
                                 currencyCode === 'XMR' ?
-                                    <View style={{  ...style.inputWrapper, marginTop: GRID_SIZE * 1.5 }}>
+                                    <View style={{  ...style.inputWrapper, marginVertical: GRID_SIZE }}>
                                         <MemoInput
                                             ref={component => this.memoInput = component}
                                             id={memoInput.id}
@@ -1165,9 +1219,9 @@ class SendScreen extends SendBasicScreenScreen {
                                 title: strings('walletBackup.step0Screen.next')
                             }}
                             secondaryButton={{
-                                disabled: this.disabled(),
+                                // disabled: this.disabled(),
                                 type: 'settings',
-                                onPress: this.openAdvancedSettings
+                                onPress: this.disabled() === true ? this.disabledSettings : this.openAdvancedSettings
                             }}
                         />
                     </ScrollView>
@@ -1237,5 +1291,20 @@ const style = {
             width: 0,
             height: 0
         }
-    }
+    },
+    texts: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 30
+    },
+    texts__item: {
+        fontSize: 14,
+        fontFamily: 'SFUIDisplay-Semibold',
+        color: '#5C5C5C',
+        letterSpacing: 1,
+    },
+    texts__icon: {
+        marginRight: 10,
+        transform: [{ rotate: '180deg' }]
+    },
 }

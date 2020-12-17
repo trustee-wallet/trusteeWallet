@@ -35,12 +35,13 @@ const TransactionButton = (props) => {
 
     const { text, type, action, style } = props
 
+    const { colors } = useTheme()
 
     return (
         <TouchableOpacity style={style} onPress={action}>
             {iconButton(type)}
             {text &&
-            <Text style={{ paddingTop: 4 }} >{text}</Text>}
+            <Text style={{ paddingTop: 4, color: colors.common.text1 }} >{text}</Text>}
         </TouchableOpacity>
     )
 }

@@ -11,7 +11,6 @@ import {
     Text
 } from 'react-native'
 
-
 import MenuIcon from '../../../assets/images/menu_icon'
 import NotificationIcon from '../../../assets/images/notification_icon'
 import QRCodeBtn from '../../../assets/images/qrCodeBtn'
@@ -31,8 +30,6 @@ import { HIT_SLOP } from '../../../themes/Themes';
 
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
-import { SIZE } from '../helpers';
-
 
 const headerHeight = Platform.OS === 'android' ? 79 : 44
 const headerHeightSticky = Platform.OS === 'android' ? 123 : 88
@@ -41,11 +38,11 @@ class WalletInfo extends React.Component {
     constructor(props) {
         super(props)
 
-        const hasStickyHeader = this.props.scrollOffset > 100
+        const hasStickyHeader = this.props.hasStickyHeader
         const opacity = hasStickyHeader ? 1 : 0
         const height = hasStickyHeader ? headerHeightSticky : headerHeight
-        const shadowOpacity = hasStickyHeader ? 0.1 : 0
-        const elevation = hasStickyHeader ? 10 : 0
+        const shadowOpacity = hasStickyHeader ? 0.5 : 0
+        const elevation = hasStickyHeader ? 20 : 0
 
         this.state = {
             hasStickyHeader,
@@ -57,18 +54,22 @@ class WalletInfo extends React.Component {
     }
 
     static getDerivedStateFromProps(nextProps, state) {
-        const hasStickyHeader = nextProps.scrollOffset > 100;
+        const hasStickyHeader = nextProps.hasStickyHeader;
         if (!state.hasStickyHeader && hasStickyHeader) {
-            Animated.timing(state.height, { toValue: headerHeightSticky, duration: 300 }).start();
-            Animated.timing(state.opacity, { toValue: 1, duration: 300 }).start();
-            Animated.timing(state.shadowOpacity, { toValue: 0.1, duration: 300 }).start();
-            Animated.timing(state.elevation, { toValue: 10, duration: 300 }).start();
+            Animated.parallel([
+                Animated.spring(state.height, { toValue: headerHeightSticky, bounciness: 0 }),
+                Animated.spring(state.opacity, { toValue: 1, bounciness: 0  }),
+                Animated.spring(state.elevation, { toValue: 20, bounciness: 0  }),
+                Animated.spring(state.shadowOpacity, { toValue: 0.5, bounciness: 0  })
+            ], { stopTogether: false }).start()
         }
         if (state.hasStickyHeader && !hasStickyHeader) {
-            Animated.timing(state.height, { toValue: headerHeight, duration: 300 }).start();
-            Animated.timing(state.opacity, { toValue: 0, duration: 100 }).start();
-            Animated.timing(state.shadowOpacity, { toValue: 0, duration: 300 }).start();
-            Animated.timing(state.elevation, { toValue: 0, duration: 300 }).start();
+            Animated.parallel([
+                Animated.spring(state.height, { toValue: headerHeight, bounciness: 0  }),
+                Animated.spring(state.opacity, { toValue: 0, bounciness: 0  }),
+                Animated.spring(state.elevation, { toValue: 0, bounciness: 0  }),
+                Animated.spring(state.shadowOpacity, { toValue: 0, bounciness: 0  })
+            ], { stopTogether: false }).start()
         }
         return {
             ...state,
@@ -97,14 +98,14 @@ class WalletInfo extends React.Component {
     }
 
     render() {
-        const { colors } = this.context
+        const { colors, GRID_SIZE } = this.context
         const {
             selectedWallet,
             triggerBalanceVisibility,
             isBalanceVisible,
             originalVisibility,
             balanceData,
-            hasNews
+            hasNews,
         } = this.props
         const {
             hasStickyHeader,
@@ -121,7 +122,7 @@ class WalletInfo extends React.Component {
                     { backgroundColor: colors.common.background, height }
                 ]}>
 
-                    <View style={styles.header}>
+                    <View style={[styles.header, { paddingHorizontal: GRID_SIZE }]}>
                         <View style={styles.header__left}>
                             <TouchableOpacity style={styles.notificationButton} onPress={this.handleOpenNotifications} hitSlop={HIT_SLOP}>
                                 <NotificationIcon color={colors.common.text1} />
@@ -174,9 +175,11 @@ class WalletInfo extends React.Component {
 
                 </Animated.View>
 
-                <View style={styles.shadow__container}>
-                    <Animated.View style={[styles.shadow__item, { shadowOpacity, elevation }]} />
-                </View>
+                {hasStickyHeader && (
+                    <View style={styles.shadow__container}>
+                        <Animated.View style={[styles.shadow__item, { shadowOpacity, elevation }]} />
+                    </View>
+                )}
 
             </View>
         )
@@ -211,7 +214,7 @@ const styles = {
     },
     shadow__container: {
         position: 'absolute',
-        bottom: 0,
+        bottom: 15,
         right: 0,
         left: 0,
         height: 20,
@@ -226,12 +229,11 @@ const styles = {
             width: 0,
             height: 5
         },
-        shadowOpacity: 0.1,
-        shadowRadius: 6.27,
+        shadowRadius: 15,
     },
     container: {
         zIndex: 20,
-        paddingTop: Platform.OS === 'android' ? 35 : 0,
+        paddingTop: Platform.OS === 'android' ? 30 : 0,
     },
     extraView: {
         flex: 1,
@@ -264,7 +266,6 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: SIZE,
     },
     header__sticky: {
         elevation: 10,

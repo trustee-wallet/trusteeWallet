@@ -146,7 +146,6 @@ class TransactionScreen extends Component {
         this.init(tx)
 
         if (typeof notification !== 'undefined') {
-            console.log(notification)
             this.setState(() => ({
                 transaction: tx,
                 notification
@@ -812,6 +811,8 @@ class TransactionScreen extends Component {
 
         const { colors, GRID_SIZE, isLight } = this.context
         const { cryptoCurrency } = this.props
+        console.log('cryptoCurrency', cryptoCurrency)
+        console.log('cryptoCurrency', this.props.mainStore)
 
         const { headerHeight, transaction, showMoreDetails, outDestinationCardToView, fromToView, addressToToView, addressExchangeToView, subContent, linkExplorer, focused } = this.state
         if (!transaction || typeof transaction === 'undefined') {

@@ -46,7 +46,7 @@ export default function SubSettingListItem(props) {
                         </View>
                         <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
                             <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: checkedStyle && checked ? '#864DD9' : colors.common.text1 }]}>{title}</Text>
-                            {!!subtitle && <Text numberOfLines={2} style={[styles.subtitleFirst, { color: checkedStyle && checked ? '#864DD9' : colors.common.text2 }]}>{subtitle}</Text>}
+                            {!!subtitle && <Text numberOfLines={3} style={[styles.subtitleFirst, { color: checkedStyle && checked ? '#864DD9' : colors.common.text2 }]}>{subtitle}</Text>}
                         </View>
                     </View>
                     {(ExtraView && checked) && (
@@ -56,7 +56,7 @@ export default function SubSettingListItem(props) {
                 :
                 <View style={[styles.mainContent, last && styles.noBorder]}>
                     <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
-                        <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                        <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
                         {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
                     </View>
                     <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>

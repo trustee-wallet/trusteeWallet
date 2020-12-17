@@ -166,14 +166,14 @@ class WalletInfo extends Component {
             balanceData
         } = this.props
         const { isViolet } = this.state
-        const { colors } = this.context
+        const { colors, GRID_SIZE } = this.context
 
         // @misha to optimize
         const date = new Date()
         const todayPrep = `${strings('homeScreen.today')}, ${date.getDate()} ${capitalize(moment(date).format('MMM'))}`
 
         return (
-            <Animated.View style={{ ...styles.balanceWrapper, opacity: this.state.opacity }}>
+            <Animated.View style={{ opacity: this.state.opacity, marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}>
                 <View style={styles.shadow__container}>
                     <View style={styles.shadow__item} />
                 </View>
@@ -286,10 +286,6 @@ const styles = {
     settingsButton: {
         paddingLeft: 10,
         paddingRight: 12,
-    },
-    balanceWrapper: {
-        marginHorizontal: SIZE,
-        marginBottom: SIZE,
     },
     shadow__container: {
         position: 'absolute',
