@@ -382,7 +382,7 @@ export default new class AppNotificationListener {
         for (const key of keys) {
             if (!key) continue
             let tmp = false
-            if (typeof notification.body !== 'object') {
+            if (typeof key !== 'object') {
                 try {
                     tmp = JSON.parse(key)
                 } catch (e) {
