@@ -14,6 +14,8 @@ import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 import MarketingEvent from '../Marketing/MarketingEvent'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import config from '../../config/config'
+import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
+import NavStore from '../../components/navigation/NavStore'
 
 
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
@@ -113,7 +115,7 @@ export default new class AppNotificationListener {
         Log.log('PUSH unsubscribe ' + topic + ' finished')
     }
 
-    async rmvOld() : Promise<void> {
+    async rmvOld(): Promise<void> {
         const { languageList } = config.language
         await firebase.messaging().unsubscribeFromTopic('trustee_all')
         await firebase.messaging().unsubscribeFromTopic('trustee_dev')
@@ -124,7 +126,7 @@ export default new class AppNotificationListener {
         }
     }
 
-    async updateSubscriptions(fcmToken : string = ''): Promise<void> {
+    async updateSubscriptions(fcmToken: string = ''): Promise<void> {
         Log.log('PUSH updateSubscriptions ' + fcmToken)
         const settings = await settingsActions.getSettings(false)
         const notifsStatus = settings && typeof settings.notifsStatus !== 'undefined' && settings.notifsStatus ? settings.notifsStatus : '1'
@@ -517,20 +519,22 @@ export default new class AppNotificationListener {
                 title: data.newsCustomTitle,
                 // @ts-ignore
                 description: data.newsCustomText,
-                hideBottom: true,
-                acceptCallback: async () => {
-                    if (notificationId) {
-                        firebase.notifications().removeDeliveredNotification(notificationId)
-                    }
-                    if (typeof data.walletHash !== 'undefined' && data.walletHash) {
-                        const selectedWallet = await BlocksoftKeysStorage.getSelectedWallet()
-                        if (selectedWallet !== data.walletHash) {
-                            await cryptoWalletActions.setSelectedWallet(data.walletHash, 'showNewsModal')
-                        }
-                    }
-                    hideModal()
+                hideBottom: true
+            }
+        }, async () => {
+            if (notificationId) {
+                firebase.notifications().removeDeliveredNotification(notificationId)
+            }
+            if (typeof data.walletHash !== 'undefined' && data.walletHash) {
+                const selectedWallet = await BlocksoftKeysStorage.getSelectedWallet()
+                if (selectedWallet !== data.walletHash) {
+                    await cryptoWalletActions.setSelectedWallet(data.walletHash, 'showNewsModal')
                 }
             }
+            await UpdateAppNewsDaemon.updateAppNewsDaemon({ force: true })
+            await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true })
+            NavStore.goNext('NotificationsScreen')
+            hideModal()
         })
     }
 

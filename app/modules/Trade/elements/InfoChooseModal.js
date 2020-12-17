@@ -1,6 +1,6 @@
 /**
  * @version todo
- * @misha to review
+ * @yura to redesign
  */
 import React, { Component } from 'react';
 import {
@@ -20,7 +20,6 @@ import GradientView from "../../../components/elements/GradientView";
 import Cross from "react-native-vector-icons/Entypo";
 
 import { strings } from '../../../../app/services/i18n';
-
 const width = Dimensions.get('window').width;
 const { width: WIDTH } = Dimensions.get("window");
 
@@ -30,11 +29,13 @@ export class CongratsModal extends Component {
         super(props);
     }
 
-    handleHide = () => {
-        const { data } = this.props;
+    handleHide = async () => {
+        const { data, callback } = this.props
         const { declineCallback } = data.data
 
-        typeof declineCallback != "undefined" ? declineCallback() : null
+
+        typeof declineCallback !== 'undefined' ? declineCallback() : null
+        typeof callback !== 'undefined' ? await callback() : null
         hideModal()
     }
 

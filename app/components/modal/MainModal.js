@@ -66,7 +66,7 @@ class MainModal extends Component {
             case 'WALLET_CREATE_CONGRATS_MODAL':
                 return <CongratsModal show={show}/>
             case 'CHOOSE_INFO_MODAL':
-                return <ChooseInfoModal show={show} data={data}/>
+                return <ChooseInfoModal show={show} data={data} callback={callback}/>
             case 'LOGIN_MODAL':
                 return <LoginModal show={show} data={data} callback={callback}/>
             case 'INFO_MODAL':
