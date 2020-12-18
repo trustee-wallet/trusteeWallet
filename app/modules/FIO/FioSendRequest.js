@@ -23,8 +23,7 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import TextInput from '../../components/elements/new/TextInput'
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
-
-
+import CustomIcon from '../../components/elements/CustomIcon'
 
 class FioSendRequest extends Component {
 
@@ -213,16 +212,19 @@ class FioSendRequest extends Component {
                                     {
                                         !this.state.enabledCryptoCurrencies?.length && this.state.payeeFioAddress ?
                                             <View style={styles.rowFlex}>
-                                                <TouchableOpacity style={styles.btn__container} onPress={() => NavStore.goNext('FioSettings')}>
+                                                <View style={styles.info_section}>
+                                                    <CustomIcon name="infoMessage" size={30} color={colors.notifications.newNotiesIndicator}  style={{ marginRight: 10, }}/>
+                                                    <Text style={styles.descr_txt}>
+                                                        {strings('FioSendRequest.goToFioSettings')}
+                                                    </Text>
+                                                </View>
+                                                <TouchableOpacity style={styles.btn__container2} onPress={() => NavStore.goNext('FioSettings')}>
                                                     <View style={styles.popup_btn}>
                                                         <Text style={styles.popup_txt}>
                                                             {strings('FioSendRequest.fioSettings')}
                                                         </Text>
                                                     </View>
                                                 </TouchableOpacity>
-                                                <Text style={styles.descr_txt}>
-                                                    {strings('FioSendRequest.goToFioSettings')}
-                                                </Text>
                                             </View>
                                             : null
                                     }
@@ -230,16 +232,20 @@ class FioSendRequest extends Component {
                                     {
                                         !this.state.payeeFioAddress ?
                                             <View style={styles.rowFlex}>
-                                                <TouchableOpacity style={styles.btn__container} onPress={this.handleRegisterFIOAddress}>
+                                                <View style={styles.info_section}>
+                                                    <CustomIcon name="infoMessage" size={30} color={colors.notifications.newNotiesIndicator}  style={{ marginRight: 10, }}/>
+                                                    <Text style={styles.descr_txt}>
+                                                        {strings('FioSendRequest.needRegisterFio')}
+                                                    </Text>
+                                                </View>
+
+                                                <TouchableOpacity style={styles.btn__container2} onPress={this.handleRegisterFIOAddress}>
                                                     <View style={styles.popup_btn}>
                                                         <Text style={styles.popup_txt}>
                                                             {strings('FioSendRequest.registerFioAddress')}
                                                         </Text>
                                                     </View>
                                                 </TouchableOpacity>
-                                                <Text style={styles.descr_txt}>
-                                                    {strings('FioSendRequest.needRegisterFio')}
-                                                </Text>
                                             </View>
 
                                             : null
@@ -247,7 +253,7 @@ class FioSendRequest extends Component {
 
                                     {
                                         !this.state.currencyCode && this.state.enabledCryptoCurrencies?.length ?
-                                            <TouchableOpacity style={styles.terms__btn} onPress={this.showSelectCoinModal}>
+                                            <TouchableOpacity style={styles.btn__container} onPress={this.showSelectCoinModal}>
                                                 <View style={styles.popup_btn}>
                                                     <Text style={styles.popup_txt}>
                                                         {strings('FioSendRequest.selectCoin')}
@@ -276,11 +282,13 @@ class FioSendRequest extends Component {
 
                         { this.state.payeeFioAddress ?
                             <ScrollView showsVerticalScrollIndicator={false}>
-                                <KeyboardAvoidingView style={{flex: 1}} behavior="padding" enabled>
+                                <KeyboardAvoidingView style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}} behavior="padding" enabled>
 
                                     <View style={{marginHorizontal: 0}}>
                                         <View style={styles.input__wrapper}>
                                             <TextInput
+                                                containerStyle={{ shadowRadius: 0, elevation: 0}}
+                                                inputStyle={{ backgroundColor: '#ebebeb'}}
                                                 placeholder={strings('FioSendRequest.from')}
                                                 value={this.state.payeeFioAddress}
                                                 editable={false}
@@ -356,21 +364,38 @@ const styles = {
 
     container: {
         padding: 20,
-        height: '100%',
         flexDirection: 'column',
         flex: 1,
     },
 
+    btn__container: {
+        paddingHorizontal: 8,
+        paddingBottom: 15,
+    },
+
+    btn__container2: {
+        paddingHorizontal: 10,
+        paddingBottom: 35,
+    },
+
+    info_section: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingRight: 20,
+    },
+
     popup_btn: {
-        padding: 10,
-        paddingHorizontal: 20,
+        width: '100%',
+        padding: 12,
         margin: 10,
+        marginHorizontal: 0,
         borderRadius: 10,
         backgroundColor: '#404040',
     },
 
     popup_txt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 16,
         color: '#fff',
         textAlign: 'center',
@@ -378,15 +403,10 @@ const styles = {
 
     rowFlex: {
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        marginHorizontal: -10,
-        marginVertical: 5,
-        backgroundColor: '#eee',
-        padding: 2,
-        paddingRight: 10,
         borderRadius: 20,
+        height: '100%',
     },
 
     rowFlex2: {
@@ -394,30 +414,18 @@ const styles = {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
+        paddingBottom: 10,
     },
 
-    btn__container: {
-        flex: 1,
-    },
-
-   descr_txt: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 13,
-        color: '#777',
-       flex: 1,
-    },
-
-    subheader: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 0,
-        marginBottom: 10,
+    descr_txt: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 16,
+        color: '#5c5c5c',
+        maxWidth: '90%',
     },
 
     subheaderTxt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 18,
         color: '#333',
         textAlign: 'center',
@@ -445,7 +453,7 @@ const styles = {
         paddingRight: 3,
         paddingTop: 0,
         paddingBottom: 2,
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 17,
         color: '#404040',
         borderColor: '#6B36A8',
@@ -453,10 +461,9 @@ const styles = {
     },
 
     txt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
         color: '#777',
     },
-
 
 }

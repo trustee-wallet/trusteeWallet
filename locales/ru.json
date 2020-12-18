@@ -559,9 +559,9 @@
     "btnText": "Выберите FIO адрес"
   },
   "FioAddresses": {
-    "title": "Имена FIO",
-    "description": "FIO адреса",
-    "btnText": "Зарегистрируйте новый адрес FIO"
+    "title": "FIO адреса",
+    "btnText": "Зарегистрируйте адрес",
+    "WebViewTitle": "Зарегистрируйте адрес"
   },
   "FioSettings": {
     "title": "FIO настройки",
@@ -577,7 +577,7 @@
 
   "FioSendRequest": {
     "title": "Отправить FIO запрос",
-    "selectCoin": "Кликнете, чтобы выбрать валюту",
+    "selectCoin": "Выбрать валюту",
     "from": "Отправить запрос от",
     "to": "Отправить запрос к",
     "amount": "Количество",

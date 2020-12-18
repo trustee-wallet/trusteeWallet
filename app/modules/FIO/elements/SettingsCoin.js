@@ -90,13 +90,13 @@ const styles = {
     },
 
     txt2: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 19,
         color: '#000',
     },
 
     txt3: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
         color: '#000',
         marginTop: -5,
@@ -104,7 +104,7 @@ const styles = {
 
     txtAddress: {
         flex: 1,
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 12,
         color: '#888',
         marginTop: 0,
