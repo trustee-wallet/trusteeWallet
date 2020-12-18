@@ -138,8 +138,31 @@ export default {
         if (data.exchangeWayId.toString().indexOf('ksu_') !== -1) {
             data.exchangeWayId = data.exchangeWayId.substr(4)
         }
+        data.rand = new Date().getTime() + '_' + Math.random()
         const link = `${baseUrl}/create-order`
-        return BlocksoftAxios.post(link, data)
+        let res
+        let index = 0
+        let isOk = false
+        do {
+            isOk = true
+            res = await BlocksoftAxios.post(link, data)
+            if (typeof res.data === 'undefined') {
+                isOk = false
+            } else if (res.data.rand !== data.rand || res.data.cashbackToken !== data.cashbackToken) {
+                await Log.log('Api.createOrder error result ' + index, { data, result: res.data, headers: res.headers })
+                isOk = false
+            }
+            index++
+        } while (!isOk && index < 10)
+        if (!isOk) {
+            if (res && typeof res.data !== 'undefined') {
+                Log.err('Api.createOrder error with rand ', { data, result: res.data, headers: res.headers })
+            } else {
+                Log.err('Api.createOrder error without res ', data)
+            }
+            throw new Error('UI_ERROR_NETWORK_ERROR')
+        }
+        return res
     },
 
     checkError: (e, msg, dataToSend, errorMsgExt) => {
