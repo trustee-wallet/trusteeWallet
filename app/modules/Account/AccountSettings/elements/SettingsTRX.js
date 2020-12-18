@@ -78,7 +78,7 @@ class SettingsTRX extends Component {
             balance.prettyBalance = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balance)
             balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
             balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
-            balance.prettyVote = balance.prettyFrozen.toString().split('.')[0]
+            balance.prettyVote = (balance.prettyFrozen*1 + balance.prettyFrozenEnergy*1).toString().split('.')[0]
 
             const prettyReward = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(reward)
             this.setState({

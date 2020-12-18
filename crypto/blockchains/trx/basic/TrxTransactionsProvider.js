@@ -131,7 +131,7 @@ export default class TrxTransactionsProvider {
         let addressAmount = 0
         let transactionDirection = 'self'
         if (typeof transaction.contractData.amount === 'undefined') {
-            if (typeof transaction.contractData !== 'undefined' && transaction.contractData.frozen_balance !== 'undefined') {
+            if (typeof transaction.contractData !== 'undefined' && typeof transaction.contractData.frozen_balance !== 'undefined') {
                 addressAmount = transaction.contractData.frozen_balance
                 transactionDirection = 'freeze'
             } else if (typeof transaction.amount !== 'undefined' && typeof transaction.contractType !== 'undefined' && transaction.contractType === 13) {
