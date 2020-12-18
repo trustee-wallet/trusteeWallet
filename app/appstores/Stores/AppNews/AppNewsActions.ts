@@ -61,6 +61,12 @@ export default {
         await UpdateAppNewsListDaemon.forceDaemonUpdate()
     },
 
+    markAllAsOpened: async (): Promise<void> => {
+        await appNewsDS.markAllAsOpened()
+        // @ts-ignore
+        await UpdateAppNewsListDaemon.forceDaemonUpdate()
+    },
+
     markAsRemoved: async (id : number): Promise<void> => {
         await appNewsDS.setRemoved({id})
         // @ts-ignore

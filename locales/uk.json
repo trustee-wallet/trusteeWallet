@@ -1014,6 +1014,9 @@
     "navigation": {
       "back": "Назад",
       "search": "Пошук..."
+    },
+    "webview": {
+      "error": "Упс... Щось пішло не так"
     }
   },
   "dashboardStack": {

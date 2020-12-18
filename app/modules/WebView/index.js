@@ -38,8 +38,9 @@ class WebViewScreen extends React.Component {
     test = async (req) => {
         const parsedUrl = UrlParse(req.url)
         if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:' || !parsedUrl.slashes) return true
-
         try {
+            const available = await Linking.canOpenURL(req.url)
+            if (!available) return true
             await Linking.openURL(req.url)
             this.handleBack()
             return false
@@ -96,7 +97,7 @@ class WebViewScreen extends React.Component {
         const { colors } = this.context
         return (
             <View style={[styles.error, { backgroundColor: colors.common.background }]}>
-                <Text style={[styles.errorText, { color: colors.common.text2 }]}>Oops... Something went wrong</Text>
+                <Text style={[styles.errorText, { color: colors.common.text2 }]}>{strings('components.webview.error')}</Text>
             </View>
         )
     }

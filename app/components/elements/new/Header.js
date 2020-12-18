@@ -79,11 +79,11 @@ export default class Header extends React.Component {
             isLight,
             GRID_SIZE
         } = this.context
-        
+
         if (setStatusBar) {
             setStatusBar()
         }
-        
+
         return (
             <View style={styles.wrapper} onLayout={this.processHeaderHeight}>
                 <SafeAreaView style={{ flex: 0, backgroundColor: colors.common.header.bg }} />
@@ -129,7 +129,6 @@ const styles = {
         left: 0,
         right: 0,
         zIndex: 10,
-        // borderWidth: 1
     },
     shadow__container: {
         position: 'absolute',
@@ -160,8 +159,6 @@ const styles = {
         flex: 1,
         zIndex: 20,
         paddingBottom: 15
-        // alignItems: 'center',
-        // justifyContent: 'center',
     },
     header: {
         flexDirection: 'row',
