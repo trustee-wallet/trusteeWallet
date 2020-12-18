@@ -174,11 +174,15 @@ export default {
                         balance: account.balancePretty
                     })
                 } else {
+                    let balance = account.balancePretty
+                    if (currencyCode === 'XRP') {
+                        balance = account.balancePretty*1 - 20
+                    }
                     accounts.push({
                         currencyCode,
                         isHidden: currencies[currencyCode],
                         address: account.address,
-                        balance: account.balancePretty
+                        balance
                     })
                 }
             }
