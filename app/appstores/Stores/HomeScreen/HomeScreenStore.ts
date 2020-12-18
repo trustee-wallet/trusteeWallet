@@ -2,7 +2,7 @@ import {
     HomeScreenActionTypes,
     HomeScreenState,
     SET_NEW_WALLET_NAME,
-    SET_INPUT_EDITABLE
+    SET_INPUT_EDITABLE,
 } from './Types'
 
 const initialState: HomeScreenState = {
@@ -38,6 +38,19 @@ const homeScreenStoreReducer = (
                     walletName: {
                         ...state.walletInfo.walletName,
                         isEditable: action.payload.isEditable
+                    }
+                }
+            }
+        // @ts-ignore
+        case 'SET_SELECTED_WALLET':
+            return {
+                ...state,
+                walletInfo: {
+                    ...state.walletInfo,
+                    walletName: {
+                        ...state.walletInfo.walletName,
+                        // @ts-ignore
+                        text: action.wallet.walletName || state.walletInfo.walletName
                     }
                 }
             }

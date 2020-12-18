@@ -157,6 +157,12 @@ class AppNews {
         await dbInterface.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE id=' + id).query()
     }
 
+    markAllAsOpened = async () => {
+        const dbInterface = new DBInterface()
+        const now = Math.round(new Date().getTime() / 1000)
+        await dbInterface.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE news_opened_at IS NULL').query()
+    }
+
     /**
      * @param {string} params.walletHash
      * @param {string} params.limit
@@ -184,7 +190,7 @@ class AppNews {
             limit = params.limit
         }
 
-        const sql = ` 
+        const sql = `
             SELECT
                 app_news.id,
                 app_news.news_server_id AS serverId,
@@ -260,7 +266,7 @@ class AppNews {
             limit = params.limit
         }
 
-        const sql = ` 
+        const sql = `
             SELECT
                 app_news.id,
                 app_news.wallet_hash AS walletHash,
@@ -274,9 +280,9 @@ class AppNews {
                 app_news.news_custom_text AS newsCustomText,
                 app_news.news_custom_created AS newsCreated,
                 app_news.news_image AS newsImage,
-                app_news.news_url AS newsUrl,      
-                app_news.news_status AS newsStatus,  
-                app_news.news_need_popup AS newsNeedPopup,              
+                app_news.news_url AS newsUrl,
+                app_news.news_status AS newsStatus,
+                app_news.news_need_popup AS newsNeedPopup,
                 app_news.news_shown_popup AS newsShownPopup,
                 app_news.news_shown_list AS newsShownList,
                 app_news.news_server_id AS newsServerId,

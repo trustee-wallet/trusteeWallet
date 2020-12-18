@@ -9,7 +9,8 @@ import {
     SectionList,
     StyleSheet,
     TouchableOpacity,
-    Linking
+    Linking,
+    RefreshControl,
 } from 'react-native'
 import firebase from 'react-native-firebase'
 import _forEach from 'lodash/forEach'
@@ -17,6 +18,11 @@ import _cloneDeep from 'lodash/cloneDeep'
 import moment from 'moment'
 
 import NavStore from '../../components/navigation/NavStore'
+
+import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
+import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
+
+import Log from '../../services/Log/Log'
 
 import AppNewsActions from '../../appstores/Stores/AppNews/AppNewsActions'
 import { NOTIFIES_GROUP, ALLOWED_NOTIFICATIONS } from '../../appstores/Stores/AppNews/AppNewsReducer'
@@ -66,7 +72,8 @@ class NotificationsScreen extends React.Component {
                 group: NOTIFIES_GROUP.NEWS
             },
         ],
-        data: []
+        data: [],
+        isRefreshing: false,
     }
 
     currentLocale;
@@ -128,6 +135,19 @@ class NotificationsScreen extends React.Component {
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0);
         this.setState(() => ({ headerHeight }))
+    }
+
+    handleRefresh = async () => {
+        this.setState({ isRefreshing: true })
+
+        try {
+            await UpdateAppNewsDaemon.updateAppNewsDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
+            await UpdateAppNewsListDaemon.updateAppNewsListDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
+        } catch (e) {
+            Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAppNewsDaemon both fromServer and forView ' + e.message)
+        }
+
+        this.setState({ isRefreshing: false })
     }
 
     handleBack = () => { NavStore.goBack() }
@@ -207,13 +227,11 @@ class NotificationsScreen extends React.Component {
                 description: title !== subtitle ? subtitle : ''
             })
         }
-
-
     }
 
     render() {
         const { colors, GRID_SIZE } = this.context
-        const { headerHeight, data } = this.state
+        const { headerHeight, data, isRefreshing } = this.state
 
         firebase.analytics().setCurrentScreen('NotificationsScreen')
 
@@ -233,8 +251,17 @@ class NotificationsScreen extends React.Component {
                     <SectionList
                         showsVerticalScrollIndicator={false}
                         sections={data}
+                        refreshControl={
+                            <RefreshControl
+                                style={{ marginTop: GRID_SIZE, marginBottom: -GRID_SIZE * 1.5 }}
+                                tintColor={colors.common.text1}
+                                refreshing={isRefreshing}
+                                onRefresh={this.handleRefresh}
+                            />
+                        }
+                        keyExtractor={notif => notif.id.toString()}
                         stickySectionHeadersEnabled={false}
-                        contentContainerStyle={{ marginTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }}
+                        contentContainerStyle={{ paddingTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }}
                         renderItem={this.renderListItem}
                         renderSectionHeader={({ section: { title } }) => (
                             <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>

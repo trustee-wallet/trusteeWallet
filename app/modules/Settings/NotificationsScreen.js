@@ -42,6 +42,9 @@ class NotificationsSettingScreen extends React.Component {
     handleChangeNotifications = async () => {
         const { notifsStatus } = this.props.settings
         await settingsActions.setSettings('notifsStatus', +notifsStatus ? '0' : '1')
+        await settingsActions.setSettings('transactionsNotifs', +notifsStatus ? '0' : '1')
+        await settingsActions.setSettings('exchangeRatesNotifs', +notifsStatus ? '0' : '1')
+        await settingsActions.setSettings('newsNotifs', +notifsStatus ? '0' : '1')
         // use "later" function as usual makes some mess when a lot of clicking
         await AppNotificationListener.updateSubscriptionsLater()
     }

@@ -1020,6 +1020,9 @@
     "navigation": {
       "back": "Back",
       "search": "Search..."
+    },
+    "webview": {
+      "error": "Oops... Something went wrong"
     }
   },
   "dashboardStack": {

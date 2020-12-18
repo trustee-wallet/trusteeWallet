@@ -302,24 +302,22 @@ class HomeScreen extends Component {
 
         return (
             <View style={{ flex: 1 }}>
-                <StatusBar barStyle={isLight ? 'dark-content' : 'light-content'} />
-                <SafeAreaView style={{ flex: 0, backgroundColor: colors.common.background }} />
+                <Header
+                    scrollOffset={this.state.scrollOffset}
+                    hasStickyHeader={this.state.hasStickyHeader}
+                    isBalanceVisible={this.state.isBalanceVisible}
+                    originalVisibility={this.state.originalVisibility}
+                    triggerBalanceVisibility={this.triggerBalanceVisibility}
+                    balanceData={balanceData}
+                />
                 <SafeAreaView style={{ flex: 1, backgroundColor: colors.homeScreen.tabBarBackground }}>
                     <View style={{ flex: 1, backgroundColor: colors.common.background }}>
-                        <Header
-                            scrollOffset={this.state.scrollOffset}
-                            hasStickyHeader={this.state.hasStickyHeader}
-                            isBalanceVisible={this.state.isBalanceVisible}
-                            originalVisibility={this.state.originalVisibility}
-                            triggerBalanceVisibility={this.triggerBalanceVisibility}
-                            balanceData={balanceData}
-                        />
-                        <View style={{ marginBottom: Platform.OS === 'android' ? 65 : 50 }} />
+                        <View style={{ marginBottom: 50 }} />
                         <DraggableFlatList
                             data={this.state.data}
                             extraData={this.state.data}
                             showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{ paddingBottom: 20, paddingTop: Platform.OS === 'android' ? 25 : 10 }}
+                            contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }}
                             onScrollOffsetChange={this.updateOffset}
                             autoscrollSpeed={300}
                             refreshControl={

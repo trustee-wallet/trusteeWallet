@@ -8,7 +8,10 @@ import {
     TouchableOpacity,
     Platform,
     Animated,
-    Text
+    Text,
+    StatusBar,
+    Vibration,
+    SafeAreaView
 } from 'react-native'
 
 import MenuIcon from '../../../assets/images/menu_icon'
@@ -20,6 +23,7 @@ import WalletName from './WalletName/WalletName'
 import NavStore from '../../../components/navigation/NavStore'
 
 import { setQRConfig, setQRValue } from '../../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import AppNewsActions from '../../../appstores/Stores/AppNews/AppNewsActions'
 import { strings } from '../../../services/i18n'
 
 import Log from '../../../services/Log/Log'
@@ -31,8 +35,8 @@ import { HIT_SLOP } from '../../../themes/Themes';
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 
-const headerHeight = Platform.OS === 'android' ? 79 : 44
-const headerHeightSticky = Platform.OS === 'android' ? 123 : 88
+const headerHeight = 44
+const headerHeightSticky = 88
 
 class WalletInfo extends React.Component {
     constructor(props) {
@@ -42,7 +46,7 @@ class WalletInfo extends React.Component {
         const opacity = hasStickyHeader ? 1 : 0
         const height = hasStickyHeader ? headerHeightSticky : headerHeight
         const shadowOpacity = hasStickyHeader ? 0.5 : 0
-        const elevation = hasStickyHeader ? 20 : 0
+        const elevation = hasStickyHeader ? 15 : 0
 
         this.state = {
             hasStickyHeader,
@@ -59,7 +63,7 @@ class WalletInfo extends React.Component {
             Animated.parallel([
                 Animated.spring(state.height, { toValue: headerHeightSticky, bounciness: 0 }),
                 Animated.spring(state.opacity, { toValue: 1, bounciness: 0  }),
-                Animated.spring(state.elevation, { toValue: 20, bounciness: 0  }),
+                Animated.spring(state.elevation, { toValue: 15, bounciness: 0  }),
                 Animated.spring(state.shadowOpacity, { toValue: 0.5, bounciness: 0  })
             ], { stopTogether: false }).start()
         }
@@ -83,6 +87,11 @@ class WalletInfo extends React.Component {
 
     handleOpenNotifications = () => NavStore.goNext('NotificationsScreen')
 
+    handleClearNotifications = async () => {
+        Vibration.vibrate(100)
+        await AppNewsActions.markAllAsOpened()
+    }
+
     qrPermissionCallback = () => {
         Log.log('WalletInfo handleScanQr started')
 
@@ -98,7 +107,7 @@ class WalletInfo extends React.Component {
     }
 
     render() {
-        const { colors, GRID_SIZE } = this.context
+        const { colors, GRID_SIZE, isLight } = this.context
         const {
             selectedWallet,
             triggerBalanceVisibility,
@@ -117,6 +126,9 @@ class WalletInfo extends React.Component {
 
         return (
             <View style={styles.wrapper}>
+                <StatusBar translucent={false} backgroundColor={colors.common.header.bg} barStyle={isLight ? 'dark-content' : 'light-content'} />
+                <SafeAreaView style={{ flex: 0, backgroundColor: colors.common.background }} />
+
                 <Animated.View style={[
                     styles.container,
                     { backgroundColor: colors.common.background, height }
@@ -124,7 +136,13 @@ class WalletInfo extends React.Component {
 
                     <View style={[styles.header, { paddingHorizontal: GRID_SIZE }]}>
                         <View style={styles.header__left}>
-                            <TouchableOpacity style={styles.notificationButton} onPress={this.handleOpenNotifications} hitSlop={HIT_SLOP}>
+                            <TouchableOpacity
+                                style={styles.notificationButton}
+                                onPress={this.handleOpenNotifications}
+                                onLongPress={this.handleClearNotifications}
+                                delayLongPress={2000}
+                                hitSlop={HIT_SLOP}
+                            >
                                 <NotificationIcon color={colors.common.text1} />
                                 {hasNews && <View style={[styles.notificationIndicator, { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }]} />}
                             </TouchableOpacity>
@@ -176,7 +194,7 @@ class WalletInfo extends React.Component {
                 </Animated.View>
 
                 {hasStickyHeader && (
-                    <View style={styles.shadow__container}>
+                    <View style={[styles.shadow__container, { bottom: Platform.OS === 'ios' ? 15 : 5 }]}>
                         <Animated.View style={[styles.shadow__item, { shadowOpacity, elevation }]} />
                     </View>
                 )}
@@ -233,7 +251,7 @@ const styles = {
     },
     container: {
         zIndex: 20,
-        paddingTop: Platform.OS === 'android' ? 30 : 0,
+        // paddingTop: Platform.OS === 'android' ? 30 : 0,
     },
     extraView: {
         flex: 1,
