@@ -326,11 +326,10 @@ class LockScreen extends Component {
                                         }
                                 }
                                 bottomLeftComponent={
-                                    this.state.passwordState !== 'enter' ? null :
+                                    (this.state.passwordState !== 'enter' || touchIDStatus === 0) ? null :
                                         (launchTouchID) => {
                                             return <TouchableOpacity onPress={launchTouchID} style={[styles.iconContainer]}>
                                                 <MaterialIcons size={35} name={'fingerprint'} color={'#7229AE'}/>
-                                                {/*<Text>faceid/touchid</Text>*/}
                                             </TouchableOpacity>
                                         }
                                 }
