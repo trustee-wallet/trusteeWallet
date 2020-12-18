@@ -199,6 +199,21 @@ class ConfirmScreen extends Component {
 
             Log.log('Trade/V2 dataSell', res.data)
 
+            const bseOrderData = {
+                amountReceived: null,
+                depositAddress: res.data.address,
+                exchangeRate: null,
+                exchangeWayType: "SELL",
+                inTxHash: null,
+                orderId: res.data.orderId,
+                outDestination: dataToSend.outDestination.substr(0,2) + '***' + dataToSend.outDestination.substr(-4, 4),
+                outTxHash: null,
+                payinUrl: null,
+                requestedInAmount: {amount: dataToSend.inAmount, currencyCode: selectedCryptocurrency.currencyCode},
+                requestedOutAmount: {amount: dataToSend.outAmount, currencyCode: tradeWay.outCurrencyCode},
+                status: "pending_payin"
+            }
+
             await SendActions.startSend({
                 gotoReceipt: true,
                 addressTo : res.data.address,
@@ -206,7 +221,8 @@ class ConfirmScreen extends Component {
                 memo : res.data.memo,
                 currencyCode : selectedCryptocurrency.currencyCode,
                 isTransferAll : useAllFunds,
-                bseOrderID: res.data.orderId,
+                bseOrderId: res.data.orderId,
+                bseOrderData : bseOrderData,
                 uiType: 'TRADE_SEND',
                 uiApiVersion : 'v2'
             })

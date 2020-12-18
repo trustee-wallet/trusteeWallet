@@ -101,6 +101,22 @@ class ExchangeConfirmScreen extends Component {
 
             const res = await Api.createOrder(dataToSend)
             Log.log('EXC/V2 dataExchange', res.data)
+
+            const bseOrderData = {
+                amountReceived: null,
+                depositAddress: res.data.address,
+                exchangeRate: null,
+                exchangeWayType: "EXCHANGE",
+                inTxHash: null,
+                orderId: res.data.orderId,
+                outDestination: dataToSend.outDestination,
+                outTxHash: null,
+                payinUrl: null,
+                requestedInAmount: {amount: dataToSend.inAmount, currencyCode: dataToSend.currencyCode},
+                requestedOutAmount: {amount: dataToSend.outAmount, currencyCode: dataToSend.outCurrencyCode},
+                status: "pending_payin"
+            }
+
             await SendActions.startSend({
                 gotoReceipt: true,
                 addressTo : res.data.address,
@@ -108,7 +124,8 @@ class ExchangeConfirmScreen extends Component {
                 memo : res.data.memo,
                 currencyCode : selectedInCurrency.currencyCode,
                 isTransferAll : useAllFunds,
-                bseOrderID: res.data.orderId,
+                bseOrderId: res.data.orderId,
+                bseOrderData : bseOrderData,
                 uiType: 'TRADE_SEND',
                 uiApiVersion : 'v2'
             })
