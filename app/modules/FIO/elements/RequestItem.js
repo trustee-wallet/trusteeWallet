@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 import { View, Text, ScrollView, Image, KeyboardAvoidingView, SafeAreaView, TouchableOpacity, Dimensions, PixelRatio  } from 'react-native'
-import { strings } from '../../../services/i18n'
+import i18n, { strings } from '../../../services/i18n'
 import CurrencyIcon from '../../../components/elements/CurrencyIcon'
 import Moment from 'moment';
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
@@ -24,7 +24,7 @@ class RequestItem extends Component {
         const currencyCode = data?.content?.token_code || 'NOCOIN'
         const chainCode = data?.content?.chain_code || 'NOCOIN'
         const { colors } = this.context
-        Moment.locale('en');
+        Moment.locale( i18n.locale.split('-')[0] === 'uk' ? 'ru' : i18n.locale);
 
         return (
             <View >

@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 import { View, Text, ScrollView, Image, TextInput, SafeAreaView, KeyboardAvoidingView  } from 'react-native'
 
 import Button from '../../components/elements/new/buttons/Button'
-import { strings } from '../../services/i18n'
+import i18n, { strings } from '../../services/i18n'
 import CurrencyIcon from '../../components/elements/CurrencyIcon'
 import { rejectFioFundsRequest } from '../../../crypto/blockchains/fio/FioUtils'
 import NavStore from '../../components/navigation/NavStore'
@@ -42,7 +42,7 @@ class FioRequestDetails extends Component {
             requestDetailType: type,
         })
 
-        Moment.locale('en');
+        Moment.locale( i18n.locale.split('-')[0] === 'uk' ? 'ru' : i18n.locale);
     }
 
     handleReject = async () => {

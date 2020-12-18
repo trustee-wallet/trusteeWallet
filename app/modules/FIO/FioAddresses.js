@@ -6,7 +6,7 @@ import { View, Text, ScrollView, Image, SafeAreaView, TouchableOpacity } from 'r
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/new/buttons/Button'
-import { strings } from '../../services/i18n'
+import i18n, { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
 import { connect } from 'react-redux'
 import config from '../../config/config'
@@ -82,7 +82,7 @@ class FioAddresses extends Component {
     handleClose = () => { NavStore.reset('DashboardStack') }
 
     render() {
-        Moment.locale('en');
+        Moment.locale( i18n.locale.split('-')[0] === 'uk' ? 'ru' : i18n.locale);
         const { colors, GRID_SIZE } = this.context
         const { headerHeight } = this.state
 
