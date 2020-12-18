@@ -64,6 +64,7 @@ class TransactionScreen extends Component {
     constructor(props) {
         super(props)
         this.state = {
+            account: {},
             headerHeight: 0,
             transaction: {},
             subContent: [],
@@ -156,6 +157,7 @@ class TransactionScreen extends Component {
         if (typeof notification !== 'undefined') {
             this.setState(() => ({
                 transaction: tx,
+                account,
                 notification,
                 cryptoCurrency,
                 toOpenAccountBack
@@ -163,6 +165,7 @@ class TransactionScreen extends Component {
         } else {
             this.setState(() => ({
                 transaction: tx,
+                account,
                 cryptoCurrency,
                 toOpenAccountBack
             }))
@@ -521,7 +524,7 @@ class TransactionScreen extends Component {
 
     closeAction = async () => {
         if (this.state.toOpenAccountBack) {
-            const { cryptoCurrency, account } = this.props
+            const { cryptoCurrency } = this.props
             setSelectedCryptoCurrency(cryptoCurrency)
             await setSelectedAccount()
             NavStore.reset('AccountScreen')
@@ -648,9 +651,14 @@ class TransactionScreen extends Component {
     }
 
     renderReplaceByFeeRemove = (array) => {
-        const { account } = this.props
+        let { account } = this.props
         const { transaction } = this.state
-
+        if (typeof account === 'undefined' || !account) {
+            account = this.state.account
+        }
+        if (!account) {
+            return false
+        }
         if (transaction.transactionDirection === 'income' || transaction.transactionDirection === 'self') {
             return false
         }
@@ -684,15 +692,21 @@ class TransactionScreen extends Component {
     }
 
     renderReplaceByFee = (array) => {
-        const { cryptoCurrency, account } = this.props
+        let { account } = this.props
         const { transaction } = this.state
+        if (typeof account === 'undefined' || !account) {
+            account = this.state.account
+        }
+        if (!account || typeof account.currencyCode === 'undefined') {
+            return false
+        }
         if (transaction.transactionHash === 'undefined' || !transaction.transactionHash) {
             return false
         }
         if (transaction.transactionStatus !== 'new' && transaction.transactionStatus !== 'pending_payin' && transaction.transactionStatus !== 'missing') {
             return false
         }
-        if (cryptoCurrency.currencyCode === 'BTC' && transaction.addressTo.indexOf('OMNI') !== -1) {
+        if (account.currencyCode === 'BTC' && transaction.addressTo.indexOf('OMNI') !== -1) {
             return
         }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {

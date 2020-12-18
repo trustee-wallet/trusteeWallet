@@ -341,7 +341,7 @@ class MainV3DataScreen extends Component {
                 memo: data.memo,
                 currencyCode: data.currencyCode,
                 isTransferAll: data.useAllFunds,
-                bseOrderID: data.orderHash || data.orderId,
+                bseOrderId: data.orderHash || data.orderId,
                 comment: data.comment || '',
                 uiType: 'TRADE_SEND',
                 uiApiVersion: 'v3',

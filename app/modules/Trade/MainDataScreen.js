@@ -346,7 +346,7 @@ class MainDataScreen extends Component {
                 if (typeof selectedCryptocurrency.currencyRateJson.USD !== 'undefined') {
                     diffUSD = BlocksoftUtils.add(RateEquivalent.mul({ value: diffCheck, currencyCode: selectedCryptocurrency.currencyCode, basicCurrencyRate: selectedCryptocurrency.currencyRateJson.USD }), limitUSD)
                 }
-                console.log('input', { amountCrypto: amount.amountEquivalentInCrypto, amountFiat: amount.amountEquivalentInFiat, percentCheck, diffCheck, diffUSD, useAll: amount.useAllFunds })
+                // console.log('input', { amountCrypto: amount.amountEquivalentInCrypto, amountFiat: amount.amountEquivalentInFiat, percentCheck, diffCheck, diffUSD, useAll: amount.useAllFunds })
                 if (amount.useAllFunds === false && percentCheck * 1 > 0 || diffUSD * 1 < 0) {
                     showModal({
                         type: 'YES_NO_MODAL',

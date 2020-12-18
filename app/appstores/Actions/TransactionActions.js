@@ -33,7 +33,8 @@ const transactionActions = {
      * @param {string} transaction.transactionOfTrusteeWallet
      * @param {string} transaction.transactionsScanLog
      * @param {string} transaction.transactionJson
-     * @param {string} transaction.bseOrderID
+     * @param {string} transaction.bseOrderId
+     * @param {object} transaction.bseOrderData
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
      */
@@ -50,7 +51,7 @@ const transactionActions = {
                 // @todo page reload
             }
 
-            if (typeof transaction.bseOrderID !== 'undefined') {
+            if (typeof transaction.bseOrderId !== 'undefined') {
                 UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true })
             }
 

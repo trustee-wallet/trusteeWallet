@@ -30,7 +30,8 @@ export namespace SendTmpData {
 
         fioRequestDetails ?: any,
 
-        bseOrderID ?: string,
+        bseOrderId ?: string,
+        bseOrderData ?: any,
 
         transactionJson : any,
 

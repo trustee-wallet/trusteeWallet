@@ -21,6 +21,8 @@ class Transaction {
      * @param {string} transaction.addressFrom
      * @param {string} transaction.addressAmount
      * @param {string} transaction.transactionFee
+     * @param {string} transaction.bseOrderId
+     * @param {object} transaction.bseOrderData
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
      * @param {integer} updateId
@@ -50,6 +52,10 @@ class Transaction {
             copy.transactionsScanLog = dbInterface.escapeString(copy.transactionsScanLog)
         } else {
             copy.transactionsScanLog = 'UNDEFINED TX SCAN LOG ' + source
+        }
+
+        if (typeof copy.bseOrderData !== 'undefined' && copy.bseOrderData) {
+            copy.bseOrderData = dbInterface.escapeString(JSON.stringify(copy.bseOrderData))
         }
 
 

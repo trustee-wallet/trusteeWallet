@@ -207,7 +207,7 @@ class Account extends Component {
         } else {
             await this._showModalNoOldConfigs()
             ExchangeActions.handleSetNewInterface(false, 'BUY')
-            NavStore.goNext('TradeScreenStack')
+            NavStore.goNext('TradeScreenStack', {exchangeScreenParam: { selectedCryptocurrency: this.props.cryptoCurrency } })
         }
     }
 

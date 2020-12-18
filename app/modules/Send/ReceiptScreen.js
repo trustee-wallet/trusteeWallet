@@ -365,13 +365,17 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 if (sendScreenData.transactionSpeedUp) {
                     logData.transactionSpeedUp = sendScreenData.transactionSpeedUp
                 }
-                if (typeof sendScreenData.bseOrderID !== 'undefined' && sendScreenData.bseOrderID) {
-                    transaction.bse_order_id = sendScreenData.bseOrderID
-                    transaction.bse_order_id_out = sendScreenData.bseOrderID
-                    logData.bseOrderID = sendScreenData.bseOrderID.toString()
+                if (typeof sendScreenData.bseOrderId !== 'undefined' && sendScreenData.bseOrderId) {
+                    transaction.bseOrderId = sendScreenData.bseOrderId
+                    transaction.bseOrderIdOut = sendScreenData.bseOrderId
+                    if (typeof sendScreenData.bseOrderData !== 'undefined') {
+                        transaction.bseOrderData = sendScreenData.bseOrderData
+                    }
+                    logData.bseOrderId = sendScreenData.bseOrderId.toString()
                 }
 
                 const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+
                 await transactionActions.saveTransaction(transaction, line + ' HANDLE SEND ')
             }
 

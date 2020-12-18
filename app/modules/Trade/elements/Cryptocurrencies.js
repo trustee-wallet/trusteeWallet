@@ -168,7 +168,6 @@ class Cryptocurrencies extends Component {
                 if ((btcShowTwoAddress === false || btcShowTwoAddress === '0') && btcLegacyOrSegWit === 'legacy') {
                     showType = 'legacy'
                 }
-                console.log('showType', showType)
                 if (typeof selectedAccountFromStore.segwit !== 'undefined'
                     && typeof selectedAccountFromStore.legacy !== 'undefined' ) {
                     const tmp = this.state.uniqueParams || {}
