@@ -369,7 +369,7 @@ const styles = {
     },
 
     btn__container: {
-        paddingHorizontal: 10,
+        paddingHorizontal: 8,
         paddingBottom: 15,
     },
 
