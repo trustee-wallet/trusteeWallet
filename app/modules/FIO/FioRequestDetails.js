@@ -112,14 +112,14 @@ class FioRequestDetails extends Component {
 
 
                                 <View style={styles.info__section}>
-                                    <View style={styles.info__section__content}>
+                                    <View style={[styles.info__section__content, { backgroundColor: colors.fio.requestItemBg, borderColor: colors.fio.borderColorLight, }]} >
                                         <View style={[styles.flex__container, styles.flex__start]}>
                                             <CurrencyIcon currencyCode={this.state.requestDetailData?.content?.token_code !== this.state.requestDetailData?.content?.chain_code ? `${this.state.requestDetailData?.content?.chain_code}_${this.state.requestDetailData?.content?.token_code}` : this.state.requestDetailData?.content?.token_code}
                                                           containerStyle={styles.cryptoList__icoWrap}
                                                           markStyle={styles.cryptoList__icon__mark}
                                                           markTextStyle={styles.cryptoList__icon__mark__text}
                                                           iconStyle={styles.cryptoList__icon}/>
-                                            <Text style={styles.txt3}>
+                                            <Text style={[styles.txt3, { color: colors.fio.requestDetailPlaneBg }]} >
                                                 {
                                                     this.state.requestDetailType == 'sent' ? (
                                                         /*if type of page is sent*/
@@ -133,12 +133,12 @@ class FioRequestDetails extends Component {
                                         </View>
 
                                         <View style={styles.flex__container}>
-                                            <Text style={styles.txt}>{this.state.requestDetailData?.content?.token_code}</Text>
-                                            <Text style={styles.txt}>{this.state.requestDetailData?.content?.amount}</Text>
+                                            <Text  style={[styles.txt, { color: colors.fio.requestDetailPlaneBg }]} >{this.state.requestDetailData?.content?.token_code}</Text>
+                                            <Text  style={[styles.txt, { color: colors.fio.requestDetailPlaneBg }]} >{this.state.requestDetailData?.content?.amount}</Text>
                                         </View>
 
                                         <View style={styles.flex__container}>
-                                            <View style={styles.line2}></View>
+                                            <View style={[styles.line2, { backgroundColor: colors.fio.borderColorLight }]} ></View>
                                         </View>
 
                                         {/*<View style={styles.flex__container}>
