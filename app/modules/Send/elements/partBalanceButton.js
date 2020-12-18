@@ -19,8 +19,8 @@ const PartBalanceButton = (props) => {
     const { text, type, action, inverse } = props
 
     return (
-        <TouchableOpacity style={{...styles.button, backgroundColor: inverse ? '#404040' : '#f5f5f5'}} onPress={action}>
-            <Text style={{...styles.text, color: inverse ? '#f5f5f5' : '#5C5C5C' }} >{text}</Text>
+        <TouchableOpacity style={{...styles.button, backgroundColor: inverse ? colors.common.text1 : colors.common.background, borderColor: colors.common.text1}} onPress={action}>
+            <Text style={{...styles.text, color: inverse ? colors.common.background : colors.common.text3 }} >{text}</Text>
         </TouchableOpacity>
     )
 }
@@ -35,7 +35,6 @@ const styles = {
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        borderColor: '#404040'
     },
     text: {
         fontFamily: 'Montserrat-Bold',

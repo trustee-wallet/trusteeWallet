@@ -29,13 +29,13 @@ export class ThemeProvider extends React.Component {
         super(props)
 
         this.state = {
-            isLight: true // @todo dark mode will be back SYSTEM_COLOR_SCHEME === 'light'
+            isLight: SYSTEM_COLOR_SCHEME === 'light' // @todo dark mode will be back
         }
         this.getThemeSetting()
     }
 
     getThemeSetting = async () => {
-        return false // @even darker
+        // return false // @even darker
         try {
             const res = await AsyncStorage.getItem('themeSetting')
             if (res !== null) {

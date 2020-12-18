@@ -514,7 +514,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
         UpdateAccountListDaemon.pause()
         firebase.analytics().setCurrentScreen('Send.ReceiptScreen')
 
-        const { colors, GRID_SIZE } = this.context
+        const { colors, GRID_SIZE, isLight } = this.context
 
         const { headerHeight, sendScreenData, cryptoCurrency, account } = this.state
 
@@ -581,7 +581,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
         const basicCurrencySymbol = account.basicCurrencySymbol
 
         const dict = new UIDict(account.currencyCode)
-        const color = dict.settings.colors.mainColor
+        const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
 
         let equivalent = ''
         try {
@@ -645,19 +645,19 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 >
                     <View style={{ flex: 1 }}>
                         <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={styles.title}>{strings('send.receiptScreen.totalSend')}</Text>
+                            <Text style={{...styles.title, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.totalSend')}</Text>
                             <Text style={{ ...styles.value, color: color }}>{`${amount} ${currencySymbol}`}</Text>
                             {
                                 sendScreenData.uiProviderType !== 'TRADE_SEND' ?
                                     <LetterSpacing
                                         text={`${basicCurrencySymbol} ${equivalent}`}
                                         numberOfLines={1}
-                                        textStyle={styles.notEquivalent}
+                                        textStyle={{...styles.notEquivalent, color: '#999999' }}
                                         letterSpacing={1} />
 
                                     : null
                             }
-                            <View style={styles.line} />
+                            <View style={{...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
                         </View>
                         <View style={{ marginTop: 12 }}>
                             <CheckData
@@ -707,8 +707,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             {this.renderMinerFee()}
 
                             <View style={{ paddingHorizontal: GRID_SIZE, flexDirection: 'row', marginTop: 44 }}>
-                                <CustomIcon name='shield' size={28} style={{ color: '#5C5C5C' }} />
-                                <Text style={styles.info}>{strings('send.receiptScreen.trusteeInfo')}</Text>
+                                <CustomIcon name='shield' size={28} style={{ color: colors.sendScreen.amount }} />
+                                <Text style={{...styles.info, color: colors.sendScreen.amount}}>{strings('send.receiptScreen.trusteeInfo')}</Text>
                             </View>
                         </View>
                     </View>
@@ -755,8 +755,7 @@ const styles = {
     title: {
         fontFamily: 'Montserrat-Medium',
         fontSize: 18,
-        lineHeight: 24,
-        color: '#5C5C5C'
+        lineHeight: 24
     },
     value: {
         fontFamily: 'Montserrat-Bold',
@@ -768,13 +767,10 @@ const styles = {
     notEquivalent: {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 14,
-        lineHeight: 18,
-
-        color: '#999999'
+        lineHeight: 18
     },
     line: {
         borderBottomWidth: 1,
-        borderBottomColor: '#DADADA',
         height: 24,
         width: '70%'
     },
@@ -783,7 +779,6 @@ const styles = {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 14,
         lineHeight: 18,
-        color: '#5C5C5C',
         letterSpacing: 1,
         textAlign: 'left'
     }

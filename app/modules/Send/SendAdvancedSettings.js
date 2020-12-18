@@ -350,7 +350,7 @@ class SendAdvancedSettingsScreen extends Component {
                         <View style={{ paddingTop: headerHeight }}>
                             { showFees ?
                             <View>
-                                <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE }} letterSpacing={1.5} />
+                                <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE, color: colors.sendScreen.amount }} letterSpacing={1.5} />
                                 <ListItem
                                     title={strings('send.setting.selectFee')}
                                     iconType="fee"
@@ -381,7 +381,7 @@ class SendAdvancedSettingsScreen extends Component {
                             */
                             }
                             <View style={{ marginVertical: GRID_SIZE }}>
-                                <LetterSpacing text={strings('send.setting.optional').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE }}  letterSpacing={1.5} />
+                                <LetterSpacing text={strings('send.setting.optional').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE, color: colors.sendScreen.amount }}  letterSpacing={1.5} />
                                 <TextInput
                                     value={this.state.comment}
                                     placeholder={strings('send.setting.note')}
@@ -432,7 +432,6 @@ const styles = {
     settings__title: {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 12,
-        color: '#404040',
         marginLeft: 20
     },
 }

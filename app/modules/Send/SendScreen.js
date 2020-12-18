@@ -825,7 +825,7 @@ class SendScreen extends SendBasicScreenScreen {
     renderEnoughFundsError = () => {
         const { enoughFunds } = this.state
 
-        const { GRID_SIZE } = this.context
+        const { colors, GRID_SIZE } = this.context
 
         // console.log('Send.SendScreen renderEnoughFundsError', enoughFunds)
         if (!enoughFunds.isAvailable) {
@@ -844,7 +844,7 @@ class SendScreen extends SendBasicScreenScreen {
                                     </View>
                                     <View>
                                         <TouchableOpacity delayLongPress={500} onLongPress={() => this.handleOkForce()}>
-                                            <Text style={style.texts__item}>
+                                            <Text style={{...style.texts__item, color: colors.common.text3 }}>
                                                 {item}
                                             </Text>
                                         </TouchableOpacity>
@@ -860,7 +860,7 @@ class SendScreen extends SendBasicScreenScreen {
 
     renderAddressError = () => {
         const { addressError } = this.state
-        const { GRID_SIZE } = this.context
+        const { colors, GRID_SIZE } = this.context
 
         if (addressError) {
             return (
@@ -873,7 +873,9 @@ class SendScreen extends SendBasicScreenScreen {
                                 color='#864DD9'
                             />
                         </View>
-                        <Text style={style.texts__item}>{strings('send.addressError')}</Text>
+                        <Text style={{...style.texts__item, color: colors.common.text3 }}>
+                            {strings('send.addressError')}
+                        </Text>
                     </View>
                 </View>
             )
@@ -895,6 +897,8 @@ class SendScreen extends SendBasicScreenScreen {
         )
 
         const amountPrep = BlocksoftPrettyNumbers.makeCut(amountPretty).cutted
+
+        const { colors } = this.context
 
         let sumPrep = amountPrep + ' ' + currencySymbol
         if (amountPretty && currencyCode && basicCurrencyRate) {
@@ -920,7 +924,7 @@ class SendScreen extends SendBasicScreenScreen {
                 </View>
                 <View style={styles.accountDetail__content}>
                     <View style={{}}>
-                        <Text style={styles.accountDetail__title} numberOfLines={1}>
+                        <Text style={{...styles.accountDetail__title, color: colors.common.text1 }} numberOfLines={1}>
                             {currencyName}
                         </Text>
                         <View style={{ alignItems: 'flex-start' }}>
@@ -1097,14 +1101,14 @@ class SendScreen extends SendBasicScreenScreen {
                                 callback={(value) => this.amountInputCallback(value, true)}
                             />
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                <View style={style.line} />
+                                <View style={{...style.line, backgroundColor: colors.sendScreen.colorLine }} />
                                 <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
                                                   onPress={this.handleChangeEquivalentType} hitSlop={HIT_SLOP} >
                                     <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
                                 </TouchableOpacity>
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                <LetterSpacing text={loadFee ? 'Loading...' : notEquivalentValue} textStyle={style.notEquivalentValue}
+                                <LetterSpacing text={loadFee ? 'Loading...' : notEquivalentValue} textStyle={{...style.notEquivalentValue, color: '#999999' }}
                                                letterSpacing={1.5} />
                             </View>
                             { balancePretty > 0  && (
@@ -1192,7 +1196,6 @@ class SendScreen extends SendBasicScreenScreen {
                                     }}
                                 />
                             </View>
-                            { console.log(this.addressInput.state) }
                             { this.renderAddressError() }
                             {
                                 currencyCode === 'XRP' ?
@@ -1272,7 +1275,6 @@ export default connect(mapStateToProps, {})(SendScreen)
 
 const style = {
     line: {
-        backgroundColor: '#DADADA',
         height: 1,
         width: '75%',
         alignSelf: 'center',
@@ -1281,8 +1283,7 @@ const style = {
     notEquivalentValue: {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 15,
-        lineHeight: 19,
-        color: '#999999'
+        lineHeight: 19
     },
     minerFee: {
         fontFamily: 'Montserrat-Medium',
@@ -1317,7 +1318,6 @@ const style = {
     texts__item: {
         fontSize: 14,
         fontFamily: 'SFUIDisplay-Semibold',
-        color: '#5C5C5C',
         letterSpacing: 1,
     },
     texts__icon: {
@@ -1353,8 +1353,7 @@ const styles = {
     },
     accountDetail__title: {
         fontFamily: 'Montserrat-Bold',
-        fontSize: 18,
-        color: '#404040'
+        fontSize: 18
     },
     accountDetail__text: {
         fontSize: 14,

@@ -13,7 +13,7 @@ import { useTheme } from '../../../modules/theme/ThemeProvider'
 
 const CheckData = (props) => {
 
-    const { color } = useTheme()
+    const { colors } = useTheme()
 
     const {
         name,
@@ -24,10 +24,10 @@ const CheckData = (props) => {
     return (
         <View style={{ flexDirection: 'row', paddingHorizontal: 16, justifyContent: 'space-between', paddingTop: 22 }}>
             <View style={{ width: '40%' }}>
-                <Text style={styles.name}>{name}</Text>
+                <Text style={{...styles.name, color: colors.sendScreen.amount }}>{name}</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-                <LetterSpacing numberOfLines={2} text={value} textStyle={styles.value} letterSpacing={1} />
+                <LetterSpacing numberOfLines={2} text={value} textStyle={{...styles.value, color: colors.sendScreen.amount}} letterSpacing={1} />
                 {subvalue && (
                     <LetterSpacing text={subvalue} textStyle={{ ...styles.subValue, paddingTop: 5 }} letterSpacing={1} />
                 )}
@@ -43,14 +43,12 @@ const styles = {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 14,
         fontHeight: 18,
-        color: '#5C5C5C',
         letterSpacing: 0.5
     },
     value: {
         fontFamily: 'SFUIDisplay-Bold',
         fontSize: 14,
         fontHeight: 14,
-        color: '#5C5C5C'
 
     },
     subValue: {

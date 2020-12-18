@@ -321,7 +321,7 @@ class Account extends Component {
                         </View>
                     </View>
                     <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE}} onPress={this.handleRefresh} hitSlop={HIT_SLOP} >
-                            <CustomIcon name={'reloadTx'} size={20} color={this.state.refreshing ? 'green' : colors.common.text1} />
+                            <CustomIcon name={'reloadTx'} size={20} color={this.state.refreshing ? '#9E71E1' : colors.common.text1} />
                         </TouchableOpacity>
                 </View>
                 {

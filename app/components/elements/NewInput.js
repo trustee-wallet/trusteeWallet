@@ -25,6 +25,9 @@ import Log from '../../services/Log/Log'
 import NavStore from '../navigation/NavStore'
 import LetterSpacing from './LetterSpacing'
 
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import { color } from 'react-native-reanimated'
+
 
 class Input extends Component {
 
@@ -197,6 +200,7 @@ class Input extends Component {
 
     render() {
 
+        const { colors } = this.context
         const { value, show, focus, errors, autoFocus } = this.state
         const {
             id,
@@ -265,7 +269,7 @@ class Input extends Component {
             <View style={{ ...styles.wrapper, ...elementStyle }}>
                 {
                     show ?
-                        <View style={{ backgroundColor: '#F5F5F5', width: '100%', borderRadius: 10}} >
+                        <View style={{ backgroundColor: colors.sendScreen.addressBg, width: '100%', borderRadius: 10}} >
                             <TextField
                                 ref={ref => this.inputRef = ref}
                                 keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'default'}
@@ -286,7 +290,7 @@ class Input extends Component {
                                 disabled={isDisabled}
                                 disabledLineType={'none'}
                                 onChangeText={(value) => this.handleInput(value)}
-                                style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: adrressError && error ? '#864DD9' : '#5C5C5C' }}
+                                style={noEdit ? { ...styles.fontFamily, color: colors.sendScreen.amount } : { ...styles.fontFamily, color: adrressError && error ? '#864DD9' : colors.sendScreen.amount }}
                                 multiline={isTextarea}
                                 autoCorrect={false}
                                 spellCheck={false}
@@ -313,25 +317,25 @@ class Input extends Component {
                     {
                         typeof fio !== 'undefined' && fio ?
                             <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
-                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="contacts" size={25} color={adrressError && error ? '#864DD9' : "#404040"} />
+                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="contacts" size={25} color={adrressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof copy !== 'undefined' && copy ?
                             <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-copy" size={25} color={adrressError && error ? '#864DD9' : "#404040"} />
+                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-copy" size={25} color={adrressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof paste !== 'undefined' && paste ?
                             <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-paste" size={25} color={adrressError && error ? '#864DD9' : "#404040"} />
+                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-paste" size={25} color={adrressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof qr !== 'undefined' && qr ?
                             <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
-                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }} name="qrcode" size={25} color={adrressError && error ? '#864DD9' : "#404040"} />
+                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }} name="qrcode" size={25} color={adrressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                     {
@@ -340,7 +344,7 @@ class Input extends Component {
                                 <Icon
                                     name="information-outline"
                                     size={25}
-                                    color={error ? '#864DD9' : "#404040"}
+                                    color={error ? '#864DD9' : colors.common.text1}
                                     style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }}
                                 />
                             </TouchableOpacity> : null
@@ -373,15 +377,9 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(Input)
+Input.contextType = ThemeContext
 
-const lineStyles_ = {
-    array: ['#7127ac', '#864dd9'],
-    arrayError: ['#e77ca3', '#f0a5af'],
-    arrayEdit: ['#999999', '#999999'],
-    start: { x: 0, y: 0 },
-    end: { x: 1, y: 0 }
-}
+export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(Input)
 
 const styles = {
     wrapper: {
@@ -425,7 +423,6 @@ const styles = {
         marginLeft: 16,
         marginTop: -3,
         letterSpacing: 1,
-        color: '#5C5C5C',
         // textDecoration: 'none'
     },
     mark: {

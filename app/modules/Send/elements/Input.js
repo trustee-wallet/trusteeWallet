@@ -7,15 +7,9 @@ import { connect } from 'react-redux'
 import { Clipboard, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 import { TextField } from 'react-native-material-textfield'
-import QR from 'react-native-vector-icons/FontAwesome'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import Ionicons from 'react-native-vector-icons/Ionicons'
-
-import GradientView from '../../../components/elements/GradientView'
 
 import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboard'
 import { capitalize } from '../../../services/UI/Capitalize/Capitalize'
-import { checkQRPermission } from '../../../services/UI/Qr/QrPermissions'
 import Validator from '../../../services/UI/Validator/Validator'
 import Toast from '../../../services/UI/Toast/Toast'
 import { strings } from '../../../services/i18n'
@@ -23,7 +17,9 @@ import { normalizeInputWithDecimals } from '../../../services/UI/Normalize/Norma
 import BlocksoftPrettyStrings from '../../../../crypto/common/BlocksoftPrettyStrings'
 
 import Log from '../../../services/Log/Log'
-import NavStore from '../../../components/navigation/NavStore'
+
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+
 
 class Input extends Component {
 
@@ -188,6 +184,8 @@ class Input extends Component {
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
+        const { colors } = this.context
+
         let error = errors.find(item => item.field === id)
         error = typeof error !== 'undefined' ? error.msg : ''
         const isDisabled = typeof disabled !== 'undefined' ? disabled : false
@@ -203,14 +201,14 @@ class Input extends Component {
                     lineWidth={0}
                     activeLineWidth={0}
                     placeholder={'0.00'}
-                    placeholderTextColor="#404040"
+                    placeholderTextColor={colors.common.text1}
                     textAlign={'center'}
                     value={value}
                     onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
                     }}
                     editable={!noEdit ? true : false}
                     onChangeText={(value) => this.handleInput(value)}
-                    style={noEdit ? { ...styles.fontFamily, color: '#999999' } : { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : '#404040' }}
+                    style={noEdit ? { ...styles.fontFamily, color: colors.sendScreen.amount } : { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : colors.sendScreen.amount  }}
                     autoCorrect={false}
                     spellCheck={false}
                     onBlur={() => {
@@ -227,6 +225,8 @@ class Input extends Component {
         )
     }
 }
+
+Input.contextType = ThemeContext
 
 export default connect(null, null, null, { forwardRef: true })(Input)
 

@@ -117,6 +117,11 @@ export const lightColors = {
       backgroundItem: '#F2F2F2',
       comment: '#f5f5f5'
     },
+    sendScreen: {
+      colorLine: '#dadada',
+      amount: '#5C5C5C',
+      addressBg: '#F5F5F5'
+    },
     walletManagment: {
       walletItemBg: ['#ffffff', '#f2f2f2'],
       walletItemBgActive: ['#F3F1F6', '#F3F1F6'],
@@ -249,6 +254,11 @@ export const darkColors = {
       status: '#F7F7F7',
       backgroundItem: '#252525',
       comment: '#1E1E1E'
+    },
+    sendScreen: {
+      colorLine: '#404040',
+      amount: '#B8B8B8',
+      addressBg: '#1E1E1E'
     },
     walletManagment: {
       walletItemBg: ['#252525', '#1E1E1E'],
