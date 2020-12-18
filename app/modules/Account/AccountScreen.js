@@ -6,6 +6,8 @@ import { connect } from 'react-redux'
 
 import { Linking, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 
+import LottieView from 'lottie-react-native'
+
 import firebase from 'react-native-firebase'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
@@ -145,9 +147,8 @@ class Account extends Component {
         }
     }
 
-    triggerBalanceVisibility = () => {
-        if (this.state.originalVisibility) return
-        this.setState(state => ({ isBalanceVisible: !state.isBalanceVisible }))
+    triggerBalanceVisibility = (value) => {
+        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
     }
 
     updateOffset = (offset) => {
@@ -321,7 +322,11 @@ class Account extends Component {
                         </View>
                     </View>
                     <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE}} onPress={this.handleRefresh} hitSlop={HIT_SLOP} >
-                            <CustomIcon name={'reloadTx'} size={20} color={this.state.refreshing ? '#9E71E1' : colors.common.text1} />
+                            {this.state.refreshing ? 
+                                <LottieView style={{ width: 20, height: 20, }} 
+                                source={require('../../assets/jsons/animations/refreshWhite.json')}
+                                autoPlay loop /> :
+                            <CustomIcon name={'reloadTx'} size={20} color={colors.common.text1} /> }
                         </TouchableOpacity>
                 </View>
                 {
@@ -490,7 +495,6 @@ class Account extends Component {
                     ) }}
                     scrollOffset={this.state.scrollOffset}
                 />
-                {/* <View style={{ height: headerHeight }} /> */}
                 <ScrollView
                     style={{...styles.wrapper__scrollView, marginTop: Platform.OS === 'android' ? 50 : 84 }}
                     showsVerticalScrollIndicator={false}
@@ -658,5 +662,5 @@ const styles = {
 
         fontSize: 10,
         fontFamily: 'SFUIDisplay-Bold'
-    },
+    }
 }

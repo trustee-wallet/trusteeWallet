@@ -16,6 +16,7 @@ import { setFlowType } from '../../../../appstores/Stores/CreateWallet/CreateWal
 import ListItem from '../../../../components/elements/new/list/ListItem/Setting'
 import { ThemeContext } from '../../../theme/ThemeProvider'
 import styles from './styles'
+import { Colors } from 'react-native/Libraries/NewAppScreen'
 
 
 let CACHE_INITED = false
@@ -101,10 +102,12 @@ class SettingsXMR extends Component {
     render() {
         // this.init()
 
+        const { colors } = this.context
+
         return (
             <>
                 <View style={styles.settings__row}>
-                    <LetterSpacing text={strings('account.assetSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
+                    <LetterSpacing text={strings('account.assetSettings').toUpperCase()} textStyle={{...styles.settings__title, color: colors.common.text1 }} letterSpacing={1.5} />
                 </View>
                 <View>
                     <ListItem
