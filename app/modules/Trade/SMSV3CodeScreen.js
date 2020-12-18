@@ -16,7 +16,7 @@ import firebase from 'react-native-firebase'
 import Log from '../../services/Log/Log'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
-import Navigation from '../../components/navigation/Navigation'
+import Header from '../../components/elements/new/Header'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 
 import { strings } from '../../services/i18n'
@@ -171,9 +171,11 @@ class SMSV3CodeScreen extends Component {
         CACHE_IS_ERROR = false
         return (
             <View style={{ ...styles.wrapper }}>
-                <Navigation
-                    closeAction={this.closeAction}
-                    backAction={this.backAction}
+                <Header
+                    rightType="close"
+                    rightAction={this.closeAction}
+                    leftType={'back'}
+                    leftAction={this.backAction}
                 />
                 <View style={styles.wrapper__content}>
                     {

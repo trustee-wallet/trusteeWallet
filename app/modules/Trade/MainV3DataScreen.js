@@ -49,6 +49,8 @@ import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import config from '../../config/config'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
@@ -74,6 +76,11 @@ class MainV3DataScreen extends Component {
     }
 
     init = async () => {
+
+        const { currencyCode } = this.props.cryptoCurrency
+
+        const prev = NavStore.getPrevRoute().routeName
+
         const key = 'onlyOne'
         if (CACHE_INIT_KEY === key && this.state.inited) {
             return
@@ -85,7 +92,7 @@ class MainV3DataScreen extends Component {
         const { tradeType } = this.props.exchangeStore
         const type = this.props.navigation.getParam('tradeType')
 
-        let apiUrl = await ApiV3.initData(type ? type : tradeType)
+        let apiUrl = await ApiV3.initData(type ? type : tradeType, prev === 'AccountScreen' && currencyCode)
 
         setTimeout(() => {
             this.setState({
@@ -113,11 +120,15 @@ class MainV3DataScreen extends Component {
     }
 
     handlerBackPress = () => {
+
+        const { isLight } = this.context
+
         if (this.webref) {
             if (this.state.homePage) {
                 this.setState({
                     homePage: false
                 })
+                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
                 NavStore.goNext('HomeScreen')
             }
 
@@ -241,6 +252,9 @@ class MainV3DataScreen extends Component {
     }
 
     onMessage(event) {
+
+        const { isLight } = this.context
+
         try {
             const allData = JSON.parse(event.nativeEvent.data)
             const { error, backToOld, close, homePage, cardData, tradeType, takePhoto, scanCard, deleteCard, 
@@ -249,6 +263,7 @@ class MainV3DataScreen extends Component {
             Log.log('Trade/MainV3Screen.onMessage parsed', event.nativeEvent.data)
 
             if (error || close) {
+                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
                 NavStore.goNext('HomeScreen')
                 return
             }
@@ -259,6 +274,7 @@ class MainV3DataScreen extends Component {
                 } else if (tradeType === 'BUY') {
                     AsyncStorage.setItem('isNewInterfaceBuy', 'false')
                 }
+                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
                 NavStore.goNext('HomeScreen')
             }
 
@@ -291,6 +307,7 @@ class MainV3DataScreen extends Component {
             }
 
             if (injectScript && orderData) {
+                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
                 NavStore.goNext('SMSV3CodeScreen', {
                     tradeWebParam: {
                         injectScript,
@@ -717,7 +734,8 @@ const mapStateToProps = (state) => {
         wallet: state.mainStore.selectedWallet,
         selectedInAccount: state.mainStore.selectedInAccount,
         selectedOutAccount: state.mainStore.selectedOutAccount,
-        exchangeStore: state.exchangeStore
+        exchangeStore: state.exchangeStore,
+        cryptoCurrency: state.mainStore.selectedCryptoCurrency,
     }
 }
 
@@ -726,6 +744,8 @@ const mapDispatchToProps = (dispatch) => {
         dispatch
     }
 }
+
+MainV3DataScreen.contextType = ThemeContext
 
 export default connect(mapStateToProps, mapDispatchToProps)(MainV3DataScreen)
 

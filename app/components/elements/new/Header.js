@@ -73,13 +73,17 @@ export default class Header extends React.Component {
     processHeaderHeight = (e) => { this.props.setHeaderHeight?.(e.nativeEvent.layout.height) }
 
     render() {
-        const { title, setHeaderHeight, ExtraView } = this.props
+        const { title, setHeaderHeight, ExtraView, setStatusBar } = this.props
         const {
             colors,
             isLight,
             GRID_SIZE
         } = this.context
-
+        
+        if (setStatusBar) {
+            setStatusBar()
+        }
+        
         return (
             <View style={styles.wrapper} onLayout={this.processHeaderHeight}>
                 <SafeAreaView style={{ flex: 0, backgroundColor: colors.common.header.bg }} />

@@ -6,7 +6,7 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 
-import { View, ScrollView, Keyboard, Text } from 'react-native'
+import { View, ScrollView, Keyboard, Text, StatusBar } from 'react-native'
 
 import firebase from 'react-native-firebase'
 
@@ -628,6 +628,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     rightParams={{"close": true}}
                     title={strings('send.receiptScreen.title')}
                     setHeaderHeight={this.setHeaderHeight}
+                    setStatusBar={() => StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')}
                 />
                 <ScrollView
                     ref={(ref) => {

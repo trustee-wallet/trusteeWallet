@@ -38,6 +38,8 @@ import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
 import config from '../../config/config'
 
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
@@ -96,11 +98,15 @@ class MainV3DataScreen extends Component {
     }
 
     handlerBackPress = () => {
+
+        const { isLight } = this.context
+
         if(this.webref) {
             if (this.state.homePage){
                 this.setState({
                     homePage: false
                 })
+                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
                 NavStore.goNext('HomeScreen')
             }
 
@@ -110,6 +116,9 @@ class MainV3DataScreen extends Component {
     }
 
     onMessage(event) {
+        
+        const { isLight } = this.context
+
         try {
             const allData = JSON.parse(event.nativeEvent.data)
             const { address, amount, orderHash, comment, inCurrencyCode, dataExchange, error, 
@@ -118,11 +127,13 @@ class MainV3DataScreen extends Component {
             Log.log('EXC/MainV3Screen.onMessage parsed', event.nativeEvent.data)
 
             if (error || close) {
+                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
                 NavStore.goNext('HomeScreen')
                 return
             }
 
             if (backToOld) {
+                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
                 AsyncStorage.setItem('isNewInterface', 'false')
                 NavStore.goNext('HomeScreen')
             }
@@ -317,6 +328,8 @@ const mapDispatchToProps = (dispatch) => {
         dispatch
     }
 }
+
+MainV3DataScreen.contextType = ThemeContext
 
 export default connect(mapStateToProps, mapDispatchToProps)(MainV3DataScreen)
 

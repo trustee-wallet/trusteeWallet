@@ -56,7 +56,7 @@ export default {
         }
     },
 
-    async initData(type) {
+    async initData(type, currencyCode=false) {
 
         let entryPoint
         if (type === 'EXCHANGE') {
@@ -78,7 +78,8 @@ export default {
             locale: sublocale(),
             deviceToken: MarketingEvent.DATA.LOG_TOKEN,
             wallets: [],
-            cards : await cardDS.getCards()
+            cards : await cardDS.getCards(),
+            selectedCurrency: currencyCode //@ksu check this plz
         }
         if (!data.cards || typeof data.cards === 'undefined' ) {
             data.cards = []
