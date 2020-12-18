@@ -6,7 +6,7 @@ import { View, Text, ScrollView, SafeAreaView, Switch } from 'react-native'
 
 import Button from '../../components/elements/new/buttons/Button'
 import SettingsCoin from './elements/SettingsCoin'
-import { strings } from '../../services/i18n'
+import i18n, { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
 import { connect } from 'react-redux'
 import config from '../../config/config'
@@ -255,7 +255,7 @@ class FioSettings extends Component {
 
     render() {
         const { fioAddress, fioAddressExpiration } = this.state
-        Moment.locale('en');
+        Moment.locale( i18n.locale.split('-')[0] === 'uk' ? 'ru' : i18n.locale);
 
         const { colors, GRID_SIZE } = this.context
 
@@ -278,25 +278,21 @@ class FioSettings extends Component {
                     height: '100%',
                 }]}>
 
-                    <GradientView
-                        array={styles_.array}
-                        start={styles_.start} end={styles_.end}>
-                        <View style={styles.titleSection}>
-                            {
-                                fioAddress ? (
+                    <View style={styles.titleSection}>
+                        {
+                            fioAddress ? (
+                                <View>
+                                    <Text style={styles.titleTxt1}>{fioAddress}</Text>
+                                    <Text style={styles.titleTxt2}>{strings('FioSettings.Expire')} {Moment(fioAddressExpiration).format('lll')} </Text>
+                                </View>
+                            ) : (
+                                    /* if fio address not registered */
                                     <View>
-                                        <Text style={styles.titleTxt1}>{fioAddress}</Text>
-                                        <Text style={styles.titleTxt2}>{strings('FioSettings.Expire')} {Moment(fioAddressExpiration).format('lll')} </Text>
+                                        <Text style={styles.titleTxt1}>{strings('FioSettings.noFioTitle')}</Text>
                                     </View>
-                                ) : (
-                                        /* if fio address not registered */
-                                        <View>
-                                            <Text style={styles.titleTxt1}>{strings('FioSettings.noFioTitle')}</Text>
-                                        </View>
-                                )
-                             }
-                        </View>
-                    </GradientView>
+                            )
+                         }
+                    </View>
 
                     {
                         fioAddress ? (
@@ -365,14 +361,7 @@ FioSettings.contextType = ThemeContext
 
 export default connect(mapStateToProps, {})(FioSettings)
 
-const styles_ = {
-    array: ['#000000', '#333333'],
-    start: { x: 0.0, y: 0.5 },
-    end: { x: 1, y: 0.5 }
-}
-
 const styles = {
-
     containerMain: {
         flex: 1,
         height: '100%',
@@ -391,6 +380,7 @@ const styles = {
     titleSection: {
         padding: 10,
         color: '#fff',
+        backgroundColor: '#222',
     },
 
     txtCenter: {
@@ -398,14 +388,14 @@ const styles = {
     },
 
     titleTxt1: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 19,
         color: '#fff',
         textAlign: 'center',
     },
 
     titleTxt2: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
         color: '#fff',
         textAlign: 'center',
@@ -413,14 +403,14 @@ const styles = {
     },
 
     txt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 19,
         color: '#777',
         textAlign: 'center',
     },
 
     txt2: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 17,
         color: '#000',
     },

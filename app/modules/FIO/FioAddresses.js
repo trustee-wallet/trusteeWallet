@@ -6,7 +6,7 @@ import { View, Text, ScrollView, Image, SafeAreaView, TouchableOpacity } from 'r
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/new/buttons/Button'
-import { strings } from '../../services/i18n'
+import i18n, { strings } from '../../services/i18n'
 import GradientView from '../../components/elements/GradientView'
 import { connect } from 'react-redux'
 import config from '../../config/config'
@@ -67,7 +67,7 @@ class FioAddresses extends Component {
 
         const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
         if (publicFioAddress) {
-            NavStore.goNext('WebViewScreen', { url: `${apiEndpoints.registrationSiteURL}${publicFioAddress}`, title: strings('FioAddresses.btnText') })
+            NavStore.goNext('WebViewScreen', { url: `${apiEndpoints.registrationSiteURL}${publicFioAddress}`, title: strings('FioAddresses.WebViewTitle') })
         } else {
             // TODO show some warning tooltip
         }
@@ -82,7 +82,7 @@ class FioAddresses extends Component {
     handleClose = () => { NavStore.reset('DashboardStack') }
 
     render() {
-        Moment.locale('en');
+        Moment.locale( i18n.locale.split('-')[0] === 'uk' ? 'ru' : i18n.locale);
         const { colors, GRID_SIZE } = this.context
         const { headerHeight } = this.state
 
@@ -102,16 +102,6 @@ class FioAddresses extends Component {
                     marginTop: headerHeight,
                     height: '100%',
                 }]}>
-
-                    <GradientView
-                        array={styles_.array}
-                        start={styles_.start} end={styles_.end}>
-                        <View style={styles.titleSection}>
-                            <View>
-                                <Text style={styles.titleTxt1}>{strings('FioAddresses.description')}</Text>
-                            </View>
-                        </View>
-                    </GradientView>
 
                     <View style={styles.content2}>
 
@@ -137,6 +127,7 @@ class FioAddresses extends Component {
 
                         <View style={{marginTop: 20}}>
                             <Button
+                                textStyle={{ textAlign: 'center' }}
                                 title={strings('FioAddresses.btnText')}
                                 onPress={this.handleRegisterFIOAddress}
                             />
@@ -159,12 +150,6 @@ const mapStateToProps = (state) => ({
 FioAddresses.contextType = ThemeContext
 
 export default connect(mapStateToProps, {})(FioAddresses)
-
-const styles_ = {
-    array: ['#000000', '#333333'],
-    start: { x: 0.0, y: 0.5 },
-    end: { x: 1, y: 0.5 }
-}
 
 const styles = {
 
@@ -209,7 +194,7 @@ const styles = {
     },
 
     fio_txt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 19,
     },
 
@@ -223,14 +208,14 @@ const styles = {
     },
 
     titleTxt1: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 19,
         color: '#fff',
         textAlign: 'center',
     },
 
     txt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 19,
         color: '#777',
         textAlign: 'center',

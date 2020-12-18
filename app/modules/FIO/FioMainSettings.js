@@ -152,7 +152,7 @@ FioMainSettings.contextType = ThemeContext
 export default connect(mapStateToProps, {})(FioMainSettings)
 
 const styles_ = {
-    array: ['#000000', '#222222'],
+    array: ['#222', '#222'],
     start: { x: 0.0, y: 0.5 },
     end: { x: 1, y: 0.5 }
 }
@@ -173,7 +173,7 @@ const styles = {
     },
 
     titleTxt1: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 19,
         color: '#fff',
         textAlign: 'center',

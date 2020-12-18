@@ -158,7 +158,7 @@ class Account extends Component {
     handleRegisterFIOAddress = async () => {
         const { address } = this.props.account
         const { apiEndpoints } = config.fio
-        await Linking.openURL(`${apiEndpoints.registrationSiteURL}${address}`)
+        NavStore.goNext('WebViewScreen', { url: `${apiEndpoints.registrationSiteURL}${address}`, title: strings('fioMainSettings.registerFioAddress') })
     }
 
     handleReceive = () => {

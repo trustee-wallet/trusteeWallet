@@ -110,34 +110,27 @@ class FioRequestsList extends Component {
 
 
                     <View style={{height: '100%'}}>
-                        <GradientView
-                                      array={styles_.array}
-                                      start={styles_.start} end={styles_.end}>
-                            <View style={styles.title_section}>
-                                <Icon name="info" size={20} style={styles.icon1}/>
-                                <Text
-                                    style={styles.title_section_txt}>{strings('FioRequestsList.pendingRequests')}</Text>
-                            </View>
-                        </GradientView>
+                        <View style={styles.title_section}>
+                            <Icon name="selectVisibleAddress" size={24} style={[styles.icon1, { color: colors.common.text3 }]}/>
+                            <Text
+                                style={[styles.title_section_txt, { color: colors.common.text3 }]} >{strings('FioRequestsList.pendingRequests')}</Text>
+                        </View>
 
                         <ScrollView>
                             <View style={styles.container}>
-
                                 {this.renderRequestList(this.state.pendingRequestsData, 'pending')}
-
                             </View>
                         </ScrollView>
 
+                        <View style={styles.line_container}>
+                            <View style={[styles.line, { backgroundColor: colors.fio.borderColorLight }]}></View>
+                        </View>
 
-                        <GradientView
-                                      array={styles_.array}
-                                      start={styles_.start} end={styles_.end}>
-                            <View style={styles.title_section}>
-                                <Icon name="reload" size={20} style={styles.icon1}/>
-                                <Text
-                                    style={styles.title_section_txt}>{strings('FioRequestsList.sentRequests')}</Text>
-                            </View>
-                        </GradientView>
+                        <View style={styles.title_section}>
+                            <Icon name="earn" size={24} style={[styles.icon1, { color: colors.common.text3 }]}/>
+                            <Text
+                                style={[styles.title_section_txt, { color: colors.common.text3 }]} >{strings('FioRequestsList.sentRequests')}</Text>
+                        </View>
 
                         <ScrollView>
                             <View  style={[styles.container, styles.pad1]}>
@@ -173,31 +166,25 @@ FioRequestsList.contextType = ThemeContext
 
 export default connect(mapStateToProps, mapDispatchToProps)(FioRequestsList)
 
-const styles_ = {
-    array: ['#222', '#555'],
-    start: { x: 0.0, y: 0.5 },
-    end: { x: 1, y: 0.5 }
-}
-
 const styles = {
-
     title_section: {
         padding: 10,
         paddingHorizontal: 20,
+        paddingTop: 20,
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
     },
 
     title_section_txt: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 20,
-        color: '#fff',
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 18,
+        color: '#666',
     },
 
     icon1: {
-        marginRight: 10,
-        color: '#fff'
+        marginRight: 6,
+        color: '#666'
     },
 
     container_main: {
@@ -210,6 +197,16 @@ const styles = {
         minHeight: 180,
         flexDirection: 'column',
         flex: 1,
+    },
+
+    line_container: {
+       paddingHorizontal: 25,
+    },
+
+    line: {
+        width: '100%',
+        height: 1,
+        backgroundColor: '#dadada',
     },
 
     pad1: {
