@@ -24,6 +24,11 @@ RUN cd ./npm && tar -xf node_modules.tar.gz && \
     mv --force -v ./${WDIR}/src/node_modules ../src/ && \
     rm -f ./node_modules.tar.gz
 
+RUN cd ./src/android && \
+    touch local.properties && \
+    echo sdk.dir=/${WDIR}/androidsdk/ >> ./local.properties && \
+    echo ndk.dir=/${WDIR}/androidsdk/ndk/21.3.6528147 >> ./local.properties
+
 RUN cd ./src/android && printenv && ./gradlew bundle
 
 RUN gplaycli -av -p -y -v -d com.trusteewallet && \
