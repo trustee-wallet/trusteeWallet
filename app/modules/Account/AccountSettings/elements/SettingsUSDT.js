@@ -117,7 +117,7 @@ class SettingsUSDT extends Component {
         return (
             <>
                 <View style={styles.settings__row}>
-                    <LetterSpacing text={strings('account.assetSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
+                    <LetterSpacing text={strings('account.assetSettings').toUpperCase()} textStyle={{...styles.settings__title, color: colors.common.text1 }} letterSpacing={1.5} />
                 </View>
                 <View>
                     <View style={{ paddingTop: 20, flexDirection:'row' }}>
@@ -136,7 +136,8 @@ class SettingsUSDT extends Component {
                         <View style={{ paddingLeft: 15, paddingRight: 5, flex: 1 }}>
                             <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
                                 <TouchableOpacity onPress={() => this.handleSave}>
-                                    <LetterSpacing text={strings('settings.walletList.saveSettings')} letterSpacing={0.5} numberOfLines={2} />
+                                    <LetterSpacing text={strings('settings.walletList.saveSettings')} letterSpacing={0.5} numberOfLines={2} 
+                                    textStyle={{ color: colors.common.text1 }} />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -146,7 +147,8 @@ class SettingsUSDT extends Component {
                         <View style={{ paddingLeft: 15, paddingRight: 15, flex: 4 }}>
                             <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
                                 <TouchableOpacity onPress={() => this.handleScan()}>
-                                    <LetterSpacing text={strings('settings.walletList.scanAddressesFromHD')} numberOfLines={2} />
+                                    <LetterSpacing text={strings('settings.walletList.scanAddressesFromHD')} numberOfLines={2} 
+                                    textStyle={{ color: colors.common.text1 }} />
                                 </TouchableOpacity>
                             </View>
                         </View>

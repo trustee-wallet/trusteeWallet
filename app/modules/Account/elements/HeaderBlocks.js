@@ -149,7 +149,7 @@ class HeaderBlocks extends Component {
                             onPressOut={() => triggerBalanceVisibility(false)}
                             activeOpacity={1}
                             disabled={originalVisibility}
-                            hitSlop={HIT_SLOP}
+                            hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
                             >
                             {isBalanceVisible ?
                             <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >

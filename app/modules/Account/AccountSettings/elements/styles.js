@@ -20,7 +20,6 @@ const styles = {
     settings__title: {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 12,
-        color: '#404040'
     },
     settings__row: {
 

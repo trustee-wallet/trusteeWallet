@@ -221,7 +221,7 @@ export default {
     'DEFAULT': {
         colors: {
             mainColor: '#000',
-            darkColor: '#fff'
+            darkColor: '#999'
         }
     }
 }

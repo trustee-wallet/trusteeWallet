@@ -53,13 +53,14 @@ const BalanceHeader = (props) => {
                             disabled={originalVisibility}
                             >
                         {isBalanceVisible ? 
-                        <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
-                            {balancePrettyPrep1}
-                            <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
-                                {balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol}
-                            </Text>
-                        </Text> : 
-                        <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, fontSize: 38, lineHeight: 40, height: 34 }} >****</Text>}
+                            <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
+                                {balancePrettyPrep1}
+                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
+                                    {balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol}
+                                </Text>
+                            </Text> : 
+                            <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, fontSize: 38, lineHeight: 40, height: 34 }} >****</Text>
+                        }
                     </TouchableOpacity>
                 </View>
             </View>

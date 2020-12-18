@@ -291,7 +291,7 @@ class SettingsTRX extends Component {
         return (
             <>
                 <View style={styles.settings__row}>
-                    <LetterSpacing text={strings('account.assetSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
+                    <LetterSpacing text={strings('account.assetSettings').toUpperCase()} textStyle={{...styles.settings__title, color: colors.common.text1 }} letterSpacing={1.5} />
                 </View>
                 <View>
                     <ListItem
@@ -325,14 +325,16 @@ class SettingsTRX extends Component {
                         <View style={{ paddingLeft: 15, paddingRight: 5, flex: 2 }}>
                             <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
                                 <TouchableOpacity onPress={() => this.handleFreeze(false, 'BANDWIDTH')}>
-                                    <LetterSpacing text={strings('settings.walletList.freezeForBandTRX')} letterSpacing={0.5} numberOfLines={2} />
+                                    <LetterSpacing text={strings('settings.walletList.freezeForBandTRX')} letterSpacing={0.5} numberOfLines={2} 
+                                    textStyle={{ color: colors.common.text1 }} />
                                 </TouchableOpacity>
                             </View>
                         </View>
                         <View style={{ paddingLeft: 5, paddingRight: 15, flex: 2 }}>
                             <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
                                 <TouchableOpacity onPress={() => this.handleFreeze(false, 'ENERGY')}>
-                                    <LetterSpacing text={strings('settings.walletList.freezeForEnergyTRX')} letterSpacing={0.5} numberOfLines={2} />
+                                    <LetterSpacing text={strings('settings.walletList.freezeForEnergyTRX')} letterSpacing={0.5} numberOfLines={2} 
+                                    textStyle={{ color: colors.common.text1 }}/>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -343,14 +345,16 @@ class SettingsTRX extends Component {
                         <View style={{ paddingLeft: 15, paddingRight: 5, flex: 2 }}>
                             <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
                                 <TouchableOpacity onPress={() => this.handleUnFreeze(false, 'BANDWIDTH')}>
-                                    <LetterSpacing text={strings('settings.walletList.unfreezeTRX')} letterSpacing={0.5} numberOfLines={2} />
+                                    <LetterSpacing text={strings('settings.walletList.unfreezeTRX')} letterSpacing={0.5} numberOfLines={2}
+                                    textStyle={{ color: colors.common.text1 }} />
                                 </TouchableOpacity>
                             </View>
                         </View>
                         <View style={{ paddingLeft: 5, paddingRight: 15, flex: 2 }}>
                             <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
                                 <TouchableOpacity onPress={() => this.handleUnFreeze(false, 'ENERGY')}>
-                                    <LetterSpacing text={strings('settings.walletList.unfreezeTRX')} numberOfLines={2} />
+                                    <LetterSpacing text={strings('settings.walletList.unfreezeTRX')} numberOfLines={2} 
+                                    textStyle={{ color: colors.common.text1 }} />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -374,14 +378,16 @@ class SettingsTRX extends Component {
                         <View style={{ paddingLeft: 15, paddingRight: 5, flex: 2 }}>
                             <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
                                 <TouchableOpacity onPress={() => this.handleVote()}>
-                                    <LetterSpacing text={strings('settings.walletList.voteTRX')} letterSpacing={0.5} numberOfLines={2} />
+                                    <LetterSpacing text={strings('settings.walletList.voteTRX')} letterSpacing={0.5} numberOfLines={2} 
+                                    textStyle={{ color: colors.common.text1 }} />
                                 </TouchableOpacity>
                             </View>
                         </View>
                         <View style={{ paddingLeft: 5, paddingRight: 15, flex: 2 }}>
                             <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
                                 <TouchableOpacity onPress={() => this.handleGetReward()}>
-                                    <LetterSpacing text={strings('settings.walletList.claimTRX')} numberOfLines={2} />
+                                    <LetterSpacing text={strings('settings.walletList.claimTRX')} numberOfLines={2} 
+                                    textStyle={{ color: colors.common.text1 }} />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -391,7 +397,8 @@ class SettingsTRX extends Component {
                         <View style={{ paddingLeft: 15, paddingRight: 15, flex: 2 }}>
                             <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
                                 <TouchableOpacity onPress={() => this.handleScan()}>
-                                    <LetterSpacing text={strings('settings.walletList.refreshTRX')} numberOfLines={2} />
+                                    <LetterSpacing text={strings('settings.walletList.refreshTRX')} numberOfLines={2} 
+                                    textStyle={{ color: colors.common.text1 }}/>
                                 </TouchableOpacity>
                             </View>
                         </View>

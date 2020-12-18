@@ -706,6 +706,18 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             }
 
                             {this.renderMinerFee()}
+                            {sendScreenData.comment ?
+                                <>
+                                    <View style={{ justifyContent: 'center', alignItems: 'center'  }} >
+                                        <View style={{...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
+                                    </View>
+                                    
+                                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: 24 }}> 
+                                        <Text style={{...styles.name, color: colors.sendScreen.amount}}>{strings('send.setting.note')}</Text>
+                                        <Text style={{...styles.valueComment, color: colors.sendScreen.amount}}>{sendScreenData.comment}</Text>
+                                    </View>
+                                </>
+                             : null}
 
                             <View style={{ paddingHorizontal: GRID_SIZE, flexDirection: 'row', marginTop: 44 }}>
                                 <CustomIcon name='shield' size={28} style={{ color: colors.sendScreen.amount }} />
@@ -782,5 +794,18 @@ const styles = {
         lineHeight: 18,
         letterSpacing: 1,
         textAlign: 'left'
-    }
+    },
+    name: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        fontHeight: 18,
+        letterSpacing: 0.5
+    },
+    valueComment: {
+        fontFamily: 'SFUIDisplay-Bold',
+        fontSize: 14,
+        fontHeight: 14,
+        letterSpacing: 1,
+        marginTop: 1
+    },
 }
