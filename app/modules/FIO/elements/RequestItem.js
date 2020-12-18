@@ -4,9 +4,9 @@
 import React, { Component } from 'react'
 import { View, Text, ScrollView, Image, KeyboardAvoidingView, SafeAreaView, TouchableOpacity, Dimensions, PixelRatio  } from 'react-native'
 import { strings } from '../../../services/i18n'
-import Icon from '../../../components/elements/CustomIcon.js'
 import CurrencyIcon from '../../../components/elements/CurrencyIcon'
 import Moment from 'moment';
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -23,6 +23,7 @@ class RequestItem extends Component {
         const { data, type, callback } = this.props
         const currencyCode = data?.content?.token_code || 'NOCOIN'
         const chainCode = data?.content?.chain_code || 'NOCOIN'
+        const { colors } = this.context
         Moment.locale('en');
 
         return (
@@ -30,12 +31,11 @@ class RequestItem extends Component {
                 <View style={{position: 'relative'}}>
                     <View style={styles.wrapper}>
                         <TouchableOpacity onPress={callback} >
-                            <View style={styles.request__item}>
+                            <View style={[styles.request__item, { backgroundColor: colors.fio.requestItemBg }]} >
                                 <View style={styles.request__col1}>
-                                    <Icon name="selectWallet" size={25} style={styles.icon1}/>
                                     <View>
-                                        {type === 'sent' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{data?.payer_fio_address}</Text>}
-                                        {type === 'pending' && <Text style={styles.txt1} numberOfLines={1} ellipsizeMode='tail'>{strings('FioRequestsList.RequestedTxt')} {data?.content?.token_code}</Text>}
+                                        {type === 'sent' && <Text  style={[styles.txt1, { color: colors.common.text3 }]} numberOfLines={1} ellipsizeMode='tail'>{data?.payer_fio_address}</Text>}
+                                        {type === 'pending' && <Text style={[styles.txt1, { color: colors.common.text3 }]} numberOfLines={1} ellipsizeMode='tail'>{strings('FioRequestsList.RequestedTxt')} {data?.content?.token_code}</Text>}
                                         <Text style={styles.txt2}>{Moment(data?.time_stamp).format('lll')} - {data?.content?.memo}</Text>
                                         {type === 'sent' && <Text style={[styles.status, data.status === 'rejected' ? styles.error : styles.success]} >{data.status}</Text>  }
                                     </View>
@@ -48,7 +48,7 @@ class RequestItem extends Component {
                                                   markTextStyle={styles.cryptoList__icon__mark__text}
                                                   iconStyle={styles.cryptoList__icon}/>
                                     <View>
-                                        <Text style={styles.txt3}>{data?.content?.amount}</Text>
+                                        <Text style={[styles.txt3, { color: colors.common.text3 }]}>{data?.content?.amount}</Text>
                                         {/* <Text style={styles.txt4}>$ 0.0 {data?.content?.sumUSD}</Text> */}
                                     </View>
                                 </View>
@@ -71,6 +71,8 @@ class RequestItem extends Component {
 
  * */
 
+RequestItem.contextType = ThemeContext
+
 export default RequestItem
 
 
@@ -80,7 +82,6 @@ const styles = {
         position: 'relative',
         marginTop: SIZE - 1,
         marginBottom: 5,
-        backgroundColor: '#fff',
         borderRadius: 16,
         zIndex: 2
     },
@@ -89,7 +90,7 @@ const styles = {
         position: 'relative',
         padding: 20,
         paddingVertical: 10,
-        backgroundColor: '#fff',
+        backgroundColor: '#f5f5f5',
         borderRadius: 16,
         display: 'flex',
         flexDirection: 'row',
@@ -114,47 +115,42 @@ const styles = {
         alignItems: 'center',
     },
 
-    icon1: {
-        marginRight: 10,
-        color: '#aaa',
-    },
-
     txt1: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 18,
         lineHeight: 22,
     },
 
     txt2: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
         color: '#777',
         marginBottom: -5,
     },
 
     txt3: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 13,
         marginBottom: -4,
         minWidth: '50%',
     },
 
     txt4: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 13,
     },
 
     status: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
     },
 
     error: {
-        color: '#ff0000',
+        color: '#ff6f45',
     },
 
     success: {
-        color: '#3ac058',
+        color: '#864dd9',
     },
 
     shadow: {
@@ -201,6 +197,5 @@ const styles = {
     cryptoList__icon__mark__text: {
         fontSize: 5
     },
-
 
 }
