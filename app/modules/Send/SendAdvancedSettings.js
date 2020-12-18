@@ -127,7 +127,6 @@ class SendAdvancedSettingsScreen extends Component {
             selectedFee: item,
             isCustomFee: false
         })
-        SendTmpData.setSelectedFee(item)
     }
 
     // customFee
@@ -272,11 +271,10 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     handleApply = async () => {
-        const countedFees = this.state.countedFees
         const selectedFee = this.state.isCustomFee && CACHE_FROM_CUSTOM_FEE ? CACHE_FROM_CUSTOM_FEE : this.state.selectedFee
-        const countedFeesData = this.state.countedFeesData
         const comment = this.state.comment
-        SendTmpData.setCountedFees({countedFees, selectedFee, countedFeesData})
+
+        SendTmpData.setSelectedFee(selectedFee)
         SendTmpData.setComment(comment)
         NavStore.goBack()
     }

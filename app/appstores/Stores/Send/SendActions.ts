@@ -172,11 +172,7 @@ export namespace SendActions {
         const addData = {} as BlocksoftBlockchainTypes.TransferAdditionalData
         if (typeof data.selectedFee !== 'undefined' && data.selectedFee) {
             if (typeof data.selectedFee.blockchainData !== 'undefined' && typeof data.selectedFee.blockchainData.unspents !== 'undefined') {
-                // @ts-ignore
-                if (data.selectedFee.blockchainData.isTransferAll === countedFeesData.isTransferAll) {
-                    // @ts-ignore
-                    addData.unspents = data.selectedFee.blockchainData.unspents
-                }
+                addData.unspents = data.selectedFee.blockchainData.unspents
             }
         }
 
@@ -202,7 +198,14 @@ export namespace SendActions {
                 // @ts-ignore
                 addData.feeForByte = data.selectedFee.feeForByte
             }
-
+            if (typeof data.selectedFee.gasPrice !== 'undefined' && data.selectedFee.gasPrice) {
+                // @ts-ignore
+                addData.gasPrice = data.selectedFee.gasPrice
+            }
+            if (typeof data.selectedFee.gasLimit !== 'undefined' && data.selectedFee.gasLimit) {
+                // @ts-ignore
+                addData.estimatedGas = data.selectedFee.gasLimit
+            }
             let countedFees2
             if (data.isTransferAll) {
                 countedFees2 = await BlocksoftTransfer.getTransferAllBalance(countedFeesData, addData)

@@ -34,7 +34,13 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate started ')
         const txHash = data.transactionReplaceByFee
-        const gasPrice = additionalData.gasPrice || await EthNetworkPrices.get(typeof data.addressTo !== 'undefined' ? data.addressTo : 'none')
+        let gasPrice
+        if (typeof additionalData.gasPrice !== 'undefined') {
+            gasPrice = {'speed_blocks_12' : additionalData.gasPrice}
+        } else {
+            gasPrice = additionalData.prices || await EthNetworkPrices.get(typeof data.addressTo !== 'undefined' ? data.addressTo : 'none')
+        }
+        console.log('gasPrice', gasPrice)
 
         let oldGasPrice = 0
         let oldNonce = 0
@@ -66,7 +72,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 do {
                     try {
 
-                        gasLimit = await EthEstimateGas(this._web3Link, gasPrice[2], data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
+                        gasLimit = await EthEstimateGas(this._web3Link, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
 
                         // @ts-ignore
                         MarketingEvent.logOnlyRealTime('v20_eth_gas_limit ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {
@@ -141,16 +147,19 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             }
         }
         const titles = ['eth_speed_slow', 'eth_speed_medium', 'eth_speed_fast']
+        const keys = ['speed_blocks_12', 'speed_blocks_6', 'speed_blocks_2']
         let skippedByOld = false
         let prevGasPrice = 0
         for (let index = 0; index <= 2; index++) {
-            if (gasPrice[index] <= oldGasPrice) {
+            const key = keys[index]
+            if (typeof gasPrice[key] === 'undefined') continue
+            if (gasPrice[key] <= oldGasPrice) {
                 skippedByOld = true
                 continue
             }
-            let fee = BlocksoftUtils.mul(gasPrice[index], gasLimit)
+            let fee = BlocksoftUtils.mul(gasPrice[key], gasLimit)
             let amount = data.amount
-            let newGasPrice = gasPrice[index].toString()
+            let newGasPrice = gasPrice[key].toString()
             if (actualCheckBalance) {
                 const tmp = BlocksoftUtils.diff(balance, fee).toString()
                 if (this._useThisBalance) {
@@ -201,9 +210,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     }
                     let newGasPrice = Math.round(oldGasPrice * (10 + index + 1) / 10)
                     const title = titles[index]
-                    const needSpeed = gasPrice[index]
-                    if (newGasPrice < gasPrice[index]) {
-                        newGasPrice = gasPrice[index]
+                    const key = keys[index]
+                    const needSpeed = gasPrice[key]
+                    if (newGasPrice < gasPrice[key]) {
+                        newGasPrice = gasPrice[key]
                     }
                     let fee = BlocksoftUtils.mul(newGasPrice, gasLimit)
                     let amount = data.amount
@@ -299,7 +309,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 feeForTx,
                 amountForTx,
                 nonceForTx,
-                needSpeed: gasPrice[index].toString()
+                needSpeed: gasPrice[keys[index]].toString()
             }
 
             BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate feeForTx ' + titles[index] + ' ' + tmp.feeForTx + ' corrected for balance ' + balance + ' with gasPrice ' + tmp.gasPrice + ' / gasLimit ' + tmp.gasLimit)

@@ -147,7 +147,7 @@ export namespace BlocksoftBlockchainTypes {
         prices?: { 'speed_blocks_2': string, 'speed_blocks_6': string, 'speed_blocks_12': string },
         feeForByte?: string,
         estimatedGas?: number,
-        gasPrice?: number[],
+        gasPrice?: number,
         balance?: string,
         unspents?: []
     }

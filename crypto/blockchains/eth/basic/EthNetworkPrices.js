@@ -69,7 +69,7 @@ class EthNetworkPrices {
     }
 
     _format() {
-        return [CACHE_FEES_ETH[12], CACHE_FEES_ETH[6], CACHE_FEES_ETH[2]]
+        return { 'speed_blocks_2': CACHE_FEES_ETH[2], 'speed_blocks_6': CACHE_FEES_ETH[6], 'speed_blocks_12': CACHE_FEES_ETH[12] }
     }
 
 
