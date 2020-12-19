@@ -77,10 +77,8 @@ class Account extends Component {
 
             show: true,
             mode: 'TRANSACTIONS',
-            openTransactionList: [],
             dash: true,
 
-            firstCall: true,
             fioMemo: {},
             scrollOffset: 0,
             isBalanceVisible: false,
@@ -93,30 +91,16 @@ class Account extends Component {
 
     // eslint-disable-next-line camelcase
     async UNSAFE_componentWillMount() {
-        UpdateOneByOneDaemon._canUpdate = false
-        try {
 
-            setTimeout(() => {
-                this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
-                    if (this.state.firstCall) {
-                        this.setState({ firstCall: false })
-                    }
-                    this.transactionInfinity()
-                    this.ordersWithoutTransactions()
-                })
-            }, 1000)
+        this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
+            this.transactionInfinity()
+            this.ordersWithoutTransactions()
+        })
 
-            // await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({force : true, source : 'ACCOUNT_OPEN'})
-
-        } catch (e) {
-            // noinspection ES6MissingAwait
-            Log.err('AccountScreen.componentDidMount ' + e.message)
-        }
-        UpdateOneByOneDaemon._canUpdate = true
         CACHE_ASKED = await AsyncStorage.getItem('asked')
 
-        this.transactionInfinity()
-        this.ordersWithoutTransactions()
+        //this.transactionInfinity()
+        //this.ordersWithoutTransactions()
     }
 
     async componentDidMount() {
@@ -132,8 +116,8 @@ class Account extends Component {
                 }, this.handleRegisterFIOAddress)
             }
         }
-        this.transactionInfinity()
-        this.ordersWithoutTransactions()
+        //this.transactionInfinity()
+        //this.ordersWithoutTransactions()
     }
 
     getBalanceVisibility = async () => {
@@ -266,6 +250,7 @@ class Account extends Component {
 
         UpdateOneByOneDaemon._canUpdate = true
 
+        this.ordersWithoutTransactions()
         this.transactionInfinity(0, this.state.transactionsShownLength)
 
         this.setState({
@@ -284,7 +269,7 @@ class Account extends Component {
         return Math.abs(Math.round(diffTime));
     }
 
-        renderTooltip = (props) => {
+    renderTooltip = (props) => {
 
         const { cryptoCurrency, account, allTransactionsToView } = props
 
