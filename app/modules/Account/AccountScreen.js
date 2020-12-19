@@ -71,7 +71,7 @@ class Account extends Component {
             refreshing: false,
             amountToView: 5,
             transactionsToView: [],
-            transactionsShownLength: 0,
+            transactionsShownLength: 5,
 
             ordersWithoutTransactions : [],
 
@@ -424,9 +424,15 @@ class Account extends Component {
         const { colors, isLight } = this.context
         const { mode, headerHeight } = this.state
         const { mainStore, account, cryptoCurrency, settingsStore } = this.props
-        const { amountToView, show, transactionsToView, transactionsShownLength, isBalanceVisible } = this.state
+        let { amountToView, show, transactionsToView, ordersWithoutTransactions, transactionsShownLength, isBalanceVisible } = this.state
+        if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
+            transactionsToView = account.transactionsToView
+        }
+        if (typeof ordersWithoutTransactions === 'undefined' || !ordersWithoutTransactions || ordersWithoutTransactions.length === 0) {
+            ordersWithoutTransactions = account.ordersWithoutTransactions
+        }
 
-        const allTransactionsToView = this.state.ordersWithoutTransactions.concat(transactionsToView)
+        const allTransactionsToView = ordersWithoutTransactions.concat(transactionsToView)
 
         const address = account.address
 
