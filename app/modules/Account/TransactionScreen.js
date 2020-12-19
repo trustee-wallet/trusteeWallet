@@ -728,6 +728,9 @@ class TransactionScreen extends Component {
         if (!transaction.bseOrderData) { // simplified
             return false
         }
+        if (typeof transaction.bseOrderData.uiApiVersion !== 'undefined' && transaction.bseOrderData.uiApiVersion === 'v2') {
+            return false
+        }
         array.push({
             icon: 'check',
             title: strings('account.transactionScreen.check'),
