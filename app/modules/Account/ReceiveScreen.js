@@ -504,10 +504,10 @@ class ReceiveScreen extends Component {
 
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: 160 })
+                this.scrollView.scrollTo({ y: Platform.OS === 'android' ? 250 : 180})
             } catch (e) {
             }
-        }, 100)
+        }, 500)
     }
 
     getDataForQR = (amount, label) => {
@@ -601,7 +601,7 @@ class ReceiveScreen extends Component {
                         keyboardShouldPersistTaps={'handled'}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{
-                            height: WINDOW_HEIGHT
+                            minHeight: WINDOW_HEIGHT
                         }}
                     >
                         <View style={{ ...styles.wrapper__content, marginTop: headerHeight + GRID_SIZE * 2 }}>
@@ -624,7 +624,7 @@ class ReceiveScreen extends Component {
                             {fioName ? <Text>{fioName}</Text> : null}
                         </View>
                         {customAmount ?
-                            <View style={{ flex: 1, marginHorizontal: GRID_SIZE}} >
+                            <View style={{ marginHorizontal: GRID_SIZE, height: 400}} >
                                 <AmountInput
                                     ref={component => this.refAmountInput = component}
                                     id={amountInput.id}
@@ -655,7 +655,7 @@ class ReceiveScreen extends Component {
                                     onFocus={() => this.onFocus()}
                                 />
                                 </View>
-                                <View style={{ position: 'absolute', bottom: 35, alignSelf: 'center', width: '100%'  }}>
+                                <View style={{ alignSelf: 'center', width: '100%',}}>
                                     <Button 
                                         title={strings('account.receiveScreen.share')}
                                         onPress={this.shareData}
@@ -707,7 +707,7 @@ class ReceiveScreen extends Component {
                                         </View>
                                     ) : null
                                 }
-                                <View style={{ height: 120, paddingTop: 20, position: 'absolute', bottom: 35, alignSelf: 'center' }}>
+                                <View style={{ height: 180, paddingTop: 50, alignSelf: 'center' }}>
                                     {this.renderButton(buttonsArray)}
                                 </View>
                             </>
