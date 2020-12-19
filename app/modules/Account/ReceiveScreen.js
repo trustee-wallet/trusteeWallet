@@ -92,7 +92,7 @@ class ReceiveScreen extends Component {
 
             amountEquivalent: null,
             amountInputMark: '',
-            amountForQr: '',
+            amountForQr: '0.00',
             labelForQr: '',
             inputType: 'CRYPTO',
 
@@ -655,7 +655,7 @@ class ReceiveScreen extends Component {
                                     onFocus={() => this.onFocus()}
                                 />
                                 </View>
-                                <View style={{ alignSelf: 'center', width: '100%',}}>
+                                <View style={{ alignSelf: 'center', width: '100%', marginTop: GRID_SIZE }}>
                                     <Button 
                                         title={strings('account.receiveScreen.share')}
                                         onPress={this.shareData}

@@ -12,7 +12,9 @@ import Button from '../../../components/elements/modal/Button'
 import Icon from '../../../components/elements/modal/Icon'
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
-export default class InfoModal extends Component {
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+
+class InfoModal extends Component {
 
     constructor(props) {
         super(props)
@@ -34,15 +36,18 @@ export default class InfoModal extends Component {
         if (typeof (error) !== 'undefined' && typeof (error.log) !== 'undefined') {
             // make visible for advanced users or devs @Misha? alert(error.log)
         }
+
+        const { colors } = this.context
+
         return (
             <Layout visible={show}>
                 <View>
                     <Icon callback={this.handleHide} icon={`${icon === true ? 'success' : icon === false ? 'fail' : icon === null ? 'warning' : icon.toLowerCase()}`}/>
-                    <Title style={styles.title}>
+                    <Title style={{...styles.title, color: colors.common.text1 }}>
                         {title}
                     </Title>
                     <View style={{ marginTop: 8, marginBottom: 15 }}>
-                        <Text style={styles.text}>
+                        <Text style={{...styles.text, color: colors.sendScreen.amount }}>
                             {description}
                         </Text>
                     </View>
@@ -58,6 +63,10 @@ export default class InfoModal extends Component {
     }
 }
 
+InfoModal.contextType = ThemeContext
+
+export default InfoModal
+
 const styles = {
     title: {
         fontFamily: 'Montserrat-Bold',
@@ -66,13 +75,11 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040',
         marginTop: -10,
         marginBottom: -2
         
     },
     text: {
-        color: '#5C5C5C',
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 14,
         lineHeight: 20,
