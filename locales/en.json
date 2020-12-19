@@ -503,7 +503,8 @@
       "receiveAmount": "Receive an Amount",
       "FIORequest": "FIO Request",
       "share": "Share",
-      "copy": "Copy"
+      "copy": "Copy",
+      "amount": "Set amount"
     },
     "addAccount": {
       "list": "Crypto list"

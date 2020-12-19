@@ -236,7 +236,7 @@ class SettingsBTC extends Component {
                         <View style={styles.settings__content}>
                             <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, flexDirection: 'row' }}>
                                 <TouchableOpacity onPress={() => this.handleCopy(val1)}>
-                                    <Text style={styles.publicKey}>{val1S}</Text>
+                                    <Text style={{...styles.publicKey, color: colors.common.text1 }}>{val1S}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => this.handleCopy(val1)}
                                     style={styles.copyBtn}>
@@ -249,7 +249,7 @@ class SettingsBTC extends Component {
                         <View style={styles.settings__content}>
                             <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, flexDirection: 'row' }}>
                                 <TouchableOpacity onPress={() => this.handleCopy(val2)}>
-                                    <Text style={styles.publicKey}>{val2S}</Text>
+                                    <Text style={{...styles.publicKey, color: colors.common.text1 }}>{val2S}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => this.handleCopy(val2)}
                                     style={styles.copyBtn}>
@@ -262,7 +262,7 @@ class SettingsBTC extends Component {
                         <View style={styles.settings__content}>
                             <View style={{ flex: 1, paddingLeft: 15, paddingRight: 15, flexDirection: 'row' }}>
                                 <TouchableOpacity onPress={() => this.handleCopy(val3)}>
-                                    <Text style={styles.publicKey}>{val3S}</Text>
+                                    <Text style={{...styles.publicKey, color: colors.common.text1 }}>{val3S}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => this.handleCopy(val3)}
                                     style={styles.copyBtn}>

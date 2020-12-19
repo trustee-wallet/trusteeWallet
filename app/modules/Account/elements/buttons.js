@@ -30,6 +30,10 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name={'delete'} color={color} size={26} />
         case 'rbf':
             return <CustomIcon name={'rbf'} color={color} size={26} />
+        case 'edit':
+            return <CustomIcon name={'edit'} color={color} size={26} />
+        case 'exchange':
+            return <CustomIcon name={'exchange'} color={color} size={26} />
         default: return null
     }
 }
@@ -43,12 +47,12 @@ const renderItem = (data, title) => {
             {data.map((item) => {
                 return (
                     // eslint-disable-next-line react/jsx-key
-                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minWidth: 90 }}>
+                    <View style={{ flexDirection: 'column', alignItems: 'center', width: 90 }}>
                         <TouchableOpacity style={styles.icon} onPress={item.action}>
                             {getIcon(item.icon.toString(), '#f7f7f7')}
                         </TouchableOpacity>
                         {title && (
-                            <Text style={styles.title}>{item.title}</Text>
+                            <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
                         )}
                     </View>
                 )
@@ -95,6 +99,6 @@ const styles = {
         textAlign: 'center',
         letterSpacing: 1.5,
         color: '#999999',
-        marginTop: 6
+        marginTop: 6,
     }
 }

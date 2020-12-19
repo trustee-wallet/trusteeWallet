@@ -81,8 +81,7 @@ const styles = {
     },
     publicKey: {
         fontFamily: 'Montserrat-Medium',
-        fontSize: 14,
-        color: '#404040'
+        fontSize: 14
     },
 
     inputWrapper: {

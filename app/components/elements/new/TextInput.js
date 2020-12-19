@@ -26,6 +26,7 @@ export default function Input(props) {
         containerStyle,
         HelperAction,
         compRef,
+        onFocus,
         ...nativeProps
     } = props
 
@@ -46,6 +47,7 @@ export default function Input(props) {
                     onChangeText={onChangeText}
                     value={value}
                     ref={compRef}
+                    onFocus={onFocus}
                     {...nativeProps}
                 />
                 {HelperAction && (

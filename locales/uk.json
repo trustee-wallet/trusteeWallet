@@ -501,7 +501,8 @@
       "receiveAmount": "Вказати суму",
       "FIORequest": "FIO запит",
       "share": "Поділитись",
-      "copy": "Копіювати"
+      "copy": "Копіювати",
+      "amount": "Вказати суму"
     },
     "addAccount": {
       "list": "Список криптовалют"
