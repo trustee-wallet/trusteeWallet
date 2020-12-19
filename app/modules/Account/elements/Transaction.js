@@ -172,22 +172,27 @@ class Transaction extends Component {
             )
         }
 
-        return (
-            <View style={[styles.transaction__col, styles.transaction__col1, {
-                overflow: 'visible',
-                marginTop: !statusTmp ? 1 : 0
-            }]}>
-                <View style={{ position: 'absolute', top: 3, left: 23 }}>
-                    <Dash style={{
+        /**
+
+         <View style={{ position: 'absolute', top: 3, left: 23 }}>
+         <Dash style={{
                         width: 2,
                         height: !this.props.dash ? height : transactions.length === 1 ? 0 : 70,
                         marginTop: marginTop,
                         flexDirection: 'column'
                     }}
-                        dashColor={colors.accountScreen.transactions.dashColor}
-                        dashGap={3}
-                        dashLength={3} />
-                </View>
+         dashColor={colors.accountScreen.transactions.dashColor}
+         dashGap={3}
+         dashLength={3} />
+         </View>
+         
+         */
+        return (
+            <View style={[styles.transaction__col, styles.transaction__col1, {
+                overflow: 'visible',
+                marginTop: !statusTmp ? 1 : 0
+            }]}>
+
                 <Circle style={{
                     ...styles.transaction__circle__small, ...circleStyle,
                     backgroundColor: isStatus ? color : colors.accountScreen.transactions.circle,
