@@ -15,8 +15,9 @@ import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 import { strings } from '../../../services/i18n'
 
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
-export default class NewInterface extends Component {
+class NewInterface extends Component {
 
     constructor(props) {
         super(props)
@@ -45,14 +46,16 @@ export default class NewInterface extends Component {
 
         const { title, icon, description } = this.props.data
 
+        const { colors } = this.context
+
         return (
             <Layout visible={this.props.show}>
                 <View>
-                    <Title style={styles.title} textStyles={{ width: 'auto', paddingHorizontal: 10 }}>
+                    <Title style={{...styles.title, color: colors.common.text1 }} textStyles={{ width: 'auto', paddingHorizontal: 10 }}>
                         {title}
                     </Title>
                     <View style={{ marginTop: 8, marginBottom: -5 }}>
-                        <Text style={styles.text}>
+                        <Text style={{...styles.text, color: colors.sendScreen.amount }}>
                             {description}
                         </Text>
                     </View>
@@ -70,6 +73,9 @@ export default class NewInterface extends Component {
     }
 }
 
+NewInterface.contextType = ThemeContext
+
+export default NewInterface
 
 const styles = {
     title: {
@@ -79,12 +85,10 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040',
         marginTop: -10,
         marginBottom: -2
     },
     text: {
-        color: '#5C5C5C',
         fontFamily: 'SFUIDisplay-Regular',
         fontStyle: 'normal',
         fontWeight: 'normal',

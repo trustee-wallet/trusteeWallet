@@ -16,7 +16,9 @@ import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 import { strings } from '../../../services/i18n'
 
-export default class RbfModal extends Component {
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+
+class RbfModal extends Component {
 
     constructor(props) {
         super(props)
@@ -61,15 +63,18 @@ export default class RbfModal extends Component {
 
         const { title, icon, description } = this.props.data
         this.statusRBF()
+
+        const { colors } = this.context
+
         return (
             <Layout visible={this.props.show}>
                 <View>
                     <Icon callback={hideModal} icon={icon.toLowerCase()} tbk={true} />
-                    <Title style={styles.title}>
+                    <Title style={{...styles.title, color: colors.common.text1 }}>
                         {title}
                     </Title>
                     <View style={{ marginTop: 8, marginBottom: -5 }}>
-                        <Text style={styles.text}>
+                        <Text style={{...styles.text, color: colors.sendScreen.amount }}>
                             {description}
                         </Text>
                         <Text style={styles.text}>{ this.state.isRBF === true ? strings('modal.tbkModal.statusEnable').toUpperCase() : strings('modal.tbkModal.statusDisable').toUpperCase()}</Text>
@@ -88,6 +93,10 @@ export default class RbfModal extends Component {
     }
 }
 
+RbfModal.contextType = ThemeContext
+
+export default RbfModal
+
 const styles = {
     title: {
         fontFamily: 'Montserrat-Bold',
@@ -96,10 +105,8 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040',
     },
     text: {
-        color: '#5C5C5C',
         fontFamily: 'SFUIDisplay-Regular',
         fontStyle: 'normal',
         fontWeight: 'normal',
