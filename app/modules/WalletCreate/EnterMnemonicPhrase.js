@@ -203,11 +203,10 @@ class EnterMnemonicPhrase extends Component {
 
     handleClose = () => { NavStore.reset('DashboardStack') }
 
-    handleInputPhrase = (value = '') => {
-        value = value.trim()
+    handleInputPhrase = (_value = '') => {
+        const value = _value.trim()
         const lowercasedValue = value.toLowerCase()
         const spacesNumber = lowercasedValue.match(/\s/g)?.length || 0
-
         if (!lowercasedValue) {
             this.setState(() => ({
                 phraseInputValue: '',
@@ -218,13 +217,18 @@ class EnterMnemonicPhrase extends Component {
         }
 
         if (spacesNumber === 0) {
-            callWithDelay(() => this.findWords(lowercasedValue))
-            this.setState(() => ({ phraseInputValue: value }))
+            if (value !== _value) {
+                // whitespace is entered
+                this.findWords(lowercasedValue, true)
+            } else {
+                callWithDelay(() => this.findWords(lowercasedValue, false))
+                this.setState(() => ({ phraseInputValue: value }))
+            }
             return
         }
 
         if (spacesNumber >= 11) {
-            const wordsArr = lowercasedValue.split(' ')
+            const wordsArr = lowercasedValue.split(/\s+/g) // linebreaks could be
             this.setState(() => ({
                 walletMnemonicSelected: wordsArr,
                 wordsProposed: [],
@@ -245,7 +249,7 @@ class EnterMnemonicPhrase extends Component {
         }
     }
 
-    findWords = (value) => {
+    findWords = (value, setIfOk = false) => {
         const wordsProposed = []
 
         MNEMONIC_DICTIONARY.every((word) => {
@@ -254,7 +258,12 @@ class EnterMnemonicPhrase extends Component {
             return true
         })
 
-        const error = wordsProposed.length ? null : strings('walletCreate.errors.wordDoesNotExist');
+        const error = wordsProposed.length ? null : strings('walletCreate.errors.wordDoesNotExist')
+        if (wordsProposed.length === 1 && setIfOk) {
+            // entering words fast enough with whitespace search
+            this.handleSelectWord(wordsProposed[0])
+            return false
+        }
 
         this.setState(state => ({
             wordsProposed: state.phraseInputValue ? wordsProposed : [],
