@@ -313,8 +313,7 @@ class ToolTips extends Component {
 
         const { colors, isLight } = this.context
 
-        // const isShow = typeof settingsStore.data.tool_tips_state == 'undefined' || +settingsStore.data.tool_tips_state
-        const isShow = true
+        const isShow = typeof settingsStore.data.tool_tips_state == 'undefined' || +settingsStore.data.tool_tips_state
 
         if(isShow && typeof tipsRef[this.props.type] !== "undefined" && tipsRef[this.props.type].isCanBeShowed && isCanBeShowed){
             if(typeof animatePress === 'undefined'){
