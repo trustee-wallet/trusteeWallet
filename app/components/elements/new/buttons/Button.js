@@ -7,10 +7,13 @@ import {
     StyleSheet,
 } from 'react-native'
 
+import LottieView from 'lottie-react-native'
+
 import { useTheme } from '../../../../modules/theme/ThemeProvider'
 
 import { strings } from '../../../../services/i18n'
 
+import loaderWhite from '../../../../assets/jsons/animations/loaderWhite.json'
 
 const getStyle = (type, disabled, containerStyle, textStyle) => {
     const { colors, GRID_SIZE } = useTheme()
@@ -47,7 +50,8 @@ export default function Button(props) {
         textStyle,
         title,
         disabled = false,
-        activeOpacity = 0.5
+        activeOpacity = 0.5,
+        sendInProcess
     } = props
     const preparedStyles = getStyle(type, disabled, containerStyle, textStyle)
 
@@ -55,10 +59,19 @@ export default function Button(props) {
         <TouchableOpacity
             onPress={onPress}
             style={[preparedStyles.container]}
-            disabled={disabled}
+            disabled={sendInProcess ? true : disabled}
             activeOpacity={activeOpacity}
         >
-            <Text style={[preparedStyles.text]}>{title}</Text>
+            {!sendInProcess ?
+                <Text style={[preparedStyles.text]}>{title}</Text> 
+                :
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={[preparedStyles.text, { paddingRight: 6 }]}>{'Sending'}</Text>  
+                    <LottieView style={{ width: 40, height: 40, marginTop: -20, top: 16 }} 
+                        source={loaderWhite}
+                        autoPlay loop /> 
+                </View>
+            }
         </TouchableOpacity>
     )
 }

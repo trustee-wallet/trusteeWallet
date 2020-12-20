@@ -86,6 +86,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
             loadFee : false,
 
+            sendInProcess: null,
+
         }
     }
 
@@ -161,6 +163,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
     handleSend = async (passwordCheck = true, uiErrorConfirmed = false) => {
 
         // console.log('Send.ReceiptScreen.handleSend state', JSON.parse(JSON.stringify(this.state)))
+
+        this.setState({
+            sendInProcess: true
+        })
 
         const { settingsStore } = this.props
 
@@ -405,12 +411,18 @@ class ReceiptScreen extends SendBasicScreenScreen {
             if (typeof tx.successMessage !== 'undefined') {
                 successMessage = tx.successMessage
             }
-            showModal({
-                type: 'INFO_MODAL',
-                icon: true,
-                title: strings('modal.send.success'),
-                description: successMessage
-            }, async () => {
+
+            this.setState({
+                sendInProcess: false
+            },
+
+            // showModal({
+            //     type: 'INFO_MODAL',
+            //     icon: true,
+            //     title: strings('modal.send.success'),
+            //     description: successMessage
+            // }, 
+            async () => {
 
                 const { uiType } = this.state.sendScreenData
 
@@ -459,6 +471,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
         } catch (e) {
 
             Keyboard.dismiss()
+
+            this.setState({
+                sendInProcess: false
+            })
 
             if (config.debug.appErrors) {
                 console.log('Send.ConfirmSendScreen.handleSend error', e)
@@ -523,7 +539,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         const { colors, GRID_SIZE, isLight } = this.context
 
-        const { headerHeight, sendScreenData, cryptoCurrency, account } = this.state
+        const { headerHeight, sendScreenData, cryptoCurrency, account, sendInProcess } = this.state
 
         Log.log('Send.ReceiptScreen.render data', JSON.parse(JSON.stringify(sendScreenData)))
 
@@ -735,9 +751,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     </View>
                     <TwoButtons
                         mainButton={{
-                            disabled: this.disabled(),
+                            disabled: this.disabled() || this.state.sendInProcess,
                             onPress: this.handleSend,
-                            title: strings('send.receiptScreen.send')
+                            title: strings('send.receiptScreen.send'),
+                            sendInProcess: sendInProcess
                         }}
                         secondaryButton={{
                             type: 'settings',

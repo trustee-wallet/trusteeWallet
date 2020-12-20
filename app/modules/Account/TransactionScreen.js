@@ -877,10 +877,10 @@ class TransactionScreen extends Component {
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
-                    leftType={prev === 'ReceiptScreen' || prev === 'NotificationsScreen' ? null : 'back'}
+                    leftType={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen') ? null : 'back'}
                     leftAction={this.closeAction}
                     rightType='close'
-                    rightAction={prev === 'ReceiptScreen' || prev === 'NotificationsScreen' ? () => NavStore.reset('DashboardStack') : this.closeAction}
+                    rightAction={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen') ? () => NavStore.reset('DashboardStack') : this.closeAction}
                     setHeaderHeight={this.setHeaderHeight}
                     ExtraView={() => transaction ? this.headerTrx(transaction, color, cryptoCurrency) : null}
                 />
