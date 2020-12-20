@@ -40,6 +40,7 @@ export default class Header extends React.Component {
                         <CustomIcon name="arrow_back" size={20} color={props.color} />
                     )
                 }
+                default: return null
             }
         }
 
@@ -60,11 +61,14 @@ export default class Header extends React.Component {
         } = this.props
         const { colors } = this.context
 
-        let Icon
-
-        switch (rightType) {
-            case 'close': {
-                Icon = (props) => <CustomIcon name="close" size={18} color={props.color} />
+        const Icon = (props) => {
+            switch (rightType) {
+                case 'close': {
+                    return (
+                        <CustomIcon name="close" size={18} color={props.color} />
+                    )
+                }
+                default: return null
             }
         }
 
