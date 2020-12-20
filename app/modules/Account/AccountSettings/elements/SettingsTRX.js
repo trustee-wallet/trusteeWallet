@@ -381,10 +381,11 @@ class SettingsTRX extends Component {
                             </View>
                         </View>
                         <View style={{ paddingLeft: 5, paddingRight: 15, flex: 2 }}>
-                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor}}>
                                 <TouchableOpacity onPress={() => this.handleGetReward()}>
-                                    <LetterSpacing text={strings('settings.walletList.claimTRX')} numberOfLines={2} 
-                                    textStyle={{ color: colors.common.text1 }} />
+                                    <Text style={{ color: colors.common.text1, letterSpacing: 0.5, textAlign: 'center' }} numberOfLines={2}>
+                                        {strings('settings.walletList.claimTRX')}
+                                    </Text>
                                 </TouchableOpacity>
                             </View>
                         </View>

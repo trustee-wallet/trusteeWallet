@@ -204,7 +204,7 @@ class WalletInfo extends Component {
                                 />
                             </View>
                             <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')} onLongPress={() => this.handlerRBF()} delayLongPress={5000}>
-                                <ToolTips type={'HOME_SCREEN_ADD_CRYPTO_BTN_TIP'} height={100} MainComponent={() => this.renderTooltip()} />
+                                <ToolTips type={'HOME_SCREEN_ADD_CRYPTO_BTN_TIP'} height={150} MainComponent={() => this.renderTooltip()} />
                             </TouchableOpacity>
                         </View>
 

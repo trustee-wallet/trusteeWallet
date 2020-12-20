@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.11
  * @misha could be optimized?
  */
 import React, { Component } from 'react'
@@ -11,6 +11,9 @@ import Tooltip from 'rn-tooltip'
 import { strings } from '../../services/i18n'
 import ToolTipsActions from '../../appstores/Stores/ToolTips/ToolTipsActions'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
+
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import CustomIcon from './CustomIcon'
 
 
 class ToolTips extends Component {
@@ -260,9 +263,12 @@ class ToolTips extends Component {
     }
 
     renderTemplateTip = (text, description, nextBtnCallback, nextBtnText, isSkip) => {
-        return  <View style={{ width: '100%', flex: 1, backgroundColor: '#732bb1', borderRadius: 10 }}>
-                    <View style={{ margin: 10, marginBottom: 0, flexDirection: 'row' }}>
-                        <Text style={{ width: '100%', fontFamily: 'SFUIDisplay-Regular', fontSize: 12, color: '#f4f4f4', }}>
+
+        const { colors, GRID_SIZE } = this.context
+
+        return  <View style={{ width: '100%', flex: 1, backgroundColor: colors.toolTips.background, borderRadius: 16 }}>
+                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: 18, marginBottom: 0, flexDirection: 'row' }}>
+                        <Text style={{ width: '100%', fontFamily: 'SFUIDisplay-Regular', fontSize: 15, lineHeight: 19, color: colors.common.text1, }}>
                             { description }
                         </Text>
                     </View>
@@ -271,15 +277,15 @@ class ToolTips extends Component {
                             {
                                 isSkip ?
                                     <TouchableOpacity onPress={this.skip}>
-                                        <View style={{ height: 20, margin: 10, paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center', borderColor: '#fff', borderWidth: 1, borderStyle: 'solid', borderRadius: 5 }}>
-                                            <Text style={{ fontFamily: 'SFUIDisplay-Regular', fontSize: 12, color: '#fff' }}>{ strings(`tooltips.buttons.skip`) }</Text>
+                                        <View style={{ height: 30, marginLeft: GRID_SIZE, marginTop: 6 }}>
+                                            <CustomIcon name={'close'} size={18} color={colors.common.text1} /> 
                                         </View>
                                     </TouchableOpacity> : null
                             }
 
                             <TouchableOpacity style={{ marginLeft: !isSkip ? 'auto' : 0 }} onPress={nextBtnCallback}>
-                                <View style={{ margin: 10, paddingHorizontal: 5, height: 20, alignItems: 'center', justifyContent: 'center', borderRadius: 5, backgroundColor: '#fff' }}>
-                                    <Text style={{ fontFamily: 'SFUIDisplay-Regular', fontSize: 12, color: '#732bb1' }}>{ nextBtnText }</Text>
+                                <View style={{ marginRight: GRID_SIZE, marginBottom: 19, paddingHorizontal: 5, height: 30, alignItems: 'center', justifyContent: 'center', borderRadius: 5, backgroundColor: colors.common.text1 }}>
+                                    <Text style={{ fontFamily: 'Montserrat-Bold', fontSize: 10, letterSpacing: 0.5, color: colors.toolTips.background }}>{ nextBtnText }</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -305,31 +311,36 @@ class ToolTips extends Component {
 
         const { tipsRef } = this.props.toolTipsStore
 
+        const { colors, isLight } = this.context
+
         const isShow = typeof settingsStore.data.tool_tips_state == 'undefined' || +settingsStore.data.tool_tips_state
 
-        if(isShow && typeof tipsRef[this.props.type] != "undefined" && tipsRef[this.props.type].isCanBeShowed && isCanBeShowed){
-            if(typeof animatePress == 'undefined'){
+        if(isShow && typeof tipsRef[this.props.type] !== "undefined" && tipsRef[this.props.type].isCanBeShowed && isCanBeShowed){
+            if(typeof animatePress === 'undefined'){
                 return (
                     <Tooltip ref={ref => this.refTooltip = ref}
-                             pointerColor={'#732bb1'}
-                             width={200}
+                             pointerColor={colors.toolTips.background}
+                             width={250}
                              height={height}
                              onClose={this.handleClose}
                              containerStyle={styles.containerStyle}
                              popover={this.renderTip()}
+                             highlightColor={colors.toolTips.background}
+                             overlayColor={'#99999940'}
                              handleClose={() => { this.handleClose() }}>
-                        <MainComponent self={this} disabled={true} {...mainComponentProps} />
+                            <MainComponent self={this} disabled={true} {...mainComponentProps} />
                     </Tooltip>
                 )
             } else {
                 return (
                     <Tooltip ref={ref => this.refTooltip = ref}
-                             pointerColor={'#732bb1'}
-                             width={200}
+                             pointerColor={colors.toolTips.background}
+                             width={250}
                              height={height}
                              onClose={this.handleClose}
                              containerStyle={styles.containerStyle}
                              popover={this.renderTip()}
+                             overlayColor={'#99999940'}
                              handleClose={() => { this.handleClose() }}>
                         <Animated.View style={{ opacity: this.state.pressAnim }}>
                             <MainComponent self={this} disabled={true} {...mainComponentProps} />
@@ -356,12 +367,13 @@ const mapStateToProps = (state) => {
     }
 }
 
+ToolTips.contextType = ThemeContext
+
 export default connect(mapStateToProps, {}, null, { forwardRef: true })(ToolTips)
 
 const styles = {
     containerStyle: {
         flex: 1,
-
         padding: 0,
 
         shadowColor: "#000",
@@ -374,7 +386,8 @@ const styles = {
 
         elevation: 4,
 
-        backgroundColor: '#732bb1',
-        borderRadius: 10
+        // backgroundColor: '#732bb1',
+        borderRadius: 16,
+        zIndex: 3
     }
 }

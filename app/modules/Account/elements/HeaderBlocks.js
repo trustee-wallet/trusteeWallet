@@ -99,7 +99,7 @@ class HeaderBlocks extends Component {
         const address = props.address || ''
         const addressPrep = BlocksoftPrettyStrings.makeCut(address, 6, 6)
         return (
-            <View style={styles.topContent__address}>
+            <View style={{ alignItems: 'center' }}>
                 <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
             </View>
         )

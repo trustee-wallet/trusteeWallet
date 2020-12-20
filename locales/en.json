@@ -425,7 +425,7 @@
     "history": "Transactions",
     "scan": "Scanned %{time} min ago ",
     "justScan": "Just scanned",
-    "soLong": "Last scanned a long time ago",
+    "soLong": "Last a long time ago",
     "noTransactions": "You don’t have any transaction yet. But you can resolve this quickly, just tap on BUY button",
     "showMore": "Show more",
     "assetSettings": "Asset settings",
