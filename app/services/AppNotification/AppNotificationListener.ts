@@ -17,7 +17,6 @@ import config from '../../config/config'
 import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
 import NavStore from '../../components/navigation/NavStore'
 
-
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
 const ASYNC_CACHE_TIME = 'pushTokenTime'
 const ASYNC_ALL_CACHE = 'allPushTokens'
@@ -523,11 +522,12 @@ export default new class AppNotificationListener {
         //     }
         // },
         //  async () => {
-        
-        // @ksu check this
+
         if (notificationId) {
             firebase.notifications().removeDeliveredNotification(notificationId)
         }
+
+        UpdateAppNewsDaemon.goToNotifications() // if only goNext than after load will be few seconds of homescreen
         
         if (typeof data.walletHash !== 'undefined' && data.walletHash) {
             const selectedWallet = await BlocksoftKeysStorage.getSelectedWallet()
@@ -535,10 +535,10 @@ export default new class AppNotificationListener {
                 await cryptoWalletActions.setSelectedWallet(data.walletHash, 'showNewsModal')
             }
         }
-        
+
         await UpdateAppNewsDaemon.updateAppNewsDaemon()
+
         NavStore.goNext('NotificationsScreen')
-        hideModal()
 
     }
 
