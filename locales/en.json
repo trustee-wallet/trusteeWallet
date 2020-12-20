@@ -838,7 +838,7 @@
         "minerFee": "Miner fee",
         "totalMinerFee": "Total miner fee",
         "customNonce": "Custom nonce",
-        "trusteeInfo": "Cryptocurrency transactions are not charged",
+        "trusteeInfo": "Trustee cannot take commission on cryptocurrency transactions",
         "send": "Send",
         "sending": "Sending"
 

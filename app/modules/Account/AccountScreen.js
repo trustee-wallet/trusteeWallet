@@ -422,7 +422,7 @@ class Account extends Component {
             case 'USDT':
                 return 'Tether Bitcoin'
             case 'ETH_USDT':
-                return 'Tether Etherium'
+                return 'Tether Ethereum'
             case 'TRX_USDT':
                 return 'Tether Tron'
             default:
