@@ -485,7 +485,6 @@ class Account extends Component {
                             actionSend={this.handleSend}
                             isBalanceVisible={this.state.isBalanceVisible}
                             originalVisibility={this.state.originalVisibility}
-                            triggerBalanceVisibility={this.triggerBalanceVisibility}
                         />
                     ) }}
                     scrollOffset={this.state.scrollOffset}
