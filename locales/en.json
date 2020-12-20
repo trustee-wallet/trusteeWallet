@@ -722,6 +722,7 @@
     "country": "Country:"
   },
   "qrScanner": {
+    "title": "Scanning QR",
     "line1": "Please, place the QR-code inside the",
     "line2": "rectangle to scan it"
   },

@@ -22,6 +22,7 @@ import firebase from 'react-native-firebase'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { openQrGallery } from '../../services/UI/Qr/QrGallery'
+import Header from '../../components/elements/new/Header'
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
 const SCREEN_WIDTH = Dimensions.get('window').width
@@ -129,7 +130,6 @@ class QRCodeScannerScreen extends Component {
                 }
 
                 const parsed = res.data
-                console.log('parsed', parsed)
                 await SendActions.startSend({
                     uiType: 'MAIN_SCANNER',
                     gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
@@ -153,7 +153,7 @@ class QRCodeScannerScreen extends Component {
                         uiType: 'SEND_SCANNER',
                         gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
                         addressTo: parsed.address,
-                        amountPretty: parsed.amount ? parsed.toString() : '0',
+                        amountPretty: parsed.amount ? parsed.amount.toString() : '0',
                         currencyCode: parsed.currencyCode,
                         comment: parsed.label
                     })
@@ -222,11 +222,19 @@ class QRCodeScannerScreen extends Component {
     renderOpenGallery() {
         return (
             <TouchableOpacity onPress={this.onOpenGallery.bind(this)}>
-                <View style={{ paddingLeft: 23, paddingRight: 23 }}>
+                <View style={{ flex: 1, paddingLeft: 23, paddingRight: 23, justifyContent: 'center', alignSelf: 'center', marginTop: -36 }}>
                     <MaterialCommunityIcons name='file-find' size={24} color='#855eab' />
                 </View>
             </TouchableOpacity>
         )
+    }
+
+    backAction = () => {
+        this.onOpenGallery()    
+    }
+
+    closeAction = () => {
+        NavStore.reset('DashboardStack')
     }
 
     render() {
@@ -234,8 +242,12 @@ class QRCodeScannerScreen extends Component {
         firebase.analytics().setCurrentScreen('QRCodeScannerScreen.index')
         return (
             <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-                <Navigation
-                    RightComponent={this.renderOpenGallery.bind(this)}
+                <Header 
+                    leftType='gallery'
+                    leftAction={this.backAction}
+                    rightType='close'
+                    rightAction={this.closeAction}
+                    title={strings('qrScanner.title')}
                 />
                 <QRCodeScanner
                     ref={(node) => {

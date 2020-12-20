@@ -28,11 +28,18 @@ export default class Header extends React.Component {
         } = this.props
         const { colors } = this.context
 
-        let Icon
-
-        switch (leftType) {
-            case 'back': {
-                Icon = (props) => <CustomIcon name="arrow_back" size={20} color={props.color} />
+        const Icon = (props) => {
+            switch (leftType) {
+                case 'gallery': {
+                    return (
+                        <CustomIcon name="gallery" size={24} color={props.color} />
+                    )
+                }
+                case 'back': {
+                    return (
+                        <CustomIcon name="arrow_back" size={20} color={props.color} />
+                    )
+                }
             }
         }
 

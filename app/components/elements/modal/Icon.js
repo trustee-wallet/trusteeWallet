@@ -46,7 +46,7 @@ export default class Icon extends Component {
                 <View style={styles.icon__wrapper}>
                     <TouchableOpacity onPress={() => callback()}>
                         <View style={styles.success}>
-                            <CustomIcon name="approvedTransaction" size={styles_.success.size} color={'#864DD9'}/>
+                            <CustomIcon name="check" size={styles_.success.size} color={styles_.color}/>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -81,7 +81,7 @@ const styles_ = {
         size: 25
     },
     success: {
-        size: 64
+        size: 60
     },
     warning: {
         size: 30
@@ -118,10 +118,10 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         justifyContent: 'center',
         alignItems: 'center',
-        // width: 64,
-        // height: 64,
-        // borderRadius: 50,
-        // backgroundColor: '#864DD9'
+        width: 64,
+        height: 64,
+        borderRadius: 50,
+        backgroundColor: '#864DD9'
     },
     warning: {
         alignSelf: 'center',
