@@ -24,7 +24,7 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
 
     async getUnspents(address: string): Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
         // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents started', address)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents started ' + address)
         this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'DOGE.Unspents.getUnspents')
         const link = this._trezorServer + '/api/v2/utxo/' + address
         const res = await BlocksoftAxios.getWithoutBraking(link)
