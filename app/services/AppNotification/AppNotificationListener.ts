@@ -510,31 +510,36 @@ export default new class AppNotificationListener {
         }
     }
 
-    showNotificationModal = (data: NotificationUnified, notificationId: string): void => {
+    showNotificationModal = async (data: NotificationUnified, notificationId: string): Promise<void> => {
         const locale: string = sublocale()
-        showModal({
-            type: 'CHOOSE_INFO_MODAL',
-            data: {
-                // @ts-ignore
-                title: data.newsCustomTitle,
-                // @ts-ignore
-                description: data.newsCustomText,
-                hideBottom: true
+        // showModal({
+        //     type: 'CHOOSE_INFO_MODAL',
+        //     data: {
+        //         // @ts-ignore
+        //         title: data.newsCustomTitle,
+        //         // @ts-ignore
+        //         description: data.newsCustomText,
+        //         hideBottom: true
+        //     }
+        // },
+        //  async () => {
+        
+        // @ksu check this
+        if (notificationId) {
+            firebase.notifications().removeDeliveredNotification(notificationId)
+        }
+        
+        if (typeof data.walletHash !== 'undefined' && data.walletHash) {
+            const selectedWallet = await BlocksoftKeysStorage.getSelectedWallet()
+            if (selectedWallet !== data.walletHash) {
+                await cryptoWalletActions.setSelectedWallet(data.walletHash, 'showNewsModal')
             }
-        }, async () => {
-            if (notificationId) {
-                firebase.notifications().removeDeliveredNotification(notificationId)
-            }
-            if (typeof data.walletHash !== 'undefined' && data.walletHash) {
-                const selectedWallet = await BlocksoftKeysStorage.getSelectedWallet()
-                if (selectedWallet !== data.walletHash) {
-                    await cryptoWalletActions.setSelectedWallet(data.walletHash, 'showNewsModal')
-                }
-            }
-            await UpdateAppNewsDaemon.updateAppNewsDaemon()
-            NavStore.goNext('NotificationsScreen')
-            hideModal()
-        })
+        }
+        
+        await UpdateAppNewsDaemon.updateAppNewsDaemon()
+        NavStore.goNext('NotificationsScreen')
+        hideModal()
+
     }
 
     showNewsModal = async (data: AppNewsItem, notificationId: string): Promise<void> => {
