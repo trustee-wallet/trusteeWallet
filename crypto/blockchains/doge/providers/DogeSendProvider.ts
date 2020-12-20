@@ -54,7 +54,9 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
             } else if (e.message.indexOf('insufficient fee, rejecting replacement') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT')
-            } else if (e.message.indexOf('too-long-mempool-chain') !== -1) {
+            } else if (e.message.indexOf('insufficient fee') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+            }else if (e.message.indexOf('too-long-mempool-chain') !== -1) {
                 throw new Error('SERVER_RESPONSE_NO_RESPONSE')
             } else {
                 await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)

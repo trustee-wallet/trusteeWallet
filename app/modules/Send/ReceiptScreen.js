@@ -264,7 +264,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
             console.log('txData', txData)
             const tx = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed, selectedFee })
 
-            const transactionJson = sendScreenData.transactionJson
+            let transactionJson = sendScreenData.transactionJson
+            if (!transactionJson || typeof transactionJson === 'undefined' || transactionJson === null) {
+                transactionJson = {}
+            }
             if (memo) {
                 transactionJson.memo = memo
             }
