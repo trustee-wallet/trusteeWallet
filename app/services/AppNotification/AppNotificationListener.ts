@@ -16,6 +16,7 @@ import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import config from '../../config/config'
 import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
 import NavStore from '../../components/navigation/NavStore'
+import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
 
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
 const ASYNC_CACHE_TIME = 'pushTokenTime'
@@ -537,6 +538,7 @@ export default new class AppNotificationListener {
         }
 
         await UpdateAppNewsDaemon.updateAppNewsDaemon()
+        await UpdateAppNewsListDaemon.updateAppNewsListDaemon()
 
         NavStore.goNext('NotificationsScreen')
 
