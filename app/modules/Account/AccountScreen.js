@@ -536,7 +536,7 @@ class Account extends Component {
                         }}>
                             <View>
                                 <ToolTips type={'ACCOUNT_SCREEN_TRANSACTION_TIP'}
-                                    height={100}
+                                    height={150}
                                     MainComponent={this.renderTooltip}
                                     nextCallback={this.nextCallback}
                                     mainComponentProps={{
