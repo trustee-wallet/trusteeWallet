@@ -275,7 +275,12 @@ class Account extends Component {
 
     renderTooltip = (props) => {
 
-        const { cryptoCurrency, account, allTransactionsToView } = props
+        const { cryptoCurrency, account } = props
+
+        let { transactionsToView } = this.state
+        if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
+            transactionsToView = account.transactionsToView
+        }
 
         const isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
@@ -319,7 +324,7 @@ class Account extends Component {
                         </TouchableOpacity>
                 </View>
                 {
-                    account.transactionsTotalLength === 0 ?
+                    account.transactionsTotalLength === 0 && (!transactionsToView || transactionsToView.length === 0) ?
                         <View style={{ marginRight: GRID_SIZE }} >
                             {isSynchronized && <Text
                                 style={{...styles.transaction__empty_text, marginTop: GRID_SIZE, color: colors.common.text3}}>

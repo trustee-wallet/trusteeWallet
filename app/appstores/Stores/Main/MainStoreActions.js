@@ -260,7 +260,7 @@ export async function setSelectedAccount(setting) {
         account.feeRates = DaemonCache.getCacheRates(account.feesCurrencyCode)
 
         account.transactionsTotalLength = await DaemonCache.getCacheTxsCount(account, wallet)
-
+        Log.log('ACT/MStore setSelectedAccount.transactionInfinity transactionsTotalLength cached ' + account.transactionsTotalLength)
 
         // cutpaste from account screen - to think about
         account.transactionsToView = []
@@ -275,6 +275,11 @@ export async function setSelectedAccount(setting) {
         }
         const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')
         if (tmp && tmp.length > 0) {
+            if (account.transactionsTotalLength === 0) {
+                // somehow cache = zero is possible
+                account.transactionsTotalLength = await DaemonCache.getCacheTxsCount(account, wallet, true)
+                Log.log('ACT/MStore setSelectedAccount.transactionInfinity transactionsTotalLength forced ' + account.transactionsTotalLength)
+            }
             for (let transaction of tmp) {
                 transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData)
                 account.transactionsToView.push(transaction)
