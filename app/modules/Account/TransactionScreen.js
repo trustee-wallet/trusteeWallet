@@ -674,7 +674,7 @@ class TransactionScreen extends Component {
                 addressTo : account.address,
                 amountRaw : 0,
                 transactionBoost : transaction,
-                uiType : 'TRANSACTION_SCREEN'
+                uiType : 'TRANSACTION_SCREEN_REMOVE'
             })
         }})
 

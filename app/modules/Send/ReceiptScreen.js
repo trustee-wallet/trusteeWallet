@@ -564,7 +564,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     const tmp = amount.toString()
                     if (newAmount.toString().substring(0, tmp.length) !== tmp) {
                         amount = newAmount
-                        if (CACHE_WARNING_AMOUNT !== amount) {
+                        if (CACHE_WARNING_AMOUNT !== amount && sendScreenData.uiType !== 'TRANSACTION_SCREEN_REMOVE') {
                             // @yura here should be alert when fixed receipt
                             showModal({
                                 type: "INFO_MODAL",
