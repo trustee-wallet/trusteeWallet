@@ -559,7 +559,7 @@ class Account extends Component {
                                                 fioMemo={fioMemo[item.transactionHash]}
                                                 account={account}
                                                 cryptoCurrency={cryptoCurrency}
-                                                dash={(allTransactionsToView - 1 === index) ? this.renderDash : !this.renderDash}
+                                                dash={(allTransactionsToView.length - 1 === index) ? this.renderDash : !this.renderDash}
                                             />
                                         }) : null
                                     }
