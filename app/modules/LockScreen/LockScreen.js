@@ -33,6 +33,8 @@ class LockScreen extends Component {
             show: false,
             lastStatus: 'status1',
             pinLocked: null,
+            
+            headerHeight: 0
         }
     }
 
@@ -154,6 +156,11 @@ class LockScreen extends Component {
 
     handleClose = () => { NavStore.reset('DashboardStack') }
 
+    setHeaderHeight = (height) => {
+        const headerHeight = Math.round(height || 0);
+        this.setState(() => ({ headerHeight }))
+    }
+
     renderHeader = () => {
         const { flowType } = this.props.lockScreen
 
@@ -163,6 +170,7 @@ class LockScreen extends Component {
                 leftAction={this.handleBack}
                 rightType="close"
                 rightAction={this.handleClose}
+                setHeaderHeight={this.setHeaderHeight}
             />
         }
     }
@@ -188,13 +196,15 @@ class LockScreen extends Component {
 
         const { colors, isLight } = this.context
 
+        const { headerHeight } = this.state
+
         return (
             <View style={[styles.wrapper, { backgroundColor: colors.common.background }]}>
                 {this.renderHeader()}
                 {
                     this.state.passwordState !== null && this.state.show ?
 
-                        <View style={{ flex: 1 }}>
+                        <View style={{ flex: 1, marginTop: headerHeight * 0.75 }}>
                              <View style={[styles.top, flowType !== '' ? styles.top__navigation : null]}>
                                  {  isLight ? (
                                      <Image

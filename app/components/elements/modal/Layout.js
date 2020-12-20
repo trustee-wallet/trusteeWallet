@@ -23,7 +23,7 @@ class ModalLayout extends Component {
 
         return (
             <Modal style={styles.modal} hasBackdrop={true} backdropOpacity={0.4} isVisible={this.props.visible} onBackdropPress={hideModal} >
-                <View style={{...styles.container, backgroundColor: colors.common.background }}>
+                <View style={{...styles.container, backgroundColor: colors.common.background, minHeight: this.props.notifications ? 170 : 290  }}>
                     <View>
                         {this.props.children}
                     </View>
@@ -49,7 +49,6 @@ const styles = StyleSheet.create({
         position: 'relative',
         left: (WINDOW_WIDTH - 313) / 2,
         width: 313,
-        minHeight: 290,
         marginVertical: 5,
         borderRadius: 16,
         zIndex: 1

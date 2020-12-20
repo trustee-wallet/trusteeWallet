@@ -69,6 +69,8 @@ class Account extends Component {
         super(props)
         this.state = {
             refreshing: false,
+            clickRefresh: false,
+
             amountToView: 5,
             transactionsToView: [],
             transactionsShownLength: 5,
@@ -211,11 +213,12 @@ class Account extends Component {
         }
     }
 
-    handleRefresh = async () => {
+    handleRefresh = async (click=false) => {
         const { account } = this.props
 
         this.setState({
-            refreshing: true
+            refreshing: click ? false : true,
+            clickRefresh: click ? true : false,
         })
 
         UpdateOneByOneDaemon._canUpdate = false
@@ -254,7 +257,8 @@ class Account extends Component {
         this.transactionInfinity(0, this.state.transactionsShownLength)
 
         this.setState({
-            refreshing: false
+            refreshing: false,
+            clickRefresh: false
         })
     }
 
@@ -306,8 +310,8 @@ class Account extends Component {
                             }
                         </View>
                     </View>
-                    <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE}} onPress={this.handleRefresh} hitSlop={HIT_SLOP} >
-                            {this.state.refreshing ? 
+                    <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE}} onPress={() => this.handleRefresh(true)} hitSlop={HIT_SLOP} >
+                            {this.state.clickRefresh ? 
                                 <LottieView style={{ width: 20, height: 20, }} 
                                 source={require('../../assets/jsons/animations/refreshWhite.json')}
                                 autoPlay loop /> :
@@ -481,7 +485,6 @@ class Account extends Component {
                             actionSend={this.handleSend}
                             isBalanceVisible={this.state.isBalanceVisible}
                             originalVisibility={this.state.originalVisibility}
-                            triggerBalanceVisibility={this.triggerBalanceVisibility}
                         />
                     ) }}
                     scrollOffset={this.state.scrollOffset}

@@ -92,7 +92,7 @@ class ReceiveScreen extends Component {
 
             amountEquivalent: null,
             amountInputMark: '',
-            amountForQr: '0.00',
+            amountForQr: '0',
             labelForQr: '',
             inputType: 'CRYPTO',
 
@@ -528,9 +528,9 @@ class ReceiveScreen extends Component {
                 let currencyName = BlocksoftDict.Currencies[extend.addressCurrencyCode].currencyName
                 currencyName = currencyName.toLowerCase().replace(' ', '')
 
-                linkForQR = `${currencyName}:${address}?contractAddress=${extend.tokenAddress}&symbol=${currencySymbol}${amount * 1 !== 0 ? `&amount=${amount}` : ''}${label ? `&label=${label}` : ''}`
+                linkForQR = `${currencyName}:${address}?contractAddress=${extend.tokenAddress}&symbol=${currencySymbol}&amount=${amount}${label ? `&label=${label}` : ''}`
             } else {
-                linkForQR = `${extend.currencyName.toLowerCase().replace(' ', '')}:${address}${amount * 1 !== 0 ? `?amount=${amount}` : ''}${label ? `&label=${label}` : ''}`
+                linkForQR = `${extend.currencyName.toLowerCase().replace(' ', '')}:${address}?amount=${amount}${label ? `&label=${label}` : ''}`
             }
 
             return linkForQR
@@ -552,7 +552,7 @@ class ReceiveScreen extends Component {
                 tmp = tmp.replace(/"/g, '')
             }
         }
-        console.log(tmp)
+
         return tmp
     }
 

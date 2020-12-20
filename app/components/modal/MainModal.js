@@ -26,6 +26,7 @@ import RbfModal from './elements/RbfModal'
 import InputModal from './elements/InputModal'
 import PaymentSystemInfo from './elements/PaymentSystemInfo'
 import WalletSettingsModal from './elements/WallletSettingsModa'
+import NotificationModal from './elements/NotificationModal'
 
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 
@@ -90,6 +91,8 @@ class MainModal extends Component {
                 return <NewInterface show={show} data={data} callback={callback}/>
             case 'RBF_ACTIVE':
                 return <RbfModal show={show} data={data} callback={callback}/>
+            case 'NOTIFICATION_MODAL':
+                return <NotificationModal show={show} data={data} callback={callback}/>
             default:
                 return <View></View>
         }

@@ -221,10 +221,9 @@ class NotificationsScreen extends React.Component {
             })
         } else {
             showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: title,
-                description: title !== subtitle ? subtitle : ''
+                type: 'NOTIFICATION_MODAL',
+                // title: title,
+                description: subtitle ? subtitle : title ? title : ''
             })
         }
     }
