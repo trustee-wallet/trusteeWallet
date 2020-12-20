@@ -131,20 +131,24 @@ class BottomNavigation extends Component {
     returnBuyTooltip = () => {
         const { colors } = this.context
         return (
-            <View style={styles.navigation__item}>
-                <FontistoIcon size={18} name={'shopping-basket-add'} color={colors.common.text1} />
+            <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleMainBtn('BUY')}>
+            <View style={{ alignItems: 'center' }}>
+                <CustomIcon name="buy" style={{ color: colors.common.text1 }} size={21} />
                 <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 3 }}>{strings('dashboardStack.buy')}</Text>
             </View>
+            </TouchableOpacity>
         )
     }
 
     renderExchangeTooltip = () => {
         const { colors } = this.context
         return (
-            <View style={styles.navigation__item}>
-                <CustomIcon name="exchange" style={{ color: colors.common.text1, fontSize: 21 }} />
-                <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 2 }}>{strings('dashboardStack.exchange')}</Text>
+            <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleModal()}>
+            <View style={{ alignItems: 'center' }}>
+                <CustomIcon name="exchange" style={{ color: colors.common.text1 }} size={21} />
+                <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 3 }}>{strings('dashboardStack.exchange')}</Text>
             </View>
+            </TouchableOpacity>
         )
     }
 
@@ -158,20 +162,23 @@ class BottomNavigation extends Component {
                 <View style={[styles.contentWrapper, { backgroundColor: colors.homeScreen.tabBarBackground }]}>
                     <View style={styles.itemStub} />
 
-                    <TouchableOpacity style={{ flex: 4 }} onPress={() => this.handleMainBtn('BUY')}>
-                        <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={100} MainComponent={() => this.returnBuyTooltip()} />
-                    </TouchableOpacity>
+                    <View style={{ alignItems: 'center', flex: 4 }}>
+                        <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={150} 
+                            MainComponent={this.returnBuyTooltip} />
+                    </View> 
+                    {/* </TouchableOpacity> */}
 
-                    <TouchableOpacity style={{ flex: 4 }} onPress={() => this.handleModal()}>
-                        <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={100} MainComponent={() => this.renderExchangeTooltip()} />
-                    </TouchableOpacity>
+                    <View style={{ alignItems: 'center', flex: 4 }}>
+                        <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={150} MainComponent={this.renderExchangeTooltip} />
+                    </View>
+                    {/* </TouchableOpacity> */}
 
-                    <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleMainBtn('SELL')}>
+                    <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={() => this.handleMainBtn('SELL')}>
                         <FontistoIcon size={18} name={'shopping-basket-remove'} color={colors.common.text1} />
                         <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.sell')}</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.navigation__item} onPress={this.handleCashback}>
+                    <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={this.handleCashback}>
                         <CustomIcon name="earn" style={{ color: colors.common.text1 }} size={20} />
                         <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.earn')}</Text>
                     </TouchableOpacity>
@@ -224,11 +231,10 @@ const styles = {
         elevation: 20,
     },
     navigation__item: {
-        alignItems: 'center',
-        flex: 4,
         paddingTop: 8,
         paddingBottom: 6,
         justifyContent: 'space-between',
+        padding: 10
     },
     navigation__item__text: {
         fontSize: 12,

@@ -135,6 +135,14 @@ export const lightColors = {
     },
     pincode: {
         bgTimerColor: '#ebebeb',
+    },
+    modal: {
+      success: '#864DD9',
+      warning: '#F59E6C',
+      info: '#2A7FDB'
+    },
+    toolTips: {
+      background: '#F7F7F7',
     }
 };
 
@@ -275,5 +283,13 @@ export const darkColors = {
     },
     pincode: {
         bgTimerColor: '#2c2c2c',
+    },
+    modal: {
+      success: '#9E71E1',
+      warning: '#D6956F',
+      info: '#529CEC'
+    },
+    toolTips: {
+      background: '#2E2E2E',
     }
 };

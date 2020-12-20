@@ -207,7 +207,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     // @yura here should be alert when fixed receipt and no tx
                     showModal({
                         type: 'INFO_MODAL',
-                        icon: true,
+                        icon: null,
                         title: strings('modal.titles.attention'),
                         description: strings('modal.send.feeChangeAmount')
                     })
@@ -264,7 +264,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
             console.log('txData', txData)
             const tx = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed, selectedFee })
 
-            const transactionJson = sendScreenData.transactionJson
+            let transactionJson = sendScreenData.transactionJson
+            if (!transactionJson || typeof transactionJson === 'undefined' || transactionJson === null) {
+                transactionJson = {}
+            }
             if (memo) {
                 transactionJson.memo = memo
             }
@@ -564,8 +567,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
                         if (CACHE_WARNING_AMOUNT !== amount) {
                             // @yura here should be alert when fixed receipt
                             showModal({
-                                type: 'INFO_MODAL',
-                                icon: true,
+                                type: "INFO_MODAL",
+                                icon: null,
                                 title: strings('modal.titles.attention'),
                                 description: strings('modal.send.feeChangeAmount')
                             })

@@ -171,13 +171,13 @@ export namespace BlocksoftTransfer {
     export const canRBF = function (data:BlocksoftBlockchainTypes.DbAccount, dbTransaction: BlocksoftBlockchainTypes.DbTransaction, source: string) : boolean {
         let txResult = false
         try {
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.canRBF ${data.currencyCode} from ${source} started ${data.address} `)
+            // BlocksoftCryptoLog.log(`BlocksoftTransfer.canRBF ${data.currencyCode} from ${source} started ${data.address} `)
             const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
             if (typeof processor.canRBF === 'undefined') {
                 return false
             }
             txResult = processor.canRBF(data, dbTransaction, source)
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.canRBF ${data.currencyCode} from ${source} got ${data.address} result is ${JSON.stringify(txResult)}`)
+            // BlocksoftCryptoLog.log(`BlocksoftTransfer.canRBF ${data.currencyCode} from ${source} got ${data.address} result is ${JSON.stringify(txResult)}`)
         } catch (e) {
             BlocksoftCryptoLog.err(`BlocksoftTransfer.canRBF error ${data.currencyCode} from ${source} ` + e.message)
         }
@@ -187,13 +187,13 @@ export namespace BlocksoftTransfer {
     export const checkSendAllModal = function (data: { currencyCode: any }) {
         let checkSendAllModalResult = false
         try {
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.checkSendAllModal ${data.currencyCode} started `)
+            // BlocksoftCryptoLog.log(`BlocksoftTransfer.checkSendAllModal ${data.currencyCode} started `)
             const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
             if (typeof processor.checkSendAllModal === 'undefined') {
                 return false
             }
             checkSendAllModalResult = processor.checkSendAllModal(data)
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.checkSendAllModal ${data.currencyCode} got result is ok ` + JSON.stringify(checkSendAllModalResult))
+            // BlocksoftCryptoLog.log(`BlocksoftTransfer.checkSendAllModal ${data.currencyCode} got result is ok ` + JSON.stringify(checkSendAllModalResult))
         } catch (e) {
             BlocksoftCryptoLog.err(`BlocksoftTransfer.checkSendAllModal error ${data.currencyCode} ` + e.message)
         }

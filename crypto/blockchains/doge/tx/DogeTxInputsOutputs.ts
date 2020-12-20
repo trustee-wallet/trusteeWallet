@@ -49,6 +49,8 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 })
             }
         }
+        // @ts-ignore
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxInputsOutputs.getInputsOutputs _coinSelectTargets', {amount : data.amount, isTransferAll : data.isTransferAll, multiAddress}, targets)
         return targets
     }
 
@@ -114,7 +116,9 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
             }
         }
         if (isAllRequired) {
-            data.isTransferAll = true
+            if (data.addressFrom === data.addressTo) {
+                data.isTransferAll = true
+            }
         }
         const targets = this._coinSelectTargets(data, unspents, feeForByte, multiAddress, subtitle)
         let res

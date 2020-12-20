@@ -18,6 +18,8 @@ import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
 import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaemon'
 import CashBackUtils from '../CashBack/CashBackUtils'
+import transactionDS from '../../DataSource/Transaction/Transaction'
+import transactionActions from '../../Actions/TransactionActions'
 
 
 const { dispatch } = store
@@ -88,6 +90,7 @@ export async function setSelectedAccount(setting) {
     const wallet = store.getState().mainStore.selectedWallet
     const currency = store.getState().mainStore.selectedCryptoCurrency
     let basicAccounts = store.getState().accountStore.accountList
+    const exchangeOrdersStore = store.getState().exchangeOrdersStore
 
     let accounts
     if (currency.currencyCode === 'BTC') {
@@ -257,6 +260,48 @@ export async function setSelectedAccount(setting) {
         account.feeRates = DaemonCache.getCacheRates(account.feesCurrencyCode)
 
         account.transactionsTotalLength = await DaemonCache.getCacheTxsCount(account, wallet)
+        Log.log('ACT/MStore setSelectedAccount.transactionInfinity transactionsTotalLength cached ' + account.transactionsTotalLength)
+
+        // cutpaste from account screen - to think about
+        account.transactionsToView = []
+        const params = {
+            walletHash: account.walletHash,
+            currencyCode: account.currencyCode,
+            limitFrom: 0,
+            limitPerPage: 5
+        }
+        if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
+            params.minAmount = 0
+        }
+        const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')
+        if (tmp && tmp.length > 0) {
+            if (account.transactionsTotalLength === 0) {
+                // somehow cache = zero is possible
+                account.transactionsTotalLength = await DaemonCache.getCacheTxsCount(account, wallet, true)
+                Log.log('ACT/MStore setSelectedAccount.transactionInfinity transactionsTotalLength forced ' + account.transactionsTotalLength)
+            }
+            for (let transaction of tmp) {
+                transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData)
+                account.transactionsToView.push(transaction)
+            }
+        }
+
+        account.ordersWithoutTransactions = []
+        // it there is no wallet hash in store - just update code IN STORE if its bug or show me how you done it - not comment out logic
+        if (account.walletHash === exchangeOrdersStore.walletHash
+            && typeof exchangeOrdersStore.exchangeOrders !== 'undefined'
+            && exchangeOrdersStore.exchangeOrders
+            && typeof exchangeOrdersStore.exchangeOrders[account.currencyCode] !== 'undefined'
+            && exchangeOrdersStore.exchangeOrders[account.currencyCode]
+        ) {
+            for (const exchangeOrder of exchangeOrdersStore.exchangeOrders[account.currencyCode] ) {
+                const preformatOrder = transactionActions.preformatWithBSEforShow(false, exchangeOrder, account.currencyCode)
+                account.ordersWithoutTransactions.push(preformatOrder)
+            }
+        }
+
+
+
         dispatch({
             type: 'SET_SELECTED_ACCOUNT',
             selectedAccount: account

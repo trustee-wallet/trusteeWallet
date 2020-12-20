@@ -229,78 +229,84 @@ export namespace SendActions {
     }
 
     export const startSend = async function(data: SendTmpData.SendScreenDataRequest): Promise<boolean> {
-
-        data.transactionReplaceByFee = false
-        data.transactionSpeedUp = false
-        data.transactionJson = {}
-        if (typeof data.transactionBoost !== 'undefined' && data.transactionBoost && typeof data.transactionBoost.transactionHash !== 'undefined') {
-            data.currencyCode = data.transactionBoost.currencyCode
-            if (data.transactionBoost.transactionDirection !== 'income' && data.transactionBoost.transactionDirection !== 'self') {
-                data.transactionJson = data.transactionBoost.transactionJson
-                data.transactionReplaceByFee = data.transactionBoost.transactionHash
-            } else {
-                data.transactionSpeedUp = data.transactionBoost.transactionHash
+        try {
+            data.transactionReplaceByFee = false
+            data.transactionSpeedUp = false
+            data.transactionJson = {}
+            if (typeof data.transactionBoost !== 'undefined' && data.transactionBoost && typeof data.transactionBoost.transactionHash !== 'undefined') {
+                data.currencyCode = data.transactionBoost.currencyCode
+                if (data.transactionBoost.transactionDirection !== 'income' && data.transactionBoost.transactionDirection !== 'self') {
+                    data.transactionJson = data.transactionBoost.transactionJson
+                    data.transactionReplaceByFee = data.transactionBoost.transactionHash
+                } else {
+                    data.transactionSpeedUp = data.transactionBoost.transactionHash
+                }
+                if (typeof data.transactionBoost.transactionJson !== 'undefined' && data.transactionBoost.transactionJson && typeof data.transactionBoost.transactionJson.comment !== 'undefined') {
+                    data.comment = data.transactionBoost.transactionJson.comment
+                }
             }
-            if (typeof data.transactionBoost.transactionJson !== 'undefined' && typeof data.transactionBoost.transactionJson.comment !== 'undefined') {
-                data.comment = data.transactionBoost.transactionJson.comment
-            }
-        }
 
-        if (typeof data.amountPretty !== 'undefined') {
-            if (typeof data.amountRaw === 'undefined') {
+            if (typeof data.amountPretty !== 'undefined') {
+                if (typeof data.amountRaw === 'undefined') {
+                    data.amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amountPretty)
+                }
+            } else if (typeof data.amountRaw !== 'undefined') {
+                data.amountPretty = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.amountRaw)
+            }
+            if (typeof data.fioRequestDetails !== 'undefined' && typeof data.fioRequestDetails.content !== 'undefined' && typeof data.fioRequestDetails.content.amount !== 'undefined') {
+                data.amountPretty = data.fioRequestDetails.content.amount as string
                 data.amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amountPretty)
+                data.contactName = data.fioRequestDetails.payee_fio_address
+                data.addressTo = data.fioRequestDetails.content.payee_public_address || data.fioRequestDetails.payee_fio_public_key
+            } else if (typeof data.contactAddress !== 'undefined' && data.contactAddress && data.contactAddress !== '') {
+                data.addressTo = data.contactAddress
             }
-        } else if (typeof data.amountRaw !== 'undefined') {
-            data.amountPretty = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.amountRaw)
-        }
-        if (typeof data.fioRequestDetails !== 'undefined' && typeof data.fioRequestDetails.content !== 'undefined' && typeof data.fioRequestDetails.content.amount !== 'undefined') {
-            data.amountPretty = data.fioRequestDetails.content.amount as string
-            data.amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amountPretty)
-            data.contactName = data.fioRequestDetails.payee_fio_address
-            data.addressTo = data.fioRequestDetails.content.payee_public_address || data.fioRequestDetails.payee_fio_public_key
-        } else if (typeof data.contactAddress !== 'undefined' && data.contactAddress && data.contactAddress !== '') {
-            data.addressTo = data.contactAddress
-        }
 
 
-        let needToCount = false
-        if (typeof data.uiType !== 'undefined' && data.uiType === 'TRADE_SEND') {
-            if (!data.isTransferAll) {
-                Log.log('SendActions.startSend WILL CLEAR COUNTED TRADE FEES')
-                needToCount = true
+            let needToCount = false
+            if (typeof data.uiType !== 'undefined' && data.uiType === 'TRADE_SEND') {
+                if (!data.isTransferAll) {
+                    Log.log('SendActions.startSend WILL CLEAR COUNTED TRADE FEES')
+                    needToCount = true
+                } else {
+                    Log.log('SendActions.startSend WILL NOT CLEAR COUNTED TRADE FEES')
+                }
+            } else if (typeof data.gotoWithCleanData !== 'undefined' && !data.gotoWithCleanData) {
+                // do nothing for send => receipt
+                Log.log('SendActions.startSend WILL NOT CLEAR COUNTED SPEC PARAM')
             } else {
-                Log.log('SendActions.startSend WILL NOT CLEAR COUNTED TRADE FEES')
+                // for all others also clean
+                Log.log('SendActions.startSend WILL CLEAR COUNTED FEES')
+                needToCount = true
             }
-        } else if (typeof data.gotoWithCleanData !== 'undefined' && !data.gotoWithCleanData) {
-            // do nothing for send => receipt
-            Log.log('SendActions.startSend WILL NOT CLEAR COUNTED SPEC PARAM')
-        } else {
-            // for all others also clean
-            Log.log('SendActions.startSend WILL CLEAR COUNTED FEES')
-            needToCount = true
-        }
-        data.uiNeedToCountFees = (data.gotoReceipt && needToCount)
-        if (needToCount) {
-            SendTmpData.cleanCountedFees()
-            data.selectedFee = false
-        }
-
-        SendTmpData.setData(data)
-        if (data.gotoReceipt) {
-            // @ts-ignore
-            console.log('SendActions.startSend GO TO RECEIPT', data)
-            /*
+            data.uiNeedToCountFees = (data.gotoReceipt && needToCount)
             if (needToCount) {
-                const { selectedFee } = await countFees(data)
-                data.selectedFee = selectedFee
-                SendTmpData.setData(data)
+                SendTmpData.cleanCountedFees()
+                data.selectedFee = false
             }
-            */
-            NavStore.goNext('ReceiptScreen', { fioRequestDetails: data.fioRequestDetails })
-        } else {
-            // @ts-ignore
-            console.log('SendActions.startSend GO TO SEND', data)
-            NavStore.goNext('SendScreen')
+
+            SendTmpData.setData(data)
+            if (data.gotoReceipt) {
+                // @ts-ignore
+                console.log('SendActions.startSend GO TO RECEIPT', data)
+                /*
+                if (needToCount) {
+                    const { selectedFee } = await countFees(data)
+                    data.selectedFee = selectedFee
+                    SendTmpData.setData(data)
+                }
+                */
+                NavStore.goNext('ReceiptScreen', { fioRequestDetails: data.fioRequestDetails })
+            } else {
+                // @ts-ignore
+                console.log('SendActions.startSend GO TO SEND', data)
+                NavStore.goNext('SendScreen')
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('SendActions.startSend error ' + e.message, e)
+            }
+            Log.err('SendActions.startSend error ' + e.message)
         }
         return true
     }

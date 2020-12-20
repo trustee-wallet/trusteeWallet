@@ -789,7 +789,7 @@ class TransactionScreen extends Component {
             <>
                 {commentToView ?
                     !commentEditable ?
-                        <TouchableOpacity onLongPress={this.onLongPressEditableCallback}>
+                        <TouchableOpacity onPress={this.onLongPressEditableCallback}>
                             <TransactionItem
                                 title={commentToView.title}
                                 iconType='notes'
@@ -816,6 +816,7 @@ class TransactionScreen extends Component {
                                 inputBaseColor={'#f4f4f4'}
                                 inputTextColor={'#f4f4f4'}
                                 style={{...styles.input, color: colors.common.text2}}
+                                placeholderTextColor={colors.common.text2}
                             />
                         </View>
                     :

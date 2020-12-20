@@ -52,7 +52,7 @@ class DaemonCache {
         }
     }
 
-    async getCacheTxsCount(account, wallet) {
+    async getCacheTxsCount(account, wallet, force = false) {
         const params = {
             walletHash: account.walletHash,
             currencyCode: account.currencyCode
@@ -62,7 +62,7 @@ class DaemonCache {
             params.minAmount = 0
             cacheTitle += '_noZero'
         }
-        if (typeof this.CACHE_ACCOUNT_TX[cacheTitle] === 'undefined' || this.CACHE_ACCOUNT_TX[cacheTitle] < 0) {
+        if (typeof this.CACHE_ACCOUNT_TX[cacheTitle] === 'undefined' || this.CACHE_ACCOUNT_TX[cacheTitle] < 0 || force) {
             this.CACHE_ACCOUNT_TX[cacheTitle] = await transactionDS.getTransactionsCount(params, 'AccountScreen.transactionInfinity count')
         }
 

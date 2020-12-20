@@ -16,7 +16,7 @@ import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import config from '../../config/config'
 import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
 import NavStore from '../../components/navigation/NavStore'
-
+import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
 
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
 const ASYNC_CACHE_TIME = 'pushTokenTime'
@@ -510,31 +510,40 @@ export default new class AppNotificationListener {
         }
     }
 
-    showNotificationModal = (data: NotificationUnified, notificationId: string): void => {
+    showNotificationModal = async (data: NotificationUnified, notificationId: string): Promise<void> => {
         const locale: string = sublocale()
-        showModal({
-            type: 'CHOOSE_INFO_MODAL',
-            data: {
-                // @ts-ignore
-                title: data.newsCustomTitle,
-                // @ts-ignore
-                description: data.newsCustomText,
-                hideBottom: true
+        // showModal({
+        //     type: 'CHOOSE_INFO_MODAL',
+        //     data: {
+        //         // @ts-ignore
+        //         title: data.newsCustomTitle,
+        //         // @ts-ignore
+        //         description: data.newsCustomText,
+        //         hideBottom: true
+        //     }
+        // },
+        //  async () => {
+
+        if (notificationId) {
+            firebase.notifications().removeDeliveredNotification(notificationId)
+        }
+
+        UpdateAppNewsDaemon.goToNotifications('AFTER_APP') // if only goNext than after load will be few seconds of homescreen
+        
+        if (typeof data.walletHash !== 'undefined' && data.walletHash) {
+            const selectedWallet = await BlocksoftKeysStorage.getSelectedWallet()
+            if (selectedWallet !== data.walletHash) {
+                await cryptoWalletActions.setSelectedWallet(data.walletHash, 'showNewsModal')
             }
-        }, async () => {
-            if (notificationId) {
-                firebase.notifications().removeDeliveredNotification(notificationId)
-            }
-            if (typeof data.walletHash !== 'undefined' && data.walletHash) {
-                const selectedWallet = await BlocksoftKeysStorage.getSelectedWallet()
-                if (selectedWallet !== data.walletHash) {
-                    await cryptoWalletActions.setSelectedWallet(data.walletHash, 'showNewsModal')
-                }
-            }
-            await UpdateAppNewsDaemon.updateAppNewsDaemon()
-            NavStore.goNext('NotificationsScreen')
-            hideModal()
-        })
+        }
+
+        await UpdateAppNewsDaemon.updateAppNewsDaemon()
+        await UpdateAppNewsListDaemon.updateAppNewsListDaemon()
+
+        if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
+            NavStore.reset('NotificationsScreen')
+        }
+
     }
 
     showNewsModal = async (data: AppNewsItem, notificationId: string): Promise<void> => {

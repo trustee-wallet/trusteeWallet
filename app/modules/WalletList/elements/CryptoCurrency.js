@@ -242,9 +242,8 @@ class CryptoCurrency extends Component {
             ? (
                 <ToolTips
                     animatePress={true}
-                    height={100}
+                    height={150}
                     mainComponentProps={{ cryptoCurrency, settingsStore, accountListByWallet }}
-                    disabled={true}
                     MainComponent={this.renderTooltip}
                     type={'HOME_SCREEN_CRYPTO_BTN_TIP'}
                     nextCallback={this.handleCurrencySelect}

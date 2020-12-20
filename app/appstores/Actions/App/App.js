@@ -119,6 +119,12 @@ class App {
 
             this.initStatus = 'await ExchangeActions.init()'
 
+            if (UpdateAppNewsDaemon.isGoToNotifications('AFTER_APP')) {
+                NavStore.reset('NotificationsScreen')
+            } else {
+                UpdateAppNewsDaemon.goToNotifications('INITED_APP')
+            }
+
             dispatch(setInitState(true))
 
             this.initStatus = 'dispatch(setInitState(true))'

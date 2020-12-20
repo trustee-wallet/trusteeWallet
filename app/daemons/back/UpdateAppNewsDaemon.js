@@ -17,6 +17,18 @@ class UpdateAppNewsDaemon {
 
     _canUpdate = true
 
+    _goToNotifications = false
+
+    goToNotifications = (code) => {
+        if (this._goToNotifications === 'INITED_APP') return false // its final status
+        this._goToNotifications = code
+    }
+
+    isGoToNotifications = (code) => {
+        if (!this._goToNotifications) return false
+        return this._goToNotifications === code
+    }
+
     /**
      * @return {Promise<void>}
      */

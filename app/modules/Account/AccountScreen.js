@@ -69,18 +69,18 @@ class Account extends Component {
         super(props)
         this.state = {
             refreshing: false,
+            clickRefresh: false,
+
             amountToView: 5,
             transactionsToView: [],
-            transactionsShownLength: 0,
+            transactionsShownLength: 5,
 
             ordersWithoutTransactions : [],
 
             show: true,
             mode: 'TRANSACTIONS',
-            openTransactionList: [],
             dash: true,
 
-            firstCall: true,
             fioMemo: {},
             scrollOffset: 0,
             isBalanceVisible: false,
@@ -93,30 +93,16 @@ class Account extends Component {
 
     // eslint-disable-next-line camelcase
     async UNSAFE_componentWillMount() {
-        UpdateOneByOneDaemon._canUpdate = false
-        try {
 
-            setTimeout(() => {
-                this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
-                    if (this.state.firstCall) {
-                        this.setState({ firstCall: false })
-                    }
-                    this.transactionInfinity()
-                    this.ordersWithoutTransactions()
-                })
-            }, 1000)
+        this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
+            this.transactionInfinity()
+            this.ordersWithoutTransactions()
+        })
 
-            // await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({force : true, source : 'ACCOUNT_OPEN'})
-
-        } catch (e) {
-            // noinspection ES6MissingAwait
-            Log.err('AccountScreen.componentDidMount ' + e.message)
-        }
-        UpdateOneByOneDaemon._canUpdate = true
         CACHE_ASKED = await AsyncStorage.getItem('asked')
 
-        this.transactionInfinity()
-        this.ordersWithoutTransactions()
+        //this.transactionInfinity()
+        //this.ordersWithoutTransactions()
     }
 
     async componentDidMount() {
@@ -132,8 +118,8 @@ class Account extends Component {
                 }, this.handleRegisterFIOAddress)
             }
         }
-        this.transactionInfinity()
-        this.ordersWithoutTransactions()
+        //this.transactionInfinity()
+        //this.ordersWithoutTransactions()
     }
 
     getBalanceVisibility = async () => {
@@ -227,11 +213,12 @@ class Account extends Component {
         }
     }
 
-    handleRefresh = async () => {
+    handleRefresh = async (click=false) => {
         const { account } = this.props
 
         this.setState({
-            refreshing: true
+            refreshing: click ? false : true,
+            clickRefresh: click ? true : false,
         })
 
         UpdateOneByOneDaemon._canUpdate = false
@@ -266,10 +253,12 @@ class Account extends Component {
 
         UpdateOneByOneDaemon._canUpdate = true
 
+        this.ordersWithoutTransactions()
         this.transactionInfinity(0, this.state.transactionsShownLength)
 
         this.setState({
-            refreshing: false
+            refreshing: false,
+            clickRefresh: false
         })
     }
 
@@ -284,9 +273,14 @@ class Account extends Component {
         return Math.abs(Math.round(diffTime));
     }
 
-        renderTooltip = (props) => {
+    renderTooltip = (props) => {
 
-        const { cryptoCurrency, account, allTransactionsToView } = props
+        const { cryptoCurrency, account } = props
+
+        let { transactionsToView } = this.state
+        if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
+            transactionsToView = account.transactionsToView
+        }
 
         const isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
@@ -321,8 +315,8 @@ class Account extends Component {
                             }
                         </View>
                     </View>
-                    <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE}} onPress={this.handleRefresh} hitSlop={HIT_SLOP} >
-                            {this.state.refreshing ? 
+                    <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE}} onPress={() => this.handleRefresh(true)} hitSlop={HIT_SLOP} >
+                            {this.state.clickRefresh ? 
                                 <LottieView style={{ width: 20, height: 20, }} 
                                 source={require('../../assets/jsons/animations/refreshWhite.json')}
                                 autoPlay loop /> :
@@ -330,7 +324,7 @@ class Account extends Component {
                         </TouchableOpacity>
                 </View>
                 {
-                    account.transactionsTotalLength === 0 ?
+                    account.transactionsTotalLength === 0 && (!transactionsToView || transactionsToView.length === 0) ?
                         <View style={{ marginRight: GRID_SIZE }} >
                             {isSynchronized && <Text
                                 style={{...styles.transaction__empty_text, marginTop: GRID_SIZE, color: colors.common.text3}}>
@@ -406,7 +400,12 @@ class Account extends Component {
         const { account, exchangeOrdersStore } = this.props
         const preformatOrders = []
         // it there is no wallet hash in store - just update code IN STORE if its bug or show me how you done it - not comment out logic
-        if (account.walletHash === exchangeOrdersStore.walletHash && exchangeOrdersStore.exchangeOrders[account.currencyCode]) {
+        if (account.walletHash === exchangeOrdersStore.walletHash
+            && typeof exchangeOrdersStore.exchangeOrders !== 'undefined'
+            && exchangeOrdersStore.exchangeOrders
+            && typeof exchangeOrdersStore.exchangeOrders[account.currencyCode] !== 'undefined'
+            && exchangeOrdersStore.exchangeOrders[account.currencyCode]
+        ) {
             for (const exchangeOrder of exchangeOrdersStore.exchangeOrders[account.currencyCode] ) {
                 const preformatOrder = transactionActions.preformatWithBSEforShow(false, exchangeOrder, account.currencyCode)
                 preformatOrders.push(preformatOrder)
@@ -439,9 +438,15 @@ class Account extends Component {
         const { colors, isLight } = this.context
         const { mode, headerHeight } = this.state
         const { mainStore, account, cryptoCurrency, settingsStore } = this.props
-        const { amountToView, show, transactionsToView, transactionsShownLength, isBalanceVisible } = this.state
+        let { amountToView, show, transactionsToView, ordersWithoutTransactions, transactionsShownLength, isBalanceVisible } = this.state
+        if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
+            transactionsToView = account.transactionsToView
+        }
+        if (typeof ordersWithoutTransactions === 'undefined' || !ordersWithoutTransactions || ordersWithoutTransactions.length === 0) {
+            ordersWithoutTransactions = account.ordersWithoutTransactions
+        }
 
-        const allTransactionsToView = this.state.ordersWithoutTransactions.concat(transactionsToView)
+        const allTransactionsToView = ordersWithoutTransactions.concat(transactionsToView)
 
         const address = account.address
 
@@ -490,7 +495,6 @@ class Account extends Component {
                             actionSend={this.handleSend}
                             isBalanceVisible={this.state.isBalanceVisible}
                             originalVisibility={this.state.originalVisibility}
-                            triggerBalanceVisibility={this.triggerBalanceVisibility}
                         />
                     ) }}
                     scrollOffset={this.state.scrollOffset}
@@ -532,7 +536,7 @@ class Account extends Component {
                         }}>
                             <View>
                                 <ToolTips type={'ACCOUNT_SCREEN_TRANSACTION_TIP'}
-                                    height={100}
+                                    height={150}
                                     MainComponent={this.renderTooltip}
                                     nextCallback={this.nextCallback}
                                     mainComponentProps={{
@@ -555,7 +559,7 @@ class Account extends Component {
                                                 fioMemo={fioMemo[item.transactionHash]}
                                                 account={account}
                                                 cryptoCurrency={cryptoCurrency}
-                                                dash={(allTransactionsToView - 1 === index) ? this.renderDash : !this.renderDash}
+                                                dash={(allTransactionsToView.length - 1 === index) ? this.renderDash : !this.renderDash}
                                             />
                                         }) : null
                                     }

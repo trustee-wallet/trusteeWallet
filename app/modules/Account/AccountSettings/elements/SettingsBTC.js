@@ -276,9 +276,6 @@ class SettingsBTC extends Component {
 
         return (
             <>
-                <View style={styles.settings__row}>
-                    <LetterSpacing text={strings('account.assetSettings').toUpperCase()} textStyle={{...styles.settings__title, color: colors.common.text1 }} letterSpacing={1.5} />
-                </View>
                 <View >
                     <ListItem
                         title={strings('settings.walletList.useUnconfirmed')}
