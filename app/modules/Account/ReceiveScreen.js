@@ -488,9 +488,9 @@ class ReceiveScreen extends Component {
         const amountForQr = this.state.inputType === 'CRYPTO' ? this.refAmountInput.getValue() : amountEquivalent
 
         this.setState({
-            amountInputMark: this.state.inputType === 'CRYPTO' ? 
+            amountInputMark: this.state.inputType === 'FIAT' ? 
                 `~ ${basicCurrencySymbol} ${UtilsService.cutNumber(this.refAmountInput.getValue(), 2)}` : 
-                `~ ${UtilsService.cutNumber(amountEquivalent, 8)} ${basicCurrencySymbol}`,
+                `~ ${UtilsService.cutNumber(amountEquivalent, 8)} ${currencySymbol}`,
             amountEquivalent: this.state.inputType !== 'CRYPTO' ? UtilsService.cutNumber(amountEquivalent, 2) : UtilsService.cutNumber(amountEquivalent, 8),
             inputType,
             amountForQr

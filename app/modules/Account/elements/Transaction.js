@@ -273,7 +273,7 @@ class Transaction extends Component {
                 subtitle = true
             }
             if (bseOrderData.exchangeWayType === 'SELL') {
-                subtitleMini = bseOrderData.outDestination
+                subtitleMini = bseOrderData.outDestination.slice(-7)
             } else if (bseOrderData.exchangeWayType === 'EXCHANGE'){
                 subtitleMini = transactionDirection !== 'income' ?
                     bseOrderData.requestedOutAmount.currencyCode : bseOrderData.requestedInAmount.currencyCode
