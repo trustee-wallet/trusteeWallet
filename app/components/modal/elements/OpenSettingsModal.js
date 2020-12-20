@@ -53,10 +53,10 @@ class OpenSettingsModal extends Component {
                     </View>
                     {typeof component != 'undefined' ? component() : null}
                     <View>
-                        <Button onPress={this.handleHide} color={ icon === true ? '#864DD9' : icon === false ? '#F59E6C' : icon === null ? '#F59E6C' : '#2A7FDB' } shadow={true} style={{ marginTop: 17 }}>
+                        <Button onPress={this.handleHide} color={ icon === true ? colors.modal.success : icon === false ? colors.modal.warning : icon === null ? colors.modal.warning  : colors.modal.info } shadow={true} style={{ marginTop: 17 }}>
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
-                        <Button onPress={callback} style={{ backgroundColor: 'none', color: icon === true ? '#864DD9' : icon === false ? '#F59E6C' : icon === null ? '#F59E6C' : '#2A7FDB' }}>
+                        <Button onPress={callback} style={{ backgroundColor: 'none', color: icon === true ? colors.modal.success : icon === false ? colors.modal.warning : icon === null ? colors.modal.warning  : colors.modal.info }}>
                             {btnSubmitText}
                         </Button>
                     </View>

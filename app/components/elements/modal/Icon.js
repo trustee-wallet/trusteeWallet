@@ -10,8 +10,9 @@ import AntDesign from 'react-native-vector-icons/AntDesign'
 import IconIonicons from 'react-native-vector-icons/Ionicons'
 import CustomIcon from '../CustomIcon'
 
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
-export default class Icon extends Component {
+class Icon extends Component {
 
     constructor(props) {
         super(props)
@@ -21,11 +22,13 @@ export default class Icon extends Component {
 
         const { callback } = this.props
 
+        const { colors } = this.context
+
         if (this.props.icon === 'info') {
             return (
                 <View style={styles.icon__wrapper}>
                     <TouchableOpacity onPress={() => callback()}>
-                        <View style={styles.info}>
+                        <View style={{...styles.info, backgroundColor: colors.modal.info }}>
                             <CustomIcon name="infoTransparent" style={{ fontSize: styles_.info.size, color: styles_.color }}/>
                         </View>
                     </TouchableOpacity>
@@ -35,7 +38,7 @@ export default class Icon extends Component {
             return (
                 <View style={styles.icon__wrapper}>
                     <TouchableOpacity onPress={() => callback()}>
-                        <View style={styles.fail}>
+                        <View style={{...styles.fail, backgroundColor: colors.modal.warning  }}>
                             <CustomIcon name="infoTransparent" size={styles_.warning.size} color={styles_.color}/>
                         </View>
                     </TouchableOpacity>
@@ -45,7 +48,7 @@ export default class Icon extends Component {
             return (
                 <View style={styles.icon__wrapper}>
                     <TouchableOpacity onPress={() => callback()}>
-                        <View style={styles.success}>
+                        <View style={{...styles.success, backgroundColor: colors.modal.success  }}>
                             <CustomIcon name="check" size={styles_.success.size} color={styles_.color}/>
                         </View>
                     </TouchableOpacity>
@@ -55,7 +58,7 @@ export default class Icon extends Component {
             return (
                 <View style={styles.icon__wrapper}>
                     <TouchableOpacity onPress={() => callback()}>
-                        <View style={this.props.tbk ? styles.tbk : styles.warning}>
+                        <View style={this.props.tbk ? {...styles.tbk, backgroundColor: colors.modal.success } : {...styles.warning, backgroundColor: colors.modal.warning }}>
                             <CustomIcon name="infoTransparent" size={styles_.warning.size} color={styles_.color}/>
                         </View>
                     </TouchableOpacity>
@@ -73,6 +76,10 @@ export default class Icon extends Component {
     }
 }
 
+Icon.contextType = ThemeContext
+
+export default Icon
+
 const styles_ = {
     info: {
         size: 30
@@ -86,7 +93,7 @@ const styles_ = {
     warning: {
         size: 30
     },
-    color: '#fff'
+    color: '#F7F7F7'
 }
 
 const styles = StyleSheet.create({
@@ -103,7 +110,7 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 50,
-        backgroundColor: '#F59E6C',
+        // backgroundColor: '#F59E6C',
         transform: [{ rotate: '180deg' }]
     },
     info: {
@@ -112,7 +119,7 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 50,
-        backgroundColor: '#2A7FDB'
+        // backgroundColor: '#2A7FDB'
     },
     success: {
         alignSelf: 'center',
@@ -121,7 +128,7 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 50,
-        backgroundColor: '#864DD9'
+        // backgroundColor: '#864DD9'
     },
     warning: {
         alignSelf: 'center',
@@ -130,7 +137,7 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 50,
-        backgroundColor: '#F59E6C'
+        // backgroundColor: '#F59E6C'
     },
     tbk: {
         alignSelf: 'center',
@@ -139,6 +146,6 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 50,
-        backgroundColor: '#864DD9'
+        // backgroundColor: '#864DD9'
     }
 })

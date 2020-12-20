@@ -61,10 +61,10 @@ class YesNoModal extends Component {
                         </Text>
                     </View>
                     <View>
-                        <Button onPress={this.handleNo} color={'#F59E6C'} shadow={true} style={{ marginTop: 17 }}>
+                        <Button onPress={this.handleNo} color={colors.modal.warning} shadow={true} style={{ marginTop: 17 }}>
                             {reverse ? strings('walletBackup.skipElement.yes') : strings('walletBackup.skipElement.no')}
                         </Button>
-                        <Button onPress={this.handleYes} style={{ backgroundColor: 'none', color: '#F59E6C' }}>
+                        <Button onPress={this.handleYes} style={{ backgroundColor: 'none', color: colors.modal.warning }}>
                             {reverse ? strings('walletBackup.skipElement.no') : strings('walletBackup.skipElement.yes')}
                         </Button>
                     </View>

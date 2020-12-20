@@ -53,7 +53,7 @@ class InfoModal extends Component {
                     </View>
                     {typeof component != 'undefined' ? component() : null}
                     <View style={{marginBottom: 30 }}>
-                        <Button onPress={this.handleHide} color={ icon === true ? '#864DD9' : icon === false ? '#F59E6C' : icon === null ? '#F59E6C' : '#2A7FDB' } shadow={true} style={{ marginTop: 17 }}>
+                        <Button onPress={this.handleHide} color={ icon === true ? colors.modal.success : icon === false ? colors.modal.warning : icon === null ? colors.modal.warning  : colors.modal.info  } shadow={true} style={{ marginTop: 17 }}>
                             Ok
                         </Button>
                     </View>

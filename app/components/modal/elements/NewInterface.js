@@ -60,10 +60,10 @@ class NewInterface extends Component {
                         </Text>
                     </View>
                     <View>
-                        <Button onPress={this.handleTry} color={'#864DD9'} shadow={true} style={{ marginTop: 17 }}>
+                        <Button onPress={this.handleTry} color={colors.modal.success} shadow={true} style={{ marginTop: 17 }}>
                             {strings('modal.infoNewInterface.try')}
                         </Button>
-                        <Button onPress={this.handleNotNow} style={{ backgroundColor: 'none', color: '#864DD9' }}>
+                        <Button onPress={this.handleNotNow} style={{ backgroundColor: 'none', color: colors.modal.success}}>
                             {strings('modal.infoNewInterface.notNow')}
                         </Button>
                     </View>

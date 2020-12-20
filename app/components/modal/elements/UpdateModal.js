@@ -60,10 +60,10 @@ class UpdateModal extends Component {
                         </Text>
                     </View>
                     <View>
-                        <Button onPress={this.handleYes} color={'#864DD9'} shadow={true} style={{ marginTop: 17 }}>
+                        <Button onPress={this.handleYes} color={colors.modal.success} shadow={true} style={{ marginTop: 17 }}>
                             {strings('modal.infoUpdateModal.download')}
                         </Button>
-                        <Button onPress={this.handleNo} style={{ backgroundColor: 'none', color: '#864DD9' }}>
+                        <Button onPress={this.handleNo} style={{ backgroundColor: 'none', color: colors.modal.success }}>
                             {strings('modal.infoUpdateModal.notNow')}
                         </Button>
                     </View>

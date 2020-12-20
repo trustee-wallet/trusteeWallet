@@ -77,13 +77,13 @@ class RbfModal extends Component {
                         <Text style={{...styles.text, color: colors.sendScreen.amount }}>
                             {description}
                         </Text>
-                        <Text style={styles.text}>{ this.state.isRBF === true ? strings('modal.tbkModal.statusEnable').toUpperCase() : strings('modal.tbkModal.statusDisable').toUpperCase()}</Text>
+                        <Text style={{...styles.text, color: colors.sendScreen.amount}}>{ this.state.isRBF === true ? strings('modal.tbkModal.statusEnable').toUpperCase() : strings('modal.tbkModal.statusDisable').toUpperCase()}</Text>
                     </View>
                     <View>
-                        <Button onPress={this.handleIsActive} color={'#864DD9'} shadow={true} style={{ marginTop: 17 }}>
+                        <Button onPress={this.handleIsActive} color={colors.modal.success} shadow={true} style={{ marginTop: 17 }}>
                             {this.state.isRBF === true ? strings('modal.tbkModal.disable') : strings('modal.tbkModal.enable')}
                         </Button>
-                        <Button onPress={this.handleCancel} style={{ backgroundColor: 'none', color: '#864DD9' }}>
+                        <Button onPress={this.handleCancel} style={{ backgroundColor: 'none', color: colors.modal.success }}>
                             {strings('modal.tbkModal.cancel')}
                         </Button>
                     </View>
