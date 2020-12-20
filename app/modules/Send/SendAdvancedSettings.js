@@ -38,6 +38,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 import CustomFee from './elements/FeeCustom/CustomFee'
 import { SendTmpData } from '../../appstores/Stores/Send/SendTmpData'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
+import Log from '../../services/Log/Log'
 
 import TextInput from '../../components/elements/new/TextInput'
 
@@ -87,7 +88,7 @@ class SendAdvancedSettingsScreen extends Component {
         const {selectedFee, countedFees, countedFeesData} = SendTmpData.getCountedFees()
 
         let isCustomFee = selectedFee && typeof selectedFee.isCustomFee !== 'undefined' ? selectedFee.isCustomFee : false
-        let dropMenu = false
+        let dropMenu = this.state.dropMenu
         if (typeof additionalParams!== 'undefined' && typeof additionalParams.toOpenCustom !== 'undefined') {
             isCustomFee = true
             dropMenu  = true
@@ -274,6 +275,7 @@ class SendAdvancedSettingsScreen extends Component {
         const selectedFee = this.state.isCustomFee && CACHE_FROM_CUSTOM_FEE ? CACHE_FROM_CUSTOM_FEE : this.state.selectedFee
         const comment = this.state.comment
 
+        Log.log('Send.SendAdvancedSettings.handleApply', {selectedFee, comment})
         SendTmpData.setSelectedFee(selectedFee)
         SendTmpData.setComment(comment)
         NavStore.goBack()
@@ -313,10 +315,13 @@ class SendAdvancedSettingsScreen extends Component {
 
         if (typeof sendScreenData === 'undefined' || typeof sendScreenData.currencyCode === 'undefined') {
             sendScreenData = SendTmpData.getData()
-            if (typeof selectedFee === 'undefined') {
-                const tmp = SendTmpData.getCountedFees()
-                selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
-                countedFees = typeof tmp.countedFees !== 'undefined' ? tmp.countedFees : false
+        }
+        if (typeof selectedFee === 'undefined') {
+            const tmp = SendTmpData.getCountedFees()
+            selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
+            countedFees = typeof tmp.countedFees !== 'undefined' ? tmp.countedFees : false
+            if (!selectedFee && typeof sendScreenData.selectedFee !== 'undefined') {
+                selectedFee = sendScreenData.selectedFee
             }
         }
         if (typeof account === 'undefined' || typeof account.currencyCode === 'undefined') {
@@ -327,7 +332,7 @@ class SendAdvancedSettingsScreen extends Component {
         const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode } = account
 
         const langMsg = selectedFee ? selectedFee.langMsg : 'none'
-        let dropMenu = langMsg !== 'none' ? !!this.state.dropMenu : true
+        const dropMenu = langMsg !== 'none' ? !!this.state.dropMenu : true
         const showFees = !(countedFees && typeof countedFees.selectedFeeIndex !== -1 && countedFees.selectedFeeIndex < -2)
 
         return (

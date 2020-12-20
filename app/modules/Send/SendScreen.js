@@ -185,6 +185,7 @@ class SendScreen extends SendBasicScreenScreen {
                 useAllFunds: sendScreenData.isTransferAll,
                 init: true,
                 inputType: routeName === 'QRCodeScannerScreen' ? 'CRYPTO' : this.state.inputType,
+                // @yurka are you kidding ?
                 amountInputMark: this.state.amountInputMark ? this.state.amountInputMark : routeName === 'QRCodeScannerScreen' ? `${account.basicCurrencySymbol} 0.00` : this.state.inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencyCode}` : `${account.basicCurrencySymbol} 0.00`
             }, () => {
 
@@ -198,6 +199,13 @@ class SendScreen extends SendBasicScreenScreen {
                     if (typeof sendScreenData.memo !== 'undefined' && sendScreenData.memo && sendScreenData.memo !== '') {
                         this.memoInput.handleInput(sendScreenData.memo.toString(), false)
                     }
+                }
+                let needRecount = true
+                // back from advanced no need to recount and put amount if any applied
+                if (typeof sendScreenData.selectedFee !== 'undefined' && typeof sendScreenData.selectedFee.amountForTx !== 'undefined') {
+                    Log.log('SendScreenData.selectedFee.amountForTx', sendScreenData.selectedFee.amountForTx)
+                    sendScreenData.amountPretty = BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(sendScreenData.selectedFee.amountForTx)
+                    needRecount = false
                 }
                 if (typeof sendScreenData.amountPretty !== 'undefined' && sendScreenData.amountPretty && sendScreenData.amountPretty !== '' && sendScreenData.amountPretty !== '0') {
                     try {
@@ -219,7 +227,10 @@ class SendScreen extends SendBasicScreenScreen {
                             amountInputMark: amountInputMark,
                             balancePart: 0,
                         })
-                        this.recountFees(sendScreenData)
+
+                        if (needRecount) {
+                            this.recountFees(sendScreenData, 'Send.SendScreen.init')
+                        }
 
                     } catch (e) {
 
@@ -303,7 +314,7 @@ class SendScreen extends SendBasicScreenScreen {
 
             // console.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} addressToForTransferAll ${addressToForTransferAll}`)
 
-            const { countedFees, selectedFee } = await this.recountFees(newSendScreenData)
+            const { countedFees, selectedFee } = await this.recountFees(newSendScreenData, 'Send.SendScreen.handleTransferAll')
             let amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(countedFees.selectedTransferAllBalance)
             newSendScreenData.amountPretty = amount
             newSendScreenData.inputValue = amount
@@ -332,7 +343,6 @@ class SendScreen extends SendBasicScreenScreen {
                     && typeof this.valueInput.handleInput !== 'undefined' && this.valueInput.handleInput
                     && typeof amount !== 'undefined' && amount !== null
                 ) {
-                    console.log('_SendScreen.handleTransferAll amount ', amount)
                     this.valueInput.handleInput(amount, false)
                 }
             } catch (e) {
@@ -604,7 +614,7 @@ class SendScreen extends SendBasicScreenScreen {
             if (!newSendScreenData.isTransferAll || isChanged || (
                 typeof newSendScreenData.uiNeedToCountFees && newSendScreenData.uiNeedToCountFees
             )) {
-                const { selectedFee } = await this.recountFees(newSendScreenData)
+                const { selectedFee } = await this.recountFees(newSendScreenData, 'Send.SendScreen.handleSendTransaction')
                 newSendScreenData.selectedFee = selectedFee
                 newSendScreenData.uiNeedToCountFees = false
             }
@@ -780,7 +790,7 @@ class SendScreen extends SendBasicScreenScreen {
                     this.setState({
                         loadFee : true
                     })
-                    const {selectedFee} = await this.recountFees(newSendScreenData)
+                    const {selectedFee} = await this.recountFees(newSendScreenData, 'Send.SendScreen.amountInputCallback')
                     newSendScreenData.selectedFee = selectedFee
                     newSendScreenData.uiNeedToCountFees = false
                     console.log(`Send.SendScreen.amountInputCallback`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))

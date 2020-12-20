@@ -29,8 +29,8 @@ export default class SendBasicScreen extends Component {
      *
      * @returns {Promise<{countedFees, selectedFee}>}
      */
-    recountFees = async (data) => {
-        console.log('SendBasicScreen.recountFees init ', JSON.parse(JSON.stringify(data)))
+    recountFees = async (data, source) => {
+        console.log('SendBasicScreen.recountFees ' + source + ' init ', JSON.parse(JSON.stringify(data)))
 
         const currencyCode = data.currencyCode
 
@@ -42,15 +42,16 @@ export default class SendBasicScreen extends Component {
             const { countedFees, selectedFee } = await SendActions.countFees(data)
 
             if (countedFees) {
-                console.log('SendBasicScreen.recountFees result ', JSON.parse(JSON.stringify(countedFees)))
+                console.log('SendBasicScreen.recountFees ' + source + ' result ', JSON.parse(JSON.stringify(countedFees)))
             } else {
-                console.log('SendBasicScreen.recountFees result ', countedFees)
+                console.log('SendBasicScreen.recountFees ' + source + ' result ', countedFees)
             }
+            console.log('SendBasicScreen.recountFees ' + source + ' selectedFee ', JSON.parse(JSON.stringify(selectedFee)))
 
             return { countedFees, selectedFee }
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('SendBasicScreen.recountFees', e)
+                console.log('SendBasicScreen.recountFees ' + source + ' error ' + e.message, e)
             }
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
             Log.errorTranslate(e, 'SendBasicScreen.recountFees', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
@@ -72,7 +73,7 @@ export default class SendBasicScreen extends Component {
     openAdvancedSettings = async (additionalParams) => {
         // late count
         const newSendScreenData = JSON.parse(JSON.stringify(this.state.sendScreenData))
-        const { selectedFee } = await this.recountFees(newSendScreenData)
+        const { selectedFee } = await this.recountFees(newSendScreenData, 'Send.SendBasicScreen.openAdvancedScreen')
         newSendScreenData.selectedFee = selectedFee
         setLoaderStatus(false)
         NavStore.goNext('SendAdvancedScreen', {

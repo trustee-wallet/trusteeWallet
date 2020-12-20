@@ -112,7 +112,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             this.setState({
                 loadFee: true
             })
-            tmp = await SendActions.countFees(sendScreenData)
+            tmp = await this.recountFees(sendScreenData, 'Send.ReceiptScreen.startLoadFee')
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
         sendScreenData.selectedFee = selectedFee
@@ -611,7 +611,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
             && typeof selectedFee.blockchainData.preparedInputsOutputs !== 'undefined'
             && typeof selectedFee.blockchainData.preparedInputsOutputs.multiAddress !== 'undefined'
             && selectedFee.blockchainData.preparedInputsOutputs.multiAddress
-            && selectedFee.blockchainData.preparedInputsOutputs.multiAddress.length > 1) {
+            && selectedFee.blockchainData.preparedInputsOutputs.multiAddress.length > 1
+        ) {
             address = selectedFee.blockchainData.preparedInputsOutputs.multiAddress[0]
             multiShow = true
             multiAddress = selectedFee.blockchainData.preparedInputsOutputs.multiAddress
