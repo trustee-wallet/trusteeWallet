@@ -9,6 +9,7 @@ import { BlocksoftTransferPrivate } from './BlocksoftTransferPrivate'
 import { BlocksoftDictTypes } from '../../common/BlocksoftDictTypes'
 import config from '../../../app/config/config'
 
+const DEBUG = false
 
 export namespace BlocksoftTransfer {
 
@@ -22,7 +23,9 @@ export namespace BlocksoftTransfer {
     const CACHE_VALID_TIME = 20000 // 2 minute
 
     export const getTransferAllBalance = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
-        console.log('BlocksoftTransfer.getTransferAllBalance', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
+        if (DEBUG) {
+            console.log('BlocksoftTransfer.getTransferAllBalance', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
+        }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
         let transferAllCount
         try {
@@ -37,7 +40,9 @@ export namespace BlocksoftTransfer {
             transferAllCount = await (BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)).getTransferAllBalance(data, privateData, additionalDataTmp)
 
             BlocksoftCryptoLog.log(`BlocksoftTransfer.getTransferAllBalance ${data.currencyCode} got ${data.addressFrom} result is ok`)
-            console.log('BlocksoftTransfer.getTransferAllBalance result', JSON.parse(JSON.stringify(transferAllCount)))
+            if (DEBUG) {
+                console.log('BlocksoftTransfer.getTransferAllBalance result', JSON.parse(JSON.stringify(transferAllCount)))
+            }
         } catch (e) {
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
                 // noinspection ES6MissingAwait
@@ -51,7 +56,9 @@ export namespace BlocksoftTransfer {
     }
 
     export const getFeeRate = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
-        console.log('BlocksoftTransfer.getFeeRate', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
+        if (DEBUG) {
+            console.log('BlocksoftTransfer.getFeeRate', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
+        }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
         let feesCount
         try {
@@ -67,7 +74,9 @@ export namespace BlocksoftTransfer {
             feesCount = await processor.getFeeRate(data, privateData, additionalDataTmp)
 
             BlocksoftCryptoLog.log(`BlocksoftTransfer.getFeeRate ${data.currencyCode} got ${data.addressFrom} result is ok`)
-            console.log('BlocksoftTransfer.getFeeRate result', JSON.parse(JSON.stringify(feesCount)))
+            if (DEBUG) {
+                console.log('BlocksoftTransfer.getFeeRate result', JSON.parse(JSON.stringify(feesCount)))
+            }
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('BlocksoftTransfer.getFeeRate error ', e)
@@ -84,7 +93,9 @@ export namespace BlocksoftTransfer {
     }
 
     export const sendTx = async function(data: BlocksoftBlockchainTypes.TransferData, uiData: BlocksoftBlockchainTypes.TransferUiData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
-        console.log('sendTx', data, uiData)
+        if (DEBUG) {
+            console.log('sendTx', data, uiData)
+        }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
 
         try {
@@ -98,7 +109,7 @@ export namespace BlocksoftTransfer {
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('BlocksoftTransfer error check double ', e)
+                console.log('BlocksoftTransfer.sendTx check double error ' + e.message, e)
             }
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
                 BlocksoftCryptoLog.err(`BlocksoftTransfer.sendTx ${data.currencyCode} error ` + e.message)
@@ -119,7 +130,7 @@ export namespace BlocksoftTransfer {
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('BlocksoftTransfer error ', e)
+                console.log('BlocksoftTransfer.sendTx error ' + e.message, e)
             }
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1 && e.message.indexOf('connect() timed') === -1) {
                 // noinspection ES6MissingAwait
