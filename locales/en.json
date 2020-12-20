@@ -295,7 +295,7 @@
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
       "accountAddress": "Select visible address",
-      "hd": "Multiple bitcoin address",
+      "hd": "Multiple bitcoin addresses",
       "hdDescription": "Increase privacy by creating a new deposit address every time BTC is received",
       "hideCommissionTrans": "Hide commission payment transactions",
       "manualAddressFromHD" : "Paste address HD",
@@ -517,7 +517,7 @@
       "share": "Share",
       "booster": "Booster",
       "remove": "Remove",
-      "removeRbf": "Remove with rbf",
+      "removeRbf": "Returning a transaction",
       "check": "Check",
       "support": "Support",
       "details": "Details",
@@ -753,7 +753,7 @@
       "selectInput": "Select input",
       "descriptionInput": "Default",
       "optionalSettings": "Optinal",
-      "note": "Note",
+      "note": "Comment",
       "optional" : "Optional"
     },
     "infoModal": {
@@ -1227,7 +1227,7 @@
       "success": "Success!",
       "txSuccess": "Your transaction has been successfully sent!",
       "fail": "Attention!",
-      "feeChangeAmount": "Your amount was change after change fee"
+      "feeChangeAmount": "Sending amount was change after change fee"
     },
     "walletLog": {
       "sorry": "Attention!",
