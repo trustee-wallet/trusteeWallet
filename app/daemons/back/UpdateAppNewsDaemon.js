@@ -19,13 +19,14 @@ class UpdateAppNewsDaemon {
 
     _goToNotifications = false
 
-    goToNotifications = () => {
-        this._goToNotifications = true
+    goToNotifications = (code) => {
+        if (this._goToNotifications === 'INITED_APP') return false // its final status
+        this._goToNotifications = code
     }
-    isGoToNotifications = () => {
+
+    isGoToNotifications = (code) => {
         if (!this._goToNotifications) return false
-        this._goToNotifications = false
-        return true
+        return this._goToNotifications === code
     }
 
     /**
