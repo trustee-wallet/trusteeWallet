@@ -427,7 +427,9 @@
       "UI_ERROR_CASHBACK_NETWORK_ERROR": "Нет доступа к интернету",
       "UI_ERROR_CASHBACK_SIGN_ERROR" : "Некорректная подпись в хранилище - пожалуйста, зайдите в раздел кешбэк еще раз",
       "UI_ERROR_CASHBACK_TIME_ERROR" : "Неактуальная дата или время устройства",
-      "UI_ERROR_CASHBACK_TIME_ERROR_LOG" : "Сервис может не работать в результате нестабильного интернета или некорректных настроек даты и времени на Вашем мобильном устройстве"
+      "UI_ERROR_CASHBACK_TIME_ERROR_LOG" : "Сервис может не работать в результате нестабильного интернета или некорректных настроек даты и времени на Вашем мобильном устройстве",
+      "UI_ERROR_CASHBACK_PROMO_DUPLICATE" : "Промо код уже использован",
+      "UI_ERROR_CASHBACK_PROMO_NOT_FOUND" : "Промо код не найден"
     },
     "cashbackAmount": "Сумма кешбэка",
     "setParentToken": "Задать ссылку-приглашение Вашего друга",
@@ -435,7 +437,7 @@
     "inputParentCashbackLink": "https://trustee.deals/link/example",
     "withdraw": "Вывести",
     "minWithdraw": "Минимальная сумма для вывода",
-    "performWithdraw": "Чтобы осуществить вывод, пожалуйста, напишите в telegram на никнейм @TrusteeWallet"
+    "performWithdraw": "Чтобы осуществить вывод, пожалуйста, напишите в telegram на никнейм @TrusteeWallet",
   },
   "account": {
     "title": "Счет",

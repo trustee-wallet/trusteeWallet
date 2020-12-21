@@ -427,7 +427,9 @@
       "UI_ERROR_CASHBACK_NETWORK_ERROR": "Bad internet access",
       "UI_ERROR_CASHBACK_SIGN_ERROR" : "Incorrect signature in keystore - please, relogin in cashback",
       "UI_ERROR_CASHBACK_TIME_ERROR" : "Outdated device date or time",
-      "UI_ERROR_CASHBACK_TIME_ERROR_LONG" : "The service may not work as a result of unstable Internet or incorrect date and time settings on your mobile device"
+      "UI_ERROR_CASHBACK_TIME_ERROR_LONG" : "The service may not work as a result of unstable Internet or incorrect date and time settings on your mobile device",
+      "UI_ERROR_CASHBACK_PROMO_DUPLICATE" : "Promo code already used",
+      "UI_ERROR_CASHBACK_PROMO_NOT_FOUND" : "Promo code not found"
     },
     "cashbackAmount": "Cashback amount",
     "setParentToken": "Link in to your friend structure",
@@ -435,7 +437,7 @@
     "inputParentCashbackLink": "https://trustee.deals/link/example",
     "withdraw": "Withdraw",
     "minWithdraw": "Minimal amount to withdraw",
-    "performWithdraw": "To perform withdraw, please, write to telegram to nickname @TrusteeWallet"
+    "performWithdraw": "To perform withdraw, please, write to telegram to nickname @TrusteeWallet",
   },
   "account": {
     "title": "Account",

@@ -7,7 +7,11 @@ import { strings } from '../../../services/i18n'
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 import Button from '../../../components/elements/new/buttons/Button'
 import TextInput from '../../../components/elements/new/TextInput'
+import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
+import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
 
+import Api from '../../../services/Api/Api'
+import config from '../../../config/config'
 
 export default class PromoCodeContent extends React.Component {
     state = {
@@ -18,8 +22,28 @@ export default class PromoCodeContent extends React.Component {
         this.setState(() => ({ promoCode: value }))
     }
 
-    handleApply = () => {
-        // TODO: add handler to apply promo code
+    handleApply = async () => {
+        try {
+            setLoaderStatus(true)
+            const desc = await Api.activatePromo(this.state.promoCode)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.walletBackup.success'),
+                description: desc
+            })
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('CashBackScreen.Promo.handleApply error ' + e.message, e)
+            }
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('cashback.cashbackError.' + e.message)
+            })
+        }
+        setLoaderStatus(false)
     }
 
     render() {
