@@ -103,7 +103,7 @@ export namespace Camera {
         if (await requestCameraOn(source)) {
             response = await getCameraPhoto(source)
         }
-        if (typeof response === 'undefined' || typeof response.error !== 'undefined') {
+        if (typeof response === 'undefined' || typeof response.error !== 'undefined' || response.didCancel) {
             response = await getGalleryPhoto(source)
 
             if (typeof response.error !== 'undefined' && response.error) {

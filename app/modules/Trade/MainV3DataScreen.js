@@ -31,7 +31,6 @@ import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { FileSystem } from '../../services/FileSystem/FileSystem'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
-import { check, request, PERMISSIONS } from 'react-native-permissions'
 import { Camera } from '../../services/Camera/Camera'
 import { CardIOModule, CardIOUtilities } from 'react-native-awesome-card-io'
 import countriesDict from '../../assets/jsons/other/country-codes'
@@ -356,7 +355,8 @@ class MainV3DataScreen extends Component {
             return
         }
 
-        setLoaderStatus(true)
+        // @ksu check this
+        // setLoaderStatus(true)
         try {
             Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery started')
             const res = await Camera.openCameraOrGallery('TRADE/Cards validateCard')
@@ -384,11 +384,11 @@ class MainV3DataScreen extends Component {
                 msgError += ' not loaded from gallery'
             } else {
                 Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery path ' + res.path)
-                this._onTakePhotoInner(res.base64, cardData)
+                this._onTakePhotoInner(res, cardData)
                 showError = false
             }
 
-            setLoaderStatus(false)
+            // setLoaderStatus(false)
             if (showError) {
                 showModal({
                     type: 'INFO_MODAL',
@@ -402,7 +402,7 @@ class MainV3DataScreen extends Component {
             if (config.debug.appErrors) {
                 console.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ' + e.message, e)
             }
-            setLoaderStatus(false)
+            // setLoaderStatus(false)
             Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ' + e.message)
             showModal({
                 type: 'INFO_MODAL',
@@ -421,14 +421,14 @@ class MainV3DataScreen extends Component {
 
             Log.log('Trade/MainV3Screen._onTakePhotoInner cardData', JSON.parse(JSON.stringify(cardData)))
 
-            let path = response.uri
+            let path = response.path
 
-            if (typeof response.uri === 'undefined')
+            if (typeof response.path === 'undefined')
                 return
 
-            if (Platform.OS === 'ios') {
-                path = path.substring(path.indexOf('/Documents'))
-            }
+            // if (Platform.OS === 'ios') {
+            //     path = path.substring(path.indexOf('/Documents'))
+            // }
 
             if (response.didCancel) {
                 Log.log('Trade/MainV3Screen._onTakePhotoInner User cancelled image picker')
@@ -577,7 +577,6 @@ class MainV3DataScreen extends Component {
 
     async resCardToWebView(numberCard) {
         const cacheJson = await UpdateCardsDaemon.updateCardsDaemon({ force: true, numberCard })
-
         let cardStatus = cacheJson
         let card
         if (typeof cacheJson === 'undefined' || !cacheJson) {
@@ -594,7 +593,7 @@ class MainV3DataScreen extends Component {
             this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
             setTimeout(async () => {
                 await this.resCardToWebView(numberCard)
-            }, 60e3) //60 sec
+            }, 30e3) //30 sec
         }
 
     }
