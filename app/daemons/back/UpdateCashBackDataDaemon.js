@@ -41,6 +41,7 @@ class UpdateCashBackDataDaemon {
             Log.daemon('UpdateCashBackDataDaemon result ', data)
             data.time = new Date().getTime()
             data.authHash = authHash
+            data.customToken = typeof data.customToken !== 'undefined' && data.customToken ? data.customToken : data.cashbackToken
             await CashBackUtils.setCashBackDataFromApi(data)
         } catch (e) {
             this._canUpdate = true

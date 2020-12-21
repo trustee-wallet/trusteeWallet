@@ -148,7 +148,7 @@ class CashbackScreen extends React.Component {
                                 onError={this.handleRenderQrError}
                                 style={styles.qrCode}
                             />
-                            <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token, marginTop: GRID_SIZE * 0.75 }]}>{cashbackStore.dataFromApi.cashbackToken} <CustomIcon name="copy" size={18} color={colors.cashback.token} /></Text>
+                            <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token, marginTop: GRID_SIZE * 0.75 }]}>{cashbackStore.dataFromApi.customToken} <CustomIcon name="copy" size={18} color={colors.cashback.token} /></Text>
                         </TouchableOpacity>
 
                         <View style={[styles.buttonsRow, { margin: GRID_SIZE * 2, marginTop: GRID_SIZE }]}>
@@ -209,6 +209,10 @@ class CashbackScreen extends React.Component {
                 cashbackParentToken = cashbackStore.parentToken || ''
                 cashbackParentNotice = !!cashbackParentToken
             }
+            let cashbackToShow = false
+            if (cashbackStore.dataFromApi.cashbackToken !== cashbackStore.dataFromApi.customToken) {
+                cashbackToShow = cashbackStore.dataFromApi.cashbackToken
+            }
 
             const time = cashbackStore.dataFromApi.time || false
             let timePrep
@@ -245,6 +249,7 @@ class CashbackScreen extends React.Component {
                     invitedUsers={invitedUsers}
                     level2Users={level2Users}
                     cashbackParentToken={cashbackParentToken}
+                    cashbackToShow={cashbackToShow}
                     inviteLink={this.state.inviteLink}
                     updatedTime={timePrep}
                 />

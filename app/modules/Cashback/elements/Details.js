@@ -147,6 +147,7 @@ class DetailsContent extends React.Component {
             invitedUsers,
             level2Users,
             cashbackParentToken,
+            cashbackToShow
         } = this.props
 
         return (
@@ -172,6 +173,14 @@ class DetailsContent extends React.Component {
                     <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.level2UsersAmount')}</Text>
                     <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{level2Users}</Text>
                 </View>
+                {cashbackToShow ?
+                    <View style={styles.textRow}>
+                        <Text
+                            style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cashbackToken')}</Text>
+                        <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{cashbackToShow}</Text>
+                    </View>
+                    : null
+                }
                 <View style={styles.textRow}>
                     <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.invitedBy')}</Text>
                     {cashbackParentToken ? (

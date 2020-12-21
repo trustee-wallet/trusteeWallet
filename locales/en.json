@@ -398,8 +398,9 @@
     "enterPromoPlaceholder": "Enter promo code",
     "enterInviteLinkPlaceholder": "Enter invite link",
     "applyButton": "Apply",
-    "wholeBalance": "Весь баланс",
-    "cashbackBalance": "Баланс кешбэка",
+    "wholeBalance": "All balance",
+    "cashbackBalance": "Cashback balance",
+    "cashbackToken": "Token",
     "howItWorks": {
       "title": "Как это работает?",
       "info1Title": "Есть ли в Trustee Wallet какая-то программа наград для пользователей?",
@@ -411,7 +412,7 @@
       "info4Title": "Как вывести кешбек и партнерское вознаграждение?",
       "info4Content": ""
     },
-    "invitedBy": "Приглашен",
+    "invitedBy": "Invited by",
     "mainTitle": "Refer your friends - earn cashback!",
     "mainDescription": "Invite five friends and start earning 10% cashback from the commission of your exchanges! Trustee returns up to 30% commission to its users!",
     "shareText": "Share",
