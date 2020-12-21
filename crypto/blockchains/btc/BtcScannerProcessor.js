@@ -9,6 +9,7 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BtcFindAddressFunction from './basic/BtcFindAddressFunction'
 import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
 import config from '../../../app/config/config'
+import DBInterface from '../../../app/appstores/DataSource/DB/DBInterface'
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {}
@@ -130,7 +131,29 @@ export default class BtcScannerProcessor {
             res = false
         }
         try {
-            if (address.indexOf('pub') !== 1) {
+            if (typeof data.walletPub !== 'undefined') {
+                const dbInterface = new DBInterface()
+                const sqlPub = `SELECT wallet_pub_value as walletPub
+                    FROM wallet_pub
+                    WHERE wallet_hash = '${data.walletPub.walletHash}'
+                    AND currency_code='BTC'`
+                const resPub = await dbInterface.setQueryString(sqlPub).query()
+                if (resPub && resPub.array && resPub.array.length > 0) {
+                    for (const row of resPub.array) {
+                        const scanAddress = row.walletPub
+                        if (scanAddress === address) continue
+                        const tmp = await this._get(scanAddress, data)
+                        if (typeof tmp.data === 'undefined' || typeof tmp.data.transactions === 'undefined') continue
+                        if (res === false || typeof res.transactions === 'undefined') {
+                            res = tmp.data
+                        } else {
+                            for (const row of tmp.data.transactions) {
+                                res.transactions.push(row)
+                            }
+                        }
+                    }
+                }
+            } else {
                 for (const scanAddress in data.addresses) {
                     if (scanAddress === address) continue
                     const tmp = await this._get(scanAddress, data)

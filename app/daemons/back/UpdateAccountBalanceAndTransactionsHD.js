@@ -220,7 +220,7 @@ class UpdateAccountBalanceAndTransactionsHD {
         }
         try {
             Log.daemon('UpdateAccountBalanceAndTransactionsHD newTransactions ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue)
-            newTransactions = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue).setAdditional({ addresses }).setWalletHash(walletPub.walletHash)).getTransactions()
+            newTransactions = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue).setAdditional({ addresses, walletPub }).setWalletHash(walletPub.walletHash)).getTransactions()
 
             if (!newTransactions || newTransactions.length === 0) {
                 transactionsError += ' something wrong with balance ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue + ' => ' + JSON.stringify(newTransactions)
