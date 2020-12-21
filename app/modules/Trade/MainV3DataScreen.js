@@ -32,7 +32,7 @@ import { FileSystem } from '../../services/FileSystem/FileSystem'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import { check, request, PERMISSIONS } from 'react-native-permissions'
-import ImagePicker from 'react-native-image-picker'
+import { Camera } from '../../services/Camera/Camera'
 import { CardIOModule, CardIOUtilities } from 'react-native-awesome-card-io'
 import countriesDict from '../../assets/jsons/other/country-codes'
 import Validator from '../../services/UI/Validator/Validator'
@@ -66,10 +66,6 @@ class MainV3DataScreen extends Component {
             inited: false,
             apiUrl: 'https://testexchange.trustee.deals/waiting',
             homePage: false,
-            imagePickerOptions: {
-                title: 'Select Avatar',
-                customButtons: [{ name: '', title: '' }]
-            },
             countedFees: {},
             selectedFee: {}
         }
@@ -105,18 +101,18 @@ class MainV3DataScreen extends Component {
 
     componentDidMount() {
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
-        Keyboard.addListener( 'keyboardWillShow', this.onKeyboardShow );
-	    StatusBar.setBarStyle( 'dark-content' );
+        Keyboard.addListener('keyboardWillShow', this.onKeyboardShow);
+        StatusBar.setBarStyle('dark-content');
     }
 
     componentWiilUnmount() {
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
-        Keyboard.removeListener( 'keyboardWillShow', this.onKeyboardShow );
-	    StatusBar.setBarStyle( 'dark-content' );
+        Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow);
+        StatusBar.setBarStyle('dark-content');
     }
 
     onKeyboardShow = () => {
-        StatusBar.setBarStyle( 'dark-content' );
+        StatusBar.setBarStyle('dark-content');
     }
 
     handlerBackPress = () => {
@@ -257,7 +253,7 @@ class MainV3DataScreen extends Component {
 
         try {
             const allData = JSON.parse(event.nativeEvent.data)
-            const { error, backToOld, close, homePage, cardData, tradeType, takePhoto, scanCard, deleteCard, 
+            const { error, backToOld, close, homePage, cardData, tradeType, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSell, didMount, navigationState, message, exchangeStatus, useAllFunds } = allData
 
             Log.log('Trade/MainV3Screen.onMessage parsed', event.nativeEvent.data)
@@ -270,7 +266,7 @@ class MainV3DataScreen extends Component {
 
             if (backToOld) {
                 if (tradeType === 'SELL') {
-                    AsyncStorage.setItem('isNewInterfaceSell', 'false')             
+                    AsyncStorage.setItem('isNewInterfaceSell', 'false')
                 } else if (tradeType === 'BUY') {
                     AsyncStorage.setItem('isNewInterfaceBuy', 'false')
                 }
@@ -293,7 +289,7 @@ class MainV3DataScreen extends Component {
                 }
             } else if (takePhoto) {
                 Log.log('Trade/MainV3Screen.onMessage takePhoto' + JSON.stringify(takePhoto))
-                this.onTakePhoto(typeof takePhoto.number === 'undefined' ? {number : takePhoto} : takePhoto) // внимательно проверяй что внутри функций
+                this.onTakePhoto(typeof takePhoto.number === 'undefined' ? { number: takePhoto } : takePhoto) // внимательно проверяй что внутри функций
             } else if (scanCard) {
                 this.handleScan()
             } else if (deleteCard) {
@@ -356,34 +352,58 @@ class MainV3DataScreen extends Component {
     }
 
     async onTakePhoto(cardData) {
-        const { imagePickerOptions } = this.state
+        if (!await Camera.checkCameraOn('TRADE/Cards validateCard')) {
+            return
+        }
 
-        Log.log('Trade/MainV3Screen onTakePhoto cardData', cardData)
-        const _this = this
+        setLoaderStatus(true)
         try {
-            request(
-                Platform.select({
-                    android: PERMISSIONS.ANDROID.CAMERA,
-                    ios: PERMISSIONS.IOS.CAMERA
+            Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery started')
+            const res = await Camera.openCameraOrGallery('TRADE/Cards validateCard')
+            Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery res', res)
+
+            let showError = true
+            let msgError = typeof res.error !== 'undefined' ? res.error : ''
+            if (!res) {
+                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery no result')
+                msgError += ' no result'
+            } else if (res.didCancel) {
+                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery cancelled')
+                msgError += ', need to select from gallery'
+                if (msgError.indexOf('file path of photo') !== 'undefined') {
+                    msgError = strings('tradeScreen.modalError.selectPhoto')
+                }
+            } else if (res.error) {
+                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ', res.error)
+                msgError += ' ' + res.error
+            } else if (typeof res.path === 'undefined' || !res.path || res.path === '') {
+                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery no path')
+                msgError += ' no path from gallery'
+            } else if (typeof res.base64 === 'undefined' || !res.base64 || res.base64 === '') {
+                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery not loaded from gallery')
+                msgError += ' not loaded from gallery'
+            } else {
+                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery path ' + res.path)
+                this._onTakePhotoInner(res.base64, cardData)
+                showError = false
+            }
+
+            setLoaderStatus(false)
+            if (showError) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: 'INFO',
+                    title: strings('modal.exchange.sorry'),
+                    description: msgError
                 })
-            ).then((res) => {
-                // setLoaderStatus(true)
-                ImagePicker.launchCamera(imagePickerOptions, (response) => {
-                    if (typeof response.error === 'undefined') {
-                        _this._onTakePhotoInner(response, cardData)
-                    } else {
-                        Log.log('Trade/MainV3Screen ImagePicker.launchCamera error ' + response)
-                        showModal({
-                            type: 'INFO_MODAL',
-                            icon: 'INFO',
-                            title: strings('modal.openSettingsModal.title'),
-                            description: response.error
-                        })
-                        // setLoaderStatus(false)
-                    }
-                })
-            })
+            }
+
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ' + e.message, e)
+            }
+            setLoaderStatus(false)
+            Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ' + e.message)
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
@@ -543,7 +563,7 @@ class MainV3DataScreen extends Component {
             const cardJson = res
             const numberCard = cardData.number
 
-            if (typeof cardJson !== 'undefined' && cardJson && typeof cardJson.verificationStatus !== 'undefined' && 
+            if (typeof cardJson !== 'undefined' && cardJson && typeof cardJson.verificationStatus !== 'undefined' &&
                 (cardJson.verificationStatus === 'PENDING' || cardJson.verificationStatus === 'WAIT_FOR_PHOTO')) {
                 await this.resCardToWebView(numberCard)
             } else {
@@ -555,7 +575,7 @@ class MainV3DataScreen extends Component {
         }
     }
 
-    async resCardToWebView (numberCard) {
+    async resCardToWebView(numberCard) {
         const cacheJson = await UpdateCardsDaemon.updateCardsDaemon({ force: true, numberCard })
 
         let cardStatus = cacheJson
@@ -572,7 +592,7 @@ class MainV3DataScreen extends Component {
             return true
         } else {
             this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
-            setTimeout(async() => {
+            setTimeout(async () => {
                 await this.resCardToWebView(numberCard)
             }, 60e3) //60 sec
         }
@@ -615,7 +635,7 @@ class MainV3DataScreen extends Component {
             if (typeof item.number !== 'undefined') {
                 await this._verifyCard(item)
             }
-        }   
+        }
     }
 
     handleTransferAll = async (params) => {
@@ -631,7 +651,7 @@ class MainV3DataScreen extends Component {
                 addressTo: addressToForTransferAll
             })
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
-            this.webref.postMessage(JSON.stringify({ fees: { countedFees: 'notUsedNotPassed', selectedFee : 'notUsedNotPassed', amount } }))
+            this.webref.postMessage(JSON.stringify({ fees: { countedFees: 'notUsedNotPassed', selectedFee: 'notUsedNotPassed', amount } }))
             return {
                 currencyBalanceAmount: amount,
                 currencyBalanceAmountRaw: transferBalance
@@ -654,13 +674,13 @@ class MainV3DataScreen extends Component {
     }
 
 
-    modal(){
+    modal() {
         showModal({
             type: 'INFO_MODAL',
             icon: null,
             title: null,
             description: strings('modal.modalV3.description')
-        },() => {
+        }, () => {
             NavStore.goNext('HomeScreen')
         })
     }
