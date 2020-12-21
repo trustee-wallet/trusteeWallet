@@ -13,6 +13,7 @@ import { setCards } from '../../appstores/Stores/Card/CardActions'
 
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
+import config from '../../config/config'
 
 const CACHE_UNIQUE = {}
 
@@ -112,7 +113,9 @@ class UpdateCardsDaemon {
             } catch (e) {
                 if (e.message.indexOf('PaymentDetailsModule | ValidateCard | No file was uploaded')) {
                     // если нет карты - то это не ошибка вообще то
-                    console.log('UpdateCards verification no photo still', card)
+                    if (config.debug.appErrors) {
+                        console.log('UpdateCards verification no photo still', card)
+                    }
                 } else {
                     Log.err('UpdateCards verification error ' + e.message, card)
                 }

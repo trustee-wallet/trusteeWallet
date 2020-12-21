@@ -40,7 +40,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } else {
             gasPrice = additionalData.prices || await EthNetworkPrices.get(typeof data.addressTo !== 'undefined' ? data.addressTo : 'none')
         }
-        console.log('gasPrice', gasPrice)
 
         let oldGasPrice = 0
         let oldNonce = 0

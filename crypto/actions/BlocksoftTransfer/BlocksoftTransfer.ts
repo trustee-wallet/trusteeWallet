@@ -94,7 +94,7 @@ export namespace BlocksoftTransfer {
 
     export const sendTx = async function(data: BlocksoftBlockchainTypes.TransferData, uiData: BlocksoftBlockchainTypes.TransferUiData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
         if (DEBUG) {
-            console.log('sendTx', data, uiData)
+            console.log('BlocksoftTransfer.sendTx', data, uiData)
         }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
 

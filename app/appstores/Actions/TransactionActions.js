@@ -128,8 +128,7 @@ const transactionActions = {
 
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('ACT/Transaction updateTransaction ' + e.message)
-                console.log(e)
+                console.log('ACT/Transaction updateTransaction ' + e.message, e)
             }
             Log.err('ACT/Transaction updateTransaction ' + e.message)
         }

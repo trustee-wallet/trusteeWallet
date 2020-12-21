@@ -3,6 +3,7 @@ import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import { BlocksoftTransfer } from '../../../actions/BlocksoftTransfer/BlocksoftTransfer'
+import config from '../../../../app/config/config'
 
 const tableName = 'transactions_raw'
 
@@ -58,12 +59,16 @@ class DogeRawDS {
                         updateObj.is_removed = 1
                         updateObj.removed_at = now
                     } catch (e) {
-                        const dbTx = await dbInterface.setQueryString(`SELECT * FROM transactions WHERE transaction_hash='${row.transactionHash}'`).query()
-                        console.log('b', JSON.parse(JSON.stringify(row)), dbTx, e)
+                        if (config.debug.cryptoErrors) {
+                            const dbTx = await dbInterface.setQueryString(`SELECT * FROM transactions WHERE transaction_hash='${row.transactionHash}'`).query()
+                            if (config.debug.cryptoErrors) {
+                                console.log('DogeRawDS.getForAddress send error ' + e.message, JSON.parse(JSON.stringify(row)), dbTx, e)
+                            }
+
+                        }
                         if (e.message.indexOf('bad-txns-inputs-spent') !== -1 || e.message.indexOf('missing-inputs') !== -1 || e.message.indexOf('insufficient fee') !== -1) {
                             broadcastLog = ' sub-spent ' + e.message
                             updateObj.is_removed = 3
-                            console.log('update as replaced')
                             await dbInterface.setQueryString(`UPDATE transactions 
                             SET transaction_status='replaced', hidden_at='${now}'
                             WHERE transaction_hash='${row.transactionHash}' 
@@ -83,8 +88,10 @@ class DogeRawDS {
                     }).update()
 
                 } catch (e) {
-                    console.log(e.message + ' inside row ' + row.transactionHash)
-                    throw new Error(e.message + ' inside row ' + row.transactionHash)
+                    if (config.debug.cryptoErrors) {
+                        console.log('DogeRawDS.getForAddress error ' + e.message + ' in ' + row.transactionHash, e)
+                    }
+                    throw new Error('DogeRawDS.getForAddress error ' + e.message + ' in ' + row.transactionHash)
                 }
             }
             this._canUpdate = true

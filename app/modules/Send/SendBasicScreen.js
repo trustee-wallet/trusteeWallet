@@ -30,7 +30,7 @@ export default class SendBasicScreen extends Component {
      * @returns {Promise<{countedFees, selectedFee}>}
      */
     recountFees = async (data, source) => {
-        console.log('SendBasicScreen.recountFees ' + source + ' init ', JSON.parse(JSON.stringify(data)))
+        Log.log('SendBasicScreen.recountFees ' + source + ' init ', JSON.parse(JSON.stringify(data)))
 
         const currencyCode = data.currencyCode
 
@@ -41,12 +41,7 @@ export default class SendBasicScreen extends Component {
         try {
             const { countedFees, selectedFee } = await SendActions.countFees(data)
 
-            if (countedFees) {
-                console.log('SendBasicScreen.recountFees ' + source + ' result ', JSON.parse(JSON.stringify(countedFees)))
-            } else {
-                console.log('SendBasicScreen.recountFees ' + source + ' result ', countedFees)
-            }
-            console.log('SendBasicScreen.recountFees ' + source + ' selectedFee ', JSON.parse(JSON.stringify(selectedFee)))
+            Log.log('SendBasicScreen.recountFees ' + source + ' result ', {countedFees, selectedFee})
 
             return { countedFees, selectedFee }
         } catch (e) {
@@ -92,7 +87,7 @@ export default class SendBasicScreen extends Component {
         if (typeof sendScreenData !== 'undefined' && sendScreenData && typeof sendScreenData.bseOrderId !== 'undefined' && sendScreenData.bseOrderId) {
             const version = sendScreenData.uiApiVersion || 'v3'
             const removeId = sendScreenData.bseOrderId
-            console.log('SendBasicScreen.goBack with version ' + version + ' removeId ' + removeId)
+            // console.log('SendBasicScreen.goBack with version ' + version + ' removeId ' + removeId)
             if (version === 'v2') {
                 Api.setExchangeStatus(removeId, 'close')
             } else {
@@ -100,7 +95,7 @@ export default class SendBasicScreen extends Component {
             }
             UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, removeId, source: 'CANCEL' })
         } else {
-            console.log('SendBasicScreen.goBack')
+            // console.log('SendBasicScreen.goBack')
         }
 
         if (closeScreen) {

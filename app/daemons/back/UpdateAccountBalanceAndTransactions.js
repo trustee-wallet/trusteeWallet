@@ -149,7 +149,7 @@ class UpdateAccountBalanceAndTransactions {
             CACHE_LAST_TIME = new Date().getTime()
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log(e)
+                console.log('UpdateAccountBalanceAndTransactions balance error ' + source + ' ' + e.message, e)
             }
             Log.errDaemon('UpdateAccountBalanceAndTransactions balance error ' + source + ' ' + e.message + ' ' + tmpAction)
         }
@@ -180,7 +180,7 @@ class UpdateAccountBalanceAndTransactions {
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('UpdateAccountBalanceAndTransactions error on loadFioData ', e)
+                console.log('UpdateAccountBalanceAndTransactions error on loadFioData ' + e.message, e)
             }
             Log.errDaemon('UpdateAccountBalanceAndTransactions error on loadFioData ' + e.message)
         }

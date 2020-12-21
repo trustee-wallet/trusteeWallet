@@ -331,7 +331,7 @@ class MainV3DataScreen extends Component {
     }
 
     async sellV3(data) {
-        console.log('Trade/MainV3Screen dataSell', JSON.stringify(data))
+        // console.log('Trade/MainV3Screen dataSell', JSON.stringify(data))
         try {
             Log.log('Trade/MainV3Screen dataSell', data)
             await SendActions.startSend({
@@ -619,7 +619,7 @@ class MainV3DataScreen extends Component {
     }
 
     handleTransferAll = async (params) => {
-        console.log('Trade/MainV3DataScreen.handleTransferAll', JSON.stringify(params))
+        // console.log('Trade/MainV3DataScreen.handleTransferAll', JSON.stringify(params))
         const currencyCode = params.currencyCode
         const address = params.address
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)

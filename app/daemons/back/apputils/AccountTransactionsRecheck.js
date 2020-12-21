@@ -6,6 +6,7 @@ import transactionDS from '../../../appstores/DataSource/Transaction/Transaction
 import appNewsDS from '../../../appstores/DataSource/AppNews/AppNews'
 import { BlocksoftTransfer } from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
+import config from '../../../config/config'
 
 const CACHE_TO_REMOVE = {} // couldnt remove on first scan - as BTC is scanned in few accounts
 
@@ -130,13 +131,14 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
                 }
             } catch (e) {
                 e.message = ' TX ' + transaction.transactionHash + ' ' + e.message
-                console.log(e)
                 // noinspection ExceptionCaughtLocallyJS
                 throw e
             }
         }
     } catch (e) {
-        console.log(e)
+        if (config.debug.appErrors) {
+            console.log('AccountTransactionsRecheck parsing error ' + e.message, e)
+        }
         transactionsError += ' parsing error ' + e.message
     }
 

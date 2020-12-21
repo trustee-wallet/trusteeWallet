@@ -31,10 +31,6 @@ export default class BackupInfoScreen extends React.Component {
     approvedPrivate: false
   }
 
-  componentDidMount() {
-    console.log('DID MOUNT');
-  }
-
   setHeaderHeight = (height) => {
     const headerHeight = Math.round(height || 0);
     this.setState(() => ({ headerHeight }))

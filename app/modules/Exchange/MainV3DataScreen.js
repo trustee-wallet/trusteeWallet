@@ -175,7 +175,7 @@ class MainV3DataScreen extends Component {
     }
 
     exchangeV3 = async (data) => {
-        console.log('Exchange/MainV3Screen dataExchange', JSON.stringify(data))
+        // console.log('Exchange/MainV3Screen dataExchange', JSON.stringify(data))
         try {
             Log.log('Exchange/MainV3Screen dataExchange', data)
             await SendActions.startSend({
@@ -193,14 +193,14 @@ class MainV3DataScreen extends Component {
             })
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('Exchange/MainV3Screen exchangeV3', e)
+                console.log('EXC/MainV3Screen exchangeV3', e)
             }
             throw e
         }
     }
 
     handleTransferAll = async (params) => {
-        console.log('EXC/MainV3DataScreen.handleTransferAll', JSON.stringify(params))
+        // console.log('EXC/MainV3DataScreen.handleTransferAll', JSON.stringify(params))
         const currencyCode = params.currencyCode
         const address = params.address
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)

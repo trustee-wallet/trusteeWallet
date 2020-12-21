@@ -5,6 +5,7 @@ import { NavigationActions, StackActions } from 'react-navigation'
 
 import navigationActions from '../../appstores/Stores/Navigation/NavigationActions'
 import { setCurrentScreen } from '../../appstores/Stores/Main/MainStoreActions'
+import config from '../../config/config'
 
 class ObservableNavStore {
     navigator = null
@@ -21,7 +22,9 @@ class ObservableNavStore {
             })
             this.navigator.dispatch(resetAction)
         } catch (e) {
-            console.log(e)
+            if (config.debug.appErrors) {
+                console.log('NavStore.reset error ' + e.message)
+            }
         }
     }
 
@@ -72,7 +75,9 @@ class ObservableNavStore {
             //     this.navigator.dismiss()
             // }
         } catch (e) {
-            console.log(e)
+            if (config.debug.appErrors) {
+                console.log('NavStore.goNext error ' + e.message)
+            }
         }
     }
 

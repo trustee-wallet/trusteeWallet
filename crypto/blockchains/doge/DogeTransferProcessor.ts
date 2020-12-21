@@ -201,7 +201,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 }
             } catch (e) {
                 if (config.debug.cryptoErrors) {
-                    console.log('getInputsOutputs error', e)
+                    console.log(this._settings.currencyCode + ' DogeTransferProcessor..getFeeRate getInputsOutputs error', e)
                 }
                 // noinspection ES6MissingAwait
                 MarketingEvent.logOnlyRealTime('v20_doge_error_getfeerate_' + key + ' ' + feeForByte + ' ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, unspents)
@@ -294,7 +294,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 } while (doBuild)
             } catch (e) {
                 if (config.debug.cryptoErrors) {
-                    console.log('getRawTx error', e, blockchainData)
+                    console.log(this._settings.currencyCode + ' DogeTransferProcessor.getRawTx error', e, blockchainData)
                 }
                 MarketingEvent.logOnlyRealTime('v20_doge_error_tx_builder ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message.toString(), logInputsOutputs)
                 throw e
@@ -421,7 +421,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('v20_doge_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
 
-        console.log('result', JSON.parse(JSON.stringify(result)))
+        if (config.debug.cryptoErrors) {
+            console.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx result', JSON.parse(JSON.stringify(result)))
+        }
         return result
     }
 

@@ -36,6 +36,7 @@ import CashBackUtils from '../../Stores/CashBack/CashBackUtils'
 
 import FilePermissions from '../../../services/FileSystem/FilePermissions'
 import UpdateAppNewsDaemon from '../../../daemons/back/UpdateAppNewsDaemon'
+import config from '../../../config/config'
 
 const { dispatch, getState } = store
 
@@ -52,7 +53,7 @@ class App {
         const navigateToInit = typeof params.navigateToInit !== 'undefined' ? params.navigateToInit : true
         const source = typeof params.source !== 'undefined' ? params.source : ''
         try {
-            console.log(new Date().toISOString() + ' start ' + source)
+            // console.log(new Date().toISOString() + ' start ' + source)
 
             await FilePermissions.init()
 
@@ -153,7 +154,9 @@ class App {
             // console.log(new Date().toISOString() + ' done')
 
         } catch (e) {
-            console.log(e)
+            if (config.debug.appErrors) {
+                console.log('ACT/App init application error ' + this.initStatus + ' ' + e.message, e)
+            }
             Log.err('ACT/App init application error ' + this.initStatus + ' ' + e.message)
             this.initError = e.message
             dispatch(setInitError(e.message))

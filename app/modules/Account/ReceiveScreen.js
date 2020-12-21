@@ -288,7 +288,7 @@ class ReceiveScreen extends Component {
                     sumPrep = '~' + basicCurrencySymbol + ' ' + basicAmountPrep + ' / ' + sumPrep
                 }
             } catch (e) {
-                console.log('Send.SendScreen renderAccountDetail error ' + e.message)
+                Log.err('Send.SendScreen renderAccountDetail error ' + e.message)
             }
         }
 

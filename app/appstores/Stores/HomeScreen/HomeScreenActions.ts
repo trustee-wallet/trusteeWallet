@@ -12,6 +12,7 @@ import { setSelectedWallet } from '../Main/MainStoreActions'
 import walletActions from '../Wallet/WalletActions'
 import Toast from '../../../services/UI/Toast/Toast'
 import { strings } from '../../../services/i18n'
+import config from '../../../config/config'
 
 export function setWalletName(walletName: string): HomeScreenActionTypes {
     return {
@@ -53,7 +54,9 @@ export function saveNewWalletName(walletHash: string, newWalletName: string, old
             await walletActions.setAvailableWallets()
             dispatch(setInputEditable(false))
         } catch (e) {
-            console.log(e)
+            if (config.debug.appErrors) {
+                console.log('HomeScreenActions.saveWalletName error ' + e.message)
+            }
         }
     }
 }

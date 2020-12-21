@@ -182,13 +182,13 @@ export async function addCustomToken(tokenAddress) {
     try {
         await currencyActions.addCurrency({ currencyCode: 'CUSTOM_' + checked.currencyCode })
     } catch (e) {
-        console.log('AddCustomTokenScreen.addToken secondStep error', e)
+        Log.log('AddCustomTokenScreen.addToken secondStep error ' + e.message)
     }
 
     try {
         await currencyActions.setCryptoCurrencies()
     } catch (e) {
-        console.log('AddCustomTokenScreen.addToken thirdStep error', e)
+        Log.log('AddCustomTokenScreen.addToken thirdStep error ' + e.message)
     }
 
     setLoaderStatus(false)

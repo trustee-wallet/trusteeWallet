@@ -156,8 +156,8 @@ class SendScreen extends SendBasicScreenScreen {
     }
 
     init = async () => {
-        console.log('')
-        console.log('')
+        // console.log('')
+        // console.log('')
         const sendScreenData = SendTmpData.getData()
 
         const { account, cryptoCurrency, wallet } = SendActions.findWalletPlus(sendScreenData.currencyCode)
@@ -172,7 +172,7 @@ class SendScreen extends SendBasicScreenScreen {
         }
 
 
-        console.log('Send.SendScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
+        // console.log('Send.SendScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
 
         const routeName = NavStore.getPrevRoute().routeName
 
@@ -256,11 +256,11 @@ class SendScreen extends SendBasicScreenScreen {
 
         if (inputType === 'FIAT') {
             amountEquivalent = toEquivalent
-            console.log('_SendScreen.handleChangeEquivalentType amount1 ', toInput)
+            // console.log('_SendScreen.handleChangeEquivalentType amount1 ', toInput)
             this.valueInput.handleInput(toInput, false)
         } else {
             amountEquivalent = toEquivalent
-            console.log('_SendScreen.handleChangeEquivalentType amount2 ', toInput)
+            // console.log('_SendScreen.handleChangeEquivalentType amount2 ', toInput)
             this.valueInput.handleInput(toInput, false)
         }
 
@@ -414,7 +414,7 @@ class SendScreen extends SendBasicScreenScreen {
         const extend = BlocksoftDict.getCurrencyAllSettings(cryptoCurrency.currencyCode)
 
         if (addressValidation.status !== 'success') {
-            console.log('Send.SendScreen.handleSendTransaction invalid address ' + JSON.stringify(addressValidation))
+            // console.log('Send.SendScreen.handleSendTransaction invalid address ' + JSON.stringify(addressValidation))
             this.setState({
                 addressError: true
             })
@@ -793,14 +793,14 @@ class SendScreen extends SendBasicScreenScreen {
                     const {selectedFee} = await this.recountFees(newSendScreenData, 'Send.SendScreen.amountInputCallback')
                     newSendScreenData.selectedFee = selectedFee
                     newSendScreenData.uiNeedToCountFees = false
-                    console.log(`Send.SendScreen.amountInputCallback`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))
+                    // console.log(`Send.SendScreen.amountInputCallback`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))
                 }
             } else {
                 // console.log('Send.SendScreen.amountInputCallback not updated as not changed')
             }
 
 
-            console.log('afterCallback', JSON.parse(JSON.stringify(newSendScreenData)))
+            // console.log('afterCallback', JSON.parse(JSON.stringify(newSendScreenData)))
             this.setState({
                 amountEquivalent: amountEquivalent,
                 amountInputMark: amountInputMark,
@@ -925,7 +925,9 @@ class SendScreen extends SendBasicScreenScreen {
                     sumPrep = '~' + basicCurrencySymbol + ' ' + basicAmountPrep + ' / ' + sumPrep
                 }
             } catch (e) {
-                console.log('Send.SendScreen renderAccountDetail error ' + e.message)
+                if (config.debug.appErrors) {
+                    console.log('Send.SendScreen renderAccountDetail error ' + e.message, e)
+                }
             }
         }
 

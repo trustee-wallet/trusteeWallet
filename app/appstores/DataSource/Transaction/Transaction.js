@@ -146,8 +146,9 @@ class Transaction {
         if (typeof transaction.currencyCode !== 'undefined' && transaction.currencyCode) {
             sql += ` AND currency_code='${transaction.currencyCode}' `
         }
-        console.log('tx', JSON.parse(JSON.stringify(transaction)))
-        console.log('sql ' + sql)
+
+        // console.log('tx', JSON.parse(JSON.stringify(transaction)))
+        // console.log('sql ' + sql)
 
         await dbInterface.setQueryString(sql).query()
 

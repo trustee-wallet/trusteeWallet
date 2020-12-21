@@ -8,6 +8,7 @@ import * as Keychain from 'react-native-keychain'
 
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import { fioSdkWrapper } from '../../blockchains/fio/FioSdkWrapper'
+import config from '../../../app/config/config'
 
 export class BlocksoftKeysStorage {
 
@@ -119,7 +120,9 @@ export class BlocksoftKeysStorage {
                 // if will be breaking again try accessControl : 'BiometryAnyOrDevicePasscode'
             })
         } catch (e) {
-            console.log(e)
+            if (config.debug.cryptoErrors) {
+                console.log('BlocksoftKeysStorage _setKeyValue error ', e)
+            }
             if (key.indexOf('wallet') !== -1) {
                 throw e
             }
@@ -271,7 +274,6 @@ export class BlocksoftKeysStorage {
                 this.publicSelectedWallet = hashOrId
                 isChanged = true
             } catch (e) {
-                console.log(e.message)
                 return this.publicSelectedWallet
             }
         }

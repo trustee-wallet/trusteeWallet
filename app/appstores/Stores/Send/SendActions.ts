@@ -288,7 +288,7 @@ export namespace SendActions {
             SendTmpData.setData(data)
             if (data.gotoReceipt) {
                 // @ts-ignore
-                console.log('SendActions.startSend GO TO RECEIPT', data)
+                // console.log('SendActions.startSend GO TO RECEIPT', data)
                 /*
                 if (needToCount) {
                     const { selectedFee } = await countFees(data)
@@ -299,7 +299,7 @@ export namespace SendActions {
                 NavStore.goNext('ReceiptScreen', { fioRequestDetails: data.fioRequestDetails })
             } else {
                 // @ts-ignore
-                console.log('SendActions.startSend GO TO SEND', data)
+                // console.log('SendActions.startSend GO TO SEND', data)
                 NavStore.goNext('SendScreen')
             }
         } catch (e) {

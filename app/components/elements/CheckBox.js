@@ -31,7 +31,6 @@ export default class Checkbox extends Component {
             <TouchableOpacity style={styles.wrapper} onPress={this.changeValue}>
                 <View style={{ ...styles.checkbox }}>
                     {value ? <View style={{ position: 'relative', top: Platform.OS === 'ios' ? -2 : 0 }}><Ionicons name='ios-checkmark' size={28} color='#7127AC'/></View> : null}
-                    {console.log('Button.checkbox.value', value)}
                 </View>
             </TouchableOpacity>
         )

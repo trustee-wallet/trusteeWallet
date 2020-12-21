@@ -127,10 +127,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
     }
 
     init = async () => {
-        console.log('')
-        console.log('')
+        // console.log('')
+        // console.log('')
         const sendScreenData = SendTmpData.getData()
-        console.log('Send.ReceiptScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
+        // console.log('Send.ReceiptScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
 
         const { account, cryptoCurrency, wallet } = SendActions.findWalletPlus(sendScreenData.currencyCode)
 
@@ -184,9 +184,6 @@ class ReceiptScreen extends SendBasicScreenScreen {
             }
         }
 
-        if (CACHE_IS_SENDING) {
-            console.log('CACHE_IS_SENDING', CACHE_IS_SENDING)
-        }
         CACHE_IS_SENDING = true
 
         const { account, wallet, sendScreenData } = this.state
@@ -267,7 +264,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             if (sendScreenData.transactionSpeedUp) {
                 txData.transactionSpeedUp = sendScreenData.transactionSpeedUp
             }
-            console.log('txData', txData)
+            // console.log('txData', txData)
             const tx = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed, selectedFee })
 
             let transactionJson = sendScreenData.transactionJson

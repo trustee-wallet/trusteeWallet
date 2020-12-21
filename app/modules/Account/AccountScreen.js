@@ -184,7 +184,6 @@ class Account extends Component {
 
     handleBuy = async () => {
         const isNewInterfaceBuy = await AsyncStorage.getItem('isNewInterfaceBuy')
-        console.log(isNewInterfaceBuy)
         ExchangeActions.handleSetTradeType({ tradeType: 'BUY' })
 
         if (isNewInterfaceBuy === 'true') {

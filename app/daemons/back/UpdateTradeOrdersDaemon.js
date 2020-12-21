@@ -66,7 +66,7 @@ class UpdateTradeOrdersDaemon {
             }
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log(e.message + ' tmpOneOrder')
+                console.log('UpdateTradeOrdersDaemon.fromApi error ' + e.message + ' tmpOneOrder')
             }
             throw new Error(e.message + ' tmpOneOrder')
         }

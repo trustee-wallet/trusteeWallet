@@ -144,7 +144,9 @@ class BlocksoftTg {
                 }
             }
             e.message += ' ' + link + ' ' + JSON.stringify(qs)
-            console.log('TG error : ' + e.message)
+            if (config.debug.appErrors) {
+                console.log('TG error : ' + e.message)
+            }
             if (e.message.indexOf('Too Many Requests') !== -1) {
                 CACHE_ERROR = now
             }

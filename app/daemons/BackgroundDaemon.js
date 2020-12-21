@@ -57,15 +57,15 @@ class BackgroundDaemon {
         BackgroundFetch.status((status) => {
             switch(status) {
                 case BackgroundFetch.STATUS_RESTRICTED:
-                    console.log('BackgroundDaemon restricted')
+                    // console.log('BackgroundDaemon restricted')
                     Log.daemon('BackgroundDaemon restricted')
                     break
                 case BackgroundFetch.STATUS_DENIED:
-                    console.log('BackgroundDaemon denied')
+                    // console.log('BackgroundDaemon denied')
                     Log.daemon('BackgroundDaemon denied')
                     break
                 case BackgroundFetch.STATUS_AVAILABLE:
-                    console.log('BackgroundDaemon is enabled')
+                    // console.log('BackgroundDaemon is enabled')
                     Log.daemon('BackgroundDaemon is enabled')
                     break
             }

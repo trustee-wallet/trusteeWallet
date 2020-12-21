@@ -159,7 +159,7 @@ class MainDataScreen extends Component {
             prevOutAccount : selectedOutAccount
         })
 
-        console.log('setPrevIn', selectedInAccount)
+        // console.log('setPrevIn', selectedInAccount)
     }
 
     handleGetTradeWay = (selectedInCurrency, selectedPaymentSystem) => {
