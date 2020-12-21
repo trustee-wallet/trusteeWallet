@@ -22,7 +22,7 @@ class BackgroundDaemon {
 
         CACHE_RUNNING = true
 
-        console.log('BACKGROUND EVENT INIT')
+        // console.log('BACKGROUND EVENT INIT')
         Log.daemon('BACKGROUND EVENT INIT')
         await FilePermissions.init()
         await DBOpen.open()
@@ -30,7 +30,7 @@ class BackgroundDaemon {
         await UpdateOneByOneDaemon.init()
         await UpdateOneByOneDaemon.updateOneByOneDaemon({source : 'BACK'})
 
-        console.log('BACKGROUND EVENT FINISH')
+        // console.log('BACKGROUND EVENT FINISH')
         Log.daemon('BACKGROUND EVENT FINISH')
 
         BackgroundFetch.finish()

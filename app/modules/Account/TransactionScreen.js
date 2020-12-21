@@ -55,7 +55,11 @@ import GradientView from '../../components/elements/GradientView'
 import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 import config from '../../config/config'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
-import { setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
+import {
+    setLoaderStatus,
+    setSelectedAccount,
+    setSelectedCryptoCurrency
+} from '../../appstores/Stores/Main/MainStoreActions'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -690,8 +694,17 @@ class TransactionScreen extends Component {
             return false
         }
         array.push({ icon: 'remove', title: strings('account.transactionScreen.remove'), action: async () => {
-            await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({force: true, removeId : transaction.bseOrderData.orderId})
+                setLoaderStatus(true)
+                try {
+                    await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({
+                        force: true,
+                        removeId: transaction.bseOrderData.orderId
+                    })
+                } catch (e) {
+                    Log.err('TransactionScreen.removeButton error ' + e.message)
+                }
                 NavStore.goBack()
+                setLoaderStatus(false)
         }})
     }
 
