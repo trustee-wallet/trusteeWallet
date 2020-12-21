@@ -33,7 +33,6 @@ import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
 import config from '../../config/config'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
-const V3_API = 'https://api.v3.trustee.deals'
 
 let CACHE_IS_ERROR = false
 class SMSV3CodeScreen extends Component {
@@ -82,26 +81,6 @@ class SMSV3CodeScreen extends Component {
         })
     }
 
-    async createSign() {
-        let msg = ''
-        try {
-            Log.log('ApiV3.initData will ask time from server')
-            const now = await BlocksoftAxios.get(V3_API + '/data/server-time');
-            if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
-                msg = now.data.serverTime
-                Log.log('ApiV3.initData msg from server ' + msg)
-            }
-        } catch (e) {
-            // do nothing
-        }
-
-        const sign = await CashBackUtils.createWalletSignature(true, msg);
-
-        this.setState({
-            sign: sign
-        })
-    }
-
     prepareFunction(dataString, param, that, type) {
         let prepare = JSON.parse(JSON.stringify(dataString))
         let item
@@ -123,11 +102,6 @@ class SMSV3CodeScreen extends Component {
             // eslint-disable-next-line no-new-func
             const getCode = new Function('e', 'Log', 'Linking', 'copyToClipboard', 'showModal', 'setExchangeStatus', 'CACHE_IS_ERROR', 'that', prepare)
             return getCode(param, Log, Linking, copyToClipboard, showModal, this.setExchangeStatus, CACHE_IS_ERROR, that)
-        } else if (type === 'EXCHANGE_STATUS') {
-            const cashbackToken = CashBackUtils.getWalletToken()
-            // eslint-disable-next-line no-new-func
-            const getCode = new Function('param', 'Log', 'BlocksoftAxios', 'config', 'V3_API', 'sign', 'cashbackToken', prepare)
-            return getCode(param, Log, BlocksoftAxios, config, V3_API, this.state.sign, cashbackToken, that)
         }
     }
 
@@ -146,8 +120,8 @@ class SMSV3CodeScreen extends Component {
         this.prepareFunction(this.state.navigation, newNavState, this, 'GENERAL')
     }
 
-    setExchangeStatus(body, orderHash, status) {
-        this.prepareFunction(body, { orderHash, status }, this, 'EXCHANGE_STATUS')
+    async setExchangeStatus(body, orderHash, status) {
+        Api.setExchangeStatus(orderHash, status)
     }
 
     closeAction = () => {

@@ -60,6 +60,9 @@ import transactionDS from '../../appstores/DataSource/Transaction/Transaction'
 import transactionActions from '../../appstores/Actions/TransactionActions'
 import BalanceHeader from './elements/AccountData'
 
+import blackLoader from '../../assets/jsons/animations/refreshBlack.json'
+import whiteLoader from '../../assets/jsons/animations/refreshWhite.json'
+
 
 let CACHE_ASKED = false
 
@@ -283,7 +286,7 @@ class Account extends Component {
 
         const isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
-        const { colors, GRID_SIZE } = this.context
+        const { colors, GRID_SIZE, isLight } = this.context
 
         return (
             <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}>
@@ -317,7 +320,7 @@ class Account extends Component {
                     <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE}} onPress={() => this.handleRefresh(true)} hitSlop={HIT_SLOP} >
                             {this.state.clickRefresh ? 
                                 <LottieView style={{ width: 20, height: 20, }} 
-                                source={require('../../assets/jsons/animations/refreshWhite.json')}
+                                source={isLight ? blackLoader : whiteLoader}
                                 autoPlay loop /> :
                             <CustomIcon name={'reloadTx'} size={20} color={colors.common.text1} /> }
                         </TouchableOpacity>

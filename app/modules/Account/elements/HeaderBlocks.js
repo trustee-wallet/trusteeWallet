@@ -267,7 +267,7 @@ class HeaderBlocks extends Component {
                             <TouchableOpacity style={styles.topContent__middle}
                                 onPress={() => this.handleBtcAddressCopy(shownAddress)}
                                 hitSlop={HIT_SLOP}>
-                                <ToolTips showAfterRender={true} height={150}
+                                <ToolTips height={150}
                                     type={'ACCOUNT_SCREEN_ADDRESS_TIP'}
                                     cryptoCurrency={cryptoCurrency}
                                     mainComponentProps={{ address: shownAddress }}

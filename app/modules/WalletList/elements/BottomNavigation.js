@@ -174,7 +174,7 @@ class BottomNavigation extends Component {
                     {/* </TouchableOpacity> */}
 
                     <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={() => this.handleMainBtn('SELL')}>
-                        <FontistoIcon size={18} name={'shopping-basket-remove'} color={colors.common.text1} />
+                        <CustomIcon name="sell" style={{ color: colors.common.text1 }} size={21} />
                         <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.sell')}</Text>
                     </TouchableOpacity>
 

@@ -73,6 +73,9 @@ import UtilsService from '../../services/UI/PrettyNumber/UtilsService'
 import TextInput from '../../components/elements/new/TextInput'
 import Button from '../../components/elements/new/buttons/Button'
 
+import blackLoader from '../../assets/jsons/animations/refreshBlack.json'
+import whiteLoader from '../../assets/jsons/animations/refreshWhite.json'
+
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 const amountInput = {
@@ -529,6 +532,8 @@ class ReceiveScreen extends Component {
             const { currencySymbol, currencyCode } = this.props.cryptoCurrency
             let address
 
+            amount = this.state.customAmount ? amount : ''
+
             if (currencyCode === 'BTC') {
                 address = this.state.settingAddressType === 'segwit' ? this.props.account.segwitAddress : this.props.account.legacyAddress
             } else {
@@ -542,9 +547,9 @@ class ReceiveScreen extends Component {
                 let currencyName = BlocksoftDict.Currencies[extend.addressCurrencyCode].currencyName
                 currencyName = currencyName.toLowerCase().replace(' ', '')
 
-                linkForQR = `${currencyName}:${address}?contractAddress=${extend.tokenAddress}&symbol=${currencySymbol}&amount=${amount}${label ? `&label=${label}` : ''}`
+                linkForQR = `${currencyName}:${address}?contractAddress=${extend.tokenAddress}&symbol=${currencySymbol}${amount ? `&amount=${amount}` : ''}${label ? `&label=${label}` : ''}`
             } else {
-                linkForQR = `${extend.currencyName.toLowerCase().replace(' ', '')}:${address}?amount=${amount}${label ? `&label=${label}` : ''}`
+                linkForQR = `${extend.currencyName.toLowerCase().replace(' ', '')}:${address}${amount ? `?amount=${amount}` : ''}${label ? `&label=${label}` : ''}`
             }
 
             return linkForQR
@@ -701,7 +706,7 @@ class ReceiveScreen extends Component {
                                                     }}>
                                                     {this.state.changeAddress ? 
                                                         <LottieView style={{ width: 20, height: 20, }} 
-                                                            source={require('../../assets/jsons/animations/refreshWhite.json')}
+                                                            source={isLight ? blackLoader : whiteLoader}
                                                             autoPlay loop /> :
                                                         <CustomIcon color={colors.common.text1} size={20} name={'reloadTx'} />
                                                     }

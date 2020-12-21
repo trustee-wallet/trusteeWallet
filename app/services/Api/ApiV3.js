@@ -56,7 +56,7 @@ export default {
         }
     },
 
-    async initData(type, currencyCode=false) {
+    async initData(type, currencyCode=false, isLight) {
 
         let entryPoint
         if (type === 'EXCHANGE') {
@@ -275,31 +275,33 @@ export default {
         }
     },
 
+    // @ksu this need post
     setExchangeStatus: async (orderHash, status) => {
 
-        const { mode: exchangeMode, apiEndpoints } = config.exchange
-        const entryUrl = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
-        const entryPoint = V3_ENTRY_POINT_SET_STATUS
+        const { mode: exchangeMode } = config.exchange
+        const baseUrl = exchangeMode === 'DEV' ? V3_API : V3_API
 
-        const sign = await CashBackUtils.createWalletSignature(true)
+        const sign = await CashBackUtils.createWalletSignature(true);
 
-        const currentToken = CashBackUtils.getWalletToken()
+        const cashbackToken = CashBackUtils.getWalletToken()
+
+        const data = {}
+
+        data.sign = sign
+
+        data.cashbackToken = cashbackToken
+
+        data.orderHash = orderHash
+        data.paymentStatus = status
 
         try {
+            const link = baseUrl + V3_ENTRY_POINT_SET_STATUS
+            Log.log('ApiV3 setExchangeStatus axios ' + link);
+            return BlocksoftAxios.post(link, data, false);
 
-            const link = entryUrl + entryPoint
-                + '?signature=' + sign.signature
-                + '&signMessage=' + sign.message
-                + '&signMessageHash=' + sign.messageHash
-                + '&cashbackToken=' + currentToken
-                + '&locale=' + sublocale()
-                + '&status=' + status.toUpperCase()
-                + '&orderHash=' + orderHash
-            Log.log('ApiV3 setExchangeStatus link ' + link)
-            return link
         } catch (e) {
-            Log.err('ApiV3 setExchangeStatus error ' + e.message)
-            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+            Log.err('ApiV3 setExchangeStatus e.response.data ' + e.response.data)
+            Log.err('ApiV3 setExchangeStatus e.response.data.message ' + e.response.data.message)
         }
     },
 

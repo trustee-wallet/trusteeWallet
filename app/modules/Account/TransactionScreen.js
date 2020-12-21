@@ -426,10 +426,12 @@ class TransactionScreen extends Component {
 
     prepareTransactionHashToView = (transaction, cryptoCurrency) => {
         if (!transaction.transactionHash) return null
-        let linkUrl = cryptoCurrency.currencyExplorerTxLink + transaction.transactionHash
-        if (linkUrl.indexOf('?') === -1) {
+        let linkUrl = typeof cryptoCurrency.currencyExplorerTxLink !== 'undefined' ? cryptoCurrency.currencyExplorerTxLink + transaction.transactionHash : ''
+    
+        if (linkUrl.length !== 0 && linkUrl.indexOf('?') === -1) {
             linkUrl += '?from=trustee'
         }
+
         return {
             title: strings(`account.transaction.txHash`),
             description: transaction.transactionHash,
