@@ -62,6 +62,7 @@ import BalanceHeader from './elements/AccountData'
 
 import blackLoader from '../../assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '../../assets/jsons/animations/refreshWhite.json'
+import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAccountBalanceAndTransactionsHD'
 
 
 let CACHE_ASKED = false
@@ -216,7 +217,7 @@ class Account extends Component {
     }
 
     handleRefresh = async (click=false) => {
-        const { account } = this.props
+        const { account, mainStore } = this.props
 
         this.setState({
             refreshing: click ? false : true,
@@ -237,6 +238,13 @@ class Account extends Component {
                 currencyCode: account.currencyCode,
                 source: 'ACCOUNT_REFRESH'
             })
+            if (mainStore.selectedWallet.walletIsHd === 1) {
+                await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({
+                    force: true,
+                    currencyCode: account.currencyCode,
+                    source: 'ACCOUNT_REFRESH'
+                })
+            }
         } catch (e) {
             Log.errDaemon('AccountScreen handleRefresh error updateAccountBalanceAndTransactions ' + e.message)
         }

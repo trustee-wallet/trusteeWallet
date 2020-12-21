@@ -26,7 +26,7 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents started ' + address)
         this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'DOGE.Unspents.getUnspents')
-        const link = this._trezorServer + '/api/v2/utxo/' + address
+        const link = this._trezorServer + '/api/v2/utxo/' + address + '?gap=9999'
         const res = await BlocksoftAxios.getWithoutBraking(link)
         // @ts-ignore
         if (!res || typeof res.data === 'undefined') {
