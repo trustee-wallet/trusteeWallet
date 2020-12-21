@@ -278,7 +278,8 @@ class HomeScreen extends Component {
     }
 
     updateOffset = (offset) => {
-        const newOffset = Math.round(offset)
+        // const newOffset = Math.round(offset)
+        const newOffset = Math.round(offset.nativeEvent.contentOffset.y)
         if (!this.state.hasStickyHeader && newOffset > 110) this.setState(() => ({ hasStickyHeader: true }))
         if (this.state.hasStickyHeader && newOffset < 110) this.setState(() => ({ hasStickyHeader: false }))
     }
@@ -313,7 +314,46 @@ class HomeScreen extends Component {
                 <SafeAreaView style={{ flex: 1, backgroundColor: colors.homeScreen.tabBarBackground }}>
                     <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                         <View style={{ marginBottom: 50 }} />
-                        <DraggableFlatList
+                        <FlatList
+                            data={this.state.data}
+                            extraData={this.state.data}
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }}
+                            onScroll={this.updateOffset}
+                            refreshControl={
+                                <RefreshControl
+                                    style={{ marginTop: 0 }}
+                                    enabled={!this.state.isCurrentlyDraggable}
+                                    tintColor={colors.common.text1}
+                                    refreshing={this.state.refreshing}
+                                    onRefresh={this.handleRefresh}
+                                />
+                            }
+                            ListHeaderComponent={(
+                                <WalletInfo
+                                    accountListByWallet={accountListByWallet}
+                                    isBalanceVisible={this.state.isBalanceVisible}
+                                    originalVisibility={this.state.originalVisibility}
+                                    changeBalanceVisibility={this.changeBalanceVisibility}
+                                    triggerBalanceVisibility={this.triggerBalanceVisibility}
+                                    balanceData={balanceData}
+                                />
+                            )}
+                            renderItem={({ item, drag, isActive }) => (
+                                <CryptoCurrency
+                                    cryptoCurrency={item}
+                                    accountListByWallet={accountListByWallet}
+                                    isBalanceVisible={this.state.isBalanceVisible}
+                                    onDrag={drag}
+                                    isActive={isActive}
+                                    handleReceive={() => this.handleReceive(item, accountListByWallet[item.currencyCode])}
+                                    handleSend={() => this.handleSend(item)}
+                                    handleHide={() => this.handleHide(item)}
+                                />
+                            )}
+                            keyExtractor={item => item.currencyCode}
+                        />
+                        {/* <DraggableFlatList
                             data={this.state.data}
                             extraData={this.state.data}
                             showsVerticalScrollIndicator={false}
@@ -355,7 +395,7 @@ class HomeScreen extends Component {
                             activationDistance={15}
                             onDragEnd={this.onDragEnd}
                             onDragBegin={this.onDragBegin}
-                        />
+                        /> */}
                         <BottomNavigation />
                     </View>
                 </SafeAreaView>
