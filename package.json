@@ -69,6 +69,7 @@
     "react-native-blocksoft-random": "git+https://git@github.com/trustee-wallet/react-native-blocksoft-random",
     "react-native-blur-overlay": "^1.0.7",
     "react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera.git",
+    "react-native-collapsible": "^1.5.3",
     "react-native-crypto": "git+https://github.com/trustee-wallet/react-native-crypto",
     "react-native-dash": "0.0.11",
     "react-native-device-info": "^5.5.4",

@@ -68,6 +68,11 @@ export default class Header extends React.Component {
                         <CustomIcon name="close" size={18} color={props.color} />
                     )
                 }
+                case 'gallery': {
+                    return (
+                        <CustomIcon name="gallery" size={24} color={props.color} />
+                    )
+                }
                 default: return null
             }
         }

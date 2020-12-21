@@ -41,6 +41,7 @@ export default class QrCodeBox extends Component {
                 logoSize={this.props.logoSize}
                 logoBackgroundColor={this.props.logoBackgroundColor}
                 quietZone={10}
+                style={this.props.style}
                 onError={this.props.onError}
             />
         )

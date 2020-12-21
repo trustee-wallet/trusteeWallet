@@ -4,11 +4,19 @@
  */
 import { createStackNavigator } from 'react-navigation-stack'
 import HomeScreen from '../modules/WalletList/HomeScreen'
+import CashbackScreen from '../modules/Cashback/CashbackScreen'
 
 const HomeStack = createStackNavigator(
     {
         HomeScreen: {
             screen: HomeScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        CashbackScreen: {
+            screen: CashbackScreen,
             navigationOptions: {
                 headerShown: false
             }

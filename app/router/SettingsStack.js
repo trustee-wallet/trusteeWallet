@@ -8,7 +8,6 @@ import AddWalletScreen from '../modules/Settings/AddWalletScreen'
 import AdvancedWalletScreen from '../modules/Settings/AdvancedWalletScreen'
 import LanguageListScreen from '../modules/Settings/LanguageListScreen'
 import ScannerSettingsScreen from '../modules/Settings/ScannerSettingsScreen'
-import CashbackScreen from '../modules/Settings/CashbackScreen'
 
 import NotificationsScreen from '../modules/Settings/NotificationsScreen'
 import AboutScreen from '../modules/About/AboutScreen'
@@ -142,14 +141,6 @@ const SettingsStack = createStackNavigator(
 
         AppNewsScreen: {
             screen: AppNewsScreen,
-            navigationOptions: {
-                headerShown: false
-            }
-        },
-
-
-        CashbackScreen: {
-            screen: CashbackScreen,
             navigationOptions: {
                 headerShown: false
             }

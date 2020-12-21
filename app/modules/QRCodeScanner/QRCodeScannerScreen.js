@@ -231,12 +231,12 @@ class QRCodeScannerScreen extends Component {
         )
     }
 
-    backAction = () => {
-        this.onOpenGallery()    
+    handleOpenGallery = () => {
+        this.onOpenGallery()
     }
 
-    closeAction = () => {
-        NavStore.reset('DashboardStack')
+    handleBack = () => {
+        NavStore.goBack()
     }
 
     render() {
@@ -244,11 +244,11 @@ class QRCodeScannerScreen extends Component {
         firebase.analytics().setCurrentScreen('QRCodeScannerScreen.index')
         return (
             <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-                <Header 
-                    leftType='gallery'
-                    leftAction={this.backAction}
-                    rightType='close'
-                    rightAction={this.closeAction}
+                <Header
+                    leftType='back'
+                    leftAction={this.handleBack}
+                    rightType='gallery'
+                    rightAction={this.handleOpenGallery}
                     title={strings('qrScanner.title')}
                 />
                 <QRCodeScanner

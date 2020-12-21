@@ -28,6 +28,10 @@ const ICON_SET = {
     faq: props => <CustomIcon {...props} name="faq" size={27} style={{ left: 0.5 }} />,
     edit: props => <CustomIcon {...props} name="edit" size={22} style={{ left: 0.5 }} />,
     delete: props => <CustomIcon {...props} name="delete" size={22} style={{ left: 0.5 }} />,
+    share: props => <CustomIcon {...props} name="share" size={22} style={{ left: 0.5 }} />,
+    promo: props => <CustomIcon {...props} name="promo" size={22} style={{ left: 0.5 }} />,
+    close: props => <CustomIcon {...props} name="close" size={22} style={{ left: 0.5 }} />,
+    details: props => <CustomIcon {...props} name="details" size={22} style={{ left: 0.5 }} />,
 }
 
 export default function ButtonIcon(props) {
@@ -37,12 +41,11 @@ export default function ButtonIcon(props) {
         containerStyle,
         noTitle,
         size = 42,
-        shadowStyle
+        shadowStyle,
+        title
     } = props
     const { colors } = useTheme()
     const Icon = ICON_SET[type];
-
-    const text = !noTitle && strings(`homeScreen.buttons.${type}`)
 
     return (
         <View style={[styles.container, containerStyle]}>
@@ -61,14 +64,14 @@ export default function ButtonIcon(props) {
             >
                 {Icon && <Icon color={colors.common.roundButtonContent} />}
             </TouchableOpacity>
-            {!noTitle && <Text style={[styles.text, { color: colors.common.text1 }]}>{text}</Text>}
+            {!!title && <Text style={[styles.text, { color: colors.common.text2 }]}>{title}</Text>}
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        alignItems: 'center'
+        alignItems: 'center',
     },
     roundButton: {
         width: 42,
@@ -88,8 +91,9 @@ const styles = StyleSheet.create({
         elevation: 10
     },
     text: {
-        marginTop: 6,
-        fontFamily: 'SFUIDisplay-Semibold',
+        position: 'absolute',
+        bottom: -20,
+        fontFamily: 'SFUIDisplay-Semibold', // TODO: use medium
         fontSize: 12,
         lineHeight: 14,
         letterSpacing: 1.5,

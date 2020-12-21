@@ -53,6 +53,12 @@ export const lightColors = {
           }
         }
     },
+    cashback: {
+      qrCode: '#404040',
+      token: '#864DD9',
+      detailsBg: '#EBEBEB',
+      howItWorksBg: '#F7F7F7',
+    },
     notifications: {
       newNotiesIndicator: '#864DD9',
     },
@@ -151,7 +157,7 @@ export const darkColors = {
         background: '#141414',
         text1: '#dadada',
         text2: '#999',
-        text3: '#c4c4c4',
+        text3: '#B8B8B8',
         roundButtonBg: '#6B6B6B',
         roundButtonContent: '#F7F7F7',
         iconMarkBg: '#303030',
@@ -200,6 +206,12 @@ export const darkColors = {
             iconColorDark: '#404040',
           }
         }
+    },
+    cashback: {
+      qrCode: '#fff',
+      token: '#9E71E1',
+      detailsBg: '#252525',
+      howItWorksBg: '#2E2E2E',
     },
     notifications: {
       newNotiesIndicator: '#9E71E1',

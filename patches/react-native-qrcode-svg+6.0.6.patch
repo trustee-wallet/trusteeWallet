@@ -1,0 +1,22 @@
+diff --git a/node_modules/react-native-qrcode-svg/src/index.js b/node_modules/react-native-qrcode-svg/src/index.js
+index 31797fe..02fbde7 100644
+--- a/node_modules/react-native-qrcode-svg/src/index.js
++++ b/node_modules/react-native-qrcode-svg/src/index.js
+@@ -82,7 +82,8 @@ const QRCode = ({
+   linearGradient = ['rgb(255,0,0)', 'rgb(0,255,255)'],
+   ecl = 'M',
+   getRef,
+-  onError
++  onError,
++  style,
+ }) => {
+   const result = useMemo(() => {
+     try {
+@@ -114,6 +115,7 @@ const QRCode = ({
+       ].join(' ')}
+       width={size}
+       height={size}
++      style={style}
+     >
+       <Defs>
+         <LinearGradient
