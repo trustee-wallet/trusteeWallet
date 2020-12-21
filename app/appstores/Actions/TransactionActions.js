@@ -247,7 +247,7 @@ const transactionActions = {
                 if (account.basicCurrencyRate === 1) {
                     transaction.basicAmountNorm = transaction.addressAmountNorm
                 } else {
-                    transaction.basicAmountNorm = transaction.addressAmountNorm * account.basicCurrencyRate
+                    transaction.basicAmountNorm = BlocksoftUtils.mul(transaction.addressAmountNorm, account.basicCurrencyRate)
                 }
                 transaction.basicAmountPretty = BlocksoftPrettyNumbers.makeCut(transaction.basicAmountNorm, 2).separated
             } catch (e) {
