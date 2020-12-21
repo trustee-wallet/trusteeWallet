@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 import { useColorScheme, Appearance } from 'react-native-appearance'
 
 import { lightColors, darkColors } from './colors'
+import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
@@ -60,6 +61,7 @@ export class ThemeProvider extends React.Component {
             GRID_SIZE,
             changeTheme: this.changeTheme
         }
+        MarketingEvent.UI_DATA.IS_LIGHT = isLight
         return (
             <ThemeContext.Provider value={defaultTheme}>
                 {this.props.children}

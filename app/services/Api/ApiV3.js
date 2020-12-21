@@ -79,7 +79,7 @@ export default {
             deviceToken: MarketingEvent.DATA.LOG_TOKEN,
             wallets: [],
             cards : await cardDS.getCards(),
-            selectedCurrency: currencyCode //@ksu check this plz
+            selectedCurrency: currencyCode
         }
         if (!data.cards || typeof data.cards === 'undefined' ) {
             data.cards = []
@@ -236,6 +236,7 @@ export default {
                 + '&cashbackToken=' + currentToken
                 + '&locale=' + sublocale()
                 + '&version=' + MarketingEvent.DATA.LOG_VERSION
+                + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
             Log.log('ApiV3.initData link ' + link)
             return link
         } catch (e) {
@@ -264,6 +265,8 @@ export default {
                 + '&cashbackToken=' + currentToken
                 + '&locale=' + sublocale()
                 + '&orderHash=' + orderHash
+                + '&version=' + MarketingEvent.DATA.LOG_VERSION
+                + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
             Log.log('ApiV3 getMobileCheck link ' + link)
             return link
         } catch (e) {

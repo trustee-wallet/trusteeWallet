@@ -29,6 +29,10 @@ class MarketingEvent {
         LOG_TOKEN : ''
     }
 
+    UI_DATA = {
+        IS_LIGHT : '?'
+    }
+
     /**
      * @return {Promise<void>}
      */
@@ -54,7 +58,6 @@ class MarketingEvent {
         this.DATA.LOG_TESTER = changeable.tg.info.isTester ? 'TRUE' : false
         this.DATA.LOG_PLATFORM = Platform.OS + ' v' + Platform.Version
         this.DATA.LOG_TOKEN = await AsyncStorage.getItem(ASYNC_CACHE_TITLE)
-
 
         this.DATA.LOG_MODEL = ''
         try {
