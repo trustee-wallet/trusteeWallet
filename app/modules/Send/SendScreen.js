@@ -81,7 +81,6 @@ const amountInput = {
 }
 
 let IS_CALLED_BACK = false
-let BASIC_INPUT_TYPE = 'CRYPTO'
 
 class SendScreen extends SendBasicScreenScreen {
 
@@ -135,7 +134,6 @@ class SendScreen extends SendBasicScreenScreen {
     UNSAFE_componentWillMount() {
         AsyncStorage.getItem('sendInputType').then(res => {
             if (res !== null) {
-                BASIC_INPUT_TYPE = res
                 this.setState({
                     inputType: res,
                     amountInputMark: ''
@@ -171,12 +169,7 @@ class SendScreen extends SendBasicScreenScreen {
             sendScreenData.selectedFee = selectedFee
         }
 
-
-        // console.log('Send.SendScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
-
-        const routeName = NavStore.getPrevRoute().routeName
-        const inputType = routeName === 'QRCodeScannerScreen' ? 'CRYPTO' : this.state.inputType
-
+        const inputType = sendScreenData.uiInputType !== 'any' ? sendScreenData.uiInputType : this.state.inputType
         this.setState(
             {
                 sendScreenData,
@@ -186,7 +179,10 @@ class SendScreen extends SendBasicScreenScreen {
                 useAllFunds: sendScreenData.isTransferAll,
                 init: true,
                 inputType,
-                amountInputMark: this.state.amountInputMark ? this.state.amountInputMark : (inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencyCode}` : `${account.basicCurrencySymbol} 0.00`)
+                amountInputMark:
+                    this.state.amountInputMark
+                    ? this.state.amountInputMark :
+                    (inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencyCode}` : `${account.basicCurrencySymbol} 0.00`)
             }, () => {
 
                 if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName) {
@@ -211,7 +207,7 @@ class SendScreen extends SendBasicScreenScreen {
                     try {
                         let value = ''
                         let amount = ''
-                        if (this.state.inputType === 'FIAT') {
+                        if (inputType === 'FIAT') {
                             value = sendScreenData.amountPretty.toString()
                             const {currencyCode, basicCurrencyRate} = account
                             amount = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
@@ -223,6 +219,7 @@ class SendScreen extends SendBasicScreenScreen {
                         }
                         const { amountEquivalent, amountInputMark} = this.amountEquivalent(amount)
                         this.setState({
+                            inputType,
                             amountEquivalent: amountEquivalent,
                             amountInputMark: amountInputMark,
                             balancePart: 0,
@@ -320,6 +317,7 @@ class SendScreen extends SendBasicScreenScreen {
             newSendScreenData.inputValue = amount
             newSendScreenData.selectedFee = selectedFee
             newSendScreenData.uiNeedToCountFees = false
+            newSendScreenData.uiInputType = 'CRYPTO'
 
             // console.log(`Send.SendScreen.handleTransferAll`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))
 
@@ -596,6 +594,8 @@ class SendScreen extends SendBasicScreenScreen {
             newSendScreenData.gotoReceipt = true
             newSendScreenData.gotoWithCleanData = false
             newSendScreenData.amount = amount
+            newSendScreenData.amountPretty = amount
+            newSendScreenData.uiInputType = this.state.inputType
             newSendScreenData.amountRaw = amountRaw
             newSendScreenData.contactName = contactName
             newSendScreenData.contactAddress = contactAddress
@@ -644,7 +644,7 @@ class SendScreen extends SendBasicScreenScreen {
         let symbolEquivalent = currencySymbol
         let valueCrypto = 0
         try {
-            if (!value || value === 0) {
+            if (!value || value === 0 || value === '0.00') {
                 amountEquivalent = '0.00'
                 symbolEquivalent = inputType === 'CRYPTO' ? `${basicCurrencySymbol}` : `${currencyCode}`
             } else if (inputType === 'CRYPTO') {
@@ -785,6 +785,7 @@ class SendScreen extends SendBasicScreenScreen {
                     newSendScreenData.amountRaw = valueCryptoRaw
                     newSendScreenData.unconfirmedRaw = 0
                     newSendScreenData.uiNeedToCountFees = true
+                    newSendScreenData.uiInputType = 'any'
                 } else {
                     // lets try late count - only transfer all requires
                     this.setState({
@@ -793,6 +794,7 @@ class SendScreen extends SendBasicScreenScreen {
                     const {selectedFee} = await this.recountFees(newSendScreenData, 'Send.SendScreen.amountInputCallback')
                     newSendScreenData.selectedFee = selectedFee
                     newSendScreenData.uiNeedToCountFees = false
+                    newSendScreenData.uiInputType = 'CRYPTO'
                     // console.log(`Send.SendScreen.amountInputCallback`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))
                 }
             } else {

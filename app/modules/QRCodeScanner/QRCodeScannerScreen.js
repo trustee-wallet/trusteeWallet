@@ -132,9 +132,10 @@ class QRCodeScannerScreen extends Component {
                 const parsed = res.data
                 await SendActions.startSend({
                     uiType: 'MAIN_SCANNER',
+                    uiInputType : parsed.amount ? 'CRYPTO' : 'any',
                     gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
                     addressTo: parsed.address,
-                    amountPretty: parsed.amount ? parsed.amount.toString() : '0',
+                    amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
                     currencyCode: parsed.currencyCode,
                     comment: parsed.label
                 })
@@ -151,9 +152,10 @@ class QRCodeScannerScreen extends Component {
                     parsed.currencyCode = oldCurrency.currencyCode
                     await SendActions.startSend({
                         uiType: 'SEND_SCANNER',
+                        uiInputType : parsed.amount ? 'CRYPTO' : 'any',
                         gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
                         addressTo: parsed.address,
-                        amountPretty: parsed.amount ? parsed.amount.toString() : '0',
+                        amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
                         currencyCode: parsed.currencyCode,
                         comment: parsed.label
                     })

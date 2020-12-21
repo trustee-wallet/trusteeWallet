@@ -9,6 +9,7 @@ export namespace SendTmpData {
         uiApiVersion ?: 'v2' | 'v3', // for trades version of api
         uiProviderType ?: 'FIXED' | 'FLOATING', // for trades types
         uiNeedToCountFees ?: boolean,
+        uiInputType ?: 'FIAT' | 'CRYPTO' | 'any',
 
         // this is actually for redo
         inputValue ?: string, // 0.1

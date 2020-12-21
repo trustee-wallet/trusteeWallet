@@ -23,6 +23,7 @@ import Log from '../../../services/Log/Log'
 
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import { BlocksoftBlockchainTypes } from '../../../../crypto/blockchains/BlocksoftBlockchainTypes'
+import AsyncStorage from '@react-native-community/async-storage'
 
 export namespace SendActions {
 
@@ -230,6 +231,9 @@ export namespace SendActions {
 
     export const startSend = async function(data: SendTmpData.SendScreenDataRequest): Promise<boolean> {
         try {
+            if (typeof data.uiInputType === 'undefined') {
+                data.uiInputType = 'any'
+            }
             data.transactionReplaceByFee = false
             data.transactionSpeedUp = false
             data.transactionJson = {}
@@ -247,6 +251,14 @@ export namespace SendActions {
             }
 
             if (typeof data.amountPretty !== 'undefined') {
+                if (data.amountPretty === 'old') {
+                    const old = SendTmpData.getData()
+                    if (typeof old !== 'undefined' && typeof old.amountPretty !== 'undefined') {
+                        data.amountPretty = old.amountPretty
+                    } else {
+                        data.amountPretty = '0'
+                    }
+                }
                 if (typeof data.amountRaw === 'undefined') {
                     data.amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amountPretty)
                 }

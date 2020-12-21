@@ -5,6 +5,7 @@
  */
 export const normalizeInputWithDecimals = (val, decimals) => {
     let tmpSplit
+    if (typeof val === 'undefined' || !val) return ''
     let value = val.replace(',', '.')
 
     value = value.replace(/[^0-9.]*/g, '')
