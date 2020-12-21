@@ -45,7 +45,10 @@ class SettingsBTC extends Component {
 
     handleEnableHD = () => {
 
-        const { walletHash } = this.props.wallet
+        const { walletIsHd, walletHash } = this.props.wallet
+        if (walletIsHd) {
+            return false
+        }
 
         showModal({
             type: 'YES_NO_MODAL',
