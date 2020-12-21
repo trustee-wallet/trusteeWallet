@@ -175,6 +175,7 @@ class SendScreen extends SendBasicScreenScreen {
         // console.log('Send.SendScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
 
         const routeName = NavStore.getPrevRoute().routeName
+        const inputType = routeName === 'QRCodeScannerScreen' ? 'CRYPTO' : this.state.inputType
 
         this.setState(
             {
@@ -184,9 +185,8 @@ class SendScreen extends SendBasicScreenScreen {
                 wallet,
                 useAllFunds: sendScreenData.isTransferAll,
                 init: true,
-                inputType: routeName === 'QRCodeScannerScreen' ? 'CRYPTO' : this.state.inputType,
-                // @yurka are you kidding ?
-                amountInputMark: this.state.amountInputMark ? this.state.amountInputMark : routeName === 'QRCodeScannerScreen' ? `${account.basicCurrencySymbol} 0.00` : this.state.inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencyCode}` : `${account.basicCurrencySymbol} 0.00`
+                inputType,
+                amountInputMark: this.state.amountInputMark ? this.state.amountInputMark : (inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencyCode}` : `${account.basicCurrencySymbol} 0.00`)
             }, () => {
 
                 if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName) {
