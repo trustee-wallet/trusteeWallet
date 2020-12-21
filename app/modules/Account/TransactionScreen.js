@@ -217,7 +217,7 @@ class TransactionScreen extends Component {
             blockConfirmations ? subContent.push(blockConfirmations) : null
 
             const blockNumber = this.prepareBlockNumber(transaction.blockNumber)
-            blockNumber ? subContent.push(blockNumber) : null
+            blockNumber && blockNumber !== -1 ? subContent.push(blockNumber) : null
 
             const fioMemoToView = this.prepareFioMemoToView(fioMemo[transaction.transactionHash])
             fioMemoToView ? subContent.push(fioMemoToView) : null
