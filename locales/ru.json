@@ -19,19 +19,19 @@
   "tooltips": {
     "HOME_SCREEN_BUY_BTN_TIP": {
       "title": "",
-      "description": "Тут ты можешь купить крипту с карты - Ваш Капитан Очевидность :)"
+      "description": "Тут Вы можете выгодно купить крипту с кредитной карты в два клика!"
     },
     "HOME_SCREEN_EXCHANGE_BTN_TIP": {
       "title": "",
-      "description": "Не обязательно менять на биржах - меняй крипту на крипту у нас в 2 клика!"
+      "description": "Понятный и выгодный обмен криптовалют!"
     },
     "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
       "title": "",
-      "description": "Добавляй нужные монеты и зарабатывай - вперед!"
+      "description": "Добавляйте необходимые монеты и токены здесь."
     },
     "HOME_SCREEN_CRYPTO_BTN_TIP": {
       "title": "",
-      "description": "Это - твой уникальный Биткоин кошелек - начинай отправлять и принимать биткоины!"
+      "description": "Ваш анонимный биткоин-кошелек: выгодно получить, купить и отправить биткоины."
     },
     "ACCOUNT_SCREEN_ADDRESS_TIP": {
       "title": "",
@@ -393,24 +393,24 @@
     "pageTitle": "Приглашай друзей",
     "pageSubtitle": "Зарабатывай вместе с Trustee Wallet до 30% от комиссий!",
     "shareButton": "Поделиться",
-    "promoButton": "Promo",
-    "detailsButton": "Details",
-    "enterPromoPlaceholder": "Enter promo code",
-    "enterInviteLinkPlaceholder": "Enter invite link",
+    "promoButton": "Промокод",
+    "detailsButton": "Детали",
+    "enterPromoPlaceholder": "Введите промокод",
+    "enterInviteLinkPlaceholder": "Введите ссылку-приглашение",
     "applyButton": "Применить",
     "wholeBalance": "Весь баланс",
     "cashbackBalance": "Баланс кешбэка",
     "cashbackToken": "Токен",
     "howItWorks": {
       "title": "Как это работает?",
-      "info1Title": "Есть ли в Trustee Wallet какая-то программа наград для пользователей?",
-      "info1Content": "",
-      "info2Title": "Как активировать Cashback?",
-      "info2Content": "",
+      "info1Title": "Есть ли в Trustee Wallet программа наград для пользователей?",
+      "info1Content": "Программа состоит из кешбэка и двухуровневой партнерской программы, что в итоге позволяет получать до 30% от комиссий Trustee за покупки и продажи криптовалют приглашенными пользователями",
+      "info2Title": "Как активировать кешбэк?",
+      "info2Content": "Для активации необходимо пригласить 5 новых пользователей по своей кешбэк ссылке. После активации Вы будете получать 10% от комиссии Trustee со своих обменов. Данная функция активируется навсегда!",
       "info3Title": "Какие условия партнерской программы?",
       "info3Content": "Уровень №1 – 10% от комиссии Trustee за покупки и продажи криптовалют приглашенными пользователями (активируется с первого партнера). Чем больше друзей установят кошелек по Вашей ссылке, тем больше будет Ваш доход. Уровень №2 – активируется при превышении оборота структуры в 5000 USDT в неделю и позволит получать 10% от комиссий Trustee с пользователей 2-го уровня (партнеры ваших партнеров).",
-      "info4Title": "Как вывести кешбек и партнерское вознаграждение?",
-      "info4Content": ""
+      "info4Title": "Как вывести кешбэк и партнерское вознаграждение?",
+      "info4Content": "Минимальная сумма для вывода- 2 USDT ERC-20"
     },
     "invitedBy": "Приглашен",
     "mainTitle": "Приведи друзей - заработай кешбэк!",
@@ -429,8 +429,8 @@
       "UI_ERROR_CASHBACK_SIGN_ERROR" : "Некорректная подпись в хранилище - пожалуйста, зайдите в раздел кешбэк еще раз",
       "UI_ERROR_CASHBACK_TIME_ERROR" : "Неактуальная дата или время устройства",
       "UI_ERROR_CASHBACK_TIME_ERROR_LOG" : "Сервис может не работать в результате нестабильного интернета или некорректных настроек даты и времени на Вашем мобильном устройстве",
-      "UI_ERROR_CASHBACK_PROMO_DUPLICATE" : "Промо код уже использован",
-      "UI_ERROR_CASHBACK_PROMO_NOT_FOUND" : "Промо код не найден"
+      "UI_ERROR_CASHBACK_PROMO_DUPLICATE" : "Промокод уже использован",
+      "UI_ERROR_CASHBACK_PROMO_NOT_FOUND" : "Промокод не найден"
     },
     "cashbackAmount": "Сумма кешбэка",
     "setParentToken": "Задать ссылку-приглашение Вашего друга",
@@ -438,7 +438,7 @@
     "inputParentCashbackLink": "https://trustee.deals/link/example",
     "withdraw": "Вывести",
     "minWithdraw": "Минимальная сумма для вывода",
-    "performWithdraw": "Чтобы осуществить вывод, пожалуйста, напишите в telegram на никнейм @TrusteeWallet",
+    "performWithdraw": "Чтобы осуществить вывод, пожалуйста, напишите в telegram на никнейм @TrusteeWallet"
   },
   "account": {
     "title": "Счет",
