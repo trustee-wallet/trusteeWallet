@@ -58,6 +58,10 @@ class AccountSettingScreen extends React.Component {
         NavStore.goBack()
     }
 
+    handleClose = () => {
+        NavStore.reset('DashboardStack')
+    }
+
     render() {
         const { colors, GRID_SIZE } = this.context
 
@@ -93,8 +97,10 @@ class AccountSettingScreen extends React.Component {
         return (
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>
                 <Header
+                    leftType="back"
+                    leftAction={this.handleBack}
                     rightType="close"
-                    rightAction={this.handleBack}
+                    rightAction={this.handleClose}
                     title={strings('settings.title')}
                     setHeaderHeight={this.setHeaderHeight}
                 />

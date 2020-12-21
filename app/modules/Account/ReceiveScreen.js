@@ -19,6 +19,8 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 
+import LottieView from 'lottie-react-native'
+
 import NavStore from '../../components/navigation/NavStore'
 
 import LetterSpacing from '../../components/elements/LetterSpacing'
@@ -97,6 +99,8 @@ class ReceiveScreen extends Component {
             inputType: 'CRYPTO',
 
             focused: false,
+
+            changeAddress: false
         }
     }
 
@@ -379,6 +383,11 @@ class ReceiveScreen extends Component {
     }
 
     changeAddress = async () => {
+
+        this.setState({
+            changeAddress: true
+        })
+
         setLoaderStatus(true)
 
         try {
@@ -398,7 +407,12 @@ class ReceiveScreen extends Component {
             // noinspection ES6MissingAwait
             Log.err('ReceiveScreen changeAddress error ' + e.message)
         }
+        
         setLoaderStatus(false)
+
+        this.setState({
+            changeAddress: false
+        })
     }
 
     backAction = () => {
@@ -685,7 +699,12 @@ class ReceiveScreen extends Component {
                                                         marginRight: GRID_SIZE,
                                                         marginTop: 4
                                                     }}>
+                                                    {this.state.changeAddress ? 
+                                                        <LottieView style={{ width: 20, height: 20, }} 
+                                                            source={require('../../assets/jsons/animations/refreshWhite.json')}
+                                                            autoPlay loop /> :
                                                         <CustomIcon color={colors.common.text1} size={20} name={'reloadTx'} />
+                                                    }
                                                     </TouchableOpacity> :
                                                     <View style={{ position: 'relative', marginRight: GRID_SIZE, flexDirection: 'column', justifyContent: 'center' }}>
                                                         <MaterialIcons color="#999999" size={14} name={'content-copy'} />

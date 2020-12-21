@@ -66,7 +66,7 @@ export default function Button(props) {
                 <Text style={[preparedStyles.text]}>{title}</Text> 
                 :
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={[preparedStyles.text, { paddingRight: 6 }]}>{'Sending'}</Text>  
+                    <Text style={[preparedStyles.text, { paddingRight: 6 }]}>{strings('send.receiptScreen.sending')}</Text>  
                     <LottieView style={{ width: 40, height: 40, marginTop: -20, top: 16 }} 
                         source={loaderWhite}
                         autoPlay loop /> 

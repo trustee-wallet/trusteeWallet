@@ -522,7 +522,7 @@ class TransactionScreen extends Component {
         }
     }
 
-    closeAction = async () => {
+    backAction = async () => {
         if (this.state.toOpenAccountBack) {
             const { cryptoCurrency } = this.props
             setSelectedCryptoCurrency(cryptoCurrency)
@@ -531,6 +531,10 @@ class TransactionScreen extends Component {
         } else {
             NavStore.goBack()
         }
+    }
+
+    closeAction = () => {
+        NavStore.reset('DashboardStack')
     }
 
     getTransactionDate(transaction) {
@@ -878,7 +882,7 @@ class TransactionScreen extends Component {
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
                     leftType={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen') ? null : 'back'}
-                    leftAction={this.closeAction}
+                    leftAction={this.backAction}
                     rightType='close'
                     rightAction={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen') ? () => NavStore.reset('DashboardStack') : this.closeAction}
                     setHeaderHeight={this.setHeaderHeight}

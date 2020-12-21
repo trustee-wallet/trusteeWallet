@@ -14,6 +14,7 @@ import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import CustomIcon from './CustomIcon'
+import { HIT_SLOP } from '../../themes/Themes'
 
 
 class ToolTips extends Component {
@@ -276,14 +277,14 @@ class ToolTips extends Component {
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             {
                                 isSkip ?
-                                    <TouchableOpacity onPress={this.skip}>
+                                    <TouchableOpacity onPress={this.skip} hitSlop={{top: 10, right: 10, bottom: 10, left: 10}} >
                                         <View style={{ height: 30, marginLeft: GRID_SIZE, marginTop: 6 }}>
                                             <CustomIcon name={'close'} size={18} color={colors.common.text1} /> 
                                         </View>
                                     </TouchableOpacity> : null
                             }
 
-                            <TouchableOpacity style={{ marginLeft: !isSkip ? 'auto' : 0 }} onPress={nextBtnCallback}>
+                            <TouchableOpacity style={{ marginLeft: !isSkip ? 'auto' : 0 }} onPress={nextBtnCallback} hitSlop={{top: 10, right: 10, bottom: 10, left: 10}} >
                                 <View style={{ marginRight: GRID_SIZE, marginBottom: 19, paddingHorizontal: 5, height: 30, alignItems: 'center', justifyContent: 'center', borderRadius: 5, backgroundColor: colors.common.text1 }}>
                                     <Text style={{ fontFamily: 'Montserrat-Bold', fontSize: 10, letterSpacing: 0.5, color: colors.toolTips.background }}>{ nextBtnText }</Text>
                                 </View>
