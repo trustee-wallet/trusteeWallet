@@ -20,7 +20,9 @@ export default class BtcTransferProcessor extends DogeTransferProcessor implemen
         feeMaxAutoReadable2: 0.01, // for fee calc,
         feeMaxAutoReadable6: 0.005, // for fee calc
         feeMaxAutoReadable12: 0.001, // for fee calc
-        changeTogether: true
+        changeTogether: true,
+        minRbfStepSatoshi: 30,
+        minSpeedUpMulti : 1.7
     }
 
     _initProviders() {

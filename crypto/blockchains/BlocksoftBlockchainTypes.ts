@@ -204,7 +204,9 @@ export namespace BlocksoftBlockchainTypes {
         feeMaxAutoReadable2: number,
         feeMaxAutoReadable6: number,
         feeMaxAutoReadable12: number,
-        changeTogether: boolean
+        changeTogether: boolean,
+        minRbfStepSatoshi : number,
+        minSpeedUpMulti : number
     }
 
     export interface UnspentTx {

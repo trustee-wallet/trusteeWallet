@@ -19,7 +19,9 @@ export default class BsvTransferProcessor extends DogeTransferProcessor implemen
         feeMaxAutoReadable2: 0.2, // for fee calc,
         feeMaxAutoReadable6: 0.1, // for fee calc
         feeMaxAutoReadable12: 0.05, // for fee calc
-        changeTogether: true
+        changeTogether: true,
+        minRbfStepSatoshi: 10,
+        minSpeedUpMulti : 1.5
     }
 
     canRBF(data: BlocksoftBlockchainTypes.DbAccount, transaction: BlocksoftBlockchainTypes.DbTransaction): boolean {

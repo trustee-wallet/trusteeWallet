@@ -10,7 +10,9 @@ class DogeRawDS {
 
     _trezorServer = 'none'
 
+    _canUpdate = true
     async getForAddress(data) {
+        if (!this._canUpdate) return false
         try {
             const dbInterface = new DBInterface()
             const sql = `
@@ -23,10 +25,12 @@ class DogeRawDS {
         created_at AS transactionCreated,
         is_removed, removed_at
         FROM transactions_raw 
-        WHERE 
-        (is_removed=0 OR is_removed IS NULL)
-        AND currency_code='${data.currencyCode}'
-        AND address='${data.address.toLowerCase()}'`
+        WHERE currency_code='${data.currencyCode}'
+        AND address='${data.address.toLowerCase()}'
+        AND transaction_unique_key NOT LIKE 'inputs_%'
+        AND transaction_unique_key NOT LIKE 'json_%'
+        AND (is_removed=0 OR is_removed IS NULL)
+        `
             const result = await dbInterface.setQueryString(sql).query()
             if (!result || !result.array || result.array.length === 0) {
                 return {}
@@ -37,6 +41,9 @@ class DogeRawDS {
 
             for (const row of result.array) {
                 try {
+                    if (typeof ret[row.transactionUnique] !== 'undefined') {
+                        continue
+                    }
                     ret[row.transactionUnique] = row
 
                     let broadcastLog = ''
@@ -51,15 +58,17 @@ class DogeRawDS {
                         updateObj.is_removed = 1
                         updateObj.removed_at = now
                     } catch (e) {
-                        console.log('b', e)
-                        if (e.message.indexOf('bad-txns-inputs-spent') !== -1) {
-                            broadcastLog = ' sub-spent'
+                        const dbTx = await dbInterface.setQueryString(`SELECT * FROM transactions WHERE transaction_hash='${row.transactionHash}'`).query()
+                        console.log('b', JSON.parse(JSON.stringify(row)), dbTx, e)
+                        if (e.message.indexOf('bad-txns-inputs-spent') !== -1 || e.message.indexOf('missing-inputs') !== -1 || e.message.indexOf('insufficient fee') !== -1) {
+                            broadcastLog = ' sub-spent ' + e.message
                             updateObj.is_removed = 3
                             console.log('update as replaced')
-                            await dbInterface.setQueryString(`UPDATE transactions SET transaction_status='replaced'
-                             WHERE hidden_at='${now}'
-                             AND transaction_hash='${row.transactionHash}' 
-                             AND transaction_status='missing'`).query()
+                            await dbInterface.setQueryString(`UPDATE transactions 
+                            SET transaction_status='replaced', hidden_at='${now}'
+                            WHERE transaction_hash='${row.transactionHash}' 
+                            AND (transaction_status='missing' OR transaction_status='new')
+                            `).query()
                         } else if (e.message.indexOf('already known') !== -1) {
                             broadcastLog = ' already known'
                         } else {
@@ -74,11 +83,14 @@ class DogeRawDS {
                     }).update()
 
                 } catch (e) {
+                    console.log(e.message + ' inside row ' + row.transactionHash)
                     throw new Error(e.message + ' inside row ' + row.transactionHash)
                 }
             }
+            this._canUpdate = true
             return ret
         } catch (e) {
+            this._canUpdate = true
             throw new Error(e.message + ' on DogeRawDS.getAddress')
         }
     }
@@ -127,14 +139,14 @@ class DogeRawDS {
         await dbInterface.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
     }
 
-    async saveInputs(data) {
+    async savePrefixed(data, prefix) {
         const dbInterface = new DBInterface()
         const now = new Date().toISOString()
 
         const prepared = [{
             currency_code: data.currencyCode,
             address: data.address.toLowerCase(),
-            transaction_unique_key: 'inputs_' + data.transactionHash,
+            transaction_unique_key: prefix + '_' + data.transactionHash,
             transaction_hash: data.transactionHash,
             transaction_raw: dbInterface.escapeString(data.transactionRaw),
             is_removed: 2,
@@ -143,12 +155,12 @@ class DogeRawDS {
         await dbInterface.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
     }
 
-    async getInputs(data) {
+    async getPrefixed(data, prefix) {
         const dbInterface = new DBInterface()
         const sql = `SELECT transaction_raw AS transactionRaw
             FROM ${tableName} 
             WHERE currency_code='${data.currencyCode}'
-            AND transaction_unique_key='inputs_${data.transactionHash}' LIMIT 1`
+            AND transaction_unique_key='${prefix}_${data.transactionHash}' LIMIT 1`
         const res = await dbInterface.setQueryString(sql).query()
         if (!res || !res.array || typeof res.array[0] === 'undefined' || typeof res.array[0].transactionRaw === 'undefined') {
             return false
@@ -160,6 +172,22 @@ class DogeRawDS {
             BlocksoftCryptoLog.err('DogeRawDS getInputs error ' + e.message)
             return false
         }
+    }
+
+    async saveInputs(data) {
+        return this.savePrefixed(data, 'inputs')
+    }
+
+    async getInputs(data) {
+        return this.getPrefixed(data, 'inputs')
+    }
+
+    async saveJson(data) {
+        return this.savePrefixed(data, 'json')
+    }
+
+    async getJson(data) {
+        return this.getPrefixed(data, 'json')
     }
 }
 

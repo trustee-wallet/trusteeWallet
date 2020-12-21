@@ -22,7 +22,9 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor implemen
         feeMaxAutoReadable2: 0.01, // for fee calc,
         feeMaxAutoReadable6: 0.005, // for fee calc
         feeMaxAutoReadable12: 0.001, // for fee calc
-        changeTogether: false
+        changeTogether: false,
+        minRbfStepSatoshi: 50,
+        minSpeedUpMulti : 1.5
     }
 
     _initProviders() {
