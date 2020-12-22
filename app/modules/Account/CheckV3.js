@@ -11,7 +11,9 @@ import {
     Platform,
     BackHandler,
     StatusBar,
-    Keyboard
+    Keyboard,
+    ActivityIndicator,
+    SafeAreaView
 } from 'react-native'
 
 import firebase from 'react-native-firebase'
@@ -25,6 +27,8 @@ import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import { WebView } from 'react-native-webview'
 import { strings } from '../../services/i18n'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -62,19 +66,24 @@ class CheckV3DataScreen extends Component {
     }
 
     componentDidMount() {
+        const { isLight } = this.context
+
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
         Keyboard.addListener( 'keyboardWillShow', this.onKeyboardShow );
-	    StatusBar.setBarStyle( 'dark-content' );
+	    StatusBar.setBarStyle( isLight ? 'dark-content' : 'light-content' );
     }
 
     componentWiilUnmount() {
+        const { isLight } = this.context
+        
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
         Keyboard.removeListener( 'keyboardWillShow', this.onKeyboardShow );
-	    StatusBar.setBarStyle( 'dark-content' );
+	    StatusBar.setBarStyle( isLight ? 'dark-content' : 'light-content' );
     }
 
     onKeyboardShow = () => {
-        StatusBar.setBarStyle( 'dark-content' );
+        const { isLight } = this.context
+        StatusBar.setBarStyle( isLight ? 'dark-content' : 'light-content' );
     }
 
     handlerBackPress = () => {
@@ -110,8 +119,27 @@ class CheckV3DataScreen extends Component {
         })
     }
 
+    renderLoading = () => {
+        const { colors } = this.context
+        return (
+            <ActivityIndicator
+                size="large"
+                style={{ backgroundColor: colors.common.header.bg, position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                justifyContent: 'center',
+                alignItems: 'center' }}
+                color={this.context.colors.common.text2}
+            />
+        )
+    }
+
     render() {
         UpdateOneByOneDaemon.pause()
+
+        const { colors, isLight } = this.context
 
         const orderHash = this.props.navigation.getParam('orderHash')
 
@@ -122,7 +150,9 @@ class CheckV3DataScreen extends Component {
 
         return (
             <View style={styles.wrapper}>
-                <View style={{ flex: 1, position: 'relative', marginTop: this.state.navigationViewV3 ? 80 : 0 }}>
+                <SafeAreaView style={{ flex: 0, backgroundColor: colors.common.header.bg }} />
+                <StatusBar translucent={false} backgroundColor={colors.common.header.bg} barStyle={isLight ? 'dark-content' : 'light-content'} />
+                <View style={{ flex: 1, position: 'relative', marginTop: 0 }}>
                     {this.state.show ?
                         <KeyboardAvoidingView
                             behavior={Platform.select({ ios: 'height', android: 'height' })}
@@ -167,17 +197,23 @@ class CheckV3DataScreen extends Component {
                                     Log.log('BSE/CheckV3DataScreen.on start load with request ' + e.navigationType)
                                     return true
                                 }}
-                                onLoadStart={StatusBar.setBarStyle("dark-content")}
-                                onLoad={StatusBar.setBarStyle("dark-content")}
+                                onLoadStart={StatusBar.setBarStyle( isLight ? 'dark-content' : 'light-content' )}
+                                onLoad={StatusBar.setBarStyle( isLight ? 'dark-content' : 'light-content' )}
                                 useWebKit={true}
                                 startInLoadingState={true}
+                                renderLoading={this.renderLoading}
                             />
-                        </KeyboardAvoidingView> : null }
+                        </KeyboardAvoidingView> : 
+                        <>
+                            {this.renderLoading()}
+                        </> }
                 </View>
             </View>
         )
     }
 }
+
+CheckV3DataScreen.contextType = ThemeContext
 
 export default CheckV3DataScreen
 

@@ -12,8 +12,9 @@ import {
     Platform,
     BackHandler,
     StatusBar,
-    Linking,
-    Keyboard
+    Keyboard,
+    ActivityIndicator,
+    SafeAreaView
 } from 'react-native'
 
 import firebase from 'react-native-firebase'
@@ -99,19 +100,25 @@ class MainV3DataScreen extends Component {
     }
 
     componentDidMount() {
+        const { isLight } = this.context
+
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
         Keyboard.addListener('keyboardWillShow', this.onKeyboardShow);
-        StatusBar.setBarStyle('dark-content');
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
     }
 
     componentWiilUnmount() {
+        const { isLight } = this.context
+
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
         Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow);
-        StatusBar.setBarStyle('dark-content');
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
     }
 
     onKeyboardShow = () => {
-        StatusBar.setBarStyle('dark-content');
+        const { isLight } = this.context
+
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
     }
 
     handlerBackPress = () => {
@@ -684,7 +691,26 @@ class MainV3DataScreen extends Component {
         })
     }
 
+    renderLoading = () => {
+        const { colors } = this.context
+        return (
+            <ActivityIndicator
+                size="large"
+                style={{ backgroundColor: colors.common.header.bg, position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                justifyContent: 'center',
+                alignItems: 'center' }}
+                color={this.context.colors.common.text2}
+            />
+        )
+    }
+
     render() {
+
+        const { colors, isLight } = this.context
 
         this.init()
         firebase.analytics().setCurrentScreen('Trade.MainV3Screen')
@@ -693,6 +719,8 @@ class MainV3DataScreen extends Component {
 
         return (
             <View style={styles.wrapper}>
+                <SafeAreaView style={{ flex: 0, backgroundColor: colors.common.header.bg }} />
+                <StatusBar translucent={false} backgroundColor={colors.common.header.bg} barStyle={isLight ? 'dark-content' : 'light-content'} />
                 <View style={{ flex: 1, position: 'relative', marginTop: 0 }}>
                     {this.state.show ?
                         <KeyboardAvoidingView
@@ -734,12 +762,17 @@ class MainV3DataScreen extends Component {
                                     Log.log('Trade.WebViewMainScreen.on start load with request ' + e.navigationType)
                                     return true
                                 }}
-                                onLoadStart={StatusBar.setBarStyle('dark-content')}
-                                onLoad={StatusBar.setBarStyle('dark-content')}
+                                // onLoadStart={StatusBar.setBarStyle('dark-content')}
+                                // onLoad={StatusBar.setBarStyle('dark-content')}
                                 useWebKit={true}
                                 startInLoadingState={true}
+                                renderLoading={this.renderLoading}
                             />
-                        </KeyboardAvoidingView> : null}
+                        </KeyboardAvoidingView> : 
+                        <>
+                            {this.renderLoading()}
+                        </>
+                        }
                 </View>
             </View>
         )

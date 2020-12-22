@@ -4,7 +4,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Animated, Dimensions, Linking, View, StatusBar } from 'react-native'
+import { Animated, Dimensions, Linking, View } from 'react-native'
 
 import LottieView from 'lottie-react-native'
 
@@ -107,7 +107,6 @@ class SMSV3CodeScreen extends Component {
 
     async componentDidMount() {
         const tradeWebParam = this.props.navigation.getParam('tradeWebParam')
-        this.createSign()
         this.prepareFunction(tradeWebParam.didMount, tradeWebParam, this, 'GENERAL')
     }
 
@@ -195,8 +194,6 @@ class SMSV3CodeScreen extends Component {
                             Log.log('Trade.SMSV3CodeScreen.on start load with request ' + e.navigationType)
                             return true
                         }}
-                        onLoadStart={StatusBar.setBarStyle('dark-content')}
-                        onLoad={StatusBar.setBarStyle('dark-content')}
                         useWebKit={true}
                         startInLoadingState={true}
                     />
