@@ -993,13 +993,14 @@ class SendScreen extends SendBasicScreenScreen {
     }
 
     handlerPartBalance = (inputType, part) => {
+        // @ksu check this
         if (inputType === 'FIAT') {
-            let value = this.state.account.basicCurrencyBalance * part
+            let value = BlocksoftUtils.mul(BlocksoftUtils.div(this.state.account.basicCurrencyBalance, 4), Number(part))
             value = UtilsService.cutNumber(value, 2)
             this.valueInput.state.value = value.toString()
             this.amountInputCallback(value, true)
         } else {
-            let value = this.state.account.balancePretty * part
+            let value = BlocksoftUtils.mul(BlocksoftUtils.div(this.state.account.balancePretty, 4), Number(part))
             value = UtilsService.cutNumber(value, 7)
             this.valueInput.state.value = value.toString()
             this.amountInputCallback(value, true)
@@ -1152,37 +1153,37 @@ class SendScreen extends SendBasicScreenScreen {
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: GRID_SIZE }}>
                                     <PartBalanceButton
                                         action={() => {
-                                            this.handlerPartBalance(this.state.inputType, 0.25)
+                                            this.handlerPartBalance(this.state.inputType, 1)
 
                                             this.setState({
-                                                balancePart: 0.25,
+                                                balancePart: 1,
                                                 useAllFunds: false
                                             })
                                         }}
                                         text={'25%'}
-                                        inverse={this.state.balancePart === 0.25 ? true : false}
+                                        inverse={this.state.balancePart === 1 ? true : false}
                                     />
                                     <PartBalanceButton
                                         action={() => {
-                                            this.handlerPartBalance(this.state.inputType, 0.5)
+                                            this.handlerPartBalance(this.state.inputType, 2)
                                             this.setState({
-                                                balancePart: 0.5,
+                                                balancePart: 2,
                                                 useAllFunds: false
                                             })
                                         }}
                                         text={'50%'}
-                                        inverse={this.state.balancePart === 0.5 ? true : false}
+                                        inverse={this.state.balancePart === 2 ? true : false}
                                     />
                                     <PartBalanceButton
                                         action={() => {
-                                            this.handlerPartBalance(this.state.inputType, 0.75)
+                                            this.handlerPartBalance(this.state.inputType, 3)
                                             this.setState({
-                                                balancePart: 0.75,
+                                                balancePart: 3,
                                                 useAllFunds: false
                                             })
                                         }}
                                         text={'75%'}
-                                        inverse={this.state.balancePart === 0.75 ? true : false}
+                                        inverse={this.state.balancePart === 3 ? true : false}
                                     />
                                     <PartBalanceButton
                                         action={() => {
