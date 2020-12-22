@@ -36,6 +36,7 @@ const CACHE = {
     'rubKostilKZT' : 0,
     'ADV_PERCENT' : 1,
     'SUPPORT_BOT' : 'https://t.me/trustee_support_bot?start=app',
+    'SUPPORT_BOT_NAME' : '@trustee_support_bot',
     'navigationViewV3': 1,
     'SOCIAL_LINK_TELEGRAM': 'https://t.me/trustee_deals',
     'SOCIAL_LINK_TWITTER': 'https://twitter.com/Trustee_Wallet',

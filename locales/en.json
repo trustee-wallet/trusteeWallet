@@ -438,7 +438,7 @@
     "inputParentCashbackLink": "https://trustee.deals/link/example",
     "withdraw": "Withdraw",
     "minWithdraw": "Minimal amount to withdraw",
-    "performWithdraw": "To perform withdraw, please, write to telegram to nickname @TrusteeWallet"
+    "performWithdraw": "To perform withdraw, please, write to telegram to nickname"
   },
   "account": {
     "title": "Account",

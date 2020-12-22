@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     Platform
 } from 'react-native'
-import firebase from 'react-native-firebase'
+
 import { Pages } from 'react-native-pages'
 
 import { strings } from '../../../services/i18n'
@@ -20,13 +20,15 @@ import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNum
 import CustomIcon from '../../../components/elements/CustomIcon'
 import NavStore from '../../../components/navigation/NavStore'
 
-import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
+import { hideModal, showModal } from '../../../appstores/Stores/Modal/ModalActions'
 import { setQRConfig } from '../../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import CashBackUtils from '../../../appstores/Stores/CashBack/CashBackUtils'
 
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 import Button from '../../../components/elements/new/buttons/Button'
 import TextInput from '../../../components/elements/new/TextInput'
+import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
+import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 
 
 class DetailsContent extends React.Component {
@@ -274,17 +276,22 @@ class DetailsContent extends React.Component {
     }
 
     renderTelegramComponent = () => {
+        const link = BlocksoftExternalSettings.getStatic('SUPPORT_BOT')
+        const bot = BlocksoftExternalSettings.getStatic('SUPPORT_BOT_NAME')
+        MarketingEvent.logEvent('taki_cashback_withdraw', { link, screen: 'CASHBACK_WITHDRAW' })
+
         return (
             <View style={{ alignItems: 'center', width: '100%' }}>
                 <TouchableOpacity onPress={() => {
-                    Linking.openURL('https://t.me/trustee_wallet')
+                    hideModal()
+                    NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
                 }}>
                     <Text style={{
                         paddingTop: 10,
                         paddingHorizontal: 10,
                         fontFamily: 'SFUIDisplay-Semibold',
                         color: '#4AA0EB'
-                    }}>@TrusteeWallet</Text>
+                    }}>{bot}</Text>
                 </TouchableOpacity>
             </View>
         )

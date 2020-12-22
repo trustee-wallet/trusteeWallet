@@ -438,7 +438,7 @@
     "inputParentCashbackLink": "https://trustee.deals/link/example",
     "withdraw": "Вивести",
     "minWithdraw": "Мінімальна сума для виводу",
-    "performWithdraw": "Щоб здійснити вивід, будь ласка, напишіть в telegram на нікнейм @TrusteeWallet"
+    "performWithdraw": "Щоб здійснити вивід, будь ласка, напишіть в telegram на нікнейм"
   },
   "account": {
     "title": "Рахунок",
