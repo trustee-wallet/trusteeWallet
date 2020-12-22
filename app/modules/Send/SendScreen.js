@@ -387,12 +387,15 @@ class SendScreen extends SendBasicScreenScreen {
 
         const {
             account,
+            wallet,
             cryptoCurrency,
             useAllFunds,
             amountEquivalent,
             inputType,
             sendScreenData
         } = this.state
+
+        const { walletUseUnconfirmed } = wallet
 
         if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '') {
             this.setState({
@@ -469,31 +472,39 @@ class SendScreen extends SendBasicScreenScreen {
             const parentCurrency = await DaemonCache.getCacheAccount(account.walletHash, extend.feesCurrencyCode)
             if (parentCurrency) {
                 const parentBalance = parentCurrency.balance * 1
-                if (parentBalance === 0) {
-                    enoughFunds.isAvailable = false
-                    let msg
-                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed > 0) {
-                        msg = strings('send.notEnoughForFeeConfirmed', { symbol: extend.addressCurrencyCode })
-                    } else {
-                        msg = strings('send.notEnoughForFee', { symbol: extend.addressCurrencyCode })
-                    }
-                    enoughFunds.messages.push(msg)
-                    // console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
-                    if (config.debug.appErrors) {
-                        // console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
-                    }
-                } else if (cryptoCurrency.currencyCode === 'USDT' && parentBalance < 550) {
-                    let msg
-                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed > 0) {
-                        msg = strings('send.errors.SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM', { symbol: extend.addressCurrencyCode })
+                if (cryptoCurrency.currencyCode === 'USDT' && parentBalance < 546) {
+                    let msg = false
+                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed * 1> 545) {
+                        if (!(walletUseUnconfirmed === 1)) {
+                            msg = strings('send.errors.SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM', { symbol: extend.addressCurrencyCode })
+                        }
                     } else {
                         msg = strings('send.errors.SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT', { symbol: extend.addressCurrencyCode })
                     }
-                    enoughFunds.isAvailable = false
-                    enoughFunds.messages.push(msg)
-                    // console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
-                    if (config.debug.appErrors) {
-                        // console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
+                    if (msg) {
+                        enoughFunds.isAvailable = false
+                        enoughFunds.messages.push(msg)
+                        Log.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
+                        if (config.debug.appErrors) {
+                            console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok usdt ' + parentBalance, parentCurrency)
+                        }
+                    }
+                } else if (parentBalance === 0) {
+                    let msg = false
+                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed > 0) {
+                        if (!(walletUseUnconfirmed === 1)) {
+                            msg = strings('send.notEnoughForFeeConfirmed', { symbol: extend.addressCurrencyCode })
+                        }
+                    } else {
+                        msg = strings('send.notEnoughForFee', { symbol: extend.addressCurrencyCode })
+                    }
+                    if (msg) {
+                        enoughFunds.isAvailable = false
+                        enoughFunds.messages.push(msg)
+                        Log.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
+                        if (config.debug.appErrors) {
+                            console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance not ok ' + parentBalance, parentCurrency)
+                        }
                     }
                 } else {
                     // console.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' to ' + addressValidation.value + ' parentBalance is ok ' + parentBalance, parentCurrency)

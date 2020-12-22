@@ -826,12 +826,6 @@
         "ltc_speed_blocks_12": "Медленно",
         "ltc_speed_blocks_6": "Средне",
         "ltc_speed_blocks_2": "Быстро",
-        "btc_corrected_speed_blocks_2": "Авто",
-        "btc_corrected_speed_blocks_6": "Авто",
-        "btc_corrected_speed_blocks_12": "Авто",
-        "ltc_corrected_speed_blocks_2": "Авто",
-        "ltc_corrected_speed_blocks_6": "Авто",
-        "ltc_corrected_speed_blocks_12": "Авто",
         "xrp_speed_one": "Быстро"
       },
       "customFee": {

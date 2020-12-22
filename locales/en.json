@@ -826,12 +826,6 @@
         "ltc_speed_blocks_12": "Slow",
         "ltc_speed_blocks_6": "Medium",
         "ltc_speed_blocks_2": "Fast",
-        "btc_corrected_speed_blocks_2": "Auto",
-        "btc_corrected_speed_blocks_6": "Auto",
-        "btc_corrected_speed_blocks_12": "Auto",
-        "ltc_corrected_speed_blocks_2": "Auto",
-        "ltc_corrected_speed_blocks_6": "Auto",
-        "ltc_corrected_speed_blocks_12": "Auto",
         "xrp_speed_one": "Fast"
       },
       "customFee": {

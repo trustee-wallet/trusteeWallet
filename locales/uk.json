@@ -768,6 +768,7 @@
     "notValidAmount": "Будь ласка, введіть суму",
     "notEnoughForFee": "Для надсилання токенів потрібно мати позитивний баланс у нативній монеті %{symbol}",
     "notEnoughForFeeConfirmed": "Для надсилання токенів потрібно мати позитивний підтверджений баланс у нативній монеті %{symbol}, зачекайте на підтвердження або ввімкніть використання непідтверджених транзакцій",
+
     "publicFioAddressNotFound": "%{symbol} публічна адреса не пов'язана з вказаною FIO адресою",
     "setting": {
       "title": "Додатково",
@@ -826,12 +827,6 @@
         "ltc_speed_blocks_12": "Повільно",
         "ltc_speed_blocks_6": "Середньо",
         "ltc_speed_blocks_2": "Швидко",
-        "btc_corrected_speed_blocks_2": "Авто",
-        "btc_corrected_speed_blocks_6": "Авто",
-        "btc_corrected_speed_blocks_12": "Авто",
-        "ltc_corrected_speed_blocks_2": "Авто",
-        "ltc_corrected_speed_blocks_6": "Авто",
-        "ltc_corrected_speed_blocks_12": "Авто",
         "xrp_speed_one": "Швидко"
       },
       "customFee": {
