@@ -993,7 +993,6 @@ class SendScreen extends SendBasicScreenScreen {
     }
 
     handlerPartBalance = (inputType, part) => {
-        // @ksu check this
         if (inputType === 'FIAT') {
             let value = BlocksoftUtils.mul(BlocksoftUtils.div(this.state.account.basicCurrencyBalance, 4), Number(part))
             value = UtilsService.cutNumber(value, 2)
@@ -1038,7 +1037,7 @@ class SendScreen extends SendBasicScreenScreen {
             })
             return false
         }
-        // @ksu need this?
+
         if (typeof this.addressInput.state === 'undefined' || this.addressInput.state.value === '') {
             this.setState({
                 addressError: true

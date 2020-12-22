@@ -84,8 +84,6 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         : Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         this._initProviders()
 
-
-        let txRBFed = ''
         let txRBF = false
         let transactionSpeedUp = false
         let transactionReplaceByFee = false
