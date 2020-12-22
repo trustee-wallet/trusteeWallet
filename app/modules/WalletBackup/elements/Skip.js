@@ -23,6 +23,8 @@ import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions
 import { setCallback, proceedSaveGeneratedWallet } from '../../../appstores/Stores/CreateWallet/CreateWalletActions'
 import walletActions from '../../../appstores/Stores/Wallet/WalletActions'
 
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+
 class Skip extends Component {
 
     constructor(props) {
@@ -91,23 +93,26 @@ class Skip extends Component {
     }
 
     render() {
+
+        const { colors } = this.context
+
         return (
             <Layout visible={this.props.show}>
                 <View>
                     <Icon icon='warning'/>
-                    <Title style={styles.title}>
+                    <Title style={{...styles.title, color: colors.common.text1 }}>
                         {strings('walletBackup.skipElement.title')}
                     </Title>
                     <View style={{ marginTop: 8, marginBottom: -5 }}>
-                        <Text style={styles.text}>
+                        <Text style={{...styles.text, color: colors.sendScreen.amount }}>
                             {strings('walletBackup.skipElement.description')}
                         </Text>
                     </View>
                     <View>
-                        <Button onPress={this.handleHide} color={'#F59E6C'} shadow={true} style={{ marginTop: 17 }}>
+                        <Button onPress={this.handleHide} color={colors.modal.warning} shadow={true} style={{ marginTop: 17 }}>
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
-                        <Button onPress={this.handleSkip} style={{backgroundColor: 'none', color: '#F59E6C'}}>
+                        <Button onPress={this.handleSkip} style={{backgroundColor: 'none', color: colors.modal.warning}}>
                             {strings('walletBackup.skipElement.yes')}
                         </Button>
                     </View>
@@ -124,6 +129,8 @@ const mapStateToProps = (state) => {
     }
 }
 
+Skip.contextType = ThemeContext
+
 export default connect(mapStateToProps, {})(Skip)
 
 const styles = {
@@ -134,12 +141,10 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040',
         marginTop: -10,
         marginBottom: -2
     },
     text: {
-        color: '#5C5C5C',
         fontFamily: 'SFUIDisplay-Regular',
         fontStyle: 'normal',
         fontWeight: 'normal',
@@ -150,14 +155,3 @@ const styles = {
         marginBottom: -6
     }
 }
-
-
-/*
-<Modal
-                type='fail'
-                title='Enter a password to encrypt your wallet'
-                descr='You have done a mistake in recovery phrase. Please try again.'
-                visible={this.state.visible}
-                callback={this.callback}
-            />
- */

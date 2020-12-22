@@ -168,7 +168,7 @@ class WalletCreateScreen extends Component {
                         {this.sliderData.map(this.renderSliderPage)}
                     </Pages>
                 </View>
-                <View style={[styles.bottomContent, { paddingHorizontal: GRID_SIZE }]}>
+                <View style={[styles.bottomContent, { paddingHorizontal: GRID_SIZE, backgroundColor: colors.common.background }]}>
                     <View style={[styles.agreementContainer, { marginHorizontal: GRID_SIZE }]}>
                         <Agreement
                             checked={this.state.checked}
