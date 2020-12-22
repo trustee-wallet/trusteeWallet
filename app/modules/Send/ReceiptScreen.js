@@ -536,12 +536,14 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         const { colors, GRID_SIZE, isLight } = this.context
 
-        const { headerHeight, sendScreenData, cryptoCurrency, account, sendInProcess } = this.state
+        let { headerHeight, sendScreenData, cryptoCurrency, account, sendInProcess } = this.state
 
         Log.log('Send.ReceiptScreen.render data', JSON.parse(JSON.stringify(sendScreenData)))
 
         if (typeof account === 'undefined' || typeof account.basicCurrencySymbol === 'undefined') {
-            return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
+            const tmp = SendActions.findWalletPlus(sendScreenData.currencyCode)
+            account = tmp.account
+            cryptoCurrency = tmp.cryptoCurrency
         }
 
         let selectedFee = typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
@@ -769,11 +771,6 @@ ReceiptScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        sendStore: state.sendStore,
-        mainStore: state.mainStore,
-        wallet: state.mainStore.selectedWallet,
-        account: state.mainStore.selectedAccount,
-        exchangeStore: state.exchangeStore,
         settingsStore: state.settingsStore
     }
 }

@@ -318,6 +318,7 @@ class SendScreen extends SendBasicScreenScreen {
             newSendScreenData.selectedFee = selectedFee
             newSendScreenData.uiNeedToCountFees = false
             newSendScreenData.uiInputType = 'CRYPTO'
+            SendTmpData.setData(newSendScreenData)
 
             // console.log(`Send.SendScreen.handleTransferAll`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))
 
@@ -391,7 +392,6 @@ class SendScreen extends SendBasicScreenScreen {
         // console.log('Send.SendScreen.handleSendTransaction started ' + JSON.stringify({forceSendAmount,forceSendAll,fromModal}))
 
         const {
-            wallet,
             account,
             cryptoCurrency,
             useAllFunds,
@@ -803,6 +803,9 @@ class SendScreen extends SendBasicScreenScreen {
 
 
             // console.log('afterCallback', JSON.parse(JSON.stringify(newSendScreenData)))
+
+            SendTmpData.setData(newSendScreenData)
+
             this.setState({
                 amountEquivalent: amountEquivalent,
                 amountInputMark: amountInputMark,
@@ -831,10 +834,10 @@ class SendScreen extends SendBasicScreenScreen {
 
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: 120 })
+                this.scrollView.scrollTo({ y: 520 })
             } catch (e) {
             }
-        }, 100)
+        }, 1)
     }
 
     renderEnoughFundsError = () => {
@@ -1032,7 +1035,7 @@ class SendScreen extends SendBasicScreenScreen {
         firebase.analytics().setCurrentScreen('Send.SendScreen')
 
         const route = NavStore.getCurrentRoute()
-        if (route.routeName === 'Send.SendScreen') {
+        if (route.routeName === 'Send.SendScreen') { // @todo do we still need it?
             if (!IS_CALLED_BACK) {
                 if (typeof this.state.amountEquivalent === 'undefined' || this.state.amountEquivalent.toString() === '0') {
                     if (typeof this.valueInput !== 'undefined' && typeof this.valueInput.getValue !== 'undefined') {
@@ -1280,10 +1283,6 @@ SendScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore,
-        wallet: state.mainStore.selectedWallet,
-        account: state.mainStore.selectedAccount,
-        cryptoCurrency: state.mainStore.selectedCryptoCurrency,
         settingsStore: state.settingsStore
     }
 }
