@@ -86,7 +86,6 @@ const styles = {
 
     inputWrapper: {
         justifyContent: 'center',
-        height: 50,
         borderRadius: 10,
         elevation: 10,
         shadowColor: '#000',
@@ -106,6 +105,13 @@ const styles = {
         justifyContent: 'center',
         alignItems: 'center'
     },
+    save: {
+        borderRadius: 24,
+        width: 32,
+        height: 32,
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 }
 
 export default styles

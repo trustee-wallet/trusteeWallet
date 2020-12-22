@@ -14,7 +14,9 @@ import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 import { strings } from '../../../../app/services/i18n'
 
-export default class MnemomicFail extends Component {
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+
+class MnemomicFail extends Component {
 
     constructor(props) {
         super(props)
@@ -26,20 +28,23 @@ export default class MnemomicFail extends Component {
     }
 
     render() {
+
+        const { colors } = this.context
+
         return (
             <Layout visible={this.props.show}>
                 <View>
                     <Icon callback={this.hideModal} icon='fail'/>
-                    <Title style={styles.title}>
+                    <Title style={{...styles.title, color: colors.common.text1 }}>
                         {strings('walletBackup.mnemonicFail.title')}
                     </Title>
                     <View style={{ marginTop: 8, marginBottom: -5 }}>
-                        <Text style={styles.text}>
+                        <Text style={{...styles.text, color: colors.sendScreen.amount }}>
                             {strings('walletBackup.mnemonicFail.description')}
                         </Text>
                     </View>
                     <View style={{ marginBottom: 30 }}>
-                        <Button onPress={this.hideModal} color={'#E54C4C'} shadow={true} style={{ marginTop: 17 }}>
+                        <Button onPress={this.hideModal} color={colors.modal.warning} shadow={true} style={{ marginTop: 17 }}>
                             OK
                         </Button>
                     </View>
@@ -49,6 +54,10 @@ export default class MnemomicFail extends Component {
     }
 }
 
+MnemomicFail.contextType = ThemeContext
+
+export default MnemomicFail
+
 const styles = {
     title: {
         fontFamily: 'Montserrat-Bold',
@@ -57,12 +66,10 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040',
         marginTop: -10,
         marginBottom: -2
     },
     text: {
-        color: '#5C5C5C',
         fontFamily: 'SFUIDisplay-Regular',
         fontStyle: 'normal',
         fontWeight: 'normal',
@@ -73,13 +80,3 @@ const styles = {
         marginBottom: -6
     }
 }
-
-/*
-<Modal
-                type='fail'
-                title='Enter a password to encrypt your wallet'
-                descr='You have done a mistake in recovery phrase. Please try again.'
-                visible={this.state.visible}
-                callback={this.callback}
-            />
- */

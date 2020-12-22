@@ -385,12 +385,6 @@ class SendScreen extends SendBasicScreenScreen {
 
     handleSendTransaction = async (forceSendAll = false, fromModal = false, forceSendAmount = false) => {
 
-        if (forceSendAll) {
-            await this.handleTransferAll()
-        }
-
-        // console.log('Send.SendScreen.handleSendTransaction started ' + JSON.stringify({forceSendAmount,forceSendAll,fromModal}))
-
         const {
             account,
             cryptoCurrency,
@@ -399,6 +393,39 @@ class SendScreen extends SendBasicScreenScreen {
             inputType,
             sendScreenData
         } = this.state
+
+        if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '') {
+            this.setState({
+                enoughFunds: {
+                    isAvailable: false,
+                    messages: [strings('send.notValidAmount')]
+                },
+            })
+            return false
+        }
+
+        if (typeof this.addressInput.state === 'undefined' || this.addressInput.state.value === '') {
+            this.setState({
+                addressError: true
+            })
+            return false
+        }
+
+        if (account.balancePretty <= 0) {
+            this.setState({
+                enoughFunds: {
+                    isAvailable: false,
+                    messages: [strings('send.notEnough')]
+                },
+            })
+            return false
+        }
+
+        if (forceSendAll) {
+            await this.handleTransferAll()
+        }
+
+        // console.log('Send.SendScreen.handleSendTransaction started ' + JSON.stringify({forceSendAmount,forceSendAll,fromModal}))
 
         // console.log('Send.SendScreen.handleSendTransaction state', JSON.parse(JSON.stringify({countedFees,selectedFee})))
 
@@ -971,30 +998,11 @@ class SendScreen extends SendBasicScreenScreen {
     }
 
     disabled = () => {
-        const { balancePretty } = this.state.account
-
-        if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '') {
-            return true
-        }
-
-        if (typeof this.addressInput.state === 'undefined' || this.addressInput.state.value === '') {
-            return true
-        }
+        
         if (this.state.loadFee) {
             return true
         }
-
-        if (balancePretty <= 0) {
-            return true
-        }
-
-        const value = this.valueInput.state.value
-        const address = this.addressInput.state.value
-        if (Number(value) > 0 && address) {
-            return false
-        } else {
-            return true
-        }
+        
     }
 
     disabledSettings = () => {

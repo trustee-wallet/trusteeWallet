@@ -299,7 +299,7 @@
       "hdDescription": "Повышайте конфиденциальность, создавая новый адрес, каждый раз при получении BTC",
       "hideCommissionTrans": "Скрыть транзакции оплаты за комиссию",
       "manualAddressFromHD" : "Вставить адрес HD",
-      "scanAddressesFromHD" : "Сканировать адреса HD на наличие балансов",
+      "scanAddressesFromHD" : "Сканировать адреса HD",
       "setAddressesFromHD" : {
         "title": "Главный адрес будет изменен",
         "description" : "Вы будете использовать баланс адреса %{newAddress}"
