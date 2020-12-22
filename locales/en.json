@@ -19,19 +19,19 @@
   "tooltips": {
     "HOME_SCREEN_BUY_BTN_TIP": {
       "title": "",
-      "description": "Here you can buy crypto with card - your Captain Obvious :)"
+      "description": "Here you can profitably buy crypto from a credit card in two clicks!"
     },
     "HOME_SCREEN_EXCHANGE_BTN_TIP": {
       "title": "",
-      "description": "Now you don’t need to use exchanges - change crypto to crypto with us in 2 clicks!"
+      "description": "A clear and profitable cryptocurrency exchange!"
     },
     "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
       "title": "",
-      "description": "Add important assets and start earning - let’s go!"
+      "description": "Add required coins and tokens here"
     },
     "HOME_SCREEN_CRYPTO_BTN_TIP": {
       "title": "",
-      "description": "This is your unique bitcoin wallet - start sending and accepting bitcoins!"
+      "description": "Your anonymous bitcoin wallet: profitable to receive, buy and send bitcoins."
     },
     "ACCOUNT_SCREEN_ADDRESS_TIP": {
       "title": "",
@@ -390,27 +390,27 @@
     "add": "Add"
   },
   "cashback": {
-    "pageTitle": "Приглашай друзей",
-    "pageSubtitle": "Зарабатывай вместе с Trustee Wallet до 30% от комиссий!",
+    "pageTitle": "Invite your friends",
+    "pageSubtitle": "Earn up to 30% of commissions with Trustee Wallet!",
     "shareButton": "Share",
-    "promoButton": "Promo",
+    "promoButton": "Promocode",
     "detailsButton": "Details",
-    "enterPromoPlaceholder": "Enter promo code",
+    "enterPromoPlaceholder": "Enter promocode",
     "enterInviteLinkPlaceholder": "Enter invite link",
     "applyButton": "Apply",
     "wholeBalance": "All balance",
     "cashbackBalance": "Cashback balance",
     "cashbackToken": "Token",
     "howItWorks": {
-      "title": "Как это работает?",
-      "info1Title": "Есть ли в Trustee Wallet какая-то программа наград для пользователей?",
-      "info1Content": "",
-      "info2Title": "Как активировать Cashback?",
-      "info2Content": "",
-      "info3Title": "Какие условия партнерской программы?",
-      "info3Content": "Уровень №1 – 10% от комиссии Trustee за покупки и продажи криптовалют приглашенными пользователями (активируется с первого партнера). Чем больше друзей установят кошелек по Вашей ссылке, тем больше будет Ваш доход. Уровень №2 – активируется при превышении оборота структуры в 5000 USDT в неделю и позволит получать 10% от комиссий Trustee с пользователей 2-го уровня (партнеры ваших партнеров).",
-      "info4Title": "Как вывести кешбек и партнерское вознаграждение?",
-      "info4Content": ""
+      "title": "How it works?",
+      "info1Title": "Does Trustee Wallet have a user rewards program?",
+      "info1Content": "The program consists of cashback and a two-tier affiliate program, which ultimately allows you to receive up to 30% of Trustee commissions for purchases and sales of cryptocurrencies by invited users",
+      "info2Title": "How do I activate cashback?",
+      "info2Content": "To activate, you need to invite 5 new users using your cashback link. After activation, you will receive 10% of the Trustee's commission from your exchanges. This feature is activated forever!",
+      "info3Title": "What are the conditions of the affiliate program?",
+      "info3Content": "Level 1 – 10% of the Trustee commission for purchases and sales of cryptocurrencies by invited users (activated from the first partner). The more friends install the wallet using your link, the more your income will be. Level 2 - activated when the structure's turnover exceeds 5000 USDT per week and will allow you to receive 10% of Trustee commissions from 2nd level users (partners of your partners).",
+      "info4Title": "How to withdraw cashback and affiliate rewards?",
+      "info4Content": "The minimum withdrawal amount is 2 USDT ERC-20"
     },
     "invitedBy": "Invited by",
     "mainTitle": "Refer your friends - earn cashback!",
@@ -429,8 +429,8 @@
       "UI_ERROR_CASHBACK_SIGN_ERROR" : "Incorrect signature in keystore - please, relogin in cashback",
       "UI_ERROR_CASHBACK_TIME_ERROR" : "Outdated device date or time",
       "UI_ERROR_CASHBACK_TIME_ERROR_LONG" : "The service may not work as a result of unstable Internet or incorrect date and time settings on your mobile device",
-      "UI_ERROR_CASHBACK_PROMO_DUPLICATE" : "Promo code already used",
-      "UI_ERROR_CASHBACK_PROMO_NOT_FOUND" : "Promo code not found"
+      "UI_ERROR_CASHBACK_PROMO_DUPLICATE" : "Promocode already used",
+      "UI_ERROR_CASHBACK_PROMO_NOT_FOUND" : "Promocode not found"
     },
     "cashbackAmount": "Cashback amount",
     "setParentToken": "Link in to your friend structure",
@@ -438,7 +438,7 @@
     "inputParentCashbackLink": "https://trustee.deals/link/example",
     "withdraw": "Withdraw",
     "minWithdraw": "Minimal amount to withdraw",
-    "performWithdraw": "To perform withdraw, please, write to telegram to nickname @TrusteeWallet",
+    "performWithdraw": "To perform withdraw, please, write to telegram to nickname @TrusteeWallet"
   },
   "account": {
     "title": "Account",
