@@ -33,7 +33,7 @@ class BlocksoftUtils {
             }
         }
         // console.log('BlocksoftUtils added ', JSON.stringify({ val1, val2, res}))
-        return res
+        return BlocksoftUtils.fromENumber(res)
     }
 
     static mul(val1, val2) {
