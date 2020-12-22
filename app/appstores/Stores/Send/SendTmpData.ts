@@ -36,6 +36,7 @@ export namespace SendTmpData {
 
         transactionJson : any,
 
+        transactionRemoveByFee : string | boolean,
         transactionReplaceByFee : string | boolean,
         transactionSpeedUp : string | boolean,
 

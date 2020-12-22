@@ -130,6 +130,9 @@ class Transaction {
         if (typeof transaction.addressTo !== 'undefined') {
             sql += `, address_to='${transaction.addressTo}'`
         }
+        if (typeof transaction.transactionDirection !== 'undefined') {
+            sql += `, transaction_direction='${transaction.transactionDirection}'`
+        }
         if (typeof transaction.transactionStatus !== 'undefined') {
             sql += `, transaction_status='${transaction.transactionStatus}'`
         }

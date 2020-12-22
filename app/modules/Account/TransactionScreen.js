@@ -682,7 +682,8 @@ class TransactionScreen extends Component {
             await SendActions.startSend({
                 gotoReceipt: true,
                 addressTo : account.address,
-                amountRaw : 0,
+                amountRaw : transaction.addressAmount,
+                transactionRemoveByFee : transaction.transactionHash,
                 transactionBoost : transaction,
                 uiType : 'TRANSACTION_SCREEN_REMOVE'
             })
@@ -732,13 +733,20 @@ class TransactionScreen extends Component {
             return false
         }
         array.push({ icon: 'rbf', title: strings('account.transactionScreen.booster'), action: async () => {
-                await SendActions.startSend({
-                    gotoReceipt: true,
-                    addressTo : transaction.addressTo !== '' ? transaction.addressTo : account.address,
-                    amountRaw : transaction.addressAmount,
-                    transactionBoost : transaction,
-                    uiType : 'TRANSACTION_SCREEN'
-                })
+            const params = {
+                gotoReceipt: true,
+                amountRaw : transaction.addressAmount,
+                transactionBoost : transaction,
+                uiType : 'TRANSACTION_SCREEN'
+            }
+            if (transaction.addressTo === '') {
+                params.transactionSpeedUp = transaction.transactionHash
+                params.addressTo = account.address
+            } else {
+                params.transactionReplaceByFee = transaction.transactionHash
+                params.addressTo = transaction.addressTo
+            }
+            await SendActions.startSend(params)
         }})
     }
 

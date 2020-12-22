@@ -125,6 +125,7 @@ export namespace BlocksoftBlockchainTypes {
         memo?: string,
         transactionReplaceByFee?: string,
         transactionSpeedUp?: string,
+        transactionRemoveByFee?: string,
 
         blockchainData?: string,
 

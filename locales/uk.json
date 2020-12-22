@@ -852,6 +852,7 @@
         "totalSend": "Сума відправки",
         "rate": "Ціна за 1 %{currencyCode}",
         "replaceTransactionHash" : "Заміна транзакції",
+        "removeTransactionHash" : "Видалення транзакції",
         "speedUpTransactionHash" : "Прискорення транзакції",
         "recepient": "Отримувач",
         "destinationAddress": "Адреса отримувача",

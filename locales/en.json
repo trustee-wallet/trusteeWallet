@@ -851,6 +851,7 @@
         "totalSend": "Total send",
         "rate": "@ rate per 1 %{currencyCode}",
         "replaceTransactionHash" : "Replacing Tx",
+        "removeTransactionHash" : "Removing Tx",
         "speedUpTransactionHash" : "SpeedUp Tx",
         "recepient": "Recepient",
         "destinationAddress": "Destination address",

@@ -297,6 +297,7 @@ export async function setSelectedAccount(setting) {
             for (const exchangeOrder of exchangeOrdersStore.exchangeOrders[account.currencyCode] ) {
                 const preformatOrder = transactionActions.preformatWithBSEforShow(false, exchangeOrder, account.currencyCode)
                 account.ordersWithoutTransactions.push(preformatOrder)
+                account.transactionsTotalLength++
             }
         }
 

@@ -32,8 +32,21 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
     }
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate started ')
-        const txHash = data.transactionReplaceByFee
+        let txRBFed = ''
+        let txRBF = false
+        if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate remove started ' + data.transactionRemoveByFee)
+            txRBF = data.transactionRemoveByFee
+            txRBFed = 'RBFremoved'
+        } else if (typeof data.transactionReplaceByFee !== 'undefined' && data.transactionReplaceByFee) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate resend started ' + data.transactionReplaceByFee)
+            txRBF = data.transactionReplaceByFee
+            txRBFed = 'RBFed'
+        } else {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate started')
+            txRBFed = 'usualSend'
+        }
+
         let gasPrice
         if (typeof additionalData.gasPrice !== 'undefined') {
             gasPrice = {'speed_blocks_12' : additionalData.gasPrice}
@@ -43,22 +56,22 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
         let oldGasPrice = 0
         let oldNonce = 0
-        if (txHash) {
+        if (txRBF) {
             oldGasPrice = typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.gasPrice !== 'undefined' ? data.transactionJson.gasPrice : false
             oldNonce = typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.nonce !== 'undefined' ? data.transactionJson.nonce : false
             if (!oldGasPrice) {
                 try {
                     const ethProvider = BlocksoftDispatcher.getScannerProcessor(data.currencyCode)
-                    const scannedTx = await ethProvider.getTransactionBlockchain(txHash)
+                    const scannedTx = await ethProvider.getTransactionBlockchain(txRBF)
                     if (scannedTx) {
                         oldGasPrice = scannedTx.gasPrice
                         oldNonce = scannedTx.nonce
                     }
                     if (!oldGasPrice) {
-                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate rbf no gasPrice for ' + txHash)
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + txRBFed + ' no gasPrice for ' + txRBF)
                     }
                 } catch (e) {
-                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate rbf not loaded gasPrice for ' + txHash + ' ' + e.message)
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + txRBFed + 'not loaded gasPrice for ' + txRBF + ' ' + e.message)
                 }
             }
         }
@@ -117,7 +130,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         let nonceForTx
         if (typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.nonce !== 'undefined' && data.transactionJson.nonce) {
             nonceForTx = data.transactionJson.nonce
-        } else if (!txHash) {
+        } else if (!txRBF) {
             const tmp = await EthTmpDS.getMaxNonce(data.addressFrom)
             nonceForTx = tmp.value > tmp.scanned ? tmp.value : tmp.scanned
             if (nonceForTx * 1 >= 0) {
@@ -200,7 +213,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         }
 
         prevGasPrice = 0
-        if (txHash) {
+        if (txRBF) {
             if (result.fees.length < 2) {
                 for (let index = 0; index <= 2; index++) {
                     if (typeof result.fees[index] !== 'undefined') {
@@ -271,7 +284,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             let amountForTx = data.amount
             let leftForFee = balance
             if (this._useThisBalance && !data.isTransferAll) {
-                if (txHash) {
+                if (txRBF) {
                     leftForFee = BlocksoftUtils.diff(balance, BlocksoftUtils.div(data.amount, 2)) // if eth is transferred and paid in eth - so amount is not changed except send all
                 } else {
                     leftForFee = BlocksoftUtils.diff(balance, data.amount) // if eth is transferred and paid in eth - so amount is not changed except send all
@@ -284,10 +297,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 if (tmp) {
                     fee = tmp[0]
                     feeForTx = BlocksoftUtils.mul(fee, gasLimit)
-                    if (this._useThisBalance && (data.isTransferAll || txHash)) {
+                    if (this._useThisBalance && (data.isTransferAll || txRBF)) {
                         amountForTx = BlocksoftUtils.diff(balance, feeForTx) // change amount for send all calculations
                         result.showChangeAmountNotice = true
-                        if (txHash) {
+                        if (txRBF) {
                             result.shouldChangeBalance = true
                         }
                     }
@@ -371,7 +384,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
     }
 
     async sendTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
-        const txHash = data.transactionReplaceByFee
         if (typeof privateData.privateKey === 'undefined') {
             throw new Error('ETH transaction required privateKey')
         }
@@ -379,10 +391,19 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             throw new Error('ETH transaction required addressTo')
         }
 
-        if (txHash) {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx resend started ' + txHash)
+        let txRBFed = ''
+        let txRBF = false
+        if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx started ' + data.transactionRemoveByFee)
+            txRBF = data.transactionRemoveByFee
+            txRBFed = 'RBFremoved'
+        } else if (typeof data.transactionReplaceByFee !== 'undefined' && data.transactionReplaceByFee) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx resend started ' + data.transactionReplaceByFee)
+            txRBF = data.transactionReplaceByFee
+            txRBFed = 'RBFed'
         } else {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx started')
+            txRBFed = 'usualSend'
         }
 
         let finalGasPrice = 0
@@ -406,7 +427,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         }
 
         // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx feeForTx', {
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx ' + txRBFed + ' feeForTx', {
             uiData,
             finalGasPrice,
             finalGasLimit
@@ -434,22 +455,22 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         const logData = tx
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
-            if (txHash) {
+            if (txRBF) {
                 let oldNonce = typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.nonce !== 'undefined' ? data.transactionJson.nonce : false
                 if (oldNonce === false) {
                     try {
                         const ethProvider = BlocksoftDispatcher.getScannerProcessor(data.currencyCode)
-                        const scannedTx = await ethProvider.getTransactionBlockchain(txHash)
+                        const scannedTx = await ethProvider.getTransactionBlockchain(txRBF)
                         if (scannedTx) {
                             oldNonce = scannedTx.nonce
                         }
                     } catch (e) {
-                        BlocksoftCryptoLog.err(this._settings.currencyCode + ' EthTransferProcessor.sent rbf not loaded nonce for ' + txHash + ' ' + e.message)
-                        throw new Error('System error: not loaded nonce for ' + txHash)
+                        BlocksoftCryptoLog.err(this._settings.currencyCode + ' EthTransferProcessor.sent rbf not loaded nonce for ' + txRBF + ' ' + e.message)
+                        throw new Error('System error: not loaded nonce for ' + txRBF)
                     }
                     if (!oldNonce) {
-                        BlocksoftCryptoLog.err(this._settings.currencyCode + ' EthTransferProcessor.sent rbf no nonce for ' + txHash)
-                        throw new Error('System error: no nonce for ' + txHash)
+                        BlocksoftCryptoLog.err(this._settings.currencyCode + ' EthTransferProcessor.sent rbf no nonce for ' + txRBF)
+                        throw new Error('System error: no nonce for ' + txRBF)
                     }
                 }
                 tx.nonce = oldNonce
@@ -475,7 +496,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             if (config.debug.cryptoErrors) {
                 console.log(this._settings.currencyCode + ' EthTransferProcessor.sent error', e, tx)
             }
-            if (txHash && e.message.indexOf('nonce too low') !== -1) {
+            if (txRBF && e.message.indexOf('nonce too low') !== -1) {
                 throw new Error('SERVER_RESPONSE_TRANSACTION_ALREADY_MINED')
             } else if (e.message.indexOf('underpriced') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')

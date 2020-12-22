@@ -41,6 +41,9 @@ export default class SendBasicScreen extends Component {
         try {
             const { countedFees, selectedFee } = await SendActions.countFees(data)
 
+            if (config.debug.sendLogs) {
+                console.log('SendBasicScreen.recountFees ' + source + ' result ', {countedFees, selectedFee})
+            }
             Log.log('SendBasicScreen.recountFees ' + source + ' result ', {countedFees, selectedFee})
 
             return { countedFees, selectedFee }
@@ -87,15 +90,12 @@ export default class SendBasicScreen extends Component {
         if (typeof sendScreenData !== 'undefined' && sendScreenData && typeof sendScreenData.bseOrderId !== 'undefined' && sendScreenData.bseOrderId) {
             const version = sendScreenData.uiApiVersion || 'v3'
             const removeId = sendScreenData.bseOrderId
-            // console.log('SendBasicScreen.goBack with version ' + version + ' removeId ' + removeId)
             if (version === 'v2') {
                 Api.setExchangeStatus(removeId, 'close')
             } else {
                 ApiV3.setExchangeStatus(removeId, 'CLOSE')
             }
             UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, removeId, source: 'CANCEL' })
-        } else {
-            // console.log('SendBasicScreen.goBack')
         }
 
         if (closeScreen) {

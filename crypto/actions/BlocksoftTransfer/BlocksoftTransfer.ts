@@ -99,7 +99,7 @@ export namespace BlocksoftTransfer {
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
 
         try {
-            if (!data.transactionReplaceByFee && !data.transactionSpeedUp && typeof uiData !== 'undefined' && !uiData.uiErrorConfirmed && typeof CACHE_DOUBLE_TO[data.currencyCode] !== 'undefined') {
+            if (!data.transactionReplaceByFee && !data.transactionRemoveByFee && !data.transactionSpeedUp && typeof uiData !== 'undefined' && !uiData.uiErrorConfirmed && typeof CACHE_DOUBLE_TO[data.currencyCode] !== 'undefined') {
                 if (data.addressTo && CACHE_DOUBLE_TO[data.currencyCode].key === data.addressTo) {
                     const diff = new Date().getTime() - CACHE_DOUBLE_TO[data.currencyCode].time
                     if (diff < CACHE_VALID_TIME) {

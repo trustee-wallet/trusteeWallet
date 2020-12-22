@@ -152,12 +152,15 @@ export namespace SendActions {
         if (typeof data.contactAddress !== 'undefined' && data.contactAddress && data.contactAddress !== '') {
             countedFeesData.addressTo = data.contactAddress
         }
-        if (data.transactionSpeedUp || data.transactionReplaceByFee) {
-           if (data.transactionSpeedUp) {
-               countedFeesData.transactionSpeedUp = data.transactionSpeedUp
-           }
+        if (data.transactionSpeedUp || data.transactionReplaceByFee || data.transactionRemoveByFee) {
+            if (data.transactionSpeedUp) {
+                countedFeesData.transactionSpeedUp = data.transactionSpeedUp
+            }
             if (data.transactionReplaceByFee) {
                 countedFeesData.transactionReplaceByFee = data.transactionReplaceByFee
+            }
+            if (data.transactionRemoveByFee) {
+                countedFeesData.transactionRemoveByFee = data.transactionRemoveByFee
             }
         } else if (amount === '0') {
             return {
@@ -234,20 +237,25 @@ export namespace SendActions {
             if (typeof data.uiInputType === 'undefined') {
                 data.uiInputType = 'any'
             }
-            data.transactionReplaceByFee = false
-            data.transactionSpeedUp = false
+
             data.transactionJson = {}
             if (typeof data.transactionBoost !== 'undefined' && data.transactionBoost && typeof data.transactionBoost.transactionHash !== 'undefined') {
                 data.currencyCode = data.transactionBoost.currencyCode
                 if (data.transactionBoost.transactionDirection !== 'income' && data.transactionBoost.transactionDirection !== 'self') {
                     data.transactionJson = data.transactionBoost.transactionJson
-                    data.transactionReplaceByFee = data.transactionBoost.transactionHash
-                } else {
-                    data.transactionSpeedUp = data.transactionBoost.transactionHash
                 }
                 if (typeof data.transactionBoost.transactionJson !== 'undefined' && data.transactionBoost.transactionJson && typeof data.transactionBoost.transactionJson.comment !== 'undefined') {
                     data.comment = data.transactionBoost.transactionJson.comment
                 }
+            }
+            if (typeof data.transactionReplaceByFee === 'undefined') {
+                data.transactionReplaceByFee = false
+            }
+            if (typeof data.transactionRemoveByFee === 'undefined') {
+                data.transactionRemoveByFee = false
+            }
+            if (typeof data.transactionSpeedUp === 'undefined') {
+                data.transactionSpeedUp = false
             }
 
             if (typeof data.amountPretty !== 'undefined') {
@@ -297,21 +305,19 @@ export namespace SendActions {
                 data.selectedFee = false
             }
 
+
             SendTmpData.setData(data)
             if (data.gotoReceipt) {
-                // @ts-ignore
-                // console.log('SendActions.startSend GO TO RECEIPT', data)
-                /*
-                if (needToCount) {
-                    const { selectedFee } = await countFees(data)
-                    data.selectedFee = selectedFee
-                    SendTmpData.setData(data)
+                if (config.debug.sendLogs) {
+                    // @ts-ignore
+                    console.log('SendActions.startSend GO TO RECEIPT', data)
                 }
-                */
                 NavStore.goNext('ReceiptScreen', { fioRequestDetails: data.fioRequestDetails })
             } else {
-                // @ts-ignore
-                // console.log('SendActions.startSend GO TO SEND', data)
+                if (config.debug.sendLogs) {
+                    // @ts-ignore
+                    console.log('SendActions.startSend GO TO SEND', data)
+                }
                 NavStore.goNext('SendScreen')
             }
         } catch (e) {

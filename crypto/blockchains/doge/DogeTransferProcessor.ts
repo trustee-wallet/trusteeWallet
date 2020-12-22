@@ -32,7 +32,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         feeMaxAutoReadable6: 150, // for fee calc
         feeMaxAutoReadable12: 100, // for fee calc
         changeTogether: true,
-        minRbfStepSatoshi: 10,
+        minRbfStepSatoshi: 50,
         minSpeedUpMulti : 1.5
     }
 
@@ -84,17 +84,33 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         : Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         this._initProviders()
 
-        // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.amount)
 
-        const transactionSpeedUp = data.transactionSpeedUp !== 'undefined' ? data.transactionSpeedUp : false
-        const transactionReplaceByFee = data.transactionReplaceByFee !== 'undefined' ? data.transactionReplaceByFee : false
-        const txForPresettings = transactionSpeedUp || transactionReplaceByFee
-        if (txForPresettings) {
+        let txRBFed = ''
+        let txRBF = false
+        let transactionSpeedUp = false
+        let transactionReplaceByFee = false
+        let transactionRemoveByFee = false
+        if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate remove started ' + data.addressFrom + ' => ' + data.amount)
+            transactionRemoveByFee = data.transactionRemoveByFee
+            txRBF = transactionRemoveByFee
+        } else if (typeof data.transactionReplaceByFee !== 'undefined' && data.transactionReplaceByFee) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate resend started ' + data.addressFrom + ' => ' + data.amount)
+            transactionReplaceByFee = data.transactionReplaceByFee
+            txRBF = transactionReplaceByFee
+        } else if (typeof data.transactionSpeedUp !== 'undefined' && data.transactionSpeedUp) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate speedup started ' + data.addressFrom + ' => ' + data.amount)
+            transactionSpeedUp = data.transactionSpeedUp
+            txRBF = transactionSpeedUp
+        } else {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate started ' + data.addressFrom + ' => ' + data.amount)
+        }
+
+        if (txRBF) {
             const savedData = await DogeRawDS.getJson({
                 address: data.addressFrom,
                 currencyCode: this._settings.currencyCode,
-                transactionHash: txForPresettings
+                transactionHash: txRBF
             }) // sometimes replaced in db or got from server
             if (savedData) {
                 if (typeof data.transactionJson === 'undefined') {
@@ -116,9 +132,15 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             autocorrectFee = true
         }
 
-        let unspents = typeof additionalData.unspents !== 'undefined' ? additionalData.unspents : await this.unspentsProvider.getUnspents(data.addressFrom)
-        if (typeof data.transactionReplaceByFee !== 'undefined' && data.transactionReplaceByFee) {
-            unspents = await this.unspentsProvider.getTx(data.transactionReplaceByFee, data.addressFrom, unspents)
+        let unspents = []
+        if (transactionRemoveByFee) {
+            unspents = await this.unspentsProvider.getTx(data.transactionRemoveByFee, data.addressFrom, [])
+            data.isTransferAll = true
+        } else {
+            unspents = typeof additionalData.unspents !== 'undefined' ? additionalData.unspents : await this.unspentsProvider.getUnspents(data.addressFrom)
+            if (transactionReplaceByFee) {
+                unspents = await this.unspentsProvider.getTx(data.transactionReplaceByFee, data.addressFrom, unspents)
+            }
         }
 
         if (unspents.length > 1) {
@@ -145,22 +167,23 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             autocorrectFee = true
         }
 
+        const stepSatoshi = transactionRemoveByFee ? this._builderSettings.minRbfStepSatoshi * 2 : this._builderSettings.minRbfStepSatoshi
         for (const key of keys) {
             // @ts-ignore
             if (typeof prices[key] === 'undefined' || !prices[key]) continue
             // @ts-ignore
             let feeForByte = prices[key]
             if (typeof additionalData.feeForByte === 'undefined') {
-                if (transactionReplaceByFee) {
+                if (transactionReplaceByFee || transactionRemoveByFee) {
                     if (typeof data.transactionJson !== 'undefined' && data.transactionJson !== null && typeof data.transactionJson.feeForByte !== 'undefined') {
                         if (feeForByte * 1 < data.transactionJson.feeForByte * 1) {
-                            feeForByte = Math.ceil(data.transactionJson.feeForByte * 1 + this._builderSettings.minRbfStepSatoshi)
+                            feeForByte = Math.ceil(data.transactionJson.feeForByte * 1 + stepSatoshi)
                         }
                     } else {
-                        feeForByte =  Math.ceil(feeForByte * 1 + this._builderSettings.minRbfStepSatoshi)
+                        feeForByte =  Math.ceil(feeForByte * 1 + stepSatoshi)
                     }
                     if (feeForByte * 1 <= prevFeeForByte * 1) {
-                        feeForByte = Math.ceil(prevFeeForByte * 1 + this._builderSettings.minRbfStepSatoshi)
+                        feeForByte = Math.ceil(prevFeeForByte * 1 + stepSatoshi)
                     }
                 } else if (transactionSpeedUp) {
                     feeForByte = Math.ceil(feeForByte * this._builderSettings.minSpeedUpMulti)
@@ -303,6 +326,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             blockchainData.unspents = unspents
             // @ts-ignore
             blockchainData.isTransferAll = data.isTransferAll
+            blockchainData.isRBFed = {transactionRemoveByFee, transactionReplaceByFee, transactionSpeedUp}
 
             if (typeof uniqueFees[logInputsOutputs.diffInOut] !== 'undefined') {
                 continue
@@ -354,7 +378,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         if (typeof uiData.selectedFee.blockchainData === 'undefined' && typeof uiData.selectedFee.feeForTx === 'undefined') {
             throw new Error('SERVER_RESPONSE_PLEASE_SELECT_FEE')
         }
-        const transactionReplaceByFee = data.transactionReplaceByFee
+
         if (typeof privateData.privateKey === 'undefined') {
             throw new Error('DOGE transaction required privateKey')
         }
@@ -362,17 +386,26 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             throw new Error('DOGE transaction required addressTo')
         }
 
-        if (transactionReplaceByFee) {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx resend started ' + transactionReplaceByFee)
+        let txRBFed = ''
+        let txRBF = false
+        if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx remove started ' + data.transactionRemoveByFee)
+            txRBF = data.transactionRemoveByFee
+            txRBFed = 'RBFremoved'
+        } else if (typeof data.transactionReplaceByFee !== 'undefined' && data.transactionReplaceByFee) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx resend started ' + data.transactionReplaceByFee)
+            txRBF = data.transactionReplaceByFee
+            txRBFed = 'RBFed'
         } else {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx started')
+            txRBFed = 'usualSend'
         }
 
 
         const logData = uiData.selectedFee
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
-            result = await this.sendProvider.sendTx(uiData.selectedFee.blockchainData.rawTxHex, transactionReplaceByFee ? 'rbfSend' : 'usualSend')
+            result = await this.sendProvider.sendTx(uiData.selectedFee.blockchainData.rawTxHex, txRBFed)
             result.transactionFee = uiData.selectedFee.feeForTx
             result.transactionFeeCurrencyCode = this._settings.currencyCode
             result.transactionJson = {
@@ -380,11 +413,11 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 txAllowReplaceByFee: uiData.selectedFee.blockchainData.txAllowReplaceByFee,
                 feeForByte: uiData.selectedFee.feeForByte,
             }
-            if (transactionReplaceByFee) {
+            if (txRBF) {
                 await DogeRawDS.cleanRaw({
                     address: data.addressFrom,
                     currencyCode: this._settings.currencyCode,
-                    transactionHash: transactionReplaceByFee
+                    transactionHash: txRBF
                 })
             }
             await DogeRawDS.saveRaw({

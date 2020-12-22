@@ -75,7 +75,8 @@ const config = {
         appErrors: false, // set false to get errors in tg only
         fioErrors: false, //
         appDBLogs: false, // set false to get db query in files only
-        firebaseLogs: false // set false not to collect data to firebase live db
+        firebaseLogs: false, // set false not to collect data to firebase live db
+        sendLogs: false
     },
     tg: {
         appDefaultTg: '1470482129:AAFLkM-rSvOckqNRr7nSO_BSrOLTXERZwdQ', // bot id for app errors https://t.me/trusteeV20ProdAppErrorsBot

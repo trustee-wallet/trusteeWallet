@@ -44,12 +44,19 @@ const transactionActions = {
 
             await transactionDS.saveTransaction(transaction, false,source)
 
+            /*
             const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
 
             if (transaction.currencyCode === account.currencyCode) {
 
                 // @todo page reload
             }
+
+            dispatch({
+                type: 'SET_SELECTED_ACCOUNT',
+                selectedAccount: account
+            })
+            */
 
             if (typeof transaction.bseOrderId !== 'undefined') {
                 UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true })
@@ -83,48 +90,19 @@ const transactionActions = {
 
             await transactionDS.updateTransaction(transaction)
 
+            /*
             const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
 
-            if (typeof transaction.accountId === 'undefined' || transaction.accountId === account.accountId) {
+            if (transaction.currencyCode === account.currencyCode) {
 
-                const prepared = { ...account }
-
-                let transactionHash
-                const newTransactions = {}
-                for (transactionHash in prepared.transactions) {
-                    if (transactionHash === transaction.transactionUpdateHash) {
-                        const tx = prepared.transactions[transactionHash]
-                        tx.id = transaction.transactionHash
-                        tx.transactionHash = transaction.transactionHash
-                        tx.transactionsOtherHashes = transaction.transactionsOtherHashes
-                        tx.transactionJson = transaction.transactionJson
-                        if (typeof transaction.addressAmount !== 'undefined') {
-                            tx.addressAmount = transaction.addressAmount
-                        }
-                        if (typeof transaction.addressTo !== 'undefined') {
-                            tx.addressTo = transaction.addressTo
-                        }
-                        if (typeof transaction.transactionStatus !== 'undefined') {
-                            tx.transactionStatus = transaction.transactionStatus
-                        }
-                        if (typeof transaction.transactionFee !== 'undefined') {
-                            tx.transactionFee = transaction.transactionFee
-                        }
-                        if (typeof transaction.transactionFeeCurrencyCode !== 'undefined') {
-                            tx.transactionFeeCurrencyCode = transaction.transactionFeeCurrencyCode
-                        }
-                        newTransactions[transaction.transactionHash] = tx
-                    } else {
-                        newTransactions[transactionHash] = prepared.transactions[transactionHash]
-                    }
-                }
-                prepared.transactions = newTransactions
-
-                dispatch({
-                    type: 'SET_SELECTED_ACCOUNT',
-                    selectedAccount: prepared
-                })
+                // @todo page reload
             }
+
+            dispatch({
+                type: 'SET_SELECTED_ACCOUNT',
+                selectedAccount: account
+            })
+            */
 
         } catch (e) {
             if (config.debug.appErrors) {
