@@ -299,7 +299,7 @@
       "hdDescription": "Increase privacy by creating a new deposit address every time BTC is received",
       "hideCommissionTrans": "Hide commission payment transactions",
       "manualAddressFromHD" : "Paste address HD",
-      "scanAddressesFromHD" : "Scan addresses from HD for balances",
+      "scanAddressesFromHD" : "Scan addresses from HD",
       "setAddressesFromHD" : {
         "title": "Main address will be changed",
         "description" : "You will be using balance from address %{newAddress}"

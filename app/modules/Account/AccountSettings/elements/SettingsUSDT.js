@@ -22,7 +22,9 @@ import BlocksoftPrettyStrings from '../../../../../crypto/common/BlocksoftPretty
 import Input from '../../../../components/elements/NewInput'
 import { ThemeContext } from '../../../theme/ThemeProvider'
 import styles from './styles'
-import ListItem from '../../../../components/elements/new/list/ListItem/Setting'
+import ListItem from '../../../../components/elements/new/list/ListItem/SubSetting'
+import CustomIcon from '../../../../components/elements/CustomIcon'
+import { HIT_SLOP } from '../../../../themes/Themes'
 
 class SettingsUSDT extends Component {
 
@@ -111,14 +113,14 @@ class SettingsUSDT extends Component {
     render() {
 
         const { account, containerStyle, mainStore } = this.props
-        const { colors, isLight } = this.context
+        const { colors, isLight, GRID_SIZE } = this.context
         const { currentBalancesChecked, currentBalances } = this.state
 
         return (
             <>
                 <View>
-                    <View style={{ paddingTop: 20, flexDirection:'row' }}>
-                        <View style={{ ...styles.inputWrapper, flex: 3}}>
+                    <View style={{ flexDirection:'row' }}>
+                        <View style={{ ...styles.inputWrapper, flex: 7 }}>
                             <Input
                                 ref={ref => this.addressManualInput = ref}
                                 id={'addressManual'}
@@ -130,22 +132,20 @@ class SettingsUSDT extends Component {
                                 tintColor={'#7127ac'}
                             />
                         </View>
-                        <View style={{ paddingLeft: 15, paddingRight: 5, flex: 1 }}>
-                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
-                                <TouchableOpacity onPress={() => this.handleSave}>
-                                    <LetterSpacing text={strings('settings.walletList.saveSettings')} letterSpacing={0.5} numberOfLines={2} 
-                                    textStyle={{ color: colors.common.text1 }} />
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-end' }}>
+                            <View style={{ backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                <TouchableOpacity style={{...styles.save, backgroundColor: colors.common.text1}} onPress={() => this.handleSave} hitSlop={HIT_SLOP} >
+                                    <CustomIcon name={'add'} color={colors.accountScreen.transactions.color} size={18} />
                                 </TouchableOpacity>
                             </View>
                         </View>
                     </View>
 
-                    <View style={{ paddingTop: 5, flexDirection: 'row' }}>
-                        <View style={{ paddingLeft: 15, paddingRight: 15, flex: 4 }}>
+                    <View style={{ flexDirection: 'row', paddingVertical: GRID_SIZE }}>
+                        <View style={{ flex: 1 }}>
                             <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
                                 <TouchableOpacity onPress={() => this.handleScan()}>
-                                    <LetterSpacing text={strings('settings.walletList.scanAddressesFromHD')} numberOfLines={2} 
-                                    textStyle={{ color: colors.common.text1 }} />
+                                    <Text style={{ color: colors.common.text1, letterSpacing: 1.5, textAlign: 'center' }} >{strings('settings.walletList.scanAddressesFromHD')}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -160,10 +160,8 @@ class SettingsUSDT extends Component {
                                     key={index}
                                     title={addressPrep}
                                     subtitle={item.balance + 'USDT'}
-                                    iconType="pinCode"
                                     onPress={() => this.handleSetMain(address)}
-                                    rightContent="switch"
-                                    switchParams={{ value: account.address === address, onPress: () => this.handleSetMain(address) }}
+                                    checked={account.address === address}
                                 />
 
                             })

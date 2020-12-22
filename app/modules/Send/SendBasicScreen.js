@@ -91,7 +91,7 @@ export default class SendBasicScreen extends Component {
             if (version === 'v2') {
                 Api.setExchangeStatus(removeId, 'close')
             } else {
-                ApiV3.setExchangeStatus(removeId, 'close')
+                ApiV3.setExchangeStatus(removeId, 'CLOSE')
             }
             UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, removeId, source: 'CANCEL' })
         } else {

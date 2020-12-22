@@ -67,6 +67,25 @@ class Input extends Component {
         const { id, name, type, subtype, cuttype, additional, decimals, callback, isTextarea = false } = this.props
 
         if (additional === 'NUMBER') {
+
+            if (value.length === 1 && value === '.') {
+                value = '0.'
+            }
+        
+            if (value.indexOf('.') !== -1) {
+                let newValue = value.slice(0, value.indexOf('.'))
+                newValue = Array.from(new Set(newValue))
+                if (newValue[0] === '0') {
+                    value = '0' + value.slice(value.indexOf('.'), value.length)
+                }
+                newValue = value.slice(value.indexOf('.') + 1, value.length)
+                if (newValue.indexOf('.') !== -1) {
+                    value = value.slice(0, value.indexOf('.') + 1) + (Number(newValue) ? Number(newValue) : '')
+                }
+            } else if (value.indexOf('.') === -1 && value.length > 1) {
+                value *= 1
+            }
+
             value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
             this.setState({
                 value

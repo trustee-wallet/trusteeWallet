@@ -266,10 +266,10 @@ class Input extends Component {
         }
 
         return (
-            <View style={{ ...styles.wrapper, ...elementStyle }}>
+            <View style={{ ...styles.wrapper, ...elementStyle, backgroundColor: colors.sendScreen.addressBg, borderRadius: 10 }}>
                 {
                     show ?
-                        <View style={{ backgroundColor: colors.sendScreen.addressBg, width: '100%', borderRadius: 10}} >
+                        <View style={{ backgroundColor: colors.sendScreen.addressBg, width: '75%', borderRadius: 10}} >
                             <TextField
                                 ref={ref => this.inputRef = ref}
                                 keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'default'}
@@ -419,7 +419,7 @@ const styles = {
     },
     fontFamily: {
         fontFamily: 'SFUIDisplay-Semibold',
-        marginRight: 100,
+        // marginRight: 10,
         marginLeft: 16,
         marginTop: -3,
         letterSpacing: 1,

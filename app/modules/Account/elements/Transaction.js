@@ -201,7 +201,7 @@ class Transaction extends Component {
                         height: '100%',
                         borderRadius: 25,
                         backgroundColor: isStatus ? color : colors.accountScreen.transactions.circle, ...circleStyle,
-                        marginLeft: Platform.OS === 'ios' && transactionDirection !== 'self' && transactionDirection !== 'fail' ? 1 : 0
+                        marginLeft:  0
                     }}>
                         {arrowIcon}
                     </View>
