@@ -82,7 +82,12 @@ class AmountInput extends Component {
             const { currencyCode, address } = this.props.selectedAccount
             errorCurrencyCode = currencyCode
 
-            const { addressForEstimateSellAllV2 } = this.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
+            const tmp = this.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
+            if (typeof tmp === 'undefined' || !tmp) {
+                setLoaderStatus(false)
+                return 0
+            }
+            const { addressForEstimateSellAllV2 } = tmp
             if (config.debug.sendLogs) {
                 console.log('TRADE/AmountInput.handleSellAll addressForEstimateSellAll ', addressForEstimateSellAllV2)
             }
