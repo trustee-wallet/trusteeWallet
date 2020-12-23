@@ -300,6 +300,21 @@ export namespace SendActions {
                 needToCount = true
             }
             data.uiNeedToCountFees = (data.gotoReceipt && needToCount)
+
+            if (!needToCount) {
+                // recheck if not counted for wrong data
+                const { selectedFee } = SendTmpData.getCountedFees()
+                if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.addressToTx !== 'undefined' && selectedFee.addressToTx !== data.addressTo) {
+                    needToCount = true
+                    Log.log('SendActions.startSend WILL CLEAR COUNTED AS ADDRESS TO IS DIFFERENT')
+                }
+                if (typeof data.selectedFee !== 'undefined' && data.selectedFee && typeof data.selectedFee.addressToTx !== 'undefined' && data.selectedFee.addressToTx !== data.addressTo) {
+                    needToCount = true
+                    Log.log('SendActions.startSend WILL CLEAR COUNTED AS ADDRESS TO IS DIFFERENT')
+                }
+            }
+
+
             if (needToCount) {
                 SendTmpData.cleanCountedFees()
                 data.selectedFee = false
