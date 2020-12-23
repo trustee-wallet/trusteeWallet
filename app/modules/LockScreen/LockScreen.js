@@ -76,6 +76,20 @@ class LockScreen extends Component {
                 flowType: ''
             })
             NavStore.reset('SettingsScreenStack')
+        } else if (flowType === 'CHANGE_TOUCHID_STATUS') {
+            const { touchID_status } = this.props.settings.data
+            settingsActions.setSettings('touchID_status', touchID_status === '0' || typeof touchID_status === 'undefined' ? '1' : '0')
+            lockScreenAction.setFlowType({
+                flowType: ''
+            })
+            NavStore.reset('SettingsScreenStack')
+        } else if (flowType === 'CHANGE_ASKING_STATUS') {
+            const { askPinCodeWhenSending } = this.props.settings.data
+            settingsActions.setSettings('askPinCodeWhenSending', askPinCodeWhenSending === '0' || typeof askPinCodeWhenSending === 'undefined' ? '1' : '0')
+            lockScreenAction.setFlowType({
+                flowType: ''
+            })
+            NavStore.reset('SettingsScreenStack')
         } else if (flowType === 'CHANGE_PASSWORD_FIRST_STEP') {
             this.setState({
                 passwordState: 'choose'

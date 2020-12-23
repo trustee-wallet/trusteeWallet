@@ -127,16 +127,24 @@ class SettingsMainScreen extends React.Component {
     }
 
     handleChangeTouchIDStatus = () => {
-        const { touchID_status } = this.props.settings.data
+        lockScreenAction.setFlowType({
+            flowType: 'CHANGE_TOUCHID_STATUS'
+        })
+        NavStore.goNext('LockScreen')
+    }
 
-        settingsActions.setSettings('touchID_status', touchID_status === '0' ? '1' : '0')
+
+    changeAskWhenSending = () => {
+        lockScreenAction.setFlowType({
+            flowType: 'CHANGE_ASKING_STATUS'
+        })
+        NavStore.goNext('LockScreen')
     }
 
     handleChangePassword = () => {
         lockScreenAction.setFlowType({
             flowType: 'CHANGE_PASSWORD_FIRST_STEP'
         })
-
         NavStore.goNext('LockScreen')
     }
 
@@ -252,11 +260,6 @@ class SettingsMainScreen extends React.Component {
         Vibration.vibrate(100)
     }
 
-    changeAskWhenSending = () => {
-        const { askPinCodeWhenSending } = this.props.settings.data
-
-        settingsActions.setSettings('askPinCodeWhenSending', askPinCodeWhenSending === '0' || typeof askPinCodeWhenSending === 'undefined' ? '1' : '0')
-    }
 
     handleOpenNotifications = () => { NavStore.goNext('NotificationsSettingsScreen') }
 
