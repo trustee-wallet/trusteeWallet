@@ -90,7 +90,7 @@ class BlocksoftTransactions {
         }
         let resultData = []
         try {
-            resultData = await this._processor[currencyCode].getAddressesBlockchain(this._data.address)
+            resultData = await this._processor[currencyCode].getAddressesBlockchain(this._data.address, this._data.jsonData, this._data.walletHash)
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
             e.message += ' on actual getAddressesBlockchain step '

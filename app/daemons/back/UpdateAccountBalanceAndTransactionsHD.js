@@ -19,7 +19,7 @@ import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
 
 let CACHE_LAST_TIME = false
 const CACHE_VALID_10MIN_TIME = 600000 // 10 minutes
-
+let CACHE_WALLETS_HASH = {}
 class UpdateAccountBalanceAndTransactionsHD {
 
     /**
@@ -60,8 +60,8 @@ class UpdateAccountBalanceAndTransactionsHD {
             if (!walletPubs || walletPubs.length === 0) return false
 
             this._logNews = {}
-            let walletPub
-            for (walletPub of walletPubs) {
+            CACHE_WALLETS_HASH = {}
+            for (const walletPub of walletPubs) {
                 await this._walletRun(walletPub, source)
             }
 
@@ -156,6 +156,20 @@ class UpdateAccountBalanceAndTransactionsHD {
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance notPrepared ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue + ' old balance ' + walletPub.balance, JSON.stringify(updateObj))
         }
 
+        if (typeof CACHE_WALLETS_HASH[walletPub.walletHash] !== 'undefined') {
+
+            const transactionUpdateObj = {
+                transactionsScanTime: Math.round(new Date().getTime() / 1000),
+                transactionsScanLog: new Date().toISOString() + ' transaction prev scanned by ' +  CACHE_WALLETS_HASH[walletPub.walletHash]
+            }
+            if (walletPub.transactionsScanLog) {
+                transactionUpdateObj.transactionsScanLog += ' ' + walletPub.transactionsScanLog
+            }
+            await walletPubScanningDS.updateTransactions({ updateObj: transactionUpdateObj }, walletPub)
+            return false
+        }
+        CACHE_WALLETS_HASH[walletPub.walletHash] = walletPub.walletPubValue
+
         try {
             if (typeof this._logNews[walletPub.walletHash] === 'undefined') {
                 this._logNews[walletPub.walletHash] = ''
@@ -175,9 +189,8 @@ class UpdateAccountBalanceAndTransactionsHD {
         let newTransactions = false
 
         let addresses = await accountScanningDS.getAddresses({ currencyCode: walletPub.currencyCode, walletHash: walletPub.walletHash })
-
         try {
-            const addressesBlockchain = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue)).getAddresses()
+            const addressesBlockchain = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue).setAdditional({ walletPub }).setWalletHash(walletPub.walletHash)).getAddresses()
             let address
             const sql = []
             for (address in addresses) {

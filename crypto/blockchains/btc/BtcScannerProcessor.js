@@ -13,6 +13,7 @@ import DBInterface from '../../../app/appstores/DataSource/DB/DBInterface'
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {}
+const CACHE_WALLET_PUBS = {}
 
 export default class BtcScannerProcessor {
 
@@ -52,11 +53,11 @@ export default class BtcScannerProcessor {
 
         this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'BTC.Scanner._get')
 
-        const prefix = address.substr(0,4)
+        const prefix = address.substr(0, 4)
 
-        let link = this._trezorServer + '/api/v2/address/' + address + '?details=txs'
+        let link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&gap=9999'
         if (prefix === 'xpub' || prefix === 'zpub' || prefix === 'ypub') {
-            link = this._trezorServer + '/api/v2/xpub/' + address + '?details=txs&gap=9999'
+            link = this._trezorServer + '/api/v2/xpub/' + address + '?details=txs&gap=9999&tokens=used'
         }
         const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || !res.data) {
@@ -76,8 +77,8 @@ export default class BtcScannerProcessor {
             let token
             for (token of res.data.tokens) {
                 addresses[token.name] = {
-                    balance : token.balance,
-                    transactions : token.transfers
+                    balance: token.balance,
+                    transactions: token.transfers
                 }
                 plainAddresses[token.name] = token.path
             }
@@ -94,6 +95,26 @@ export default class BtcScannerProcessor {
         return CACHE[address]
     }
 
+    async _getPubs(walletHash) {
+        if (typeof CACHE_WALLET_PUBS[walletHash] !== 'undefined') {
+            return CACHE_WALLET_PUBS[walletHash]
+        }
+        const dbInterface = new DBInterface()
+        const sqlPub = `SELECT wallet_pub_value as walletPub
+                    FROM wallet_pub
+                    WHERE wallet_hash = '${walletHash}'
+                    AND currency_code='BTC'`
+        const resPub = await dbInterface.setQueryString(sqlPub).query()
+        CACHE_WALLET_PUBS[walletHash] = {}
+        if (resPub && resPub.array && resPub.array.length > 0) {
+            for (const row of resPub.array) {
+                const scanAddress = row.walletPub
+                CACHE_WALLET_PUBS[walletHash][scanAddress] = 1
+            }
+        }
+        return CACHE_WALLET_PUBS[walletHash]
+    }
+
     /**
      * @param {string} address
      * @return {Promise<{balance:*, unconfirmed:*, provider:string}>}
@@ -104,16 +125,47 @@ export default class BtcScannerProcessor {
         if (!res) {
             return false
         }
-        return { balance: res.data.balance, unconfirmed: res.data.unconfirmedBalance, provider: res.provider, time : res.time, addresses : res.data.addresses }
+        return {
+            balance: res.data.balance,
+            unconfirmed: res.data.unconfirmedBalance,
+            provider: res.provider,
+            time: res.time,
+            addresses: res.data.addresses
+        }
     }
 
-    async getAddressesBlockchain(address) {
+    async getAddressesBlockchain(address, data) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses started', address)
-        const res = await this._get(address)
-        if (!res) {
-            return false
+        let res = await this._get(address, data)
+        if (typeof res.data !== 'undefined') {
+            res = JSON.parse(JSON.stringify(res.data))
+        } else {
+            res = false
         }
-        return res.data.plainAddresses
+        try {
+            if (typeof data.walletPub !== 'undefined') {
+                const resPub = await this._getPubs(data.walletPub.walletHash)
+                for (const scanAddress in resPub) {
+                    if (scanAddress === address) continue
+                    const tmp = await this._get(scanAddress, data)
+                    if (typeof tmp.data === 'undefined' || typeof tmp.data.plainAddresses === 'undefined') continue
+                    if (res === false || typeof res.plainAddresses === 'undefined') {
+                        res = JSON.parse(JSON.stringify(tmp.data))
+                    } else {
+                        for (const row in tmp.data.plainAddresses) {
+                            res.plainAddresses[row] = tmp.data.plainAddresses[row]
+                        }
+                    }
+
+                }
+            }
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses load from all addresses error ' + e.message, e)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses load from all addresses error ' + e.message)
+        }
+        return res.plainAddresses
     }
 
     /**
@@ -126,30 +178,22 @@ export default class BtcScannerProcessor {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions started ' + address)
         let res = await this._get(address, data)
         if (typeof res.data !== 'undefined') {
-            res = res.data
+            res = JSON.parse(JSON.stringify(res.data))
         } else {
             res = false
         }
         try {
             if (typeof data.walletPub !== 'undefined') {
-                const dbInterface = new DBInterface()
-                const sqlPub = `SELECT wallet_pub_value as walletPub
-                    FROM wallet_pub
-                    WHERE wallet_hash = '${data.walletPub.walletHash}'
-                    AND currency_code='BTC'`
-                const resPub = await dbInterface.setQueryString(sqlPub).query()
-                if (resPub && resPub.array && resPub.array.length > 0) {
-                    for (const row of resPub.array) {
-                        const scanAddress = row.walletPub
-                        if (scanAddress === address) continue
-                        const tmp = await this._get(scanAddress, data)
-                        if (typeof tmp.data === 'undefined' || typeof tmp.data.transactions === 'undefined') continue
-                        if (res === false || typeof res.transactions === 'undefined') {
-                            res = tmp.data
-                        } else {
-                            for (const row of tmp.data.transactions) {
-                                res.transactions.push(row)
-                            }
+                const resPub = await this._getPubs(data.walletPub.walletHash)
+                for (const scanAddress in resPub) {
+                    if (scanAddress === address) continue
+                    const tmp = await this._get(scanAddress, data)
+                    if (typeof tmp.data === 'undefined' || typeof tmp.data.transactions === 'undefined') continue
+                    if (res === false || typeof res.transactions === 'undefined') {
+                        res = JSON.parse(JSON.stringify(tmp.data))
+                    } else {
+                        for (const row of tmp.data.transactions) {
+                            res.transactions.push(row)
                         }
                     }
                 }
@@ -219,7 +263,7 @@ export default class BtcScannerProcessor {
                 transactions.push(transaction)
             }
         }
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions finished ' +  address + ' total: ' + transactions.length)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
         return transactions
     }
 
