@@ -17,6 +17,7 @@ import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNum
 import Log from '../../../services/Log/Log'
 import { strings } from '../../../services/i18n'
 import { SendActions } from '../../../appstores/Stores/Send/SendActions'
+import config from '../../../config/config'
 
 
 class AmountInput extends Component {
@@ -82,6 +83,9 @@ class AmountInput extends Component {
             errorCurrencyCode = currencyCode
 
             const { addressForEstimateSellAll } = this.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
+            if (config.debug.sendLogs) {
+                console.log('TRADE/AmountInput.handleSellAll addressForEstimateSellAll ', addressForEstimateSellAll)
+            }
             const tmpAddressForEstimate = addressForEstimateSellAll != null ? addressForEstimateSellAll : BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
 
             Log.log('TRADE/AmountInput.handleSellAll start')
@@ -93,6 +97,9 @@ class AmountInput extends Component {
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'amountInput.amount')
 
             Log.log('TRADE/AmountInput.handleSellAll done with amount ' + amount)
+            if (config.debug.sendLogs) {
+                console.log('TRADE/AmountInput.handleSellAll done with amount ' + amount + ' to address ' + tmpAddressForEstimate)
+            }
 
             this.setState({
                 moneyType: 'CRYPTO'

@@ -28,6 +28,7 @@ import TmpConstants from './elements/TmpConstants'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import Log from '../../services/Log/Log'
+import config from '../../config/config'
 
 class ConfirmScreen extends Component {
 
@@ -198,6 +199,9 @@ class ConfirmScreen extends Component {
             const res = await Api.createOrder(dataToSend)
 
             Log.log('Trade/V2 dataSell', res.data)
+            if (config.debug.sendLogs) {
+                console.log('Trade/V2 dataSell', res.data)
+            }
 
             const bseOrderData = {
                 amountReceived: null,
