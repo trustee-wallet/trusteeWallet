@@ -83,8 +83,8 @@ class ExchangeAmountInput extends Component {
             const { currencyCode, address } = this.props.selectedInAccount
             errorCurrencyCode = currencyCode
 
-            const { addressForEstimateSellAll } = this.handleGetTradeWay(selectedInCurrency, selectedPaymentSystem)
-            const tmpAddressForEstimate = addressForEstimateSellAll != null ? addressForEstimateSellAll : address
+            const { addressForEstimateSellAllV2 } = this.handleGetTradeWay(selectedInCurrency, selectedPaymentSystem)
+            const tmpAddressForEstimate = addressForEstimateSellAllV2 != null ? addressForEstimateSellAllV2 : address
 
             Log.log('EXC/AmountInput.handleSellAll start')
 
@@ -94,7 +94,7 @@ class ExchangeAmountInput extends Component {
             })
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'exchangeAmountInput.amount')
 
-            Log.log('EXC/AmountInput.handleSellAll done with amount ' + amount)
+            Log.log('EXC/AmountInput.handleSellAll done with amount ' + amount + ' to address ' + tmpAddressForEstimate)
 
             this.setState({
                 moneyType: 'IN'

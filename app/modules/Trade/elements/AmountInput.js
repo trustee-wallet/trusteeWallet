@@ -82,11 +82,11 @@ class AmountInput extends Component {
             const { currencyCode, address } = this.props.selectedAccount
             errorCurrencyCode = currencyCode
 
-            const { addressForEstimateSellAll } = this.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
+            const { addressForEstimateSellAllV2 } = this.handleGetTradeWay(selectedCryptocurrency, selectedPaymentSystem)
             if (config.debug.sendLogs) {
-                console.log('TRADE/AmountInput.handleSellAll addressForEstimateSellAll ', addressForEstimateSellAll)
+                console.log('TRADE/AmountInput.handleSellAll addressForEstimateSellAll ', addressForEstimateSellAllV2)
             }
-            const tmpAddressForEstimate = addressForEstimateSellAll != null ? addressForEstimateSellAll : BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
+            const tmpAddressForEstimate = addressForEstimateSellAllV2 != null ? addressForEstimateSellAllV2 : BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
 
             Log.log('TRADE/AmountInput.handleSellAll start')
 
@@ -96,7 +96,7 @@ class AmountInput extends Component {
             })
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'amountInput.amount')
 
-            Log.log('TRADE/AmountInput.handleSellAll done with amount ' + amount)
+            Log.log('TRADE/AmountInput.handleSellAll done with amount ' + amount + ' to address ' + tmpAddressForEstimate)
             if (config.debug.sendLogs) {
                 console.log('TRADE/AmountInput.handleSellAll done with amount ' + amount + ' to address ' + tmpAddressForEstimate)
             }
