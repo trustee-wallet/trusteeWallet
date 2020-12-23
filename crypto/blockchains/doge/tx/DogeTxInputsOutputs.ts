@@ -367,13 +367,12 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
             if (autocalculateFee) {
                 const newData = JSON.parse(JSON.stringify(data))
                 const autoFeeLimit = BlocksoftUtils.fromUnified(feeToCount.autoFeeLimitReadable, this._settings.decimals)
-                const autoDiff = new BlocksoftBN(autoFeeBN).diff(autoFeeLimit)
+                const autoDiff = new BlocksoftBN(autoFeeLimit).diff(autoFeeBN)
 
                 let recountWithFee = autoFeeBN.get()
                 if (autoDiff.lessThanZero()) {
                     recountWithFee = autoFeeLimit.toString()
                 }
-
                 const res = this.getInputsOutputs(newData, unspents, { feeForAll: recountWithFee }, subtitle + ' notEnough1 leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
                 if (res.msg.indexOf('RECHECK') === -1) {
                     return res
