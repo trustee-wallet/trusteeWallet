@@ -52,8 +52,6 @@ import PartBalanceButton from './elements/partBalanceButton'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
-import CheckData from './elements/CheckData'
-
 import SendBasicScreenScreen from './SendBasicScreen'
 
 import UtilsService from '../../services/UI/PrettyNumber/UtilsService'
@@ -182,7 +180,7 @@ class SendScreen extends SendBasicScreenScreen {
                 amountInputMark:
                     this.state.amountInputMark
                     ? this.state.amountInputMark :
-                    (inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencyCode}` : `${account.basicCurrencySymbol} 0.00`)
+                    (inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencySymbol}` : `${account.basicCurrencySymbol} 0.00`)
             }, () => {
 
                 if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName) {
@@ -870,10 +868,10 @@ class SendScreen extends SendBasicScreenScreen {
 
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: 520 })
+                this.scrollView.scrollTo({ y: 120 })
             } catch (e) {
             }
-        }, 1)
+        }, 500)
     }
 
     renderEnoughFundsError = () => {
@@ -1120,7 +1118,7 @@ class SendScreen extends SendBasicScreenScreen {
                             justifyContent: 'space-between',
                             padding: GRID_SIZE,
                             paddingBottom: GRID_SIZE * 2,
-                            minHeight: 420
+                            // height: WINDOW_HEIGHT
                         }}
                         style={{ marginTop: headerHeight }}
                     >
@@ -1242,6 +1240,7 @@ class SendScreen extends SendBasicScreenScreen {
                                             id={memoInput.id}
                                             name={strings('send.xrp_memo')}
                                             type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
+                                            onFocus={() => this.onFocus()}
                                             keyboardType={'numeric'}
                                             decimals={0}
                                             additional={'NUMBER'}
@@ -1262,6 +1261,7 @@ class SendScreen extends SendBasicScreenScreen {
                                             id={memoInput.id}
                                             name={strings('send.xmr_memo')}
                                             type={extendedAddressUiChecker.toUpperCase() + '_DESTINATION_TAG'}
+                                            onFocus={() => this.onFocus()}
                                             keyboardType={'default'}
                                             info={true}
                                             tabInfo={() => this.modalInfo(currencyCode)}

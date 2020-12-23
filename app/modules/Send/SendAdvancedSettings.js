@@ -62,7 +62,9 @@ class SendAdvancedSettingsScreen extends Component {
             devMode: false,
             isCustomFee: false,
             
-            comment: ''
+            comment: '',
+
+            headerHeight: 0
         }
 
         this.customFee = React.createRef()
@@ -136,7 +138,13 @@ class SendAdvancedSettingsScreen extends Component {
         this.setState({
             isCustomFee: true
         })
-        this.scrollView.scrollTo({ y: 120 })
+
+        setTimeout(() => {
+            try {
+                this.scrollView.scrollTo({ y: 250 })
+            } catch (e) {
+            }
+        }, 500)
     }
 
     renderCustomFee = (currencyCode, feesCurrencyCode, basicCurrencySymbol, basicCurrencyRate) => {
@@ -294,10 +302,10 @@ class SendAdvancedSettingsScreen extends Component {
 
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: 320 })
+                this.scrollView.scrollTo({ y: 350 })
             } catch (e) {
             }
-        }, 100)
+        }, 500)
     }
 
     setHeaderHeight = (height) => {
@@ -311,7 +319,7 @@ class SendAdvancedSettingsScreen extends Component {
 
         const { colors, GRID_SIZE } = this.context
 
-        let { focused, sendScreenData, countedFees, selectedFee, account, headerHeight } = this.state
+        let { focused, sendScreenData, countedFees, selectedFee, account } = this.state
 
         if (typeof sendScreenData === 'undefined' || typeof sendScreenData.currencyCode === 'undefined') {
             sendScreenData = SendTmpData.getData()
@@ -348,9 +356,15 @@ class SendAdvancedSettingsScreen extends Component {
                         }}
                         keyboardShouldPersistTaps={'handled'}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between', padding: GRID_SIZE, paddingBottom: GRID_SIZE * 2,  minHeight: WINDOW_HEIGHT/2 }}
+                        contentContainerStyle={{
+                            flexGrow: 1,
+                            justifyContent: 'space-between',
+                            padding: GRID_SIZE,
+                            paddingBottom: GRID_SIZE * 2,
+                        }}
+                        style={{ marginTop: this.state.headerHeight }}
                     >
-                        <View style={{ paddingTop: headerHeight }}>
+                        <View>
                             { showFees ?
                             <View>
                                 <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE, color: colors.sendScreen.amount }} letterSpacing={1.5} />
@@ -392,8 +406,7 @@ class SendAdvancedSettingsScreen extends Component {
                                 />
                             </View>
                         </View>
-                    </ScrollView>
-                    <View style={{ marginTop: GRID_SIZE, paddingBottom: GRID_SIZE * 2, marginHorizontal: GRID_SIZE }}>
+                        <View style={{ marginTop: GRID_SIZE }}>
                             <TwoButtons
                                 mainButton={{
                                     disabled: this.disabled(),
@@ -406,6 +419,7 @@ class SendAdvancedSettingsScreen extends Component {
                                 }}
                             />
                         </View>
+                    </ScrollView>
                 </KeyboardAwareView>
             </View>
         )

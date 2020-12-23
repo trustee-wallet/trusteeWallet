@@ -783,8 +783,8 @@
     },
     "infoModal": {
       "title": "Info",
-      "XRP": "Destination tag Ripple is ...",
-      "XMR": "Payment ID Monero is ...",
+      "XRP": "A destination tag is a unique 9-digit figure assigned to each Ripple (XRP) account. It is used to identify the receiver in a Ripple transaction.",
+      "XMR": "Payment ID is an arbitrary and optional transaction attachment. The Payment ID is usually used to identify transactions to merchants and exchanges: Given the intrinsic privacy features built into Monero, where a single public address is usually used for incoming transactions, the Payment ID is especially useful to tie incoming payments with user accounts.",
       "FIO": "FIO Memo is ..."
     },
     "confirmModal": {

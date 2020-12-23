@@ -51,8 +51,8 @@ export default {
                 }
             })
         } catch (e) {
-            Log.err('ApiV3 validateCard e.response.data ' + e.response.data)
-            Log.err('ApiV3 validateCard e.response.data.message ' + e.response.data.message)
+            Log.err('ApiV3 validateCard e.response.data ' + JSON.stringify(e.response.data))
+            Log.err('ApiV3 validateCard e.response.data.message ' + JSON.stringify(e.response.data.message))
         }
     },
 
