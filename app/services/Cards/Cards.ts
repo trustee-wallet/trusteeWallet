@@ -9,7 +9,7 @@ export namespace Cards {
     export const getCountryCode = async (cardNumber : string) => {
         try {
             cardNumber = cardNumber.split(' ').join('')
-            if (cardNumber.indexOf('220') === 0) {
+            if (cardNumber.indexOf('220') === 0 || cardNumber.indexOf('533669') === 0) {
                 return '643'
             }
 
