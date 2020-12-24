@@ -228,11 +228,14 @@ export default new class AppNotificationListener {
                     // @ts-ignore
                     Log.err('PUSH AppNotification.createNotificationOpenedListener parse error ' + e.message, notificationOpen.notification._data)
                 }
+                Log.log('PUSH _onNotificationOpen unified')
 
                 try {
                     if (typeof data.toShow !== 'undefined' && data.toShow && typeof data.toShow.newsCreated !== 'undefined') {
+                        Log.log('PUSH _onNotificationOpen showNewsModal ' + notificationId, data.toShow)
                         this.showNewsModal(data.toShow, notificationId)
                     } else {
+                        Log.log('PUSH _onNotificationOpen showNotificationModal ' + notificationId, data.toSave)
                         this.showNotificationModal(data.toSave, notificationId)
                     }
                 } catch (e) {
@@ -385,10 +388,12 @@ export default new class AppNotificationListener {
             if (!key) continue
             let tmp = false
             if (typeof key !== 'object') {
-                try {
-                    tmp = JSON.parse(key)
-                } catch (e) {
-                    Log.log('PUSH _onNotification notification not JSON ' + e.message, key)
+                if (key.indexOf('{') !== -1) {
+                    try {
+                        tmp = JSON.parse(key)
+                    } catch (e) {
+                        Log.log('PUSH _onNotification notification not JSON ' + e.message, key)
+                    }
                 }
             } else {
                 tmp = key
