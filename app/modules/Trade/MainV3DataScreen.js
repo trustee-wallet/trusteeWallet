@@ -38,7 +38,6 @@ import countriesDict from '../../assets/jsons/other/country-codes'
 import Validator from '../../services/UI/Validator/Validator'
 import valid from 'card-validator'
 import _ from 'lodash'
-import axios from 'axios'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
@@ -50,6 +49,7 @@ import config from '../../config/config'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import { Cards } from '../../services/Cards/Cards'
 
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -217,7 +217,7 @@ class MainV3DataScreen extends Component {
             ])
 
             if (validate.status === 'success') {
-                const countryCode = await this.getCountryCode(value)
+                const countryCode = await Cards.getCountryCode(value)
 
                 const country = countriesDict.find(item => item.iso === countryCode)
 
@@ -235,22 +235,6 @@ class MainV3DataScreen extends Component {
             }
             this.webref.postMessage(JSON.stringify({ 'data': cardData }))
         }
-    }
-
-    getCountryCode = async (numberCard) => {
-        try {
-            numberCard = numberCard.split(' ').join('')
-
-            const link = 'https://lookup.binlist.net/' + numberCard
-            Log.log('Trage/MainV3Screeen.getCountryCode getCountryCode axios ' + link)
-            const res = await axios.get(link)
-
-            return res.data.country.numeric
-        } catch (e) {
-            Log.err('Card.getCurrencyCode error ' + e.message)
-        }
-
-        return false
     }
 
     onMessage(event) {

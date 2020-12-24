@@ -18,7 +18,6 @@ import { TextInputMask } from 'react-native-masked-text'
 
 import valid from 'card-validator'
 import _ from 'lodash'
-import axios from 'axios'
 
 import Icon from 'react-native-vector-icons/FontAwesome'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -48,6 +47,7 @@ import firebase from 'react-native-firebase'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+import { Cards } from '../../services/Cards/Cards'
 
 const { height: HEIGHT } = Dimensions.get('window')
 
@@ -166,22 +166,6 @@ class Card extends Component {
             })
     }
 
-    getCountryCode = async (cardNumber) => {
-        try {
-            cardNumber = cardNumber.split(' ').join('')
-
-            const link = 'https://lookup.binlist.net/' + cardNumber
-            Log.log('DMN/Card getCountryCode axios ' + link)
-            const res = await axios.get(link)
-
-            return res.data.country.numeric
-        } catch (e) {
-            Log.log('Card.getCurrencyCode error ' + e.message)
-        }
-
-        return false
-    }
-
     handleAdd = async () => {
 
         let { number, selectedCountry, date } = this.state
@@ -287,7 +271,7 @@ class Card extends Component {
                 ])
 
                 if (validate.status === 'success') {
-                    const countryCode = await this.getCountryCode(value)
+                    const countryCode = await Cards.getCountryCode(value)
 
                     const country = countriesDict.find(item => item.iso === countryCode)
 
