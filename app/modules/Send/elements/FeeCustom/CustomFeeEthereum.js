@@ -16,6 +16,7 @@ import BlocksoftPrettyNumbers from '../../../../../crypto/common/BlocksoftPretty
 import RateEquivalent from '../../../../services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftUtils from '../../../../../crypto/common/BlocksoftUtils'
 import { showModal } from '../../../../appstores/Stores/Modal/ModalActions'
+import config from '../../../../config/config'
 
 const CACHE_PREV_OK = {
     feeForTx: 0,
@@ -45,6 +46,9 @@ class CustomFee extends Component {
     }
 
     componentDidMount() {
+        if (config.debug.sendLogs) {
+            console.log('СustomFeeEthereum.selectedFee', JSON.parse(JSON.stringify(this.props.selectedFee)))
+        }
         if (typeof this.props.selectedFee.gasPrice !== 'undefined') {
             const selectedFee = this.props.selectedFee
             this._setSelectedFee(selectedFee, this.props.countedFees, false)

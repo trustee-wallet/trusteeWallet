@@ -74,6 +74,8 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + txRBFed + 'not loaded gasPrice for ' + txRBF + ' ' + e.message)
                 }
             }
+        } else if (typeof additionalData.nonceForTx !== 'undefined' && additionalData.nonceForTx) {
+            oldNonce = additionalData.nonceForTx
         }
 
         let gasLimit
@@ -130,14 +132,14 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         let nonceForTx
         if (typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.nonce !== 'undefined' && data.transactionJson.nonce) {
             nonceForTx = data.transactionJson.nonce
-        } else if (!txRBF) {
+        } else if (oldNonce > 0) {
+            nonceForTx = oldNonce
+        } else {
             const tmp = await EthTmpDS.getMaxNonce(data.addressFrom)
             nonceForTx = tmp.value > tmp.scanned ? tmp.value : tmp.scanned
             if (nonceForTx * 1 >= 0) {
                 nonceForTx = nonceForTx * 1 + 1
             }
-        } else {
-            nonceForTx = oldNonce
         }
 
         if (data.isTransferAll && this._useThisBalance) {
@@ -496,8 +498,12 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             if (config.debug.cryptoErrors) {
                 console.log(this._settings.currencyCode + ' EthTransferProcessor.sent error', e, tx)
             }
-            if (txRBF && e.message.indexOf('nonce too low') !== -1) {
-                throw new Error('SERVER_RESPONSE_TRANSACTION_ALREADY_MINED')
+            if (e.message.indexOf('nonce too low') !== -1) {
+                if (txRBF) {
+                    throw new Error('SERVER_RESPONSE_TRANSACTION_ALREADY_MINED')
+                } else {
+                    throw new Error('SERVER_RESPONSE_NONCE_ALREADY_MINED')
+                }
             } else if (e.message.indexOf('underpriced') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
             } else if (e.message.indexOf('insufficient funds') !== -1) {

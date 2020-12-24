@@ -39,10 +39,15 @@ export default class SendBasicScreen extends Component {
         }
 
         try {
+            if (config.debug.sendLogs) {
+                console.log('')
+                console.log('SendBasicScreen.recountFees ' + source + ' start ', JSON.parse(JSON.stringify(data)))
+            }
+
             const { countedFees, selectedFee } = await SendActions.countFees(data)
 
             if (config.debug.sendLogs) {
-                console.log('SendBasicScreen.recountFees ' + source + ' result ', {countedFees, selectedFee})
+                console.log('SendBasicScreen.recountFees ' + source + ' result ', JSON.parse(JSON.stringify({countedFees, selectedFee})))
             }
             Log.log('SendBasicScreen.recountFees ' + source + ' result ', {countedFees, selectedFee})
 

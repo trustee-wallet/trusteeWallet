@@ -149,6 +149,7 @@ export namespace BlocksoftBlockchainTypes {
         feeForByte?: string,
         estimatedGas?: number,
         gasPrice?: number,
+        nonceForTx?: number,
         balance?: string,
         unspents?: []
     }

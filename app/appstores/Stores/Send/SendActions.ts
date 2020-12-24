@@ -178,6 +178,9 @@ export namespace SendActions {
             if (typeof data.selectedFee.blockchainData !== 'undefined' && typeof data.selectedFee.blockchainData.unspents !== 'undefined') {
                 addData.unspents = data.selectedFee.blockchainData.unspents
             }
+            if (typeof data.selectedFee.nonceForTx !== 'undefined' && typeof data.selectedFee.nonceForTx !== 'undefined') {
+                addData.nonceForTx = data.selectedFee.nonceForTx
+            }
         }
 
         let countedFees, selectedFee

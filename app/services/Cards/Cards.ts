@@ -16,7 +16,7 @@ export namespace Cards {
             const link = 'https://lookup.binlist.net/' + cardNumber
             Log.log('Cards.getCountryCode axios ' + link)
             const res = await axios.get(link)
-            console.log('res', cardNumber, res)
+            Log.log('res', cardNumber, res.data)
 
             return res.data.country.numeric
         } catch (e) {

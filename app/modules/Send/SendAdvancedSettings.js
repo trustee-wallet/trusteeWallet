@@ -282,8 +282,11 @@ class SendAdvancedSettingsScreen extends Component {
     handleApply = async () => {
         const selectedFee = this.state.isCustomFee && CACHE_FROM_CUSTOM_FEE ? CACHE_FROM_CUSTOM_FEE : this.state.selectedFee
         const comment = this.state.comment
+        const sendScreenData = this.state.sendScreenData
 
         Log.log('Send.SendAdvancedSettings.handleApply', {selectedFee, comment})
+        sendScreenData.selectedFee = selectedFee
+        SendTmpData.setData(sendScreenData)
         SendTmpData.setSelectedFee(selectedFee)
         SendTmpData.setComment(comment)
         NavStore.goBack()
