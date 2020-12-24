@@ -107,7 +107,7 @@ export namespace Camera {
             response = await getGalleryPhoto(source)
 
             if (typeof response.error !== 'undefined' && response.error) {
-                Log.log(source + ' getGalleryPhoto error ' + response)
+                Log.log(source + ' getGalleryPhoto error ', response)
                 if (response.error.indexOf('open failed') !== -1) {
                     await requestGalleryOn(source)
                 }
