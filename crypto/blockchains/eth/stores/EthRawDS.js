@@ -3,6 +3,7 @@ import EthTxSendProvider from '../basic/EthTxSendProvider'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 
 const tableName = 'transactions_raw'
 
@@ -39,6 +40,7 @@ class EthRawDS {
             if (!result || !result.array || result.array.length === 0) {
                 return {}
             }
+
             const ret = {}
 
             if (this._currencyCode === 'ETH' && this._trezorServer === 'none') {
@@ -58,23 +60,54 @@ class EthRawDS {
                     if (this._currencyCode === 'ETH') {
                         let broadcastLog = ''
                         let link = this._trezorServer + '/api/v2/sendtx/'
-                        const updateObj = { broadcastUpdated: now }
+                        const updateObj = {
+                            broadcastUpdated: now,
+                            is_removed : '0'
+                        }
                         let broad
                         try {
                             broad = await BlocksoftAxios.post(link, row.transactionRaw)
                             broadcastLog = ' broadcasted ok ' + JSON.stringify(broad.data)
-                            updateObj.is_removed = 1
+                            updateObj.is_removed = '1'
                             updateObj.removed_at = now
                         } catch (e) {
-                            if (e.message.indexOf('already known') !== -1) {
-                                broadcastLog = ' already known'
+                            if (e.message.indexOf('transaction underpriced') !== -1 || e.message.indexOf('already known') !== -1) {
+                                updateObj.is_removed = '1'
+                                broadcastLog += ' already known'
                             } else {
-                                broadcastLog = e.message
+                                updateObj.is_removed = '0'
+                                broadcastLog += e.message
                             }
                         }
                         broadcastLog += ' ' + link + '; '
+                        MarketingEvent.logOnlyRealTime('v20_eth_resend_0 ' + row.transactionHash, {broadcastLog, ...updateObj})
+
+
+                        link = 'https://api.etherscan.io/api?module=proxy&action=eth_sendRawTransaction&apikey=YourApiKeyToken&hex='
+                        let broadcastLog1 = ''
+                        try {
+                            broad = await BlocksoftAxios.get(link + row.transactionRaw)
+                            if (typeof broad.data.error !== 'undefined') {
+                                throw new Error(JSON.stringify(broad.data.error))
+                            }
+                            broadcastLog1 = ' broadcasted ok ' + JSON.stringify(broad.data)
+                            updateObj.is_removed += '1'
+                            updateObj.removed_at = now
+                        } catch (e) {
+                            if (e.message.indexOf('transaction underpriced') !== -1 || e.message.indexOf('already known') !== -1) {
+                                updateObj.is_removed += '1'
+                                broadcastLog1 += ' already known'
+                            } else {
+                                updateObj.is_removed += '0'
+                                broadcastLog1 += e.message
+                            }
+                        }
+                        broadcastLog1 += ' ' + link + '; '
+                        MarketingEvent.logOnlyRealTime('v20_eth_resend_1 ' + row.transactionHash, {broadcastLog1, ...updateObj})
+
 
                         link = 'https://mainnet.infura.io/v3/' + this._infuraProjectId
+                        let broadcastLog2 = ''
                         try {
                             broad = await BlocksoftAxios.post(link,
                                 {
@@ -87,20 +120,31 @@ class EthRawDS {
                             if (typeof broad.data.error !== 'undefined') {
                                 throw new Error(JSON.stringify(broad.data.error))
                             }
-                            broadcastLog += ' broadcasted ok ' + JSON.stringify(broad.data)
-                            updateObj.is_removed = 1
+                            broadcastLog2 = ' broadcasted ok ' + JSON.stringify(broad.data)
+                            updateObj.is_removed += '1'
                             updateObj.removed_at = now
                         } catch (e) {
-                            if (e.message.indexOf('already known') !== -1) {
-                                broadcastLog += ' already known'
+                            if (e.message.indexOf('transaction underpriced') !== -1 || e.message.indexOf('already known') !== -1) {
+                                updateObj.is_removed += '1'
+                                broadcastLog2 += ' already known'
                             } else {
-                                broadcastLog += e.message
+                                updateObj.is_removed += '0'
+                                broadcastLog2 += e.message
                             }
+
+                        }
+                        broadcastLog2 += ' ' + link + '; '
+                        MarketingEvent.logOnlyRealTime('v20_eth_resend_2 ' + row.transactionHash, {broadcastLog2, ...updateObj})
+
+                        if (updateObj.is_removed === '111') { // do ALL!
+                            updateObj.is_removed = 1
+                        } else {
                             updateObj.is_removed = 0
                         }
-                        broadcastLog += ' ' + link + '; '
-                        broadcastLog = new Date().toISOString() + ' ' + broadcastLog + ' ' +  (row.broadcastLog ? row.broadcastLog.substr(0, 1000) : '')
+
+                        broadcastLog = new Date().toISOString() + ' ' + broadcastLog + ' ' + broadcastLog1 + ' ' + broadcastLog2 + ' ' + (row.broadcastLog ? row.broadcastLog.substr(0, 1000) : '')
                         updateObj.broadcastLog = broadcastLog
+
                         await dbInterface.setTableName('transactions_raw').setUpdateData({
                             updateObj,
                             key: { id: row.id }
@@ -158,7 +202,8 @@ class EthRawDS {
             transaction_unique_key: data.transactionUnique.toLowerCase(),
             transaction_hash: data.transactionHash,
             transaction_raw: data.transactionRaw,
-            created_at: now
+            created_at: now,
+            is_removed : 0
         }]
         await dbInterface.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
     }

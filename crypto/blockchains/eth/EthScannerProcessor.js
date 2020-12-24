@@ -289,7 +289,7 @@ export default class EthScannerProcessor extends EthBasic {
                         && typeof transaction.transactionJson.nonce !== 'undefined') {
 
                         const uniqueFrom = address.toLowerCase() + '_' + transaction.transactionJson.nonce
-                        if (notBroadcasted && typeof notBroadcasted[uniqueFrom] !== 'undefined') {
+                        if (notBroadcasted && typeof notBroadcasted[uniqueFrom] !== 'undefined' && transaction.transactionStatus !== 'new') {
                             EthRawDS.cleanRaw({
                                 address,
                                 transactionUnique: uniqueFrom,
