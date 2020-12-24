@@ -1,6 +1,0 @@
-[submodule "walletinternals"]
-	path = walletinternals
-	url = ../../Trustee/walletinternals.git
-[submodule "__tests__"]
-	path = __tests__
-	url = ../../Trustee/wallettests.git
