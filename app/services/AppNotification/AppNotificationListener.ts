@@ -126,9 +126,12 @@ export default new class AppNotificationListener {
         }
     }
 
-    async updateSubscriptions(fcmToken: string = ''): Promise<void> {
+    async updateSubscriptiorns(fcmToken: string = ''): Promise<void> {
         Log.log('PUSH updateSubscriptions ' + fcmToken)
         const settings = await settingsActions.getSettings(false)
+        if (typeof settings === 'undefined' || !settings) {
+            return
+        }
         const notifsStatus = settings && typeof settings.notifsStatus !== 'undefined' && settings.notifsStatus ? settings.notifsStatus : '1'
         const locale: string = sublocale()
         const devMode = await AsyncStorage.getItem('devMode')
@@ -218,7 +221,7 @@ export default new class AppNotificationListener {
         Log.log('PUSH _onNotificationOpen inited')
         try {
             this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
-                Log.log('PUSH _onNotificationOpen', notificationOpen)
+                Log.log('PUSH _onNotificationOpen')
                 let data
                 let notificationId
                 try {
@@ -228,14 +231,13 @@ export default new class AppNotificationListener {
                     // @ts-ignore
                     Log.err('PUSH AppNotification.createNotificationOpenedListener parse error ' + e.message, notificationOpen.notification._data)
                 }
-                Log.log('PUSH _onNotificationOpen unified')
 
                 try {
                     if (typeof data.toShow !== 'undefined' && data.toShow && typeof data.toShow.newsCreated !== 'undefined') {
-                        Log.log('PUSH _onNotificationOpen showNewsModal ' + notificationId, data.toShow)
+                        Log.log('PUSH _onNotificationOpen showNewsModal', notificationId)
                         this.showNewsModal(data.toShow, notificationId)
                     } else {
-                        Log.log('PUSH _onNotificationOpen showNotificationModal ' + notificationId, data.toSave)
+                        Log.log('PUSH _onNotificationOpen showNotificationModal', notificationId)
                         this.showNotificationModal(data.toSave, notificationId)
                     }
                 } catch (e) {
@@ -387,7 +389,7 @@ export default new class AppNotificationListener {
         for (const key of keys) {
             if (!key) continue
             let tmp = false
-            if (typeof key !== 'object') {
+            if (typeof key === 'string') {
                 if (key.indexOf('{') !== -1) {
                     try {
                         tmp = JSON.parse(key)
@@ -395,7 +397,7 @@ export default new class AppNotificationListener {
                         Log.log('PUSH _onNotification notification not JSON ' + e.message, key)
                     }
                 }
-            } else {
+            } else if (typeof key === 'object') {
                 tmp = key
             }
             if (tmp && typeof tmp === 'object') {
