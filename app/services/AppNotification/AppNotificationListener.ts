@@ -126,7 +126,7 @@ export default new class AppNotificationListener {
         }
     }
 
-    async updateSubscriptiorns(fcmToken: string = ''): Promise<void> {
+    async updateSubscriptions(fcmToken: string = ''): Promise<void> {
         Log.log('PUSH updateSubscriptions ' + fcmToken)
         const settings = await settingsActions.getSettings(false)
         if (typeof settings === 'undefined' || !settings) {
