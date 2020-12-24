@@ -55,6 +55,7 @@ export const lightColors = {
     },
     cashback: {
       qrCode: '#404040',
+      background: '#F5F5F5',
       token: '#864DD9',
       detailsBg: '#EBEBEB',
       howItWorksBg: '#F7F7F7',
@@ -208,7 +209,8 @@ export const darkColors = {
         }
     },
     cashback: {
-      qrCode: '#fff',
+      qrCode: '#000',
+      background: '#FFF',
       token: '#9E71E1',
       detailsBg: '#252525',
       howItWorksBg: '#2E2E2E',

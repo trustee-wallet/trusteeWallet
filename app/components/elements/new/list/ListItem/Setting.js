@@ -192,8 +192,8 @@ export default function SettingListItem(props) {
                     </View>
                     <View style={styles.mainContent}>
                         <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
-                            <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
-                            {!!subtitle && <Text numberOfLines={3} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
+                            <Text numberOfLines={3} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                            {!!subtitle && <Text numberOfLines={4} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
                         </View>
                         {!!rightContent && (
                             <View style={[styles.rightContent, { opacity: disabled || disabledRightContent ? 0.3 : 1 }]}>

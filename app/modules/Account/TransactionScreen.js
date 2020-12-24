@@ -496,7 +496,13 @@ class TransactionScreen extends Component {
             commentEditable: true
         })
 
-        this.commentInput.focus()
+        setTimeout(() => {
+            try {
+                this.commentInput.focus()
+            } catch (e) {
+            }
+        }, 500)
+        
     }
 
     onBlurComment = async (item) => {
@@ -651,15 +657,6 @@ class TransactionScreen extends Component {
         this.setState(() => ({ headerHeight }))
     }
 
-    renderButton = (item) => {
-        return (
-            <Buttons
-                data={item}
-                title={this.state.showMoreDetails ? false : true}
-            />
-        )
-    }
-
     renderReplaceByFeeRemove = (array) => {
         let { account } = this.props
         const { transaction } = this.state
@@ -696,7 +693,7 @@ class TransactionScreen extends Component {
         if (!transaction.bseOrderData) {
             return false
         }
-        array.push({ icon: 'remove', title: strings('account.transactionScreen.remove'), action: async () => {
+        array.push({ icon: 'delete', title: strings('account.transactionScreen.remove'), action: async () => {
                 setLoaderStatus(true)
                 try {
                     await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({
@@ -781,7 +778,7 @@ class TransactionScreen extends Component {
 
     }
 
-    shareTransaction = (transaction, linkUrl) => {
+    shareTransaction = (linkUrl) => {
         const shareOptions = {}
         shareOptions.message = strings('account.transactionScreen.transactionHash') + ` ${linkUrl}\n` + 
             strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackStore.dataFromApi.cashbackLink}\n` + strings('account.transactionScreen.thanks')
@@ -866,6 +863,29 @@ class TransactionScreen extends Component {
         Toast.setMessage(strings('toast.copied')).show()
     }
 
+    renderButtons = (buttonsArray) =>  {
+        return (
+            <View style={{ height: 120, paddingTop: 20 }}>
+                {buttonsArray[1].length === 0 ?
+                    <Buttons
+                        data={buttonsArray[0]}
+                        title={this.state.showMoreDetails ? false : true}
+                    /> :
+                    <Pages indicatorColor={'#5C5C5C'}>
+                        {buttonsArray.map((item) => {
+                            return (
+                                // eslint-disable-next-line react/jsx-key
+                                <Buttons
+                                    data={item}
+                                    title={this.state.showMoreDetails ? false : true}  
+                                />
+                            )
+                        })}
+                    </Pages>}
+            </View>
+        )
+    }
+
 
     render() {
 
@@ -891,9 +911,9 @@ class TransactionScreen extends Component {
 
         const buttonsArray = [
             [
-                { icon: 'share', title: strings('account.transactionScreen.share'), action: () => this.shareTransaction(transaction, linkExplorer) },
+                { icon: 'share', title: strings('account.transactionScreen.share'), action: () => this.shareTransaction(linkExplorer) },
                 { icon: 'support', title: strings('account.transactionScreen.support'), action: () => this.shareSupport() },
-                { icon: showMoreDetails ? 'x' : 'details', title: strings('account.transactionScreen.details'), action: () => this.showMoreDetails() }
+                { icon: showMoreDetails ? 'close' : 'details', title: strings('account.transactionScreen.details'), action: () => this.showMoreDetails() }
             ], []]
 
 
@@ -924,10 +944,10 @@ class TransactionScreen extends Component {
                         justifyContent: 'space-between',
                         padding: GRID_SIZE,
                         paddingBottom: GRID_SIZE * 2,
-                        minHeight: focused ? 100 : WINDOW_HEIGHT/2,
+                        minHeight: WINDOW_HEIGHT - headerHeight,
                     }}
                 >
-                    <View style={{ marginTop: focused ? headerHeight - 100 : headerHeight }}>
+                    <View style={{ marginTop: headerHeight }}>
                         <View>
                             {outDestinationCardToView ?
                                 <TransactionItem
@@ -978,14 +998,15 @@ class TransactionScreen extends Component {
                     {this.renderReplaceByFeeRemove(buttonsArray[1])}
                     {this.renderReplaceByFee(buttonsArray[1])}
                     {this.renderRemoveButton(buttonsArray[1])}
-                    <View style={{ height: 120, paddingTop: 20 }}>
+                    {this.renderButtons(buttonsArray)}
+                    {/* <View style={{ height: 120, paddingTop: 20 }}>
                         {buttonsArray[1].length === 0 ?
                             this.renderButton(buttonsArray[0])
                             :
                             <Pages indicatorColor={'#5C5C5C'}>
                                 {buttonsArray.map(this.renderButton)}
                             </Pages>}
-                    </View>
+                    </View> */}
                     {showMoreDetails && (
                         <View style={{ ...styles.moreInfo, borderRadius: 16, marginBottom: 20, backgroundColor: colors.transactionScreen.backgroundItem }}>
                             {/* <InsertShadow containerStyle={{

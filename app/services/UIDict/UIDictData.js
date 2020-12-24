@@ -218,6 +218,18 @@ export default {
             darkColor: '#4C5FAB'
         }
     },
+    "CUSTOM_MVT": {
+        colors: {
+            mainColor: '#93CA76',
+            darkColor: '#93CA76'
+        }
+    },
+    "CUSTOM_TTCrypto": {
+        colors: {
+            mainColor: '#1B1818',
+            darkColor: '#C0C0C0'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',

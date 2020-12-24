@@ -32,6 +32,11 @@ const ICON_SET = {
     promo: props => <CustomIcon {...props} name="promo" size={22} style={{ left: 0.5 }} />,
     close: props => <CustomIcon {...props} name="close" size={22} style={{ left: 0.5 }} />,
     details: props => <CustomIcon {...props} name="details" size={22} style={{ left: 0.5 }} />,
+    support: props => <CustomIcon {...props} name="support" size={22} style={{ left: 0.5 }} />,
+    check: props => <CustomIcon {...props} name="receipt" size={22} style={{ left: 0.5 }} />,
+    canceled: props => <CustomIcon {...props} name="cancel" size={22} style={{ left: 0.5 }} />,
+    rbf: props => <CustomIcon {...props} name="rbf" size={22} style={{ left: 0.5 }} />,
+    exchange: props => <CustomIcon {...props} name="exchange" size={22} style={{ left: 0.5 }} />,
 }
 
 export default function ButtonIcon(props) {
@@ -64,7 +69,9 @@ export default function ButtonIcon(props) {
             >
                 {Icon && <Icon color={colors.common.roundButtonContent} />}
             </TouchableOpacity>
-            {!!title && <Text style={[styles.text, { color: colors.common.text2 }]}>{title}</Text>}
+            {!!title && <View style={{ alignItems: 'center' }}>
+                    <Text style={[styles.text, { color: colors.common.text2 }]}>{title}</Text>
+                </View>}
         </View>
     )
 }
@@ -92,10 +99,11 @@ const styles = StyleSheet.create({
     },
     text: {
         position: 'absolute',
-        bottom: -20,
+        marginTop: 10,
         fontFamily: 'SFUIDisplay-Semibold', // TODO: use medium
         fontSize: 12,
         lineHeight: 14,
         letterSpacing: 1.5,
+        textAlign: 'center'
     },
 })

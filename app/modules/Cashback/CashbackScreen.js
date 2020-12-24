@@ -144,7 +144,7 @@ class CashbackScreen extends React.Component {
                                 value={cashbackLink}
                                 size={150}
                                 color={colors.cashback.qrCode}
-                                backgroundColor={colors.common.background}
+                                backgroundColor={colors.cashback.background}
                                 onError={this.handleRenderQrError}
                                 style={styles.qrCode}
                             />

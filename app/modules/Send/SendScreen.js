@@ -405,19 +405,19 @@ class SendScreen extends SendBasicScreenScreen {
             return false
         }
 
-        if (typeof this.addressInput.state === 'undefined' || this.addressInput.state.value === '') {
-            this.setState({
-                addressError: true
-            })
-            return false
-        }
-
         if (account.balancePretty <= 0) {
             this.setState({
                 enoughFunds: {
                     isAvailable: false,
                     messages: [strings('send.notEnough')]
                 },
+            })
+            return false
+        }
+
+        if (typeof this.addressInput.state === 'undefined' || this.addressInput.state.value === '') {
+            this.setState({
+                addressError: true
             })
             return false
         }
@@ -792,7 +792,6 @@ class SendScreen extends SendBasicScreenScreen {
                     loadFee: false,
                     amountEquivalent: amountEquivalent,
                     amountInputMark: amountInputMark,
-                    balancePart: 0,
                 })
                 IS_CALLED_BACK = false
                 return true
@@ -843,7 +842,6 @@ class SendScreen extends SendBasicScreenScreen {
             this.setState({
                 amountEquivalent: amountEquivalent,
                 amountInputMark: amountInputMark,
-                balancePart: 0,
                 loadFee : false,
                 sendScreenData: newSendScreenData,
                 enoughFunds: {
@@ -1133,7 +1131,12 @@ class SendScreen extends SendBasicScreenScreen {
                                 decimals={decimals < 10 ? decimals : 10}
                                 keyboardType={'numeric'}
                                 enoughFunds={!this.state.enoughFunds.isAvailable}
-                                callback={(value) => this.amountInputCallback(value, true)}
+                                callback={(value) => {
+                                    this.setState({
+                                        balancePart: 0
+                                    })
+                                    this.amountInputCallback(value, true)
+                                }}
                             />
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <View style={{...style.line, backgroundColor: colors.sendScreen.colorLine }} />
