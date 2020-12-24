@@ -17,6 +17,7 @@ import BlocksoftDispatcher from '../BlocksoftDispatcher'
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 
 import config from '../../../app/config/config'
+import { Block } from 'bitcoinjs-lib'
 
 export default class EthTransferProcessor extends EthBasic implements BlocksoftBlockchainTypes.TransferProcessor {
 
@@ -537,16 +538,22 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
     canRBF(data: BlocksoftBlockchainTypes.DbAccount, transaction: BlocksoftBlockchainTypes.DbTransaction, source: string): boolean {
         if (transaction.transactionDirection === 'income') {
+            BlocksoftCryptoLog.log('EthTransferProcessor.canRBF ' + transaction.transactionHash + ' false by income')
             return false
         }
         if (typeof transaction.transactionJson !== 'undefined') {
             if (typeof transaction.transactionJson.delegatedNonce !== 'undefined') {
+                BlocksoftCryptoLog.log('EthTransferProcessor.canRBF ' + transaction.transactionHash + ' false by delegated')
                 return false
             }
             if (typeof transaction.transactionJson.nonce !== 'undefined') {
                 const max = EthTmpDS.getMaxStatic(data.address)
                 if (max.success > -1) {
-                    return transaction.transactionJson.nonce > max.success
+                    // @ts-ignore
+                    if (transaction.transactionJson.nonce * 1 > max.success * 1) return true
+                    BlocksoftCryptoLog.log('EthTransferProcessor.canRBF  ' + transaction.transactionHash + ' false by maxSuccess',
+                        {'nonce' : transaction.transactionJson.nonce, 'max' : max.success})
+                    return false
                 }
             }
         }

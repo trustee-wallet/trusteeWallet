@@ -731,6 +731,7 @@ class TransactionScreen extends Component {
             return
         }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {
+            Log.log('TransactionScreen.renderReplaceByFee could not replace')
             return false
         }
         array.push({ icon: 'rbf', title: strings('account.transactionScreen.booster'), action: async () => {
