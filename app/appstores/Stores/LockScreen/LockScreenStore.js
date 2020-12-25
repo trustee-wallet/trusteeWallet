@@ -3,6 +3,7 @@
  */
 const INITIAL_STATE = {
     flowType: '',
+    backData: {},
     actionCallback: () => {}
 }
 
@@ -12,6 +13,11 @@ const lockScreenReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 flowType: action.flowType
+            }
+        case 'SET_LOCK_SCREEN_BACK_DATA':
+            return {
+                ...state,
+                backData: action.backData
             }
         case 'SET_ACTION_CALLBACK':
             return {

@@ -23,6 +23,7 @@ import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { openQrGallery } from '../../services/UI/Qr/QrGallery'
 import Header from '../../components/elements/new/Header'
+import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
 const SCREEN_WIDTH = Dimensions.get('window').width
@@ -54,16 +55,33 @@ class QRCodeScannerScreen extends Component {
 
             if (type === 'CASHBACK_LINK') {
                 // @todo cashback scanner without sendStore
-                NavStore.goNext('CashbackScreen', {qrData : {
+                NavStore.goNext('CashbackScreen', {
+                    qrData: {
                         isCashbackLink: true,
                         qrCashbackLink: param.data
-                    }})
+                    }
+                })
                 return
             }
 
+
             const res = await decodeTransactionQrCode(param, currencyCode)
 
-            if (type === 'MAIN_SCANNER') {
+            if (typeof res.data.isWalletConnect !== 'undefined' && res.data.isWalletConnect) {
+                const { lock_screen_status } = this.props.settings.data
+                if (+lock_screen_status) {
+                    lockScreenAction.setFlowType({
+                        flowType: 'WALLET_CONNECT',
+                    })
+                    lockScreenAction.setBackData({
+                        backData : {walletConnect : res.data.walletConnect}
+                    })
+                    NavStore.goNext('LockScreen')
+                } else {
+                    NavStore.goNext('WalletConnectScreen', { walletConnect: res.data.walletConnect })
+                }
+                return
+            } else if (type === 'MAIN_SCANNER') {
                 const { cryptoCurrencies } = this.props
 
                 let cryptoCurrency
@@ -132,7 +150,7 @@ class QRCodeScannerScreen extends Component {
                 const parsed = res.data
                 await SendActions.startSend({
                     uiType: 'MAIN_SCANNER',
-                    uiInputType : parsed.amount ? 'CRYPTO' : 'any',
+                    uiInputType: parsed.amount ? 'CRYPTO' : 'any',
                     gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
                     addressTo: parsed.address,
                     amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
@@ -141,10 +159,10 @@ class QRCodeScannerScreen extends Component {
                 })
             } else if (type === 'ADD_CUSTOM_TOKEN_SCANNER') {
                 NavStore.goNext('AddAssetScreen', {
-                    tokenData : {
+                    tokenData: {
                         address: res.data.address || res.data.parsedUrl
                     }
-                } )
+                })
             } else if (type === 'SEND_SCANNER') {
                 if (res.status === 'success' && res.data.currencyCode === currencyCode) {
 
@@ -152,7 +170,7 @@ class QRCodeScannerScreen extends Component {
                     parsed.currencyCode = oldCurrency.currencyCode
                     await SendActions.startSend({
                         uiType: 'SEND_SCANNER',
-                        uiInputType : parsed.amount ? 'CRYPTO' : 'any',
+                        uiInputType: parsed.amount ? 'CRYPTO' : 'any',
                         gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
                         addressTo: parsed.address,
                         amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
@@ -242,6 +260,7 @@ class QRCodeScannerScreen extends Component {
     render() {
         UpdateOneByOneDaemon.pause()
         firebase.analytics().setCurrentScreen('QRCodeScannerScreen.index')
+        this.onSuccess({ data: 'wc:92ed08a9-9ab3-4d41-acb9-fdb4560f2b06@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=f31573b290683c9bae3c356446308227b6338aaf0983db3424bf010ebfad12e4' })
         return (
             <View style={{ flex: 1, backgroundColor: 'transparent' }}>
                 <Header
@@ -308,6 +327,7 @@ const mapStateToProps = (state) => {
     return {
         main: state.mainStore,
         cryptoCurrencies: state.currencyStore.cryptoCurrencies,
+        settings: state.settingsStore,
         qrCodeScanner: state.qrCodeScannerStore,
         accountStore: state.accountStore
     }

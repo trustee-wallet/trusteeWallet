@@ -40,6 +40,7 @@
     "dns.js": "^1.0.1",
     "domain-browser": "^1.2.0",
     "eth-lib": "^0.1.29",
+    "eth-sig-util": "^2.5.3",
     "eth-url-parser": "^1.0.3",
     "ethereumjs-util": "^6.2.0",
     "ethjs-provider-http": "^0.1.6",

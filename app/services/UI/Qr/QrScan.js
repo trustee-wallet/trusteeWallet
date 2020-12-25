@@ -19,10 +19,28 @@ export async function decodeTransactionQrCode(param, currencyCode) {
 
         MarketingEvent.logOnlyRealTime('qr_scan', param.data)
 
-
-
+        let fullLink = param.data
         let tmp = param.data.split(':')
-        if (!tmp[1] || tmp[1].length < 2) {
+        if (tmp[0] === 'wc') {
+            res.data.isWalletConnect = true
+            tmp = tmp[1].split('?')
+            res.data.walletConnect = {
+                fullLink,
+                wc : tmp[0]
+            }
+            /*
+            for now - not needed - wc too but lets keep
+            if (typeof tmp[1] !== 'undefined') {
+                tmp = tmp[1].split('&')
+                for (let tmp1 of tmp) {
+                    tmp1 = tmp1.split('=')
+                    if (typeof tmp1[1] === 'undefined') continue
+                    res.data.walletConnect[tmp1[0]] = decodeURI(tmp1[1])
+                }
+            }
+            */
+            return res
+        } else if (!tmp[1] || tmp[1].length < 2) {
             if (!currencyCode) {
                 MarketingEvent.logOnlyRealTime('qr_error_no_network', param.data)
                 return {

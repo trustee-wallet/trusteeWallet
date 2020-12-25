@@ -202,6 +202,7 @@ class UpdateTradeOrdersDaemon {
                             item.uiApiVersion = 'v2'
                         }
                         try {
+                            // console.log('item', JSON.parse(JSON.stringify(item)))
                             const tmps = [
                                 {
                                     currencyCode: item.requestedInAmount.currencyCode || false,

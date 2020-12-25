@@ -60,9 +60,14 @@ class LockScreen extends Component {
 
     finishProcess = () => {
 
-        const { flowType, actionCallback } = this.props.lockScreen
+        const { flowType, actionCallback, backData } = this.props.lockScreen
 
-        if (flowType === 'CREATE_PINCODE') {
+        if (flowType === 'WALLET_CONNECT') {
+            lockScreenAction.setFlowType({
+                flowType: ''
+            })
+            NavStore.reset('WalletConnectScreen', backData)
+        } else if (flowType === 'CREATE_PINCODE') {
             settingsActions.setSettings('askPinCodeWhenSending', '1')
             settingsActions.setSettings('lock_screen_status', '1')
             lockScreenAction.setFlowType({

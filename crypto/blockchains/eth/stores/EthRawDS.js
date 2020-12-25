@@ -181,6 +181,7 @@ class EthRawDS {
     }
 
     async saveRaw(data) {
+        console.log('saveData', data)
         if (typeof data.currencyCode !== 'undefined') {
             this._currencyCode = data.currencyCode === 'ETH_ROPSTEN' ? 'ETH_ROPSTEN' : 'ETH'
         }

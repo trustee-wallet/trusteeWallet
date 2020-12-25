@@ -53,6 +53,7 @@ import TransactionScreen from '../modules/Account/TransactionScreen'
 import CheckV3DataScreen from '../modules/Account/CheckV3'
 import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
 import SMSCodeScreen from '../modules/Trade/SMSCodeScreen'
+import WalletConnectScreen from '../modules/WalletConnect/WalletConnectScreen'
 
 
 const MainNavigator = createStackNavigator({
@@ -69,6 +70,14 @@ const MainNavigator = createStackNavigator({
                 headerShown: false
             }
         },
+
+        WalletConnectScreen: {
+            screen: WalletConnectScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
 
         SendScreen: {
             screen: SendScreen,
