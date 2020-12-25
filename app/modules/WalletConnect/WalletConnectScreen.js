@@ -16,6 +16,7 @@ import LetterSpacing from '../../components/elements/LetterSpacing'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import EthNetworkPrices from '../../../crypto/blockchains/eth/basic/EthNetworkPrices'
 
 class WalletConnectScreen extends React.Component {
 
@@ -47,6 +48,7 @@ class WalletConnectScreen extends React.Component {
     }
 
     async init() {
+        Log.log('WalletConnectScreen.init')
         const data = this.props.navigation.getParam('walletConnect')
         try {
             const clientData = await AppWalletConnect.init(data,
@@ -56,17 +58,22 @@ class WalletConnectScreen extends React.Component {
                 this.handleSendSign,
                 this.handleSendSignTyped
             )
-            this.setState({
+            const stateData = {
                 walletStarted: true,
                 peerStatus: clientData.connected,
-                peerMeta: clientData.peerMeta,
-                peerId: clientData.peerId,
                 chainId: clientData.chainId,
                 accounts: clientData.accounts
-            })
+            }
+            if (typeof clientData.peerMeta !== 'undefined' && clientData.peerMeta  && clientData.peerMeta !== '') {
+                stateData.peerMeta = clientData.peerMeta
+            }
+            if (typeof clientData.peerId !== 'undefined' && clientData.peerId && clientData.peerId !== '') {
+                stateData.peerId = clientData.peerId
+            }
+            this.setState(stateData)
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('WalletConnect.init error ' + e.message)
+                Log.log('WalletConnect.init error ' + e.message)
             }
             Log.err('WalletConnect.init error ' + e.message)
             this.setState({
@@ -101,11 +108,30 @@ class WalletConnectScreen extends React.Component {
         }
     }
 
-    handleSendTransaction = (data, payload) => {
-        const value = BlocksoftPrettyNumbers.setCurrencyCode('ETH').makePretty(BlocksoftUtils.hexToDecimal(data.value))
-        const gasPrice = BlocksoftUtils.hexToDecimal(data.gasPrice)
-        const gas = BlocksoftUtils.hexToDecimal(data.gas)
-        const txPrice = BlocksoftUtils.toEther(BlocksoftUtils.mul(gasPrice, gas))
+    handleSendTransaction = async (data, payload) => {
+        let value = 0
+        let decimals = 0
+        let txPrice = 0
+        try {
+            decimals = BlocksoftUtils.hexToDecimal(data.value)
+            value = BlocksoftPrettyNumbers.setCurrencyCode('ETH').makePretty(decimals)
+        } catch (e) {
+            Log.log('WalletConnectScreen.handleSendTransaction value/decimals error ' + e.message)
+        }
+        try {
+            let gasPrice = 0
+            if (typeof data.gasPrice !== 'undefined') {
+                gasPrice = BlocksoftUtils.hexToDecimal(data.gasPrice)
+            }
+            if (gasPrice * 1 <= 0) {
+                const prices = await EthNetworkPrices.get(data.from)
+                gasPrice = prices.speed_blocks_2
+            }
+            const gas = BlocksoftUtils.hexToDecimal(data.gas)
+            txPrice = BlocksoftPrettyNumbers.setCurrencyCode('ETH').makePretty(BlocksoftUtils.mul(gasPrice, gas))
+        } catch (e) {
+            Log.log('WalletConnectScreen.handleSendTransaction txPrice error ' + e.message)
+        }
         let subtitle
         if (typeof data.data === 'undefined' || !data.data || data.data === '' || data.data === '0x') {
             subtitle = 'send ' + value + ' ETH to ' + data.to
@@ -182,18 +208,28 @@ class WalletConnectScreen extends React.Component {
     }
 
     handleSessionRequest = (data) => {
+        let title = '?'
+        try {
+            title = data.peerMeta.name + ' ' + data.peerMeta.url
+        } catch (e) {
+            Log.err('WalletConnectScreen.handleSessionRequest title error ' + e.message)
+        }
         showModal({
             type: 'YES_NO_MODAL',
             icon: 'INFO',
             title: 'Wallet Connect Session Request',
-            description: 'Do you want to connect to ' + data.peerMeta.name + ' ' + data.peerMeta.url,
+            description: 'Do you want to connect to ' + title,
             noCallback: async () => {
                 await AppWalletConnect.rejectSession()
                 NavStore.goBack()
             }
         }, async () => {
-            await AppWalletConnect.approveSession()
-            await this.init()
+            AppWalletConnect.approveSession()
+            this.setState({
+                peerMeta : data.peerMeta,
+                peerId : data.peerId,
+                peerStatus : true
+            })
         })
     }
 
@@ -203,12 +239,12 @@ class WalletConnectScreen extends React.Component {
     }
 
     handleBack = async () => {
-        await AppWalletConnect.killSession()
+        AppWalletConnect.killSession()
         NavStore.goBack()
     }
 
     handleClose = async () => {
-        await AppWalletConnect.killSession()
+        AppWalletConnect.killSession()
         NavStore.reset('DashboardStack')
     }
 
@@ -254,10 +290,10 @@ class WalletConnectScreen extends React.Component {
                             }
 
                             {
-                                this.state.peerId ?
+                                this.state.peerId && typeof this.state.peerMeta !== 'undefined' ?
                                     <ListItem
-                                        title={this.state.peerMeta.name}
-                                        subtitle={this.state.peerMeta.url}
+                                        title={this.state.peerMeta.name !== 'undefined' ? this.state.peerMeta.name : ''}
+                                        subtitle={typeof this.state.peerMeta.url !== 'undefined' ? this.state.peerMeta.url : ''}
                                         iconType='pinCode'
                                     /> : null
                             }

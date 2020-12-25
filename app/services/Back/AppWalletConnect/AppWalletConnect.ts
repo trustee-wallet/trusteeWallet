@@ -50,8 +50,15 @@ export namespace AppWalletConnect {
         sendSignTyped: any
     ): Promise<{ chainId: any, accounts: any, peerId: any, peerMeta: any, connected: any }> {
 
-        if (WALLET_CONNECTOR_LINK === data.fullLink && WALLET_CONNECTOR.connected) {
-            const { chainId, accounts, peerId, peerMeta, connected } = WALLET_CONNECTOR
+        if (WALLET_CONNECTOR_LINK === data.fullLink) {
+            Log.log('AppWalletConnect.init connected1 ' + data.fullLink)
+            let { chainId, accounts, peerId, peerMeta, connected } = WALLET_CONNECTOR
+            if (!peerId || peerId === '' || !WALLET_CONNECTOR.connected) {
+                Log.log('AppWalletConnect.init connecting1 ')
+                await WALLET_CONNECTOR.createSession()
+                peerId = WALLET_CONNECTOR.peerId
+                peerMeta = WALLET_CONNECTOR.peerMeta
+            }
             return { chainId, accounts, peerId, peerMeta, connected }
         }
         Log.log('AppWalletConnect.init fullLink ' + data.fullLink)
@@ -66,14 +73,6 @@ export namespace AppWalletConnect {
                     icons: ['https://walletconnect.org/walletconnect-logo.png'],
                     name: 'Trustee Wallet'
                 }
-            },
-            {
-                // Optional
-                url: 'https://push.walletconnect.org',
-                type: 'fcm',
-                token: MarketingEvent.DATA.LOG_TOKEN,
-                peerMeta: true,
-                language: 'en'
             }
         )
 
@@ -100,6 +99,7 @@ export namespace AppWalletConnect {
                 Log.log('AppWalletConnect.on session_request no payload params')
                 return
             }
+            Log.log('AppWalletConnect.on session_request finish', payload.params[0])
             sessionRequest(payload.params[0])
         })
 
@@ -127,7 +127,7 @@ export namespace AppWalletConnect {
                     throw new Error('Please call developers to add support of method: ' + payload.method)
                 }
             } catch (e) {
-                Log.err('AppWalletConnect.on call_request error ' + e.method)
+                Log.err('AppWalletConnect.on call_request error ' + e.message)
             }
         })
 
@@ -143,7 +143,7 @@ export namespace AppWalletConnect {
             }
         })
 
-        const { chainId, accounts, peerId, peerMeta, connected } = WALLET_CONNECTOR
+        const { chainId, accounts, peerId, peerMeta } = WALLET_CONNECTOR
         return { chainId, accounts, peerId, peerMeta, connected: true }
     }
 
@@ -164,6 +164,7 @@ export namespace AppWalletConnect {
 
             await EthTmpDS.saveNonce(data.from, 'send_' + signData.transactionHash, nonce)
 
+            MarketingEvent.logOnlyRealTime('v20_wallet_connect ' + signData.transactionHash, data)
             await EthRawDS.saveRaw({
                 address: data.from,
                 currencyCode: account.currencyCode,
@@ -234,16 +235,20 @@ export namespace AppWalletConnect {
         WALLET_CONNECTOR.rejectRequest({
             id: payload.id,
             error: {
-                message: 'OPTIONAL_ERROR_MESSAGE'
+                message: 'You have rejected request in Trustee Wallet'
             }
         })
     }
 
-    export const killSession = async function() {
+    export const killSession = function() {
         Log.log('AppWalletConnect.killSession')
-        WALLET_CONNECTOR.killSession({
-            message: 'OPTIONAL_ERROR_MESSAGE'
-        })
+        try {
+            WALLET_CONNECTOR.killSession({
+                message: 'You have rejected session in TrusteeWallet'
+            })
+        } catch (e) {
+            Log.log('AppWalletConnect.killSession error ' + e.message)
+        }
     }
 
     export const rejectSession = async function() {
@@ -265,6 +270,7 @@ export namespace AppWalletConnect {
                 chainId: chainId && chainId > 0 ? chainId : 1
             }
             WALLET_CONNECTOR.approveSession(data)
+            Log.log('AppWalletConnect.approveSession ok')
             return data
         } catch (e) {
             Log.err('AppWalletConnect.approveSession error ' + e.message)
