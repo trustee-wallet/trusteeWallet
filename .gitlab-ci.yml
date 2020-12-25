@@ -1,0 +1,24 @@
+variables:
+  LC_ALL: "en_US.UTF-8"
+  LANG: "en_US.UTF-8"
+  GIT_STRATEGY: clone
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_CHECKOUT: "true"
+
+stages:
+  - prebuild
+  - build
+  - test
+  - deploy
+  - release
+  - gopublic
+  - publicrelease
+
+include:
+  - project: 'Trustee/walletinternals'
+    ref: master
+    file: '/gitlabcicd/wallet-gitlab-ci.yml'
+  - project: 'Trustee/walletinternals'
+    ref: master
+    file: '/githubcicd/wallet-github-ci.yml'
+
