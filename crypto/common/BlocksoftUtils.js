@@ -1,4 +1,5 @@
 import { BigNumber } from 'bignumber.js'
+import { hexToBn } from '../blockchains/eth/ext/estimateGas/util'
 
 const Web3 = require('web3')
 
@@ -304,7 +305,7 @@ class BlocksoftUtils {
     }
 
     static hexToDecimal(hex) {
-        return Web3.utils.hexToNumber(hex)
+        return hexToBn(hex).toString() // Web3.utils.hexToNumber(hex)
     }
 
     static decimalToHex(decimal, len = 0) {
