@@ -260,7 +260,6 @@ class QRCodeScannerScreen extends Component {
     render() {
         UpdateOneByOneDaemon.pause()
         firebase.analytics().setCurrentScreen('QRCodeScannerScreen.index')
-        this.onSuccess({ data: 'wc:92ed08a9-9ab3-4d41-acb9-fdb4560f2b06@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=f31573b290683c9bae3c356446308227b6338aaf0983db3424bf010ebfad12e4' })
         return (
             <View style={{ flex: 1, backgroundColor: 'transparent' }}>
                 <Header
