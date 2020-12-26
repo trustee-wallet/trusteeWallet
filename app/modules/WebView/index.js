@@ -33,7 +33,14 @@ class WebViewScreen extends React.Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => {
+        const prev = NavStore.getPrevRoute().routeName
+        if (prev === 'WalletCreateScreen') {
+            NavStore.goBack()
+        } else {
+            NavStore.reset('DashboardStack')
+        }
+    }
 
     test = async (req) => {
         const parsedUrl = UrlParse(req.url)
