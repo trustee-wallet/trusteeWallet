@@ -18,7 +18,7 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor implemen
     _builderSettings: BlocksoftBlockchainTypes.BuilderSettings = {
         minOutputDustReadable: 0.000001,
         minChangeDustReadable: 0.000001,
-        feeMaxReadable: 1000,
+        feeMaxForByteSatoshi: 1000, // for tx builder
         feeMaxAutoReadable2: 0.01, // for fee calc,
         feeMaxAutoReadable6: 0.005, // for fee calc
         feeMaxAutoReadable12: 0.001, // for fee calc
