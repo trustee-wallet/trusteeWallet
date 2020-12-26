@@ -42,7 +42,7 @@ export namespace BlocksoftTransferPrivate {
         privateData.privateKey = result.privateKey
         // @ts-ignore
         privateData.addedData = result.addedData
-        BlocksoftCryptoLog.log('BlocksoftTransferPrivate.initTransferPrivate finished for ' + data.currencyCode)
+        BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransferPrivate.initTransferPrivate finished for ${data.addressFrom}`)
         return privateData
     }
 }

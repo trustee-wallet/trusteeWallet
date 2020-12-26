@@ -66,6 +66,9 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
                 serverEstimatedGas = await this._token.methods.transfer(firstAddressTo, data.amount).estimateGas({ from: data.addressFrom })
             } catch (e) {
                 e.message += ' while transfer check1 ' + data.amount
+                if (e.message.indexOf('opcode 0xfe')) {
+                    throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+                }
                 throw e
             }
             try {
@@ -106,7 +109,7 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
         } catch (e) {
             this.checkError(e, data)
         }
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas finished ' + estimatedGas)
+       console.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas finished ' + estimatedGas)
         const result = await super.getFeeRate(tmpData, privateData, { ...additionalData, ...{ estimatedGas } })
         result.shouldChangeBalance = false
         return result

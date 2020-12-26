@@ -24,12 +24,12 @@ export namespace BlocksoftTransfer {
 
     export const getTransferAllBalance = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
         if (DEBUG) {
-            console.log('BlocksoftTransfer.getTransferAllBalance', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
+            console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance`, JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
         }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
         let transferAllCount
         try {
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.getTransferAllBalance ${data.currencyCode} started ${data.addressFrom} `)
+            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance started ${data.addressFrom} `)
             const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
             const additionalDataTmp = {... additionalData}
             let privateData = {} as BlocksoftBlockchainTypes.TransferPrivateData
@@ -39,14 +39,14 @@ export namespace BlocksoftTransfer {
             additionalDataTmp.mnemonic = '***'
             transferAllCount = await (BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)).getTransferAllBalance(data, privateData, additionalDataTmp)
 
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.getTransferAllBalance ${data.currencyCode} got ${data.addressFrom} result is ok`)
+            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance got ${data.addressFrom} result is ok`)
             if (DEBUG) {
-                console.log('BlocksoftTransfer.getTransferAllBalance result', JSON.parse(JSON.stringify(transferAllCount)))
+                console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance result`, JSON.parse(JSON.stringify(transferAllCount)))
             }
         } catch (e) {
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
                 // noinspection ES6MissingAwait
-                BlocksoftCryptoLog.err(`BlocksoftTransfer.getTransferAllBalance ` + e.message)
+                BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance ` + e.message)
                 throw new Error('server.not.responding.all.balance.' + data.currencyCode + ' ' + e.message)
             } else {
                 throw e
@@ -62,7 +62,7 @@ export namespace BlocksoftTransfer {
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
         let feesCount
         try {
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.getFeeRate ${data.currencyCode} started ${data.addressFrom} `)
+            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getFeeRate started ${data.addressFrom} `)
             const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
             const additionalDataTmp = {... additionalData}
 
@@ -73,7 +73,7 @@ export namespace BlocksoftTransfer {
             additionalDataTmp.mnemonic = '***'
             feesCount = await processor.getFeeRate(data, privateData, additionalDataTmp)
 
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.getFeeRate ${data.currencyCode} got ${data.addressFrom} result is ok`)
+            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getFeeRate got ${data.addressFrom} result is ok`)
             if (DEBUG) {
                 console.log('BlocksoftTransfer.getFeeRate result', JSON.parse(JSON.stringify(feesCount)))
             }
@@ -83,7 +83,7 @@ export namespace BlocksoftTransfer {
             }
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
                 // noinspection ES6MissingAwait
-                BlocksoftCryptoLog.err(`BlocksoftTransfer.getFeeRate ${data.currencyCode} ` + e.message)
+                BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.getFeeRate error ` + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' ' + e.message)
                 throw new Error('server.not.responding.network.prices.' + data.currencyCode + ' ' +  e.message)
             } else {
                 throw e
@@ -109,21 +109,21 @@ export namespace BlocksoftTransfer {
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('BlocksoftTransfer.sendTx check double error ' + e.message, e)
+                console.log(`${data.currencyCode} BlocksoftTransfer.sendTx check double error ` + e.message, e)
             }
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
-                BlocksoftCryptoLog.err(`BlocksoftTransfer.sendTx ${data.currencyCode} error ` + e.message)
+                BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.sendTx error ` + e.message)
             }
             throw e
         }
 
         let txResult
         try {
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.sendTx ${data.currencyCode} started ${data.addressFrom} `)
+            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendTx started ${data.addressFrom} `)
             const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
             const privateData = await BlocksoftTransferPrivate.initTransferPrivate(data, additionalData)
             txResult = await processor.sendTx(data, privateData, uiData)
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.sendTx ${data.currencyCode} got ${data.addressFrom} result is ok`)
+            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendTx got ${data.addressFrom} result is ok`)
             CACHE_DOUBLE_TO[data.currencyCode] = {
                 key: data.addressTo,
                 time: new Date().getTime()
@@ -134,7 +134,7 @@ export namespace BlocksoftTransfer {
             }
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1 && e.message.indexOf('connect() timed') === -1) {
                 // noinspection ES6MissingAwait
-                BlocksoftCryptoLog.err(`BlocksoftTransfer.sendTx ${data.currencyCode} ` + e.message)
+                BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.sendTx ` + e.message)
             }
             throw e
         }
@@ -145,18 +145,18 @@ export namespace BlocksoftTransfer {
     export const sendRawTx = async function(data: BlocksoftBlockchainTypes.DbAccount, rawTxHex : string): Promise<string> {
         let txResult = ''
         try {
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.sendRawTx ${data.currencyCode} started ${data.address} `)
+            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendRawTx started ${data.address} `)
             const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
             if (typeof processor.sendRawTx === 'undefined') {
                 return 'none'
             }
             txResult = await processor.sendRawTx(data, rawTxHex)
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.sendRawTx ${data.currencyCode} got ${data.address} result is ok`)
+            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendRawTx got ${data.address} result is ok`)
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log(`BlocksoftTransfer.sendRawTx error ${data.currencyCode}`, e)
+                console.log(`${data.currencyCode} BlocksoftTransfer.sendRawTx error `, e)
             }
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.sendRawTx error ${data.currencyCode} ` + e.message)
+            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendRawTx error ` + e.message)
             throw e
         }
         return txResult
@@ -166,15 +166,15 @@ export namespace BlocksoftTransfer {
     export const setMissingTx = async function(data: BlocksoftBlockchainTypes.DbAccount, dbTransaction : BlocksoftBlockchainTypes.DbTransaction): Promise<boolean> {
         let txResult = false
         try {
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.setMissing ${data.currencyCode} started ${data.address} `)
+            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.setMissing started ${data.address} `)
             const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
             if (typeof processor.setMissingTx === 'undefined') {
                 return false
             }
             txResult = await processor.setMissingTx(data, dbTransaction)
-            BlocksoftCryptoLog.log(`BlocksoftTransfer.setMissing ${data.currencyCode} got ${data.address} result is ok`)
+            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.setMissing got ${data.address} result is ok`)
         } catch (e) {
-            BlocksoftCryptoLog.err(`BlocksoftTransfer.setMissing error ${data.currencyCode} ` + e.message)
+            BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.setMissing error ` + e.message)
         }
         return txResult
     }
@@ -190,7 +190,7 @@ export namespace BlocksoftTransfer {
             txResult = processor.canRBF(data, dbTransaction, source)
             // BlocksoftCryptoLog.log(`BlocksoftTransfer.canRBF ${data.currencyCode} from ${source} got ${data.address} result is ${JSON.stringify(txResult)}`)
         } catch (e) {
-            BlocksoftCryptoLog.err(`BlocksoftTransfer.canRBF error ${data.currencyCode} from ${source} ` + e.message)
+            BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.canRBF error from ${source} ` + e.message)
         }
         return txResult
     }
@@ -206,7 +206,7 @@ export namespace BlocksoftTransfer {
             checkSendAllModalResult = processor.checkSendAllModal(data)
             // BlocksoftCryptoLog.log(`BlocksoftTransfer.checkSendAllModal ${data.currencyCode} got result is ok ` + JSON.stringify(checkSendAllModalResult))
         } catch (e) {
-            BlocksoftCryptoLog.err(`BlocksoftTransfer.checkSendAllModal error ${data.currencyCode} ` + e.message)
+            BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.checkSendAllModal error ` + e.message)
         }
         return checkSendAllModalResult
     }
