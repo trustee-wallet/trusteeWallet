@@ -56,18 +56,21 @@ export default class SendBasicScreen extends Component {
             if (config.debug.appErrors) {
                 console.log('SendBasicScreen.recountFees ' + source + ' error ' + e.message, e)
             }
+
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
             Log.errorTranslate(e, 'SendBasicScreen.recountFees', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
 
             Keyboard.dismiss()
 
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.qrScanner.sorry'),
-                description: e.message,
-                error: e
-            })
+            if (source.indexOf('Send.SendBasicScreen.openAdvancedScreen') === -1) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.qrScanner.sorry'),
+                    description: e.message,
+                    error: e
+                })
+            }
 
             return false
         }

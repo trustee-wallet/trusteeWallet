@@ -5,6 +5,7 @@ import { BlocksoftBlockchainTypes } from '../../BlocksoftBlockchainTypes'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import { TransactionBuilder, ECPair, payments } from 'bitcoinjs-lib'
+import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
 import config from '../../../../app/config/config'
 
 const networksConstants = require('../../../common/ext/networks-constants')
@@ -17,7 +18,7 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
     private _settings: BlocksoftBlockchainTypes.CurrencySettings
     private _builderSettings: BlocksoftBlockchainTypes.BuilderSettings
     protected _bitcoinNetwork: any
-    private _feeMax: number | any
+    private _feeMaxForByteSatoshi: number | any
 
     protected keyPair: any
 
@@ -25,7 +26,11 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
         this._settings = settings
         this._builderSettings = builderSettings
         this._bitcoinNetwork = networksConstants[settings.network].network
-        this._feeMax = BlocksoftUtils.fromUnified(this._builderSettings.feeMaxReadable, settings.decimals) // for building limiting
+    }
+
+    async _reInit() {
+        const fromExt = await BlocksoftExternalSettings.get(this._settings.currencyCode + '_MAX_FOR_BYTE_TX_BUILDER', 'DogeTxBuilder._reInit')
+        this._feeMaxForByteSatoshi = fromExt && fromExt * 1 > 0 ? fromExt * 1 : this._builderSettings.feeMaxForByteSatoshi
     }
 
     _getRawTxValidateKeyPair(privateData: BlocksoftBlockchainTypes.TransferPrivateData, data: BlocksoftBlockchainTypes.TransferData): void {
@@ -76,6 +81,8 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
             preparedInputsOutputs: BlocksoftBlockchainTypes.PreparedInputsOutputsTx
         }> {
 
+        await this._reInit()
+
         this._getRawTxValidateKeyPair(privateData, data)
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx validated address private key')
 
@@ -104,8 +111,8 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
             }
         }
 
-        const txb = new TransactionBuilder(this._bitcoinNetwork, this._feeMax)
-        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx started max ' + this._feeMax)
+        const txb = new TransactionBuilder(this._bitcoinNetwork, this._feeMaxForByteSatoshi)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxBuilder.getRawTx started max4Bytes ' + this._feeMaxForByteSatoshi)
 
         txb.setVersion(1)
 

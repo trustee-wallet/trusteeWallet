@@ -529,7 +529,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     title: strings('modal.exchange.sorry'),
                     description: e.message
                 }, async () => {
-                    if (msg.indexOf('SERVER_RESPONSE_PLEASE_SELECT_FEE') !== -1) {
+                    if (
+                        msg.indexOf('SERVER_RESPONSE_PLEASE_SELECT_FEE') !== -1
+                        || msg.indexOf('SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION') !== -1
+                    ) {
                         this.openAdvancedSettings({toOpenCustom : true})
                     }
                 })

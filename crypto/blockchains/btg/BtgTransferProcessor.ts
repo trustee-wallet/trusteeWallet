@@ -16,7 +16,7 @@ export default class BtgTransferProcessor extends DogeTransferProcessor implemen
     _builderSettings: BlocksoftBlockchainTypes.BuilderSettings = {
         minOutputDustReadable: 0.00001,
         minChangeDustReadable: 0.00001,
-        feeMaxReadable: 2, // for tx builder
+        feeMaxForByteSatoshi: 10000, // for tx builder
         feeMaxAutoReadable2: 1, // for fee calc,
         feeMaxAutoReadable6: 0.5, // for fee calc
         feeMaxAutoReadable12: 0.2, // for fee calc

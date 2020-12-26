@@ -161,7 +161,7 @@ class SendAdvancedSettingsScreen extends Component {
                 selectedFee={this.state.selectedFee}
                 countedFees={this.state.countedFees}
                 countedFeesData={this.state.countedFeesData}
-                useAllFunds={this.state.sendScreenData.isTransferAll}
+                sendScreenData={this.state.sendScreenData}
                 updateSelectedFeeBack={this.updateSelectedFeeBack}
                 onFocus={() => this.onFocus()}
             />
@@ -280,7 +280,7 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     handleApply = async () => {
-        const selectedFee = this.state.isCustomFee && CACHE_FROM_CUSTOM_FEE ? CACHE_FROM_CUSTOM_FEE : this.state.selectedFee
+        const selectedFee = (this.state.isCustomFee || !this.state.selectedFee ) && CACHE_FROM_CUSTOM_FEE ? CACHE_FROM_CUSTOM_FEE : this.state.selectedFee
         const comment = this.state.comment
         const sendScreenData = this.state.sendScreenData
 
@@ -293,6 +293,9 @@ class SendAdvancedSettingsScreen extends Component {
     }
 
     updateSelectedFeeBack = async (selectedFee) => {
+        if (typeof selectedFee === 'undefined' || !selectedFee) {
+            selectedFee = {}
+        }
         selectedFee.isCustomFee = true
         // this will repaint all break smooth - so need cache this.setState({ selectedFee })
         CACHE_FROM_CUSTOM_FEE = selectedFee

@@ -47,7 +47,7 @@ export namespace BlocksoftTransfer {
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
                 // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.err(`BlocksoftTransfer.getTransferAllBalance ` + e.message)
-                throw new Error('server.not.responding.all.balance.' + data.currencyCode)
+                throw new Error('server.not.responding.all.balance.' + data.currencyCode + ' ' + e.message)
             } else {
                 throw e
             }
@@ -84,7 +84,7 @@ export namespace BlocksoftTransfer {
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
                 // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.err(`BlocksoftTransfer.getFeeRate ${data.currencyCode} ` + e.message)
-                throw new Error('server.not.responding.network.prices.' + data.currencyCode)
+                throw new Error('server.not.responding.network.prices.' + data.currencyCode + ' ' +  e.message)
             } else {
                 throw e
             }

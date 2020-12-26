@@ -15,6 +15,7 @@ import { DogeLogs } from './basic/DogeLogs'
 
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
 import config from '../../../app/config/config'
+import { err } from 'react-native-svg/lib/typescript/xml'
 
 
 const networksConstants = require('../../common/ext/networks-constants')
@@ -27,13 +28,13 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
     _builderSettings: BlocksoftBlockchainTypes.BuilderSettings = {
         minOutputDustReadable: 0.001,
         minChangeDustReadable: 0.5,
-        feeMaxReadable: 1000, // for tx builder
+        feeMaxForByteSatoshi: 100000000, // for tx builder
         feeMaxAutoReadable2: 300, // for fee calc,
         feeMaxAutoReadable6: 150, // for fee calc
         feeMaxAutoReadable12: 100, // for fee calc
         changeTogether: true,
         minRbfStepSatoshi: 50,
-        minSpeedUpMulti : 1.5
+        minSpeedUpMulti: 1.5
     }
 
     _initedProviders: boolean = false
@@ -114,7 +115,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 if (typeof data.transactionJson === 'undefined') {
                     data.transactionJson = {}
                 }
-                for(const key in savedData) {
+                for (const key in savedData) {
                     // @ts-ignore
                     data.transactionJson[key] = savedData[key]
                 }
@@ -178,7 +179,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                             feeForByte = Math.ceil(data.transactionJson.feeForByte * 1 + stepSatoshi)
                         }
                     } else {
-                        feeForByte =  Math.ceil(feeForByte * 1 + stepSatoshi)
+                        feeForByte = Math.ceil(feeForByte * 1 + stepSatoshi)
                     }
                     if (feeForByte * 1 <= prevFeeForByte * 1) {
                         feeForByte = Math.ceil(prevFeeForByte * 1 + stepSatoshi)
@@ -196,6 +197,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         }
 
         let uniqueFees = {}
+        let isError = false
         for (const key of keys) {
             // @ts-ignore
             if (typeof checkedPrices[key] === 'undefined' || !checkedPrices[key]) continue
@@ -315,16 +317,24 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 } while (doBuild)
             } catch (e) {
                 if (config.debug.cryptoErrors) {
-                    console.log(this._settings.currencyCode + ' DogeTransferProcessor.getRawTx error', e, blockchainData)
+                    console.log(this._settings.currencyCode + ' DogeTransferProcessor.getRawTx error ' + e.message, preparedInputsOutputs)
                 }
-                MarketingEvent.logOnlyRealTime('v20_doge_error_tx_builder ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message.toString(), logInputsOutputs)
-                throw e
+                if (e.message.indexOf('Transaction has absurd fees') !== -1) {
+                    isError = 'SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION'
+                    continue
+                } else {
+                    MarketingEvent.logOnlyRealTime('v20_doge_error_tx_builder ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message.toString(), logInputsOutputs)
+                    throw e
+                }
             }
+
+            isError = false
             // @ts-ignore
             blockchainData.unspents = unspents
             // @ts-ignore
             blockchainData.isTransferAll = data.isTransferAll
-            blockchainData.isRBFed = {transactionRemoveByFee, transactionReplaceByFee, transactionSpeedUp}
+            blockchainData.isRBFed = { transactionRemoveByFee, transactionReplaceByFee, transactionSpeedUp }
+
 
             if (typeof uniqueFees[logInputsOutputs.diffInOut] !== 'undefined') {
                 continue
@@ -341,6 +351,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 }
             )
             uniqueFees[logInputsOutputs.diffInOut] = true
+        }
+        if (isError) {
+            throw new Error(isError)
         }
         result.selectedFeeIndex = result.fees.length - 1
         return result
@@ -409,7 +422,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             result.transactionJson = {
                 nSequence: uiData.selectedFee.blockchainData.nSequence,
                 txAllowReplaceByFee: uiData.selectedFee.blockchainData.txAllowReplaceByFee,
-                feeForByte: uiData.selectedFee.feeForByte,
+                feeForByte: uiData.selectedFee.feeForByte
             }
             if (txRBF) {
                 await DogeRawDS.cleanRaw({

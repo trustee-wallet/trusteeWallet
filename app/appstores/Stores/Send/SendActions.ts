@@ -184,51 +184,67 @@ export namespace SendActions {
         }
 
         let countedFees, selectedFee
-        if (data.isTransferAll) {
-            countedFees = await BlocksoftTransfer.getTransferAllBalance(countedFeesData, addData)
-        } else {
-            countedFees = await BlocksoftTransfer.getFeeRate(countedFeesData, addData)
-        }
-
-        let foundSelected = false
-        if (typeof data.selectedFee !== 'undefined' && data.selectedFee && data.selectedFee.langMsg) {
-            for (const fee of countedFees.fees) {
-                if (fee.langMsg === data.selectedFee.langMsg) {
-                    selectedFee = fee
-                    foundSelected = true
-                    break
+        try {
+            try {
+                if (data.isTransferAll) {
+                    countedFees = await BlocksoftTransfer.getTransferAllBalance(countedFeesData, addData)
+                } else {
+                    countedFees = await BlocksoftTransfer.getFeeRate(countedFeesData, addData)
+                }
+            } catch (e) {
+                if (typeof data.selectedFee !== 'undefined' && data.selectedFee && typeof data.selectedFee.isCustomFee !== 'undefined') {
+                    // wait for custom
+                } else {
+                    throw e
                 }
             }
-        }
-        if (typeof data.selectedFee !== 'undefined' && data.selectedFee && typeof data.selectedFee.isCustomFee !== 'undefined') {
-            if (typeof data.selectedFee.feeForByte !== 'undefined' && data.selectedFee.feeForByte) {
-                // @ts-ignore
-                addData.feeForByte = data.selectedFee.feeForByte
+
+            let foundSelected = false
+            if (typeof data.selectedFee !== 'undefined' && data.selectedFee && data.selectedFee.langMsg) {
+                for (const fee of countedFees.fees) {
+                    if (fee.langMsg === data.selectedFee.langMsg) {
+                        selectedFee = fee
+                        foundSelected = true
+                        break
+                    }
+                }
             }
-            if (typeof data.selectedFee.gasPrice !== 'undefined' && data.selectedFee.gasPrice) {
-                // @ts-ignore
-                addData.gasPrice = data.selectedFee.gasPrice
+            if (typeof data.selectedFee !== 'undefined' && data.selectedFee && typeof data.selectedFee.isCustomFee !== 'undefined') {
+                if (typeof data.selectedFee.feeForByte !== 'undefined' && data.selectedFee.feeForByte) {
+                    // @ts-ignore
+                    addData.feeForByte = data.selectedFee.feeForByte
+                }
+                if (typeof data.selectedFee.gasPrice !== 'undefined' && data.selectedFee.gasPrice) {
+                    // @ts-ignore
+                    addData.gasPrice = data.selectedFee.gasPrice
+                }
+                if (typeof data.selectedFee.gasLimit !== 'undefined' && data.selectedFee.gasLimit) {
+                    // @ts-ignore
+                    addData.estimatedGas = data.selectedFee.gasLimit
+                }
+                let countedFees2
+                if (data.isTransferAll) {
+                    countedFees2 = await BlocksoftTransfer.getTransferAllBalance(countedFeesData, addData)
+                } else {
+                    countedFees2 = await BlocksoftTransfer.getFeeRate(countedFeesData, addData)
+                }
+                if (typeof countedFees2.fees !== 'undefined' && typeof countedFees2.fees[0] !== 'undefined') {
+                    selectedFee = countedFees2.fees[0]
+                    selectedFee.isCustomFee = true
+                    foundSelected = true
+                }
             }
-            if (typeof data.selectedFee.gasLimit !== 'undefined' && data.selectedFee.gasLimit) {
-                // @ts-ignore
-                addData.estimatedGas = data.selectedFee.gasLimit
+
+            if (!foundSelected && typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
+                selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
             }
-            let countedFees2
-            if (data.isTransferAll) {
-                countedFees2 = await BlocksoftTransfer.getTransferAllBalance(countedFeesData, addData)
-            } else {
-                countedFees2 = await BlocksoftTransfer.getFeeRate(countedFeesData, addData)
-            }
-            if (typeof countedFees2.fees !== 'undefined' && typeof countedFees2.fees[0] !== 'undefined') {
-                selectedFee = countedFees2.fees[0]
-                selectedFee.isCustomFee = true
-                foundSelected = true
-            }
+        } catch (e) {
+            // do anyway!
+            SendTmpData.setData(data)
+            SendTmpData.setCountedFees({ countedFees : {fees : [], selectedFeeIndex : -1}, countedFeesData, selectedFee : false})
+            throw e
         }
 
-        if (!foundSelected && typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
-            selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
-        }
         SendTmpData.setData(data)
         SendTmpData.setCountedFees({ countedFees, countedFeesData, selectedFee })
 

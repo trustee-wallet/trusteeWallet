@@ -91,6 +91,7 @@ class BlocksoftExternalSettings {
     }
 
     getStatic(param, source = '') {
+        if (typeof CACHE[param] === 'undefined') return false
         return CACHE[param]
     }
 

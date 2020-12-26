@@ -25,7 +25,7 @@ class CustomFee extends Component {
 
     renderFee = () => {
 
-        const { currencyCode, useAllFunds, countedFeesData, countedFees, selectedFee, feesCurrencyCode, basicCurrencySymbol, basicCurrencyRate, updateSelectedFeeBack, onFocus } = this.props
+        const { currencyCode, sendScreenData, countedFeesData, countedFees, selectedFee, feesCurrencyCode, basicCurrencySymbol, basicCurrencyRate, updateSelectedFeeBack, onFocus } = this.props
 
         let prefix = currencyCode
         if (typeof currencyCode !== 'undefined' && currencyCode) {
@@ -46,7 +46,7 @@ class CustomFee extends Component {
                     basicCurrencyRate={basicCurrencyRate}
                     countedFees={countedFees}
                     selectedFee={selectedFee}
-                    useAllFunds={useAllFunds}
+                    sendScreenData={sendScreenData}
                     updateSelectedFeeBack={updateSelectedFeeBack}
                     onFocus={onFocus}
                 />
@@ -67,7 +67,7 @@ class CustomFee extends Component {
                     basicCurrencyRate={basicCurrencyRate}
                     countedFees={countedFees}
                     selectedFee={selectedFee}
-                    useAllFunds={useAllFunds}
+                    sendScreenData={sendScreenData}
                     countedFeesData={countedFeesData}
                     updateSelectedFeeBack={updateSelectedFeeBack}
                     onFocus={onFocus}

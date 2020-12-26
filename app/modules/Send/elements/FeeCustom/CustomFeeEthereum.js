@@ -230,7 +230,7 @@ class CustomFee extends Component {
                         inputBaseColor={'#f4f4f4'}
                         inputTextColor={'#f4f4f4'}
                         tintColor={'#7127ac'}
-                        disabled={this.props.useAllFunds}
+                        disabled={this.props.sendScreenData.isTransferAll}
                         callback={(value) => this.handleRecount('gasLimit', value)}
                         onFocus={this.props.onFocus}
                     />

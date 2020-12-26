@@ -887,6 +887,7 @@
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "Insufficient balance to make the transaction and to pay the minimal fee",
      "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "Please wait for the other transactions to be mined or turn ON an option \"Use unconfirmed transactions\" ",
      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Transaction fee is too high - please adjust the fee manually or send more funds",
+     "SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION": "Transaction fee per byte is too high - please adjust the fee manually",
      "SERVER_RESPONSE_SELF_TX_FORBIDDEN": "Transactions to the same address are forbidden",
      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "Insufficient balance to make the transaction (Please keep not less than 20 XRP on balance)",
      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "Insufficient funds - send not less than 20 XRP to activate the receiving address",

@@ -45,6 +45,7 @@ class CustomFee extends Component {
             return false
         }
         // can be loader here
+        const sendScreenData = this.props.sendScreenData
         const countedFeesData = this.props.countedFeesData
         const addData = {
             feeForByte
@@ -60,6 +61,7 @@ class CustomFee extends Component {
         if (typeof countedFeesData.addressTo === 'undefined' || !countedFeesData.addressTo || countedFeesData.addressTo === '') {
             return false
         }
+
         const countedFees = await BlocksoftTransfer.getFeeRate(countedFeesData, addData)
         if (countedFees && countedFees.selectedFeeIndex > -1) {
             const selectedFee = countedFees.fees[countedFees.selectedFeeIndex]

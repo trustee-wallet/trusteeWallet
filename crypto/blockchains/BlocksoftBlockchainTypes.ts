@@ -202,7 +202,7 @@ export namespace BlocksoftBlockchainTypes {
     export interface BuilderSettings {
         minOutputDustReadable: number,
         minChangeDustReadable: number,
-        feeMaxReadable: number,
+        feeMaxForByteSatoshi: number,
         feeMaxAutoReadable2: number,
         feeMaxAutoReadable6: number,
         feeMaxAutoReadable12: number,
