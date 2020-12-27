@@ -778,10 +778,13 @@ class TransactionScreen extends Component {
 
     }
 
-    shareTransaction = (linkUrl) => {
+    shareTransaction = (transaction, linkUrl) => {
         const shareOptions = {}
-        shareOptions.message = strings('account.transactionScreen.transactionHash') + ` ${linkUrl}\n` + 
+        shareOptions.message = strings('account.transactionScreen.transactionHash') + ` ${linkUrl}\n` +  
             strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackStore.dataFromApi.cashbackLink}\n` + strings('account.transactionScreen.thanks')
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData) {
+            shareOptions.message = strings(`account.transaction.orderId`) + ` ${transaction.bseOrderData.orderHash}\n` + shareOptions.message
+        }
         // shareOptions.url = this.props.cashBackStore.dataFromApi.cashbackLink
         prettyShare(shareOptions, 'taki_share_transaction')
     }
@@ -911,7 +914,7 @@ class TransactionScreen extends Component {
 
         const buttonsArray = [
             [
-                { icon: 'share', title: strings('account.transactionScreen.share'), action: () => this.shareTransaction(linkExplorer) },
+                { icon: 'share', title: strings('account.transactionScreen.share'), action: () => this.shareTransaction(transaction, linkExplorer) },
                 { icon: 'support', title: strings('account.transactionScreen.support'), action: () => this.shareSupport() },
                 { icon: showMoreDetails ? 'close' : 'details', title: strings('account.transactionScreen.details'), action: () => this.showMoreDetails() }
             ], []]

@@ -11,6 +11,15 @@ import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
+let windowHeight, windowWidth
+if (WINDOW_HEIGHT < WINDOW_WIDTH) {
+    windowHeight = WINDOW_WIDTH
+    windowWidth = WINDOW_HEIGHT
+} else {
+    windowHeight = WINDOW_HEIGHT
+    windowWidth = WINDOW_WIDTH
+}
+
 class ModalLayout extends Component {
 
     constructor(props) {
@@ -42,12 +51,14 @@ const styles = StyleSheet.create({
         margin: 0,
         padding: 0,
         justifyContent: 'center',
-        backgroundColor: 'transparent'
+        backgroundColor: 'transparent',
+        width: windowWidth,
+        height: windowHeight
     },
     container: {
         justifyContent: 'flex-end',
         position: 'relative',
-        left: (WINDOW_WIDTH - 313) / 2,
+        left: (windowWidth - 313) / 2,
         width: 313,
         marginVertical: 5,
         borderRadius: 16,

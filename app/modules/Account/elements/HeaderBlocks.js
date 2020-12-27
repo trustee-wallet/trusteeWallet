@@ -225,7 +225,6 @@ class HeaderBlocks extends Component {
         const { colors } = this.context
 
         const { mainStore, account, cryptoCurrency, settingsStore } = this.props
-        const { btcShowTwoAddress = 1 } = settingsStore.data
         const address = account.address
 
         const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
