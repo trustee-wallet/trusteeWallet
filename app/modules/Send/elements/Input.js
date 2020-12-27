@@ -4,7 +4,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Clipboard, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Clipboard, Text, TextInput, TouchableOpacity, View, Platform } from 'react-native'
 
 import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboard'
 import { capitalize } from '../../../services/UI/Capitalize/Capitalize'
@@ -198,7 +198,8 @@ class Input extends Component {
                     textAlign={'center'}
                     value={value}
                     style={noEdit ? { ...styles.fontFamily, color: colors.sendScreen.amount, maxWidth: maxWidth } : 
-                        { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : colors.sendScreen.amount, maxWidth: maxWidth, lineHeight: fontSize + 4  }}
+                        { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : colors.sendScreen.amount, maxWidth: maxWidth, lineHeight: fontSize + 4, 
+                        bottom: Platform.OS === 'android' ? fontSize === 20 ? -6 : 0 : fontSize === 20 ? -4 : 0 }}
                     onChangeText={(value) => this.handleInput(value)}
                     onBlur={() => {
                         this.setState({ focus: false })
@@ -225,10 +226,12 @@ export default connect(null, null, null, { forwardRef: true })(Input)
 const styles = {
     wrapper: {
         position: 'relative',
+        minWidth: 100,
+        height: 60
     },
     fontFamily: {
         fontFamily: 'Montserrat-Medium',
-        height: 42
+        height: 72
     },
     errorColor: '#e77ca3',
     labelHeight: 15

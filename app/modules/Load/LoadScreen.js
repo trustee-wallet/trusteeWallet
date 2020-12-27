@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 
-import { Animated, Image, Platform, Text, View, Dimensions } from 'react-native'
+import { Animated, Image, Platform, Text, View } from 'react-native'
 
 import { MaterialIndicator, UIActivityIndicator } from 'react-native-indicators'
 
@@ -19,16 +19,6 @@ import Log from '../../services/Log/Log'
 
 import App from '../../appstores/Actions/App/App'
 
-const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
-
-let windowHeight, windowWidth
-if (WINDOW_HEIGHT < WINDOW_WIDTH) {
-    windowHeight = WINDOW_WIDTH
-    windowWidth = WINDOW_HEIGHT
-} else {
-    windowHeight = WINDOW_HEIGHT
-    windowWidth = WINDOW_WIDTH
-}
 
 class LoadScreen extends Component {
 
@@ -147,9 +137,7 @@ const styles = {
         justifyContent: 'center',
         paddingLeft: 30,
         paddingRight: 30,
-        backgroundColor: 'red',
-        height: windowHeight,
-        width: windowWidth
+        backgroundColor: '#f2f2f2'
     },
     title: {
         textAlign: 'center',

@@ -285,11 +285,11 @@ class ReceiveScreen extends Component {
                 const basicCurrencySymbol = this.props.account.basicCurrencySymbol || '$'
                 const basicAmount = RateEquivalent.mul({ value: amountPretty, currencyCode, basicCurrencyRate })
                 const basicAmountPrep = BlocksoftPrettyNumbers.makeCut(basicAmount, 2).cutted
-                if (this.state.inputType === 'CRYPTO') {
+                // if (this.state.inputType === 'CRYPTO') {
                     sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicAmountPrep
-                } else {
-                    sumPrep = '~' + basicCurrencySymbol + ' ' + basicAmountPrep + ' / ' + sumPrep
-                }
+                // } else {
+                //     sumPrep = '~' + basicCurrencySymbol + ' ' + basicAmountPrep + ' / ' + sumPrep
+                // }
             } catch (e) {
                 Log.err('Send.SendScreen renderAccountDetail error ' + e.message)
             }
@@ -354,9 +354,6 @@ class ReceiveScreen extends Component {
         try {
             const { settingAddressType } = this.state
             const { cryptoCurrency, settingsStore } = this.props
-
-            const dict = new UIDict(cryptoCurrency.currencyCode)
-            const backgroundColor = dict.settings.colors.mainColor
 
             const tabs = [
                 {
@@ -456,17 +453,17 @@ class ReceiveScreen extends Component {
 
     amountInputCallback = (value) => {
         const { currencySymbol, currencyCode } = this.props.mainStore.selectedCryptoCurrency
-        const { basicCurrencySymbol, basicCurrencyRate } = this.props.mainStore.selectedAccount
+        const { basicCurrencyCode, basicCurrencyRate } = this.props.mainStore.selectedAccount
 
         let amount = '0'
         let symbol = currencySymbol
         try {
             if (!value || value === 0) {
                 amount = '0'
-                symbol = this.state.inputType === 'CRYPTO' ? basicCurrencySymbol : currencySymbol
+                symbol = this.state.inputType === 'CRYPTO' ? basicCurrencyCode : currencySymbol
             } else if (this.state.inputType === 'CRYPTO') {
                 amount = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
-                symbol = basicCurrencySymbol
+                symbol = basicCurrencyCode
             } else {
                 amount = RateEquivalent.div({ value, currencyCode, basicCurrencyRate })
             }
@@ -478,7 +475,7 @@ class ReceiveScreen extends Component {
 
         this.setState({
             amountEquivalent: this.state.inputType === 'CRYPTO' ? UtilsService.cutNumber(amount, 2) : UtilsService.cutNumber(amount, 8),
-            amountInputMark: this.state.inputType === 'CRYPTO' ? `~ ${basicCurrencySymbol} ${UtilsService.cutNumber(amount, 2)}` : `~ ${UtilsService.cutNumber(amount, 8)} ${symbol}`,
+            amountInputMark: this.state.inputType === 'CRYPTO' ? `~ ${UtilsService.cutNumber(amount, 2)} ${basicCurrencyCode}` : `~ ${UtilsService.cutNumber(amount, 8)} ${symbol}`,
             amountForQr
         })
     }
@@ -506,7 +503,7 @@ class ReceiveScreen extends Component {
 
         this.setState({
             amountInputMark: this.state.inputType === 'FIAT' ? 
-                `~ ${basicCurrencySymbol} ${UtilsService.cutNumber(this.refAmountInput.getValue(), 2)}` : 
+                `~ ${UtilsService.cutNumber(this.refAmountInput.getValue(), 2)} ${basicCurrencyCode}` : 
                 `~ ${UtilsService.cutNumber(amountEquivalent, 8)} ${currencySymbol}`,
             amountEquivalent: this.state.inputType !== 'CRYPTO' ? UtilsService.cutNumber(amountEquivalent, 2) : UtilsService.cutNumber(amountEquivalent, 8),
             inputType,
@@ -577,8 +574,8 @@ class ReceiveScreen extends Component {
 
     render() {
         const { mainStore, settingsStore } = this.props
-        const { isSegWitLegacy, fioName, headerHeight, customAmount, focused, amountForQr, labelForQr } = this.state
-        const { address } = this.props.account
+        const { isSegWitLegacy, fioName, headerHeight, customAmount, focused, amountForQr, labelForQr, inputType } = this.state
+        const { address, basicCurrencyCode } = this.props.account
         const { currencySymbol, currencyCode, decimals } = this.props.cryptoCurrency
         const { btcShowTwoAddress = 1 } = settingsStore.data
 
@@ -644,17 +641,24 @@ class ReceiveScreen extends Component {
                         </View>
                         {customAmount ?
                             <View style={{ marginHorizontal: GRID_SIZE, height: 400}} >
-                                <AmountInput
-                                    ref={component => this.refAmountInput = component}
-                                    id={amountInput.id}
-                                    additional={amountInput.additional}
-                                    onFocus={() => this.onFocus()}
-                                    name={strings('send.value')}
-                                    type={amountInput.type}
-                                    decimals={decimals < 10 ? decimals : 10}
-                                    keyboardType={'numeric'}
-                                    callback={(value) => this.amountInputCallback(value, true)}
-                                />
+                                <View style={{ width: '75%', alignSelf: 'center', alignItems: 'center' }}>
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <AmountInput
+                                            ref={component => this.refAmountInput = component}
+                                            id={amountInput.id}
+                                            additional={amountInput.additional}
+                                            onFocus={() => this.onFocus()}
+                                            type={amountInput.type}
+                                            decimals={decimals < 10 ? decimals : 10}
+                                            callback={(value) => this.amountInputCallback(value, true)}
+                                            maxLength={17}
+                                            maxWidth={SCREEN_WIDTH * 0.6}
+                                        />
+                                        <Text style={{...styles.ticker, color: colors.sendScreen.amount }}>
+                                            {inputType === 'CRYPTO' ? currencyCode : basicCurrencyCode }
+                                        </Text>
+                                    </View>
+                                </View>
                                 <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                     <View style={{ ...styles.line, backgroundColor: colors.sendScreen.colorLine }} />
                                     <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
@@ -819,6 +823,15 @@ const styles = {
         minHeight: 74,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    ticker: {
+        fontFamily: 'Montserrat-Medium',
+        fontSize: 15,
+        lineHeight: 19,
+
+        alignSelf: 'flex-end',
+        marginBottom: 8,
+        paddingLeft: 6
     },
     line: {
         height: 1,

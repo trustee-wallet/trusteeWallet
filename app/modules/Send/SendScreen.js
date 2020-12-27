@@ -1296,18 +1296,20 @@ class SendScreen extends SendBasicScreenScreen {
                             {this.renderMinerFee(true)}
 
                         </View>
-                        <TwoButtons
-                            mainButton={{
-                                disabled: this.disabled(),
-                                onPress: () => this.handleSendTransaction(false),
-                                title: strings('walletBackup.step0Screen.next')
-                            }}
-                            secondaryButton={{
-                                // disabled: this.disabled(),
-                                type: 'settings',
-                                onPress: this.disabled() === true ? this.disabledSettings : this.openAdvancedSettings
-                            }}
-                        />
+                        <View style={{ marginTop: GRID_SIZE }}>
+                            <TwoButtons
+                                mainButton={{
+                                    disabled: this.disabled(),
+                                    onPress: () => this.handleSendTransaction(false),
+                                    title: strings('walletBackup.step0Screen.next')
+                                }}
+                                secondaryButton={{
+                                    // disabled: this.disabled(),
+                                    type: 'settings',
+                                    onPress: this.disabled() === true ? this.disabledSettings : this.openAdvancedSettings
+                                }}
+                            />
+                        </View>
                     </ScrollView>
                 </KeyboardAwareView>
             </View>
