@@ -51,6 +51,7 @@ const CACHE = {
     'TERMS_en': 'https://wptgterms.blocksoftlab.com/terms-of-use/?header_footer=none',
     'TERMS_ru': 'https://wptgterms.blocksoftlab.com/ru/usloviya-ispolzovaniya/?header_footer=none',
     'TERMS_uk': 'https://wptgterms.blocksoftlab.com/uk/umovi-vikoristannya/?header_footer=none',
+    'SEND_CHECK_ALMOST_ALL_PERCENT' : 0.95,
     'TRADE_ORDERS_NO_TX_MAX_COUNT' : 3,
     'TRADE_ORDERS_NO_TX_WAY_TYPES': {
         'EXCHANGE': {
