@@ -332,7 +332,9 @@
       "rewardTRX" : "Voting reward",
       "rewardBalanceTRX" : "Available %{prettyReward} TRX",
       "claimTRX" : "Claim Reward",
-      "refreshTRX" : "Reload"
+      "refreshTRX" : "Reload",
+      "allowLongQueryETH" : "Allow pending transactions query",
+      "allowBlockedBalanceETH" : "Allow reuse of pending transactions balance"
     },
     "about": {
       "title": "About",
@@ -1249,7 +1251,10 @@
       "success": "Success!",
       "txSuccess": "Your transaction has been successfully sent!",
       "fail": "Attention!",
-      "feeChangeAmount": "Sending amount was change after change fee"
+      "feeChangeAmount": "Sending amount was change after change fee",
+      "blockedBalance" : "Your balance is used in pending transactions - please speed up or replace previous one",
+      "feeSmallAmount" : "Left for fee amount is too small - transaction could be stack",
+      "longQuery" : "There is pending transaction - new transaction could be stack - please speed up or replace previous one"
     },
     "walletLog": {
       "sorry": "Attention!",

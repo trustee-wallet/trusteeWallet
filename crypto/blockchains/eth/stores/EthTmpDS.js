@@ -1,4 +1,5 @@
 import DBInterface from '../../../../app/appstores/DataSource/DB/DBInterface'
+import BlocksoftBN from '../../../common/BlocksoftBN'
 
 const tableName = 'transactions_scanners_tmp'
 
@@ -15,7 +16,7 @@ class EthTmpDS {
         const address = scanAddress.toLowerCase()
         const dbInterface = new DBInterface()
         const res = await dbInterface.setQueryString(`
-                SELECT tmp_key, tmp_sub_key, tmp_val
+                SELECT tmp_key, tmp_sub_key, tmp_val, created_at
                 FROM ${tableName} 
                 WHERE currency_code='${this._currencyCode}' 
                 AND address='${address}'
@@ -25,6 +26,7 @@ class EthTmpDS {
         let maxValue = -1
         let maxScanned = -1
         let maxSuccess = -1
+        const forBalances = {}
         if (res.array) {
             for (const row of res.array) {
                 const val = row.tmp_val * 1
@@ -43,10 +45,49 @@ class EthTmpDS {
                 }
                 CACHE_TMP[address][row.tmp_sub_key] = val
             }
+            for (const row of res.array) {
+                const val = row.tmp_val * 1
+                if (row.tmp_sub_key === 'maxScanned' || row.tmp_sub_key === 'maxSuccess') {
+                    // do nothing
+                } else {
+                    if (val > maxSuccess) {
+                        const tmp = row.tmp_sub_key.split('_')
+                        if (typeof tmp[1] !== 'undefined') {
+                            forBalances[tmp[1]] = val
+                        }
+                    }
+                }
+            }
+        }
+        const amountBN = {}
+        let queryLength = 0
+        for (const txHash in forBalances) {
+            let tmp = await dbInterface.setQueryString(`SELECT currency_code AS currencyCode, address_amount as addressAmount, transaction_status as transactionStatus 
+                        FROM transactions WHERE transaction_hash='${txHash}' AND currency_code LIKE '%ETH%'`).query()
+            if (tmp && tmp.array && typeof tmp.array[0] !== 'undefined') {
+                tmp = tmp.array[0]
+                if (tmp.transactionStatus === 'new') {
+                    const amount = tmp.addressAmount
+                    if (typeof amountBN[tmp.currencyCode] === 'undefined') {
+                        amountBN[tmp.currencyCode] = new BlocksoftBN(0)
+                    }
+                    queryLength++
+                    amountBN[tmp.currencyCode].add(amount)
+                } else if (tmp.transactionStatus === 'missing') {
+                    if (maxSuccess > forBalances[txHash]) {
+                        maxSuccess = forBalances[txHash] - 1
+                    }
+                }
+            }
         }
         CACHE_TMP[address]['maxValue'] = maxValue
         CACHE_TMP[address]['maxScanned'] = maxScanned
-        CACHE_TMP[address]['maxSuccess'] = maxSuccess
+        CACHE_TMP[address]['maxSuccess'] = maxSuccess > maxScanned ? maxSuccess : maxScanned
+        CACHE_TMP[address]['amountBlocked'] = {}
+        CACHE_TMP[address]['queryLength'] = queryLength
+        for (const key in amountBN) {
+            CACHE_TMP[address]['amountBlocked'][key] = amountBN[key].toString()
+        }
         return CACHE_TMP[address]
     }
 
@@ -55,16 +96,22 @@ class EthTmpDS {
         if (typeof CACHE_TMP[address] === 'undefined' || typeof CACHE_TMP[address]['maxValue'] === 'undefined') {
             await this.getCache(address)
         }
-        return { value: CACHE_TMP[address]['maxValue'], scanned: CACHE_TMP[address]['maxScanned'], success: CACHE_TMP[address]['maxSuccess'] }
+        return { value: CACHE_TMP[address]['maxValue'], scanned: CACHE_TMP[address]['maxScanned'], success: CACHE_TMP[address]['maxSuccess'],
+            amountBlocked: CACHE_TMP[address]['amountBlocked'],
+            queryLength : CACHE_TMP[address]['queryLength']
+        }
     }
 
     getMaxStatic(scanAddress) {
         const address = scanAddress.toLowerCase()
         if (typeof CACHE_TMP[address] === 'undefined' || typeof CACHE_TMP[address]['maxValue'] === 'undefined') {
             this.getCache(address)
-            return { value: -1, scanned: -1, success: -1}
+            return { value: -1, scanned: -1, success: -1, amountBlocked: {}, queryLength : 0}
         }
-        return { value: CACHE_TMP[address]['maxValue'], scanned: CACHE_TMP[address]['maxScanned'], success: CACHE_TMP[address]['maxSuccess'] }
+        return { value: CACHE_TMP[address]['maxValue'], scanned: CACHE_TMP[address]['maxScanned'], success: CACHE_TMP[address]['maxSuccess'],
+            amountBlocked: CACHE_TMP[address]['amountBlocked'],
+            queryLength : CACHE_TMP[address]['queryLength']
+        }
     }
 
     async removeNonce(scanAddress, key) {

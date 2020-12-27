@@ -169,7 +169,9 @@ export namespace BlocksoftBlockchainTypes {
         fees: Fee[],
         showSmallFeeNotice?: boolean,
         showChangeAmountNotice?: boolean,
-        shouldChangeBalance?: boolean
+        shouldChangeBalance?: boolean,
+        showLongQueryNotice?: boolean,
+        showBlockedBalanceNotice?: boolean
     }
 
     export interface SendTxResult {

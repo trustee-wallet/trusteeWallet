@@ -332,7 +332,9 @@
       "rewardTRX" : "Нагорода за голосування",
       "rewardBalanceTRX" : "Доступно %{prettyReward} TRX",
       "claimTRX" : "Забрати нагороду",
-      "refreshTRX" : "Перезавантажити"
+      "refreshTRX" : "Перезавантажити",
+      "allowLongQueryETH" : "Allow pending transactions query",
+      "allowBlockedBalanceETH" : "Allow reuse of pending transactions balance"
     },
     "about": {
       "title": "Про гаманець",
@@ -1250,7 +1252,10 @@
       "success": "Успіх!",
       "txSuccess": "Ваша транзакція успішно відправлена!",
       "fail": "Увага!",
-      "feeChangeAmount": "Сума відправки змінилась після зміни комісії"
+      "feeChangeAmount": "Сума відправки змінилась після зміни комісії",
+      "blockedBalance" : "Ваш баланс используется в предыдущих транзакциях - ускорьте или отмените неподтвержденные транзакции",
+      "feeSmallAmount" : "Залишок балансу для комісії занадто малий - транзакція може чекати на підтвердження занадто довго",
+      "longQuery" : "Внимание! Предыдущая транзакция ещё не подтвердилась. Эта транзакция не будет подтверждена пока не подтвердится предыдущая"
     },
     "walletLog" : {
       "sorry" : "Увага!",

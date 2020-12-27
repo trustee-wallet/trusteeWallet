@@ -209,6 +209,8 @@ class HeaderBlocks extends Component {
             return this.handleSettingAccount(currencyCode)
         } else if (currencyCode === 'USDT') {
             return this.handleSettingAccount(currencyCode)
+        }  else if (currencyCode === 'ETH') {
+            return this.handleSettingAccount(currencyCode)
         } else if (currencyCode === 'FIO') {
             return this.handleSettingAccount(currencyCode)
         } else if (currencyCode === 'XMR') {

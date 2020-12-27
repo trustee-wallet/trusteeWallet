@@ -18,7 +18,9 @@ import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 
 import config from '../../../app/config/config'
 import { Block } from 'bitcoinjs-lib'
+import settingsActions from '../../../app/appstores/Stores/Settings/SettingsActions'
 
+const LONG_QUERY = 1
 export default class EthTransferProcessor extends EthBasic implements BlocksoftBlockchainTypes.TransferProcessor {
 
 
@@ -131,10 +133,12 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         let balance = '0'
         let actualCheckBalance
         let nonceForTx
+        let isNewNonce = true
         if (typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.nonce !== 'undefined' && data.transactionJson.nonce) {
             nonceForTx = data.transactionJson.nonce
         } else if (oldNonce > 0) {
             nonceForTx = oldNonce
+            isNewNonce = false
         } else {
             const tmp = await EthTmpDS.getMaxNonce(data.addressFrom)
             nonceForTx = tmp.value > tmp.scanned ? tmp.value : tmp.scanned
@@ -341,6 +345,26 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
         result.selectedFeeIndex = result.fees.length - 1
         result.countedForBasicBalance = actualCheckBalance ? balance : '0'
+        if (!txRBF) {
+            const max = await EthTmpDS.getMaxNonce(data.addressFrom)
+            const ethAllowBlockedBalance = await settingsActions.getSetting('ethAllowBlockedBalance')
+            const ethAllowLongQuery = await settingsActions.getSetting('ethAllowLongQuery')
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees ethAllowBlockedBalance ' + ethAllowBlockedBalance + ' isNewNonce ' + isNewNonce + ' amountBlocked ' + JSON.stringify(max.amountBlocked) )
+            if (ethAllowBlockedBalance !== '1' && isNewNonce && max.amountBlocked && typeof max.amountBlocked[this._settings.currencyCode] !== 'undefined') {
+                const diff = BlocksoftUtils.diff(result.countedForBasicBalance, max.amountBlocked[this._settings.currencyCode])
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees balance '
+                    + result.countedForBasicBalance + ' - blocked ' + max.amountBlocked[this._settings.currencyCode] + ' = ' + diff)
+                if (diff.indexOf('-') !== -1) {
+                    result.showBlockedBalanceNotice = true
+                }
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees ethAllowLongQuery '
+                + ethAllowLongQuery + ' Query scanned ' + max.scanned  + ' success ' + max.success + ' length ' + max.queryLength
+            )
+            if (ethAllowLongQuery !== '1' && max.queryLength * 1 >= LONG_QUERY) {
+                result.showLongQueryNotice = true
+            }
+        }
         return result
     }
 
@@ -425,7 +449,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             const selectedFee = fees.fees[fees.selectedFeeIndex]
             // @ts-ignore
             finalGasPrice = selectedFee.gasPrice * 1
-            // @ts-ignore
+            // @ts-ignoreф
             finalGasLimit = Math.ceil(selectedFee.gasLimit * 1)
         }
 
@@ -493,6 +517,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 result = await sender.send(tx, privateData)
                 result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
                 result.transactionFeeCurrencyCode = 'ETH'
+                await EthTmpDS.getCache(data.addressFrom)
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' done ' + JSON.stringify(result.transactionJson))
         } catch (e) {

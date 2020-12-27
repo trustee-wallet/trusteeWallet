@@ -54,6 +54,7 @@ import {
 } from '../../appstores/Stores/Main/MainStoreActions'
 
 let CACHE_WARNING_AMOUNT = ''
+let CACHE_WARNING_FEES = false
 let CACHE_IS_SENDING = false
 let CACHE_IS_FEE_LOADING = false
 
@@ -94,6 +95,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
     componentDidMount() {
         // when usual open (moved from unsafe)
         this.init()
+        CACHE_WARNING_FEES = false
 
         // when back by history
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
@@ -119,8 +121,55 @@ class ReceiptScreen extends SendBasicScreenScreen {
         }
         sendScreenData.selectedFee = selectedFee
         sendScreenData.uiNeedToCountFees = false
+        if (!CACHE_WARNING_FEES) {
+            let msg = false
+            let goBack = false
+            if (typeof tmp.countedFees.showBlockedBalanceNotice !== 'undefined' &&  tmp.countedFees.showBlockedBalanceNotice) {
+                msg = strings('modal.send.blockedBalance')
+                goBack = true
+            } else {
+                if (typeof tmp.countedFees.showLongQueryNotice !== 'undefined' && tmp.countedFees.showLongQueryNotice) {
+                    msg = strings('modal.send.longQuery')
+                }
+                if (typeof tmp.countedFees.showSmallFeeNotice !== 'undefined' && tmp.countedFees.showSmallFeeNotice) {
+                    if (msg) {
+                        msg += ' + '
+                    } else {
+                        msg = ''
+                    }
+                    msg += strings('modal.send.feeSmallAmount')
+                }
+            }
+            if (msg) {
+                Log.log('countedFees notice ' + msg, tmp.countedFees)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.titles.attention'),
+                    description: msg
+                }, async () => {
+                    if (goBack) {
+                        // account was not opened before
+                        setSelectedCryptoCurrency(this.state.cryptoCurrency)
+                        await setSelectedAccount()
+                        NavStore.reset('AccountScreen')
+                    } else {
+                        this.setState({
+                            sendScreenData,
+                            countedFees: tmp.countedFees,
+                            loadFee: false
+                        })
+                        CACHE_IS_FEE_LOADING = false
+                        CACHE_WARNING_FEES = true
+                    }
+                })
+                return false
+            }
+        }
+
         this.setState({
             sendScreenData,
+            countedFees : tmp.countedFees,
             loadFee: false
         })
         CACHE_IS_FEE_LOADING = false
@@ -211,6 +260,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
             if (newTmp.substring(0, tmp.length) !== tmp) {
                 sendScreenData.amountRaw = newAmount
                 if (CACHE_WARNING_AMOUNT !== newTmp) {
+                    if (config.debug.sendLogs) {
+                        console.log('Send.ReceiptScreen.handleSend change amount check ', newTmp, newTmp.substring(0, tmp.length) + '!=' + tmp)
+                    }
                     // @yura here should be alert when fixed receipt and no tx
                     showModal({
                         type: 'INFO_MODAL',
@@ -603,6 +655,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     if (newAmount.toString().substring(0, tmp.length) !== tmp) {
                         amount = newAmount
                         if (CACHE_WARNING_AMOUNT !== amount && !sendScreenData.transactionRemoveByFee) {
+                            if (config.debug.sendLogs) {
+                                console.log('Send.ReceiptScreen.render change amount check ', newAmount, newAmount.substring(0, tmp.length) + '!=' + tmp)
+                            }
                             showModal({
                                 type: "INFO_MODAL",
                                 icon: null,

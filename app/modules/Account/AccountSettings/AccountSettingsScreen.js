@@ -24,6 +24,7 @@ import UIDict from '../../../services/UIDict/UIDict'
 
 import SettingsBTC from './elements/SettingsBTC'
 import SettingsUSDT from './elements/SettingsUSDT'
+import SettingsETH from './elements/SettingsETH'
 import SettingsXMR from './elements/SettingsXMR'
 import SettingsTRX from './elements/SettingsTRX'
 
@@ -82,6 +83,9 @@ class AccountSettingScreen extends React.Component {
             settingsComponent =
                 <SettingsUSDT containerStyle={{ overflow: 'hidden' }}
                     wallet={mainStore.selectedWallet} account={account} />
+        } else if (account.currencyCode === 'ETH') {
+            settingsComponent =
+                <SettingsETH containerStyle={{ overflow: 'hidden' }} />
         } else if (account.currencyCode === 'XMR') {
             settingsComponent =
                 <SettingsXMR containerStyle={{ overflow: 'hidden' }}
