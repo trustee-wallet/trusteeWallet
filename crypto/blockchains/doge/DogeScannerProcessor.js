@@ -154,7 +154,7 @@ export default class DogeScannerProcessor {
                     transaction.transactionDirection === 'outcome' || transaction.transactionDirection === 'self'
                 ) {
                     const uniqueFrom = address.toLowerCase() + '_' + transaction.transactionHash
-                    if (notBroadcasted && typeof notBroadcasted[uniqueFrom] !== 'undefined') {
+                    if (notBroadcasted && typeof notBroadcasted[uniqueFrom] !== 'undefined' && transaction.transactionStatus !== 'new') {
                         DogeRawDS.cleanRaw({
                             address,
                             transactionUnique: uniqueFrom,
