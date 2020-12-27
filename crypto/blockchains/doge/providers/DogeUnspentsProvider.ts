@@ -63,6 +63,7 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
             currencyCode: this._settings.currencyCode,
             transactionHash: tx
         })
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getTx inputs ' + tx, saved)
 
         let recheckInputs = false
         if (saved) {
