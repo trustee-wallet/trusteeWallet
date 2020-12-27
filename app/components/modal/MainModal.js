@@ -33,6 +33,15 @@ import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 
 const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
+let windowHeight, windowWidth
+if (WINDOW_HEIGHT < WINDOW_WIDTH) {
+    windowHeight = WINDOW_WIDTH
+    windowWidth = WINDOW_HEIGHT
+} else {
+    windowHeight = WINDOW_HEIGHT
+    windowWidth = WINDOW_WIDTH
+}
+
 
 class MainModal extends Component {
 
@@ -124,8 +133,8 @@ const styles = {
         top: 0,
         left: 0,
 
-        width: WINDOW_WIDTH,
-        height: WINDOW_HEIGHT
+        width: windowWidth,
+        height: windowHeight
     },
     wrapper_hidden: {
         position: 'absolute',

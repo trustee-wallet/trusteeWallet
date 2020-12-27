@@ -70,7 +70,6 @@ class Input extends Component {
 
         if (additional === 'NUMBER') {
             value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
-            console.log(value.length)
             this.setState({
                 value,
                 fontSize: value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
