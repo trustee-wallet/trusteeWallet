@@ -109,7 +109,6 @@ export class FileSystem {
                 // do nothing
             }
             await RNFS.moveFile(path, path + '-1.txt')
-            await RNFS.unlink(path)
         } catch (e) {
             CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error ' + e.message
         }
