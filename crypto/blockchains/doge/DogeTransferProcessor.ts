@@ -34,7 +34,8 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         feeMaxAutoReadable12: 100, // for fee calc
         changeTogether: true,
         minRbfStepSatoshi: 50,
-        minSpeedUpMulti: 1.5
+        minSpeedUpMulti: 1.5,
+        feeMinTotalReadable : 1
     }
 
     _initedProviders: boolean = false
@@ -211,11 +212,25 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             } else if (key === 'speed_blocks_12') {
                 autoFeeLimitReadable = this._builderSettings.feeMaxAutoReadable12
             }
+
+            let logInputsOutputs, blockchainData, txSize, actualFeeForByte, actualFeeForByteNotRounded
             try {
                 preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                     feeForByte,
                     autoFeeLimitReadable
                 }, subtitle)
+
+                if (typeof this._builderSettings.feeMinTotalReadable !== 'undefined') {
+                    logInputsOutputs = DogeLogs.logInputsOutputs(data, unspents, preparedInputsOutputs, this._settings, subtitle)
+                    if (logInputsOutputs.diffInOutReadable * 1 < this._builderSettings.feeMinTotalReadable) {
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + '  less minTotalReadable ' + logInputsOutputs.diffInOutReadable )
+                        preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
+                            feeForAll : BlocksoftUtils.fromUnified(this._builderSettings.feeMinTotalReadable, this._settings.decimals),
+                            autoFeeLimitReadable
+                        }, subtitle)
+                        autocorrectFee = false
+                    }
+                }
                 // @ts-ignore
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + ' preparedInputsOutputs', preparedInputsOutputs)
                 if (preparedInputsOutputs.inputs.length === 0) {
@@ -224,13 +239,13 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 }
             } catch (e) {
                 if (config.debug.cryptoErrors) {
-                    console.log(this._settings.currencyCode + ' DogeTransferProcessor..getFeeRate getInputsOutputs error', e)
+                    console.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + '  getInputsOutputs error', e)
                 }
                 // noinspection ES6MissingAwait
                 MarketingEvent.logOnlyRealTime('v20_doge_error_getfeerate_' + key + ' ' + feeForByte + ' ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, unspents)
                 throw e
             }
-            let logInputsOutputs, blockchainData, txSize, actualFeeForByte, actualFeeForByteNotRounded
+
             try {
                 let doBuild = false
                 let actualFeeRebuild = false
