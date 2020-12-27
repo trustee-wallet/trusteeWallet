@@ -437,6 +437,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 transactionHash: result.transactionHash,
                 transactionRaw: uiData.selectedFee.blockchainData.rawTxHex
             })
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx hex ', uiData.selectedFee.blockchainData.rawTxHex)
+            // @ts-ignore
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx result ', result)
             await DogeRawDS.saveInputs({
                 address: data.addressFrom,
                 currencyCode: this._settings.currencyCode,

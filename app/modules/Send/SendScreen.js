@@ -577,6 +577,8 @@ class SendScreen extends SendBasicScreenScreen {
             try {
                 if (fromModal === false && BlocksoftTransfer.checkSendAllModal({ currencyCode: cryptoCurrency.currencyCode })) {
 
+                    Log.log('Send.SendScreen.handleSendTransaction checkAlmostAll inited')
+
                     const limitPercent = 0.95
 
                     let percentCheck
@@ -591,9 +593,13 @@ class SendScreen extends SendBasicScreenScreen {
 
                     // console.log('input', {amountCrypto: valueValidation.value, percentCheck, diffCheck, useAll: useAllFunds})
 
-                    // console.log('Send.SendScreen.handleSendTransaction input', {amountCrypto: valueValidation.value,percentCheck, diffCheck, useAll: useAllFunds})
+                    const willShow = useAllFunds === false && percentCheck * 1 > 0
+                    Log.log('Send.SendScreen.handleSendTransaction checkAlmostAll params', {
+                        amountCrypto: valueValidation.value,percentCheck, diffCheck, useAll: useAllFunds,
+                        willShow
+                    })
 
-                    if (useAllFunds === false && percentCheck * 1 > 0) {
+                    if (willShow) {
                         showModal({
                             type: 'YES_NO_MODAL',
                             icon: 'WARNING',
@@ -610,9 +616,11 @@ class SendScreen extends SendBasicScreenScreen {
                         })
                         return
                     }
+                } else {
+                    Log.log('Send.SendScreen.handleSendTransaction checkAlmostAll no inited')
                 }
             } catch (e) {
-                // console.log('Send.SendScreen.handleSendTransaction infoSendAllModal error ' + e.message)
+                Log.log('Send.SendScreen.handleSendTransaction checkAlmostAll error ' + e.message)
             }
 
 

@@ -51,6 +51,8 @@ export default class EthTxSendProvider {
         let result
         try {
             result = await BlocksoftAxios.post(link, signData.rawTransaction)
+            // @ts-ignore
+            BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx result ', result)
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('ETH Send error ' + e.message)

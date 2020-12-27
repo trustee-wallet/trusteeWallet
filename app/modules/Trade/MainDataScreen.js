@@ -337,6 +337,7 @@ class MainDataScreen extends Component {
         try {
             if (tradeType === 'SELL' && fromModal === false && BlocksoftTransfer.checkSendAllModal({ currencyCode:  selectedCryptocurrency.currencyCode })) {
 
+                Log.log('TRADE/Main checkAlmostAll inited')
                 const limitPercent = 0.95
                 const limitUSD = 2
 
@@ -346,8 +347,14 @@ class MainDataScreen extends Component {
                 if (typeof selectedCryptocurrency.currencyRateJson.USD !== 'undefined') {
                     diffUSD = BlocksoftUtils.add(RateEquivalent.mul({ value: diffCheck, currencyCode: selectedCryptocurrency.currencyCode, basicCurrencyRate: selectedCryptocurrency.currencyRateJson.USD }), limitUSD)
                 }
-                // console.log('input', { amountCrypto: amount.amountEquivalentInCrypto, amountFiat: amount.amountEquivalentInFiat, percentCheck, diffCheck, diffUSD, useAll: amount.useAllFunds })
-                if (amount.useAllFunds === false && percentCheck * 1 > 0 || diffUSD * 1 < 0) {
+                const willShow = amount.useAllFunds === false && percentCheck * 1 > 0 || diffUSD * 1 < 0
+                Log.log('TRADE/Main checkAlmostAll params', {
+                    amountCrypto: amount.amountEquivalentInCrypto,
+                    amountFiat: amount.amountEquivalentInFiat, percentCheck, diffCheck, diffUSD,
+                    useAll: amount.useAllFunds,
+                    willShow
+                })
+                if (willShow) {
                     showModal({
                         type: 'YES_NO_MODAL',
                         icon: 'WARNING',
@@ -362,9 +369,11 @@ class MainDataScreen extends Component {
                     })
                     return
                 }
+            } else {
+                Log.log('TRADE/Main checkAlmostAll not inited')
             }
         } catch (e) {
-            Log.log('EXC/Main modalSellAll error ' + e.message)
+            Log.log('TRADE/Main modalSellAll error ' + e.message)
         }
 
         NavStore.goNext('ConfirmScreen', {
