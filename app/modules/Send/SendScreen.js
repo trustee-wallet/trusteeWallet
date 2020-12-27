@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 
-import { View, ScrollView, Keyboard, Text, TouchableOpacity, Dimensions, Platform } from 'react-native'
+import { View, ScrollView, Keyboard, Text, TouchableOpacity, Dimensions, Platform, TextInput } from 'react-native'
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
@@ -180,7 +180,7 @@ class SendScreen extends SendBasicScreenScreen {
                 amountInputMark:
                     this.state.amountInputMark
                     ? this.state.amountInputMark :
-                    (inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencySymbol}` : `${account.basicCurrencySymbol} 0.00`)
+                    (inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencySymbol}` : `0.00 ${account.basicCurrencyCode}`)
             }, () => {
 
                 if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName) {
@@ -238,7 +238,7 @@ class SendScreen extends SendBasicScreenScreen {
     handleChangeEquivalentType = () => {
         // console.log('Send.SendScreen.handleChangeEquivalentType')
         const { currencySymbol } = this.state.cryptoCurrency
-        const { basicCurrencySymbol } = this.state.account
+        const { basicCurrencyCode } = this.state.account
 
         const inputType = this.state.inputType === 'CRYPTO' ? 'FIAT' : 'CRYPTO'
 
@@ -260,7 +260,7 @@ class SendScreen extends SendBasicScreenScreen {
         }
 
         this.setState({
-            amountInputMark: this.state.inputType === 'FIAT' ? `~ ${basicCurrencySymbol} ${amountEquivalent}` : `~ ${amountEquivalent} ${currencySymbol}`,
+            amountInputMark: this.state.inputType === 'FIAT' ? `~ ${amountEquivalent} ${basicCurrencyCode}` : `~ ${amountEquivalent} ${currencySymbol}`,
             amountEquivalent,
             inputType
         })
@@ -678,7 +678,7 @@ class SendScreen extends SendBasicScreenScreen {
 
     amountEquivalent = (value, inputType = false) => {
         const { currencySymbol, currencyCode } = this.state.cryptoCurrency
-        const { basicCurrencySymbol, basicCurrencyRate } = this.state.account
+        const { basicCurrencyCode, basicCurrencyRate } = this.state.account
         if (inputType === false) {
             inputType = this.state.inputType
         }
@@ -688,12 +688,12 @@ class SendScreen extends SendBasicScreenScreen {
         try {
             if (!value || value === 0 || value === '0.00') {
                 amountEquivalent = '0.00'
-                symbolEquivalent = inputType === 'CRYPTO' ? `${basicCurrencySymbol}` : `${currencyCode}`
+                symbolEquivalent = inputType === 'CRYPTO' ? `${basicCurrencyCode}` : `${currencyCode}`
             } else if (inputType === 'CRYPTO') {
                 valueCrypto = value
                 amountEquivalent = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
                 amountEquivalent = UtilsService.cutNumber(amountEquivalent, 2)
-                symbolEquivalent = basicCurrencySymbol
+                symbolEquivalent = basicCurrencyCode
             } else {
                 amountEquivalent = RateEquivalent.div({ value, currencyCode, basicCurrencyRate })
                 amountEquivalent = UtilsService.cutNumber(amountEquivalent, 7)
@@ -707,7 +707,7 @@ class SendScreen extends SendBasicScreenScreen {
         }
         return {
             amountEquivalent,
-            amountInputMark: inputType === 'CRYPTO' ? `~ ${symbolEquivalent} ${amountEquivalent}` : `~ ${amountEquivalent} ${symbolEquivalent}`,
+            amountInputMark: inputType === 'CRYPTO' ? `~ ${amountEquivalent} ${symbolEquivalent}` : `~ ${amountEquivalent} ${symbolEquivalent}`,
             valueCrypto
         }
     }
@@ -964,11 +964,11 @@ class SendScreen extends SendBasicScreenScreen {
                 const basicCurrencySymbol = this.state.account.basicCurrencySymbol || '$'
                 const basicAmount = RateEquivalent.mul({ value: amountPretty, currencyCode, basicCurrencyRate })
                 const basicAmountPrep = BlocksoftPrettyNumbers.makeCut(basicAmount, 2).cutted
-                if (this.state.inputType === 'CRYPTO') {
+                // if (this.state.inputType === 'CRYPTO') {
                     sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicAmountPrep
-                } else {
-                    sumPrep = '~' + basicCurrencySymbol + ' ' + basicAmountPrep + ' / ' + sumPrep
-                }
+                // } else {
+                //     sumPrep = '~' + basicCurrencySymbol + ' ' + basicAmountPrep + ' / ' + sumPrep
+                // }
             } catch (e) {
                 if (config.debug.appErrors) {
                     console.log('Send.SendScreen renderAccountDetail error ' + e.message, e)
@@ -1001,11 +1001,13 @@ class SendScreen extends SendBasicScreenScreen {
             let value = BlocksoftUtils.mul(BlocksoftUtils.div(this.state.account.basicCurrencyBalance, 4), Number(part))
             value = UtilsService.cutNumber(value, 2)
             this.valueInput.state.value = value.toString()
+            this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
             this.amountInputCallback(value, true)
         } else {
             let value = BlocksoftUtils.mul(BlocksoftUtils.div(this.state.account.balancePretty, 4), Number(part))
             value = UtilsService.cutNumber(value, 7)
             this.valueInput.state.value = value.toString()
+            this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
             this.amountInputCallback(value, true)
         }
     }
@@ -1075,7 +1077,8 @@ class SendScreen extends SendBasicScreenScreen {
         const {
             focused,
             headerHeight,
-            loadFee
+            loadFee,
+            inputType
         } = this.state
 
         const {
@@ -1087,7 +1090,7 @@ class SendScreen extends SendBasicScreenScreen {
             network
         } = this.state.cryptoCurrency
 
-        const { balancePretty } = this.state.account
+        const { balancePretty, basicCurrencyCode } = this.state.account
 
         const { colors, GRID_SIZE, isLight } = this.context
 
@@ -1129,23 +1132,30 @@ class SendScreen extends SendBasicScreenScreen {
                         style={{ marginTop: headerHeight }}
                     >
                         <View>
-                            <AmountInput
-                                ref={component => this.valueInput = component}
-                                id={amountInput.id}
-                                additional={amountInput.additional}
-                                // onFocus={() => this.onFocus()}
-                                name={strings('send.value')}
-                                type={amountInput.type}
-                                decimals={decimals < 10 ? decimals : 10}
-                                keyboardType={'numeric'}
-                                enoughFunds={!this.state.enoughFunds.isAvailable}
-                                callback={(value) => {
-                                    this.setState({
-                                        balancePart: 0
-                                    })
-                                    this.amountInputCallback(value, true)
-                                }}
-                            />
+                            <View style={{ width: '75%', alignSelf: 'center', alignItems: 'center', }}>
+                                <View style={{ flexDirection: 'row', }}>
+                                    <AmountInput
+                                        ref={component => this.valueInput = component}
+                                        // onFocus={() => this.onFocus()}
+                                        decimals={decimals < 10 ? decimals : 10}
+                                        enoughFunds={!this.state.enoughFunds.isAvailable}
+                                        id={amountInput.id}
+                                        additional={amountInput.additional}
+                                        type={amountInput.type}
+                                        callback={(value) => {
+                                            this.setState({
+                                                balancePart: 0
+                                            })
+                                            this.amountInputCallback(value, true)
+                                        }}
+                                        maxLength={17}
+                                        maxWidth={SCREEN_WIDTH * 0.6}
+                                    />
+                                    <Text style={{...style.ticker, color: colors.sendScreen.amount }}>
+                                        {inputType === 'CRYPTO' ? currencyCode : basicCurrencyCode }
+                                    </Text>
+                                </View>
+                            </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <View style={{...style.line, backgroundColor: colors.sendScreen.colorLine }} />
                                 <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
@@ -1318,6 +1328,15 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps, {})(SendScreen)
 
 const style = {
+    ticker: {
+        fontFamily: 'Montserrat-Medium',
+        fontSize: 15,
+        lineHeight: 19,
+
+        alignSelf: 'flex-end',
+        marginBottom: 8,
+        paddingLeft: 6
+    },
     line: {
         height: 1,
         width: '75%',

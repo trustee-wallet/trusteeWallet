@@ -6,8 +6,6 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Clipboard, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
-import { TextField } from 'react-native-material-textfield'
-
 import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboard'
 import { capitalize } from '../../../services/UI/Capitalize/Capitalize'
 import Validator from '../../../services/UI/Validator/Validator'
@@ -31,7 +29,9 @@ class Input extends Component {
             focus: false,
             autoFocus: false,
             tap: true,
-            inputHeight: 0
+            inputHeight: 0,
+
+            fontSize: 40
         }
         this.inputRef = React.createRef()
     }
@@ -40,8 +40,10 @@ class Input extends Component {
     UNSAFE_componentWillReceiveProps(props) {
         const { qr, qrCodeScanner } = this.props
         if (qr && props.qrCodeScanner.value && props.qrCodeScanner.value !== qrCodeScanner.value) {
+            const value = props.qrCodeScanner.value
             this.setState({
-                value: props.qrCodeScanner.value
+                value,
+                fontSize: value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
             })
         }
     }
@@ -68,14 +70,17 @@ class Input extends Component {
 
         if (additional === 'NUMBER') {
             value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
+            console.log(value.length)
             this.setState({
-                value
+                value,
+                fontSize: value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
             })
         } else {
             const validation = await Validator.arrayValidation([{ id, name, type, subtype, cuttype, value }])
             this.setState({
                 value,
-                errors: validation.errorArr
+                errors: validation.errorArr,
+                fontSize: value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
             })
         }
 
@@ -164,53 +169,37 @@ class Input extends Component {
 
     render() {
 
-        const { value, focus, errors, autoFocus } = this.state
+        const { value, focus, errors, autoFocus, fontSize } = this.state
         const {
             id,
-            name,
             style,
             onFocus,
             disabled,
-            keyboardType,
-            inputBaseColor,
-            inputTextColor,
-            tabText,
-            tintColor,
-            onSubmitEditing,
             noEdit,
-            isCapitalize = true,
-            isTextarea = false,
-            enoughFunds = false
+            enoughFunds = false,
+            maxLength,
+            maxWidth = 17
         } = this.props
-        const placeholder = isCapitalize ? capitalize(name) : name
 
         const { colors } = this.context
 
         let error = errors.find(item => item.field === id)
         error = typeof error !== 'undefined' ? error.msg : ''
-        const isDisabled = typeof disabled !== 'undefined' ? disabled : false
 
         return (
             <View style={styles.wrapper}>
-                <TextField
-                    // this is breaking android color={'#404040'}
-                    ref={ref => this.inputRef = ref}
-                    keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'numeric'}
-                    tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
-                    fontSize={40}
-                    lineWidth={0}
-                    activeLineWidth={0}
+                <TextInput 
+                    ref={component => this.valueInput = component}
+                    keyboardType={'numeric'}
                     placeholder={'0.00'}
-                    placeholderTextColor={colors.common.text1}
+                    placeholderTextColor={colors.sendScreen.amount }
+                    fontSize={this.state.fontSize}
+                    selectionColor={'#7127ac'}
                     textAlign={'center'}
                     value={value}
-                    onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
-                    }}
-                    editable={!noEdit ? true : false}
+                    style={noEdit ? { ...styles.fontFamily, color: colors.sendScreen.amount, maxWidth: maxWidth } : 
+                        { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : colors.sendScreen.amount, maxWidth: maxWidth, lineHeight: fontSize + 4  }}
                     onChangeText={(value) => this.handleInput(value)}
-                    style={noEdit ? { ...styles.fontFamily, color: colors.sendScreen.amount } : { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : colors.sendScreen.amount  }}
-                    autoCorrect={false}
-                    spellCheck={false}
                     onBlur={() => {
                         this.setState({ focus: false })
                     }}
@@ -220,7 +209,10 @@ class Input extends Component {
                         this.setState({ focus: true })
                         onFocus()
                     }}
-                />
+                    maxLength={maxLength}
+                    autoCorrect={true}
+                    spellCheck={true}
+                    />
             </View>
         )
     }
@@ -232,17 +224,12 @@ export default connect(null, null, null, { forwardRef: true })(Input)
 
 const styles = {
     wrapper: {
-        flex: 1,
         position: 'relative',
-        maxHeight: 70,
-        minHeight: 70,
-        marginBottom: 10
     },
     fontFamily: {
         fontFamily: 'Montserrat-Medium',
-        height: 52
+        height: 42
     },
-    tintColor: '#7127ac',
     errorColor: '#e77ca3',
     labelHeight: 15
 }

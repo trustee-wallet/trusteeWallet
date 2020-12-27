@@ -34,8 +34,6 @@ import { checkQRPermission } from '../../../services/UI/Qr/QrPermissions'
 import { saveSelectedBasicCurrencyCode } from '../../../appstores/Stores/Main/MainStoreActions'
 import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
 
-import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
-
 import { HIT_SLOP } from '../../../themes/Themes';
 
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
@@ -140,22 +138,6 @@ class WalletInfo extends Component {
         )
     }
 
-    handlerRBF = async () => {
-        showModal({
-            type: 'RBF_ACTIVE',
-            icon: 'WARNING',
-            title: strings('modal.tbkModal.title'),
-            description: null,
-        },async () => {
-            const isActiveRBF = await AsyncStorage.getItem('RBF')
-            if (isActiveRBF === null || isActiveRBF.toString() === '0') {
-                await AsyncStorage.setItem('RBF', '1')
-            } else {
-                await AsyncStorage.setItem('RBF', '0')
-            }
-        })
-    }
-
     render() {
         const {
             changeBalanceVisibility,
@@ -203,7 +185,7 @@ class WalletInfo extends Component {
                                     letterSpacing={1}
                                 />
                             </View>
-                            <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')} onLongPress={() => this.handlerRBF()} delayLongPress={5000}>
+                            <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')}>
                                 <ToolTips type={'HOME_SCREEN_ADD_CRYPTO_BTN_TIP'} height={150} MainComponent={() => this.renderTooltip()} />
                             </TouchableOpacity>
                         </View>

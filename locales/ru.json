@@ -829,7 +829,7 @@
         "xrp_speed_one": "Быстро"
       },
       "customFee": {
-        "title": "Ручная",
+        "title": "Вручную",
         "fixedFeeTitle": "ФИКСИРОВАННАЯ\nКОМИССИЯ",
         "customFeeTitle": "УСТАНОВИТЬ\nВРУЧНУЮ",
         "calculetedFee": "Расчетная комиссия:",

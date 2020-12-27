@@ -257,7 +257,7 @@ class Transaction extends Component {
 
 
         const dict = new UIDict(cryptoCurrency.currencyCode)
-        const color = dict.settings.colors.mainColor
+        const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
 
 
 
@@ -315,7 +315,7 @@ class Transaction extends Component {
                                                 <Text style={{...styles.transaction__item__title, color: colors.common.text1}} numberOfLines={1}>
                                                     {valueToView}
                                                 </Text>
-                                                <Text style={[styles.transaction__item__title__subtitle, { color: new UIDict(cryptoCurrency.currencyCode).settings.colors.mainColor }]}>
+                                                <Text style={[styles.transaction__item__title__subtitle, { color: new UIDict(cryptoCurrency.currencyCode).settings.colors[isLight ? 'mainColor' : 'darkColor'] }]}>
                                                     {currencySymbolToView}
                                                 </Text>
                                                 {
