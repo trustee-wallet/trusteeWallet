@@ -42,6 +42,7 @@ import Log from '../../services/Log/Log'
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 
 let COUNT_MODAL_SELL = 0
 let COUNT_MODAL_BUY = 0
@@ -335,39 +336,64 @@ class MainDataScreen extends Component {
             return
         }
         try {
-            if (tradeType === 'SELL' && fromModal === false && BlocksoftTransfer.checkSendAllModal({ currencyCode:  selectedCryptocurrency.currencyCode })) {
+            if (tradeType === 'SELL' && fromModal === false) {
 
-                Log.log('TRADE/Main checkAlmostAll inited')
-                const limitPercent = 0.95
-                const limitUSD = 2
-
-                const percentCheck = BlocksoftUtils.diff(BlocksoftUtils.div(amount.amountEquivalentInCrypto, selectedAccount.balancePretty), limitPercent)
+                Log.log('TRADE/Main checkBalance inited')
                 const diffCheck = BlocksoftUtils.diff(selectedAccount.balancePretty, amount.amountEquivalentInCrypto)
-                let diffUSD = 9999999
-                if (typeof selectedCryptocurrency.currencyRateJson.USD !== 'undefined') {
-                    diffUSD = BlocksoftUtils.add(RateEquivalent.mul({ value: diffCheck, currencyCode: selectedCryptocurrency.currencyCode, basicCurrencyRate: selectedCryptocurrency.currencyRateJson.USD }), limitUSD)
-                }
-                const willShow = amount.useAllFunds === false && percentCheck * 1 > 0 || diffUSD * 1 < 0
-                Log.log('TRADE/Main checkAlmostAll params', {
-                    amountCrypto: amount.amountEquivalentInCrypto,
-                    amountFiat: amount.amountEquivalentInFiat, percentCheck, diffCheck, diffUSD,
-                    useAll: amount.useAllFunds,
-                    willShow
-                })
+                const willShow = diffCheck.indexOf('-') !== -1
+                Log.log('TRADE/Main checkBalance diffCheck ' + diffCheck + ' willShow ' + willShow ? 'true' : 'false')
                 if (willShow) {
                     showModal({
-                        type: 'YES_NO_MODAL',
-                        icon: 'WARNING',
-                        title: strings('modal.titles.attention'),
-                        description: strings('modal.infoSendAllModal.description', { coin: selectedCryptocurrency.currencyName }),
-                        reverse: true,
-                        noCallback: () => {
-                            this.actualHandleSubmitTrade(true, true)
-                        }
-                    }, () => {
-                        this.actualHandleSubmitTrade(false, true)
+                        type: 'INFO_MODAL',
+                        icon: null,
+                        title: strings('modal.exchange.sorry'),
+                        description: strings('send.errors.SERVER_RESPONSE_NOTHING_TO_TRANSFER')
                     })
                     return
+                }
+
+                if (BlocksoftTransfer.checkSendAllModal({ currencyCode:  selectedCryptocurrency.currencyCode })) {
+                    Log.log('TRADE/Main checkAlmostAll inited')
+
+                    const limitPercent = BlocksoftExternalSettings.getStatic('SEND_CHECK_ALMOST_ALL_PERCENT')
+                    const limitUSD = 2
+
+                    const tmp = {
+                        amountCrypto: amount.amountEquivalentInCrypto,
+                        amountFiat: amount.amountEquivalentInFiat,
+                        useAll: amount.useAllFunds
+                    }
+
+                    const div = BlocksoftUtils.div(amount.amountEquivalentInCrypto, selectedAccount.balancePretty)
+                    const percentCheck = BlocksoftUtils.diff(div, limitPercent)
+                    tmp.percentCalc = amount.amountEquivalentInCrypto + ' / ' + selectedAccount.balancePretty + ' = ' + div
+                    tmp.percentCal2 = div + ' - ' + limitPercent + ' = ' + percentCheck
+                    tmp.percentCal3 = percentCheck + ' > 0 => ' + (percentCheck.indexOf('-') === -1) ? ' true ' : ' false'
+
+                    let diffUSD = 9999999
+                    if (typeof selectedCryptocurrency.currencyRateJson.USD !== 'undefined') {
+                        diffUSD = BlocksoftUtils.add(RateEquivalent.mul({ value: diffCheck, currencyCode: selectedCryptocurrency.currencyCode, basicCurrencyRate: selectedCryptocurrency.currencyRateJson.USD }), limitUSD)
+                    }
+
+                    const willShow = (typeof amount.useAllFunds === 'undefined' || amount.useAllFunds === false) && (percentCheck.indexOf('-') === -1 || diffUSD * 1 < 0)
+                    tmp.willShow = willShow
+                    Log.log('TRADE/Main checkAlmostAll params', tmp)
+
+                    if (willShow) {
+                        showModal({
+                            type: 'YES_NO_MODAL',
+                            icon: 'WARNING',
+                            title: strings('modal.titles.attention'),
+                            description: strings('modal.infoSendAllModal.description', { coin: selectedCryptocurrency.currencyName }),
+                            reverse: true,
+                            noCallback: () => {
+                                this.actualHandleSubmitTrade(true, true)
+                            }
+                        }, () => {
+                            this.actualHandleSubmitTrade(false, true)
+                        })
+                        return
+                    }
                 }
             } else {
                 Log.log('TRADE/Main checkAlmostAll not inited')
