@@ -220,7 +220,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     autoFeeLimitReadable
                 }, subtitle)
 
-                if (typeof this._builderSettings.feeMinTotalReadable !== 'undefined') {
+                if (typeof additionalData.feeForByte === 'undefined' && typeof this._builderSettings.feeMinTotalReadable !== 'undefined') {
                     logInputsOutputs = DogeLogs.logInputsOutputs(data, unspents, preparedInputsOutputs, this._settings, subtitle)
                     if (logInputsOutputs.diffInOutReadable * 1 < this._builderSettings.feeMinTotalReadable) {
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + '  less minTotalReadable ' + logInputsOutputs.diffInOutReadable )
