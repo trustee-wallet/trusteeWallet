@@ -666,10 +666,10 @@ class TransactionScreen extends Component {
         if (!account) {
             return false
         }
-        if (transaction.transactionDirection === 'income' || transaction.transactionDirection === 'self') {
+        if (transaction.transactionDirection === 'income') {
             return false
         }
-        if (transaction.transactionStatus !== 'new' && transaction.transactionStatus !== 'missing') {
+        if (transaction.transactionBlockchainStatus !== 'new' && transaction.transactionBlockchainStatus !== 'missing') {
             return false
         }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REMOVE')) {
@@ -721,11 +721,16 @@ class TransactionScreen extends Component {
         if (transaction.transactionHash === 'undefined' || !transaction.transactionHash) {
             return false
         }
-        if (transaction.transactionStatus !== 'new' && transaction.transactionStatus !== 'pending_payin' && transaction.transactionStatus !== 'missing') {
+        if (transaction.transactionBlockchainStatus !== 'new' && transaction.transactionBlockchainStatus !== 'missing') {
             return false
         }
         if (account.currencyCode === 'BTC' && transaction.addressTo.indexOf('OMNI') !== -1) {
-            return
+            return false
+        }
+        if (transaction.bseOrderData && typeof transaction.bseOrderData.disableTBK  !== 'undefined') {
+            if (transaction.bseOrderData.disableTBK) {
+                return false
+            }
         }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {
             Log.log('TransactionScreen.renderReplaceByFee could not replace')

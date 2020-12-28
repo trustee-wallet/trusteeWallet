@@ -571,7 +571,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 BlocksoftCryptoLog.log('EthTransferProcessor.canRBF ' + transaction.transactionHash + ' false by delegated')
                 return false
             }
-            if (typeof transaction.transactionJson.nonce !== 'undefined') {
+            /*if (typeof transaction.transactionJson.nonce !== 'undefined') {
                 const max = EthTmpDS.getMaxStatic(data.address)
                 if (max.success > -1) {
                     // @ts-ignore
@@ -580,7 +580,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         {'nonce' : transaction.transactionJson.nonce, 'max' : max.success})
                     return false
                 }
-            }
+            }*/
         }
         return true
     }
