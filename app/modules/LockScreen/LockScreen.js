@@ -118,6 +118,14 @@ class LockScreen extends Component {
                 lockScreenAction.setFlowType({ flowType: '' })
                 lockScreenAction.setActionCallback({ actionCallback: () => {} })
             }, 500)
+        } else if (flowType === 'CONFIRM_WALLET_PHRASE') {
+            NavStore.goBack()
+            setLoaderStatus(true)
+            setTimeout(() => {
+                actionCallback(false)
+                lockScreenAction.setFlowType({ flowType: '' })
+                lockScreenAction.setActionCallback({ actionCallback: () => {} })
+            }, 500)
         } else {
             this.setState({
                 show: false

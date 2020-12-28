@@ -510,7 +510,8 @@ class SMSCodeScreen extends Component {
             (
                 url.includes('kuna.io/') || url.includes('cardgate.paycore.io/hpp/status') || url.includes('cb1.xpay.com.ua/')
                 || url.includes('365cash.co/currency/success') || url.includes('365cash.co/currency/failure')
-                || (url.includes('trustee.deals') && !url.includes('redirectUrl=https://trustee.deals/') && !url.includes('successUrl=https://trustee.deals/'))
+                || (url.includes('trustee.deals') && !url.includes('redirectUrl=https://trustee.deals/') && !url.includes('successUrl=https://trustee.deals/') 
+                && !url.includes('successUrl=https%3A%2F%2Ftrustee.deals') && !url.includes('redirectUrl=https%3A%2F%2Ftrustee.deals%2F'))
                 || (url.includes('https://blocksoftlab.com/') && !url.includes('successUrl=https://blocksoftlab.com/') && !url.includes('redirectUrl=https://blocksoftlab.com/'))
             )
             && url !== 'about:blank' && this.state.lastStep

@@ -38,7 +38,7 @@ class Wallet extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            isShowSettings: false,
+            isShowSettings: false
         }
     }
 
@@ -69,7 +69,7 @@ class Wallet extends Component {
         await cryptoWalletActions.setSelectedWallet(this.props.wallet.walletHash, 'handleSelectWallet')
     }
 
-    handleOpenAdvanced = () => { NavStore.goNext('AdvancedWalletScreen') }
+    handleOpenAdvanced = () => NavStore.goNext('AdvancedWalletScreen')
 
     getBalanceData = () => {
         const { wallet } = this.props
@@ -137,14 +137,7 @@ class Wallet extends Component {
                             onPress={this.handleOpenAdvanced}
                             disabled={!isSelected}
                         >
-                            <View style={styles.advancedButtonDotRow}>
-                                <View style={[styles.advancedButtonDot, { backgroundColor: isSelected ? colors.common.text1 : colors.common.text2 }]} />
-                                <View style={[styles.advancedButtonDot, { backgroundColor: isSelected ? colors.common.text1 : colors.common.text2 }]} />
-                            </View>
-                            <View style={styles.advancedButtonDotRow}>
-                                <View style={[styles.advancedButtonDot, { backgroundColor: isSelected ? colors.common.text1 : colors.common.text2 }]} />
-                                <View style={[styles.advancedButtonDot, { backgroundColor: isSelected ? colors.common.text1 : colors.common.text2 }]} />
-                            </View>
+                            <CustomIcon name={'coinSettings'} size={20} color={isSelected ? colors.common.text1 : colors.common.text2} />
                         </TouchableOpacity>
                     ) : (
                         <TouchableOpacity

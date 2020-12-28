@@ -26,15 +26,28 @@ import RoundButton from '../../components/elements/new/buttons/RoundButton'
 import ListItem from '../../components/elements/new/list/ListItem/Setting'
 import CustomIcon from '../../components/elements/CustomIcon'
 
+import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
+import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+
 
 class AdvancedWalletScreen extends React.Component {
     state = {
         headerHeight: 0,
         isEditing: false,
-        walletName: this.props.wallet.walletName
+        walletName: this.props.wallet.walletName,
+        needPasswordConfirm: false
     }
 
     inputRef = React.createRef()
+
+    componentDidMount = () => {
+        const settings = this.props.settingsStore.data
+        if (+settings.lock_screen_status) {
+            this.setState({
+                needPasswordConfirm: true
+            })
+        }
+    }
 
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0);
@@ -60,8 +73,26 @@ class AdvancedWalletScreen extends React.Component {
         }
     }
 
-    handleOpenRecoveryPhrase = () => {
+    handleOpenRecoveryPhrase = (passwordCheck = true) => {
         setFlowType({ flowType: 'BACKUP_WALLET' })
+        // @ksu check this plz
+        setLoaderStatus(false)
+
+        const { needPasswordConfirm } = this.state
+
+        const { settingsStore } = this.props
+
+        let passwordChecked = false
+        if (needPasswordConfirm && typeof settingsStore.data.askPinCodeWhenSending !== 'undefined' && +settingsStore.data.askPinCodeWhenSending) {
+            if (passwordCheck) {
+                lockScreenAction.setFlowType({ flowType: 'CONFIRM_WALLET_PHRASE' })
+                lockScreenAction.setActionCallback({ actionCallback: this.handleOpenRecoveryPhrase })
+                NavStore.goNext('LockScreen')
+                return
+            } else {
+                passwordChecked = true
+            }
+        }
         NavStore.goNext('BackupStep0Screen', { flowSubtype: 'show' })
     }
 
@@ -158,7 +189,8 @@ AdvancedWalletScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        wallet: state.mainStore.selectedWallet
+        wallet: state.mainStore.selectedWallet,
+        settingsStore: state.settingsStore
     }
 }
 

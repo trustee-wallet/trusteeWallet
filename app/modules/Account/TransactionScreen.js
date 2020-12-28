@@ -311,7 +311,14 @@ class TransactionScreen extends Component {
     }
 
     prepareCommentToView = (transaction) => {
-        if (typeof transaction.transactionJson === 'undefined' || transaction.transactionJson === null) return null
+        if (typeof transaction.transactionJson === 'undefined') return null
+        // @ksu check this
+        if (transaction.transactionJson === null) {
+            return {
+                title: strings(`send.comment`),
+                description: ''
+            }
+        }
 
         if (typeof transaction.transactionJson.comment !== 'undefined') {
             return {
@@ -527,7 +534,8 @@ class TransactionScreen extends Component {
                 }
             }
 
-            if (transactionJson.comment !== comment) {
+            // @ksu check this plz
+            if (transactionJson === null || transactionJson.comment !== comment) {
                 await transactionDS.saveTransaction(transaction, updateID, 'onBlurComment')
             }
         } catch (e) {

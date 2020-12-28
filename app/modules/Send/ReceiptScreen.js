@@ -54,6 +54,8 @@ import {
 } from '../../appstores/Stores/Main/MainStoreActions'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 
+import ApiV3 from '../../services/Api/ApiV3'
+
 let CACHE_WARNING_AMOUNT = ''
 let CACHE_WARNING_NOTICE = ''
 let CACHE_IS_SENDING = false
@@ -505,7 +507,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 // },
                 async () => {
 
-                    const { uiType } = this.state.sendScreenData
+                    const { uiType, uiApiVersion, bseOrderId } = this.state.sendScreenData
 
                     if (sendScreenData.transactionSpeedUp || sendScreenData.transactionReplaceByFee || sendScreenData.transactionRemoveByFee) {
                         NavStore.reset('TransactionScreen', {
@@ -524,16 +526,20 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             }
                         })
                     } else if (uiType === 'TRADE_SEND') {
+                        // @ksu check this plz
+                        if (uiApiVersion === 'v3' && bseOrderId) {
+                            ApiV3.setExchangeStatus(bseOrderId, 'SUCCESS')
+                        }
+                        NavStore.reset('TransactionScreen', {
+                            txData: {
+                                transactionHash: tx.transactionHash,
+                            } 
+                        })
                         NavStore.reset('TransactionScreen', {
                             txData: {
                                 transactionHash: tx.transactionHash
                             }
                         })
-                        // NavStore.goNext('FinishScreen', {
-                        //     finishScreenParam: {
-                        //         selectedCryptoCurrency: this.state.cryptoCurrency
-                        //     }
-                        // })
                     } else if (uiType === 'DEEP_LINKING' || uiType === 'HOME_SCREEN') {
                         // account was not opened before
                         setSelectedCryptoCurrency(this.state.cryptoCurrency)
@@ -552,6 +558,12 @@ class ReceiptScreen extends SendBasicScreenScreen {
             this.setState({
                 sendInProcess: false
             })
+            // @ksu check this plz
+            // can i set paymentStatus for order v3 here?
+            const { uiApiVersion, bseOrderId } = this.state.sendScreenData
+            if (uiApiVersion === 'v3' && bseOrderId) {
+                ApiV3.setExchangeStatus(bseOrderId, 'FAIL')
+            }
 
             if (config.debug.appErrors) {
                 console.log('Send.ConfirmSendScreen.handleSend error', e)
