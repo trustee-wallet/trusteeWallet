@@ -84,6 +84,7 @@ export namespace BlocksoftBlockchainTypes {
         amountForTx: string,
         addressToTx?: string,
         isCustomFee?: boolean,
+        showNonce?: boolean,
         feeForTxBasicAmount?: number,
         feeForTxBasicSymbol?: string,
         feeForTxCurrencyAmount?: number,
@@ -159,7 +160,7 @@ export namespace BlocksoftBlockchainTypes {
         selectedFeeIndex: number,
         countedForBasicBalance: string,
         fees: Fee[],
-        showSmallFeeNotice?: boolean,
+        showSmallFeeNotice?: number,
         shouldChangeBalance?: boolean
     }
 
@@ -167,11 +168,12 @@ export namespace BlocksoftBlockchainTypes {
         countedForBasicBalance: string,
         selectedFeeIndex: number,
         fees: Fee[],
-        showSmallFeeNotice?: boolean,
-        showChangeAmountNotice?: boolean,
+        showSmallFeeNotice?: number,
+        showChangeAmountNotice?: number,
         shouldChangeBalance?: boolean,
-        showLongQueryNotice?: boolean,
-        showBlockedBalanceNotice?: boolean
+        showLongQueryNotice?: number,
+        showBlockedBalanceNotice?: number,
+        showBlockedBalanceFree: number | any
     }
 
     export interface SendTxResult {

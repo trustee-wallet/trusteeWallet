@@ -109,7 +109,9 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
         } catch (e) {
             this.checkError(e, data)
         }
-       console.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas finished ' + estimatedGas)
+
+         
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas finished ' + estimatedGas)
         const result = await super.getFeeRate(tmpData, privateData, { ...additionalData, ...{ estimatedGas } })
         result.shouldChangeBalance = false
         return result

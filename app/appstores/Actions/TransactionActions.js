@@ -14,6 +14,7 @@ import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 import config from '../../config/config'
+import EthTmpDS from '../../../crypto/blockchains/eth/stores/EthTmpDS'
 
 const { dispatch } = store
 
@@ -28,6 +29,7 @@ const transactionActions = {
      * @param {string} transaction.transactionStatus
      * @param {string} transaction.addressTo
      * @param {string} transaction.addressFrom
+     * @param {string} transaction.addressFromBasic
      * @param {string} transaction.addressAmount
      * @param {string} transaction.transactionFee
      * @param {string} transaction.transactionOfTrusteeWallet
@@ -44,6 +46,9 @@ const transactionActions = {
 
             await transactionDS.saveTransaction(transaction, false,source)
 
+            if (transaction.currencyCode.indexOf('ETH') !== -1) {
+                await EthTmpDS.getCache(transaction.addressFromBasic)
+            }
             /*
             const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
 
@@ -80,6 +85,7 @@ const transactionActions = {
      * @param transaction.transactionJson
      * @param transaction.addressAmount
      * @param transaction.addressTo
+     * @param {string} transaction.addressFromBasic
      * @param transaction.transactionStatus
      * @param transaction.transactionFee
      * @param transaction.transactionFeeCurrencyCode
@@ -90,6 +96,9 @@ const transactionActions = {
 
             await transactionDS.updateTransaction(transaction)
 
+            if (transaction.currencyCode.indexOf('ETH') !== -1) {
+                await EthTmpDS.getCache(transaction.addressFromBasic)
+            }
             /*
             const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
 

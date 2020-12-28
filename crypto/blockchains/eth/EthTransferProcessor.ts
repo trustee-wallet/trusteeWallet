@@ -17,10 +17,9 @@ import BlocksoftDispatcher from '../BlocksoftDispatcher'
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 
 import config from '../../../app/config/config'
-import { Block } from 'bitcoinjs-lib'
 import settingsActions from '../../../app/appstores/Stores/Settings/SettingsActions'
+import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
 
-const LONG_QUERY = 1
 export default class EthTransferProcessor extends EthBasic implements BlocksoftBlockchainTypes.TransferProcessor {
 
 
@@ -340,7 +339,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         }
 
         if (result.fees.length < 3 && !skippedByOld) {
-            result.showSmallFeeNotice = true
+            result.showSmallFeeNotice = new Date().getTime()
         }
 
         result.selectedFeeIndex = result.fees.length - 1
@@ -349,20 +348,46 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             const max = await EthTmpDS.getMaxNonce(data.addressFrom)
             const ethAllowBlockedBalance = await settingsActions.getSetting('ethAllowBlockedBalance')
             const ethAllowLongQuery = await settingsActions.getSetting('ethAllowLongQuery')
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees ethAllowBlockedBalance ' + ethAllowBlockedBalance + ' isNewNonce ' + isNewNonce + ' amountBlocked ' + JSON.stringify(max.amountBlocked) )
-            if (ethAllowBlockedBalance !== '1' && isNewNonce && max.amountBlocked && typeof max.amountBlocked[this._settings.currencyCode] !== 'undefined') {
-                const diff = BlocksoftUtils.diff(result.countedForBasicBalance, max.amountBlocked[this._settings.currencyCode])
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees balance '
-                    + result.countedForBasicBalance + ' - blocked ' + max.amountBlocked[this._settings.currencyCode] + ' = ' + diff)
-                if (diff.indexOf('-') !== -1) {
-                    result.showBlockedBalanceNotice = true
+
+            let check = ethAllowBlockedBalance !== '1' && isNewNonce && max.amountBlocked && typeof max.amountBlocked[this._settings.currencyCode] !== 'undefined'
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees ethAllowBlockedBalance '
+                + ethAllowBlockedBalance + ' isNewNonce ' + isNewNonce + ' amountBlocked ' + JSON.stringify(max.amountBlocked) + ' => '
+                + (check ? 'true' : 'false'))
+            if (check) {
+                try {
+                    const diff = '111000000' // BlocksoftUtils.diff(result.countedForBasicBalance, max.amountBlocked[this._settings.currencyCode]).toString()
+                    const diffAmount = BlocksoftUtils.diff(diff, data.amount).toString()
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees balance '
+                        + result.countedForBasicBalance + ' - blocked ' + max.amountBlocked[this._settings.currencyCode] + ' = left Balance ' + diff + ' => left Amount ' + diffAmount)
+                    if (diff.indexOf('-') !== -1) {
+                        result.showBlockedBalanceNotice = new Date().getTime()
+                        result.showBlockedBalanceFree = '0 ' + this._settings.currencySymbol
+                    } else {
+                        if (diffAmount.indexOf('-') !== -1) {
+                            result.showBlockedBalanceNotice = new Date().getTime()
+                            result.showBlockedBalanceFree = BlocksoftUtils.toUnified(diff, this._settings.decimals) + ' ' + this._settings.currencySymbol
+                        }
+                    }
+                } catch (e) {
+                    if (config.debug.cryptoErrors) {
+                        console.log(' EthTransferProcessor.getFees ethAllowBlockedBalance inner error ' + e.message)
+                    }
+                    BlocksoftCryptoLog.log(' EthTransferProcessor.getFees ethAllowBlockedBalance inner error ' + e.message)
                 }
             }
+            const LONG_QUERY = await BlocksoftExternalSettings.getStatic('ETH_LONG_QUERY')
+            check = ethAllowLongQuery !== '1' && max.queryLength * 1 >= LONG_QUERY * 1
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees ethAllowLongQuery '
-                + ethAllowLongQuery + ' Query scanned ' + max.scanned  + ' success ' + max.success + ' length ' + max.queryLength
+                + ethAllowLongQuery + ' Query scanned ' + max.scanned  + ' success ' + max.success + ' length ' + max.queryLength + ' => '
+                + (check ? 'true' : 'false')
             )
-            if (ethAllowLongQuery !== '1' && max.queryLength * 1 >= LONG_QUERY) {
-                result.showLongQueryNotice = true
+            if (check) {
+                result.showLongQueryNotice = new Date().getTime()
+            }
+
+        } else {
+            for (const fee of result.fees) {
+                fee.showNonce = true
             }
         }
         return result
@@ -522,7 +547,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' done ' + JSON.stringify(result.transactionJson))
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' EthTransferProcessor.sent error', e, tx)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent error', e, tx)
             }
             if (e.message.indexOf('nonce too low') !== -1) {
                 if (txRBF) {

@@ -52,9 +52,10 @@ import {
     setSelectedAccount,
     setSelectedCryptoCurrency
 } from '../../appstores/Stores/Main/MainStoreActions'
+import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 
 let CACHE_WARNING_AMOUNT = ''
-let CACHE_WARNING_FEES = false
+let CACHE_WARNING_NOTICE = ''
 let CACHE_IS_SENDING = false
 let CACHE_IS_FEE_LOADING = false
 
@@ -85,9 +86,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
             headerHeight: 0,
             needPasswordConfirm: false,
 
-            loadFee : false,
+            loadFee: false,
 
-            sendInProcess: null,
+            sendInProcess: null
 
         }
     }
@@ -95,17 +96,19 @@ class ReceiptScreen extends SendBasicScreenScreen {
     componentDidMount() {
         // when usual open (moved from unsafe)
         this.init()
-        CACHE_WARNING_FEES = false
 
         // when back by history
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
             this.init()
         })
     }
-    
+
     startLoadFee = async () => {
-        if (CACHE_IS_FEE_LOADING) return
-        
+        if (CACHE_IS_FEE_LOADING) {
+            return
+        }
+        console.log('startLoadFee1')
+
         CACHE_IS_FEE_LOADING = true
         const { sendScreenData } = this.state
         // typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee
@@ -121,58 +124,60 @@ class ReceiptScreen extends SendBasicScreenScreen {
         }
         sendScreenData.selectedFee = selectedFee
         sendScreenData.uiNeedToCountFees = false
-        if (!CACHE_WARNING_FEES) {
-            let msg = false
-            let goBack = false
-            if (typeof tmp.countedFees.showBlockedBalanceNotice !== 'undefined' &&  tmp.countedFees.showBlockedBalanceNotice) {
-                msg = strings('modal.send.blockedBalance')
-                goBack = true
-            } else {
-                if (typeof tmp.countedFees.showLongQueryNotice !== 'undefined' && tmp.countedFees.showLongQueryNotice) {
-                    msg = strings('modal.send.longQuery')
-                }
-                if (typeof tmp.countedFees.showSmallFeeNotice !== 'undefined' && tmp.countedFees.showSmallFeeNotice) {
-                    if (msg) {
-                        msg += ' + '
-                    } else {
-                        msg = ''
-                    }
-                    msg += strings('modal.send.feeSmallAmount')
-                }
-            }
-            if (msg) {
-                Log.log('countedFees notice ' + msg, tmp.countedFees)
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: null,
-                    title: strings('modal.titles.attention'),
-                    description: msg
-                }, async () => {
-                    if (goBack) {
-                        // account was not opened before
-                        setSelectedCryptoCurrency(this.state.cryptoCurrency)
-                        await setSelectedAccount()
-                        NavStore.reset('AccountScreen')
-                    } else {
-                        this.setState({
-                            sendScreenData,
-                            countedFees: tmp.countedFees,
-                            loadFee: false
-                        })
-                        CACHE_IS_FEE_LOADING = false
-                        CACHE_WARNING_FEES = true
-                    }
-                })
-                return false
-            }
-        }
 
+        this.checkLoadedFee(tmp.countedFees)
         this.setState({
             sendScreenData,
-            countedFees : tmp.countedFees,
+            countedFees: tmp.countedFees,
             loadFee: false
         })
         CACHE_IS_FEE_LOADING = false
+    }
+
+    checkLoadedFee = (countedFees) => {
+        let msg = false
+        let goBack = false
+        let cacheWarningNoticeValue = ''
+        if (typeof countedFees.showBlockedBalanceNotice !== 'undefined' && countedFees.showBlockedBalanceNotice) {
+            msg = strings('modal.send.blockedBalance', { free: countedFees.showBlockedBalanceFree })
+            goBack = BlocksoftExternalSettings.getStatic('ETH_BLOCKED_BALANCE_FORCE_QUIT') > 0
+            cacheWarningNoticeValue = countedFees.showBlockedBalanceNotice
+        } else {
+            if (typeof countedFees.showLongQueryNotice !== 'undefined' && countedFees.showLongQueryNotice) {
+                msg = strings('modal.send.longQuery')
+                goBack = BlocksoftExternalSettings.getStatic('ETH_LONG_QUERY_FORCE_QUIT') > 0
+                cacheWarningNoticeValue = countedFees.showLongQueryNotice
+            }
+            if (typeof countedFees.showSmallFeeNotice !== 'undefined' && countedFees.showSmallFeeNotice) {
+                if (msg) {
+                    msg += ' + '
+                    cacheWarningNoticeValue += '_' + countedFees.showSmallFeeNotice
+                } else {
+                    msg = ''
+                    cacheWarningNoticeValue = countedFees.showSmallFeeNotice
+                }
+                msg += strings('modal.send.feeSmallAmount')
+            }
+        }
+        if (msg && CACHE_WARNING_NOTICE !== cacheWarningNoticeValue) {
+            Log.log('countedFees notice ' + msg, countedFees)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.titles.attention'),
+                description: msg
+            }, async () => {
+                if (goBack) {
+                    // account was not opened before
+                    setSelectedCryptoCurrency(this.state.cryptoCurrency)
+                    await setSelectedAccount()
+                    NavStore.reset('AccountScreen')
+                } else {
+                    CACHE_WARNING_NOTICE = cacheWarningNoticeValue
+                }
+            })
+            return false
+        }
     }
 
     init = async () => {
@@ -241,7 +246,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         const { account, wallet, sendScreenData } = this.state
         const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = wallet
-        const { address, derivationPath,  accountJson, currencyCode, accountId } = account
+        const { address, derivationPath, accountJson, currencyCode, accountId } = account
 
         let selectedFee = typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
         if (!selectedFee) {
@@ -291,7 +296,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 useOnlyConfirmed: !(walletUseUnconfirmed === 1),
                 allowReplaceByFee: walletAllowReplaceByFee === 1,
                 accountJson,
-                transactionJson: sendScreenData.transactionJson,
+                transactionJson: sendScreenData.transactionJson
             }
             let memo = false
             let comment = false
@@ -380,6 +385,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 if (sendScreenData.transactionRemoveByFee) {
                     transaction.addressTo = ''
                     transaction.transactionDirection = 'self'
+                }
+                if (typeof txData.addressFrom !== 'undefined' && txData.addressFrom) {
+                    transaction.addressFromBasic = txData.addressFrom.toLowerCase()
                 }
                 if (config.debug.sendLogs) {
                     console.log('ReceiptScreen.saveTx RBFed', transaction)
@@ -486,56 +494,56 @@ class ReceiptScreen extends SendBasicScreenScreen {
             }
 
             this.setState({
-                sendInProcess: false
-            },
+                    sendInProcess: false
+                },
 
-            // showModal({
-            //     type: 'INFO_MODAL',
-            //     icon: true,
-            //     title: strings('modal.send.success'),
-            //     description: successMessage
-            // },
-            async () => {
+                // showModal({
+                //     type: 'INFO_MODAL',
+                //     icon: true,
+                //     title: strings('modal.send.success'),
+                //     description: successMessage
+                // },
+                async () => {
 
-                const { uiType } = this.state.sendScreenData
+                    const { uiType } = this.state.sendScreenData
 
-                if (sendScreenData.transactionSpeedUp || sendScreenData.transactionReplaceByFee || sendScreenData.transactionRemoveByFee) {
-                    NavStore.reset('TransactionScreen', {
-                        txData: {
-                            transactionHash: tx.transactionHash,
-                            toOpenAccountBack : true
-                        },
-                    })
-                } else if (uiType === 'MAIN_SCANNER') {
-                    NavStore.reset('DashboardStack')
-                } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {
-                    // NavStore.reset('AccountScreen')
-                    NavStore.goNext('TransactionScreen', {
-                        txData: {
-                            transactionHash: tx.transactionHash,
-                        } 
-                    })
-                } else if (uiType === 'TRADE_SEND') {
-                    NavStore.reset('TransactionScreen', {
-                        txData: {
-                            transactionHash: tx.transactionHash,
-                        } 
-                    })
-                    // NavStore.goNext('FinishScreen', {
-                    //     finishScreenParam: {
-                    //         selectedCryptoCurrency: this.state.cryptoCurrency
-                    //     }
-                    // })
-                } else if (uiType === 'DEEP_LINKING' || uiType === 'HOME_SCREEN') {
-                    // account was not opened before
-                    setSelectedCryptoCurrency(this.state.cryptoCurrency)
-                    await setSelectedAccount()
-                    NavStore.reset('AccountScreen')
-                } else {
-                    // fio request etc - direct to receipt
-                    NavStore.goBack(null)
-                }
-            })
+                    if (sendScreenData.transactionSpeedUp || sendScreenData.transactionReplaceByFee || sendScreenData.transactionRemoveByFee) {
+                        NavStore.reset('TransactionScreen', {
+                            txData: {
+                                transactionHash: tx.transactionHash,
+                                toOpenAccountBack: true
+                            }
+                        })
+                    } else if (uiType === 'MAIN_SCANNER') {
+                        NavStore.reset('DashboardStack')
+                    } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {
+                        // NavStore.reset('AccountScreen')
+                        NavStore.goNext('TransactionScreen', {
+                            txData: {
+                                transactionHash: tx.transactionHash
+                            }
+                        })
+                    } else if (uiType === 'TRADE_SEND') {
+                        NavStore.reset('TransactionScreen', {
+                            txData: {
+                                transactionHash: tx.transactionHash
+                            }
+                        })
+                        // NavStore.goNext('FinishScreen', {
+                        //     finishScreenParam: {
+                        //         selectedCryptoCurrency: this.state.cryptoCurrency
+                        //     }
+                        // })
+                    } else if (uiType === 'DEEP_LINKING' || uiType === 'HOME_SCREEN') {
+                        // account was not opened before
+                        setSelectedCryptoCurrency(this.state.cryptoCurrency)
+                        await setSelectedAccount()
+                        NavStore.reset('AccountScreen')
+                    } else {
+                        // fio request etc - direct to receipt
+                        NavStore.goBack(null)
+                    }
+                })
 
         } catch (e) {
 
@@ -585,7 +593,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                         msg.indexOf('SERVER_RESPONSE_PLEASE_SELECT_FEE') !== -1
                         || msg.indexOf('SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION') !== -1
                     ) {
-                        this.openAdvancedSettings({toOpenCustom : true})
+                        this.openAdvancedSettings({ toOpenCustom: true })
                     }
                 })
             }
@@ -622,9 +630,12 @@ class ReceiptScreen extends SendBasicScreenScreen {
         }
 
         let selectedFee = typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
+        const tmp = SendTmpData.getCountedFees()
         if (!selectedFee) {
-            const tmp = SendTmpData.getCountedFees()
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
+        }
+        if (typeof tmp.countedFees !== 'undefined' && tmp.countedFees) {
+            this.checkLoadedFee(tmp.countedFees)
         }
 
         let amount = sendScreenData.amountPretty
@@ -659,7 +670,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                                 console.log('Send.ReceiptScreen.render change amount check ', newAmount, newAmount.substring(0, tmp.length) + '!=' + tmp)
                             }
                             showModal({
-                                type: "INFO_MODAL",
+                                type: 'INFO_MODAL',
                                 icon: null,
                                 title: strings('modal.titles.attention'),
                                 description: strings('modal.send.feeChangeAmount')
@@ -723,10 +734,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 <Header
                     leftType='back'
                     leftAction={this.closeAction}
-                    leftParams={{"close": false}}
+                    leftParams={{ 'close': false }}
                     rightType='close'
                     rightAction={this.closeAction}
-                    rightParams={{"close": true}}
+                    rightParams={{ 'close': true }}
                     title={strings('send.receiptScreen.title')}
                     setHeaderHeight={this.setHeaderHeight}
                     setStatusBar={() => StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')}
@@ -747,19 +758,19 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 >
                     <View style={{ flex: 1 }}>
                         <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={{...styles.title, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.totalSend')}</Text>
+                            <Text style={{ ...styles.title, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.totalSend')}</Text>
                             <Text style={{ ...styles.value, color: color }}>{`${amount} ${currencySymbol}`}</Text>
                             {
                                 sendScreenData.uiProviderType !== 'TRADE_SEND' ?
                                     <LetterSpacing
                                         text={`${basicCurrencySymbol} ${equivalent}`}
                                         numberOfLines={1}
-                                        textStyle={{...styles.notEquivalent, color: '#999999' }}
+                                        textStyle={{ ...styles.notEquivalent, color: '#999999' }}
                                         letterSpacing={1} />
 
                                     : null
                             }
-                            <View style={{...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
+                            <View style={{ ...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
                         </View>
                         <View style={{ marginTop: 12 }}>
                             <CheckData
@@ -789,7 +800,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                                     name={strings('send.receiptScreen.recepient')}
                                     value={BlocksoftPrettyStrings.makeCut(contactName, 6)}
                                 />
-                            : null}
+                                : null}
                             {multiShow ?
                                 multiAddress.map((item, index) => {
                                     return (
@@ -815,20 +826,20 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             {this.renderMinerFee()}
                             {sendScreenData.comment ?
                                 <>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center'  }} >
-                                        <View style={{...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
+                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        <View style={{ ...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
                                     </View>
-                                    
-                                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: 24 }}> 
-                                        <Text style={{...styles.name, color: colors.sendScreen.amount}}>{strings('send.setting.note')}</Text>
-                                        <Text style={{...styles.valueComment, color: colors.sendScreen.amount}}>{sendScreenData.comment}</Text>
+
+                                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: 24 }}>
+                                        <Text style={{ ...styles.name, color: colors.sendScreen.amount }}>{strings('send.setting.note')}</Text>
+                                        <Text style={{ ...styles.valueComment, color: colors.sendScreen.amount }}>{sendScreenData.comment}</Text>
                                     </View>
                                 </>
-                             : null}
+                                : null}
 
                             <View style={{ paddingHorizontal: GRID_SIZE, flexDirection: 'row', marginTop: 44 }}>
                                 <CustomIcon name='shield' size={28} style={{ color: colors.sendScreen.amount }} />
-                                <Text style={{...styles.info, color: colors.sendScreen.amount}}>{strings('send.receiptScreen.trusteeInfo')}</Text>
+                                <Text style={{ ...styles.info, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.trusteeInfo')}</Text>
                             </View>
                         </View>
                     </View>
@@ -910,5 +921,5 @@ const styles = {
         fontHeight: 14,
         letterSpacing: 1,
         marginTop: 1
-    },
+    }
 }

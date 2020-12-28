@@ -188,6 +188,13 @@ export default class SendBasicScreen extends Component {
         }
 
         Log.log('Send.SendBasicScreen.renderMinerFee prettyFee ' + prettyFee + ' prettyFeeSymbol ' + prettyFeeSymbol + ' fiatFee ' + fiatFee)
+        let nonceForTxTitle = false
+        if (selectedFee.isCustomFee) {
+            nonceForTxTitle = 'send.receiptScreen.customNonce'
+        } else if (typeof selectedFee.showNonce !== 'undefined' && selectedFee.showNonce) {
+            nonceForTxTitle = 'send.receiptScreen.nonce'
+        }
+
         return (
             <>
                 <CheckData
@@ -196,9 +203,9 @@ export default class SendBasicScreen extends Component {
                     subvalue={fiatFee}
                 />
                 {
-                    selectedFee.isCustomFee && selectedFee.nonceForTx ?
+                    nonceForTxTitle && typeof selectedFee.nonceForTx !== 'undefined' && selectedFee.nonceForTx ?
                         <CheckData
-                            name={strings('send.receiptScreen.customNonce')}
+                            name={strings(nonceForTxTitle)}
                             value={selectedFee.nonceForTx + ''}
                         /> : null
                 }
