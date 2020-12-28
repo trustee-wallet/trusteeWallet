@@ -15,7 +15,7 @@ const CACHE = {
     'TRX_VOTE_BEST' : 'TV9QitxEJ3pdiAUAfJ2QuPxLKp9qTTR3og',
     'ETH_LONG_QUERY' : 1,
     'ETH_BLOCKED_BALANCE_FORCE_QUIT' : 1,
-    'ETH_LONG_QUERY_FORCE_QUIT' : 0,
+    'ETH_LONG_QUERY_FORCE_QUIT' : 1,
     'BCH': { '2': 2, '6': 1, '12': 1 },
     'BSV': { '2': 2, '6': 1, '12': 1 },
     'BTG': { '2': 10, '6': 5, '12': 2 },
