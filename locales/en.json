@@ -860,6 +860,7 @@
         "minerFee": "Miner fee",
         "totalMinerFee": "Total miner fee",
         "customNonce": "Custom nonce",
+        "nonce": "Nonce",
         "trusteeInfo": "Trustee cannot take commission on cryptocurrency transactions",
         "send": "Send",
         "sending": "Sending"
@@ -1252,9 +1253,10 @@
       "txSuccess": "Your transaction has been successfully sent!",
       "fail": "Attention!",
       "feeChangeAmount": "Sending amount was change after change fee",
-      "blockedBalance" : "Your balance was used in previous unconfirmed transactions",
+      "blockedBalance" : "Your balance was used in previous unconfirmed transactions, you can use %{free}",
       "feeSmallAmount" : "Left for fee amount is too small - transaction could be take too long time to confirm",
-      "longQuery" : "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one"
+      "longQuery" : "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one",
+      "noTBKprovider" : "Sorry, the function is disabled as exchange operator could not process speed up transactions"
     },
     "walletLog": {
       "sorry": "Attention!",

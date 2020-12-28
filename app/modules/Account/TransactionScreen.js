@@ -60,6 +60,7 @@ import {
     setSelectedAccount,
     setSelectedCryptoCurrency
 } from '../../appstores/Stores/Main/MainStoreActions'
+import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -79,9 +80,9 @@ class TransactionScreen extends Component {
             addressExchangeToView: null,
             commentToView: null,
             commentEditable: false,
-            
+
             linkExplorer: null,
-            
+
             focused: false,
             notification : false,
             toOpenAccountBack : false
@@ -103,7 +104,7 @@ class TransactionScreen extends Component {
                 const wallet = store.getState().mainStore.selectedWallet
                 walletHash = wallet.walletHash
             }
-            
+
             // @yura this is bugplace plz see
             account = store.getState().accountStore.accountList[walletHash]
             if (transactionHash) {
@@ -427,7 +428,7 @@ class TransactionScreen extends Component {
     prepareTransactionHashToView = (transaction, cryptoCurrency) => {
         if (!transaction.transactionHash) return null
         let linkUrl = typeof cryptoCurrency.currencyExplorerTxLink !== 'undefined' ? cryptoCurrency.currencyExplorerTxLink + transaction.transactionHash : ''
-    
+
         if (linkUrl.length !== 0 && linkUrl.indexOf('?') === -1) {
             linkUrl += '?from=trustee'
         }
@@ -502,7 +503,7 @@ class TransactionScreen extends Component {
             } catch (e) {
             }
         }, 500)
-        
+
     }
 
     onBlurComment = async (item) => {
@@ -634,7 +635,7 @@ class TransactionScreen extends Component {
                     <View style={{ ...styles.statusLine, borderBottomColor: color }} />
                     <View style={{ paddingHorizontal: 17, backgroundColor: colors.common.header.bg }}>
                         <View style={{ ...styles.statusBlock, backgroundColor: color }}>
-                            <LetterSpacing text={this.prepareStatusHeaderToView(status)} 
+                            <LetterSpacing text={this.prepareStatusHeaderToView(status)}
                                 textStyle={{...styles.status, color: colors.transactionScreen.status }} letterSpacing={1.5} />
                         </View>
                     </View>
@@ -727,16 +728,25 @@ class TransactionScreen extends Component {
         if (account.currencyCode === 'BTC' && transaction.addressTo.indexOf('OMNI') !== -1) {
             return false
         }
-        if (transaction.bseOrderData && typeof transaction.bseOrderData.disableTBK  !== 'undefined') {
-            if (transaction.bseOrderData.disableTBK) {
-                return false
-            }
-        }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {
             Log.log('TransactionScreen.renderReplaceByFee could not replace')
             return false
         }
         array.push({ icon: 'rbf', title: strings('account.transactionScreen.booster'), action: async () => {
+
+
+                if (transaction.bseOrderData && typeof transaction.bseOrderData.disableTBK  !== 'undefined') {
+                    if (transaction.bseOrderData.disableTBK) {
+                        showModal({
+                            type: 'INFO_MODAL',
+                            icon: null,
+                            title: strings('modal.titles.attention'),
+                            description: strings('modal.send.noTBKprovider')
+                        })
+                        return false
+                    }
+                }
+
             const params = {
                 gotoReceipt: true,
                 amountRaw : transaction.addressAmount,
@@ -744,7 +754,8 @@ class TransactionScreen extends Component {
                 uiType : 'TRANSACTION_SCREEN'
             }
             if (transaction.addressTo === '') {
-                params.transactionSpeedUp = transaction.transactionHash
+                // no! params.transactionSpeedUp = transaction.transactionHash
+                params.transactionReplaceByFee = transaction.transactionHash
                 params.addressTo = account.address
             } else {
                 params.transactionReplaceByFee = transaction.transactionHash
@@ -785,7 +796,7 @@ class TransactionScreen extends Component {
 
     shareTransaction = (transaction, linkUrl) => {
         const shareOptions = {}
-        shareOptions.message = strings('account.transactionScreen.transactionHash') + ` ${linkUrl}\n` +  
+        shareOptions.message = strings('account.transactionScreen.transactionHash') + ` ${linkUrl}\n` +
             strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackStore.dataFromApi.cashbackLink}\n` + strings('account.transactionScreen.thanks')
         if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData) {
             shareOptions.message = strings(`account.transaction.orderId`) + ` ${transaction.bseOrderData.orderHash}\n` + shareOptions.message
@@ -885,7 +896,7 @@ class TransactionScreen extends Component {
                                 // eslint-disable-next-line react/jsx-key
                                 <Buttons
                                     data={item}
-                                    title={this.state.showMoreDetails ? false : true}  
+                                    title={this.state.showMoreDetails ? false : true}
                                 />
                             )
                         })}
@@ -988,7 +999,7 @@ class TransactionScreen extends Component {
                                     title={strings('account.transactionScreen.self')}
                                     iconType='self'
                                     // subtitle={'self'}
-                            /> 
+                            />
                             ) }
                         </View>
                         {this.state.notification && (
