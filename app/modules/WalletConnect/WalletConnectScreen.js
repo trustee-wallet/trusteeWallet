@@ -113,7 +113,7 @@ class WalletConnectScreen extends React.Component {
         let decimals = 0
         let txPrice = 0
         try {
-            decimals = BlocksoftUtils.hexToDecimal(data.value)
+            decimals = BlocksoftUtils.hexToDecimalWalletConnect(data.value)
             value = BlocksoftPrettyNumbers.setCurrencyCode('ETH').makePretty(decimals)
         } catch (e) {
             Log.log('WalletConnectScreen.handleSendTransaction value/decimals error ' + e.message)
@@ -121,13 +121,13 @@ class WalletConnectScreen extends React.Component {
         try {
             let gasPrice = 0
             if (typeof data.gasPrice !== 'undefined') {
-                gasPrice = BlocksoftUtils.hexToDecimal(data.gasPrice)
+                gasPrice = BlocksoftUtils.hexToDecimalWalletConnect(data.gasPrice)
             }
             if (gasPrice * 1 <= 0) {
                 const prices = await EthNetworkPrices.get(data.from)
                 gasPrice = prices.speed_blocks_2
             }
-            const gas = BlocksoftUtils.hexToDecimal(data.gas)
+            const gas = BlocksoftUtils.hexToDecimalWalletConnect(data.gas)
             txPrice = BlocksoftPrettyNumbers.setCurrencyCode('ETH').makePretty(BlocksoftUtils.mul(gasPrice, gas))
         } catch (e) {
             Log.log('WalletConnectScreen.handleSendTransaction txPrice error ' + e.message)

@@ -160,7 +160,7 @@ export namespace AppWalletConnect {
             const privateData = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor, 'AppWalletConnect')
 
             const signData = await WEB3.eth.accounts.signTransaction(data, privateData.privateKey)
-            const nonce = BlocksoftUtils.hexToDecimal(data.nonce)
+            const nonce = BlocksoftUtils.hexToDecimalWalletConnect(data.nonce)
 
             await EthTmpDS.saveNonce(data.from, 'send_' + signData.transactionHash, nonce)
 

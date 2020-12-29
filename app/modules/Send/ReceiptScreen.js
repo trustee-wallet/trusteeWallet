@@ -109,7 +109,6 @@ class ReceiptScreen extends SendBasicScreenScreen {
         if (CACHE_IS_FEE_LOADING) {
             return
         }
-        console.log('startLoadFee1')
 
         CACHE_IS_FEE_LOADING = true
         const { sendScreenData } = this.state

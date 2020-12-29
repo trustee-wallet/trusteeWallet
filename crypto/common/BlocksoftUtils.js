@@ -305,7 +305,14 @@ class BlocksoftUtils {
     }
 
     static hexToDecimal(hex) {
-        return hexToBn(hex).toString() // Web3.utils.hexToNumber(hex)
+        if (hex.toString().indexOf('0x') === 0) {
+            return Web3.utils.hexToNumber(hex)
+        }
+        return hex
+    }
+
+    static hexToDecimalWalletConnect(hex) {
+        return hexToBn(hex).toString()
     }
 
     static decimalToHex(decimal, len = 0) {

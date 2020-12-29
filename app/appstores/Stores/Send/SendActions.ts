@@ -167,13 +167,21 @@ export namespace SendActions {
                 countedFees: false,
                 selectedFee: false
             }
-
+        }
+        countedFeesData.transactionJson = {}
+        if (typeof data.transactionBoost !== 'undefined') {
+            if (typeof data.transactionBoost.transactionJson !== 'undefined' && data.transactionBoost.transactionJson !== {}) {
+                countedFeesData.transactionJson = data.transactionBoost.transactionJson
+            }
         }
         if (typeof data.transactionJson !== 'undefined' && data.transactionJson && data.transactionJson !== {}) {
-            countedFeesData.transactionJson = data.transactionJson
+            countedFeesData.transactionJson = { ...countedFeesData.transactionJson, ...data.transactionJson}
         }
 
         const addData = {} as BlocksoftBlockchainTypes.TransferAdditionalData
+        if (countedFeesData.transactionJson && typeof countedFeesData.transactionJson.nonce !== 'undefined') {
+            addData.nonceForTx = countedFeesData.transactionJson.nonce
+        }
         if (typeof data.selectedFee !== 'undefined' && data.selectedFee) {
             if (typeof data.selectedFee.blockchainData !== 'undefined' && typeof data.selectedFee.blockchainData.unspents !== 'undefined') {
                 addData.unspents = data.selectedFee.blockchainData.unspents

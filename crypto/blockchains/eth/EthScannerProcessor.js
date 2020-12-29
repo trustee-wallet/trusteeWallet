@@ -470,7 +470,7 @@ export default class EthScannerProcessor extends EthBasic {
         }
         if (tx.addressFrom === '' && tx.addressTo === '') {
             tx.transactionDirection = 'self'
-            tx.addressAmount = 0
+            // self zero will not shown if uncomment! tx.addressAmount = 0
         }
         if (additional) {
             tx.transactionJson = additional
