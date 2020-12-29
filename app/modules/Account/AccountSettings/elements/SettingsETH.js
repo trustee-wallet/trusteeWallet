@@ -19,13 +19,25 @@ import ListItem from '../../../../components/elements/new/list/ListItem/Setting'
 
 class SettingsETH extends Component {
 
-    handleAllow = async (title) => {
+    handleAllow = async (title, title2, title3) => {
         try {
             setLoaderStatus(true)
             const val = await settingsActions.getSetting(title)
             if (!val || val === '0') {
+                if (title2) {
+                    const val2 = settingsActions.getSettingStatic(title2)
+                    if (!val2 || val2 === '0') {
+                        await settingsActions.setSettings(title2, '1')
+                    }
+                }
                 await settingsActions.setSettings(title, '1')
             } else {
+                if (title3) {
+                    const val3 = settingsActions.getSettingStatic(title3)
+                    if (val3 && val3 !== '0') {
+                        await settingsActions.setSettings(title3, '0')
+                    }
+                }
                 await settingsActions.setSettings(title, '0')
             }
             setLoaderStatus(false)
@@ -53,14 +65,14 @@ class SettingsETH extends Component {
                         iconType='unconfirmed'
                         onPress={() => this.handleAllow('ethAllowLongQuery')}
                         rightContent='switch'
-                        switchParams={{ value: ethAllowLongQuery === '1', onPress: () => this.handleAllow('ethAllowLongQuery')}}
+                        switchParams={{ value: ethAllowLongQuery === '1', onPress: () => this.handleAllow('ethAllowLongQuery', false, 'ethAllowBlockedBalance')}}
                     />
                     <ListItem
                         title={strings('settings.walletList.allowBlockedBalanceETH')}
                         iconType='unconfirmed'
                         onPress={() => this.handleAllow('ethAllowBlockedBalance')}
                         rightContent='switch'
-                        switchParams={{ value: ethAllowBlockedBalance === '1', onPress: () => this.handleAllow('ethAllowBlockedBalance') }}
+                        switchParams={{ value: ethAllowBlockedBalance === '1', onPress: () => this.handleAllow('ethAllowBlockedBalance', 'ethAllowLongQuery', false) }}
                     />
                 </View>
             </>
