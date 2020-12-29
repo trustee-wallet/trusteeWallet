@@ -252,6 +252,7 @@ class TransactionScreen extends Component {
 
     prepareAddressToToView = (transaction) => {
         if (transaction.bseOrderData) return false // added wrapper in preformatWithBSEforShow
+        if (transaction.wayType === 'self') return false
         if (typeof transaction.addressTo === 'undefined' || !transaction.addressTo) return false
         return {
             title: strings(`account.transaction.to`),
@@ -492,7 +493,7 @@ class TransactionScreen extends Component {
     }
 
     prepareBlockNumber = (blockNumber) => {
-        if (typeof blockNumber === 'undefined' || !blockNumber || blockNumber === null) return false
+        if (typeof blockNumber === 'undefined' || !blockNumber || blockNumber === null || blockNumber === -1) return false
         return {
             title: strings(`account.transaction.blockNumber`),
             description: blockNumber.toString()

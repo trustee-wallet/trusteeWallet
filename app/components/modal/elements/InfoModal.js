@@ -32,7 +32,7 @@ class InfoModal extends Component {
 
     render() {
         const { show } = this.props
-        const { icon, title, description, component, error } = this.props.data
+        const { icon, title, description, component, error, noBackdropPress } = this.props.data
         if (typeof (error) !== 'undefined' && typeof (error.log) !== 'undefined') {
             // make visible for advanced users or devs @Misha? alert(error.log)
         }
@@ -40,7 +40,7 @@ class InfoModal extends Component {
         const { colors } = this.context
 
         return (
-            <Layout visible={show}>
+            <Layout visible={show} noBackdropPress={noBackdropPress || false} >
                 <View>
                     <Icon callback={this.handleHide} icon={`${icon === true ? 'success' : icon === false ? 'fail' : icon === null ? 'warning' : icon.toLowerCase()}`}/>
                     <Title style={{...styles.title, color: colors.common.text1 }}>

@@ -139,7 +139,8 @@ class BackupStep1Screen extends React.Component {
                 type: 'INFO_MODAL',
                 icon: true,
                 title: strings('modal.walletBackup.success'),
-                description: strings('modal.walletBackup.seedConfirm')
+                description: strings('modal.walletBackup.seedConfirm'),
+                noBackdropPress: true
             }, () => {
                 NavStore.reset('DashboardStack')
             })
@@ -168,7 +169,8 @@ class BackupStep1Screen extends React.Component {
                     type: 'INFO_MODAL',
                     icon: true,
                     title: strings('modal.walletBackup.success'),
-                    description: strings('modal.walletBackup.walletCreated')
+                    description: strings('modal.walletBackup.walletCreated'),
+                    noBackdropPress: true
                 }, async () => {
                     if (callback === null) {
                         NavStore.reset('DashboardStack')

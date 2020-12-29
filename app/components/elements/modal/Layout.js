@@ -31,7 +31,7 @@ class ModalLayout extends Component {
         const { colors } = this.context
 
         return (
-            <Modal style={styles.modal} hasBackdrop={true} backdropOpacity={0.4} isVisible={this.props.visible} onBackdropPress={hideModal} >
+            <Modal style={styles.modal} hasBackdrop={true} backdropOpacity={0.4} isVisible={this.props.visible} onBackdropPress={() => {this.props.noBackdropPress === true ? null : hideModal()}} >
                 <View style={{...styles.container, backgroundColor: colors.common.background, minHeight: this.props.notifications ? 170 : 290  }}>
                     <View>
                         {this.props.children}
