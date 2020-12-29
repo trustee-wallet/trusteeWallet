@@ -40,6 +40,9 @@ class EthNetworkPrices {
         try {
             tmp = await BlocksoftAxios.getWithoutBraking(link, ESTIMATE_MAX_TRY)
             if (tmp.data && tmp.data.fastest) {
+                if (typeof tmp.data.gasPriceRange !== 'undefined') {
+                    delete tmp.data.gasPriceRange
+                }
                 logData.source = 'reloaded'
                 CACHE_PREV_DATA = tmp.data
                 BlocksoftCryptoLog.log('EthNetworkPricesProvider loaded new fee', CACHE_PREV_DATA)

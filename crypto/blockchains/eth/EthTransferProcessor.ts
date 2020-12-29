@@ -355,7 +355,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 + (check ? 'true' : 'false'))
             if (check) {
                 try {
-                    const diff = '111000000' // BlocksoftUtils.diff(result.countedForBasicBalance, max.amountBlocked[this._settings.currencyCode]).toString()
+                    const diff = BlocksoftUtils.diff(result.countedForBasicBalance, max.amountBlocked[this._settings.currencyCode]).toString()
                     const diffAmount = BlocksoftUtils.diff(diff, data.amount).toString()
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees balance '
                         + result.countedForBasicBalance + ' - blocked ' + max.amountBlocked[this._settings.currencyCode] + ' = left Balance ' + diff + ' => left Amount ' + diffAmount)
