@@ -55,6 +55,7 @@ import {
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 
 import ApiV3 from '../../services/Api/ApiV3'
+import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
 let CACHE_WARNING_AMOUNT = ''
 let CACHE_WARNING_NOTICE = ''
@@ -145,8 +146,13 @@ class ReceiptScreen extends SendBasicScreenScreen {
             cacheWarningNoticeValue = countedFees.showBlockedBalanceNotice
         } else {
             if (typeof countedFees.showLongQueryNotice !== 'undefined' && countedFees.showLongQueryNotice) {
-                msg = strings('modal.send.longQuery')
-                goBack = BlocksoftExternalSettings.getStatic('ETH_LONG_QUERY_FORCE_QUIT') > 0
+                const ethAllowLongQuery = settingsActions.getSettingStatic('ethAllowLongQuery')
+                if (ethAllowLongQuery !== '1') {
+                    msg = strings('modal.send.longQuerySettingOff')
+                    goBack = BlocksoftExternalSettings.getStatic('ETH_LONG_QUERY_FORCE_QUIT') > 0
+                } else {
+                    msg = strings('modal.send.longQuery')
+                }
                 cacheWarningNoticeValue = countedFees.showLongQueryNotice
             }
             if (typeof countedFees.showSmallFeeNotice !== 'undefined' && countedFees.showSmallFeeNotice) {
@@ -532,7 +538,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                         NavStore.reset('TransactionScreen', {
                             txData: {
                                 transactionHash: tx.transactionHash,
-                            } 
+                            }
                         })
                         NavStore.reset('TransactionScreen', {
                             txData: {

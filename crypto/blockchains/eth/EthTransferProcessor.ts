@@ -388,7 +388,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 }
             }
             const LONG_QUERY = await BlocksoftExternalSettings.getStatic('ETH_LONG_QUERY')
-            check = ethAllowLongQuery !== '1' && max.queryLength * 1 >= LONG_QUERY * 1
+            check = max.queryLength * 1 >= LONG_QUERY * 1
              BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees ethAllowLongQuery '
                 + ethAllowLongQuery + ' Query scanned ' + max.scanned  + ' success ' + max.success + ' length ' + max.queryLength + ' => '
                 + (check ? 'true' : 'false')
