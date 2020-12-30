@@ -155,7 +155,8 @@ class EnterMnemonicPhrase extends Component {
                 type: 'INFO_MODAL',
                 icon: true,
                 title: strings('modal.walletCreate.success'),
-                description: strings('modal.walletCreate.walletImported')
+                description: strings('modal.walletCreate.walletImported'),
+                noBackdropPress: true,
             }, async () => {
                 if (callback === null) {
                     NavStore.reset('DashboardStack')
