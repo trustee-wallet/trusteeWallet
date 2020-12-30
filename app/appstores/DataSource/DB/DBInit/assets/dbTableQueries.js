@@ -334,25 +334,6 @@ export default {
             )`
         },
         {
-            tableName: 'transactions_raw',
-            queryString: `CREATE TABLE IF NOT EXISTS transactions_raw (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                currency_code VARCHAR(256) NULL,
-                address VARCHAR(256) NULL,
-                
-                transaction_unique_key VARCHAR(256) NULL,         
-                transaction_hash VARCHAR(256) NULL,                
-                transaction_raw TEXT NULL,
-                broadcast_log TEXT NULL,
-                
-                created_at DATETIME NULL,
-                updated_at DATETIME NULL,
-                broadcast_updated DATETIME NULL,
-                removed_at DATETIME NULL,
-                is_removed INTEGER_NULL
-            )`
-        },
-        {
             tableName: 'transactions_scanners_tmp',
             queryString: `CREATE TABLE IF NOT EXISTS transactions_scanners_tmp (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
