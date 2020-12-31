@@ -64,6 +64,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
             for (const unspent of unspents) {
                 if (unspent.address === data.addressFrom) {
                     newInputs.push(unspent)
+                    inputIsFound = true
                     break
                 }
             }
@@ -72,6 +73,9 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
             newInputs.push(input)
         }
         res.inputs = newInputs
+        if (res.inputs.length === 0 || !inputIsFound) {
+            throw new Error('SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT')
+        }
 
         const totalOuts = res.outputs.length
         if (totalOuts === 0) {
@@ -112,6 +116,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
             res.outputs[0].isChange = false
             res.outputs[0].isUsdt = true
             res.outputs[0].tokenAmount = data.amount
+            res.outputs[1].tokenAmount = '0'
             res.outputs[0].amount = '0'
         } else {
             res.outputs[0].isUsdt = true
