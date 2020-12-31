@@ -50,20 +50,29 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
     } {
         const res = super.getInputsOutputs(data, unspents, feeToCount, subtitle + ' usdted')
         let inputIsFound = false
+        let newInputs = []
+        let oldInputs = []
         for (const input of res.inputs) {
-            if (input.address === data.addressFrom) {
+            if (input.address === data.addressFrom && ! inputIsFound) {
                 inputIsFound = true
-                break
+                newInputs.push(input)
+            } else {
+                oldInputs.push(input)
             }
         }
         if (!inputIsFound) {
             for (const unspent of unspents) {
                 if (unspent.address === data.addressFrom) {
-                    res.inputs.push(unspent)
+                    newInputs.push(unspent)
                     break
                 }
             }
         }
+        for (const input of oldInputs) {
+            newInputs.push(input)
+        }
+        res.inputs = newInputs
+
         const totalOuts = res.outputs.length
         if (totalOuts === 0) {
             res.outputs = [
