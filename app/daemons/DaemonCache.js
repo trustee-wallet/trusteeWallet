@@ -100,6 +100,10 @@ class DaemonCache {
         }
         return this.CACHE_ALL_ACCOUNTS[walletHash][currencyCode]
     }
+
+    getCacheAccountStatiс(walletHash, currencyCode) {
+        return this.CACHE_ALL_ACCOUNTS[walletHash][currencyCode]
+    }
 }
 
 const single = new DaemonCache()
