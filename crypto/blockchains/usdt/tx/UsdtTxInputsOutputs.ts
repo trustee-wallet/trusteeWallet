@@ -40,6 +40,10 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         }
     }
 
+    _addressForChange(data: BlocksoftBlockchainTypes.TransferData) : string {
+        return data.addressFrom
+    }
+
     getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
                      feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
                      subtitle: string = 'default')
