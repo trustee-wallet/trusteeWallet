@@ -183,7 +183,7 @@ export namespace BlocksoftTransfer {
         let txResult = false
         try {
             // BlocksoftCryptoLog.log(`BlocksoftTransfer.canRBF ${data.currencyCode} from ${source} started ${data.address} `)
-            const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
+            const processor = BlocksoftTransferDispatcher.getTransferProcessor(typeof data.currencyCode !== 'undefined' ? data.currencyCode : dbTransaction.currencyCode)
             if (typeof processor.canRBF === 'undefined') {
                 return false
             }

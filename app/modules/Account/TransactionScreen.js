@@ -683,6 +683,7 @@ class TransactionScreen extends Component {
             return false
         }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REMOVE')) {
+            Log.log('TransactionScreen.renderReplaceByFee could not remove', {account, transaction})
             return false
         }
         array.push({ icon: 'canceled', title: strings('account.transactionScreen.removeRbf'), action: async () => {
@@ -738,7 +739,7 @@ class TransactionScreen extends Component {
             return false
         }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {
-            Log.log('TransactionScreen.renderReplaceByFee could not replace')
+            Log.log('TransactionScreen.renderReplaceByFee could not replace', {account, transaction})
             return false
         }
         array.push({ icon: 'rbf', title: strings('account.transactionScreen.booster'), action: async () => {
