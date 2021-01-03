@@ -198,13 +198,19 @@ export default {
 
 
         let msg = ''
-        if (CACHE_SERVER_TIME_NEED_TO_ASK) {
+        let date = new Date()
+        if (true || CACHE_SERVER_TIME_NEED_TO_ASK) { // lets check if the error
             try {
-                Log.log('ApiV3.initData will ask time from server')
+                await Log.log('ApiV3.initData will ask time from server ' + (CACHE_SERVER_TIME_NEED_TO_ASK ? ' need ask ' : ' no ask but we forced'))
+
                 const now = await BlocksoftAxios.get(V3_API + '/data/server-time')
                 if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
                     msg = now.data.serverTime
-                    Log.log('ApiV3.initData msg from server ' + msg)
+                    date = new Date(msg)
+                    const oldNow = +new Date()
+                    await Log.log('ApiV3.initData msg from server ' + msg + ' - old ' + oldNow + ' = ' + Math.abs(now - oldNow))
+                } else {
+                    await Log.log('ApiV3.initData msg from server - no time ', now.data)
                 }
             } catch (e) {
                 // do nothing
@@ -215,15 +221,15 @@ export default {
         data.sign = sign
 
         const currentToken = CashBackUtils.getWalletToken()
-        const date = (new Date()).toISOString().split('T')
+        date = date.toISOString().split('T')
         const keyTitle = V3_KEY_PREFIX + '/' + date[0] + '/' + currentToken
 
         try {
-            Log.log('ApiV3.initData start json')
+            await Log.log('ApiV3.initData start json')
             const text = JSON.stringify(data)
-            Log.log('ApiV3.initData start encryption')
+            await Log.log('ApiV3.initData start encryption')
             const encrypted = await PubEncrypt.encryptWithPublicKey(V3_PUB, text)
-            Log.log('ApiV3.initData end encryption')
+            await Log.log('ApiV3.initData end encryption')
             encrypted.key = currentToken // for firebase key read rule
 
             await firebase.database().ref(keyTitle).set(encrypted)
@@ -237,10 +243,10 @@ export default {
                 + '&locale=' + sublocale()
                 + '&version=' + MarketingEvent.DATA.LOG_VERSION
                 + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
-            Log.log('ApiV3.initData link ' + link)
+            await Log.log('ApiV3.initData link ' + link)
             return link
         } catch (e) {
-            Log.err('ApiV3.initData error ' + e.message)
+            await Log.err('ApiV3.initData error ' + e.message)
             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
         }
     },
@@ -250,7 +256,7 @@ export default {
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         const entryUrl = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
         const entryPoint = V3_ENTRY_POINT_CHECK
-    
+
 
         const sign = await CashBackUtils.createWalletSignature(true)
 
