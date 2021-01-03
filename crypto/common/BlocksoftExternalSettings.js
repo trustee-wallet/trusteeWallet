@@ -58,12 +58,12 @@ const CACHE = {
     'TRADE_ORDERS_NO_TX_MAX_COUNT' : 3,
     'TRADE_ORDERS_NO_TX_WAY_TYPES': {
         'EXCHANGE': {
-            'canceled_payin': 10,
-            'pending_payin': 30,
-            'done_payin' : 30
+            'canceled_payin': 600,
+            'pending_payin': 2880,
+            'done_payin' : 2880
         }, // time in minutes to be shown
         'BUY': {
-            'canceled_payin': 60,
+            'canceled_payin': 1440,
             'pending_payin': 2880,
             'refunded_order': 2880,
             'done_payin': 2880,
