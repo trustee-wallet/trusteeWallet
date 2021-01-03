@@ -168,7 +168,8 @@ class SendAdvancedSettingsScreen extends Component {
         )
     }
 
-    showFee = (basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode) => {
+    showFee = (account) => {
+        const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode } = account
         const { isCustomFee, countedFees } = this.state
         const { uiProviderType, isTransferAll } = this.state.sendScreenData
         // console.log('Send.SendAdvancedSettings.showFee', JSON.parse(JSON.stringify({ basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode })))
@@ -186,7 +187,7 @@ class SendAdvancedSettingsScreen extends Component {
                         const { devMode, selectedFee } = this.state
 
                         if (typeof item.feeForTxDelegated !== 'undefined') {
-                            prettyFeeSymbol = '?' // todo currencySymbol
+                            prettyFeeSymbol = account.currencySymbol
                             prettyFee = item.feeForTxCurrencyAmount
                             feeBasicAmount = BlocksoftPrettyNumbers.makeCut(item.feeForTxBasicAmount, 5).justCutted
                             feeBasicCurrencySymbol = item.feeForTxBasicSymbol
@@ -343,7 +344,6 @@ class SendAdvancedSettingsScreen extends Component {
             account = tmp.account
         }
 
-        const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode } = account
 
         const langMsg = selectedFee ? selectedFee.langMsg : 'none'
         const dropMenu = langMsg !== 'none' ? !!this.state.dropMenu : true
@@ -381,7 +381,7 @@ class SendAdvancedSettingsScreen extends Component {
                                     rightContent={dropMenu ? 'arrow_up' : "arrow_down"}
                                     switchParams={{ value: dropMenu, onPress: this.toggleDropMenu }}
                                     type={'dropdown'}
-                                    ExtraView={() => this.showFee(basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode)}
+                                    ExtraView={() => this.showFee(account)}
                                     subtitle={langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) :
                                         strings(`send.fee.text.${langMsg}`) : null}
                                 />

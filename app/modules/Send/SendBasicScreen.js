@@ -166,7 +166,7 @@ export default class SendBasicScreen extends Component {
         let feeBasicAmount = 0
 
         if (typeof selectedFee.feeForTxDelegated !== 'undefined') {
-            prettyFeeSymbol = '?' //currencySymbol
+            prettyFeeSymbol = account.currencySymbol
             prettyFee = selectedFee.feeForTxCurrencyAmount
             feeBasicAmount = BlocksoftPrettyNumbers.makeCut(selectedFee.feeForTxBasicAmount, 5).justCutted
             feeBasicCurrencySymbol = selectedFee.feeForTxBasicSymbol
