@@ -149,6 +149,7 @@ class HomeScreen extends Component {
                 Log.errDaemon('WalletList.HomeScreen handleRefresh error updateCurrencyRateDaemon ' + e.message)
             }
 
+            /*
             try {
                 await UpdateAppNewsDaemon.updateAppNewsDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
                 await UpdateAppNewsListDaemon.updateAppNewsListDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
@@ -167,6 +168,8 @@ class HomeScreen extends Component {
             } catch (e) {
                 Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountBalanceAndTransactionsHDDaemon ' + e.message)
             }
+
+            */
 
             try {
                 await UpdateAccountListDaemon.forceDaemonUpdate()
