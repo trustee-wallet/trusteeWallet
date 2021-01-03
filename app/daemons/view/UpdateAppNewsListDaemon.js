@@ -41,7 +41,7 @@ class UpdateAppNewsListDaemon extends Update {
             appNewsList: appNewsList
         })
 
-        if (appNewsList.length > 0) {
+        if (appNewsList && appNewsList.length > 0) {
             let item
             const toShow = []
             for (item of appNewsList) {
