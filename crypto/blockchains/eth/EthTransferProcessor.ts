@@ -95,6 +95,8 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
                         gasLimit = await EthEstimateGas(this._web3Link, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
 
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
+
                         // @ts-ignore
                         MarketingEvent.logOnlyRealTime('v20_eth_gas_limit ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {
                             amount: data.amount + '',
@@ -119,6 +121,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             }
         } else {
             gasLimit = additionalData.estimatedGas
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate preestimatedGas ' + gasLimit)
         }
 
         if (!gasLimit) {

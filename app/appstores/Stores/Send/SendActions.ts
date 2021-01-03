@@ -228,7 +228,7 @@ export namespace SendActions {
                 }
                 if (typeof data.selectedFee.gasLimit !== 'undefined' && data.selectedFee.gasLimit) {
                     // @ts-ignore
-                    addData.estimatedGas = data.selectedFee.gasLimit
+                    // saved is not ok! addData.estimatedGas = data.selectedFee.gasLimit
                 }
                 let countedFees2
                 if (data.isTransferAll) {
