@@ -11,7 +11,7 @@ import BlocksoftDict from '../../../../../../crypto/common/BlocksoftDict'
 import currencyActions from '../../../../Stores/Currency/CurrencyActions'
 
 export default {
-    maxVersion: 93,
+    maxVersion: 94,
     updateQuery: {
         1: {
             queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -670,6 +670,10 @@ export default {
 
         93: {
             queryString: `DELETE FROM transactions_scanners_tmp`
+        },
+
+        94: {
+            queryString: `ALTER TABLE transactions ADD COLUMN address_to_basic VARCHAR(256) NULL`
         },
     }
 }

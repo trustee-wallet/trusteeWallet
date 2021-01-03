@@ -27,7 +27,9 @@ const transactionActions = {
      * @param {string} transaction.accountId
      * @param {string} transaction.transactionHash
      * @param {string} transaction.transactionStatus
+     * @param {string} transaction.transactionDirection
      * @param {string} transaction.addressTo
+     * @param {string} transaction.addressToBasic
      * @param {string} transaction.addressFrom
      * @param {string} transaction.addressFromBasic
      * @param {string} transaction.addressAmount
@@ -84,7 +86,9 @@ const transactionActions = {
      * @param transaction.transactionsOtherHashes
      * @param transaction.transactionJson
      * @param transaction.addressAmount
+     * @param transaction.transactionDirection
      * @param transaction.addressTo
+     * @param transaction.addressToBasic
      * @param {string} transaction.addressFromBasic
      * @param transaction.transactionStatus
      * @param transaction.transactionFee

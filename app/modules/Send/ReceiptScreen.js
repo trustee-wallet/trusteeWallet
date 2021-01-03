@@ -373,6 +373,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     accountId,
                     addressAmount: typeof tx.amountForTx !== 'undefined' ? tx.amountForTx : txData.amount,
                     addressTo: txData.addressTo,
+                    addressToBasic : txData.addressTo,
                     transactionHash: tx.transactionHash,
                     transactionStatus: 'new',
                     transactionUpdateHash: txRBF,
@@ -389,7 +390,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 if (typeof tx.amountForTx !== 'undefined') {
                     transaction.addressAmount = tx.amountForTx
                 }
-                if (sendScreenData.transactionRemoveByFee) {
+                if (sendScreenData.transactionRemoveByFee || txData.addressTo === account.address) {
                     transaction.addressTo = ''
                     transaction.transactionDirection = 'self'
                 }
@@ -408,6 +409,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     transactionHash: tx.transactionHash,
                     transactionStatus: 'new',
                     addressTo: txData.addressTo,
+                    addressToBasic : txData.addressTo,
                     addressFrom: '',
                     addressFromBasic: txData.addressFrom.toLowerCase(),
                     addressAmount: typeof tx.amountForTx !== 'undefined' ? tx.amountForTx : txData.amount,
@@ -418,7 +420,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     blockConfirmations: 0,
                     createdAt: now,
                     updatedAt: now,
-                    transactionDirection: 'outcome',
+                    transactionDirection: txData.addressTo === account.address ? 'self' : 'outcome',
                     transactionsScanLog: now + ' CREATED '
                 }
                 if (sendScreenData.transactionSpeedUp) {

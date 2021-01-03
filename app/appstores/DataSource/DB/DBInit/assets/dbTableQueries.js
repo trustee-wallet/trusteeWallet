@@ -256,6 +256,7 @@ export default {
                 transaction_of_trustee_wallet INTEGER NULL,
                 
                 address_to VARCHAR(256) NULL,
+                address_to_basic VARCHAR(256) NULL,
                 address_from VARCHAR(256) NULL,
                 address_from_basic VARCHAR(256) NULL,
                 address_amount INTEGER NULL,

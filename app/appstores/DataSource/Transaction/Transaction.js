@@ -97,6 +97,8 @@ class Transaction {
      * @param transaction.currencyCode
      * @param transaction.addressAmount
      * @param transaction.addressTo
+     * @param transaction.addressToBasic
+     * @param transaction.transactionDirection
      * @param transaction.transactionStatus
      * @param transaction.transactionFee
      * @param transaction.transactionFeeCurrencyCode
@@ -129,6 +131,9 @@ class Transaction {
         }
         if (typeof transaction.addressTo !== 'undefined') {
             sql += `, address_to='${transaction.addressTo}'`
+        }
+        if (typeof transaction.addressToBasic !== 'undefined') {
+            sql += `, address_to_basic='${transaction.addressToBasic}'`
         }
         if (typeof transaction.transactionDirection !== 'undefined') {
             sql += `, transaction_direction='${transaction.transactionDirection}'`
@@ -297,6 +302,7 @@ class Transaction {
             address_from_basic AS addressFromBasic,
             address_amount AS addressAmount, 
             address_to AS addressTo, 
+            address_to_basic AS addressToBasic, 
             transaction_fee AS transactionFee,
             transaction_fee_currency_code AS transactionFeeCurrencyCode,
             transaction_status AS transactionStatus, 
