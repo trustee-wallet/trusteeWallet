@@ -6,19 +6,20 @@ import BtcUnspentsProvider from '../providers/BtcUnspentsProvider'
 import DogeTxInputsOutputs from '../../doge/tx/DogeTxInputsOutputs'
 import settingsActions from '../../../../app/appstores/Stores/Settings/SettingsActions'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+import DaemonCache from '../../../../app/daemons/DaemonCache'
 
 export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxInputsOutputs {
 
-    _addressForChange(data: BlocksoftBlockchainTypes.TransferData) : string {
+    _addressForChange(data: BlocksoftBlockchainTypes.TransferData): string {
         const btcShowTwoAddress = settingsActions.getSettingStatic('btcShowTwoAddress')
         const btcLegacyOrSegwit = settingsActions.getSettingStatic('btc_legacy_or_segwit')
 
         let needFindSegwit = false
-        if (btcShowTwoAddress === "1" || data.useLegacy === 1) {
+        if (btcShowTwoAddress === '1' || data.useLegacy === 1) {
             // @todo as btcShowTwoAddress this will be deprecated simplify the code
             // its only for wallets with old setting of two addresses where there was useLegacy on
             // console.log('will legacy')
-        } else if (btcShowTwoAddress === "1" || btcLegacyOrSegwit === "segwit") {
+        } else if (btcShowTwoAddress === '1' || btcLegacyOrSegwit === 'segwit') {
             needFindSegwit = true
         } else {
             // console.log('will legacy 2')
@@ -42,7 +43,11 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
                 }
             }
             // @ts-ignore
-            BlocksoftCryptoLog.log('BtcTxInputsOutputs _addressForChange addressForChange logic ', {needFindSegwit, addressForChange, CACHE : CACHE_FOR_CHANGE})
+            BlocksoftCryptoLog.log('BtcTxInputsOutputs _addressForChange addressForChange logic ', {
+                needFindSegwit,
+                addressForChange,
+                CACHE: CACHE_FOR_CHANGE
+            })
             if (addressForChange !== '') {
                 return addressForChange
             }
@@ -51,5 +56,77 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
         }
 
         return data.addressFrom
+    }
+
+    getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
+                     feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
+                     subtitle: string = 'default')
+        : {
+        inputs: BlocksoftBlockchainTypes.UnspentTx[],
+        outputs: BlocksoftBlockchainTypes.OutputTx[],
+        multiAddress: [],
+        msg: string,
+    } {
+        const res = super.getInputsOutputs(data, unspents, feeToCount, subtitle + ' btced')
+
+
+        if (this._settings.currencyCode !== 'BTC') {
+            console.log('res0', JSON.parse(JSON.stringify(res)))
+            return res
+        }
+
+        const tmp = DaemonCache.getCacheAccountStatiс(data.walletHash, 'USDT')
+        if (tmp.balance === '0') {
+            return res
+        }
+
+        let usdtCount = 0
+        for (const unspent of unspents) {
+            if (unspent.address === tmp.address) {
+                usdtCount++
+            }
+        }
+        if (usdtCount === 0) {
+            res.outputs.push({ to: tmp.address, amount: '546', isChange: true })
+            return res
+        }
+
+        let usdtUsed = 0
+        for (const input of res.inputs) {
+            if (input.address === tmp.address) {
+                usdtUsed++
+            }
+        }
+        BlocksoftCryptoLog.log('BtxTxInputsOutputs for ' + tmp.address + ' usdtUsed ' + usdtUsed + ' usdtCount ' + usdtCount)
+
+        if (usdtUsed >= usdtCount) {
+            let found = false
+            for (const input of res.inputs) {
+                if (input.address === tmp.address && !found && input.value === '546') {
+                    input.value = '0'
+                    found = true
+                }
+            }
+            if (!found) {
+                for (const input of res.inputs) {
+                    if (input.address === tmp.address) {
+                        res.outputs.push({ to: tmp.address, amount: '546', isChange: true })
+                        break
+                    }
+                }
+            }
+
+            if (found) {
+                const inputs = []
+                for (const input of res.inputs) {
+                    if (input.value !== '0') {
+                        inputs.push(input)
+                    }
+                }
+                res.inputs = inputs
+            }
+        }
+
+        return res
     }
 }
