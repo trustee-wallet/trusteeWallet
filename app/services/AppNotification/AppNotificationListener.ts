@@ -235,10 +235,10 @@ export default new class AppNotificationListener {
                 try {
                     if (typeof data.toShow !== 'undefined' && data.toShow && typeof data.toShow.newsCreated !== 'undefined') {
                         Log.log('PUSH _onNotificationOpen showNewsModal', notificationId)
-                        this.showNewsModal(data.toShow, notificationId)
+                        this.showNewsModal(data.toShow, notificationId, false)
                     } else {
                         Log.log('PUSH _onNotificationOpen showNotificationModal', notificationId)
-                        this.showNotificationModal(data.toSave, notificationId)
+                        this.showNotificationModal(data.toSave, notificationId, false)
                     }
                 } catch (e) {
                     Log.err('PUSH AppNotification.createNotificationOpenedListener show error ' + e.message, {
@@ -321,10 +321,10 @@ export default new class AppNotificationListener {
         try {
             if (typeof data.toShow !== 'undefined' && data.toShow && typeof data.toShow.newsCreated !== 'undefined') {
                 // @ts-ignore
-                this.showNewsModal(data.toShow, notificationId)
+                await this.showNewsModal(data.toShow, notificationId, true)
             } else {
                 // @ts-ignore
-                this.showNotificationModal(data.toSave, notificationId)
+                await this.showNotificationModal(data.toSave, notificationId, true)
             }
         } catch (e) {
             Log.log('PUSH _isAppOpenViaNotification show error ' + e.message, { data, notificationId })
@@ -517,7 +517,7 @@ export default new class AppNotificationListener {
         }
     }
 
-    showNotificationModal = async (data: NotificationUnified, notificationId: string): Promise<void> => {
+    showNotificationModal = async (data: NotificationUnified, notificationId: string, isMain : boolean): Promise<void> => {
         const locale: string = sublocale()
         // showModal({
         //     type: 'CHOOSE_INFO_MODAL',
@@ -532,14 +532,15 @@ export default new class AppNotificationListener {
         //  async () => {
 
         if (notificationId) {
-            Log.log(' PUSH _onNotificationOpen showNotificationModal removeDeliveredNotification disabled1')
+            Log.log(' PUSH _onNotificationOpen showNotificationModal removeDeliveredNotification disabled1 isMain ' + (isMain ? 'true' : 'false'))
             // firebase.notifications().removeDeliveredNotification(notificationId)
         }
 
-
+        /*
+        // somewhere here is bad????
         UpdateAppNewsDaemon.goToNotifications('AFTER_APP') // if only goNext than after load will be few seconds of homescreen
 
-        /*
+
         if (typeof data.walletHash !== 'undefined' && data.walletHash) {
             const selectedWallet = await BlocksoftKeysStorage.getSelectedWallet()
             if (selectedWallet !== data.walletHash) {
@@ -548,18 +549,22 @@ export default new class AppNotificationListener {
         }
         await UpdateAppNewsDaemon.updateAppNewsDaemon()
         await UpdateAppNewsListDaemon.updateAppNewsListDaemon()
-        */
+
 
         if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
             NavStore.reset('NotificationsScreen')
         }
 
+         */
+
     }
 
     showNewsModal = async (data: AppNewsItem, notificationId: string): Promise<void> => {
+        Log.log(' PUSH _onNotificationOpen showNewsModal')
         await appNewsDS.shownPopup(data.id)
         if (notificationId) {
-            firebase.notifications().removeDeliveredNotification(notificationId)
+            Log.log(' PUSH _onNotificationOpen showNotificationModal removeDeliveredNotification disabled2')
+            // firebase.notifications().removeDeliveredNotification(notificationId)
         }
     }
 }
