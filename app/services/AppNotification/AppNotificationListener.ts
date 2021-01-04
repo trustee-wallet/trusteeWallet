@@ -532,11 +532,12 @@ export default new class AppNotificationListener {
         //  async () => {
 
         if (notificationId) {
-            firebase.notifications().removeDeliveredNotification(notificationId)
+            Log.log(' PUSH _onNotificationOpen showNotificationModal removeDeliveredNotification disabled')
+            // firebase.notifications().removeDeliveredNotification(notificationId)
         }
 
         UpdateAppNewsDaemon.goToNotifications('AFTER_APP') // if only goNext than after load will be few seconds of homescreen
-        
+
         if (typeof data.walletHash !== 'undefined' && data.walletHash) {
             const selectedWallet = await BlocksoftKeysStorage.getSelectedWallet()
             if (selectedWallet !== data.walletHash) {
