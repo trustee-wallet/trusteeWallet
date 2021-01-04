@@ -95,7 +95,7 @@ class BlocksoftKeys {
         const logData = { ...data }
         if (typeof logData.mnemonic !== 'undefined') logData.mnemonic = '***'
 
-        BlocksoftCryptoLog.log(`BlocksoftKeys discoverAddresses called from ${source}`, logData)
+        BlocksoftCryptoLog.log(`BlocksoftKeys discoverAddresses called from ${source}`, JSON.stringify(logData).substring(0, 200))
 
         let toDiscover = BlocksoftDict.Codes
         if (data.currencyCode) {

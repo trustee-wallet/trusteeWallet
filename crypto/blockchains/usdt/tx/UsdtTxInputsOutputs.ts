@@ -53,7 +53,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         multiAddress: [],
         msg: string,
     } {
-        const res = super.getInputsOutputs(data, unspents, feeToCount, subtitle + ' usdted')
+        let res = super.getInputsOutputs(data, unspents, feeToCount, subtitle + ' usdted')
         let inputIsFound = false
         let newInputs = []
         let oldInputs = []
@@ -123,10 +123,17 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
             return res
         }
 
-        BlocksoftCryptoLog.log('UsdtTxInputsOutputs old outputs ' + JSON.stringify(res.outputs))
+        BlocksoftCryptoLog.log('UsdtTxInputsOutputs ' + data.addressFrom + ' => ' + data.addressTo + ' old outputs ' + JSON.stringify(res.outputs) + ' needOneOutput ' + needOneOutput ? 'true' : 'false')
+        res = this._innerResort(res, needOneOutput, data.addressFrom, data.addressTo, data.amount)
+        BlocksoftCryptoLog.log('UsdtTxInputsOutputs ' + data.addressFrom + ' => ' + data.addressTo + '  new outputs ' + JSON.stringify(res.outputs))
+        return res
+    }
+
+    _innerResort(res : any, needOneOutput : boolean, addressFrom : string, addressTo : string, amount:string) {
+        const totalOuts = res.outputs.length
         if (res.outputs[0].amount !== '0') {
             if (totalOuts > 1) {
-                if (res.outputs[0].to !== data.addressTo) {
+                if (res.outputs[0].to !== addressTo) {
                     throw new Error('usdt addressTo is invalid1.1 ' + JSON.stringify(res.outputs))
                 }
                 if (res.outputs[1].to !== res.outputs[0].to) {
@@ -134,7 +141,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
                 }
                 res.outputs[1].amount = BlocksoftUtils.add(res.outputs[0].amount, res.outputs[1].amount).toString()
             } else {
-                if (res.outputs[0].to !== data.addressTo) {
+                if (res.outputs[0].to !== addressTo) {
                     throw new Error('usdt addressTo is invalid2 ' + JSON.stringify(res.outputs))
                 }
                 res.outputs[1] = JSON.parse(JSON.stringify(res.outputs[0]))
@@ -143,15 +150,15 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
             res.outputs[1].isUsdt = true
             res.outputs[0].isChange = false
             res.outputs[0].isUsdt = true
-            res.outputs[0].tokenAmount = data.amount
+            res.outputs[0].tokenAmount = amount
             res.outputs[1].tokenAmount = '0'
             res.outputs[0].amount = '0'
         } else {
             res.outputs[0].isUsdt = true
-            res.outputs[0].tokenAmount = data.amount
+            res.outputs[0].tokenAmount = amount
             res.outputs[0].amount = '0'
             if (totalOuts > 1) {
-                if (res.outputs[1].to !== data.addressTo) {
+                if (res.outputs[1].to !== addressTo) {
                     throw new Error('usdt addressTo is invalid3 ' + JSON.stringify(res.outputs))
                 }
                 res.outputs[1].isUsdt = true
@@ -161,17 +168,18 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         }
         const newOutputs = []
         if (needOneOutput) {
-            newOutputs.push({
-                isUsdt: true,
-                amount: this.DUST_FIRST_TRY.toString(),
-                to: data.addressFrom
-            })
+            if (typeof res.outputs[2] === 'undefined' ||  res.outputs[2].to !== addressFrom) {
+                newOutputs.push({
+                    isUsdt: true,
+                    amount: this.DUST_FIRST_TRY.toString(),
+                    to: addressFrom
+                })
+            }
         }
-        for (let i = res.outputs.length - 1; i--; i >=0) {
+        for (let i = res.outputs.length - 1; i>=0; i--) {
             newOutputs.push(res.outputs[i])
         }
         res.outputs = newOutputs
-        BlocksoftCryptoLog.log('UsdtTxInputsOutputs new outputs ' + JSON.stringify(res.outputs))
         return res
     }
 }

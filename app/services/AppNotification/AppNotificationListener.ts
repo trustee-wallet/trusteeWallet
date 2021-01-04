@@ -549,7 +549,7 @@ export default new class AppNotificationListener {
         await UpdateAppNewsDaemon.updateAppNewsDaemon()
         await UpdateAppNewsListDaemon.updateAppNewsListDaemon()
         */
-        
+
         if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
             NavStore.reset('NotificationsScreen')
         }
