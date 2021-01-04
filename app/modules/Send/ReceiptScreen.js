@@ -687,7 +687,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     const tmp = amount.toString()
                     if (newAmount.toString().substring(0, tmp.length) !== tmp) {
                         amount = newAmount
-                        if (CACHE_WARNING_AMOUNT_TIME !== tmp.countedFees.countedTime || CACHE_WARNING_AMOUNT !== amount) && !sendScreenData.transactionRemoveByFee) {
+                        if (!sendScreenData.transactionRemoveByFee
+                            && (CACHE_WARNING_AMOUNT_TIME !== tmp.countedFees.countedTime || CACHE_WARNING_AMOUNT !== amount)
+                        ) {
                             if (config.debug.sendLogs) {
                                 console.log('Send.ReceiptScreen.render change amount check ', newAmount, newAmount.substring(0, tmp.length) + '!=' + tmp)
                             }
