@@ -898,7 +898,7 @@ class TransactionScreen extends Component {
                 {buttonsArray[1].length === 0 ?
                     <Buttons
                         data={buttonsArray[0]}
-                        title={this.state.showMoreDetails ? false : true}
+                        title={true}
                     /> :
                     <Pages indicatorColor={'#5C5C5C'}>
                         {buttonsArray.map((item) => {
@@ -906,7 +906,7 @@ class TransactionScreen extends Component {
                                 // eslint-disable-next-line react/jsx-key
                                 <Buttons
                                     data={item}
-                                    title={this.state.showMoreDetails ? false : true}
+                                    title={true}
                                 />
                             )
                         })}
@@ -1177,7 +1177,8 @@ const styles = {
         backgroundColor: '#F2F2F2',
         // borderRadius: 16,
         paddingHorizontal: 20,
-        paddingVertical: 10,
+        paddingBottom: 10,
+        marginTop: 20,
 
         zIndex: 3
     },
