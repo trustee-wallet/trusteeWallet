@@ -1,5 +1,6 @@
 /**
  * @version 0.11
+ * @deprecated
  */
 import Log from '../services/Log/Log'
 import BackgroundFetch from 'react-native-background-fetch'
@@ -14,7 +15,7 @@ let CACHE_RUNNING = false
 class BackgroundDaemon {
 
     constructor() {
-        this.init()
+        // this.init()
     }
 
 
