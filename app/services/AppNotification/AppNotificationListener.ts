@@ -532,10 +532,11 @@ export default new class AppNotificationListener {
         //  async () => {
 
         if (notificationId) {
-            Log.log(' PUSH _onNotificationOpen showNotificationModal removeDeliveredNotification disabled')
+            Log.log(' PUSH _onNotificationOpen showNotificationModal removeDeliveredNotification disabled1')
             // firebase.notifications().removeDeliveredNotification(notificationId)
         }
 
+        /*
         UpdateAppNewsDaemon.goToNotifications('AFTER_APP') // if only goNext than after load will be few seconds of homescreen
 
         if (typeof data.walletHash !== 'undefined' && data.walletHash) {
@@ -551,6 +552,7 @@ export default new class AppNotificationListener {
         if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
             NavStore.reset('NotificationsScreen')
         }
+        */
 
     }
 
