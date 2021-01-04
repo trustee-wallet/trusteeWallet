@@ -161,7 +161,8 @@ export namespace BlocksoftBlockchainTypes {
         countedForBasicBalance: string,
         fees: Fee[],
         showSmallFeeNotice?: number,
-        shouldChangeBalance?: boolean
+        shouldChangeBalance?: boolean,
+        countedTime : number
     }
 
     export interface FeeRateResult {
@@ -173,7 +174,8 @@ export namespace BlocksoftBlockchainTypes {
         shouldChangeBalance?: boolean,
         showLongQueryNotice?: number,
         showBlockedBalanceNotice?: number,
-        showBlockedBalanceFree: number | any
+        showBlockedBalanceFree: number | any,
+        countedTime : number
     }
 
     export interface SendTxResult {

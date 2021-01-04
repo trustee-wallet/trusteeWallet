@@ -57,6 +57,7 @@ import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalS
 import ApiV3 from '../../services/Api/ApiV3'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
+let CACHE_WARNING_AMOUNT_TIME = ''
 let CACHE_WARNING_AMOUNT = ''
 let CACHE_WARNING_NOTICE = ''
 let CACHE_IS_SENDING = false
@@ -256,24 +257,25 @@ class ReceiptScreen extends SendBasicScreenScreen {
         const { address, derivationPath, accountJson, currencyCode, accountId } = account
 
         let selectedFee = typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
+        let tmp
         if (!selectedFee) {
-            const tmp = SendTmpData.getCountedFees()
+            tmp = SendTmpData.getCountedFees()
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
         if (!selectedFee || sendScreenData.uiNeedToCountFees) {
-            const tmp = await SendActions.countFees(sendScreenData)
+            tmp = await SendActions.countFees(sendScreenData)
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
 
-        if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined' && !passwordChecked) {
+        if (typeof tmp !== 'undefined' && typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined' && !passwordChecked) {
             const newAmount = selectedFee.amountForTx.toString()
-            const tmp = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(sendScreenData.amountRaw)
-            const newTmp = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newAmount)
-            if (newTmp.substring(0, tmp.length) !== tmp) {
+            const amountTmp = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(sendScreenData.amountRaw)
+            const newAmountTmp = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newAmount)
+            if (newAmountTmp.substring(0, amountTmp.length) !== amountTmp) {
                 sendScreenData.amountRaw = newAmount
-                if (CACHE_WARNING_AMOUNT !== newTmp) {
+                if (CACHE_WARNING_AMOUNT_TIME !== tmp.countedFees.countedTime || CACHE_WARNING_AMOUNT !== newAmountTmp) {
                     if (config.debug.sendLogs) {
-                        console.log('Send.ReceiptScreen.handleSend change amount check ', newTmp, newTmp.substring(0, tmp.length) + '!=' + tmp)
+                        console.log('Send.ReceiptScreen.handleSend change amount check ', newAmountTmp, newAmountTmp.substring(0, amountTmp.length) + '!=' + amountTmp)
                     }
                     // @yura here should be alert when fixed receipt and no tx
                     showModal({
@@ -283,6 +285,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                         description: strings('modal.send.feeChangeAmount')
                     })
                     CACHE_WARNING_AMOUNT = sendScreenData.amountRaw
+                    CACHE_WARNING_AMOUNT_TIME = tmp.countedFees.countedTime
                     return false
                 }
             }
@@ -684,7 +687,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     const tmp = amount.toString()
                     if (newAmount.toString().substring(0, tmp.length) !== tmp) {
                         amount = newAmount
-                        if (CACHE_WARNING_AMOUNT !== amount && !sendScreenData.transactionRemoveByFee) {
+                        if (CACHE_WARNING_AMOUNT_TIME !== tmp.countedFees.countedTime || CACHE_WARNING_AMOUNT !== amount) && !sendScreenData.transactionRemoveByFee) {
                             if (config.debug.sendLogs) {
                                 console.log('Send.ReceiptScreen.render change amount check ', newAmount, newAmount.substring(0, tmp.length) + '!=' + tmp)
                             }
@@ -696,6 +699,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             })
                         }
                         CACHE_WARNING_AMOUNT = amount
+                        CACHE_WARNING_AMOUNT_TIME = tmp.countedFees.countedTime
                     }
                 }
                 if (config.debug.sendLogs) {

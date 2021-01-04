@@ -72,6 +72,7 @@ export namespace BlocksoftTransfer {
             }
             additionalDataTmp.mnemonic = '***'
             feesCount = await processor.getFeeRate(data, privateData, additionalDataTmp)
+            feesCount.countedTime = new Date().getTime()
 
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getFeeRate got ${data.addressFrom} result is ok`)
             if (DEBUG) {
