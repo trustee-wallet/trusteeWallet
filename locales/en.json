@@ -294,9 +294,9 @@
       "allowReplaceByFee": "Edit the transaction before confirmation by miners",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
-      "accountAddress": "Select visible address",
-      "hd": "Multiple bitcoin addresses",
-      "hdDescription": "Increase privacy by creating a new deposit address every time BTC is received",
+      "accountAddress": "Default address type",
+      "hd": "Increasing confidentiality",
+      "hdDescription": "Creating a new address, each time after an incoming BTC transaction",
       "hideCommissionTrans": "Hide commission payment transactions",
       "manualAddressFromHD" : "Paste address HD",
       "scanAddressesFromHD" : "Scan addresses from HD",
@@ -548,7 +548,7 @@
       "support": "Support",
       "details": "Details",
       "commentPlaceholder": "Comment (optional)",
-      "viewExplorer": "View on explorer",
+      "viewExplorer": "View in explorer",
       "header": {
         "status": {
           "success": "Success",
@@ -1127,7 +1127,7 @@
       "description": "Your device does not support cashback"
     },
     "infoSendAllModal": {
-      "description": "It looks like you are trying to send your entire %{coin} balance. For correct processing, please use the 'send all' function. Use it now now?"
+      "description": "It looks like you are trying to send your entire %{coin} balance. For correct processing, please click the '100%' button. Use it now now?"
     },
     "infoUpdateModal": {
       "title": "Attention!",
