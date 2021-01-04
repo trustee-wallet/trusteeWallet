@@ -128,7 +128,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
         sendScreenData.selectedFee = selectedFee
         sendScreenData.uiNeedToCountFees = false
 
-        this.checkLoadedFee(tmp.countedFees)
+        this.checkLoadedFee(tmp.countedFees, selectedFee)
         this.setState({
             sendScreenData,
             countedFees: tmp.countedFees,
@@ -137,11 +137,18 @@ class ReceiptScreen extends SendBasicScreenScreen {
         CACHE_IS_FEE_LOADING = false
     }
 
-    checkLoadedFee = (countedFees) => {
+    checkLoadedFee = (countedFees, selectedFee) => {
         let msg = false
         let goBack = false
         let cacheWarningNoticeValue = ''
-        if (typeof countedFees.showBlockedBalanceNotice !== 'undefined' && countedFees.showBlockedBalanceNotice) {
+        if (
+            (typeof selectedFee.isCustomFee === 'undefined' || !selectedFee.isCustomFee)
+            && typeof countedFees.showBigGasNotice !== 'undefined' && countedFees.showBigGasNotice
+        ) {
+            msg = strings('modal.send.bigGas', {gasLimit : selectedFee.gasLimit})
+            goBack = BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT_FORCE_QUIT') > 0
+            cacheWarningNoticeValue = countedFees.showBigGasNotice
+        } else if (typeof countedFees.showBlockedBalanceNotice !== 'undefined' && countedFees.showBlockedBalanceNotice) {
             msg = strings('modal.send.blockedBalance', { free: countedFees.showBlockedBalanceFree })
             goBack = BlocksoftExternalSettings.getStatic('ETH_BLOCKED_BALANCE_FORCE_QUIT') > 0
             cacheWarningNoticeValue = countedFees.showBlockedBalanceNotice
@@ -657,7 +664,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
         if (typeof tmp.countedFees !== 'undefined' && tmp.countedFees) {
-            this.checkLoadedFee(tmp.countedFees)
+            this.checkLoadedFee(tmp.countedFees, selectedFee)
         }
 
         let amount = sendScreenData.amountPretty
@@ -684,14 +691,14 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 if (typeof amount === 'undefined') {
                     amount = newAmount
                 } else {
-                    const tmp = amount.toString()
-                    if (newAmount.toString().substring(0, tmp.length) !== tmp) {
+                    const tmpAmount = amount.toString()
+                    if (newAmount.toString().substring(0, tmpAmount.length) !== tmp) {
                         amount = newAmount
                         if (!sendScreenData.transactionRemoveByFee
                             && (CACHE_WARNING_AMOUNT_TIME !== tmp.countedFees.countedTime || CACHE_WARNING_AMOUNT !== amount)
                         ) {
                             if (config.debug.sendLogs) {
-                                console.log('Send.ReceiptScreen.render change amount check ', newAmount, newAmount.substring(0, tmp.length) + '!=' + tmp)
+                                console.log('Send.ReceiptScreen.render change amount check ', newAmount, newAmount.substring(0, tmpAmount.length) + '!=' + tmpAmount)
                             }
                             showModal({
                                 type: 'INFO_MODAL',

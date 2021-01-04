@@ -169,12 +169,12 @@ export namespace BlocksoftBlockchainTypes {
         countedForBasicBalance: string,
         selectedFeeIndex: number,
         fees: Fee[],
-        showSmallFeeNotice?: number,
-        showChangeAmountNotice?: number,
         shouldChangeBalance?: boolean,
+        showBigGasNotice?:number,
+        showSmallFeeNotice?: number,
         showLongQueryNotice?: number,
         showBlockedBalanceNotice?: number,
-        showBlockedBalanceFree: number | any,
+        showBlockedBalanceFree?: number | any,
         countedTime : number
     }
 

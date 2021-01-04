@@ -123,7 +123,8 @@ class CustomFee extends Component {
 
         const newSelectedFee = {...this.state.selectedFee,
             feeForTx, gasPrice, gasPriceGwei, gasLimit, nonceForTx,
-            isCustomFee: true, langMsg : 'custom'
+            isCustomFee: true,
+            langMsg : 'custom'
         }
         this._setSelectedFee(newSelectedFee)
     }

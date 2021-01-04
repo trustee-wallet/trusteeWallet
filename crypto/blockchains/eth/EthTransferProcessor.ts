@@ -61,7 +61,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         if (txRBF) {
             oldGasPrice = typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.gasPrice !== 'undefined' ? data.transactionJson.gasPrice : false
             oldNonce = typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.nonce !== 'undefined' ? data.transactionJson.nonce : false
-             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' rbf preset nonceForTx ' + oldNonce)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' rbf preset nonceForTx ' + oldNonce)
             if (!oldGasPrice) {
                 try {
                     const ethProvider = BlocksoftDispatcher.getScannerProcessor(data.currencyCode)
@@ -80,9 +80,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             }
         } else if (typeof additionalData.nonceForTx !== 'undefined' && additionalData.nonceForTx) {
             oldNonce = additionalData.nonceForTx
-             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' custom nonceForTx ' + additionalData.nonceForTx)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' custom nonceForTx ' + additionalData.nonceForTx)
         } else {
-             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' no nonceForTx')
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' no nonceForTx')
         }
 
         let gasLimit
@@ -123,6 +123,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             gasLimit = additionalData.estimatedGas
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate preestimatedGas ' + gasLimit)
         }
+        
+        let showBigGasNotice = false
+        if (gasLimit * 1 > BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT') * 1) {
+            showBigGasNotice = true
+        }
 
         if (!gasLimit) {
             throw new Error('invalid transaction (no gas limit)')
@@ -152,11 +157,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             if (oldNonce * 1 > 0 && oldNonce !== nonceForTxBasic) {
                 nonceForTx = oldNonce
                 isNewNonce = false
-                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' recheck nonce ' + oldNonce + ' with basic ' + nonceForTxBasic)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' recheck nonce ' + oldNonce + ' with basic ' + nonceForTxBasic)
             } else {
                 nonceForTx = nonceForTxBasic
                 isNewNonce = true
-                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' recheck nonce ' + oldNonce + ' replaced by basic ' + nonceForTxBasic)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' recheck nonce ' + oldNonce + ' replaced by basic ' + nonceForTxBasic)
             }
         }
 
@@ -261,8 +266,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                                 const tmp2 = BlocksoftUtils.diff(tmp, amount).toString()
                                 if (tmp2 * 1 < 0) {
                                     amount = tmp
-                                    result.showChangeAmountNotice = true
-                                    result.shouldChangeBalance = true
                                 }
                             }
                         } else {
@@ -319,7 +322,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     feeForTx = BlocksoftUtils.mul(fee, gasLimit)
                     if (this._useThisBalance && (data.isTransferAll || txRBF)) {
                         amountForTx = BlocksoftUtils.diff(balance, feeForTx) // change amount for send all calculations
-                        result.showChangeAmountNotice = true
                         if (txRBF) {
                             result.shouldChangeBalance = true
                         }
@@ -405,6 +407,8 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 fee.showNonce = true
             }
         }
+
+        result.showBigGasNotice = showBigGasNotice ? new Date().getTime() : 0
         return result
     }
 

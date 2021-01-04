@@ -16,6 +16,8 @@ const CACHE = {
     'ETH_LONG_QUERY' : 1,
     'ETH_BLOCKED_BALANCE_FORCE_QUIT' : 1,
     'ETH_LONG_QUERY_FORCE_QUIT' : 1,
+    'ETH_GAS_LIMIT' : 120000,
+    'ETH_GAS_LIMIT_FORCE_QUIT' : 1,
     'BCH': { '2': 2, '6': 1, '12': 1 },
     'BSV': { '2': 2, '6': 1, '12': 1 },
     'BTG': { '2': 10, '6': 5, '12': 2 },

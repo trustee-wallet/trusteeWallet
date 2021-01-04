@@ -285,7 +285,10 @@ class SendAdvancedSettingsScreen extends Component {
         const comment = this.state.comment
         const sendScreenData = this.state.sendScreenData
 
-        Log.log('Send.SendAdvancedSettings.handleApply', {selectedFee, comment})
+        if (this.state.isCustomFee) {
+            selectedFee.isCustomFee = true
+        }
+        Log.log('Send.SendAdvancedSettings.handleApply', {selectedFee, comment, 'state' : this.state.isCustomFee})
         sendScreenData.selectedFee = selectedFee
         SendTmpData.setData(sendScreenData)
         SendTmpData.setSelectedFee(selectedFee)
@@ -397,7 +400,7 @@ class SendAdvancedSettingsScreen extends Component {
                                     onPress={() => console.log('')}
                                     rightContent={'arrow'}
                                     type={'dropdown'}
-                                    // subtitle={this.state.selectedFee.langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) : 
+                                    // subtitle={this.state.selectedFee.langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) :
                                     //     strings(`send.fee.text.${this.state.selectedFee.langMsg}`) : null}
                                 />
                             </View>)

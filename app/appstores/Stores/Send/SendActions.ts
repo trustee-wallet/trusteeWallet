@@ -226,9 +226,10 @@ export namespace SendActions {
                     // @ts-ignore
                     addData.gasPrice = data.selectedFee.gasPrice
                 }
+
                 if (typeof data.selectedFee.gasLimit !== 'undefined' && data.selectedFee.gasLimit) {
                     // @ts-ignore
-                    // saved is not ok! addData.estimatedGas = data.selectedFee.gasLimit
+                    addData.estimatedGas = data.selectedFee.gasLimit
                 }
                 let countedFees2
                 if (data.isTransferAll) {
