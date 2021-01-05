@@ -435,6 +435,7 @@ class TransactionScreen extends Component {
 
     prepareTransactionHashToView = (transaction, cryptoCurrency) => {
         if (!transaction.transactionHash) return null
+        if (transaction.bseOrderData !== false && transaction.bseOrderData.status.toUpperCase() !== 'DONE_PAYOUT') return null
         let linkUrl = typeof cryptoCurrency.currencyExplorerTxLink !== 'undefined' ? cryptoCurrency.currencyExplorerTxLink + transaction.transactionHash : ''
 
         if (linkUrl.length !== 0 && linkUrl.indexOf('?') === -1) {
@@ -955,7 +956,8 @@ class TransactionScreen extends Component {
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
-                    leftType={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen') ? null : 'back'}
+                    leftType={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen' 
+                        || prev === 'SMSCodeScreen' || prev === 'SMSV3CodeScreen') ? null : 'back'}
                     leftAction={this.backAction}
                     rightType='close'
                     rightAction={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen') ? () => NavStore.reset('DashboardStack') : this.closeAction}
