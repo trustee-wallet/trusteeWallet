@@ -556,9 +556,9 @@
           "canceled": "Відмінено"
         }
       },
-      "transactionHash": "Transaction hash:",
-      "cashbackLink": "Cashback link:",
-      "thanks": "Thank you for choosing Trustee Wallet!",
+      "transactionHash": "Хеш транзакції:",
+      "cashbackLink": "Посилання на кешбек:",
+      "thanks": "Дякуємо, що обрали Trustee Wallet!",
       "self": "This transaction was send to own address"
       }
   },
