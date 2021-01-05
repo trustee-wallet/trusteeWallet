@@ -557,9 +557,9 @@
         }
       },
       "transactionHash": "Хеш транзакції:",
-      "cashbackLink": "Посилання на кешбек:",
+      "cashbackLink": "Сайт:",
       "thanks": "Дякуємо, що обрали Trustee Wallet!",
-      "self": "This transaction was send to own address"
+      "self": "Дана транзакція була відправлена на Вашу власну адресу"
       }
   },
 

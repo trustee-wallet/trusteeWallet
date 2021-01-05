@@ -557,9 +557,9 @@
         }
       },
       "transactionHash": "Transaction hash:",
-      "cashbackLink": "Cashback link:",
+      "cashbackLink": "Website:",
       "thanks": "Thank you for choosing Trustee Wallet!",
-      "self": "This transaction was send to own address"
+      "self": "This transaction was send to your address"
     }
   },
 
