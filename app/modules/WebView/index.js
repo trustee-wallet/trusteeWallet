@@ -17,7 +17,7 @@ import NavStore from '../../components/navigation/NavStore'
 import { strings } from '../../services/i18n'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
-
+import Log from '../../services/Log/Log'
 
 class WebViewScreen extends React.Component {
     state = {
@@ -43,6 +43,7 @@ class WebViewScreen extends React.Component {
     }
 
     test = async (req) => {
+        // console.log('WebView.WebViewMainScreen.on start load with request ' + req.navigationType + ' ' + req.url)
         const parsedUrl = UrlParse(req.url)
         if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:' || !parsedUrl.slashes) return true
         try {
@@ -81,8 +82,36 @@ class WebViewScreen extends React.Component {
                         originWhitelist={['*']}
                         onShouldStartLoadWithRequest={this.test}
                         startInLoadingState
+
+                        onError={(e) => {
+                            if (e.nativeEvent.description.indexOf('net::ERR_UNKNOWN_URL_SCHEME') !== -1) {
+                                Linking.openURL(this.state.url)
+                            } else {
+                                Log.err('WebView.WebViewMainScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
+                            }
+                        }}
+
+                        /*
+                        onHttpError={(e) => {
+                            console.log('WebView.WebViewMainScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
+                        }}
+                        onLoadProgress={(e) => {
+                            console.log('WebView.WebViewMainScreen.on load progress ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.progress)
+                        }}
+                        onContentProcessDidTerminate={(e) => {
+                            console.log('WebView.WebViewMainScreen.on content terminate ' + e.nativeEvent.title)
+                        }}
+
+                        onNavigationStateChange={(e) => {
+                            console.log('WebView.WebViewMainScreen.on NavigationStateChanges changed ' + e.title + ' ' + e.url)
+                        }}
+                        */
+
                         renderLoading={this.renderLoading}
-                        renderError={this.renderError}
+                        renderError={(e) => {
+                            //Log.err('WebView.WebViewMainScreen.render error ' + e)
+                            return this.renderError()
+                        }}
                     />
                 </SafeAreaView>
             </View>
