@@ -556,10 +556,10 @@
           "canceled": "Відмінено"
         }
       },
-      "transactionHash": "Transaction hash:",
-      "cashbackLink": "Cashback link:",
-      "thanks": "Thank you for choosing Trustee Wallet!",
-      "self": "This transaction was send to own address"
+      "transactionHash": "Хеш транзакції:",
+      "cashbackLink": "Сайт:",
+      "thanks": "Дякуємо, що обрали Trustee Wallet!",
+      "self": "Дана транзакція була відправлена на Вашу власну адресу"
       }
   },
 
@@ -782,7 +782,8 @@
       "descriptionInput": "За замовчуванням",
       "optionalSettings": "Необов'язково",
       "note": "Коментар",
-      "optional" : "Необов’язково"
+      "optional" : "Необов’язково",
+      "notAddress": "Будь ласка, введіть адресу, щоб продовжити"
     },
     "infoModal": {
       "title": "Інформація",

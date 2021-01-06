@@ -85,8 +85,10 @@ class WalletCreateScreen extends Component {
 
     runSliderTimer = () => {
         this.sliderTimer = setInterval(() => {
-            const index = this.sliderRef.activeIndex < this.sliderData.length - 1 ? this.sliderRef.activeIndex + 1 : 0
-            this.sliderRef.scrollToPage?.(index)
+            if (typeof this.sliderRef !== 'undefined' && this.sliderRef) {
+                const index = this.sliderRef.activeIndex < this.sliderData.length - 1 ? this.sliderRef.activeIndex + 1 : 0
+                this.sliderRef.scrollToPage?.(index)
+            }
         }, SLIDER_SCROLL_TIMEOUT)
     }
 

@@ -56,20 +56,20 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             gasPrice = additionalData.prices || await EthNetworkPrices.get(typeof data.addressTo !== 'undefined' ? data.addressTo : 'none')
         }
 
-        let oldGasPrice = 0
-        let oldNonce = 0
+        let oldGasPrice = -1
+        let oldNonce = -1
         if (txRBF) {
             oldGasPrice = typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.gasPrice !== 'undefined' ? data.transactionJson.gasPrice : false
             oldNonce = typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.nonce !== 'undefined' ? data.transactionJson.nonce : false
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' rbf preset nonceForTx ' + oldNonce)
-            if (!oldGasPrice) {
+            if (oldGasPrice === false) {
                 try {
                     const ethProvider = BlocksoftDispatcher.getScannerProcessor(data.currencyCode)
                     const scannedTx = await ethProvider.getTransactionBlockchain(txRBF)
                     if (scannedTx) {
                         oldGasPrice = scannedTx.gasPrice
                         oldNonce = scannedTx.nonce
-                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' rbf reloaded nonceForTx ' + oldNonce)
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' rbf reloaded nonceForTx ' + oldNonce)
                     }
                     if (!oldGasPrice) {
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + txRBFed + ' no gasPrice for ' + txRBF)
@@ -78,7 +78,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + txRBFed + 'not loaded gasPrice for ' + txRBF + ' ' + e.message)
                 }
             }
-        } else if (typeof additionalData.nonceForTx !== 'undefined' && additionalData.nonceForTx) {
+        } else if (typeof additionalData.nonceForTx !== 'undefined') {
             oldNonce = additionalData.nonceForTx
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' custom nonceForTx ' + additionalData.nonceForTx)
         } else {
@@ -154,7 +154,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             if (nonceForTxBasic * 1 >= 0) {
                 nonceForTxBasic = nonceForTxBasic * 1 + 1
             }
-            if (oldNonce * 1 > 0 && oldNonce !== nonceForTxBasic) {
+            if (oldNonce !== false && oldNonce * 1 > -1 && oldNonce !== nonceForTxBasic) {
                 nonceForTx = oldNonce
                 isNewNonce = false
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' recheck nonce ' + oldNonce + ' with basic ' + nonceForTxBasic)
@@ -528,12 +528,12 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
             if (txRBF) {
-                let oldNonce = typeof uiData.selectedFee.nonceForTx !== 'undefined' && uiData.selectedFee.nonceForTx ? uiData.selectedFee.nonceForTx : false
-                if (oldNonce === false) {
+                let oldNonce = typeof uiData.selectedFee.nonceForTx !== 'undefined' ? uiData.selectedFee.nonceForTx : false
+                if (oldNonce === false || oldNonce === -1) {
                     // actually could remove as not used without receipt fee
                     oldNonce = typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.nonce !== 'undefined' ? data.transactionJson.nonce : false
                 }
-                if (oldNonce === false) {
+                if (oldNonce === false || oldNonce === -1) {
                     try {
                         const ethProvider = BlocksoftDispatcher.getScannerProcessor(data.currencyCode)
                         const scannedTx = await ethProvider.getTransactionBlockchain(txRBF)
@@ -544,7 +544,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         BlocksoftCryptoLog.err(this._settings.currencyCode + ' EthTransferProcessor.sent rbf not loaded nonce for ' + txRBF + ' ' + e.message)
                         throw new Error('System error: not loaded nonce for ' + txRBF)
                     }
-                    if (!oldNonce) {
+                    if (oldNonce === false || oldNonce === -1) {
                         BlocksoftCryptoLog.err(this._settings.currencyCode + ' EthTransferProcessor.sent rbf no nonce for ' + txRBF)
                         throw new Error('System error: no nonce for ' + txRBF)
                     }

@@ -157,7 +157,8 @@ class QRCodeScannerScreen extends Component {
                     addressTo: parsed.address,
                     amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
                     currencyCode: parsed.currencyCode,
-                    comment: parsed.label
+                    comment: parsed.label,
+                    uiInputAddress: true
                 })
             } else if (type === 'ADD_CUSTOM_TOKEN_SCANNER') {
                 NavStore.goNext('AddAssetScreen', {
@@ -177,7 +178,8 @@ class QRCodeScannerScreen extends Component {
                         addressTo: parsed.address,
                         amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
                         currencyCode: parsed.currencyCode,
-                        comment: parsed.label
+                        comment: parsed.label,
+                        uiInputAddress: true
                     })
 
                 } else if (res.status === 'success' && res.data.currencyCode !== currencyCode) {
@@ -196,7 +198,8 @@ class QRCodeScannerScreen extends Component {
                     await SendActions.startSend({
                         uiType: 'SEND_SCANNER',
                         addressTo: res.data.parsedUrl,
-                        currencyCode: oldCurrency.currencyCode
+                        currencyCode: oldCurrency.currencyCode,
+                        uiInputAddress: true
                     })
                 }
             }

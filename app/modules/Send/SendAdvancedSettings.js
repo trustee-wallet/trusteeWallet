@@ -42,6 +42,8 @@ import Log from '../../services/Log/Log'
 
 import TextInput from '../../components/elements/new/TextInput'
 
+import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_FROM_CUSTOM_FEE = false
@@ -64,7 +66,9 @@ class SendAdvancedSettingsScreen extends Component {
             
             comment: '',
 
-            headerHeight: 0
+            headerHeight: 0,
+
+            uiInputAddress: null
         }
 
         this.customFee = React.createRef()
@@ -114,13 +118,23 @@ class SendAdvancedSettingsScreen extends Component {
             isCustomFee,
             dropMenu,
             devMode: devMode && devMode.toString() === '1',
-            comment: sendScreenData.comment
+            comment: sendScreenData.comment,
+            uiInputAddress: sendScreenData.uiInputAddress
         })
     }
 
     toggleDropMenu = () => {
         this.setState({
             dropMenu: !this.state.dropMenu
+        })
+    }
+
+    toggleNotAddress = () => {
+        showModal({
+            type: 'INFO_MODAL',
+            icon: null,
+            title: strings('modal.qrScanner.sorry'),
+            description: strings('send.setting.notAddress')
         })
     }
 
@@ -329,7 +343,7 @@ class SendAdvancedSettingsScreen extends Component {
 
         const { colors, GRID_SIZE } = this.context
 
-        let { focused, sendScreenData, countedFees, selectedFee, account } = this.state
+        let { focused, sendScreenData, countedFees, selectedFee, account, uiInputAddress } = this.state
 
         if (typeof sendScreenData === 'undefined' || typeof sendScreenData.currencyCode === 'undefined') {
             sendScreenData = SendTmpData.getData()
@@ -380,7 +394,7 @@ class SendAdvancedSettingsScreen extends Component {
                                 <ListItem
                                     title={strings('send.setting.selectFee')}
                                     iconType="fee"
-                                    onPress={this.toggleDropMenu}
+                                    onPress={uiInputAddress === true ? this.toggleDropMenu : this.toggleNotAddress}
                                     rightContent={dropMenu ? 'arrow_up' : "arrow_down"}
                                     switchParams={{ value: dropMenu, onPress: this.toggleDropMenu }}
                                     type={'dropdown'}

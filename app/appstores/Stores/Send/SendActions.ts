@@ -349,7 +349,14 @@ export namespace SendActions {
             }
 
 
+            if (data.gotoReceipt) {
+                if (data.addressTo && (typeof data.uiInputAddress === 'undefined' || !data.uiInputAddress)) {
+                    data.uiInputAddress = true
+                }
+            }
+
             SendTmpData.setData(data)
+
             if (data.gotoReceipt) {
                 if (config.debug.sendLogs) {
                     // @ts-ignore

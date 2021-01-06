@@ -277,13 +277,20 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         if (typeof tmp !== 'undefined' && typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined' && !passwordChecked) {
             const newAmount = selectedFee.amountForTx.toString()
-            const amountTmp = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(sendScreenData.amountRaw)
-            const newAmountTmp = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newAmount)
-            if (newAmountTmp.substring(0, amountTmp.length) !== amountTmp) {
+            const tmpAmount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(sendScreenData.amountRaw)
+            const newAmountPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newAmount)
+            const newAmountSubstr = newAmountPretty.substring(0, tmpAmount.length)
+            if (newAmountSubstr !== tmpAmount) {
                 sendScreenData.amountRaw = newAmount
-                if (CACHE_WARNING_AMOUNT_TIME !== tmp.countedFees.countedTime || CACHE_WARNING_AMOUNT !== newAmountTmp) {
+                if (CACHE_WARNING_AMOUNT_TIME !== tmp.countedFees.countedTime || CACHE_WARNING_AMOUNT !== tmpAmount) {
                     if (config.debug.sendLogs) {
-                        console.log('Send.ReceiptScreen.handleSend change amount check ', newAmountTmp, newAmountTmp.substring(0, amountTmp.length) + '!=' + amountTmp)
+                        console.log('Send.ReceiptScreen.handleSend change amount check ', JSON.parse(JSON.stringify({
+                            newAmount,
+                            newAmountSubstr,
+                            tmpAmount,
+                            isEqual: newAmountSubstr !== tmpAmount,
+                            isEqualTxt : newAmountSubstr + '!=' + tmpAmount
+                        })))
                     }
                     // @yura here should be alert when fixed receipt and no tx
                     showModal({
@@ -292,9 +299,19 @@ class ReceiptScreen extends SendBasicScreenScreen {
                         title: strings('modal.titles.attention'),
                         description: strings('modal.send.feeChangeAmount')
                     })
-                    CACHE_WARNING_AMOUNT = sendScreenData.amountRaw
+                    CACHE_WARNING_AMOUNT = tmpAmount
                     CACHE_WARNING_AMOUNT_TIME = tmp.countedFees.countedTime
                     return false
+                }
+            } else {
+                if (config.debug.sendLogs) {
+                    console.log('Send.ReceiptScreen.handleSend change amount ok ', JSON.parse(JSON.stringify({
+                        newAmount,
+                        newAmountSubstr,
+                        tmpAmount,
+                        isEqual: newAmountSubstr !== tmpAmount,
+                        isEqualTxt : newAmountSubstr + '!=' + tmpAmount
+                    })))
                 }
             }
         }
@@ -692,14 +709,21 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 if (typeof amount === 'undefined') {
                     amount = newAmount
                 } else {
-                    const tmpAmount = amount.toString()
-                    if (newAmount.toString().substring(0, tmpAmount.length) !== tmp) {
+                    const tmpAmount = amount.toString().trim()
+                    const newAmountSubstr = newAmount.substring(0, tmpAmount.length).trim()
+                    if (newAmountSubstr !== tmpAmount) {
                         amount = newAmount
                         if (!sendScreenData.transactionRemoveByFee
                             && (CACHE_WARNING_AMOUNT_TIME !== tmp.countedFees.countedTime || CACHE_WARNING_AMOUNT !== amount)
                         ) {
                             if (config.debug.sendLogs) {
-                                console.log('Send.ReceiptScreen.render change amount check ', newAmount, newAmount.substring(0, tmpAmount.length) + '!=' + tmpAmount)
+                                console.log('Send.ReceiptScreen.render change amount checked ', JSON.parse(JSON.stringify({
+                                    newAmount,
+                                    newAmountSubstr,
+                                    tmpAmount,
+                                    isEqual: newAmountSubstr !== tmpAmount,
+                                    isEqualTxt : newAmountSubstr + '!=' + tmpAmount
+                                })))
                             }
                             showModal({
                                 type: 'INFO_MODAL',
