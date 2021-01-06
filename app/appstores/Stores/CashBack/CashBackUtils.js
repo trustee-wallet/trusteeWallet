@@ -2,7 +2,8 @@
  * @version 0.11
  */
 import AsyncStorage from '@react-native-community/async-storage'
-import firebase from 'react-native-firebase'
+
+import dynamicLinks from '@react-native-firebase/dynamic-links'
 
 import Log from '../../../services/Log/Log'
 import cryptoWalletsDS from '../../DataSource/CryptoWallets/CryptoWallets'
@@ -55,7 +56,7 @@ export default new class CashBackUtils {
             await CashBackActions.setParentToken(this.parentToken)
         } else {
             try {
-                const firebaseUrl = await firebase.links().getInitialLink()
+                const firebaseUrl = await dynamicLinks().getInitialLink()
                 if (typeof firebaseUrl !== 'undefined' && firebaseUrl != null) {
                     MarketingEvent.logEvent('cashback_parent_link', firebaseUrl)
                     const firebaseUrlArray = firebaseUrl.split('=')

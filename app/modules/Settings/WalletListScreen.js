@@ -13,8 +13,9 @@ import {
 } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 
-import firebase from 'react-native-firebase'
 import EntypoIcon from 'react-native-vector-icons/Entypo'
+
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -31,6 +32,7 @@ import Header from '../../components/elements/new/Header'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
 import Log from '../../services/Log/Log'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class WalletListScreen extends Component {
@@ -83,7 +85,7 @@ class WalletListScreen extends Component {
     handleClose = () => { NavStore.reset('DashboardStack') }
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.WalletListScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.WalletListScreen')
 
         const { selectedWallet, selectedBasicCurrency } = this.props.mainStore
         const { wallets } = this.props

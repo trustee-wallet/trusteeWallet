@@ -43,17 +43,9 @@ target 'TrusteeWallet' do
 
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera.podspec"
 
-  pod 'Fabric'
   pod 'Crashlytics'
   pod 'GoogleAnalytics'
   pod 'GoogleIDFASupport'
-
-  pod 'Firebase/Core'
-  pod 'Firebase/Messaging'
-  pod 'Firebase/DynamicLinks'
-  pod 'Firebase/Database'
-  pod 'Firebase/Analytics'
-
 
   pod 'QRScanReader', :path => '../node_modules/react-native-qr-scanner'
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'

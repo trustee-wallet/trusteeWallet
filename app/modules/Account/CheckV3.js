@@ -16,7 +16,7 @@ import {
     SafeAreaView
 } from 'react-native'
 
-import firebase from 'react-native-firebase'
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -29,6 +29,7 @@ import { strings } from '../../services/i18n'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -75,7 +76,7 @@ class CheckV3DataScreen extends Component {
 
     componentWiilUnmount() {
         const { isLight } = this.context
-        
+
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
         Keyboard.removeListener( 'keyboardWillShow', this.onKeyboardShow );
 	    StatusBar.setBarStyle( isLight ? 'dark-content' : 'light-content' );
@@ -144,7 +145,7 @@ class CheckV3DataScreen extends Component {
         const orderHash = this.props.navigation.getParam('orderHash')
 
         this.init(orderHash)
-        firebase.analytics().setCurrentScreen('BSE/CheckV3DataScreen')
+        MarketingAnalytics.setCurrentScreen('BSE/CheckV3DataScreen')
 
         const INJECTEDJAVASCRIPT = `const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta)`
 
@@ -203,7 +204,7 @@ class CheckV3DataScreen extends Component {
                                 startInLoadingState={true}
                                 renderLoading={this.renderLoading}
                             />
-                        </KeyboardAvoidingView> : 
+                        </KeyboardAvoidingView> :
                         <>
                             {this.renderLoading()}
                         </> }

@@ -11,7 +11,7 @@ import LottieView from 'lottie-react-native'
 import { WebView } from 'react-native-webview'
 import NavStore from '../../components/navigation/NavStore'
 
-import firebase from 'react-native-firebase'
+
 
 import Log from '../../services/Log/Log'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
@@ -31,6 +31,7 @@ import _ from 'lodash'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
 import config from '../../config/config'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -135,7 +136,7 @@ class SMSV3CodeScreen extends Component {
 
     render() {
         UpdateOneByOneDaemon.pause()
-        firebase.analytics().setCurrentScreen('Trade.SMSV3CodeScreen')
+        MarketingAnalytics.setCurrentScreen('Trade.SMSV3CodeScreen')
 
         const { scriptLoadEnd, status, link } = this.state
 

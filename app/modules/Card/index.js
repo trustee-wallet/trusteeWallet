@@ -12,6 +12,8 @@ import {
     Keyboard
 } from 'react-native'
 
+
+
 import { CardIOModule, CardIOUtilities } from 'react-native-awesome-card-io'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import { TextInputMask } from 'react-native-masked-text'
@@ -42,12 +44,12 @@ import countriesDict from '../../assets/jsons/other/country-codes'
 
 import Log from '../../services/Log/Log'
 import { connect } from 'react-redux'
-import firebase from 'react-native-firebase'
 
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 import { Cards } from '../../services/Cards/Cards'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 const { height: HEIGHT } = Dimensions.get('window')
 
@@ -471,7 +473,7 @@ class Card extends Component {
         }
 
         UpdateOneByOneDaemon.pause()
-        firebase.analytics().setCurrentScreen('Card.index')
+        MarketingAnalytics.setCurrentScreen('Card.index')
 
         const {
             focused,

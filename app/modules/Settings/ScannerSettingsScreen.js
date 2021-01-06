@@ -10,7 +10,8 @@ import {
     ScrollView,
     SafeAreaView
 } from 'react-native'
-import firebase from 'react-native-firebase'
+
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -24,6 +25,7 @@ import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccoun
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import ListItem from '../../components/elements/new/list/ListItem/SubSetting'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class ScannerSettingsScreen extends React.Component {
@@ -52,7 +54,7 @@ class ScannerSettingsScreen extends React.Component {
     handleClose = () => { NavStore.reset('DashboardStack') }
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.ScannerSettingsScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.ScannerSettingsScreen')
 
         const { scannerSettings } = config.scanner
         const code = this.getCode()

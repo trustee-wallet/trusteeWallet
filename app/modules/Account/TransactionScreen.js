@@ -17,7 +17,7 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Feather from 'react-native-vector-icons/Feather'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 
-import firebase from 'react-native-firebase'
+
 import Log from '../../services/Log/Log'
 
 import UIDict from '../../services/UIDict/UIDict'
@@ -61,6 +61,7 @@ import {
     setSelectedCryptoCurrency
 } from '../../appstores/Stores/Main/MainStoreActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -919,7 +920,7 @@ class TransactionScreen extends Component {
 
     render() {
 
-        firebase.analytics().setCurrentScreen('Account.TransactionScreen')
+        MarketingAnalytics.setCurrentScreen('Account.TransactionScreen')
 
         const { colors, GRID_SIZE, isLight } = this.context
         // const { cryptoCurrency } = this.props
@@ -956,7 +957,7 @@ class TransactionScreen extends Component {
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
-                    leftType={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen' 
+                    leftType={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen'
                         || prev === 'SMSCodeScreen' || prev === 'SMSV3CodeScreen') ? null : 'back'}
                     leftAction={this.backAction}
                     rightType='close'

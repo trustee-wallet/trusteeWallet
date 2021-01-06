@@ -3,8 +3,10 @@
  */
 import React from 'react'
 import { ThemeContext } from '../theme/ThemeProvider'
-import firebase from 'react-native-firebase'
 import { Dimensions, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+
+
+
 import Header from '../../components/elements/new/Header'
 import config from '../../config/config'
 import ListItem from '../../components/elements/new/list/ListItem/Setting'
@@ -17,6 +19,7 @@ import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyString
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 import EthNetworkPrices from '../../../crypto/blockchains/eth/basic/EthNetworkPrices'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 class WalletConnectScreen extends React.Component {
 
@@ -250,7 +253,7 @@ class WalletConnectScreen extends React.Component {
 
 
     render() {
-        firebase.analytics().setCurrentScreen('WalletConnect')
+        MarketingAnalytics.setCurrentScreen('WalletConnect')
 
         const { colors, GRID_SIZE, isLight } = this.context
         const { headerHeight } = this.state

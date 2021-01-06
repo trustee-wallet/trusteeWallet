@@ -12,6 +12,8 @@ import {
     TouchableWithoutFeedback, RefreshControl
 } from 'react-native'
 
+
+
 import Cards from './elements/Cards'
 import Limits from './elements/Limits'
 import AmountInput from './elements/AmountInput'
@@ -25,8 +27,6 @@ import NavigationTitleComponent from './elements/NavigationTitleComponent'
 
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
-
-import firebase from 'react-native-firebase'
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
@@ -43,6 +43,7 @@ import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 let COUNT_MODAL_SELL = 0
 let COUNT_MODAL_BUY = 0
@@ -444,7 +445,7 @@ class MainDataScreen extends Component {
         const { exchangeStore, navigation } = this.props
         const submitBtnFix = exchangeStore.tradeType === 'BUY' ? strings('confirmScreen.submitBtnBuy') : strings('confirmScreen.submitBtnSell')
 
-        firebase.analytics().setCurrentScreen('Exchange.MainScreen.' + exchangeStore.tradeType)
+        MarketingAnalytics.setCurrentScreen('Exchange.MainScreen.' + exchangeStore.tradeType)
 
         return (
             <View style={styles.wrapper}>
@@ -602,7 +603,7 @@ class MainDataScreen extends Component {
                                         handleSetState={this.handleSetState}
                                         exchangeStore={exchangeStore}
                                         selectedPaymentSystem={selectedPaymentSystem}
-                                        selectedCard={selectedCard} 
+                                        selectedCard={selectedCard}
                                         />
                                 </View>
                                 <View style={styles.box}>

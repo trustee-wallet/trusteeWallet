@@ -4,18 +4,19 @@
 import React, { Component } from 'react'
 import { View, StyleSheet, ScrollView, Text } from 'react-native'
 
-import firebase from 'react-native-firebase'
+
 
 import Navigation from '../../../components/navigation/Navigation'
 
 import { strings, sublocale } from '../../../services/i18n'
 
 import ALL_TERMS from '../../../../__terms__/ALL'
+import MarketingAnalytics from '../../../services/Marketing/MarketingAnalytics'
 
 class PrivacyPolicyScreen extends Component {
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.PrivacyPolicyScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.PrivacyPolicyScreen')
 
         let sub = sublocale()
         if (sub !== 'uk' && sub !== 'ru') {

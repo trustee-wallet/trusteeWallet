@@ -8,7 +8,7 @@ import { connect } from 'react-redux'
 
 import { View, ScrollView, Keyboard, Text, StatusBar } from 'react-native'
 
-import firebase from 'react-native-firebase'
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -56,6 +56,7 @@ import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalS
 
 import ApiV3 from '../../services/Api/ApiV3'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 let CACHE_WARNING_AMOUNT_TIME = ''
 let CACHE_WARNING_AMOUNT = ''
@@ -644,7 +645,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
     render() {
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
-        firebase.analytics().setCurrentScreen('Send.ReceiptScreen')
+        MarketingAnalytics.setCurrentScreen('Send.ReceiptScreen')
 
         const { colors, GRID_SIZE, isLight } = this.context
 

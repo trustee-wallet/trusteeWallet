@@ -13,8 +13,10 @@ import {
     SafeAreaView,
     Animated,
 } from 'react-native'
-import firebase from 'react-native-firebase'
+
 import LottieView from 'lottie-react-native'
+
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -45,6 +47,7 @@ import ProgressAnimation from '../../assets/jsons/animations/pieWithStroke.json'
 import KeyIcon from '../../assets/images/key'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 const VISIBILITY_TIMEOUT = 4000;
@@ -283,7 +286,7 @@ class BackupStep0Screen extends Component {
         const isXMR = flowType === 'BACKUP_WALLET_XMR'
         const { GRID_SIZE, colors } = this.context
 
-        firebase.analytics().setCurrentScreen('WalletBackup.BackupStep0Screen')
+        MarketingAnalytics.setCurrentScreen('WalletBackup.BackupStep0Screen')
 
         const halfArrayNum = Math.ceil(walletMnemonicArray.length / 2);
 

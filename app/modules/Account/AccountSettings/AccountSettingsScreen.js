@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 
 import { Linking, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View, SafeAreaView } from 'react-native'
 
-import firebase from 'react-native-firebase'
+
 
 
 import NavStore from '../../../components/navigation/NavStore'
@@ -38,6 +38,7 @@ import AppNotificationListener from '../../../services/AppNotification/AppNotifi
 import { ThemeContext } from '../../theme/ThemeProvider'
 import Header from '../../../components/elements/new/Header'
 import ListItem from '../../../components/elements/new/list/ListItem/Setting'
+import MarketingAnalytics from '../../../services/Marketing/MarketingAnalytics'
 
 class AccountSettingScreen extends React.Component {
     constructor() {
@@ -68,7 +69,7 @@ class AccountSettingScreen extends React.Component {
 
         const { mainStore, cryptoCurrency, account } = this.props
 
-        firebase.analytics().setCurrentScreen('Account.AccountSettingsScreen.' + cryptoCurrency.currencyCode)
+        MarketingAnalytics.setCurrentScreen('Account.AccountSettingsScreen.' + cryptoCurrency.currencyCode)
 
         const {
             headerHeight,

@@ -17,7 +17,8 @@ import {
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
 import IconMaterial from 'react-native-vector-icons/MaterialIcons'
-import firebase from 'react-native-firebase'
+
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -49,6 +50,7 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
 import MNEMONIC_DICTIONARY from '../../services/UI/Validator/_words/english.json'
 import Validator from '../../services/UI/Validator/Validator'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 const callWithDelay = _debounce(
@@ -298,7 +300,7 @@ class EnterMnemonicPhrase extends Component {
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
 
-        firebase.analytics().setCurrentScreen('WalletCreate.EnterMnemonicPhraseScreen')
+        MarketingAnalytics.setCurrentScreen('WalletCreate.EnterMnemonicPhraseScreen')
 
         const {
             headerHeight,

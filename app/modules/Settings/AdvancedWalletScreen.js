@@ -8,9 +8,10 @@ import {
     StyleSheet,
     TouchableOpacity
 } from 'react-native'
-import firebase from 'react-native-firebase'
 import { connect } from 'react-redux'
 import { SwipeRow } from 'react-native-swipe-list-view'
+
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -28,6 +29,7 @@ import CustomIcon from '../../components/elements/CustomIcon'
 
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class AdvancedWalletScreen extends React.Component {
@@ -105,7 +107,7 @@ class AdvancedWalletScreen extends React.Component {
     handleClose = () => { NavStore.reset('DashboardStack') }
 
     render() {
-        firebase.analytics().setCurrentScreen('WalletManagment.Advances')
+        MarketingAnalytics.setCurrentScreen('WalletManagment.Advances')
 
         const { colors, GRID_SIZE } = this.context
         const { headerHeight, isEditing, walletName } = this.state

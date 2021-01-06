@@ -52,6 +52,9 @@ class UpdateAppNewsListDaemon extends Update {
             if (toShow.length > 0) {
                 await appNewsActions.displayPush(toShow)
             }
+            await appNewsActions.displayBadge(appNewsList.length)
+        } else {
+            await appNewsActions.displayBadge(0)
         }
 
         this._canUpdate = true

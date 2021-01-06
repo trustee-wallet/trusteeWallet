@@ -9,7 +9,8 @@ import {
     SafeAreaView,
     StyleSheet
 } from 'react-native'
-import firebase from 'react-native-firebase'
+
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -23,6 +24,7 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import ListItem from '../../components/elements/new/list/ListItem/Setting'
 import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class NotificationsSettingScreen extends React.Component {
@@ -68,7 +70,7 @@ class NotificationsSettingScreen extends React.Component {
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.NotificationsSettingScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.NotificationsSettingScreen')
 
         const { colors, GRID_SIZE } = this.context
         const { headerHeight } = this.state

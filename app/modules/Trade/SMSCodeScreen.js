@@ -9,9 +9,11 @@ import { Animated, Dimensions, Linking, View } from 'react-native'
 import LottieView from 'lottie-react-native'
 
 import { WebView } from 'react-native-webview'
+
+
+
 import NavStore from '../../components/navigation/NavStore'
 
-import firebase from 'react-native-firebase'
 
 import Log from '../../services/Log/Log'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
@@ -24,6 +26,7 @@ import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 
 import api from '../../services/Api/Api'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_IS_ERROR = false
@@ -510,7 +513,7 @@ class SMSCodeScreen extends Component {
             (
                 url.includes('kuna.io/') || url.includes('cardgate.paycore.io/hpp/status') || url.includes('cb1.xpay.com.ua/')
                 || url.includes('365cash.co/currency/success') || url.includes('365cash.co/currency/failure')
-                || (url.includes('trustee.deals') && !url.includes('redirectUrl=https://trustee.deals/') && !url.includes('successUrl=https://trustee.deals/') 
+                || (url.includes('trustee.deals') && !url.includes('redirectUrl=https://trustee.deals/') && !url.includes('successUrl=https://trustee.deals/')
                 && !url.includes('successUrl=https%3A%2F%2Ftrustee.deals') && !url.includes('redirectUrl=https%3A%2F%2Ftrustee.deals%2F'))
                 || (url.includes('https://blocksoftlab.com/') && !url.includes('successUrl=https://blocksoftlab.com/') && !url.includes('redirectUrl=https://blocksoftlab.com/'))
             )
@@ -581,7 +584,7 @@ class SMSCodeScreen extends Component {
 
     render() {
         UpdateOneByOneDaemon.pause()
-        firebase.analytics().setCurrentScreen('Trade.SMSCodeScreen')
+        MarketingAnalytics.setCurrentScreen('Trade.SMSCodeScreen')
 
         const { scriptLoadEnd, status, link } = this.state
 

@@ -7,9 +7,9 @@ import { connect } from 'react-redux'
 
 import { View, Dimensions, KeyboardAvoidingView, Platform } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
 
-import firebase from 'react-native-firebase'
+
+import Navigation from '../../components/navigation/Navigation'
 
 import GoogleDrive from '../../services/Back/Google/GoogleDrive'
 import Log from '../../services/Log/Log'
@@ -21,6 +21,7 @@ import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
 import DaemonCache from '../../daemons/DaemonCache'
 import { not } from 'react-native-reanimated'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -110,7 +111,7 @@ class EnterMnemonicPhraseGoogle extends Component {
 
     render() {
 
-        firebase.analytics().setCurrentScreen('EnterMnemonicPhraseGoogle')
+        MarketingAnalytics.setCurrentScreen('EnterMnemonicPhraseGoogle')
 
         return (
             <View style={styles.wrapper}>

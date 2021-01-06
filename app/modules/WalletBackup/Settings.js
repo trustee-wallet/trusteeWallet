@@ -11,7 +11,8 @@ import {
     Keyboard,
 } from 'react-native'
 import { connect } from 'react-redux'
-import firebase from 'react-native-firebase'
+
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -38,6 +39,7 @@ import CheckBox from '../../components/elements/new/CheckBox'
 import ListItem from '../../components/elements/new/list/ListItem/Basic'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class BackupSettingsScreen extends Component {
@@ -115,7 +117,7 @@ class BackupSettingsScreen extends Component {
         const { GRID_SIZE, colors } = this.context
         const hasChanges = mnemonicLength !== oldMnemonicLength || walletName !== oldWalletName
 
-        firebase.analytics().setCurrentScreen('WalletBackup.Settings')
+        MarketingAnalytics.setCurrentScreen('WalletBackup.Settings')
 
         return (
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

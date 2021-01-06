@@ -17,13 +17,6 @@ import java.util.List;
 
 import androidx.multidex.MultiDexApplication;
 
-import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
-import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
-import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
-import io.invertase.firebase.storage.RNFirebaseStoragePackage;
-import io.invertase.firebase.database.RNFirebaseDatabasePackage;
-import io.invertase.firebase.fabric.crashlytics.RNFirebaseCrashlyticsPackage;
-import io.invertase.firebase.links.RNFirebaseLinksPackage;
 import java.security.Security;
 import android.webkit.WebView;
 
@@ -41,13 +34,6 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for example:
-          packages.add(new RNFirebaseMessagingPackage());
-          packages.add(new RNFirebaseNotificationsPackage());
-          packages.add(new RNFirebaseAnalyticsPackage());
-          packages.add(new RNFirebaseStoragePackage());
-          packages.add(new RNFirebaseDatabasePackage());
-          packages.add(new RNFirebaseCrashlyticsPackage());
-          packages.add(new RNFirebaseLinksPackage());
           return packages;
         }
 

@@ -2,7 +2,7 @@
  * Separated log class for crypto module - could be encoded here later
  * @version 0.9
  */
-import firebase from 'react-native-firebase'
+import crashlytics from '@react-native-firebase/crashlytics'
 
 import BlocksoftTg from './BlocksoftTg'
 import BlocksoftExternalSettings from './BlocksoftExternalSettings'
@@ -24,7 +24,7 @@ class BlocksoftCryptoLog {
 
     constructor() {
         this.TG = new BlocksoftTg(changeableProd.tg.info.theBot, changeableProd.tg.info.cryptoErrorsChannel)
-        this.FS = new FileSystem({fileEncoding : 'utf8', fileName : 'CryptoLog', fileExtension : 'txt'})
+        this.FS = new FileSystem({ fileEncoding: 'utf8', fileName: 'CryptoLog', fileExtension: 'txt' })
 
         this.DATA = {}
         this.DATA.LOG_VERSION = false
@@ -34,7 +34,7 @@ class BlocksoftCryptoLog {
 
     _reinitTgMessage(testerMode, obj, msg) {
 
-        if(testerMode === 'TESTER'){
+        if (testerMode === 'TESTER') {
             this.TG.API_KEY = changeableTester.tg.info.theBot
             this.TG.CHAT = changeableTester.tg.info.cryptoErrorsChannel
         } else {
@@ -52,8 +52,8 @@ class BlocksoftCryptoLog {
         this.FS.checkOverflow()
     }
 
-    log(txtOrObj, txtOrObj2 = false, txtOrObj3 = false) {
-        let line  = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+    async log(txtOrObj, txtOrObj2 = false, txtOrObj3 = false) {
+        let line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
         let line2 = ''
         if (txtOrObj && typeof txtOrObj !== 'undefined') {
             if (typeof txtOrObj === 'string') {
@@ -72,16 +72,14 @@ class BlocksoftCryptoLog {
             }
         }
 
-        if(DEBUG) {
+        if (DEBUG) {
             console.log('CRYPTO ' + line)
         }
 
-        // noinspection JSUnresolvedFunction
         if (!config.debug.cryptoErrors && config.debug.firebaseLogs) {
-            firebase.crashlytics().log(line)
+            crashlytics().log(line)
         }
-        // noinspection JSIgnoredPromiseFromCall
-        this.FS.writeLine(line)
+        await this.FS.writeLine(line)
 
         if (txtOrObj3 && typeof txtOrObj3 !== 'undefined') {
             if (typeof txtOrObj3 === 'string') {
@@ -89,12 +87,10 @@ class BlocksoftCryptoLog {
             } else {
                 line2 += '\t\t\t\t\t' + JSON.stringify(txtOrObj3, null, '\t\t\t\t\t')
             }
-            // noinspection JSUnresolvedFunction
             if (!config.debug.cryptoErrors && config.debug.firebaseLogs) {
-                firebase.crashlytics().log('\n', line2)
+                crashlytics().log('\n', line2)
             }
-            // noinspection JSIgnoredPromiseFromCall
-            this.FS.writeLine(line2)
+            await this.FS.writeLine(line2)
         }
 
         LOGS_TXT = line + line2 + '\n' + LOGS_TXT
@@ -137,15 +133,15 @@ class BlocksoftCryptoLog {
             return false
         }
 
-        this.log(errorObjectOrText, errorObject2)
+        await this.log(errorObjectOrText, errorObject2)
 
         LOGS_TXT = '\n\n\n\n==========' + errorTitle + '==========\n\n\n\n' + LOGS_TXT
         // noinspection JSUnresolvedFunction
         if (!config.debug.cryptoErrors) {
-            firebase.crashlytics().log('==========' + errorTitle + '==========')
+            crashlytics().log('==========' + errorTitle + '==========')
         }
         // noinspection ES6MissingAwait
-        this.FS.writeLine('==========' + errorTitle + '==========')
+        await this.FS.writeLine('==========' + errorTitle + '==========')
 
 
         if (errorObject2 && typeof errorObject2.code !== 'undefined' && errorObject2.code === 'ERROR_USER') {
@@ -158,15 +154,13 @@ class BlocksoftCryptoLog {
         }
 
         try {
-            // noinspection JSUnresolvedFunction
-            this.FS.writeLine('CRPT_SEPT ' + line)
+            await this.FS.writeLine('CRPT_SEPT ' + line)
             if (!config.debug.cryptoErrors) {
-                if (typeof firebase.crashlytics().recordCustomError !== 'undefined') {
-                    firebase.crashlytics().recordCustomError('CRPT_SEPT', line, [])
+                if (typeof crashlytics().recordError !== 'undefined') {
+                    crashlytics().recordError(new Error('CRPT_SEPT ' + line))
                 } else {
-                    firebase.crashlytics().log('CRPT_SEPT ' + line)
-                    // noinspection ES6MissingAwait
-                    firebase.crashlytics().crash()
+                    crashlytics().log('CRPT_SEPT ' + line)
+                    crashlytics().crash()
                 }
             }
         } catch (firebaseError) {
@@ -189,20 +183,6 @@ class BlocksoftCryptoLog {
 
         return true
     }
-
-    getLogs() {
-        return FULL_LOGS_TXT
-    }
-
-    isNetworkError(message) {
-        return (message.indexOf('Network Error') !== -1
-            || message.indexOf('timeout of 0ms exceeded') !== -1
-            || message.indexOf('Request failed with status code') !== -1
-            || message.indexOf('API calls limits have been reached') !== -1
-            || message.indexOf('SERVER_RESPONSE_') !== -1
-        )
-    }
-
 
 }
 

@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import firebase from 'react-native-firebase'
+import crashlytics from '@react-native-firebase/crashlytics'
 import { Dimensions, PixelRatio } from 'react-native'
 
 import BlocksoftTg from '../../../crypto/common/BlocksoftTg'
@@ -35,8 +35,8 @@ class Log {
     constructor() {
         this.TG = new BlocksoftTg(changeableProd.tg.info.theBot, changeableProd.tg.info.appErrorsChannel)
         this.FS = {
-            DAEMON: new FileSystem({fileEncoding: 'utf8', fileName : 'DaemonLog', fileExtension : 'txt'}),
-            ALL: new FileSystem({fileEncoding: 'utf8', fileName : 'AppLog', fileExtension : 'txt'})
+            DAEMON: new FileSystem({ fileEncoding: 'utf8', fileName: 'DaemonLog', fileExtension: 'txt' }),
+            ALL: new FileSystem({ fileEncoding: 'utf8', fileName: 'AppLog', fileExtension: 'txt' })
         }
 
         this.DATA = {}
@@ -65,22 +65,7 @@ class Log {
         this.FS.ALL.checkOverflow()
     }
 
-    consoleStart() {
-        this.localConsole = true
-    }
-
-    consoleStop() {
-        this.localConsole = false
-    }
-
-    daemonDiv() {
-        if (DEBUG) {
-            console.log('')
-        }
-    }
-
-
-    simpleStringify(object, replacer = null, space = '\t\t\t\t\t', level = 0) {
+    _simpleStringify(object, replacer = null, space = '\t\t\t\t\t', level = 0) {
         const simpleObject = {}
         let setSimpleObject = false
         for (const prop in object) {
@@ -98,7 +83,7 @@ class Log {
                 if (level > 1) {
                     continue
                 }
-                const tmp = this.simpleStringify(object[prop], replacer, space, level+1)
+                const tmp = this._simpleStringify(object[prop], replacer, space, level + 1)
                 if (tmp) {
                     simpleObject[prop] = tmp
                 }
@@ -114,8 +99,8 @@ class Log {
         }
     }
 
-    daemon(txtOrObj, txtOrObj2 = false, txtOrObj3 = false) {
-        this.log(txtOrObj, txtOrObj2, txtOrObj3, 'DAEMON')
+    async daemon(txtOrObj, txtOrObj2 = false, txtOrObj3 = false) {
+        return this.log(txtOrObj, txtOrObj2, txtOrObj3, 'DAEMON')
     }
 
     errorTranslate(e, title, currencyCode, additional = '') {
@@ -146,14 +131,14 @@ class Log {
      * @param {string} LOG_AS_ERROR
      * @returns {boolean}
      */
-    log(txtOrObj, txtOrObj2 = false, txtOrObj3 = false, LOG_SUBTYPE = 'ALL', LOG_AS_ERROR = false, LOG_WRITE_FILE = true) {
+    async log(txtOrObj, txtOrObj2 = false, txtOrObj3 = false, LOG_SUBTYPE = 'ALL', LOG_AS_ERROR = false, LOG_WRITE_FILE = true) {
         let line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
         let line2 = ''
         if (txtOrObj && typeof txtOrObj !== 'undefined') {
             if (typeof txtOrObj === 'string') {
                 line += ' ' + txtOrObj
             } else {
-                line += ' ' + this.simpleStringify(txtOrObj, null, '\t')
+                line += ' ' + this._simpleStringify(txtOrObj, null, '\t')
             }
         }
 
@@ -163,7 +148,7 @@ class Log {
             } else if (txtOrObj2 === {}) {
                 line += ' {} '
             } else if (typeof txtOrObj2.sourceURL === 'undefined') {
-                line += '\n\t\t\t\t\t' + this.simpleStringify(txtOrObj2, null, '\t\t\t\t\t')
+                line += '\n\t\t\t\t\t' + this._simpleStringify(txtOrObj2, null, '\t\t\t\t\t')
             }
         }
 
@@ -187,18 +172,18 @@ class Log {
         if (LOG_AS_ERROR) {
             if (!config.debug.appErrors) {
                 // noinspection JSUnresolvedFunction
-                firebase.crashlytics().log('==========ERROR ' + LOG_SUBTYPE + '==========')
+                crashlytics().log('==========ERROR ' + LOG_SUBTYPE + '==========')
             }
             if (LOG_WRITE_FILE) {
-                this.FS[LOG_SUBTYPE].writeLine('==========ERROR ' + LOG_SUBTYPE + '==========')
+                await this.FS[LOG_SUBTYPE].writeLine('==========ERROR ' + LOG_SUBTYPE + '==========')
             }
         }
         if (!config.debug.appErrors && config.debug.firebaseLogs) {
             // noinspection JSUnresolvedFunction
-            firebase.crashlytics().log(line)
+            crashlytics().log(line)
         }
         if (LOG_WRITE_FILE) {
-            this.FS[LOG_SUBTYPE].writeLine(line)
+            await this.FS[LOG_SUBTYPE].writeLine(line)
         }
 
 
@@ -206,7 +191,7 @@ class Log {
             if (typeof txtOrObj3 === 'string') {
                 line2 += '\t\t\t\t\t' + txtOrObj3
             } else {
-                line2 += '\t\t\t\t\t' + this.simpleStringify(txtOrObj3, null, '\t\t\t\t\t')
+                line2 += '\t\t\t\t\t' + this._simpleStringify(txtOrObj3, null, '\t\t\t\t\t')
             }
             if (LOG_SUBTYPE !== 'DAEMON') {
                 if (DEBUG || this.localConsole) {
@@ -217,10 +202,10 @@ class Log {
             }
             if (!config.debug.appErrors && config.debug.firebaseLogs) {
                 // noinspection JSUnresolvedFunction
-                firebase.crashlytics().log(line2)
+                crashlytics().log(line2)
             }
             if (LOG_WRITE_FILE) {
-                this.FS[LOG_SUBTYPE].writeLine(line2)
+                await this.FS[LOG_SUBTYPE].writeLine(line2)
             }
         }
 
@@ -250,13 +235,12 @@ class Log {
     }
 
     async errDaemon(errorObjectOrText, errorObject2) {
-        this.err(errorObjectOrText, errorObject2, 'DAEMON')
+        return this.err(errorObjectOrText, errorObject2, 'DAEMON')
     }
 
     async errFS(errorObjectOrText, errorObject2) {
         this.err(errorObjectOrText, errorObject2, 'ALL', false)
     }
-
 
 
     /**
@@ -279,7 +263,7 @@ class Log {
                     line += ' ' + errorObjectOrText.message
                 }
             } else {
-                line += this.simpleStringify(errorObjectOrText)
+                line += this._simpleStringify(errorObjectOrText)
             }
         }
 
@@ -306,15 +290,15 @@ class Log {
 
             // noinspection JSUnresolvedFunction
             if (LOG_WRITE_FILE) {
-                this.FS[LOG_SUBTYPE].writeLine('FRNT ' + line)
+                await this.FS[LOG_SUBTYPE].writeLine('FRNT ' + line)
             }
 
             if (!config.debug.appErrors) {
-                if (typeof firebase.crashlytics().recordCustomError !== 'undefined') {
-                    firebase.crashlytics().recordCustomError('FRNT_SEPT', line, [])
+                if (typeof crashlytics().recordError !== 'undefined') {
+                    crashlytics().recordError(new Error('CRPT_SEPT ' + line))
                 } else {
-                    firebase.crashlytics().log('FRNT_SEPT ' + line)
-                    firebase.crashlytics().crash()
+                    crashlytics().log('FRNT_SEPT ' + line)
+                    crashlytics().crash()
                 }
             }
         } catch (firebaseError) {
@@ -338,10 +322,6 @@ class Log {
         }
 
         return true
-    }
-
-    getLogs() {
-        return FULL_LOGS_TXT.ALL
     }
 
     getHeaders() {

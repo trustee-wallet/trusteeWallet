@@ -9,7 +9,7 @@ import { View, Dimensions, KeyboardAvoidingView, Platform } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
 
-import firebase from 'react-native-firebase'
+
 
 import GoogleDrive from '../../services/Back/Google/GoogleDrive'
 import Log from '../../services/Log/Log'
@@ -19,6 +19,7 @@ import { strings } from '../../services/i18n'
 import NavStore from '../../components/navigation/NavStore'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -96,7 +97,7 @@ class BackupStepGoogle extends Component {
 
     render() {
 
-        firebase.analytics().setCurrentScreen('BackupStepGoogle')
+        MarketingAnalytics.setCurrentScreen('BackupStepGoogle')
 
         return (
             <View style={styles.wrapper}>

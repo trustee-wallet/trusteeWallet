@@ -10,7 +10,8 @@ import accountDS from '../../appstores/DataSource/Account/Account'
 import walletPubDS from '../../appstores/DataSource/Wallet/WalletPub'
 import walletDS from '../../appstores/DataSource/Wallet/Wallet'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import firebase from 'react-native-firebase'
+
+import database from '@react-native-firebase/database'
 
 import PubEncrypt from './PubEncrypt/PubEncrypt'
 import config from '../../config/config'
@@ -232,7 +233,7 @@ export default {
             await Log.log('ApiV3.initData end encryption')
             encrypted.key = currentToken // for firebase key read rule
 
-            await firebase.database().ref(keyTitle).set(encrypted)
+            await database().ref(keyTitle).set(encrypted)
 
             const link = entryUrl + entryPoint
                 + '?date=' + date[0]

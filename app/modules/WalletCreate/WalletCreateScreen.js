@@ -15,7 +15,7 @@ import {
 import { connect } from 'react-redux'
 import { Pages } from 'react-native-pages'
 
-import firebase from 'react-native-firebase'
+
 import LottieView from 'lottie-react-native'
 
 import Agreement from './elements/Agreement'
@@ -41,6 +41,7 @@ import SliderImage1 from '../../assets/images/slider/1.png';
 import SliderImage2 from '../../assets/images/slider/2.png';
 import SliderImage3 from '../../assets/images/slider/3.png';
 import SliderImage4 from '../../assets/images/slider/4.png';
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 const screenWidth = Dimensions.get('window').width;
@@ -158,7 +159,7 @@ class WalletCreateScreen extends Component {
         const { logoShow } = this.state
         const { colors, GRID_SIZE } = this.context
 
-        firebase.analytics().setCurrentScreen('WalletCreate.WalletCreateScreen')
+        MarketingAnalytics.setCurrentScreen('WalletCreate.WalletCreateScreen')
 
         return (
             <View style={styles.container}>
