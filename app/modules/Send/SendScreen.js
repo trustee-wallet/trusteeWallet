@@ -158,7 +158,6 @@ class SendScreen extends SendBasicScreenScreen {
         // Log.log('')
         // Log.log('')
         const sendScreenData = SendTmpData.getData()
-        console.log(sendScreenData)
         const { account, cryptoCurrency, wallet } = SendActions.findWalletPlus(sendScreenData.currencyCode)
 
         let selectedFee = false // typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee
