@@ -188,7 +188,7 @@ class SendScreen extends SendBasicScreenScreen {
 
                 if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName) {
                     this.addressInput.handleInput(sendScreenData.contactName, false)
-                } else if (typeof sendScreenData.addressTo !== 'undefined' && sendScreenData.addressTo) {
+                } else if (typeof sendScreenData.addressTo !== 'undefined' && sendScreenData.addressTo && typeof sendScreenData.uiInputAddress !== 'undefined' && sendScreenData.uiInputAddress) {
                     this.addressInput.handleInput(sendScreenData.addressTo, false)
                 }
 
