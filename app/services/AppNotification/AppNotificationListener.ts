@@ -209,7 +209,7 @@ export default new class AppNotificationListener {
 
         try {
             const startMessage = await messaging().getInitialNotification()
-            console.log('start', startMessage)
+
             if (startMessage && typeof startMessage.messageId !== 'undefined') {
                 await Log.log('PUSH _onMessage startMessage not null')
 

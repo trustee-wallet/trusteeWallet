@@ -39,11 +39,11 @@ export default {
                             news.newsJson.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
                             news.newsJson.balance = 1
                         }
-
                     }
                     await AppNotificationPopup.displayPushFromNews(news)
+                    await appNewsDS.shownPopup(news.id)
                 } else {
-                    await appNewsDS.setNewsNeedPopup({id : news.id, newsNeedPopup : 0})
+                    await appNewsDS.setNewsNeedPopup({ id: news.id, newsNeedPopup: 0 })
                 }
 
             } catch (e) {
