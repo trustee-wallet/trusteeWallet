@@ -781,7 +781,8 @@
       "descriptionInput": "По умолчанию",
       "optionalSettings": "Необязательно",
       "note": "Комментарий",
-      "optional" : "Необязательно"
+      "optional" : "Необязательно",
+      "notAddress": "Пожалуйста, введите адрес, чтобы продолжить"
     },
     "infoModal": {
       "title": "Информация",

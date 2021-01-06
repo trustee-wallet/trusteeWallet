@@ -122,7 +122,9 @@ class SendScreen extends SendBasicScreenScreen {
             headerHeight: 0,
             loadFee: false,
 
-            addressError: false
+            addressError: false,
+
+            uiInputAddress: false
         }
         this.addressInput = React.createRef()
         this.memoInput = React.createRef()
@@ -178,15 +180,16 @@ class SendScreen extends SendBasicScreenScreen {
                 useAllFunds: sendScreenData.isTransferAll,
                 init: true,
                 inputType,
+                uiInputAddress: sendScreenData.uiInputAddress,
                 amountInputMark:
                     this.state.amountInputMark
                     ? this.state.amountInputMark :
                     (inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencySymbol}` : `0.00 ${account.basicCurrencyCode}`)
             }, () => {
 
-                if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName) {
+                if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName && sendScreenData.uiInputAddress) {
                     this.addressInput.handleInput(sendScreenData.contactName, false)
-                } else if (typeof sendScreenData.addressTo !== 'undefined' && sendScreenData.addressTo) {
+                } else if (typeof sendScreenData.addressTo !== 'undefined' && sendScreenData.addressTo && sendScreenData.uiInputAddress) {
                     this.addressInput.handleInput(sendScreenData.addressTo, false)
                 }
 
@@ -272,9 +275,7 @@ class SendScreen extends SendBasicScreenScreen {
         Keyboard.dismiss()
 
         setLoaderStatus(true)
-
-        const { address, currencyCode, balance, unconfirmed } = this.state.account
-
+        const { address, currencyCode, balance, unconfirmed, currencySymbol } = this.state.account
 
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
@@ -328,10 +329,9 @@ class SendScreen extends SendBasicScreenScreen {
             }
             const { amountEquivalent, amountInputMark} = this.amountEquivalent(amount, 'CRYPTO')
             this.setState({
-                inputType: 'CRYPTO',
                 useAllFunds: true,
-                amountEquivalent: amountEquivalent,
-                amountInputMark: amountInputMark,
+                amountEquivalent: this.state.inputType === 'CRYPTO' ? amountEquivalent : amount,
+                amountInputMark: this.state.inputType === 'CRYPTO' ? amountInputMark : `${amount} ${currencySymbol}`,
                 sendScreenData : newSendScreenData
             })
 
@@ -341,7 +341,7 @@ class SendScreen extends SendBasicScreenScreen {
                     && typeof this.valueInput.handleInput !== 'undefined' && this.valueInput.handleInput
                     && typeof amount !== 'undefined' && amount !== null
                 ) {
-                    this.valueInput.handleInput(amount, false)
+                    this.valueInput.handleInput(this.state.inputType === 'CRYPTO' ? amount : amountEquivalent.toString(), false)
                 }
             } catch (e) {
                 e.message += ' while this.valueInput.handleInput amount ' + amount
@@ -725,7 +725,7 @@ class SendScreen extends SendBasicScreenScreen {
 
         try {
             let { useAllFunds, contactName, contactAddress } = this.state
-            // Log.log('Send.SendScreen.amountInputCallback state', { value, changeUseAllFunds, addressTo, memo })
+            Log.log('SendScreen.amountInputCallback state', { value, changeUseAllFunds, addressTo, memo })
 
             const { currencySymbol, currencyCode } = this.state.cryptoCurrency
             const { basicCurrencySymbol, basicCurrencyRate, address } = this.state.account
@@ -739,6 +739,10 @@ class SendScreen extends SendBasicScreenScreen {
 
 
             if (addressTo === false) {
+                this.setState({
+                    uiInputAddress: false
+                })
+
                 if (contactAddress) {
                     addressTo = contactAddress
                     this.addressInput.handleInput(contactName.toString(), false)
@@ -754,6 +758,10 @@ class SendScreen extends SendBasicScreenScreen {
                     }
                 }
             } else {
+                this.setState({
+                    uiInputAddress: true
+                })
+
                 let toContactAddress = false
                 try {
                     toContactAddress = await SendActions.getContactAddress({ addressName: addressTo, currencyCode })
@@ -850,6 +858,7 @@ class SendScreen extends SendBasicScreenScreen {
             } else {
                 // Log.log('Send.SendScreen.amountInputCallback not updated as not changed')
             }
+            newSendScreenData.uiInputAddress = this.state.uiInputAddress
 
 
             // Log.log('afterCallback', JSON.parse(JSON.stringify(newSendScreenData)))
@@ -1008,15 +1017,21 @@ class SendScreen extends SendBasicScreenScreen {
     handlerPartBalance = (inputType, part) => {
         if (inputType === 'FIAT') {
             let value = BlocksoftUtils.mul(BlocksoftUtils.div(this.state.account.basicCurrencyBalance, 4), Number(part))
+            Log.log('SendScreen.handlerPartBalance.inputType FIAT', value)
+
             value = UtilsService.cutNumber(value, 2)
             this.valueInput.state.value = value.toString()
-            this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
+            this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && 
+                value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
             this.amountInputCallback(value, true)
         } else {
             let value = BlocksoftUtils.mul(BlocksoftUtils.div(this.state.account.balancePretty, 4), Number(part))
+            Log.log('SendScreen.handlerPartBalance.inputType CRYPTO', value)
+            
             value = UtilsService.cutNumber(value, 7)
             this.valueInput.state.value = value.toString()
-            this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
+            this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && 
+                value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
             this.amountInputCallback(value, true)
         }
     }

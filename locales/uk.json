@@ -782,7 +782,8 @@
       "descriptionInput": "За замовчуванням",
       "optionalSettings": "Необов'язково",
       "note": "Коментар",
-      "optional" : "Необов’язково"
+      "optional" : "Необов’язково",
+      "notAddress": "Будь ласка, введіть адресу, щоб продовжити"
     },
     "infoModal": {
       "title": "Інформація",

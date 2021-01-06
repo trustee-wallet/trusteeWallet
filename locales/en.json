@@ -781,7 +781,8 @@
       "descriptionInput": "Default",
       "optionalSettings": "Optinal",
       "note": "Comment",
-      "optional" : "Optional"
+      "optional" : "Optional",
+      "notAddress": "Please enter an address to continue"
     },
     "infoModal": {
       "title": "Info",
