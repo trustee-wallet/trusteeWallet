@@ -187,9 +187,9 @@ class SendScreen extends SendBasicScreenScreen {
                     (inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencySymbol}` : `0.00 ${account.basicCurrencyCode}`)
             }, () => {
 
-                if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName && sendScreenData.uiInputAddress) {
+                if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName) {
                     this.addressInput.handleInput(sendScreenData.contactName, false)
-                } else if (typeof sendScreenData.addressTo !== 'undefined' && sendScreenData.addressTo && sendScreenData.uiInputAddress) {
+                } else if (typeof sendScreenData.addressTo !== 'undefined' && sendScreenData.addressTo) {
                     this.addressInput.handleInput(sendScreenData.addressTo, false)
                 }
 
