@@ -208,7 +208,7 @@ export default {
                     msg = now.data.serverTime
                     date = new Date(msg)
                     const oldNow = +new Date()
-                    await Log.log('ApiV3.initData msg from server ' + msg + ' - old ' + oldNow + ' = ' + Math.abs(now - oldNow))
+                    await Log.log('ApiV3.initData msg from server ' + msg + ' - old ' + oldNow + ' = ' + Math.abs(msg * 1 - oldNow * 1))
                 } else {
                     await Log.log('ApiV3.initData msg from server - no time ', now.data)
                 }
@@ -224,16 +224,8 @@ export default {
         date = date.toISOString().split('T')
         const keyTitle = V3_KEY_PREFIX + '/' + date[0] + '/' + currentToken
 
+
         try {
-            await Log.log('ApiV3.initData start json')
-            const text = JSON.stringify(data)
-            await Log.log('ApiV3.initData start encryption')
-            const encrypted = await PubEncrypt.encryptWithPublicKey(V3_PUB, text)
-            await Log.log('ApiV3.initData end encryption')
-            encrypted.key = currentToken // for firebase key read rule
-
-            await firebase.database().ref(keyTitle).set(encrypted)
-
             const link = entryUrl + entryPoint
                 + '?date=' + date[0]
                 + '&message=' + sign.message
@@ -243,7 +235,17 @@ export default {
                 + '&locale=' + sublocale()
                 + '&version=' + MarketingEvent.DATA.LOG_VERSION
                 + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
-            await Log.log('ApiV3.initData link ' + link)
+
+            await Log.log('ApiV3.initData start json link ' + link)
+            const text = JSON.stringify(data)
+            await Log.log('ApiV3.initData start encryption')
+            const encrypted = await PubEncrypt.encryptWithPublicKey(V3_PUB, text)
+            await Log.log('ApiV3.initData end encryption')
+            encrypted.key = currentToken // for firebase key read rule
+
+            await Log.log('ApiV3.initData start save to firebase')
+            await firebase.database().ref(keyTitle).set(encrypted)
+            await Log.log('ApiV3.initData end save to firebase link ' + link)
             return link
         } catch (e) {
             await Log.err('ApiV3.initData error ' + e.message)
