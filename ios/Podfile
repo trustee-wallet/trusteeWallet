@@ -43,6 +43,7 @@ target 'TrusteeWallet' do
 
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera.podspec"
 
+  pod 'Fabric'
   pod 'GoogleAnalytics'
   pod 'GoogleIDFASupport'
 
