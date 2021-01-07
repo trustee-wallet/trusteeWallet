@@ -7,6 +7,7 @@ import { FirebaseMessagingTypes } from '@react-native-firebase/messaging'
 import PushNotification from 'react-native-push-notification'
 import Log from '../Log/Log'
 import NavStore from '../../components/navigation/NavStore'
+import { Platform } from 'react-native'
 
 export default new class AppNotificationPopup {
 
@@ -28,7 +29,7 @@ export default new class AppNotificationPopup {
 
     async displayPush(message: FirebaseMessagingTypes.RemoteMessage) {
         try {
-            console.log('AppNotificationPopup.displayPush message', message)
+            Log.log('AppNotificationPopup.displayPush message', message)
             const title = message.notification?.title
             const body = message.notification?.body
             const image = message.notification?.android?.imageUrl
@@ -54,24 +55,27 @@ export default new class AppNotificationPopup {
     async _display(data: { title: any; body: any; image?: any; messageId: any }) {
         try {
             Log.log('AppNotificationPopup.display data', data)
-            const { title, body, image, messageId } = data
+            let { title, body, image, messageId } = data
 
-            await new Promise(resolve => {
-                PushNotification.createChannel(
-                    {
-                        channelId: 'trusteeWalletChannel',
-                        channelName: 'Trustee wallet channel',
-                        channelDescription: 'Trustee wallet channel for notifications',
-                        playSound: false, // (optional) default: true
-                        soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
-                        importance: 4, // (optional) default: 4. Int value of the Android notification importance
-                        vibrate: true // (optional) default: true. Creates the default vibration patten if true.
-                    },
-                    (created: any) => {
-                        resolve(created)
-                    }
-                )
-            })
+
+            if (Platform.OS !== 'ios') {
+                await new Promise(resolve => {
+                    PushNotification.createChannel(
+                        {
+                            channelId: 'trusteeWalletChannel',
+                            channelName: 'Trustee wallet channel',
+                            channelDescription: 'Trustee wallet channel for notifications',
+                            playSound: false, // (optional) default: true
+                            soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+                            importance: 4, // (optional) default: 4. Int value of the Android notification importance
+                            vibrate: true // (optional) default: true. Creates the default vibration patten if true.
+                        },
+                        (created: any) => {
+                            resolve(created)
+                        }
+                    )
+                })
+            }
 
             const params = {
                 channelId: 'trusteeWalletChannel',
@@ -109,17 +113,17 @@ export default new class AppNotificationPopup {
                 // repeatType: 'day' // (optional) Repeating interval. Check 'Repeating Notifications' section for more info.
             }
 
-            if (image) {
+            if (typeof image !== 'undefined' && image && image !== '') {
                 params.largeIconUrl = image // (optional) default: undefined
                 params.bigPictureUrl = image // (optional) default: undefined
                 params.bigLargeIconUrl = image // (optional) default: undefined
             }
 
-            if (body) {
+            if (typeof body !== 'undefined' && body && body !== '') {
                 params.bigText = body // (optional) default: "message" prop
                 params.message = body // (required)
             }
-            if (title) {
+            if (typeof title !== 'undefined' && title && title !== '') {
                 params.subText = title // (optional) default: none
                 params.title = title // (optional)
             }
