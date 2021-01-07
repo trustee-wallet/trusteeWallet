@@ -73,6 +73,7 @@
     "react-native": "0.61.5",
     "react-native-appearance": "^0.3.4",
     "react-native-awesome-card-io": "^0.8.2",
+    "react-native-background-timer": "^2.1.1",
     "react-native-blocksoft-random": "git+https://git@github.com/trustee-wallet/react-native-blocksoft-random",
     "react-native-blur-overlay": "^1.0.7",
     "react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera.git",
