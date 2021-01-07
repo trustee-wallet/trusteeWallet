@@ -224,6 +224,8 @@ export default new class AppNotificationListener {
                 }
 
                 await Log.log('PUSH _onMessage startMessage finished')
+            } else {
+                await Log.log('PUSH _onMessage startMessage is null', startMessage)
             }
         } catch (e) {
             Log.err('PUSH _onMessage startMessage error ' + e.message)

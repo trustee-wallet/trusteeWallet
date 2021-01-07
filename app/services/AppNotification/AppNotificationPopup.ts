@@ -54,12 +54,11 @@ export default new class AppNotificationPopup {
 
     async _display(data: { title: any; body: any; image?: any; messageId: any }) {
         try {
-            Log.log('AppNotificationPopup.display data', data)
+            await Log.log('AppNotificationPopup._display data', data)
             let { title, body, image, messageId } = data
 
 
-            if (Platform.OS !== 'ios') {
-                await new Promise(resolve => {
+            await new Promise(resolve => {
                     PushNotification.createChannel(
                         {
                             channelId: 'trusteeWalletChannel',
@@ -74,8 +73,8 @@ export default new class AppNotificationPopup {
                             resolve(created)
                         }
                     )
-                })
-            }
+            })
+            await Log.log('AppNotificationPopup._display channel created')
 
             const params = {
                 channelId: 'trusteeWalletChannel',
@@ -131,10 +130,11 @@ export default new class AppNotificationPopup {
             if (messageId) {
                 params.messageId = messageId // (optional) added as `message_id` to intent extras so opening push notification can find data stored by @react-native-firebase/messaging module.
             }
-
+            await Log.log('AppNotificationPopup._display PushNotification.localNotification ', params)
             PushNotification.localNotification(params)
+            await Log.log('AppNotificationPopup._display PushNotification.localNotification finished')
         } catch (e) {
-            Log.err('AppNotificationPopup._display error ' + e.message)
+            await Log.err('AppNotificationPopup._display error ' + e.message)
         }
     }
 }
