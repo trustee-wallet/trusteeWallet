@@ -73,8 +73,6 @@
     "react-native": "0.61.5",
     "react-native-appearance": "^0.3.4",
     "react-native-awesome-card-io": "^0.8.2",
-    "react-native-background-fetch": "3.0.3",
-    "react-native-background-timer": "^2.1.1",
     "react-native-blocksoft-random": "git+https://git@github.com/trustee-wallet/react-native-blocksoft-random",
     "react-native-blur-overlay": "^1.0.7",
     "react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera.git",
@@ -111,7 +109,7 @@
     "react-native-paper": "^3.4.0",
     "react-native-permissions": "^2.0.9",
     "react-native-phone-input": "^0.2.4",
-    "react-native-push-notification": "^7.0.0",
+
     "react-native-qr-scanner": "git+https://git@github.com/trustee-wallet/react-native-qr-scanner",
     "react-native-qrcode": "git+https://git@github.com/trustee-wallet/react-native-qrcode",
     "react-native-qrcode-scanner": "^1.3.1",
