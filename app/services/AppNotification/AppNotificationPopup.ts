@@ -3,11 +3,11 @@
  * has no more local pushes so////
  * https://github.com/zo0r/react-native-push-notification
  */
+import { Platform } from 'react-native'
 import { FirebaseMessagingTypes } from '@react-native-firebase/messaging'
 import PushNotification from 'react-native-push-notification'
 import Log from '../Log/Log'
 import NavStore from '../../components/navigation/NavStore'
-import { Platform } from 'react-native'
 
 export default new class AppNotificationPopup {
 
