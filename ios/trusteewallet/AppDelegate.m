@@ -35,7 +35,6 @@
 
   [FIROptions defaultOptions].deepLinkURLScheme = @"com.trusteewallet";
   [FIRApp configure];
-  [[TSBackgroundFetch sharedInstance] didFinishLaunching];
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
