@@ -9,7 +9,8 @@ import {
     StyleSheet,
     TouchableOpacity,
 } from 'react-native'
-import firebase from 'react-native-firebase'
+
+
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
 import NavStore from '../../components/navigation/NavStore'
@@ -34,6 +35,7 @@ import RoundButton from '../../components/elements/new/buttons/RoundButton'
 import PromoCodeContent from './elements/PromoCode'
 import DetailsContent from './elements/Details'
 import HowItWorks from './elements/HowItWorks'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class CashbackScreen extends React.Component {
@@ -96,7 +98,7 @@ class CashbackScreen extends React.Component {
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('CashBackScreen')
+        MarketingAnalytics.setCurrentScreen('CashBackScreen')
         const {
             colors,
             GRID_SIZE,

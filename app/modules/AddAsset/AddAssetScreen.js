@@ -12,7 +12,7 @@ import {
     TouchableOpacity,
     Keyboard
 } from 'react-native'
-import firebase from 'react-native-firebase'
+
 import _forEach from 'lodash/forEach'
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 
@@ -39,6 +39,7 @@ import {
     prepareDataForDisplaying,
     addCustomToken
 } from './helpers'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class AddAssetScreen extends React.Component {
@@ -160,7 +161,7 @@ class AddAssetScreen extends React.Component {
         } = this.state
         const activeGroup = tabs.find(tab => tab.active).group
 
-        firebase.analytics().setCurrentScreen('AddAssetScreen')
+        MarketingAnalytics.setCurrentScreen('AddAssetScreen')
 
         const contentPaddingTop = headerHeight + GRID_SIZE / 2
 

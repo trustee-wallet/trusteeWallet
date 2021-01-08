@@ -80,7 +80,6 @@ export class FileSystem {
         if (!items) return
         let item
         for (item of items) {
-            console.log('rmv ' + item.path)
             await RNFS.unlink(item.path)
         }
     }
@@ -89,6 +88,7 @@ export class FileSystem {
         if (!FilePermissions.isOk()) {
             return
         }
+        let moving = ''
         try {
             const path = this.getPath()
             if (!await RNFS.exists(path)) {
@@ -99,18 +99,24 @@ export class FileSystem {
             if (res.size * 1 < 700000) { // 0.7 mb
                 return
             }
-            try {
-                for (let index = 5; index >= 1; index--) {
+
+            for (let index = 5; index >= 1; index--) {
+                try {
                     if (await RNFS.exists(path + '-' + index + '.txt')) {
+                        moving = path + '-' + index + '.txt => ' + path + '-' + (index + 1) + '.txt'
                         await RNFS.moveFile(path + '-' + index + '.txt', path + '-' + (index + 1) + '.txt')
+                        await RNFS.unlink(path + '-' + index + '.txt')
                     }
+                } catch (e) {
+                    // nothing
                 }
-            } catch (e) {
-                // do nothing
             }
+
+            await RNFS.unlink(path + '-1.txt')
+            moving = path + ' => ' + path + '-1.txt'
             await RNFS.moveFile(path, path + '-1.txt')
         } catch (e) {
-            CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error ' + e.message
+            CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error ' + moving + ' ' + e.message
         }
     }
 

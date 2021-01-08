@@ -6,6 +6,8 @@ import { connect } from 'react-redux'
 import { View, Dimensions, Text, TouchableOpacity } from 'react-native'
 import QRCodeScanner from 'react-native-qrcode-scanner'
 
+
+
 import Navigation from '../../components/navigation/Navigation'
 import NavStore from '../../components/navigation/NavStore'
 
@@ -18,12 +20,12 @@ import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
 import { decodeTransactionQrCode } from '../../services/UI/Qr/QrScan'
 import Log from '../../services/Log/Log'
 
-import firebase from 'react-native-firebase'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { openQrGallery } from '../../services/UI/Qr/QrGallery'
 import Header from '../../components/elements/new/Header'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
 const SCREEN_WIDTH = Dimensions.get('window').width
@@ -262,7 +264,7 @@ class QRCodeScannerScreen extends Component {
 
     render() {
         UpdateOneByOneDaemon.pause()
-        firebase.analytics().setCurrentScreen('QRCodeScannerScreen.index')
+        MarketingAnalytics.setCurrentScreen('QRCodeScannerScreen.index')
         return (
             <View style={{ flex: 1, backgroundColor: 'transparent' }}>
                 <Header

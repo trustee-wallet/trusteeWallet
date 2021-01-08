@@ -7,7 +7,8 @@ import {
     SafeAreaView,
     StyleSheet
 } from 'react-native'
-import firebase from 'react-native-firebase'
+
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -18,6 +19,7 @@ import { setFlowType, setMnemonicLength, setWalletName } from '../../appstores/S
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import ListItem from '../../components/elements/new/list/ListItem/Setting'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class AddWalletScreen extends React.Component {
@@ -50,7 +52,7 @@ class AddWalletScreen extends React.Component {
     handleClose = () => { NavStore.reset('DashboardStack') }
 
     render() {
-        firebase.analytics().setCurrentScreen('WalletManagment.AddWallet')
+        MarketingAnalytics.setCurrentScreen('WalletManagment.AddWallet')
 
         const { colors, GRID_SIZE } = this.context
         const { headerHeight } = this.state

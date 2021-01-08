@@ -1,7 +1,8 @@
 /**
  * @version 0.9
  */
-import firebase from 'react-native-firebase'
+import crashlytics from '@react-native-firebase/crashlytics'
+import analytics from '@react-native-firebase/analytics'
 
 import AsyncStorage from '@react-native-community/async-storage'
 import { Platform } from 'react-native'
@@ -127,22 +128,22 @@ class MarketingEvent {
                 const short  = val.substr(0, 20)
                 this.TG_MESSAGE += '\nTOKEN ' + short
                 this.TG_MESSAGE += '\nFULL_TOKEN ' + val
-                if (firebase.crashlytics()) {
-                    firebase.crashlytics().setStringValue(key, short)
-                    firebase.crashlytics().setStringValue(key + '_FULL', val)
+                if (crashlytics()) {
+                    crashlytics().setAttribute(key, short)
+                    crashlytics().setAttribute(key + '_FULL', val)
                 }
-                firebase.analytics().setUserProperty(key, short)
-                firebase.analytics().setUserProperty(key + '_FULL', val)
+                analytics().setUserProperty(key, short)
+                analytics().setUserProperty(key + '_FULL', val)
             } else {
                 if (key === 'LOG_VERSION') {
                     // do nothing
                 } else {
                     this.TG_MESSAGE += '\n' + key + ' ' + val + ' '
                 }
-                if (firebase.crashlytics()) {
-                    firebase.crashlytics().setStringValue(key, val)
+                if (crashlytics()) {
+                   crashlytics().setAttribute(key, val)
                 }
-                firebase.analytics().setUserProperty(key, val)
+                analytics().setUserProperty(key, val)
             }
         }
 
@@ -158,6 +159,8 @@ class MarketingEvent {
 
         const tmp = logTitle + ' ' + JSON.stringify(logData)
         if (tmp === this._cacheLastLog) return true
+
+        const date = (new Date()).toISOString().split('T')
         try {
             if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
                 // already done
@@ -170,14 +173,26 @@ class MarketingEvent {
 
             this._cacheLastLog = tmp
 
-            const date = (new Date()).toISOString().split('T')
-
-            // noinspection ES6MissingAwait
-            this.TG.send(PREFIX + `_sept_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
+            if (!logData) {
+                logData = {}
+            }
+            logData.date = date
 
         } catch (e) {
-            // noinspection ES6MissingAwait
-            Log.err(`DMN/MarketingEvent ${logTitle} ` + e.toString() + ' with logData ' + JSON.stringify(logData))
+            await Log.err(`DMN/MarketingEvent prepare error ${logTitle} ` + e.message.toString() + ' with logData ' + JSON.stringify(logData))
+            return false
+        }
+
+        try {
+            await analytics().logEvent(logTitle, logData)
+        } catch (e) {
+            await Log.err(`DMN/MarketingEvent send analytics error ${logTitle} ` + e.message.toString() + ' with logData ' + JSON.stringify(logData))
+        }
+
+        try {
+            await this.TG.send(PREFIX + `_sept_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
+        } catch (e) {
+            await Log.err(`DMN/MarketingEvent send TG error ${logTitle} ` + e.message.toString() + ' with logData ' + JSON.stringify(logData))
         }
     }
 

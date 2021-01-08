@@ -11,7 +11,8 @@ import {
     TouchableOpacity,
     SafeAreaView
 } from 'react-native'
-import firebase from 'react-native-firebase'
+
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -25,6 +26,7 @@ import AppNotificationListener from '../../services/AppNotification/AppNotificat
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import ListItem from '../../components/elements/new/list/ListItem/SubSetting'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class LanguageListScreen extends Component {
@@ -63,7 +65,7 @@ class LanguageListScreen extends Component {
     handleClose = () => { NavStore.reset('DashboardStack') }
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.LanguageListScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.LanguageListScreen')
 
         const { languageList } = config.language
         const language = this.getLangCode()

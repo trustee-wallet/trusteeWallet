@@ -15,7 +15,6 @@ import {
     Dimensions,
     Linking,
 } from 'react-native'
-import firebase from 'react-native-firebase'
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -39,6 +38,7 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import RoundButton from '../../components/elements/new/buttons/RoundButton'
 import ListItem from '../../components/elements/new/list/ListItem/Setting'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 const getSocialLinksData = () => [
@@ -149,7 +149,7 @@ class AboutScreen extends React.Component {
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('About.index')
+        MarketingAnalytics.setCurrentScreen('About.index')
 
         const { colors, GRID_SIZE, isLight } = this.context
         const { headerHeight } = this.state

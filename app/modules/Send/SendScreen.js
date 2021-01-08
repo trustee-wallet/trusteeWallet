@@ -9,7 +9,6 @@ import { View, ScrollView, Keyboard, Text, TouchableOpacity, Dimensions, Platfor
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
-import firebase from 'react-native-firebase'
 import AsyncStorage from '@react-native-community/async-storage'
 
 import AddressInput from '../../components/elements/NewInput'
@@ -59,6 +58,7 @@ import { SendTmpData } from '../../appstores/Stores/Send/SendTmpData'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import Validator from '../../services/UI/Validator/Validator'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -182,8 +182,8 @@ class SendScreen extends SendBasicScreenScreen {
                 uiInputAddress: sendScreenData.uiInputAddress,
                 amountInputMark:
                     this.state.amountInputMark
-                    ? this.state.amountInputMark :
-                    (inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencySymbol}` : `0.00 ${account.basicCurrencyCode}`)
+                        ? this.state.amountInputMark :
+                        (inputType === 'FIAT' ? `0.00 ${cryptoCurrency.currencySymbol}` : `0.00 ${account.basicCurrencyCode}`)
             }, () => {
 
                 if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName) {
@@ -982,7 +982,7 @@ class SendScreen extends SendBasicScreenScreen {
                 const basicAmount = RateEquivalent.mul({ value: amountPretty, currencyCode, basicCurrencyRate })
                 const basicAmountPrep = BlocksoftPrettyNumbers.makeCut(basicAmount, 2).cutted
                 // if (this.state.inputType === 'CRYPTO') {
-                    sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicAmountPrep
+                sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicAmountPrep
                 // } else {
                 //     sumPrep = '~' + basicCurrencySymbol + ' ' + basicAmountPrep + ' / ' + sumPrep
                 // }
@@ -1020,27 +1020,27 @@ class SendScreen extends SendBasicScreenScreen {
 
             value = UtilsService.cutNumber(value, 2)
             this.valueInput.state.value = value.toString()
-            this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && 
-                value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
+            this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 &&
+            value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
             this.amountInputCallback(value, true)
         } else {
             let value = BlocksoftUtils.mul(BlocksoftUtils.div(this.state.account.balancePretty, 4), Number(part))
             Log.log('SendScreen.handlerPartBalance.inputType CRYPTO', value)
-            
+
             value = UtilsService.cutNumber(value, 7)
             this.valueInput.state.value = value.toString()
-            this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && 
-                value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
+            this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 &&
+            value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
             this.amountInputCallback(value, true)
         }
     }
 
     disabled = () => {
-        
+
         if (this.state.loadFee) {
             return true
         }
-        
+
     }
 
     disabledSettings = () => {
@@ -1078,7 +1078,7 @@ class SendScreen extends SendBasicScreenScreen {
     render() {
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
-        firebase.analytics().setCurrentScreen('Send.SendScreen')
+        MarketingAnalytics.setCurrentScreen('Send.SendScreen')
 
         const route = NavStore.getCurrentRoute()
         if (route.routeName === 'Send.SendScreen') { // @todo do we still need it?
@@ -1241,7 +1241,7 @@ class SendScreen extends SendBasicScreenScreen {
                             )}
 
                             {this.renderEnoughFundsError()}
-                            
+
                             <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 1.5, }}>
                                 <AddressInput
                                     ref={component => this.addressInput = component}

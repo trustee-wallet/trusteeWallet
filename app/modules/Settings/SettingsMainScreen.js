@@ -11,7 +11,8 @@ import {
     SafeAreaView,
     StyleSheet
 } from 'react-native'
-import firebase from 'react-native-firebase'
+
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -33,6 +34,7 @@ import AppNotificationListener from '../../services/AppNotification/AppNotificat
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import ListItem from '../../components/elements/new/list/ListItem/Setting'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class SettingsMainScreen extends React.Component {
@@ -268,7 +270,7 @@ class SettingsMainScreen extends React.Component {
     handleBack = () => { NavStore.goBack() }
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.SettingsMainScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.SettingsMainScreen')
 
         let {
             lock_screen_status,

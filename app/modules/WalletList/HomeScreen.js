@@ -23,7 +23,7 @@ import DraggableFlatList from 'react-native-draggable-flatlist'
 
 import AsyncStorage from '@react-native-community/async-storage'
 
-import firebase from 'react-native-firebase'
+
 
 import GradientView from '../../components/elements/GradientView'
 import CustomIcon from '../../components/elements/CustomIcon'
@@ -58,6 +58,7 @@ import checkTransferHasError from '../../services/UI/CheckTransferHasError/Check
 import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
 import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 let CACHE_SET_WALLET_HASH = false
 
@@ -290,7 +291,7 @@ class HomeScreen extends Component {
     render() {
         const { colors, isLight } = this.context
 
-        firebase.analytics().setCurrentScreen('WalletList.HomeScreen')
+        MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')
 
         let walletHash = this.props.mainStore.selectedWallet.walletHash
         if (!walletHash || typeof walletHash === 'undefined') {

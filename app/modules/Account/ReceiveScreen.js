@@ -12,7 +12,7 @@ import {
     Dimensions
 } from 'react-native'
 
-import firebase from 'react-native-firebase'
+
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
@@ -75,6 +75,7 @@ import Button from '../../components/elements/new/buttons/Button'
 
 import blackLoader from '../../assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '../../assets/jsons/animations/refreshWhite.json'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -203,7 +204,7 @@ class ReceiveScreen extends Component {
     }
 
     handleCustomReceiveAmount = () => {
-        
+
         this.setState({
             customAmount: true
         })
@@ -234,7 +235,7 @@ class ReceiveScreen extends Component {
             setLoaderStatus(true)
             this.refSvg.toDataURL(async (data) => {
                 const message = `${currencySymbol} \n${address}`
-                
+
                 if (Platform.OS === 'android') {
                     // noinspection ES6MissingAwait
                     prettyShare({ message, url: `data:image/png;base64,${data}`, title: 'QR', type: 'image/png' })
@@ -407,7 +408,7 @@ class ReceiveScreen extends Component {
             // noinspection ES6MissingAwait
             Log.err('ReceiveScreen changeAddress error ' + e.message)
         }
-        
+
         setLoaderStatus(false)
 
         this.setState({
@@ -502,8 +503,8 @@ class ReceiveScreen extends Component {
         const amountForQr = this.state.inputType === 'CRYPTO' ? this.refAmountInput.getValue() : amountEquivalent
 
         this.setState({
-            amountInputMark: this.state.inputType === 'FIAT' ? 
-                `~ ${UtilsService.cutNumber(this.refAmountInput.getValue(), 2)} ${basicCurrencyCode}` : 
+            amountInputMark: this.state.inputType === 'FIAT' ?
+                `~ ${UtilsService.cutNumber(this.refAmountInput.getValue(), 2)} ${basicCurrencyCode}` :
                 `~ ${UtilsService.cutNumber(amountEquivalent, 8)} ${currencySymbol}`,
             amountEquivalent: this.state.inputType !== 'CRYPTO' ? UtilsService.cutNumber(amountEquivalent, 2) : UtilsService.cutNumber(amountEquivalent, 8),
             inputType,
@@ -579,15 +580,14 @@ class ReceiveScreen extends Component {
         const { currencySymbol, currencyCode, decimals } = this.props.cryptoCurrency
         const { btcShowTwoAddress = 1 } = settingsStore.data
 
-        // noinspection ES6MissingAwait
-        firebase.analytics().setCurrentScreen('Account.ReceiveScreen')
+        MarketingAnalytics.setCurrentScreen('Account.ReceiveScreen')
 
         const { colors, GRID_SIZE, isLight } = this.context
 
         const dict = new UIDict(currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
 
-        const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? 
+        const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ?
             this.props.account.segwitAddress : this.props.account.legacyAddress
 
         const buttonsArray = [
@@ -679,7 +679,7 @@ class ReceiveScreen extends Component {
                                 />
                                 </View>
                                 <View style={{ alignSelf: 'center', width: '100%', marginTop: GRID_SIZE }}>
-                                    <Button 
+                                    <Button
                                         title={strings('account.receiveScreen.share')}
                                         onPress={this.shareData}
                                     />
@@ -708,8 +708,8 @@ class ReceiveScreen extends Component {
                                                         marginRight: GRID_SIZE,
                                                         marginTop: 4
                                                     }}>
-                                                    {this.state.changeAddress ? 
-                                                        <LottieView style={{ width: 20, height: 20, }} 
+                                                    {this.state.changeAddress ?
+                                                        <LottieView style={{ width: 20, height: 20, }}
                                                             source={isLight ? blackLoader : whiteLoader}
                                                             autoPlay loop /> :
                                                         <CustomIcon color={colors.common.text1} size={20} name={'reloadTx'} />

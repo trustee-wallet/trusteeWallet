@@ -40,7 +40,7 @@ class BlocksoftTg {
         CACHE_FILTER[CHAT] = false
         CACHE_TIME[CHAT] = now
 
-        if (typeof data.result.pinned_message === 'undefined') {
+        if (!data || typeof data.result === 'undefined' || !data.result || typeof data.result.pinned_message === 'undefined') {
             return false
         }
         const text = data.result.pinned_message.text
@@ -97,7 +97,7 @@ class BlocksoftTg {
                     chat_id: ID
                 }, API_KEY)
             } catch (err) {
-                if (err.code.toString() === '429') {
+                if (typeof err.code !== 'undefined' && err.code && err.code.toString() === '429') {
                     console.error(text)
                     return true
                 } else if (err.description === 'Bad Gateway') {

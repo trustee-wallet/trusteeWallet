@@ -8,6 +8,8 @@ import { View, StyleSheet, ScrollView, Text, TouchableOpacity, Dimensions, Keybo
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
+
+
 import Button from '../../components/elements/Button'
 import WalletNameInput from '../../components/elements/Input'
 import GradientView from '../../components/elements/GradientView'
@@ -21,8 +23,7 @@ import { setMnemonicLength, setWalletName } from '../../appstores/Stores/CreateW
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 
 import Log from '../../services/Log/Log'
-
-import firebase from 'react-native-firebase'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 const data = {
@@ -142,7 +143,7 @@ class EnterNameScreen extends Component {
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('WalletCreate.EnterNameScreen')
+        MarketingAnalytics.setCurrentScreen('WalletCreate.EnterNameScreen')
 
         const { focused } = this.state
 

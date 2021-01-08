@@ -5,6 +5,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+
+
 import {
     View,
     Dimensions,
@@ -14,12 +16,10 @@ import {
     StatusBar,
     Keyboard,
     ActivityIndicator,
-    SafeAreaView 
+    SafeAreaView
 } from 'react-native'
 
 import Navigation from '../../components/navigation/Navigation'
-
-import firebase from 'react-native-firebase'
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -41,6 +41,7 @@ import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import config from '../../config/config'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -93,7 +94,7 @@ class MainV3DataScreen extends Component {
 
     componentWiilUnmount() {
         const { isLight } = this.context
-        
+
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
         Keyboard.removeListener( 'keyboardWillShow', this.onKeyboardShow );
 	    StatusBar.setBarStyle( isLight ? 'dark-content' : 'light-content' );
@@ -123,12 +124,12 @@ class MainV3DataScreen extends Component {
     }
 
     onMessage(event) {
-        
+
         const { isLight } = this.context
 
         try {
             const allData = JSON.parse(event.nativeEvent.data)
-            const { address, amount, orderHash, comment, inCurrencyCode, dataExchange, error, 
+            const { address, amount, orderHash, comment, inCurrencyCode, dataExchange, error,
                 backToOld, close, homePage, useAllFunds } = allData
 
             Log.log('EXC/MainV3Screen.onMessage parsed', event.nativeEvent.data)
@@ -276,7 +277,7 @@ class MainV3DataScreen extends Component {
         const { colors, isLight } = this.context
 
         this.init()
-        firebase.analytics().setCurrentScreen('Exchange.MainV3Screen.Exchange')
+        MarketingAnalytics.setCurrentScreen('Exchange.MainV3Screen.Exchange')
 
         const INJECTEDJAVASCRIPT = `const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta)`
 
@@ -335,7 +336,7 @@ class MainV3DataScreen extends Component {
                                 startInLoadingState={true}
                                 renderLoading={this.renderLoading}
                             />
-                        </KeyboardAvoidingView> : 
+                        </KeyboardAvoidingView> :
                         <>
                         {this.renderLoading()}
                         </> }

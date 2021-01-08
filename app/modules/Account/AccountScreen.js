@@ -8,7 +8,8 @@ import { Linking, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, 
 
 import LottieView from 'lottie-react-native'
 
-import firebase from 'react-native-firebase'
+
+
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import GradientView from '../../components/elements/GradientView'
@@ -23,9 +24,8 @@ import Transaction from './elements/Transaction'
 
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import { setLoaderStatus, setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
-import { setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
 
 import Log from '../../services/Log/Log'
 import checkTransferHasError from '../../services/UI/CheckTransferHasError/CheckTransferHasError'
@@ -63,6 +63,7 @@ import BalanceHeader from './elements/AccountData'
 import blackLoader from '../../assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '../../assets/jsons/animations/refreshWhite.json'
 import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAccountBalanceAndTransactionsHD'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 let CACHE_ASKED = false
@@ -303,7 +304,7 @@ class Account extends Component {
                         <Text style={{...styles.transaction_title, color: colors.common.text1}}>{strings('account.history')}</Text>
                         <View style={{...styles.scan, marginLeft: 16 }}>
                             {isSynchronized ?
-                                <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ? 
+                                <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ?
                                     strings('account.justScan') : this.diffTimeScan(this.props.account.balanceScanTime * 1000) > 60 ? strings('account.soLong') :
                                     strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
                                 :
@@ -326,8 +327,8 @@ class Account extends Component {
                         </View>
                     </View>
                     <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE}} onPress={() => this.handleRefresh(true)} hitSlop={HIT_SLOP} >
-                            {this.state.clickRefresh ? 
-                                <LottieView style={{ width: 20, height: 20, }} 
+                            {this.state.clickRefresh ?
+                                <LottieView style={{ width: 20, height: 20, }}
                                 source={isLight ? blackLoader : whiteLoader}
                                 autoPlay loop /> :
                             <CustomIcon name={'reloadTx'} size={20} color={colors.common.text1} /> }
@@ -441,8 +442,7 @@ class Account extends Component {
     }
 
     render() {
-        // noinspection ES6MissingAwait
-        firebase.analytics().setCurrentScreen('Account.AccountScreen')
+        MarketingAnalytics.setCurrentScreen('Account.AccountScreen')
 
         UpdateAccountListDaemon.pause()
 
@@ -498,7 +498,7 @@ class Account extends Component {
                     title={this.getPrettyCurrenceName(cryptoCurrency.currencyCode, cryptoCurrency.currencyName)}
                     setHeaderHeight={this.setHeaderHeight}
                     ExtraView={() => { return (
-                        <BalanceHeader 
+                        <BalanceHeader
                             account={account}
                             cryptoCurrency={cryptoCurrency}
                             actionReceive={this.handleReceive}
@@ -533,7 +533,7 @@ class Account extends Component {
                             originalVisibility={this.state.originalVisibility}
                             triggerBalanceVisibility={this.triggerBalanceVisibility}
                         />
-                        <AccountButtons 
+                        <AccountButtons
                             title={true}
                             actionReceive={this.handleReceive}
                             actionBuy={this.handleBuy}

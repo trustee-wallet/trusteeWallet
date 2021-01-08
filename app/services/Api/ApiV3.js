@@ -10,7 +10,8 @@ import accountDS from '../../appstores/DataSource/Account/Account'
 import walletPubDS from '../../appstores/DataSource/Wallet/WalletPub'
 import walletDS from '../../appstores/DataSource/Wallet/Wallet'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import firebase from 'react-native-firebase'
+
+import database from '@react-native-firebase/database'
 
 import PubEncrypt from './PubEncrypt/PubEncrypt'
 import config from '../../config/config'
@@ -223,8 +224,6 @@ export default {
         const currentToken = CashBackUtils.getWalletToken()
         date = date.toISOString().split('T')
         const keyTitle = V3_KEY_PREFIX + '/' + date[0] + '/' + currentToken
-
-
         try {
             const link = entryUrl + entryPoint
                 + '?date=' + date[0]
@@ -244,7 +243,7 @@ export default {
             encrypted.key = currentToken // for firebase key read rule
 
             await Log.log('ApiV3.initData start save to firebase')
-            await firebase.database().ref(keyTitle).set(encrypted)
+            await database().ref(keyTitle).set(encrypted)
             await Log.log('ApiV3.initData end save to firebase link ' + link)
             return link
         } catch (e) {

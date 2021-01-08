@@ -8,7 +8,8 @@ import {
     ActivityIndicator,
     Linking
 } from 'react-native'
-import firebase from 'react-native-firebase'
+
+
 import { WebView } from 'react-native-webview'
 import UrlParse from 'url-parse'
 
@@ -18,6 +19,7 @@ import { strings } from '../../services/i18n'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import Log from '../../services/Log/Log'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 class WebViewScreen extends React.Component {
     state = {
@@ -61,7 +63,7 @@ class WebViewScreen extends React.Component {
         const { colors, GRID_SIZE } = this.context
         const { headerHeight, title, url } = this.state
 
-        firebase.analytics().setCurrentScreen('WebViewScreen')
+        MarketingAnalytics.setCurrentScreen('WebViewScreen')
 
         return (
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>

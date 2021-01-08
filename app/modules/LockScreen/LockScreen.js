@@ -8,7 +8,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Orientation from 'react-native-orientation'
 
 import PINCode, { hasUserSetPinCode, deleteUserPinCode } from '@haskkor/react-native-pincode'
-import firebase from 'react-native-firebase'
+
+
 
 import GradientView from '../../components/elements/GradientView'
 import NavStore from '../../components/navigation/NavStore'
@@ -21,6 +22,7 @@ import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenAction
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import Button from '../../components/elements/Button'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class LockScreen extends Component {
@@ -33,7 +35,7 @@ class LockScreen extends Component {
             show: false,
             lastStatus: 'status1',
             pinLocked: null,
-            
+
             headerHeight: 0
         }
     }
@@ -216,7 +218,7 @@ class LockScreen extends Component {
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('LockScreen.index')
+        MarketingAnalytics.setCurrentScreen('LockScreen.index')
         const { flowType } = this.props.lockScreen
         let { touchID_status: touchIDStatus } = this.props.settings.data
         touchIDStatus = +touchIDStatus

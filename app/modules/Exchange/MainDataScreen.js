@@ -4,6 +4,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+
+
 import { Text, View, ScrollView, Keyboard, TouchableWithoutFeedback, RefreshControl } from 'react-native'
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
@@ -18,8 +20,6 @@ import ExchangeNavigationTitleComponent from './elements/ExchangeNavigationTitle
 import Navigation from '../../components/navigation/Navigation'
 import Button from '../../components/elements/Button'
 
-import firebase from 'react-native-firebase'
-
 import NavStore from '../../components/navigation/NavStore'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { strings } from '../../services/i18n'
@@ -29,6 +29,7 @@ import Log from '../../services/Log/Log'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import exchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 import AsyncStorage from '@react-native-community/async-storage'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 let CACHE_INIT_KEY = ''
 let COUNT_MODAL = 0
@@ -306,7 +307,7 @@ class MainDataScreen extends Component {
         const { navigation } = this.props
         const submitBtnFix = strings('exchangeScreen.exchangeBtn')
 
-        firebase.analytics().setCurrentScreen('Exchange.MainScreen.Exchange')
+        MarketingAnalytics.setCurrentScreen('Exchange.MainScreen.Exchange')
 
         return (
             <View style={styles.wrapper}>

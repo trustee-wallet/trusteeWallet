@@ -12,7 +12,9 @@ import {
     Linking,
     RefreshControl,
 } from 'react-native'
-import firebase from 'react-native-firebase'
+
+
+
 import _forEach from 'lodash/forEach'
 import _cloneDeep from 'lodash/cloneDeep'
 import moment from 'moment'
@@ -33,6 +35,7 @@ import Header from '../../components/elements/new/Header'
 import Tabs from '../../components/elements/new/Tabs'
 import ListItem from '../../components/elements/new/list/ListItem/Notification'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 const getIconType = (notif) => {
@@ -232,7 +235,7 @@ class NotificationsScreen extends React.Component {
         const { colors, GRID_SIZE } = this.context
         const { headerHeight, data, isRefreshing } = this.state
 
-        firebase.analytics().setCurrentScreen('NotificationsScreen')
+        MarketingAnalytics.setCurrentScreen('NotificationsScreen')
 
         return (
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>

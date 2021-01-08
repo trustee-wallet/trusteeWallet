@@ -2,12 +2,18 @@ import appNewsDS from '../../DataSource/AppNews/AppNews'
 import Log from '../../../services/Log/Log'
 
 import { AppNewsItem } from './Types'
-import AppNotification from '../../../services/AppNotification/AppNotification'
+
 import UpdateAppNewsListDaemon from '../../../daemons/view/UpdateAppNewsListDaemon'
 import config from '../../../config/config'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
+import AppNotificationPopup from '../../../services/AppNotification/AppNotificationPopup'
 
 export default {
+
+    displayBadge: async (number:number) : Promise<void> => {
+        return AppNotificationPopup.displayBadge(number)
+    },
+
     displayPush: async (appNewsList: Array<AppNewsItem>): Promise<void> => {
 
         if (!appNewsList) return
@@ -33,11 +39,11 @@ export default {
                             news.newsJson.amountPretty = BlocksoftPrettyNumbers.makeCut(tmp).separated
                             news.newsJson.balance = 1
                         }
-
                     }
-                    await new AppNotification(news).displayPush()
+                    await AppNotificationPopup.displayPushFromNews(news)
+                    await appNewsDS.shownPopup(news.id)
                 } else {
-                    await appNewsDS.setNewsNeedPopup({id : news.id, newsNeedPopup : 0})
+                    await appNewsDS.setNewsNeedPopup({ id: news.id, newsNeedPopup: 0 })
                 }
 
             } catch (e) {

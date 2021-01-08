@@ -3,7 +3,7 @@
  * Init App
  */
 
-import React, { Component } from 'react'
+import React, { Component, useEffect } from 'react'
 
 import { Provider } from 'react-redux'
 import { AppearanceProvider } from 'react-native-appearance'
@@ -18,7 +18,6 @@ import Themes from './app/themes/Themes'
 
 import Application from './app/appstores/Actions/App/App'
 import SendActions from './app/appstores/Stores/Send/SendActions'
-
 
 export default class App extends Component {
 

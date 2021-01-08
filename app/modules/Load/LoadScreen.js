@@ -9,8 +9,6 @@ import { MaterialIndicator, UIActivityIndicator } from 'react-native-indicators'
 
 import NavStore from '../../components/navigation/NavStore'
 
-import firebase from 'react-native-firebase'
-
 import { connect } from 'react-redux'
 
 import config from '../../config/config'
@@ -18,6 +16,7 @@ import config from '../../config/config'
 import Log from '../../services/Log/Log'
 
 import App from '../../appstores/Actions/App/App'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class LoadScreen extends Component {
@@ -67,7 +66,7 @@ class LoadScreen extends Component {
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('LoadScreen.index')
+        MarketingAnalytics.setCurrentScreen('LoadScreen.index')
         if (App.initStatus === 'resetError') {
             App.init({source : 'LoadScreen.render'})
         }

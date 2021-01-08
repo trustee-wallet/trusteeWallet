@@ -9,7 +9,8 @@ import {
     SafeAreaView,
 } from 'react-native'
 import { connect } from 'react-redux'
-import firebase from 'react-native-firebase'
+
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -32,6 +33,7 @@ import MnemonicWord from './elements/MnemonicWord'
 import SelectedMnemonic from './elements/SelectedMnemonic'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 const VISIBILITY_TIMEOUT = 4000;
@@ -204,7 +206,7 @@ class BackupStep1Screen extends React.Component {
 
     render() {
         Log.log('WalletBackup.BackupStep1Screen render')
-        firebase.analytics().setCurrentScreen('WalletBackup.BackupStep1Screen')
+        MarketingAnalytics.setCurrentScreen('WalletBackup.BackupStep1Screen')
 
         const {
             headerHeight,

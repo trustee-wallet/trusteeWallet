@@ -4,7 +4,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Image, View, Text, Platform, TouchableOpacity, Linking } from 'react-native'
-import firebase from 'react-native-firebase'
+
+
 
 import {
     UIActivityIndicator,
@@ -31,6 +32,7 @@ import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 let styles
 
@@ -122,7 +124,7 @@ class InitScreen extends Component {
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('InitScreen.index')
+        MarketingAnalytics.setCurrentScreen('InitScreen.index')
 
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>

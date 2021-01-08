@@ -4,19 +4,20 @@
 import React, { Component } from 'react'
 import { View, StyleSheet, ScrollView, Text } from 'react-native'
 
-import firebase from 'react-native-firebase'
+
 
 import Navigation from '../../../components/navigation/Navigation'
 
 import { strings, sublocale } from '../../../services/i18n'
 
 import ALL_TERMS from '../../../../__terms__/ALL'
+import MarketingAnalytics from '../../../services/Marketing/MarketingAnalytics'
 
 
 class TermsOfUseScreen extends Component {
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.TermsOfUseScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.TermsOfUseScreen')
 
         let sub = sublocale()
         if (sub !== 'uk' && sub !== 'ru') {

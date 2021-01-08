@@ -11,7 +11,8 @@ import {
     SafeAreaView,
     StyleSheet
 } from 'react-native'
-import firebase from 'react-native-firebase'
+
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -23,6 +24,7 @@ import { strings, sublocale } from '../../services/i18n'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import ListItem from '../../components/elements/new/list/ListItem/SubSetting'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
 class LocalCurrencyScreen extends React.Component {
@@ -73,7 +75,7 @@ class LocalCurrencyScreen extends React.Component {
     handleClose = () => { NavStore.reset('DashboardStack') }
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.LocalCurrencyScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.LocalCurrencyScreen')
 
         const { local_currency: localCurrency } = this.props.settingsStore.data
 

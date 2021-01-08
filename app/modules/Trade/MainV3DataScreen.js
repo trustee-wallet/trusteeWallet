@@ -17,7 +17,7 @@ import {
     SafeAreaView
 } from 'react-native'
 
-import firebase from 'react-native-firebase'
+
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -50,6 +50,7 @@ import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import { Cards } from '../../services/Cards/Cards'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -697,7 +698,7 @@ class MainV3DataScreen extends Component {
         const { colors, isLight } = this.context
 
         this.init()
-        firebase.analytics().setCurrentScreen('Trade.MainV3Screen')
+        MarketingAnalytics.setCurrentScreen('Trade.MainV3Screen')
 
         const INJECTEDJAVASCRIPT = `const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta)`
 
@@ -752,7 +753,7 @@ class MainV3DataScreen extends Component {
                                 startInLoadingState={true}
                                 renderLoading={this.renderLoading}
                             />
-                        </KeyboardAvoidingView> : 
+                        </KeyboardAvoidingView> :
                         <>
                             {this.renderLoading()}
                         </>
