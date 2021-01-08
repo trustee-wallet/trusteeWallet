@@ -25,9 +25,14 @@ const TOPICS = ['transactions', 'exchangeRates', 'news']
 export default new class AppNotificationListener {
 
     private messageListener: any
+    private inited: boolean = false
 
     async init(): Promise<void> {
+        if (this.inited) {
+            return
+        }
         if (await this.checkPermission()) {
+            this.inited = true
             await this.createRefreshListener()
             await this.createMessageListener()
         }
@@ -187,7 +192,7 @@ export default new class AppNotificationListener {
             await this._onRefresh(fcmToken)
             await AsyncStorage.setItem(ASYNC_CACHE_TIME, now + '')
         } else {
-            // console.log('PUSH getToken cache result ' + fcmToken)
+            // console.log('PUSH getToken1 cache result ' + fcmToken)
         }
 
         // @ts-ignore
@@ -231,13 +236,13 @@ export default new class AppNotificationListener {
             Log.err('PUSH _onMessage startMessage error ' + e.message)
         }
 
-        this.messageListener = messaging().onMessage(async message => {
-            await AppNotificationPushSave.unifyPushAndSave(message)
+        this.messageListener = messaging().onMessage(async (message) => {
+            // AppNotificationPushSave.unifyPushAndSave(message)
             await AppNotificationPopup.displayPush(message)
         })
 
-        await messaging().onNotificationOpenedApp((tmp) => {
-          console.log('onNotificationOpened ', JSON.parse(JSON.stringify(tmp)))
+        await messaging().onNotificationOpenedApp(async (tmp) => {
+            Log.log('onNotificationOpened ', JSON.parse(JSON.stringify(tmp)))
         })
 
     }

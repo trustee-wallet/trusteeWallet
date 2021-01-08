@@ -28,8 +28,6 @@ class UpdateAppNewsListDaemon extends Update {
         }
         this._canUpdate = false
 
-        await AppNotificationListener.getToken()
-
         // nope its bad setLoaderStatus(false) // fix for some error screens
 
         const appNewsList = await appNewsDS.getAppNews()

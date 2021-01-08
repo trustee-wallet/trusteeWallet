@@ -29,36 +29,39 @@ export default new class AppNotificationPopup {
 
     async displayPush(message: FirebaseMessagingTypes.RemoteMessage) {
         try {
-            Log.log('AppNotificationPopup.displayPush message', message)
+            await Log.log('AppNotificationPopup.displayPush message', message)
             const title = message.notification?.title
             const body = message.notification?.body
             const image = message.notification?.android?.imageUrl
             const messageId = message.messageId
-            this._display({ title, body, image, messageId })
+            await this._display({ title, body, image, messageId })
         } catch (e) {
-            Log.err('AppNotificationPopup.displayPush error ' + e.message)
+            await Log.err('AppNotificationPopup.displayPush error ' + e.message)
         }
     }
 
     async displayPushFromNews(news: any) {
         try {
-            Log.log('AppNotificationPopup.displayPushFromNews news', news)
+            await Log.log('AppNotificationPopup.displayPushFromNews news', news)
             const title = news.newsCustomTitle
             const body = news.newsCustomText
             const messageId = news.newsServerId || news.id
-            this._display({ title, body, messageId })
+            await this._display({ title, body, messageId })
         } catch (e) {
-            Log.err('AppNotificationPopup.displayPushFromNews error ' + e.message)
+            await Log.err('AppNotificationPopup.displayPushFromNews error ' + e.message)
         }
     }
 
     async _display(data: { title: any; body: any; image?: any; messageId: any }) {
         try {
             await Log.log('AppNotificationPopup._display data', data)
+            // console.log('AppNotificationPopup._display data', data)
             let { title, body, image, messageId } = data
 
 
-            await new Promise(resolve => {
+            if (Platform.OS !== 'ios') {
+                await Log.log('AppNotificationPopup._display channel creating ' + Platform.OS)
+                await new Promise(resolve => {
                     PushNotification.createChannel(
                         {
                             channelId: 'trusteeWalletChannel',
@@ -73,8 +76,9 @@ export default new class AppNotificationPopup {
                             resolve(created)
                         }
                     )
-            })
-            await Log.log('AppNotificationPopup._display channel created')
+                })
+                await Log.log('AppNotificationPopup._display channel created')
+            }
 
             const params = {
                 channelId: 'trusteeWalletChannel',
