@@ -80,7 +80,6 @@ export class FileSystem {
         if (!items) return
         let item
         for (item of items) {
-            console.log('rmv ' + item.path)
             await RNFS.unlink(item.path)
         }
     }

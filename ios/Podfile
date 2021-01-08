@@ -1,4 +1,4 @@
-platform :ios, '10.1'
+platform :ios, '10.0.4'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 permissions_path = '../node_modules/react-native-permissions/ios'
 
@@ -43,18 +43,16 @@ target 'TrusteeWallet' do
 
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera.podspec"
 
-  pod 'Fabric'
   pod 'GoogleAnalytics'
   pod 'GoogleIDFASupport'
 
-  pod 'Firebase/CoreOnly', '~> 7.3.0'
-  pod 'Firebase/Core', '~> 7.3.0'
-  pod 'Firebase/Messaging', '~> 7.3.0'
-  pod 'Firebase/DynamicLinks', '~> 7.3.0'
-  pod 'Firebase/Database', '~> 7.3.0'
-  pod 'Firebase/Analytics', '~> 7.3.0'
+  pod 'Firebase/Core'
+  pod 'Firebase/Messaging'
+  pod 'Firebase/DynamicLinks'
+  pod 'Firebase/Database'
+  pod 'Firebase/Analytics'
+  pod 'Firebase/Crashlytics'
 
-  pod 'FirebaseCrashlytics', '~> 7.3.0'
 
   pod 'QRScanReader', :path => '../node_modules/react-native-qr-scanner'
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'

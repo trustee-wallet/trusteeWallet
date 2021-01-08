@@ -134,6 +134,7 @@ export default new class AppNotificationPopup {
             if (messageId) {
                 params.messageId = messageId // (optional) added as `message_id` to intent extras so opening push notification can find data stored by @react-native-firebase/messaging module.
             }
+
             await Log.log('AppNotificationPopup._display PushNotification.localNotification ', params)
             PushNotification.localNotification(params)
             await Log.log('AppNotificationPopup._display PushNotification.localNotification finished')
