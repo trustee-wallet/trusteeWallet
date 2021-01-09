@@ -173,7 +173,9 @@ export default {
                             }
                         ],
 
-                        balance: account.balancePretty
+                        balance: account.balancePretty,
+                        unconfirmed : account.unconfirmedPretty,
+                        raw : account.balanceRaw
                     })
                 } else {
                     let balance = account.balancePretty
@@ -184,7 +186,9 @@ export default {
                         currencyCode,
                         isHidden: currencies[currencyCode],
                         address: account.address,
-                        balance
+                        balance,
+                        unconfirmed : account.unconfirmedPretty,
+                        raw : account.balanceRaw
                     })
                 }
             }

@@ -49,6 +49,7 @@
   },
   "homeScreen": {
     "balance": "Balance",
+    "unconfirmed" : "Unconfirmed",
     "today": "Today",
     "changedLastDay": "In the last 24 hours",
     "synchronizing": "Synchronization"

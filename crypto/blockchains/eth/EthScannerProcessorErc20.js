@@ -46,7 +46,7 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
                 if (balance === []) return false
                 provider = res.provider
                 time = res.time
-                return { balance, unconfirmed : 0, provider, time, balanceScanBlock : res.data.nonce}
+                return { balance, unconfirmed: 0, provider, time, balanceScanBlock: res.data.nonce }
             }
             balance = await this._token.methods.balanceOf(address).call()
             if (balance === []) return false

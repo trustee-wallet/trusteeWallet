@@ -49,6 +49,7 @@
    },
    "homeScreen": {
      "balance": "Баланс",
+     "unconfirmed" : "Непідтверджений",
      "today": "Сьогодні",
      "changedLastDay": "За останні 24 години",
      "synchronizing": "Синхронізація"

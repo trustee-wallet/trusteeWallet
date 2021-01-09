@@ -765,9 +765,8 @@ class TransactionScreen extends Component {
                 transactionBoost : transaction,
                 uiType : 'TRANSACTION_SCREEN'
             }
-            if (transaction.addressTo === '') {
-                // no! params.transactionSpeedUp = transaction.transactionHash
-                params.transactionReplaceByFee = transaction.transactionHash
+            if (transaction.transactionDirection === 'income') {
+                params.transactionSpeedUp = transaction.transactionHash
                 params.addressTo = account.address
             } else {
                 params.transactionReplaceByFee = transaction.transactionHash

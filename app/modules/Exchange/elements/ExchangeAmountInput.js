@@ -370,7 +370,7 @@ class ExchangeAmountInput extends Component {
                             onFocus={onFocus}
                             onSubmitEditing={this.onSubmitEditing}
                             action={{
-                                title: strings('exchangeScreen.exchangeAll').toUpperCase(),
+                                title: '100 %',
                                 callback: () => {
                                     this.setState({
                                         useAllFunds: !useAllFunds

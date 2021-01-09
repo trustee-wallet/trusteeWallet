@@ -323,9 +323,16 @@ class Cryptocurrencies extends Component {
                         exchangeStore.tradeType === 'SELL' ?
                             <View
                                 style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15, paddingTop: 5 }}>
-                                <Text style={{ color: '#999999', fontSize: 12 }}>
-                                    {strings('homeScreen.balance')}: {BlocksoftPrettyNumbers.makeCut(selectedAccount.balancePretty).justCutted} {selectedCryptocurrency.currencySymbol}
-                                </Text>
+                                {
+                                    selectedAccount.unconfirmedPretty.toString() !== '0' && selectedAccount.unconfirmedPretty.toString().indexOf('-') === -1 ?
+                                        <Text style={{ color: '#999999', fontSize: 12 }}>
+                                            {strings('homeScreen.balance')}: {BlocksoftPrettyNumbers.makeCut(selectedAccount.balancePretty).justCutted} {strings('homeScreen.unconfirmed')}: {BlocksoftPrettyNumbers.makeCut(selectedAccount.unconfirmedPretty).justCutted} {selectedCryptocurrency.currencySymbol}
+                                        </Text>
+                                        :
+                                        <Text style={{ color: '#999999', fontSize: 12 }}>
+                                            {strings('homeScreen.balance')}: {BlocksoftPrettyNumbers.makeCut(selectedAccount.balancePretty).justCutted} {selectedCryptocurrency.currencySymbol}
+                                        </Text>
+                                }
                             </View> : null
                     }
                 </View>

@@ -374,7 +374,7 @@ class AmountInput extends Component {
                             onFocus={onFocus}
                             onSubmitEditing={this.onSubmitEditing}
                             action={exchangeStore.tradeType === 'SELL' ? {
-                                title: strings('exchange.mainData.sellAll').toUpperCase(),
+                                title: '100 %',
                                 callback: () => {
                                     this.setState({
                                         useAllFunds: !useAllFunds

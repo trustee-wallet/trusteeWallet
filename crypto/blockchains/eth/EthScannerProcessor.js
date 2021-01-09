@@ -111,23 +111,21 @@ export default class EthScannerProcessor extends EthBasic {
         // noinspection JSUnresolvedVariable
         try {
             let balance = 0
-            let unconfirmed = 0
             let provider = ''
             let time = 0
             const res = await this._get(address)
 
             if (res && typeof res.data !== 'undefined' && res.data && typeof res.data.balance !== 'undefined') {
                 balance = res.data.balance
-                unconfirmed = res.data.unconfirmedBalance || 0
                 provider = res.provider
                 time = res.time
-                return { balance, unconfirmed, provider, time, balanceScanBlock: res.data.nonce }
+                return { balance, unconfirmed: 0, provider, time, balanceScanBlock: res.data.nonce }
             }
 
             balance = await this._web3.eth.getBalance(address)
             provider = 'web3'
             time = 'now()'
-            return { balance, unconfirmed, provider, time }
+            return { balance, unconfirmed: 0, provider, time }
         } catch (e) {
             BlocksoftCryptoLog.log('EthScannerProcessor.getBalance ' + address + ' error ' + e.message)
             return false
@@ -297,7 +295,7 @@ export default class EthScannerProcessor extends EthBasic {
                             })
                         }
                         if (transaction.transactionJson.nonce * 1 > maxNonce) {
-                            maxNonce = transaction.transactionJson.nonce  * 1
+                            maxNonce = transaction.transactionJson.nonce * 1
                         }
                         if ((transaction.transactionStatus === 'success' || transaction.transactionStatus === 'confirming')) {
                             if (transaction.transactionJson.nonce * 1 > maxSuccessNonce) {

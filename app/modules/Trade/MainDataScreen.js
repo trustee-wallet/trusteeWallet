@@ -44,6 +44,7 @@ import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
 let COUNT_MODAL_SELL = 0
 let COUNT_MODAL_BUY = 0
@@ -340,7 +341,8 @@ class MainDataScreen extends Component {
             if (tradeType === 'SELL' && fromModal === false) {
 
                 Log.log('TRADE/Main checkBalance inited')
-                const diffCheck = BlocksoftUtils.diff(selectedAccount.balancePretty, amount.amountEquivalentInCrypto)
+                const cryptoRaw = BlocksoftPrettyNumbers.setCurrencyCode(selectedAccount.currencyCode).makeUnPretty(amount.amountEquivalentInCrypto)
+                const diffCheck = BlocksoftUtils.diff(selectedAccount.balanceRaw, cryptoRaw)
                 const willShow = diffCheck.indexOf('-') !== -1
                 Log.log('TRADE/Main checkBalance diffCheck ' + diffCheck + ' willShow ' + willShow ? 'true' : 'false')
                 if (willShow) {
@@ -365,9 +367,9 @@ class MainDataScreen extends Component {
                         useAll: amount.useAllFunds
                     }
 
-                    const div = BlocksoftUtils.div(amount.amountEquivalentInCrypto, selectedAccount.balancePretty)
+                    const div = BlocksoftUtils.div(cryptoRaw, selectedAccount.balanceRaw)
                     const percentCheck = BlocksoftUtils.diff(div, limitPercent)
-                    tmp.percentCalc = amount.amountEquivalentInCrypto + ' / ' + selectedAccount.balancePretty + ' = ' + div
+                    tmp.percentCalc = amount.amountEquivalentInCrypto + ' / ' + selectedAccount.balanceRaw + ' (balance ' + selectedAccount.balancePretty + ' unconf ' + selectedAccount.unconfirmedPretty + ') = ' + div
                     tmp.percentCal2 = div + ' - ' + limitPercent + ' = ' + percentCheck
                     tmp.percentCal3 = percentCheck + ' > 0 => ' + (percentCheck.indexOf('-') === -1) ? ' true ' : ' false'
 
