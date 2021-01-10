@@ -15,8 +15,8 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
 
     _coinSelectTargets(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[], feeForByte: string, multiAddress: string[], subtitle: string) {
         const targets = [
-            { address: data.addressTo, value: 0 },
-            { address: data.addressTo, value: this.DUST_FIRST_TRY }
+            { address: data.addressTo, value: 0, logType : 'FOR_USDT_AMOUNT'},
+            { address: data.addressTo, value: this.DUST_FIRST_TRY, logType: 'FOR_USDT_BTC_OUTPUT' }
         ]
         return targets
     }
@@ -28,8 +28,9 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         const outputs = []
 
         outputs.push({
-            'to': data.addressTo,
-            'amount': 0
+            to: data.addressTo,
+            amount: 0,
+            logType : 'FOR_USDT_AMOUNT'
         })
 
         return {
@@ -40,20 +41,17 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         }
     }
 
-    _addressForChange(data: BlocksoftBlockchainTypes.TransferData) : string {
+    _addressForChange(data: BlocksoftBlockchainTypes.TransferData): string {
         return data.addressFrom
     }
 
     getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
                      feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
+                     additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
                      subtitle: string = 'default')
-        : {
-        inputs: BlocksoftBlockchainTypes.UnspentTx[],
-        outputs: BlocksoftBlockchainTypes.OutputTx[],
-        multiAddress: [],
-        msg: string,
-    } {
-        let res = super.getInputsOutputs(data, unspents, feeToCount, subtitle + ' usdted')
+        : BlocksoftBlockchainTypes.PreparedInputsOutputsTx
+    {
+        let res = super._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle + ' usdted')
         let inputIsFound = false
         let newInputs = []
         let oldInputs = []
@@ -85,7 +83,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         for (const input of oldInputs) {
             newInputs.push(input)
         }
-        const tmp = DaemonCache.getCacheAccountStatiс(data.walletHash, 'USDT')
+        const tmp = typeof additionalData.balance !== 'undefined' && additionalData.balance ? {balance : additionalData.balance} : DaemonCache.getCacheAccountStatiс(data.walletHash, 'USDT')
         let needOneOutput = false
         if (tmp.balance > 0) {
             const diff = BlocksoftUtils.diff(tmp.balance, data.amount)
@@ -96,40 +94,50 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         }
         res.inputs = newInputs
         if (res.inputs.length === 0 || !inputIsFound) {
-           throw new Error('SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT')
+            throw new Error('SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT')
         }
 
         const totalOuts = res.outputs.length
         if (totalOuts === 0) {
-            res.outputs = []
-            if (needOneOutput) {
-                res.outputs.push({
-                    isUsdt: true,
+            const newRes = JSON.parse(JSON.stringify(res))
+            newRes.outputs = []
+            if (needOneOutput &&
+                (
+                    res.inputs.length > 1 || res.inputs[0].value*1 >= this.DUST_FIRST_TRY*2
+                )
+            ) {
+                newRes.outputs.push({
+                    isUsdt : true,
                     amount: this.DUST_FIRST_TRY.toString(),
-                    to: data.addressFrom
+                    to: data.addressFrom,
+                    logType : 'FOR_LEGACY_USDT_KEEP'
                 })
             }
-            res.outputs.push({
+            newRes.outputs.push({
                 isUsdt: true,
                 amount: this.DUST_FIRST_TRY.toString(),
-                to: data.addressTo
+                to: data.addressTo,
+                logType : 'FOR_USDT_AMOUNT'
             })
-            res.outputs.push({
+            newRes.outputs.push({
                 isUsdt: true,
                 tokenAmount: data.amount,
                 amount: '0',
-                to: data.addressTo
+                to: data.addressTo,
+                logType: 'FOR_USDT_BTC_OUTPUT'
             })
+            newRes.countedFor = 'USDT'
+            return newRes
+        } else {
+            BlocksoftCryptoLog.log('UsdtTxInputsOutputs ' + data.addressFrom + ' => ' + data.addressTo + ' old outputs ' + JSON.stringify(res.outputs) + ' needOneOutput ' + needOneOutput ? 'true' : 'false')
+            res = this._innerResort(res, needOneOutput, data.addressFrom, data.addressTo, data.amount, 'getInputsOutputs ' + subtitle)
+            BlocksoftCryptoLog.log('UsdtTxInputsOutputs ' + data.addressFrom + ' => ' + data.addressTo + '  new outputs ' + JSON.stringify(res.outputs))
+            res.countedFor = 'USDT'
             return res
         }
-
-        BlocksoftCryptoLog.log('UsdtTxInputsOutputs ' + data.addressFrom + ' => ' + data.addressTo + ' old outputs ' + JSON.stringify(res.outputs) + ' needOneOutput ' + needOneOutput ? 'true' : 'false')
-        res = this._innerResort(res, needOneOutput, data.addressFrom, data.addressTo, data.amount)
-        BlocksoftCryptoLog.log('UsdtTxInputsOutputs ' + data.addressFrom + ' => ' + data.addressTo + '  new outputs ' + JSON.stringify(res.outputs))
-        return res
     }
 
-    _innerResort(res : any, needOneOutput : boolean, addressFrom : string, addressTo : string, amount:string) {
+    _innerResort(res: any, needOneOutput: boolean, addressFrom: string, addressTo: string, amount: string, source : string = '') {
         const totalOuts = res.outputs.length
         if (res.outputs[0].amount !== '0') {
             if (totalOuts > 1) {
@@ -168,15 +176,15 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         }
         const newOutputs = []
         if (needOneOutput) {
-            if (typeof res.outputs[2] === 'undefined' ||  res.outputs[2].to !== addressFrom) {
+            if (typeof res.outputs[2] === 'undefined' || res.outputs[2].to !== addressFrom) {
                 newOutputs.push({
                     isUsdt: true,
-                    amount: this.DUST_FIRST_TRY.toString(),
+                    amount: this.DUST_FIRST_TRY.toString() + '1',
                     to: addressFrom
                 })
             }
         }
-        for (let i = res.outputs.length - 1; i>=0; i--) {
+        for (let i = res.outputs.length - 1; i >= 0; i--) {
             newOutputs.push(res.outputs[i])
         }
         res.outputs = newOutputs

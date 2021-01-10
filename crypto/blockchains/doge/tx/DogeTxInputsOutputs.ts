@@ -139,7 +139,8 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
             inputs: [],
             outputs: [],
             multiAddress,
-            msg: ' coinselect for ' + feeForByte + ' fee ' + fee + ' ' + subtitle + ' all data ' + JSON.stringify(inputs) + ' ' + JSON.stringify(outputs)
+            msg: ' coinselect for ' + feeForByte + ' fee ' + fee + ' ' + subtitle + ' all data ' + JSON.stringify(inputs) + ' ' + JSON.stringify(outputs),
+            countedFor : 'DOGE'
         }
         if (!inputs || typeof inputs === 'undefined') {
             // @ts-ignore
@@ -223,15 +224,21 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         return formatted
     }
 
-    getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
+    getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData,
+                     unspents: BlocksoftBlockchainTypes.UnspentTx[],
                      feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
+                     additionalData : BlocksoftBlockchainTypes.TransferAdditionalData,
                      subtitle: string = 'default')
-        : {
-        inputs: BlocksoftBlockchainTypes.UnspentTx[],
-        outputs: BlocksoftBlockchainTypes.OutputTx[],
-        multiAddress: [],
-        msg: string,
-    } {
+        : BlocksoftBlockchainTypes.PreparedInputsOutputsTx {
+        return this._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle)
+    }
+
+    _getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData,
+                     unspents: BlocksoftBlockchainTypes.UnspentTx[],
+                     feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
+                     additionalData : BlocksoftBlockchainTypes.TransferAdditionalData,
+                     subtitle: string = 'default')
+        : BlocksoftBlockchainTypes.PreparedInputsOutputsTx {
         if (typeof data.addressFrom === 'undefined') {
             throw new Error('DogeTxInputsOutputs.getInputsOutputs requires addressFrom')
         }
@@ -373,7 +380,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 if (autoDiff.lessThanZero()) {
                     recountWithFee = autoFeeLimit.toString()
                 }
-                const res = this.getInputsOutputs(newData, unspents, { feeForAll: recountWithFee }, subtitle + ' notEnough1 leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
+                const res = this._getInputsOutputs(newData, unspents, { feeForAll: recountWithFee }, additionalData, subtitle + ' notEnough1 leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
                 if (res.msg.indexOf('RECHECK') === -1) {
                     return res
                 }
@@ -382,8 +389,13 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 const tmp = leftForChangeDiff.get().replace('-', '')
                 const tmp2 = new BlocksoftBN(data.amount).diff(tmp)
                 if (!tmp2.lessThanZero()) {
-                    newData.amount = tmp2.get()
-                    return this.getInputsOutputs(newData, unspents, feeToCount, subtitle + '  notEnough3 ' + data.amount + ' => ' + newData.amount + ' leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
+                    if (this._settings.currencyCode === 'USDT') {
+                        console.log('adsfgadfgadfg')
+                        console.log('tmp2', tmp2)
+                    } else {
+                        newData.amount = tmp2.get()
+                        return this._getInputsOutputs(newData, unspents, feeToCount, additionalData, subtitle + '  notEnough3 ' + data.amount + ' => ' + newData.amount + ' leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
+                    }
                 } else {
                     // @ts-ignore
                     return {
@@ -391,7 +403,8 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                         outputs: [],
                         msg: subtitle + '  notEnough3Stop' + data.amount + ' => ' + newData.amount + ' leftForChangeDiff ' + leftForChangeDiff.toString() + ' ' + msg,
                         // @ts-ignore
-                        multiAddress
+                        multiAddress,
+                        countedFor : 'DOGE'
                     }
                 }
 
@@ -403,7 +416,8 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 outputs,
                 msg,
                 // @ts-ignore
-                multiAddress
+                multiAddress,
+                countedFor : 'DOGE'
             }
         }
         const changeDiff = new BlocksoftBN(leftForChangeDiff).diff(this._minChangeDust)
@@ -415,7 +429,8 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 outputs,
                 msg,
                 // @ts-ignore
-                multiAddress
+                multiAddress,
+                countedFor : 'DOGE'
             }
         }
 
@@ -439,7 +454,8 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
             outputs,
             msg,
             // @ts-ignore
-            multiAddress
+            multiAddress,
+            countedFor : 'DOGE'
         }
     }
 }

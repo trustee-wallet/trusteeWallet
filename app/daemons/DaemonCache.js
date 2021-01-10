@@ -102,6 +102,9 @@ class DaemonCache {
     }
 
     getCacheAccountStatiс(walletHash, currencyCode) {
+        if (typeof this.CACHE_ALL_ACCOUNTS[walletHash] === 'undefined' || typeof this.CACHE_ALL_ACCOUNTS[walletHash][currencyCode] === 'undefined') {
+            return {balance : '0'}
+        }
         return this.CACHE_ALL_ACCOUNTS[walletHash][currencyCode]
     }
 }

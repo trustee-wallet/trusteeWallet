@@ -60,23 +60,18 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
 
     getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
                      feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
+                     additionalData : BlocksoftBlockchainTypes.TransferAdditionalData,
                      subtitle: string = 'default')
-        : {
-        inputs: BlocksoftBlockchainTypes.UnspentTx[],
-        outputs: BlocksoftBlockchainTypes.OutputTx[],
-        multiAddress: [],
-        msg: string,
-    } {
-        const res = super.getInputsOutputs(data, unspents, feeToCount, subtitle + ' btced')
-
+        : BlocksoftBlockchainTypes.PreparedInputsOutputsTx
+    {
+        const res = super._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle + ' btced')
 
         if (this._settings.currencyCode !== 'BTC') {
-            console.log('res0', JSON.parse(JSON.stringify(res)))
             return res
         }
 
         const tmp = DaemonCache.getCacheAccountStatiс(data.walletHash, 'USDT')
-        if (tmp.balance === '0') {
+        if (tmp.balance === '0' || tmp.balance === 0) {
             return res
         }
 
@@ -87,7 +82,7 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
             }
         }
         if (usdtCount === 0) {
-            res.outputs.push({ to: tmp.address, amount: '546', isChange: true })
+            res.outputs.push({ to: tmp.address, amount: '546', isChange: true, logType : 'FOR_LEGACY_USDT_KEEP_FROM_BTC' })
             return res
         }
 
@@ -110,7 +105,7 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
             if (!found) {
                 for (const input of res.inputs) {
                     if (input.address === tmp.address) {
-                        res.outputs.push({ to: tmp.address, amount: '546', isChange: true })
+                        res.outputs.push({ to: tmp.address, amount: '546', isChange: true, logType : 'FOR_LEGACY_USDT_KEEP_FROM_BTC' })
                         break
                     }
                 }
@@ -126,6 +121,8 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
                 res.inputs = inputs
             }
         }
+
+        res.countedFor = 'BTC'
 
         return res
     }

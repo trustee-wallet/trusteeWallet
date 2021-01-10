@@ -65,7 +65,7 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor implemen
         return result
     }
 
-    async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: { estimatedGas?: number, gasPrice?: number[], balance?: string } = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
+    async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
         const balance = data.amount
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
@@ -75,7 +75,8 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor implemen
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -1,
                 fees: [],
-                countedForBasicBalance: '0'
+                countedForBasicBalance: '0',
+                countedTime : new Date().getTime()
             }
         }
         const fees = await this.getFeeRate(data, privateData, additionalData)
@@ -84,7 +85,8 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor implemen
                 selectedTransferAllBalance: balance,
                 selectedFeeIndex: -2,
                 fees: [],
-                countedForBasicBalance: balance
+                countedForBasicBalance: balance,
+                countedTime : new Date().getTime()
             }
         }
         return {

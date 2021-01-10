@@ -81,6 +81,8 @@ const amountInput = {
 
 let IS_CALLED_BACK = false
 
+const USDT_LIMIT = 600
+
 class SendScreen extends SendBasicScreenScreen {
 
     _screenName = 'SEND'
@@ -470,9 +472,9 @@ class SendScreen extends SendBasicScreenScreen {
             const parentCurrency = await DaemonCache.getCacheAccount(account.walletHash, extend.feesCurrencyCode)
             if (parentCurrency) {
                 const parentBalance = parentCurrency.balance * 1
-                if (cryptoCurrency.currencyCode === 'USDT' && parentBalance < 546) {
+                if (cryptoCurrency.currencyCode === 'USDT' && parentBalance < USDT_LIMIT) {
                     let msg = false
-                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed * 1> 545) {
+                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed * 1>= USDT_LIMIT) {
                         if (!(walletUseUnconfirmed === 1)) {
                             msg = strings('send.errors.SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM', { symbol: extend.addressCurrencyCode })
                         }

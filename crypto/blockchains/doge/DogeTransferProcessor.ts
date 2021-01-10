@@ -168,9 +168,11 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         }
 
         const stepSatoshi = transactionRemoveByFee ? this._builderSettings.minRbfStepSatoshi * 2 : this._builderSettings.minRbfStepSatoshi
+        let pricesTotal = 0
         for (const key of keys) {
             // @ts-ignore
             if (typeof prices[key] === 'undefined' || !prices[key]) continue
+            pricesTotal++
             // @ts-ignore
             let feeForByte = prices[key]
             if (typeof additionalData.feeForByte === 'undefined') {
@@ -218,7 +220,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                     feeForByte,
                     autoFeeLimitReadable
-                }, subtitle)
+                },
+                    additionalData,
+                    subtitle)
 
                 if (typeof additionalData.feeForByte === 'undefined' && typeof this._builderSettings.feeMinTotalReadable !== 'undefined') {
                     logInputsOutputs = DogeLogs.logInputsOutputs(data, unspents, preparedInputsOutputs, this._settings, subtitle)
@@ -227,7 +231,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                         preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                             feeForAll : BlocksoftUtils.fromUnified(this._builderSettings.feeMinTotalReadable, this._settings.decimals),
                             autoFeeLimitReadable
-                        }, subtitle)
+                        },
+                            additionalData,
+                            subtitle)
                         autocorrectFee = false
                     }
                 }
@@ -318,7 +324,8 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                                     const preparedInputsOutputs2 = this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                                         feeForByte,
                                         autoFeeLimitReadable
-                                    }, subtitle + ' foundToMore')
+                                    },
+                                        additionalData, subtitle + ' foundToMore')
                                     actualFeeRebuild = false
                                     if (preparedInputsOutputs2.inputs.length > 0) {
                                         preparedInputsOutputs = preparedInputsOutputs2
@@ -371,6 +378,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             throw new Error(isError)
         }
         result.selectedFeeIndex = result.fees.length - 1
+        if (pricesTotal > 1 && result.fees.length < pricesTotal && !transactionReplaceByFee && !transactionRemoveByFee) {
+            result.showSmallFeeNotice = new Date().getTime()
+        }
         return result
     }
 

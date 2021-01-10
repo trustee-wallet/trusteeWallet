@@ -44,15 +44,12 @@ export namespace BlocksoftBlockchainTypes {
     }
 
     export interface TxInputsOutputs {
-        getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
+        getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData,
+                         unspents: BlocksoftBlockchainTypes.UnspentTx[],
                          feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
+                         additionalData : BlocksoftBlockchainTypes.TransferAdditionalData,
                          subtitle : string)
-            : {
-            inputs: BlocksoftBlockchainTypes.UnspentTx[],
-            outputs: BlocksoftBlockchainTypes.OutputTx[],
-            multiAddress: [],
-            msg: string,
-        }
+            : BlocksoftBlockchainTypes.PreparedInputsOutputsTx
     }
 
     export interface TxBuilder {
@@ -121,7 +118,6 @@ export namespace BlocksoftBlockchainTypes {
         useLegacy : number,
         isHd : boolean,
         isTransferAll: boolean,
-
 
         memo?: string,
         transactionReplaceByFee?: string,
@@ -233,6 +229,7 @@ export namespace BlocksoftBlockchainTypes {
         isChange?: boolean,
         isUsdt?: boolean,
         tokenAmount ?: string,
+        logType ?: string,
         to: string,
         amount: string
     }
@@ -241,7 +238,8 @@ export namespace BlocksoftBlockchainTypes {
         inputs: BlocksoftBlockchainTypes.UnspentTx[],
         outputs: BlocksoftBlockchainTypes.OutputTx[],
         multiAddress: [],
-        msg: string
+        msg: string,
+        countedFor ?: string
     }
 
     export interface EthTx {
