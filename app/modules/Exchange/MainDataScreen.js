@@ -30,6 +30,11 @@ import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import exchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 import AsyncStorage from '@react-native-community/async-storage'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
+import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
 
 let CACHE_INIT_KEY = ''
 let COUNT_MODAL = 0
@@ -234,8 +239,12 @@ class MainDataScreen extends Component {
 
     }
 
-    actualHandleSubmitTrade = async () => {
-        Log.log('EXC/Main.handleSubmitTrade init')
+    actualHandleSubmitTrade = async (forceSellAll = false, fromModal = false) => {
+
+        if (forceSellAll) {
+            await this.refAmount.handleSellAll()
+        }
+
         const {
             selectedInCurrency,
             selectedOutCurrency,
@@ -247,19 +256,91 @@ class MainDataScreen extends Component {
         } = this.state
 
         const tradeWay = this.handleGetTradeWay(selectedInCurrency, selectedPaymentSystem)
+
         const amount = this.refAmount.handleGetAmountEquivalent()
         try {
             await this.handleValidateSubmit()
-
         } catch (e) {
-            Log.log('EXC/Main.handleSubmitTrade error ' + e.message)
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.exchange.sorry'),
-                description: e.message
-            })
+            if (e.message.indexOf('UI_') === 0) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('tradeScreen.modalError.' + e.message + '.title'),
+                    description: strings('tradeScreen.modalError.' + e.message + '.desc')
+                })
+            } else {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.exchange.sorry'),
+                    description: e.message
+                })
+            }
             return
+        }
+
+        try {
+
+                Log.log('EXC/Main checkBalance inited')
+                const cryptoRaw = BlocksoftPrettyNumbers.setCurrencyCode(selectedInAccount.currencyCode).makeUnPretty(amount.amountEquivalentInCrypto)
+                const diffCheck = BlocksoftUtils.diff(selectedInAccount.balanceRaw, cryptoRaw)
+                const willShow = diffCheck.indexOf('-') !== -1
+                Log.log('EXC/Main checkBalance diffCheck ' + diffCheck + ' willShow ' + willShow ? 'true' : 'false')
+                if (willShow) {
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: null,
+                        title: strings('modal.exchange.sorry'),
+                        description: strings('send.errors.SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+                    })
+                    return
+                }
+
+                if (BlocksoftTransfer.checkSendAllModal({ currencyCode:  selectedInCurrency.currencyCode })) {
+                    Log.log('EXC/Main checkAlmostAll inited')
+
+                    const limitPercent = BlocksoftExternalSettings.getStatic('SEND_CHECK_ALMOST_ALL_PERCENT')
+                    const limitUSD = 2
+
+                    const tmp = {
+                        amountCrypto: amount.amountEquivalentInCrypto,
+                        amountFiat: amount.amountEquivalentInFiat,
+                        useAll: amount.useAllFunds
+                    }
+
+                    const div = BlocksoftUtils.div(cryptoRaw, selectedInAccount.balanceRaw)
+                    const percentCheck = BlocksoftUtils.diff(div, limitPercent)
+                    tmp.percentCalc = amount.amountEquivalentInCrypto + ' / ' + selectedInAccount.balanceRaw + ' (balance ' + selectedInAccount.balancePretty + ' unconf ' + selectedInAccount.unconfirmedPretty + ') = ' + div
+                    tmp.percentCal2 = div + ' - ' + limitPercent + ' = ' + percentCheck
+                    tmp.percentCal3 = percentCheck + ' > 0 => ' + (percentCheck.indexOf('-') === -1) ? ' true ' : ' false'
+
+                    let diffUSD = 9999999
+                    if (typeof selectedInCurrency.currencyRateJson.USD !== 'undefined') {
+                        diffUSD = BlocksoftUtils.add(RateEquivalent.mul({ value: diffCheck, currencyCode: selectedInCurrency.currencyCode, basicCurrencyRate: selectedInCurrency.currencyRateJson.USD }), limitUSD)
+                    }
+
+                    const willShow = (typeof amount.useAllFunds === 'undefined' || amount.useAllFunds === false) && (percentCheck.indexOf('-') === -1 || diffUSD * 1 < 0)
+                    tmp.willShow = willShow
+                    Log.log('EXC/Main checkAlmostAll params', tmp)
+
+                    if (willShow) {
+                        showModal({
+                            type: 'YES_NO_MODAL',
+                            icon: 'WARNING',
+                            title: strings('modal.titles.attention'),
+                            description: strings('modal.infoSendAllModal.description', { coin: selectedInCurrency.currencyName }),
+                            reverse: true,
+                            noCallback: () => {
+                                this.actualHandleSubmitTrade(true, true)
+                            }
+                        }, () => {
+                            this.actualHandleSubmitTrade(false, true)
+                        })
+                        return
+                    }
+                }
+        } catch (e) {
+            Log.log('EXC/Main modalSellAll error ' + e.message)
         }
 
         NavStore.goNext('ExchangeConfirmScreen', {
