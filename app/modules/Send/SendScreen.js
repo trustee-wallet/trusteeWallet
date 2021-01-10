@@ -210,30 +210,63 @@ class SendScreen extends SendBasicScreenScreen {
                     try {
                         let value = ''
                         let amount = ''
+                        const { currencyCode, basicCurrencyRate } = account
                         if (inputType === 'FIAT') {
-                            value = sendScreenData.amountPretty.toString()
-                            const {currencyCode, basicCurrencyRate} = account
-                            amount = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
-                            amount = UtilsService.cutNumber(amount, 2)
+                            if (typeof sendScreenData.amountFiat !== 'undefined' && sendScreenData.amountFiat) {
+                                amount = sendScreenData.amountFiat
+                            } else {
+                                value = sendScreenData.amountPretty.toString()
+                                amount = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
+                                amount = UtilsService.cutNumber(amount, 2)
+                            }
                             this.valueInput.handleInput(amount, false)
                         } else {
                             amount = sendScreenData.amountPretty.toString()
                             this.valueInput.handleInput(amount, false)
                         }
-                        const { amountEquivalent, amountInputMark} = this.amountEquivalent(amount)
+                        const { amountEquivalent, amountInputMark } = this.amountEquivalent(amount)
+
+                        if (inputType === 'FIAT' && typeof sendScreenData.selectedFee !== 'undefined' && sendScreenData.selectedFee && typeof sendScreenData.selectedFee.amountForTx !== 'undefined') {
+                            const tmpAmount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(sendScreenData.selectedFee.amountForTx).toString().trim()
+                            const newAmountSubstr = amountEquivalent.toString().substring(0, tmpAmount.length).trim()
+                            if (config.debug.sendLogs) {
+                                console.log('Send.SendScreen.init change amount checked ', JSON.parse(JSON.stringify({
+                                    amountEquivalent,
+                                    newAmountSubstr,
+                                    tmpAmount,
+                                    isEqual: newAmountSubstr !== tmpAmount,
+                                    isEqualTxt : newAmountSubstr + '!=' + tmpAmount
+                                })))
+                            }
+                            if (tmpAmount !== newAmountSubstr) {
+                                needRecount = true
+                                sendScreenData.inputValue = amountEquivalent
+                                sendScreenData.amount = amountEquivalent
+                                sendScreenData.amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(amountEquivalent)
+                            }
+                        }
+
                         this.setState({
                             inputType,
                             amountEquivalent: amountEquivalent,
                             amountInputMark: amountInputMark,
-                            balancePart: 0,
+                            balancePart: 0
                         })
 
                         if (needRecount) {
-                            this.recountFees(sendScreenData, 'Send.SendScreen.init')
+                            sendScreenData.selectedFee = false
+                            SendTmpData.setData(sendScreenData)
+                            SendTmpData.setSelectedFee({ })
+                            this.setState({
+                                sendScreenData
+                            })
+                            this.recountFees(sendScreenData, 'Send.SendScreen.init recounting')
                         }
 
                     } catch (e) {
-
+                        if (config.debug.appErrors) {
+                            console.log('Send.SendScreen.init error ' + e.message, e)
+                        }
                     }
                 }
             }
@@ -474,7 +507,7 @@ class SendScreen extends SendBasicScreenScreen {
                 const parentBalance = parentCurrency.balance * 1
                 if (cryptoCurrency.currencyCode === 'USDT' && parentBalance < USDT_LIMIT) {
                     let msg = false
-                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed * 1>= USDT_LIMIT) {
+                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed * 1 >= USDT_LIMIT) {
                         if (!(walletUseUnconfirmed === 1)) {
                             msg = strings('send.errors.SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM', { symbol: extend.addressCurrencyCode })
                         }
@@ -546,6 +579,7 @@ class SendScreen extends SendBasicScreenScreen {
                     return
                 }
             }
+            const amountFiat = this.state.inputType === 'FIAT' ? valueValidation.value : this.state.amountEquivalent
             const amount = this.state.inputType === 'FIAT' ? this.state.amountEquivalent : valueValidation.value
             const amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makeUnPretty(amount)
             if (typeof amountRaw === 'undefined') {
@@ -651,6 +685,7 @@ class SendScreen extends SendBasicScreenScreen {
             newSendScreenData.amountRaw = amountRaw
             newSendScreenData.contactName = contactName
             newSendScreenData.contactAddress = contactAddress
+            newSendScreenData.amountFiat = amountFiat
             let isChanged = false
             if (contactName) {
                 if (newSendScreenData.addressTo !== contactName) {

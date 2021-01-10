@@ -2,13 +2,9 @@ import React from 'react'
 import {Dimensions, Image, Linking, PixelRatio, Text, TouchableOpacity, View} from 'react-native'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
-import AsyncStorage from '@react-native-community/async-storage'
-import Share from 'react-native-share'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 import {strings} from '../services/i18n'
 import config from '../config/config'
-import copyToClipboard from '../services/UI/CopyToClipboard/CopyToClipboard'
-import Toast from '../services/UI/Toast/Toast'
 import {setLoaderStatus} from '../appstores/Stores/Main/MainStoreActions'
 import Log from '../services/Log/Log'
 import BlocksoftCryptoLog from '../../crypto/common/BlocksoftCryptoLog'
@@ -24,7 +20,6 @@ import BlocksoftExternalSettings from '../../crypto/common/BlocksoftExternalSett
 import MarketingEvent from '../services/Marketing/MarketingEvent'
 
 const {height: HEIGHT, width: WIDTH} = Dimensions.get('window')
-// console.log(HEIGHT, WIDTH)
 
 let CACHE_ERROR = ''
 
@@ -44,11 +39,6 @@ const goHome = (props) => {
     App.initStatus = 'resetError'
     props.resetError()
 }
-
-// const copyVersion = () => {
-//     copyToClipboard(`${config.version.code} | #${config.version.hash} ${CACHE_ERROR}`)
-//     Toast.setMessage(strings('toast.copied')).show(-100)
-// }
 
 const handleSupport = async () => {
     const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
@@ -100,7 +90,11 @@ const ErrorScreen = (props) => {
         error = props.navigation.state.params.error
     }
 
-    CACHE_ERROR = JSON.stringify(error)
+    const tmp = JSON.stringify(error)
+    if (tmp !== CACHE_ERROR) {
+        Log.err('ErrorScreen inited ' + tmp)
+        CACHE_ERROR = tmp
+    }
     return (
         <View style={styles.wrapper}>
             <View style={styles.wrapper__content}>

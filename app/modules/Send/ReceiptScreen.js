@@ -716,7 +716,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                         if (!sendScreenData.transactionRemoveByFee
                             && (CACHE_WARNING_AMOUNT_TIME !== tmp.countedFees.countedTime || CACHE_WARNING_AMOUNT !== amount)
                         ) {
-                            if (config.debug.sendLogs) {
+                            if (true || config.debug.sendLogs) {
                                 console.log('Send.ReceiptScreen.render change amount checked ', JSON.parse(JSON.stringify({
                                     newAmount,
                                     newAmountSubstr,
