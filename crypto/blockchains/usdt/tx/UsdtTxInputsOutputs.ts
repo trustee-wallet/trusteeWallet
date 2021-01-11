@@ -15,7 +15,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
 
     _coinSelectTargets(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[], feeForByte: string, multiAddress: string[], subtitle: string) {
         const targets = [
-            { address: data.addressTo, value: 0, logType : 'FOR_USDT_AMOUNT'},
+            { address: data.addressTo, value: 0, logType: 'FOR_USDT_AMOUNT' },
             { address: data.addressTo, value: this.DUST_FIRST_TRY, logType: 'FOR_USDT_BTC_OUTPUT' }
         ]
         return targets
@@ -30,7 +30,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         outputs.push({
             to: data.addressTo,
             amount: 0,
-            logType : 'FOR_USDT_AMOUNT'
+            logType: 'FOR_USDT_AMOUNT'
         })
 
         return {
@@ -49,8 +49,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
                      feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
                      additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
                      subtitle: string = 'default')
-        : BlocksoftBlockchainTypes.PreparedInputsOutputsTx
-    {
+        : BlocksoftBlockchainTypes.PreparedInputsOutputsTx {
         let res = super._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle + ' usdted')
         let inputIsFound = false
         let newInputs = []
@@ -83,7 +82,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         for (const input of oldInputs) {
             newInputs.push(input)
         }
-        const tmp = typeof additionalData.balance !== 'undefined' && additionalData.balance ? {balance : additionalData.balance} : DaemonCache.getCacheAccountStatiс(data.walletHash, 'USDT')
+        const tmp = typeof additionalData.balance !== 'undefined' && additionalData.balance ? { balance: additionalData.balance } : DaemonCache.getCacheAccountStatiс(data.walletHash, 'USDT')
         let needOneOutput = false
         if (tmp.balance > 0) {
             const diff = BlocksoftUtils.diff(tmp.balance, data.amount)
@@ -103,21 +102,21 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
             newRes.outputs = []
             if (needOneOutput &&
                 (
-                    res.inputs.length > 1 || res.inputs[0].value*1 >= this.DUST_FIRST_TRY*2
+                    res.inputs.length > 1 || res.inputs[0].value * 1 >= this.DUST_FIRST_TRY * 2
                 )
             ) {
                 newRes.outputs.push({
-                    isUsdt : true,
+                    isUsdt: true,
                     amount: this.DUST_FIRST_TRY.toString(),
                     to: data.addressFrom,
-                    logType : 'FOR_LEGACY_USDT_KEEP'
+                    logType: 'FOR_LEGACY_USDT_KEEP'
                 })
             }
             newRes.outputs.push({
                 isUsdt: true,
                 amount: this.DUST_FIRST_TRY.toString(),
                 to: data.addressTo,
-                logType : 'FOR_USDT_AMOUNT'
+                logType: 'FOR_USDT_AMOUNT'
             })
             newRes.outputs.push({
                 isUsdt: true,
@@ -137,12 +136,16 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         }
     }
 
-    _innerResort(res: any, needOneOutput: boolean, addressFrom: string, addressTo: string, amount: string, source : string = '') {
+    _innerResort(res: any, needOneOutput: boolean, addressFrom: string, addressTo: string, amount: string, source: string = '') {
         const totalOuts = res.outputs.length
+
+        res.outputs = this._innerToUp(res.outputs, addressTo)
         if (res.outputs[0].amount !== '0') {
             if (totalOuts > 1) {
                 if (res.outputs[0].to !== addressTo) {
                     throw new Error('usdt addressTo is invalid1.1 ' + JSON.stringify(res.outputs))
+                } else if (res.outputs[1].to !== res.outputs[0].to) {
+                    throw new Error('usdt addressTo is invalid1.2 ' + JSON.stringify(res))
                 }
                 if (res.outputs[1].to !== res.outputs[0].to) {
                     throw new Error('usdt addressTo is invalid1.2 ' + JSON.stringify(res.outputs))
@@ -179,8 +182,9 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
             if (typeof res.outputs[2] === 'undefined' || res.outputs[2].to !== addressFrom) {
                 newOutputs.push({
                     isUsdt: true,
-                    amount: this.DUST_FIRST_TRY.toString() + '1',
-                    to: addressFrom
+                    amount: this.DUST_FIRST_TRY.toString(),
+                    to: addressFrom,
+                    logType: 'FOR_LEGACY_USDT_KEEP3'
                 })
             }
         }
@@ -189,5 +193,52 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         }
         res.outputs = newOutputs
         return res
+    }
+
+    _innerToUp(outputs, addressTo) {
+        let result = []
+        for (const output of outputs) {
+            if (output.to === addressTo) {
+                result.push(output)
+            }
+        }
+        if (result.length === 1) {
+            const amount = result[0].amount
+            result = []
+            result.push({
+                isUsdt: true,
+                tokenAmount: '?',
+                amount: '0',
+                to: addressTo,
+                logType: 'FOR_USDT_BTC_OUTPUT1'
+            })
+            result.push({
+                isUsdt: true,
+                amount: amount,
+                to: addressTo,
+                logType: 'FOR_USDT_AMOUNT1'
+            })
+        } else if (result.length === 0) {
+            result.push({
+                isUsdt: true,
+                tokenAmount: '?',
+                amount: '0',
+                to: addressTo,
+                logType: 'FOR_USDT_BTC_OUTPUT2'
+            })
+            result.push({
+                isUsdt: true,
+                amount: this.DUST_FIRST_TRY.toString(),
+                to: addressTo,
+                logType: 'FOR_USDT_AMOUNT2'
+            })
+        }
+        for (const output of outputs) {
+            if (output.to !== addressTo) {
+                result.push(output)
+            }
+        }
+        BlocksoftCryptoLog.log('USDT addressTo upTo', result)
+        return result
     }
 }
