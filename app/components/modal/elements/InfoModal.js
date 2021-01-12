@@ -3,7 +3,7 @@
  * @author yura
  */
 import React, { Component } from 'react'
-import { View } from 'react-native'
+import { ScrollView, TouchableOpacity, View } from 'react-native'
 
 import Layout from '../../../components/elements/modal/Layout'
 import Title from '../../../components/elements/modal/Title'
@@ -13,6 +13,10 @@ import Icon from '../../../components/elements/modal/Icon'
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboard'
+import MarketingEvent from '../../../services/Marketing/MarketingEvent'
+import Toast from '../../../services/UI/Toast/Toast'
+import { strings } from '../../../services/i18n'
 
 class InfoModal extends Component {
 
@@ -28,6 +32,12 @@ class InfoModal extends Component {
             callback()
         }
 
+    }
+
+    copyToClip = (info) => {
+        MarketingEvent.logEvent('info_copyToClip', { info })
+        copyToClipboard(info)
+        Toast.setMessage(strings('toast.copied')).show()
     }
 
     render() {
@@ -46,11 +56,15 @@ class InfoModal extends Component {
                     <Title style={{...styles.title, color: colors.common.text1 }}>
                         {title}
                     </Title>
+                    <TouchableOpacity
+                        onPress={() => this.copyToClip(description)}
+                    >
                     <View style={{ marginTop: 8, marginBottom: 15 }}>
                         <Text style={{...styles.text, color: colors.sendScreen.amount }}>
                             {description}
                         </Text>
                     </View>
+                    </TouchableOpacity>
                     {typeof component != 'undefined' ? component() : null}
                     <View style={{marginBottom: 30 }}>
                         <Button onPress={this.handleHide} color={ icon === true ? colors.modal.success : icon === false ? colors.modal.warning : icon === null ? colors.modal.warning  : colors.modal.info  } shadow={true} style={{ marginTop: 17 }}>
