@@ -186,7 +186,7 @@ class MarketingEvent {
 
         if (PREFIX !== 'RTM' && PREFIX !== 'SPM') {
             try {
-                await analytics().logEvent(logTitle, logData)
+                await analytics().logEvent(logTitle.replace(' ', '_'), logData)
             } catch (e) {
                 await Log.err(`DMN/MarketingEvent send analytics error ${logTitle} ` + e.message.toString() + ' with logData ' + JSON.stringify(logData))
             }
