@@ -61,11 +61,15 @@ class EthTmpDS {
         }
         const amountBN = {}
         let queryLength = 0
-        let queryTxs = ''
+        let queryTxs = []
         for (const txHash in forBalances) {
-            let tmp = await dbInterface.setQueryString(`SELECT currency_code AS currencyCode, address_amount as addressAmount, transaction_status as transactionStatus, 
-                        transaction_hash AS transactionHash
-                        FROM transactions WHERE transaction_hash='${txHash}' AND currency_code LIKE '%ETH%'`).query()
+            let tmp = await dbInterface.setQueryString(`SELECT currency_code AS currencyCode, 
+                        address_amount as addressAmount, 
+                        transaction_status as transactionStatus
+                        FROM transactions 
+                        WHERE transaction_hash='${txHash}' 
+                        AND currency_code LIKE '%ETH%'
+                        `).query()
             if (tmp && tmp.array && typeof tmp.array[0] !== 'undefined') {
                 tmp = tmp.array[0]
                 if (tmp.transactionStatus === 'new') {
@@ -74,7 +78,7 @@ class EthTmpDS {
                         amountBN[tmp.currencyCode] = new BlocksoftBN(0)
                     }
                     queryLength++
-                    queryTxs += tmp.transactionHash + ','
+                    queryTxs.push({ currencyCode : tmp.currencyCode, txHash})
                     amountBN[tmp.currencyCode].add(amount)
                 } else if (tmp.transactionStatus === 'missing') {
                     if (maxSuccess > forBalances[txHash]) {
@@ -114,7 +118,7 @@ class EthTmpDS {
         const address = scanAddress.toLowerCase()
         if (typeof CACHE_TMP[address] === 'undefined' || typeof CACHE_TMP[address]['maxValue'] === 'undefined') {
             this.getCache(address)
-            return { value: -1, scanned: -1, success: -1, amountBlocked: {}, queryLength: 0 }
+            return { value: -1, scanned: -1, success: -1, amountBlocked: {}, queryLength: 0, queryTxs: '' }
         }
         return {
             value: CACHE_TMP[address]['maxValue'],

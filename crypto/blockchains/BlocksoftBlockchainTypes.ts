@@ -168,7 +168,10 @@ export namespace BlocksoftBlockchainTypes {
         shouldChangeBalance?: boolean,
         showBigGasNotice?:number,
         showSmallFeeNotice?: number,
+
         showLongQueryNotice?: number,
+        showLongQueryNoticeTxs?: any,
+
         showBlockedBalanceNotice?: number,
         showBlockedBalanceFree?: number | any,
         countedTime : number

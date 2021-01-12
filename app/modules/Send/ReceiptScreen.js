@@ -162,6 +162,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 } else {
                     msg = strings('modal.send.longQuery')
                 }
+                if (countedFees.showLongQueryNoticeTxs && countedFees.showLongQueryNoticeTxs[0] !== 'undefined') {
+                    msg += ' ' + countedFees.showLongQueryNoticeTxs[0].currencyCode
+                    msg += ' ' +  countedFees.showLongQueryNoticeTxs[0].txHash
+                }
                 cacheWarningNoticeValue = countedFees.showLongQueryNotice
             }
             if (typeof countedFees.showSmallFeeNotice !== 'undefined' && countedFees.showSmallFeeNotice) {
