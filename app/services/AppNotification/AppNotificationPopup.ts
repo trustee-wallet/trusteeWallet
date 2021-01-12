@@ -40,7 +40,8 @@ export default new class AppNotificationPopup {
             const body = message.notification?.body
             const image = message.notification?.android?.imageUrl
             const messageId = message.messageId
-            await this._display({ title, body, image, messageId })
+            const data = typeof message.data !== 'undefined' ? message.data : false
+            await this._display({ title, body, image, messageId, data })
         } catch (e) {
             await Log.err('AppNotificationPopup.displayPush error ' + e.message)
         }
@@ -123,7 +124,7 @@ export default new class AppNotificationPopup {
                 // repeatType: 'day' // (optional) Repeating interval. Check 'Repeating Notifications' section for more info.
             }
 
-            if (typeof data.data !== 'undefined') {
+            if (typeof data.data !== 'undefined' && data.data) {
                 params.userInfo = data.data
             }
             if (typeof image !== 'undefined' && image && image !== '') {

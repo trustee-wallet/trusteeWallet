@@ -123,7 +123,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             gasLimit = additionalData.estimatedGas
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate preestimatedGas ' + gasLimit)
         }
-        
+
         let showBigGasNotice = false
         if (gasLimit * 1 > BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT') * 1) {
             showBigGasNotice = true
@@ -223,10 +223,15 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     }
                 }
             }
+            if (typeof newGasPrice === 'undefined' || newGasPrice === 'undefined') {
+                newGasPrice = '0'
+            } else {
+                newGasPrice = newGasPrice.toString()
+            }
             const tmp = {
                 langMsg: titles[index],
                 gasPrice: newGasPrice,
-                gasPriceGwei: BlocksoftUtils.toGwei(newGasPrice).toString(),
+                gasPriceGwei: newGasPrice !== '0' ? BlocksoftUtils.toGwei(newGasPrice).toString() : '0',
                 gasLimit: gasLimit.toString(),
                 feeForTx: fee.toString(),
                 nonceForTx,
@@ -281,11 +286,16 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         }
                     }
 
+                    if (typeof newGasPrice === 'undefined') {
+                        newGasPrice = '0'
+                    } else {
+                        newGasPrice = newGasPrice.toString()
+                    }
 
                     const tmp = {
                         langMsg: title,
-                        gasPrice: newGasPrice.toString(),
-                        gasPriceGwei: BlocksoftUtils.toGwei(newGasPrice).toString(),
+                        gasPrice: newGasPrice,
+                        gasPriceGwei: newGasPrice !== '0' ? BlocksoftUtils.toGwei(newGasPrice).toString() : '0',
                         gasLimit: gasLimit.toString(),
                         feeForTx: fee.toString(),
                         amountForTx: amount,
@@ -335,10 +345,15 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             if (!feeForTx) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE')
             }
+            if (typeof fee === 'undefined') {
+                fee = '0'
+            } else {
+                fee = fee.toString()
+            }
             const tmp = {
                 langMsg: 'eth_speed_slowest',
-                gasPrice: fee.toString(),
-                gasPriceGwei: BlocksoftUtils.toGwei(fee).toString(),
+                gasPrice: fee,
+                gasPriceGwei: fee !== '0' ? BlocksoftUtils.toGwei(fee).toString() : fee,
                 gasLimit: gasLimit.toString(),
                 feeForTx,
                 amountForTx,
@@ -394,8 +409,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             }
             const LONG_QUERY = await BlocksoftExternalSettings.getStatic('ETH_LONG_QUERY')
             check = max.queryLength * 1 >= LONG_QUERY * 1
-             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees ethAllowLongQuery '
-                + ethAllowLongQuery + ' Query scanned ' + max.scanned  + ' success ' + max.success + ' length ' + max.queryLength + ' => '
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees ethAllowLongQuery '
+                + ethAllowLongQuery + ' Query scanned ' + max.scanned  + ' success ' + max.success + ' length ' + max.queryLength
+                + ' txs ' + max.queryTxs + ' => '
                 + (check ? 'true' : 'false')
             )
             if (check) {

@@ -42,6 +42,11 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         const tmpData = { ...data }
+        if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate removeByFee no token ' + this._tokenAddress)
+            tmpData.amount = '0'
+            return super.getFeeRate(tmpData, privateData, additionalData)
+        }
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas started token ' + this._tokenAddress)
         let estimatedGas
@@ -110,7 +115,7 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
             this.checkError(e, data)
         }
 
-         
+
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas finished ' + estimatedGas)
         const result = await super.getFeeRate(tmpData, privateData, { ...additionalData, ...{ estimatedGas } })
         result.shouldChangeBalance = false
@@ -135,9 +140,14 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
     }
 
     async sendTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
-        // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.sendTx started token ' + this._tokenAddress)
         const tmpData = { ...data }
+        if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.sendTx removeByFee no token ' + this._tokenAddress)
+            tmpData.amount = '0'
+            return super.sendTx(tmpData, privateData, uiData)
+        }
+
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.sendTx started token ' + this._tokenAddress)
 
         try {
             const basicAddressTo = data.addressTo.toLowerCase()

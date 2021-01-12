@@ -61,8 +61,10 @@ class EthTmpDS {
         }
         const amountBN = {}
         let queryLength = 0
+        let queryTxs = ''
         for (const txHash in forBalances) {
-            let tmp = await dbInterface.setQueryString(`SELECT currency_code AS currencyCode, address_amount as addressAmount, transaction_status as transactionStatus 
+            let tmp = await dbInterface.setQueryString(`SELECT currency_code AS currencyCode, address_amount as addressAmount, transaction_status as transactionStatus, 
+                        transaction_hash AS transactionHash
                         FROM transactions WHERE transaction_hash='${txHash}' AND currency_code LIKE '%ETH%'`).query()
             if (tmp && tmp.array && typeof tmp.array[0] !== 'undefined') {
                 tmp = tmp.array[0]
@@ -72,6 +74,7 @@ class EthTmpDS {
                         amountBN[tmp.currencyCode] = new BlocksoftBN(0)
                     }
                     queryLength++
+                    queryTxs += tmp.transactionHash + ','
                     amountBN[tmp.currencyCode].add(amount)
                 } else if (tmp.transactionStatus === 'missing') {
                     if (maxSuccess > forBalances[txHash]) {
@@ -85,6 +88,7 @@ class EthTmpDS {
         CACHE_TMP[address]['maxSuccess'] = maxSuccess > maxScanned ? maxSuccess : maxScanned
         CACHE_TMP[address]['amountBlocked'] = {}
         CACHE_TMP[address]['queryLength'] = queryLength
+        CACHE_TMP[address]['queryTxs'] = queryTxs
         for (const key in amountBN) {
             CACHE_TMP[address]['amountBlocked'][key] = amountBN[key].toString()
         }
@@ -96,9 +100,13 @@ class EthTmpDS {
         if (typeof CACHE_TMP[address] === 'undefined' || typeof CACHE_TMP[address]['maxValue'] === 'undefined') {
             await this.getCache(address)
         }
-        return { value: CACHE_TMP[address]['maxValue'], scanned: CACHE_TMP[address]['maxScanned'], success: CACHE_TMP[address]['maxSuccess'],
+        return {
+            value: CACHE_TMP[address]['maxValue'],
+            scanned: CACHE_TMP[address]['maxScanned'],
+            success: CACHE_TMP[address]['maxSuccess'],
             amountBlocked: CACHE_TMP[address]['amountBlocked'],
-            queryLength : CACHE_TMP[address]['queryLength']
+            queryLength: CACHE_TMP[address]['queryLength'],
+            queryTxs: CACHE_TMP[address]['queryTxs']
         }
     }
 
@@ -106,11 +114,15 @@ class EthTmpDS {
         const address = scanAddress.toLowerCase()
         if (typeof CACHE_TMP[address] === 'undefined' || typeof CACHE_TMP[address]['maxValue'] === 'undefined') {
             this.getCache(address)
-            return { value: -1, scanned: -1, success: -1, amountBlocked: {}, queryLength : 0}
+            return { value: -1, scanned: -1, success: -1, amountBlocked: {}, queryLength: 0 }
         }
-        return { value: CACHE_TMP[address]['maxValue'], scanned: CACHE_TMP[address]['maxScanned'], success: CACHE_TMP[address]['maxSuccess'],
+        return {
+            value: CACHE_TMP[address]['maxValue'],
+            scanned: CACHE_TMP[address]['maxScanned'],
+            success: CACHE_TMP[address]['maxSuccess'],
             amountBlocked: CACHE_TMP[address]['amountBlocked'],
-            queryLength : CACHE_TMP[address]['queryLength']
+            queryLength: CACHE_TMP[address]['queryLength'],
+            queryTxs: CACHE_TMP[address]['queryTxs']
         }
     }
 
@@ -131,7 +143,7 @@ class EthTmpDS {
         const where = `WHERE currency_code='${this._currencyCode}' AND address='${address}' AND tmp_key='nonces' AND tmp_sub_key='${key}'`
         const res = await dbInterface.setQueryString(`SELECT tmp_val FROM ${tableName} ${where}`).query()
         if (res && res.array && res.array.length > 0) {
-            if (res.array[0].tmp_val*1 >= value) {
+            if (res.array[0].tmp_val * 1 >= value) {
                 return true
             }
             await dbInterface.setQueryString(`DELETE FROM ${tableName} ${where}`).query()

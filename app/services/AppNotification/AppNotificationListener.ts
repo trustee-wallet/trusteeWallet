@@ -223,7 +223,7 @@ export default new class AppNotificationListener {
             const startMessage = await messaging().getInitialNotification()
 
             if (startMessage && typeof startMessage.messageId !== 'undefined') {
-                await Log.log('PUSH _onMessage startMessage not null')
+                await Log.log('PUSH _onMessage startMessage not null', startMessage)
 
                 UpdateAppNewsDaemon.goToNotifications('AFTER_APP')
                 const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
@@ -231,11 +231,14 @@ export default new class AppNotificationListener {
                 await UpdateAppNewsDaemon.updateAppNewsDaemon()
                 await UpdateAppNewsListDaemon.updateAppNewsListDaemon()
 
+                await Log.log('PUSH _onMessage startMessage unified', unifiedPush)
                 if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
+                    await Log.log('PUSH _onMessage startMessage app is inited first')
                     if (await AppNewsActions.onOpen(unifiedPush)) {
                         NavStore.reset('NotificationsScreen')
                     }
                 } else {
+                    await Log.log('PUSH _onMessage startMessage app is not inited')
                     await AppNewsActions.onOpen(unifiedPush)
                 }
 
@@ -249,6 +252,7 @@ export default new class AppNotificationListener {
 
         this.messageListener = messaging().onMessage(async (message) => {
             await Log.log('PUSH _onMessage inited')
+
             await AppNotificationPopup.displayPush(message)
         })
 
