@@ -6,8 +6,7 @@ import Update from '../Update'
 import store from '../../store'
 
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
-import appNewsActions from '../../appstores/Stores/AppNews/AppNewsActions'
-import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
+import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
 
 const TO_BADGE_TIME = 3600000 * 24 * 4
 class UpdateAppNewsListDaemon extends Update {
@@ -27,8 +26,6 @@ class UpdateAppNewsListDaemon extends Update {
             return
         }
         this._canUpdate = false
-
-        // nope its bad setLoaderStatus(false) // fix for some error screens
 
         const appNewsList = await appNewsDS.getAppNews()
 
@@ -52,11 +49,11 @@ class UpdateAppNewsListDaemon extends Update {
                 }
             }
             if (toShow.length > 0) {
-                await appNewsActions.displayPush(toShow)
+                await AppNewsActions.displayPush(toShow)
             }
-            await appNewsActions.displayBadge(toBadge)
+            await AppNewsActions.displayBadge(toBadge)
         } else {
-            await appNewsActions.displayBadge(0)
+            await AppNewsActions.displayBadge(0)
         }
 
         this._canUpdate = true

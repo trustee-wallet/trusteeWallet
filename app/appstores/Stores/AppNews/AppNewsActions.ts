@@ -1,3 +1,6 @@
+/**
+ * @version 0.30
+ */
 import appNewsDS from '../../DataSource/AppNews/AppNews'
 import Log from '../../../services/Log/Log'
 
@@ -7,14 +10,73 @@ import UpdateAppNewsListDaemon from '../../../daemons/view/UpdateAppNewsListDaem
 import config from '../../../config/config'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 import AppNotificationPopup from '../../../services/AppNotification/AppNotificationPopup'
+import NavStore from '../../../components/navigation/NavStore'
+import { strings } from '../../../services/i18n'
+import { showModal } from '../Modal/ModalActions'
 
-export default {
+export namespace AppNewsActions {
 
-    displayBadge: async (number:number) : Promise<void> => {
+    /**
+     * @param notification
+     * @param title
+     * @param subtitle
+     * return true when NavStore need to be called outside the function (to reload notifications screen if called from local push open etc)
+     */
+    export const onOpen = async (notification : any, title : string = '', subtitle : string = '') : Promise<boolean> => {
+        await Log.log('ACT/AppNewsActions onOpen', notification)
+        if (notification.newsOpenedAt === null) {
+            await AppNewsActions.markAsOpened(notification.id)
+        }
+        if (notification.newsUrl && notification.newsUrl !== 'null' && notification.newsUrl !== '') {
+            NavStore.goNext('WebViewScreen', { url: notification.newsUrl, title: strings('notifications.newsTitle') })
+            return false
+        }
+
+        // orders processing
+        const transactionHash = notification.newsJson?.payinTxHash || notification.newsJson?.payoutTxHash
+        const orderHash = notification.newsJson?.orderHash || false
+        if (title === '') {
+            title = notification?.newsCustomTitle || false
+        }
+        if (subtitle === '') {
+            subtitle = notification?.newsCustomText || false
+        }
+
+        const notificationToTx = {title, subtitle, newsName: notification.newsName, createdAt : notification.newsCreated}
+        if (transactionHash) {
+            NavStore.goNext('TransactionScreen', {
+                txData: {
+                    transactionHash,
+                    orderHash,
+                    walletHash : notification.walletHash,
+                    notification : notificationToTx
+                }
+            })
+            return false
+        } else if (orderHash) {
+            NavStore.goNext('TransactionScreen', {
+                txData: {
+                    orderHash,
+                    walletHash : notification.walletHash,
+                    notification : notificationToTx
+                }
+            })
+            return false
+        } else {
+            showModal({
+                type: 'NOTIFICATION_MODAL',
+                // title: title,
+                description: subtitle ? subtitle : title ? title : ''
+            })
+            return true
+        }
+    }
+
+    export const displayBadge = async (number:number) : Promise<void> => {
         return AppNotificationPopup.displayBadge(number)
-    },
+    }
 
-    displayPush: async (appNewsList: Array<AppNewsItem>): Promise<void> => {
+    export const displayPush = async (appNewsList: Array<AppNewsItem>): Promise<void> => {
 
         if (!appNewsList) return
 
@@ -53,27 +115,27 @@ export default {
                 Log.daemon('ACT/AppNewsActions error ' + e.message)
             }
         }
-    },
+    }
 
-    clearAll: async (): Promise<void> => {
+    export const clearAll = async (): Promise<void> => {
         await appNewsDS.clear()
         // @ts-ignore
         await UpdateAppNewsListDaemon.forceDaemonUpdate()
-    },
+    }
 
-    markAsOpened: async (id : number): Promise<void> => {
+    export const markAsOpened = async (id : number): Promise<void> => {
         await appNewsDS.markAsOpened(id)
         // @ts-ignore
         await UpdateAppNewsListDaemon.forceDaemonUpdate()
-    },
+    }
 
-    markAllAsOpened: async (): Promise<void> => {
+    export const markAllAsOpened = async (): Promise<void> => {
         await appNewsDS.markAllAsOpened()
         // @ts-ignore
         await UpdateAppNewsListDaemon.forceDaemonUpdate()
-    },
+    }
 
-    markAsRemoved: async (id : number): Promise<void> => {
+    export const markAsRemoved = async (id : number): Promise<void> => {
         await appNewsDS.setRemoved({id})
         // @ts-ignore
         await UpdateAppNewsListDaemon.forceDaemonUpdate()

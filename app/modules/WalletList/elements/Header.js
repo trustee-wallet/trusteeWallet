@@ -23,7 +23,7 @@ import WalletName from './WalletName/WalletName'
 import NavStore from '../../../components/navigation/NavStore'
 
 import { setQRConfig, setQRValue } from '../../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import AppNewsActions from '../../../appstores/Stores/AppNews/AppNewsActions'
+import { AppNewsActions } from '../../../appstores/Stores/AppNews/AppNewsActions'
 import { strings } from '../../../services/i18n'
 
 import Log from '../../../services/Log/Log'

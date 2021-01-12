@@ -1,4 +1,6 @@
-
+/**
+ * @version 0.30
+ */
 import React from 'react'
 import { connect } from 'react-redux'
 import {
@@ -26,7 +28,7 @@ import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
 
 import Log from '../../services/Log/Log'
 
-import AppNewsActions from '../../appstores/Stores/AppNews/AppNewsActions'
+import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
 import { NOTIFIES_GROUP, ALLOWED_NOTIFICATIONS } from '../../appstores/Stores/AppNews/AppNewsReducer'
 
 import { strings, sublocale } from '../../services/i18n'
@@ -76,7 +78,7 @@ class NotificationsScreen extends React.Component {
             },
         ],
         data: [],
-        isRefreshing: false,
+        isRefreshing: false
     }
 
     currentLocale;
@@ -192,43 +194,7 @@ class NotificationsScreen extends React.Component {
     }
 
     handleOpenNotification = async (notification, title, subtitle) => {
-        if (notification.newsOpenedAt === null) {
-            await AppNewsActions.markAsOpened(notification.id)
-        }
-        if (notification.newsUrl && notification.newsUrl !== 'null') {
-            NavStore.goNext('WebViewScreen', { url: notification.newsUrl, title: strings('notifications.newsTitle') })
-            return
-        }
-
-        // orders processing
-        const transactionHash = notification.newsJson?.payinTxHash || notification.newsJson?.payoutTxHash
-        const orderHash = notification.newsJson?.orderHash || false
-
-        const notificationToTx = {title, subtitle, newsName: notification.newsName, createdAt : notification.newsCreated}
-        if (transactionHash) {
-            NavStore.goNext('TransactionScreen', {
-                txData: {
-                    transactionHash,
-                    orderHash,
-                    walletHash : notification.walletHash,
-                    notification : notificationToTx
-                }
-            })
-        } else if (orderHash) {
-            NavStore.goNext('TransactionScreen', {
-                txData: {
-                    orderHash,
-                    walletHash : notification.walletHash,
-                    notification : notificationToTx
-                }
-            })
-        } else {
-            showModal({
-                type: 'NOTIFICATION_MODAL',
-                // title: title,
-                description: subtitle ? subtitle : title ? title : ''
-            })
-        }
+      return AppNewsActions.onOpen(notification, title, subtitle)
     }
 
     render() {

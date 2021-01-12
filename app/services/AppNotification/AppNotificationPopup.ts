@@ -1,4 +1,5 @@
 /**
+ * @version 0.30
  * https://rnfirebase.io/messaging/usage
  * has no more local pushes so////
  * https://github.com/zo0r/react-native-push-notification
@@ -8,16 +9,21 @@ import { FirebaseMessagingTypes } from '@react-native-firebase/messaging'
 import PushNotification from 'react-native-push-notification'
 import Log from '../Log/Log'
 import NavStore from '../../components/navigation/NavStore'
+import AppNotificationPushSave from './AppNotificationPushSave'
+import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
 
 export default new class AppNotificationPopup {
 
-    async onOpened(message: { foreground: any }) {
+    async onOpened(message: any) {
         if (typeof message.foreground === 'undefined' || !message.foreground) {
             return false
         }
         try {
             await Log.log('AppNotificationPopup.onOpened message', message)
-            NavStore.reset('NotificationsScreen')
+            const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(message)
+            if (await AppNewsActions.onOpen(unifiedPush)) {
+                NavStore.reset('NotificationsScreen')
+            }
         } catch (e) {
             Log.err('AppNotificationPopup.onOpened error ' + e.message)
         }
@@ -29,7 +35,7 @@ export default new class AppNotificationPopup {
 
     async displayPush(message: FirebaseMessagingTypes.RemoteMessage) {
         try {
-            await Log.log('AppNotificationPopup.displayPush message', message)
+            await Log.log('AppNotificationPopup.displayPush message', JSON.parse(JSON.stringify(message)))
             const title = message.notification?.title
             const body = message.notification?.body
             const image = message.notification?.android?.imageUrl
@@ -45,18 +51,19 @@ export default new class AppNotificationPopup {
             await Log.log('AppNotificationPopup.displayPushFromNews news', news)
             const title = news.newsCustomTitle
             const body = news.newsCustomText
-            const messageId = news.newsServerId || news.id
-            await this._display({ title, body, messageId })
+            const id = news.id
+            const data = { news: news }
+            await this._display({ title, body, id, data })
         } catch (e) {
             await Log.err('AppNotificationPopup.displayPushFromNews error ' + e.message)
         }
     }
 
-    async _display(data: { title: any; body: any; image?: any; messageId: any }) {
+    async _display(data: { title: any; body: any; image?: any; messageId?: any, id?: any, data?: any }) {
         try {
             await Log.log('AppNotificationPopup._display data', data)
             // console.log('AppNotificationPopup._display data', data)
-            let { title, body, image, messageId } = data
+            let { title, body, image, messageId, id } = data
 
 
             if (Platform.OS !== 'ios') {
@@ -116,6 +123,9 @@ export default new class AppNotificationPopup {
                 // repeatType: 'day' // (optional) Repeating interval. Check 'Repeating Notifications' section for more info.
             }
 
+            if (typeof data.data !== 'undefined') {
+                params.userInfo = data.data
+            }
             if (typeof image !== 'undefined' && image && image !== '') {
                 params.largeIconUrl = image // (optional) default: undefined
                 params.bigPictureUrl = image // (optional) default: undefined
@@ -131,6 +141,9 @@ export default new class AppNotificationPopup {
                 params.title = title // (optional)
             }
 
+            if (typeof id !== 'undefined' && id) {
+                params.id = id // (optional) added as `message_id` to intent extras so opening push notification can find data stored by @react-native-firebase/messaging module.
+            }
             if (messageId) {
                 params.messageId = messageId // (optional) added as `message_id` to intent extras so opening push notification can find data stored by @react-native-firebase/messaging module.
             }

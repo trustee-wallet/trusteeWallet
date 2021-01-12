@@ -1,3 +1,6 @@
+/**
+ * @version 0.30
+ **/
 import messaging from '@react-native-firebase/messaging'
 import AsyncStorage from '@react-native-community/async-storage'
 import Log from '../Log/Log'
@@ -13,6 +16,7 @@ import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
 import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
 import AppNotificationPushSave from './AppNotificationPushSave'
 import AppNotificationPopup from './AppNotificationPopup'
+import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
 
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
 const ASYNC_CACHE_TIME = 'pushTokenTime'
@@ -26,11 +30,14 @@ export default new class AppNotificationListener {
 
     private messageListener: any
     private inited: boolean = false
+    private initing: number = 0
 
     async init(): Promise<void> {
-        if (this.inited) {
+        const now = new Date().getTime()
+        if (this.inited || (now - this.initing) < 10000) {
             return
         }
+        this.initing = now
         if (await this.checkPermission()) {
             this.inited = true
             await this.createRefreshListener()
@@ -219,13 +226,17 @@ export default new class AppNotificationListener {
                 await Log.log('PUSH _onMessage startMessage not null')
 
                 UpdateAppNewsDaemon.goToNotifications('AFTER_APP')
-                await AppNotificationPushSave.unifyPushAndSave(startMessage)
+                const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
 
                 await UpdateAppNewsDaemon.updateAppNewsDaemon()
                 await UpdateAppNewsListDaemon.updateAppNewsListDaemon()
 
                 if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
-                    NavStore.reset('NotificationsScreen')
+                    if (await AppNewsActions.onOpen(unifiedPush)) {
+                        NavStore.reset('NotificationsScreen')
+                    }
+                } else {
+                    await AppNewsActions.onOpen(unifiedPush)
                 }
 
                 await Log.log('PUSH _onMessage startMessage finished')
@@ -236,13 +247,16 @@ export default new class AppNotificationListener {
             Log.err('PUSH _onMessage startMessage error ' + e.message)
         }
 
+        console.log('create message listener')
+
         this.messageListener = messaging().onMessage(async (message) => {
-            // AppNotificationPushSave.unifyPushAndSave(message)
+            await Log.log('PUSH _onMessage inited')
             await AppNotificationPopup.displayPush(message)
         })
 
-        await messaging().onNotificationOpenedApp(async (tmp) => {
-            Log.log('onNotificationOpened ', JSON.parse(JSON.stringify(tmp)))
+        await messaging().onNotificationOpenedApp(async (message) => {
+            await Log.log('PUSH _onNotificationOpened inited')
+            await AppNotificationPopup.onOpened(message)
         })
 
     }
