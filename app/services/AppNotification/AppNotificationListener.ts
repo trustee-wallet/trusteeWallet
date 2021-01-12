@@ -247,8 +247,6 @@ export default new class AppNotificationListener {
             Log.err('PUSH _onMessage startMessage error ' + e.message)
         }
 
-        console.log('create message listener')
-
         this.messageListener = messaging().onMessage(async (message) => {
             await Log.log('PUSH _onMessage inited')
             await AppNotificationPopup.displayPush(message)

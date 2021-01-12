@@ -286,7 +286,7 @@ class UpdateTradeOrdersDaemon {
 
                         } catch (e) {
                             if (config.debug.appErrors) {
-                                console.log('UpdateTradeOrders one order error ' + e.message, e, JSON.parse(JSON.stringify(item)))
+                                console.log('UpdateTradeOrders one order error ' + e.message, JSON.parse(JSON.stringify(item)))
                             }
                             Log.err('UpdateTradeOrders one order error ' + e.message, item)
                         }

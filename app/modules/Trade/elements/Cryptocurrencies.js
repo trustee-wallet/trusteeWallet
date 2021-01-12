@@ -24,6 +24,7 @@ import checkTransferHasError from '../../../services/UI/CheckTransferHasError/Ch
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 import TmpConstants from './TmpConstants'
 import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaemon'
+import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
 
 
 let CACHE_INIT_KEY = ''
@@ -308,6 +309,19 @@ class Cryptocurrencies extends Component {
             // if (iconCode === 'ETH_DAIM') {
             //     iconCode = 'ETH_DAI'
             // }
+            let showUnconfirmed = false
+            if (selectedAccount.unconfirmedPretty.toString() !== '0' && selectedAccount.unconfirmedPretty.toString().indexOf('-') === -1) {
+                const diff = BlocksoftUtils.diff(selectedAccount.unconfirmedPretty, selectedAccount.balancePretty)
+                showUnconfirmed = diff.toString().indexOf('-') === -1
+            }
+            let balance = ''
+            if (typeof selectedAccount !== 'undefined' && typeof selectedAccount.balance !== 'undefined') {
+                balance = strings('homeScreen.balance') + ': ' + BlocksoftPrettyNumbers.makeCut(selectedAccount.balancePretty).justCutted + ' ' + selectedCryptocurrency.currencySymbol
+            }
+            if (showUnconfirmed) {
+                balance += ' ' + strings('homeScreen.unconfirmed') + ': ' + BlocksoftPrettyNumbers.makeCut(selectedAccount.unconfirmedPretty).justCutted + ' ' + selectedCryptocurrency.currencySymbol
+            }
+
             return (
                 <View>
                     <TouchableOpacity style={[styles.select, styles.select_active]}
@@ -323,16 +337,9 @@ class Cryptocurrencies extends Component {
                         exchangeStore.tradeType === 'SELL' ?
                             <View
                                 style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 15, paddingTop: 5 }}>
-                                {
-                                    selectedAccount.unconfirmedPretty.toString() !== '0' && selectedAccount.unconfirmedPretty.toString().indexOf('-') === -1 ?
-                                        <Text style={{ color: '#999999', fontSize: 12 }}>
-                                            {strings('homeScreen.balance')}: {BlocksoftPrettyNumbers.makeCut(selectedAccount.balancePretty).justCutted} {strings('homeScreen.unconfirmed')}: {BlocksoftPrettyNumbers.makeCut(selectedAccount.unconfirmedPretty).justCutted} {selectedCryptocurrency.currencySymbol}
-                                        </Text>
-                                        :
-                                        <Text style={{ color: '#999999', fontSize: 12 }}>
-                                            {strings('homeScreen.balance')}: {BlocksoftPrettyNumbers.makeCut(selectedAccount.balancePretty).justCutted} {selectedCryptocurrency.currencySymbol}
-                                        </Text>
-                                }
+                                 <Text style={{ color: '#999999', fontSize: 12 }}>
+                                     {balance}
+                                 </Text>
                             </View> : null
                     }
                 </View>

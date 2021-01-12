@@ -20,6 +20,7 @@ import accountDS from '../../../appstores/DataSource/Account/Account'
 import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaemon'
 import AsyncStorage from '@react-native-community/async-storage'
 import ExchangeTmpConstants from './ExchangeTmpConstants'
+import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
 
 let CACHE_INIT_KEY = ''
 
@@ -233,9 +234,18 @@ class ExchangeInCurrency extends Component {
     handleMainRender = () => {
         const { selectedInCurrency, selectedInAccount, exchangeStore } = this.props
 
+        let showUnconfirmed = false
+        if (selectedInAccount.unconfirmedPretty.toString() !== '0' && selectedInAccount.unconfirmedPretty.toString().indexOf('-') === -1) {
+            const diff = BlocksoftUtils.diff(selectedInAccount.unconfirmedPretty, selectedInAccount.balancePretty)
+            showUnconfirmed = diff.toString().indexOf('-') === -1
+        }
+
         let balance = ''
         if (typeof selectedInAccount !== 'undefined' && typeof selectedInAccount.balance !== 'undefined') {
             balance = strings('homeScreen.balance') + ': ' + BlocksoftPrettyNumbers.makeCut(selectedInAccount.balancePretty).justCutted + ' ' + selectedInCurrency.currencySymbol
+        }
+        if (showUnconfirmed) {
+            balance += ' ' + strings('homeScreen.unconfirmed') + ': ' + BlocksoftPrettyNumbers.makeCut(selectedInAccount.unconfirmedPretty).justCutted + ' ' + selectedInCurrency.currencySymbol
         }
 
         if (typeof selectedInCurrency.currencyCode !== 'undefined') {
