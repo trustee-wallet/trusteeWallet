@@ -68,7 +68,6 @@ class EthNetworkPrices {
         // noinspection ES6MissingAwait
         MarketingEvent.logEvent('estimate_fee_eth_result', logData)
 
-        console.log('CACHE_FEES_ETH', CACHE_FEES_ETH)
         return this._format()
     }
 
