@@ -130,10 +130,10 @@ class BlocksoftTg {
             // noinspection JSUnresolvedFunction
             response = await axios.post(link, qs)
         } catch (e) {
-            if (e.response.data) {
+            if (typeof e.response !== 'undefined' && typeof e.response.data !== 'undefined') {
                 e.message = JSON.stringify(e.response.data) + ' ' + e.message
             }
-            if (e.message.indexOf('Request: chat not found') !== -1) {
+            if (typeof e.message !== 'undefined' && e.message.indexOf('Request: chat not found') !== -1) {
                 if (typeof BAD_CHATS[qs.chat_id] === 'undefined') {
                     BAD_CHATS[qs.chat_id] = {}
                     BAD_CHATS[qs.chat_id][API_KEY] = 1
