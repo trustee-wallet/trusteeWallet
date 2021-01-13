@@ -397,6 +397,15 @@ export class BlocksoftKeysStorage {
         return this._setKeyValue('login_' + hashOrId, res.login, res.pass)
     }
 
+    async setSettingValue(hashOrId, value) {
+        return this._setKeyValue('setting_' + hashOrId, hashOrId, value)
+    }
+
+    async getSettingValue(hashOrId) {
+        const res = await this._getKeyValue('setting_' + hashOrId)
+        if (!res) return '0'
+        return res.priv.toString()
+    }
 }
 
 const singleBlocksoftKeysStorage = new BlocksoftKeysStorage()

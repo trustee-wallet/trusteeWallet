@@ -223,8 +223,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 this.startLoadFee()
 
                 this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-                    const settings = this.props.settingsStore.data
-                    if (+settings.lock_screen_status) {
+                    const lockScreenStatus = this.props.settingsStore.keystore.lockScreenStatus
+                    if (+lockScreenStatus) {
                         this.setState({
                             needPasswordConfirm: true
                         })
@@ -251,7 +251,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
         const { needPasswordConfirm } = this.state
 
         let passwordChecked = false
-        if (needPasswordConfirm && typeof settingsStore.data.askPinCodeWhenSending !== 'undefined' && +settingsStore.data.askPinCodeWhenSending) {
+        if (needPasswordConfirm && typeof settingsStore.keystore.askPinCodeWhenSending !== 'undefined' && +settingsStore.keystore.askPinCodeWhenSending) {
             if (passwordCheck) {
                 lockScreenAction.setFlowType({ flowType: 'CONFIRM_SEND_CRYPTO' })
                 lockScreenAction.setActionCallback({ actionCallback: this.handleSend })

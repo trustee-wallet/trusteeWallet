@@ -82,9 +82,9 @@ class BackupSettingsScreen extends Component {
 
     handleSkip = () => {
         Log.log('WalletBackup.BackupStep1Screen handleSkip')
-        const { settingsStore } = this.props
+        const { lockScreenStatus } = this.props.settingsStore.keystore
 
-        if (+settingsStore.lock_screen_status) {
+        if (+lockScreenStatus) {
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
@@ -206,7 +206,7 @@ class BackupSettingsScreen extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        settingsStore: state.settingsStore.data,
+        settingsStore: state.settingsStore,
         createWalletStore: state.createWalletStore
     }
 }

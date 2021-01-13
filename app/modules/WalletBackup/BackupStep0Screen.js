@@ -84,7 +84,7 @@ class BackupStep0Screen extends Component {
             let mnemonic = ''
             let needPasswordConfirm = false
             if (flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR') {
-                const { settingsStore } = this.props
+                const { lockScreenStatus } = this.props.settingsStore.keystore
                 const selectedWallet = this.props.selectedWallet
                 if (selectedWallet && selectedWallet.walletHash) {
                     try {
@@ -98,7 +98,7 @@ class BackupStep0Screen extends Component {
                 } else {
                     walletMnemonic = mnemonic
                 }
-                if (+settingsStore.lock_screen_status) {
+                if (+lockScreenStatus) {
                     needPasswordConfirm = true
                 }
                 if (!walletMnemonic || walletMnemonic === '') {
@@ -509,7 +509,7 @@ class BackupStep0Screen extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        settingsStore: state.settingsStore.data,
+        settingsStore: state.settingsStore,
         selectedWallet: state.mainStore.selectedWallet,
         createWalletStore: state.createWalletStore
     }

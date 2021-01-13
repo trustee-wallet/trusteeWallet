@@ -70,8 +70,8 @@ class QRCodeScannerScreen extends Component {
             const res = await decodeTransactionQrCode(param, currencyCode)
 
             if (typeof res.data.isWalletConnect !== 'undefined' && res.data.isWalletConnect) {
-                const { lock_screen_status } = this.props.settings.data
-                if (+lock_screen_status) {
+                const { lockScreenStatus } = this.props.settings.keystore
+                if (+lockScreenStatus) {
                     lockScreenAction.setFlowType({
                         flowType: 'WALLET_CONNECT',
                     })

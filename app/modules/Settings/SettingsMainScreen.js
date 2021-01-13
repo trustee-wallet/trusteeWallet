@@ -82,9 +82,9 @@ class SettingsMainScreen extends React.Component {
 
     handleChangeLockScreenStatus = () => {
 
-        const { lock_screen_status } = this.props.settings.data
+        const { lockScreenStatus } = this.props.settings.keystore
 
-        if (+lock_screen_status) {
+        if (+lockScreenStatus) {
 
             lockScreenAction.setFlowType({
                 flowType: 'DELETE_PINCODE'
@@ -273,18 +273,20 @@ class SettingsMainScreen extends React.Component {
         MarketingAnalytics.setCurrentScreen('Settings.SettingsMainScreen')
 
         let {
-            lock_screen_status,
-            touchID_status,
             local_currency: localCurrency,
-            askPinCodeWhenSending
         } = this.props.settings.data
+
+        let {
+            lockScreenStatus,
+            touchIDStatus,
+            askPinCodeWhenSending
+        } = this.props.settings.keystore
 
         const { mainStore } = this.props
 
-        lock_screen_status = +lock_screen_status
-        touchID_status = +touchID_status
-
-        const tmpAskPinCodeWhenSending = !(typeof askPinCodeWhenSending === 'undefined' || askPinCodeWhenSending === '0')
+        lockScreenStatus = +lockScreenStatus
+        touchIDStatus = +touchIDStatus
+        askPinCodeWhenSending = !(typeof askPinCodeWhenSending === 'undefined' || askPinCodeWhenSending === '0')
 
         const {
             colors,
@@ -348,15 +350,15 @@ class SettingsMainScreen extends React.Component {
                                     iconType="pinCode"
                                     onPress={this.handleChangeLockScreenStatus}
                                     rightContent="switch"
-                                    switchParams={{ value: !!lock_screen_status, onPress: this.handleChangeLockScreenStatus }}
+                                    switchParams={{ value: !!lockScreenStatus, onPress: this.handleChangeLockScreenStatus }}
                                 />
                                 <ListItem
                                     title={strings('settings.security.touch')}
                                     iconType="biometricLock"
                                     onPress={this.handleChangeTouchIDStatus}
                                     rightContent="switch"
-                                    disabled={!lock_screen_status}
-                                    switchParams={{ value: !!lock_screen_status && !!touchID_status, onPress: this.handleChangeTouchIDStatus }}
+                                    disabled={!lockScreenStatus}
+                                    switchParams={{ value: !!lockScreenStatus && !!touchIDStatus, onPress: this.handleChangeTouchIDStatus }}
                                 />
                                 <ListItem
                                     title={strings('settings.security.askPINCodeToSend')}
@@ -364,15 +366,15 @@ class SettingsMainScreen extends React.Component {
                                     iconType="transactionConfirmation"
                                     onPress={this.changeAskWhenSending}
                                     rightContent="switch"
-                                    disabled={!lock_screen_status}
-                                    switchParams={{ value: !!lock_screen_status && !!tmpAskPinCodeWhenSending, onPress: this.changeAskWhenSending }}
+                                    disabled={!lockScreenStatus}
+                                    switchParams={{ value: !!lockScreenStatus && !!askPinCodeWhenSending, onPress: this.changeAskWhenSending }}
                                 />
                                 <ListItem
                                     title={strings('settings.security.change')}
                                     iconType="changePinCode"
                                     onPress={this.handleChangePassword}
                                     rightContent="arrow"
-                                    disabled={!lock_screen_status}
+                                    disabled={!lockScreenStatus}
                                     last
                                 />
                             </View>

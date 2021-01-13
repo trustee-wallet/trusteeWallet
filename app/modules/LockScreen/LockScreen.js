@@ -23,6 +23,7 @@ import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import Button from '../../components/elements/Button'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeystore'
 
 
 class LockScreen extends Component {
@@ -60,7 +61,7 @@ class LockScreen extends Component {
         Orientation.lockToPortrait()
     }
 
-    finishProcess = () => {
+    finishProcess = async () => {
 
         const { flowType, actionCallback, backData } = this.props.lockScreen
 
@@ -69,30 +70,40 @@ class LockScreen extends Component {
                 flowType: ''
             })
             NavStore.reset('WalletConnectScreen', backData)
+        } else if (flowType === 'JUST_CALLBACK') {
+            setTimeout(() => {
+                actionCallback(false)
+                lockScreenAction.setFlowType({ flowType: '' })
+                lockScreenAction.setActionCallback({ actionCallback: () => {} })
+            }, 500)
         } else if (flowType === 'CREATE_PINCODE') {
-            settingsActions.setSettings('askPinCodeWhenSending', '1')
-            settingsActions.setSettings('lock_screen_status', '1')
+            await SettingsKeystore.setAskPinCodeWhenSending('1')
+            await SettingsKeystore.setLockScreenStatus('1')
+            await settingsActions.getSettings(true)
             lockScreenAction.setFlowType({
                 flowType: ''
             })
             NavStore.reset('SettingsScreenStack')
         } else if (flowType === 'DELETE_PINCODE') {
-            settingsActions.setSettings('lock_screen_status', '0')
-            deleteUserPinCode('reactNativePinCode')
+            await SettingsKeystore.setLockScreenStatus('0')
+            await deleteUserPinCode('reactNativePinCode')
+            await settingsActions.getSettings(true)
             lockScreenAction.setFlowType({
                 flowType: ''
             })
             NavStore.reset('SettingsScreenStack')
         } else if (flowType === 'CHANGE_TOUCHID_STATUS') {
-            const { touchID_status } = this.props.settings.data
-            settingsActions.setSettings('touchID_status', touchID_status === '0' || typeof touchID_status === 'undefined' ? '1' : '0')
+            const touchIDStatus = await SettingsKeystore.getTouchIDStatus()
+            await SettingsKeystore.setTouchIDStatus(touchIDStatus === '0' ? '1' : '0')
+            await settingsActions.getSettings(true)
             lockScreenAction.setFlowType({
                 flowType: ''
             })
             NavStore.reset('SettingsScreenStack')
         } else if (flowType === 'CHANGE_ASKING_STATUS') {
-            const { askPinCodeWhenSending } = this.props.settings.data
-            settingsActions.setSettings('askPinCodeWhenSending', askPinCodeWhenSending === '0' || typeof askPinCodeWhenSending === 'undefined' ? '1' : '0')
+            const askPinCodeWhenSending = await SettingsKeystore.getAskPinCodeWhenSending()
+            await SettingsKeystore.setAskPinCodeWhenSending(askPinCodeWhenSending === '0' ? '1' : '0')
+            await settingsActions.getSettings(true)
             lockScreenAction.setFlowType({
                 flowType: ''
             })

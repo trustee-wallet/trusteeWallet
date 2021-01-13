@@ -1,4 +1,6 @@
-
+/**
+ * @version 0.30
+ */
 import React from 'react'
 import {
     View,
@@ -37,19 +39,9 @@ class AdvancedWalletScreen extends React.Component {
         headerHeight: 0,
         isEditing: false,
         walletName: this.props.wallet.walletName,
-        needPasswordConfirm: false
     }
 
     inputRef = React.createRef()
-
-    componentDidMount = () => {
-        const settings = this.props.settingsStore.data
-        if (+settings.lock_screen_status) {
-            this.setState({
-                needPasswordConfirm: true
-            })
-        }
-    }
 
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0);
@@ -75,25 +67,16 @@ class AdvancedWalletScreen extends React.Component {
         }
     }
 
-    handleOpenRecoveryPhrase = (passwordCheck = true) => {
+    handleOpenRecoveryPhrase = (needPassword = true) => {
         setFlowType({ flowType: 'BACKUP_WALLET' })
-        // @ksu check this plz
         setLoaderStatus(false)
 
-        const { needPasswordConfirm } = this.state
-
-        const { settingsStore } = this.props
-
-        let passwordChecked = false
-        if (needPasswordConfirm && typeof settingsStore.data.askPinCodeWhenSending !== 'undefined' && +settingsStore.data.askPinCodeWhenSending) {
-            if (passwordCheck) {
-                lockScreenAction.setFlowType({ flowType: 'CONFIRM_WALLET_PHRASE' })
-                lockScreenAction.setActionCallback({ actionCallback: this.handleOpenRecoveryPhrase })
-                NavStore.goNext('LockScreen')
-                return
-            } else {
-                passwordChecked = true
-            }
+        const { lockScreenStatus } = this.props.settingsStore.keystore
+        if (needPassword && +lockScreenStatus) {
+            lockScreenAction.setFlowType({ flowType: 'CONFIRM_WALLET_PHRASE' })
+            lockScreenAction.setActionCallback({ actionCallback: this.handleOpenRecoveryPhrase })
+            NavStore.goNext('LockScreen')
+            return
         }
         NavStore.goNext('BackupStep0Screen', { flowSubtype: 'show' })
     }
@@ -175,7 +158,7 @@ class AdvancedWalletScreen extends React.Component {
                                 title={strings('settings.walletManagement.advanced.recoveryPhraseTitle')}
                                 subtitle={strings('settings.walletManagement.advanced.recoveryPhraseSubtitle')}
                                 iconType="key"
-                                onPress={this.handleOpenRecoveryPhrase}
+                                onPress={() => this.handleOpenRecoveryPhrase(true)}
                                 rightContent="arrow"
                                 last
                             />

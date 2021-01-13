@@ -35,9 +35,9 @@ class AppLockScreenIdleTime {
         if (param.state === 'background') {
 
             BackgroundTimer.runBackgroundTimer(() => {
-                const { lock_screen_status } = store.getState().settingsStore.data
+                const { lockScreenStatus } = store.getState().settingsStore.keystore
 
-                if (+lock_screen_status) {
+                if (+lockScreenStatus) {
                     Log.daemon('LockScreen on background timer runned Android')
                     lockScreenAction.setFlowType({
                         flowType: ''
@@ -54,9 +54,9 @@ class AppLockScreenIdleTime {
     handleLockScreenStateIOS = (param) => {
         if (param.state === 'background') {
             this.lockScreenTimerIOS = setTimeout(() => {
-                const { lock_screen_status } = store.getState().settingsStore.data
+                const { lockScreenStatus } = store.getState().settingsStore.keystore
 
-                if (+lock_screen_status) {
+                if (+lockScreenStatus) {
                     Log.daemon('LockScreen on background timer runned Ios')
 
                     lockScreenAction.setFlowType({

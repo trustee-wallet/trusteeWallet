@@ -72,7 +72,7 @@ class InitScreen extends Component {
             })
         }
         if (props.data.init === true) { //this one is making "freezing"//&& this.props.data.init !== props.data.init) {
-            if (+props.settings.data.lock_screen_status) {
+            if (+props.settings.keystore.lockScreenStatus) {
                 Log.log('InitScreen navigated to LockScreen')
                 NavStore.reset('LockScreen')
             } else {

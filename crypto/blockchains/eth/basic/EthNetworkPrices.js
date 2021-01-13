@@ -68,6 +68,7 @@ class EthNetworkPrices {
         // noinspection ES6MissingAwait
         MarketingEvent.logEvent('estimate_fee_eth_result', logData)
 
+        console.log('CACHE_FEES_ETH', CACHE_FEES_ETH)
         return this._format()
     }
 
@@ -122,8 +123,10 @@ class EthNetworkPrices {
 function addMultiply(blocks, fee, externalSettings) {
     if (typeof externalSettings['ETH_CURRENT_PRICE_' + blocks] !== 'undefined' && externalSettings['ETH_CURRENT_PRICE_' + blocks] > 0) {
         CACHE_FEES_ETH[blocks] = externalSettings['ETH_CURRENT_PRICE_' + blocks]
+        BlocksoftCryptoLog.log('EthNetworkPricesProvider current price result', {blocks, fee, current: externalSettings['ETH_CURRENT_PRICE_' + blocks], res: CACHE_FEES_ETH[blocks]})
     } else if (typeof externalSettings['ETH_MULTI_' + blocks] !== 'undefined' && externalSettings['ETH_MULTI_' + blocks] > 0) {
         CACHE_FEES_ETH[blocks] = BlocksoftUtils.mul(fee, externalSettings['ETH_MULTI_' + blocks])
+        BlocksoftCryptoLog.log('EthNetworkPricesProvider addMultiply' + blocks + ' result', {blocks, fee, mul: externalSettings['ETH_MULTI_' + blocks], res: CACHE_FEES_ETH[blocks]})
     } else if (typeof externalSettings.ETH_MULTI !== 'undefined' && externalSettings.ETH_MULTI > 0) {
         CACHE_FEES_ETH[blocks] = BlocksoftUtils.mul(fee, externalSettings.ETH_MULTI)*1
         BlocksoftCryptoLog.log('EthNetworkPricesProvider addMultiply result', {blocks, fee, mul: externalSettings.ETH_MULTI, res: CACHE_FEES_ETH[blocks]})

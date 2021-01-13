@@ -17,6 +17,8 @@ import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
 import AppNotificationPushSave from './AppNotificationPushSave'
 import AppNotificationPopup from './AppNotificationPopup'
 import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
+import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeystore'
+import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
 const ASYNC_CACHE_TIME = 'pushTokenTime'
@@ -199,7 +201,7 @@ export default new class AppNotificationListener {
             await this._onRefresh(fcmToken)
             await AsyncStorage.setItem(ASYNC_CACHE_TIME, now + '')
         } else {
-            // console.log('PUSH getToken1 cache result ' + fcmToken)
+            console.log('PUSH getToken1 cache result ', fcmToken)
         }
 
         // @ts-ignore
@@ -218,28 +220,45 @@ export default new class AppNotificationListener {
     }
 
     createMessageListener = async (): Promise<void> => {
-
         try {
             const startMessage = await messaging().getInitialNotification()
 
             if (startMessage && typeof startMessage.messageId !== 'undefined') {
-                await Log.log('PUSH _onMessage startMessage not null', startMessage)
-
-                UpdateAppNewsDaemon.goToNotifications('AFTER_APP')
-                const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
-
-                await UpdateAppNewsDaemon.updateAppNewsDaemon()
-                await UpdateAppNewsListDaemon.updateAppNewsListDaemon()
-
-                await Log.log('PUSH _onMessage startMessage unified', unifiedPush)
-                if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
-                    await Log.log('PUSH _onMessage startMessage app is inited first')
-                    if (await AppNewsActions.onOpen(unifiedPush)) {
-                        NavStore.reset('NotificationsScreen')
-                    }
+                const lockScreen = await SettingsKeystore.getLockScreenStatus()
+                if (+lockScreen) {
+                    await Log.log('PUSH _onMessage startMessage not null but lockScreen is needed', startMessage)
+                    const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
+                    lockScreenAction.setFlowType({
+                        flowType: 'JUST_CALLBACK'
+                    })
+                    lockScreenAction.setActionCallback({
+                        actionCallback: async () => {
+                            await Log.log('PUSH _onMessage startMessage after lock screen')
+                            if (await AppNewsActions.onOpen(unifiedPush)) {
+                                NavStore.reset('NotificationsScreen')
+                            }
+                        }
+                    })
+                    NavStore.reset('LockScreen')
                 } else {
-                    await Log.log('PUSH _onMessage startMessage app is not inited')
-                    await AppNewsActions.onOpen(unifiedPush)
+                    await Log.log('PUSH _onMessage startMessage not null', startMessage)
+                    UpdateAppNewsDaemon.goToNotifications('AFTER_APP')
+
+                    const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
+
+                    await UpdateAppNewsDaemon.updateAppNewsDaemon()
+                    await UpdateAppNewsListDaemon.updateAppNewsListDaemon()
+
+                    await Log.log('PUSH _onMessage startMessage unified', unifiedPush)
+                    if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
+                        await Log.log('PUSH _onMessage startMessage app is inited first')
+                        if (await AppNewsActions.onOpen(unifiedPush)) {
+                            NavStore.reset('NotificationsScreen')
+                        }
+                    } else {
+                        await Log.log('PUSH _onMessage startMessage app is not inited')
+                        await AppNewsActions.onOpen(unifiedPush)
+                    }
                 }
 
                 await Log.log('PUSH _onMessage startMessage finished')
@@ -252,7 +271,6 @@ export default new class AppNotificationListener {
 
         this.messageListener = messaging().onMessage(async (message) => {
             await Log.log('PUSH _onMessage inited')
-
             await AppNotificationPopup.displayPush(message)
         })
 

@@ -6,6 +6,7 @@ import store from '../../../store'
 import SettingsDS from '../../DataSource/Settings/Settings'
 
 import Log from '../../../services/Log/Log'
+import { SettingsKeystore } from './SettingsKeystore'
 
 const settingsDS = new SettingsDS()
 
@@ -53,7 +54,12 @@ const settingsActions = {
             if (updateStore) {
                 dispatch({
                     type: 'UPDATE_SETTINGS',
-                    settings
+                    settings,
+                    keystore : {
+                        lockScreenStatus : await SettingsKeystore.getLockScreenStatus(),
+                        askPinCodeWhenSending : await SettingsKeystore.getAskPinCodeWhenSending(),
+                        touchIDStatus : await SettingsKeystore.getTouchIDStatus()
+                    }
                 })
             }
 

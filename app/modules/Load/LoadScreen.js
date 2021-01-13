@@ -53,7 +53,7 @@ class LoadScreen extends Component {
         Log.log('LoadScreen is receiving props')
 
         if (props.data.init === true) {
-            if (+props.settings.data.lock_screen_status) {
+            if (+props.settings.keystore.lockScreenStatus) {
                 Log.log('InitScreen navigated to LockScreen')
                 NavStore.reset('LockScreen')
             } else {

@@ -9,17 +9,20 @@ import Log from '../../../../../services/Log/Log'
 import BlocksoftDict from '../../../../../../crypto/common/BlocksoftDict'
 
 import currencyActions from '../../../../Stores/Currency/CurrencyActions'
+import { BlocksoftKeysStorage } from '../../../../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import DBInterface from '../../DBInterface'
+import { SettingsKeystore } from '../../../../Stores/Settings/SettingsKeystore'
 
 export default {
-    maxVersion: 94,
+    maxVersion: 95,
     updateQuery: {
         1: {
             queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
             checkQueryString: false,
-            checkQueryField : false
+            checkQueryField: false
         },
         3: {
-            queryString: `ALTER TABLE currency ADD COLUMN is_hidden INTEGER NOT NULL DEFAULT 0`, // if = 1 - removed
+            queryString: `ALTER TABLE currency ADD COLUMN is_hidden INTEGER NOT NULL DEFAULT 0` // if = 1 - removed
         },
         4: {
             queryString: `ALTER TABLE card ADD COLUMN country_code VARCHAR(32) NULL`, // if = 'ua' - ukraine
@@ -27,7 +30,7 @@ export default {
                 try {
                     const { array: cards } = await dbInterface.setQueryString('SELECT * FROM card').query()
 
-                    for(let i = 0; i < cards.length; i++){
+                    for (let i = 0; i < cards.length; i++) {
                         const link = `https://lookup.binlist.net/${cards[i].number}`
                         Log.log('DB/Update Migration 4 axios ' + link)
                         const res = await axios.get(link)
@@ -60,7 +63,7 @@ export default {
             afterFunction: async (dbInterface) => {
                 const { array: cards } = await dbInterface.setQueryString(`SELECT * FROM card`).query()
 
-                for(let i = 0; i < cards.length; i++){
+                for (let i = 0; i < cards.length; i++) {
 
                     const tmpCountry = countries.find(item => item.iso === cards[i].country_code)
 
@@ -83,9 +86,9 @@ export default {
                 try {
                     const { array: cards } = await dbInterface.setQueryString('SELECT * FROM card').query()
 
-                    for(let i = 0; i < cards.length; i++){
+                    for (let i = 0; i < cards.length; i++) {
 
-                        const link =`https://lookup.binlist.net/${cards[i].number}`
+                        const link = `https://lookup.binlist.net/${cards[i].number}`
                         Log.log('DB/Update Migration 7 axios ' + link)
                         const res = await axios.get(link)
 
@@ -111,7 +114,7 @@ export default {
             afterFunction: async (dbInterface) => {
                 const { array: cards } = await dbInterface.setQueryString(`SELECT * FROM card`).query()
 
-                for(let i = 0; i < cards.length; i++){
+                for (let i = 0; i < cards.length; i++) {
 
                     const tmpCountry = countries.find(item => item.iso === cards[i].country_code)
 
@@ -130,10 +133,10 @@ export default {
             }
         },
         9: {
-            queryString: `ALTER TABLE account_balance ADD COLUMN balance_fix DECIMAL(50,20) NULL`,
+            queryString: `ALTER TABLE account_balance ADD COLUMN balance_fix DECIMAL(50,20) NULL`
         },
         10: {
-            queryString: `ALTER TABLE account_balance ADD COLUMN balance_txt VARCHAR(256) NULL`,
+            queryString: `ALTER TABLE account_balance ADD COLUMN balance_txt VARCHAR(256) NULL`
         },
         11: {
             afterFunction: async (dbInterface) => {
@@ -173,12 +176,12 @@ export default {
 
                     let item, currencyCode
                     if (cryptocurrencies) {
-                        for(item of cryptocurrencies){
+                        for (item of cryptocurrencies) {
                             addedCryptocurrencies.push(item.currency_code)
                         }
 
-                        for(currencyCode of BlocksoftDict.Codes) {
-                            if(addedCryptocurrencies.indexOf(currencyCode) === -1){
+                        for (currencyCode of BlocksoftDict.Codes) {
+                            if (addedCryptocurrencies.indexOf(currencyCode) === -1) {
                                 await currencyActions.addCurrency({ currencyCode: currencyCode }, 1, 0)
                             }
                         }
@@ -191,7 +194,7 @@ export default {
             }
         },
         13: {
-            queryString: `ALTER TABLE account_balance ADD COLUMN balance_provider VARCHAR(256) NULL`,
+            queryString: `ALTER TABLE account_balance ADD COLUMN balance_provider VARCHAR(256) NULL`
         },
         14: {
             queryString: `ALTER TABLE wallet ADD COLUMN wallet_is_backed_up INTEGER NULL`,
@@ -208,8 +211,8 @@ export default {
             }
         },
 
-        15 : {
-            queryString : `
+        15: {
+            queryString: `
             CREATE TABLE IF NOT EXISTS custom_currency (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,        
               
@@ -227,8 +230,8 @@ export default {
             `
         },
 
-        16 : {
-            queryString : `
+        16: {
+            queryString: `
             CREATE TABLE IF NOT EXISTS transactions_used_outputs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 currency_code VARCHAR(256) NULL,                
@@ -242,15 +245,15 @@ export default {
         },
 
         17: {
-            queryString: `ALTER TABLE wallet ADD COLUMN wallet_is_subscribed INTEGER NULL`,
+            queryString: `ALTER TABLE wallet ADD COLUMN wallet_is_subscribed INTEGER NULL`
         },
 
         18: {
-            queryString: `ALTER TABLE wallet ADD COLUMN wallet_is_subscribed_json TEXT NULL`,
+            queryString: `ALTER TABLE wallet ADD COLUMN wallet_is_subscribed_json TEXT NULL`
         },
 
-        19 : {
-            queryString : `
+        19: {
+            queryString: `
             CREATE TABLE IF NOT EXISTS transactions_created_inputs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 currency_code VARCHAR(256) NULL,                
@@ -264,8 +267,8 @@ export default {
             `
         },
 
-        20 : {
-            queryString : `
+        20: {
+            queryString: `
             CREATE TABLE IF NOT EXISTS transactions_scanners_tmp (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 currency_code VARCHAR(256) NULL,     
@@ -293,7 +296,7 @@ export default {
         },
 
         22: {
-            queryString: `ALTER TABLE account ADD COLUMN wallet_pub_id INTEGER NULL`,
+            queryString: `ALTER TABLE account ADD COLUMN wallet_pub_id INTEGER NULL`
         },
 
         23: {
@@ -410,7 +413,7 @@ export default {
             queryString: `ALTER TABLE account_balance ADD COLUMN unconfirmed_fix DECIMAL(50,20) NULL`
         },
 
-        43 : {
+        43: {
             queryString: `ALTER TABLE account_balance ADD COLUMN unconfirmed_txt VARCHAR(256) NULL`
         },
 
@@ -418,11 +421,11 @@ export default {
             queryString: `ALTER TABLE wallet_pub ADD COLUMN unconfirmed_fix DECIMAL(50,20) NULL`
         },
 
-        45 : {
+        45: {
             queryString: `ALTER TABLE wallet_pub ADD COLUMN unconfirmed_txt VARCHAR(256) NULL`
         },
 
-        46 : {
+        46: {
             queryString: `CREATE TABLE IF NOT EXISTS app_task (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 wallet_hash VARCHAR(256) NULL,
@@ -438,7 +441,7 @@ export default {
             )`
         },
 
-        47 : {
+        47: {
             queryString: ` CREATE TABLE IF NOT EXISTS app_news (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 wallet_hash VARCHAR(256) NULL,
@@ -461,20 +464,20 @@ export default {
             `
         },
 
-        48 : {
+        48: {
             queryString: `ALTER TABLE wallet_pub ADD COLUMN transactions_scan_log TEXT NULL`
         },
 
-        49 : {
+        49: {
             queryString: `ALTER TABLE app_news ADD COLUMN news_need_popup INTEGER NULL`
         },
 
-        50 : {
+        50: {
             queryString: `ALTER TABLE app_news ADD COLUMN news_server_id VARCHAR(256) NULL`
         },
 
-        51 : {
-            queryString : `ALTER TABLE transactions ADD transaction_fee_currency_code VARCHAR(256) NULL`
+        51: {
+            queryString: `ALTER TABLE transactions ADD transaction_fee_currency_code VARCHAR(256) NULL`
         },
 
         52: {
@@ -485,7 +488,7 @@ export default {
             afterFunction: async (dbInterface) => {
                 try {
                     const version = VersionCheck.getCurrentVersion().split('.')[2]
-                    if(version >= 407) {
+                    if (version >= 407) {
                         await dbInterface.setQueryString(`INSERT INTO settings ([paramKey], [paramValue]) VALUES ('btcShowTwoAddress', '1')`).query()
                     }
                     Log.log('DB/Update afterFunction - Migration 53 finish')
@@ -511,20 +514,20 @@ export default {
             queryString: `DROP TABLE IF EXISTS wallet_backup`
         },
 
-        58 : {
-            queryString : `DROP TABLE IF EXISTS currency_history`
+        58: {
+            queryString: `DROP TABLE IF EXISTS currency_history`
         },
 
-        59 : {
-            queryString : `UPDATE account SET transactions_scan_log=''`
+        59: {
+            queryString: `UPDATE account SET transactions_scan_log=''`
         },
 
-        60 : {
-            queryString : `UPDATE account_balance SET balance_scan_log=''`
+        60: {
+            queryString: `UPDATE account_balance SET balance_scan_log=''`
         },
 
-        61 : {
-            queryString : `UPDATE wallet_pub SET transactions_scan_log='', balance_scan_log=''`
+        61: {
+            queryString: `UPDATE wallet_pub SET transactions_scan_log='', balance_scan_log=''`
         },
 
         62: {
@@ -539,12 +542,12 @@ export default {
             queryString: `ALTER TABLE transactions ADD COLUMN hidden_at DATETIME NULL`
         },
 
-        65 : {
-            queryString : `UPDATE transactions SET transactions_scan_log=''`
+        65: {
+            queryString: `UPDATE transactions SET transactions_scan_log=''`
         },
 
-        66 : {
-            queryString : `UPDATE wallet SET wallet_allow_replace_by_fee=1`
+        66: {
+            queryString: `UPDATE wallet SET wallet_allow_replace_by_fee=1`
         },
 
         67: {
@@ -652,16 +655,16 @@ export default {
             queryString: `ALTER TABLE transactions ADD COLUMN bse_order_id_out VARCHAR(256) NULL`
         },
 
-        89 : {
+        89: {
             queryString: `ALTER TABLE app_news ADD COLUMN news_server_hash VARCHAR(256) NULL`
         },
 
-        90 : {
-            queryString : `ALTER TABLE transactions ADD COLUMN bse_order_data TEXT NULL`
+        90: {
+            queryString: `ALTER TABLE transactions ADD COLUMN bse_order_data TEXT NULL`
         },
 
-        91 : {
-            queryString : `ALTER TABLE transactions ADD COLUMN mined_at DATETIME NULL`
+        91: {
+            queryString: `ALTER TABLE transactions ADD COLUMN mined_at DATETIME NULL`
         },
 
         92: {
@@ -675,5 +678,26 @@ export default {
         94: {
             queryString: `ALTER TABLE transactions ADD COLUMN address_to_basic VARCHAR(256) NULL`
         },
+
+        95: {
+            afterFunction: async (dbInterface) => {
+                const lock = await SettingsKeystore.getLockScreenStatus()
+                if (lock !== '1') {
+                    const settings = await dbInterface.setQueryString('SELECT * FROM settings').query()
+                    if (typeof settings.array !== 'undefined' && settings.array) {
+                        for (const row of settings.array) {
+                            if (row.paramKey === 'lock_screen_status') {
+                                await SettingsKeystore.setLockScreenStatus(row.paramValue)
+                            } else if (row.paramKey === 'touchID_status') {
+                                await SettingsKeystore.setTouchIDStatus(row.paramValue)
+                            } else if (row.paramKey === 'askPinCodeWhenSending') {
+                                await SettingsKeystore.setAskPinCodeWhenSending(row.paramValue)
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
     }
 }
