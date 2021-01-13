@@ -1,6 +1,5 @@
 import BlocksoftAxios from './BlocksoftAxios'
 import BlocksoftCryptoLog from './BlocksoftCryptoLog'
-import { createDispatchHook } from 'react-redux'
 
 const API_PATH = 'https://microscanners.trustee.deals/fees'
 

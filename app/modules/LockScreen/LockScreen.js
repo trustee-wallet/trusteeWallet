@@ -24,6 +24,7 @@ import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import Button from '../../components/elements/Button'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeystore'
+import Log from '../../services/Log/Log'
 
 
 class LockScreen extends Component {
@@ -231,8 +232,9 @@ class LockScreen extends Component {
     render() {
         MarketingAnalytics.setCurrentScreen('LockScreen.index')
         const { flowType } = this.props.lockScreen
-        let { touchID_status: touchIDStatus } = this.props.settings.data
+        let touchIDStatus = this.props.settings.keystore.touchIDStatus
         touchIDStatus = +touchIDStatus
+        Log.log('LockScreen.render with touchIDStatus ' + JSON.stringify(touchIDStatus))
 
         const { colors, isLight } = this.context
 

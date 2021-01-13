@@ -45,7 +45,7 @@ class AppLockScreenIdleTime {
                     lockScreenAction.setActionCallback({ actionCallback: () => {} })
                     NavStore.reset('LockScreen')
                 }
-            }, 300000)
+            }, 30000)
         } else {
             BackgroundTimer.stopBackgroundTimer()
         }
@@ -65,7 +65,7 @@ class AppLockScreenIdleTime {
                     lockScreenAction.setActionCallback({ actionCallback: () => {} })
                     NavStore.reset('LockScreen')
                 }
-            }, 300000)
+            }, 30000)
         } else {
             clearTimeout(this.lockScreenTimerIOS)
         }
