@@ -205,7 +205,7 @@ class LockScreen extends Component {
     renderHeader = () => {
         const { flowType } = this.props.lockScreen
 
-        if(flowType !== '') {
+        if(flowType !== '' && flowType !== 'JUST_CALLBACK') {
             return <Header
                 leftType="back"
                 leftAction={this.handleBack}
