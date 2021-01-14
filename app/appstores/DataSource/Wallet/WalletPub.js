@@ -361,7 +361,7 @@ class WalletPub {
             await this.saveWalletPub({ walletHash : params.walletHash, currencyCode: 'BTC', walletPubType: 'btc.44', walletPubValue: xpubs[0], balance : xPubBalances[0].balance, unconfirmed : xPubBalances[0].unconfirmed }, 'fromTrezor')
             await this.saveWalletPub({ walletHash : params.walletHash, currencyCode: 'BTC', walletPubType: 'btc.49', walletPubValue: xpubs[1], balance : xPubBalances[1].balance, unconfirmed : xPubBalances[1].unconfirmed }, 'fromTrezor')
             await this.saveWalletPub({ walletHash : params.walletHash, currencyCode: 'BTC', walletPubType: 'btc.84', walletPubValue: xpubs[2], balance : xPubBalances[2].balance, unconfirmed : xPubBalances[2].unconfirmed }, 'fromTrezor')
-            Log.daemon.log('DS/WalletPub discoverFromTrezor ' + source + ' saved xpubs', {toSave, params, derivations})
+            Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' saved xpubs', {toSave, params, derivations})
         }
         const check = await this.getWalletPubs({walletHash : params.walletHash, currencyCode: 'BTC'})
 
