@@ -194,7 +194,7 @@ class NotificationsScreen extends React.Component {
     }
 
     handleOpenNotification = async (notification, title, subtitle) => {
-      return AppNewsActions.onOpen(notification, title, subtitle)
+      return AppNewsActions.onOpen(notification, title, subtitle, false)
     }
 
     render() {

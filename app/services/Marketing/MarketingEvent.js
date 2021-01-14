@@ -32,7 +32,8 @@ class MarketingEvent {
     }
 
     UI_DATA = {
-        IS_LIGHT : '?'
+        IS_LIGHT : '?',
+        IS_LOCKED : false
     }
 
     /**

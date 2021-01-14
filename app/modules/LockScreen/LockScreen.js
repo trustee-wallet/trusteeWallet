@@ -25,6 +25,7 @@ import Button from '../../components/elements/Button'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeystore'
 import Log from '../../services/Log/Log'
+import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 
 class LockScreen extends Component {
@@ -65,6 +66,7 @@ class LockScreen extends Component {
     finishProcess = async () => {
 
         const { flowType, actionCallback, backData } = this.props.lockScreen
+        MarketingEvent.UI_DATA.IS_LOCKED = false
 
         if (flowType === 'WALLET_CONNECT') {
             lockScreenAction.setFlowType({
@@ -206,6 +208,7 @@ class LockScreen extends Component {
         const { flowType } = this.props.lockScreen
 
         if(flowType !== '' && flowType !== 'JUST_CALLBACK') {
+            MarketingEvent.UI_DATA.IS_LOCKED = false
             return <Header
                 leftType="back"
                 leftAction={this.handleBack}
@@ -213,6 +216,8 @@ class LockScreen extends Component {
                 rightAction={this.handleClose}
                 setHeaderHeight={this.setHeaderHeight}
             />
+        } else {
+            MarketingEvent.UI_DATA.IS_LOCKED = true
         }
     }
 
@@ -221,11 +226,14 @@ class LockScreen extends Component {
 
         if(flowType === 'CONFIRM_SEND_CRYPTO') {
             return () => {
+                MarketingEvent.UI_DATA.IS_LOCKED = false
                 lockScreenAction.setFlowType({ flowType: '' })
                 lockScreenAction.setActionCallback({ actionCallback: () => {} })
             }
         } else {
-            return () => {}
+            return () => {
+                MarketingEvent.UI_DATA.IS_LOCKED = false
+            }
         }
     }
 

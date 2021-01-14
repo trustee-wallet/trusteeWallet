@@ -11,21 +11,27 @@ import Log from '../Log/Log'
 import NavStore from '../../components/navigation/NavStore'
 import AppNotificationPushSave from './AppNotificationPushSave'
 import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
+import MarketingEvent from '../Marketing/MarketingEvent'
 
 export default new class AppNotificationPopup {
 
     async onOpened(message: any) {
         if (typeof message.foreground === 'undefined' || !message.foreground) {
-            return false
+            if (!MarketingEvent.UI_DATA.IS_LOCKED) {
+                await Log.log('AppNotificationPopup.onOpened message is not foreground')
+                return false
+            } else {
+                await Log.log('AppNotificationPopup.onOpened message is not foreground but locked')
+            }
         }
         try {
-            await Log.log('AppNotificationPopup.onOpened message', message)
+            await Log.log('AppNotificationPopup.onOpened message')
             const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(message)
             if (await AppNewsActions.onOpen(unifiedPush)) {
                 NavStore.reset('NotificationsScreen')
             }
         } catch (e) {
-            Log.err('AppNotificationPopup.onOpened error ' + e.message)
+            await Log.err('AppNotificationPopup.onOpened error ' + e.message)
         }
     }
 

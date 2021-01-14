@@ -12,6 +12,7 @@ import store from '../../store'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 
 import Log from '../../services/Log/Log'
+import MarketingEvent from '../Marketing/MarketingEvent'
 
 class AppLockScreenIdleTime {
 
@@ -33,16 +34,15 @@ class AppLockScreenIdleTime {
 
     handleLockScreenStateAndroid = (param) => {
         if (param.state === 'background') {
-
             BackgroundTimer.runBackgroundTimer(() => {
                 const { lockScreenStatus } = store.getState().settingsStore.keystore
-
                 if (+lockScreenStatus) {
                     Log.daemon('LockScreen on background timer runned Android')
                     lockScreenAction.setFlowType({
                         flowType: ''
                     })
                     lockScreenAction.setActionCallback({ actionCallback: () => {} })
+                    MarketingEvent.UI_DATA.IS_LOCKED = true
                     NavStore.reset('LockScreen')
                 }
             }, 30000)
@@ -55,14 +55,13 @@ class AppLockScreenIdleTime {
         if (param.state === 'background') {
             this.lockScreenTimerIOS = setTimeout(() => {
                 const { lockScreenStatus } = store.getState().settingsStore.keystore
-
                 if (+lockScreenStatus) {
                     Log.daemon('LockScreen on background timer runned Ios')
-
                     lockScreenAction.setFlowType({
                         flowType: ''
                     })
                     lockScreenAction.setActionCallback({ actionCallback: () => {} })
+                    MarketingEvent.UI_DATA.IS_LOCKED = true
                     NavStore.reset('LockScreen')
                 }
             }, 30000)

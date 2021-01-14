@@ -13,6 +13,8 @@ import AppNotificationPopup from '../../../services/AppNotification/AppNotificat
 import NavStore from '../../../components/navigation/NavStore'
 import { strings } from '../../../services/i18n'
 import { showModal } from '../Modal/ModalActions'
+import MarketingEvent from '../../../services/Marketing/MarketingEvent'
+import lockScreenAction from '../LockScreen/LockScreenActions'
 
 export namespace AppNewsActions {
 
@@ -22,7 +24,24 @@ export namespace AppNewsActions {
      * @param subtitle
      * return true when NavStore need to be called outside the function (to reload notifications screen if called from local push open etc)
      */
-    export const onOpen = async (notification : any, title : string = '', subtitle : string = '') : Promise<boolean> => {
+    export const onOpen = async (notification : any, title : string = '', subtitle : string = '', checkLock = true) : Promise<boolean> => {
+        if (checkLock && MarketingEvent.UI_DATA.IS_LOCKED) {
+            await Log.log('ACT/AppNewsActions onOpen need unlock')
+            lockScreenAction.setFlowType({
+                flowType: 'JUST_CALLBACK'
+            })
+            lockScreenAction.setActionCallback({
+                actionCallback: async () => {
+                    await Log.log('ACT/AppNewsActions onOpen after lock screen')
+                    if (await AppNewsActions.onOpen(notification, title, subtitle, false)) {
+                        NavStore.reset('NotificationsScreen')
+                    }
+                }
+            })
+            NavStore.reset('LockScreen')
+            return false
+        }
+
         await Log.log('ACT/AppNewsActions onOpen', notification)
         if (notification.newsOpenedAt === null) {
             await AppNewsActions.markAsOpened(notification.id)

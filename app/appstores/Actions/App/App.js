@@ -120,6 +120,10 @@ class App {
 
             this.initStatus = 'await ExchangeActions.init()'
 
+            AppLockScreenIdleTime.init()
+
+            this.initStatus = 'AppLockScreenIdleTime.init()'
+
             if (UpdateAppNewsDaemon.isGoToNotifications('AFTER_APP')) {
                 NavStore.reset('NotificationsScreen')
             } else {
@@ -136,15 +140,11 @@ class App {
 
             Daemon.start()
 
-            this.initStatus = 'updateAppNewsDaemon.fromServer'
+            this.initStatus = 'Daemon.start()'
 
             await UpdateAppNewsDaemon.updateAppNewsDaemon({force: true})
 
-            this.initStatus = 'AppLockScreenIdleTime.init'
-
-            AppLockScreenIdleTime.init()
-
-            this.initStatus = 'AppLockScreenIdleTime.init()'
+            this.initStatus = 'updateAppNewsDaemon.fromServer'
 
             // noinspection ES6MissingAwait
             setCards()

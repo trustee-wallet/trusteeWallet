@@ -201,7 +201,7 @@ export default new class AppNotificationListener {
             await this._onRefresh(fcmToken)
             await AsyncStorage.setItem(ASYNC_CACHE_TIME, now + '')
         } else {
-            console.log('PUSH getToken1 cache result ', fcmToken)
+            // console.log('PUSH getToken1 cache result ', fcmToken)
         }
 
         // @ts-ignore
@@ -233,8 +233,8 @@ export default new class AppNotificationListener {
                     })
                     lockScreenAction.setActionCallback({
                         actionCallback: async () => {
-                            await Log.log('PUSH _onMessage startMessage after lock screen')
-                            if (await AppNewsActions.onOpen(unifiedPush)) {
+                            await Log.log('PUSH _onMessage startMessage after lock screen', unifiedPush)
+                            if (await AppNewsActions.onOpen(unifiedPush, '', '', false)) {
                                 NavStore.reset('NotificationsScreen')
                             }
                         }
@@ -270,12 +270,12 @@ export default new class AppNotificationListener {
         }
 
         this.messageListener = messaging().onMessage(async (message) => {
-            await Log.log('PUSH _onMessage inited')
+            await Log.log('PUSH _onMessage inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
             await AppNotificationPopup.displayPush(message)
         })
 
         await messaging().onNotificationOpenedApp(async (message) => {
-            await Log.log('PUSH _onNotificationOpened inited')
+            await Log.log('PUSH _onNotificationOpened inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
             await AppNotificationPopup.onOpened(message)
         })
 
