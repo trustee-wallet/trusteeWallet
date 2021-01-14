@@ -26,7 +26,7 @@ export default class TrxTronscanProvider {
                 BlocksoftCryptoLog.log('TrxTronscanProvider.get from cache', address + ' => ' + tokenName + ' : ' + CACHE_TRONSCAN[address][tokenName])
                 const frozen = typeof CACHE_TRONSCAN[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozen'] : 0
                 const frozenEnergy = typeof CACHE_TRONSCAN[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozenEnergy'] : 0
-                const voteTotal = typeof CACHE_TRONSCAN[address].voteTotal !== 'undefined' ? typeof CACHE_TRONSCAN[address].voteTotal : 0
+                const voteTotal = typeof CACHE_TRONSCAN[address].voteTotal !== 'undefined' ? CACHE_TRONSCAN[address].voteTotal : 0
                 return { balance: CACHE_TRONSCAN[address][tokenName], voteTotal, frozen, frozenEnergy, unconfirmed : 0, provider: 'tronscan-cache' }
             }
         }
