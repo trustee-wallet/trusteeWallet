@@ -10,6 +10,9 @@ import accountDS from '../../DataSource/Account/Account'
 import appTaskDS from '../../DataSource/AppTask/AppTask'
 import accountBalanceActions from '../Account/AccountBalancesActions'
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
+import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
+import UpdateAppTasksDaemon from '../../../daemons/back/UpdateAppTasksDaemon'
+import WalletHDActions from '../../Actions/WalletHDActions'
 
 const { dispatch } = store
 
@@ -65,7 +68,12 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
         const prep = []
         if (source === 'IMPORT') {
-            // oldstyle derivations = await walletPubDS.discoverOnImport({ walletHash: storedKey, derivations })
+            try {
+                await WalletHDActions.hdFromTrezor({ walletHash: storedKey, force: false, currencyCode: 'BTC' }, 'IMPORT')
+                await walletDS.updateWallet({ walletHash : storedKey, walletIsHd: 1 })
+            } catch (e) {
+                // do nothing
+            }
         }
 
         await accountDS.discoverAccounts({ walletHash: storedKey, fullTree: false, source }, source)
@@ -76,6 +84,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
          * @namespace Flow.updateAppTasks
          */
         const initedCurrencyCodes = await accountBalanceActions.initBalances(storedKey)
+        /*
         if (source === 'IMPORT') {
             prep.push({
                 walletHash: storedKey,
@@ -110,6 +119,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
             }
             await appTaskDS.saveAppTasks(prep)
         }
+        */
 
         Log.log('ACT/MStore proceedSaveGeneratedWallet finished save storedWallet ' + storedKey)
 
