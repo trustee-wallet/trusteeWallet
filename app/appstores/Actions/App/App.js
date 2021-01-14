@@ -59,8 +59,6 @@ class App {
 
             this.initStatus = 'FilePermissions.init'
 
-            AppNotification.init()
-
             Orientation.lockToPortrait()
 
             const { init } = getState().mainStore
@@ -103,6 +101,10 @@ class App {
 
                 return
             }
+
+            await AppNotification.init()
+
+            this.initStatus = 'await AppNotification.init()'
 
             await customCurrencyActions.importCustomCurrenciesToDict()
 
