@@ -162,13 +162,16 @@ class SendScreen extends SendBasicScreenScreen {
         const sendScreenData = SendTmpData.getData()
         const { account, cryptoCurrency, wallet } = SendActions.findWalletPlus(sendScreenData.currencyCode)
 
-        let selectedFee = false // typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee
+        let selectedFee = false // typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
         if (!selectedFee) {
             const tmp = SendTmpData.getCountedFees()
             if (typeof tmp.selectedFee !== 'undefined' && tmp.selectedFee) {
                 selectedFee = tmp.selectedFee
             }
             sendScreenData.selectedFee = selectedFee
+            if (config.debug.sendLogs) {
+                console.log('SendScreen.init selectedFee', JSON.parse(JSON.stringify({tmp, selectedFee, sendScreenData})))
+            }
         }
 
         const inputType = sendScreenData.uiInputType !== 'any' ? sendScreenData.uiInputType : this.state.inputType
@@ -254,12 +257,6 @@ class SendScreen extends SendBasicScreenScreen {
                         })
 
                         if (needRecount) {
-                            sendScreenData.selectedFee = false
-                            SendTmpData.setData(sendScreenData)
-                            SendTmpData.setSelectedFee({ })
-                            this.setState({
-                                sendScreenData
-                            })
                             this.recountFees(sendScreenData, 'Send.SendScreen.init recounting')
                         }
 

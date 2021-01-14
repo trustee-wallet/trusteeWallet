@@ -6,12 +6,12 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 
-import { 
-    View, 
+import {
+    View,
     ScrollView,
-    Dimensions, 
-    Keyboard, 
-    Text, 
+    Dimensions,
+    Keyboard,
+    Text,
     TouchableOpacity,
 } from 'react-native'
 
@@ -43,6 +43,7 @@ import Log from '../../services/Log/Log'
 import TextInput from '../../components/elements/new/TextInput'
 
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import config from '../../config/config'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -63,7 +64,7 @@ class SendAdvancedSettingsScreen extends Component {
             dropMenu: false,
             devMode: false,
             isCustomFee: false,
-            
+
             comment: '',
 
             headerHeight: 0,
@@ -307,6 +308,9 @@ class SendAdvancedSettingsScreen extends Component {
         SendTmpData.setData(sendScreenData)
         SendTmpData.setSelectedFee(selectedFee)
         SendTmpData.setComment(comment)
+        if (config.debug.sendLogs) {
+            console.log('Send.SendAdvancedSettings.handleApply', JSON.parse(JSON.stringify({selectedFee, sendScreenData, comment, 'state' : this.state.isCustomFee})))
+        }
         NavStore.goBack()
     }
 
