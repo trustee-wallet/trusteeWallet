@@ -372,44 +372,51 @@ export default class EthScannerProcessor extends EthBasic {
         let feeCurrencyCode = 'ETH'
 
         if (this._tokenAddress) {
+            let failToken = false
             if (typeof transaction.tokenTransfers === 'undefined') {
-                return false
-            }
-            let tmp
-            let found = false
-            amount = new BlocksoftBN(0)
-            for (tmp of transaction.tokenTransfers) {
-                if (tmp.token.toLowerCase() === this._tokenAddress.toLowerCase()) {
-                    tmp.from = tmp.from.toLowerCase()
-                    tmp.to = tmp.to.toLowerCase()
-                    if (tmp.to !== address && tmp.from !== address) {
-                        continue
-                    }
-                    if (tmp.to === address) {
-                        fromAddress = tmp.from
-                        amount.add(tmp.value)
-                    } else if (tmp.from === address) {
-                        if (this._delegateAddress && tmp.to.toLowerCase() === this._delegateAddress.toLowerCase()) {
-                            fee = tmp.value
-                            additional.feeType = 'DELEGATE'
-                            feeCurrencyCode = this._settings.currencyCode || 'DELEGATE'
-                        } else {
-                            toAddress = tmp.to
-                            amount.diff(tmp.value)
-                        }
-                    }
-                    found = true
+                if (this._tokenAddress === toAddress) {
+                    failToken = true
+                } else {
+                    return false
                 }
             }
-            amount = amount.get()
-            if (amount < 0) {
-                amount = -1 * amount
-                fromAddress = address
-            } else {
-                toAddress = address
-            }
-            if (!found) {
-                return false
+            if (!failToken) {
+                let tmp
+                let found = false
+                amount = new BlocksoftBN(0)
+                for (tmp of transaction.tokenTransfers) {
+                    if (tmp.token.toLowerCase() === this._tokenAddress.toLowerCase()) {
+                        tmp.from = tmp.from.toLowerCase()
+                        tmp.to = tmp.to.toLowerCase()
+                        if (tmp.to !== address && tmp.from !== address) {
+                            continue
+                        }
+                        if (tmp.to === address) {
+                            fromAddress = tmp.from
+                            amount.add(tmp.value)
+                        } else if (tmp.from === address) {
+                            if (this._delegateAddress && tmp.to.toLowerCase() === this._delegateAddress.toLowerCase()) {
+                                fee = tmp.value
+                                additional.feeType = 'DELEGATE'
+                                feeCurrencyCode = this._settings.currencyCode || 'DELEGATE'
+                            } else {
+                                toAddress = tmp.to
+                                amount.diff(tmp.value)
+                            }
+                        }
+                        found = true
+                    }
+                }
+                amount = amount.get()
+                if (amount < 0) {
+                    amount = -1 * amount
+                    fromAddress = address
+                } else {
+                    toAddress = address
+                }
+                if (!found) {
+                    return false
+                }
             }
         }
 
