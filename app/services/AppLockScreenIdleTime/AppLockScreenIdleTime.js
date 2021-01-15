@@ -45,7 +45,7 @@ class AppLockScreenIdleTime {
                     MarketingEvent.UI_DATA.IS_LOCKED = true
                     NavStore.reset('LockScreen')
                 }
-            }, 30000)
+            }, 300)
         } else {
             BackgroundTimer.stopBackgroundTimer()
         }
@@ -64,7 +64,7 @@ class AppLockScreenIdleTime {
                     MarketingEvent.UI_DATA.IS_LOCKED = true
                     NavStore.reset('LockScreen')
                 }
-            }, 30000)
+            }, 300)
         } else {
             clearTimeout(this.lockScreenTimerIOS)
         }

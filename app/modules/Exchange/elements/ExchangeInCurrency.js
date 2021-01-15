@@ -235,7 +235,7 @@ class ExchangeInCurrency extends Component {
         const { selectedInCurrency, selectedInAccount, exchangeStore } = this.props
 
         let showUnconfirmed = false
-        if (selectedInAccount.unconfirmedPretty.toString() !== '0' && selectedInAccount.unconfirmedPretty.toString().indexOf('-') === -1) {
+        if (typeof selectedInAccount !== 'undefined' && typeof selectedInAccount.unconfirmedPretty !== 'undefined' && selectedInAccount.unconfirmedPretty.toString() !== '0' && selectedInAccount.unconfirmedPretty.toString().indexOf('-') === -1) {
             const diff = BlocksoftUtils.diff(selectedInAccount.unconfirmedPretty, selectedInAccount.balancePretty)
             showUnconfirmed = diff.toString().indexOf('-') === -1
         }

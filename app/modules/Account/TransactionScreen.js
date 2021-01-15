@@ -730,7 +730,7 @@ class TransactionScreen extends Component {
         if (!account || typeof account.currencyCode === 'undefined') {
             return false
         }
-        Log.log('TransactionScreen.renderReplaceByFee', transaction)
+        // Log.log('TransactionScreen.renderReplaceByFee', transaction)
         if (transaction.transactionHash === 'undefined' || !transaction.transactionHash) {
             return false
         }
