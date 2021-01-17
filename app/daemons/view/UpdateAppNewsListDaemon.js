@@ -9,6 +9,9 @@ import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
 import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
 
 const TO_BADGE_TIME = 3600000 * 24 * 4
+
+let CACHE_STOPPED = false
+
 class UpdateAppNewsListDaemon extends Update {
 
     _canUpdate = true
@@ -18,10 +21,19 @@ class UpdateAppNewsListDaemon extends Update {
         this.updateFunction = this.updateAppNewsListDaemon
     }
 
+    stop = () => {
+        CACHE_STOPPED = true
+    }
+
+    unstop = () => {
+        CACHE_STOPPED = false
+    }
+
     /**
      * @return {Promise<void>}
      */
     updateAppNewsListDaemon = async () => {
+        if (CACHE_STOPPED) return false
         if (!this._canUpdate) {
             return
         }

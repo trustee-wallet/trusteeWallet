@@ -59,6 +59,7 @@ import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
 import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import AppLockBlur from "../../components/AppLockBlur";
 
 let CACHE_SET_WALLET_HASH = false
 
@@ -289,6 +290,10 @@ class HomeScreen extends Component {
     }
 
     render() {
+        const blurVisibility = this.props.blurVisibility
+        if (blurVisibility) {
+            return  <AppLockBlur/>
+        }
         const { colors, isLight } = this.context
 
         MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')
@@ -413,7 +418,8 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         toolTipsStore: state.toolTipsStore,
         currencies: state.currencyStore.cryptoCurrencies.filter(c => !c.isHidden),
-        accountStore: state.accountStore
+        accountStore: state.accountStore,
+        blurVisibility: state.mainStore.blurVisibility
     }
 }
 

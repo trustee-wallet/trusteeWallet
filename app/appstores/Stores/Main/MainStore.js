@@ -8,6 +8,7 @@ const INITIAL_STATE = {
     selectedBasicCurrency : {},
     selectedAccount: {},
     loaderVisibility: false,
+    blurVisibility: false,
     currentScreen : {}
 }
 
@@ -52,6 +53,11 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
             return new Object({
                 ...state,
                 loaderVisibility: action.visible
+            })
+        case 'SET_BLUR_STATUS':
+            return new Object({
+                ...state,
+                blurVisibility: action.visible
             })
         default:
             return state

@@ -20,7 +20,10 @@ import BlocksoftBN from '../../../crypto/common/BlocksoftBN'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 let CACHE_PAUSE = 0
+
 const CACHE_VALID_TIME_PAUSE = 10000
+
+let CACHE_STOPPED = false
 
 class UpdateAccountListDaemon extends Update {
 
@@ -28,6 +31,14 @@ class UpdateAccountListDaemon extends Update {
         super(props)
         this.updateFunction = this.updateAccountListDaemon
         this._canUpdate = true
+    }
+
+    stop = () => {
+        CACHE_STOPPED = true
+    }
+
+    unstop = () => {
+        CACHE_STOPPED = false
     }
 
     pause = () => {
@@ -39,6 +50,7 @@ class UpdateAccountListDaemon extends Update {
      * @return {Promise<void>}
      */
     updateAccountListDaemon = async (params) => {
+        if (CACHE_STOPPED) return false
         const source = params.source || 'none'
         const force = params.force || false
         const now = new Date().getTime()

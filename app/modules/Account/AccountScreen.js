@@ -64,6 +64,7 @@ import blackLoader from '../../assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '../../assets/jsons/animations/refreshWhite.json'
 import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAccountBalanceAndTransactionsHD'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import AppLockBlur from "../../components/AppLockBlur";
 
 
 let CACHE_ASKED = false
@@ -442,6 +443,11 @@ class Account extends Component {
     }
 
     render() {
+        const blurVisibility = this.props.blurVisibility
+        if (blurVisibility) {
+            return  <AppLockBlur/>
+        }
+
         MarketingAnalytics.setCurrentScreen('Account.AccountScreen')
 
         UpdateAccountListDaemon.pause()
@@ -608,7 +614,8 @@ const mapStateToProps = (state) => {
         exchangeOrdersStore: state.exchangeOrdersStore,
         settingsStore: state.settingsStore,
         cashBackStore: state.cashBackStore,
-        exchangeStore: state.exchangeStore
+        exchangeStore: state.exchangeStore,
+        blurVisibility: state.mainStore.blurVisibility
     }
 }
 

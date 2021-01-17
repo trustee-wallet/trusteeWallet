@@ -26,6 +26,10 @@ import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeystore'
 import Log from '../../services/Log/Log'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
+import UpdateOneByOneDaemon from "../../daemons/back/UpdateOneByOneDaemon";
+import UpdateAccountListDaemon from "../../daemons/view/UpdateAccountListDaemon";
+import UpdateAppNewsListDaemon from "../../daemons/view/UpdateAppNewsListDaemon";
+import UpdateCurrencyListDaemon from "../../daemons/view/UpdateCurrencyListDaemon";
 
 
 class LockScreen extends Component {
@@ -67,6 +71,11 @@ class LockScreen extends Component {
 
         const { flowType, actionCallback, backData } = this.props.lockScreen
         MarketingEvent.UI_DATA.IS_LOCKED = false
+
+        UpdateOneByOneDaemon.unstop()
+        UpdateAccountListDaemon.unstop()
+        UpdateAppNewsListDaemon.unstop()
+        UpdateCurrencyListDaemon.unstop()
 
         if (flowType === 'WALLET_CONNECT') {
             lockScreenAction.setFlowType({

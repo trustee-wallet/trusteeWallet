@@ -52,6 +52,8 @@ let CACHE_PAUSE = 0
 
 const CACHE_TIMES = {}
 
+let CACHE_STOPPED = false
+
 const CACHE_VALID_TIME = {
     'PAUSE' : 60000, // 60 seconds
     'UPDATE_TRADE_ORDERS': 30000, // 30 seconds
@@ -84,11 +86,21 @@ class UpdateOneByOneDaemon extends Update {
         }
     }
 
+    stop = () => {
+        CACHE_STOPPED = true
+    }
+
+    unstop = () => {
+        CACHE_STOPPED = false
+    }
+
     pause = () => {
         CACHE_PAUSE = new Date().getTime()
     }
 
     updateOneByOneDaemon = async (params, level = 0) => {
+        if (CACHE_STOPPED) return false
+
         const tmpAuthHash = await cryptoWalletsDS.getSelectedWallet()
         if (!tmpAuthHash) {
             return false

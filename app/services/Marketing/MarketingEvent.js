@@ -33,7 +33,8 @@ class MarketingEvent {
 
     UI_DATA = {
         IS_LIGHT : '?',
-        IS_LOCKED : false
+        IS_LOCKED : false,
+        IS_ACTIVE : true
     }
 
     /**
@@ -135,7 +136,7 @@ class MarketingEvent {
                     crashlytics().setAttribute(key + '_FULL', val)
                 }
                 analytics().setUserProperty(key, short)
-                analytics().setUserProperty(key + '_FULL', val)
+                analytics().setUserProperty(key + '_FULL', val.toString().substr(0, 36))
             } else {
                 if (key === 'LOG_VERSION') {
                     // do nothing

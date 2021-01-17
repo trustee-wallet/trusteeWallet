@@ -54,6 +54,15 @@ export function setLoaderStatus(visible) {
 
 }
 
+export function setBlurStatus(visible) {
+
+    dispatch({
+        type: 'SET_BLUR_STATUS',
+        visible
+    })
+
+}
+
 export function setCurrentScreen(screen) {
     // for now only back and forward
     if (screen) {
