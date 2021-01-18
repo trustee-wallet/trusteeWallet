@@ -84,11 +84,17 @@ class ExchangeConfirmScreen extends Component {
             const { amountEquivalentInCryptoToApi, amountEquivalentOutCryptoToApi, useAllFunds } = amount
 
 
-            let bseTrusteeFee
+            const bseTrusteeFee = {
+                from : selectedInCurrency.currencyCode,
+                to : selectedOutCurrency.currencyCode
+            }
             if (amount.fee.trusteeFee.in === 0) {
-                bseTrusteeFee = {value : amount.fee.trusteeFee.out, currencyCode : selectedOutCurrency.currencyCode}
+                bseTrusteeFee.value = amount.fee.trusteeFee.out
+                bseTrusteeFee.currencyCode = selectedOutCurrency.currencyCode
+
             } else {
-                bseTrusteeFee = {value : amount.fee.trusteeFee.in, currencyCode : selectedInCurrency.currencyCode}
+                bseTrusteeFee.value = amount.fee.trusteeFee.in
+                bseTrusteeFee.currencyCode = selectedInCurrency.currencyCode
             }
 
             dataToSend = {

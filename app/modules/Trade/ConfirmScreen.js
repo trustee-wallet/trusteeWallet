@@ -231,7 +231,13 @@ class ConfirmScreen extends Component {
                 bseOrderId: res.data.orderId,
                 bseOrderData : bseOrderData,
                 bseMinCrypto : minCrypto,
-                bseTrusteeFee : {value : amount.fee.trusteeFee[exchangeStore.tradeType === 'BUY' ? 'in' : 'out'], currencyCode : selectedFiatCurrency.cc},
+                bseTrusteeFee : {
+                    type : exchangeStore.tradeType,
+                    value : amount.fee.trusteeFee[exchangeStore.tradeType === 'BUY' ? 'in' : 'out'],
+                    currencyCode : selectedCryptocurrency.currencyCode,
+                    from : exchangeStore.tradeType === 'BUY' ? selectedFiatCurrency.cc : selectedCryptocurrency.currencyCode,
+                    to : exchangeStore.tradeType === 'BUY' ? selectedCryptocurrency.currencyCode : selectedFiatCurrency.cc,
+                },
                 uiType: 'TRADE_SEND',
                 uiApiVersion : 'v2'
             })

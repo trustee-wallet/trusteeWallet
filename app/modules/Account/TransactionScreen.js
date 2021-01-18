@@ -952,7 +952,7 @@ class TransactionScreen extends Component {
         }
 
         const prev = NavStore.getPrevRoute().routeName
-        
+
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header

@@ -8,7 +8,7 @@ import { connect } from 'react-redux'
 
 import { View, ScrollView, Keyboard, Text, StatusBar } from 'react-native'
 
-
+import analytics from '@react-native-firebase/analytics'
 
 import NavStore from '../../components/navigation/NavStore'
 
@@ -528,6 +528,26 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     if (typeof sendScreenData.bseMinCrypto !== 'undefined') {
                         logData.bseMinCrypto = sendScreenData.bseMinCrypto.toString()
                     }
+
+
+                    const gaParams = {
+                        currency_code: sendScreenData.bseTrusteeFee.currencyCode,
+                        item_list_id: sendScreenData.currencyCode,
+                        item_list_name: 'BSE',
+                        items: [
+                            {
+                                item_id: sendScreenData.bseOrderId,
+                                item_name: sendScreenData.bseTrusteeFee.from,
+                                item_category: sendScreenData.uiApiVersion,
+                                item_variant: sendScreenData.bseTrusteeFee.to,
+                                item_brand: sendScreenData.bseTrusteeFee.type,
+                                price: sendScreenData.bseTrusteeFee.value,
+                                currency_code: sendScreenData.bseTrusteeFee.currencyCode
+                            }
+                        ]
+                    }
+                    analytics().logEvent('v3_send_sell_tx', gaParams)
+
                 }
 
                 const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
