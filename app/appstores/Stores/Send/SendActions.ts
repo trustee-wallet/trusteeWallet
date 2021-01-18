@@ -152,12 +152,14 @@ export namespace SendActions {
         if (typeof data.contactAddress !== 'undefined' && data.contactAddress && data.contactAddress !== '') {
             countedFeesData.addressTo = data.contactAddress
         }
+        let bseMinCryptoFromOld = false
         if (data.transactionSpeedUp || data.transactionReplaceByFee || data.transactionRemoveByFee) {
             if (data.transactionSpeedUp) {
                 countedFeesData.transactionSpeedUp = data.transactionSpeedUp
             }
             if (data.transactionReplaceByFee) {
                 countedFeesData.transactionReplaceByFee = data.transactionReplaceByFee
+                bseMinCryptoFromOld = true
             }
             if (data.transactionRemoveByFee) {
                 countedFeesData.transactionRemoveByFee = data.transactionRemoveByFee
@@ -172,6 +174,9 @@ export namespace SendActions {
         if (typeof data.transactionBoost !== 'undefined') {
             if (typeof data.transactionBoost.transactionJson !== 'undefined' && data.transactionBoost.transactionJson !== {}) {
                 countedFeesData.transactionJson = data.transactionBoost.transactionJson
+                if (bseMinCryptoFromOld && data.transactionBoost.transactionJson.bseMinCrypto !== 'undefined') {
+                    data.bseMinCrypto = data.transactionBoost.transactionJson.bseMinCrypto
+                }
             }
         }
         if (typeof data.transactionJson !== 'undefined' && data.transactionJson && data.transactionJson !== {}) {
@@ -192,6 +197,7 @@ export namespace SendActions {
         }
 
         let countedFees, selectedFee
+        let bseMinCryptoNotOk = false
         try {
             try {
                 if (data.isTransferAll) {
@@ -211,9 +217,14 @@ export namespace SendActions {
             if (typeof data.selectedFee !== 'undefined' && data.selectedFee && data.selectedFee.langMsg) {
                 for (const fee of countedFees.fees) {
                     if (fee.langMsg === data.selectedFee.langMsg) {
-                        selectedFee = fee
-                        foundSelected = true
-                        break
+                        if (typeof data.bseMinCrypto === 'undefined' || data.bseMinCrypto*1 === 0 || typeof fee.amountForTx === 'undefined' || data.bseMinCrypto*1<=fee.amountForTx*1) {
+                            selectedFee = fee
+                            foundSelected = true
+                            bseMinCryptoNotOk = false
+                            break
+                        } else {
+                            bseMinCryptoNotOk = true
+                        }
                     }
                 }
             }
@@ -238,23 +249,36 @@ export namespace SendActions {
                     countedFees2 = await BlocksoftTransfer.getFeeRate(countedFeesData, addData)
                 }
                 if (typeof countedFees2.fees !== 'undefined' && typeof countedFees2.fees[0] !== 'undefined') {
-                    selectedFee = countedFees2.fees[0]
-                    selectedFee.isCustomFee = true
-                    foundSelected = true
+                    const fee = countedFees2.fees[0]
+                    if (typeof data.bseMinCrypto === 'undefined' || data.bseMinCrypto*1 === 0 || typeof fee.amountForTx === 'undefined' || data.bseMinCrypto*1<=fee.amountForTx*1) {
+                        selectedFee = fee
+                        selectedFee.isCustomFee = true
+                        foundSelected = true
+                        bseMinCryptoNotOk = false
+                    } else {
+                        bseMinCryptoNotOk = true
+                    }
                 }
             }
 
             if (!foundSelected && typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
-                selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
+                const fee = countedFees.fees[countedFees.selectedFeeIndex]
+                if (typeof data.bseMinCrypto === 'undefined' || data.bseMinCrypto*1 === 0 || typeof fee.amountForTx === 'undefined' || data.bseMinCrypto*1<=fee.amountForTx*1) {
+                    selectedFee = fee
+                    bseMinCryptoNotOk = false
+                } else {
+                    bseMinCryptoNotOk = true
+                }
             }
         } catch (e) {
             // do anyway!
             SendTmpData.setData(data)
-            SendTmpData.setCountedFees({ countedFees : {fees : [], selectedFeeIndex : -1}, countedFeesData, selectedFee : false})
+            SendTmpData.setCountedFees({ countedFees : {fees : [], selectedFeeIndex : -1, bseMinCryptoNotOk}, countedFeesData, selectedFee : false})
             throw e
         }
 
         SendTmpData.setData(data)
+        countedFees.bseMinCryptoNotOk = bseMinCryptoNotOk
         SendTmpData.setCountedFees({ countedFees, countedFeesData, selectedFee })
 
         return { countedFees, selectedFee }

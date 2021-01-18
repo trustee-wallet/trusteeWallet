@@ -161,17 +161,20 @@ class ConfirmScreen extends Component {
         let dataToSend
         try {
             const {
+                selectedFiatCurrency,
                 selectedCryptocurrency,
                 selectedCard,
                 selectedAccount,
                 tradeWay,
+                minCrypto,
                 amount,
                 uniqueParams
             } = this.state
 
             const {
                 settingsStore,
-                currencyStore
+                currencyStore,
+                exchangeStore
             } = this.props
 
             const {amountEquivalentInCryptoToApi, amountEquivalentInFiatToApi, useAllFunds} = amount
@@ -227,6 +230,8 @@ class ConfirmScreen extends Component {
                 isTransferAll : useAllFunds,
                 bseOrderId: res.data.orderId,
                 bseOrderData : bseOrderData,
+                bseMinCrypto : minCrypto,
+                bseTrusteeFee : {value : amount.fee.trusteeFee[exchangeStore.tradeType === 'BUY' ? 'in' : 'out'], currencyCode : selectedFiatCurrency.cc},
                 uiType: 'TRADE_SEND',
                 uiApiVersion : 'v2'
             })

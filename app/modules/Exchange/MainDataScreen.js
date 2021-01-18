@@ -343,6 +343,8 @@ class MainDataScreen extends Component {
             Log.log('EXC/Main modalSellAll error ' + e.message)
         }
 
+        const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(selectedInCurrency.currencyCode).makeUnPretty(this.refLimits.getMinCrypto())
+
         NavStore.goNext('ExchangeConfirmScreen', {
             orderData: {
                 selectedInCurrency,
@@ -353,6 +355,7 @@ class MainDataScreen extends Component {
                 prevInAccount,
                 prevOutAccount,
                 tradeWay,
+                minCrypto,
                 amount,
                 uniqueParams: this.state.uniqueParams
             }

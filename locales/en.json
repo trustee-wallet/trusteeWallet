@@ -1255,6 +1255,8 @@
       "txSuccess": "Your transaction has been successfully sent!",
       "fail": "Attention!",
       "feeChangeAmount": "Sending amount was change after change fee",
+      "bseMinCrypto": "Exchange minimal amount value is %{limit}",
+      "bseMinCryptoNoFee" : "Your balance is not enough for exchange minimal amount and fee",
       "bigGas" : "You are sending in a direction that requires an unusually high gas: %{gasLimit}. In order to safeguard your funds, the transaction has been stopped!",
       "blockedBalance" : "Your balance was used in previous unconfirmed transactions, you can use %{free}",
       "feeSmallAmount" : "Left for fee amount is too small - transaction could be take too long time to confirm",

@@ -139,44 +139,60 @@ class ReceiptScreen extends SendBasicScreenScreen {
     }
 
     checkLoadedFee = (countedFees, selectedFee) => {
+        const data = SendTmpData.getData()
+
         let msg = false
         let goBack = false
         let cacheWarningNoticeValue = ''
-        if (
-            (typeof selectedFee.isCustomFee === 'undefined' || !selectedFee.isCustomFee)
-            && typeof countedFees.showBigGasNotice !== 'undefined' && countedFees.showBigGasNotice
-        ) {
-            msg = strings('modal.send.bigGas', {gasLimit : selectedFee.gasLimit})
-            goBack = BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT_FORCE_QUIT') > 0
-            cacheWarningNoticeValue = countedFees.showBigGasNotice
-        } else if (typeof countedFees.showBlockedBalanceNotice !== 'undefined' && countedFees.showBlockedBalanceNotice) {
-            msg = strings('modal.send.blockedBalance', { free: countedFees.showBlockedBalanceFree })
-            goBack = BlocksoftExternalSettings.getStatic('ETH_BLOCKED_BALANCE_FORCE_QUIT') > 0
-            cacheWarningNoticeValue = countedFees.showBlockedBalanceNotice
-        } else {
-            if (typeof countedFees.showLongQueryNotice !== 'undefined' && countedFees.showLongQueryNotice) {
-                const ethAllowLongQuery = settingsActions.getSettingStatic('ethAllowLongQuery')
-                if (ethAllowLongQuery !== '1') {
-                    msg = strings('modal.send.longQuerySettingOff')
-                    goBack = BlocksoftExternalSettings.getStatic('ETH_LONG_QUERY_FORCE_QUIT') > 0
-                } else {
-                    msg = strings('modal.send.longQuery')
-                }
-                if (countedFees.showLongQueryNoticeTxs && countedFees.showLongQueryNoticeTxs[0] !== 'undefined') {
-                    msg += ' ' + countedFees.showLongQueryNoticeTxs[0].currencyCode
-                    msg += ' ' +  countedFees.showLongQueryNoticeTxs[0].txHash
-                }
-                cacheWarningNoticeValue = countedFees.showLongQueryNotice
+        if (typeof data.bseMinCrypto !== 'undefined' && data.bseMinCrypto*1 > 0) {
+            if ((typeof selectedFee === 'undefined' || !selectedFee) && typeof countedFees.bseMinCryptoNotOk !== 'undefined' && countedFees.bseMinCryptoNotOk) {
+                msg = strings('modal.send.bseMinCryptoNoFee', { limit: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.bseMinCrypto) })
+                goBack = true
+                cacheWarningNoticeValue = 'bseMinCrypto_' + data.bseOrderId + '_noFee'
+            } else if (typeof selectedFee.amountForTx !== 'undefined' && data.bseMinCrypto*1>selectedFee.amountForTx*1) {
+                msg = strings('modal.send.bseMinCrypto', { limit: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.bseMinCrypto) })
+                goBack = true
+                cacheWarningNoticeValue = 'bseMinCrypto_' + data.bseOrderId + '_' + selectedFee.amountForTx
             }
-            if (typeof countedFees.showSmallFeeNotice !== 'undefined' && countedFees.showSmallFeeNotice) {
-                if (msg) {
-                    msg += ' + '
-                    cacheWarningNoticeValue += '_' + countedFees.showSmallFeeNotice
-                } else {
-                    msg = ''
-                    cacheWarningNoticeValue = countedFees.showSmallFeeNotice
+        }
+
+        if (!goBack) {
+            if (
+                (typeof selectedFee.isCustomFee === 'undefined' || !selectedFee.isCustomFee)
+                && typeof countedFees.showBigGasNotice !== 'undefined' && countedFees.showBigGasNotice
+            ) {
+                msg = strings('modal.send.bigGas', { gasLimit: selectedFee.gasLimit })
+                goBack = BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT_FORCE_QUIT') > 0
+                cacheWarningNoticeValue = countedFees.showBigGasNotice
+            } else if (typeof countedFees.showBlockedBalanceNotice !== 'undefined' && countedFees.showBlockedBalanceNotice) {
+                msg = strings('modal.send.blockedBalance', { free: countedFees.showBlockedBalanceFree })
+                goBack = BlocksoftExternalSettings.getStatic('ETH_BLOCKED_BALANCE_FORCE_QUIT') > 0
+                cacheWarningNoticeValue = countedFees.showBlockedBalanceNotice
+            } else {
+                if (typeof countedFees.showLongQueryNotice !== 'undefined' && countedFees.showLongQueryNotice) {
+                    const ethAllowLongQuery = settingsActions.getSettingStatic('ethAllowLongQuery')
+                    if (ethAllowLongQuery !== '1') {
+                        msg = strings('modal.send.longQuerySettingOff')
+                        goBack = BlocksoftExternalSettings.getStatic('ETH_LONG_QUERY_FORCE_QUIT') > 0
+                    } else {
+                        msg = strings('modal.send.longQuery')
+                    }
+                    if (countedFees.showLongQueryNoticeTxs && countedFees.showLongQueryNoticeTxs[0] !== 'undefined') {
+                        msg += ' ' + countedFees.showLongQueryNoticeTxs[0].currencyCode
+                        msg += ' ' + countedFees.showLongQueryNoticeTxs[0].txHash
+                    }
+                    cacheWarningNoticeValue = countedFees.showLongQueryNotice
                 }
-                msg += strings('modal.send.feeSmallAmount')
+                if (typeof countedFees.showSmallFeeNotice !== 'undefined' && countedFees.showSmallFeeNotice) {
+                    if (msg) {
+                        msg += ' + '
+                        cacheWarningNoticeValue += '_' + countedFees.showSmallFeeNotice
+                    } else {
+                        msg = ''
+                        cacheWarningNoticeValue = countedFees.showSmallFeeNotice
+                    }
+                    msg += strings('modal.send.feeSmallAmount')
+                }
             }
         }
         if (msg && CACHE_WARNING_NOTICE !== cacheWarningNoticeValue) {
@@ -335,7 +351,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 useOnlyConfirmed: !(walletUseUnconfirmed === 1),
                 allowReplaceByFee: walletAllowReplaceByFee === 1,
                 accountJson,
-                transactionJson: sendScreenData.transactionJson
+                transactionJson: sendScreenData.transactionJson,
             }
             let memo = false
             let comment = false
@@ -390,6 +406,12 @@ class ReceiptScreen extends SendBasicScreenScreen {
             if (comment) {
                 transactionJson.comment = comment
             }
+            if (sendScreenData.bseMinCrypto !== 'undefined') {
+                transactionJson.bseMinCrypto = sendScreenData.bseMinCrypto
+            }
+            if (sendScreenData.bseMinCrypto !== 'undefined') {
+                transactionJson.bseMinCrypto = sendScreenData.bseMinCrypto
+            }
             if (typeof tx.transactionJson !== 'undefined') {
                 let key
                 for (key in tx.transactionJson) {
@@ -421,6 +443,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 }
                 if (typeof tx.amountForTx !== 'undefined') {
                     transaction.addressAmount = tx.amountForTx
+                }
+                if (sendScreenData.transactionRemoveByFee) {
+                    transaction.transactionJson.isRemovedByFee = true
                 }
                 if (sendScreenData.transactionRemoveByFee || txData.addressTo === account.address) {
                     transaction.addressTo = ''
@@ -500,6 +525,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
                         transaction.bseOrderData = sendScreenData.bseOrderData
                     }
                     logData.bseOrderId = sendScreenData.bseOrderId.toString()
+                    if (typeof sendScreenData.bseMinCrypto !== 'undefined') {
+                        logData.bseMinCrypto = sendScreenData.bseMinCrypto.toString()
+                    }
                 }
 
                 const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')

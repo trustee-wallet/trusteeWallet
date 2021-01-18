@@ -405,6 +405,11 @@ class MainDataScreen extends Component {
             Log.log('TRADE/Main modalSellAll error ' + e.message)
         }
 
+        const minFiat = this.refLimits.getMinFiat()
+        const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(selectedCryptocurrency.currencyCode).makeUnPretty(
+            BlocksoftUtils.div(BlocksoftUtils.mul(minFiat, amount.amountEquivalentInCrypto), amount.amountEquivalentInFiat)
+        )
+
         NavStore.goNext('ConfirmScreen', {
             orderData: {
                 checkTmp: true,
@@ -414,6 +419,8 @@ class MainDataScreen extends Component {
                 selectedCard,
                 selectedAccount,
                 tradeWay,
+                minFiat,
+                minCrypto,
                 amount,
                 uniqueParams: this.state.uniqueParams
             }

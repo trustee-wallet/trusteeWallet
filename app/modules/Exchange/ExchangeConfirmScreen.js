@@ -70,6 +70,7 @@ class ExchangeConfirmScreen extends Component {
             prevInAccount,
             prevOutAccount,
             tradeWay,
+            minCrypto,
             amount,
             uniqueParams
         } = this.state
@@ -81,6 +82,14 @@ class ExchangeConfirmScreen extends Component {
             } = this.props
 
             const { amountEquivalentInCryptoToApi, amountEquivalentOutCryptoToApi, useAllFunds } = amount
+
+
+            let bseTrusteeFee
+            if (amount.fee.trusteeFee.in === 0) {
+                bseTrusteeFee = {value : amount.fee.trusteeFee.out, currencyCode : selectedOutCurrency.currencyCode}
+            } else {
+                bseTrusteeFee = {value : amount.fee.trusteeFee.in, currencyCode : selectedInCurrency.currencyCode}
+            }
 
             dataToSend = {
                 inAmount: amountEquivalentInCryptoToApi,
@@ -126,6 +135,8 @@ class ExchangeConfirmScreen extends Component {
                 isTransferAll : useAllFunds,
                 bseOrderId: res.data.orderId,
                 bseOrderData : bseOrderData,
+                bseMinCrypto : minCrypto,
+                bseTrusteeFee,
                 uiType: 'TRADE_SEND',
                 uiApiVersion : 'v2'
             })

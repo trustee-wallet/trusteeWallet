@@ -58,6 +58,10 @@ class ExchangeLimits extends Component {
         })
     }
 
+    getMinCrypto = () => {
+        return this.state.limits.minIn
+    }
+
     handleValidateLimits = () => {
 
         const { refAmount } = this.props

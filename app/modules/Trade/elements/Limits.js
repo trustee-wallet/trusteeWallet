@@ -59,6 +59,10 @@ class Limits extends Component {
         })
     }
 
+    getMinFiat = () => {
+        return this.state.limits.minEquivalent
+    }
+
     handleValidateLimits = () => {
 
         const { refAmount } = this.props

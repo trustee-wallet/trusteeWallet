@@ -33,6 +33,11 @@ export namespace SendTmpData {
 
         bseOrderId ?: string,
         bseOrderData ?: any,
+        bseMinCrypto ?: string,
+        bseTrusteeFee ?: {
+            currencyCode : string,
+            value: string
+        }
 
         transactionJson : any,
 
@@ -44,7 +49,8 @@ export namespace SendTmpData {
             currencyCode : string,
             transactionHash : string,
             transactionJson : any,
-            transactionDirection : 'income' | 'outcome' | 'self'
+            transactionDirection : 'income' | 'outcome' | 'self',
+            bseMinCrypto ?: string,
         }
     }
 
