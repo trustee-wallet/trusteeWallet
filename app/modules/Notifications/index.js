@@ -194,7 +194,7 @@ class NotificationsScreen extends React.Component {
     }
 
     handleOpenNotification = async (notification, title, subtitle) => {
-      return AppNewsActions.onOpen(notification, title, subtitle, false, this.props.settings)
+      return AppNewsActions.onOpen(notification, title, subtitle, false)
     }
 
     render() {
@@ -246,8 +246,7 @@ class NotificationsScreen extends React.Component {
 const mapStateToProps = (state) => {
     return {
         notifications: state.appNewsStore.appNewsList,
-        hasNoties: state.appNewsStore.hasNews,
-        settings: state.settingsStore.data
+        hasNoties: state.appNewsStore.hasNews
     }
 }
 

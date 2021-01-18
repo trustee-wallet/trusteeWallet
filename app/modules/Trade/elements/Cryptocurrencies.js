@@ -310,9 +310,13 @@ class Cryptocurrencies extends Component {
             //     iconCode = 'ETH_DAI'
             // }
             let showUnconfirmed = false
-            if (typeof selectedAccount !== 'undefined' && typeof selectedAccount.unconfirmedPretty !== 'undefined' && selectedAccount.unconfirmedPretty.toString() !== '0' && selectedAccount.unconfirmedPretty.toString().indexOf('-') === -1) {
-                const diff = BlocksoftUtils.diff(selectedAccount.unconfirmedPretty, selectedAccount.balancePretty)
-                showUnconfirmed = diff.toString().indexOf('-') === -1
+            try {
+                if (typeof selectedAccount !== 'undefined' && typeof selectedAccount.unconfirmedPretty !== 'undefined' && selectedAccount.unconfirmedPretty.toString() !== '0' && selectedAccount.unconfirmedPretty.toString().indexOf('-') === -1) {
+                    const diff = BlocksoftUtils.diff(selectedAccount.unconfirmedPretty, selectedAccount.balancePretty)
+                    showUnconfirmed = diff.toString().indexOf('-') === -1
+                }
+            } catch (e) {
+                Log.log('TRADE/Cryptocurrency unconfirmedPretty error ' + e.message)
             }
             let balance = ''
             if (typeof selectedAccount !== 'undefined' && typeof selectedAccount.balance !== 'undefined') {

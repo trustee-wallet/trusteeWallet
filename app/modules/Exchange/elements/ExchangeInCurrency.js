@@ -235,9 +235,13 @@ class ExchangeInCurrency extends Component {
         const { selectedInCurrency, selectedInAccount, exchangeStore } = this.props
 
         let showUnconfirmed = false
-        if (typeof selectedInAccount !== 'undefined' && typeof selectedInAccount.unconfirmedPretty !== 'undefined' && selectedInAccount.unconfirmedPretty.toString() !== '0' && selectedInAccount.unconfirmedPretty.toString().indexOf('-') === -1) {
-            const diff = BlocksoftUtils.diff(selectedInAccount.unconfirmedPretty, selectedInAccount.balancePretty)
-            showUnconfirmed = diff.toString().indexOf('-') === -1
+        try {
+            if (typeof selectedInAccount !== 'undefined' && typeof selectedInAccount.unconfirmedPretty !== 'undefined' && selectedInAccount.unconfirmedPretty.toString() !== '0' && selectedInAccount.unconfirmedPretty.toString().indexOf('-') === -1) {
+                const diff = BlocksoftUtils.diff(selectedInAccount.unconfirmedPretty, selectedInAccount.balancePretty)
+                showUnconfirmed = diff.toString().indexOf('-') === -1
+            }
+        } catch (e) {
+            Log.log('EXC/Cryptocurrency unconfirmedPretty error ' + e.message)
         }
 
         let balance = ''

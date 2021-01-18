@@ -26,7 +26,7 @@ const settingsActions = {
     getSetting: async (key) => {
         try {
             const tmp = await settingsDS.getSetting(key)
-            return tmp ? tmp.paramValue : false
+            return tmp ? tmp.paramValue : (typeof defaultSettings[key] !== 'undefined' ? defaultSettings[key] : false)
         } catch (e) {
             Log.err('ACT/Settings getSetting ' + key + ' error ' + e.message)
         }

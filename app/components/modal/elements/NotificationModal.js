@@ -47,10 +47,11 @@ class NotificationModal extends Component {
                     </Text>
                 </View>
                 <View style={{ marginTop: GRID_SIZE }}>
-                    {rates &&
+                    {rates ?
                         <Button onPress={this.handleOk} style={{ backgroundColor: 'none', color: colors.modal.success, marginBottom: -20 }}>
                             {strings('modal.notificationModal.unsubscribe')}
                         </Button>
+                        : null
                     }
                     <Button onPress={() => hideModal()} style={{ backgroundColor: 'none', color: colors.modal.success }}>
                         Ok

@@ -27,7 +27,7 @@ export namespace AppNewsActions {
      * @param subtitle
      * return true when NavStore need to be called outside the function (to reload notifications screen if called from local push open etc)
      */
-    export const onOpen = async (notification : any, title : string = '', subtitle : string = '', checkLock = true, settings: any) : Promise<boolean> => {
+    export const onOpen = async (notification : any, title : string = '', subtitle : string = '', checkLock = true): Promise<boolean> => {
         if (checkLock && MarketingEvent.UI_DATA.IS_LOCKED) {
             await Log.log('ACT/AppNewsActions onOpen need unlock')
             lockScreenAction.setFlowType({
@@ -36,7 +36,7 @@ export namespace AppNewsActions {
             lockScreenAction.setActionCallback({
                 actionCallback: async () => {
                     await Log.log('ACT/AppNewsActions onOpen after lock screen')
-                    if (await AppNewsActions.onOpen(notification, title, subtitle, false, settings)) {
+                    if (await AppNewsActions.onOpen(notification, title, subtitle, false)) {
                         NavStore.reset('NotificationsScreen')
                     }
                 }
@@ -85,14 +85,14 @@ export namespace AppNewsActions {
             })
             return false
         } else {
-            const { exchangeRatesNotifs } = settings
+            const exchangeRatesNotifs = await settingsActions.getSetting('exchangeRatesNotifs')
             showModal({
                 type: 'NOTIFICATION_MODAL',
                 // title: title,
                 description: subtitle ? subtitle : title ? title : '',
-                rates: +exchangeRatesNotifs ? notification.newsGroup === "RATES_CHANGING" ? true : false : false,
+                rates: +exchangeRatesNotifs && notification.newsGroup === "RATES_CHANGING",
                 noCallback: async () => {
-                    await settingsActions.setSettings('exchangeRatesNotifs', +exchangeRatesNotifs ? '0' : '1')
+                    await settingsActions.setSettings('exchangeRatesNotifs', '0')
                     await AppNotificationListener.updateSubscriptionsLater()
                 }
             })
