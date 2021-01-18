@@ -184,6 +184,11 @@ class MainV3DataScreen extends Component {
 
     exchangeV3 = async (data) => {
         // console.log('Exchange/MainV3Screen dataExchange', JSON.stringify(data))
+        const limits = JSON.parse(data.limits)
+        const trusteeFee = JSON.parse(data.trusteeFee)
+
+        const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits)
+
         try {
             Log.log('Exchange/MainV3Screen dataExchange', data)
             await SendActions.startSend({
@@ -195,6 +200,14 @@ class MainV3DataScreen extends Component {
                 isTransferAll: data.useAllFunds,
                 bseOrderId: data.orderHash || data.orderId,
                 comment: data.comment || '',
+                bseMinCrypto : minCrypto,
+                bseTrusteeFee : {
+                    value : trusteeFee.trusteeFee, 
+                    currencyCode : trusteeFee.currencyCode,
+                    type : 'EXCHANGE',
+                    from : data.currencyCode,
+                    to : data.outCurrency
+                },
                 uiType: 'TRADE_SEND',
                 uiApiVersion: 'v3',
                 uiProviderType: data.providerType // 'FIXED' || 'FLOATING'

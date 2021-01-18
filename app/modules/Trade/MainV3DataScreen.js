@@ -319,6 +319,11 @@ class MainV3DataScreen extends Component {
 
     async sellV3(data) {
         // console.log('Trade/MainV3Screen dataSell', JSON.stringify(data))
+        const limits = JSON.parse(data.limits)
+        const trusteeFee = JSON.parse(data.trusteeFee)
+
+        const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits)
+
         try {
             Log.log('Trade/MainV3Screen dataSell', data)
             await SendActions.startSend({
@@ -330,6 +335,14 @@ class MainV3DataScreen extends Component {
                 isTransferAll: data.useAllFunds,
                 bseOrderId: data.orderHash || data.orderId,
                 comment: data.comment || '',
+                bseMinCrypto : minCrypto,
+                bseTrusteeFee : {
+                    value : trusteeFee.trusteeFee, 
+                    currencyCode : trusteeFee.currencyCode,
+                    type : 'SELL',
+                    from : data.currencyCode,
+                    to : data.outCurrency
+                },
                 uiType: 'TRADE_SEND',
                 uiApiVersion: 'v3',
                 uiProviderType: data.providerType // 'FIXED' || 'FLOATING'
@@ -475,7 +488,7 @@ class MainV3DataScreen extends Component {
             })
             Log.log('Trade/MainV3DataScreen save cardData' + cardData)
         }
-        if (cardData.type === 'visa' || cardData.type === 'mastercard') {
+        if (cardData.type === 'visa' || cardData.type === 'mastercard' || cardData.type === 'mir' || cardData.type === 'maestro') {
             await this._verifyCard(cardData)
         }
     }
