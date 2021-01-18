@@ -86,7 +86,8 @@ class ExchangeConfirmScreen extends Component {
 
             const bseTrusteeFee = {
                 from : selectedInCurrency.currencyCode,
-                to : selectedOutCurrency.currencyCode
+                to : selectedOutCurrency.currencyCode,
+                type : 'EXCHANGE'
             }
             if (amount.fee.trusteeFee.in === 0) {
                 bseTrusteeFee.value = amount.fee.trusteeFee.out
