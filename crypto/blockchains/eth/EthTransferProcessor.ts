@@ -369,8 +369,16 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             }
         }
 
-        if (result.fees.length < 3 && !skippedByOld) {
-            result.showSmallFeeNotice = new Date().getTime()
+        if (!skippedByOld) {
+            let foundFast = false
+            for (const fee of result.fees) {
+                if (fee.langMsg === 'eth_speed_fast') {
+                    foundFast = true
+                }
+            }
+            if (!foundFast) {
+                result.showSmallFeeNotice = new Date().getTime()
+            }
         }
 
         result.selectedFeeIndex = result.fees.length - 1

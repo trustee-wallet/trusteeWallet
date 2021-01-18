@@ -378,9 +378,19 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             throw new Error(isError)
         }
         result.selectedFeeIndex = result.fees.length - 1
-        if (pricesTotal > 1 && result.fees.length < pricesTotal && !transactionReplaceByFee && !transactionRemoveByFee) {
-            result.showSmallFeeNotice = new Date().getTime()
+
+        if (!transactionReplaceByFee && !transactionRemoveByFee) {
+            let foundFast = false
+            for (const fee of result.fees) {
+                if (fee.langMsg === this._langPrefix + '_speed_blocks_2') {
+                    foundFast = true
+                }
+            }
+            if (!foundFast) {
+                result.showSmallFeeNotice = new Date().getTime()
+            }
         }
+
         return result
     }
 
