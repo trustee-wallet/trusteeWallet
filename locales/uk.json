@@ -1282,6 +1282,9 @@
     "receive": {
       "success": "Успіх!",
       "addressCopiedSuccess": "Адресу гаманця скопійовано!"
+    },
+    "notificationModal": {
+      "unsubscribe": "Відписатися"
     }
   },
   "lockScreen": {

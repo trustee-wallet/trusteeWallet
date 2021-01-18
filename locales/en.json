@@ -1281,6 +1281,9 @@
     "receive": {
       "success": "Success!",
       "addressCopiedSuccess": "Wallet address was copied!"
+    },
+    "notificationModal": {
+      "unsubscribe": "Unsubscribe"
     }
   },
   "lockScreen": {

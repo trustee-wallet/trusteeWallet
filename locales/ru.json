@@ -1281,6 +1281,9 @@
     "receive": {
       "success": "Успех!",
       "addressCopiedSuccess": "Адрес кошелька скопирован!"
+    },
+    "notificationModal": {
+      "unsubscribe": "Отписатся"
     }
   },
   "lockScreen": {

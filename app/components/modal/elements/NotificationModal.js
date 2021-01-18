@@ -35,7 +35,7 @@ class NotificationModal extends Component {
 
     render() {
 
-        const { title, description } = this.props.data
+        const { title, description, rates } = this.props.data
 
         const { colors, GRID_SIZE } = this.context
 
@@ -47,7 +47,12 @@ class NotificationModal extends Component {
                     </Text>
                 </View>
                 <View style={{ marginTop: GRID_SIZE }}>
-                    <Button onPress={this.handleOk} style={{ backgroundColor: 'none', color: colors.modal.success }}>
+                    {rates &&
+                        <Button onPress={this.handleOk} style={{ backgroundColor: 'none', color: colors.modal.success, marginBottom: -20 }}>
+                            {strings('modal.notificationModal.unsubscribe')}
+                        </Button>
+                    }
+                    <Button onPress={() => hideModal()} style={{ backgroundColor: 'none', color: colors.modal.success }}>
                         Ok
                     </Button>
                 </View>

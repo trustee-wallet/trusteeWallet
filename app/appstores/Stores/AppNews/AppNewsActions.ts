@@ -16,6 +16,9 @@ import { showModal } from '../Modal/ModalActions'
 import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 import lockScreenAction from '../LockScreen/LockScreenActions'
 
+import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
+import AppNotificationListener from '../../../services/AppNotification/AppNotificationListener'
+
 export namespace AppNewsActions {
 
     /**
@@ -24,7 +27,7 @@ export namespace AppNewsActions {
      * @param subtitle
      * return true when NavStore need to be called outside the function (to reload notifications screen if called from local push open etc)
      */
-    export const onOpen = async (notification : any, title : string = '', subtitle : string = '', checkLock = true) : Promise<boolean> => {
+    export const onOpen = async (notification : any, title : string = '', subtitle : string = '', checkLock = true, settings: any) : Promise<boolean> => {
         if (checkLock && MarketingEvent.UI_DATA.IS_LOCKED) {
             await Log.log('ACT/AppNewsActions onOpen need unlock')
             lockScreenAction.setFlowType({
@@ -33,7 +36,7 @@ export namespace AppNewsActions {
             lockScreenAction.setActionCallback({
                 actionCallback: async () => {
                     await Log.log('ACT/AppNewsActions onOpen after lock screen')
-                    if (await AppNewsActions.onOpen(notification, title, subtitle, false)) {
+                    if (await AppNewsActions.onOpen(notification, title, subtitle, false, settings)) {
                         NavStore.reset('NotificationsScreen')
                     }
                 }
@@ -82,10 +85,16 @@ export namespace AppNewsActions {
             })
             return false
         } else {
+            const { exchangeRatesNotifs } = settings
             showModal({
                 type: 'NOTIFICATION_MODAL',
                 // title: title,
-                description: subtitle ? subtitle : title ? title : ''
+                description: subtitle ? subtitle : title ? title : '',
+                rates: +exchangeRatesNotifs ? notification.newsGroup === "RATES_CHANGING" ? true : false : false,
+                noCallback: async () => {
+                    await settingsActions.setSettings('exchangeRatesNotifs', +exchangeRatesNotifs ? '0' : '1')
+                    await AppNotificationListener.updateSubscriptionsLater()
+                }
             })
             return true
         }
