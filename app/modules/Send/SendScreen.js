@@ -1052,8 +1052,8 @@ class SendScreen extends SendBasicScreenScreen {
             let value = BlocksoftUtils.mul(BlocksoftUtils.div(this.state.account.basicCurrencyBalance, 4), Number(part))
             Log.log('SendScreen.handlerPartBalance.inputType FIAT', value)
 
-            value = UtilsService.cutNumber(value, 2)
-            this.valueInput.state.value = value.toString()
+            value = UtilsService.cutNumber(value, 2).toString()
+            this.valueInput.state.value = value
             this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 &&
             value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
             this.amountInputCallback(value, true)
@@ -1061,8 +1061,8 @@ class SendScreen extends SendBasicScreenScreen {
             let value = BlocksoftUtils.mul(BlocksoftUtils.div(this.state.account.balancePretty, 4), Number(part))
             Log.log('SendScreen.handlerPartBalance.inputType CRYPTO', value)
 
-            value = UtilsService.cutNumber(value, 7)
-            this.valueInput.state.value = value.toString()
+            value = UtilsService.cutNumber(value, 7).toString()
+            this.valueInput.state.value = value
             this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 &&
             value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
             this.amountInputCallback(value, true)
