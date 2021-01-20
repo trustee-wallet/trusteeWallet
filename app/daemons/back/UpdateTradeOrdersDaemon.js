@@ -143,9 +143,7 @@ class UpdateTradeOrdersDaemon {
                 return false
             }
         }
-
-        console.log(new Date().toISOString() + ' UpdateTradeOrdersDaemon started')
-
+        
         Log.daemon('UpdateTradeOrders called ' + JSON.stringify(params))
 
         const dbInterface = new DBInterface()
