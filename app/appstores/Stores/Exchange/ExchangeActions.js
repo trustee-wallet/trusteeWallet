@@ -8,6 +8,8 @@ import AsyncStorage from '@react-native-community/async-storage'
 import Api from '../../../services/Api/Api'
 import Log from '../../../services/Log/Log'
 import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
+import ApiProxy from '../../../services/Api/ApiProxy'
+import config from '../../../config/config'
 
 const { dispatch } = store
 
@@ -23,13 +25,12 @@ export default new class ExchangeActions {
 
     init = async () => {
         try {
-            const res = await Api.getExchangeData()
-
+            const res = await ApiProxy.getAll({source : 'ExchangeActions.init'})
             const rubKostilKZT = (await BlocksoftExternalSettings.get('rubKostilKZT')) === 1
-            if (res && typeof res.data !== 'undefined' && typeof res.data.exchangeWays !== 'undefined') {
+            if (res && typeof res.exchangeData !== 'undefined' && typeof res.exchangeData.exchangeWays !== 'undefined') {
                 const tradeApiConfig = []
                 let item
-                for (item of res.data.exchangeWays.sell) {
+                for (item of res.exchangeData.exchangeWays.sell) {
                     if (rubKostilKZT && item.outCurrencyCode === 'RUB' && item.outPaywayCode === 'VISA_MC_P2P' && item.supportedCountries[0] === '643' && item.supportedCountries.length === 1) { // Russia
                         item.hasDouble = true
                         tradeApiConfig.push(item)
@@ -45,7 +46,7 @@ export default new class ExchangeActions {
                     }
 
                 }
-                for (item of res.data.exchangeWays.buy) {
+                for (item of res.exchangeData.exchangeWays.buy) {
                     if (rubKostilKZT && item.inCurrencyCode === 'RUB' && item.inPaywayCode === 'VISA_MC_P2P' && item.supportedCountries[0] === '643' && item.supportedCountries.length === 1) { // Russia
                         item.hasDouble = true
                         tradeApiConfig.push(item)
@@ -60,7 +61,7 @@ export default new class ExchangeActions {
                         tradeApiConfig.push(item)
                     }
                 }
-                const exchangeApiConfig = res.data.exchangeWays.exchange
+                const exchangeApiConfig = res.exchangeData.exchangeWays.exchange
 
                 dispatch({
                     type: 'SET_TRADE_API_CONFIG',
@@ -85,6 +86,9 @@ export default new class ExchangeActions {
                 })
             }
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('ACT/Exchange InitialScreen error 1 ' + e.message)
+            }
             if (Log.isNetworkError(e.message)) {
                 Log.log('ACT/Exchange InitialScreen error 1 ' + e.message)
             } else {

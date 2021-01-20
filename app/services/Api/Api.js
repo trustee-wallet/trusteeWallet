@@ -3,8 +3,6 @@
  */
 import config from '../../config/config'
 
-import AsyncStorage from '@react-native-community/async-storage'
-
 import Log from '../Log/Log'
 import { strings, sublocale } from '../i18n'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
@@ -23,6 +21,7 @@ export default {
             exchangeMode = forceMode
         }
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+        console.log(new Date().toISOString() + ' Api.validateCard ' + baseUrl)
 
         return fetch(`${baseUrl}/validate-card`, {
             method: 'POST',
@@ -46,18 +45,10 @@ export default {
         return BlocksoftAxios.post(link, data, false)
     },
 
-    getExchangeData: async () => {
-        const { mode: exchangeMode, apiEndpoints } = config.exchange
-        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
-        const cashbackToken = CashBackUtils.getWalletToken()
-        const link = `${baseUrl}/get-base-data?cashbackToken=${cashbackToken}`
-        Log.log('Api getExchangeData axios ' + link)
-        return BlocksoftAxios.get(link, false, false)
-    },
-
     getExchangeOrders: async (_requestAuthHash) => {
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+
         const signedData = await CashBackUtils.createWalletSignature(true, false, _requestAuthHash)
         if (!signedData) {
             throw new Error('No signed for getExchangeOrders')
@@ -73,6 +64,7 @@ export default {
         }
 
         const link = `${baseUrl}/get-statuses`
+        console.log(new Date().toISOString() + ' Api.getExchangeOrders ' + link, tmp)
 
         let res = false
         try {
@@ -197,110 +189,6 @@ export default {
         }
 
         return msg
-    },
-
-    /**
-     *
-     * @param userNotifications[]
-     * @returns {Promise<{createdAt: string, currencyCode: string, data : any, type : string, group: string, image: string, name: string, needPopUp: boolean, priority: string, serverId: string, source: string, text: string, title: string, url: string}[]>}
-     */
-
-    getNews: async (userNotifications) => {
-        const baseUrl = 'https://notifications.trustee.deals/notifications/history'
-        let deviceToken = MarketingEvent.DATA.LOG_TOKEN
-        if (!deviceToken) {
-            await AppNotificationListener.getToken()
-            deviceToken = MarketingEvent.DATA.LOG_TOKEN
-        }
-        const signedData = await CashBackUtils.createWalletSignature(true)
-        if (!signedData) {
-            throw new Error('No signed for getNews')
-        }
-        const data = {
-            cashbackToken: CashBackUtils.getWalletToken(),
-            deviceToken,
-            sign : signedData,
-            userNotifications : userNotifications ? userNotifications : [],
-            locale : sublocale()
-        }
-        try {
-            const res = await BlocksoftAxios.post(`${baseUrl}`, data, false)
-            if (!res || typeof res.data === 'undefined' || !res.data || typeof res.data[0] === 'undefined') {
-                return []
-            }
-            return {isError : false, data : res.data}
-        } catch (e) {
-            if (config.debug.appErrors) {
-                console.log('Api.getNews error ', data, e)
-            }
-            Log.log('Api.getNews error ' + e.message, data)
-            return { isError : true, data : [] }
-        }
-    },
-
-    getCashbackData: async () => {
-        const signature = await CashBackUtils.createWalletSignature(true)
-        if (!signature) {
-            throw new Error('UI_ERROR_CASHBACK_SIGN_ERROR')
-        }
-        const cashbackToken = CashBackUtils.getWalletToken()
-        const parentToken = CashBackUtils.getParentToken()
-        const deviceToken = MarketingEvent.DATA.LOG_TOKEN
-
-        const getStatisticsReqData = {
-            deviceToken,
-            locale: sublocale(),
-            signedData: signature,
-            timestamp: +new Date()
-        }
-
-        if (typeof cashbackToken !== 'undefined' && cashbackToken !== null) {
-            getStatisticsReqData.cashbackToken = cashbackToken
-        }
-
-        if (typeof parentToken !== 'undefined' && parentToken !== null && parentToken) {
-            getStatisticsReqData.parentToken = parentToken
-        }
-
-        const link = `${CashBackSettings.getBase()}/get-cb-data`
-
-        let res
-        let index = 0
-        let serverTime = 0
-        const MAX_TRY_SERVER_TIME = 4
-        do {
-            index++
-            Log.daemon('Api getCashbackData axios ' + index + ' ' + link)
-            res = await BlocksoftAxios.postWithoutBraking(link, getStatisticsReqData)
-            if (!res || typeof res.data === 'undefined' || !res.data) {
-                throw new Error('UI_ERROR_CASHBACK_NETWORK_ERROR')
-            }
-            if (typeof res.data.data === 'undefined' || !res.data.data) {
-                Log.daemon('Api getCashbackData error ', res.data)
-                if (typeof res.data.serverTimestamp !== 'undefined' && res.data.serverTimestamp) {
-                    serverTime = res.data.serverTimestamp
-                    res = false
-                    if (!serverTime || index === MAX_TRY_SERVER_TIME) {
-                        throw new Error('UI_ERROR_CASHBACK_TIME_ERROR')
-                    } else {
-                        Log.daemon('Api getCashbackData will retry with time ' + serverTime)
-                        getStatisticsReqData.signedData = await CashBackUtils.createWalletSignature(true, serverTime)
-                    }
-                } else {
-                    throw new Error('UI_ERROR_CASHBACK_NETWORK_ERROR')
-                }
-            } else {
-                // finish ok
-                break
-            }
-        } while (index < MAX_TRY_SERVER_TIME)
-
-        if (!res || typeof res.data === 'undefined' || !res.data) {
-            throw new Error('UI_ERROR_CASHBACK_NETWORK_ERROR')
-        }
-        res = res.data.data
-        // could be fix res.cashbackToken = cashbackToken
-        return res
     },
 
     activatePromo: async (promoCode) => {

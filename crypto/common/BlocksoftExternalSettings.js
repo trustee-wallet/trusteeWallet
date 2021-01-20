@@ -1,7 +1,7 @@
 import BlocksoftAxios from './BlocksoftAxios'
 import BlocksoftCryptoLog from './BlocksoftCryptoLog'
-
-const API_PATH = 'https://microscanners.trustee.deals/fees'
+import ApiProxy from '../../app/services/Api/ApiProxy'
+import config from '../../app/config/config'
 
 const MAX_CACHE_VALID_TIME = 600000 // 10 minutes
 const MIN_CACHE_VALID_TIME = 60000 // 1 minute
@@ -107,16 +107,19 @@ class BlocksoftExternalSettings {
         }
         try {
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source)
-            const tmp = await BlocksoftAxios.getWithoutBraking(API_PATH)
+            const tmp = await ApiProxy.getAll({source : 'BlocksoftExternalSettings._get ' + source})
             CACHE_TIME = now
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get returned ALL from ' + source)
-            if (tmp && typeof tmp.data !== 'undefined' && tmp.data) {
-                this._setCache(tmp.data.data)
+            if (tmp && typeof tmp.fees !== 'undefined' && tmp.fees) {
+                this._setCache(tmp.fees.data)
                 CACHE_VALID_TIME = MIN_CACHE_VALID_TIME
             } else {
                 CACHE_VALID_TIME = MAX_CACHE_VALID_TIME
             }
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('BlocksoftExternalSettings._get started ALL from ' + source + ' error ' + e.message)
+            }
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source + ' error ' + e.message)
         }
     }

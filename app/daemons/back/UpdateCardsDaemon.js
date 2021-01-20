@@ -26,7 +26,6 @@ class UpdateCardsDaemon {
      * @return {Promise<void>}
      */
     updateCardsDaemon = async (params) => {
-        Log.daemon('UpdateCardsDaemon called')
         if (params) {
             if (typeof params.unique !== 'undefined') {
                 const now = new Date().getTime()
@@ -36,6 +35,10 @@ class UpdateCardsDaemon {
                 CACHE_UNIQUE[params.unique] = now
             }
         }
+
+        console.log(new Date().toISOString() + ' UpdateCardsDaemon started')
+
+        Log.daemon('UpdateCardsDaemon called')
 
         const allCards = await cardDS.getCards()
 

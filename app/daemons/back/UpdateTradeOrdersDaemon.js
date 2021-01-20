@@ -14,6 +14,7 @@ import ExchangeOrdersActions from '../../appstores/Stores/ExchangeOrders/Exchang
 
 import config from '../../config/config'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+import ApiProxy from '../../services/Api/ApiProxy'
 
 const settingsDS = new Settings()
 
@@ -25,6 +26,7 @@ let TRY_COUNTER = 0
 const CACHE_ORDERS = {}
 let CACHE_REMOVED = false
 const CACHE_ONE_ORDER = {}
+let CACHE_ORDERS_HASH = ''
 
 const LIMIT_FOR_CURRENCY = 20
 
@@ -132,17 +134,6 @@ class UpdateTradeOrdersDaemon {
      * @returns {Promise<boolean>}
      */
     updateTradeOrdersDaemon = async (params) => {
-        const dbInterface = new DBInterface()
-
-        Log.daemon('UpdateTradeOrders called ' + JSON.stringify(params))
-        if (CACHE_REMOVED === false) {
-            await this._removedFromDb()
-        }
-
-        const walletHash = await BlocksoftKeysStorage.getSelectedWallet()
-        if (!walletHash) {
-            return false
-        }
 
         if (typeof params.source !== 'undefined' && params.source === 'ACCOUNT_OPEN' && CACHE_LAST_TIME) {
             const now = new Date().getTime()
@@ -153,26 +144,30 @@ class UpdateTradeOrdersDaemon {
             }
         }
 
+        console.log(new Date().toISOString() + ' UpdateTradeOrdersDaemon started')
+
+        Log.daemon('UpdateTradeOrders called ' + JSON.stringify(params))
+
+        const dbInterface = new DBInterface()
+
+        if (CACHE_REMOVED === false) {
+            await this._removedFromDb()
+        }
+
+        const walletHash = await BlocksoftKeysStorage.getSelectedWallet()
+        if (!walletHash) {
+            return false
+        }
+
         const exchangeWayTypes = BlocksoftExternalSettings.getStatic('TRADE_ORDERS_NO_TX_WAY_TYPES', 'UpdateTradeOrdersDaemon')
         const allowedToShow = BlocksoftExternalSettings.getStatic('TRADE_ORDERS_NO_TX_MAX_COUNT', 'UpdateTradeOrdersDaemon')
         const now = new Date().getTime()
         try {
-            let tmpTradeOrders = await Api.getExchangeOrders()
-            const tmpTradeOrdersV3 = await ApiV3.getExchangeOrders()
-            if (typeof tmpTradeOrdersV3 !== 'undefined' && tmpTradeOrdersV3 && tmpTradeOrdersV3.length > 0) {
-                if (tmpTradeOrders && typeof tmpTradeOrders.length !== 'undefined' && tmpTradeOrders.length > 0) {
-                    try {
-                        for (const one of tmpTradeOrdersV3) {
-                            one.orderId = one.orderHash
-                            one.uiApiVersion = 'v3'
-                            tmpTradeOrders.push(one)
-                        }
-                    } catch (e) {
-                        Log.log('UpdateTradeOrders tmpTradeOrders error ' + e.message, tmpTradeOrders)
-                    }
-                } else {
-                    tmpTradeOrders = tmpTradeOrdersV3
-                }
+
+            const res = await ApiProxy.getAll({source : 'UpdateTradeOrdersDaemon.updateTradeOrders'})
+            const tmpTradeOrders = typeof res.cbOrders !== 'undefined' ? res.cbOrders : false
+            if (typeof res.cbOrdersHash !== 'undefined' && res.cbOrdersHash === CACHE_ORDERS_HASH && typeof params.removeId === 'undefined') {
+                return false
             }
 
             if (typeof params.removeId !== 'undefined') {
@@ -183,9 +178,7 @@ class UpdateTradeOrdersDaemon {
             }
 
             try {
-                if (typeof tmpTradeOrders !== 'undefined' && tmpTradeOrders && tmpTradeOrders.length > 0 && typeof tmpTradeOrders.sort !== 'undefined') {
-
-                    tmpTradeOrders = tmpTradeOrders.sort((item1, item2) => item2.createdAt - item1.createdAt)
+                if (typeof tmpTradeOrders !== 'undefined' && tmpTradeOrders && tmpTradeOrders.length > 0) {
 
                     let item
 
@@ -303,7 +296,7 @@ class UpdateTradeOrdersDaemon {
                     }
 
                     TRY_COUNTER = 0
-
+                    CACHE_ORDERS_HASH = res.cbOrdersHash
                 } else {
                     await this.fromDB(walletHash)
                 }
@@ -316,6 +309,9 @@ class UpdateTradeOrdersDaemon {
             }
 
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('UpdateTradeOrders get orders error ' + e.message, e)
+            }
             if (Log.isNetworkError(e.message) && TRY_COUNTER < 10) {
                 TRY_COUNTER++
                 Log.daemon('UpdateTradeOrders network try ' + TRY_COUNTER + ' ' + e.message)

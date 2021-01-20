@@ -2,24 +2,14 @@
  * @version 0.9
  */
 import Log from '../Log/Log'
-import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
+import ApiProxy from './ApiProxy'
+import config from '../../config/config'
+
+let CACHE_RATES_HASH = ''
 
 class ApiRates {
-
-    /**
-     * could be changed to some our proxy later
-     * @type {string}
-     */
-    URL = 'https://microscanners.trustee.deals/rates'
-
-    /**
-     * time to store cached response not to ask twice (ms)
-     * @type {number}
-     * @private
-     */
-    _CACHE_VALID_TIME = 30000 // 30 sec
 
     /**
      * last response array of rates
@@ -28,29 +18,21 @@ class ApiRates {
      */
     _cachedData = {}
 
-    /**
-     * last response time
-     * @type {number}
-     * @private
-     */
-    _cachedTime = 0
-
     _cachedBasicCurrencies =   [{ currencyCode: 'USD'}, { currencyCode: 'UAH' }, { currencyCode: 'RUB' }, { currencyCode: 'USDT', currencyName: 'Usdt' }]
 
     _inited = false
 
-    async getRates() {
-        const now = new Date().getTime()
-        if (now - this._cachedTime < this._CACHE_VALID_TIME) {
-            return this._cachedData
-        }
+    async getRates(params) {
         try {
-            const res = await BlocksoftAxios.getWithoutBraking(this.URL)
-            if (!res || typeof res.data === 'undefined' || typeof res.data.data === 'undefined') {
-                return this._cachedData
+            if (typeof params !== 'undefined' && typeof params.force !== 'undefined') {
+                params.onlyRates = true
             }
-            this._cachedData = res.data.data
-            this._cachedTime = now
+            const res = await ApiProxy.getAll(params)
+            if (!res || typeof res.rates === 'undefined' || typeof res.rates.data === 'undefined' || typeof res.ratesHash === 'undefined' || res.ratesHash === CACHE_RATES_HASH ) {
+                return false
+            }
+            this._cachedData = res.rates.data
+            CACHE_RATES_HASH = res.ratesHash
             if (typeof this._cachedData.basicCurrencies !== 'undefined') {
                 if (this._cachedData.basicCurrencies !== this._cachedBasicCurrencies) {
                     this._cachedBasicCurrencies = this._cachedData.basicCurrencies
@@ -59,6 +41,9 @@ class ApiRates {
                 }
             }
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('ApiRates error ' + e.message )
+            }
             Log.daemon('ApiRates error ' + e.message )
         }
         return this._cachedData

@@ -1,5 +1,5 @@
 /**
- * @version 0.31
+ * @version 0.32
  */
 import Log from '../../services/Log/Log'
 import Api from '../../services/Api/Api'
@@ -9,9 +9,11 @@ import DBInterface from '../../appstores/DataSource/DB/DBInterface'
 import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWallets'
 import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
+import ApiProxy from '../../services/Api/ApiProxy'
 
-const CACHE_VALID_TIME = 60000 // 1 minute
+let CACHE_NEWS_HASH = ''
 let CACHE_LAST_TIME = false
+const CACHE_VALID_TIME = 60000 // 1 minute
 
 class UpdateAppNewsDaemon {
 
@@ -48,31 +50,23 @@ class UpdateAppNewsDaemon {
 
         Log.daemon('UpdateAppNews called')
         const walletHash = await cryptoWalletsDS.getSelectedWallet()
-        const forServer = await appNewsDS.getAppNewsForServer()
-        const forServerIds = []
-        if (forServer) {
-            for (const row of forServer) {
-                forServerIds.push(row.id)
-                if (row.receivedAt) {
-                    row.receivedAt = row.receivedAt + '000'
-                }
-                if (row.openedAt) {
-                    row.openedAt = row.openedAt + '000'
-                }
-            }
-        }
-        const res = await Api.getNews(forServer)
-        if (res.isError) {
+
+        let res
+        try {
+            res = await ApiProxy.getAll({source : 'UpdateAppNewsDaemon.updateAppNews'})
+        } catch (e) {
             this._canUpdate = true
             return false
         }
-        if (!res.data || res.data.length === 0) {
-            if (forServerIds.length > 0) {
-                await appNewsDS.saveAppNewsSentForServer(forServerIds)
+        if (typeof res.news === 'undefined' || !res.news || res.news.length === 0 || res.newsHash === CACHE_NEWS_HASH) {
+            if (res && typeof res.forServerIds !== 'undefined' && res.forServerIds.length > 0) {
+                await appNewsDS.saveAppNewsSentForServer(res.forServerIds)
             }
             this._canUpdate = true
             return false
         }
+        CACHE_NEWS_HASH = typeof res.newsHash !== 'undefined' ? res.newsHash : ''
+
         const keys = {
             currencyCode: 'currencyCode',
             newsSource: 'source',
@@ -90,7 +84,7 @@ class UpdateAppNewsDaemon {
             newsServerHash: 'status'
         }
         try {
-            for (const row of res.data) {
+            for (const row of res.news) {
                 const toSave = {
                     newsNeedPopup: row.needPopup ? 1 : 0,
                     newsLog: new Date().toISOString() + ' loaded from Server'
@@ -111,8 +105,8 @@ class UpdateAppNewsDaemon {
                 await appNewsDS.saveAppNews(toSave)
             }
 
-            if (forServerIds.length > 0) {
-                await appNewsDS.saveAppNewsSentForServer(forServerIds)
+            if (res.forServerIds.length > 0) {
+                await appNewsDS.saveAppNewsSentForServer(res.forServerIds)
             }
             CACHE_LAST_TIME = new Date().getTime()
         } catch (e) {

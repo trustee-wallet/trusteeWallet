@@ -18,34 +18,20 @@ import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWall
 
 const STEPS_ORDER = [
 
-    'UPDATE_APP_TASKS_HD_DAEMON',
-
-    'UPDATE_RATES_DAEMON',
+    'UPDATE_PROXIED',
     'UPDATE_ACCOUNT_BALANCES_DAEMON',
-    'UPDATE_NEWS_DAEMON',
+    'UPDATE_CARDS_DAEMON',
     'UPDATE_ACCOUNT_BALANCES_HD_DAEMON',
 
     'UPDATE_RATES_DAEMON',
-    'UPDATE_TRADE_ORDERS',
-    'UPDATE_NEWS_DAEMON',
     'UPDATE_ACCOUNT_BALANCES_DAEMON',
-
-    'UPDATE_RATES_DAEMON',
     'UPDATE_CASHBACK_DATA',
-    'UPDATE_NEWS_DAEMON',
     'UPDATE_ACCOUNT_BALANCES_DAEMON',
 
-    'UPDATE_RATES_DAEMON',
-    'UPDATE_APP_TASKS_DAEMON',
-    'UPDATE_NEWS_DAEMON',
-    'UPDATE_ACCOUNT_BALANCES_DAEMON_ALL',
-
-    'UPDATE_RATES_DAEMON',
-    'UPDATE_CARDS_DAEMON',
     'UPDATE_NEWS_DAEMON',
     'UPDATE_ACCOUNT_BALANCES_DAEMON',
-
-
+    'UPDATE_TRADE_ORDERS',
+    'UPDATE_ACCOUNT_BALANCES_HD_DAEMON',
 ]
 
 let CACHE_PAUSE = 0
@@ -56,6 +42,7 @@ let CACHE_STOPPED = false
 
 const CACHE_VALID_TIME = {
     'PAUSE' : 60000, // 60 seconds
+    'UPDATE_PROXIED' : 120000, // 120 seconds
     'UPDATE_TRADE_ORDERS': 30000, // 30 seconds
     'UPDATE_CASHBACK_DATA': 300000, // 5 minutes
     'UPDATE_APP_TASKS_HD_DAEMON': 30000, // 30 seconds
@@ -135,18 +122,19 @@ class UpdateOneByOneDaemon extends Update {
             // console.log(new Date().toISOString() + ' ' + this._currentStep + ' step in ' + step)
             CACHE_TIMES[step] = now
             switch (step) {
+                case 'UPDATE_PROXIED' :
+                    await UpdateCurrencyRateDaemon.updateCurrencyRate({source})
+                    await UpdateAppNewsDaemon.updateAppNewsDaemon({source})
+                    await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ source })
+                    await UpdateCashBackDataDaemon.updateCashBackDataDaemon({ source })
+                    break
+
                 case 'UPDATE_TRADE_ORDERS' :
                     await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ source })
                     break
                 case 'UPDATE_CASHBACK_DATA' :
                     if (source === 'BACK') return
                     await UpdateCashBackDataDaemon.updateCashBackDataDaemon({ source })
-                    break
-                case 'UPDATE_APP_TASKS_HD_DAEMON':
-                    await UpdateAppTasksDaemon.updateAppTasksDaemon({ taskName: 'DISCOVER_HD' })
-                    break
-                case 'UPDATE_APP_TASKS_DAEMON' :
-                    await UpdateAppTasksDaemon.updateAppTasksDaemon({})
                     break
                 case 'UPDATE_CARD_DAEMON' :
                     if (source === 'BACK') return
@@ -156,7 +144,7 @@ class UpdateOneByOneDaemon extends Update {
                     await UpdateCurrencyRateDaemon.updateCurrencyRate({source})
                     break
                 case 'UPDATE_NEWS_DAEMON' :
-                    await UpdateAppNewsDaemon.updateAppNewsDaemon()
+                    await UpdateAppNewsDaemon.updateAppNewsDaemon({source})
                     break
                 case 'UPDATE_ACCOUNT_BALANCES_DAEMON':
                     await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ source })

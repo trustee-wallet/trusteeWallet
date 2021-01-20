@@ -44,6 +44,8 @@ export default {
         }
         const baseUrl = exchangeMode === 'DEV' ? V3_API : V3_API
 
+        console.log(new Date().toISOString() + ' ApiV3.validateCard ' + baseUrl)
+
         try {
             return await axios.post(`${baseUrl}/payment-details/validate-card`, data, {
                 headers: {
@@ -341,6 +343,8 @@ export default {
                     link = `${V3_API}/order/history-for-wallet?`
                          + `cashbackToken=${signedData.cashbackToken}&message=${signedData.message}&messageHash=${signedData.messageHash}`
                          + `&signature=${signedData.signature}&timestamp=${+new Date()}`
+
+                    console.log(new Date().toISOString() + ' ApiV3.getExchangeOrders ' + link)
 
                     now = +new Date()
                     res = await BlocksoftAxios.get(link, false)

@@ -2,10 +2,12 @@
  * @version 0.31
  */
 import Log from '../../services/Log/Log'
-import Api from '../../services/Api/Api'
 import CashBackActions from '../../appstores/Stores/CashBack/CashBackActions'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWallets'
+import ApiProxy from '../../services/Api/ApiProxy'
+
+import config from '../../config/config'
 
 class UpdateCashBackDataDaemon {
 
@@ -18,6 +20,7 @@ class UpdateCashBackDataDaemon {
         if (!this._canUpdate) return false
 
         this._canUpdate = false
+
         const authHash = await cryptoWalletsDS.getSelectedWallet()
         if (!authHash) {
             Log.daemon('UpdateCashBackDataDaemon skipped as no auth')
@@ -26,10 +29,17 @@ class UpdateCashBackDataDaemon {
         }
 
         Log.daemon('UpdateCashBackDataDaemon called')
+
         let data = false
         try {
-            data = await Api.getCashbackData()
+            data = await ApiProxy.getAll({ source: 'UpdateCashBackDataDaemon.updateCashBackData' })
+            if (typeof data.cbData !== 'undefined') {
+                data = data.cbData.data
+            }
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('UpdateCashBackDataDaemon error ' + e.message )
+            }
             await CashBackActions.setCashBackError({
                 title: e.message,
                 time: new Date().getTime()
@@ -37,6 +47,7 @@ class UpdateCashBackDataDaemon {
             this._canUpdate = true
             return
         }
+
         try {
             Log.daemon('UpdateCashBackDataDaemon result ', data)
             data.time = new Date().getTime()
@@ -44,6 +55,9 @@ class UpdateCashBackDataDaemon {
             data.customToken = typeof data.customToken !== 'undefined' && data.customToken ? data.customToken : data.cashbackToken
             await CashBackUtils.setCashBackDataFromApi(data)
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('UpdateCashBackDataDaemon result error ' + e.message )
+            }
             this._canUpdate = true
             Log.err('UpdateCashBackDataDaemon result error ' + e.message)
         }
