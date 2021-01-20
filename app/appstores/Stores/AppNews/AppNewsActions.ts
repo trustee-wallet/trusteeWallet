@@ -85,12 +85,13 @@ export namespace AppNewsActions {
             })
             return false
         } else {
+            // @ksu check this, plz
             const exchangeRatesNotifs = await settingsActions.getSetting('exchangeRatesNotifs')
             showModal({
                 type: 'NOTIFICATION_MODAL',
                 // title: title,
                 description: subtitle ? subtitle : title ? title : '',
-                rates: +exchangeRatesNotifs && notification.newsGroup === "RATES_CHANGING",
+                rates: +exchangeRatesNotifs && (notification.newsGroup === "RATES_CHANGING" || notification.data.type === "RATES_CHANGING"),
                 noCallback: async () => {
                     await settingsActions.setSettings('exchangeRatesNotifs', '0')
                     await AppNotificationListener.updateSubscriptionsLater()

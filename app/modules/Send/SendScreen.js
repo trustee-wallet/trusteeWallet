@@ -730,7 +730,7 @@ class SendScreen extends SendBasicScreenScreen {
         try {
             if (!value || value === 0 || value === '0.00') {
                 amountEquivalent = '0.00'
-                symbolEquivalent = inputType === 'CRYPTO' ? `${basicCurrencyCode}` : `${currencyCode}`
+                symbolEquivalent = inputType === 'CRYPTO' ? `${basicCurrencyCode}` : `${currencySymbol}`
             } else if (inputType === 'CRYPTO') {
                 valueCrypto = value
                 amountEquivalent = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
@@ -1157,7 +1157,7 @@ class SendScreen extends SendBasicScreenScreen {
             extendedAddressUiChecker = currencyCode
         }
 
-        const notEquivalentValue = this.state.amountInputMark ? this.state.amountInputMark : '0.00'
+        const notEquivalentValue = this.state.amountInputMark ? this.state.amountInputMark : `0.00 ${inputType !== 'CRYPTO' ? currencySymbol : basicCurrencyCode }` 
 
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
@@ -1209,7 +1209,7 @@ class SendScreen extends SendBasicScreenScreen {
                                         maxWidth={SCREEN_WIDTH * 0.6}
                                     />
                                     <Text style={{...style.ticker, color: colors.sendScreen.amount }}>
-                                        {inputType === 'CRYPTO' ? currencyCode : basicCurrencyCode }
+                                        {inputType === 'CRYPTO' ? currencySymbol : basicCurrencyCode }
                                     </Text>
                                 </View>
                             </View>
