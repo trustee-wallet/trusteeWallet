@@ -596,28 +596,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' done ' + JSON.stringify(result.transactionJson))
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent error', e, tx)
+                console.log(this._settings.currencyCode + ' EthTransferProcessor.sent error ' + e.message, tx)
             }
-            if (e.message.indexOf('nonce too low') !== -1) {
-                if (txRBF) {
-                    throw new Error('SERVER_RESPONSE_TRANSACTION_ALREADY_MINED')
-                } else {
-                    throw new Error('SERVER_RESPONSE_NONCE_ALREADY_MINED')
-                }
-            } else if (e.message.indexOf('underpriced') !== -1) {
-                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
-            } else if (e.message.indexOf('insufficient funds') !== -1) {
-                // @ts-ignore
-                if (data.amount * 1 > 0) {
-                    throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
-                } else {
-                    throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
-                }
-            } else {
-                // noinspection ES6MissingAwait
-                MarketingEvent.logOnlyRealTime('v20_eth_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
-                throw e
-            }
+            this.checkError(e, data, txRBF, logData)
         }
         // @ts-ignore
         logData.result = result

@@ -79,13 +79,13 @@ export default class SendBasicScreen extends Component {
     openAdvancedSettings = async (additionalParams) => {
         // late count
         setLoaderStatus(true)
-        
+
         const newSendScreenData = JSON.parse(JSON.stringify(this.state.sendScreenData))
         const { selectedFee } = await this.recountFees(newSendScreenData, 'Send.SendBasicScreen.openAdvancedScreen')
         newSendScreenData.selectedFee = selectedFee
-        
+
         setLoaderStatus(false)
-        
+
         NavStore.goNext('SendAdvancedScreen', {
             additionalParams
         })
@@ -207,7 +207,7 @@ export default class SendBasicScreen extends Component {
                     subvalue={fiatFee}
                 />
                 {
-                    nonceForTxTitle && typeof selectedFee.nonceForTx !== 'undefined' && selectedFee.nonceForTx ?
+                    nonceForTxTitle && typeof selectedFee.nonceForTx !== 'undefined' && selectedFee.nonceForTx && selectedFee.nonceForTx.toString() !== '-1' ?
                         <CheckData
                             name={strings(nonceForTxTitle)}
                             value={selectedFee.nonceForTx + ''}
