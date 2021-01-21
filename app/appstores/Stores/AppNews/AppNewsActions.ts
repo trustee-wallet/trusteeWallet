@@ -27,81 +27,105 @@ export namespace AppNewsActions {
      * @param subtitle
      * return true when NavStore need to be called outside the function (to reload notifications screen if called from local push open etc)
      */
-    export const onOpen = async (notification : any, title : string = '', subtitle : string = '', checkLock = true): Promise<boolean> => {
-        if (checkLock && MarketingEvent.UI_DATA.IS_LOCKED) {
-            await Log.log('ACT/AppNewsActions onOpen need unlock')
-            lockScreenAction.setFlowType({
-                flowType: 'JUST_CALLBACK'
-            })
-            lockScreenAction.setActionCallback({
-                actionCallback: async () => {
-                    await Log.log('ACT/AppNewsActions onOpen after lock screen')
-                    if (await AppNewsActions.onOpen(notification, title, subtitle, false)) {
-                        NavStore.reset('NotificationsScreen')
+    export const onOpen = async (notification: any, title: string = '', subtitle: string = '', checkLock = true): Promise<boolean> => {
+        try {
+            if (checkLock && MarketingEvent.UI_DATA.IS_LOCKED) {
+                await Log.log('ACT/AppNewsActions onOpen need unlock')
+                lockScreenAction.setFlowType({
+                    flowType: 'JUST_CALLBACK'
+                })
+                lockScreenAction.setActionCallback({
+                    actionCallback: async () => {
+                        await Log.log('ACT/AppNewsActions onOpen after lock screen')
+                        if (await AppNewsActions.onOpen(notification, title, subtitle, false)) {
+                            NavStore.reset('NotificationsScreen')
+                        }
                     }
-                }
-            })
-            NavStore.reset('LockScreen')
-            return false
-        }
+                })
+                NavStore.reset('LockScreen')
+                return false
+            }
 
-        await Log.log('ACT/AppNewsActions onOpen', notification)
-        if (notification.newsOpenedAt === null) {
-            await AppNewsActions.markAsOpened(notification.id)
-        }
-        if (notification.newsUrl && notification.newsUrl !== 'null' && notification.newsUrl !== '') {
-            NavStore.goNext('WebViewScreen', { url: notification.newsUrl, title: strings('notifications.newsTitle') })
-            return false
-        }
+            await Log.log('ACT/AppNewsActions onOpen', notification)
+            if (notification.newsOpenedAt === null) {
+                AppNewsActions.markAsOpened(notification.id)
+            }
+            if (notification.newsUrl && notification.newsUrl !== 'null' && notification.newsUrl !== '') {
+                NavStore.goNext('WebViewScreen', {
+                    url: notification.newsUrl,
+                    title: strings('notifications.newsTitle')
+                })
+                return false
+            }
 
-        // orders processing
-        const transactionHash = notification.newsJson?.payinTxHash || notification.newsJson?.payoutTxHash
-        const orderHash = notification.newsJson?.orderHash || false
-        if (title === '') {
-            title = notification?.newsCustomTitle || false
-        }
-        if (subtitle === '') {
-            subtitle = notification?.newsCustomText || false
-        }
-
-        const notificationToTx = {title, subtitle, newsName: notification.newsName, createdAt : notification.newsCreated}
-        if (transactionHash) {
-            NavStore.goNext('TransactionScreen', {
-                txData: {
-                    transactionHash,
-                    orderHash,
-                    walletHash : notification.walletHash,
-                    notification : notificationToTx
+            // orders processing
+            const transactionHash = notification.newsJson?.payinTxHash || notification.newsJson?.payoutTxHash
+            const orderHash = notification.newsJson?.orderHash || false
+            if (title === '') {
+                title = notification?.newsCustomTitle || false
+            }
+            if (subtitle === '') {
+                subtitle = notification?.newsCustomText || false
+            }
+            const notificationToTx = {
+                title,
+                subtitle,
+                newsName: notification.newsName,
+                createdAt: notification.newsCreated
+            }
+            if (transactionHash) {
+                NavStore.goNext('TransactionScreen', {
+                    txData: {
+                        transactionHash,
+                        orderHash,
+                        walletHash: notification.walletHash,
+                        notification: notificationToTx
+                    }
+                })
+                return false
+            } else if (orderHash) {
+                NavStore.goNext('TransactionScreen', {
+                    txData: {
+                        orderHash,
+                        walletHash: notification.walletHash,
+                        notification: notificationToTx
+                    }
+                })
+                return false
+            } else {
+                const exchangeRatesNotifs = await settingsActions.getSetting('exchangeRatesNotifs')
+                const newsGroup = typeof notification.data !== 'undefined' && typeof notification.data.type !== 'undefined' && notification.data.type ? notification.data.type : notification.newsGroup
+                const isRates = +exchangeRatesNotifs && newsGroup === 'RATES_CHANGING'
+                if (isRates) {
+                    showModal({
+                        type: 'NOTIFICATION_MODAL',
+                        // title: title,
+                        description: subtitle && subtitle !== '' ? subtitle : title,
+                        rates: true,
+                        noCallback: async () => {
+                            await settingsActions.setSettings('exchangeRatesNotifs', '0')
+                            await AppNotificationListener.updateSubscriptionsLater()
+                        }
+                    })
+                } else {
+                    showModal({
+                        type: 'NOTIFICATION_MODAL',
+                        // title: title,
+                        description: subtitle && subtitle !== '' ? subtitle : title
+                    })
                 }
-            })
-            return false
-        } else if (orderHash) {
-            NavStore.goNext('TransactionScreen', {
-                txData: {
-                    orderHash,
-                    walletHash : notification.walletHash,
-                    notification : notificationToTx
-                }
-            })
-            return false
-        } else {
-            // @ksu check this, plz
-            const exchangeRatesNotifs = await settingsActions.getSetting('exchangeRatesNotifs')
-            showModal({
-                type: 'NOTIFICATION_MODAL',
-                // title: title,
-                description: subtitle ? subtitle : title ? title : '',
-                rates: +exchangeRatesNotifs && (notification.newsGroup === "RATES_CHANGING" || notification.data.type === "RATES_CHANGING"),
-                noCallback: async () => {
-                    await settingsActions.setSettings('exchangeRatesNotifs', '0')
-                    await AppNotificationListener.updateSubscriptionsLater()
-                }
-            })
+                return true
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('ACT/AppNewsActions onOpen error ' + e.message)
+            }
+            await Log.log('ACT/AppNewsActions onOpen error ' + e.message)
             return true
         }
     }
 
-    export const displayBadge = async (number:number) : Promise<void> => {
+    export const displayBadge = async (number: number): Promise<void> => {
         return AppNotificationPopup.displayBadge(number)
     }
 
@@ -152,7 +176,7 @@ export namespace AppNewsActions {
         await UpdateAppNewsListDaemon.forceDaemonUpdate()
     }
 
-    export const markAsOpened = async (id : number): Promise<void> => {
+    export const markAsOpened = async (id: number): Promise<void> => {
         await appNewsDS.markAsOpened(id)
         // @ts-ignore
         await UpdateAppNewsListDaemon.forceDaemonUpdate()
@@ -164,8 +188,8 @@ export namespace AppNewsActions {
         await UpdateAppNewsListDaemon.forceDaemonUpdate()
     }
 
-    export const markAsRemoved = async (id : number): Promise<void> => {
-        await appNewsDS.setRemoved({id})
+    export const markAsRemoved = async (id: number): Promise<void> => {
+        await appNewsDS.setRemoved({ id })
         // @ts-ignore
         await UpdateAppNewsListDaemon.forceDaemonUpdate()
     }
