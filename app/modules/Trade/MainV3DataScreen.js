@@ -587,7 +587,6 @@ class MainV3DataScreen extends Component {
         if (typeof cacheJson === 'undefined' || !cacheJson) {
             card = await cardDS.getCards({ numberCard })
 
-            card = card[0]
             cardStatus = JSON.parse(card.cardVerificationJson)
         }
 

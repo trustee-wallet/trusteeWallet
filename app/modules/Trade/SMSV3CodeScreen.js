@@ -11,8 +11,6 @@ import LottieView from 'lottie-react-native'
 import { WebView } from 'react-native-webview'
 import NavStore from '../../components/navigation/NavStore'
 
-
-
 import Log from '../../services/Log/Log'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
@@ -32,6 +30,8 @@ import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
 import config from '../../config/config'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+
+import axios from 'axios'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -53,7 +53,8 @@ class SMSV3CodeScreen extends Component {
             currencySelect: null,
             sign: {},
             api: '',
-            navigation: ''
+            navigation: '',
+            additionalData: {}
         }
         this.webref = React.createRef()
     }
@@ -97,12 +98,12 @@ class SMSV3CodeScreen extends Component {
 
         if (type === 'GENERAL') {
             // eslint-disable-next-line no-new-func
-            const getCode = new Function('tradeWebParam', 'Log', 'MarketingEvent', 'NavStore', 'setExchangeStatus', 'store', '_', 'state', 'CACHE_IS_ERROR', 'that', prepare)
-            return getCode(param, Log, MarketingEvent, NavStore, this.setExchangeStatus, store, _, this.state, CACHE_IS_ERROR, that)
+            const getCode = new Function('tradeWebParam', 'Log', 'MarketingEvent', 'NavStore', 'setExchangeStatus', 'store', '_', 'state', 'CACHE_IS_ERROR', 'that', 'BlocksoftAxios', 'axios', 'config', prepare)
+            return getCode(param, Log, MarketingEvent, NavStore, this.setExchangeStatus, store, _, this.state, CACHE_IS_ERROR, that, BlocksoftAxios, axios, config)
         } else if (type === 'MSG') {
             // eslint-disable-next-line no-new-func
-            const getCode = new Function('e', 'Log', 'Linking', 'copyToClipboard', 'showModal', 'setExchangeStatus', 'CACHE_IS_ERROR', 'that', prepare)
-            return getCode(param, Log, Linking, copyToClipboard, showModal, this.setExchangeStatus, CACHE_IS_ERROR, that)
+            const getCode = new Function('e', 'Log', 'Linking', 'copyToClipboard', 'showModal', 'setExchangeStatus', 'CACHE_IS_ERROR', 'that', 'BlocksoftAxios', 'axios', 'config', prepare)
+            return getCode(param, Log, Linking, copyToClipboard, showModal, this.setExchangeStatus, CACHE_IS_ERROR, that, BlocksoftAxios, axios, config)
         }
     }
 
