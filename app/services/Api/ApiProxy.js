@@ -11,10 +11,11 @@ import MarketingEvent from '../Marketing/MarketingEvent'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
 import AppNotificationListener from '../AppNotification/AppNotificationListener'
+import ApiV3 from './ApiV3'
 
 async function _getAll(params) {
     const { mode: exchangeMode } = config.exchange
-    const link = `https://proxy.trustee.deals/all?exchangeMode=${exchangeMode}`
+    const link = config.proxy.apiEndpoints.baseURL + `/all?exchangeMode=${exchangeMode}`
 
     let deviceToken = MarketingEvent.DATA.LOG_TOKEN
     if (!deviceToken) {
@@ -56,7 +57,6 @@ async function _getAll(params) {
         throw new Error('UI_ERROR_CASHBACK_SIGN_ERROR')
     }
 
-
     const cbData = {
         deviceToken,
         locale: sublocale(),
@@ -76,11 +76,15 @@ async function _getAll(params) {
         timestamp: +new Date()
     }
 
-    const all = await BlocksoftAxios.post(link, {
+    const allData = {
         newsData,
         cbData,
-        cbOrders
-    })
+        cbOrders,
+        marketingAll : MarketingEvent.DATA,
+        walletAll : await ApiV3.initWallet(MarketingEvent.DATA.LOG_WALLET)
+    }
+
+    const all = await BlocksoftAxios.post(link, allData)
     if (typeof all.data.data !== 'undefined') {
         all.data.data.forServerIds = forServerIds
     }
@@ -88,7 +92,7 @@ async function _getAll(params) {
 }
 
 async function _getRates(params) {
-    const link = `https://proxy.trustee.deals/rates`
+    const link = config.proxy.apiEndpoints.baseURL + '/rates'
     return BlocksoftAxios.get(link)
 }
 

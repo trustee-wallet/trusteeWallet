@@ -43,9 +43,6 @@ export default {
             exchangeMode = forceMode
         }
         const baseUrl = exchangeMode === 'DEV' ? V3_API : V3_API
-
-        console.log(new Date().toISOString() + ' ApiV3.validateCard ' + baseUrl)
-
         try {
             return await axios.post(`${baseUrl}/payment-details/validate-card`, data, {
                 headers: {
@@ -57,6 +54,120 @@ export default {
             Log.err('ApiV3 validateCard e.response.data ' + JSON.stringify(e.response.data))
             Log.err('ApiV3 validateCard e.response.data.message ' + JSON.stringify(e.response.data.message))
         }
+    },
+
+    async initWallet(walletHash, currencies = false) {
+        if (typeof DaemonCache.CACHE_WALLET_NAMES_AND_CB[walletHash] === 'undefined') {
+            return false
+        }
+        const wallet = DaemonCache.CACHE_WALLET_NAMES_AND_CB[walletHash]
+
+        const btcLegacyOrSegWit = settingsActions.getSettingStatic('btc_legacy_or_segwit')
+        const btcShowTwoAddress = settingsActions.getSettingStatic('btcShowTwoAddress')
+        let showType = 'segwit'
+        if (btcShowTwoAddress === false && btcLegacyOrSegWit === 'legacy') {
+            showType = 'legacy'
+        }
+
+        if (currencies === false) {
+            const tmps = await currencyDS.getCurrencies()
+            currencies = {}
+            for (const currency of tmps) {
+                const currencyCode = currency.currencyCode
+                const isHidden = currency.isHidden
+                currencies[currencyCode] = isHidden
+            }
+        }
+
+        const accounts = []
+        for (const currencyCode in DaemonCache.CACHE_ALL_ACCOUNTS[walletHash]) {
+            const account = DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][currencyCode]
+
+            // @todo optimize with setSelectedAccount
+            if (currencyCode === 'BTC' && wallet.walletIsHd) {
+                let accounts = await accountDS.getAccountData({
+                    walletHash: walletHash,
+                    currencyCode: currencyCode,
+                    splitSegwit: true,
+                    notAlreadyShown: true
+                })
+
+                let needSegwit = false
+                let needLegacy = false
+                if (showType === 'segwit' && (typeof accounts.segwit === 'undefined' || !accounts.segwit || accounts.segwit.length === 0)) {
+                    needSegwit = true
+                }
+                if (typeof accounts.legacy === 'undefined' || !accounts.legacy || accounts.legacy.length === 0) {
+                    needLegacy = true
+                }
+                Log.log('ACT/ApiV3 HD checked ' + JSON.stringify({ needSegwit, needLegacy }))
+                if (needSegwit || needLegacy) {
+                    await walletPubDS.discoverMoreAccounts({
+                        walletHash: walletHash,
+                        currencyCode: currencyCode,
+                        needSegwit,
+                        needLegacy
+                    }, '_SET_APIV3')
+                    accounts = await accountDS.getAccountData({
+                        walletHash: walletHash,
+                        currencyCode: currencyCode,
+                        splitSegwit: true,
+                        notAlreadyShown: true
+                    })
+                }
+                if (!accounts) {
+                    accounts = await accountDS.getAccountData({
+                        walletHash: walletHash,
+                        currencyCode: currencyCode,
+                        splitSegwit: true
+                    })
+                }
+                if (accounts) {
+                    if (showType === 'segwit' && accounts.segwit && typeof accounts.segwit[0] !== 'undefined') {
+                        account.segwit = accounts.segwit[0].address
+                    }
+                    if (accounts.legacy && typeof accounts.legacy[0] !== 'undefined') {
+                        account.legacy = accounts.legacy[0].address
+                        account.address = account.legacy
+                    }
+                }
+            }
+            // @todo end optimization
+
+            if (showType === 'segwit' && typeof account.legacy !== 'undefined' && typeof account.segwit !== 'undefined') {
+                accounts.push({
+                    currencyCode,
+                    address: [
+                        {
+                            address: account.segwit,
+                            type: 'SEGWIT'
+                        },
+                        {
+                            address: account.legacy,
+                            type: 'LEGACY'
+                        }
+                    ],
+
+                    balance: account.balancePretty,
+                    unconfirmed : account.unconfirmedPretty,
+                    raw : account.balanceRaw
+                })
+            } else {
+                let balance = account.balancePretty
+                if (currencyCode === 'XRP') {
+                    balance = account.balancePretty*1 - 20
+                }
+                accounts.push({
+                    currencyCode,
+                    isHidden: currencies[currencyCode],
+                    address: account.address,
+                    balance,
+                    unconfirmed : account.unconfirmedPretty,
+                    raw : account.balanceRaw
+                })
+            }
+        }
+        return accounts
     },
 
     async initData(type, currencyCode=false, isLight) {
@@ -88,13 +199,6 @@ export default {
             data.cards = []
         }
 
-        const btcLegacyOrSegWit = await settingsActions.getSetting('btc_legacy_or_segwit')
-        const btcShowTwoAddress = await settingsActions.getSetting('btcShowTwoAddress')
-        let showType = 'segwit'
-        if (btcShowTwoAddress === false && btcLegacyOrSegWit === 'legacy') {
-            showType = 'legacy'
-        }
-
         const tmps = await currencyDS.getCurrencies()
         const currencies = {}
         for (const currency of tmps) {
@@ -106,95 +210,7 @@ export default {
         for (const walletHash in DaemonCache.CACHE_WALLET_NAMES_AND_CB) {
             let wallet = DaemonCache.CACHE_WALLET_NAMES_AND_CB[walletHash]
             wallet = await walletDS._redoCashback(wallet)
-            const accounts = []
-            for (const currencyCode in DaemonCache.CACHE_ALL_ACCOUNTS[walletHash]) {
-                const account = DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][currencyCode]
-
-                // @todo optimize with setSelectedAccount
-                if (currencyCode === 'BTC' && wallet.walletIsHd) {
-                    let accounts = await accountDS.getAccountData({
-                        walletHash: walletHash,
-                        currencyCode: currencyCode,
-                        splitSegwit: true,
-                        notAlreadyShown: true
-                    })
-
-                    let needSegwit = false
-                    let needLegacy = false
-                    if (showType === 'segwit' && (typeof accounts.segwit === 'undefined' || !accounts.segwit || accounts.segwit.length === 0)) {
-                        needSegwit = true
-                    }
-                    if (typeof accounts.legacy === 'undefined' || !accounts.legacy || accounts.legacy.length === 0) {
-                        needLegacy = true
-                    }
-                    Log.log('ACT/ApiV3 HD checked ' + JSON.stringify({ needSegwit, needLegacy }))
-                    if (needSegwit || needLegacy) {
-                        await walletPubDS.discoverMoreAccounts({
-                            walletHash: walletHash,
-                            currencyCode: currencyCode,
-                            needSegwit,
-                            needLegacy
-                        }, '_SET_APIV3')
-                        accounts = await accountDS.getAccountData({
-                            walletHash: walletHash,
-                            currencyCode: currencyCode,
-                            splitSegwit: true,
-                            notAlreadyShown: true
-                        })
-                    }
-                    if (!accounts) {
-                        accounts = await accountDS.getAccountData({
-                            walletHash: walletHash,
-                            currencyCode: currencyCode,
-                            splitSegwit: true
-                        })
-                    }
-                    if (accounts) {
-                        if (showType === 'segwit' && accounts.segwit && typeof accounts.segwit[0] !== 'undefined') {
-                            account.segwit = accounts.segwit[0].address
-                        }
-                        if (accounts.legacy && typeof accounts.legacy[0] !== 'undefined') {
-                            account.legacy = accounts.legacy[0].address
-                            account.address = account.legacy
-                        }
-                    }
-                }
-                // @todo end optimization
-
-                if (showType === 'segwit' && typeof account.legacy !== 'undefined' && typeof account.segwit !== 'undefined') {
-                    accounts.push({
-                        currencyCode,
-                        address: [
-                            {
-                                address: account.segwit,
-                                type: 'SEGWIT'
-                            },
-                            {
-                                address: account.legacy,
-                                type: 'LEGACY'
-                            }
-                        ],
-
-                        balance: account.balancePretty,
-                        unconfirmed : account.unconfirmedPretty,
-                        raw : account.balanceRaw
-                    })
-                } else {
-                    let balance = account.balancePretty
-                    if (currencyCode === 'XRP') {
-                        balance = account.balancePretty*1 - 20
-                    }
-                    accounts.push({
-                        currencyCode,
-                        isHidden: currencies[currencyCode],
-                        address: account.address,
-                        balance,
-                        unconfirmed : account.unconfirmedPretty,
-                        raw : account.balanceRaw
-                    })
-                }
-            }
-
+            const accounts = this.initWallet(walletHash, currencies)
             data.wallets.push({
                 walletHash,
                 walletName: wallet.walletName,
@@ -338,13 +354,13 @@ export default {
             const MAX_TRY_SERVER_TIME = 4
             do {
                 index++
-                Log.daemon('ApiV3 getExchangeOrders axios ' + index + ' ' + link)
+                await Log.daemon('ApiV3 getExchangeOrders axios ' + index + ' ' + link)
                 try {
                     link = `${V3_API}/order/history-for-wallet?`
                          + `cashbackToken=${signedData.cashbackToken}&message=${signedData.message}&messageHash=${signedData.messageHash}`
                          + `&signature=${signedData.signature}&timestamp=${+new Date()}`
 
-                    console.log(new Date().toISOString() + ' ApiV3.getExchangeOrders ' + link)
+                    await Log.daemon('ApiV3 getExchangeOrders finished ' + index + ' ' + link)
 
                     now = +new Date()
                     res = await BlocksoftAxios.get(link, false)
@@ -352,7 +368,7 @@ export default {
                         throw new Error('UI_ERROR_NETWORK_ERROR')
                     }
                 } catch (e) {
-                    Log.daemon('ApiV3 getExchangeOrders error ' + e.message)
+                    await Log.daemon('ApiV3 getExchangeOrders error ' + e.message)
                     if (typeof e.subdata === 'undefined') {
                         throw new Error('UI_ERROR_NETWORK_ERROR')
                     }
@@ -360,14 +376,14 @@ export default {
                 }
 
                 if (typeof res.errorMsg !== 'undefined') {
-                    Log.daemon('ApiV3 getExchangeOrders error ', res)
+                    await Log.daemon('ApiV3 getExchangeOrders error ', res)
                     if (typeof res.serverTimestamp !== 'undefined' && res.serverTimestamp) {
                         serverTime = res.serverTimestamp
                         res = false
                         if (!serverTime || index === MAX_TRY_SERVER_TIME) {
                             throw new Error('UI_ERROR_IME_ERROR')
                         } else {
-                            Log.daemon('ApiV3 getExchangeOrders will retry with time ' + serverTime)
+                            await Log.daemon('ApiV3 getExchangeOrders will retry with time ' + serverTime)
                             signedData = await CashBackUtils.createWalletSignature(true, serverTime, _requestAuthHash)
                         }
                     } else {
@@ -386,7 +402,7 @@ export default {
             if (typeof res.data.serverTime !== 'undefined') {
                 const diff = Math.abs(now - res.data.serverTime)
                 if (diff > 6000) {
-                    Log.daemon('ApiV3 getExchangeOrders will ask server time diff ' + diff + ' with time ' + res.data.serverTime)
+                    await Log.daemon('ApiV3 getExchangeOrders will ask server time diff ' + diff + ' with time ' + res.data.serverTime)
                     CACHE_SERVER_TIME_NEED_TO_ASK = true
                 } else {
                     CACHE_SERVER_TIME_NEED_TO_ASK = false

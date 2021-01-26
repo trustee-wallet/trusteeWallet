@@ -325,6 +325,7 @@ export default {
                 transaction_unique_key VARCHAR(256) NULL,         
                 transaction_hash VARCHAR(256) NULL,                
                 transaction_raw TEXT NULL,
+                transaction_log TEXT NULL,
                 broadcast_log TEXT NULL,
                 
                 created_at DATETIME NULL,

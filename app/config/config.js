@@ -58,6 +58,14 @@ const config = {
             baseURLTest: 'https://testcashback1.blocksoftlab.com'
         }
     },
+
+    proxy : {
+        mode : 'PROD',
+        apiEndpoints : {
+            baseURL : 'https://proxy.trustee.deals'
+        }
+    },
+
     fio: {
         apiEndpoints: {
             // baseURL: 'https://testnet.fioprotocol.io/v1/',

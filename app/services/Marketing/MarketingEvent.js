@@ -28,7 +28,8 @@ const ASYNC_CACHE_TITLE = 'pushTokenV2'
 class MarketingEvent {
     DATA = {
         LOG_TOKEN : '',
-        LOG_WALLET : ''
+        LOG_WALLET : '',
+        LOG_CASHBACK : ''
     }
 
     UI_DATA = {

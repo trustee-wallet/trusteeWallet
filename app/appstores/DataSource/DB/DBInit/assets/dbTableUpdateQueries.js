@@ -14,7 +14,7 @@ import DBInterface from '../../DBInterface'
 import { SettingsKeystore } from '../../../../Stores/Settings/SettingsKeystore'
 
 export default {
-    maxVersion: 95,
+    maxVersion: 98,
     updateQuery: {
         1: {
             queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -698,6 +698,18 @@ export default {
                 }
 
             }
-        }
+        },
+
+        96: {
+            queryString: `ALTER TABLE transactions_raw ADD COLUMN transaction_log TEXT NULL`
+        },
+
+        97: {
+            queryString: `DELETE FROM transactions_raw`
+        },
+
+        98: {
+            queryString: `DELETE FROM transactions_scanners_tmp`
+        },
     }
 }
