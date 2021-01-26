@@ -586,6 +586,7 @@ class MainV3DataScreen extends Component {
         let card
         if (typeof cacheJson === 'undefined' || !cacheJson) {
             card = await cardDS.getCards({ numberCard })
+            card = card.find(item => item.number === numberCard)
 
             cardStatus = JSON.parse(card.cardVerificationJson)
         }
