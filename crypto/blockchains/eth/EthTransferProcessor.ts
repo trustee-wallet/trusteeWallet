@@ -506,7 +506,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         let finalGasPrice = 0
         let finalGasLimit = 0
 
+        let selectedFee
         if (typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.gasPrice !== 'undefined') {
+            selectedFee = uiData.selectedFee
             // @ts-ignore
             finalGasPrice = uiData.selectedFee.gasPrice * 1
             // @ts-ignore
@@ -516,7 +518,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             if (fees.selectedFeeIndex < 0) {
                 throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
             }
-            const selectedFee = fees.fees[fees.selectedFeeIndex]
+            selectedFee = fees.fees[fees.selectedFeeIndex]
             // @ts-ignore
             finalGasPrice = selectedFee.gasPrice * 1
             // @ts-ignoreф
@@ -549,7 +551,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         }
 
         const sender = new EthTxSendProvider(this._web3, this._trezorServerCode, this._settings)
-        const logData = tx
+        const logData = JSON.parse(JSON.stringify(tx))
+        logData.currencyCode = this._settings.currencyCode
+        logData.selectedFee = selectedFee
+
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
             if (txRBF) {
@@ -574,8 +579,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         throw new Error('System error: no nonce for ' + txRBF)
                     }
                 }
+                logData.setNonce = oldNonce
                 tx.nonce = oldNonce
-                result = await sender.send(tx, privateData)
+                result = await sender.send(tx, privateData, txRBF, logData)
                 if (typeof data.blockchainData === 'undefined' || !data.blockchainData) {
                     result.amountForTx = data.amount
                 }
@@ -587,8 +593,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 if (typeof uiData.selectedFee.nonceForTx !== 'undefined' && uiData.selectedFee.nonceForTx * 1 >= 0) {
                     // @ts-ignore
                     tx.nonce = uiData.selectedFee.nonceForTx * 1
+                    logData.setNonce = tx.nonce
                 }
-                result = await sender.send(tx, privateData)
+                result = await sender.send(tx, privateData, txRBF, logData)
                 result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
                 result.transactionFeeCurrencyCode = 'ETH'
                 await EthTmpDS.getCache(data.addressFrom)

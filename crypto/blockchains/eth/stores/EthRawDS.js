@@ -1,9 +1,14 @@
+/**
+ * @author Ksu
+ * @version 0.32
+ */
 import DBInterface from '../../../../app/appstores/DataSource/DB/DBInterface'
 import EthTxSendProvider from '../basic/EthTxSendProvider'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
+import config from '../../../../app/config/config'
 
 const tableName = 'transactions_raw'
 
@@ -27,6 +32,7 @@ class EthRawDS {
         transaction_unique_key AS transactionUnique,
         transaction_hash AS transactionHash,
         transaction_raw AS transactionRaw,
+        transaction_log AS transactionLog,
         broadcast_log AS broadcastLog,
         broadcast_updated AS broadcastUpdated,
         created_at AS transactionCreated,
@@ -43,12 +49,16 @@ class EthRawDS {
 
             const ret = {}
 
-            if (this._currencyCode === 'ETH' && this._trezorServer === 'none') {
-                try {
-                    this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Broadcast')
-                    this._infuraProjectId = BlocksoftExternalSettings.getStatic('ETH_INFURA_PROJECT_ID', 'ETH.Broadcast')
-                } catch (e) {
-                    throw new Error(e.message + ' inside trezorServer')
+            if (this._trezorServer === 'none') {
+                if (this._currencyCode === 'ETH') {
+                    try {
+                        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Broadcast')
+                        this._infuraProjectId = BlocksoftExternalSettings.getStatic('ETH_INFURA_PROJECT_ID', 'ETH.Broadcast')
+                    } catch (e) {
+                        throw new Error(e.message + ' inside trezorServer')
+                    }
+                } else {
+                    this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_ROPSTEN_TREZOR_SERVER', 'ETH.Broadcast')
                 }
             }
 
@@ -57,14 +67,50 @@ class EthRawDS {
             for (const row of result.array) {
                 try {
                     ret[row.transactionUnique] = row
-                    if (this._currencyCode === 'ETH') {
-                        let broadcastLog = ''
-                        let link = this._trezorServer + '/api/v2/sendtx/'
-                        const updateObj = {
-                            broadcastUpdated: now,
-                            is_removed : '0'
+                    let transactionLog
+                    try {
+                        transactionLog = row.transactionLog ? JSON.parse(dbInterface.unEscapeString(row.transactionLog)) : row.transactionLog
+                    } catch (e) {
+                        // do nothing
+                    }
+
+                    if (typeof transactionLog.successResult === 'undefined' || !transactionLog.successResult) {
+                        const successProxy = config.proxy.apiEndpoints.baseURL + '/send/sendtx'
+
+                        let checkResult = false
+                        try {
+                            checkResult = await BlocksoftAxios.post(successProxy, {
+                                raw: row.transactionRaw,
+                                txRBF : typeof transactionLog.txRBF !== 'undefined' ? transactionLog.txRBF : false,
+                                logData : transactionLog,
+                                marketingData: MarketingEvent.DATA
+                            })
+                            await BlocksoftCryptoLog.log(this._currencyCode + ' EthRawDS.send proxy success result', JSON.parse(JSON.stringify(checkResult)))
+                        } catch (e3) {
+                            if (config.debug.cryptoErrors) {
+                                console.log(this._currencyCode + ' EthRawDS.send proxy success error ' + e3.message)
+                            }
+                            await BlocksoftCryptoLog.log(this._currencyCode + ' EthRawDS.send proxy success error ' + e3.message)
                         }
-                        let broad
+                        if (checkResult && typeof checkResult.data !== 'undefined') {
+                            transactionLog.successResult = checkResult.data
+                        }
+
+                        await dbInterface.setTableName('transactions_raw').setUpdateData({
+                            updateObj : {transactionLog : dbInterface.escapeString(JSON.stringify(transactionLog))},
+                            key: { id: row.id }
+                        }).update()
+                    }
+
+                    let broadcastLog = ''
+                    let link = ''
+                    let broad
+                    const updateObj = {
+                        broadcastUpdated: now,
+                        is_removed: '0'
+                    }
+                    if (this._currencyCode === 'ETH' || this._currencyCode === 'ETH_ROPSTEN') {
+                        link = this._trezorServer + '/api/v2/sendtx/'
                         try {
                             broad = await BlocksoftAxios.post(link, row.transactionRaw)
                             broadcastLog = ' broadcasted ok ' + JSON.stringify(broad.data)
@@ -80,9 +126,10 @@ class EthRawDS {
                             }
                         }
                         broadcastLog += ' ' + link + '; '
-                        MarketingEvent.logOnlyRealTime('v20_eth_resend_0 ' + row.transactionHash, {broadcastLog, ...updateObj})
+                        MarketingEvent.logOnlyRealTime('v20_eth_resend_0 ' + row.transactionHash, { broadcastLog, ...updateObj })
+                    }
 
-
+                    if (this._currencyCode === 'ETH') {
                         link = 'https://api.etherscan.io/api?module=proxy&action=eth_sendRawTransaction&apikey=YourApiKeyToken&hex='
                         let broadcastLog1 = ''
                         try {
@@ -103,7 +150,7 @@ class EthRawDS {
                             }
                         }
                         broadcastLog1 += ' ' + link + '; '
-                        MarketingEvent.logOnlyRealTime('v20_eth_resend_1 ' + row.transactionHash, {broadcastLog1, ...updateObj})
+                        MarketingEvent.logOnlyRealTime('v20_eth_resend_1 ' + row.transactionHash, { broadcastLog1, ...updateObj })
 
 
                         link = 'https://mainnet.infura.io/v3/' + this._infuraProjectId
@@ -134,7 +181,7 @@ class EthRawDS {
 
                         }
                         broadcastLog2 += ' ' + link + '; '
-                        MarketingEvent.logOnlyRealTime('v20_eth_resend_2 ' + row.transactionHash, {broadcastLog2, ...updateObj})
+                        MarketingEvent.logOnlyRealTime('v20_eth_resend_2 ' + row.transactionHash, { broadcastLog2, ...updateObj })
 
                         if (updateObj.is_removed === '111') { // do ALL!
                             updateObj.is_removed = 1
@@ -143,6 +190,17 @@ class EthRawDS {
                         }
 
                         broadcastLog = new Date().toISOString() + ' ' + broadcastLog + ' ' + broadcastLog1 + ' ' + broadcastLog2 + ' ' + (row.broadcastLog ? row.broadcastLog.substr(0, 1000) : '')
+                    } else if (this._currencyCode === 'ETH_ROPSTEN') {
+                        if (updateObj.is_removed === '1') { // do ALL!
+                            updateObj.is_removed = 1
+                        } else {
+                            updateObj.is_removed = 0
+                        }
+
+                        broadcastLog = new Date().toISOString() + ' ' + broadcastLog + ' ' + (row.broadcastLog ? row.broadcastLog.substr(0, 1000) : '')
+                    }
+
+                    if (this._currencyCode === 'ETH' || this._currencyCode === 'ETH_ROPSTEN') {
                         updateObj.broadcastLog = broadcastLog
 
                         await dbInterface.setTableName('transactions_raw').setUpdateData({
@@ -202,6 +260,7 @@ class EthRawDS {
             transaction_unique_key: data.transactionUnique.toLowerCase(),
             transaction_hash: data.transactionHash,
             transaction_raw: data.transactionRaw,
+            transaction_log : dbInterface.escapeString(JSON.stringify(data.transactionLog)),
             created_at: now,
             is_removed : 0
         }]
