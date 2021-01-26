@@ -210,7 +210,8 @@ export default {
         for (const walletHash in DaemonCache.CACHE_WALLET_NAMES_AND_CB) {
             let wallet = DaemonCache.CACHE_WALLET_NAMES_AND_CB[walletHash]
             wallet = await walletDS._redoCashback(wallet)
-            const accounts = this.initWallet(walletHash, currencies)
+            const accounts = await this.initWallet(walletHash, currencies)
+
             data.wallets.push({
                 walletHash,
                 walletName: wallet.walletName,
