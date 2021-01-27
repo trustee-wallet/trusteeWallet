@@ -556,6 +556,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         logData.selectedFee = selectedFee
         logData.basicAddressTo = typeof data.basicAddressTo !== 'undefined' ? data.basicAddressTo.toLowerCase() : data.addressTo.toLowerCase()
         logData.basicAmount = typeof data.basicAmount !== 'undefined' ? data.basicAmount : data.amount
+        logData.basicToken = typeof data.basicToken !== 'undefined' ? data.basicToken : ''
 
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {

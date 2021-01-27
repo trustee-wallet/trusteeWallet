@@ -154,6 +154,7 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
             tmpData.blockchainData = this._token.methods.transfer(basicAddressTo, data.amount).encodeABI()
             tmpData.basicAddressTo = basicAddressTo
             tmpData.basicAmount = data.amount
+            tmpData.basicToken = this._tokenAddress
         } catch (e) {
             this.checkError(e, data)
         }

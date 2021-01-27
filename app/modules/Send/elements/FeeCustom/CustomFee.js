@@ -8,6 +8,7 @@ import { View, Text } from 'react-native'
 import CustomFeeBitcoin from './CustomFeeBitcoin'
 
 import CustomFeeEthereum from './CustomFeeEthereum'
+import BlocksoftDict from '../../../../../crypto/common/BlocksoftDict'
 
 
 class CustomFee extends Component {
@@ -32,6 +33,12 @@ class CustomFee extends Component {
             const tmp = currencyCode.split('_')
             if (typeof tmp[0] !== 'undefined' && tmp[0]) {
                 prefix = tmp[0]
+            }
+        }
+        if (prefix === 'CUSTOM') {
+            const settings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+            if (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'ETHEREUM') {
+                prefix = 'ETH'
             }
         }
 
