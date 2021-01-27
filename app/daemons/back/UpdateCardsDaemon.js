@@ -17,8 +17,6 @@ import config from '../../config/config'
 
 const CACHE_UNIQUE = {}
 
-const V3_API = 'https://api.v3.trustee.deals'
-
 class UpdateCardsDaemon {
 
     /**
@@ -26,6 +24,10 @@ class UpdateCardsDaemon {
      * @return {Promise<void>}
      */
     updateCardsDaemon = async (params) => {
+
+        let { mode: exchangeMode, apiEndpoints } = config.exchange
+        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
+
         if (params) {
             if (typeof params.unique !== 'undefined') {
                 const now = new Date().getTime()
@@ -65,7 +67,7 @@ class UpdateCardsDaemon {
                     let msg = ''
                     try {
                         Log.daemon('UpdateCardsDaemon will ask time from server')
-                        const now = await BlocksoftAxios.get(V3_API + '/data/server-time')
+                        const now = await BlocksoftAxios.get(`${baseUrl}/data/server-time`)
                         if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
                             msg = now.data.serverTime
                             Log.daemon('UpdateCardsDaemon msg from server ' + msg)

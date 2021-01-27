@@ -512,9 +512,21 @@ class SMSCodeScreen extends Component {
         if (
             (
                 url.includes('kuna.io/') || url.includes('cardgate.paycore.io/hpp/status') || url.includes('cb1.xpay.com.ua/')
-                || url.includes('365cash.co/currency/success') || url.includes('365cash.co/currency/failure')
-                || (url.includes('trustee.deals') && !url.includes('redirectUrl=https://trustee.deals/') && !url.includes('successUrl=https://trustee.deals/')
-                && !url.includes('successUrl=https%3A%2F%2Ftrustee.deals') && !url.includes('redirectUrl=https%3A%2F%2Ftrustee.deals%2F'))
+                || url.includes('365cash.co/currency/success') || url.includes('365cash.co/currency/failure') 
+                || url.includes('365cash.co/order/status')
+                || (
+                    url.includes('trustee.deals') 
+                    && !url.includes('redirectUrl=https://trustee.deals/') 
+                    && !url.includes('successUrl=https://trustee.deals/')
+                    && !url.includes('successUrl=https%3A%2F%2Ftrustee.deals') 
+                    && !url.includes('redirectUrl=https%3A%2F%2Ftrustee.deals%2F'))
+                || (
+                    url.includes('trusteeglobal.com')
+                    && !url.includes('redirectUrl=https://trusteeglobal.com/') 
+                    && !url.includes('successUrl=https://trusteeglobal.com/') 
+                    && !url.includes('successUrl=https%3A%2F%2Ftrusteeglobal.com') 
+                    && !url.includes('redirectUrl=https%3A%2F%2Ftrusteeglobal.com%2F')
+                    )
                 || (url.includes('https://blocksoftlab.com/') && !url.includes('successUrl=https://blocksoftlab.com/') && !url.includes('redirectUrl=https://blocksoftlab.com/'))
             )
             && url !== 'about:blank' && this.state.lastStep

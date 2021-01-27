@@ -28,7 +28,6 @@ const V3_ENTRY_POINT_BUY = '/mobile-buy'
 const V3_ENTRY_POINT_CHECK = '/mobile-check'
 const V3_ENTRY_POINT_SET_STATUS = '/order/update-payment-status'
 
-const V3_API = 'https://api.v3.trustee.deals'
 const V3_PUB = '818ef87763ee0f9eaee49ff1f27d4b87e76dc1a8309187b82de52687783d832705f4bafe4a51efad26ccca9367419f9e28e07cea849b8b15108a56e054128a8c'
 const V3_KEY_PREFIX = 'TrusteeExchange'
 
@@ -38,11 +37,12 @@ let CACHE_SERVER_TIME_NEED_TO_ASK = false
 export default {
 
     validateCard: async (data, forceMode = false) => {
-        let { mode: exchangeMode } = config.exchange
+        let { mode: exchangeMode, apiEndpoints } = config.exchange
         if (typeof forceMode !== 'undefined' && forceMode) {
             exchangeMode = forceMode
         }
-        const baseUrl = exchangeMode === 'DEV' ? V3_API : V3_API
+        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
+
         try {
             return await axios.post(`${baseUrl}/payment-details/validate-card`, data, {
                 headers: {
@@ -172,6 +172,10 @@ export default {
 
     async initData(type, currencyCode=false, isLight) {
 
+        let { mode: exchangeMode, apiEndpoints } = config.exchange
+        const entryURL = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
+        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
+
         let entryPoint
         if (type === 'EXCHANGE') {
             entryPoint = V3_ENTRY_POINT_EXCHANGE
@@ -182,9 +186,6 @@ export default {
         } else {
             throw new Error('ApiV3 invalid settings type ' + type)
         }
-
-        const { mode: exchangeMode, apiEndpoints } = config.exchange
-        const entryUrl = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
 
         await UpdateCardsDaemon.updateCardsDaemon({force: true})
 
@@ -227,7 +228,7 @@ export default {
             try {
                 await Log.log('ApiV3.initData will ask time from server ' + (CACHE_SERVER_TIME_NEED_TO_ASK ? ' need ask ' : ' no ask but we forced'))
 
-                const now = await BlocksoftAxios.get(V3_API + '/data/server-time')
+                const now = await BlocksoftAxios.get(`${baseUrl}/data/server-time`)
                 if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
                     msg = now.data.serverTime
                     date = new Date(msg)
@@ -248,7 +249,7 @@ export default {
         date = date.toISOString().split('T')
         const keyTitle = V3_KEY_PREFIX + '/' + date[0] + '/' + currentToken
         try {
-            const link = entryUrl + entryPoint
+            const link = entryURL + entryPoint
                 + '?date=' + date[0]
                 + '&message=' + sign.message
                 + '&messageHash=' + sign.messageHash
@@ -308,8 +309,8 @@ export default {
     // @ksu this need post
     setExchangeStatus: async (orderHash, status) => {
 
-        const { mode: exchangeMode } = config.exchange
-        const baseUrl = exchangeMode === 'DEV' ? V3_API : V3_API
+        const { mode: exchangeMode, apiEndpoints } = config.exchange
+        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
 
         const sign = await CashBackUtils.createWalletSignature(true);
 
@@ -337,6 +338,9 @@ export default {
 
     getExchangeOrders: async (_requestAuthHash = false) => {
 
+        const { mode: exchangeMode, apiEndpoints } = config.exchange
+        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
+
         let signedData = await CashBackUtils.createWalletSignature(true, false, _requestAuthHash)
         if (!signedData) {
             throw new Error('No signed for getExchangeOrders')
@@ -357,7 +361,7 @@ export default {
                 index++
                 await Log.daemon('ApiV3 getExchangeOrders axios ' + index + ' ' + link)
                 try {
-                    link = `${V3_API}/order/history-for-wallet?`
+                    link = `${baseUrl}/order/history-for-wallet?`
                          + `cashbackToken=${signedData.cashbackToken}&message=${signedData.message}&messageHash=${signedData.messageHash}`
                          + `&signature=${signedData.signature}&timestamp=${+new Date()}`
 

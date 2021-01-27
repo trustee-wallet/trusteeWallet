@@ -56,8 +56,6 @@ const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
 
-const V3_API = 'https://api.v3.trustee.deals'
-
 class MainV3DataScreen extends Component {
 
     constructor() {
@@ -494,6 +492,10 @@ class MainV3DataScreen extends Component {
     }
 
     async _verifyCard(cardData) {
+
+        const { mode: exchangeMode, apiEndpoints } = config.exchange
+        const entryUrl = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
+
         let cardID = 0
         if (typeof cardData.id === 'undefined' || !cardData.id) {
             const saved = await cardDS.getCards({ number: cardData.number })
@@ -513,7 +515,7 @@ class MainV3DataScreen extends Component {
             let msg = ''
             try {
                 Log.log('Trade/MainV3DataScreen._verifyCard will ask time from server')
-                const now = await BlocksoftAxios.get(V3_API + '/data/server-time')
+                const now = await BlocksoftAxios.get(`${entryUrl}/data/server-time`)
                 if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
                     msg = now.data.serverTime
                     Log.log('Trade/MainV3DataScreen._verifyCard msg from server ' + msg)
@@ -585,9 +587,7 @@ class MainV3DataScreen extends Component {
         let cardStatus = cacheJson
         let card
         if (typeof cacheJson === 'undefined' || !cacheJson) {
-            card = await cardDS.getCards({ numberCard })
-            card = card.find(item => item.number === numberCard)
-
+            card = await cardDS.getCards({ number: cardData.number })
             cardStatus = JSON.parse(card.cardVerificationJson)
         }
 
@@ -635,7 +635,7 @@ class MainV3DataScreen extends Component {
         })
         Log.log('Trade/MainV3DataScreen card updated')
 
-        if (item.type === 'visa' || item.type === 'mastercard') {
+        if (item.type === 'visa' || item.type === 'mastercard' || item.type === 'mir' || item.type === 'maestro') {
             if (typeof item.number !== 'undefined') {
                 await this._verifyCard(item)
             }
