@@ -168,6 +168,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 msg = strings('modal.send.blockedBalance', { free: countedFees.showBlockedBalanceFree })
                 goBack = BlocksoftExternalSettings.getStatic('ETH_BLOCKED_BALANCE_FORCE_QUIT') > 0
                 cacheWarningNoticeValue = countedFees.showBlockedBalanceNotice
+            } else if (typeof selectedFee.isCustomFee !== 'undefined' && selectedFee.isCustomFee) {
+                // do nothing !!!!
             } else {
                 if (typeof countedFees.showLongQueryNotice !== 'undefined' && countedFees.showLongQueryNotice) {
                     const ethAllowLongQuery = settingsActions.getSettingStatic('ethAllowLongQuery')
@@ -536,7 +538,6 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             'purchase': {
                                 'actionField': {
                                     'id': sendScreenData.bseOrderId,
-                                    'affiliation': 'BSE',
                                     'revenue': sendScreenData.bseTrusteeFee.value,
                                     'currency_code' : sendScreenData.bseTrusteeFee.currencyCode
                                 },
@@ -569,7 +570,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             */
                     }
                     try {
-                        await analytics().logEvent('v4_send_sell_tx', gaParams)
+                        await analytics().logEvent('v4_send_sell_tx_1', gaParams)
                     } catch (e) {
                         if (config.debug.appErrors) {
                             console.log('v4_send_sell_tx error ' + e.message, gaParams )

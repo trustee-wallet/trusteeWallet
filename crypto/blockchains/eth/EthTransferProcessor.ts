@@ -389,7 +389,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             const ethAllowLongQuery = await settingsActions.getSetting('ethAllowLongQuery')
 
             let check = ethAllowBlockedBalance !== '1' && isNewNonce && max.amountBlocked && typeof max.amountBlocked[this._settings.currencyCode] !== 'undefined'
-             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees ethAllowBlockedBalance '
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFees ethAllowBlockedBalance '
                 + ethAllowBlockedBalance + ' isNewNonce ' + isNewNonce + ' oldNonce ' + oldNonce
                 + ' amountBlocked ' + JSON.stringify(max.amountBlocked) + ' => '
                 + (check ? 'true' : 'false'))
@@ -554,6 +554,8 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         const logData = JSON.parse(JSON.stringify(tx))
         logData.currencyCode = this._settings.currencyCode
         logData.selectedFee = selectedFee
+        logData.basicAddressTo = typeof data.basicAddressTo !== 'undefined' ? data.basicAddressTo.toLowerCase() : data.addressTo.toLowerCase()
+        logData.basicAmount = typeof data.basicAmount !== 'undefined' ? data.basicAmount : data.amount
 
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
