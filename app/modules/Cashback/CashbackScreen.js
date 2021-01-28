@@ -50,8 +50,10 @@ class CashbackScreen extends React.Component {
 
     componentDidMount() {
         this.navigationListener = this.props.navigation.addListener('didFocus', () => {
-            const qrCodeData = this.props.navigation.getParam('qrCashbackLink', null)
-            if (qrCodeData) this.setState(() => ({ inviteLink: qrCodeData }))
+            const qrCodeData = this.props.navigation.getParam('qrData', null)
+            if (qrCodeData && typeof qrCodeData.qrCashbackLink !== 'undefined' && qrCodeData.qrCashbackLink) {
+                this.setState(() => ({ inviteLink: qrCodeData.qrCashbackLink }))
+            }
         })
     }
 

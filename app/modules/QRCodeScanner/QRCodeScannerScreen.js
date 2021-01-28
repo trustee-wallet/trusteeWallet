@@ -57,6 +57,7 @@ class QRCodeScannerScreen extends Component {
 
             if (type === 'CASHBACK_LINK') {
                 // @todo cashback scanner without sendStore
+                await Log.log('QRCodeScanner.onSuccess ' + type + ' link ' + param.data)
                 NavStore.goNext('CashbackScreen', {
                     qrData: {
                         isCashbackLink: true,

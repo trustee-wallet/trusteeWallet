@@ -345,12 +345,16 @@ async function _userDataValidation(obj) {
         case 'CASHBACK_LINK':
             const valueArray = value.split('/')
             value = value.replace('https://cashback.trustee.deals/', 'https://trustee.deals/link/')
-            if (!value)
+            value = value.replace('https://trustee.deals/', 'https://trusteeglobal.com/')
+            if (!value) {
                 error.msg = strings('validator.empty', { name: name })
-            else if (!value.includes('https://trustee.deals/link/')) {
-                error.msg = strings('validator.invalidFormat', { name: name })
-            }
-            else if (typeof valueArray[valueArray.length -1] === 'undefined' || valueArray[valueArray.length -1].length !== 8) {
+            } else if (!value.includes('https://trusteeglobal.com/link/')) {
+                // not link is ok
+                const tmp = value.split('/')
+                if (tmp.length > 1) {
+                    error.msg = strings('validator.invalidFormat', { name: name })
+                }
+            } else if (typeof valueArray[valueArray.length -1] === 'undefined' || valueArray[valueArray.length -1].length !== 8) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break
