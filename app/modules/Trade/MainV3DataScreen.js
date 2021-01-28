@@ -552,7 +552,7 @@ class MainV3DataScreen extends Component {
                 data.append('image', 'data:image/jpeg;base64,' + base64)
             }
 
-            let res = await ApiV3.validateCard(data, 'PROD')
+            let res = await ApiV3.validateCard(data, exchangeMode)
 
             res = res.data
 
