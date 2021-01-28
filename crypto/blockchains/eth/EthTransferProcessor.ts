@@ -19,6 +19,7 @@ import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 import config from '../../../app/config/config'
 import settingsActions from '../../../app/appstores/Stores/Settings/SettingsActions'
 import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
+import { sublocale } from '../../../app/services/i18n'
 
 export default class EthTransferProcessor extends EthBasic implements BlocksoftBlockchainTypes.TransferProcessor {
 
@@ -104,8 +105,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 maxNonceLocal = proxyPriceCheck.maxNonceLocal
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' proxyPriceCheck', proxyPriceCheck)
-
         }
+        console.log('proxyPriceCheck', JSON.parse(JSON.stringify(proxyPriceCheck)))
+
         let gasLimit
         if (typeof additionalData === 'undefined' || typeof additionalData.estimatedGas === 'undefined' || !additionalData.estimatedGas) {
             try {
@@ -175,7 +177,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             if (proxyPriceCheck && typeof proxyPriceCheck.newNonce !== 'undefined') {
                 nonceForTxBasic = proxyPriceCheck.newNonce
                 if (nonceForTxBasic === 'maxValue+1') {
-                    nonceForTxBasic = maxNonceLocal.maxValue+1
+                    if (maxNonceLocal.maxValue * 1 > -1) {
+                        nonceForTxBasic = maxNonceLocal.maxValue + 1
+                    } else {
+                        nonceForTxBasic = -1
+                    }
                 }
                 nonceLog += ' proxy set ' + proxyPriceCheck.newNonce
             } else if (nonceForTxBasic * 1 >= 0) {
@@ -455,7 +461,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 fee.showNonce = true
             }
         }
-        
+
         result.showBigGasNotice = showBigGasNotice ? new Date().getTime() : 0
         return result
     }
@@ -580,6 +586,8 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         logData.basicAddressTo = typeof data.basicAddressTo !== 'undefined' ? data.basicAddressTo.toLowerCase() : data.addressTo.toLowerCase()
         logData.basicAmount = typeof data.basicAmount !== 'undefined' ? data.basicAmount : data.amount
         logData.basicToken = typeof data.basicToken !== 'undefined' ? data.basicToken : ''
+        logData.pushLocale = sublocale()
+        logData.pushSetting = await settingsActions.getSetting('transactionsNotifs')
 
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {

@@ -96,7 +96,7 @@ export default class EthTxSendProvider {
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send result ', result)
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' EthTxSendProvider.send error ' + e.message)
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send error ' + e.message, JSON.parse(JSON.stringify(logData)))
             }
             try {
                 logData.error = e.message
