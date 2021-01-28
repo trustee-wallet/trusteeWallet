@@ -306,7 +306,6 @@ export default {
         }
     },
 
-    // @ksu this need post
     setExchangeStatus: async (orderHash, status) => {
 
         const { mode: exchangeMode, apiEndpoints } = config.exchange

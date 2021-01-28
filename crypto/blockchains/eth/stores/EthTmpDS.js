@@ -12,11 +12,11 @@ class EthTmpDS {
      */
     _currencyCode = 'ETH'
 
-    async getCache(scanAddress) {
+    async getCache(scanAddress, toRemove = false) {
         const address = scanAddress.toLowerCase()
         const dbInterface = new DBInterface()
         const res = await dbInterface.setQueryString(`
-                SELECT tmp_key, tmp_sub_key, tmp_val, created_at
+                SELECT id, tmp_key, tmp_sub_key, tmp_val, created_at
                 FROM ${tableName} 
                 WHERE currency_code='${this._currencyCode}' 
                 AND address='${address}'
@@ -27,6 +27,7 @@ class EthTmpDS {
         let maxScanned = -1
         let maxSuccess = -1
         const forBalances = {}
+
         if (res.array) {
             for (const row of res.array) {
                 const val = row.tmp_val * 1
@@ -50,39 +51,60 @@ class EthTmpDS {
                 if (row.tmp_sub_key === 'maxScanned' || row.tmp_sub_key === 'maxSuccess') {
                     // do nothing
                 } else {
-                    if (val > maxSuccess) {
-                        const tmp = row.tmp_sub_key.split('_')
-                        if (typeof tmp[1] !== 'undefined') {
-                            forBalances[tmp[1]] = val
+                    const tmp = row.tmp_sub_key.split('_')
+                    if (typeof tmp[1] !== 'undefined') {
+                        const txHash = tmp[1]
+                        if (toRemove && typeof toRemove[txHash] !== 'undefined') {
+                            console.log('remove ' + txHash)
+                            await dbInterface.setQueryString(`DELETE FROM ${tableName} WHERE id=${row.id}`).query()
+                        } else {
+                            if (val > maxSuccess) {
+                                forBalances[txHash] = val
+                            }
                         }
                     }
                 }
             }
         }
+
         const amountBN = {}
         let queryLength = 0
         let queryTxs = []
         for (const txHash in forBalances) {
-            let tmp = await dbInterface.setQueryString(`SELECT currency_code AS currencyCode, 
+            const tmps = await dbInterface.setQueryString(`SELECT currency_code AS currencyCode, 
                         address_amount as addressAmount, 
                         transaction_status as transactionStatus
                         FROM transactions 
                         WHERE transaction_hash='${txHash}' 
-                        AND currency_code LIKE '%ETH%'
+                        AND (currency_code LIKE '%ETH%' OR currency_code LIKE 'CUSTOM_%')
                         `).query()
-            if (tmp && tmp.array && typeof tmp.array[0] !== 'undefined') {
-                tmp = tmp.array[0]
-                if (tmp.transactionStatus === 'new') {
-                    const amount = tmp.addressAmount
-                    if (typeof amountBN[tmp.currencyCode] === 'undefined') {
-                        amountBN[tmp.currencyCode] = new BlocksoftBN(0)
+            if (tmps && tmps.array && typeof tmps.array[0] !== 'undefined') {
+                let txCurrencyCode = ''
+                for (const tmp of tmps.array) {
+                    if (tmp.currencyCode === 'ETH' || tmp.currencyCode === 'ETH_ROPSTEN') {
+                        if (txCurrencyCode === '') {
+                            txCurrencyCode = tmp.currencyCode
+                        }
+                    } else {
+                        txCurrencyCode = tmp.currencyCode
                     }
-                    queryLength++
-                    queryTxs.push({ currencyCode : tmp.currencyCode, txHash})
-                    amountBN[tmp.currencyCode].add(amount)
-                } else if (tmp.transactionStatus === 'missing') {
-                    if (maxSuccess > forBalances[txHash]) {
-                        maxSuccess = forBalances[txHash] - 1
+                }
+                if (txCurrencyCode !== '') {
+                    for (const tmp of tmps.array) {
+                        if (tmp.currencyCode !== txCurrencyCode) continue
+                        if (tmp.transactionStatus === 'new') {
+                            const amount = tmp.addressAmount
+                            if (typeof amountBN[tmp.currencyCode] === 'undefined') {
+                                amountBN[tmp.currencyCode] = new BlocksoftBN(0)
+                            }
+                            queryLength++
+                            queryTxs.push({ currencyCode: tmp.currencyCode, txHash })
+                            amountBN[tmp.currencyCode].add(amount)
+                        } else if (tmp.transactionStatus === 'missing') {
+                            if (maxSuccess > forBalances[txHash]) {
+                                maxSuccess = forBalances[txHash] - 1
+                            }
+                        }
                     }
                 }
             }
@@ -101,29 +123,13 @@ class EthTmpDS {
 
     async getMaxNonce(scanAddress) {
         const address = scanAddress.toLowerCase()
-        if (typeof CACHE_TMP[address] === 'undefined' || typeof CACHE_TMP[address]['maxValue'] === 'undefined') {
+        // if (typeof CACHE_TMP[address] === 'undefined' || typeof CACHE_TMP[address]['maxValue'] === 'undefined') {
             await this.getCache(address)
-        }
+        //}
         return {
-            value: CACHE_TMP[address]['maxValue'],
-            scanned: CACHE_TMP[address]['maxScanned'],
-            success: CACHE_TMP[address]['maxSuccess'],
-            amountBlocked: CACHE_TMP[address]['amountBlocked'],
-            queryLength: CACHE_TMP[address]['queryLength'],
-            queryTxs: CACHE_TMP[address]['queryTxs']
-        }
-    }
-
-    getMaxStatic(scanAddress) {
-        const address = scanAddress.toLowerCase()
-        if (typeof CACHE_TMP[address] === 'undefined' || typeof CACHE_TMP[address]['maxValue'] === 'undefined') {
-            this.getCache(address)
-            return { value: -1, scanned: -1, success: -1, amountBlocked: {}, queryLength: 0, queryTxs: '' }
-        }
-        return {
-            value: CACHE_TMP[address]['maxValue'],
-            scanned: CACHE_TMP[address]['maxScanned'],
-            success: CACHE_TMP[address]['maxSuccess'],
+            maxValue: CACHE_TMP[address]['maxValue'],
+            maxScanned: CACHE_TMP[address]['maxScanned'],
+            maxSuccess: CACHE_TMP[address]['maxSuccess'],
             amountBlocked: CACHE_TMP[address]['amountBlocked'],
             queryLength: CACHE_TMP[address]['queryLength'],
             queryTxs: CACHE_TMP[address]['queryTxs']

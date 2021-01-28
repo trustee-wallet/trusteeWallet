@@ -81,8 +81,8 @@ class EthRawDS {
                         try {
                             checkResult = await BlocksoftAxios.post(successProxy, {
                                 raw: row.transactionRaw,
-                                txRBF : typeof transactionLog.txRBF !== 'undefined' ? transactionLog.txRBF : false,
-                                logData : transactionLog,
+                                txRBF: typeof transactionLog.txRBF !== 'undefined' ? transactionLog.txRBF : false,
+                                logData: transactionLog,
                                 marketingData: MarketingEvent.DATA
                             })
                             await BlocksoftCryptoLog.log(this._currencyCode + ' EthRawDS.send proxy success result', JSON.parse(JSON.stringify(checkResult)))
@@ -97,7 +97,7 @@ class EthRawDS {
                         }
 
                         await dbInterface.setTableName('transactions_raw').setUpdateData({
-                            updateObj : {transactionLog : dbInterface.escapeString(JSON.stringify(transactionLog))},
+                            updateObj: { transactionLog: dbInterface.escapeString(JSON.stringify(transactionLog)) },
                             key: { id: row.id }
                         }).update()
                     }
@@ -219,6 +219,20 @@ class EthRawDS {
         }
     }
 
+    async cleanRawHash(data) {
+        BlocksoftCryptoLog.log('EthRawDS cleanRawHash ', data)
+
+        const dbInterface = new DBInterface()
+        const now = new Date().toISOString()
+        const sql = `UPDATE transactions_raw
+        SET is_removed=1, removed_at = '${now}'
+        WHERE 
+        (is_removed=0 OR is_removed IS NULL)
+        AND (currency_code='ETH' OR currency_code='ETH_ROPSTEN')
+        AND transaction_hash='${data.transactionHash}'`
+        await dbInterface.setQueryString(sql).query()
+    }
+
     async cleanRaw(data) {
         BlocksoftCryptoLog.log('EthRawDS cleanRaw ', data)
 
@@ -260,9 +274,9 @@ class EthRawDS {
             transaction_unique_key: data.transactionUnique.toLowerCase(),
             transaction_hash: data.transactionHash,
             transaction_raw: data.transactionRaw,
-            transaction_log : dbInterface.escapeString(JSON.stringify(data.transactionLog)),
+            transaction_log: dbInterface.escapeString(JSON.stringify(data.transactionLog)),
             created_at: now,
-            is_removed : 0
+            is_removed: 0
         }]
         await dbInterface.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
     }

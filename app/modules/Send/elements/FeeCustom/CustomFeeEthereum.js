@@ -55,7 +55,9 @@ class CustomFee extends Component {
             this.gasPriceInput.handleInput(selectedFee.gasPriceGwei.toString(), false)
             this.gasLimitInput.handleInput(selectedFee.gasLimit.toString(), false)
             // -1 is default nonce as "will be used one from node"
-            this.nonceInput.handleInput(selectedFee.nonceForTx.toString() === '-1' ? '' : selectedFee.nonceForTx.toString(), false)
+            if (typeof selectedFee.nonceForTx !== 'undefined') {
+                this.nonceInput.handleInput(selectedFee.nonceForTx.toString() === '-1' ? '' : selectedFee.nonceForTx.toString(), false)
+            }
         }
     }
 

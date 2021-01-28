@@ -30,7 +30,7 @@ export default class EthTxSendProvider {
 
     async send(tx: BlocksoftBlockchainTypes.EthTx, privateData: BlocksoftBlockchainTypes.TransferPrivateData, txRBF: any, logData: any): Promise<{ transactionHash: string, transactionJson: any }> {
         // @ts-ignore
-        await BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx tx', tx)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx started', logData)
         // noinspection JSUnresolvedVariable
         if (privateData.privateKey.substr(0, 2) !== '0x') {
             privateData.privateKey = '0x' + privateData.privateKey
@@ -42,8 +42,8 @@ export default class EthTxSendProvider {
         const signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
 
         // @ts-ignore
-        await BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx signed', tx)
-        await BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx hex', signData.rawTransaction)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx signed', tx)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx hex', signData.rawTransaction)
 
         this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Send.sendTx')
 
@@ -67,7 +67,7 @@ export default class EthTxSendProvider {
 
         if (checkResult !== false) {
             if (typeof checkResult.data !== 'undefined') {
-                await BlocksoftCryptoLog.log('EthTxSendProvider.send proxy checkResult1 ', checkResult.data)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy checkResult1 ', checkResult.data)
                 if (typeof checkResult.data.status === 'undefined' || checkResult.data.status === 'error') {
                     if (config.debug.cryptoErrors) {
                         console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResult1 ', checkResult)
@@ -77,7 +77,7 @@ export default class EthTxSendProvider {
                     throw new Error(checkResult.data.msg)
                 }
             } else {
-                await BlocksoftCryptoLog.log('EthTxSendProvider.send proxy checkResult2 ', checkResult)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy checkResult2 ', checkResult)
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResult2 ', checkResult)
                 }
@@ -93,7 +93,7 @@ export default class EthTxSendProvider {
         try {
             result = await BlocksoftAxios.post(link, signData.rawTransaction)
             // @ts-ignore
-            await BlocksoftCryptoLog.log('EthTxSendProvider.send result ', result)
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send result ', result)
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log(this._settings.currencyCode + ' EthTxSendProvider.send error ' + e.message)
@@ -113,7 +113,7 @@ export default class EthTxSendProvider {
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error errorProxy ' + e.message)
                 }
-                await BlocksoftCryptoLog.log('EthTxSendProvider.send proxy error errorProxy ' + e2.message)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error errorProxy ' + e2.message)
             }
             if (this._settings.currencyCode !== 'ETH' && this._settings.currencyCode !== 'ETH_ROPSTEN' && e.message.indexOf('bad-txns-in-belowout') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
@@ -169,7 +169,7 @@ export default class EthTxSendProvider {
 
         if (checkResult !== false) {
             if (typeof checkResult.data !== 'undefined') {
-                await BlocksoftCryptoLog.log('EthTxSendProvider.send proxy successResult1 ', checkResult.data)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy successResult1 ', checkResult.data)
                 if (typeof checkResult.data.status === 'undefined' || checkResult.data.status === 'error') {
                     if (config.debug.cryptoErrors) {
                         console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error successResult1 ', checkResult)
@@ -179,7 +179,7 @@ export default class EthTxSendProvider {
                     throw new Error(checkResult.data.msg)
                 }
             } else {
-                await BlocksoftCryptoLog.log('EthTxSendProvider.send proxy successResult2 ', checkResult)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy successResult2 ', checkResult)
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error successResult2 ', checkResult)
                 }
@@ -199,8 +199,6 @@ export default class EthTxSendProvider {
             gasPrice: typeof logData.gasPrice !== 'undefined' ? logData.gasPrice : BlocksoftUtils.hexToDecimal(tx.gasPrice)
         }
 
-        await EthTmpDS.saveNonce(tx.from, 'send_' + transactionHash, nonce)
-
         await EthRawDS.saveRaw({
             address: tx.from,
             currencyCode: this._settings.currencyCode,
@@ -209,6 +207,8 @@ export default class EthTxSendProvider {
             transactionRaw: signData.rawTransaction,
             transactionLog: logData
         })
+
+        await EthTmpDS.saveNonce(tx.from, 'send_' + transactionHash, nonce)
 
         return { transactionHash, transactionJson }
     }
