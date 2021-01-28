@@ -104,14 +104,17 @@ class DBInterface {
         } catch (e) {
             e.message = 'DB QUERY ERROR: ' + this.#_queryString + ' ' +  e.message
             e.code = 'ERROR_SYSTEM'
-            if (throwError) {
-                throw e
-            } else {
-                Log.err(e)
+            // before db init sometimes
+            if (e.message.indexOf('notifsSavedToken') === -1) {
+                if (throwError) {
+                    throw e
+                } else {
+                    Log.err(e)
+                }
             }
         }
 
-        if (!res || !res[0]) {
+        if (typeof res === 'undefined' || !res || !res[0]) {
             return { array : [], rowsAffected : 0 }
         }
 
