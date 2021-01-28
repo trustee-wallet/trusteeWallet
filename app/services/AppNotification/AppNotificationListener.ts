@@ -191,21 +191,40 @@ export default new class AppNotificationListener {
         const notifsSavedToken = await settingsActions.getSetting('notifsSavedToken')
 
         // Log.log('notifsSavedToken', notifsSavedToken)
-        if (!time || !fcmToken || fcmToken === '' || notifsSavedToken !== fcmToken) {
-            if (fcmToken) {
-                await this.updateSubscriptions(fcmToken)
-            }
-            await this.rmvOld()
-            fcmToken = await messaging().getToken()
-            Log.log('PUSH getToken subscribed token ' + fcmToken)
-            await this._onRefresh(fcmToken)
-            await AsyncStorage.setItem(ASYNC_CACHE_TIME, now + '')
-        } else {
-            // console.log('PUSH getToken1 cache result ', fcmToken)
-        }
+        try {
+            if (!time || !fcmToken || fcmToken === '' || notifsSavedToken !== fcmToken) {
+                if (fcmToken) {
+                    await this.updateSubscriptions(fcmToken)
+                }
+                await this.rmvOld()
 
-        // @ts-ignore
-        MarketingEvent.DATA.LOG_TOKEN = fcmToken
+                try {
+                    fcmToken = await messaging().getToken()
+                } catch (e) {
+                    Log.log('PUSH getToken fcmToken error ' + e.message)
+                }
+
+                if (!fcmToken) {
+                    try {
+                        await messaging().registerDeviceForRemoteMessages()
+                        fcmToken = await messaging().getToken()
+                    } catch (e) {
+                        Log.log('PUSH getToken fcmToken error ' + e.message)
+                    }
+                }
+
+                Log.log('PUSH getToken subscribed token ' + fcmToken)
+                await this._onRefresh(fcmToken)
+                await AsyncStorage.setItem(ASYNC_CACHE_TIME, now + '')
+            } else {
+                // console.log('PUSH getToken1 cache result ', fcmToken)
+            }
+
+            // @ts-ignore
+            MarketingEvent.DATA.LOG_TOKEN = fcmToken
+        } catch (e) {
+            Log.log('PUSH getToken error ' + e.message)
+        }
     }
 
     async requestPermission(): Promise<boolean> {

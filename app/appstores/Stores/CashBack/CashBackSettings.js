@@ -20,7 +20,7 @@ export default new class CashBackSettings {
     }
 
     getLink = (token) => {
-        return 'https://trustee.deals/link/' + token
+        return 'https://trusteeglobal.com/link/' + token
     }
 
     getBase = () => {

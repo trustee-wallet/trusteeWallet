@@ -23,9 +23,19 @@ export default new class CashBackUtils {
     }
 
     init = async (force = false) => {
+
         if (!force && this.inited) {
             return false
         }
+
+        let firebaseUrl = false
+        try {
+            firebaseUrl = await dynamicLinks().getInitialLink()
+            await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() ' + JSON.stringify(firebaseUrl))
+        } catch (e) {
+            await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() error ' + e.message)
+        }
+
         this.walletToken = await AsyncStorage.getItem('walletToken')
         if (!this.walletToken) {
             await this.createWalletSignature(false)
@@ -56,7 +66,6 @@ export default new class CashBackUtils {
             await CashBackActions.setParentToken(this.parentToken)
         } else {
             try {
-                const firebaseUrl = await dynamicLinks().getInitialLink()
                 if (typeof firebaseUrl !== 'undefined' && firebaseUrl != null) {
                     MarketingEvent.logEvent('cashback_parent_link', firebaseUrl)
                     const firebaseUrlArray = firebaseUrl.split('=')
