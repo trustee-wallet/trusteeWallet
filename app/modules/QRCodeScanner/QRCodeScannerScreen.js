@@ -55,7 +55,13 @@ class QRCodeScannerScreen extends Component {
                 inputType
             } = this.props.qrCodeScanner.config
 
-            if (type === 'CASHBACK_LINK') {
+            if (type === 'CASHBACK_LINK' || (
+                type === 'MAIN_SCANNER' &&
+                (
+                    param.data.indexOf('https://trusteeglobal.com/link/') === 0
+                    || param.data.indexOf('https://trustee.deals/link/') === 0
+                )
+            )) {
                 // @todo cashback scanner without sendStore
                 await Log.log('QRCodeScanner.onSuccess ' + type + ' link ' + param.data)
                 NavStore.goNext('CashbackScreen', {
