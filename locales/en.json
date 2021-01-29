@@ -438,7 +438,7 @@
     "cashbackAmount": "Cashback amount",
     "setParentToken": "Link in to your friend structure",
     "hasParentToken": "Invited by %{cashbackParentToken}",
-    "inputParentCashbackLink": "https://trustee.deals/link/example",
+    "inputParentCashbackLink": "https://trusteeglobal.com/link/example",
     "withdraw": "Withdraw",
     "minWithdraw": "Minimal amount to withdraw",
     "performWithdraw": "To perform withdraw, please, write to telegram to nickname"

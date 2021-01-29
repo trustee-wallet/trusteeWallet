@@ -438,7 +438,7 @@
     "cashbackAmount": "Сумма кешбэка",
     "setParentToken": "Задать ссылку-приглашение Вашего друга",
     "hasParentToken": "Приглашен %{cashbackParentToken}",
-    "inputParentCashbackLink": "https://trustee.deals/link/example",
+    "inputParentCashbackLink": "https://trusteeglobal.com/link/example",
     "withdraw": "Вывести",
     "minWithdraw": "Минимальная сумма для вывода",
     "performWithdraw": "Чтобы осуществить вывод, пожалуйста, напишите в telegram на никнейм"
