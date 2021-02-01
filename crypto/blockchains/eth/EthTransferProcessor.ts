@@ -48,6 +48,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } else {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate started')
             txRBFed = 'usualSend'
+            if (data.addressTo !== '' && (data.addressTo.indexOf('0x') === -1 || data.addressTo.indexOf('0x') !== 0)) {
+                throw new Error('SERVER_RESPONSE_BAD_DESTINATION')
+            }
         }
 
         let oldGasPrice = -1
@@ -515,6 +518,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         if (typeof data.addressTo === 'undefined') {
             throw new Error('ETH transaction required addressTo')
         }
+
         BlocksoftCryptoLog.log('sendTx', JSON.parse(JSON.stringify(data)))
 
         let txRBFed = ''
@@ -530,6 +534,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } else {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx started')
             txRBFed = 'usualSend'
+            if (data.addressTo !== '' && (data.addressTo.indexOf('0x') === -1 || data.addressTo.indexOf('0x') !== 0)) {
+                throw new Error('SERVER_RESPONSE_BAD_DESTINATION')
+            }
         }
 
         let finalGasPrice = 0
