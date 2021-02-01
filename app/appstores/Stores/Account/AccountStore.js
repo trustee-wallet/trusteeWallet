@@ -1,17 +1,22 @@
 /**
  * @version 0.9
  */
+
+import _isEqual from 'lodash/isEqual'
+
+
 const INITIAL_STATE = {
-    accountList: []
+    accountList: {}
 }
 
 const accountStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
-        case 'SET_ACCOUNT_LIST':
+        case 'SET_ACCOUNT_LIST': {
+            if (_isEqual(state.accountList, action.accountList)) return state
             return {
-                ...state,
                 accountList: action.accountList
             }
+        }
         default:
             return state
     }

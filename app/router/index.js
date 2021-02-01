@@ -3,8 +3,12 @@
  * @misha check if commented out is needed
  */
 import React, { Component } from 'react'
-import { View, Dimensions, StatusBar } from 'react-native'
-import { connect } from 'react-redux'
+import {
+    View,
+    Dimensions,
+    StatusBar,
+    StyleSheet
+} from 'react-native'
 
 import Modal from '../components/modal/MainModal'
 import NavStore from '../components/navigation/NavStore.js'
@@ -45,7 +49,7 @@ const myErrorHandler = (err) => {
     Log.err('myErrorHandler error ' + err.message, getStackTrace(err))
 }
 
-class MainStack extends Component {
+export default class MainStack extends Component {
 
     // UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
     //
@@ -64,7 +68,7 @@ class MainStack extends Component {
 
         return (
             <ErrorBoundary onError={myErrorHandler} FallbackComponent={ErrorScreen}>
-                <View style={{ flex: 1 }}>
+                <View style={styles.container}>
                     <Router
                         // onNavigationStateChange={(prev, next) => NavStore.onNavigationStateChange(prev, next)}
                         ref={(ref) => {
@@ -80,10 +84,8 @@ class MainStack extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        navigationStore: state.navigationStore
+const styles = StyleSheet.create({
+    container: {
+        flex: 1
     }
-}
-
-export default connect(mapStateToProps, {})(MainStack)
+})

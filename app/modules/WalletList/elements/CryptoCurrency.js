@@ -7,7 +7,8 @@ import {
     View,
     TouchableOpacity,
     Text,
-    Platform
+    Platform,
+    StyleSheet
 } from 'react-native'
 
 import { MaterialIndicator, UIActivityIndicator } from 'react-native-indicators'
@@ -23,6 +24,7 @@ import CurrencyIcon from '../../../components/elements/CurrencyIcon'
 import ToolTips from '../../../components/elements/ToolTips'
 
 import { setSelectedAccount, setSelectedCryptoCurrency } from '../../../appstores/Stores/Main/MainStoreActions'
+import { getAccountCurrency } from '../../../appstores/Stores/Account/selectors'
 import currencyActions from '../../../appstores/Stores/Currency/CurrencyActions'
 
 import Log from '../../../services/Log/Log'
@@ -35,7 +37,7 @@ import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 import { SIZE } from '../helpers';
 
 let CACHE_CLICK = false
-class CryptoCurrency extends Component {
+class CryptoCurrency extends React.PureComponent {
 
     handleCurrencySelect = async () => {
         if (CACHE_CLICK) return
@@ -86,7 +88,7 @@ class CryptoCurrency extends Component {
                     <RoundButton
                         type="receive"
                         containerStyle={styles.hiddenLayer__roundButton}
-                        onPress={this.props.handleReceive}
+                        onPress={() => this.props.handleReceive(this.props.account)}
                         noTitle
                     />
                     <RoundButton
@@ -108,16 +110,13 @@ class CryptoCurrency extends Component {
 
     renderVisibleLayer = (props) => {
         const { colors } = this.context
-        const accountListByWallet = props.accountListByWallet
         const cryptoCurrency = props.cryptoCurrency
         const isBalanceVisible = this.props.isBalanceVisible;
 
         const currencyCode = cryptoCurrency.currencyCode || 'BTC'
-        let account
-        if (typeof accountListByWallet === 'undefined' || typeof accountListByWallet[currencyCode] === 'undefined') {
+        let account = props.account
+        if (typeof account === 'undefined') {
             account = { basicCurrencyRate: '', basicCurrencyBalance: '', basicCurrencySymbol: '', balancePretty: '', basicCurrencyBalanceNorm: '' }
-        } else {
-            account = accountListByWallet[currencyCode]
         }
 
         let ratePrep = account.basicCurrencyRate
@@ -151,6 +150,7 @@ class CryptoCurrency extends Component {
                     style={styles.cryptoList__item}
                     onPress={() => this.handleCurrencySelect(props.accounts)}
                     onLongPress={this.props.onDrag}
+                    delayLongPress={3000}
                 >
                     <GradientView
                         style={styles.cryptoList__item__content}
@@ -230,6 +230,8 @@ class CryptoCurrency extends Component {
                 stopLeftSwipe={160}
                 stopRightSwipe={-90}
                 swipeToOpenPercent={20}
+                swipeToClosePercent={10}
+                setScrollEnabled={this.props.setScrollEnabled}
             >
                 {this.renderHiddenLayer()}
                 {this.renderVisibleLayer(props)}
@@ -238,7 +240,7 @@ class CryptoCurrency extends Component {
     }
 
     render() {
-        const { cryptoCurrency, settingsStore, accountListByWallet } = this.props
+        const { cryptoCurrency, account } = this.props
 
         // TODO: change condition
         return cryptoCurrency.currencyCode === 'BTC'
@@ -246,35 +248,26 @@ class CryptoCurrency extends Component {
                 <ToolTips
                     animatePress={true}
                     height={150}
-                    mainComponentProps={{ cryptoCurrency, settingsStore, accountListByWallet }}
+                    mainComponentProps={{ cryptoCurrency, account }}
                     MainComponent={this.renderTooltip}
                     type={'HOME_SCREEN_CRYPTO_BTN_TIP'}
                     nextCallback={this.handleCurrencySelect}
                 />
             )
-            : this.renderTooltip({ cryptoCurrency, settingsStore, accountListByWallet })
+            : this.renderTooltip({ cryptoCurrency, account })
     }
 }
 
 CryptoCurrency.contextType = ThemeContext
 
-const mapStateToProps = (state) => {
-    return {
-        selectedWallet: state.mainStore.selectedWallet,
-        settingsStore: state.settingsStore,
-    }
-}
+const mapStateToProps = (state, props) => ({
+    account: getAccountCurrency(state, props)
+})
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(CryptoCurrency)
+export default connect(mapStateToProps)(CryptoCurrency)
 
 
-const styles = {
+const styles = StyleSheet.create({
     container: {
         marginHorizontal: SIZE,
         marginVertical: SIZE / 2,
@@ -408,4 +401,4 @@ const styles = {
     hiddenLayer__roundButton: {
         marginHorizontal: 10
     },
-}
+})

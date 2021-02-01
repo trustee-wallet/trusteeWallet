@@ -1,7 +1,7 @@
 /**
  * @version 0.30
  */
-import React, { Component } from 'react'
+import React from 'react'
 import {
     Text,
     SafeAreaView,
@@ -13,17 +13,16 @@ import {
     TouchableOpacity,
     StatusBar,
     Vibration,
-    FlatList
+    FlatList,
+    StyleSheet
 } from 'react-native'
 import { connect } from 'react-redux'
 import _sortBy from 'lodash/sortBy'
 import _orderBy from 'lodash/orderBy'
 import _isEqual from 'lodash/isEqual'
-import DraggableFlatList from 'react-native-draggable-flatlist'
+// import DraggableFlatList from 'react-native-draggable-flatlist'
 
 import AsyncStorage from '@react-native-community/async-storage'
-
-
 
 import GradientView from '../../components/elements/GradientView'
 import CustomIcon from '../../components/elements/CustomIcon'
@@ -47,10 +46,10 @@ import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
-import { SIZE } from './helpers'
 import { SendDeepLinking } from '../../appstores/Stores/Send/SendDeepLinking'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
+import { getVisibleCurrencies } from '../../appstores/Stores/Currency/selectors'
 
 
 import NavStore from '../../components/navigation/NavStore'
@@ -68,7 +67,7 @@ async function storeCurrenciesOrder(walletHash, data) {
     AsyncStorage.setItem(`${walletHash}:currenciesOrder`, JSON.stringify(data))
 }
 
-class HomeScreen extends Component {
+class HomeScreen extends React.Component {
 
     constructor(props) {
         super(props)
@@ -82,7 +81,7 @@ class HomeScreen extends Component {
             isCurrentlyDraggable: false,
             scrollOffset: 0,
             hasStickyHeader: false,
-            test: 0
+            enableVerticalScroll: true
         }
         this.getBalanceVisibility()
         this.getCurrenciesOrder()
@@ -289,9 +288,12 @@ class HomeScreen extends Component {
         if (this.state.hasStickyHeader && newOffset < 110) this.setState(() => ({ hasStickyHeader: false }))
     }
 
+    setScrollEnabled = (value) => {
+        if (this.state.enableVerticalScroll !== value) this.setState(() => ({ enableVerticalScroll: value }))
+    };
+
     render() {
-        const blurVisibility = this.props.blurVisibility
-        if (blurVisibility) {
+        if (this.props.mainStore.blurVisibility) {
             return  <AppLockBlur/>
         }
         const { colors, isLight } = this.context
@@ -307,11 +309,10 @@ class HomeScreen extends Component {
                 cryptoWalletActions.setSelectedWallet(walletHash, 'WalletList.HomeScreen', false)
             }
         }
-        const accountListByWallet = this.props.accountStore.accountList[walletHash] || {}
         const balanceData = this.getBalanceData()
 
         return (
-            <View style={{ flex: 1 }}>
+            <View style={styles.container}>
                 <Header
                     scrollOffset={this.state.scrollOffset}
                     hasStickyHeader={this.state.hasStickyHeader}
@@ -320,18 +321,18 @@ class HomeScreen extends Component {
                     triggerBalanceVisibility={this.triggerBalanceVisibility}
                     balanceData={balanceData}
                 />
-                <SafeAreaView style={{ flex: 1, backgroundColor: colors.homeScreen.tabBarBackground }}>
-                    <View style={{ flex: 1, backgroundColor: colors.common.background }}>
-                        <View style={{ marginBottom: 50 }} />
+                <SafeAreaView style={[styles.safeAreaContent, { backgroundColor: colors.homeScreen.tabBarBackground }]}>
+                    <View style={[styles.content, { backgroundColor: colors.common.background }]}>
+                        <View style={styles.stub} />
                         <FlatList
                             data={this.state.data}
-                            extraData={this.state.data}
                             showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }}
+                            contentContainerStyle={styles.list}
                             onScroll={this.updateOffset}
+                            scrollEnabled={this.state.enableVerticalScroll}
                             refreshControl={
                                 <RefreshControl
-                                    style={{ marginTop: 0 }}
+                                    style={styles.refreshControl}
                                     enabled={!this.state.isCurrentlyDraggable}
                                     tintColor={colors.common.text1}
                                     refreshing={this.state.refreshing}
@@ -340,7 +341,6 @@ class HomeScreen extends Component {
                             }
                             ListHeaderComponent={(
                                 <WalletInfo
-                                    accountListByWallet={accountListByWallet}
                                     isBalanceVisible={this.state.isBalanceVisible}
                                     originalVisibility={this.state.originalVisibility}
                                     changeBalanceVisibility={this.changeBalanceVisibility}
@@ -351,36 +351,35 @@ class HomeScreen extends Component {
                             renderItem={({ item, drag, isActive }) => (
                                 <CryptoCurrency
                                     cryptoCurrency={item}
-                                    accountListByWallet={accountListByWallet}
                                     isBalanceVisible={this.state.isBalanceVisible}
                                     onDrag={drag}
                                     isActive={isActive}
-                                    handleReceive={() => this.handleReceive(item, accountListByWallet[item.currencyCode])}
+                                    handleReceive={account => this.handleReceive(item, account)}
                                     handleSend={() => this.handleSend(item)}
                                     handleHide={() => this.handleHide(item)}
+                                    setScrollEnabled={this.setScrollEnabled}
                                 />
                             )}
                             keyExtractor={item => item.currencyCode}
                         />
                         {/* <DraggableFlatList
                             data={this.state.data}
-                            extraData={this.state.data}
                             showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{ paddingBottom: 20, paddingTop: 10 }}
+                            contentContainerStyle={styles.list}
                             onScrollOffsetChange={this.updateOffset}
                             autoscrollSpeed={300}
                             refreshControl={
                                 <RefreshControl
-                                    style={{ marginTop: 0 }}
+                                    style={styles.refreshControl}
                                     enabled={!this.state.isCurrentlyDraggable}
                                     tintColor={colors.common.text1}
                                     refreshing={this.state.refreshing}
                                     onRefresh={this.handleRefresh}
                                 />
                             }
+
                             ListHeaderComponent={(
                                 <WalletInfo
-                                    accountListByWallet={accountListByWallet}
                                     isBalanceVisible={this.state.isBalanceVisible}
                                     originalVisibility={this.state.originalVisibility}
                                     changeBalanceVisibility={this.changeBalanceVisibility}
@@ -391,11 +390,10 @@ class HomeScreen extends Component {
                             renderItem={({ item, drag, isActive }) => (
                                 <CryptoCurrency
                                     cryptoCurrency={item}
-                                    accountListByWallet={accountListByWallet}
                                     isBalanceVisible={this.state.isBalanceVisible}
                                     onDrag={drag}
                                     isActive={isActive}
-                                    handleReceive={() => this.handleReceive(item, accountListByWallet[item.currencyCode])}
+                                    handleReceive={account => this.handleReceive(item, account)}
                                     handleSend={() => this.handleSend(item)}
                                     handleHide={() => this.handleHide(item)}
                                 />
@@ -417,12 +415,33 @@ const mapStateToProps = (state) => {
     return {
         mainStore: state.mainStore,
         toolTipsStore: state.toolTipsStore,
-        currencies: state.currencyStore.cryptoCurrencies.filter(c => !c.isHidden),
-        accountStore: state.accountStore,
-        blurVisibility: state.mainStore.blurVisibility
+        currencies: getVisibleCurrencies(state),
     }
 }
 
 HomeScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, {})(HomeScreen)
+export default connect(mapStateToProps)(HomeScreen)
+
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    safeAreaContent: {
+        flex: 1,
+    },
+    content: {
+        flex: 1,
+    },
+    stub: {
+        marginBottom: 50
+    },
+    list: {
+        paddingBottom: 20,
+        paddingTop: 10
+    },
+    refreshControl: {
+        marginTop: 0
+    }
+})

@@ -11,7 +11,8 @@ import {
     Text,
     StatusBar,
     Vibration,
-    SafeAreaView
+    SafeAreaView,
+    StyleSheet
 } from 'react-native'
 
 import MenuIcon from '../../../assets/images/menu_icon'
@@ -211,18 +212,12 @@ const mapStateToProps = (state) => {
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
 WalletInfo.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(WalletInfo)
+export default connect(mapStateToProps)(WalletInfo)
 
 
-const styles = {
+const styles = StyleSheet.create({
     wrapper: {
         position: 'absolute',
         top: 0,
@@ -324,4 +319,4 @@ const styles = {
         paddingLeft: 10,
         paddingRight: 12,
     },
-}
+})
