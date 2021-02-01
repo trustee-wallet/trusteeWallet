@@ -19,7 +19,7 @@ import UpdateAccountListDaemon from "../../daemons/view/UpdateAccountListDaemon"
 import UpdateAppNewsListDaemon from "../../daemons/view/UpdateAppNewsListDaemon";
 import UpdateCurrencyListDaemon from "../../daemons/view/UpdateCurrencyListDaemon";
 
-const TIME_DIFF = 30000
+const TIME_DIFF = 300000
 
 class AppLockScreenIdleTime {
 
