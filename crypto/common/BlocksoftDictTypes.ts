@@ -22,6 +22,7 @@ export namespace BlocksoftDictTypes {
         ETH_DAIM = 'ETH_DAIM',
         TRX = 'TRX',
         XMR = 'XMR',
+        XLM = 'XLM',
         BTC_TEST = 'BTC_TEST',
         BCH = 'BCH',
         BSV = 'BSV',

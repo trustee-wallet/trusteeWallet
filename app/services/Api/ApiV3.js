@@ -156,6 +156,8 @@ export default {
                 let balance = account.balancePretty
                 if (currencyCode === 'XRP') {
                     balance = account.balancePretty*1 - 20
+                } else if (currencyCode === 'XLM') {
+                    balance = account.balancePretty*1 - 1
                 }
                 accounts.push({
                     currencyCode,

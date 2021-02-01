@@ -194,6 +194,10 @@ async function _userDataValidation(obj) {
             }
             break
 
+        case 'XLM_DESTINATION_TAG':
+            value = value.trim()
+            break
+
         case 'XMR_DESTINATION_TAG':
             if (typeof value === 'undefined') {
                 return

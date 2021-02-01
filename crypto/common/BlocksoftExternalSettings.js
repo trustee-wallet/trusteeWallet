@@ -24,6 +24,7 @@ const CACHE = {
     'LTC': { '2': 100, '6': 2, '12': 1 },
     'XVG': { '2': 700, '6': 600, '12': 300 },
     'XRP_SERVER' : 'wss://s1.ripple.com',
+    'XLM_SERVER' : 'https://horizon.stellar.org',
     'ETH_INFURA' : '5e52e85aba6f483398c461c55b639a7b',
     'ETH_INFURA_PROJECT_ID' : 'c8b5c2ced3b041a8b55a1719b508ff08',
     'ETH_TREZOR_SERVER': ['https://eth1.trezor.io', 'https://eth2.trezor.io'],

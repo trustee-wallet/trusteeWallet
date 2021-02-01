@@ -311,7 +311,7 @@ class Cryptocurrencies extends Component {
             // }
             let showUnconfirmed = false
             try {
-                if (typeof selectedAccount !== 'undefined' && typeof selectedAccount.unconfirmedPretty !== 'undefined' && selectedAccount.unconfirmedPretty.toString() !== '0' && selectedAccount.unconfirmedPretty.toString().indexOf('-') === -1) {
+                if (typeof selectedAccount !== 'undefined' && typeof selectedAccount.unconfirmedPretty !== 'undefined' && selectedAccount.unconfirmedPretty && selectedAccount.unconfirmedPretty.toString() !== '0' && selectedAccount.unconfirmedPretty.toString().indexOf('-') === -1) {
                     const diff = BlocksoftUtils.diff(selectedAccount.unconfirmedPretty, selectedAccount.balancePretty)
                     showUnconfirmed = diff.toString().indexOf('-') === -1
                 }

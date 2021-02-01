@@ -260,9 +260,9 @@ class Transaction {
         if (params.bseOrderHash) {
             where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
         }
-        if (typeof params.minAmount !== 'undefined') {
-            where.push(`(address_amount>${params.minAmount} AND address_amount IS NOT NULL)`)
-            where.push(`address_to NOT LIKE '% Simple Send%'`)
+        if (typeof params.minAmount !== 'undefined' && params.currencyCode !== 'XLM') {
+           where.push(`(address_amount>${params.minAmount} AND address_amount IS NOT NULL)`)
+           where.push(`address_to NOT LIKE '% Simple Send%'`)
         }
 
         let order = ' ORDER BY created_at DESC, id DESC'

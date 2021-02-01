@@ -99,7 +99,7 @@ export namespace BlocksoftBlockchainTypes {
 
     export interface CheckTransferHasErrorResult {
         isOk: boolean,
-        code?: 'TOKEN' | 'XRP',
+        code?: 'TOKEN' | 'XRP' | 'XLM',
         parentBlockchain?: 'Ethereum' | 'Bitcoin',
         parentCurrency?: 'ETH' | 'BTC',
         address?: string
@@ -158,7 +158,7 @@ export namespace BlocksoftBlockchainTypes {
         fees: Fee[],
         showSmallFeeNotice?: number,
         shouldChangeBalance?: boolean,
-        countedTime : number
+        countedTime ?: number
     }
 
     export interface FeeRateResult {

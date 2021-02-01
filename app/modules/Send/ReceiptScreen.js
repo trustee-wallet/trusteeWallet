@@ -860,7 +860,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             multiAddress = selectedFee.blockchainData.preparedInputsOutputs.multiAddress
         }
         let memoTitle = strings('send.xrp_memo')
-        if (account.currencyCode === 'XMR') {
+        if (account.currencyCode === 'XMR' || account.currencyCode === 'XLM') {
             memoTitle = strings('send.xmr_memo')
         } else if (isFioRequest) {
             memoTitle = strings('send.fio_memo')

@@ -253,7 +253,7 @@ class BlocksoftKeys {
                                     derivationPath : path,
                                     derivationIndex : index,
                                     derivationType : suffix.type
-                                })
+                                }, data)
                                 if (result) {
                                     result.basicPrivateKey = child.privateKey.toString('hex')
                                     result.basicPublicKey = child.publicKey.toString('hex')

@@ -593,6 +593,8 @@ class SendScreen extends SendBasicScreenScreen {
                 let diff = BlocksoftUtils.diff(amountRaw, balanceRaw)
                 if (cryptoCurrency.currencyCode === 'XRP') {
                     diff = BlocksoftUtils.add(diff, 20)
+                } else if (cryptoCurrency.currencyCode === 'XLM') {
+                    diff = BlocksoftUtils.add(diff, 1)
                 }
                 if (diff > 0) {
                     // Log.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' not ok diff ' + diff, {amountRaw,balanceRaw})
@@ -1157,7 +1159,7 @@ class SendScreen extends SendBasicScreenScreen {
             extendedAddressUiChecker = currencyCode
         }
 
-        const notEquivalentValue = this.state.amountInputMark ? this.state.amountInputMark : `0.00 ${inputType !== 'CRYPTO' ? currencySymbol : basicCurrencyCode }` 
+        const notEquivalentValue = this.state.amountInputMark ? this.state.amountInputMark : `0.00 ${inputType !== 'CRYPTO' ? currencySymbol : basicCurrencyCode }`
 
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
@@ -1322,6 +1324,25 @@ class SendScreen extends SendBasicScreenScreen {
                                             keyboardType={'numeric'}
                                             decimals={0}
                                             additional={'NUMBER'}
+                                            info={true}
+                                            tabInfo={() => this.modalInfo()}
+                                            callback={(value) => {
+                                                this.amountInputCallback(false, false, false, value)
+                                            }}
+                                        />
+                                    </View> : null
+                            }
+
+                            {
+                                currencyCode === 'XLM' ?
+                                    <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 1.5}}>
+                                        <MemoInput
+                                            ref={component => this.memoInput = component}
+                                            id={memoInput.id}
+                                            name={strings('send.xrp_memo')}
+                                            type={'XLM_DESTINATION_TAG'}
+                                            onFocus={() => this.onFocus()}
+                                            keyboardType={'default'}
                                             info={true}
                                             tabInfo={() => this.modalInfo()}
                                             callback={(value) => {

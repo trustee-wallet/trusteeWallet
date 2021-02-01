@@ -392,7 +392,7 @@ class TransactionScreen extends Component {
         if (!txt || txt === null) return null
         txt = txt.toString().trim()
         if (txt === '') return null
-        if (currencyCode === 'XRP') {
+        if (currencyCode === 'XRP' || currencyCode === 'XLM') {
             return {
                 title: strings(`account.transaction.destinationTag`),
                 description: txt

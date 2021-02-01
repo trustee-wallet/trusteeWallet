@@ -25,6 +25,7 @@ module.exports = [
     [ `44'/195`, "TRX", "Tron" ],
 
     [ `44'/144`, "XRP", "Ripple" ],
+    [ `44'/148`, "XLM", "Stellar" ],
     [ `44'/128`, "XMR", "Monero" ],
 
     [ `44'/235`, "FIO", "FIO" ],

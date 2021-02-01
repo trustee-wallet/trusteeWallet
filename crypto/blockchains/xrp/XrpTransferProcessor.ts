@@ -20,10 +20,10 @@ const FEE_DECIMALS = 6
 export default class XrpTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: { network: string; currencyCode: string }
     private _provider: XrpTxSendProvider
+    private _inited : boolean = false
 
     constructor(settings: { network: string; currencyCode: string }) {
         this._settings = settings
-        this._provider = new XrpTxSendProvider()
     }
 
     needPrivateForFee(): boolean {
@@ -64,7 +64,26 @@ export default class XrpTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XrpTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
 
-        const txJson = await this._provider.getPrepared(data)
+
+        let txJson = false
+        try {
+            if (!this._inited) {
+                this._provider = new XrpTxSendProvider()
+                this._inited = true
+            }
+            txJson = await this._provider.getPrepared(data)
+        } catch (e) {
+            if (e.message.indexOf('connect() timed out after') !== -1) {
+                return false
+            }
+            if (e.message.indexOf('Account not found') !== -1) {
+                return false
+            }
+            if (e.message.indexOf('Destination does not exist. Too little XRP sent to create it') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP')
+            }
+            throw e
+        }
         if (!txJson) {
             throw new Error('SERVER_RESPONSE_BAD_INTERNET')
         }
@@ -128,7 +147,25 @@ export default class XrpTransferProcessor implements BlocksoftBlockchainTypes.Tr
             throw new Error('XRP transaction required addressTo')
         }
 
-        const txJson = await this._provider.getPrepared(data, false)
+        let txJson = false
+        try {
+            if (!this._inited) {
+                this._provider = new XrpTxSendProvider()
+                this._inited = true
+            }
+            txJson = await this._provider.getPrepared(data, false)
+        } catch (e) {
+            if (e.message.indexOf('connect() timed out after') !== -1) {
+                throw new Error('SERVER_RESPONSE_BAD_INTERNET')
+            }
+            if (e.message.indexOf('Account not found') !== -1) {
+                throw new Error('SERVER_RESPONSE_BAD_INTERNET')
+            }
+            if (e.message.indexOf('Destination does not exist. Too little XRP sent to create it') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP')
+            }
+            throw e
+        }
 
 
         // https://xrpl.org/rippleapi-reference.html#preparepayment
@@ -148,7 +185,6 @@ export default class XrpTransferProcessor implements BlocksoftBlockchainTypes.Tr
             BlocksoftCryptoLog.err(this._settings.currencyCode + ' XrpTransferProcessor.sendTx no publicKey ' + JSON.stringify(data.accountJson))
             throw new Error('SERVER_RESPONSE_BAD_CODE')
         }
-
 
         const result = await this._provider.sendTx(data, privateData, txJson)
 
