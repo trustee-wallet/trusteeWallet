@@ -689,13 +689,19 @@ class TransactionScreen extends Component {
             return false
         }
         array.push({ icon: 'canceled', title: strings('account.transactionScreen.removeRbf'), action: async () => {
+            SendActions.setUiType({
+                ui: {
+                    uiType : 'TRANSACTION_SCREEN_REMOVE'
+                },
+                addData: {
+                    gotoReceipt: true,
+                }
+            })
             await SendActions.startSend({
-                gotoReceipt: true,
                 addressTo : account.address,
                 amountRaw : transaction.addressAmount,
                 transactionRemoveByFee : transaction.transactionHash,
-                transactionBoost : transaction,
-                uiType : 'TRANSACTION_SCREEN_REMOVE'
+                transactionBoost : transaction
             })
         }})
 
@@ -760,10 +766,8 @@ class TransactionScreen extends Component {
                 }
 
             const params = {
-                gotoReceipt: true,
                 amountRaw : transaction.addressAmount,
-                transactionBoost : transaction,
-                uiType : 'TRANSACTION_SCREEN'
+                transactionBoost : transaction
             }
             if (transaction.transactionDirection === 'income') {
                 params.transactionSpeedUp = transaction.transactionHash
@@ -772,6 +776,14 @@ class TransactionScreen extends Component {
                 params.transactionReplaceByFee = transaction.transactionHash
                 params.addressTo = transaction.addressTo
             }
+            SendActions.setUiType({
+                ui: {
+                    uiType : 'TRANSACTION_SCREEN'
+                },
+                addData: {
+                    gotoReceipt: true,
+                }
+            })
             await SendActions.startSend(params)
         }})
     }
@@ -952,7 +964,7 @@ class TransactionScreen extends Component {
         }
 
         const prev = NavStore.getPrevRoute().routeName
-
+        console.log(prev)
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header

@@ -171,10 +171,13 @@ class SendScreen extends SendBasicScreenScreen {
             sendScreenData.selectedFee = selectedFee
             if (config.debug.sendLogs) {
                 console.log('SendScreen.init selectedFee', JSON.parse(JSON.stringify({tmp, selectedFee, sendScreenData})))
+                console.log('Send.ReceiptScreen.render sendScreenStore', JSON.parse(JSON.stringify(this.props.sendScreenStore)))
             }
         }
 
-        const inputType = sendScreenData.uiInputType !== 'any' ? sendScreenData.uiInputType : this.state.inputType
+        const { uiInputAddress, uiInputType, balancePart } = this.props.sendScreenStore.ui
+        const inputType = uiInputType !== 'any' && typeof uiInputType !== 'undefined' && uiInputType ? uiInputType : this.state.inputType
+        
         this.setState(
             {
                 sendScreenData,
@@ -184,7 +187,8 @@ class SendScreen extends SendBasicScreenScreen {
                 useAllFunds: sendScreenData.isTransferAll,
                 init: true,
                 inputType,
-                uiInputAddress: sendScreenData.uiInputAddress,
+                uiInputAddress,
+                balancePart,
                 amountInputMark:
                     this.state.amountInputMark
                         ? this.state.amountInputMark :
@@ -193,7 +197,7 @@ class SendScreen extends SendBasicScreenScreen {
 
                 if (typeof sendScreenData.contactName !== 'undefined' && sendScreenData.contactName) {
                     this.addressInput.handleInput(sendScreenData.contactName, false)
-                } else if (typeof sendScreenData.addressTo !== 'undefined' && sendScreenData.addressTo && typeof sendScreenData.uiInputAddress !== 'undefined' && sendScreenData.uiInputAddress) {
+                } else if (typeof sendScreenData.addressTo !== 'undefined' && sendScreenData.addressTo && typeof uiInputAddress !== 'undefined' && uiInputAddress) {
                     this.addressInput.handleInput(sendScreenData.addressTo, false)
                 }
 
@@ -253,7 +257,7 @@ class SendScreen extends SendBasicScreenScreen {
                             inputType,
                             amountEquivalent: amountEquivalent,
                             amountInputMark: amountInputMark,
-                            balancePart: 0
+                            // balancePart: 0
                         })
 
                         if (needRecount) {
@@ -347,9 +351,15 @@ class SendScreen extends SendBasicScreenScreen {
             newSendScreenData.amountPretty = amount
             newSendScreenData.inputValue = amount
             newSendScreenData.selectedFee = selectedFee
-            newSendScreenData.uiNeedToCountFees = false
-            newSendScreenData.uiInputType = 'CRYPTO'
             SendTmpData.setData(newSendScreenData)
+            SendActions.setUiType({
+                ui: {
+                    ...this.props.sendScreenStore.ui,
+                    uiNeedToCountFees: false,
+                    uiInputType: 'CRYPTO',
+                    balancePart: 0
+                }
+            })
 
             // Log.log(`Send.SendScreen.handleTransferAll`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))
 
@@ -676,11 +686,15 @@ class SendScreen extends SendBasicScreenScreen {
             })
 
             const newSendScreenData = sendScreenData
-            newSendScreenData.gotoReceipt = true
-            newSendScreenData.gotoWithCleanData = false
+            const dataToSendStore = {...this.props.sendScreenStore}
+
+            dataToSendStore.ui.uiInputType = this.state.inputType
+            dataToSendStore.addData.gotoReceipt = true
+            dataToSendStore.addData.gotoWithCleanData = false
+            dataToSendStore.ui.balancePart = this.state.balancePart
+
             newSendScreenData.amount = amount
-            newSendScreenData.amountPretty = amount
-            newSendScreenData.uiInputType = this.state.inputType
+            newSendScreenData.amountPretty = amount 
             newSendScreenData.amountRaw = amountRaw
             newSendScreenData.contactName = contactName
             newSendScreenData.contactAddress = contactAddress
@@ -698,14 +712,23 @@ class SendScreen extends SendBasicScreenScreen {
 
             // when late count
             if (!newSendScreenData.isTransferAll || isChanged || (
-                typeof newSendScreenData.uiNeedToCountFees && newSendScreenData.uiNeedToCountFees
+                typeof this.props.sendScreenStore.ui.uiNeedToCountFees && this.props.sendScreenStore.ui.uiNeedToCountFees
             )) {
                 const { selectedFee } = await this.recountFees(newSendScreenData, 'Send.SendScreen.handleSendTransaction')
                 newSendScreenData.selectedFee = selectedFee
-                newSendScreenData.uiNeedToCountFees = false
+                dataToSendStore.ui.uiNeedToCountFees = false
             }
 
             // memo and destination will be autocomplited
+            SendActions.setUiType({
+                ui: {
+                    ...this.props.sendScreenStore.ui,
+                    ...dataToSendStore.ui
+                },
+                addData: {
+                    ...dataToSendStore.addData
+                }
+            })
             await SendActions.startSend(newSendScreenData)
 
         } catch (e) {
@@ -858,6 +881,8 @@ class SendScreen extends SendBasicScreenScreen {
             }
 
             const newSendScreenData = JSON.parse(JSON.stringify(this.state.sendScreenData))
+            const dataToSendStore = this.props.sendScreenStore
+
             if (
                 (valueCrypto && newSendScreenData.inputValue !== valueCrypto) ||
                 (newSendScreenData.isTransferAll !== useAllFunds) ||
@@ -877,8 +902,10 @@ class SendScreen extends SendBasicScreenScreen {
                     newSendScreenData.amountPretty = valueCrypto
                     newSendScreenData.amountRaw = valueCryptoRaw
                     newSendScreenData.unconfirmedRaw = 0
-                    newSendScreenData.uiNeedToCountFees = true
-                    newSendScreenData.uiInputType = 'any'
+                    
+                    dataToSendStore.ui.uiNeedToCountFees = true
+                    dataToSendStore.ui.uiInputType = 'any'
+                    dataToSendStore.ui.balancePart = this.state.balancePart
                 } else {
                     // lets try late count - only transfer all requires
                     this.setState({
@@ -886,18 +913,27 @@ class SendScreen extends SendBasicScreenScreen {
                     })
                     const {selectedFee} = await this.recountFees(newSendScreenData, 'Send.SendScreen.amountInputCallback')
                     newSendScreenData.selectedFee = selectedFee
-                    newSendScreenData.uiNeedToCountFees = false
-                    newSendScreenData.uiInputType = 'CRYPTO'
+                    
+                    dataToSendStore.ui.uiNeedToCountFees = false
+                    dataToSendStore.ui.uiInputType = 'CRYPTO'
                     // Log.log(`Send.SendScreen.amountInputCallback`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))
                 }
             } else {
                 // Log.log('Send.SendScreen.amountInputCallback not updated as not changed')
             }
-            newSendScreenData.uiInputAddress = this.state.uiInputAddress
+            dataToSendStore.ui.uiInputAddress = this.state.uiInputAddress
 
 
             // Log.log('afterCallback', JSON.parse(JSON.stringify(newSendScreenData)))
-
+            console.log('hello', this.props.sendScreenStore)
+            console.log('')
+            console.log('new', dataToSendStore)
+            SendActions.setUiType({
+                ui: {
+                    ...this.props.sendScreenStore.ui,
+                    ...dataToSendStore.ui
+                }
+            })
             SendTmpData.setData(newSendScreenData)
 
             this.setState({
@@ -1017,11 +1053,7 @@ class SendScreen extends SendBasicScreenScreen {
                 const basicCurrencySymbol = this.state.account.basicCurrencySymbol || '$'
                 const basicAmount = RateEquivalent.mul({ value: amountPretty, currencyCode, basicCurrencyRate })
                 const basicAmountPrep = BlocksoftPrettyNumbers.makeCut(basicAmount, 2).cutted
-                // if (this.state.inputType === 'CRYPTO') {
                 sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicAmountPrep
-                // } else {
-                //     sumPrep = '~' + basicCurrencySymbol + ' ' + basicAmountPrep + ' / ' + sumPrep
-                // }
             } catch (e) {
                 if (config.debug.appErrors) {
                     Log.log('Send.SendScreen renderAccountDetail error ' + e.message, e)
@@ -1032,8 +1064,7 @@ class SendScreen extends SendBasicScreenScreen {
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View>
-                    <CurrencyIcon currencyCode={currencyCode}
-                                  containerStyle={{}} />
+                    <CurrencyIcon currencyCode={currencyCode} />
                 </View>
                 <View style={styles.accountDetail__content}>
                     <View style={{}}>
@@ -1050,25 +1081,15 @@ class SendScreen extends SendBasicScreenScreen {
     }
 
     handlerPartBalance = (inputType, part) => {
-        if (inputType === 'FIAT') {
-            let value = BlocksoftUtils.mul(BlocksoftUtils.div(this.state.account.basicCurrencyBalance, 4), Number(part))
-            Log.log('SendScreen.handlerPartBalance.inputType FIAT', value)
+        let value = BlocksoftUtils.mul(BlocksoftUtils.div(inputType === 'FIAT' ? this.state.account.basicCurrencyBalance : 
+            this.state.account.balancePretty, 4), Number(part))
+        Log.log('SendScreen.handlerPartBalance.inputType', inputType, value)
 
-            value = UtilsService.cutNumber(value, 2).toString()
-            this.valueInput.state.value = value
-            this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 &&
-            value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
-            this.amountInputCallback(value, true)
-        } else {
-            let value = BlocksoftUtils.mul(BlocksoftUtils.div(this.state.account.balancePretty, 4), Number(part))
-            Log.log('SendScreen.handlerPartBalance.inputType CRYPTO', value)
-
-            value = UtilsService.cutNumber(value, 7).toString()
-            this.valueInput.state.value = value
-            this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 &&
-            value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
-            this.amountInputCallback(value, true)
-        }
+        value = UtilsService.cutNumber(value, inputType === 'FIAT' ? 2 : 7).toString()
+        this.valueInput.state.value = value
+        this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 &&
+        value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
+        this.amountInputCallback(value, true) 
     }
 
     disabled = () => {
@@ -1111,27 +1132,36 @@ class SendScreen extends SendBasicScreenScreen {
         }
     }
 
+    closeAction = async (closeScreen=false) => {
+        SendActions.cleanData()
+        if (closeScreen) {
+            NavStore.reset('DashboardStack')
+        } else {  
+            NavStore.goBack()
+        }
+    }
+
     render() {
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
         MarketingAnalytics.setCurrentScreen('Send.SendScreen')
 
-        const route = NavStore.getCurrentRoute()
-        if (route.routeName === 'Send.SendScreen') { // @todo do we still need it?
-            if (!IS_CALLED_BACK) {
-                if (typeof this.state.amountEquivalent === 'undefined' || this.state.amountEquivalent.toString() === '0') {
-                    if (typeof this.valueInput !== 'undefined' && typeof this.valueInput.getValue !== 'undefined') {
-                        const value = this.valueInput.getValue()
-                        if (value) {
-                            IS_CALLED_BACK = true
-                            this.amountInputCallback(value)
-                        }
-                    }
-                }
-            }
-        } else {
-            IS_CALLED_BACK = false
-        }
+        // const route = NavStore.getCurrentRoute()
+        // if (route.routeName === 'Send.SendScreen') { // @todo do we still need it?
+        //     if (!IS_CALLED_BACK) {
+        //         if (typeof this.state.amountEquivalent === 'undefined' || this.state.amountEquivalent.toString() === '0') {
+        //             if (typeof this.valueInput !== 'undefined' && typeof this.valueInput.getValue !== 'undefined') {
+        //                 const value = this.valueInput.getValue()
+        //                 if (value) {
+        //                     IS_CALLED_BACK = true
+        //                     this.amountInputCallback(value)
+        //                 }
+        //             }
+        //         }
+        //     }
+        // } else {
+        //     IS_CALLED_BACK = false
+        // }
 
         const {
             focused,
@@ -1401,11 +1431,18 @@ SendScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        settingsStore: state.settingsStore
+        settingsStore: state.settingsStore,
+        sendScreenStore: state.sendScreenStore
     }
 }
 
-export default connect(mapStateToProps, {})(SendScreen)
+const mapDispatchToProps = (dispatch) => {
+    return {
+        dispatch
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SendScreen)
 
 const style = {
     ticker: {

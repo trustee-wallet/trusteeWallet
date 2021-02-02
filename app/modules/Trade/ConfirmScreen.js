@@ -221,8 +221,18 @@ class ConfirmScreen extends Component {
                 status: "pending_payin"
             }
 
+            SendActions.setUiType({
+                ui: {
+                    uiType: 'TRADE_SEND',
+                    uiApiVersion : 'v2',
+                    suiInputAddress: true
+                },
+                addData: {
+                    gotoReceipt: true,
+                }
+            })
+
             await SendActions.startSend({
-                gotoReceipt: true,
                 addressTo : res.data.address,
                 amountPretty : res.data.amount.toString(),
                 memo : res.data.memo,
@@ -237,9 +247,7 @@ class ConfirmScreen extends Component {
                     currencyCode : selectedCryptocurrency.currencyCode,
                     from : exchangeStore.tradeType === 'BUY' ? selectedFiatCurrency.cc : selectedCryptocurrency.currencyCode,
                     to : exchangeStore.tradeType === 'BUY' ? selectedCryptocurrency.currencyCode : selectedFiatCurrency.cc,
-                },
-                uiType: 'TRADE_SEND',
-                uiApiVersion : 'v2'
+                }
             })
 
             setLoaderStatus(false)

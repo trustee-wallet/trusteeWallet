@@ -133,8 +133,18 @@ class ExchangeConfirmScreen extends Component {
                 status: "pending_payin"
             }
 
+            SendActions.setUiType({
+                ui: {
+                    uiType: 'TRADE_SEND',
+                    uiApiVersion : 'v2',
+                    uiInputAddress: true
+                },
+                addData: {
+                    gotoReceipt: true,
+                }
+            })
+
             await SendActions.startSend({
-                gotoReceipt: true,
                 addressTo : res.data.address,
                 amountPretty : res.data.amount.toString(),
                 memo : res.data.memo,
@@ -143,9 +153,7 @@ class ExchangeConfirmScreen extends Component {
                 bseOrderId: res.data.orderId,
                 bseOrderData : bseOrderData,
                 bseMinCrypto : minCrypto,
-                bseTrusteeFee,
-                uiType: 'TRADE_SEND',
-                uiApiVersion : 'v2'
+                bseTrusteeFee
             })
 
             setLoaderStatus(false)
