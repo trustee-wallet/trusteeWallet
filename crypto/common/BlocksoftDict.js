@@ -277,7 +277,7 @@ const Currencies = {
         currencyExplorerLink: 'https://blockchair.com/ripple/account/',
         currencyExplorerTxLink: 'https://blockchair.com/ripple/transaction/'
     },
-    'XLM': {
+    /*'XLM': {
         currencyType: 'coin',
         currencyName: 'Stellar',
         currencyCode: 'XLM',
@@ -291,7 +291,7 @@ const Currencies = {
         buyable: 1,
         currencyExplorerLink: 'https://blockchair.com/steller/account/',
         currencyExplorerTxLink: 'https://blockchair.com/stellar/transaction/'
-    },
+    },*/
     'ETH_ROPSTEN': {
         currencyType: 'coin',
         currencyName: 'Ethereum Ropsten',
