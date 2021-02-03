@@ -12,7 +12,9 @@ import BlocksoftKeysForRefStorage from '../../../../crypto/actions/BlocksoftKeys
 import BlocksoftKeysForRef from '../../../../crypto/actions/BlocksoftKeysForRef/BlocksoftKeysForRef'
 import CashBackActions from './CashBackActions'
 import MarketingEvent from '../../../services/Marketing/MarketingEvent'
+import BlocksoftKeysStorage from '../../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
+const CACHE_PARENT_TITLE = 'parentTokenRechecked'
 
 export default new class CashBackUtils {
     constructor() {
@@ -22,9 +24,9 @@ export default new class CashBackUtils {
         this.inited = false
     }
 
-    init = async (force = false) => {
+    init = async (params = {}) => {
 
-        if (!force && this.inited) {
+        if ((!params || typeof params.force === 'undefined') && this.inited) {
             return false
         }
 
@@ -36,7 +38,23 @@ export default new class CashBackUtils {
             await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() error ' + e.message)
         }
 
-        this.walletToken = await AsyncStorage.getItem('walletToken')
+        let selectedWallet = ''
+        if (!params || typeof params.selectedWallet === 'undefined') {
+            try {
+                selectedWallet = await BlocksoftKeysStorage.getSelectedWallet()
+            } catch (e) {
+                // do nothing
+            }
+        } else {
+            selectedWallet = params.selectedWallet
+        }
+
+        let cacheTitle = 'walletToken'
+        if (selectedWallet && selectedWallet !== '') {
+            cacheTitle += '_' + selectedWallet
+        }
+        this.walletToken = await AsyncStorage.getItem(cacheTitle)
+        await Log.log('SRV/CashBack init from AsyncStorage ' + cacheTitle + ' => ' + this.walletToken)
         if (!this.walletToken) {
             await this.createWalletSignature(false)
         }
@@ -59,7 +77,8 @@ export default new class CashBackUtils {
         }
 
         this.parentToken = false
-        const tmpParentToken = await AsyncStorage.getItem('parentTokenRechecked')
+        const tmpParentToken = await AsyncStorage.getItem(CACHE_PARENT_TITLE)
+        await Log.log('SRV/CashBack init parent from AsyncStorage ' + CACHE_PARENT_TITLE + ' => ' + tmpParentToken)
 
         if (typeof tmpParentToken !== 'undefined' && tmpParentToken != null && tmpParentToken) {
             this.parentToken = tmpParentToken
@@ -70,12 +89,12 @@ export default new class CashBackUtils {
                     MarketingEvent.logEvent('cashback_parent_link', firebaseUrl)
                     const firebaseUrlArray = firebaseUrl.split('=')
                     this.parentToken = firebaseUrlArray[firebaseUrlArray.length - 1]
-                    await AsyncStorage.setItem('parentTokenRechecked',  this.parentToken)
+                    await AsyncStorage.setItem(tmpParentToken,  this.parentToken)
                     await CashBackActions.setParentToken(this.parentToken)
                     MarketingEvent.logEvent('cashback_parent_fire', {parent : this.parentToken})
                 }
             } catch (e) {
-                Log.log('SRV/CashBack init parent error ' + e.message)
+                await Log.log('SRV/CashBack init parent error ' + e.message)
             }
         }
         this.inited = true
@@ -86,7 +105,7 @@ export default new class CashBackUtils {
         await AsyncStorage.setItem('cashbackAllData_' + this.walletToken,  JSON.stringify(data))
         if (data.parentToken && this.parentToken !== data.parentToken) {
             this.parentToken = data.parentToken
-            await AsyncStorage.setItem('parentTokenRechecked', data.parentToken)
+            await AsyncStorage.setItem(CACHE_PARENT_TITLE, data.parentToken)
         }
         await CashBackActions.setCashBackDataFromApi(data)
     }
@@ -96,7 +115,7 @@ export default new class CashBackUtils {
             return false
         }
         this.parentToken = parentToken
-        await AsyncStorage.setItem('parentTokenRechecked', parentToken)
+        await AsyncStorage.setItem(CACHE_PARENT_TITLE, parentToken)
         await CashBackActions.setParentToken(this.parentToken)
     }
 
@@ -106,20 +125,20 @@ export default new class CashBackUtils {
             // Log.log('SRV/CashBack getByHash ' + tmpHash + ' => ' + tmpPublicAndPrivateResult.cashbackToken)
             return tmpPublicAndPrivateResult
         }
-        Log.log('SRV/CashBack getByHash need to discoverPublic', tmpHash)
+        await Log.log('SRV/CashBack getByHash need to discoverPublic', tmpHash)
         const mnemonic = await cryptoWalletsDS.getWallet(tmpHash, source)
         if (!mnemonic) {
            return false
         }
-        Log.log('SRV/CashBack getByHash got mnemonic to discoverPublic')
+        await Log.log('SRV/CashBack getByHash got mnemonic to discoverPublic')
         tmpPublicAndPrivateResult = await BlocksoftKeysForRef.discoverPublicAndPrivate({ mnemonic })
-        Log.log('SRV/CashBack getByHash done discoverPublic ' + tmpHash + ' => ' + tmpPublicAndPrivateResult.cashbackToken)
+        await Log.log('SRV/CashBack getByHash done discoverPublic ' + tmpHash + ' => ' + tmpPublicAndPrivateResult.cashbackToken)
         try {
             await BlocksoftKeysForRefStorage.setPublicAndPrivateResultForHash(tmpHash, tmpPublicAndPrivateResult)
         } catch (e) {
             const logData = { ...tmpPublicAndPrivateResult }
             logData.privateKey = '***'
-            Log.log('SRV/CashBack getByHash save error ' + e.message + ' ' + tmpHash + ' => ' + JSON.stringify(logData))
+            await Log.log('SRV/CashBack getByHash save error ' + e.message + ' ' + tmpHash + ' => ' + JSON.stringify(logData))
         }
         return tmpPublicAndPrivateResult
     }
@@ -152,6 +171,7 @@ export default new class CashBackUtils {
             }
 
             await AsyncStorage.setItem('walletToken', cashbackToken)
+            await AsyncStorage.setItem('walletToken_' + tmpAuthHash, cashbackToken)
             this.walletToken = cashbackToken
             this.walletPublicAddress = address
             tmp.cashbackToken = cashbackToken

@@ -95,7 +95,7 @@ class MarketingEvent {
         this.DATA.LOG_WALLET = await BlocksoftKeysStorage.getSelectedWallet()
         this._reinitTgMessage(testerMode)
 
-        await CashBackUtils.init(true)
+        await CashBackUtils.init({force : true, selectedWallet : this.DATA.LOG_WALLET})
         this.DATA.LOG_CASHBACK = CashBackUtils.getWalletToken()
         this._reinitTgMessage(testerMode)
 
