@@ -39,8 +39,8 @@ import UsdtScannerProcessor from './usdt/UsdtScannerProcessor'
 import XrpAddressProcessor from './xrp/XrpAddressProcessor'
 import XrpScannerProcessor from './xrp/XrpScannerProcessor'
 
-import XlmAddressProcessor from './xlm/XlmAddressProcessor'
-import XlmScannerProcessor from './xlm/XlmScannerProcessor'
+//import XlmAddressProcessor from './xlm/XlmAddressProcessor'
+//import XlmScannerProcessor from './xlm/XlmScannerProcessor'
 
 import XvgScannerProcessor from './xvg/XvgScannerProcessor'
 
@@ -81,8 +81,8 @@ class BlocksoftDispatcher {
                 return new TrxAddressProcessor()
             case 'XRP':
                 return new XrpAddressProcessor()
-            case 'XLM':
-                return new XlmAddressProcessor()
+            //case 'XLM':
+                //return new XlmAddressProcessor()
             case 'XMR':
                 return new XmrAddressProcessor()
             case 'FIO':
@@ -127,8 +127,8 @@ class BlocksoftDispatcher {
                 return new UsdtScannerProcessor(currencyDictSettings)
             case 'XRP':
                 return new XrpScannerProcessor(currencyDictSettings)
-            case 'XLM':
-                return new XlmScannerProcessor(currencyDictSettings)
+            //case 'XLM':
+            //    return new XlmScannerProcessor(currencyDictSettings)
             case 'XVG':
                 return new XvgScannerProcessor(currencyDictSettings)
             case 'XMR':

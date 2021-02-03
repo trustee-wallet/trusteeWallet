@@ -17,7 +17,7 @@ import LtcTransferProcessor from './ltc/LtcTransferProcessor'
 import TrxTransferProcessor from './trx/TrxTransferProcessor'
 import UsdtTransferProcessor from './usdt/UsdtTransferProcessor'
 import XrpTransferProcessor from './xrp/XrpTransferProcessor'
-import XlmTransferProcessor from './xlm/XlmTransferProcessor'
+//import XlmTransferProcessor from './xlm/XlmTransferProcessor'
 import XvgTransferProcessor from './xvg/XvgTransferProcessor'
 import EthTransferProcessorUAX from './eth/EthTransferProcessorUAX'
 import XmrTransferProcessor from './xmr/XmrTransferProcessor'
@@ -83,9 +83,9 @@ export namespace BlocksoftTransferDispatcher {
             case 'XRP':
                 CACHE_PROCESSORS[currencyCode] = new XrpTransferProcessor(currencyDictSettings)
                 break
-            case 'XLM':
-                CACHE_PROCESSORS[currencyCode] = new XlmTransferProcessor(currencyDictSettings)
-                break
+            //case 'XLM':
+            //  CACHE_PROCESSORS[currencyCode] = new XlmTransferProcessor(currencyDictSettings)
+            //  break
             case 'XVG':
                 CACHE_PROCESSORS[currencyCode] = new XvgTransferProcessor(currencyDictSettings)
                 break
