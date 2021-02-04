@@ -123,10 +123,13 @@ export default new class AppNotificationListener {
         Log.log('PUSH unsubscribe ' + topic + ' finished')
     }
 
-    async rmvOld(): Promise<void> {
+    async rmvOld(fcmToken: string = ''): Promise<void> {
+        if (fcmToken === 'NO_GOOGLE') {
+            return
+        }
         const { languageList } = config.language
         try {
-            console.log('PUSH rmvOld start')
+            await Log.log('PUSH rmvOld start')
             await messaging().unsubscribeFromTopic('trustee_all')
             await messaging().unsubscribeFromTopic('trustee_dev')
             for (const lang of languageList) {
@@ -134,7 +137,7 @@ export default new class AppNotificationListener {
                 await messaging().unsubscribeFromTopic('trustee_all_' + sub)
                 await messaging().unsubscribeFromTopic('trustee_dev_' + sub)
             }
-            console.log('PUSH rmvOld finished')
+            await Log.log('PUSH rmvOld finished')
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('PUSH rmvOld error ' + e.message)
@@ -143,6 +146,9 @@ export default new class AppNotificationListener {
     }
 
     async updateSubscriptions(fcmToken: string = ''): Promise<void> {
+        if (fcmToken === 'NO_GOOGLE') {
+            return
+        }
         Log.log('PUSH updateSubscriptions ' + fcmToken)
         const settings = await settingsActions.getSettings(false)
         if (typeof settings === 'undefined' || !settings) {
@@ -209,7 +215,7 @@ export default new class AppNotificationListener {
                 }
                 try {
                     fcmToken = await messaging().getToken()
-                    await this.rmvOld()
+                    await this.rmvOld(fcmToken)
                 } catch (e) {
                     if (config.debug.appErrors) {
                         console.log('PUSH getToken fcmToken error ' + e.message)
