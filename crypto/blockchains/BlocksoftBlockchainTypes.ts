@@ -20,7 +20,7 @@ export namespace BlocksoftBlockchainTypes {
 
         getFeeRate(data: TransferData, privateData?: TransferPrivateData, additionalData?: TransferAdditionalData): Promise<FeeRateResult>
 
-        sendRawTx?(data: DbAccount, rawTxHex: string): Promise<string>
+        sendRawTx?(data: DbAccount, rawTxHex: string, txRBF : any, logData : any): Promise<string>
 
         setMissingTx?(data: DbAccount, transaction: DbTransaction): Promise<boolean>
 
@@ -36,7 +36,7 @@ export namespace BlocksoftBlockchainTypes {
     }
 
     export interface SendProvider {
-        sendTx(hex: string, subtitle: string) : Promise<{transactionHash: string, transactionJson:any}>
+        sendTx(hex: string, subtitle: string, txRBF : any, logData : any) : Promise<{transactionHash: string, transactionJson:any, logData ?: any}>
     }
 
     export interface NetworkPrices {

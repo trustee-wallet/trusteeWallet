@@ -10,11 +10,11 @@ export default class BchSendProvider extends DogeSendProvider implements Blockso
 
     _apiPath = 'https://rest.bitcoin.com/v2/rawtransactions/sendRawTransaction/'
 
-    async sendTx(hex: string, subtitle: string): Promise<{ transactionHash: string, transactionJson: any }> {
+    async sendTx(hex: string, subtitle: string, txRBF : any, logData : any): Promise<{ transactionHash: string, transactionJson: any }> {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BchSendProvider.sendTx ' + subtitle + ' started ' + subtitle)
 
         try {
-            const trezor = await super.sendTx(hex, subtitle)
+            const trezor = await super.sendTx(hex, subtitle, txRBF, logData)
             if (trezor) {
                 return trezor
             }

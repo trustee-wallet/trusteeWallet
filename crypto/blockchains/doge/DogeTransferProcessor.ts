@@ -16,6 +16,8 @@ import { DogeLogs } from './basic/DogeLogs'
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
 import config from '../../../app/config/config'
 import { err } from 'react-native-svg/lib/typescript/xml'
+import { sublocale } from '../../../app/services/i18n'
+import settingsActions from '../../../app/appstores/Stores/Settings/SettingsActions'
 
 
 const networksConstants = require('../../common/ext/networks-constants')
@@ -448,10 +450,18 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         }
 
 
-        const logData = uiData.selectedFee
+        const logData = {}
+        logData.currencyCode = this._settings.currencyCode
+        logData.selectedFee = uiData.selectedFee
+        logData.from = data.addressFrom.toLowerCase()
+        logData.basicAddressTo = data.addressTo.toLowerCase()
+        logData.basicAmount = data.amount
+        logData.pushLocale = sublocale()
+        logData.pushSetting = await settingsActions.getSetting('transactionsNotifs')
+
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
-            result = await this.sendProvider.sendTx(uiData.selectedFee.blockchainData.rawTxHex, txRBFed)
+            result = await this.sendProvider.sendTx(uiData.selectedFee.blockchainData.rawTxHex, txRBFed, txRBF, logData)
             result.transactionFee = uiData.selectedFee.feeForTx
             result.transactionFeeCurrencyCode = this._settings.currencyCode
             result.transactionJson = {
@@ -466,11 +476,18 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     transactionHash: txRBF
                 })
             }
+            const transactionLog = typeof result.logData !== 'undefined' ? result.logData : logData
+            const inputsLog = JSON.stringify(uiData.selectedFee.blockchainData.preparedInputsOutputs.inputs)
+            const transactionRaw = uiData.selectedFee.blockchainData.rawTxHex + ''
+            if (typeof transactionLog.selectedFee !== 'undefined' && typeof transactionLog.selectedFee.blockchainData !== 'undefined') {
+                transactionLog.selectedFee.blockchainData = '*'
+            }
             await DogeRawDS.saveRaw({
                 address: data.addressFrom,
                 currencyCode: this._settings.currencyCode,
                 transactionHash: result.transactionHash,
-                transactionRaw: uiData.selectedFee.blockchainData.rawTxHex
+                transactionRaw,
+                transactionLog
             })
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx hex ', uiData.selectedFee.blockchainData.rawTxHex)
             // @ts-ignore
@@ -479,7 +496,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 address: data.addressFrom,
                 currencyCode: this._settings.currencyCode,
                 transactionHash: result.transactionHash,
-                transactionRaw: JSON.stringify(uiData.selectedFee.blockchainData.preparedInputsOutputs.inputs)
+                transactionRaw: inputsLog
             })
             await DogeRawDS.saveJson({
                 address: data.addressFrom,
@@ -498,8 +515,6 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             MarketingEvent.logOnlyRealTime('v20_doge_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
             throw e
         }
-        // @ts-ignore
-        logData.result = result
         // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('v20_doge_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
 
@@ -509,9 +524,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         return result
     }
 
-    async sendRawTx(data: BlocksoftBlockchainTypes.DbAccount, rawTxHex: string): Promise<string> {
+    async sendRawTx(data: BlocksoftBlockchainTypes.DbAccount, rawTxHex: string, txRBF : any, logData : any): Promise<string> {
         this._initProviders()
-        const result = await this.sendProvider.sendTx(rawTxHex, 'rawSend')
+        const result = await this.sendProvider.sendTx(rawTxHex, 'rawSend', txRBF, logData)
         return result.transactionHash
     }
 

@@ -21,6 +21,7 @@ class DogeRawDS {
         transaction_unique_key AS transactionUnique,
         transaction_hash AS transactionHash,
         transaction_raw AS transactionRaw,
+        transaction_log AS transactionLog,
         broadcast_log AS broadcastLog,
         broadcast_updated AS broadcastUpdated,
         created_at AS transactionCreated,
@@ -46,12 +47,21 @@ class DogeRawDS {
                         continue
                     }
                     ret[row.transactionUnique] = row
+                    let transactionLog
+                    try {
+                        transactionLog = row.transactionLog ? JSON.parse(dbInterface.unEscapeString(row.transactionLog)) : row.transactionLog
+                    } catch (e) {
+                        // do nothing
+                    }
 
                     let broadcastLog = ''
                     const updateObj = { broadcastUpdated: now }
                     let broad
                     try {
-                        broad = await BlocksoftTransfer.sendRawTx(data, row.transactionRaw)
+                        broad = await BlocksoftTransfer.sendRawTx(data, row.transactionRaw,
+                            typeof transactionLog !== 'undefined' && transactionLog && typeof transactionLog.txRBF !== 'undefined' ? transactionLog.txRBF : false,
+                            transactionLog
+                        )
                         if (broad === '') {
                             throw new Error('not broadcasted')
                         }
@@ -143,6 +153,9 @@ class DogeRawDS {
             transaction_raw: data.transactionRaw,
             created_at: now
         }]
+        if (typeof data.transactionLog !== 'undefined' && data.transactionLog) {
+            prepared[0].transaction_log = dbInterface.escapeString(JSON.stringify(data.transactionLog))
+        }
         await dbInterface.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
     }
 
@@ -159,6 +172,9 @@ class DogeRawDS {
             is_removed: 2,
             created_at: now
         }]
+        if (typeof data.transactionLog !== 'undefined' && data.transactionLog) {
+            prepared[0].transaction_log = dbInterface.escapeString(JSON.stringify(data.transactionLog))
+        }
         await dbInterface.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
     }
 

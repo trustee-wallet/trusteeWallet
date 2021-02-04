@@ -53,6 +53,7 @@ export default class EthTxSendProvider {
         const successProxy = config.proxy.apiEndpoints.baseURL + '/send/sendtx'
         let checkResult = false
         try {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy checkResult start ' + proxy, logData)
             checkResult = await BlocksoftAxios.post(proxy, {
                 raw: signData.rawTransaction,
                 txRBF,
@@ -61,8 +62,9 @@ export default class EthTxSendProvider {
             })
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkError ' + e.message)
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResult ' + e.message)
             }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResult ' + e.message)
         }
 
         if (checkResult !== false) {
@@ -96,10 +98,11 @@ export default class EthTxSendProvider {
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send result ', result)
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' EthTxSendProvider.send error ' + e.message, JSON.parse(JSON.stringify(logData)))
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send trezor error ' + e.message, JSON.parse(JSON.stringify(logData)))
             }
             try {
                 logData.error = e.message
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy errorTx start ' + errorProxy, logData)
                 const res2 = await BlocksoftAxios.post(errorProxy, {
                     raw: signData.rawTransaction,
                     txRBF,
@@ -107,13 +110,14 @@ export default class EthTxSendProvider {
                     marketingData: MarketingEvent.DATA
                 })
                 if (config.debug.cryptoErrors) {
-                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error result', JSON.parse(JSON.stringify(res2)))
+                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy errorTx result', JSON.parse(JSON.stringify(res2)))
                 }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy errorTx', typeof res2.data !== 'undefined' ? res2.data : res2)
             } catch (e2) {
                 if (config.debug.cryptoErrors) {
-                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error errorProxy ' + e.message)
+                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error errorTx ' + e.message)
                 }
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error errorProxy ' + e2.message)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error errorTx ' + e2.message)
             }
             if (this._settings.currencyCode !== 'ETH' && this._settings.currencyCode !== 'ETH_ROPSTEN' && e.message.indexOf('bad-txns-in-belowout') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
@@ -152,6 +156,7 @@ export default class EthTxSendProvider {
         checkResult = false
         try {
             logData.txHash = transactionHash
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy successTx start ' + successProxy, logData)
             checkResult = await BlocksoftAxios.post(successProxy, {
                 raw: signData.rawTransaction,
                 txRBF,
@@ -159,12 +164,13 @@ export default class EthTxSendProvider {
                 marketingData: MarketingEvent.DATA
             })
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy success result', JSON.parse(JSON.stringify(checkResult)))
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy successTx result ', JSON.parse(JSON.stringify(checkResult)))
             }
         } catch (e3) {
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy success error ' + e3.message)
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error successTx ' + e3.message)
             }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error successTx ' + e3.message)
         }
 
         if (checkResult !== false) {

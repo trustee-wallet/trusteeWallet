@@ -143,7 +143,7 @@ export namespace BlocksoftTransfer {
     }
 
 
-    export const sendRawTx = async function(data: BlocksoftBlockchainTypes.DbAccount, rawTxHex : string): Promise<string> {
+    export const sendRawTx = async function(data: BlocksoftBlockchainTypes.DbAccount, rawTxHex : string, txRBF : any, logData : any): Promise<string> {
         let txResult = ''
         try {
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendRawTx started ${data.address} `)
@@ -151,7 +151,7 @@ export namespace BlocksoftTransfer {
             if (typeof processor.sendRawTx === 'undefined') {
                 return 'none'
             }
-            txResult = await processor.sendRawTx(data, rawTxHex)
+            txResult = await processor.sendRawTx(data, rawTxHex, txRBF, logData)
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendRawTx got ${data.address} result is ok`)
         } catch (e) {
             if (config.debug.cryptoErrors) {
