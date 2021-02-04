@@ -42,7 +42,7 @@ class ApiRates {
             }
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('ApiRates error ' + e.message )
+                console.log('ApiRates error ' + e.message, e)
             }
             Log.daemon('ApiRates error ' + e.message )
         }

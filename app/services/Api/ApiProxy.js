@@ -22,7 +22,8 @@ async function _getAll(params) {
         await AppNotificationListener.getToken()
         deviceToken = MarketingEvent.DATA.LOG_TOKEN
     }
-    const signedData = await CashBackUtils.createWalletSignature(true, typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false)
+    const time = typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false
+    const signedData = await CashBackUtils.createWalletSignature(true, time)
     if (!signedData) {
         throw new Error('No signed for getNews')
     }
@@ -50,11 +51,6 @@ async function _getAll(params) {
         sign: signedData,
         userNotifications: forServer ? forServer : [],
         locale: sublocale()
-    }
-
-    const signature = await CashBackUtils.createWalletSignature(true)
-    if (!signature) {
-        throw new Error('UI_ERROR_CASHBACK_SIGN_ERROR')
     }
 
     const cbData = {
@@ -123,7 +119,10 @@ export default {
             }
             if (typeof all.data.status !== 'undefined') {
                 if (all.data.status !== 'success') {
-                    if (typeof all.data.subdata !== 'undefined' && typeof all.data.subdata.serverTimestamp !== 'undefined') {
+                    if (typeof all.data.serverTimestamp !== 'undefined') {
+                        params.timestamp = all.data.serverTimestamp
+                        all = false
+                    } else if (typeof all.data.subdata !== 'undefined' && typeof all.data.subdata.serverTimestamp !== 'undefined') {
                         if (typeof params === 'undefined') {
                             params = {}
                         }
@@ -135,11 +134,11 @@ export default {
                 }
             }
             index++
-            if (index > 3) {
-                throw new Error('something wrong with proxy')
-            }
-        } while (all === false)
+        } while (all === false && index < 3)
 
+        if (!all || typeof all.data === 'undefined') {
+            throw new Error('something wrong with proxy')
+        }
         const res = all.data.data
 
         if (typeof params === 'undefined' || typeof params.onlyRates === 'undefined') {
