@@ -12,6 +12,7 @@ import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
 import AppNotificationListener from '../AppNotification/AppNotificationListener'
 import ApiV3 from './ApiV3'
+import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
 async function _getAll(params) {
     const { mode: exchangeMode } = config.exchange
@@ -50,6 +51,7 @@ async function _getAll(params) {
         deviceToken,
         sign: signedData,
         userNotifications: forServer ? forServer : [],
+        exchangeRatesNotifs : await settingsActions.getSetting('exchangeRatesNotifs'),
         locale: sublocale()
     }
 

@@ -6,6 +6,7 @@ import Log from '../../../services/Log/Log'
 
 import walletDS from '../Wallet/Wallet'
 import app from 'react-native-orientation/demo/app'
+import settingsActions from '../../Stores/Settings/SettingsActions'
 
 const tableName = 'app_news'
 
@@ -253,6 +254,12 @@ class AppNews {
         }
         if (params && typeof params.newsServerId !== 'undefined') {
             where.push(`app_news.news_server_id IS NOT NULL`)
+        }
+
+
+        const exchangeRatesNotifs = await settingsActions.getSetting('exchangeRatesNotifs')
+        if (exchangeRatesNotifs === '0') {
+            where.push(`app_news.news_group !='RATES_CHANGING'`)
         }
 
         if (where.length > 0) {
