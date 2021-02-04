@@ -59,11 +59,13 @@ export default new class AppNotificationListener {
             }
         } catch (e) {
             if (config.debug.appErrors) {
-                Log.log('PUSH checkPermission error ' + e.message)
+                await Log.log('PUSH checkPermission error ' + e.message)
             }
-            Log.log('PUSH checkPermission error ' + e.message)
+            await Log.log('PUSH checkPermission error ' + e.message)
         }
-        Log.log('PUSH checkPermission result ' + JSON.stringify(res))
+
+        await Log.log('PUSH checkPermission result ' + JSON.stringify(res))
+        /*
         if (res) {
             await appNewsDS.setRemoved({ newsName: 'PUSH_NOTIFICATION_DISABLED' })
         } else {
@@ -74,6 +76,7 @@ export default new class AppNotificationListener {
                 newsJson: {}
             })
         }
+        */
         return res
     }
 
@@ -122,12 +125,20 @@ export default new class AppNotificationListener {
 
     async rmvOld(): Promise<void> {
         const { languageList } = config.language
-        await messaging().unsubscribeFromTopic('trustee_all')
-        await messaging().unsubscribeFromTopic('trustee_dev')
-        for (const lang of languageList) {
-            const sub = sublocale(lang.code)
-            await messaging().unsubscribeFromTopic('trustee_all_' + sub)
-            await messaging().unsubscribeFromTopic('trustee_dev_' + sub)
+        try {
+            console.log('PUSH rmvOld start')
+            await messaging().unsubscribeFromTopic('trustee_all')
+            await messaging().unsubscribeFromTopic('trustee_dev')
+            for (const lang of languageList) {
+                const sub = sublocale(lang.code)
+                await messaging().unsubscribeFromTopic('trustee_all_' + sub)
+                await messaging().unsubscribeFromTopic('trustee_dev_' + sub)
+            }
+            console.log('PUSH rmvOld finished')
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('PUSH rmvOld error ' + e.message)
+            }
         }
     }
 
@@ -182,7 +193,7 @@ export default new class AppNotificationListener {
             if (now - time > CACHE_VALID_TIME) {
                 time = 0
                 fcmToken = ''
-                Log.log('PUSH getToken cache invalidate ' + (now - time) + ' time ' + time)
+                await Log.log('PUSH getToken cache invalidate ' + (now - time) + ' time ' + time)
             } else {
                 // Log.log('PUSH getToken cache valid ' + (now - time) + ' time ' + time)
             }
@@ -196,12 +207,14 @@ export default new class AppNotificationListener {
                 if (fcmToken) {
                     await this.updateSubscriptions(fcmToken)
                 }
-                await this.rmvOld()
-
                 try {
                     fcmToken = await messaging().getToken()
+                    await this.rmvOld()
                 } catch (e) {
-                    Log.log('PUSH getToken fcmToken error ' + e.message)
+                    if (config.debug.appErrors) {
+                        console.log('PUSH getToken fcmToken error ' + e.message)
+                    }
+                    await Log.log('PUSH getToken fcmToken error ' + e.message)
                 }
 
                 if (!fcmToken) {
@@ -209,11 +222,17 @@ export default new class AppNotificationListener {
                         await messaging().registerDeviceForRemoteMessages()
                         fcmToken = await messaging().getToken()
                     } catch (e) {
-                        Log.log('PUSH getToken fcmToken error ' + e.message)
+                        if (config.debug.appErrors) {
+                            console.log('PUSH getToken fcmToken error ' + e.message)
+                        }
+                        await Log.log('PUSH getToken fcmToken error ' + e.message)
+                        if (e.message.indexOf('MISSING_INSTANCEID_SERVICE') !== -1) {
+                            fcmToken = 'NO_GOOGLE'
+                        }
                     }
                 }
 
-                Log.log('PUSH getToken subscribed token ' + fcmToken)
+                await Log.log('PUSH getToken subscribed token ' + fcmToken)
                 await this._onRefresh(fcmToken)
                 await AsyncStorage.setItem(ASYNC_CACHE_TIME, now + '')
             } else {
@@ -223,7 +242,10 @@ export default new class AppNotificationListener {
             // @ts-ignore
             MarketingEvent.DATA.LOG_TOKEN = fcmToken
         } catch (e) {
-            Log.log('PUSH getToken error ' + e.message)
+            if (config.debug.appErrors) {
+                console.log('PUSH getToken error ' + e.message)
+            }
+            await Log.log('PUSH getToken error ' + e.message)
         }
     }
 

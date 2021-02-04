@@ -85,7 +85,7 @@ export default new class CashBackUtils {
             await CashBackActions.setParentToken(this.parentToken)
         } else {
             try {
-                if (typeof firebaseUrl !== 'undefined' && firebaseUrl != null) {
+                if (typeof firebaseUrl !== 'undefined' && firebaseUrl != null && firebaseUrl) {
                     MarketingEvent.logEvent('cashback_parent_link', firebaseUrl)
                     const firebaseUrlArray = firebaseUrl.split('=')
                     this.parentToken = firebaseUrlArray[firebaseUrlArray.length - 1]
@@ -97,6 +97,7 @@ export default new class CashBackUtils {
                 await Log.log('SRV/CashBack init parent error ' + e.message)
             }
         }
+        await Log.log('SRV/CashBack saved parent from AsyncStorage ' + CACHE_PARENT_TITLE + ' => ' + tmpParentToken, params)
         this.inited = true
     }
 
