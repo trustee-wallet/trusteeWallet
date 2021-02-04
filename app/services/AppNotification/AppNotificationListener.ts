@@ -124,7 +124,7 @@ export default new class AppNotificationListener {
     }
 
     async rmvOld(fcmToken: string = ''): Promise<void> {
-        if (fcmToken === 'NO_GOOGLE') {
+        if (fcmToken && fcmToken.indexOf('NO_GOOGLE') !== -1) {
             return
         }
         const { languageList } = config.language
@@ -146,7 +146,7 @@ export default new class AppNotificationListener {
     }
 
     async updateSubscriptions(fcmToken: string = ''): Promise<void> {
-        if (fcmToken === 'NO_GOOGLE') {
+        if (fcmToken && fcmToken.indexOf('NO_GOOGLE') !== -1) {
             return
         }
         Log.log('PUSH updateSubscriptions ' + fcmToken)
@@ -196,7 +196,7 @@ export default new class AppNotificationListener {
 
         const now = new Date().getTime()
         if (time && fcmToken) {
-            if (now - time > CACHE_VALID_TIME) {
+            if (now - time > CACHE_VALID_TIME && fcmToken.indexOf('NO_GOOGLE') === -1) {
                 time = 0
                 fcmToken = ''
                 await Log.log('PUSH getToken cache invalidate ' + (now - time) + ' time ' + time)
@@ -233,7 +233,7 @@ export default new class AppNotificationListener {
                         }
                         await Log.log('PUSH getToken fcmToken error ' + e.message)
                         if (e.message.indexOf('MISSING_INSTANCEID_SERVICE') !== -1) {
-                            fcmToken = 'NO_GOOGLE'
+                            fcmToken = 'NO_GOOGLE_' + (new Date().getTime()) + '_' + (Math.ceil(Math.random() * 100000))
                         }
                     }
                 }
