@@ -157,15 +157,21 @@ class QRCodeScannerScreen extends Component {
                 }
 
                 const parsed = res.data
+                SendActions.setUiType({
+                    ui: {
+                        uiType: 'MAIN_SCANNER',
+                        uiInputType: parsed.amount ? 'CRYPTO' : 'any',
+                        uiInputAddress: true
+                    },
+                    addData: {
+                        gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
+                        comment: parsed.label
+                    }
+                })
                 await SendActions.startSend({
-                    uiType: 'MAIN_SCANNER',
-                    uiInputType: parsed.amount ? 'CRYPTO' : 'any',
-                    gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
                     addressTo: parsed.address,
                     amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
                     currencyCode: parsed.currencyCode,
-                    comment: parsed.label,
-                    uiInputAddress: true
                 })
             } else if (type === 'ADD_CUSTOM_TOKEN_SCANNER') {
                 NavStore.goNext('AddAssetScreen', {
@@ -178,15 +184,21 @@ class QRCodeScannerScreen extends Component {
 
                     const parsed = res.data
                     parsed.currencyCode = oldCurrency.currencyCode
+                    SendActions.setUiType({
+                        ui: {
+                            uiType: 'SEND_SCANNER',
+                            uiInputType: parsed.amount ? 'CRYPTO' : 'any',
+                            uiInputAddress: true
+                        },
+                        addData: {
+                            gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
+                            comment: parsed.label
+                        }
+                    })
                     await SendActions.startSend({
-                        uiType: 'SEND_SCANNER',
-                        uiInputType: parsed.amount ? 'CRYPTO' : 'any',
-                        gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
                         addressTo: parsed.address,
                         amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
                         currencyCode: parsed.currencyCode,
-                        comment: parsed.label,
-                        uiInputAddress: true
                     })
 
                 } else if (res.status === 'success' && res.data.currencyCode !== currencyCode) {
@@ -202,11 +214,15 @@ class QRCodeScannerScreen extends Component {
                         }
                     })
                 } else {
+                    SendActions.setUiType({
+                        ui: {
+                            uiType: 'SEND_SCANNER',
+                            uiInputAddress: true
+                        }
+                    })
                     await SendActions.startSend({
-                        uiType: 'SEND_SCANNER',
                         addressTo: res.data.parsedUrl,
                         currencyCode: oldCurrency.currencyCode,
-                        uiInputAddress: true
                     })
                 }
             }

@@ -25,6 +25,8 @@ import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import { BlocksoftBlockchainTypes } from '../../../../crypto/blockchains/BlocksoftBlockchainTypes'
 import AsyncStorage from '@react-native-community/async-storage'
 
+const { dispatch } = store
+
 export namespace SendActions {
 
     export const getContactAddress = async function(data: { addressName: string, currencyCode: string }): Promise<string | boolean> {
@@ -285,19 +287,20 @@ export namespace SendActions {
     }
 
     export const startSend = async function(data: SendTmpData.SendScreenDataRequest): Promise<boolean> {
+
+        const state = store.getState().sendScreenStore
+
         try {
-            if (typeof data.uiInputType === 'undefined') {
-                data.uiInputType = 'any'
-            }
 
             data.transactionJson = {}
+            let additionalData = {}
             if (typeof data.transactionBoost !== 'undefined' && data.transactionBoost && typeof data.transactionBoost.transactionHash !== 'undefined') {
                 data.currencyCode = data.transactionBoost.currencyCode
                 if (data.transactionBoost.transactionDirection !== 'income' && data.transactionBoost.transactionDirection !== 'self') {
                     data.transactionJson = data.transactionBoost.transactionJson
                 }
                 if (typeof data.transactionBoost.transactionJson !== 'undefined' && data.transactionBoost.transactionJson && typeof data.transactionBoost.transactionJson.comment !== 'undefined') {
-                    data.comment = data.transactionBoost.transactionJson.comment
+                    additionalData.comment = data.transactionBoost.transactionJson.comment
                 }
             }
             if (typeof data.transactionReplaceByFee === 'undefined') {
@@ -336,14 +339,14 @@ export namespace SendActions {
 
 
             let needToCount = false
-            if (typeof data.uiType !== 'undefined' && data.uiType === 'TRADE_SEND') {
+            if (typeof state.ui.uiType !== 'undefined' && state.ui.uiType === 'TRADE_SEND') {
                 if (!data.isTransferAll) {
                     Log.log('SendActions.startSend WILL CLEAR COUNTED TRADE FEES')
                     needToCount = true
                 } else {
                     Log.log('SendActions.startSend WILL NOT CLEAR COUNTED TRADE FEES')
                 }
-            } else if (typeof data.gotoWithCleanData !== 'undefined' && !data.gotoWithCleanData) {
+            } else if (typeof state.addData.gotoWithCleanData !== 'undefined' && !state.addData.gotoWithCleanData) {
                 // do nothing for send => receipt
                 Log.log('SendActions.startSend WILL NOT CLEAR COUNTED SPEC PARAM')
             } else {
@@ -351,7 +354,14 @@ export namespace SendActions {
                 Log.log('SendActions.startSend WILL CLEAR COUNTED FEES')
                 needToCount = true
             }
-            data.uiNeedToCountFees = (data.gotoReceipt && needToCount)
+            setUiType({
+                ui: {
+                    uiNeedToCountFees: (state.addData.gotoReceipt && needToCount)
+                },
+                addData: {
+                    ...additionalData
+                }
+            })
 
             if (!needToCount) {
                 // recheck if not counted for wrong data
@@ -372,16 +382,9 @@ export namespace SendActions {
                 data.selectedFee = false
             }
 
-
-            if (data.gotoReceipt) {
-                if (data.addressTo && (typeof data.uiInputAddress === 'undefined' || !data.uiInputAddress)) {
-                    data.uiInputAddress = true
-                }
-            }
-
             SendTmpData.setData(data)
-
-            if (data.gotoReceipt) {
+            console.log(state)
+            if (state.addData.gotoReceipt) {
                 if (config.debug.sendLogs) {
                     // @ts-ignore
                     console.log('SendActions.startSend GO TO RECEIPT', data)
@@ -425,5 +428,23 @@ export namespace SendActions {
         }
         return { wallet: selectedWallet, cryptoCurrency, account }
 
+    }
+
+    export const setUiType = function (data: {ui: object, addData: object}) {
+        dispatch({
+            type: 'SET_DATA',
+            ui: {
+                ...data.ui
+            },
+            addData: {
+                ...data.addData
+            }
+        })
+    }
+
+    export const cleanData = function () {
+        dispatch({
+            type: 'CLEAN_DATA',
+        })
     }
 }

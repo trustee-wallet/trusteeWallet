@@ -60,10 +60,15 @@ class FioRequestDetails extends Component {
 
         setLoaderStatus(true)
         try {
-
+            SendActions.setUiType({
+                ui: {
+                    uiType : 'FIO_REQUESTS'
+                },
+                addData: {
+                    gotoReceipt : true,
+                }
+            })
             await SendActions.startSend({
-                gotoReceipt : true,
-                uiType : 'FIO_REQUESTS',
                 fioRequestDetails : this.state.requestDetailData,
                 currencyCode : currency.currencyCode,
             })

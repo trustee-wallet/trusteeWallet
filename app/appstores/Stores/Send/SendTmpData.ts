@@ -3,27 +3,17 @@ import { BlocksoftBlockchainTypes } from '../../../../crypto/blockchains/Blockso
 export namespace SendTmpData {
 
     export interface SendScreenDataRequest  {
-        gotoReceipt ?: boolean
-        gotoWithCleanData ?: boolean,
-        uiType ?: 'MAIN_SCANNER' | 'HOME_SCREEN' | 'SEND_SCANNER' | 'TRADE_SEND' | 'DEEP_LINKING' | 'ACCOUNT_SCREEN' | 'FIO_REQUESTS' | 'TRANSACTION_SCREEN', // from where
-        uiApiVersion ?: 'v2' | 'v3', // for trades version of api
-        uiProviderType ?: 'FIXED' | 'FLOATING', // for trades types
-        uiNeedToCountFees ?: boolean,
-        uiInputType ?: 'FIAT' | 'CRYPTO' | 'any',
-
         // this is actually for redo
         inputValue ?: string, // 0.1
         selectedFee ?: any, // ?
-
-
         addressTo : string,
+        isTransferAll ?: boolean, // false
+
         amountPretty ?: string, // 0.1
         amountRaw ?: string, // 0010000
         unconfirmedRaw ?: string, // 01231
 
         currencyCode : string,
-        isTransferAll ?: boolean, // false
-        comment ?: string, // user memo
         memo ?: string, // blockchain memo
 
         contactName?: boolean | string,
@@ -84,9 +74,5 @@ export namespace SendTmpData {
     }
     export const setSelectedFee = function(selectedFee : any) : void {
         CACHE_SELECTED_FEE = selectedFee
-    }
-
-    export const setComment = function(comment : string) : void {
-        CACHE_REQUEST.comment = comment
     }
 }

@@ -115,11 +115,12 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         CACHE_IS_FEE_LOADING = true
         const { sendScreenData } = this.state
+        const uiSendScreenData = this.props.sendScreenStore
         // typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee
 
         let tmp = SendTmpData.getCountedFees()
         let selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
-        if (!selectedFee || sendScreenData.uiNeedToCountFees) {
+        if (!selectedFee || uiSendScreenData.ui.uiNeedToCountFees) {
             this.setState({
                 loadFee: true
             })
@@ -127,7 +128,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
         sendScreenData.selectedFee = selectedFee
-        sendScreenData.uiNeedToCountFees = false
+        uiSendScreenData.ui.uiNeedToCountFees = false
 
         this.checkLoadedFee(tmp.countedFees, selectedFee)
         this.setState({
@@ -224,6 +225,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             console.log('')
             console.log('')
             console.log('Send.ReceiptScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
+            console.log('Send.ReceiptScreen.init sendScreenStore', JSON.parse(JSON.stringify(this.props.sendScreenStore)))
         }
 
         const { account, cryptoCurrency, wallet } = SendActions.findWalletPlus(sendScreenData.currencyCode)
@@ -286,13 +288,15 @@ class ReceiptScreen extends SendBasicScreenScreen {
         const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = wallet
         const { address, derivationPath, accountJson, currencyCode, accountId } = account
 
+        const uiSendScreenData = this.props.sendScreenStore
+
         let selectedFee = typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
         let tmp
         if (!selectedFee) {
             tmp = SendTmpData.getCountedFees()
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
-        if (!selectedFee || sendScreenData.uiNeedToCountFees) {
+        if (!selectedFee || uiSendScreenData.ui.uiNeedToCountFees) {
             tmp = await SendActions.countFees(sendScreenData)
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
@@ -560,7 +564,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                                 {
                                     item_id: sendScreenData.bseOrderId,
                                     item_name: sendScreenData.bseTrusteeFee.from,
-                                    item_category: sendScreenData.uiApiVersion,
+                                    item_category: uiSendScreenData.uiApiVersion,
                                     item_variant: sendScreenData.bseTrusteeFee.to,
                                     item_brand: sendScreenData.bseTrusteeFee.type,
                                     price: sendScreenData.bseTrusteeFee.value,
@@ -623,7 +627,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 // },
                 async () => {
 
-                    const { uiType, uiApiVersion, bseOrderId } = this.state.sendScreenData
+                    const { uiType, uiApiVersion } = uiSendScreenData.ui
+                    const { bseOrderId } = sendScreenData
 
                     if (sendScreenData.transactionSpeedUp || sendScreenData.transactionReplaceByFee || sendScreenData.transactionRemoveByFee) {
                         NavStore.reset('TransactionScreen', {
@@ -646,11 +651,6 @@ class ReceiptScreen extends SendBasicScreenScreen {
                         if (uiApiVersion === 'v3' && bseOrderId) {
                             ApiV3.setExchangeStatus(bseOrderId, 'SUCCESS')
                         }
-                        NavStore.reset('TransactionScreen', {
-                            txData: {
-                                transactionHash: tx.transactionHash,
-                            }
-                        })
                         NavStore.reset('TransactionScreen', {
                             txData: {
                                 transactionHash: tx.transactionHash
@@ -676,7 +676,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
             })
             // @ksu check this plz
             // can i set paymentStatus for order v3 here?
-            const { uiApiVersion, bseOrderId } = this.state.sendScreenData
+            const { bseOrderId } = this.state.sendScreenData
+            const { uiApiVersion } = uiSendScreenData.ui
+
             if (uiApiVersion === 'v3' && bseOrderId) {
                 ApiV3.setExchangeStatus(bseOrderId, 'FAIL')
             }
@@ -749,7 +751,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         let { headerHeight, sendScreenData, cryptoCurrency, account, sendInProcess } = this.state
 
+        const uiSendScreenData = this.props.sendScreenStore
+
         Log.log('Send.ReceiptScreen.render data', JSON.parse(JSON.stringify(sendScreenData)))
+        Log.log('Send.ReceiptScreen.render uiSendScreenData', JSON.parse(JSON.stringify(uiSendScreenData)))
 
         if (typeof account === 'undefined' || typeof account.basicCurrencySymbol === 'undefined') {
             const tmp = SendActions.findWalletPlus(sendScreenData.currencyCode)
@@ -899,7 +904,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             <Text style={{ ...styles.title, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.totalSend')}</Text>
                             <Text style={{ ...styles.value, color: color }}>{`${amount} ${currencySymbol}`}</Text>
                             {
-                                sendScreenData.uiProviderType !== 'TRADE_SEND' ?
+                                uiSendScreenData.ui.uiProviderType !== 'TRADE_SEND' ?
                                     <LetterSpacing
                                         text={`${basicCurrencySymbol} ${equivalent}`}
                                         numberOfLines={1}
@@ -1004,7 +1009,8 @@ ReceiptScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        settingsStore: state.settingsStore
+        settingsStore: state.settingsStore,
+        sendScreenStore: state.sendScreenStore
     }
 }
 

@@ -107,9 +107,14 @@ class SendAdvancedSettingsScreen extends Component {
         console.log('countedFeesData', JSON.parse(JSON.stringify(countedFeesData)))
         console.log('countedFees', JSON.parse(JSON.stringify(countedFees)))
         console.log('selectedFee', JSON.parse(JSON.stringify(selectedFee)))
+        console.log('Send.SendAdvancedSettingsScreen sendScreenStore', JSON.parse(JSON.stringify(this.props.sendScreenStore)))
         console.log('')
         */
+
         const { account } = SendActions.findWalletPlus(sendScreenData.currencyCode)
+
+        const { ui, addData } = this.props.sendScreenStore
+
         this.setState({
             sendScreenData,
             countedFees,
@@ -119,8 +124,8 @@ class SendAdvancedSettingsScreen extends Component {
             isCustomFee,
             dropMenu,
             devMode: devMode && devMode.toString() === '1',
-            comment: sendScreenData.comment,
-            uiInputAddress: sendScreenData.uiInputAddress
+            comment: addData.comment,
+            uiInputAddress: ui.uiInputAddress
         })
     }
 
@@ -142,6 +147,7 @@ class SendAdvancedSettingsScreen extends Component {
     setFee = (item) => {
         // console.log('Send.SendAdvancedSettings.setFee', JSON.parse(JSON.stringify({ item })))
         this.setState({
+            ...this.state,
             selectedFee: item,
             isCustomFee: false
         })
@@ -151,6 +157,7 @@ class SendAdvancedSettingsScreen extends Component {
     setCustomFee = () => {
         // console.log('Send.SendAdvancedSettings.setCustomFee')
         this.setState({
+            ...this.state,
             isCustomFee: true
         })
 
@@ -186,7 +193,8 @@ class SendAdvancedSettingsScreen extends Component {
     showFee = (account) => {
         const { basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode } = account
         const { isCustomFee, countedFees } = this.state
-        const { uiProviderType, isTransferAll } = this.state.sendScreenData
+        const { isTransferAll } = this.state.sendScreenData
+        const { uiProviderType } = this.props.sendScreenStore.ui
         // console.log('Send.SendAdvancedSettings.showFee', JSON.parse(JSON.stringify({ basicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol, feeRates, currencyCode })))
         // console.log('Send.SendAdvancedSettings.showFee state', JSON.parse(JSON.stringify({ countedFees, selectedFee, isCustomFee })))
 
@@ -295,6 +303,19 @@ class SendAdvancedSettingsScreen extends Component {
         return false // !CACHE_FROM_CUSTOM_FEE && this.state.selectedFee === this.state.selectedFeeFromProps
     }
 
+    handleBack = () => {
+        SendActions.setUiType({
+            ui: {
+                ...this.props.sendScreenStore.ui
+            },
+            addData: {
+                ...this.props.sendScreenStore.addData,
+                comment: ''
+            }
+        })
+        NavStore.goBack()
+    }
+
     handleApply = async () => {
         const selectedFee = (this.state.isCustomFee || !this.state.selectedFee ) && CACHE_FROM_CUSTOM_FEE ? CACHE_FROM_CUSTOM_FEE : this.state.selectedFee
         const comment = this.state.comment
@@ -307,7 +328,14 @@ class SendAdvancedSettingsScreen extends Component {
         sendScreenData.selectedFee = selectedFee
         SendTmpData.setData(sendScreenData)
         SendTmpData.setSelectedFee(selectedFee)
-        SendTmpData.setComment(comment)
+        SendActions.setUiType({
+            ui: {
+                ...this.props.sendScreenStore.ui
+            },
+            addData: {
+                comment: this.state.comment
+            }
+        })
         if (config.debug.sendLogs) {
             console.log('Send.SendAdvancedSettings.handleApply', JSON.parse(JSON.stringify({selectedFee, sendScreenData, comment, 'state' : this.state.isCustomFee})))
         }
@@ -323,11 +351,7 @@ class SendAdvancedSettingsScreen extends Component {
         CACHE_FROM_CUSTOM_FEE = selectedFee
     }
 
-    onFocus = () => {
-        // this.setState({
-        //     focused: true
-        // })
-
+    onFocus = () => { 
         setTimeout(() => {
             try {
                 this.scrollView.scrollTo({ y: 350 })
@@ -341,7 +365,12 @@ class SendAdvancedSettingsScreen extends Component {
         this.setState(() => ({ headerHeight }))
     }
 
-    onChangeComment = (value) => { this.setState(() => ({ comment: value })) }
+    onChangeComment = (value) => { 
+        this.setState({
+            ...this.state,
+            comment: value
+        })
+    }
 
     render() {
 
@@ -408,22 +437,6 @@ class SendAdvancedSettingsScreen extends Component {
                                 />
                             </View>
                                 : null }
-                            {/* {console.log(SendTmpConstants.SELECTED_FEE.blockchainData.preparedInputsOutputs)} */}
-                            {/* typeof this.state.selectedFee !== 'undefined' && typeof this.state.selectedFee.blockchainData !== 'undefined' && (
-                            <View style={{ paddingTop: GRID_SIZE * 2 }}>
-                                <LetterSpacing text={strings('send.setting.inputSettings').toUpperCase()} textStyle={styles.settings__title} letterSpacing={1.5} />
-                                <ListItem
-                                    title={strings('send.setting.selectInput')}
-                                    iconType="pinCode"
-                                    onPress={() => console.log('')}
-                                    rightContent={'arrow'}
-                                    type={'dropdown'}
-                                    // subtitle={this.state.selectedFee.langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) :
-                                    //     strings(`send.fee.text.${this.state.selectedFee.langMsg}`) : null}
-                                />
-                            </View>)
-                            */
-                            }
                             <View style={{ marginVertical: GRID_SIZE }}>
                                 <LetterSpacing text={strings('send.setting.optional').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE, color: colors.sendScreen.amount }}  letterSpacing={1.5} />
                                 <TextInput
@@ -442,7 +455,7 @@ class SendAdvancedSettingsScreen extends Component {
                                 }}
                                 secondaryButton={{
                                     type: 'back',
-                                    onPress: () => NavStore.goBack(),
+                                    onPress: () => this.handleBack(),
                                 }}
                             />
                         </View>
@@ -460,7 +473,8 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         cryptoCurrency: state.mainStore.selectedCryptoCurrency,
         account: state.mainStore.selectedAccount,
-        sendStore: state.sendStore
+        sendStore: state.sendStore,
+        sendScreenStore: state.sendScreenStore
     }
 }
 

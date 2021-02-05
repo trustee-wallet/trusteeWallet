@@ -86,6 +86,7 @@ class HomeScreen extends React.Component {
         this.getBalanceVisibility()
         this.getCurrenciesOrder()
         SendDeepLinking.init()
+        SendActions.cleanData()
     }
 
     componentDidMount() {
@@ -196,8 +197,12 @@ class HomeScreen extends React.Component {
 
     // separated from stores not to be updated from outside
     handleSend = async (cryptoCurrency) => {
+        SendActions.setUiType({
+            ui: {
+                uiType: 'HOME_SCREEN'
+            }
+        })
         await SendActions.startSend({
-            uiType: 'HOME_SCREEN',
             currencyCode: cryptoCurrency.currencyCode
         })
     }
@@ -416,6 +421,12 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         toolTipsStore: state.toolTipsStore,
         currencies: getVisibleCurrencies(state),
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        dispatch
     }
 }
 

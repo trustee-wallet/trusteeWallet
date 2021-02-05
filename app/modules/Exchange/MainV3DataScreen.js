@@ -191,15 +191,27 @@ class MainV3DataScreen extends Component {
 
         try {
             Log.log('Exchange/MainV3Screen dataExchange', data)
+            
+            SendActions.setUiType({
+                ui: {
+                    uiType: 'TRADE_SEND',
+                    uiApiVersion: 'v3',
+                    uiProviderType: data.providerType, // 'FIXED' || 'FLOATING'
+                    uiInputAddress: true
+                },
+                addData: {
+                    gotoReceipt: true,
+                    comment: data.comment || ''
+                }
+            })
+
             await SendActions.startSend({
-                gotoReceipt: true,
                 addressTo: data.address,
                 amountPretty: data.amount.toString(),
                 memo: data.memo,
                 currencyCode: data.currencyCode,
                 isTransferAll: data.useAllFunds,
                 bseOrderId: data.orderHash || data.orderId,
-                comment: data.comment || '',
                 bseMinCrypto : minCrypto,
                 bseTrusteeFee : {
                     value : trusteeFee.trusteeFee, 
@@ -207,10 +219,7 @@ class MainV3DataScreen extends Component {
                     type : 'EXCHANGE',
                     from : data.currencyCode,
                     to : data.outCurrency
-                },
-                uiType: 'TRADE_SEND',
-                uiApiVersion: 'v3',
-                uiProviderType: data.providerType // 'FIXED' || 'FLOATING'
+                }
             })
         } catch (e) {
             if (config.debug.cryptoErrors) {

@@ -100,7 +100,7 @@ export default class SendBasicScreen extends Component {
 
         const { sendScreenData } = this.state
         if (typeof sendScreenData !== 'undefined' && sendScreenData && typeof sendScreenData.bseOrderId !== 'undefined' && sendScreenData.bseOrderId) {
-            const version = sendScreenData.uiApiVersion || 'v3'
+            const version = this.props.sendScreenStore.uiApiVersion || 'v3'
             const removeId = sendScreenData.bseOrderId
             if (version === 'v2') {
                 Api.setExchangeStatus(removeId, 'close')
@@ -111,6 +111,7 @@ export default class SendBasicScreen extends Component {
         }
 
         if (closeScreen) {
+            SendActions.cleanData()
             NavStore.reset('DashboardStack')
         } else {
             NavStore.goBack()
