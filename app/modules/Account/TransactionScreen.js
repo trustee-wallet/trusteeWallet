@@ -425,7 +425,7 @@ class TransactionScreen extends Component {
         if (!transaction.bseOrderData || typeof transaction.bseOrderData.exchangeWayType === 'undefined' || !transaction.bseOrderData.exchangeWayType) {
             return {
                 title: strings(`account.transaction.status`),
-                description: strings(`account.transactionStatuses.${transaction.transactionBlockchainStatus.toLowerCase()}`)
+                description: strings(`account.transactionStatuses.${transaction.transactionVisibleStatus.toLowerCase()}`)
             }
         }
         return {

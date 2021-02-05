@@ -61,7 +61,7 @@ class Transaction extends Component {
 
     init() {
         const { transaction } = this.props
-        const transactionStatus = this.prepareStatus(transaction.transactionStatus)
+        const transactionStatus = this.prepareStatus(transaction.transactionVisibleStatus)
         const transactionDirection = this.prepareDirection(transaction.transactionDirection)
         const styles = JSON.parse(JSON.stringify(this.prepareStyles(transactionStatus, transactionDirection)))
         this.setState({
@@ -213,7 +213,7 @@ class Transaction extends Component {
     getTransactionDate(date) {
         let datetime = new Date(date)
         datetime = (datetime.getDate().toString().length === 1 ? '0' + datetime.getDate() : datetime.getDate()) + '.' +
-            ((datetime.getMonth() + 1).toString().length === 1 ? '0' + (datetime.getMonth() + 1) : (datetime.getMonth() + 1)) + 
+            ((datetime.getMonth() + 1).toString().length === 1 ? '0' + (datetime.getMonth() + 1) : (datetime.getMonth() + 1)) +
             '.' + datetime.getFullYear().toString().slice(-2)
         return datetime
     }
@@ -222,7 +222,7 @@ class Transaction extends Component {
         NavStore.goNext('TransactionScreen', {
             txData: {
                 transaction: tx
-            } 
+            }
         })
     }
 
@@ -235,7 +235,8 @@ class Transaction extends Component {
 
         // if any of this will be reused the same way at details screen -> move to preformatWithBSEforShowInner
         const blockConfirmations = this.prepareBlockConfirmations(transaction.blockConfirmations)
-        const transactionStatus = this.prepareStatus(transaction.transactionBlockchainStatus)
+        const transactionStatus = this.prepareStatus(transaction.transactionVisibleStatus)
+        const transactionBlockchainStatus = transaction.transactionBlockchainStatus
         const transactionDirection = this.prepareDirection(transaction.transactionDirection)
         const wayType = this.prepareWayType(transaction.wayType)
 
@@ -296,7 +297,7 @@ class Transaction extends Component {
                                 </View> : null
                         }
                         <Text style={[styles.transaction__top__type, { color: isStatus ? color : colors.accountScreen.transactions.transactionTitleColor }]}>
-                            {isStatus ? strings(`account.transactionStatuses.${transactionStatus === 'confirming' ? 'confirming' : 'process'}`).toUpperCase() : blockConfirmations}
+                            {isStatus ? strings(`account.transactionStatuses.${transactionBlockchainStatus === 'confirming' ? 'confirming' : 'process'}`).toUpperCase() : blockConfirmations}
                         </Text>
                         {this.ifTxsTW()}
                     </TouchableOpacity>

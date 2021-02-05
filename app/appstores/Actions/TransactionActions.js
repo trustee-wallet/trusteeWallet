@@ -157,7 +157,7 @@ const transactionActions = {
             _transaction.transactionOfTrusteeWallet =
                 typeof _transaction.transactionOfTrusteeWallet !== 'undefined' ? _transaction.transactionOfTrusteeWallet : false
             _transaction = this.preformatWithBSEforShowInner(_transaction)
-            _transaction.transactionStatus = this.prepareStatus(_transaction.transactionStatus)
+            _transaction.transactionVisibleStatus = this.prepareStatus(_transaction.transactionStatus)
             return _transaction
         }
 
@@ -167,6 +167,7 @@ const transactionActions = {
             transactionDirection : 'outcome',
             transactionOfTrusteeWallet : false,
             transactionStatus : '?',
+            transactionVisibleStatus : '?',
             transactionBlockchainStatus : '?',
             addressTo : '?',
             addressFrom : '?',
@@ -177,12 +178,12 @@ const transactionActions = {
             bseOrderData : exchangeOrder
         }
 
+        transaction.transactionBlockchainStatus = transaction.transactionStatus
+        transaction.transactionVisibleStatus = this.prepareStatus(transaction.transactionStatus)
+
         if (typeof exchangeOrder.status !== 'undefined' && exchangeOrder.status) {
-            transaction.transactionBlockchainStatus = transaction.transactionStatus
             if (transaction.transactionStatus.toLowerCase() !== 'fail' || transaction.transactionStatus.toLowerCase() !== 'missing') {
-                transaction.transactionStatus = this.prepareStatus(exchangeOrder.status)
-            } else {
-                transaction.transactionStatus = this.prepareStatus(transaction.transactionStatus)
+                transaction.transactionVisibleStatus = this.prepareStatus(exchangeOrder.status)
             }
         }
 
