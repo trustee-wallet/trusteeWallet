@@ -134,6 +134,22 @@ const transactionActions = {
         return transaction
     },
 
+    prepareStatus(status) {
+        switch (status.toUpperCase()) {
+            case 'DONE_PAYOUT':
+            case 'SUCCESS':
+                return 'SUCCESS'
+            case 'CANCELED_PAYOUT':
+            case 'CANCELED_PAYIN':
+                return 'CANCELED'
+            case 'FAIL':
+            case 'MISSING':
+                return 'MISSING'
+            default:
+                return 'PENDING'
+        }
+    },
+
     preformatWithBSEforShow(_transaction, exchangeOrder, _currencyCode = false) {
         if (typeof exchangeOrder === 'undefined' || !exchangeOrder || exchangeOrder === null) {
             _transaction.bseOrderData = false // for easy checks
@@ -141,6 +157,7 @@ const transactionActions = {
             _transaction.transactionOfTrusteeWallet =
                 typeof _transaction.transactionOfTrusteeWallet !== 'undefined' ? _transaction.transactionOfTrusteeWallet : false
             _transaction = this.preformatWithBSEforShowInner(_transaction)
+            _transaction.transactionStatus = this.prepareStatus(_transaction.transactionStatus)
             return _transaction
         }
 
@@ -162,8 +179,13 @@ const transactionActions = {
 
         if (typeof exchangeOrder.status !== 'undefined' && exchangeOrder.status) {
             transaction.transactionBlockchainStatus = transaction.transactionStatus
-            transaction.transactionStatus = exchangeOrder.status
+            if (transaction.transactionStatus.toLowerCase() !== 'fail' || transaction.transactionStatus.toLowerCase() !== 'missing') {
+                transaction.transactionStatus = this.prepareStatus(exchangeOrder.status)
+            } else {
+                transaction.transactionStatus = this.prepareStatus(transaction.transactionStatus)
+            }
         }
+
         if (typeof exchangeOrder.exchangeWayType !== 'undefined') {
             transaction.wayType = exchangeOrder.exchangeWayType
             if (exchangeOrder.outDestination && exchangeOrder.outDestination.includes('+')) {

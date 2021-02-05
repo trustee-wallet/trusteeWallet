@@ -235,7 +235,7 @@ class Transaction extends Component {
 
         // if any of this will be reused the same way at details screen -> move to preformatWithBSEforShowInner
         const blockConfirmations = this.prepareBlockConfirmations(transaction.blockConfirmations)
-        const transactionStatus = this.prepareStatus(transaction.transactionStatus)
+        const transactionStatus = this.prepareStatus(transaction.transactionBlockchainStatus)
         const transactionDirection = this.prepareDirection(transaction.transactionDirection)
         const wayType = this.prepareWayType(transaction.wayType)
 

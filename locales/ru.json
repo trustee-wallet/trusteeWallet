@@ -554,7 +554,8 @@
         "status": {
           "success": "Успешно",
           "pending": "Обрабатывается",
-          "canceled": "Отменено"
+          "canceled": "Отменено",
+          "missing": "Не найдена"
         }
       },
     "transactionHash": "Хэш транзакции:",
