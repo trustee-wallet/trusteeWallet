@@ -328,7 +328,7 @@ export default {
 
         try {
             const link = baseUrl + V3_ENTRY_POINT_SET_STATUS
-            Log.log('ApiV3 setExchangeStatus axios ' + link);
+            Log.log('ApiV3 setExchangeStatus axios ' + link + ' status ' + status);
             return BlocksoftAxios.post(link, data, false);
 
         } catch (e) {
