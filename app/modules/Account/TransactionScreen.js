@@ -425,7 +425,7 @@ class TransactionScreen extends Component {
         if (!transaction.bseOrderData || typeof transaction.bseOrderData.exchangeWayType === 'undefined' || !transaction.bseOrderData.exchangeWayType) {
             return {
                 title: strings(`account.transaction.status`),
-                description: strings(`account.transactionStatuses.${transaction.transactionStatus.toLowerCase()}`)
+                description: strings(`account.transactionStatuses.${transaction.transactionBlockchainStatus.toLowerCase()}`)
             }
         }
         return {
@@ -568,21 +568,6 @@ class TransactionScreen extends Component {
             ((datetime.getMonth() + 1).toString().length === 1 ? '0' + (datetime.getMonth() + 1) : (datetime.getMonth() + 1)) + '/' + datetime.getFullYear()
     }
 
-    getTransactionStatus = (status) => {
-        switch (status.toUpperCase()) {
-            case 'DONE_PAYOUT':
-            case 'SUCCESS':
-                return 'SUCCESS'
-            case 'CANCELED_PAYOUT':
-            case 'CANCELED_PAYIN':
-            case 'FAIL':
-            case 'MISSING':
-                return 'CANCELED'
-            default:
-                return 'PENDING'
-        }
-    }
-
     prepareStatusHeaderToView = (status) => {
         return strings(`account.transactionScreen.header.status.${status.toLowerCase()}`).toUpperCase()
     }
@@ -601,7 +586,7 @@ class TransactionScreen extends Component {
 
         const currencySymbol = typeof cryptoCurrency !== 'undefined' ? cryptoCurrency.currencySymbol : ''
 
-        let status = this.getTransactionStatus(transactionStatus)
+        let status = transactionStatus
 
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ color: colors.common.text1, fontSize: 17 }} />
 
@@ -611,9 +596,9 @@ class TransactionScreen extends Component {
         if (transactionDirection === 'self') {
             arrowIcon = <FontAwesome5 name='infinity' style={{ color: colors.common.text1, fontSize: 17 }} />
         }
-        if (transactionStatus === 'fail' || transactionStatus === 'missing' || transactionStatus === 'replaced') {
-            arrowIcon = <Feather name='x' style={{ color: colors.common.text1, fontSize: 17 }} />
-        }
+        // if (transactionStatus === 'fail' || transactionStatus === 'missing' || transactionStatus === 'replaced') {
+        //     arrowIcon = <Feather name='x' style={{ color: colors.common.text1, fontSize: 17 }} />
+        // }
 
         let amountTxt = addressAmountPrettyPrefix  + ' ' + addressAmountPretty
         let statusTxt = strings('account.transaction.' + wayType.toLowerCase())

@@ -126,13 +126,11 @@ class SMSV3CodeScreen extends Component {
     }
 
     closeAction = () => {
-        Log.log(`Trade.SMSV3CodeScreen.setExchangeStatus status CLOSE`)
         this.setExchangeStatus(this.state.api, this.state.orderHash, 'CLOSE')
-        NavStore.goBack()
+        NavStore.reset('DashboardStack')
     }
 
     backAction = () => {
-        Log.log(`Trade.SMSV3CodeScreen.setExchangeStatus status BACK`)
         this.setExchangeStatus(this.state.api, this.state.orderHash, 'BACK')
         NavStore.goBack()
     }
