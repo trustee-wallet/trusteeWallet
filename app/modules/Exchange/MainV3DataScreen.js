@@ -73,7 +73,7 @@ class MainV3DataScreen extends Component {
         // here to do upload
         let apiUrl = await ApiV3.initData('EXCHANGE')
 
-        const navigationViewV3 = (await BlocksoftExternalSettings.get('navigationViewV3')) === 1
+        const navigationViewV3 = BlocksoftExternalSettings.getStatic('navigationViewV3') === 1
         setTimeout(() => {
             this.setState({
                 show: true,
@@ -191,7 +191,7 @@ class MainV3DataScreen extends Component {
 
         try {
             Log.log('Exchange/MainV3Screen dataExchange', data)
-            
+
             SendActions.setUiType({
                 ui: {
                     uiType: 'TRADE_SEND',
@@ -214,7 +214,7 @@ class MainV3DataScreen extends Component {
                 bseOrderId: data.orderHash || data.orderId,
                 bseMinCrypto : minCrypto,
                 bseTrusteeFee : {
-                    value : trusteeFee.trusteeFee, 
+                    value : trusteeFee.trusteeFee,
                     currencyCode : trusteeFee.currencyCode,
                     type : 'EXCHANGE',
                     from : data.currencyCode,

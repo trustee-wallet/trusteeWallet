@@ -38,7 +38,9 @@ class UpdateCardsDaemon {
             }
         }
 
-        console.log(new Date().toISOString() + ' UpdateCardsDaemon started')
+        if (config.debug.appErrors) {
+            console.log(new Date().toISOString() + ' UpdateCardsDaemon started')
+        }
 
         Log.daemon('UpdateCardsDaemon called')
 
@@ -130,6 +132,10 @@ class UpdateCardsDaemon {
 
         if (!updated) return false
         await setCards()
+
+        if (config.debug.appErrors) {
+            console.log(new Date().toISOString() + ' UpdateCardsDaemon finished')
+        }
 
         if (typeof params.numberCard !== 'undefined') {
             return res

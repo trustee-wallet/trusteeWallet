@@ -43,14 +43,7 @@ class BottomNavigation extends Component {
     handleModal = async () => {
         try {
             await Netinfo.isInternetReachable()
-
-            const isNewInterface = await AsyncStorage.getItem('isNewInterface')
-            if (isNewInterface === 'true') {
-                NavStore.goNext('ExchangeV3ScreenStack')
-            } else {
-                await this._showModalNoOldConfigs()
-                NavStore.goNext('ExchangeScreenStack')
-            }
+            NavStore.goNext('ExchangeV3ScreenStack')
         } catch (e) {
             if (Log.isNetworkError(e.message) || e.message.includes('UI_ERROR')) {
                 Log.log('HomeScreen.BottomNavigation handleModal error ' + e.message)
@@ -163,9 +156,9 @@ class BottomNavigation extends Component {
                     <View style={styles.itemStub} />
 
                     <View style={{ alignItems: 'center', flex: 4 }}>
-                        <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={150} 
+                        <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={150}
                             MainComponent={this.returnBuyTooltip} />
-                    </View> 
+                    </View>
                     {/* </TouchableOpacity> */}
 
                     <View style={{ alignItems: 'center', flex: 4 }}>

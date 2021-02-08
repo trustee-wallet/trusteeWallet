@@ -18,7 +18,6 @@ import EnterMnemonicPhraseGoogle from '../modules/WalletCreate/EnterMnemonicPhra
 import QRCodeScannerScreen from '../modules/QRCodeScanner/QRCodeScannerScreen'
 
 import HomeScreenStack from './HomeStack'
-import ExchangeScreenStack from './ExchangeScreenStack'
 import ExchangeV3ScreenStack from './ExchangeV3ScreenStack'
 import TradeScreenStack from './TradeScreenStack'
 import TradeV3ScreenStack from './TradeV3ScreenStack'
@@ -252,13 +251,6 @@ const MainNavigator = createStackNavigator({
 
         TradeScreenStack: {
             screen: TradeScreenStack,
-            navigationOptions: {
-                headerShown: false
-            }
-        },
-
-        ExchangeScreenStack: {
-            screen: ExchangeScreenStack,
             navigationOptions: {
                 headerShown: false
             }
