@@ -162,7 +162,9 @@ export default {
                 token_type VARCHAR(32) NOT NULL,
                 token_address VARCHAR(256) NOT NULL,
                 token_decimals INTEGER NOT NULL,   
-                token_json TEXT NULL
+                token_json TEXT NULL,
+               
+                is_added_to_api INTEGER NULL DEFAULT 0
             )`
         },
 

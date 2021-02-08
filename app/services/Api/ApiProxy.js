@@ -13,6 +13,7 @@ import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
 import AppNotificationListener from '../AppNotification/AppNotificationListener'
 import ApiV3 from './ApiV3'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
+import customCurrencyDS from '../../appstores/DataSource/CustomCurrency/CustomCurrency'
 
 async function _getAll(params) {
     const { mode: exchangeMode } = config.exchange
@@ -34,7 +35,7 @@ async function _getAll(params) {
     const cashbackToken = CashBackUtils.getWalletToken()
     const parentToken = CashBackUtils.getParentToken()
 
-
+    const forCustomTokens = await customCurrencyDS.getCustomCurrenciesForApi()
     const forServer = await appNewsDS.getAppNewsForServer()
     const forServerIds = []
     if (forServer) {
@@ -81,6 +82,7 @@ async function _getAll(params) {
         newsData,
         cbData,
         cbOrders,
+        forCustomTokens,
         marketingAll : MarketingEvent.DATA,
         walletAll : await ApiV3.initWallet(MarketingEvent.DATA.LOG_WALLET)
     }
@@ -88,6 +90,9 @@ async function _getAll(params) {
     const all = await BlocksoftAxios.post(link, allData)
     if (typeof all.data.data !== 'undefined') {
         all.data.data.forServerIds = forServerIds
+        if (typeof all.data.data.forCustomTokensOk !== 'undefined' && all.data.data.forCustomTokensOk && all.data.data.forCustomTokensOk.length > 0) {
+            await customCurrencyDS.savedCustomCurrenciesForApi(all.data.data.forCustomTokensOk)
+        }
     }
     return all
 }

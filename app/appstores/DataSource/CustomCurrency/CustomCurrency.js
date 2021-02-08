@@ -27,6 +27,31 @@ export default {
 
     },
 
+    savedCustomCurrenciesForApi : async (dataArray) => {
+        const dbInterface = new DBInterface()
+        const where = dataArray.join(', ')
+        return dbInterface.setQueryString(` UPDATE  ${tableName} SET is_added_to_api = 1 WHERE (is_added_to_api IS NULL OR is_added_to_api=0) AND id IN (${where})`).query()
+    },
+
+    getCustomCurrenciesForApi : async () => {
+
+        const dbInterface = new DBInterface()
+
+        const res = await dbInterface.setQueryString(`
+                SELECT 
+                id,
+                currency_code AS currencyCode,
+                currency_symbol AS currencySymbol,
+                currency_name AS currencyName,
+                token_type AS tokenType,
+                token_address AS tokenAddress
+                FROM ${tableName} WHERE (is_added_to_api IS NULL OR is_added_to_api=0)`).query()
+
+        if (!res || !res.array || !res.array.length) return false
+
+        return res.array
+    },
+
     /**
      * @returns {Promise<[{id, isHidden, currencyCode, currencySymbol, currencyName, tokenType, tokenAddress, tokenDecimals, tokenJson}]>}
      */
@@ -46,7 +71,8 @@ export default {
                 token_type AS tokenType,
                 token_address AS tokenAddress,
                 token_decimals AS tokenDecimals,   
-                token_json AS tokenJson
+                token_json AS tokenJson,
+                is_added_to_api AS isAdded
                 FROM ${tableName}`).query()
 
         Log.daemon('DS/CustomCurrency getCustomCurrencies finished')

@@ -90,6 +90,7 @@ const customCurrencyActions = {
                 tokenAddress: currencyToAdd.tokenAddress,
                 tokenDecimals: currencyToAdd.tokenDecimals,
                 tokenJson: '',
+                isAddedToApi : 0,
                 isHidden: 0
             }
 
