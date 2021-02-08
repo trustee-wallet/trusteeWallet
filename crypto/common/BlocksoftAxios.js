@@ -114,6 +114,8 @@ class BlocksoftAxios {
             }
             if (link.indexOf('/fees') !== -1 || link.indexOf('/rates') !== -1) {
                 timeOut = Math.round(timeOut / 2)
+            } else if (link.indexOf('proxy.trustee.deals') !== -1) {
+                timeOut = Math.round(timeOut / 3)
             }
             if (typeof CACHE_STARTED[link] !== 'undefined') {
                 const now = new Date().getTime()
@@ -125,7 +127,7 @@ class BlocksoftAxios {
             instance.defaults.cancelToken = cancelSource.token
             CACHE_STARTED[link] = { time: new Date().getTime(), timeOut }
             CACHE_STARTED_CANCEL[link] = cancelSource
-            BlocksoftCryptoLog.log('STARTED ' + JSON.stringify(CACHE_STARTED))
+            await BlocksoftCryptoLog.log('STARTED ' + JSON.stringify(CACHE_STARTED))
             if (method === 'get') {
                 tmp = await instance.get(link)
             } else {

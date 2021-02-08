@@ -78,13 +78,13 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
         await accountDS.discoverAccounts({ walletHash: storedKey, fullTree: false, source }, source)
 
-        Log.log('ACT/MStore proceedSaveGeneratedWallet finished discover storedWallet ' + storedKey)
+        await accountBalanceActions.initBalances(storedKey, source === 'IMPORT')
 
-        /**
-         * @namespace Flow.updateAppTasks
-         */
-        const initedCurrencyCodes = await accountBalanceActions.initBalances(storedKey)
+        await Log.log('ACT/MStore proceedSaveGeneratedWallet finished discover storedWallet ' + storedKey)
+
         /*
+
+        const initedCurrencyCodes = await accountBalanceActions.initBalances(storedKey)
         if (source === 'IMPORT') {
             prep.push({
                 walletHash: storedKey,

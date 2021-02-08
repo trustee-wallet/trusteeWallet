@@ -949,7 +949,6 @@ class TransactionScreen extends Component {
         }
 
         const prev = NavStore.getPrevRoute().routeName
-        console.log(prev)
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header

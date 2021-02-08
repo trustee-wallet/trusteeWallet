@@ -158,12 +158,12 @@ class BackupStep1Screen extends React.Component {
                     tmpWalletName = await walletActions.getNewWalletName()
                 }
 
-                const storedKey = await proceedSaveGeneratedWallet({
+                const walletHash = await proceedSaveGeneratedWallet({
                     walletName: tmpWalletName,
                     walletMnemonic
                 })
 
-                walletActions.setWalletBackedUpStatus(storedKey)
+                walletActions.setWalletBackedUpStatus(walletHash)
 
                 setLoaderStatus(false)
 
@@ -176,7 +176,7 @@ class BackupStep1Screen extends React.Component {
                 }, async () => {
                     if (callback === null) {
                         NavStore.reset('DashboardStack')
-                        await App.refreshWalletsStore({ firstTimeCall: false, source: 'WalletBackup.BackupStep1Screen' })
+                        await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletBackup.BackupStep1Screen' })
                     } else {
                         callback()
                         setCallback({ callback: null })

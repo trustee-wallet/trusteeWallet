@@ -50,8 +50,9 @@ class Skip extends Component {
                 throw e
             }
 
+            let walletHash = false
             try {
-                await proceedSaveGeneratedWallet({
+                walletHash = await proceedSaveGeneratedWallet({
                     walletName: tmpWalletName,
                     walletMnemonic
                 })
@@ -61,7 +62,7 @@ class Skip extends Component {
             }
 
             try {
-                await App.refreshWalletsStore({ firstTimeCall: false, source: 'WalletBackup.handleSkip' })
+                await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletBackup.handleSkip' })
             } catch (e) {
                 e.message += ' while refreshWalletsStore'
                 throw e

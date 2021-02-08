@@ -23,6 +23,9 @@ async function _getAll(params) {
         await AppNotificationListener.getToken()
         deviceToken = MarketingEvent.DATA.LOG_TOKEN
     }
+    if (!deviceToken || deviceToken === null) {
+        deviceToken = 'NO_GOOGLE_AS_NULL_' + (new Date().getTime()) + '_' + (Math.ceil(Math.random() * 100000))
+    }
     const time = typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false
     const signedData = await CashBackUtils.createWalletSignature(true, time)
     if (!signedData) {
@@ -101,7 +104,6 @@ let CACHE_DATA = false
 export default {
 
     getAll: async (params = {}) => {
-
         if (typeof params === 'undefined' || typeof params.force === 'undefined' || !params) {
             const now = new Date().getTime()
             const diff = now - CACHE_LAST_TIME
@@ -109,7 +111,10 @@ export default {
                 return CACHE_DATA
             }
         }
-
+        if (config.debug.appErrors) {
+            console.log(new Date().toISOString() + ' ApiProxy ' + JSON.stringify(params))
+        }
+        
         let all = false
         let index = 0
         // console.log('ApiProxy start ' + new Date().toISOString() + ' last cache ' + new Date(CACHE_LAST_TIME).toISOString(), JSON.parse(JSON.stringify(params)))

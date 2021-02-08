@@ -85,13 +85,13 @@ const CACHE = {
 class BlocksoftExternalSettings {
 
     async getAll(source) {
-        await this._get(source)
+        await this._get('getAll ' + source)
         return CACHE
     }
 
     async get(param, source) {
         // BlocksoftCryptoLog.log('BlocksoftExternalSettings.get started ' + param + ' from ' + source)
-        await this._get(source)
+        await this._get('get ' + (typeof source !== 'undefined' ? source : param))
         if (typeof CACHE[param] === 'undefined') return false
         return CACHE[param]
     }
@@ -108,7 +108,7 @@ class BlocksoftExternalSettings {
         }
         try {
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source)
-            const tmp = await ApiProxy.getAll({source : 'BlocksoftExternalSettings._get ' + source})
+            const tmp = await ApiProxy.getAll({source : 'BlocksoftExternalSettings._get ' + source, onlyRates: true})
             CACHE_TIME = now
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get returned ALL from ' + source)
             if (tmp && typeof tmp.fees !== 'undefined' && tmp.fees) {
@@ -170,7 +170,7 @@ class BlocksoftExternalSettings {
                 return cached.currentServerValue
             }
         }
-        const servers = await this.get(key, 'inner')
+        const servers = await this.get(key, 'inner getTrezorServer ' + key)
         let okServers = []
         let bestHeight = 0
         let currentServer = false

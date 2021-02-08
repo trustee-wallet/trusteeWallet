@@ -26,7 +26,7 @@ export default new class ExchangeActions {
     init = async () => {
         try {
             const res = await ApiProxy.getAll({source : 'ExchangeActions.init'})
-            const rubKostilKZT = (await BlocksoftExternalSettings.get('rubKostilKZT')) === 1
+            const rubKostilKZT = BlocksoftExternalSettings.getStatic('rubKostilKZT') === 1
             if (res && typeof res.exchangeData !== 'undefined' && typeof res.exchangeData.exchangeWays !== 'undefined') {
                 const tradeApiConfig = []
                 let item

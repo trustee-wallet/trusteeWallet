@@ -69,16 +69,14 @@ class Settings {
         }
 
         const dbInterface = new DBInterface()
-
         const res = await dbInterface.setQueryString(`SELECT * FROM settings WHERE [paramKey]='${key}'`).query()
 
-        Log.log('DS/Settings getSetting ' + key + ' finished')
-
         if (!res.array || typeof res.array[0] === 'undefined') {
+            CACHE_SETTINGS[key] = false
             return false
         }
 
-        let tmp = res.array[0]
+        const tmp = res.array[0]
         tmp.paramValue = dbInterface.unEscapeString(tmp.paramValue)
         CACHE_SETTINGS[key] = tmp
         return tmp

@@ -24,8 +24,21 @@ class ApiRates {
 
     async getRates(params) {
         try {
-            if (typeof params !== 'undefined' && typeof params.force !== 'undefined') {
-                params.onlyRates = true
+            if (typeof params !== 'undefined') {
+                if (typeof params.force !== 'undefined') {
+                    params.onlyRates = true
+
+                    if (typeof params.source !== 'undefined') {
+                        params.source += ' ApiRates.getRatesForce'
+                    }
+                } else {
+                    if (typeof params.source !== 'undefined') {
+                        params.source += ' ApiRates.getRates'
+                    }
+                }
+
+            } else {
+                params = {source : 'ApiRates.getRates'}
             }
             const res = await ApiProxy.getAll(params)
             if (!res || typeof res.rates === 'undefined' || typeof res.rates.data === 'undefined' || typeof res.ratesHash === 'undefined' || res.ratesHash === CACHE_RATES_HASH ) {
