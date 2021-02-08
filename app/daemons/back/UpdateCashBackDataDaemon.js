@@ -8,6 +8,7 @@ import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWall
 import ApiProxy from '../../services/Api/ApiProxy'
 
 import config from '../../config/config'
+import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 class UpdateCashBackDataDaemon {
 
@@ -35,6 +36,9 @@ class UpdateCashBackDataDaemon {
             data = await ApiProxy.getAll({ source: 'UpdateCashBackDataDaemon.updateCashBackData' })
             if (typeof data.cbData !== 'undefined') {
                 data = data.cbData.data
+                if (typeof data.cashbackToken !== 'undefined') {
+                    MarketingEvent.DATA.LOG_CASHBACK = data.cashbackToken
+                }
             }
         } catch (e) {
             if (config.debug.appErrors) {

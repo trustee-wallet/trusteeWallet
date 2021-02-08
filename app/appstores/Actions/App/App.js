@@ -37,6 +37,11 @@ import CashBackUtils from '../../Stores/CashBack/CashBackUtils'
 import FilePermissions from '../../../services/FileSystem/FilePermissions'
 import UpdateAppNewsDaemon from '../../../daemons/back/UpdateAppNewsDaemon'
 import config from '../../../config/config'
+import UpdateAccountBalanceAndTransactions from '../../../daemons/back/UpdateAccountBalanceAndTransactions'
+import UpdateOneByOneDaemon from '../../../daemons/back/UpdateOneByOneDaemon'
+import UpdateCurrencyListDaemon from '../../../daemons/view/UpdateCurrencyListDaemon'
+import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaemon'
+import UpdateCashBackDataDaemon from '../../../daemons/back/UpdateCashBackDataDaemon'
 
 const { dispatch, getState } = store
 
@@ -48,6 +53,7 @@ class App {
 
     initStatus = 'init started'
     initError = 'empty'
+    initHasWallets = false
 
     init = async (params) => {
         const navigateToInit = typeof params.navigateToInit !== 'undefined' ? params.navigateToInit : true
@@ -102,6 +108,8 @@ class App {
                 return
             }
 
+            this.initHasWallets = true
+
             await AppNotification.init()
 
             this.initStatus = 'await AppNotification.init()'
@@ -114,13 +122,9 @@ class App {
 
             this.initStatus = 'await settingsActions.getSettings()'
 
-            await this.refreshWalletsStore({firstTimeCall : true, source : 'ACT/App init '})
+            await this.refreshWalletsStore({firstTimeCall : 'first', source : 'ACT/App init', noRatesApi : true, noCashbackApi : true})
 
             this.initStatus = 'await this.refreshWalletsStore(true)'
-
-            exchangeActions.init()
-
-            this.initStatus = 'await ExchangeActions.init()'
 
             AppLockScreenIdleTime.init()
 
@@ -140,13 +144,13 @@ class App {
 
             this.initStatus = 'const { daemon } = config'
 
-            Daemon.start()
+            await Daemon.start()
 
             this.initStatus = 'Daemon.start()'
 
-            await UpdateAppNewsDaemon.updateAppNewsDaemon({force: true})
+            await this.refreshWalletsStore({firstTimeCall : 'second', source : 'ACT/App init'})
 
-            this.initStatus = 'updateAppNewsDaemon.fromServer'
+            this.initStatus = 'await this.refreshWalletsStore(true)'
 
             // noinspection ES6MissingAwait
             setCards()
@@ -180,11 +184,16 @@ class App {
      * @returns {Promise<void>}
      */
     refreshWalletsStore = async (params) => {
-
         const firstTimeCall = typeof params.firstTimeCall !== 'undefined' ? params.firstTimeCall : false
-        const source =  typeof params.source !== 'undefined' ? params.source : ''
+        const source =  typeof params.source !== 'undefined' && params.source.trim() !== '' ? params.source : 'noSource'
 
-        Log.log('ACT/App appRefreshWalletsStates called from ' + source)
+        if (!this.initHasWallets) {
+            await Log.log('ACT/App appRefreshWalletsStates called will do nothing from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall))
+            // called after wallet create finish
+            return false
+        }
+
+        await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall))
 
         await walletActions.setAvailableWallets()
 
@@ -192,21 +201,38 @@ class App {
 
         await currencyActions.init()
 
-        await Daemon.forceAll(params)
-
         await CashBackSettings.init()
 
-        if (firstTimeCall) {
-            Log.log('ACT/App refreshWalletsStore CashBack.init ' + (firstTimeCall ? ' first time ' : ''))
+        if (firstTimeCall === 'first') {
+            // first step of init
+            await Daemon.forceAll({...params, noCashbackApi : true})
+
+        } else if (firstTimeCall === 'second') {
+            // second step of init
+            await exchangeActions.init()
+
+            await UpdateAccountListDaemon.forceDaemonUpdate(params)
+
+            await UpdateCashBackDataDaemon.updateCashBackDataDaemon()
+
+            await CashBackUtils.init()
+
+            await CashBackActions.setPublicLink()
+        } else {
+            // reload from wallet import etc
+            await CashBackSettings.init()
+
+            await Daemon.forceAll(params)
 
             await CashBackUtils.init()
 
             await CashBackActions.setPublicLink()
         }
 
-        Log.log('ACT/App refreshWalletsStore finished')
-
+        await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall) + ' finished')
     }
+
+
 
 }
 

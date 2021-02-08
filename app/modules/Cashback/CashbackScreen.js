@@ -110,9 +110,13 @@ class CashbackScreen extends React.Component {
 
         let cashbackLink = cashbackStore.dataFromApi.cashbackLink || false
         let cashbackLinkNotice = !cashbackLink
+        let cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
         if (!cashbackLink || cashbackLink === '') {
             cashbackLink = cashbackStore.cashbackLink || ''
             cashbackLinkNotice = !!cashbackLink
+        }
+        if (!cashbackLinkTitle || cashbackLinkTitle === '') {
+            cashbackLinkTitle = cashbackStore.cashbackLinkTitle || ''
         }
 
         const savedAuthHash = cashbackStore.dataFromApi.authHash || ''
@@ -152,7 +156,7 @@ class CashbackScreen extends React.Component {
                                 onError={this.handleRenderQrError}
                                 style={styles.qrCode}
                             />
-                            <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token, marginTop: GRID_SIZE * 0.75 }]}>{cashbackStore.dataFromApi.customToken} <CustomIcon name="copy" size={18} color={colors.cashback.token} /></Text>
+                            <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token, marginTop: GRID_SIZE * 0.75 }]}>{cashbackLinkTitle} <CustomIcon name="copy" size={18} color={colors.cashback.token} /></Text>
                         </TouchableOpacity>
 
                         <View style={[styles.buttonsRow, { margin: GRID_SIZE * 2, marginTop: GRID_SIZE }]}>

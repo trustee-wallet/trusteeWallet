@@ -21,6 +21,7 @@ export default new class CashBackActions {
     reset = async () => {
         dispatch({
             type: 'SET_CASHBACK_LINK',
+            cashbackLinkTitle : '',
             cashbackLink: ''
         })
         dispatch({
@@ -41,15 +42,17 @@ export default new class CashBackActions {
         }
 
         const tmpPublicAndPrivateResult = await CashBackUtils.getByHash(authHash, 'ACT/CashBack setPublicLink')
-
         if (tmpPublicAndPrivateResult) {
+            const link = CashBackSettings.getLink(tmpPublicAndPrivateResult.cashbackToken)
             dispatch({
                 type: 'SET_CASHBACK_LINK',
-                cashbackLink: CashBackSettings.getLink(tmpPublicAndPrivateResult.cashbackToken)
+                cashbackLinkTitle: tmpPublicAndPrivateResult.cashbackToken,
+                cashbackLink: link
             })
         } else {
             dispatch({
                 type: 'SET_CASHBACK_LINK',
+                cashbackLinkTitle : '',
                 cashbackLink: ''
             })
         }

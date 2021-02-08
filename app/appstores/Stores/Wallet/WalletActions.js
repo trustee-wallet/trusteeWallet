@@ -58,7 +58,9 @@ const walletActions = {
 
         await walletDS.updateWallet({ walletHash, walletIsBackedUp: 1 })
 
-        await App.refreshWalletsStore({firstTimeCall : false, source : 'ACT/Wallet setWalletBackedUpStatus '})
+        await walletActions.setAvailableWallets()
+
+        await setSelectedWallet('ACT/Wallet setWalletBackedUpStatus')
 
     },
 

@@ -5,6 +5,7 @@ import BlocksoftKeysStorage from '../../../../crypto/actions/BlocksoftKeysStorag
 import BlocksoftKeysUtils from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeysUtils'
 
 import Log from '../../../services/Log/Log'
+import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 
 
 const cryptoWallets = {
@@ -89,6 +90,11 @@ const cryptoWallets = {
             // Log.log('DS/cryptoWallets setSelectedWallet called ' + walletHash + ' from ' + source)
 
             storedSelectedWallet = await BlocksoftKeysStorage.setSelectedWallet(walletHash, source)
+
+            if (MarketingEvent.DATA.LOG_WALLET !== storedSelectedWallet) {
+                MarketingEvent.DATA.LOG_WALLET = storedSelectedWallet
+                MarketingEvent.DATA.LOG_CASHBACK = ''
+            }
 
             // Log.log('DS/cryptoWallets setSelectedWallet finished ' + walletHash + ' from ' + source)
         } catch (e) {

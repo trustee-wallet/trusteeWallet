@@ -37,9 +37,11 @@ class Daemon {
         }
         await UpdateCurrencyListDaemon.updateCurrencyListDaemon(params)
         await UpdateAccountListDaemon.forceDaemonUpdate(params)
-        await UpdateAppNewsDaemon.updateAppNewsDaemon(params)
+        // await UpdateAppNewsDaemon.updateAppNewsDaemon(params)
         await UpdateAppNewsListDaemon.updateAppNewsListDaemon(params)
-        await UpdateCashBackDataDaemon.updateCashBackDataDaemon()
+        if (typeof params.noCashbackApi === 'undefined') {
+            await UpdateCashBackDataDaemon.updateCashBackDataDaemon()
+        }
         await UpdateTradeOrdersDaemon.fromDB()
     }
 }

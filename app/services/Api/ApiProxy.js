@@ -99,22 +99,30 @@ async function _getRates(params) {
 
 const CACHE_VALID_TIME = 60000 // 1 minute
 let CACHE_LAST_TIME = false
+let CACHE_LAST_WALLET = false
 let CACHE_DATA = false
 
 export default {
 
     getAll: async (params = {}) => {
         if (typeof params === 'undefined' || typeof params.force === 'undefined' || !params) {
-            const now = new Date().getTime()
-            const diff = now - CACHE_LAST_TIME
-            if (diff < CACHE_VALID_TIME) {
-                return CACHE_DATA
+            if (typeof params === 'undefined' || typeof params.onlyRates === 'undefined') {
+                if (MarketingEvent.DATA.LOG_WALLET !== CACHE_LAST_WALLET) {
+                    CACHE_LAST_TIME = false
+                }
+            }
+            if (CACHE_LAST_TIME) {
+                const now = new Date().getTime()
+                const diff = now - CACHE_LAST_TIME
+                if (diff < CACHE_VALID_TIME) {
+                    return CACHE_DATA
+                }
             }
         }
         if (config.debug.appErrors) {
             console.log(new Date().toISOString() + ' ApiProxy ' + JSON.stringify(params))
         }
-        
+
         let all = false
         let index = 0
         // console.log('ApiProxy start ' + new Date().toISOString() + ' last cache ' + new Date(CACHE_LAST_TIME).toISOString(), JSON.parse(JSON.stringify(params)))
@@ -151,6 +159,7 @@ export default {
         if (typeof params === 'undefined' || typeof params.onlyRates === 'undefined') {
             CACHE_DATA = res
             CACHE_LAST_TIME = new Date().getTime()
+            CACHE_LAST_WALLET = MarketingEvent.DATA.LOG_WALLET
         }
         // console.log('ApiProxy finish ' + new Date().toISOString(), JSON.parse(JSON.stringify(params)))
         return res

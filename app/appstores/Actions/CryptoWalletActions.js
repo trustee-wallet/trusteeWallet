@@ -29,7 +29,7 @@ const cryptoWalletActions = {
 
             await cryptoWalletDS.setSelectedWallet(walletHash,  'ACT/CryptoWallet setSelectedWallet ' + source)
 
-            await App.refreshWalletsStore({firstTimeCall : false, source : 'ACT/CryptoWallet setSelectedWallet ' + source, walletHash, noRatesApi: true})
+            await App.refreshWalletsStore({firstTimeCall : 'setSelectedWallet', source : 'ACT/CryptoWallet setSelectedWallet ' + source, walletHash})
 
             Log.log('ACT/CryptoWallet setSelectedWallet finished')
 

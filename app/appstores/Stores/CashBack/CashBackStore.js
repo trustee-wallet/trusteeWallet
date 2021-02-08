@@ -4,6 +4,7 @@
 const INITIAL_STATE = {
     dataFromApi: {},
     error : {},
+    cashbackLinkTitle : '',
     cashbackLink : '',
     parentToken : ''
 }
@@ -23,6 +24,7 @@ const cashBackStoreReducer = (state = INITIAL_STATE, action) => {
         case 'SET_CASHBACK_LINK':
             return new Object({
                 ...state,
+                cashbackLinkTitle : action.cashbackLinkTitle,
                 cashbackLink : action.cashbackLink
             })
         case 'SET_PARENT_TOKEN' :
