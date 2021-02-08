@@ -34,6 +34,10 @@ export default new class CashBackUtils {
         try {
             firebaseUrl = await dynamicLinks().getInitialLink()
             await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() ' + JSON.stringify(firebaseUrl))
+            if (typeof firebaseUrl.url !== 'undefined' && firebaseUrl.url) {
+                firebaseUrl = firebaseUrl.url
+                await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() final url ' + firebaseUrl)
+            }
         } catch (e) {
             await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() error ' + e.message)
         }
