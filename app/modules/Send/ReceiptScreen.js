@@ -536,48 +536,28 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     }
 
 
-                    // https://developers.google.com/tag-manager/enhanced-ecommerce?hl=ru
-                    const gaParams = {
-                        'ecommerce': {
-                            'purchase': {
-                                'actionField': {
-                                    'id': sendScreenData.bseOrderId,
-                                    'revenue': sendScreenData.bseTrusteeFee.value,
-                                    'currency_code' : sendScreenData.bseTrusteeFee.currencyCode
-                                },
-                                'products': [{
-                                    'name': 'Triblend Android T-Shirt',
-                                    'id': '12345',
-                                    'price': '15.25',
-                                    'brand': 'Google',
-                                    'category': 'Apparel',
-                                    'variant': 'Gray',
-                                    'quantity': 1,
-                                }]
+
+                    // https://rnfirebase.io/reference/analytics#logPurchase
+                    let gaParams = {}
+                    try {
+                        gaParams = {
+                            'transaction_id' :  sendScreenData.bseOrderId,
+                            'value' : sendScreenData.bseTrusteeFee.value,
+                            'currency' : 'USD',
+                            'items' : {
+                                'item_brand' : sendScreenData.bseTrusteeFee.type,
+                                item_category : sendScreenData.bseTrusteeFee.from,
+                                item_category2: sendScreenData.bseTrusteeFee.to,
+                                item_id :sendScreenData.bseOrderId,
+                                item_name :  sendScreenData.bseTrusteeFee.from + '_' + sendScreenData.bseTrusteeFee.to,
+                                quantity : sendScreenData.amountPretty
                             }
                         }
-                            /*
-                            currency_code: sendScreenData.bseTrusteeFee.currencyCode,
-                            item_list_id: sendScreenData.currencyCode,
-                            item_list_name: 'BSE',
-                            items: [
-                                {
-                                    item_id: sendScreenData.bseOrderId,
-                                    item_name: sendScreenData.bseTrusteeFee.from,
-                                    item_category: uiSendScreenData.uiApiVersion,
-                                    item_variant: sendScreenData.bseTrusteeFee.to,
-                                    item_brand: sendScreenData.bseTrusteeFee.type,
-                                    price: sendScreenData.bseTrusteeFee.value,
-                                    currency_code: sendScreenData.bseTrusteeFee.currencyCode
-                                }
-                            ]
-                            */
-                    }
-                    try {
-                        await analytics().logEvent('v4_send_sell_tx_1', gaParams)
+
+                        await analytics().logPurchase('v4_sell_tx', gaParams)
                     } catch (e) {
                         if (config.debug.appErrors) {
-                            console.log('v4_send_sell_tx error ' + e.message, gaParams )
+                            console.log('v4_sell_tx error ' + e.message, gaParams )
                         }
                     }
 
