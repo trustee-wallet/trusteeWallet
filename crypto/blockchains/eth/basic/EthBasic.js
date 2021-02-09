@@ -98,34 +98,34 @@ export default class EthBasic {
     checkError(e, data, txRBF = false, logData = {}) {
 
         if (e.message.indexOf('nonce too low') !== -1) {
-            BlocksoftCryptoLog.log('EthBasic checkError0.1 ' + e.message + ' for ' + data.addressFrom)
+            BlocksoftCryptoLog.log('EthBasic checkError0.1 ' + e.message + ' for ' + data.addressFrom, logData)
             if (txRBF) {
                 throw new Error('SERVER_RESPONSE_TRANSACTION_ALREADY_MINED')
             } else {
                 throw new Error('SERVER_RESPONSE_NONCE_ALREADY_MINED')
             }
         } else if (e.message.indexOf('gas required exceeds allowance') !== -1) {
-            BlocksoftCryptoLog.log('EthBasic checkError0.2 ' + e.message + ' for ' + data.addressFrom)
+            BlocksoftCryptoLog.log('EthBasic checkError0.2 ' + e.message + ' for ' + data.addressFrom, logData)
             if (this._settings.currencyCode === 'ETH') {
                 throw new Error('SERVER_RESPONSE_TOO_MUCH_GAS_ETH')
             } else {
                 throw new Error('SERVER_RESPONSE_TOO_MUCH_GAS_ETH_ERC_20')
             }
         } else if (e.message.indexOf('insufficient funds') !== -1) {
-            BlocksoftCryptoLog.log('EthBasic checkError0.3 ' + e.message + ' for ' + data.addressFrom)
+            BlocksoftCryptoLog.log('EthBasic checkError0.3 ' + e.message + ' for ' + data.addressFrom, logData)
             if (this._settings.currencyCode === 'ETH' && data.amount * 1 > 0) {
                 throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
             } else {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
             }
         } else if (e.message.indexOf('underpriced') !== -1) {
-            BlocksoftCryptoLog.log('EthBasic checkError0.4 ' + e.message + ' for ' + data.addressFrom)
+            BlocksoftCryptoLog.log('EthBasic checkError0.4 ' + e.message + ' for ' + data.addressFrom, logData)
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
         } else if (e.message.indexOf('already known') !== -1) {
-            BlocksoftCryptoLog.log('EthBasic checkError0.5 ' + e.message + ' for ' + data.addressFrom)
+            BlocksoftCryptoLog.log('EthBasic checkError0.5 ' + e.message + ' for ' + data.addressFrom, logData)
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
         } else if (e.message.indexOf('infura') !== -1) {
-            BlocksoftCryptoLog.log('EthBasic checkError0.6 ' + e.message + ' for ' + data.addressFrom)
+            BlocksoftCryptoLog.log('EthBasic checkError0.6 ' + e.message + ' for ' + data.addressFrom, logData)
             throw new Error('SERVER_RESPONSE_BAD_INTERNET')
         } else {
             MarketingEvent.logOnlyRealTime('v20_eth_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)

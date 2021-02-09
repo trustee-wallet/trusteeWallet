@@ -42,7 +42,7 @@ class EthNetworkPrices {
 
         if (checkResult !== false) {
             if (typeof checkResult.data !== 'undefined') {
-                await BlocksoftCryptoLog.log(' EthNetworkPricesProvider.getWithProxy proxy checkResult1 ', checkResult.data)
+                await BlocksoftCryptoLog.log('EthNetworkPricesProvider.getWithProxy proxy checkResult1 ', checkResult.data)
                 if (typeof checkResult.data.status === 'undefined' || checkResult.data.status === 'error') {
                     if (config.debug.cryptoErrors) {
                         console.log('EthNetworkPricesProvider.getWithProxy proxy error checkResult1 ', checkResult)
