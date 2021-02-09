@@ -365,8 +365,8 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 memo = sendScreenData.memo
                 txData.memo = memo
             }
-            if (typeof sendScreenData.comment !== 'undefined') {
-                comment = sendScreenData.comment
+            if (typeof uiSendScreenData.addData !== 'undefined' && typeof uiSendScreenData.addData.comment !== 'undefined') {
+                comment = uiSendScreenData.addData.comment
             }
             const contactName = sendScreenData.contactName || false
             if ((!txData.addressTo || txData.addressTo === '') && contactName) {
@@ -395,6 +395,13 @@ class ReceiptScreen extends SendBasicScreenScreen {
             if (sendScreenData.transactionSpeedUp) {
                 txData.transactionSpeedUp = sendScreenData.transactionSpeedUp
             }
+            console.log('')
+            console.log('')
+            console.log('')
+            console.log('uiSendScreenData', JSON.parse(JSON.stringify(uiSendScreenData)))
+            console.log('')
+            console.log('')
+            console.log('')
             if (config.debug.sendLogs) {
                 console.log('ReceiptScreen txData', txData)
             }
@@ -412,10 +419,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             if (comment) {
                 transactionJson.comment = comment
             }
-            if (sendScreenData.bseMinCrypto !== 'undefined') {
-                transactionJson.bseMinCrypto = sendScreenData.bseMinCrypto
-            }
-            if (sendScreenData.bseMinCrypto !== 'undefined') {
+            if (typeof sendScreenData.bseMinCrypto !== 'undefined') {
                 transactionJson.bseMinCrypto = sendScreenData.bseMinCrypto
             }
             if (typeof tx.transactionJson !== 'undefined') {
@@ -627,7 +631,6 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             }
                         })
                     } else if (uiType === 'TRADE_SEND') {
-                        // @ksu check this plz
                         if (uiApiVersion === 'v3' && bseOrderId) {
                             ApiV3.setExchangeStatus(bseOrderId, 'SUCCESS')
                         }
@@ -947,7 +950,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             }
 
                             {this.renderMinerFee()}
-                            {sendScreenData.comment ?
+                            {typeof uiSendScreenData.addData !== 'undefined' && typeof uiSendScreenData.addData.comment !== 'undefined' && uiSendScreenData.addData.comment ?
                                 <>
                                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                                         <View style={{ ...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
@@ -955,7 +958,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
                                     <View style={{ marginHorizontal: GRID_SIZE, marginTop: 24 }}>
                                         <Text style={{ ...styles.name, color: colors.sendScreen.amount }}>{strings('send.setting.note')}</Text>
-                                        <Text style={{ ...styles.valueComment, color: colors.sendScreen.amount }}>{sendScreenData.comment}</Text>
+                                        <Text style={{ ...styles.valueComment, color: colors.sendScreen.amount }}>{uiSendScreenData.addData.comment}</Text>
                                     </View>
                                 </>
                                 : null}

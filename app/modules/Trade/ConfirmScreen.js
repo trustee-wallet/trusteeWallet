@@ -225,7 +225,7 @@ class ConfirmScreen extends Component {
                 ui: {
                     uiType: 'TRADE_SEND',
                     uiApiVersion : 'v2',
-                    suiInputAddress: true
+                    uiInputAddress: true
                 },
                 addData: {
                     gotoReceipt: true,

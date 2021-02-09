@@ -29,11 +29,11 @@ export namespace SendTmpData {
             value: string
         }
 
-        transactionJson : any,
+        transactionJson ?: any,
 
-        transactionRemoveByFee : string | boolean,
-        transactionReplaceByFee : string | boolean,
-        transactionSpeedUp : string | boolean,
+        transactionRemoveByFee ?: string | boolean,
+        transactionReplaceByFee ?: string | boolean,
+        transactionSpeedUp ?: string | boolean,
 
         transactionBoost ?: {
             currencyCode : string,

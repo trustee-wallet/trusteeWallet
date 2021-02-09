@@ -109,50 +109,57 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' proxyPriceCheck', proxyPriceCheck)
         }
-        console.log('proxyPriceCheck', JSON.parse(JSON.stringify(proxyPriceCheck)))
 
         let gasLimit
-        if (typeof additionalData === 'undefined' || typeof additionalData.estimatedGas === 'undefined' || !additionalData.estimatedGas) {
-            try {
-                let ok = false
-                let i = 0
-                do {
-                    try {
+        try {
+            if (typeof additionalData === 'undefined' || typeof additionalData.estimatedGas === 'undefined' || !additionalData.estimatedGas) {
+                try {
+                    let ok = false
+                    let i = 0
+                    do {
+                        try {
 
-                        gasLimit = await EthEstimateGas(this._web3Link, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
+                            gasLimit = await EthEstimateGas(this._web3Link, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
 
-                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
+                            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
 
-                        // @ts-ignore
-                        MarketingEvent.logOnlyRealTime('v20_eth_gas_limit ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {
-                            amount: data.amount + '',
-                            gasLimit
-                        })
-                        ok = true
-                    } catch (e1) {
-                        ok = false
-                        i++
-                        if (i > 3) {
-                            throw e1
+                            // @ts-ignore
+                            MarketingEvent.logOnlyRealTime('v20_eth_gas_limit ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {
+                                amount: data.amount + '',
+                                gasLimit
+                            })
+                            ok = true
+                        } catch (e1) {
+                            ok = false
+                            i++
+                            if (i > 3) {
+                                throw e1
+                            }
                         }
+                    } while (!ok)
+                } catch (e) {
+                    if (e.message.indexOf('resolve host') !== -1) {
+                        throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+                    } else {
+                        e.message += ' in EthEstimateGas in getFeeRate'
+                        throw e
                     }
-                } while (!ok)
-            } catch (e) {
-                if (e.message.indexOf('resolve host') !== -1) {
-                    throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
-                } else {
-                    e.message += ' in EthEstimateGas in getFeeRate'
-                    throw e
                 }
+            } else {
+                gasLimit = additionalData.estimatedGas
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate preestimatedGas ' + gasLimit)
             }
-        } else {
-            gasLimit = additionalData.estimatedGas
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate preestimatedGas ' + gasLimit)
+        } catch (e) {
+            throw new Error(e.message + ' in get gasLimit')
         }
 
         let showBigGasNotice = false
-        if (gasLimit * 1 > BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT') * 1) {
-            showBigGasNotice = true
+        try {
+            if (gasLimit * 1 > BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT') * 1) {
+                showBigGasNotice = true
+            }
+        } catch (e) {
+            throw new Error(e.message + ' in get showBigGasNotice')
         }
 
         if (!gasLimit) {

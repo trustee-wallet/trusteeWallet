@@ -68,8 +68,6 @@ class SendAdvancedSettingsScreen extends Component {
             comment: '',
 
             headerHeight: 0,
-
-            uiInputAddress: null
         }
 
         this.customFee = React.createRef()
@@ -113,7 +111,7 @@ class SendAdvancedSettingsScreen extends Component {
 
         const { account } = SendActions.findWalletPlus(sendScreenData.currencyCode)
 
-        const { ui, addData } = this.props.sendScreenStore
+        const { addData } = this.props.sendScreenStore
 
         this.setState({
             sendScreenData,
@@ -124,8 +122,7 @@ class SendAdvancedSettingsScreen extends Component {
             isCustomFee,
             dropMenu,
             devMode: devMode && devMode.toString() === '1',
-            comment: addData.comment,
-            uiInputAddress: ui.uiInputAddress
+            comment: addData.comment
         })
     }
 
@@ -350,7 +347,7 @@ class SendAdvancedSettingsScreen extends Component {
         CACHE_FROM_CUSTOM_FEE = selectedFee
     }
 
-    onFocus = () => { 
+    onFocus = () => {
         setTimeout(() => {
             try {
                 this.scrollView.scrollTo({ y: 350 })
@@ -364,7 +361,7 @@ class SendAdvancedSettingsScreen extends Component {
         this.setState(() => ({ headerHeight }))
     }
 
-    onChangeComment = (value) => { 
+    onChangeComment = (value) => {
         this.setState({
             ...this.state,
             comment: value
@@ -375,7 +372,9 @@ class SendAdvancedSettingsScreen extends Component {
 
         const { colors, GRID_SIZE } = this.context
 
-        let { focused, sendScreenData, countedFees, selectedFee, account, uiInputAddress } = this.state
+        let { focused, sendScreenData, countedFees, selectedFee, account } = this.state
+
+        const { uiInputAddress } = this.props.sendScreenStore.ui
 
         if (typeof sendScreenData === 'undefined' || typeof sendScreenData.currencyCode === 'undefined') {
             sendScreenData = SendTmpData.getData()

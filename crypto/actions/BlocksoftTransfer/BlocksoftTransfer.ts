@@ -74,10 +74,6 @@ export namespace BlocksoftTransfer {
             feesCount = await processor.getFeeRate(data, privateData, additionalDataTmp)
             feesCount.countedTime = new Date().getTime()
 
-            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getFeeRate got ${data.addressFrom} result is ok`)
-            if (DEBUG) {
-                console.log('BlocksoftTransfer.getFeeRate result', JSON.parse(JSON.stringify(feesCount)))
-            }
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('BlocksoftTransfer.getFeeRate error ', e)

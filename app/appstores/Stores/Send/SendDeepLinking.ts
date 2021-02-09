@@ -62,13 +62,20 @@ export namespace SendDeepLinking {
 
                 if (initialURL.indexOf('trustee.page.link') === -1) {
 
+                    SendActions.setUiType({
+                        ui: {
+                            uiType : 'DEEP_LINKING'
+                        },
+                        addData: {
+                            gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
+                            comment : parsed.label || ''
+                        }
+                    })
+
                     await SendActions.startSend({
-                        gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
                         addressTo : parsed.address,
                         amountPretty : parsed.amount ? parsed.toString() : '0',
                         currencyCode : parsed.currencyCode,
-                        comment : parsed.label,
-                        uiType : 'DEEP_LINKING'
                     })
 
                 }

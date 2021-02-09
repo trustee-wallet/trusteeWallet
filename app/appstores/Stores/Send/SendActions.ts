@@ -23,7 +23,6 @@ import Log from '../../../services/Log/Log'
 
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import { BlocksoftBlockchainTypes } from '../../../../crypto/blockchains/BlocksoftBlockchainTypes'
-import AsyncStorage from '@react-native-community/async-storage'
 
 const { dispatch } = store
 
@@ -68,11 +67,7 @@ export namespace SendActions {
         return false
     }
 
-    export const countTransferAllBeforeStartSend = async function(data: {
-        addressTo: string,
-        currencyCode: string,
-        memo: string
-    }): Promise<{ transferBalance: string }> {
+    export const countTransferAllBeforeStartSend = async function(data: { addressTo: string, currencyCode: string, memo: string }): Promise<{ transferBalance: string }> {
 
         const { wallet, account } = findWalletPlus(data.currencyCode)
 
@@ -293,7 +288,7 @@ export namespace SendActions {
         try {
 
             data.transactionJson = {}
-            let additionalData = {}
+            const additionalData = {} as any
             if (typeof data.transactionBoost !== 'undefined' && data.transactionBoost && typeof data.transactionBoost.transactionHash !== 'undefined') {
                 data.currencyCode = data.transactionBoost.currencyCode
                 if (data.transactionBoost.transactionDirection !== 'income' && data.transactionBoost.transactionDirection !== 'self') {
@@ -334,7 +329,7 @@ export namespace SendActions {
                 data.contactName = data.fioRequestDetails.payee_fio_address
                 data.addressTo = data.fioRequestDetails.content.payee_public_address || data.fioRequestDetails.payee_fio_public_key
             } else if (typeof data.contactAddress !== 'undefined' && data.contactAddress && data.contactAddress !== '') {
-                data.addressTo = data.contactAddress
+                data.addressTo = data.contactAddress as string
             }
 
 
@@ -383,7 +378,6 @@ export namespace SendActions {
             }
 
             SendTmpData.setData(data)
-            console.log(state)
             if (state.addData.gotoReceipt) {
                 if (config.debug.sendLogs) {
                     // @ts-ignore

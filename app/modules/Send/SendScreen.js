@@ -177,7 +177,7 @@ class SendScreen extends SendBasicScreenScreen {
 
         const { uiInputAddress, uiInputType, balancePart } = this.props.sendScreenStore.ui
         const inputType = uiInputType !== 'any' && typeof uiInputType !== 'undefined' && uiInputType ? uiInputType : this.state.inputType
-        
+
         this.setState(
             {
                 sendScreenData,
@@ -694,7 +694,7 @@ class SendScreen extends SendBasicScreenScreen {
             dataToSendStore.ui.balancePart = this.state.balancePart
 
             newSendScreenData.amount = amount
-            newSendScreenData.amountPretty = amount 
+            newSendScreenData.amountPretty = amount
             newSendScreenData.amountRaw = amountRaw
             newSendScreenData.contactName = contactName
             newSendScreenData.contactAddress = contactAddress
@@ -902,7 +902,7 @@ class SendScreen extends SendBasicScreenScreen {
                     newSendScreenData.amountPretty = valueCrypto
                     newSendScreenData.amountRaw = valueCryptoRaw
                     newSendScreenData.unconfirmedRaw = 0
-                    
+
                     dataToSendStore.ui.uiNeedToCountFees = true
                     dataToSendStore.ui.uiInputType = 'any'
                     dataToSendStore.ui.balancePart = this.state.balancePart
@@ -913,7 +913,7 @@ class SendScreen extends SendBasicScreenScreen {
                     })
                     const {selectedFee} = await this.recountFees(newSendScreenData, 'Send.SendScreen.amountInputCallback')
                     newSendScreenData.selectedFee = selectedFee
-                    
+
                     dataToSendStore.ui.uiNeedToCountFees = false
                     dataToSendStore.ui.uiInputType = 'CRYPTO'
                     // Log.log(`Send.SendScreen.amountInputCallback`, JSON.parse(JSON.stringify(this.state.sendScreenData)), JSON.parse(JSON.stringify(newSendScreenData)))
@@ -923,11 +923,6 @@ class SendScreen extends SendBasicScreenScreen {
             }
             dataToSendStore.ui.uiInputAddress = this.state.uiInputAddress
 
-
-            // Log.log('afterCallback', JSON.parse(JSON.stringify(newSendScreenData)))
-            console.log('hello', this.props.sendScreenStore)
-            console.log('')
-            console.log('new', dataToSendStore)
             SendActions.setUiType({
                 ui: {
                     ...this.props.sendScreenStore.ui,
@@ -1081,7 +1076,7 @@ class SendScreen extends SendBasicScreenScreen {
     }
 
     handlerPartBalance = (inputType, part) => {
-        let value = BlocksoftUtils.mul(BlocksoftUtils.div(inputType === 'FIAT' ? this.state.account.basicCurrencyBalance : 
+        let value = BlocksoftUtils.mul(BlocksoftUtils.div(inputType === 'FIAT' ? this.state.account.basicCurrencyBalance :
             this.state.account.balancePretty, 4), Number(part))
         Log.log('SendScreen.handlerPartBalance.inputType', inputType, value)
 
@@ -1089,7 +1084,7 @@ class SendScreen extends SendBasicScreenScreen {
         this.valueInput.state.value = value
         this.valueInput.state.fontSize = value.length > 8 && value.length < 10 ? 36 : value.length >= 10 &&
         value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
-        this.amountInputCallback(value, true) 
+        this.amountInputCallback(value, true)
     }
 
     disabled = () => {
@@ -1136,7 +1131,7 @@ class SendScreen extends SendBasicScreenScreen {
         SendActions.cleanData()
         if (closeScreen) {
             NavStore.reset('DashboardStack')
-        } else {  
+        } else {
             NavStore.goBack()
         }
     }
