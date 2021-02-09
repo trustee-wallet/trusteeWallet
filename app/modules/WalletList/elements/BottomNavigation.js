@@ -83,14 +83,16 @@ class BottomNavigation extends Component {
 
             if (type === 'SELL') {
                 const isNewInterfaceSell = await AsyncStorage.getItem('isNewInterfaceSell')
-
                 if (isNewInterfaceSell === 'true') {
                     ExchangeActions.handleSetNewInterface(true, 'SELL')
                     NavStore.goNext('TradeV3ScreenStack')
-                } else {
+                } else if (isNewInterfaceSell === 'false') {
                     await this._showModalNoOldConfigs()
                     ExchangeActions.handleSetNewInterface(false, 'SELL')
                     NavStore.goNext('TradeScreenStack')
+                } else {
+                    ExchangeActions.handleSetNewInterface(false, 'SELL')
+                    NavStore.goNext('TradeV3ScreenStack')
                 }
             } else if (type === 'BUY') {
                 const isNewInterfaceBuy = await AsyncStorage.getItem('isNewInterfaceBuy')
@@ -98,10 +100,13 @@ class BottomNavigation extends Component {
                 if (isNewInterfaceBuy === 'true') {
                     ExchangeActions.handleSetNewInterface(true, 'BUY')
                     NavStore.goNext('TradeV3ScreenStack')
-                } else {
+                } else if (isNewInterfaceBuy === 'false') {
                     await this._showModalNoOldConfigs()
                     ExchangeActions.handleSetNewInterface(false, 'BUY')
                     NavStore.goNext('TradeScreenStack')
+                } else {
+                    ExchangeActions.handleSetNewInterface(false, 'BUY')
+                    NavStore.goNext('TradeV3ScreenStack')
                 }
             } else {
                 await this._showModalNoOldConfigs()

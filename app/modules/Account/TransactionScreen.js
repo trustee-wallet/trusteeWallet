@@ -953,7 +953,7 @@ class TransactionScreen extends Component {
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
                     leftType={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen'
-                        || prev === 'SMSCodeScreen' || prev === 'SMSV3CodeScreen') ? null : 'back'}
+                        || prev === 'SMSCodeScreen' || prev === 'TradeV3ScreenStack') ? null : 'back'}
                     leftAction={this.backAction}
                     rightType='close'
                     rightAction={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen') ? () => NavStore.reset('DashboardStack') : this.closeAction}
