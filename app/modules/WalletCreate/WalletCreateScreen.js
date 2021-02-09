@@ -42,6 +42,7 @@ import SliderImage2 from '../../assets/images/slider/2.png';
 import SliderImage3 from '../../assets/images/slider/3.png';
 import SliderImage4 from '../../assets/images/slider/4.png';
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 
 const screenWidth = Dimensions.get('window').width;
@@ -111,9 +112,15 @@ class WalletCreateScreen extends Component {
         setTimeout(() => { this.setState(() => ({ checked: false })) }, 500)
     }
 
-    handleCreate = () => { this.handleSelect({ flowType: 'CREATE_NEW_WALLET' }) }
+    handleCreate = () => {
+        MarketingEvent.logEvent('gx_view_create_import_screen_tap_create', {number : 1}, 'GX')
+        this.handleSelect({ flowType: 'CREATE_NEW_WALLET' })
+    }
 
-    handleImport = () => { this.handleSelect({ flowType: 'IMPORT_WALLET' }) }
+    handleImport = () => {
+        MarketingEvent.logEvent('gx_view_create_import_screen_tap_import', {number : 1}, 'GX')
+        this.handleSelect({ flowType: 'IMPORT_WALLET' })
+    }
 
     changeAgreementCallback = () => {
         this.setState(state => ({ checked: !state.checked }))
@@ -162,6 +169,7 @@ class WalletCreateScreen extends Component {
         const { colors, GRID_SIZE } = this.context
 
         MarketingAnalytics.setCurrentScreen('WalletCreate.WalletCreateScreen')
+        MarketingEvent.logEvent('gx_view_create_import_screen', {}, 'GX')
 
         return (
             <View style={styles.container}>

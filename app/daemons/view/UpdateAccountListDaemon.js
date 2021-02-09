@@ -245,6 +245,7 @@ class UpdateAccountListDaemon extends Update {
             }
 
             let tmpWalletHash
+            DaemonCache.CACHE_WALLET_COUNT = 0
             for (tmpWalletHash of tmpWalletHashes) {
                 DaemonCache.CACHE_ALL_ACCOUNTS[tmpWalletHash] = {}
                 DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash] = {
@@ -258,6 +259,7 @@ class UpdateAccountListDaemon extends Update {
                 DaemonCache.CACHE_WALLET_TOTAL.balance = 0
                 DaemonCache.CACHE_WALLET_TOTAL.unconfirmed = 0
                 DaemonCache.CACHE_WALLET_TOTAL.basicCurrencySymbol = basicCurrency.symbol || '$'
+                DaemonCache.CACHE_WALLET_COUNT++
             }
 
             for (tmpCurrency of currentStore.currencyStore.cryptoCurrencies) {

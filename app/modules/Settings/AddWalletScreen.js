@@ -20,6 +20,8 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
 import ListItem from '../../components/elements/new/list/ListItem/Setting'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import DaemonCache from '../../daemons/DaemonCache'
+import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 
 class AddWalletScreen extends React.Component {
@@ -33,6 +35,7 @@ class AddWalletScreen extends React.Component {
     }
 
     handleImport = () => {
+        MarketingEvent.logEvent('gx_view_create_import_screen_tap_import', {number : DaemonCache.CACHE_WALLET_COUNT + 1}, 'GX')
         setFlowType({
             flowType: 'IMPORT_WALLET'
         })
@@ -41,6 +44,7 @@ class AddWalletScreen extends React.Component {
     }
 
     handleCreate = () => {
+        MarketingEvent.logEvent('gx_view_create_import_screen_tap_create', {number : DaemonCache.CACHE_WALLET_COUNT + 1}, 'GX')
         setFlowType({ flowType: 'CREATE_NEW_WALLET' })
         setWalletName({ walletName: '' })
         setMnemonicLength({ mnemonicLength: 128 })
