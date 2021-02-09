@@ -17,7 +17,7 @@ class UpdateCashBackDataDaemon {
     /**
      * @return {Promise<void>}
      */
-    updateCashBackDataDaemon = async () => {
+    updateCashBackDataDaemon = async (params = {}) => {
         if (!this._canUpdate) return false
 
         this._canUpdate = false
@@ -33,7 +33,7 @@ class UpdateCashBackDataDaemon {
 
         let data = false
         try {
-            data = await ApiProxy.getAll({ source: 'UpdateCashBackDataDaemon.updateCashBackData' })
+            data = await ApiProxy.getAll({...params, source: 'UpdateCashBackDataDaemon.updateCashBackData'})
             if (typeof data.cbData !== 'undefined') {
                 data = data.cbData.data
                 if (typeof data.cashbackToken !== 'undefined') {

@@ -37,6 +37,7 @@ import PromoCodeContent from './elements/PromoCode'
 import DetailsContent from './elements/Details'
 import HowItWorks from './elements/HowItWorks'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import UpdateCashBackDataDaemon from '../../daemons/back/UpdateCashBackDataDaemon'
 
 
 class CashbackScreen extends React.Component {
@@ -101,14 +102,12 @@ class CashbackScreen extends React.Component {
         this.setState(() => ({ selectedContent: selectedContent === 'details' ? null : 'details' }))
     }
 
-    handleRefresh = () => {
+    handleRefresh = async () => {
         this.setState({
             refreshing: true,
         })
 
-        /*
-            @ksu add update data
-        */
+        await UpdateCashBackDataDaemon.updateCashBackDataDaemon({force : true})
 
         this.setState({
             refreshing: false
