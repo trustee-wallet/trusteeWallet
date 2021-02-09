@@ -8,6 +8,7 @@ import {
     SafeAreaView,
     StyleSheet,
     TouchableOpacity,
+    RefreshControl
 } from 'react-native'
 
 
@@ -43,7 +44,8 @@ class CashbackScreen extends React.Component {
         headerHeight: 0,
         selectedContent: null,
         promoCode: '',
-        inviteLink: ''
+        inviteLink: '',
+        refreshing: false
     }
 
     navigationListener;
@@ -99,6 +101,20 @@ class CashbackScreen extends React.Component {
         this.setState(() => ({ selectedContent: selectedContent === 'details' ? null : 'details' }))
     }
 
+    handleRefresh = () => {
+        this.setState({
+            refreshing: true,
+        })
+
+        /*
+            @ksu add update data
+        */
+
+        this.setState({
+            refreshing: false
+        })
+    }
+
     render() {
         MarketingAnalytics.setCurrentScreen('CashBackScreen')
         const {
@@ -141,7 +157,13 @@ class CashbackScreen extends React.Component {
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={[styles.scrollViewContent, { paddingVertical: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }]}
                         keyboardShouldPersistTaps="handled"
-                    >
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.refreshing}
+                                onRefresh={this.handleRefresh}
+                                tintColor={colors.common.text1}
+                            />
+                        }>
                         <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginHorizontal: GRID_SIZE / 2 }]}>{strings('cashback.pageSubtitle')}</Text>
                         <TouchableOpacity
                             style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE }]}
@@ -302,7 +324,8 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     qrCodeContainer: {
-        alignContent: 'center'
+        alignContent: 'center',
+        alignItems: 'center',
     },
     qrCode: {
         alignSelf: 'center'

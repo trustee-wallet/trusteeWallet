@@ -191,6 +191,22 @@ class MainV3DataScreen extends Component {
 
         try {
             Log.log('Exchange/MainV3Screen dataExchange', data)
+            
+            const bseOrderData = {
+                amountReceived: null,
+                depositAddress: data.address,
+                exchangeRate: null,
+                exchangeWayType: "EXCHANGE",
+                inTxHash: null,
+                orderHash: data.orderHash,
+                orderId: data.orderHash,
+                outDestination: data.outDestination,
+                outTxHash: null,
+                payinUrl: null,
+                requestedInAmount: {amount: data.amount, currencyCode: data.currencyCode},
+                requestedOutAmount: {amount: data.outAmount, currencyCode: data.outCurrency},
+                status: "pending_payin"
+            }
 
             SendActions.setUiType({
                 ui: {
@@ -219,7 +235,8 @@ class MainV3DataScreen extends Component {
                     type : 'EXCHANGE',
                     from : data.currencyCode,
                     to : data.outCurrency
-                }
+                },
+                bseOrderData: bseOrderData
             })
         } catch (e) {
             if (config.debug.cryptoErrors) {

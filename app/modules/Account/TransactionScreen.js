@@ -582,11 +582,11 @@ class TransactionScreen extends Component {
 
         const { colors, isLight } = this.context
 
-        const { transactionStatus, transactionDirection, addressAmountPretty, addressAmountPrettyPrefix, wayType } = transaction
+        const { transactionStatus, transactionDirection, addressAmountPretty, addressAmountPrettyPrefix, wayType, transactionVisibleStatus } = transaction
 
         const currencySymbol = typeof cryptoCurrency !== 'undefined' ? cryptoCurrency.currencySymbol : ''
 
-        let status = transactionStatus
+        let status = transactionVisibleStatus
 
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ color: colors.common.text1, fontSize: 17 }} />
 

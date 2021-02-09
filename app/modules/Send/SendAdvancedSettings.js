@@ -310,7 +310,6 @@ class SendAdvancedSettingsScreen extends Component {
             },
             addData: {
                 ...this.props.sendScreenStore.addData,
-                comment: ''
             }
         })
         NavStore.goBack()

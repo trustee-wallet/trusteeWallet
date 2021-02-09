@@ -128,7 +128,7 @@ class Transaction extends Component {
             )
     }
 
-    renderStatusCircle = (isStatus, status, transactionDirection) => {
+    renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus) => {
         const { colors, isLight } = this.context
         const { styles } = this.state
         const { amountToView, count, transactions, cryptoCurrency } = this.props
@@ -146,7 +146,8 @@ class Transaction extends Component {
             arrowIcon = <FontAwesome5 name="infinity" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 10 }} />
             circleStyle = { backgroundColor: isStatus ? color : colors.accountScreen.transactions.circleBackground }
         }
-        if (status === 'fail' || status === 'missing' || status === 'replaced') {
+        // if (status === 'fail' || status === 'missing' || status === 'replaced') {
+        if (visibleStatus.toUpperCase() === 'MISSING') {
             arrowIcon = <Feather name="x" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 15 }} />
             circleStyle = { backgroundColor: colors.accountScreen.transactions.circleBackground }
         }
@@ -235,7 +236,7 @@ class Transaction extends Component {
 
         // if any of this will be reused the same way at details screen -> move to preformatWithBSEforShowInner
         const blockConfirmations = this.prepareBlockConfirmations(transaction.blockConfirmations)
-        const transactionStatus = this.prepareStatus(transaction.transactionVisibleStatus)
+        const transactionStatus = this.prepareStatus(transaction.transactionStatus)
         const transactionBlockchainStatus = transaction.transactionBlockchainStatus
         const transactionDirection = this.prepareDirection(transaction.transactionDirection)
         const wayType = this.prepareWayType(transaction.wayType)
@@ -283,7 +284,7 @@ class Transaction extends Component {
 
         return (
             <View style={styles.transaction}>
-                {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection)}
+                {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection, transaction.transactionVisibleStatus)}
                 <View style={[styles.transaction__col, styles.transaction__col2]}>
                     <TouchableOpacity style={{ ...styles.transaction__top }} onLongPress={() => this.handleCopyAll(valueToView, currencySymbolToView)}>
                         <Text style={{ ...styles.transaction__top__title, color: colors.accountScreen.transactions.transactionTitleColor }}>
