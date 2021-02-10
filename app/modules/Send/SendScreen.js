@@ -125,8 +125,6 @@ class SendScreen extends SendBasicScreenScreen {
             loadFee: false,
 
             addressError: false,
-
-            uiInputAddress: false
         }
         this.addressInput = React.createRef()
         this.memoInput = React.createRef()
@@ -187,7 +185,6 @@ class SendScreen extends SendBasicScreenScreen {
                 useAllFunds: sendScreenData.isTransferAll,
                 init: true,
                 inputType,
-                uiInputAddress,
                 balancePart,
                 amountInputMark:
                     this.state.amountInputMark
@@ -797,10 +794,6 @@ class SendScreen extends SendBasicScreenScreen {
 
 
             if (addressTo === false) {
-                this.setState({
-                    uiInputAddress: false
-                })
-
                 if (contactAddress) {
                     addressTo = contactAddress
                     this.addressInput.handleInput(contactName.toString(), false)
@@ -816,10 +809,6 @@ class SendScreen extends SendBasicScreenScreen {
                     }
                 }
             } else {
-                this.setState({
-                    uiInputAddress: true
-                })
-
                 let toContactAddress = false
                 try {
                     toContactAddress = await SendActions.getContactAddress({ addressName: addressTo, currencyCode })
@@ -921,7 +910,7 @@ class SendScreen extends SendBasicScreenScreen {
             } else {
                 // Log.log('Send.SendScreen.amountInputCallback not updated as not changed')
             }
-            dataToSendStore.ui.uiInputAddress = this.state.uiInputAddress
+            dataToSendStore.ui.uiInputAddress = addressTo && addressTo !== ''
 
             SendActions.setUiType({
                 ui: {

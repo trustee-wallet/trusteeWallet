@@ -161,7 +161,7 @@ class QRCodeScannerScreen extends Component {
                     ui: {
                         uiType: 'MAIN_SCANNER',
                         uiInputType: parsed.amount ? 'CRYPTO' : 'any',
-                        uiInputAddress: true
+                        uiInputAddress: typeof parsed.address !== 'undefined' && parsed.address && parsed.address !== ''
                     },
                     addData: {
                         gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
@@ -188,7 +188,7 @@ class QRCodeScannerScreen extends Component {
                         ui: {
                             uiType: 'SEND_SCANNER',
                             uiInputType: parsed.amount ? 'CRYPTO' : 'any',
-                            uiInputAddress: true
+                            uiInputAddress: typeof parsed.address !== 'undefined' && parsed.address && parsed.address !== ''
                         },
                         addData: {
                             gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
@@ -217,7 +217,7 @@ class QRCodeScannerScreen extends Component {
                     SendActions.setUiType({
                         ui: {
                             uiType: 'SEND_SCANNER',
-                            uiInputAddress: true
+                            uiInputAddress: typeof res.data.parsedUrl !== 'undefined' && res.data.parsedUrl && res.data.parsedUrl !== ''
                         }
                     })
                     await SendActions.startSend({
