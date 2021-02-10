@@ -125,10 +125,14 @@ class SendScreen extends SendBasicScreenScreen {
             loadFee: false,
 
             addressError: false,
+
+            isBalanceVisible: false,
+            originalVisibility: false,
         }
         this.addressInput = React.createRef()
         this.memoInput = React.createRef()
         this.valueInput = React.createRef()
+        this.getBalanceVisibility()
     }
 
     // eslint-disable-next-line camelcase
@@ -1013,11 +1017,27 @@ class SendScreen extends SendBasicScreenScreen {
         }
     }
 
+    getBalanceVisibility = async () => {
+        try {
+            const res = await AsyncStorage.getItem('isBalanceVisible')
+            const originalVisibility = res !== null ? JSON.parse(res) : true
+
+            this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
+        } catch (e) {
+            Log.err(`AccountScreen getBalanceVisibility error ${e.message}`)
+        }
+    }
+
+    triggerBalanceVisibility = (value) => {
+        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
+    }
+
     renderAccountDetail = () => {
 
         const { currencySymbol, currencyName, currencyCode } = this.state.cryptoCurrency
         const { basicCurrencyRate, balancePretty, unconfirmedPretty } = this.state.account
         const { walletUseUnconfirmed } = this.state.wallet
+        const { originalVisibility, isBalanceVisible } = this.state
 
         const amountPretty = BlocksoftTransferUtils.getBalanceForTransfer({
                 walletUseUnconfirmed: walletUseUnconfirmed === 1,
@@ -1055,9 +1075,21 @@ class SendScreen extends SendBasicScreenScreen {
                         <Text style={{...styles.accountDetail__title, color: colors.common.text1 }} numberOfLines={1}>
                             {currencyName}
                         </Text>
-                        <View style={{ alignItems: 'flex-start' }}>
-                            <LetterSpacing text={sumPrep} textStyle={styles.accountDetail__text} letterSpacing={1} />
-                        </View>
+                        {/* <View style={{ alignItems: 'flex-start' }}> */}
+                        <TouchableOpacity
+                            onPressIn={() => this.triggerBalanceVisibility(true)}
+                            onPressOut={() => this.triggerBalanceVisibility(false)}
+                            activeOpacity={1}
+                            disabled={originalVisibility}
+                            hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
+                            >
+                                {isBalanceVisible ? 
+                                <LetterSpacing text={sumPrep} textStyle={styles.accountDetail__text} letterSpacing={1} /> : 
+                                <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, fontSize: 24 }}>
+                                    ****</Text>
+                                }
+                            </TouchableOpacity>
+                        {/* </View> */}
                     </View>
                 </View>
             </View>
@@ -1521,6 +1553,7 @@ const styles = {
     },
     accountDetail__text: {
         fontSize: 14,
+        height: 14,
         fontFamily: 'SFUIDisplay-Semibold',
         color: '#939393'
     }

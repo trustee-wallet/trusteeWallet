@@ -365,7 +365,7 @@ export default {
                     link = `${baseUrl}/order/history-for-wallet?`
                          + `cashbackToken=${signedData.cashbackToken}&message=${signedData.message}&messageHash=${signedData.messageHash}`
                          + `&signature=${signedData.signature}&timestamp=${+new Date()}`
-
+                    console.log('link', link)
                     await Log.daemon('ApiV3 getExchangeOrders finished ' + index + ' ' + link)
 
                     now = +new Date()
