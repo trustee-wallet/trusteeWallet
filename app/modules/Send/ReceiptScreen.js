@@ -862,7 +862,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     leftAction={this.closeAction}
                     leftParams={{ 'close': false }}
                     rightType='close'
-                    rightAction={this.closeAction}
+                    rightAction={sendInProcess ? null : this.closeAction}
                     rightParams={{ 'close': true }}
                     title={strings('send.receiptScreen.title')}
                     setHeaderHeight={this.setHeaderHeight}

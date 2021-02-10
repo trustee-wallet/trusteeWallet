@@ -254,7 +254,7 @@ export const darkColors = {
     accountScreen: {
       containerBG: ['#252525', '#1E1E1E'],
       containerBGIcon: ['#5C5C5C', '#303030'],
-      headBlockBackground: '#008000',
+      headBlockBackground: '#252525',
       trxButtonBorderColor: '#BBBBBB',
       trxButtonBackgroundColor: '#141414',
       showMoreColor: '#404040',

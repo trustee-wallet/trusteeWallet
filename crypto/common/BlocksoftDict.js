@@ -214,7 +214,7 @@ const Currencies = {
     },
     'ETH_USDT': {
         currencyType: 'token',
-        currencyName: 'Tether',
+        currencyName: 'Tether ERC20',
         currencyCode: 'ETH_USDT',
         currencySymbol: 'USDT',
         extendsProcessor: 'ETH_TRUE_USD', // also get all settings extended, not only processor
@@ -228,7 +228,7 @@ const Currencies = {
     },
     'USDT': {
         currencyType: 'token',
-        currencyName: 'Tether',
+        currencyName: 'Tether OMNI',
         currencyCode: 'USDT',
         currencySymbol: 'USDT',
         extendsProcessor: 'BTC',
@@ -332,7 +332,7 @@ const Currencies = {
     'TRX_USDT': {
         currencyType: 'token',
         transferProcessor: 'TRX',
-        currencyName: 'Tether',
+        currencyName: 'Tether TRC20',
         currencyCode: 'TRX_USDT',
         currencyIcon: 'TRX',
         currencySymbol: 'USDT',
