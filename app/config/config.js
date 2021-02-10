@@ -8,7 +8,7 @@ const config = {
     },
 
     exchange: {
-        mode: 'DEV', // INFO: DEV or PROD
+        mode: 'PROD', // INFO: DEV or PROD
         apiEndpoints: {
             baseURL: 'https://api.v2.trustee.deals',
             baseURLTest: 'https://testapi.v2.blocksoftlab.com',
@@ -81,7 +81,7 @@ const config = {
         },
     },
     debug: {
-        appLogs: true, // set false to see usual logs in files only
+        appLogs: false, // set false to see usual logs in files only
         appDaemonLogs: false, // set false to see cron jobs logs in files only
         cryptoLogs: false, // set false to see crypto logs in files only
         cryptoErrors: false, // set false to get crypto errors  in tg only
