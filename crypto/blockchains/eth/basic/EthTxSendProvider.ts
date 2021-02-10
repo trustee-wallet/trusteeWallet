@@ -95,7 +95,7 @@ export default class EthTxSendProvider {
         try {
             result = await BlocksoftAxios.post(link, signData.rawTransaction)
             // @ts-ignore
-            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send result ', result)
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send result ', typeof result !== 'undefined' && result ? result.data : 'NO RESULT')
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log(this._settings.currencyCode + ' EthTxSendProvider.send trezor error ' + e.message, JSON.parse(JSON.stringify(logData)))
@@ -214,6 +214,7 @@ export default class EthTxSendProvider {
             transactionLog: logData
         })
 
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send save nonce ' + nonce + ' from ' + tx.from + ' ' + transactionHash)
         await EthTmpDS.saveNonce(tx.from, 'send_' + transactionHash, nonce)
 
         return { transactionHash, transactionJson }

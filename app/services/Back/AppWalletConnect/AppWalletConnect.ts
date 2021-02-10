@@ -15,6 +15,7 @@ import EthRawDS from '../../../../crypto/blockchains/eth/stores/EthRawDS'
 import EthTmpDS from '../../../../crypto/blockchains/eth/stores/EthTmpDS'
 
 import { signTypedData_v4 } from 'eth-sig-util'
+import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
 
 let WALLET_CONNECTOR: WalletConnect
 let WALLET_CONNECTOR_LINK: string | boolean = false
@@ -162,6 +163,7 @@ export namespace AppWalletConnect {
             const signData = await WEB3.eth.accounts.signTransaction(data, privateData.privateKey)
             const nonce = BlocksoftUtils.hexToDecimalWalletConnect(data.nonce)
 
+            BlocksoftCryptoLog.log(account.currencyCode + ' AppWalletConnect.send save nonce ' + nonce + ' from ' + data.from + ' ' + signData.transactionHash)
             await EthTmpDS.saveNonce(data.from, 'send_' + signData.transactionHash, nonce)
 
             MarketingEvent.logOnlyRealTime('v20_wallet_connect ' + signData.transactionHash, data)
