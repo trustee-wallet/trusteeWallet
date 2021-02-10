@@ -54,7 +54,9 @@ class SMSV3CodeScreen extends Component {
             sign: {},
             api: '',
             navigation: '',
-            additionalData: {}
+            additionalData: {
+                close: false
+            }
         }
         this.webref = React.createRef()
     }
@@ -126,12 +128,16 @@ class SMSV3CodeScreen extends Component {
     }
 
     closeAction = () => {
-        this.setExchangeStatus(this.state.api, this.state.orderHash, 'CLOSE')
+        if (this.state.additionalData.close) {
+            this.setExchangeStatus(this.state.api, this.state.orderHash, 'CLOSE')
+        }
         NavStore.reset('DashboardStack')
     }
 
     backAction = () => {
-        this.setExchangeStatus(this.state.api, this.state.orderHash, 'BACK')
+        if (this.state.additionalData.close) {
+            this.setExchangeStatus(this.state.api, this.state.orderHash, 'BACK')
+        }
         NavStore.goBack()
     }
 
