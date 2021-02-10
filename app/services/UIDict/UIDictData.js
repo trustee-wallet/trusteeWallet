@@ -230,6 +230,12 @@ export default {
             darkColor: '#C0C0C0'
         }
     },
+    "XLM": {
+        colors: {
+            mainColor: '#181818',
+            darkColor: '#F2F2F2'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',

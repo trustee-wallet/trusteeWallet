@@ -74,7 +74,8 @@ class Skip extends Component {
                 type: 'INFO_MODAL',
                 icon: true,
                 title: strings('modal.walletBackup.success'),
-                description: strings('modal.walletBackup.walletCreated')
+                description: strings('modal.walletBackup.walletCreated'),
+                noBackdropPress: true
             }, async () => {
                 if (callback === null) {
                     NavStore.reset('DashboardStack')
