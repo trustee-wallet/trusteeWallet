@@ -510,7 +510,7 @@ class MainV3DataScreen extends Component {
                     card_details_json: cardData.cardDetailsJson
                 }]
             })
-            Log.log('Trade/MainV3DataScreen save cardData' + cardData)
+            Log.log('Trade/MainV3DataScreen save cardData' + JSON.stringify(cardData))
         }
         if (cardData.type === 'visa' || cardData.type === 'mastercard' || cardData.type === 'mir' || cardData.type === 'maestro') {
             await this._verifyCard(cardData)
@@ -613,8 +613,8 @@ class MainV3DataScreen extends Component {
         let cardStatus = cacheJson
         let card
         if (typeof cacheJson === 'undefined' || !cacheJson) {
-            card = await cardDS.getCards({ number: cardData.number })
-            cardStatus = JSON.parse(card.cardVerificationJson)
+            card = await cardDS.getCards({ number: numberCard })
+            cardStatus = JSON.parse(card[0].cardVerificationJson)
         }
 
         if (cardStatus.verificationStatus === 'SUCCESS' || cardStatus.verificationStatus === 'CANCELED') {
@@ -681,7 +681,7 @@ class MainV3DataScreen extends Component {
                 addressTo: addressToForTransferAll
             })
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
-            this.webref.postMessage(JSON.stringify({ fees: { countedFees: 'notUsedNotPassed', selectedFee: 'notUsedNotPassed', amount } }))
+            this.webref.postMessage(JSON.stringify({ fees: { countedFees: 'notUsedNotPassed', selectedFee: 'notUsedNotPassed', amount: amount ? amount : 0 } }))
             return {
                 currencyBalanceAmount: amount,
                 currencyBalanceAmountRaw: transferBalance
