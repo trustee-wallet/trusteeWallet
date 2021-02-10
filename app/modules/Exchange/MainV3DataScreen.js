@@ -191,7 +191,7 @@ class MainV3DataScreen extends Component {
 
         try {
             Log.log('Exchange/MainV3Screen dataExchange', data)
-            
+
             const bseOrderData = {
                 amountReceived: null,
                 depositAddress: data.address,
@@ -213,7 +213,7 @@ class MainV3DataScreen extends Component {
                     uiType: 'TRADE_SEND',
                     uiApiVersion: 'v3',
                     uiProviderType: data.providerType, // 'FIXED' || 'FLOATING'
-                    uiInputAddress: true
+                    uiInputAddress: typeof data.address !== 'undefined' && data.address && data.address !== ''
                 },
                 addData: {
                     gotoReceipt: true,

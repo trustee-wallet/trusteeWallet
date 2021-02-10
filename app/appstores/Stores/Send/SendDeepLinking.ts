@@ -68,6 +68,7 @@ export namespace SendDeepLinking {
                         },
                         addData: {
                             gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
+                            uiInputAddress: typeof parsed.address !== 'undefined' && parsed.address && parsed.address !== '',
                             comment : parsed.label || ''
                         }
                     })

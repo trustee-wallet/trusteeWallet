@@ -346,7 +346,7 @@ class MainV3DataScreen extends Component {
                     uiType: 'TRADE_SEND',
                     uiApiVersion: 'v3',
                     uiProviderType: data.providerType, // 'FIXED' || 'FLOATING'
-                    uiInputAddress: true
+                    uiInputAddress: typeof data.address !== 'undefined' && data.address && data.address !== ''
                 },
                 addData: {
                     gotoReceipt: true,
@@ -363,7 +363,7 @@ class MainV3DataScreen extends Component {
                 bseOrderId: data.orderHash || data.orderId,
                 bseMinCrypto : minCrypto,
                 bseTrusteeFee : {
-                    value : trusteeFee.trusteeFee, 
+                    value : trusteeFee.trusteeFee,
                     currencyCode : trusteeFee.currencyCode,
                     type : 'SELL',
                     from : data.currencyCode,
