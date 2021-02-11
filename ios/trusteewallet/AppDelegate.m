@@ -13,7 +13,6 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 #import <React/RCTLinkingManager.h>
-#import <FBSDKCoreKit/FBSDKCoreKit.h>
 #import "Orientation.h"
 
 @implementation AppDelegate
@@ -28,14 +27,12 @@
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions{
-  
-  [[FBSDKApplicationDelegate sharedInstance] application:application
-  didFinishLaunchingWithOptions:launchOptions];
-  
+
+
   [FIROptions defaultOptions].deepLinkURLScheme = @"com.trusteewallet";
   [FIRApp configure];
   // [RNFirebaseNotifications configure];
-  
+
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"TrusteeWallet"
@@ -48,9 +45,7 @@
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
-  
-  [FBSDKSettings setAutoLogAppEventsEnabled:YES];
-  [FBSDKSettings setAdvertiserIDCollectionEnabled:YES];
+
 
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
@@ -83,11 +78,7 @@ willPresentNotification:(UNNotification *)notification
     if (!handledLink) {
         handledLink = [RCTLinkingManager application:application openURL:url options:options];
     }
-  
-    if ([[FBSDKApplicationDelegate sharedInstance] application:application openURL:url options:options]) {
-      return YES;
-    }
-  
+
     return handledLink;
 }
 
