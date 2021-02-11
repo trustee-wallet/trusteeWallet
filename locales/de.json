@@ -50,7 +50,7 @@
   "homeScreen": {
     "balance": "Balance",
     "unconfirmed" : "Unconfirmed",
-    "today": "Today",
+    "today": "Heute",
     "changedLastDay": "In the last 24 hours",
     "synchronizing": "Synchronization"
   },
@@ -253,7 +253,7 @@
     },
     "assets": {
       "title": "Assets management",
-      "addAsset": "Add asset"
+      "addAsset": "Asset hinzufügen"
     },
     "other": {
       "title": "Other",

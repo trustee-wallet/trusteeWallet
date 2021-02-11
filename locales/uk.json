@@ -1306,7 +1306,11 @@
       "ru-RU": "Русский",
       "en-US": "English",
       "uk-UA": "Українська",
-      "ru-UA": "Українська"
+      "ru-UA": "Українська",
+      "ka-GE" : "Georgian",
+      "de-DE" : "German",
+      "es-ES" : "Spanish",
+      "fr-FR" : "French"
     }
   },
    "scannerSettings": {

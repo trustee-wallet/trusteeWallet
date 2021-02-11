@@ -28,6 +28,18 @@ const config = {
             },
             {
                 code: 'uk-UA'
+            },
+            {
+                code: 'ka-GE'
+            },
+            {
+                code : 'de-DE'
+            },
+            {
+                code: 'es-ES'
+            },
+            {
+                code : 'fr-FR'
             }
         ]
     },
