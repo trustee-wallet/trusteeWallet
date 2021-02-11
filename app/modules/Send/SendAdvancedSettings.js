@@ -425,7 +425,7 @@ class SendAdvancedSettingsScreen extends Component {
                                 <ListItem
                                     title={strings('send.setting.selectFee')}
                                     iconType="fee"
-                                    onPress={uiInputAddress === true ? this.toggleDropMenu : this.toggleNotAddress}
+                                    onPress={uiInputAddress !== false && uiInputAddress !== '' ? this.toggleDropMenu : this.toggleNotAddress}
                                     rightContent={dropMenu ? 'arrow_up' : "arrow_down"}
                                     switchParams={{ value: dropMenu, onPress: this.toggleDropMenu }}
                                     type={'dropdown'}
