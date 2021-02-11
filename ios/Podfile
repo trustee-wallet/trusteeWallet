@@ -4,12 +4,6 @@ permissions_path = '../node_modules/react-native-permissions/ios'
 
 target 'TrusteeWallet' do
   # Pods for TrusteeWallet
-  pod 'FacebookSDK'
-  pod 'FBSDKCoreKit'
-  pod 'FBSDKLoginKit'
-  pod 'FBSDKShareKit'
-  pod 'FBSDKPlacesKit'
-  pod 'FBSDKMessengerShareKit'
   pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "../node_modules/react-native/Libraries/FBReactNativeSpec"
   pod 'RCTRequired', :path => "../node_modules/react-native/Libraries/RCTRequired"
