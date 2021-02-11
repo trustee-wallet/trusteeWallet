@@ -189,7 +189,7 @@ export default new class AppNotificationListener {
         await settingsActions.setSettings('notifsSavedToken', '')
     }
 
-    async getToken(): Promise<void> {
+    async getToken(): Promise<string | null> {
         let fcmToken: string | null = await AsyncStorage.getItem(ASYNC_CACHE_TITLE)
         // @ts-ignore
         let time: number = 1 * (await AsyncStorage.getItem(ASYNC_CACHE_TIME))
@@ -253,6 +253,7 @@ export default new class AppNotificationListener {
             }
             await Log.log('PUSH getToken error ' + e.message)
         }
+        return fcmToken
     }
 
     async requestPermission(): Promise<boolean> {

@@ -14,19 +14,20 @@ import AppNotificationListener from '../AppNotification/AppNotificationListener'
 import ApiV3 from './ApiV3'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import customCurrencyDS from '../../appstores/DataSource/CustomCurrency/CustomCurrency'
+import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 
 async function _getAll(params) {
     const { mode: exchangeMode } = config.exchange
-    const link = config.proxy.apiEndpoints.baseURL + `/all?exchangeMode=${exchangeMode}`
 
     let deviceToken = MarketingEvent.DATA.LOG_TOKEN
-    if (!deviceToken) {
-        await AppNotificationListener.getToken()
-        deviceToken = MarketingEvent.DATA.LOG_TOKEN
+    if (!deviceToken || deviceToken === null || deviceToken === '') {
+        deviceToken = await AppNotificationListener.getToken()
     }
-    if (!deviceToken || deviceToken === null) {
+    if (!deviceToken || deviceToken === null || deviceToken === '') {
         deviceToken = 'NO_GOOGLE_AS_NULL_' + (new Date().getTime()) + '_' + (Math.ceil(Math.random() * 100000))
     }
+    const link = config.proxy.apiEndpoints.baseURL + `/all?exchangeMode=${exchangeMode}&uid=${deviceToken}`
+
     const time = typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false
     const signedData = await CashBackUtils.createWalletSignature(true, time)
     if (!signedData) {
@@ -93,6 +94,15 @@ async function _getAll(params) {
         if (typeof all.data.data.forCustomTokensOk !== 'undefined' && all.data.data.forCustomTokensOk && all.data.data.forCustomTokensOk.length > 0) {
             await customCurrencyDS.savedCustomCurrenciesForApi(all.data.data.forCustomTokensOk)
         }
+        let msg = ''
+        msg += 'ApiProxy._getAll feesHash ' + (all.data.data.feesHash || 'none')
+        msg += ' ratesHash ' + (all.data.data.ratesHash || 'none')
+        msg += ' newsHash ' + (all.data.data.newsHash || 'none')
+        msg += ' cbOrdersHash ' + (all.data.data.cbOrdersHash || 'none')
+        msg += ' cbDataHash ' + (all.data.data.cbDataHash || 'none')
+        await BlocksoftCryptoLog.log(msg)
+    } else {
+        await BlocksoftCryptoLog.log('ApiProxy._getAll no data')
     }
     return all
 }
