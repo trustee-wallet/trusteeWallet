@@ -29,7 +29,7 @@ export default class TrxTronscanProvider {
                 const voteTotal = typeof CACHE_TRONSCAN[address].voteTotal !== 'undefined' ? CACHE_TRONSCAN[address].voteTotal : 0
                 return { balance: CACHE_TRONSCAN[address][tokenName], voteTotal, frozen, frozenEnergy, unconfirmed : 0, provider: 'tronscan-cache' }
             } else if (tokenName !== '_') {
-                return { balance: 0, unconfirmed : 0, provider: 'tronscan-cache' }
+                return false
             }
         }
 
@@ -52,17 +52,24 @@ export default class TrxTronscanProvider {
         let token
         if (res.data.tokenBalances) {
             for (token of res.data.tokenBalances) {
-                CACHE_TRONSCAN[address][token.name] = token.balance
+                const id = typeof token.name !== 'undefined' ? token.name : token.tokenId
+                CACHE_TRONSCAN[address][id] = token.balance
             }
         }
+
         if (res.data.trc20token_balances) {
             for (token of res.data.trc20token_balances) {
-                CACHE_TRONSCAN[address][token.tokenId] = token.balance
+                const id = typeof token.name !== 'undefined' ? token.name : token.tokenId
+                CACHE_TRONSCAN[address][id] = token.balance
             }
         }
 
         if (typeof CACHE_TRONSCAN[address][tokenName] === 'undefined') {
-            return 0
+            if (tokenName.indexOf('T') === 0) {
+                return 0
+            } else {
+                return false
+            }
         }
 
         const balance = CACHE_TRONSCAN[address][tokenName]
