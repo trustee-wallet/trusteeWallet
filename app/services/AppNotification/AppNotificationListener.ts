@@ -33,6 +33,7 @@ export default new class AppNotificationListener {
     private messageListener: any
     private inited: boolean = false
     private initing: number = 0
+    private timer : any
 
     async init(): Promise<void> {
         const now = new Date().getTime()
@@ -188,7 +189,14 @@ export default new class AppNotificationListener {
     async updateSubscriptionsLater(): Promise<void> {
         await Log.log('PUSH updateSubscriptionsLater')
         await settingsActions.setSettings('notifsSavedToken', '')
-        setTimeout(() => {
+        try {
+            if (this.timer) {
+                clearTimeout(this.timer)
+            }
+        } catch (e) {
+            await Log.log('PUSH updateSubscriptionsLater timer clean error ' + e.message)
+        }
+        this.timer = setTimeout(() => {
             this.updateSubscriptions()
         }, 2000)
     }
