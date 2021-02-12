@@ -28,6 +28,8 @@ export default class TrxTrongridProvider {
                 const frozen = typeof CACHE_TRONGRID[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozen'] : 0
                 const frozenEnergy = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] : 0
                 return { balance: CACHE_TRONGRID[address][tokenName], voteTotal, frozen, frozenEnergy, unconfirmed: 0, provider: 'trongrid-cache' }
+            } else if (tokenName !== '_') {
+                return { balance: 0, unconfirmed : 0, provider: 'trongrid-cache' }
             }
         }
 
@@ -56,7 +58,7 @@ export default class TrxTrongridProvider {
         }
 
         if (typeof CACHE_TRONGRID[address][tokenName] === 'undefined') {
-            return false
+            return 0
         }
 
         const balance = CACHE_TRONGRID[address][tokenName]

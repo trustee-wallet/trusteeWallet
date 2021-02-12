@@ -28,6 +28,8 @@ export default class TrxTronscanProvider {
                 const frozenEnergy = typeof CACHE_TRONSCAN[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozenEnergy'] : 0
                 const voteTotal = typeof CACHE_TRONSCAN[address].voteTotal !== 'undefined' ? CACHE_TRONSCAN[address].voteTotal : 0
                 return { balance: CACHE_TRONSCAN[address][tokenName], voteTotal, frozen, frozenEnergy, unconfirmed : 0, provider: 'tronscan-cache' }
+            } else if (tokenName !== '_') {
+                return { balance: 0, unconfirmed : 0, provider: 'tronscan-cache' }
             }
         }
 
@@ -60,7 +62,7 @@ export default class TrxTronscanProvider {
         }
 
         if (typeof CACHE_TRONSCAN[address][tokenName] === 'undefined') {
-            return false
+            return 0
         }
 
         const balance = CACHE_TRONSCAN[address][tokenName]
