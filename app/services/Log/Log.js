@@ -283,7 +283,7 @@ class Log {
             return true
         }
 
-        let msg = `FRNT_SEPT_${this.DATA.LOG_VERSION} ${LOG_SUBTYPE}` + '\n' + date + line + '\n'
+        let msg = `FRNT_2021_02_${this.DATA.LOG_VERSION} ${LOG_SUBTYPE}` + '\n' + date + line + '\n'
         msg += this.TG_MSG
 
         try {
@@ -295,9 +295,9 @@ class Log {
 
             if (!config.debug.appErrors) {
                 if (typeof crashlytics().recordError !== 'undefined') {
-                    crashlytics().recordError(new Error('CRPT_SEPT ' + line))
+                    crashlytics().recordError(new Error('FRNT_2021_02 ' + line))
                 } else {
-                    crashlytics().log('FRNT_SEPT ' + line)
+                    crashlytics().log('FRNT_2021_02 ' + line)
                     crashlytics().crash()
                 }
             }

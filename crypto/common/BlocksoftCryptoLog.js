@@ -148,18 +148,18 @@ class BlocksoftCryptoLog {
             return true
         }
 
-        let msg = `CRPT_SEPT_${this.DATA.LOG_VERSION}` + '\n' + date + line + '\n'
+        let msg = `CRPT_2021_02_${this.DATA.LOG_VERSION}` + '\n' + date + line + '\n'
         if (msg) {
             msg += this.TG_MSG
         }
 
         try {
-            await this.FS.writeLine('CRPT_SEPT ' + line)
+            await this.FS.writeLine('CRPT_2021_02 ' + line)
             if (!config.debug.cryptoErrors) {
                 if (typeof crashlytics().recordError !== 'undefined') {
-                    crashlytics().recordError(new Error('CRPT_SEPT ' + line))
+                    crashlytics().recordError(new Error('CRPT_2021_02 ' + line))
                 } else {
-                    crashlytics().log('CRPT_SEPT ' + line)
+                    crashlytics().log('CRPT_2021_02 ' + line)
                     crashlytics().crash()
                 }
             }

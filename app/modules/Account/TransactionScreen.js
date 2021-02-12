@@ -90,91 +90,93 @@ class TransactionScreen extends Component {
         }
     }
 
-    // @ksu this is bugplace plz see
     async UNSAFE_componentWillMount() {
-        const data = this.props.navigation.getParam('txData')
+        try {
+            const data = this.props.navigation.getParam('txData')
 
-        let { transactionHash, orderHash, walletHash, transaction, notification, toOpenAccountBack } = data
-        let tx
-        let account
-        let currencyCode
+            let { transactionHash, orderHash, walletHash, transaction, notification, toOpenAccountBack } = data
+            let tx
+            let account
+            let currencyCode
 
 
-        if (!transaction) {
-            if (typeof walletHash === 'undefined' || !walletHash) {
-                const wallet = store.getState().mainStore.selectedWallet
-                walletHash = wallet.walletHash
-            }
-
-            // @yura this is bugplace plz see
-            account = store.getState().accountStore.accountList[walletHash]
-            if (transactionHash) {
-                try {
-                    const tmp = await transactionDS.getTransactions({
-                        walletHash,
-                        transactionHash
-                    }, 'TransactionScreen.init with transactionHash ' + transactionHash)
-                    if (tmp) {
-                        // if you need = add also transactionActions.preformat for basic rates
-                        currencyCode = tmp[0].currencyCode
-                        account = account[currencyCode]
-                        tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData)
-                    } else {
-                        tx = transactionActions.preformatWithBSEforShow( false,{ orderHash, createdAt : notification.createdAt })
-                    }
-                } catch (e) {
-                    Log.log('TransactionScreen.init with transactionHash error  ' + e)
+            if (!transaction) {
+                if (typeof walletHash === 'undefined' || !walletHash) {
+                    const wallet = store.getState().mainStore.selectedWallet
+                    walletHash = wallet.walletHash
                 }
-            } else if (orderHash) {
-                try {
-                    const tmp = await transactionDS.getTransactions({
-                        bseOrderHash: orderHash
-                    }, 'TransactionScreen.init with orderHash ' + orderHash)
-                    if (tmp) {
-                        // if you need = add also transactionActions.preformat for basic rates
-                        currencyCode = tmp[0].currencyCode
-                        account = account[currencyCode]
-                        tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData)
-                    } else {
-                        const exchangeOrder = await UpdateTradeOrdersDaemon.fromApi(walletHash, orderHash)
-                        if (exchangeOrder) {
-                            // basic object for order without transaction
-                            tx = transactionActions.preformatWithBSEforShow(false, exchangeOrder)
+
+                account = store.getState().accountStore.accountList[walletHash]
+                if (transactionHash) {
+                    try {
+                        const tmp = await transactionDS.getTransactions({
+                            walletHash,
+                            transactionHash
+                        }, 'TransactionScreen.init with transactionHash ' + transactionHash)
+                        if (tmp) {
+                            // if you need = add also transactionActions.preformat for basic rates
+                            currencyCode = tmp[0].currencyCode
+                            account = account[currencyCode]
+                            tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData)
                         } else {
-                            // do some alert as nothing found
+                            tx = transactionActions.preformatWithBSEforShow(false, { orderHash, createdAt: notification.createdAt })
                         }
+                    } catch (e) {
+                        Log.log('TransactionScreen.init with transactionHash error  ' + e)
                     }
-                } catch (e) {
-                    Log.log('TransactionScreen.init with orderHash error  ' + e)
+                } else if (orderHash) {
+                    try {
+                        const tmp = await transactionDS.getTransactions({
+                            bseOrderHash: orderHash
+                        }, 'TransactionScreen.init with orderHash ' + orderHash)
+                        if (tmp) {
+                            // if you need = add also transactionActions.preformat for basic rates
+                            currencyCode = tmp[0].currencyCode
+                            account = account[currencyCode]
+                            tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData)
+                        } else {
+                            const exchangeOrder = await UpdateTradeOrdersDaemon.fromApi(walletHash, orderHash)
+                            if (exchangeOrder) {
+                                // basic object for order without transaction
+                                tx = transactionActions.preformatWithBSEforShow(false, exchangeOrder)
+                            } else {
+                                // do some alert as nothing found
+                            }
+                        }
+                    } catch (e) {
+                        Log.log('TransactionScreen.init with orderHash error  ' + e)
+                    }
+                } else {
+                    Log.log('WTF?')
                 }
+                Log.log('TransactionScreen.tx search result ', JSON.parse(JSON.stringify(tx)))
             } else {
-                Log.log('WTF?')
+                tx = transaction
+                currencyCode = transaction.currencyCode
             }
-            Log.log('TransactionScreen.tx search result ', JSON.parse(JSON.stringify(tx)))
-        } else {
-            tx = transaction
-            currencyCode = transaction.currencyCode
-        }
 
-        const { cryptoCurrency } = SendActions.findWalletPlus(currencyCode)
+            const { cryptoCurrency } = SendActions.findWalletPlus(currencyCode)
 
-        this.init(tx, cryptoCurrency)
+            this.init(tx, cryptoCurrency)
 
-        if (typeof notification !== 'undefined') {
-            this.setState(() => ({
-                transaction: tx,
-                account,
-                notification,
-                cryptoCurrency,
-                toOpenAccountBack
-            }))
-        } else {
-            this.setState(() => ({
-                transaction: tx,
-                account,
-                cryptoCurrency,
-                toOpenAccountBack
-            }))
+            if (typeof notification !== 'undefined') {
+                this.setState(() => ({
+                    transaction: tx,
+                    account,
+                    notification,
+                    cryptoCurrency,
+                    toOpenAccountBack
+                }))
+            } else {
+                this.setState(() => ({
+                    transaction: tx,
+                    account,
+                    cryptoCurrency,
+                    toOpenAccountBack
+                }))
+            }
+        } catch (e) {
+            throw new Error(e.message + ' in TransactionScreen.UNSAFE_componentWillMount')
         }
 
     }

@@ -196,7 +196,7 @@ class MarketingEvent {
         }
 
         try {
-            await this.TG.send(PREFIX + `_sept_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
+            await this.TG.send(PREFIX + `_2021_02_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
         } catch (e) {
             await Log.err(`DMN/MarketingEvent send TG error ${logTitle} ` + e.message.toString() + ' with logData ' + JSON.stringify(logData))
         }
