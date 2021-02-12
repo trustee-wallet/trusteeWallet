@@ -82,7 +82,7 @@ export default new class AppNotificationListener {
 
     async _subscribe(topic: string, locale: string, isDev: boolean): Promise<void> {
         const { languageList } = config.language
-        Log.log('PUSH subscribe ' + topic + ' started')
+        Log.log('PUSH subscribe ' + topic + ' started ' + locale)
 
         for (const lang of languageList) {
             const sub = sublocale(lang.code)
@@ -140,7 +140,7 @@ export default new class AppNotificationListener {
             await Log.log('PUSH rmvOld finished')
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('PUSH rmvOld error ' + e.message)
+                Log.log('PUSH rmvOld error ' + e.message)
             }
         }
     }
@@ -155,7 +155,8 @@ export default new class AppNotificationListener {
             return
         }
         const notifsStatus = settings && typeof settings.notifsStatus !== 'undefined' && settings.notifsStatus ? settings.notifsStatus : '1'
-        const locale: string = sublocale()
+        const locale = settings && typeof settings.language !== 'undefined' && settings.language ? sublocale(settings.language) : sublocale()
+        Log.log('settings ' + settings.language + ' locale ' + locale)
         const devMode = await AsyncStorage.getItem('devMode')
         const isDev = devMode && devMode.toString() === '1'
 
@@ -187,6 +188,9 @@ export default new class AppNotificationListener {
     async updateSubscriptionsLater(): Promise<void> {
         await Log.log('PUSH updateSubscriptionsLater')
         await settingsActions.setSettings('notifsSavedToken', '')
+        setTimeout(() => {
+            this.updateSubscriptions()
+        }, 2000)
     }
 
     async getToken(): Promise<string | null> {
@@ -206,6 +210,7 @@ export default new class AppNotificationListener {
         }
 
         const notifsSavedToken = await settingsActions.getSetting('notifsSavedToken')
+        const notifsRmvOld = await settingsActions.getSetting('notifsRmvOld')
 
         // Log.log('notifsSavedToken', notifsSavedToken)
         try {
@@ -215,10 +220,13 @@ export default new class AppNotificationListener {
                 }
                 try {
                     fcmToken = await messaging().getToken()
-                    await this.rmvOld(fcmToken)
+                    if (!notifsRmvOld && fcmToken) {
+                        await this.rmvOld(fcmToken)
+                        await settingsActions.setSettings('notifsRmvOld', '1')
+                    }
                 } catch (e) {
                     if (config.debug.appErrors) {
-                        console.log('PUSH getToken fcmToken error ' + e.message)
+                        Log.log('PUSH getToken fcmToken error ' + e.message)
                     }
                     await Log.log('PUSH getToken fcmToken error ' + e.message)
                 }
@@ -229,7 +237,7 @@ export default new class AppNotificationListener {
                         fcmToken = await messaging().getToken()
                     } catch (e) {
                         if (config.debug.appErrors) {
-                            console.log('PUSH getToken fcmToken error ' + e.message)
+                            Log.log('PUSH getToken fcmToken error ' + e.message)
                         }
                         await Log.log('PUSH getToken fcmToken error ' + e.message)
                         if (e.message.indexOf('MISSING_INSTANCEID_SERVICE') !== -1) {
@@ -242,14 +250,14 @@ export default new class AppNotificationListener {
                 await this._onRefresh(fcmToken)
                 await AsyncStorage.setItem(ASYNC_CACHE_TIME, now + '')
             } else {
-                // console.log('PUSH getToken1 cache result ', fcmToken)
+                // Log.log('PUSH getToken1 cache result ', fcmToken)
             }
 
             // @ts-ignore
             MarketingEvent.DATA.LOG_TOKEN = fcmToken
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('PUSH getToken error ' + e.message)
+                Log.log('PUSH getToken error ' + e.message)
             }
             await Log.log('PUSH getToken error ' + e.message)
         }
