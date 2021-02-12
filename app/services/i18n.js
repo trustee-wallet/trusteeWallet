@@ -53,15 +53,19 @@ export function sublocale(locale) {
 }
 
 function setupMoment() {
-    const subloc = sublocale()
-    moment.locale(subloc, {
-        calendar: {
-            lastDay: `[${strings('notifications.yesterday')}]`,
-            sameDay: `[${strings('notifications.today')}]`,
-            lastWeek: subloc === 'en' ? 'MMM DD, YYYY' : 'MMMM DD, YYYY',
-            sameElse: subloc === 'en' ? 'MMM DD, YYYY' : 'MMMM DD, YYYY',
-        }
-    })
+    try {
+        const subloc = sublocale()
+        moment.locale(subloc, {
+            calendar: {
+                lastDay: `[${strings('notifications.yesterday')}]`,
+                sameDay: `[${strings('notifications.today')}]`,
+                lastWeek: subloc === 'en' ? 'MMM DD, YYYY' : 'MMMM DD, YYYY',
+                sameElse: subloc === 'en' ? 'MMM DD, YYYY' : 'MMMM DD, YYYY',
+            }
+        })
+    } catch (e) {
+        throw new Error(e.message + ' in setupMoment')
+    }
 }
 setupMoment()
 
