@@ -187,7 +187,7 @@ class MarketingEvent {
             return false
         }
 
-        if (PREFIX !== 'RTM' && PREFIX !== 'SPM') {
+        if (PREFIX !== 'RTM') {
             try {
                 await analytics().logEvent(logTitle.replace(' ', '_'), logData)
             } catch (e) {
