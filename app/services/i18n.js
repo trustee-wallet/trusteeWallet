@@ -44,7 +44,9 @@ export function sublocale(locale) {
         locale = i18n.locale
     }
     let sub = locale.split('-')[0]
-    if (sub !== 'uk' && sub !== 'ru' && sub !== 'ka' && sub !== 'de' && sub !== 'es' && sub !== 'fr') {
+    if (sub !== 'uk' && sub !== 'ru' && sub !== 'ka'
+        // && sub !== 'de' && sub !== 'es' && sub !== 'fr' // @todo de/es/fr languages
+    ) {
         sub = 'en'
     }
     return sub

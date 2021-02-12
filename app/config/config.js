@@ -31,7 +31,9 @@ const config = {
             },
             {
                 code: 'ka-GE'
-            },
+            }
+            /*
+            @todo de/es/fr languages
             {
                 code : 'de-DE'
             },
@@ -41,6 +43,7 @@ const config = {
             {
                 code : 'fr-FR'
             }
+            */
         ]
     },
     scanner: {
