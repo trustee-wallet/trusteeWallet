@@ -902,7 +902,8 @@
       "SERVER_RESPONSE_BAD_DESTINATION": "მიმღების მისამართი არავალიდურია",
       "SERVER_RESPONSE_BAD_SEND_NODE": "არა არის წვდომა გაგზავნის სერვერთან",
       "SERVER_RESPONSE_DOUBLE_SPEND": "გთხოვთ, თავიდან შექმნათ ტრანზაქცია, რადგან მიმდინარე იყენებს შესვლის მოძველებულ მეთოდებს ან დაელოდეთ სხვა ტრანზაქციების დადასტურებას ",
-      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP": "დასაჩქარებელი ტრანზაქცია ვერ მოიძებნა"
+      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP": "დასაჩქარებელი ტრანზაქცია ვერ მოიძებნა",
+      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient balance for fee / bandwith limit is over"
     }
   },
   "walletBackup": {

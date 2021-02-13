@@ -45,13 +45,39 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             return result
         }
         try {
-            const res = await BlocksoftAxios.getWithoutBraking('https://apilist.tronscan.org/api/account?address=' + data.addressTo)
-            // @ts-ignore
-            if (res.data.bandwidth.freeNetRemaining.toString() === '0') {
+            const link = 'https://apilist.tronscan.org/api/account?address=' + data.addressTo
+            const res = await BlocksoftAxios.getWithoutBraking(link)
+            let feeForTx = 0
+            if (this._tokenName[0] === 'T') {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate result ' + link, res.data.bandwidth )
+                if (res.data.bandwidth.freeNetRemaining.toString() === '0') {
+                    feeForTx = 48300
+                } else {
+                    const diffB = 345 - res.data.bandwidth.freeNetRemaining.toString() * 1
+                    if (diffB > 0) {
+                        feeForTx = 48300
+                    }
+                }
+                if (res.data.bandwidth.energyRemaining.toString() === '0') {
+                    feeForTx = feeForTx * 1 + 2048340
+                } else {
+                    const diffE = 14631 - res.data.bandwidth.energyRemaining.toString() * 1
+                    if (diffE > 0) {
+                        feeForTx = feeForTx * 1 + 2048340
+                    }
+                }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate feeForTx ' + feeForTx)
+            } else {
+                // @ts-ignore
+                if (res.data.bandwidth.freeNetRemaining.toString() === '0') {
+                    feeForTx = 100000
+                }
+            }
+            if (feeForTx !== 0) {
                 result.fees = [
                     {
                         langMsg: 'xrp_speed_one',
-                        feeForTx: '100000',
+                        feeForTx: Math.round(feeForTx).toString(),
                         amountForTx: data.amount
                     }
                 ]
@@ -66,7 +92,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: { estimatedGas?: number, gasPrice?: number[], balance?: string } = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
         const balance = data.amount
         // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
         // noinspection EqualityComparisonWithCoercionJS
         if (balance === '0') {
             return {
@@ -107,7 +133,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             throw new Error('SERVER_RESPONSE_SELF_TX_FORBIDDEN')
         }
 
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx started')
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx started')
 
         let tx
         if (typeof data.blockchainData !== 'undefined' && data.blockchainData) {
@@ -158,7 +184,15 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     params.asset_name = '0x' + Buffer.from(this._tokenName).toString('hex')
                     link = this._tronNodePath + '/wallet/transferasset'
                 }
-                res = await BlocksoftAxios.post(link, params)
+                try {
+                    res = await BlocksoftAxios.post(link, params)
+                } catch (e) {
+                    if (e.message.indexOf('timeout of') !== -1 || e.message.indexOf('network') !== -1) {
+                        throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+                    } else {
+                        throw e
+                    }
+                }
             }
 
             // @ts-ignore
@@ -196,21 +230,30 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
         }
 
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx tx', tx)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx tx', tx)
 
         tx.signature = [TronUtils.ECKeySign(Buffer.from(tx.txID, 'hex'), Buffer.from(privateData.privateKey, 'hex'))]
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx signed', tx)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx signed', tx)
 
         const send = await BlocksoftAxios.post(this._tronNodePath + '/wallet/broadcasttransaction', tx)
         // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx broadcast', send.data)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx broadcast', send.data)
 
         // @ts-ignore
         if (!send.data) {
             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
         }
+        if (typeof send.data.code !== 'undefined') {
+            if (send.data.code === 'BANDWITH_ERROR') {
+                throw new Error('SERVER_RESPONSE_BANDWITH_ERROR_TRX')
+            } else if (send.data.code === 'SERVER_BUSY') {
+                throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+            }
+        }
+
         // @ts-ignore
         if (typeof send.data.Error !== 'undefined') {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx broadcast error', send.data.Error)
             // @ts-ignore
             throw new Error(send.data.Error)
         }
