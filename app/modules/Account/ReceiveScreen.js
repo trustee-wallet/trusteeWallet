@@ -317,7 +317,7 @@ class ReceiveScreen extends Component {
                                         hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
                                     >
                                         {isBalanceVisible ? 
-                                            <LetterSpacing text={sumPrep} textStyle={{...styles.accountDetail__text, color: '#999999', height: Platform.OS === 'ios' ? 15 : 18}} letterSpacing={1} /> : 
+                                            <LetterSpacing text={sumPrep} textStyle={{ ...styles.accountDetail__text, color: '#999999', height: Platform.OS === 'ios' ? 15 : 18, fontSize: 14}} letterSpacing={1} /> : 
                                                 <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, height: Platform.OS === 'ios' ? 15 : 18, fontSize: 24 }}>
                                                 ****</Text>
                                         }

@@ -132,11 +132,11 @@ class SendScreen extends SendBasicScreenScreen {
         this.addressInput = React.createRef()
         this.memoInput = React.createRef()
         this.valueInput = React.createRef()
-        this.getBalanceVisibility()
     }
 
     // eslint-disable-next-line camelcase
     UNSAFE_componentWillMount() {
+        this.getBalanceVisibility()
         AsyncStorage.getItem('sendInputType').then(res => {
             if (res !== null) {
                 this.setState({
