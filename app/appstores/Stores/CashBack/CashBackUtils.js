@@ -1,6 +1,8 @@
 /**
  * @version 0.11
  */
+import { Linking } from 'react-native'
+
 import AsyncStorage from '@react-native-community/async-storage'
 
 import dynamicLinks from '@react-native-firebase/dynamic-links'
@@ -14,6 +16,7 @@ import CashBackActions from './CashBackActions'
 import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 import BlocksoftKeysStorage from '../../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
+const NativeLinking = require('../../../../node_modules/react-native/Libraries/Linking/NativeLinking').default
 const CACHE_PARENT_TITLE = 'parentTokenRechecked'
 
 export default new class CashBackUtils {
@@ -33,11 +36,20 @@ export default new class CashBackUtils {
         let firebaseUrl = false
         try {
             firebaseUrl = await dynamicLinks().getInitialLink()
-            await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() ' + JSON.stringify(firebaseUrl))
-            if (typeof firebaseUrl.url !== 'undefined' && firebaseUrl.url) {
+            //await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() ' + JSON.stringify(firebaseUrl))
+
+            const tmp = Linking.getInitialURL()
+            await Log.log('SRV/CashBack init Linking.getInitialURL() ' + JSON.stringify(tmp))
+
+            const tmp2 = await NativeLinking.getInitialURL()
+            await Log.log('SRV/CashBack init NativeLinking.getInitialURL() ' + JSON.stringify(tmp2))
+
+            if (firebaseUrl && typeof firebaseUrl !== 'undefined' && typeof firebaseUrl.url !== 'undefined' && firebaseUrl.url) {
                 firebaseUrl = firebaseUrl.url
-                await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() final url ' + firebaseUrl)
+            } else if (tmp2 && typeof tmp2 !== 'undefined' && tmp2 !== '') {
+                firebaseUrl = tmp2
             }
+            await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() final url ' + firebaseUrl)
         } catch (e) {
             await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() error ' + e.message)
         }
@@ -91,11 +103,18 @@ export default new class CashBackUtils {
             try {
                 if (typeof firebaseUrl !== 'undefined' && firebaseUrl != null && firebaseUrl) {
                     MarketingEvent.logEvent('cashback_parent_link', firebaseUrl)
-                    const firebaseUrlArray = firebaseUrl.split('=')
-                    this.parentToken = firebaseUrlArray[firebaseUrlArray.length - 1]
-                    await AsyncStorage.setItem(tmpParentToken,  this.parentToken)
-                    await CashBackActions.setParentToken(this.parentToken)
-                    MarketingEvent.logEvent('cashback_parent_fire', {parent : this.parentToken})
+                    const firebaseUrlArray = firebaseUrl.split('ref=')
+                    await Log.log('SRV/CashBack init parent firebaseUrlArray ' + JSON.stringify(firebaseUrlArray))
+                    if (firebaseUrlArray.length > 1) {
+                        const tmpParent = firebaseUrlArray[firebaseUrlArray.length-1]
+                        await Log.log('SRV/CashBack init parent tmpParent ' + JSON.stringify(tmpParent))
+                        if (tmpParent) {
+                            this.parentToken = tmpParent
+                            await AsyncStorage.setItem(tmpParentToken, this.parentToken)
+                            await CashBackActions.setParentToken(this.parentToken)
+                            MarketingEvent.logEvent('cashback_parent_fire', { parent: this.parentToken })
+                        }
+                    }
                 }
             } catch (e) {
                 await Log.log('SRV/CashBack init parent error ' + e.message)
