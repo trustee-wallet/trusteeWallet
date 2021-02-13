@@ -1018,14 +1018,8 @@ class SendScreen extends SendBasicScreenScreen {
     }
 
     getBalanceVisibility = async () => {
-        try {
-            const res = await AsyncStorage.getItem('isBalanceVisible')
-            const originalVisibility = res !== null ? JSON.parse(res) : true
-
-            this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
-        } catch (e) {
-            Log.err(`AccountScreen getBalanceVisibility error ${e.message}`)
-        }
+        const originalVisibility = this.props.settingsStore.data.isBalanceVisible
+        this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
     }
 
     triggerBalanceVisibility = (value) => {
