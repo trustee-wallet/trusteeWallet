@@ -36,7 +36,7 @@ export default new class CashBackUtils {
         let firebaseUrl = false
         try {
             firebaseUrl = await dynamicLinks().getInitialLink()
-            //await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() ' + JSON.stringify(firebaseUrl))
+            await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() ' + JSON.stringify(firebaseUrl))
 
             const tmp = Linking.getInitialURL()
             await Log.log('SRV/CashBack init Linking.getInitialURL() ' + JSON.stringify(tmp))
@@ -44,10 +44,23 @@ export default new class CashBackUtils {
             const tmp2 = await NativeLinking.getInitialURL()
             await Log.log('SRV/CashBack init NativeLinking.getInitialURL() ' + JSON.stringify(tmp2))
 
-            if (firebaseUrl && typeof firebaseUrl !== 'undefined' && typeof firebaseUrl.url !== 'undefined' && firebaseUrl.url) {
-                firebaseUrl = firebaseUrl.url
+            if (firebaseUrl && typeof firebaseUrl !== 'undefined') {
+                if (typeof firebaseUrl.url !== 'undefined' && firebaseUrl.url) {
+                    firebaseUrl = firebaseUrl.url
+                }
             } else if (tmp2 && typeof tmp2 !== 'undefined' && tmp2 !== '') {
                 firebaseUrl = tmp2
+            }
+
+            if (firebaseUrl && typeof firebaseUrl !== 'undefined' && firebaseUrl !== '') {
+                await Log.log('SRV/CashBack init firebaseUrl save ' + firebaseUrl)
+                await AsyncStorage.setItem('firebaseUrl', firebaseUrl)
+            } else {
+                const tmp3 = await AsyncStorage.getItem('firebaseUrl')
+                await Log.log('SRV/CashBack init firebaseUrl from saved ' + JSON.stringify(tmp3))
+                if (tmp3 && typeof tmp3 !== 'undefined') {
+                    firebaseUrl = tmp3
+                }
             }
             await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() final url ' + firebaseUrl)
         } catch (e) {
@@ -103,7 +116,7 @@ export default new class CashBackUtils {
             try {
                 if (typeof firebaseUrl !== 'undefined' && firebaseUrl != null && firebaseUrl) {
                     MarketingEvent.logEvent('cashback_parent_link', firebaseUrl)
-                    const firebaseUrlArray = firebaseUrl.split('ref=')
+                    const firebaseUrlArray = firebaseUrl.split('=')
                     await Log.log('SRV/CashBack init parent firebaseUrlArray ' + JSON.stringify(firebaseUrlArray))
                     if (firebaseUrlArray.length > 1) {
                         const tmpParent = firebaseUrlArray[firebaseUrlArray.length-1]
