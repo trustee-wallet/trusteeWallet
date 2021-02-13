@@ -50,6 +50,7 @@ import { SendDeepLinking } from '../../appstores/Stores/Send/SendDeepLinking'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import { getVisibleCurrencies } from '../../appstores/Stores/Currency/selectors'
+import { getIsBalanceVisible } from '../../appstores/Stores/Settings/selectors'
 
 
 import NavStore from '../../components/navigation/NavStore'
@@ -59,6 +60,8 @@ import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import AppLockBlur from "../../components/AppLockBlur";
+
+import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
 let CACHE_SET_WALLET_HASH = false
 
@@ -74,7 +77,7 @@ class HomeScreen extends React.Component {
         this.state = {
             refreshing: false,
             isBalanceVisible: true,
-            originalVisibility: true,
+            originalVisibility: false,
             originalData: [],
             data: [],
             currenciesOrder: [],
@@ -83,7 +86,6 @@ class HomeScreen extends React.Component {
             hasStickyHeader: false,
             enableVerticalScroll: true
         }
-        this.getBalanceVisibility()
         this.getCurrenciesOrder()
         SendDeepLinking.init()
         SendActions.cleanData()
@@ -91,6 +93,8 @@ class HomeScreen extends React.Component {
 
     componentDidMount() {
         setLoaderStatus(false)
+        this.getBalanceVisibility()
+
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -113,15 +117,9 @@ class HomeScreen extends React.Component {
         return newState
     }
 
-    getBalanceVisibility = async () => {
-        try {
-            const res = await AsyncStorage.getItem('isBalanceVisible')
-            const isBalanceVisible = res !== null ? JSON.parse(res) : true
-
-            this.setState(() => ({ isBalanceVisible, originalVisibility: isBalanceVisible }))
-        } catch (e) {
-            Log.err(`HomeScreen getBalanceVisibility error ${e.message}`)
-        }
+    getBalanceVisibility = () => {
+        const isBalanceVisible = this.props.isBalanceVisible
+        this.setState(() => ({ isBalanceVisible, originalVisibility: isBalanceVisible }))
     }
 
     getCurrenciesOrder = async () => {
@@ -239,6 +237,7 @@ class HomeScreen extends React.Component {
     changeBalanceVisibility = async () => {
         const newVisibilityValue = !this.state.isBalanceVisible
         await AsyncStorage.setItem('isBalanceVisible', JSON.stringify(newVisibilityValue))
+        await settingsActions.getSettings()
         this.setState(() => ({ isBalanceVisible: newVisibilityValue, originalVisibility: newVisibilityValue }))
     }
 
@@ -421,6 +420,7 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         toolTipsStore: state.toolTipsStore,
         currencies: getVisibleCurrencies(state),
+        isBalanceVisible: getIsBalanceVisible(state.settingsStore)
     }
 }
 

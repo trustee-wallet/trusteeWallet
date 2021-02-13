@@ -7,6 +7,7 @@ import SettingsDS from '../../DataSource/Settings/Settings'
 
 import Log from '../../../services/Log/Log'
 import { SettingsKeystore } from './SettingsKeystore'
+import AsyncStorage from '@react-native-community/async-storage'
 
 const settingsDS = new SettingsDS()
 
@@ -50,6 +51,9 @@ const settingsActions = {
             for (key in tmpSettings) {
                 settings[key] = tmpSettings[key].paramValue
             }
+            
+            const isBalanceVisible = await AsyncStorage.getItem('isBalanceVisible')
+            settings.isBalanceVisible = isBalanceVisible ? JSON.parse(isBalanceVisible) : true
 
             if (updateStore) {
                 dispatch({
