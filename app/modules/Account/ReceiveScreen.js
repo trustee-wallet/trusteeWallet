@@ -317,8 +317,8 @@ class ReceiveScreen extends Component {
                                         hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
                                     >
                                         {isBalanceVisible ? 
-                                            <LetterSpacing text={sumPrep} textStyle={{...styles.accountDetail__text, color: '#999999', height: 14, lineHeight: 0}} letterSpacing={1} /> : 
-                                                <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, height: 14, lineHeight: 0, fontSize: 24 }}>
+                                            <LetterSpacing text={sumPrep} textStyle={{...styles.accountDetail__text, color: '#999999', height: Platform.OS === 'ios' ? 15 : 18}} letterSpacing={1} /> : 
+                                                <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, height: Platform.OS === 'ios' ? 15 : 18, fontSize: 24 }}>
                                                 ****</Text>
                                         }
                                     </TouchableOpacity>
@@ -833,7 +833,6 @@ const styles = {
     },
     accountDetail__text: {
         fontSize: 15,
-        lineHeight: 15,
         fontFamily: 'SFUIDisplay-Semibold',
     },
     backgroundAddress: {

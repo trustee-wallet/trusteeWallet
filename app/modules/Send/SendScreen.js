@@ -1553,7 +1553,7 @@ const styles = {
     },
     accountDetail__text: {
         fontSize: 14,
-        height: 14,
+        height: Platform.OS === 'ios' ? 15 : 18,
         fontFamily: 'SFUIDisplay-Semibold',
         color: '#939393'
     }
