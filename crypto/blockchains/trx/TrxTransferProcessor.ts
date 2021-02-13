@@ -45,7 +45,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             return result
         }
         try {
-            const link = 'https://apilist.tronscan.org/api/account?address=' + data.addressTo
+            const link = 'https://apilist.tronscan.org/api/account?address=' + data.addressFrom
             const res = await BlocksoftAxios.getWithoutBraking(link)
             let feeForTx = 0
             if (this._tokenName[0] === 'T') {
@@ -55,7 +55,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 } else {
                     const diffB = 345 - res.data.bandwidth.freeNetRemaining.toString() * 1
                     if (diffB > 0) {
-                        feeForTx = 48300
+                        feeForTx = BlocksoftUtils.mul(48300, BlocksoftUtils.div(diffB, 345))
                     }
                 }
                 if (res.data.bandwidth.energyRemaining.toString() === '0') {
@@ -63,7 +63,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 } else {
                     const diffE = 14631 - res.data.bandwidth.energyRemaining.toString() * 1
                     if (diffE > 0) {
-                        feeForTx = feeForTx * 1 + 2048340
+                        feeForTx = feeForTx * 1 + BlocksoftUtils.mul(2048340, BlocksoftUtils.div(diffE / 14631)) * 1
                     }
                 }
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate feeForTx ' + feeForTx)
