@@ -8,8 +8,6 @@ import { Linking, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, 
 
 import LottieView from 'lottie-react-native'
 
-
-
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import GradientView from '../../components/elements/GradientView'
@@ -94,7 +92,6 @@ class Account extends Component {
 
             headerHeight: 0
         }
-        this.getBalanceVisibility()
     }
 
     // eslint-disable-next-line camelcase
@@ -112,6 +109,7 @@ class Account extends Component {
     }
 
     async componentDidMount() {
+        this.getBalanceVisibility()
         const { currencyCode } = this.props.cryptoCurrency
         if (currencyCode === 'FIO') {
             const fioAccount = await getAccountFioName()
@@ -128,15 +126,9 @@ class Account extends Component {
         //this.ordersWithoutTransactions()
     }
 
-    getBalanceVisibility = async () => {
-        try {
-            const res = await AsyncStorage.getItem('isBalanceVisible')
-            const originalVisibility = res !== null ? JSON.parse(res) : true
-
-            this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
-        } catch (e) {
-            Log.err(`AccountScreen getBalanceVisibility error ${e.message}`)
-        }
+    getBalanceVisibility = () => {
+        const isBalanceVisible = this.props.settingsStore.data.isBalanceVisible
+        this.setState(() => ({ isBalanceVisible, originalVisibility: isBalanceVisible }))
     }
 
     triggerBalanceVisibility = (value) => {

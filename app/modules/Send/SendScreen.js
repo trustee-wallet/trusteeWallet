@@ -132,11 +132,11 @@ class SendScreen extends SendBasicScreenScreen {
         this.addressInput = React.createRef()
         this.memoInput = React.createRef()
         this.valueInput = React.createRef()
-        this.getBalanceVisibility()
     }
 
     // eslint-disable-next-line camelcase
     UNSAFE_componentWillMount() {
+        this.getBalanceVisibility()
         AsyncStorage.getItem('sendInputType').then(res => {
             if (res !== null) {
                 this.setState({
@@ -1018,14 +1018,8 @@ class SendScreen extends SendBasicScreenScreen {
     }
 
     getBalanceVisibility = async () => {
-        try {
-            const res = await AsyncStorage.getItem('isBalanceVisible')
-            const originalVisibility = res !== null ? JSON.parse(res) : true
-
-            this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
-        } catch (e) {
-            Log.err(`AccountScreen getBalanceVisibility error ${e.message}`)
-        }
+        const originalVisibility = this.props.settingsStore.data.isBalanceVisible
+        this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
     }
 
     triggerBalanceVisibility = (value) => {
@@ -1553,7 +1547,7 @@ const styles = {
     },
     accountDetail__text: {
         fontSize: 14,
-        height: 14,
+        height: Platform.OS === 'ios' ? 15 : 18,
         fontFamily: 'SFUIDisplay-Semibold',
         color: '#939393'
     }

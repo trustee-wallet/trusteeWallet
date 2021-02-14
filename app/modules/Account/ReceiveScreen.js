@@ -12,8 +12,6 @@ import {
     Dimensions
 } from 'react-native'
 
-
-
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
 import Feather from 'react-native-vector-icons/Feather'
@@ -104,13 +102,16 @@ class ReceiveScreen extends Component {
 
             focused: false,
 
-            changeAddress: false
+            changeAddress: false,
+
+            isBalanceVisible: false,
+            originalVisibility: false,
         }
     }
 
     // eslint-disable-next-line camelcase
     UNSAFE_componentWillMount() {
-
+        this.getBalanceVisibility()
         settingsActions.getSetting('btc_legacy_or_segwit').then(res => this.setState({ settingAddressType: res }))
     }
 
@@ -263,6 +264,7 @@ class ReceiveScreen extends Component {
         const { currencySymbol, currencyName, currencyCode } = this.props.cryptoCurrency
         const { basicCurrencyRate, balancePretty, unconfirmedPretty } = this.props.account
         const { walletUseUnconfirmed } = this.props.wallet
+        const { isBalanceVisible, originalVisibility } = this.state
 
         const amountPretty = BlocksoftTransferUtils.getBalanceForTransfer({
             walletUseUnconfirmed: walletUseUnconfirmed === 1,
@@ -286,11 +288,7 @@ class ReceiveScreen extends Component {
                 const basicCurrencySymbol = this.props.account.basicCurrencySymbol || '$'
                 const basicAmount = RateEquivalent.mul({ value: amountPretty, currencyCode, basicCurrencyRate })
                 const basicAmountPrep = BlocksoftPrettyNumbers.makeCut(basicAmount, 2).cutted
-                // if (this.state.inputType === 'CRYPTO') {
-                    sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicAmountPrep
-                // } else {
-                //     sumPrep = '~' + basicCurrencySymbol + ' ' + basicAmountPrep + ' / ' + sumPrep
-                // }
+                sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicAmountPrep
             } catch (e) {
                 Log.err('Send.SendScreen renderAccountDetail error ' + e.message)
             }
@@ -311,7 +309,19 @@ class ReceiveScreen extends Component {
                         {
                             isSynchronized ?
                                 <View style={{ alignItems: 'flex-start' }}>
-                                    <LetterSpacing text={sumPrep} textStyle={{ ...styles.accountDetail__text, color: '#999999' }} letterSpacing={1} />
+                                    <TouchableOpacity
+                                        onPressIn={() => this.triggerBalanceVisibility(true)}
+                                        onPressOut={() => this.triggerBalanceVisibility(false)}
+                                        activeOpacity={1}
+                                        disabled={originalVisibility}
+                                        hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
+                                    >
+                                        {isBalanceVisible ? 
+                                            <LetterSpacing text={sumPrep} textStyle={{ ...styles.accountDetail__text, color: '#999999', height: Platform.OS === 'ios' ? 15 : 18, fontSize: 14}} letterSpacing={1} /> : 
+                                                <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, height: Platform.OS === 'ios' ? 15 : 18, fontSize: 24 }}>
+                                                ****</Text>
+                                        }
+                                    </TouchableOpacity>
                                 </View>
                                 :
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -573,6 +583,15 @@ class ReceiveScreen extends Component {
         return tmp
     }
 
+    getBalanceVisibility = () => {
+        const originalVisibility = this.props.settingsStore.data.isBalanceVisible
+        this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
+    }
+
+    triggerBalanceVisibility = (value) => {
+        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
+    }
+
     render() {
         const { mainStore, settingsStore } = this.props
         const { isSegWitLegacy, fioName, headerHeight, customAmount, focused, amountForQr, labelForQr, inputType } = this.state
@@ -814,7 +833,6 @@ const styles = {
     },
     accountDetail__text: {
         fontSize: 15,
-        lineHeight: 15,
         fontFamily: 'SFUIDisplay-Semibold',
     },
     backgroundAddress: {

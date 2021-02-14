@@ -15,8 +15,6 @@ import AsyncStorage from '@react-native-community/async-storage'
 
 import EntypoIcon from 'react-native-vector-icons/Entypo'
 
-
-
 import NavStore from '../../components/navigation/NavStore'
 
 import { setFlowType, setWalletName } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
@@ -33,6 +31,7 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 
 import Log from '../../services/Log/Log'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { getIsBalanceVisible } from '../../appstores/Stores/Settings/selectors'
 
 
 class WalletListScreen extends Component {
@@ -45,19 +44,16 @@ class WalletListScreen extends Component {
             isBalanceVisible: false,
             originalVisibility: false
         }
-        this.getBalanceVisibility()
         this.walletsRefs = {}
     }
 
+    componentDidMount() {
+        this.getBalanceVisibility()
+    }
+    
     getBalanceVisibility = async () => {
-        try {
-            const res = await AsyncStorage.getItem('isBalanceVisible')
-            const originalVisibility = res !== null ? JSON.parse(res) : true
-
-            this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
-        } catch (e) {
-            Log.err(`WalletListScreen getBalanceVisibility error ${e.message}`)
-        }
+        const originalVisibility = this.props.isBalanceVisible
+        this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
     }
 
     triggerBalanceVisibility = () => {
@@ -175,7 +171,8 @@ const mapStateToProps = (state) => {
     return {
         mainStore: state.mainStore,
         accountStore: state.accountStore,
-        wallets: state.walletStore.wallets
+        wallets: state.walletStore.wallets,
+        isBalanceVisible: getIsBalanceVisible(state.settingsStore)
     }
 }
 
