@@ -18,6 +18,13 @@ export namespace BlocksoftTransferUtils {
             const tmp2 = 'rnyWPfJ7dk2X15N7jqwmqo3Nspu1oYiRZ3'
             return data.address === tmp1 ? tmp2 : tmp1
         }
+        if (data.currencyCode === BlocksoftDictTypes.Code.XLM) {
+            const tmp1 = 'GCVPV3D4PAYFA7H2CHGFRTSPAHMSU4KQR4CHBUBUR4X23JUDJWHYZDYZ'
+            const tmp2 = 'GAQA5FITDUZW36J6VFXAH4YDNTTDEGRNWIXHIOR3FNN4DVJCXCNHUR4E'
+            console.log('address to')
+            return data.address === tmp1 ? tmp2 : tmp1
+
+        }
         return data.address
     }
 

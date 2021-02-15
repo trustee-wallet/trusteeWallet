@@ -30,12 +30,15 @@ export default class SendBasicScreen extends Component {
      * @returns {Promise<{countedFees, selectedFee}>}
      */
     recountFees = async (data, source) => {
-        Log.log('SendBasicScreen.recountFees ' + source + ' init ', JSON.parse(JSON.stringify(data)))
+        await Log.log('SendBasicScreen.recountFees ' + source + ' init ', JSON.parse(JSON.stringify(data)))
 
         const currencyCode = data.currencyCode
-
         if (data.addressTo === '') {
-            return false
+            if (currencyCode === 'XLM') {
+                // do nothing @todo 100% fix? - why twice checked?
+            } else {
+                return false
+            }
         }
 
         try {
@@ -49,7 +52,7 @@ export default class SendBasicScreen extends Component {
             if (config.debug.sendLogs) {
                 console.log('SendBasicScreen.recountFees ' + source + ' result ', JSON.parse(JSON.stringify({countedFees, selectedFee})))
             }
-            Log.log('SendBasicScreen.recountFees ' + source + ' result ', {countedFees, selectedFee})
+            await Log.log('SendBasicScreen.recountFees ' + source + ' result ', {countedFees, selectedFee})
 
             return { countedFees, selectedFee }
         } catch (e) {

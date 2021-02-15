@@ -23,7 +23,7 @@ export namespace BlocksoftTransfer {
     const CACHE_VALID_TIME = 20000 // 2 minute
 
     export const getTransferAllBalance = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
-        if (DEBUG) {
+        if (config.debug.sendLogs) {
             console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance`, JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
         }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
@@ -40,7 +40,7 @@ export namespace BlocksoftTransfer {
             transferAllCount = await (BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)).getTransferAllBalance(data, privateData, additionalDataTmp)
 
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance got ${data.addressFrom} result is ok`)
-            if (DEBUG) {
+            if (config.debug.sendLogs) {
                 console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance result`, JSON.parse(JSON.stringify(transferAllCount)))
             }
         } catch (e) {
@@ -49,6 +49,9 @@ export namespace BlocksoftTransfer {
                 BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance ` + e.message)
                 throw new Error('server.not.responding.all.balance.' + data.currencyCode + ' ' + e.message)
             } else {
+                if (config.debug.appErrors) {
+                    console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance ` + e.message)
+                }
                 throw e
             }
         }

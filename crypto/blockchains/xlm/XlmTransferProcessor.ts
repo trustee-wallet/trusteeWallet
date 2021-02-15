@@ -100,9 +100,9 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
         return result
     }
 
-    async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: { estimatedGas?: number, gasPrice?: number[], balance?: string } = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
-        const balance = data.amount
+    async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
 
+        const balance = data.amount
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
         // noinspection EqualityComparisonWithCoercionJS
@@ -127,12 +127,21 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
         }
         // @ts-ignore
-        result.fees[result.selectedFeeIndex].amountForTx = BlocksoftUtils.diff(result.fees[result.selectedFeeIndex].amountForTx, 1).toString()
-        return {
+        let newAmount = BlocksoftUtils.diff(result.fees[result.selectedFeeIndex].amountForTx, result.fees[result.selectedFeeIndex].feeForTx).toString()
+        newAmount = BlocksoftUtils.diff(newAmount, 1).toString()
+        /*
+        console.log(' ' + result.fees[result.selectedFeeIndex].amountForTx)
+        console.log('--' + result.fees[result.selectedFeeIndex].feeForTx)
+        console.log('=' + newAmount)
+        */
+        result.fees[result.selectedFeeIndex].amountForTx = newAmount
+        const tmp = {
             ...result,
             selectedTransferAllBalance: result.fees[result.selectedFeeIndex].amountForTx,
             shouldChangeBalance: true
         }
+        // console.log('tmp', JSON.stringify(tmp))
+        return tmp
     }
 
     async sendTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
@@ -172,7 +181,11 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 MarketingEvent.logOnlyRealTime('v20_stellar_error ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, {
                     raw
                 })
-                throw e
+                if (e.message === 'op_underfunded') {
+                    throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+                } else {
+                    throw e
+                }
             }
         }
         if (!result || typeof result.hash === 'undefined') {

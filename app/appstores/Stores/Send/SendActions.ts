@@ -117,9 +117,13 @@ export namespace SendActions {
 
         let amount = data.amountRaw || '0'
         if (typeof data.addressTo === 'undefined' || !data.addressTo || data.addressTo === '') {
-            return {
-                countedFees: false,
-                selectedFee: false
+            if (currencyCode === 'XLM') {
+                // do nothing @todo 100% fix? - why twice checked?
+            } else {
+                return {
+                    countedFees: false,
+                    selectedFee: false
+                }
             }
         }
         if (data.inputValue && !data.isTransferAll) {

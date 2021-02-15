@@ -348,7 +348,18 @@ class SendScreen extends SendBasicScreenScreen {
             // Log.log(`Send.SendScreen.handleTransferAll ${currencyCode} ${address} addressToForTransferAll ${addressToForTransferAll}`)
 
             const { countedFees, selectedFee } = await this.recountFees(newSendScreenData, 'Send.SendScreen.handleTransferAll')
-            let amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(countedFees.selectedTransferAllBalance)
+            let allBalance = balance
+            if (typeof countedFees === 'undefined' || typeof countedFees.selectedTransferAllBalance === 'undefined') {
+               if (config.debug.appErrors) {
+                   console.log('Send.SendScreen.handleTransferAll ' + newSendScreenData.currencyCode + ' no countedFees ' + JSON.stringify(countedFees))
+               }
+            } else {
+                allBalance = countedFees.selectedTransferAllBalance
+                if (config.debug.appErrors) {
+                    console.log('Send.SendScreen.handleTransferAll ' + newSendScreenData.currencyCode + ' allBalance ' + allBalance)
+                }
+            }
+            let amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(allBalance)
             newSendScreenData.amountPretty = amount
             newSendScreenData.inputValue = amount
             newSendScreenData.selectedFee = selectedFee
@@ -394,10 +405,10 @@ class SendScreen extends SendBasicScreenScreen {
             // Log.log('Send.SendScreen.handleTransferAll currencyBalanceAmount: ' + amount + ' currencyBalanceAmountRaw: ' + countedFees.selectedTransferAllBalance)
 
         } catch (e) {
-            if (config.debug.cryptoErrors) {
-                Log.log('Send.SendScreen.handleTransferAll', e)
+            if (config.debug.appErrors) {
+                console.log('Send.SendScreen.handleTransferAll ' + e.message, e)
             }
-            Log.errorTranslate(e, 'Send.SendScreen.handleTransferAll', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
+            Log.errorTranslate(e, 'Send.SendScreen.handleTransferAll ', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
 
             Keyboard.dismiss()
 
@@ -1077,8 +1088,8 @@ class SendScreen extends SendBasicScreenScreen {
                             disabled={originalVisibility}
                             hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
                             >
-                                {isBalanceVisible ? 
-                                <LetterSpacing text={sumPrep} textStyle={styles.accountDetail__text} letterSpacing={1} /> : 
+                                {isBalanceVisible ?
+                                <LetterSpacing text={sumPrep} textStyle={styles.accountDetail__text} letterSpacing={1} /> :
                                 <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, fontSize: 24 }}>
                                     ****</Text>
                                 }
