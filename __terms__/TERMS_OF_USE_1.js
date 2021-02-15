@@ -7,7 +7,7 @@ export default `
   We reserve our right, at our sole discretion, to change, modify, add or remove portions of these Terms, at any time. It is Your responsibility to check these Terms of Use periodically for changes. Your continued use of the Wallet/of the Website following the posting of changes will mean that you accept and agree to the changes.
   You affirm that you are an individual, at least 18 years of age or older, have the capacity to enter into this Agreement. The Wallet is intended solely for use by legal entity or full-aged individual (18 years). Use of the Wallet by non-adult is prohibited, we are not responsible for any  consequences caused by the use of Wallet by non-adult.
 
-  https://trustee.deals/ (“Website”) is the website  that displays information about the Wallet.
+  https://trusteeglobal.com (“Website”) is the website  that displays information about the Wallet.
 Support: https://t.me/trustee_support_bot   
 
   Trustee Wallet  (“Wallet”) is a software program that stores private and public keys (in pairs), provides interactions with various blockchain to enable You to send and receive Virtual assets,  perform a transaction with Virtual assets, monitor Yours balance and conduct other operations. 
