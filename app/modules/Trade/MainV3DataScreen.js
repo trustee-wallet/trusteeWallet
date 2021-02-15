@@ -52,6 +52,8 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import { Cards } from '../../services/Cards/Cards'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
+import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
+
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
@@ -255,12 +257,13 @@ class MainV3DataScreen extends Component {
 
             if (backToOld) {
                 if (tradeType === 'SELL') {
-                    AsyncStorage.setItem('isNewInterfaceSell', 'false')
+                    ExchangeActions.handleSetNewInterface(false, 'SELL')
+                    NavStore.goNext('TradeScreenStack')
                 } else if (tradeType === 'BUY') {
-                    AsyncStorage.setItem('isNewInterfaceBuy', 'false')
+                    ExchangeActions.handleSetNewInterface(false, 'BUY')
+                    NavStore.goNext('TradeScreenStack')
                 }
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
-                NavStore.goNext('HomeScreen')
             }
 
             if (typeof homePage !== 'undefined' && (homePage === true || homePage === false)) {

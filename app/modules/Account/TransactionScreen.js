@@ -489,6 +489,9 @@ class TransactionScreen extends Component {
         let tmp = 0
         if (typeof blockConfirmations !== 'undefined' && blockConfirmations > 0) {
             tmp = blockConfirmations.toString()
+            if (blockConfirmations > 20) {
+                tmp = '20+'
+            }
         }
         return {
             title: strings(`account.transaction.confirmations`),

@@ -167,7 +167,7 @@ export default {
     'XRP': {
         colors: {
             mainColor: '#1B1818',
-            darkColor: '#C0C0C0'
+            darkColor: '#B8B8B8'
         }
     },
     'ETH_MKR': {
@@ -191,7 +191,7 @@ export default {
     'ETH_BAL': {
         colors: {
             mainColor: '#303030',
-            darkColor: '#EBEBEB'
+            darkColor: '#B8B8B8'
         }
     },
     'ETH_LEND': {
@@ -233,7 +233,7 @@ export default {
     "XLM": {
         colors: {
             mainColor: '#181818',
-            darkColor: '#F2F2F2'
+            darkColor: '#B8B8B8'
         }
     },
     'DEFAULT': {

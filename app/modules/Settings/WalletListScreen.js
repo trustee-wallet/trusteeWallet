@@ -51,7 +51,7 @@ class WalletListScreen extends Component {
         this.getBalanceVisibility()
     }
     
-    getBalanceVisibility = async () => {
+    getBalanceVisibility = () => {
         const originalVisibility = this.props.isBalanceVisible
         this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
     }

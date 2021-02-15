@@ -46,9 +46,6 @@ import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalS
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
-let COUNT_MODAL_SELL = 0
-let COUNT_MODAL_BUY = 0
-
 class MainDataScreen extends Component {
 
     constructor() {
@@ -72,57 +69,6 @@ class MainDataScreen extends Component {
             sendAllModalOk: null
         }
 
-    }
-
-    async componentDidMount() {
-
-        const { tradeType, isNewInterfaceSell, isNewInterfaceBuy } = this.props.exchangeStore
-
-        if (tradeType === 'SELL') {
-            if (!isNewInterfaceSell) {
-                if (COUNT_MODAL_SELL === 0 || COUNT_MODAL_SELL === 5) {
-                    showModal({
-                        type: 'NEW_INTERFACE',
-                        icon: null,
-                        title: strings('modal.infoNewInterface.title'),
-                        description: strings('modal.infoNewInterface.description'),
-                        noCallback: async () => {
-                            AsyncStorage.setItem('countModalSell', '1')
-                            COUNT_MODAL_SELL = 1
-                        }
-                    }, () => {
-                        AsyncStorage.setItem('isNewInterfaceSell', 'true')
-                        COUNT_MODAL_SELL = 1
-                        this.handleTryV3()
-                    })
-                } else {
-                    AsyncStorage.setItem('countModalSell', (COUNT_MODAL_SELL + 1).toString())
-                    COUNT_MODAL_SELL += 1
-                }
-            }
-        } else if (tradeType === 'BUY') {
-            if (!isNewInterfaceBuy) {
-                if (COUNT_MODAL_BUY === 0 || COUNT_MODAL_BUY === 5) {
-                    showModal({
-                        type: 'NEW_INTERFACE',
-                        icon: null,
-                        title: strings('modal.infoNewInterface.title'),
-                        description: strings('modal.infoNewInterface.description'),
-                        noCallback: async () => {
-                            AsyncStorage.setItem('countModalBuy', '1')
-                            COUNT_MODAL_BUY = 1
-                        }
-                    }, () => {
-                        AsyncStorage.setItem('isNewInterfaceBuy', 'true')
-                        COUNT_MODAL_BUY = 1
-                        this.handleTryV3()
-                    })
-                } else {
-                    AsyncStorage.setItem('countModalBuy', (COUNT_MODAL_BUY + 1).toString())
-                    COUNT_MODAL_BUY += 1
-                }
-            }
-        }
     }
 
     // eslint-disable-next-line camelcase

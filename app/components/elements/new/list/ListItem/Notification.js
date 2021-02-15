@@ -31,7 +31,7 @@ const getIcon = (iconType, color) => {
         case 'outgoing':
             return <CustomIcon name="send" size={17} color={color} style={{ left: 0.5 }} />
         case 'default':
-            return <CustomIcon name="notificationDefault" size={22} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name="notificationDefoult" size={22} color={color} style={{ left: 0.5 }} />
         default: return null
     }
 }

@@ -1017,7 +1017,7 @@ class SendScreen extends SendBasicScreenScreen {
         }
     }
 
-    getBalanceVisibility = async () => {
+    getBalanceVisibility = () => {
         const originalVisibility = this.props.settingsStore.data.isBalanceVisible
         this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
     }
