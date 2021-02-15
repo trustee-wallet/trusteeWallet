@@ -1109,6 +1109,10 @@
         "title": "Please, pay attention!",
         "description": "Your Stellar wallet is not activated. Activation requires to stake 1 XLM. According to Stellar protocol, this amount cannot be unlocked and will remain frozen in your account."
       },
+      "TRX_20": {
+        "title": "Please, pay attention!",
+        "description": "Your Tron wallet is not activated. Activation requires to send any TRX to the wallet address - you can use it later for transactions"
+      },
       "TOKEN": {
         "title": "გთხოვთ, მიაქციოთ ყურადღება!",
         "description": "ტოკენი %{currencySymbol} მუშაობს ბლოკჩეინზე %{parentBlockchain} და ბრუნვისთვის საჭიროა პოზიტიური ბალანსი %{parentCurrency} მაინერებისთვის საკომისიოს მისაცემად. ამ ეტაპზე თქვენს საფულეში ნულოვანი ბალანსია %{parentCurrency}"

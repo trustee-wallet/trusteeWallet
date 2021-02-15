@@ -10,6 +10,7 @@ import TronUtils from './ext/TronUtils'
 import TrxTronscanProvider from './basic/TrxTronscanProvider'
 import TrxTrongridProvider from './basic/TrxTrongridProvider'
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
+import BlocksoftDispatcher from '../BlocksoftDispatcher'
 
 export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: any
@@ -17,6 +18,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
     private _tronscanProvider: TrxTronscanProvider
     private _trongridProvider: TrxTrongridProvider
     private _tokenName: string
+    private _isToken20: boolean
 
     constructor(settings: any) {
         this._settings = settings
@@ -24,8 +26,12 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         this._tronscanProvider = new TrxTronscanProvider()
         this._trongridProvider = new TrxTrongridProvider()
         this._tokenName = '_'
+        this._isToken20 = false
         if (typeof settings.tokenName !== 'undefined') {
             this._tokenName = settings.tokenName
+            if (this._tokenName[0] === 'T') {
+                this._isToken20 = true
+            }
         }
     }
 
@@ -35,6 +41,33 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
     checkSendAllModal(data: { currencyCode: any }): boolean {
         return false
+    }
+
+    async checkTransferHasError(data: BlocksoftBlockchainTypes.CheckTransferHasErrorData): Promise<BlocksoftBlockchainTypes.CheckTransferHasErrorResult> {
+        // @ts-ignore
+        if (!this._isToken20 || data.amount && data.amount * 1 > 0) {
+            return { isOk: true }
+        }
+        /**
+         * @type {TrxScannerProcessor}
+         */
+        const balanceProvider = BlocksoftDispatcher.getScannerProcessor(this._settings.currencyCode)
+        const balanceRaw = await balanceProvider.getBalanceBlockchain(data.addressTo)
+        if (balanceRaw && typeof balanceRaw.balance !== 'undefined' && balanceRaw.balance > 0) {
+            return { isOk: true }
+        }
+
+        const balanceProviderBasic = BlocksoftDispatcher.getScannerProcessor('TRX')
+        const balanceRawBasic = await balanceProviderBasic.getBalanceBlockchain(data.addressTo)
+        if (balanceRawBasic && typeof balanceRawBasic.balance !== 'undefined' && balanceRawBasic.balance > 0) {
+            return { isOk: true }
+        }
+
+        const transactionsBasic = await balanceProviderBasic.getTransactionsBlockchain(data.addressTo)
+        if (transactionsBasic !== false) {
+            return { isOk: true }
+        }
+        return { isOk: false, code: 'TRX_20', address: data.addressTo }
     }
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
@@ -49,7 +82,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             const res = await BlocksoftAxios.getWithoutBraking(link)
             let feeForTx = 0
             if (this._tokenName[0] === 'T') {
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate result ' + link, res.data.bandwidth )
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate result ' + link, res.data.bandwidth)
                 if (res.data.bandwidth.freeNetRemaining.toString() === '0') {
                     feeForTx = 48300
                 } else {
