@@ -29,7 +29,7 @@ export default class TrxScannerProcessor {
      */
     async getBalanceBlockchain(address) {
         address = address.trim()
-        BlocksoftCryptoLog.log('TrxScannerProcessor getBalanceBlockchain address ' + address)
+        BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address)
         let addressHex = address
         if (address.substr(0, 1) === 'T') {
             addressHex = await TronUtils.addressToHex(address)
@@ -40,6 +40,7 @@ export default class TrxScannerProcessor {
         if (result === false) {
             result = await this._trongridProvider.get(addressHex, this._tokenName)
         }
+        BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result ', result)
         return result
     }
 

@@ -58,7 +58,7 @@ export default class TrxTrongridProvider {
         }
 
         if (typeof CACHE_TRONGRID[address][tokenName] === 'undefined') {
-            return 0
+            return { balance: 0, unconfirmed : 0, provider: 'trongrid' }
         }
 
         const balance = CACHE_TRONGRID[address][tokenName]
