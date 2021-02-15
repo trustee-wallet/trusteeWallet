@@ -153,6 +153,7 @@ class DBInit {
                     throw new Error('DB update error')
                 } else {
                     Log.log('DBInit._update warning ' + e.message)
+                    await dbInterface.setQueryString(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`).query()
                 }
             }
         }
