@@ -115,7 +115,7 @@ export default new class CashBackUtils {
         } else {
             try {
                 if (typeof firebaseUrl !== 'undefined' && firebaseUrl != null && firebaseUrl) {
-                    MarketingEvent.logEvent('cashback_parent_link', firebaseUrl)
+                    MarketingEvent.logEvent('cashback_parent_link', { firebaseUrl })
                     const firebaseUrlArray = firebaseUrl.split('=')
                     await Log.log('SRV/CashBack init parent firebaseUrlArray ' + JSON.stringify(firebaseUrlArray))
                     if (firebaseUrlArray.length > 1) {
