@@ -12,7 +12,7 @@ export default class BsvSendProvider extends DogeSendProvider implements Blockso
 
     private _apiPath = 'https://api.bitindex.network/api/v2/tx/send'
 
-    async sendTx(hex: string, subtitle: string, txRBF : any, logData : any) : Promise<{transactionHash: string, transactionJson:any}> {
+    async sendTx(hex: string, subtitle: string, txRBF : any, logData : any) : Promise<{transactionHash: string, transactionJson:any, logData: any}> {
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BsvSendProvider.sendTx ' + subtitle + ' started ', logData)
 
         logData = await this._check(hex, subtitle, txRBF, logData)
@@ -45,23 +45,31 @@ export default class BsvSendProvider extends DogeSendProvider implements Blockso
                 throw e
             }
         }
-        let txid = false
+        let txid = ''
+        // @ts-ignore
         if (typeof res.data === 'undefined' || !res.data) {
             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
         }
+        // @ts-ignore
         if (typeof res.data !== 'undefined' && typeof res.data.txid !== 'undefined') {
             txid = res.data.txid
         }
+        // @ts-ignore
         if (typeof res.data.data !== 'undefined') {
+            // @ts-ignore
             if (typeof res.data.data.txid !== 'undefined') {
+                // @ts-ignore
                 txid = res.data.data.txid
             }
+            // @ts-ignore
             if (typeof res.data.data.result !== 'undefined' && typeof res.data.data.result.txid !== 'undefined') {
+                // @ts-ignore
                 txid = res.data.data.result.txid
             }
         }
-        if (!txid) {
+        if (txid === '') {
             if (config.debug.cryptoErrors) {
+                // @ts-ignore
                 console.log(this._settings.currencyCode + ' BsvSendProvider.send no txid', res.data)
             }
             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
