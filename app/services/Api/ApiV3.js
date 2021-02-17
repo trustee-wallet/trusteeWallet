@@ -21,6 +21,8 @@ import cardDS from '../../appstores/DataSource/Card/Card'
 import MarketingEvent from '../Marketing/MarketingEvent'
 import axios from 'axios'
 import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
+import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 
 const V3_ENTRY_POINT_EXCHANGE = '/mobile-exchanger'
 const V3_ENTRY_POINT_SELL = '/mobile-sell'
@@ -74,8 +76,7 @@ export default {
             currencies = {}
             for (const currency of tmps) {
                 const currencyCode = currency.currencyCode
-                const isHidden = currency.isHidden
-                currencies[currencyCode] = isHidden
+                currencies[currencyCode] = currency
             }
         }
 
@@ -134,45 +135,60 @@ export default {
             }
             // @todo end optimization
 
-            if (showType === 'segwit' && typeof account.legacy !== 'undefined' && typeof account.segwit !== 'undefined') {
-                accounts.push({
-                    currencyCode,
-                    address: [
-                        {
-                            address: account.segwit,
-                            type: 'SEGWIT'
-                        },
-                        {
-                            address: account.legacy,
-                            type: 'LEGACY'
-                        }
-                    ],
+            const resultAccount = {
+                currencyCode,
+                address: account.address,
+                isHidden: currencies[currencyCode].isHidden,
+                balance : account.balancePretty,
+                unconfirmed: account.unconfirmedPretty,
+                raw: account.balanceRaw,
+                currencyRateUsd : currencies[currencyCode].currencyRateUsd,
+                basicCurrencyCode: account.basicCurrencyCode,
+                basicCurrencyRate: account.basicCurrencyRate,
+                basicCurrencyBalance : account.basicCurrencyBalance,
+                basicCurrencyUnconfirmed : account.basicCurrencyUnconfirmed
+            }
+            if (currencyCode.indexOf('CUSTOM_') !== -1) {
+                const currencySettings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+                if (typeof currencySettings.tokenAddress !== 'undefined') {
+                    resultAccount.tokenAddress = currencySettings.tokenAddress
+                }
+                if (typeof currencySettings.tokenName !== 'undefined') {
+                    resultAccount.tokenName = currencySettings.tokenName
+                }
+                if (typeof currencySettings.tokenBlockchain !== 'undefined') {
+                    resultAccount.tokenBlockchain = currencySettings.tokenBlockchain
+                }
+            }
 
-                    balance: account.balancePretty,
-                    unconfirmed : account.unconfirmedPretty,
-                    raw : account.balanceRaw
-                })
-            } else {
+            if (showType === 'segwit' && typeof account.legacy !== 'undefined' && typeof account.segwit !== 'undefined') {
+                resultAccount.address = [
+                    {
+                        address: account.segwit,
+                        type: 'SEGWIT'
+                    },
+                    {
+                        address: account.legacy,
+                        type: 'LEGACY'
+                    }
+                ]
+            } else if (currencyCode === 'XRP'  || currencyCode === 'XLM') {
                 let balance = account.balancePretty
                 if (currencyCode === 'XRP') {
-                    balance = account.balancePretty*1 - 20
+                    balance = account.balancePretty * 1 - 20
+                    resultAccount.balance = balance
                 } else if (currencyCode === 'XLM') {
-                    balance = account.balancePretty*1 - 1
+                    balance = account.balancePretty * 1 - 1
+                    resultAccount.balance = balance
                 }
-                accounts.push({
-                    currencyCode,
-                    isHidden: currencies[currencyCode],
-                    address: account.address,
-                    balance,
-                    unconfirmed : account.unconfirmedPretty,
-                    raw : account.balanceRaw
-                })
+                resultAccount.basicCurrencyBalance = BlocksoftUtils.mul(resultAccount.balance, resultAccount.basicCurrencyRate)
             }
+            accounts.push(resultAccount)
         }
         return accounts
     },
 
-    async initData(type, currencyCode=false, isLight) {
+    async initData(type, currencyCode = false, isLight) {
 
         let { mode: exchangeMode, apiEndpoints } = config.exchange
         const entryURL = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
@@ -183,22 +199,22 @@ export default {
             entryPoint = V3_ENTRY_POINT_EXCHANGE
         } else if (type === 'SELL') {
             entryPoint = V3_ENTRY_POINT_SELL
-        } else if (type === 'BUY'){
+        } else if (type === 'BUY') {
             entryPoint = V3_ENTRY_POINT_BUY
         } else {
             throw new Error('ApiV3 invalid settings type ' + type)
         }
 
-        await UpdateCardsDaemon.updateCardsDaemon({force: true})
+        await UpdateCardsDaemon.updateCardsDaemon({ force: true })
 
         const data = {
             locale: sublocale(),
             deviceToken: MarketingEvent.DATA.LOG_TOKEN,
             wallets: [],
-            cards : await cardDS.getCards(),
+            cards: await cardDS.getCards(),
             selectedCurrency: currencyCode
         }
-        if (!data.cards || typeof data.cards === 'undefined' ) {
+        if (!data.cards || typeof data.cards === 'undefined') {
             data.cards = []
         }
 
@@ -313,7 +329,7 @@ export default {
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
 
-        const sign = await CashBackUtils.createWalletSignature(true);
+        const sign = await CashBackUtils.createWalletSignature(true)
 
         const cashbackToken = CashBackUtils.getWalletToken()
 
@@ -328,8 +344,8 @@ export default {
 
         try {
             const link = baseUrl + V3_ENTRY_POINT_SET_STATUS
-            Log.log('ApiV3 setExchangeStatus axios ' + link + ' status ' + status);
-            return BlocksoftAxios.post(link, data, false);
+            Log.log('ApiV3 setExchangeStatus axios ' + link + ' status ' + status)
+            return BlocksoftAxios.post(link, data, false)
 
         } catch (e) {
             Log.err('ApiV3 setExchangeStatus e.response.data ' + e.response.data)
@@ -363,8 +379,8 @@ export default {
                 await Log.daemon('ApiV3 getExchangeOrders axios ' + index + ' ' + link)
                 try {
                     link = `${baseUrl}/order/history-for-wallet?`
-                         + `cashbackToken=${signedData.cashbackToken}&message=${signedData.message}&messageHash=${signedData.messageHash}`
-                         + `&signature=${signedData.signature}&timestamp=${+new Date()}`
+                        + `cashbackToken=${signedData.cashbackToken}&message=${signedData.message}&messageHash=${signedData.messageHash}`
+                        + `&signature=${signedData.signature}&timestamp=${+new Date()}`
                     await Log.daemon('ApiV3 getExchangeOrders finished ' + index + ' ' + link)
 
                     now = +new Date()
