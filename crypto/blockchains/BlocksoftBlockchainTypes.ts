@@ -30,9 +30,9 @@ export namespace BlocksoftBlockchainTypes {
     export interface UnspentsProvider {
         getUnspents(address: string): Promise<UnspentTx[]>
 
-        getTx?(tx: string, address: string, allUnspents: BlocksoftBlockchainTypes.UnspentTx[]): Promise<UnspentTx[]>
+        getTx?(tx: string, address: string, allUnspents: BlocksoftBlockchainTypes.UnspentTx[], walletHash : string): Promise<UnspentTx[]>
 
-        _isMyAddress?(voutAddress: string, address: string): string
+        _isMyAddress?(voutAddress: string, address: string, walletHash: string): string
     }
 
     export interface SendProvider {

@@ -135,13 +135,16 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         }
 
         let unspents = []
+        if (typeof this.unspentsProvider.getTx === 'undefined') {
+            throw new Error('No DogeTransferProcessor unspentsProvider.getTx ')
+        }
         if (transactionRemoveByFee) {
-            unspents = await this.unspentsProvider.getTx(data.transactionRemoveByFee, data.addressFrom, [])
+            unspents = await this.unspentsProvider.getTx(data.transactionRemoveByFee, data.addressFrom, [], data.walletHash)
             data.isTransferAll = true
         } else {
             unspents = typeof additionalData.unspents !== 'undefined' ? additionalData.unspents : await this.unspentsProvider.getUnspents(data.addressFrom)
             if (transactionReplaceByFee) {
-                unspents = await this.unspentsProvider.getTx(data.transactionReplaceByFee, data.addressFrom, unspents)
+                unspents = await this.unspentsProvider.getTx(data.transactionReplaceByFee, data.addressFrom, unspents, data.walletHash)
             }
         }
 

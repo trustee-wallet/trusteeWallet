@@ -9,33 +9,30 @@ import DogeUnspentsProvider from '../../doge/providers/DogeUnspentsProvider'
 import DBInterface from '../../../../app/appstores/DataSource/DB/DBInterface'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 
-const CACHE_FOR_CHANGE = {
-    'b' : '',
-    '1' : '',
-    '3' : ''
-}
+const CACHE_FOR_CHANGE = {}
 
 export default class BtcUnspentsProvider extends DogeUnspentsProvider implements BlocksoftBlockchainTypes.UnspentsProvider {
 
-    constructor(settings: BlocksoftBlockchainTypes.CurrencySettings, serverCode: string) {
-        super(settings, serverCode)
-        CACHE_FOR_CHANGE['b'] = ''
-        CACHE_FOR_CHANGE['1'] = ''
-        CACHE_FOR_CHANGE['3'] = ''
+    static getCache(walletHash) {
+        if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {
+            throw new Error('BtcUnspentsProvider no CACHE_FOR_CHANGE for ' + walletHash)
+        }
+        return CACHE_FOR_CHANGE[walletHash]
     }
 
-    static getCache() {
-        return CACHE_FOR_CHANGE
-    }
-
-    _isMyAddress(voutAddress: string, address: string): string {
-        if (voutAddress === CACHE_FOR_CHANGE['b'] || voutAddress === CACHE_FOR_CHANGE['1'] || voutAddress === CACHE_FOR_CHANGE['3']) {
+    _isMyAddress(voutAddress: string, address: string, walletHash: string): string {
+        // @ts-ignore
+        if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {
+            return ''
+        }
+        // @ts-ignore
+        if (voutAddress === CACHE_FOR_CHANGE[walletHash]['b'] || voutAddress === CACHE_FOR_CHANGE[walletHash]['1'] || voutAddress === CACHE_FOR_CHANGE[walletHash]['3']) {
             return voutAddress
         }
-        return  ''
+        return ''
     }
 
-    async getUnspents(address : string) : Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
+    async getUnspents(address: string): Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
         const dbInterface = new DBInterface()
         const sqlPub = `SELECT wallet_pub_value as walletPub
             FROM wallet_pub
@@ -55,7 +52,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
                 }
             }
 
-            const sql = `SELECT account.address, account.derivation_path as derivationPath
+            const sql = `SELECT account.address, account.derivation_path as derivationPath, wallet_hash AS walletHash
             FROM account
             WHERE account.wallet_hash = (SELECT wallet_hash FROM account WHERE address='${address}')
             AND currency_code='BTC' AND (already_shown IS NULL OR already_shown=0)
@@ -64,24 +61,46 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
         `
             const res = await dbInterface.setQueryString(sql).query()
             for (const row of res.array) {
-                const prefix = row.address.substr(0,1)
-                if (CACHE_FOR_CHANGE[prefix] === "") {
-                    CACHE_FOR_CHANGE[prefix] = row.address
+                const walletHash = row.walletHash
+                const prefix = row.address.substr(0, 1)
+                // @ts-ignore
+                if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {
+                    // @ts-ignore
+                    CACHE_FOR_CHANGE[walletHash] = {
+                        '1' : '',
+                        '3' : '',
+                        'b' : ''
+                    }
+                }
+                // @ts-ignore
+                if (CACHE_FOR_CHANGE[walletHash][prefix] === '') {
+                    // @ts-ignore
+                    CACHE_FOR_CHANGE[walletHash][prefix] = row.address
                 }
             }
 
         } else {
 
-            const sql = `SELECT account.address, account.derivation_path as derivationPath
+            const sql = `SELECT account.address, account.derivation_path as derivationPath, wallet_hash AS walletHash
             FROM account
             WHERE account.wallet_hash = (SELECT wallet_hash FROM account WHERE address='${address}')
             AND currency_code='BTC'
         `
             const res = await dbInterface.setQueryString(sql).query()
             for (const row of res.array) {
+                const walletHash = row.walletHash
                 const unspents = await super.getUnspents(row.address)
                 // @ts-ignore
-                CACHE_FOR_CHANGE[row.address.substr(0,1)] = row.address
+                if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {
+                    // @ts-ignore
+                    CACHE_FOR_CHANGE[walletHash] = {
+                        '1' : '',
+                        '3' : '',
+                        'b' : ''
+                    }
+                }
+                // @ts-ignore
+                CACHE_FOR_CHANGE[walletHash][row.address.substr(0, 1)] = row.address
                 if (unspents) {
                     for (const unspent of unspents) {
                         unspent.address = row.address

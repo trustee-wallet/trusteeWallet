@@ -52,6 +52,7 @@ export default class BsvSendProvider extends DogeSendProvider implements Blockso
         }
         // @ts-ignore
         if (typeof res.data !== 'undefined' && typeof res.data.txid !== 'undefined') {
+            // @ts-ignore
             txid = res.data.txid
         }
         // @ts-ignore
