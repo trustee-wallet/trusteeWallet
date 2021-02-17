@@ -9,7 +9,6 @@ import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings
 import config from '../../../../app/config/config'
 import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 
-
 export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendProvider {
 
     private _trezorServerCode: string = ''
@@ -18,26 +17,26 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
 
     protected _settings: BlocksoftBlockchainTypes.CurrencySettings
 
+    private _proxy: string
+
+    private _errorProxy: string
+
+    private _successProxy: string
+
     constructor(settings: BlocksoftBlockchainTypes.CurrencySettings, serverCode: string) {
         this._settings = settings
         this._trezorServerCode = serverCode
+
+        this._proxy = config.proxy.apiEndpoints.baseURL + '/send/checktx'
+        this._errorProxy = config.proxy.apiEndpoints.baseURL + '/send/errortx'
+        this._successProxy = config.proxy.apiEndpoints.baseURL + '/send/sendtx'
     }
 
-    async sendTx(hex: string, subtitle: string, txRBF : any, logData : any) : Promise<{transactionHash: string, transactionJson:any}> {
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' started ' + subtitle)
-
-        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'DOGE.Send.sendTx')
-
-        const link = this._trezorServer + '/api/v2/sendtx/'
-
-        const proxy = config.proxy.apiEndpoints.baseURL + '/send/checktx'
-        const errorProxy = config.proxy.apiEndpoints.baseURL + '/send/errortx'
-        const successProxy = config.proxy.apiEndpoints.baseURL + '/send/sendtx'
-
+    async _check(hex: string, subtitle: string, txRBF: any, logData: any) {
         let checkResult = false
         try {
-            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' proxy checkResult start ' + proxy, logData)
-            checkResult = await BlocksoftAxios.post(proxy, {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' proxy checkResult start ' + this._proxy, logData)
+            checkResult = await BlocksoftAxios.post(this._proxy, {
                 raw: hex,
                 txRBF,
                 logData,
@@ -76,75 +75,29 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
             logData = {}
         }
         logData.checkResult = checkResult && typeof checkResult.data !== 'undefined' && checkResult.data ? JSON.parse(JSON.stringify(checkResult.data)) : false
+        return logData
+    }
 
-
-        let res
-        try {
-            res = await BlocksoftAxios.post(link, hex)
-
-        } catch (e) {
-            if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' DogeSendProvider.sendTx error ', e)
-            }
-            if (subtitle.indexOf('rawSend') !== -1) {
-                throw e
-            }
-            try {
-                logData.error = e.message
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy errorTx start ' + errorProxy, logData)
-                const res2 = await BlocksoftAxios.post(errorProxy, {
-                    raw: hex,
-                    txRBF,
-                    logData,
-                    marketingData: MarketingEvent.DATA
-                })
-                if (config.debug.cryptoErrors) {
-                    console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy errorTx result', JSON.parse(JSON.stringify(res2)))
-                }
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy errorTx', typeof res2.data !== 'undefined' ? res2.data : res2)
-            } catch (e2) {
-                if (config.debug.cryptoErrors) {
-                    console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error errorTx ' + e.message)
-                }
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error errorTx ' + e2.message)
-            }
-            if (this._settings.currencyCode === 'USDT' && e.message.indexOf('bad-txns-in-belowout') !== -1) {
-                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
-            } else if (e.message.indexOf('transaction already in block') !== -1) {
-                throw new Error('SERVER_RESPONSE_TRANSACTION_ALREADY_MINED')
-            } else if (e.message.indexOf('inputs-missingorspent') !== -1) {
-                throw new Error('SERVER_RESPONSE_TRANSACTION_ALREADY_MINED')
-            } else if (e.message.indexOf('insufficient priority') !== -1) {
-                throw new Error('SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE')
-            } else if (e.message.indexOf('dust') !== -1) {
-                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
-            } else if (e.message.indexOf('bad-txns-inputs-spent') !== -1 || e.message.indexOf('txn-mempool-conflict') !== -1) {
-                throw new Error('SERVER_RESPONSE_NO_RESPONSE')
-            } else if (e.message.indexOf('min relay fee not met') !== -1 || e.message.indexOf('fee for relay') !== -1) {
-                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
-            } else if (e.message.indexOf('insufficient fee, rejecting replacement') !== -1) {
-                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT')
-            } else if (e.message.indexOf('insufficient fee') !== -1) {
-                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
-            }else if (e.message.indexOf('too-long-mempool-chain') !== -1) {
-                throw new Error('SERVER_RESPONSE_NO_RESPONSE')
-            } else {
-                await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
-                e.message += ' link: ' + link
-                throw e
-            }
+    async _checkError(hex: string, subtitle: string, txRBF: any, logData: any) {
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy errorTx start ' + this._errorProxy, logData)
+        const res2 = await BlocksoftAxios.post(this._errorProxy, {
+            raw: hex,
+            txRBF,
+            logData,
+            marketingData: MarketingEvent.DATA
+        })
+        if (config.debug.cryptoErrors) {
+            console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy errorTx result', JSON.parse(JSON.stringify(res2.data)))
         }
-        if (typeof res.data.result === 'undefined' || !res.data.result) {
-            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
-        }
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy errorTx', typeof res2.data !== 'undefined' ? res2.data : res2)
+    }
 
-        const transactionHash = res.data.result
-
-        checkResult = false
+    async _checkSuccess(transactionHash: string, hex: string, subtitle: string, txRBF: any, logData: any) {
+        let checkResult = false
         try {
             logData.txHash = transactionHash
-            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy successTx start ' + successProxy, logData)
-            checkResult = await BlocksoftAxios.post(successProxy, {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy successTx start ' + this._successProxy, logData)
+            checkResult = await BlocksoftAxios.post(this._successProxy, {
                 raw: hex,
                 txRBF,
                 logData,
@@ -184,6 +137,72 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
         }
         logData.successResult = checkResult && typeof checkResult.data !== 'undefined' && checkResult.data ? JSON.parse(JSON.stringify(checkResult.data)) : false
         logData.txRBF = txRBF
+        return logData
+    }
+
+    async sendTx(hex: string, subtitle: string, txRBF: any, logData: any): Promise<{ transactionHash: string, transactionJson: any }> {
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' started ', logData)
+
+        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'DOGE.Send.sendTx')
+
+        const link = this._trezorServer + '/api/v2/sendtx/'
+
+        logData = await this._check(hex, subtitle, txRBF, logData)
+
+        let res
+        try {
+            res = await BlocksoftAxios.post(link, hex)
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' DogeSendProvider.sendTx error ', e)
+            }
+            if (subtitle.indexOf('rawSend') !== -1) {
+                throw e
+            }
+            try {
+                logData.error = e.message
+                await this._checkError(hex, subtitle, txRBF, logData)
+            } catch (e2) {
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error errorTx ' + e.message)
+                }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error errorTx ' + e2.message)
+            }
+            if (this._settings.currencyCode === 'USDT' && e.message.indexOf('bad-txns-in-belowout') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+            } else if (e.message.indexOf('transaction already in block') !== -1) {
+                throw new Error('SERVER_RESPONSE_TRANSACTION_ALREADY_MINED')
+            } else if (e.message.indexOf('inputs-missingorspent') !== -1) {
+                throw new Error('SERVER_RESPONSE_TRANSACTION_ALREADY_MINED')
+            } else if (e.message.indexOf('insufficient priority') !== -1) {
+                throw new Error('SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE')
+            } else if (e.message.indexOf('dust') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
+            } else if (e.message.indexOf('bad-txns-inputs-spent') !== -1 || e.message.indexOf('txn-mempool-conflict') !== -1) {
+                throw new Error('SERVER_RESPONSE_NO_RESPONSE')
+            } else if (e.message.indexOf('min relay fee not met') !== -1 || e.message.indexOf('fee for relay') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+            } else if (e.message.indexOf('insufficient fee, rejecting replacement') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT')
+            } else if (e.message.indexOf('insufficient fee') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+            } else if (e.message.indexOf('too-long-mempool-chain') !== -1) {
+                throw new Error('SERVER_RESPONSE_NO_RESPONSE')
+            } else {
+                await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
+                e.message += ' link: ' + link
+                throw e
+            }
+        }
+        if (typeof res.data.result === 'undefined' || !res.data.result) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + 'DogeSendProvider.send no txid', res.data)
+            }
+            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+        }
+
+        const transactionHash = res.data.result
+        logData = await this._checkSuccess(transactionHash, hex, subtitle, txRBF, logData)
 
         return { transactionHash, transactionJson: {}, logData }
     }

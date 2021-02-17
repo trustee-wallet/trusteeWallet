@@ -23,6 +23,7 @@ export default class BsvScannerProcessor {
      */
     async getBalanceBlockchain(address) {
         const link = API_PATH + address
+        await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getBalanceBlockchain started ' + address + ' ' + link)
         const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || !res.data || typeof res.data.data === 'undefined') {
             return false
@@ -34,7 +35,7 @@ export default class BsvScannerProcessor {
                 return false
             }
         }
-        return {balance: res.data.data.balance, unconfirmed: 0, provider: 'btc.com' }
+        return { balance: res.data.data.balance, unconfirmed: 0, provider: 'btc.com' }
     }
 
     /**
@@ -44,25 +45,27 @@ export default class BsvScannerProcessor {
      * @return {Promise<UnifiedTransaction[]>}
      */
     async getTransactionsBlockchain(address) {
-        BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions started ' + address)
-        const tmp = await BlocksoftAxios.getWithoutBraking(API_TX_PATH + address + '/tx')
+        const link = API_TX_PATH + address + '/tx'
+        await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions started ' + address + ' ' + link)
+        const tmp = await BlocksoftAxios.getWithoutBraking(link)
         if (!tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.data === 'undefined' || !tmp.data.data || typeof tmp.data.data.list === 'undefined' || !tmp.data.data.list) {
-             return []
+            await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions no data ' + address)
+            return []
         }
         const transactions = []
-        let tx
-        for (tx of tmp.data.data.list) {
+        await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions data ' + address, tmp.data.data.list)
+        for (const tx of tmp.data.data.list) {
             const transaction = await this._unifyTransaction(address, tx)
             transactions.push(transaction)
         }
-        BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
+        await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
         return transactions
     }
 
     async _unifyTransaction(address, transaction) {
         const showAddresses = {
-            to : address,
-            from : address
+            to: address,
+            from: address
         }
         if (transaction.balance_diff < 0) {
             transaction.balance_diff = Math.abs(transaction.balance_diff)
@@ -88,7 +91,7 @@ export default class BsvScannerProcessor {
         }
         showAddresses.value = transaction.balance_diff
 
-        if (typeof transaction.block_time === "undefined") {
+        if (typeof transaction.block_time === 'undefined') {
             throw new Error(' no transaction.time error transaction data ' + JSON.stringify(transaction))
         }
         let formattedTime = transaction.block_time
@@ -116,7 +119,7 @@ export default class BsvScannerProcessor {
             addressTo: showAddresses.to === address ? '' : showAddresses.to,
             addressAmount: showAddresses.value,
             transactionStatus: transactionStatus,
-            transactionFee: transaction.fee,
+            transactionFee: transaction.fee
         }
     }
 }

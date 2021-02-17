@@ -214,12 +214,12 @@ class Account extends Component {
         }
     }
 
-    handleRefresh = async (click=false) => {
+    handleRefresh = async (click= false) => {
         const { account, mainStore } = this.props
 
         this.setState({
-            refreshing: click ? false : true,
-            clickRefresh: click ? true : false,
+            refreshing: !click,
+            clickRefresh: click,
         })
 
         UpdateOneByOneDaemon._canUpdate = false
