@@ -90,6 +90,17 @@ class BlocksoftPrettyNumbers {
         if (justCutted === def) {
             justCutted = '0'
         }
+
+        if (secondPart) {
+            for (let i = secondPart.length; i--; i >= 0) {
+                if (typeof secondPart[i] === 'undefined' || secondPart[i] === '0') {
+                    secondPart = secondPart.substr(0, i)
+                } else {
+                    break
+                }
+            }
+        }
+
         let separated = justCutted
         if (firstPart) {
             const len = firstPart.length
