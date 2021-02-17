@@ -27,15 +27,17 @@ const ASYNC_CACHE_TITLE = 'pushTokenV2'
 
 class MarketingEvent {
     DATA = {
-        LOG_TOKEN : '',
-        LOG_WALLET : '',
-        LOG_CASHBACK : ''
+        LOG_TOKEN: '',
+        LOG_WALLET: '',
+        LOG_CASHBACK: '',
+        LOG_PARENT: ''
     }
 
     UI_DATA = {
-        IS_LIGHT : '?',
-        IS_LOCKED : false,
-        IS_ACTIVE : true
+        IS_LIGHT: '?',
+        IS_LOCKED: false,
+        IS_ACTIVE: true,
+        IS_TESTER : false
     }
 
     /**
@@ -47,6 +49,7 @@ class MarketingEvent {
         if (testerMode === false) {
             testerMode = await AsyncStorage.getItem('testerMode')
         }
+        this.UI_DATA.IS_TESTER = testerMode
 
         let changeable
         if (testerMode === 'TESTER') {
@@ -95,7 +98,7 @@ class MarketingEvent {
         this.DATA.LOG_WALLET = await BlocksoftKeysStorage.getSelectedWallet()
         this._reinitTgMessage(testerMode)
 
-        await CashBackUtils.init({force : true, selectedWallet : this.DATA.LOG_WALLET})
+        await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET })
         this.DATA.LOG_CASHBACK = CashBackUtils.getWalletToken()
         this._reinitTgMessage(testerMode)
 
@@ -111,6 +114,20 @@ class MarketingEvent {
                 // do nothing
             }
         }
+    }
+
+    async reinitByWallet(walletHash) {
+        if (this.DATA.LOG_WALLET === walletHash) {
+            return false
+        }
+        this.DATA.LOG_WALLET = walletHash
+
+        await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET })
+
+        this.DATA.LOG_CASHBACK = CashBackUtils.getWalletToken()
+        this.DATA.LOG_PARENT = CashBackUtils.getParentToken()
+
+        this._reinitTgMessage(this.UI_DATA.IS_TESTER)
     }
 
     /**
@@ -129,7 +146,7 @@ class MarketingEvent {
             if (key === 'LOG_DEV') {
                 // do nothing
             } else if (key === 'LOG_TOKEN') {
-                const short  = val.substr(0, 20)
+                const short = val.substr(0, 20)
                 this.TG_MESSAGE += '\nTOKEN ' + short
                 this.TG_MESSAGE += '\nFULL_TOKEN ' + val
                 if (crashlytics()) {
@@ -145,7 +162,7 @@ class MarketingEvent {
                     this.TG_MESSAGE += '\n' + key + ' ' + val + ' '
                 }
                 if (crashlytics()) {
-                   crashlytics().setAttribute(key, val)
+                    crashlytics().setAttribute(key, val)
                 }
                 analytics().setUserProperty(key, val)
             }

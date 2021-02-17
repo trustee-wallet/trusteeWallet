@@ -19,7 +19,7 @@ import BlocksoftKeysStorage from '../../../../crypto/actions/BlocksoftKeysStorag
 const NativeLinking = require('../../../../node_modules/react-native/Libraries/Linking/NativeLinking').default
 const CACHE_PARENT_TITLE = 'parentTokenRechecked'
 
-export default new class CashBackUtils {
+class CashBackUtils {
     constructor() {
         this.walletToken = ''
         this.walletPublicAddress = ''
@@ -87,6 +87,48 @@ export default new class CashBackUtils {
         if (!this.walletToken) {
             await this.createWalletSignature(false)
         }
+
+        this.parentToken = false
+        let tmpParentToken = await AsyncStorage.getItem(CACHE_PARENT_TITLE)
+        await Log.log('SRV/CashBack init parent from AsyncStorage ' + CACHE_PARENT_TITLE + ' => ' + tmpParentToken)
+        if (this.walletToken) {
+            const tmp = await AsyncStorage.getItem(CACHE_PARENT_TITLE + '_' + this.walletToken)
+            if (typeof tmp !== 'undefined' && tmp) {
+                tmpParentToken = tmp
+                await Log.log('SRV/CashBack init parent from AsyncStorage ' + CACHE_PARENT_TITLE + '_' + this.walletToken + ' => ' + tmpParentToken)
+            }
+        }
+
+
+        if (typeof tmpParentToken !== 'undefined' && tmpParentToken != null && tmpParentToken) {
+            this.parentToken = tmpParentToken
+            await CashBackActions.setParentToken(this.parentToken)
+        } else {
+            try {
+                if (typeof firebaseUrl !== 'undefined' && firebaseUrl != null && firebaseUrl) {
+                    MarketingEvent.logEvent('cashback_parent_link', { firebaseUrl })
+                    const firebaseUrlArray = firebaseUrl.split('=')
+                    await Log.log('SRV/CashBack init parent firebaseUrlArray ' + JSON.stringify(firebaseUrlArray))
+                    if (firebaseUrlArray.length > 1) {
+                        const tmpParent = firebaseUrlArray[firebaseUrlArray.length-1]
+                        await Log.log('SRV/CashBack init parent tmpParent ' + JSON.stringify(tmpParent))
+                        if (tmpParent) {
+                            this.parentToken = tmpParent
+                            await AsyncStorage.setItem(CACHE_PARENT_TITLE, this.parentToken)
+                            if (this.walletToken) {
+                                await AsyncStorage.setItem(CACHE_PARENT_TITLE + '_' + this.walletToken, this.parentToken)
+                            }
+                            await CashBackActions.setParentToken(this.parentToken)
+                            MarketingEvent.logEvent('cashback_parent_fire', { parent: this.parentToken })
+                        }
+                    }
+                }
+            } catch (e) {
+                await Log.log('SRV/CashBack init parent error ' + e.message)
+            }
+        }
+        await Log.log('SRV/CashBack saved parent from AsyncStorage ' + CACHE_PARENT_TITLE + ' => ' + tmpParentToken, params)
+
         if (!this.walletToken) {
             return false
         }
@@ -105,35 +147,6 @@ export default new class CashBackUtils {
             }
         }
 
-        this.parentToken = false
-        const tmpParentToken = await AsyncStorage.getItem(CACHE_PARENT_TITLE)
-        await Log.log('SRV/CashBack init parent from AsyncStorage ' + CACHE_PARENT_TITLE + ' => ' + tmpParentToken)
-
-        if (typeof tmpParentToken !== 'undefined' && tmpParentToken != null && tmpParentToken) {
-            this.parentToken = tmpParentToken
-            await CashBackActions.setParentToken(this.parentToken)
-        } else {
-            try {
-                if (typeof firebaseUrl !== 'undefined' && firebaseUrl != null && firebaseUrl) {
-                    MarketingEvent.logEvent('cashback_parent_link', { firebaseUrl })
-                    const firebaseUrlArray = firebaseUrl.split('=')
-                    await Log.log('SRV/CashBack init parent firebaseUrlArray ' + JSON.stringify(firebaseUrlArray))
-                    if (firebaseUrlArray.length > 1) {
-                        const tmpParent = firebaseUrlArray[firebaseUrlArray.length-1]
-                        await Log.log('SRV/CashBack init parent tmpParent ' + JSON.stringify(tmpParent))
-                        if (tmpParent) {
-                            this.parentToken = tmpParent
-                            await AsyncStorage.setItem(tmpParentToken, this.parentToken)
-                            await CashBackActions.setParentToken(this.parentToken)
-                            MarketingEvent.logEvent('cashback_parent_fire', { parent: this.parentToken })
-                        }
-                    }
-                }
-            } catch (e) {
-                await Log.log('SRV/CashBack init parent error ' + e.message)
-            }
-        }
-        await Log.log('SRV/CashBack saved parent from AsyncStorage ' + CACHE_PARENT_TITLE + ' => ' + tmpParentToken, params)
         this.inited = true
     }
 
@@ -142,6 +155,7 @@ export default new class CashBackUtils {
         await AsyncStorage.setItem('cashbackAllData_' + this.walletToken,  JSON.stringify(data))
         if (data.parentToken && this.parentToken !== data.parentToken) {
             this.parentToken = data.parentToken
+            await AsyncStorage.setItem(CACHE_PARENT_TITLE + '_' + this.walletToken, data.parentToken)
             await AsyncStorage.setItem(CACHE_PARENT_TITLE, data.parentToken)
         }
         await CashBackActions.setCashBackDataFromApi(data)
@@ -152,6 +166,7 @@ export default new class CashBackUtils {
             return false
         }
         this.parentToken = parentToken
+        await AsyncStorage.setItem(CACHE_PARENT_TITLE + '_' + this.walletToken, parentToken)
         await AsyncStorage.setItem(CACHE_PARENT_TITLE, parentToken)
         await CashBackActions.setParentToken(this.parentToken)
     }
@@ -230,3 +245,6 @@ export default new class CashBackUtils {
         return this.walletPublicAddress
     }
 }
+
+const singleCashBackUtils = new CashBackUtils()
+export default singleCashBackUtils

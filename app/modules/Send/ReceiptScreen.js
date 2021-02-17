@@ -558,13 +558,16 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             }
                         }
 
+                        await Log.log('v4_sell_tx', gaParams)
                         await analytics().logPurchase('v4_sell_tx', gaParams)
                     } catch (e) {
                         if (config.debug.appErrors) {
                             console.log('v4_sell_tx error ' + e.message, gaParams )
                         }
+                        await Log.err('v4_sell_tx error ' + e.message)
                     }
-
+                } else {
+                    await Log.log('v4_sell_tx noOrder for ' + transaction.transactionHash)
                 }
 
                 const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
