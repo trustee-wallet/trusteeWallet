@@ -95,16 +95,6 @@ class HeaderBlocks extends Component {
         })
     }
 
-    renderAddressTooltip = (props) => {
-        const address = props.address || ''
-        const addressPrep = BlocksoftPrettyStrings.makeCut(address, 6, 6)
-        return (
-            <View style={{ alignItems: 'center' }}>
-                <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
-            </View>
-        )
-    }
-
     handleBtcAddressCopy = (address) => {
         const { cryptoCurrency, account } = this.props
         checkTransferHasError({
@@ -233,6 +223,8 @@ class HeaderBlocks extends Component {
 
         const shownAddress = cryptoCurrency.currencyCode === 'BTC' ? btcAddress : address
 
+        const addressPrep = BlocksoftPrettyStrings.makeCut(shownAddress, 6, 6)
+
         return (
             <View style={styles.topContent}>
                 <View style={styles.topContent__content}>
@@ -268,11 +260,9 @@ class HeaderBlocks extends Component {
                             <TouchableOpacity style={styles.topContent__middle}
                                 onPress={() => this.handleBtcAddressCopy(shownAddress)}
                                 hitSlop={HIT_SLOP}>
-                                <ToolTips height={150}
-                                    type={'ACCOUNT_SCREEN_ADDRESS_TIP'}
-                                    cryptoCurrency={cryptoCurrency}
-                                    mainComponentProps={{ address: shownAddress }}
-                                    MainComponent={this.renderAddressTooltip} />
+                                <View style={{ alignItems: 'center' }}>
+                                    <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
+                                </View>
                                 <View onPress={() => this.handleBtcAddressCopy(shownAddress)}
                                     style={styles.copyBtn}>
                                     <Copy name="content-copy" size={15} color={'#939393'} />

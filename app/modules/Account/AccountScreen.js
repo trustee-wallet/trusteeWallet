@@ -187,15 +187,7 @@ class Account extends Component {
     handleBuy = async () => {
         const isNewInterfaceBuy = await AsyncStorage.getItem('isNewInterfaceBuy')
         ExchangeActions.handleSetTradeType({ tradeType: 'BUY' })
-
-        if (isNewInterfaceBuy === 'true') {
-            ExchangeActions.handleSetNewInterface(true, 'BUY')
-            NavStore.goNext('TradeV3ScreenStack')
-        } else {
-            await this._showModalNoOldConfigs()
-            ExchangeActions.handleSetNewInterface(false, 'BUY')
-            NavStore.goNext('TradeScreenStack', {exchangeScreenParam: { selectedCryptocurrency: this.props.cryptoCurrency } })
-        }
+        NavStore.goNext('TradeV3ScreenStack')
     }
 
     _showModalNoOldConfigs = async () => {
@@ -281,9 +273,9 @@ class Account extends Component {
         return Math.abs(Math.round(diffTime));
     }
 
-    renderTooltip = (props) => {
+    renderSynchronized = (cryptoCurrency, account, allTransactionsToView) => {
 
-        const { cryptoCurrency, account, allTransactionsToView } = props
+        // const { cryptoCurrency, account, allTransactionsToView } = props
 
         let { transactionsToView } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
@@ -548,16 +540,7 @@ class Account extends Component {
                             overflow: 'hidden'
                         }}>
                             <View>
-                                <ToolTips type={'ACCOUNT_SCREEN_TRANSACTION_TIP'}
-                                    height={150}
-                                    MainComponent={this.renderTooltip}
-                                    nextCallback={this.nextCallback}
-                                    mainComponentProps={{
-                                        transactionsToView,
-                                        cryptoCurrency,
-                                        account,
-                                        allTransactionsToView
-                                    }} />
+                                {this.renderSynchronized(cryptoCurrency, account, allTransactionsToView)}
                             </View>
                             <View style={{ position: 'relative', width: '100%' }}>
                                 <View style={{ position: 'relative', width: '100%', zIndex: 1 }}>
