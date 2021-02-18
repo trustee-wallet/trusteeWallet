@@ -220,7 +220,6 @@ class MainV3DataScreen extends Component {
                     comment: data.comment || ''
                 }
             })
-
             await SendActions.startSend({
                 addressTo: data.address,
                 amountPretty: data.amount.toString(),

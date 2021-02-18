@@ -42,12 +42,22 @@ import UpdateOneByOneDaemon from '../../../daemons/back/UpdateOneByOneDaemon'
 import UpdateCurrencyListDaemon from '../../../daemons/view/UpdateCurrencyListDaemon'
 import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaemon'
 import UpdateCashBackDataDaemon from '../../../daemons/back/UpdateCashBackDataDaemon'
+import analytics from '@react-native-firebase/analytics'
 
 const { dispatch, getState } = store
 
 if (Text.defaultProps == null) Text.defaultProps = {}
 Text.defaultProps.allowFontScaling = false
 
+import {
+    isAlphaNumericUnderscore,
+    isNull,
+    isNumber,
+    isObject,
+    isOneOf,
+    isString,
+    isUndefined,
+} from '@react-native-firebase/app/lib/common';
 
 class App {
 
@@ -60,6 +70,20 @@ class App {
         const source = typeof params.source !== 'undefined' ? params.source : ''
         try {
             // console.log(new Date().toISOString() + ' start ' + source)
+
+
+            const check = {
+                currency: 'usd',
+
+                value: 25.51,
+                items: [{
+                    item_brand: 'cool-shirt-brand',
+                    item_id: '23456',
+                    item_name: 'orange t-shirt',
+                    item_category: 'round necked t-shirts',
+                }]
+            }
+            await analytics().logPurchase(check)
 
             await FilePermissions.init()
 
@@ -122,7 +146,7 @@ class App {
 
             this.initStatus = 'await settingsActions.getSettings()'
 
-            await this.refreshWalletsStore({firstTimeCall : 'first', source : 'ACT/App init', noRatesApi : true, noCashbackApi : true})
+            await this.refreshWalletsStore({ firstTimeCall: 'first', source: 'ACT/App init', noRatesApi: true, noCashbackApi: true })
 
             this.initStatus = 'await this.refreshWalletsStore(true)'
 
@@ -148,7 +172,7 @@ class App {
 
             this.initStatus = 'Daemon.start()'
 
-            await this.refreshWalletsStore({firstTimeCall : 'second', source : 'ACT/App init'})
+            await this.refreshWalletsStore({ firstTimeCall: 'second', source: 'ACT/App init' })
 
             this.initStatus = 'await this.refreshWalletsStore(true)'
 
@@ -166,7 +190,7 @@ class App {
             Log.err('ACT/App init application error ' + this.initStatus + ' ' + e.message)
             this.initError = e.message
             dispatch(setInitError(e.message))
-            NavStore.goNext('ErrorScreen', {error : e.message})
+            NavStore.goNext('ErrorScreen', { error: e.message })
         }
         try {
             // noinspection ES6MissingAwait
@@ -185,7 +209,7 @@ class App {
      */
     refreshWalletsStore = async (params) => {
         const firstTimeCall = typeof params.firstTimeCall !== 'undefined' ? params.firstTimeCall : false
-        const source =  typeof params.source !== 'undefined' && params.source.trim() !== '' ? params.source : 'noSource'
+        const source = typeof params.source !== 'undefined' && params.source.trim() !== '' ? params.source : 'noSource'
 
         if (!this.initHasWallets) {
             await Log.log('ACT/App appRefreshWalletsStates called will do nothing from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall))
@@ -205,7 +229,7 @@ class App {
 
         if (firstTimeCall === 'first') {
             // first step of init
-            await Daemon.forceAll({...params, noCashbackApi : true})
+            await Daemon.forceAll({ ...params, noCashbackApi: true })
 
         } else if (firstTimeCall === 'second') {
             // second step of init
@@ -231,7 +255,6 @@ class App {
 
         await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall) + ' finished')
     }
-
 
 
 }

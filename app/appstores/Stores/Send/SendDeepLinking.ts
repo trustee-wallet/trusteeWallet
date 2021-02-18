@@ -62,6 +62,7 @@ export namespace SendDeepLinking {
 
                 if (initialURL.indexOf('trustee.page.link') === -1) {
 
+                    await SendActions.cleanData()
                     SendActions.setUiType({
                         ui: {
                             uiType : 'DEEP_LINKING'
@@ -72,7 +73,6 @@ export namespace SendDeepLinking {
                             comment : parsed.label || ''
                         }
                     })
-
                     await SendActions.startSend({
                         addressTo : parsed.address,
                         amountPretty : parsed.amount ? parsed.toString() : '0',

@@ -157,6 +157,7 @@ class QRCodeScannerScreen extends Component {
                 }
 
                 const parsed = res.data
+                await SendActions.cleanData()
                 SendActions.setUiType({
                     ui: {
                         uiType: 'MAIN_SCANNER',
@@ -184,6 +185,7 @@ class QRCodeScannerScreen extends Component {
 
                     const parsed = res.data
                     parsed.currencyCode = oldCurrency.currencyCode
+                    await SendActions.cleanData()
                     SendActions.setUiType({
                         ui: {
                             uiType: 'SEND_SCANNER',
@@ -214,6 +216,7 @@ class QRCodeScannerScreen extends Component {
                         }
                     })
                 } else {
+                    await SendActions.cleanData()
                     SendActions.setUiType({
                         ui: {
                             uiType: 'SEND_SCANNER',

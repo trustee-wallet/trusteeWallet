@@ -104,7 +104,7 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
                 marketingData: MarketingEvent.DATA
             })
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy successTx result ', JSON.parse(JSON.stringify(checkResult)))
+                console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy successTx result ', JSON.parse(JSON.stringify(checkResult.data)))
             }
         } catch (e3) {
             if (config.debug.cryptoErrors) {

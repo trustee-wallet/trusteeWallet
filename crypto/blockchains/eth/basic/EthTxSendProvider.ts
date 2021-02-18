@@ -164,7 +164,7 @@ export default class EthTxSendProvider {
                 marketingData: MarketingEvent.DATA
             })
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy successTx result ', JSON.parse(JSON.stringify(checkResult)))
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy successTx result ', JSON.parse(JSON.stringify(checkResult.data)))
             }
         } catch (e3) {
             if (config.debug.cryptoErrors) {

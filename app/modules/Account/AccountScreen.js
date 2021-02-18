@@ -165,6 +165,7 @@ class Account extends Component {
 
         if (isSynchronized) {
 
+            await SendActions.cleanData()
             SendActions.setUiType({
                 ui: {
                     uiType: 'ACCOUNT_SCREEN'

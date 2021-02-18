@@ -60,6 +60,7 @@ class FioRequestDetails extends Component {
 
         setLoaderStatus(true)
         try {
+            await SendActions.cleanData()
             SendActions.setUiType({
                 ui: {
                     uiType : 'FIO_REQUESTS'

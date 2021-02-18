@@ -679,6 +679,7 @@ class TransactionScreen extends Component {
             return false
         }
         array.push({ icon: 'canceled', title: strings('account.transactionScreen.removeRbf'), action: async () => {
+            await SendActions.cleanData()
             SendActions.setUiType({
                 ui: {
                     uiType : 'TRANSACTION_SCREEN_REMOVE'
@@ -766,6 +767,7 @@ class TransactionScreen extends Component {
                 params.transactionReplaceByFee = transaction.transactionHash
                 params.addressTo = transaction.addressTo
             }
+            await SendActions.cleanData()
             SendActions.setUiType({
                 ui: {
                     uiType : 'TRANSACTION_SCREEN'

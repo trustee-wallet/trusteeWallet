@@ -18,7 +18,7 @@ class ApiRates {
      */
     _cachedData = {}
 
-    _cachedBasicCurrencies =   [{ currencyCode: 'USD'}, { currencyCode: 'UAH' }, { currencyCode: 'RUB' }, { currencyCode: 'USDT', currencyName: 'Usdt' }]
+    _cachedBasicCurrencies = [{ currencyCode: 'USD' }, { currencyCode: 'UAH' }, { currencyCode: 'RUB' }, { currencyCode: 'USDT', currencyName: 'Usdt' }]
 
     _inited = false
 
@@ -38,10 +38,10 @@ class ApiRates {
                 }
 
             } else {
-                params = {source : 'ApiRates.getRates'}
+                params = { source: 'ApiRates.getRates' }
             }
             const res = await ApiProxy.getAll(params)
-            if (!res || typeof res.rates === 'undefined' || typeof res.rates.data === 'undefined' || typeof res.ratesHash === 'undefined' || res.ratesHash === CACHE_RATES_HASH ) {
+            if (!res || typeof res.rates === 'undefined' || typeof res.rates.data === 'undefined' || typeof res.ratesHash === 'undefined' || res.ratesHash === CACHE_RATES_HASH) {
                 return false
             }
             this._cachedData = res.rates.data
@@ -57,9 +57,30 @@ class ApiRates {
             if (config.debug.appErrors) {
                 console.log('ApiRates error ' + e.message, e)
             }
-            Log.daemon('ApiRates error ' + e.message )
+            Log.daemon('ApiRates error ' + e.message)
         }
         return this._cachedData
+    }
+
+    /**
+     * @returns {{usdtobtc: number, usdtoeuro: number, usdtokzt: number, usdtouah: number, usdttousd: number, usdtorub: number}}
+     */
+    getRatesWithLocal() {
+        const tmp = {
+            usdtoeuro: 1,
+            usdtorub: 1,
+            usdtouah: 1,
+            usdtokzt: 1,
+            usdtobtc: 1,
+            usdttousd: 1
+        }
+        for (const key in this._cachedData.rate) {
+            tmp[key.toLowerCase()] = this._cachedData.rate[key]
+        }
+        for (const key of this._cachedData.cryptoCurrencies) {
+            tmp[key.currencyCode.toLowerCase()] = key.currencyRateUsd
+        }
+        return tmp
     }
 
     async getBasicCurrencies() {
@@ -79,4 +100,5 @@ class ApiRates {
     }
 }
 
-export default new ApiRates()
+const singleApiRates = new ApiRates()
+export default singleApiRates

@@ -195,6 +195,7 @@ class HomeScreen extends React.Component {
 
     // separated from stores not to be updated from outside
     handleSend = async (cryptoCurrency) => {
+        await SendActions.cleanData()
         SendActions.setUiType({
             ui: {
                 uiType: 'HOME_SCREEN'

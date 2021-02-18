@@ -231,7 +231,6 @@ class ConfirmScreen extends Component {
                     gotoReceipt: true,
                 }
             })
-
             await SendActions.startSend({
                 addressTo : res.data.address,
                 amountPretty : res.data.amount.toString(),

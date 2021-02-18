@@ -57,6 +57,9 @@ import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalS
 import ApiV3 from '../../services/Api/ApiV3'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import MarketingEvent from '../../services/Marketing/MarketingEvent'
+import ApiRates from '../../services/Api/ApiRates'
+import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 
 let CACHE_WARNING_AMOUNT_TIME = ''
 let CACHE_WARNING_AMOUNT = ''
@@ -129,8 +132,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
         }
         sendScreenData.selectedFee = selectedFee
         uiSendScreenData.ui.uiNeedToCountFees = false
-
-        this.checkLoadedFee(tmp.countedFees, selectedFee)
+        
         this.setState({
             sendScreenData,
             countedFees: tmp.countedFees,
@@ -217,6 +219,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             })
             return false
         }
+        return true
     }
 
     init = async () => {
@@ -291,15 +294,21 @@ class ReceiptScreen extends SendBasicScreenScreen {
         const uiSendScreenData = this.props.sendScreenStore
 
         let selectedFee = typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
-        let tmp
+        let tmp = SendTmpData.getCountedFees()
         if (!selectedFee) {
-            tmp = SendTmpData.getCountedFees()
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
         if (!selectedFee || uiSendScreenData.ui.uiNeedToCountFees) {
             tmp = await SendActions.countFees(sendScreenData)
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
+
+        if (typeof tmp.countedFees !== 'undefined' && tmp.countedFees) {
+            if (!this.checkLoadedFee(tmp.countedFees, selectedFee)) {
+                return false
+            }
+        }
+
 
         if (typeof tmp !== 'undefined' && typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined' && !passwordChecked) {
             const newAmount = selectedFee.amountForTx.toString()
@@ -542,32 +551,60 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
 
                     // https://rnfirebase.io/reference/analytics#logPurchase
+                    let usdValue = sendScreenData.bseTrusteeFee.value
+                    let localCurrency = sendScreenData.bseTrusteeFee.currencyCode.toLowerCase()
+                    let usdCurrency = 'usd'
+                    Log.log('sendScreenData.bseTrusteeFee in ' + localCurrency + ' ' + usdValue, sendScreenData.bseTrusteeFee)
+                    if (usdValue * 1 > 0) {
+                        if (localCurrency !== 'usd') {
+                            const rate = ApiRates.getRatesWithLocal()
+                            if (localCurrency.indexOf('usdt') !== -1) {
+                                usdValue = typeof rate.usdttousd !== 'undefined' && rate.usdttousd > 0 ? BlocksoftUtils.mul(rate.usdttousd, usdValue) : usdValue
+                                Log.log('sendScreenData.bseTrusteeFee rate1 ' + rate.usdttousd + ' => ' + usdValue)
+                            } else if (typeof rate['usdto' + localCurrency] !== 'undefined') {
+                                usdValue = BlocksoftUtils.div(usdValue, rate['usdto' + localCurrency])
+                                Log.log('sendScreenData.bseTrusteeFee rate2 ' + rate['usdto' + localCurrency] + ' => ' + usdValue)
+                            } else if (typeof rate[localCurrency] !== 'undefined') {
+                                usdValue = BlocksoftUtils.div(usdValue, rate[localCurrency])
+                                Log.log('sendScreenData.bseTrusteeFee rate3 ' + rate[localCurrency] + ' => ' + usdValue)
+                            } else {
+                                Log.log('sendScreenData.bseTrusteeFee rate4 not found ' + localCurrency)
+                                usdCurrency = 'uah'
+                            }
+                        } else {
+                            usdValue = sendScreenData.bseTrusteeFee.value
+                        }
+                    }
                     let gaParams = {}
                     try {
                         gaParams = {
-                            'transaction_id' :  sendScreenData.bseOrderId,
-                            'value' : sendScreenData.bseTrusteeFee.value,
-                            'currency' : 'USD',
-                            'items' : {
-                                'item_brand' : sendScreenData.bseTrusteeFee.type,
+                            transaction_id :  sendScreenData.bseOrderId,
+                            value : usdValue,
+                            currency : usdCurrency,
+                            items : [{
+                                item_brand : sendScreenData.bseTrusteeFee.type,
                                 item_category : sendScreenData.bseTrusteeFee.from,
                                 item_category2: sendScreenData.bseTrusteeFee.to,
                                 item_id :sendScreenData.bseOrderId,
                                 item_name :  sendScreenData.bseTrusteeFee.from + '_' + sendScreenData.bseTrusteeFee.to,
-                                quantity : sendScreenData.amountPretty
-                            }
+                                quantity : sendScreenData.amountPretty * 1
+                            }]
                         }
 
-                        await Log.log('v4_sell_tx', gaParams)
-                        await analytics().logPurchase('v4_sell_tx', gaParams)
+                        await MarketingEvent.logEvent('v20_sell_tx', gaParams, 'SELL')
+                        await Log.log('v20_sell_tx', gaParams)
+                        await analytics().logPurchase(gaParams)
                     } catch (e) {
                         if (config.debug.appErrors) {
-                            console.log('v4_sell_tx error ' + e.message, gaParams )
+                            console.log('v20_sell_tx error ' + e.message, gaParams )
                         }
-                        await Log.err('v4_sell_tx error ' + e.message)
+                        await Log.err('v20_sell_tx error ' + e.message)
                     }
                 } else {
-                    await Log.log('v4_sell_tx noOrder for ' + transaction.transactionHash)
+                    if (config.debug.appErrors) {
+                        console.log('v20_sell_tx noOrder for ' + transaction.transactionHash)
+                    }
+                    await Log.log('v20_sell_tx noOrder for ' + transaction.transactionHash)
                 }
 
                 const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
@@ -753,10 +790,6 @@ class ReceiptScreen extends SendBasicScreenScreen {
         if (!selectedFee) {
             selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
         }
-        if (typeof tmp.countedFees !== 'undefined' && tmp.countedFees) {
-            this.checkLoadedFee(tmp.countedFees, selectedFee)
-        }
-
         let amount = sendScreenData.amountPretty
         let address = sendScreenData.addressTo || ''
         let memo = sendScreenData.memo || ''
