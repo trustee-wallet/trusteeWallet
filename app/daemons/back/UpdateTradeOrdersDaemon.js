@@ -149,7 +149,7 @@ class UpdateTradeOrdersDaemon {
             }
 
             try {
-                
+
                 if (typeof tmpTradeOrders !== 'undefined' && tmpTradeOrders && tmpTradeOrders.length > 0) {
 
                     let item
@@ -165,9 +165,6 @@ class UpdateTradeOrdersDaemon {
                             item.uiApiVersion = 'v2'
                         }
                         try {
-                            if (item.orderHash === '3e337ed5f6') {
-                                console.log('item', JSON.parse(JSON.stringify(item)))
-                            }
                             const tmps = [
                                 {
                                     currencyCode: item.requestedInAmount.currencyCode || false,
