@@ -92,6 +92,9 @@ class Transaction extends Component {
     }
 
     prepareBlockConfirmations = (blockConfirmations) => {
+        if (blockConfirmations === '' || blockConfirmations === false) {
+            return ''
+        }
         let tmp = 0
         if (typeof blockConfirmations !== 'undefined' && blockConfirmations > 0) {
             tmp = blockConfirmations.toString()

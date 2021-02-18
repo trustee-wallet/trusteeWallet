@@ -249,6 +249,7 @@ export default {
                 account_id INTEGER NOT NULL,
                 
                 transaction_hash VARCHAR(256) NULL,
+				transaction_hash_basic VARCHAR(256) NULL,
                 block_hash VARCHAR(256) NULL,
                 block_number INTEGER NULL,
                 block_confirmations INTEGER NUll,

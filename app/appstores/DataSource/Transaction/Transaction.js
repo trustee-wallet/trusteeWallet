@@ -268,6 +268,7 @@ class Transaction {
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params.noOrder) {
             order = ''
+            where.push(`transaction_hash !=''`)
         } else {
             where.push(`hidden_at IS NULL`)
         }
@@ -298,6 +299,7 @@ class Transaction {
             block_number AS blockNumber,  
             block_confirmations AS blockConfirmations,
             transaction_hash AS transactionHash, 
+            transaction_hash_basic AS transactionHashBasic,
             address_from AS addressFrom, 
             address_from_basic AS addressFromBasic,
             address_amount AS addressAmount, 
@@ -342,22 +344,38 @@ class Transaction {
         const txArray = []
         let tx
         const toRemove = []
-        for(tx of res) {
-            if (typeof shownTx[tx.transactionHash] !== 'undefined') {
+        for (tx of res) {
+            if (tx.transactionHash !== '' && typeof shownTx[tx.transactionHash] !== 'undefined') {
                 Log.daemon('Transaction getTransactions will remove ' + tx.id)
-                toRemove.push( tx.id)
+                toRemove.push(tx.id)
                 continue
             }
-            shownTx[tx.transactionHash] = 1
+            if (tx.bseOrderId !== '' && typeof shownTx['bse_' + tx.bseOrderId] !== 'undefined') {
+                if (shownTx['bse_' + tx.bseOrderId].hash === '') {
+                    Log.daemon('Transaction getTransactions will remove old ' + tx.bseOrderId)
+                    toRemove.push(shownTx['bse_' + tx.bseOrderId].id)
+                } else {
+                    Log.daemon('Transaction getTransactions will remove ' + tx.bseOrderId)
+                    toRemove.push(tx.id)
+                }
+                continue
+            }
+
+            if (tx.transactionHash) {
+                shownTx[tx.transactionHash] = 1
+            }
+            if (tx.bseOrderId) {
+                shownTx['bse_' + tx.bseOrderId] = {id : tx.id, hash : tx.transactionHash}
+            }
             tx.addressAmount = BlocksoftUtils.fromENumber(tx.addressAmount)
 
             if (typeof params.noOld !== 'undefined' || params.noOld) {
                 if ((tx.blockConfirmations > 30 && tx.transactionStatus === 'success') || tx.blockConfirmations > 300) {
                     txArray.push({
-                        id : tx.id,
-                        transactionHash : tx.transactionHash,
-                        transactionsOtherHashes : tx.transactionsOtherHashes,
-                        updateSkip : true
+                        id: tx.id,
+                        transactionHash: tx.transactionHash,
+                        transactionsOtherHashes: tx.transactionsOtherHashes,
+                        updateSkip: true
                     })
                     continue
                 }

@@ -99,7 +99,6 @@ export async function setSelectedAccount(setting) {
     const wallet = store.getState().mainStore.selectedWallet
     const currency = store.getState().mainStore.selectedCryptoCurrency
     let basicAccounts = store.getState().accountStore.accountList
-    const exchangeOrdersStore = store.getState().exchangeOrdersStore
 
     let accounts
     if (currency.currencyCode === 'BTC') {
@@ -290,27 +289,10 @@ export async function setSelectedAccount(setting) {
                 Log.log('ACT/MStore setSelectedAccount.transactionInfinity transactionsTotalLength forced ' + account.transactionsTotalLength)
             }
             for (let transaction of tmp) {
-                transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData)
+                transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData, account.currencyCode)
                 account.transactionsToView.push(transaction)
             }
         }
-
-        account.ordersWithoutTransactions = []
-        // it there is no wallet hash in store - just update code IN STORE if its bug or show me how you done it - not comment out logic
-        if (account.walletHash === exchangeOrdersStore.walletHash
-            && typeof exchangeOrdersStore.exchangeOrders !== 'undefined'
-            && exchangeOrdersStore.exchangeOrders
-            && typeof exchangeOrdersStore.exchangeOrders[account.currencyCode] !== 'undefined'
-            && exchangeOrdersStore.exchangeOrders[account.currencyCode]
-        ) {
-            for (const exchangeOrder of exchangeOrdersStore.exchangeOrders[account.currencyCode] ) {
-                const preformatOrder = transactionActions.preformatWithBSEforShow(false, exchangeOrder, account.currencyCode)
-                account.ordersWithoutTransactions.push(preformatOrder)
-                account.transactionsTotalLength++
-            }
-        }
-
-
 
         dispatch({
             type: 'SET_SELECTED_ACCOUNT',

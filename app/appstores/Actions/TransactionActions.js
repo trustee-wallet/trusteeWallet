@@ -183,7 +183,7 @@ const transactionActions = {
         transaction.transactionVisibleStatus = this.prepareStatus(transaction.transactionStatus)
 
         if (typeof exchangeOrder.status !== 'undefined' && exchangeOrder.status) {
-            if (transaction.transactionStatus.toLowerCase() !== 'fail' || transaction.transactionStatus.toLowerCase() !== 'missing' 
+            if (transaction.transactionStatus.toLowerCase() !== 'fail' || transaction.transactionStatus.toLowerCase() !== 'missing'
                 || transaction.transactionStatus.toLowerCase() !== 'replaced') {
                 transaction.transactionVisibleStatus = this.prepareStatus(exchangeOrder.status)
             }
@@ -233,6 +233,7 @@ const transactionActions = {
      */
     preformat(transaction, params) {
         if (!transaction) return
+        if (transaction.transactionHash === '') return false
 
         let addressAmountSatoshi = false
 

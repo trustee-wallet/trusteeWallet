@@ -117,7 +117,7 @@ class TransactionScreen extends Component {
                             // if you need = add also transactionActions.preformat for basic rates
                             currencyCode = tmp[0].currencyCode
                             account = account[currencyCode]
-                            tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData)
+                            tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData, currencyCode)
                         } else {
                             tx = transactionActions.preformatWithBSEforShow(false, { orderHash, createdAt: notification.createdAt })
                         }
@@ -133,12 +133,12 @@ class TransactionScreen extends Component {
                             // if you need = add also transactionActions.preformat for basic rates
                             currencyCode = tmp[0].currencyCode
                             account = account[currencyCode]
-                            tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData)
+                            tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData, currencyCode)
                         } else {
                             const exchangeOrder = await UpdateTradeOrdersDaemon.fromApi(walletHash, orderHash)
                             if (exchangeOrder) {
                                 // basic object for order without transaction
-                                tx = transactionActions.preformatWithBSEforShow(false, exchangeOrder)
+                                tx = transactionActions.preformatWithBSEforShow(false, exchangeOrder, currencyCode)
                             } else {
                                 // do some alert as nothing found
                             }
@@ -487,6 +487,9 @@ class TransactionScreen extends Component {
 
     prepareBlockConfirmations = (blockConfirmations) => {
         let tmp = 0
+        if (blockConfirmations === '' || blockConfirmations === false) {
+            return false
+        }
         if (typeof blockConfirmations !== 'undefined' && blockConfirmations > 0) {
             tmp = blockConfirmations.toString()
             if (blockConfirmations > 20) {

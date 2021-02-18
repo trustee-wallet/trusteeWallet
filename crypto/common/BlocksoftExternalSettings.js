@@ -56,29 +56,7 @@ const CACHE = {
     'TERMS_en': 'https://wptgterms.blocksoftlab.com/terms-of-use/?header_footer=none',
     'TERMS_ru': 'https://wptgterms.blocksoftlab.com/ru/usloviya-ispolzovaniya/?header_footer=none',
     'TERMS_uk': 'https://wptgterms.blocksoftlab.com/uk/umovi-vikoristannya/?header_footer=none',
-    'SEND_CHECK_ALMOST_ALL_PERCENT' : 0.95,
-    'TRADE_ORDERS_NO_TX_MAX_COUNT' : 3,
-    'TRADE_ORDERS_NO_TX_WAY_TYPES': {
-        'EXCHANGE': {
-            'canceled_payin': 600,
-            'pending_payin': 2880,
-            'done_payin' : 2880
-        }, // time in minutes to be shown
-        'BUY': {
-            'canceled_payin': 1440,
-            'pending_payin': 2880,
-            'refunded_order': 2880,
-            'done_payin': 2880,
-            'wait_trade': 2880,
-            'done_trade': 2880,
-            'wait_payout': 2880,
-            'canceled_payout': 2880,
-            'done_payout': 2880,
-            'wait_kyc': 2880,
-            'stopped_order': 2880,
-            'error_order': 2880
-        }, // time in minutes to be shown
-    },
+    'SEND_CHECK_ALMOST_ALL_PERCENT' : 0.95
 }
 
 

@@ -79,8 +79,6 @@ class Account extends Component {
             transactionsToView: [],
             transactionsShownLength: 5,
 
-            ordersWithoutTransactions : [],
-
             show: true,
             mode: 'TRANSACTIONS',
             dash: true,
@@ -99,7 +97,6 @@ class Account extends Component {
 
         this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
             this.transactionInfinity()
-            this.ordersWithoutTransactions()
         })
 
         CACHE_ASKED = await AsyncStorage.getItem('asked')
@@ -254,7 +251,6 @@ class Account extends Component {
 
         UpdateOneByOneDaemon._canUpdate = true
 
-        this.ordersWithoutTransactions()
         this.transactionInfinity(0, this.state.transactionsShownLength)
 
         this.setState({
@@ -384,7 +380,7 @@ class Account extends Component {
 
         if (tmp && tmp.length > 0) {
             for (let transaction of tmp) {
-                transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData)
+                transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData, account.currencyCode)
                 transactionsToView.push(transaction)
             }
         }
@@ -394,28 +390,6 @@ class Account extends Component {
         } else {
             this.setState({ transactionsToView })
         }
-    }
-
-    // @yura HERE YOU CAN ADD ANY LOGIC FOR NOT RECHECK ALL ELEMENTS INSIDE TXS
-    // plus you can use it as transactionActions.preformatOrder in ONE place
-    async ordersWithoutTransactions() {
-        const { account, exchangeOrdersStore } = this.props
-        const preformatOrders = []
-        // it there is no wallet hash in store - just update code IN STORE if its bug or show me how you done it - not comment out logic
-        if (account.walletHash === exchangeOrdersStore.walletHash
-            && typeof exchangeOrdersStore.exchangeOrders !== 'undefined'
-            && exchangeOrdersStore.exchangeOrders
-            && typeof exchangeOrdersStore.exchangeOrders[account.currencyCode] !== 'undefined'
-            && exchangeOrdersStore.exchangeOrders[account.currencyCode]
-        ) {
-            for (const exchangeOrder of exchangeOrdersStore.exchangeOrders[account.currencyCode] ) {
-                const preformatOrder = transactionActions.preformatWithBSEforShow(false, exchangeOrder, account.currencyCode)
-                preformatOrders.push(preformatOrder)
-            }
-         }
-        this.setState({
-            ordersWithoutTransactions: preformatOrders
-        })
     }
 
     getPrettyCurrenceName = (currencyCode, currencyName) => {
@@ -444,15 +418,12 @@ class Account extends Component {
         const { colors, isLight } = this.context
         const { mode, headerHeight } = this.state
         const { mainStore, account, cryptoCurrency, settingsStore } = this.props
-        let { amountToView, show, transactionsToView, ordersWithoutTransactions, transactionsShownLength, isBalanceVisible } = this.state
+        let { amountToView, show, transactionsToView, transactionsShownLength, isBalanceVisible } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
             transactionsToView = account.transactionsToView
         }
-        if (typeof ordersWithoutTransactions === 'undefined' || !ordersWithoutTransactions || ordersWithoutTransactions.length === 0) {
-            ordersWithoutTransactions = account.ordersWithoutTransactions
-        }
 
-        const allTransactionsToView = ordersWithoutTransactions.concat(transactionsToView)
+        const allTransactionsToView = transactionsToView // was concat before
 
         const address = account.address
 
@@ -591,7 +562,6 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         cryptoCurrency: state.mainStore.selectedCryptoCurrency,
         account: state.mainStore.selectedAccount,
-        exchangeOrdersStore: state.exchangeOrdersStore,
         settingsStore: state.settingsStore,
         cashBackStore: state.cashBackStore,
         exchangeStore: state.exchangeStore,
