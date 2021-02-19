@@ -29,6 +29,7 @@ import DaemonCache from '../../../daemons/DaemonCache'
 import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
 
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { reverse } from 'lodash'
 
 
 const smallDevice = Dimensions.get('screen').width < 370
@@ -50,10 +51,13 @@ class Wallet extends Component {
             type: 'YES_NO_MODAL',
             title: strings('settings.walletList.backupModal.title'),
             icon: 'WARNING',
-            description: strings('settings.walletList.backupModal.description', { walletName })
-        }, () => {
-            this.handleBackup()
-        })
+            description: strings('settings.walletList.backupModal.description', { walletName }),
+            oneButton: strings('settings.walletList.backupModal.save'),
+            twoButton: strings('settings.walletList.backupModal.late'),
+            noCallback: () => {
+                this.handleBackup()
+            }
+        }, () => {})
     }
 
     handleBackup = async () => {
