@@ -306,8 +306,10 @@
         "description" : "You will be using balance from address %{newAddress}"
       },
       "backupModal": {
-        "title": "Recovery phrase not saved!",
-        "description": "The recovery phrase (seed phrase) is the only key to your assets! In case of failure of the phone or other similar situations, it will be impossible to restore access to your assets without this phrase! We recommend that you save the phrase in a safe place right now! \n \n If you are asked for a seed phrase, then you are dealing with scammers! \n Do not tell the seed phrase under any circumstances!"
+        "title": "Your recovery phrase not saved!",
+        "description": "Recovery phrase (Seed phrase) is the only key to your assets! In case of failure or loss of a mobile device, it will be impossible to restore access to your assets without Seed-phrase!\n\nSave your Recovery phrase in a safe place now!\n\nBeware of scammers, never give your Recovery phrase to anyone!",
+        "save": "Save",
+        "late": "Do later"
       },
       "hdEnableModal": {
         "title": "Switch wallet to HD mode?",
