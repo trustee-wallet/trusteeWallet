@@ -14,7 +14,7 @@ import DBInterface from '../../DBInterface'
 import { SettingsKeystore } from '../../../../Stores/Settings/SettingsKeystore'
 
 export default {
-    maxVersion: 100,
+    maxVersion: 103,
     updateQuery: {
         1: {
             queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -718,6 +718,18 @@ export default {
 
         100: {
             queryString: `ALTER TABLE transactions ADD COLUMN transaction_hash_basic VARCHAR(256) NULL`
+        },
+		
+		101: {
+            queryString: `ALTER TABLE account ADD COLUMN transactions_scan_error TEXT NULL`
+        },
+		
+		102: {
+            queryString: `ALTER TABLE account_balance ADD COLUMN balance_scan_error TEXT NULL`
+        },
+		
+		103: {
+            queryString: `ALTER TABLE wallet_pub ADD COLUMN balance_scan_error TEXT NULL`
         },
     }
 }

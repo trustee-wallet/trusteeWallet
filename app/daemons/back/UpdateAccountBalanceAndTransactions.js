@@ -218,6 +218,7 @@ class UpdateAccountBalanceAndTransactions {
             if (!newBalance || typeof newBalance.balance === 'undefined') {
                 if (account.balanceScanBlock === 0 && account.balanceScanTime === 0) {
                     updateObj.balanceScanLog = account.address + ' empty response, old balance ' + account.balance + ', ' + JSON.stringify(newBalance)
+                    updateObj.balanceScanError = 'account.balanceBadNetwork'
                     await accountBalanceDS.updateAccountBalance({ updateObj }, account)
                     return false
                 }
@@ -238,6 +239,7 @@ class UpdateAccountBalanceAndTransactions {
                 continueWithTx = false
                 updateObj.balanceProvider = newBalance.provider
                 updateObj.balanceScanLog = account.address + ' block error, ignored new ' + newBalance.balance + ' block ' + newBalance.balanceScanBlock + ', old balance ' + account.balance + ' block ' + account.balanceScanBlock
+                updateObj.balanceScanError = 'account.balanceBadBlock'
             } else if (typeof account.balance === 'undefined' || (newBalance.balance.toString() !== account.balance.toString() || newBalance.unconfirmed.toString() !== account.unconfirmed.toString())) {
                 updateObj.balanceFix = newBalance.balance // lets send to db totally not changed big number string
                 updateObj.balanceTxt = newBalance.balance.toString() // and string for any case
@@ -248,7 +250,7 @@ class UpdateAccountBalanceAndTransactions {
                     updateObj.balanceScanBlock = newBalance.balanceScanBlock
                 }
                 updateObj.balanceScanLog = account.address + ' all ok, new balance ' + newBalance.balance + ', old balance ' + account.balance + ', ' + balanceError
-
+                updateObj.balanceScanError = ''
                 const logData = {}
                 logData.walletHash = account.walletHash
                 logData.currencyCode = account.currencyCode
@@ -262,6 +264,7 @@ class UpdateAccountBalanceAndTransactions {
                 MarketingEvent.setBalance(logData.walletHash, logData.currencyCode, logData.newBalance, logData)
             } else {
                 updateObj.balanceScanLog = account.address + ' not changed, old balance ' + account.balance + ', ' + balanceError
+                updateObj.balanceScanError = ''
                 if (typeof newBalance.provider !== 'undefined') {
                     updateObj.balanceProvider = newBalance.provider
                 }
@@ -269,13 +272,9 @@ class UpdateAccountBalanceAndTransactions {
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance ok Prepared ' + account.currencyCode + ' ' + account.address + ' new balance ' + newBalance.balance + ' provider ' + newBalance.provider + ' old balance ' + account.balance, JSON.stringify(updateObj))
         } else {
             updateObj.balanceScanLog = account.address + ' no balance, old balance ' + account.balance + ', ' + balanceError
+            updateObj.balanceScanError = 'account.balanceBadNetwork'
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance not Prepared ' + account.currencyCode + ' ' + account.address + ' old balance ' + account.balance, JSON.stringify(updateObj))
         }
-
-        await appNewsDS.saveAppNews({
-            onlyOne: true, walletHash: account.walletHash, currencyCode: account.currencyCode, newsGroup: 'ONE_BY_ONE_SCANNER', newsName: 'TXS_SCANNED_LAST_TIME',
-            newsJson: { log: updateObj.balanceScanLog.substr(0, 50) + '...' }
-        })
 
         if (account.balanceScanLog) {
             updateObj.balanceScanLog += ' ' + account.balanceScanLog

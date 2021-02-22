@@ -417,6 +417,7 @@ class Account {
             account_balance.unconfirmed_txt AS unconfirmedTxt,
             account_balance.balance_provider AS balanceProvider,
             account_balance.balance_scan_time AS balanceScanTime,
+            account_balance.balance_scan_error AS balanceScanError,
             account_balance.balance_scan_log AS balanceScanLog,
             account.already_shown AS alreadyShown,
             account.is_main AS isMain

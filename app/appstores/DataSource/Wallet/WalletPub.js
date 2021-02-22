@@ -89,6 +89,7 @@ class WalletPub {
         unconfirmed_txt AS unconfirmedTxt,
         balance_provider AS balanceProvider,
         balance_scan_time AS balanceScanTime,
+        balance_scan_error AS balanceScanError,
         transactions_scan_time AS transactionsScanTime
         FROM wallet_pub 
         ${where}

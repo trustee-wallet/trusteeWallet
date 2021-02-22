@@ -52,6 +52,7 @@ export default {
             
             wallet_pub.balance_provider AS balanceProvider,
             wallet_pub.balance_scan_time AS balanceScanTime,
+            wallet_pub.balance_scan_error AS balanceScanError,
             wallet_pub.balance_scan_log AS balanceScanLog,
             wallet_pub.balance_scan_block AS balanceScanBlock
             

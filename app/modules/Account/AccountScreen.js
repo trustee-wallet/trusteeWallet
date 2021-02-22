@@ -283,6 +283,22 @@ class Account extends Component {
 
         const { colors, GRID_SIZE, isLight } = this.context
 
+
+        const diffTimeScan = this.diffTimeScan(this.props.account.balanceScanTime * 1000)
+        let diffTimeText = ''
+        if (diffTimeScan > 60) {
+           diffTimeText =  strings('account.soLong')
+        } else {
+            if (diffTimeScan < 1) {
+                diffTimeText = strings('account.justScan')
+            } else {
+                diffTimeText = strings('account.scan', { time: diffTimeScan })
+            }
+            if (this.props.account.balanceScanError !== '') {
+                diffTimeText += ' ' + strings(this.props.account.balanceScanError)
+            }
+        }
+
         return (
             <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}>
                 <View style={{ marginTop: 24, flexDirection: 'row', position: 'relative', justifyContent: 'space-between' }}>
@@ -290,9 +306,7 @@ class Account extends Component {
                         <Text style={{...styles.transaction_title, color: colors.common.text1}}>{strings('account.history')}</Text>
                         <View style={{...styles.scan, marginLeft: 16 }}>
                             {isSynchronized ?
-                                <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={1} >{this.diffTimeScan(this.props.account.balanceScanTime * 1000) < 1 ?
-                                    strings('account.justScan') : this.diffTimeScan(this.props.account.balanceScanTime * 1000) > 60 ? strings('account.soLong') :
-                                    strings('account.scan', { time: this.diffTimeScan(this.props.account.balanceScanTime * 1000) })} </Text>
+                                <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={1} >{diffTimeText}</Text>
                                 :
                                 <View style={{
                                     flexDirection: 'row',
@@ -440,6 +454,7 @@ class Account extends Component {
                 amount: account.balancePretty + '',
                 unconfirmed: account.unconfirmedPretty + '',
                 balanceScanTime: account.balanceScanTime + '',
+                balanceScanError : account.balanceScanError + '',
                 balanceProvider: account.balanceProvider + '',
                 balanceScanLog: account.balanceScanLog + '',
                 balanceAddingLog: account.balanceAddingLog + '',

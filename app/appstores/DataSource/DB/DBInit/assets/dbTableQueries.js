@@ -91,6 +91,7 @@ export default {
                 is_main INTEGER NULL DEFAULT 1,
                 
                 transactions_scan_time INTEGER NULL,
+				transactions_scan_error TEXT NULL,
                 transactions_scan_log TEXT NULL,
                 
                 changes_log TEXT_NULL,
@@ -118,6 +119,7 @@ export default {
                 
                 balance_provider VARCHAR(256) NULL,
                 balance_scan_time INTEGER NOT NULL, 
+				balance_scan_error TEXT NULL,
                 balance_scan_log TEXT NULL,
                 balance_scan_block VARCHAR(32) NULL,
                 
@@ -231,6 +233,7 @@ export default {
                 
                 balance_provider VARCHAR(256) NULL,
                 balance_scan_time INTEGER NOT NULL,
+				balance_scan_error TEXT NULL,
                 balance_scan_log TEXT NULL,
                 balance_scan_block VARCHAR(32) NULL,
                              

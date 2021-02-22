@@ -450,6 +450,8 @@
     "receive": "%{receive}",
     "send": "გაგზავნა",
     "history": "ტრანზაქციები",
+    "balanceBadNetwork" : "Bad internet access",
+    "balanceBadBlock" : "Block number error",
     "scan": "დასკანერებულია %{time} წუთის წინ",
     "justScan": "დასკანერდა ახლახან",
     "soLong": "დასკანერებულია დიდი ხნის წინ",

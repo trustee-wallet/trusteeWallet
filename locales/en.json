@@ -452,6 +452,8 @@
     "receive": "%{receive}",
     "send": "Send",
     "history": "Transactions",
+    "balanceBadNetwork" : "Bad internet access",
+    "balanceBadBlock" : "Block number error",
     "scan": "Scanned %{time} min ago ",
     "justScan": "Just scanned",
     "soLong": "Last a long time ago",
