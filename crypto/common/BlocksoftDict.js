@@ -23,7 +23,6 @@ const Currencies = {
         prettyNumberProcessor: 'ETH',
         network: 'mainnet', // network also used as mark of rate scanning
         decimals: 18,
-        buyable: 1,
         currencyExplorerLink: 'https://etherscan.io/address/',
         currencyExplorerTxLink: 'https://etherscan.io/tx/'
     },
@@ -38,7 +37,6 @@ const Currencies = {
         prettyNumberProcessor: 'UNIFIED',
         network: 'mainnet', // network also used as mark of rate scanning
         decimals: 6,
-        buyable: 1,
         currencyExplorerLink: 'https://tronscan.org/#/address/',
         currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
     },
@@ -53,7 +51,6 @@ const Currencies = {
         prettyNumberProcessor: 'BTC',
         network: 'mainnet',
         decimals: 8,
-        buyable: 1,
         currencyExplorerLink: 'https://blockchair.com/bitcoin/address/',
         currencyExplorerTxLink: 'https://blockchair.com/bitcoin/transaction/'
     },
@@ -69,7 +66,6 @@ const Currencies = {
         prettyNumberProcessor: 'UNIFIED',
         network: 'mainnet',
         decimals: 12,
-        buyable: 1,
         currencyExplorerLink: 'https://xmrchain.net/search?value=',
         currencyExplorerTxLink: 'https://blockchair.com/monero/transaction/'
     },
@@ -84,11 +80,27 @@ const Currencies = {
         prettyNumberProcessor: 'UNIFIED',
         network: 'mainnet',
         decimals: 9,
-        buyable: 0,
         currencyExplorerLink: 'https://fio.bloks.io/key/',
         currencyExplorerTxLink: 'https://fio.bloks.io/transaction/'
     },
-
+    /*
+    'BNB': {
+        currencyType: 'coin',
+        currencyName: 'Binance Coin',
+        currencyCode: 'BNB',
+        currencySymbol: 'BNB',
+        addressProcessor: 'BNB',
+        scannerProcessor: 'BNB',
+        extendsProcessor: 'BNB',
+        prettyNumberProcessor: 'USDT',
+        network: 'mainnet', // network also used as mark of rate scanning
+        decimals: 8,
+        // currencyExplorerLink: 'https://binance.mintscan.io/account/',
+        // currencyExplorerTxLink: 'https://binance.mintscan.io/txs/',
+        currencyExplorerLink: 'https://explorer.binance.org/address/',
+        currencyExplorerTxLink: 'https://explorer.binance.org/tx/',
+    },
+    */
     // 'BTC_LIGHT': {
     //     currencyName: 'Bitcoin Lightning',
     //     currencyCode: 'BTC_LIGHT',
@@ -99,7 +111,6 @@ const Currencies = {
     //     network: 'mainnet',
     //     prettyNumberProcessor: 'BTC',
     //     decimals: 8,
-    //     buyable: 0,
     //     currencyExplorerLink: '?',
     //     currencyExplorerTxLink: '?'
     // },
@@ -114,7 +125,6 @@ const Currencies = {
         extendsProcessor: 'BTC',
         network: 'testnet',
         decimals: 8,
-        buyable: 0,
         currencyExplorerLink: 'https://live.blockcypher.com/btc-testnet/address/',
         currencyExplorerTxLink: 'https://live.blockcypher.com/btc-testnet/tx/'
     },
@@ -131,7 +141,6 @@ const Currencies = {
         rateUiScanner: 'BCH', // if network != mainnet, set how is scanned
         network: 'bitcoincash',
         decimals: 8,
-        buyable: 1,
         currencyExplorerLink: 'https://blockchair.com/bitcoin-cash/address/',
         currencyExplorerTxLink: 'https://blockchair.com/bitcoin-cash/transaction/'
     },
@@ -146,7 +155,6 @@ const Currencies = {
         rateUiScanner: 'BSV', // if network != mainnet, set how is scanned
         network: 'bitcoinsv',
         decimals: 8,
-        buyable: 1,
         currencyExplorerLink: 'https://blockchair.com/bitcoin-sv/address/',
         currencyExplorerTxLink: 'https://blockchair.com/bitcoin-sv/transaction/'
     },
@@ -161,7 +169,6 @@ const Currencies = {
         rateUiScanner: 'BTG', // if network != mainnet, set how is scanned
         network: 'bitcoingold',
         decimals: 8,
-        buyable: 1,
         currencyExplorerLink: 'https://explorer.bitcoingold.org/insight/address/',
         currencyExplorerTxLink: 'https://explorer.bitcoingold.org/insight/tx/'
     },
@@ -177,7 +184,6 @@ const Currencies = {
         rateUiScanner: 'LTC', // if network != mainnet, set how is scanned
         network: 'litecoin',
         decimals: 8,
-        buyable: 1,
         currencyExplorerLink: 'https://blockchair.com/litecoin/address/',
         currencyExplorerTxLink: 'https://blockchair.com/litecoin/transaction/'
     },
@@ -192,7 +198,6 @@ const Currencies = {
         rateUiScanner: 'DOGE', // if network != mainnet, set how is scanned
         network: 'dogecoin',
         decimals: 8,
-        buyable: 0,
         currencyExplorerLink: 'https://blockchair.com/dogecoin/address/',
         currencyExplorerTxLink: 'https://blockchair.com/dogecoin/transaction/'
     },
@@ -208,7 +213,6 @@ const Currencies = {
         network: 'verge',
         prettyNumberProcessor: 'UNIFIED',
         decimals: 6,
-        buyable: 0,
         currencyExplorerLink: 'https://verge-blockchain.info/address/',
         currencyExplorerTxLink: 'https://verge-blockchain.info/tx/'
     },
@@ -221,7 +225,6 @@ const Currencies = {
         addressUiChecker: 'ETH', // use for address check on ui (
         ratesCurrencyCode: 'USDT', // if code in rates should be different, else - used currencyCode
         decimals: 6,
-        buyable: 1,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
         currencyExplorerLink: 'https://etherscan.io/token/0xdac17f958d2ee523a2206206994597c13d831ec7?a='
@@ -239,7 +242,6 @@ const Currencies = {
         feesCurrencyCode: 'BTC',
         network: 'mainnet',
         decimals: 8,
-        buyable: 0,
         tokenBlockchain: 'BITCOIN',
         currencyExplorerLink: 'https://blockchair.com/bitcoin/address/',
         currencyExplorerTxLink: 'https://blockchair.com/bitcoin/transaction/'
@@ -256,7 +258,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'UAH',
         decimals: 2,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0x1Fc31488f28ac846588FFA201cDe0669168471bD',
         delegateAddress : '0x8826a55c94915870aceed4ea9f1186678fcbdaf6',
@@ -273,7 +274,6 @@ const Currencies = {
         prettyNumberProcessor: 'USDT',
         network: 'mainnet',
         decimals: 8,
-        buyable: 1,
         currencyExplorerLink: 'https://blockchair.com/ripple/account/',
         currencyExplorerTxLink: 'https://blockchair.com/ripple/transaction/'
     },
@@ -288,7 +288,6 @@ const Currencies = {
         prettyNumberProcessor: 'USDT',
         network: 'mainnet',
         decimals: 8,
-        buyable: 1,
         currencyExplorerLink: 'https://blockchair.com/steller/account/',
         currencyExplorerTxLink: 'https://blockchair.com/stellar/transaction/'
     },
@@ -303,7 +302,6 @@ const Currencies = {
         transferProcessor: 'ETH',
         network: 'ropsten',
         decimals: 18,
-        buyable: 0,
         currencyExplorerLink: 'https://ropsten.etherscan.io/address/',
         currencyExplorerTxLink: 'https://ropsten.etherscan.io/tx/'
     },
@@ -323,7 +321,6 @@ const Currencies = {
         feesCurrencyCode: 'ETH', // pay for tx in other currency, if no - used currencyCode
         network: 'mainnet', // network also used as mark of rate scanning
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0x0000000000085d4780B73119b644AE5ecd22b376',
         currencyExplorerLink: 'https://etherscan.io/token/0x0000000000085d4780B73119b644AE5ecd22b376?a=',
@@ -345,7 +342,6 @@ const Currencies = {
         feesCurrencyCode: 'TRX', // pay for tx in other currency, if no - used currencyCode
         network: 'trx', // network also used as mark of rate scanning
         decimals: 6,
-        buyable: 0,
         tokenBlockchain: 'TRON',
         tokenName: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
         currencyExplorerLink: 'https://tronscan.org/#/address/',
@@ -362,7 +358,6 @@ const Currencies = {
         network: 'trx', // network also used as mark of rate scanning
         skipParentBalanceCheck:true, // parent balance could be zero
         decimals: 6,
-        buyable: 0,
         tokenBlockchain: 'TRON',
         tokenName: '1002000',
         currencyExplorerLink: 'https://tronscan.org/#/address/',
@@ -370,14 +365,13 @@ const Currencies = {
     },
     'ETH_BNB': {
         currencyType: 'token',
-        currencyName: 'BNB',
+        currencyName: 'BNB ERC20',
         currencyCode: 'ETH_BNB',
         currencySymbol: 'BNB',
         extendsProcessor: 'ETH_TRUE_USD',
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'BNB', // if code in rates should be different, else - used currencyCode
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
         currencyExplorerLink: 'https://etherscan.io/token/0xB8c77482e45F1F44dE1745F52C74426C631bDD52?a='
@@ -391,7 +385,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'USDC',
         decimals: 6,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
         currencyExplorerLink: 'https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48?a=',
@@ -406,7 +399,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'PAX', // if code in rates should be different, else - used currencyCode
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0x8e870d67f660d95d5be530380d0ec0bd388289e1',
         currencyExplorerLink: 'https://etherscan.io/token/0x8e870d67f660d95d5be530380d0ec0bd388289e1?a='
@@ -420,7 +412,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'DAI', // if code in rates should be different, else - used currencyCode
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359',
         currencyExplorerLink: 'https://etherscan.io/token/0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359?a='
@@ -434,7 +425,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'DAI', // if code in rates should be different, else - used currencyCode
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
         currencyExplorerLink: 'https://etherscan.io/token/0x6b175474e89094c44da98b954eedeac495271d0f?a='
@@ -448,7 +438,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'OKB', // if code in rates should be different, else - used currencyCode
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0x75231f58b43240c9718dd58b4967c5114342a86c',
         currencyExplorerLink: 'https://etherscan.io/token/0x75231f58b43240c9718dd58b4967c5114342a86c?a='
@@ -462,7 +451,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'MKR',
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
         currencyExplorerLink: 'https://etherscan.io/token/0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2?a='
@@ -476,7 +464,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'KNC',
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0xdd974d5c2e2928dea5f71b9825b8b646686bd200',
         currencyExplorerLink: 'https://etherscan.io/token/0xdd974d5c2e2928dea5f71b9825b8b646686bd200?a='
@@ -490,7 +477,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'COMP',
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0xc00e94cb662c3520282e6f5717214004a7f26888',
         currencyExplorerLink: 'https://etherscan.io/token/0xc00e94cb662c3520282e6f5717214004a7f26888?a='
@@ -504,7 +490,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'BAL',
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0xba100000625a3754423978a60c9317c58a424e3d',
         currencyExplorerLink: 'https://etherscan.io/token/0xba100000625a3754423978a60c9317c58a424e3d?a='
@@ -518,7 +503,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'LEND',
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0x80fb784b7ed66730e8b1dbd9820afd29931aab03',
         currencyExplorerLink: 'https://etherscan.io/token/0x80fb784b7ed66730e8b1dbd9820afd29931aab03?a='
@@ -532,7 +516,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'BNT',
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c',
         currencyExplorerLink: 'https://etherscan.io/token/0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c?a='
@@ -549,7 +532,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'SOUL', // if code in rates should be different, else - used currencyCode
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0xbb1f24c0c1554b9990222f036b0aad6ee4caec29',
         currencyExplorerLink: 'https://etherscan.io/token/0xbb1f24c0c1554b9990222f036b0aad6ee4caec29?a='
@@ -563,7 +545,6 @@ const Currencies = {
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'ONE', // if code in rates should be different, else - used currencyCode
         decimals: 18,
-        buyable: 0,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0x799a4202c12ca952cb311598a024c80ed371a41e',
         currencyExplorerLink: 'https://etherscan.io/token/0x799a4202c12ca952cb311598a024c80ed371a41e?a='
@@ -598,7 +579,6 @@ const CurrenciesForTests = {
         feesCurrencyCode: 'ETH_ROPSTEN',
         network: 'ropsten',
         decimals: 6,
-        buyable: 0,
         tokenAddress: '0xdb30610f156e1d4aefaa9b4423909297ceff64c2',
         currencyExplorerLink: 'https:ropsten.etherscan.io/address/',
         currencyExplorerTxLink: 'https:ropsten.etherscan.io/tx/'
@@ -611,7 +591,6 @@ const CurrenciesForTests = {
         feesCurrencyCode: 'TRX', // pay for tx in other currency, if no - used currencyCode
         network: 'trx', // network also used as mark of rate scanning
         decimals: 6,
-        buyable: 0,
         tokenName: '1002742',
         currencyExplorerLink: 'https://tronscan.org/#/address/',
         currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
@@ -639,8 +618,7 @@ function addAndUnifyCustomCurrency(currencyObject) {
         currencyCode: 'CUSTOM_' + currencyObject.currencyCode,
         currencySymbol: currencyObject.currencySymbol,
         ratesCurrencyCode: currencyObject.currencyCode,
-        decimals: currencyObject.tokenDecimals,
-        buyable: 0
+        decimals: currencyObject.tokenDecimals
 
     }
     tmp.currencyType = 'custom'

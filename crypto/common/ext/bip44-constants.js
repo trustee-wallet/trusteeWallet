@@ -29,6 +29,8 @@ module.exports = [
     [ `44'/128`, "XMR", "Monero" ],
 
     [ `44'/235`, "FIO", "FIO" ],
+
+    [ `44'/714`, "BNB", "BNB" ],
     /*
     [ 0x80000004, "RDD", "Reddcoin" ],
     [ 0x80000005, "DASH", "Dash (ex Darkcoin)" ],

@@ -50,6 +50,11 @@ import XmrSecretsProcessor from './xmr/XmrSecretsProcessor'
 import FioAddressProcessor from './fio/FioAddressProcessor'
 import FioScannerProcessor from './fio/FioScannerProcessor'
 
+
+import BnbAddressProcessor from './bnb/BnbAddressProcessor'
+import BnbScannerProcessor from './bnb/BnbScannerProcessor'
+
+
 class BlocksoftDispatcher {
 
     /**
@@ -87,6 +92,8 @@ class BlocksoftDispatcher {
                 return new XmrAddressProcessor()
             case 'FIO':
                 return new FioAddressProcessor()
+            case 'BNB':
+                return new BnbAddressProcessor()
             default:
                 throw new Error('Unknown addressProcessor ' + currencyDictSettings.addressProcessor)
         }
@@ -135,6 +142,8 @@ class BlocksoftDispatcher {
                 return new XmrScannerProcessor(currencyDictSettings)
             case 'FIO':
                 return new FioScannerProcessor(currencyDictSettings)
+            case 'BNB':
+                return new BnbScannerProcessor(currencyDictSettings)
             default:
                 throw new Error('Unknown scannerProcessor ' + currencyDictSettings.scannerProcessor)
         }
