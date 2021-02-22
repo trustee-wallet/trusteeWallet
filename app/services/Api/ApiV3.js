@@ -134,7 +134,7 @@ export default {
                 }
             }
             // @todo end optimization
-            
+
             const resultAccount = {
                 currencyCode,
                 address: account.address,
@@ -237,8 +237,6 @@ export default {
                 accounts
             })
         }
-        console.log('JSO', JSON.stringify(data.wallets))
-
 
         let msg = ''
         let date = new Date()

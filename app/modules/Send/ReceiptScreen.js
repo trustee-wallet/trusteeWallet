@@ -132,7 +132,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
         }
         sendScreenData.selectedFee = selectedFee
         uiSendScreenData.ui.uiNeedToCountFees = false
-        
+
         this.setState({
             sendScreenData,
             countedFees: tmp.countedFees,
@@ -935,10 +935,13 @@ class ReceiptScreen extends SendBasicScreenScreen {
                             <View style={{ ...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
                         </View>
                         <View style={{ marginTop: 12 }}>
-                            <CheckData
-                                name={strings('send.receiptScreen.rate', { currencyCode: currencySymbol })}
-                                value={`${account.basicCurrencySymbol} ${BlocksoftPrettyNumbers.makeCut(account.basicCurrencyRate).cutted}`}
-                            />
+                            { typeof sendScreenData.bseOrderId === 'undefined' || !sendScreenData.bseOrderId ?
+                                <CheckData
+                                    name={strings('send.receiptScreen.rate', { currencyCode: currencySymbol })}
+                                    value={`${account.basicCurrencySymbol} ${BlocksoftPrettyNumbers.makeCut(account.basicCurrencyRate).cutted}`}
+                                />
+                                : null
+                            }
                             {sendScreenData.transactionReplaceByFee ?
                                 <CheckData
                                     name={strings('send.receiptScreen.replaceTransactionHash')}
