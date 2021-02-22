@@ -71,7 +71,7 @@ export default {
             showType = 'legacy'
         }
 
-        if (currencies === false) {
+        if (currencies === false || typeof currencies['BTC'] === 'undefined') {
             const tmps = await currencyDS.getCurrencies()
             currencies = {}
             for (const currency of tmps) {
@@ -134,7 +134,7 @@ export default {
                 }
             }
             // @todo end optimization
-
+            
             const resultAccount = {
                 currencyCode,
                 address: account.address,
@@ -222,8 +222,7 @@ export default {
         const currencies = {}
         for (const currency of tmps) {
             const currencyCode = currency.currencyCode
-            const isHidden = currency.isHidden
-            currencies[currencyCode] = isHidden
+            currencies[currencyCode] = currency
         }
 
         for (const walletHash in DaemonCache.CACHE_WALLET_NAMES_AND_CB) {
@@ -238,6 +237,7 @@ export default {
                 accounts
             })
         }
+        console.log('JSO', JSON.stringify(data.wallets))
 
 
         let msg = ''
