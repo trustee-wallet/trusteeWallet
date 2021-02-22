@@ -109,7 +109,7 @@ class UpdateAccountBalanceAndTransactionsHD {
         const addressToScan = walletPub.walletPubValue
         try {
             Log.daemon('UpdateAccountBalanceAndTransactionsHD newBalance ' + walletPub.currencyCode + ' ' + addressToScan)
-            newBalance = await (BlocksoftBalances.setCurrencyCode(walletPub.currencyCode).setAddress(addressToScan).setWalletHash(walletPub.walletHash)).getBalance()
+            newBalance = await (BlocksoftBalances.setCurrencyCode(walletPub.currencyCode).setAddress(addressToScan).setWalletHash(walletPub.walletHash)).getBalance('AccountRunHD')
             if (!newBalance || typeof newBalance.balance === 'undefined') {
                 balanceError = ' something wrong with balance ' + walletPub.currencyCode + ' ' + addressToScan + ' => ' + JSON.stringify(newBalance)
                 Log.daemon('UpdateAccountBalanceAndTransactionsHD newBalance something wrong ' + walletPub.currencyCode + ' ' + addressToScan + ' => ' + JSON.stringify(newBalance))
@@ -190,7 +190,7 @@ class UpdateAccountBalanceAndTransactionsHD {
 
         let addresses = await accountScanningDS.getAddresses({ currencyCode: walletPub.currencyCode, walletHash: walletPub.walletHash })
         try {
-            const addressesBlockchain = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue).setAdditional({ walletPub }).setWalletHash(walletPub.walletHash)).getAddresses()
+            const addressesBlockchain = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue).setAdditional({ walletPub }).setWalletHash(walletPub.walletHash)).getAddresses('UpdateAccountBalanceAndTransactionsHD addressesBlockchain')
             let address
             const sql = []
             for (address in addresses) {
@@ -233,7 +233,7 @@ class UpdateAccountBalanceAndTransactionsHD {
         }
         try {
             Log.daemon('UpdateAccountBalanceAndTransactionsHD newTransactions ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue)
-            newTransactions = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue).setAdditional({ addresses, walletPub }).setWalletHash(walletPub.walletHash)).getTransactions()
+            newTransactions = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue).setAdditional({ addresses, walletPub }).setWalletHash(walletPub.walletHash)).getTransactions('AccountRunHD')
 
             if (!newTransactions || newTransactions.length === 0) {
                 transactionsError += ' something wrong with balance ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue + ' => ' + JSON.stringify(newTransactions)

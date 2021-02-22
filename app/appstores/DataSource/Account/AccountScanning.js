@@ -73,6 +73,7 @@ class AccountScanning {
             account.id, 
             account.currency_code AS currencyCode,  
             account.wallet_hash AS walletHash,
+            wallet.wallet_is_hd AS walletIsHd,
             account.address, 
              
             account.transactions_scan_time AS transactionsScanTime, 
@@ -132,6 +133,7 @@ class AccountScanning {
                 res[i].unconfirmed = BlocksoftFixBalance(res[i], 'unconfirmed')
                 res[i].balanceScanBlock = typeof res[i].balanceScanBlock !== 'undefined' ? (res[i].balanceScanBlock * 1) : 0
                 res[i].balanceScanLog = res[i].balanceScanLog || ''
+                res[i].walletIsHd = res[i].walletIsHd || false
                 if (!res[i].accountJson || res[i].accountJson === 'false') continue
 
                 const string = dbInterface.unEscapeString(res[i].accountJson)

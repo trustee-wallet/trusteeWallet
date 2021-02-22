@@ -74,9 +74,9 @@ export namespace SendActions {
         const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee, walletUseLegacy, walletIsHd } = wallet
         const { address, currencyCode, derivationPath, accountJson } = account
 
-        let balancesData = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash).setAdditional(accountJson)).getBalance()
+        let balancesData = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash).setAdditional(accountJson)).getBalance('countTransferAllBeforeStartSend')
         if (typeof balancesData.balance === 'undefined' || !balancesData.balance) {
-            balancesData = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash).setAdditional(accountJson)).getBalance()
+            balancesData = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address).setWalletHash(walletHash).setAdditional(accountJson)).getBalance('countTransferAllBeforeStartSend2')
         }
 
         const countedFeesData = {

@@ -63,14 +63,14 @@ class BlocksoftTransactions {
     /**
      * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactions() {
+    async getTransactions(source = '') {
         const currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
         let resultData = []
         try {
-            resultData = await this._processor[currencyCode].getTransactionsBlockchain(this._data.address, this._data.jsonData, this._data.walletHash)
+            resultData = await this._processor[currencyCode].getTransactionsBlockchain(this._data.address, this._data.jsonData, this._data.walletHash, source)
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
             e.message += ' on actual getTransactions step '
@@ -83,14 +83,14 @@ class BlocksoftTransactions {
     /**
      * @return {Promise<string[]>}
      */
-    async getAddresses() {
+    async getAddresses(source = '') {
         const currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
         let resultData = []
         try {
-            resultData = await this._processor[currencyCode].getAddressesBlockchain(this._data.address, this._data.jsonData, this._data.walletHash)
+            resultData = await this._processor[currencyCode].getAddressesBlockchain(this._data.address, this._data.jsonData, this._data.walletHash, source)
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
             e.message += ' on actual getAddressesBlockchain step '

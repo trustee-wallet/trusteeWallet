@@ -11,7 +11,7 @@ import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
 import config from '../../../app/config/config'
 import DBInterface from '../../../app/appstores/DataSource/DB/DBInterface'
 
-const CACHE_VALID_TIME = 30000 // 30 seconds
+const CACHE_VALID_TIME = 60000 // 60 seconds
 const CACHE = {}
 const CACHE_WALLET_PUBS = {}
 
@@ -44,12 +44,13 @@ export default class BtcScannerProcessor {
      * @returns {Promise<boolean|*>}
      * @private
      */
-    async _get(address, additionalData) {
+    async _get(address, additionalData, source = '') {
         const now = new Date().getTime()
         if (typeof CACHE[address] !== 'undefined' && (now - CACHE[address].time < CACHE_VALID_TIME)) {
             CACHE[address].provider = 'trezor-cache'
             return CACHE[address]
         }
+        BlocksoftCryptoLog.log('BtcScannerProcessor._get ' + address + ' from ' + source + ' started')
 
         this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'BTC.Scanner._get')
 
@@ -119,9 +120,9 @@ export default class BtcScannerProcessor {
      * @param {string} address
      * @return {Promise<{balance:*, unconfirmed:*, provider:string}>}
      */
-    async getBalanceBlockchain(address) {
+    async getBalanceBlockchain(address, data, walletHash, source = '') {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getBalance started ' + address)
-        const res = await this._get(address)
+        const res = await this._get(address, data, source)
         if (!res) {
             return false
         }
@@ -134,9 +135,9 @@ export default class BtcScannerProcessor {
         }
     }
 
-    async getAddressesBlockchain(address, data) {
+    async getAddressesBlockchain(address, data, walletHash, source = '') {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses started', address)
-        let res = await this._get(address, data)
+        let res = await this._get(address, data, source)
         if (typeof res.data !== 'undefined') {
             res = JSON.parse(JSON.stringify(res.data))
         } else {
@@ -147,7 +148,7 @@ export default class BtcScannerProcessor {
                 const resPub = await this._getPubs(data.walletPub.walletHash)
                 for (const scanAddress in resPub) {
                     if (scanAddress === address) continue
-                    const tmp = await this._get(scanAddress, data)
+                    const tmp = await this._get(scanAddress, data, source + ' _getPubs1')
                     if (typeof tmp.data === 'undefined' || typeof tmp.data.plainAddresses === 'undefined') continue
                     if (res === false || typeof res.plainAddresses === 'undefined') {
                         res = JSON.parse(JSON.stringify(tmp.data))
@@ -173,10 +174,10 @@ export default class BtcScannerProcessor {
      * @param {*} data
      * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactionsBlockchain(address, data) {
+    async getTransactionsBlockchain(address, data, walletHash, source = '') {
         address = address.trim()
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions started ' + address)
-        let res = await this._get(address, data)
+        let res = await this._get(address, data, source)
         if (typeof res.data !== 'undefined') {
             res = JSON.parse(JSON.stringify(res.data))
         } else {
@@ -187,7 +188,7 @@ export default class BtcScannerProcessor {
                 const resPub = await this._getPubs(data.walletPub.walletHash)
                 for (const scanAddress in resPub) {
                     if (scanAddress === address) continue
-                    const tmp = await this._get(scanAddress, data)
+                    const tmp = await this._get(scanAddress, data, source + ' _getPubs2')
                     if (typeof tmp.data === 'undefined' || typeof tmp.data.transactions === 'undefined') continue
                     if (res === false || typeof res.transactions === 'undefined') {
                         res = JSON.parse(JSON.stringify(tmp.data))
@@ -200,7 +201,7 @@ export default class BtcScannerProcessor {
             } else {
                 for (const scanAddress in data.addresses) {
                     if (scanAddress === address) continue
-                    const tmp = await this._get(scanAddress, data)
+                    const tmp = await this._get(scanAddress, data, source + ' _getOnes2')
                     if (typeof tmp.data === 'undefined' || typeof tmp.data.transactions === 'undefined') continue
                     if (res === false || typeof res.transactions === 'undefined') {
                         res = tmp.data

@@ -112,7 +112,7 @@ export default class UsdtScannerProcessor {
      * @param {string} address
      * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactionsBlockchain(address) {
+    async getTransactionsBlockchain(address, data, walletHash, source = '') {
         address = address.trim()
         BlocksoftCryptoLog.log('UsdtScannerProcessor.getTransactions started ' + address)
         let tmp = await this._get(address)
@@ -145,7 +145,7 @@ export default class UsdtScannerProcessor {
             if (!this._btcProvider) {
                 this._btcProvider = await (new BlocksoftDispatcher()).getScannerProcessor({ currencyCode: 'BTC' })
             }
-            btcTxs = await this._btcProvider.getTransactionsBlockchain(address)
+            btcTxs = await this._btcProvider.getTransactionsBlockchain(address, data, walletHash,  source + ' UsdtScannerProcessor')
         } catch (e) {
 
         }

@@ -51,7 +51,7 @@ class SettingsUSDT extends Component {
 
         Log.log('SettingsUSDT.handleScan scan started', addresses)
 
-        const balances = await (BlocksoftBalances.setCurrencyCode('USDT').setAddress(addresses)).getBalance()
+        const balances = await (BlocksoftBalances.setCurrencyCode('USDT').setAddress(addresses)).getBalance('SettingsUSDT')
 
         if (balances) {
             Log.log('SettingsUSDT.handleScan balances', balances)
