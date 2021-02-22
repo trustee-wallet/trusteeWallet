@@ -61,7 +61,12 @@ class BlocksoftAxios {
         try {
             BlocksoftCryptoLog.log('BlocksoftAxios.postWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' start ' + link)
             tmp = await this.post(link, data, false)
-            BlocksoftCryptoLog.log('BlocksoftAxios.postWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' success ' + link)
+            if (link.indexOf('monero') === -1) {
+                BlocksoftCryptoLog.log('BlocksoftAxios.postWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' success ' + link)
+            } else {
+                BlocksoftCryptoLog.log('BlocksoftAxios.postWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' success ' + link + ' data ' + JSON.stringify(data).substr(0, 500))
+                BlocksoftCryptoLog.log(JSON.stringify(tmp.data).substr(0, 100))
+            }
             CACHE_ERRORS_BY_LINKS[link] = { time: 0, tries: 0 }
         } catch (e) {
             const now = new Date().getTime()
