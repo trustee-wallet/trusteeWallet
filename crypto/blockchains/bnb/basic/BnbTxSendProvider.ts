@@ -60,7 +60,7 @@ export class BnbTxSendProvider {
         const account = res.data
 
 
-        const unified = BlocksoftUtils.fromUnified(data.amount, 8)
+        const unified = BlocksoftUtils.fromUnified(data.amount, 8) * 1
         const msg = {
             'inputs': [{
                 'address': data.addressFrom, 'coins': [{
@@ -91,11 +91,18 @@ export class BnbTxSendProvider {
         const msgHash = createHash('sha256').update(signBytesHex, 'hex').digest()
         const keypair = ec.keyFromPrivate(privateData.privateKey, 'hex')
         const signature = keypair.sign(msgHash.toString('hex'))
-        const signatureHex = signature.r.toString('hex') + '0' + signature.s.toString('hex')
+        const signatureHex = signature.r.toString('hex') + signature.s.toString('hex')
+
 
         const pubKey = keypair.getPublic()
         const pubSerialize = serializePubKey(pubKey)
 
+        const signatures =  [{
+            pub_key: pubSerialize,
+            signature: Buffer.from(signatureHex, 'hex'),
+            account_number: account.account_number,
+            sequence: account.sequence
+        }]
         const transaction = {
             sequence: account.sequence + '',
             accountNumber: account.account_number + '',
@@ -103,14 +110,14 @@ export class BnbTxSendProvider {
             msg: {
                 'inputs': [{
                     'address': decodeAddress(data.addressFrom), 'coins': [{
+                        'denom': 'BNB',
                         'amount': unified,
-                        'denom': 'BNB'
                     }]
                 }],
                 'outputs': [{
                     'address': decodeAddress(data.addressTo), 'coins': [{
+                        'denom': 'BNB',
                         'amount': unified,
-                        'denom': 'BNB'
                     }]
                 }],
                 aminoPrefix: '2A2C87FA'
@@ -118,13 +125,7 @@ export class BnbTxSendProvider {
             baseMsg: undefined,
             memo: '',
             source: 0,
-            signatures:
-                [{
-                    pub_key: pubSerialize,
-                    signature: Buffer.from(signatureHex, 'hex'),
-                    account_number: account.account_number,
-                    sequence: account.sequence
-                }]
+            signatures
         }
         return transaction
     }
@@ -152,7 +153,7 @@ export class BnbTxSendProvider {
         let result = false
         try {
             // console.log(`curl -X POST -F "tx=${raw}" "https://dex.binance.org/api/v1/broadcast"`)
-            const response = await fetch('https://dex.binance.org/api/v1/broadcast', {
+            const response = await fetch('https://dex.binance.org/api/v1/broadcast?sync=true', {
                 method: 'POST',
                 credentials: 'same-origin',
                 mode: 'same-origin',

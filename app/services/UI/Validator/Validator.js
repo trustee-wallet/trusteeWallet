@@ -21,6 +21,7 @@ const networksConstants = require('../../../../crypto/common/ext/networks-consta
 const cardNumberValid = require('fast-luhn')
 const DEFAULT_WORDS = require('./_words/english.json')
 const bitcoin = require('bitcoinjs-lib')
+const bech = require('bech32')
 
 async function _fioAddressValidation(obj) {
     const { value, type } = obj
@@ -183,6 +184,18 @@ async function _userDataValidation(obj) {
             } else if (!/^[0-9a-zA-Z]{95,106}$/.test(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
+            break
+
+        case 'BNB_ADDRESS':
+            value = value.trim()
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else if (value.toLowerCase().indexOf('bnb') !== 0) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            } else if (value.length !== 42) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            }
+
             break
 
         case 'XRP_DESTINATION_TAG':

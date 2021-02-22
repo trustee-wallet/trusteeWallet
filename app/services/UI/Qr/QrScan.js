@@ -80,6 +80,8 @@ export async function decodeTransactionQrCode(param, currencyCode) {
                 res.data.currencyCode = 'ETH_ROPSTEN'
             } else if (network === 'monero') {
                 res.data.currencyCode = 'XMR'
+            } else if (network === 'binance' || network === 'bnb') {
+                res.data.currencyCode = 'XLM'
             } else {
                 res.data.currencyCode = 'BTC'
             }

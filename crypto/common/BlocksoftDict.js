@@ -83,7 +83,6 @@ const Currencies = {
         currencyExplorerLink: 'https://fio.bloks.io/key/',
         currencyExplorerTxLink: 'https://fio.bloks.io/transaction/'
     },
-    /*
     'BNB': {
         currencyType: 'coin',
         currencyName: 'Binance Coin',
@@ -100,7 +99,6 @@ const Currencies = {
         currencyExplorerLink: 'https://explorer.binance.org/address/',
         currencyExplorerTxLink: 'https://explorer.binance.org/tx/',
     },
-    */
     // 'BTC_LIGHT': {
     //     currencyName: 'Bitcoin Lightning',
     //     currencyCode: 'BTC_LIGHT',

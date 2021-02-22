@@ -117,7 +117,7 @@ export namespace SendActions {
 
         let amount = data.amountRaw || '0'
         if (typeof data.addressTo === 'undefined' || !data.addressTo || data.addressTo === '') {
-            if (currencyCode === 'XLM') {
+            if (currencyCode === 'XLM' || currencyCode === 'BNB') {
                 // do nothing @todo 100% fix? - why twice checked?
             } else {
                 return {

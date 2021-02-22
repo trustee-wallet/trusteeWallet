@@ -34,7 +34,7 @@ export default class SendBasicScreen extends Component {
 
         const currencyCode = data.currencyCode
         if (data.addressTo === '') {
-            if (currencyCode === 'XLM') {
+            if (currencyCode === 'XLM' || currencyCode === 'BNB') {
                 // do nothing @todo 100% fix? - why twice checked?
             } else {
                 return false
