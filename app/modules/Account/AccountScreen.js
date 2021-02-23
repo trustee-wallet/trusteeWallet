@@ -295,7 +295,7 @@ class Account extends Component {
                 diffTimeText = strings('account.scan', { time: diffTimeScan })
             }
             if (this.props.account.balanceScanError !== '') {
-                diffTimeText += ' ' + strings(this.props.account.balanceScanError)
+                diffTimeText += '\n' + strings(this.props.account.balanceScanError)
             }
         }
 
@@ -306,7 +306,7 @@ class Account extends Component {
                         <Text style={{...styles.transaction_title, color: colors.common.text1}}>{strings('account.history')}</Text>
                         <View style={{...styles.scan, marginLeft: 16 }}>
                             {isSynchronized ?
-                                <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={1} >{diffTimeText}</Text>
+                                <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={2} >{diffTimeText}</Text>
                                 :
                                 <View style={{
                                     flexDirection: 'row',
