@@ -113,12 +113,12 @@ class WalletCreateScreen extends Component {
     }
 
     handleCreate = () => {
-        MarketingEvent.logEvent('gx_view_create_import_screen_tap_create', {number : 1}, 'GX')
+        MarketingEvent.logEvent('gx_view_create_import_screen_tap_create', {number : '1', source : 'WalletCreateScreen'}, 'GX')
         this.handleSelect({ flowType: 'CREATE_NEW_WALLET' })
     }
 
     handleImport = () => {
-        MarketingEvent.logEvent('gx_view_create_import_screen_tap_import', {number : 1}, 'GX')
+        MarketingEvent.logEvent('gx_view_create_import_screen_tap_import', {number : '1', source : 'WalletCreateScreen'}, 'GX')
         this.handleSelect({ flowType: 'IMPORT_WALLET' })
     }
 

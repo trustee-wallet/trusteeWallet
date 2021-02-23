@@ -35,7 +35,9 @@ class AddWalletScreen extends React.Component {
     }
 
     handleImport = () => {
-        MarketingEvent.logEvent('gx_view_create_import_screen_tap_import', {number : DaemonCache.CACHE_WALLET_COUNT + 1}, 'GX')
+        let number = DaemonCache.CACHE_WALLET_COUNT + 1
+        number = number ? number.toString() : '1'
+        MarketingEvent.logEvent('gx_view_create_import_screen_tap_import', {number, source : 'AddWalletScreen'}, 'GX')
         setFlowType({
             flowType: 'IMPORT_WALLET'
         })
@@ -44,7 +46,9 @@ class AddWalletScreen extends React.Component {
     }
 
     handleCreate = () => {
-        MarketingEvent.logEvent('gx_view_create_import_screen_tap_create', {number : DaemonCache.CACHE_WALLET_COUNT + 1}, 'GX')
+        let number = DaemonCache.CACHE_WALLET_COUNT + 1
+        number = number ? number.toString() : '1'
+        MarketingEvent.logEvent('gx_view_create_import_screen_tap_create', {number, source : 'AddWalletScreen'}, 'GX')
         setFlowType({ flowType: 'CREATE_NEW_WALLET' })
         setWalletName({ walletName: '' })
         setMnemonicLength({ mnemonicLength: 128 })
