@@ -132,6 +132,15 @@ export default class ButtonLine extends Component {
                         </View>
                     </View>
                 )
+            
+            case 'BNB':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict['ETH_BNB'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name={'ETH_BNB'} style={{ color: colorDict['ETH_BNB'].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }}/>
+                        </View>
+                    </View>
+                )
 
             case 'ETH_SOUL':
                 return (
