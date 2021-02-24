@@ -28,7 +28,8 @@ class MarketingEvent {
         LOG_TOKEN: '',
         LOG_WALLET: '',
         LOG_CASHBACK: '',
-        LOG_PARENT: ''
+        LOG_PARENT: '',
+        LOG_TESTER: false
     }
 
     UI_DATA = {

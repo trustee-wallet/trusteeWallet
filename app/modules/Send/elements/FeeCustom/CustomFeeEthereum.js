@@ -108,7 +108,7 @@ class CustomFee extends Component {
         const gasPrice = BlocksoftUtils.toWei(gasPriceGwei, 'gwei')
         const feeForTx = BlocksoftUtils.mul(gasPrice, gasLimit)
 
-        const nonceForTx = Math.round(_nonce * 1)
+        const nonceForTx = _nonce === false || _nonce === '' ? _nonce : Math.round(_nonce * 1)
 
         CACHE_PREV_OK.nonce = nonceForTx
         if (CACHE_PREV_OK.feeForTx === feeForTx

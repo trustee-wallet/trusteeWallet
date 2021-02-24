@@ -10,6 +10,7 @@ import config from '../../../../app/config/config'
 import EthRawDS from '../stores/EthRawDS'
 import EthTmpDS from '../stores/EthTmpDS'
 
+
 const ESTIMATE_PATH = 'https://ethgasstation.info/json/ethgasAPI.json'
 const ESTIMATE_MAX_TRY = 50 // max tries before error appear in axios get
 const MAGIC_TX_DIVIDER = 10
@@ -20,13 +21,23 @@ let CACHE_FEES_ETH_TIME = 0
 
 let CACHE_PREV_DATA = { 'fastest': 100.0, 'safeLow': 13.0, 'average': 30.0 }
 
+const CACHE_PROXY_VALID_TIME = 10000 // 10 seconds
+let CACHE_PROXY_DATA = {
+    result : '', address : ''
+}
+let CACHE_PROXY_TIME = 0
 class EthNetworkPrices {
 
 
     async getWithProxy(address, logData = {}) {
-        BlocksoftCryptoLog.log('EthNetworkPricesProvider.getWithProxy started', logData)
         const proxy = config.proxy.apiEndpoints.baseURL + '/eth/getFees'
+        const now = new Date().getTime()
+        if (CACHE_PROXY_DATA.address === address && now - CACHE_PROXY_TIME < CACHE_PROXY_VALID_TIME) {
+            BlocksoftCryptoLog.log('EthNetworkPricesProvider.getWithProxy from cache', logData)
+            return CACHE_PROXY_DATA.result
+        }
 
+        BlocksoftCryptoLog.log('EthNetworkPricesProvider.getWithProxy started', logData)
         let checkResult = false
         try {
             checkResult = await BlocksoftAxios.post(proxy, {
@@ -104,6 +115,8 @@ class EthNetworkPrices {
         if (typeof checkResult.data.queryLength !== 'undefined') {
             result.maxNonceLocal.queryLength = checkResult.data.queryLength
         }
+        CACHE_PROXY_DATA = { result, address }
+        CACHE_PROXY_TIME = now
 
         return result
     }

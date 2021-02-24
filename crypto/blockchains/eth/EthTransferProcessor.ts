@@ -55,6 +55,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
         let oldGasPrice = -1
         let oldNonce = -1
+        let nonceLog = ''
         if (txRBF) {
             oldGasPrice = typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.gasPrice !== 'undefined' ? data.transactionJson.gasPrice : false
             oldNonce = typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.nonce !== 'undefined' ? data.transactionJson.nonce : false
@@ -75,8 +76,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + txRBFed + 'not loaded gasPrice for ' + txRBF + ' ' + e.message)
                 }
             }
-        } else if (typeof additionalData.nonceForTx !== 'undefined') {
+            nonceLog += ' txRBFNonce ' + oldNonce
+        } else if (typeof additionalData.nonceForTx !== 'undefined' && additionalData.nonceForTx !== -1) {
             oldNonce = additionalData.nonceForTx
+            nonceLog += ' customFeeNonce ' + oldNonce
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' custom nonceForTx ' + additionalData.nonceForTx)
         } else {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' no nonceForTx')
@@ -84,25 +87,25 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
 
         let gasPrice
-        let proxyPriceCheck
 
         let maxNonceLocal = await EthTmpDS.getMaxNonce(data.addressFrom)
         const ethAllowBlockedBalance = await settingsActions.getSetting('ethAllowBlockedBalance')
         const ethAllowLongQuery = await settingsActions.getSetting('ethAllowLongQuery')
+
+        const proxyPriceCheck = await EthNetworkPrices.getWithProxy(typeof data.addressFrom !== 'undefined' ? data.addressFrom : 'none', {
+            data,
+            additionalData,
+            feesSource: 'EthTransferProcessor',
+            feesOldNonce: oldNonce,
+            ethAllowBlockedBalance,
+            ethAllowLongQuery,
+            maxNonceLocal
+        })
         if (typeof additionalData.gasPrice !== 'undefined') {
             gasPrice = { 'speed_blocks_12': additionalData.gasPrice }
         } else if (typeof additionalData.prices !== 'undefined' && additionalData.prices) {
             gasPrice = additionalData.prices
         } else {
-            proxyPriceCheck = await EthNetworkPrices.getWithProxy(typeof data.addressFrom !== 'undefined' ? data.addressFrom : 'none', {
-                data,
-                additionalData,
-                feesSource: 'EthTransferProcessor',
-                feesOldNonce: oldNonce,
-                ethAllowBlockedBalance,
-                ethAllowLongQuery,
-                maxNonceLocal
-            })
             gasPrice = typeof proxyPriceCheck.gasPrice !== 'undefined' && proxyPriceCheck.gasPrice ? proxyPriceCheck.gasPrice : { 'speed_blocks_12': '10' }
             if (typeof proxyPriceCheck.maxNonceLocal !== 'undefined' && proxyPriceCheck.maxNonceLocal) {
                 maxNonceLocal = proxyPriceCheck.maxNonceLocal
@@ -181,30 +184,52 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         let isNewNonce = true
         if (typeof data.transactionJson !== 'undefined' && typeof data.transactionJson.nonce !== 'undefined' && data.transactionJson.nonce) {
             nonceForTx = data.transactionJson.nonce
+            nonceLog += ' from transactionJSON'
         } else {
-            let nonceForTxBasic = maxNonceLocal.maxValue > maxNonceLocal.maxScanned ? maxNonceLocal.maxValue : maxNonceLocal.maxScanned
-            let nonceLog = ''
+            let nonceForTxBasic = maxNonceLocal.maxValue * 1 > maxNonceLocal.maxScanned * 1 ? maxNonceLocal.maxValue : maxNonceLocal.maxScanned
             if (proxyPriceCheck && typeof proxyPriceCheck.newNonce !== 'undefined') {
                 nonceForTxBasic = proxyPriceCheck.newNonce
+                if (typeof proxyPriceCheck.logNonce !== 'undefined') {
+                    nonceLog += ' from serverCheck ' + proxyPriceCheck.logNonce
+                } else {
+                    nonceLog += ' from serverCheckNoLog '
+                }
+                if (MarketingEvent.DATA.LOG_TESTER && typeof proxyPriceCheck.newNonceDEBUG !== 'undefined') {
+                    nonceForTxBasic = proxyPriceCheck.newNonceDEBUG
+                    nonceLog += ' used newNonceDEBUG'
+                } else {
+                    nonceLog += ' used newNonce '
+                }
+
                 if (nonceForTxBasic === 'maxValue+1') {
                     if (maxNonceLocal.maxValue * 1 > -1) {
                         nonceForTxBasic = maxNonceLocal.maxValue + 1
+                        nonceLog += ' usedMax ' + JSON.stringify(maxNonceLocal)
                     } else {
                         nonceForTxBasic = -1
+                        nonceLog += ' noMax => -1 '
                     }
                 }
-                nonceLog += ' proxy set ' + proxyPriceCheck.newNonce
+                nonceLog += ' nonceForTxBasic ' + nonceForTxBasic
+
             } else if (nonceForTxBasic * 1 >= 0) {
+                nonceLog += ' used localNonce ' +  JSON.stringify(maxNonceLocal)
+                nonceLog += ' nonceForTxBasic ' + nonceForTxBasic
                 nonceForTxBasic = nonceForTxBasic * 1 + 1
+            } else {
+                nonceLog += ' used noLocalNoServer ' + JSON.stringify(nonceForTxBasic)
             }
+
             if (oldNonce !== false && oldNonce * 1 > -1 && oldNonce !== nonceForTxBasic) {
                 nonceForTx = oldNonce
                 isNewNonce = false
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' recheck nonce ' + oldNonce + ' with basic ' + nonceForTxBasic + nonceLog)
+                nonceLog = 'recheck oldNonce ' + oldNonce + ' with basic ' + nonceForTxBasic + nonceLog
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' ' + nonceLog)
             } else {
                 nonceForTx = nonceForTxBasic
                 isNewNonce = true
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' recheck nonce ' + oldNonce + ' replaced by basic ' + nonceForTxBasic + nonceLog)
+                nonceLog = 'recheck nonce ' + oldNonce + ' replaced by basic ' + nonceForTxBasic + nonceLog
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' ' + nonceLog)
             }
         }
 
@@ -278,6 +303,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 gasLimit: gasLimit.toString(),
                 feeForTx: fee.toString(),
                 nonceForTx,
+                nonceLog,
                 amountForTx: amount
             }
             prevGasPrice = tmp.gasPrice
@@ -343,6 +369,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         feeForTx: fee.toString(),
                         amountForTx: amount,
                         nonceForTx,
+                        nonceLog,
                         needSpeed
                     }
                     // @ts-ignore
@@ -401,6 +428,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 feeForTx,
                 amountForTx,
                 nonceForTx,
+                nonceLog,
                 needSpeed: gasPrice[keys[index]].toString()
             }
 
@@ -638,11 +666,17 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 result.addressTo = data.addressTo === data.addressFrom ? '' : data.addressTo
             } else {
                 // @ts-ignore
-                if (typeof uiData.selectedFee.nonceForTx !== 'undefined' && uiData.selectedFee.nonceForTx * 1 >= 0) {
+                if (typeof uiData.selectedFee.nonceForTx !== 'undefined'
+                    && (uiData.selectedFee.nonceForTx.toString() === '0' || uiData.selectedFee.nonceForTx)
+                    && uiData.selectedFee.nonceForTx !== ''
+                    && uiData.selectedFee.nonceForTx * 1 >= 0
+                ) {
                     // @ts-ignore
                     tx.nonce = uiData.selectedFee.nonceForTx * 1
                     logData.setNonce = tx.nonce
+                    logData.selectedFee.nonceLog = 'replacedByUi ' + uiData.selectedFee.nonceForTx + ' ' + (typeof logData.selectedFee.nonceLog !== 'undefined' ? logData.selectedFee.nonceLog : '')
                 }
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' nonceLog ' + logData.selectedFee.nonceLog)
                 result = await sender.send(tx, privateData, txRBF, logData)
                 result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
                 result.transactionFeeCurrencyCode = 'ETH'

@@ -115,7 +115,7 @@ export default class EthTxSendProvider {
                     marketingData: MarketingEvent.DATA
                 })
                 if (config.debug.cryptoErrors) {
-                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy errorTx result', JSON.parse(JSON.stringify(res2)))
+                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy errorTx result', JSON.parse(JSON.stringify(res2.data)))
                 }
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy errorTx', typeof res2.data !== 'undefined' ? res2.data : res2)
             } catch (e2) {
