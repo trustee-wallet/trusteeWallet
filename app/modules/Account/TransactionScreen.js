@@ -62,6 +62,7 @@ import {
 } from '../../appstores/Stores/Main/MainStoreActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -94,11 +95,9 @@ class TransactionScreen extends Component {
         try {
             const data = this.props.navigation.getParam('txData')
 
-            let { transactionHash, orderHash, walletHash, transaction, notification, toOpenAccountBack } = data
+            let { transactionHash, transactionStatus, currencyCode, orderHash, walletHash, transaction, notification, toOpenAccountBack } = data
             let tx
             let account
-            let currencyCode
-
 
             if (!transaction) {
                 if (typeof walletHash === 'undefined' || !walletHash) {
@@ -109,17 +108,33 @@ class TransactionScreen extends Component {
                 account = store.getState().accountStore.accountList[walletHash]
                 if (transactionHash) {
                     try {
-                        const tmp = await transactionDS.getTransactions({
+                        const searchParams = {
                             walletHash,
                             transactionHash
-                        }, 'TransactionScreen.init with transactionHash ' + transactionHash)
+                        }
+                        if (typeof currencyCode !== 'undefined' && currencyCode) {
+                            searchParams.currencyCode = currencyCode
+                        }
+                        let tmp = await transactionDS.getTransactions(searchParams, 'TransactionScreen.init with transactionHash ' + transactionHash)
+                        if (!tmp && currencyCode) {
+                            await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({
+                                force: true,
+                                currencyCode: currencyCode,
+                                source: 'TRANSACTION_PUSH'
+                            })
+                            tmp = await transactionDS.getTransactions(searchParams, 'TransactionScreen.init with transactionHash ' + transactionHash)
+                        }
                         if (tmp) {
                             // if you need = add also transactionActions.preformat for basic rates
                             currencyCode = tmp[0].currencyCode
                             account = account[currencyCode]
+                            if (transactionStatus) {
+                                tmp[0].transactionStatus = transactionStatus
+                                notification = false
+                            }
                             tx = transactionActions.preformatWithBSEforShow(transactionActions.preformat(tmp[0], { account }), tmp[0].bseOrderData, currencyCode)
                         } else {
-                            tx = transactionActions.preformatWithBSEforShow(false, { orderHash, createdAt: notification.createdAt })
+                            tx = transactionActions.preformatWithBSEforShow(false, { orderHash, createdAt: notification.createdAt }, currencyCode)
                         }
                     } catch (e) {
                         Log.log('TransactionScreen.init with transactionHash error  ' + e)
@@ -159,7 +174,7 @@ class TransactionScreen extends Component {
 
             this.init(tx, cryptoCurrency)
 
-            if (typeof notification !== 'undefined') {
+            if (typeof notification !== 'undefined' && notification) {
                 this.setState(() => ({
                     transaction: tx,
                     account,

@@ -52,7 +52,7 @@ class UpdateAppNewsListDaemon extends Update {
             let toBadge = 0
             for (const item of appNewsList) {
                 if (now - item.newsCreated < TO_BADGE_TIME && item.newsOpenedAt === null) {
-                    if (item.newsName !== 'BTC_RATES_CHANGING') {
+                    if (item.newsGroup === 'NEWS' || item.newsGroup === 'BSE_ORDERS') {
                         toBadge++
                     }
                     if (item.newsNeedPopup && !item.newsShownPopup) {

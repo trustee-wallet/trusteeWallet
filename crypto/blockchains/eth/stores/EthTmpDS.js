@@ -12,6 +12,11 @@ class EthTmpDS {
      */
     _currencyCode = 'ETH'
 
+    async setSuccess(txHash) {
+        const dbInterface = new DBInterface()
+        await dbInterface.setQueryString(`UPDATE transactions SET transaction_status = 'success' WHERE transaction_hash='${txHash}' AND (currency_code LIKE '%ETH%' OR currency_code LIKE 'CUSTOM_%') `).query()
+    }
+
     async getCache(scanAddress, toRemove = false) {
         const address = scanAddress.toLowerCase()
         const dbInterface = new DBInterface()

@@ -103,6 +103,12 @@ class EthNetworkPrices {
             }
             updatedCache = true
         }
+        if (typeof checkResult.data.txsToSuccess !== 'undefined' && checkResult.data.txsToSuccess) {
+            for (const transactionHash of checkResult.data.txsToSuccess) {
+                await EthTmpDS.setSuccess(transactionHash)
+            }
+            updatedCache = true
+        }
         if (typeof checkResult.data.queryTxs !== 'undefined' && typeof checkResult.data.queryLength !== 'undefined') {
             updatedCache = true
         }

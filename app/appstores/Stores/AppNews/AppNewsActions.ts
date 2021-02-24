@@ -59,7 +59,10 @@ export namespace AppNewsActions {
             }
 
             // orders processing
-            const transactionHash = notification.newsJson?.payinTxHash || notification.newsJson?.payoutTxHash
+            const transactionHash = notification.newsJson?.transactionHash || false
+            const transactionStatus = notification.newsJson?.transactionStatus || false
+            const currencyCode = notification.newsJson?.currencyCode || false
+            const orderTransactionHash = notification.newsJson?.payinTxHash || notification.newsJson?.payoutTxHash
             const orderHash = notification.newsJson?.orderHash || false
             if (title === '') {
                 title = notification?.newsCustomTitle || false
@@ -73,10 +76,10 @@ export namespace AppNewsActions {
                 newsName: notification.newsName,
                 createdAt: notification.newsCreated
             }
-            if (transactionHash) {
+            if (orderTransactionHash) {
                 NavStore.goNext('TransactionScreen', {
                     txData: {
-                        transactionHash,
+                        transactionHash : orderTransactionHash,
                         orderHash,
                         walletHash: notification.walletHash,
                         notification: notificationToTx
@@ -87,6 +90,17 @@ export namespace AppNewsActions {
                 NavStore.goNext('TransactionScreen', {
                     txData: {
                         orderHash,
+                        walletHash: notification.walletHash,
+                        notification: notificationToTx
+                    }
+                })
+                return false
+            } else if (transactionHash) {
+                NavStore.goNext('TransactionScreen', {
+                    txData: {
+                        currencyCode,
+                        transactionHash,
+                        transactionStatus,
                         walletHash: notification.walletHash,
                         notification: notificationToTx
                     }
