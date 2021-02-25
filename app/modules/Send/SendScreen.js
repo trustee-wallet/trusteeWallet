@@ -1404,6 +1404,25 @@ class SendScreen extends SendBasicScreenScreen {
                             }
 
                             {
+                                currencyCode === 'BNB' ?
+                                    <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE * 1.5}}>
+                                        <MemoInput
+                                            ref={component => this.memoInput = component}
+                                            id={memoInput.id}
+                                            name={strings('send.bnb_memo')}
+                                            type={'XLM_DESTINATION_TAG'}
+                                            onFocus={() => this.onFocus()}
+                                            keyboardType={'default'}
+                                            info={true}
+                                            tabInfo={() => this.modalInfo()}
+                                            callback={(value) => {
+                                                this.amountInputCallback(false, false, false, value)
+                                            }}
+                                        />
+                                    </View> : null
+                            }
+
+                            {
                                 currencyCode === 'XMR' ?
                                     <View style={{  ...style.inputWrapper, marginVertical: GRID_SIZE }}>
                                         <MemoInput

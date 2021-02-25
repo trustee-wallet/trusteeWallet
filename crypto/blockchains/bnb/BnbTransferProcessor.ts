@@ -9,6 +9,7 @@ import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 import { BnbTxSendProvider } from './basic/BnbTxSendProvider'
 import BlocksoftUtils from '../../common/BlocksoftUtils'
+import BnbNetworkPrices from './basic/BnbNetworkPrices'
 
 export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: { network: string; currencyCode: string }
@@ -28,12 +29,15 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
     }
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
+
+        const fees = await BnbNetworkPrices.getFees()
+        const feeForTx = BlocksoftUtils.toUnified(fees.send, 8)
         const result: BlocksoftBlockchainTypes.FeeRateResult = {
             selectedFeeIndex: 0,
             fees : [
                 {
                     langMsg: 'xrp_speed_one',
-                    feeForTx: '0.000375',
+                    feeForTx,
                     amountForTx: data.amount
                 }
             ]

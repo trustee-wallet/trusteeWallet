@@ -3,6 +3,7 @@ import { BlocksoftBlockchainTypes } from '../../BlocksoftBlockchainTypes'
 import config from '../../../../app/config/config'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
+import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
 
 const elliptic = require('elliptic')
 const ec = new elliptic.ec('secp256k1')
@@ -52,13 +53,12 @@ function marshalBinary(obj: any) {
 export class BnbTxSendProvider {
 
     async getPrepared(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData, type = 'usual') {
-
-        const res = await BlocksoftAxios.getWithoutBraking('https://dex.binance.org/api/v1/account/' + data.addressFrom)
+        const apiServer = await BlocksoftExternalSettings.getStatic('BNB_SERVER')
+        const res = await BlocksoftAxios.getWithoutBraking(apiServer + '/api/v1/account/' + data.addressFrom)
         if (!res.data) {
             throw new Error('no data')
         }
         const account = res.data
-
 
         const unified = BlocksoftUtils.fromUnified(data.amount, 8) * 1
         const msg = {
@@ -75,11 +75,12 @@ export class BnbTxSendProvider {
                 }]
             }]
         }
+        const memo = (typeof data.memo === 'undefined' || !data.memo) ? '' : data.memo
         const signMsg = {
             account_number: account.account_number + '',
             chain_id: 'Binance-Chain-Tigris',
             data: null,
-            memo: '',
+            memo,
             msgs: [msg],
             sequence: account.sequence + '',
             source: '0'
@@ -123,7 +124,7 @@ export class BnbTxSendProvider {
                 aminoPrefix: '2A2C87FA'
             },
             baseMsg: undefined,
-            memo: '',
+            memo: memo,
             source: 0,
             signatures
         }
@@ -153,7 +154,8 @@ export class BnbTxSendProvider {
         let result = false
         try {
             // console.log(`curl -X POST -F "tx=${raw}" "https://dex.binance.org/api/v1/broadcast"`)
-            const response = await fetch('https://dex.binance.org/api/v1/broadcast?sync=true', {
+            const apiServer = await BlocksoftExternalSettings.getStatic('BNB_SERVER')
+            const response = await fetch(apiServer + '/api/v1/broadcast?sync=true', {
                 method: 'POST',
                 credentials: 'same-origin',
                 mode: 'same-origin',

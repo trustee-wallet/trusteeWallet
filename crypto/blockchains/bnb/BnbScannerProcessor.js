@@ -6,9 +6,7 @@ import BlocksoftAxios from '../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftUtils from '../../common/BlocksoftUtils'
 import config from '../../../app/config/config'
-
-const API_PATH = 'https://dex.binance.org'
-const FEE_DECIMALS = 7
+import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
 
 export default class BnbScannerProcessor {
 
@@ -19,7 +17,8 @@ export default class BnbScannerProcessor {
      * @return {Promise<{balance, unconfirmed, provider}>}
      */
     async getBalanceBlockchain(address) {
-        const link = `${API_PATH}/api/v1/account/${address}`
+        const apiServer = await BlocksoftExternalSettings.getStatic('BNB_SERVER')
+        const link = `${apiServer}/api/v1/account/${address}`
         let balance = 0
         let frozen = 0
         const res = await BlocksoftAxios.getWithoutBraking(link)
@@ -54,8 +53,11 @@ export default class BnbScannerProcessor {
     async getTransactionsBlockchain(address) {
         address = address.trim()
         BlocksoftCryptoLog.log('BnbScannerProcessor.getTransactions started', address)
+
+        const apiServer = await BlocksoftExternalSettings.getStatic('BNB_SERVER')
+
         // @todo get last from db - 3 days
-        const linkTxs = `${API_PATH}/api/v1/transactions/?address=${address}&startTime=1609452000000&txAsset=BNB&txType=TRANSFER` // 2021-01-01
+        const linkTxs = `${apiServer}/api/v1/transactions/?address=${address}&startTime=1609452000000&txAsset=BNB&txType=TRANSFER` // 2021-01-01
 
         const res = await BlocksoftAxios.getWithoutBraking(linkTxs)
         if (!res || typeof res.data === 'undefined' || !res.data) {

@@ -886,7 +886,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
         let memoTitle = strings('send.xrp_memo')
         if (account.currencyCode === 'XMR' || account.currencyCode === 'XLM') {
             memoTitle = strings('send.xmr_memo')
-        } else if (isFioRequest) {
+        } else if (account.currencyCode === 'BNB') {
+            memoTitle = strings('send.bnb_memo')
+        }else if (isFioRequest) {
             memoTitle = strings('send.fio_memo')
         }
 
