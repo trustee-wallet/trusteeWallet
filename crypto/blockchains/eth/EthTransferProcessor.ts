@@ -102,7 +102,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             maxNonceLocal
         })
         if (typeof additionalData.gasPrice !== 'undefined') {
-            gasPrice = { 'speed_blocks_12': additionalData.gasPrice }
+            if (this._settings.currencyCode === 'BNB_SMART') {
+                gasPrice = { 'speed_blocks_2': additionalData.gasPrice }
+            } else {
+                gasPrice = { 'speed_blocks_12': additionalData.gasPrice }
+            }
         } else if (typeof additionalData.prices !== 'undefined' && additionalData.prices) {
             gasPrice = additionalData.prices
         } else {

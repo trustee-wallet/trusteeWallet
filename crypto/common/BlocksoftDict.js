@@ -8,7 +8,7 @@ const VisibleCodes = [
     'BTC', 'ETH', 'ETH_USDT', 'ETH_SOUL' // add code here to show on start screen
 ]
 const Codes = [
-    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'ETH_DAIM', 'TRX', 'FIO'   // add code here for autocreation the wallet address with the currency
+    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'BNB', 'BNB_SMART', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'ETH_DAIM', 'TRX', 'FIO'   // add code here for autocreation the wallet address with the currency
 ]
 
 const Currencies = {
@@ -98,6 +98,24 @@ const Currencies = {
         // currencyExplorerTxLink: 'https://binance.mintscan.io/txs/',
         currencyExplorerLink: 'https://explorer.binance.org/address/',
         currencyExplorerTxLink: 'https://explorer.binance.org/tx/',
+    },
+    'BNB_SMART': {
+        currencyType: 'coin',
+        currencyName: 'BNB Smart Chain',
+        currencyCode: 'BNB_SMART',
+        currencySymbol: 'BNB',
+        ratesCurrencyCode: 'BNB',
+        addressCurrencyCode : 'ETH',
+        addressProcessor: 'ETH',
+        addressUiChecker: 'ETH',
+        scannerProcessor: 'ETH',
+        extendsProcessor: 'ETH',
+        prettyNumberProcessor: 'ETH',
+        transferProcessor: 'BNB_SMART',
+        network: 'mainnet', // network also used as mark of rate scanning
+        decimals: 18,
+        currencyExplorerLink: 'https://bscscan.com/address/',
+        currencyExplorerTxLink: 'https://bscscan.com/tx/'
     },
     // 'BTC_LIGHT': {
     //     currencyName: 'Bitcoin Lightning',

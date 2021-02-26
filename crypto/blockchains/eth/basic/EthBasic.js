@@ -66,6 +66,7 @@ export default class EthBasic {
 
     /**
      * @param {string} settings.network
+     * @param {string} settings.currencyCode
      */
     constructor(settings) {
         if (typeof settings === 'undefined' || !settings) {
@@ -83,15 +84,35 @@ export default class EthBasic {
             default:
                 throw new Error('while retrieving Ethereum address - unknown Ethereum network specified. Proper values are "mainnet", "ropsten", "kovan", rinkeby". Got : ' + settings.network)
         }
+
         this._settings = settings
+
+        if (settings.currencyCode === 'BNB_SMART') {
+            this._web3Link = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
+
+            this._etherscanSuffix = ''
+            this._etherscanApiPath = `https://api.bscscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
+            this._etherscanApiPathInternal = `https://api.bscscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
+
+            this._trezorServer = false
+            this._trezorServerCode = false
+
+            this._mainCurrencyCode = 'BNB'
+        } else {
+
+            this._etherscanSuffix = (settings.network === 'mainnet') ? '' : ('-' + settings.network)
+            this._etherscanApiPath = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
+            this._etherscanApiPathInternal = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
+
+            this._trezorServer = 'to_load'
+            this._trezorServerCode = settings.network === 'mainnet' ? 'ETH_TREZOR_SERVER' : 'ETH_ROPSTEN_TREZOR_SERVER'
+
+            this._mainCurrencyCode = 'ETH'
+        }
+
+
         // noinspection JSUnresolvedVariable
         this._web3 = new Web3(new Web3.providers.HttpProvider(this._web3Link))
-        this._etherscanSuffix = (settings.network === 'mainnet') ? '' : ('-' + settings.network)
-        this._etherscanApiPath = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
-        this._etherscanApiPathInternal = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
-
-        this._trezorServer = 'to_load'
-        this._trezorServerCode = settings.network === 'mainnet' ? 'ETH_TREZOR_SERVER' : 'ETH_ROPSTEN_TREZOR_SERVER'
         this._tokenAddress = false
     }
 

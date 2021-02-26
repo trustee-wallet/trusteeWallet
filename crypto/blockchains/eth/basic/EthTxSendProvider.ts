@@ -46,7 +46,7 @@ export default class EthTxSendProvider {
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx hex', signData.rawTransaction)
 
         let link
-        if (this._trezorServerCode.indexOf('http') === -1) {
+        if (this._trezorServerCode && this._trezorServerCode.indexOf('http') === -1) {
             this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Send.sendTx')
             link = this._trezorServer + '/api/v2/sendtx/'
         } else {
@@ -77,7 +77,7 @@ export default class EthTxSendProvider {
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy checkResult1 ', checkResult.data)
                 if (typeof checkResult.data.status === 'undefined' || checkResult.data.status === 'error') {
                     if (config.debug.cryptoErrors) {
-                        console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResult1 ', checkResult)
+                        console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResult1 ', JSON.parse(JSON.stringify(checkResult.data)))
                     }
                     checkResult = false
                 } else if (checkResult.data.status === 'notice') {
@@ -86,19 +86,37 @@ export default class EthTxSendProvider {
             } else {
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy checkResult2 ', checkResult)
                 if (config.debug.cryptoErrors) {
-                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResult2 ', checkResult)
+                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResult2 ', JSON.parse(JSON.stringify(checkResult.data)))
                 }
             }
         } else {
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResultEmpty ', checkResult)
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResultEmpty ', JSON.stringify(checkResult.data))
             }
         }
         logData.checkResult = checkResult && typeof checkResult.data !== 'undefined' && checkResult.data ? JSON.parse(JSON.stringify(checkResult.data)) : false
 
         let result
         try {
-            result = await BlocksoftAxios.post(link, signData.rawTransaction)
+            if (this._settings.currencyCode === 'BNB_SMART') {
+                /**
+                 * {"blockHash": "0x01d48fd5de1ebb62275096f749acb6849bd97f3c050acb07358222cea0a527bc",
+                 * "blockNumber": 5223318, "contractAddress": null,
+                 * "cumulativeGasUsed": 14465279, "from": "0xf1cff704c6e6ce459e3e1544a9533cccbdad7b99",
+                 * "gasUsed": 21000, "logs": [],
+                 * "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                 * "status": true, "to": "0xf1cff704c6e6ce459e3e1544a9533cccbdad7b99", "transactionHash": "0x1fa5646517b625d422863e6c27082104e1697543a6f912421527bb171c6173f2", "transactionIndex": 95}
+                 */
+                const tmp = await this._web3.eth.sendSignedTransaction(signData.rawTransaction)
+                result = {
+                    data: {
+                        result: typeof tmp.transactionHash !== 'undefined' ? tmp.transactionHash : false
+                    }
+                }
+
+            } else {
+                result = await BlocksoftAxios.post(link, signData.rawTransaction)
+            }
             // @ts-ignore
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send result ', typeof result !== 'undefined' && result ? result.data : 'NO RESULT')
         } catch (e) {

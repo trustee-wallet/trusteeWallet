@@ -23,6 +23,7 @@ import EthTransferProcessorUAX from './eth/EthTransferProcessorUAX'
 import XmrTransferProcessor from './xmr/XmrTransferProcessor'
 import FioTransferProcessor from './fio/FioTransferProcessor'
 import BnbTransferProcessor from './bnb/BnbTransferProcessor'
+import BnbSmartTransferProcessor from './bnb_smart/BnbSmartTransferProcessor'
 import { BlocksoftBlockchainTypes } from './BlocksoftBlockchainTypes'
 
 export namespace BlocksoftTransferDispatcher {
@@ -98,6 +99,9 @@ export namespace BlocksoftTransferDispatcher {
                 break
             case 'BNB':
                 CACHE_PROCESSORS[currencyCode] = new BnbTransferProcessor(currencyDictSettings)
+                break
+            case 'BNB_SMART':
+                CACHE_PROCESSORS[currencyCode] = new BnbSmartTransferProcessor(currencyDictSettings)
                 break
             default:
                 throw new Error('Unknown transferProcessor ' + transferProcessor)
