@@ -21,24 +21,38 @@ let WALLET_CONNECTOR: WalletConnect
 let WALLET_CONNECTOR_LINK: string | boolean = false
 
 const Web3 = require('web3')
+const WALLET_INNER = {
+    currencyCode: '',
+    web3Link: '',
+    web3
+}
 
-const WEB3_LINK = `https://mainnet.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
-const WEB3 = new Web3(new Web3.providers.HttpProvider(WEB3_LINK))
 
 export namespace AppWalletConnect {
 
+    const _getChain = async function () {
+        const { chainId } = WALLET_CONNECTOR
+        Log.log('AppWalletConnect._getAccount chainId ' + chainId + ' code ' + WALLET_INNER.currencyCode)
+        Log.log('connected',  WALLET_CONNECTOR)
+        if (chainId === 3) {
+            WALLET_CONNECTOR.web3Link = `https://ropsten.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
+            WALLET_INNER.currencyCode = 'ETH_ROPSTEN'
+        } else if (chainId === 'Binance-Chain-Ganges') {
+            WALLET_INNER.web3Link = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
+            WALLET_INNER.currencyCode = 'BNB_SMART'
+        } else {
+            WALLET_CONNECTOR.web3Link = `https://mainnet.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
+            WALLET_INNER.currencyCode = 'ETH'
+        }
+        WALLET_INNER.web3 = new Web3(new Web3.providers.HttpProvider(WALLET_INNER.web3))
+    }
     const _getAccount = async function() {
         const walletHash = await cryptoWalletsDS.getSelectedWallet()
-        const { chainId } = WALLET_CONNECTOR
-        let currencyCode = 'ETH'
-        if (chainId === 3) {
-            currencyCode = 'ETH_ROPSTEN'
+        await _getChain()
+        if (typeof DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][WALLET_INNER.currencyCode] === 'undefined') {
+            throw new Error('TURN ON ' + WALLET_INNER.currencyCode)
         }
-        Log.log('AppWalletConnect._getAccount chainId ' + chainId + ' code ' + currencyCode)
-        if (typeof DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][currencyCode] === 'undefined') {
-            throw new Error('TURN ON ' + currencyCode)
-        }
-        const account = DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][currencyCode]
+        const account = DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][WALLET_INNER.currencyCode]
         return account
     }
 
@@ -160,7 +174,7 @@ export namespace AppWalletConnect {
             }
             const privateData = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor, 'AppWalletConnect')
 
-            const signData = await WEB3.eth.accounts.signTransaction(data, privateData.privateKey)
+            const signData = await WALLET_INNER.web3.eth.accounts.signTransaction(data, privateData.privateKey)
             const nonce = BlocksoftUtils.hexToDecimalWalletConnect(data.nonce)
 
             BlocksoftCryptoLog.log(account.currencyCode + ' AppWalletConnect.send save nonce ' + nonce + ' from ' + data.from + ' ' + signData.transactionHash)
@@ -200,7 +214,7 @@ export namespace AppWalletConnect {
             }
             const privateData = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor, 'AppWalletConnect')
 
-            const signData = await WEB3.eth.accounts.sign(payload.params[0], privateData.privateKey)
+            const signData = await WALLET_INNER.web3.eth.accounts.sign(payload.params[0], privateData.privateKey)
 
             await WALLET_CONNECTOR.approveRequest({
                 id: payload.id,
