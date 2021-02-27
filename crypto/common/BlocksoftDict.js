@@ -97,7 +97,7 @@ const Currencies = {
         // currencyExplorerLink: 'https://binance.mintscan.io/account/',
         // currencyExplorerTxLink: 'https://binance.mintscan.io/txs/',
         currencyExplorerLink: 'https://explorer.binance.org/address/',
-        currencyExplorerTxLink: 'https://explorer.binance.org/tx/',
+        currencyExplorerTxLink: 'https://explorer.binance.org/tx/'
     },
     'BNB_SMART': {
         currencyType: 'coin',
@@ -105,7 +105,7 @@ const Currencies = {
         currencyCode: 'BNB_SMART',
         currencySymbol: 'BNB',
         ratesCurrencyCode: 'BNB',
-        addressCurrencyCode : 'ETH',
+        addressCurrencyCode: 'ETH',
         addressProcessor: 'ETH',
         addressUiChecker: 'ETH',
         scannerProcessor: 'ETH',
@@ -117,6 +117,7 @@ const Currencies = {
         currencyExplorerLink: 'https://bscscan.com/address/',
         currencyExplorerTxLink: 'https://bscscan.com/tx/'
     },
+
     // 'BTC_LIGHT': {
     //     currencyName: 'Bitcoin Lightning',
     //     currencyCode: 'BTC_LIGHT',
@@ -137,7 +138,7 @@ const Currencies = {
         currencyCode: 'BTC_TEST',
         currencySymbol: 'BTC TEST',
         scannerProcessor: 'BTC_TEST',
-        ratesCurrencyCode : 'SKIP',
+        ratesCurrencyCode: 'SKIP',
         extendsProcessor: 'BTC',
         network: 'testnet',
         decimals: 8,
@@ -262,21 +263,21 @@ const Currencies = {
         currencyExplorerLink: 'https://blockchair.com/bitcoin/address/',
         currencyExplorerTxLink: 'https://blockchair.com/bitcoin/transaction/'
     },
-    'ETH_UAX' : {
+    'ETH_UAX': {
         currencyType: 'token',
-        currencyName : 'Crypto UAX',
-        currencyCode : 'ETH_UAX',
+        currencyName: 'Crypto UAX',
+        currencyCode: 'ETH_UAX',
         currencySymbol: 'UAX',
         extendsProcessor: 'ETH_TRUE_USD',
         transferProcessor: 'ETH_UAX',
         scannerProcessor: 'ETH_UAX',
-        delegatedTransfer : true,
+        delegatedTransfer: true,
         addressUiChecker: 'ETH',
         ratesCurrencyCode: 'UAH',
         decimals: 2,
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0x1Fc31488f28ac846588FFA201cDe0669168471bD',
-        delegateAddress : '0x8826a55c94915870aceed4ea9f1186678fcbdaf6',
+        delegateAddress: '0x8826a55c94915870aceed4ea9f1186678fcbdaf6',
         currencyExplorerLink: 'https://etherscan.io/token/0x1Fc31488f28ac846588FFA201cDe0669168471bD?a='
     },
     'XRP': {
@@ -313,7 +314,7 @@ const Currencies = {
         currencyCode: 'ETH_ROPSTEN',
         currencySymbol: 'ETH',
         currencyIcon: 'ETH',
-        ratesCurrencyCode : 'SKIP',
+        ratesCurrencyCode: 'SKIP',
         extendsProcessor: 'ETH',
         transferProcessor: 'ETH',
         network: 'ropsten',
@@ -372,7 +373,7 @@ const Currencies = {
         addressUiChecker: 'TRX',
         ratesCurrencyCode: 'BTT', // if code in rates should be different, else - used currencyCode
         network: 'trx', // network also used as mark of rate scanning
-        skipParentBalanceCheck:true, // parent balance could be zero
+        skipParentBalanceCheck: true, // parent balance could be zero
         decimals: 6,
         tokenBlockchain: 'TRON',
         tokenName: '1002000',
@@ -537,7 +538,6 @@ const Currencies = {
         currencyExplorerLink: 'https://etherscan.io/token/0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c?a='
     },
 
-
     'ETH_SOUL': {
         currencyType: 'token',
         currencyName: 'CryptoSoul',
@@ -564,6 +564,113 @@ const Currencies = {
         tokenBlockchain: 'ETHEREUM',
         tokenAddress: '0x799a4202c12ca952cb311598a024c80ed371a41e',
         currencyExplorerLink: 'https://etherscan.io/token/0x799a4202c12ca952cb311598a024c80ed371a41e?a='
+    },
+
+
+    'BNB_SMART_CAKE': {
+        currencyType: 'token',
+        currencyName: 'PancakeSwap Token',
+        currencyCode: 'BNB_SMART_CAKE',
+        currencyIcon: 'BNB',
+        currencySymbol: 'CAKE',
+        addressProcessor: 'ETH',
+        scannerProcessor: 'BNB_SMART_20',
+        transferProcessor: 'BNB_SMART_20',
+        prettyNumberProcessor: 'ETH_ERC_20',
+        addressCurrencyCode: 'ETH',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'CAKE', // if code in rates should be different, else - used currencyCode
+        feesCurrencyCode: 'BNB_SMART', // pay for tx in other currency, if no - used currencyCode
+        network: 'mainnet', // network also used as mark of rate scanning
+        decimals: 18,
+        tokenBlockchain: 'BNB',
+        tokenAddress: '0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82',
+        currencyExplorerLink: 'https://bscscan.com/token/0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82?a=',
+        currencyExplorerTxLink: 'https://bscscan.com/tx/'
+    },
+    'BNB_SMART_BTC': {
+        currencyType: 'token',
+        currencyName: 'BTC Binance-Peg',
+        currencyCode: 'BNB_SMART_BTC',
+        currencySymbol: 'BTC',
+        ratesCurrencyCode: 'BTC',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c?a='
+    },
+    'BNB_SMART_ETH': {
+        currencyType: 'token',
+        currencyName: 'ETH Binance-Peg',
+        currencyCode: 'BNB_SMART_ETH',
+        currencySymbol: 'ETH',
+        ratesCurrencyCode: 'ETH',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0x2170ed0880ac9a755fd29b2688956bd959f933f8?a='
+    },
+    'BNB_SMART_USD': {
+        currencyType: 'token',
+        currencyName: 'USD Binance-Peg',
+        currencyCode: 'BNB_SMART_USD',
+        currencySymbol: 'USD',
+        ratesCurrencyCode: 'USD',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0xe9e7cea3dedca5984780bafc599bd69add087d56',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0xe9e7cea3dedca5984780bafc599bd69add087d56?a='
+    },
+    'BNB_SMART_USDT': {
+        currencyType: 'token',
+        currencyName: 'USDT Binance-Peg',
+        currencyCode: 'BNB_SMART_USDT',
+        currencySymbol: 'USDT',
+        ratesCurrencyCode: 'USDT',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0x55d398326f99059ff775485246999027b3197955',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0x55d398326f99059ff775485246999027b3197955?a='
+    },
+    'BNB_SMART_LTC': {
+        currencyType: 'token',
+        currencyName: 'LTC Binance-Peg',
+        currencyCode: 'BNB_SMART_LTC',
+        currencySymbol: 'LTC',
+        ratesCurrencyCode: 'LTC',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0x4338665cbb7b2485a8855a139b75d5e34ab0db94',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0x4338665cbb7b2485a8855a139b75d5e34ab0db94?a='
+    },
+    'BNB_SMART_DOGE': {
+        currencyType: 'token',
+        currencyName: 'DOGE Binance-Peg',
+        currencyCode: 'BNB_SMART_DOGE',
+        currencySymbol: 'DOGE',
+        ratesCurrencyCode: 'DOGE',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0xba2ae424d960c26247dd6c32edc70b295c744c43',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0xba2ae424d960c26247dd6c32edc70b295c744c43?a='
+    },
+    'BNB_SMART_ADA': {
+        currencyType: 'token',
+        currencyName: 'Cardano Binance-Peg',
+        currencyCode: 'BNB_SMART_ADA',
+        currencySymbol: 'ADA',
+        ratesCurrencyCode: 'ADA',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0x3ee2200efb3400fabb9aacf31297cbdd1d435d47',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0x3ee2200efb3400fabb9aacf31297cbdd1d435d47?a='
     }
 
 
@@ -633,18 +740,29 @@ function addAndUnifyCustomCurrency(currencyObject) {
         currencyName: currencyObject.currencyName,
         currencyCode: 'CUSTOM_' + currencyObject.currencyCode,
         currencySymbol: currencyObject.currencySymbol,
-        ratesCurrencyCode: currencyObject.currencyCode,
-        decimals: currencyObject.tokenDecimals
+        ratesCurrencyCode: currencyObject.currencyCode
 
     }
     tmp.currencyType = 'custom'
-    if (currencyObject.tokenType === 'ETH_ERC_20') {
+    if (currencyObject.tokenType === 'BNB_SMART_20') {
+        tmp.currencyCode = 'CUSTOM_BNB_SMART_20_' + currencyObject.currencyCode
+        if (tmp.ratesCurrencyCode.substr(0, 1) === 'B') {
+            const subRate = tmp.ratesCurrencyCode.substr(1)
+            if (typeof Currencies[subRate] !== 'undefined') {
+                tmp.ratesCurrencyCode = subRate
+            }
+        }
+        tmp.extendsProcessor = 'BNB_SMART_CAKE'
+        tmp.addressUiChecker = 'ETH'
+        tmp.tokenAddress = currencyObject.tokenAddress
+        tmp.tokenBlockchain = 'BNB'
+        tmp.currencyExplorerLink = 'https://bscscan.com/token/' + currencyObject.tokenAddress + '?a='
+    } else if (currencyObject.tokenType === 'ETH_ERC_20') {
         tmp.extendsProcessor = 'ETH_TRUE_USD'
         tmp.addressUiChecker = 'ETH'
         tmp.tokenAddress = currencyObject.tokenAddress
         tmp.tokenBlockchain = 'ETHEREUM'
         tmp.currencyExplorerLink = 'https://etherscan.io/token/' + currencyObject.tokenAddress + '?a='
-        tmp.decimals = currencyObject.tokenDecimals
     } else if (currencyObject.tokenType === 'TRX') {
         tmp.extendsProcessor = 'TRX_USDT'
         tmp.addressUiChecker = 'TRX'
@@ -660,7 +778,7 @@ function addAndUnifyCustomCurrency(currencyObject) {
         return false
     }
 
-    Currencies['CUSTOM_' + currencyObject.currencyCode] = tmp
+    Currencies[tmp.currencyCode] = tmp
 }
 
 const ALL_SETTINGS = {}

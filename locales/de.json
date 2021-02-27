@@ -377,7 +377,7 @@
     "tabCustom": "More",
     "searchPlaceholder": "Search",
     "addCustomPlaceholder": "Asset address",
-    "addCustomLabel": "You can add a standard token developed on Ethereum or Tron blockchain. Please, enter or scan a new token / asset.",
+    "addCustomLabel": "You can add a standard token developed on Ethereum, BNB or Tron blockchain. Please, enter or scan a new token / asset.",
     "noAssetsFound": "No assets found",
     "addAssetButton": "Add asset",
     "mainTitle": "Add asset",

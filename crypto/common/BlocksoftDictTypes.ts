@@ -43,6 +43,7 @@ export namespace BlocksoftDictTypes {
         ETH_SOUL = 'ETH_SOUL',
         ETH_ONE = 'ETH_ONE',
         FIO = 'FIO',
-        BNB = 'BNB'
+        BNB = 'BNB',
+        BNB_SMART_20 = 'BNB_SMART_20'
     }
 }

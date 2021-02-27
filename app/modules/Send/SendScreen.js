@@ -544,9 +544,9 @@ class SendScreen extends SendBasicScreenScreen {
                 } else if (parentBalance === 0) {
                     let msg = false
                     if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed > 0) {
-                        msg = strings('send.notEnoughForFeeConfirmed', { symbol: extend.addressCurrencyCode })
+                        msg = strings('send.notEnoughForFeeConfirmed', { symbol: parentCurrency.currencySymbol })
                     } else {
-                        msg = strings('send.notEnoughForFee', { symbol: extend.addressCurrencyCode })
+                        msg = strings('send.notEnoughForFee', { symbol: parentCurrency.currencySymbol })
                     }
                     if (msg) {
                         enoughFunds.isAvailable = false
