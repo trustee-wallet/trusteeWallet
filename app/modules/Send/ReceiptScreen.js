@@ -305,6 +305,9 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         if (typeof tmp.countedFees !== 'undefined' && tmp.countedFees) {
             if (!this.checkLoadedFee(tmp.countedFees, selectedFee)) {
+                this.setState({
+                    sendInProcess: false
+                })
                 return false
             }
         }
@@ -734,7 +737,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
             } else {
                 const msg = e.message
-                Log.errorTranslate(e, 'Send.ConfirmSendScreen.handleSend', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
+                Log.errorTranslate(e, 'Send.ConfirmSendScreen.handleSend', extend)
 
                 showModal({
                     type: 'INFO_MODAL',
@@ -900,7 +903,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     leftAction={this.closeAction}
                     leftParams={{ 'close': false }}
                     rightType='close'
-                    rightAction={sendInProcess ? null : this.closeAction}
+                    rightAction={sendInProcess ? this.nothingCloseAction : this.closeAction}
                     rightParams={{ 'close': true }}
                     title={strings('send.receiptScreen.title')}
                     setHeaderHeight={this.setHeaderHeight}
@@ -1012,7 +1015,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     </View>
                     <TwoButtons
                         mainButton={{
-                            disabled: this.disabled() || this.state.sendInProcess,
+                            disabled: this.disabled() || sendInProcess,
                             onPress: this.handleSend,
                             title: strings('send.receiptScreen.send'),
                             sendInProcess: sendInProcess

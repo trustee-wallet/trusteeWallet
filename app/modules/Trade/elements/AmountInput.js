@@ -121,7 +121,7 @@ class AmountInput extends Component {
             })
 
         } catch (e) {
-            Log.errorTranslate(e, 'Trade.AmountInput.handleSellAll', errorCurrencyCode)
+            Log.errorTranslate(e, 'Trade.AmountInput.handleSellAll', {currencyCode : errorCurrencyCode})
 
             showModal({
                 type: 'INFO_MODAL',

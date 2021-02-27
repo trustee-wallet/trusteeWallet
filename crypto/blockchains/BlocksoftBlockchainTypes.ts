@@ -100,8 +100,8 @@ export namespace BlocksoftBlockchainTypes {
     export interface CheckTransferHasErrorResult {
         isOk: boolean,
         code?: 'TOKEN' | 'XRP' | 'XLM',
-        parentBlockchain?: 'Ethereum' | 'Bitcoin',
-        parentCurrency?: 'ETH' | 'BTC',
+        parentBlockchain?: 'Ethereum' | 'Bitcoin' | 'Binance',
+        parentCurrency?: 'ETH' | 'BTC' | 'BNB',
         address?: string
     }
 
@@ -146,6 +146,7 @@ export namespace BlocksoftBlockchainTypes {
         feeForByte?: string,
         estimatedGas?: number,
         gasPrice?: number,
+        gasPriceTitle ?: 'speed_blocks_2',
         nonceForTx?: number,
         balance?: string,
         unspents?: []

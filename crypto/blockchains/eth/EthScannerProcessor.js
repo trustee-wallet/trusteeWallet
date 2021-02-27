@@ -318,11 +318,11 @@ export default class EthScannerProcessor extends EthBasic {
         }
 
         if (maxNonce > -1) {
-            await EthTmpDS.saveNonce(address, 'maxScanned', maxNonce)
+            await EthTmpDS.saveNonce(this._mainCurrencyCode, address, 'maxScanned', maxNonce)
         }
 
         if (maxSuccessNonce > -1) {
-            await EthTmpDS.saveNonce(address, 'maxSuccess', maxSuccessNonce)
+            await EthTmpDS.saveNonce(this._mainCurrencyCode, address, 'maxSuccess', maxSuccessNonce)
         }
 
         return transactions

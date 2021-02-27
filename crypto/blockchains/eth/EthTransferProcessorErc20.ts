@@ -31,7 +31,8 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
         if (balance > 0) {
             return { isOk: true }
         } else {
-            return { isOk: false, code: 'TOKEN', parentBlockchain: 'Ethereum', parentCurrency: 'ETH' }
+            // @ts-ignore
+            return { isOk: false, code: 'TOKEN', parentBlockchain: this._mainTokenBlockchain, parentCurrency: this._mainCurrencyCode }
         }
     }
 
@@ -54,14 +55,14 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
         try {
             const basicAddressTo = data.addressTo.toLowerCase()
             let firstAddressTo = basicAddressTo
-            let eventTitle = 'v20_eth_gas_limit_token1 '
+            let eventTitle = 'v20_' + this._mainCurrencyCode.toLowerCase() + '_gas_limit_token1 '
             if (basicAddressTo === data.addressFrom.toLowerCase()) {
                 const tmp1 = '0xA09fe17Cb49D7c8A7858C8F9fCac954f82a9f487'
                 const tmp2 = '0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99'
                 firstAddressTo = data.addressFrom === tmp1 ? tmp2 : tmp1
                 // @ts-ignore
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas addressToChanged ' + basicAddressTo + ' => ' + firstAddressTo)
-                eventTitle = 'v20_eth_gas_limit_token2 '
+                eventTitle = 'v20_' + this._mainCurrencyCode.toLowerCase() + '_gas_limit_token2 '
             }
 
             let serverEstimatedGas = 0

@@ -408,7 +408,7 @@ class SendScreen extends SendBasicScreenScreen {
             if (config.debug.appErrors) {
                 console.log('Send.SendScreen.handleTransferAll ' + e.message, e)
             }
-            Log.errorTranslate(e, 'Send.SendScreen.handleTransferAll ', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
+            Log.errorTranslate(e, 'Send.SendScreen.handleTransferAll ', extend)
 
             Keyboard.dismiss()
 

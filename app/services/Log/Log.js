@@ -13,6 +13,7 @@ import changeableTester from '../../config/changeable.tester'
 import { FileSystem } from '../FileSystem/FileSystem'
 import { strings } from '../i18n'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import DaemonCache from '../../daemons/DaemonCache'
 
 const DEBUG = config.debug.appLogs // set true to see usual logs in console
 const DEBUG_DAEMON = config.debug.appDaemonLogs // set true to see cron jobs logs in console
@@ -103,7 +104,11 @@ class Log {
         return this.log(txtOrObj, txtOrObj2, txtOrObj3, 'DAEMON')
     }
 
-    errorTranslate(e, title, currencyCode, additional = '') {
+    errorTranslate(e, title, extend, additional = '') {
+        const currencyCode = typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode
+
+        additional +=  JSON.stringify(extend)
+
         if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
             this.err(title + ' ' + currencyCode + ' error ' + e.message + ' ' + additional)
             return e

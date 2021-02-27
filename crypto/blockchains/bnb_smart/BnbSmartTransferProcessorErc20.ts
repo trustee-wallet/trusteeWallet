@@ -1,14 +1,11 @@
 /**
- * @author Ksu
  * @version 0.20
- * https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=YourApiKeyToken
  */
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
-import EthTransferProcessor from '../eth/EthTransferProcessor'
-
+import EthTransferProcessorErc20 from '../eth/EthTransferProcessorErc20'
 import BnbSmartNetworkPrices from './basic/BnbSmartNetworkPrices'
 
-export default class BnbSmartTransferProcessor extends EthTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
+export default class BnbSmartTransferProcessorErc20 extends EthTransferProcessorErc20 implements BlocksoftBlockchainTypes.TransferProcessor {
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         additionalData.gasPrice = await BnbSmartNetworkPrices.getFees()

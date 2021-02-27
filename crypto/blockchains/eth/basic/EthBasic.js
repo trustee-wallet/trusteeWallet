@@ -87,7 +87,7 @@ export default class EthBasic {
 
         this._settings = settings
 
-        if (settings.currencyCode === 'BNB_SMART') {
+        if (settings.currencyCode === 'BNB_SMART' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'BNB')) {
             this._web3Link = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
 
             this._etherscanSuffix = ''
@@ -98,6 +98,8 @@ export default class EthBasic {
             this._trezorServerCode = false
 
             this._mainCurrencyCode = 'BNB'
+            this._mainTokenType = 'BNB_SMART_20'
+            this._mainTokenBlockchain = 'Binance'
         } else {
 
             this._etherscanSuffix = (settings.network === 'mainnet') ? '' : ('-' + settings.network)
@@ -108,6 +110,8 @@ export default class EthBasic {
             this._trezorServerCode = settings.network === 'mainnet' ? 'ETH_TREZOR_SERVER' : 'ETH_ROPSTEN_TREZOR_SERVER'
 
             this._mainCurrencyCode = 'ETH'
+            this._mainTokenType = 'ETH_ERC_20'
+            this._mainTokenBlockchain = 'Ethereum'
         }
 
 
@@ -134,7 +138,7 @@ export default class EthBasic {
             }
         } else if (e.message.indexOf('insufficient funds') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError0.3 ' + e.message + ' for ' + data.addressFrom, logData)
-            if (this._settings.currencyCode === 'ETH' && data.amount * 1 > 0) {
+            if ((this._settings.currencyCode === 'ETH' || this._settings.currencyCode === 'BNB_SMART') && data.amount * 1 > 0) {
                 throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
             } else {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
@@ -149,7 +153,7 @@ export default class EthBasic {
             BlocksoftCryptoLog.log('EthBasic checkError0.6 ' + e.message + ' for ' + data.addressFrom, logData)
             throw new Error('SERVER_RESPONSE_BAD_INTERNET')
         } else {
-            MarketingEvent.logOnlyRealTime('v20_eth_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
+            MarketingEvent.logOnlyRealTime('v20_' + this._mainCurrencyCode.toLowerCase() + '_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
             throw e
         }
     }

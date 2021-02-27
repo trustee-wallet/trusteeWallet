@@ -126,7 +126,10 @@ class EthTmpDS {
         return CACHE_TMP[address]
     }
 
-    async getMaxNonce(scanAddress) {
+    async getMaxNonce(mainCurrencyCode, scanAddress) {
+        if (mainCurrencyCode === 'BNB') {
+            return false
+        }
         const address = scanAddress.toLowerCase()
         // if (typeof CACHE_TMP[address] === 'undefined' || typeof CACHE_TMP[address]['maxValue'] === 'undefined') {
             await this.getCache(address)
@@ -141,7 +144,10 @@ class EthTmpDS {
         }
     }
 
-    async removeNonce(scanAddress, key) {
+    async removeNonce(mainCurrencyCode, scanAddress, key) {
+        if (mainCurrencyCode === 'BNB') {
+            return false
+        }
         const address = scanAddress.toLowerCase()
         const dbInterface = new DBInterface()
         const where = `WHERE currency_code='${this._currencyCode}' AND address='${address}' AND tmp_key='nonces' AND tmp_sub_key='${key}'`
@@ -149,7 +155,10 @@ class EthTmpDS {
         await this.getCache(address)
     }
 
-    async saveNonce(scanAddress, key, value) {
+    async saveNonce(mainCurrencyCode, scanAddress, key, value) {
+        if (mainCurrencyCode === 'BNB') {
+            return false
+        }
         const address = scanAddress.toLowerCase()
         const dbInterface = new DBInterface()
         const now = new Date().toISOString()

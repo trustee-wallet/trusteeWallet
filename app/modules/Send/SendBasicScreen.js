@@ -61,7 +61,7 @@ export default class SendBasicScreen extends Component {
             }
 
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
-            Log.errorTranslate(e, 'SendBasicScreen.recountFees', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
+            Log.errorTranslate(e, 'SendBasicScreen.recountFees', extend)
 
             Keyboard.dismiss()
 
@@ -97,6 +97,11 @@ export default class SendBasicScreen extends Component {
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0)
         this.setState(() => ({ headerHeight }))
+    }
+
+    nothingCloseAction = async () => {
+        // do nothing while sending
+        // @todo show notice "wait till end"
     }
 
     closeAction = async (closeScreen=false) => {

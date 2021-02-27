@@ -24,7 +24,7 @@ class BnbNetworkPrices {
             return CACHE_FEES
         }
 
-        BlocksoftCryptoLog.log('BnbetworkPricesProvider.getFees no cache load')
+        BlocksoftCryptoLog.log('BnbNetworkPricesProvider.getFees no cache load')
 
         const apiServer = await BlocksoftExternalSettings.getStatic('BNB_SERVER')
         const link = `${apiServer}/api/v1/fees`

@@ -268,7 +268,7 @@ class MainV3DataScreen extends Component {
                 console.log('EXC/MainV3Screen.handleTransferAll', e)
             }
 
-            Log.errorTranslate(e, 'Trade/MainV3Screen.handleTransferAll', typeof extend.addressCurrencyCode === 'undefined' ? extend.currencySymbol : extend.addressCurrencyCode, JSON.stringify(extend))
+            Log.errorTranslate(e, 'Trade/MainV3Screen.handleTransferAll', extend)
 
             showModal({
                 type: 'INFO_MODAL',

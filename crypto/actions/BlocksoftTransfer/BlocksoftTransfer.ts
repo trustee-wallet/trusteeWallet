@@ -37,7 +37,6 @@ export namespace BlocksoftTransfer {
                 privateData = await BlocksoftTransferPrivate.initTransferPrivate(data, additionalData)
             }
             additionalDataTmp.mnemonic = '***'
-            console.log('adgsdfgsfdg')
             transferAllCount = await (BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)).getTransferAllBalance(data, privateData, additionalDataTmp)
 
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance got ${data.addressFrom} result is ok`)

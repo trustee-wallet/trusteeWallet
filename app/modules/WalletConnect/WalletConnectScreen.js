@@ -127,7 +127,7 @@ class WalletConnectScreen extends React.Component {
                 gasPrice = BlocksoftUtils.hexToDecimalWalletConnect(data.gasPrice)
             }
             if (gasPrice * 1 <= 0) {
-                const prices = await EthNetworkPrices.getOnlyFees(data.from, {source : 'WalletConnectScreen'})
+                const prices = await EthNetworkPrices.getOnlyFees(AppWalletConnect.getMainCurrencyCode(), data.from, {source : 'WalletConnectScreen'})
                 gasPrice = prices.speed_blocks_2
             }
             const gas = BlocksoftUtils.hexToDecimalWalletConnect(data.gas)

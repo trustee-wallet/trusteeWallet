@@ -12,6 +12,7 @@ import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 
 import { strings } from '../../services/i18n'
 import Log from '../../services/Log/Log'
+import config from '../../config/config'
 
 
 export const ASSESTS_GROUP = {
@@ -108,7 +109,7 @@ function filterBySearchQuery(assets, value) {
 
 
 export async function addCustomToken(tokenAddress) {
-    const tokenType = tokenAddress.substr(0, 2) === '0x' ? 'ETH_ERC_20' : 'TRX' // more logic - into validation of input is enough
+    let tokenType = tokenAddress.substr(0, 2) === '0x' ? 'ETH_ERC_20' : 'TRX' // more logic - into validation of input is enough
 
     Log.log('AddCustomTokenScreen.addToken start adding ' + tokenAddress + ' ' + tokenType)
 
@@ -120,6 +121,13 @@ export async function addCustomToken(tokenAddress) {
             tokenType,
             tokenAddress
         })
+        if (!checked && tokenType === 'ETH_ERC_20') {
+            tokenType = 'BNB_SMART_20'
+            checked = await customCurrencyActions.checkCustomCurrency({
+                tokenType,
+                tokenAddress
+            })
+        }
 
         Log.log('AddCustomTokenScreen.addToken checked ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked))
 
@@ -139,6 +147,9 @@ export async function addCustomToken(tokenAddress) {
 
     } catch (e) {
 
+        if (config.debug.appErrors) {
+            console.log('AddCustomTokenScreen.addToken checked' + tokenAddress + ' ' + tokenType + ' error ' + e.message)
+        }
         Log.log('AddCustomTokenScreen.addToken checked' + tokenAddress + ' ' + tokenType + ' error ' + e.message)
 
         showModal({
@@ -154,7 +165,8 @@ export async function addCustomToken(tokenAddress) {
     }
 
 
-    if (BlocksoftDict.Currencies['CUSTOM_' + checked.currencyCode]) {
+
+    if (BlocksoftDict.Currencies[checked.currencyCodePrefix + checked.currencyCode]) {
 
         showModal({
             type: 'INFO_MODAL',
@@ -168,26 +180,48 @@ export async function addCustomToken(tokenAddress) {
         return
     }
 
-    // @misha - i think here some info window to confirm add could be added
-    await customCurrencyActions.addCustomCurrency({
-        currencyCode: checked.currencyCode,
-        currencyName: checked.currencyName,
-        tokenType: checked.tokenType,
-        tokenAddress: checked.tokenAddress,
-        tokenDecimals: checked.tokenDecimals
-    })
+    try {
+        await customCurrencyActions.addCustomCurrency({
+            currencyCode: checked.currencyCode,
+            currencyName: checked.currencyName,
+            tokenType: checked.tokenType,
+            tokenAddress: checked.tokenAddress,
+            tokenDecimals: checked.tokenDecimals
+        })
+    } catch (e) {
+        if (config.debug.appErrors) {
+            console.log('AddCustomTokenScreen.addToken firstStep error ' + e.message)
+        }
+        Log.log('AddCustomTokenScreen.addToken firstStep error ' + e.message)
+
+        showModal({
+            type: 'INFO_MODAL',
+            icon: 'INFO',
+            title: strings('settings.error.title'),
+            description: strings('settings.error.text')
+        })
+
+        setLoaderStatus(false)
+        return
+    }
 
     await customCurrencyActions.importCustomCurrenciesToDict()
 
     try {
-        await currencyActions.addCurrency({ currencyCode: 'CUSTOM_' + checked.currencyCode })
+        await currencyActions.addCurrency({ currencyCode: checked.currencyCodePrefix + checked.currencyCode })
     } catch (e) {
+        if (config.debug.appErrors) {
+            console.log('AddCustomTokenScreen.addToken secondStep error ' + e.message)
+        }
         Log.log('AddCustomTokenScreen.addToken secondStep error ' + e.message)
     }
 
     try {
         await currencyActions.setCryptoCurrencies()
     } catch (e) {
+        if (config.debug.appErrors) {
+            console.log('AddCustomTokenScreen.addToken thirdStep error ' + e.message)
+        }
         Log.log('AddCustomTokenScreen.addToken thirdStep error ' + e.message)
     }
 

@@ -19,12 +19,15 @@ export default class EthTxSendProvider {
     private _trezorServerCode: any
     private _trezorServer: any
     private _settings: any
+    private _mainCurrencyCode: string
 
-    constructor(web3: any, trezorServerCode: any, settings: any) {
+    constructor(web3: any, trezorServerCode: any, mainCurrencyCode : string, settings: any) {
         this._web3 = web3
         this._trezorServerCode = trezorServerCode
         this._trezorServer = 'to_load'
         this._settings = settings
+
+        this._mainCurrencyCode = mainCurrencyCode
     }
 
 
@@ -98,7 +101,7 @@ export default class EthTxSendProvider {
 
         let result
         try {
-            if (this._settings.currencyCode === 'BNB_SMART') {
+            if (this._mainCurrencyCode === 'BNB') {
                 /**
                  * {"blockHash": "0x01d48fd5de1ebb62275096f749acb6849bd97f3c050acb07358222cea0a527bc",
                  * "blockNumber": 5223318, "contractAddress": null,
@@ -238,7 +241,7 @@ export default class EthTxSendProvider {
         })
 
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send save nonce ' + nonce + ' from ' + tx.from + ' ' + transactionHash)
-        await EthTmpDS.saveNonce(tx.from, 'send_' + transactionHash, nonce)
+        await EthTmpDS.saveNonce(this._mainCurrencyCode, tx.from, 'send_' + transactionHash, nonce)
 
         return { transactionHash, transactionJson }
     }

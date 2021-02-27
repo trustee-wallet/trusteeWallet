@@ -9,6 +9,7 @@ import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 import config from '../../../../app/config/config'
 import EthRawDS from '../stores/EthRawDS'
 import EthTmpDS from '../stores/EthTmpDS'
+import BnbSmartNetworkPrices from '../../bnb_smart/basic/BnbSmartNetworkPrices'
 
 
 const ESTIMATE_PATH = 'https://ethgasstation.info/json/ethgasAPI.json'
@@ -29,15 +30,18 @@ let CACHE_PROXY_TIME = 0
 class EthNetworkPrices {
 
 
-    async getWithProxy(address, logData = {}) {
+    async getWithProxy(mainCurrencyCode, address, logData = {}) {
+        if (mainCurrencyCode === 'BNB') {
+            return false // @todo server side for BNB if needed
+        }
         const proxy = config.proxy.apiEndpoints.baseURL + '/eth/getFees'
         const now = new Date().getTime()
         if (CACHE_PROXY_DATA.address === address && now - CACHE_PROXY_TIME < CACHE_PROXY_VALID_TIME) {
-            BlocksoftCryptoLog.log('EthNetworkPricesProvider.getWithProxy from cache', logData)
+            BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider.getWithProxy from cache', logData)
             return CACHE_PROXY_DATA.result
         }
 
-        BlocksoftCryptoLog.log('EthNetworkPricesProvider.getWithProxy started', logData)
+        BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider.getWithProxy started', logData)
         let checkResult = false
         try {
             checkResult = await BlocksoftAxios.post(proxy, {
@@ -53,7 +57,7 @@ class EthNetworkPrices {
 
         if (checkResult !== false) {
             if (typeof checkResult.data !== 'undefined') {
-                await BlocksoftCryptoLog.log('EthNetworkPricesProvider.getWithProxy proxy checkResult1 ', checkResult.data)
+                await BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider.getWithProxy proxy checkResult1 ', checkResult.data)
                 if (typeof checkResult.data.status === 'undefined' || checkResult.data.status === 'error') {
                     if (config.debug.cryptoErrors) {
                         console.log('EthNetworkPricesProvider.getWithProxy proxy error checkResult1 ', checkResult)
@@ -63,7 +67,7 @@ class EthNetworkPrices {
                     throw new Error(checkResult.data.msg)
                 }
             } else {
-                await BlocksoftCryptoLog.log('EthNetworkPricesProvider.getWithProxy proxy checkResult2 ', checkResult)
+                await BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider.getWithProxy proxy checkResult2 ', checkResult)
                 if (config.debug.cryptoErrors) {
                     console.log('EthNetworkPricesProvider.getWithProxy proxy error checkResult2 ', checkResult)
                 }
@@ -76,7 +80,7 @@ class EthNetworkPrices {
 
         if (checkResult === false) {
             return {
-                gasPrice: await this.getOnlyFees(address, logData)
+                gasPrice: await this.getOnlyFees(mainCurrencyCode, address, logData)
             }
         }
 
@@ -89,11 +93,11 @@ class EthNetworkPrices {
         const indexed = {}
         let updatedCache = false
         if (typeof checkResult.data.maxScanned !== 'undefined') {
-            await EthTmpDS.saveNonce(address, 'maxScanned', checkResult.data.maxScanned)
+            await EthTmpDS.saveNonce(this._mainCurrencyCode, address, 'maxScanned', checkResult.data.maxScanned)
             updatedCache = true
         }
         if (typeof checkResult.data.maxSuccess !== 'undefined') {
-            await EthTmpDS.saveNonce(address, 'maxSuccess', checkResult.data.maxSuccess)
+            await EthTmpDS.saveNonce(this._mainCurrencyCode, address, 'maxSuccess', checkResult.data.maxSuccess)
             updatedCache = true
         }
         if (typeof checkResult.data.txsToRemove !== 'undefined' && checkResult.data.txsToRemove) {
@@ -113,7 +117,7 @@ class EthNetworkPrices {
             updatedCache = true
         }
         if (updatedCache) {
-            result.maxNonceLocal = await EthTmpDS.getCache(address, indexed)
+            result.maxNonceLocal = await EthTmpDS.getCache(mainCurrencyCode, address, indexed)
         }
         if (typeof checkResult.data.queryTxs !== 'undefined') {
             result.maxNonceLocal.queryTxs = checkResult.data.queryTxs
@@ -127,19 +131,22 @@ class EthNetworkPrices {
         return result
     }
 
-    async getOnlyFees(address, logData = {}) {
+    async getOnlyFees(mainCurrencyCode, address, logData = {}) {
+        if (mainCurrencyCode === 'BNB') {
+            return {'speed_blocks_2' : await BnbSmartNetworkPrices.getFees()}
+        }
         logData.resultFeeSource = 'fromCache'
         const now = new Date().getTime()
         if (CACHE_FEES_ETH && now - CACHE_FEES_ETH_TIME < CACHE_VALID_TIME) {
             logData.resultFeeCacheTime = CACHE_FEES_ETH_TIME
             logData.resultFee = JSON.stringify(CACHE_FEES_ETH)
             // noinspection ES6MissingAwait
-            MarketingEvent.logEvent('estimate_fee_eth_result', logData)
-            BlocksoftCryptoLog.log('EthNetworkPricesProvider.getOnlyFees used cache => ' + JSON.stringify(CACHE_FEES_ETH))
+            MarketingEvent.logEvent('v20_estimate_fee_' + mainCurrencyCode.toLowerCase() + '_result', logData)
+            BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider.getOnlyFees used cache => ' + JSON.stringify(CACHE_FEES_ETH))
             return this._format()
         }
 
-        BlocksoftCryptoLog.log('EthNetworkPricesProvider.getOnlyFees no cache load')
+        BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider.getOnlyFees no cache load')
 
         let link = `${ESTIMATE_PATH}`
         let tmp = false
@@ -151,16 +158,16 @@ class EthNetworkPrices {
                 }
                 logData.resultFeeSource = 'reloaded'
                 CACHE_PREV_DATA = tmp.data
-                BlocksoftCryptoLog.log('EthNetworkPricesProvider.getOnlyFees loaded new fee', CACHE_PREV_DATA)
+                BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider.getOnlyFees loaded new fee', CACHE_PREV_DATA)
             } else {
                 logData.resultFeeSource = 'fromLoadCache'
                 link = 'prev'
-                BlocksoftCryptoLog.log('EthNetworkPricesProvider.getOnlyFees loaded prev fee as no fastest', CACHE_PREV_DATA)
+                BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider.getOnlyFees loaded prev fee as no fastest', CACHE_PREV_DATA)
             }
         } catch (e) {
             // noinspection ES6MissingAwait
             MarketingEvent.logEvent('estimate_fee_eth_load_error', { link, data: e.message })
-            BlocksoftCryptoLog.log('EthNetworkPricesProvider.getOnlyFees loaded prev fee as error', CACHE_PREV_DATA)
+            BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider.getOnlyFees loaded prev fee as error', CACHE_PREV_DATA)
             // do nothing
         }
 
@@ -229,13 +236,13 @@ class EthNetworkPrices {
 function addMultiply(blocks, fee, externalSettings) {
     if (typeof externalSettings['ETH_CURRENT_PRICE_' + blocks] !== 'undefined' && externalSettings['ETH_CURRENT_PRICE_' + blocks] > 0) {
         CACHE_FEES_ETH[blocks] = externalSettings['ETH_CURRENT_PRICE_' + blocks]
-        BlocksoftCryptoLog.log('EthNetworkPricesProvider current price result', { blocks, fee, current: externalSettings['ETH_CURRENT_PRICE_' + blocks], res: CACHE_FEES_ETH[blocks] })
+        BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider current price result', { blocks, fee, current: externalSettings['ETH_CURRENT_PRICE_' + blocks], res: CACHE_FEES_ETH[blocks] })
     } else if (typeof externalSettings['ETH_MULTI_' + blocks] !== 'undefined' && externalSettings['ETH_MULTI_' + blocks] > 0) {
         CACHE_FEES_ETH[blocks] = BlocksoftUtils.mul(fee, externalSettings['ETH_MULTI_' + blocks])
-        BlocksoftCryptoLog.log('EthNetworkPricesProvider addMultiply' + blocks + ' result', { blocks, fee, mul: externalSettings['ETH_MULTI_' + blocks], res: CACHE_FEES_ETH[blocks] })
+        BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider addMultiply' + blocks + ' result', { blocks, fee, mul: externalSettings['ETH_MULTI_' + blocks], res: CACHE_FEES_ETH[blocks] })
     } else if (typeof externalSettings.ETH_MULTI !== 'undefined' && externalSettings.ETH_MULTI > 0) {
         CACHE_FEES_ETH[blocks] = BlocksoftUtils.mul(fee, externalSettings.ETH_MULTI) * 1
-        BlocksoftCryptoLog.log('EthNetworkPricesProvider addMultiply result', { blocks, fee, mul: externalSettings.ETH_MULTI, res: CACHE_FEES_ETH[blocks] })
+        BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider addMultiply result', { blocks, fee, mul: externalSettings.ETH_MULTI, res: CACHE_FEES_ETH[blocks] })
     } else {
         CACHE_FEES_ETH[blocks] = fee
     }

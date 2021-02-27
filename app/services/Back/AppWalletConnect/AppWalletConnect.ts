@@ -24,19 +24,19 @@ const Web3 = require('web3')
 
 let WEB3_LINK = `https://mainnet.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
 let WEB3 = new Web3(new Web3.providers.HttpProvider(WEB3_LINK))
-
+let MAIN_CURRENCY_CODE = 'ETH'
 export namespace AppWalletConnect {
 
     const _getAccount = async function() {
         const walletHash = await cryptoWalletsDS.getSelectedWallet()
         const { chainId } = WALLET_CONNECTOR
-        let currencyCode = 'ETH'
+        MAIN_CURRENCY_CODE = 'ETH'
 
         if (chainId === 3) {
-            currencyCode = 'ETH_ROPSTEN'
+            MAIN_CURRENCY_CODE = 'ETH_ROPSTEN'
             WEB3_LINK = `https://ropsten.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
         } else if (chainId === 56) {
-            currencyCode = 'BNB_SMART'
+            MAIN_CURRENCY_CODE = 'BNB_SMART'
             WEB3_LINK = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
         } else {
             WEB3_LINK = `https://mainnet.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
@@ -44,11 +44,11 @@ export namespace AppWalletConnect {
 
         WEB3 = new Web3(new Web3.providers.HttpProvider(WEB3_LINK))
 
-        console.log('AppWalletConnect._getAccount chainId ' + chainId + ' code ' + currencyCode + ' ' + WEB3_LINK)
-        if (typeof DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][currencyCode] === 'undefined') {
-            throw new Error('TURN ON ' + currencyCode)
+        Log.log('AppWalletConnect._getAccount chainId ' + chainId + ' code ' + MAIN_CURRENCY_CODE + ' ' + WEB3_LINK)
+        if (typeof DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][MAIN_CURRENCY_CODE] === 'undefined') {
+            throw new Error('TURN ON ' + MAIN_CURRENCY_CODE)
         }
-        const account = DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][currencyCode]
+        const account = DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][MAIN_CURRENCY_CODE]
         return account
     }
 
@@ -174,7 +174,7 @@ export namespace AppWalletConnect {
             const nonce = BlocksoftUtils.hexToDecimalWalletConnect(data.nonce)
 
             BlocksoftCryptoLog.log(account.currencyCode + ' AppWalletConnect.send save nonce ' + nonce + ' from ' + data.from + ' ' + signData.transactionHash)
-            await EthTmpDS.saveNonce(data.from, 'send_' + signData.transactionHash, nonce)
+            await EthTmpDS.saveNonce(MAIN_CURRENCY_CODE, data.from, 'send_' + signData.transactionHash, nonce)
 
             MarketingEvent.logOnlyRealTime('v20_wallet_connect ' + signData.transactionHash, data)
             try {
@@ -294,6 +294,10 @@ export namespace AppWalletConnect {
         } catch (e) {
             Log.err('AppWalletConnect.approveSession error ' + e.message)
         }
+    }
+
+    export const getMainCurrencyCode = function() {
+        return MAIN_CURRENCY_CODE
     }
 
 }
