@@ -207,7 +207,7 @@ export default class SendBasicScreen extends Component {
         } else if (typeof selectedFee.showNonce !== 'undefined' && selectedFee.showNonce) {
             nonceForTxTitle = 'send.receiptScreen.nonce'
         }
-
+        
         return (
             <>
                 <CheckData
@@ -216,7 +216,7 @@ export default class SendBasicScreen extends Component {
                     subvalue={fiatFee}
                 />
                 {
-                    nonceForTxTitle && typeof selectedFee.nonceForTx !== 'undefined' && selectedFee.nonceForTx && selectedFee.nonceForTx.toString() !== '-1' ?
+                    nonceForTxTitle && typeof selectedFee.nonceForTx !== 'undefined' && (selectedFee.nonceForTx || selectedFee.nonceForTx.toString() === '0') && selectedFee.nonceForTx.toString() !== '-1' ?
                         <CheckData
                             name={strings(nonceForTxTitle)}
                             value={selectedFee.nonceForTx + ''}
