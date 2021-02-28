@@ -304,13 +304,18 @@ class ReceiptScreen extends SendBasicScreenScreen {
         }
 
         if (typeof tmp.countedFees !== 'undefined' && tmp.countedFees) {
+            Log.log('Send.ReceiptScreen.handleSend checkLoadedFee check notice init')
             if (!this.checkLoadedFee(tmp.countedFees, selectedFee)) {
+                Log.log('Send.ReceiptScreen.handleSend checkLoadedFee check notice stopped')
+                CACHE_IS_SENDING = false
                 this.setState({
                     sendInProcess: false
                 })
                 return false
             }
         }
+
+        Log.log('Send.ReceiptScreen.handleSend checkLoadedFee check notice passed')
 
 
         if (typeof tmp !== 'undefined' && typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined' && !passwordChecked) {
@@ -321,6 +326,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
             if (newAmountSubstr !== tmpAmount) {
                 sendScreenData.amountRaw = newAmount
                 if (CACHE_WARNING_AMOUNT_TIME !== tmp.countedFees.countedTime || CACHE_WARNING_AMOUNT !== tmpAmount) {
+                    Log.log('Send.ReceiptScreen.handleSend change amount check stopped ')
                     if (config.debug.sendLogs) {
                         console.log('Send.ReceiptScreen.handleSend change amount check ', JSON.parse(JSON.stringify({
                             newAmount,
@@ -339,6 +345,10 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     })
                     CACHE_WARNING_AMOUNT = tmpAmount
                     CACHE_WARNING_AMOUNT_TIME = tmp.countedFees.countedTime
+                    CACHE_IS_SENDING = false
+                    this.setState({
+                        sendInProcess: false
+                    })
                     return false
                 }
             } else {
