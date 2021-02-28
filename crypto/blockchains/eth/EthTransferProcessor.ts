@@ -218,7 +218,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 nonceLog += ' nonceForTxBasic ' + nonceForTxBasic
 
             } else if (nonceForTxBasic * 1 >= 0) {
-                nonceLog += ' used localNonce ' +  JSON.stringify(maxNonceLocal)
+                nonceLog += ' used localNonce ' + JSON.stringify(maxNonceLocal)
                 nonceLog += ' nonceForTxBasic ' + nonceForTxBasic
                 nonceForTxBasic = nonceForTxBasic * 1 + 1
             } else {
@@ -574,7 +574,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             throw new Error('ETH transaction required addressTo')
         }
 
-        BlocksoftCryptoLog.log('sendTx', JSON.parse(JSON.stringify(data)))
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor sendTx started', JSON.parse(JSON.stringify(data)))
 
         let txRBFed = ''
         let txRBF = false
