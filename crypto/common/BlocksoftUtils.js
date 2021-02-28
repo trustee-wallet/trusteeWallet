@@ -1,5 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 import { hexToBn } from '../blockchains/eth/ext/estimateGas/util'
+import Log from '../../app/services/Log/Log'
 
 const Web3 = require('web3')
 
@@ -260,12 +261,13 @@ class BlocksoftUtils {
         }
 
         // noinspection JSUnresolvedVariable
-        let newVal
+        let newVal = 0
         try {
             // noinspection JSUnresolvedVariable,JSCheckFunctionSignatures
             newVal = Web3.utils.fromWei(val, 'gwei')
         } catch (e) {
             e.message = JSON.stringify(val) + ' ' + e.message
+            Log.err('BlocksoftUtils.toGwei error ' + e.message)
         }
         return newVal
     }
