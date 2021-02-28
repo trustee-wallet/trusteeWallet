@@ -94,8 +94,8 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         }
     }
 
-    _coinSelect(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[], feeForByte: string, multiAddress: string[], subtitle: string)
-        : BlocksoftBlockchainTypes.PreparedInputsOutputsTx {
+    async _coinSelect(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[], feeForByte: string, multiAddress: string[], subtitle: string)
+        : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx> {
         const utxos = []
         const isRequired: any = {}
         let isAllRequired : boolean = true
@@ -166,7 +166,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         }
 
 
-        const addressForChange = this._addressForChange(data)
+        const addressForChange = await this._addressForChange(data)
         for (output of outputs) {
             if (output.address) {
                 formatted.outputs.push({
@@ -224,21 +224,21 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         return formatted
     }
 
-    getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData,
+    async getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData,
                      unspents: BlocksoftBlockchainTypes.UnspentTx[],
                      feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
                      additionalData : BlocksoftBlockchainTypes.TransferAdditionalData,
                      subtitle: string = 'default')
-        : BlocksoftBlockchainTypes.PreparedInputsOutputsTx {
+        : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx> {
         return this._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle)
     }
 
-    _getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData,
+    async _getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData,
                      unspents: BlocksoftBlockchainTypes.UnspentTx[],
                      feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
                      additionalData : BlocksoftBlockchainTypes.TransferAdditionalData,
                      subtitle: string = 'default')
-        : BlocksoftBlockchainTypes.PreparedInputsOutputsTx {
+        : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx> {
         if (typeof data.addressFrom === 'undefined') {
             throw new Error('DogeTxInputsOutputs.getInputsOutputs requires addressFrom')
         }
@@ -302,7 +302,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         } = this._usualTargets(data, unspents)
 
         if (typeof feeToCount.feeForByte !== 'undefined') {
-            const result = this._coinSelect(data, filteredUnspents, feeToCount.feeForByte, multiAddress, subtitle)
+            const result = await this._coinSelect(data, filteredUnspents, feeToCount.feeForByte, multiAddress, subtitle)
             if (result.inputs.length > 0) {
                 return result
             }
@@ -380,7 +380,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 if (autoDiff.lessThanZero()) {
                     recountWithFee = autoFeeLimit.toString()
                 }
-                const res = this._getInputsOutputs(newData, unspents, { feeForAll: recountWithFee }, additionalData, subtitle + ' notEnough1 leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
+                const res = await this._getInputsOutputs(newData, unspents, { feeForAll: recountWithFee }, additionalData, subtitle + ' notEnough1 leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
                 if (res.msg.indexOf('RECHECK') === -1) {
                     return res
                 }
@@ -436,7 +436,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
 
 
         msg += ' will have change as change ' + leftForChangeDiff.toString() + ' = ' + BlocksoftUtils.toUnified(leftForChangeDiff.toString(), this._settings.decimals)
-        const addressForChange = this._addressForChange(data)
+        const addressForChange = await this._addressForChange(data)
         if (this._builderSettings.changeTogether && addressForChange === data.addressTo) {
             leftForChangeDiff.add(outputs[0].amount)
             outputs[0].amount = leftForChangeDiff.toString()

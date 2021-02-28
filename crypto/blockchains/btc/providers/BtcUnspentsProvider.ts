@@ -13,9 +13,77 @@ const CACHE_FOR_CHANGE = {}
 
 export default class BtcUnspentsProvider extends DogeUnspentsProvider implements BlocksoftBlockchainTypes.UnspentsProvider {
 
-    static getCache(walletHash) {
+    static async getCache(walletHash : string) {
+        if (typeof CACHE_FOR_CHANGE[walletHash] !== 'undefined') {
+            return CACHE_FOR_CHANGE[walletHash]
+        }
+        await BlocksoftCryptoLog.log('BtcUnspentsProvider.getCache ' + walletHash + ' started as ' + JSON.stringify(CACHE_FOR_CHANGE[walletHash]))
+
+        const dbInterface = new DBInterface()
+
+        const sqlPub = `SELECT wallet_pub_value as walletPub
+            FROM wallet_pub
+            WHERE wallet_hash = '${walletHash}
+            AND currency_code='BTC'
+        `
+        const resPub = await dbInterface.setQueryString(sqlPub).query()
+        if (resPub && resPub.array && resPub.array.length > 0) {
+
+            const sql = `SELECT account.address
+            FROM account
+            WHERE account.wallet_hash = '${walletHash}
+            AND currency_code='BTC' AND (already_shown IS NULL OR already_shown=0)
+            AND derivation_type!='main'
+            ORDER BY derivation_index ASC
+        `
+            const res = await dbInterface.setQueryString(sql).query()
+            for (const row of res.array) {
+                const prefix = row.address.substr(0, 1)
+                await BlocksoftCryptoLog.log('BtcUnspentsProvider.getCache started HD CACHE_FOR_CHANGE ' + walletHash)
+                // @ts-ignore
+                if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {
+                    // @ts-ignore
+                    CACHE_FOR_CHANGE[walletHash] = {
+                        '1' : '',
+                        '3' : '',
+                        'b' : ''
+                    }
+                }
+                // @ts-ignore
+                if (CACHE_FOR_CHANGE[walletHash][prefix] === '') {
+                    // @ts-ignore
+                    CACHE_FOR_CHANGE[walletHash][prefix] = row.address
+                    // @ts-ignore
+                    await BlocksoftCryptoLog.log('BtcUnspentsProvider.getCache started HD CACHE_FOR_CHANGE '
+                        + walletHash + ' ' + prefix + ' changed ' + JSON.stringify(CACHE_FOR_CHANGE[walletHash]))
+                }
+            }
+
+        } else {
+
+            const sql = `SELECT account.address
+            FROM account
+            WHERE account.wallet_hash = '${walletHash}'
+            AND currency_code='BTC'
+        `
+            const res = await dbInterface.setQueryString(sql).query()
+            for (const row of res.array) {
+                // @ts-ignore
+                await BlocksoftCryptoLog.log('BtcUnspentsProvider.getUnspents started CACHE_FOR_CHANGE ' + walletHash)
+                if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {
+                    // @ts-ignore
+                    CACHE_FOR_CHANGE[walletHash] = {
+                        '1' : '',
+                        '3' : '',
+                        'b' : ''
+                    }
+                }
+                // @ts-ignore
+                CACHE_FOR_CHANGE[walletHash][row.address.substr(0, 1)] = row.address
+            }
+        }
         if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {
-            throw new Error('BtcUnspentsProvider no CACHE_FOR_CHANGE for ' + walletHash)
+            throw new Error('BtcUnspentsProvider no CACHE_FOR_CHANGE retry for ' + walletHash)
         }
         return CACHE_FOR_CHANGE[walletHash]
     }
@@ -63,6 +131,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             for (const row of res.array) {
                 const walletHash = row.walletHash
                 const prefix = row.address.substr(0, 1)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider.getUnspents started HD CACHE_FOR_CHANGE ' + address + ' walletHash ' + walletHash)
                 // @ts-ignore
                 if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {
                     // @ts-ignore
@@ -76,6 +145,9 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
                 if (CACHE_FOR_CHANGE[walletHash][prefix] === '') {
                     // @ts-ignore
                     CACHE_FOR_CHANGE[walletHash][prefix] = row.address
+                    // @ts-ignore
+                    await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider.getUnspents started HD CACHE_FOR_CHANGE '
+                        + address + ' walletHash ' + walletHash + ' ' + prefix + ' changed ' + JSON.stringify(CACHE_FOR_CHANGE[walletHash]))
                 }
             }
 
@@ -91,6 +163,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
                 const walletHash = row.walletHash
                 const unspents = await super.getUnspents(row.address)
                 // @ts-ignore
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider.getUnspents started CACHE_FOR_CHANGE ' + address + ' walletHash ' + walletHash)
                 if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {
                     // @ts-ignore
                     CACHE_FOR_CHANGE[walletHash] = {
@@ -111,7 +184,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             }
         }
         // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider.getUnspents finished ' + address, totalUnspents)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcUnspentsProvider.getUnspents finished ' + address, totalUnspents)
         return totalUnspents
     }
 }

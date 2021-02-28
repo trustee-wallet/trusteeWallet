@@ -10,7 +10,7 @@ import DaemonCache from '../../../../app/daemons/DaemonCache'
 
 export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxInputsOutputs {
 
-    _addressForChange(data: BlocksoftBlockchainTypes.TransferData): string {
+    async _addressForChange(data: BlocksoftBlockchainTypes.TransferData): string {
         const btcShowTwoAddress = settingsActions.getSettingStatic('btcShowTwoAddress')
         const btcLegacyOrSegwit = settingsActions.getSettingStatic('btc_legacy_or_segwit')
 
@@ -26,7 +26,7 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
         }
 
         BlocksoftCryptoLog.log('BtcTxInputsOutputs needFindSegwit ' + JSON.stringify(needFindSegwit))
-        const CACHE_FOR_CHANGE = BtcUnspentsProvider.getCache(data.walletHash)
+        const CACHE_FOR_CHANGE = await BtcUnspentsProvider.getCache(data.walletHash)
         BlocksoftCryptoLog.log('BtcTxInputsOutputs CACHE_FOR_CHANGE ' + data.walletHash, CACHE_FOR_CHANGE)
         try {
             let addressForChange
@@ -59,13 +59,13 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
         return data.addressFrom
     }
 
-    getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
+    async getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
                      feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
                      additionalData : BlocksoftBlockchainTypes.TransferAdditionalData,
                      subtitle: string = 'default')
-        : BlocksoftBlockchainTypes.PreparedInputsOutputsTx
+        : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx>
     {
-        const res = super._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle + ' btced')
+        const res = await super._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle + ' btced')
 
         if (this._settings.currencyCode !== 'BTC') {
             return res

@@ -49,7 +49,7 @@ export namespace BlocksoftBlockchainTypes {
                          feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
                          additionalData : BlocksoftBlockchainTypes.TransferAdditionalData,
                          subtitle : string)
-            : BlocksoftBlockchainTypes.PreparedInputsOutputsTx
+            : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx>
     }
 
     export interface TxBuilder {

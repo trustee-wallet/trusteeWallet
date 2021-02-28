@@ -45,12 +45,12 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         return data.addressFrom
     }
 
-    getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
+    async getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
                      feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
                      additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
                      subtitle: string = 'default')
-        : BlocksoftBlockchainTypes.PreparedInputsOutputsTx {
-        let res = super._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle + ' usdted')
+        : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx> {
+        let res = await super._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle + ' usdted')
         let inputIsFound = false
         let newInputs = []
         let oldInputs = []

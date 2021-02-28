@@ -222,7 +222,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
 
             let logInputsOutputs, blockchainData, txSize, actualFeeForByte, actualFeeForByteNotRounded
             try {
-                preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
+                preparedInputsOutputs = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                     feeForByte,
                     autoFeeLimitReadable
                 },
@@ -233,7 +233,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     logInputsOutputs = DogeLogs.logInputsOutputs(data, unspents, preparedInputsOutputs, this._settings, subtitle)
                     if (logInputsOutputs.diffInOutReadable * 1 < this._builderSettings.feeMinTotalReadable) {
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + '  less minTotalReadable ' + logInputsOutputs.diffInOutReadable )
-                        preparedInputsOutputs = this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
+                        preparedInputsOutputs = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                             feeForAll : BlocksoftUtils.fromUnified(this._builderSettings.feeMinTotalReadable, this._settings.decimals),
                             autoFeeLimitReadable
                         },
@@ -326,7 +326,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate foundToMore ' + JSON.stringify(foundToMore))
                             if (foundToMore) {
                                 try {
-                                    const preparedInputsOutputs2 = this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
+                                    const preparedInputsOutputs2 = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                                         feeForByte,
                                         autoFeeLimitReadable
                                     },
