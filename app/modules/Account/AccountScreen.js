@@ -294,7 +294,7 @@ class Account extends Component {
             } else {
                 diffTimeText = strings('account.scan', { time: diffTimeScan })
             }
-            if (this.props.account.balanceScanError !== '') {
+            if (this.props.account.balanceScanError && this.props.account.balanceScanError !== '') {
                 diffTimeText += '\n' + strings(this.props.account.balanceScanError)
             }
         }

@@ -67,7 +67,7 @@ export default class XrpScannerProcessor {
         await this.init()
         address = address.trim()
         const action = 'payments'
-        BlocksoftCryptoLog.log('XrpScannerProcessor.getTransactions ' + action + ' started', address)
+        await BlocksoftCryptoLog.log('XrpScannerProcessor.getTransactions ' + action + ' started ' + address)
         const link = `${API_PATH}/accounts/${address}/payments`
         let res = false
         try {
@@ -95,7 +95,7 @@ export default class XrpScannerProcessor {
         }
 
         const transactions = await this._unifyTransactions(address, res.data[action], action)
-        BlocksoftCryptoLog.log('XrpScannerProcessor.getTransactions ' + action + ' finished', address)
+        await BlocksoftCryptoLog.log('XrpScannerProcessor.getTransactions ' + action + ' finished ' + address)
         return transactions
     }
 
@@ -193,7 +193,7 @@ export default class XrpScannerProcessor {
 
     async _getLedger(index) {
         const now = new Date().getTime()
-        BlocksoftCryptoLog.log('XrpScannerProcessor._getLedger started', index)
+        await BlocksoftCryptoLog.log('XrpScannerProcessor._getLedger started ' + index)
         const link = `${API_PATH}/ledgers/${index}`
         let res = false
         if (typeof CACHE_BLOCK_DATA[index] === 'undefined' ||
@@ -206,7 +206,7 @@ export default class XrpScannerProcessor {
             try {
                 res = await BlocksoftAxios.getWithoutBraking(link)
                 if (res.data && typeof res.data !== 'undefined' && typeof res.data.ledger !== 'undefined') {
-                    BlocksoftCryptoLog.log('XrpScannerProcessor._getLedger updated for index ' + index, res.data.ledger)
+                    await BlocksoftCryptoLog.log('XrpScannerProcessor._getLedger updated for index ' + index + ' ' + JSON.stringify(res.data.ledger))
                     const ledger = {
                         close_time: res.data.ledger.close_time,
                         ledger_hash: res.data.ledger.ledger_hash,
