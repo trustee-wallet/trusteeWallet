@@ -29,35 +29,21 @@ import AppVersionControl from '../../../services/AppVersionControl/AppVersionCon
 import AppNotification from '../../../services/AppNotification/AppNotificationListener'
 
 import Daemon from '../../../daemons/Daemon'
-import UpdateTradeOrdersDaemon from '../../../daemons/back/UpdateTradeOrdersDaemon'
 import CashBackActions from '../../Stores/CashBack/CashBackActions'
 import CashBackSettings from '../../Stores/CashBack/CashBackSettings'
 import CashBackUtils from '../../Stores/CashBack/CashBackUtils'
 
 import FilePermissions from '../../../services/FileSystem/FilePermissions'
 import UpdateAppNewsDaemon from '../../../daemons/back/UpdateAppNewsDaemon'
-import config from '../../../config/config'
-import UpdateAccountBalanceAndTransactions from '../../../daemons/back/UpdateAccountBalanceAndTransactions'
-import UpdateOneByOneDaemon from '../../../daemons/back/UpdateOneByOneDaemon'
-import UpdateCurrencyListDaemon from '../../../daemons/view/UpdateCurrencyListDaemon'
 import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaemon'
 import UpdateCashBackDataDaemon from '../../../daemons/back/UpdateCashBackDataDaemon'
-import analytics from '@react-native-firebase/analytics'
 
+
+import config from '../../../config/config'
 const { dispatch, getState } = store
 
 if (Text.defaultProps == null) Text.defaultProps = {}
 Text.defaultProps.allowFontScaling = false
-
-import {
-    isAlphaNumericUnderscore,
-    isNull,
-    isNumber,
-    isObject,
-    isOneOf,
-    isString,
-    isUndefined,
-} from '@react-native-firebase/app/lib/common';
 
 class App {
 
@@ -70,20 +56,6 @@ class App {
         const source = typeof params.source !== 'undefined' ? params.source : ''
         try {
             // console.log(new Date().toISOString() + ' start ' + source)
-
-
-            const check = {
-                currency: 'usd',
-
-                value: 25.51,
-                items: [{
-                    item_brand: 'cool-shirt-brand',
-                    item_id: '23456',
-                    item_name: 'orange t-shirt',
-                    item_category: 'round necked t-shirts',
-                }]
-            }
-            await analytics().logPurchase(check)
 
             await FilePermissions.init()
 

@@ -582,7 +582,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     try {
                         gaParams = {
                             transaction_id :  sendScreenData.bseOrderId,
-                            value : usdValue,
+                            value : usdValue * 1,
                             currency : usdCurrency,
                             items : [{
                                 item_brand : sendScreenData.bseTrusteeFee.type,
