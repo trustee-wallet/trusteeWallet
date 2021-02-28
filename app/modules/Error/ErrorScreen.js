@@ -3,21 +3,21 @@ import {Dimensions, Image, Linking, PixelRatio, Text, TouchableOpacity, View} fr
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
-import {strings} from '../services/i18n'
-import config from '../config/config'
-import {setLoaderStatus} from '../appstores/Stores/Main/MainStoreActions'
-import Log from '../services/Log/Log'
-import BlocksoftCryptoLog from '../../crypto/common/BlocksoftCryptoLog'
-import SendLog from '../services/Log/SendLog'
-import {showModal} from '../appstores/Stores/Modal/ModalActions'
+import {strings} from '../../services/i18n'
+import config from '../../config/config'
+import {setLoaderStatus} from '../../appstores/Stores/Main/MainStoreActions'
+import Log from '../../services/Log/Log'
+import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
+import SendLog from '../../services/Log/SendLog'
+import {showModal} from '../../appstores/Stores/Modal/ModalActions'
 
-import CustomIcon from "../components/elements/CustomIcon"
-import App from '../appstores/Actions/App/App'
-import prettyShare from '../services/UI/PrettyShare/PrettyShare'
+import CustomIcon from "../../components/elements/CustomIcon"
+import App from '../../appstores/Actions/App/App'
+import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
 
 import SvgLogo from "./ErrorScreenLogo";
-import BlocksoftExternalSettings from '../../crypto/common/BlocksoftExternalSettings'
-import MarketingEvent from '../services/Marketing/MarketingEvent'
+import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
 const {height: HEIGHT, width: WIDTH} = Dimensions.get('window')
 

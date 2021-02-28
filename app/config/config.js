@@ -100,7 +100,7 @@ const config = {
         appErrors: false, // set false to get errors in tg only
         fioErrors: false, //
         appDBLogs: false, // set false to get db query in files only
-        firebaseLogs: false, // set false not to collect data to firebase live db
+        firebaseLogs: true, // set false not to collect data to firebase live db
         sendLogs: false
     },
     tg: {

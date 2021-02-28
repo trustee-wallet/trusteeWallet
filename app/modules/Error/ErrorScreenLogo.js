@@ -1,6 +1,6 @@
 import * as React from "react"
 import Svg, {Path} from "react-native-svg"
-import OldPhone from '../services/UI/OldPhone/OldPhone'
+import OldPhone from '../../services/UI/OldPhone/OldPhone'
 import {Dimensions, Image, PixelRatio, View} from "react-native"
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 
@@ -21,7 +21,7 @@ function SvgLogo(props) {
                 <Image
                     style={PHONE ? props.styles.header__logo__phone : props.styles.header__logo}
                     resizeMode='stretch'
-                    source={require('../assets/images/pic.png')}/>
+                    source={require('../../assets/images/pic.png')}/>
             </View>
         )
     }

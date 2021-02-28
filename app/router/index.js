@@ -16,7 +16,7 @@ import Loader from '../components/elements/Loader'
 
 import Router from './Router'
 import ErrorBoundary from 'react-native-error-boundary'
-import ErrorScreen from './ErrorScreen'
+import ErrorScreen from '../modules/Error/ErrorScreen'
 import Log from '../services/Log/Log'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')

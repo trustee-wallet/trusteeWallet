@@ -8,7 +8,7 @@ import { createStackNavigator } from 'react-navigation-stack'
 import WalletCreateStack from './WalletCreateStack'
 import WalletBackupStack from './WalletBackupStack'
 
-import ErrorScreen from './ErrorScreen'
+import ErrorScreen from '../modules/Error/ErrorScreen'
 
 import InitScreen from '../modules/Init/InitScreen'
 import WalletCreateScreen from '../modules/WalletCreate/WalletCreateScreen'
