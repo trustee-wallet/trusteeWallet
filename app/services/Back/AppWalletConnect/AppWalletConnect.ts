@@ -14,7 +14,9 @@ import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
 import EthRawDS from '../../../../crypto/blockchains/eth/stores/EthRawDS'
 import EthTmpDS from '../../../../crypto/blockchains/eth/stores/EthTmpDS'
 
+// @ts-ignore
 import { signTypedData_v4 } from 'eth-sig-util'
+
 import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
 
 let WALLET_CONNECTOR: WalletConnect
@@ -61,8 +63,8 @@ export namespace AppWalletConnect {
         sendSignTyped: any
     ): Promise<{ chainId: any, accounts: any, peerId: any, peerMeta: any, connected: any }> {
 
-        if (WALLET_CONNECTOR_LINK === data.fullLink) {
-            Log.log('AppWalletConnect.init connected1 ' + data.fullLink)
+        if (!data || typeof data === 'undefined' || !data.fullLink || WALLET_CONNECTOR_LINK === data.fullLink) {
+            Log.log('AppWalletConnect.init connected1 ' + JSON.stringify(data))
             let { chainId, accounts, peerId, peerMeta, connected } = WALLET_CONNECTOR
             if (!peerId || peerId === '' || !WALLET_CONNECTOR.connected) {
                 Log.log('AppWalletConnect.init connecting1 ')
@@ -298,6 +300,10 @@ export namespace AppWalletConnect {
 
     export const getMainCurrencyCode = function() {
         return MAIN_CURRENCY_CODE
+    }
+
+    export const isConnected = function() {
+        return WALLET_CONNECTOR_LINK
     }
 
 }

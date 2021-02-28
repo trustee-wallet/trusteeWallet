@@ -20,11 +20,13 @@ import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 import EthNetworkPrices from '../../../crypto/blockchains/eth/basic/EthNetworkPrices'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { strings } from '../../services/i18n'
 
 class WalletConnectScreen extends React.Component {
 
     state = {
         headerHeight: 0,
+        paranoidLogout : false,
         walletStarted: false,
         chainId: false,
         peerMeta: {
@@ -241,13 +243,21 @@ class WalletConnectScreen extends React.Component {
         this.setState(() => ({ headerHeight }))
     }
 
+    handleParanoidLogout = () => {
+        this.setState({paranoidLogout : !this.state.paranoidLogout})
+    }
+
     handleBack = async () => {
-        AppWalletConnect.killSession()
+        if (this.state.paranoidLogout) {
+            AppWalletConnect.killSession()
+        }
         NavStore.goBack()
     }
 
     handleClose = async () => {
-        AppWalletConnect.killSession()
+        if (this.state.paranoidLogout) {
+            AppWalletConnect.killSession()
+        }
         NavStore.reset('DashboardStack')
     }
 
@@ -319,6 +329,15 @@ class WalletConnectScreen extends React.Component {
                                         </View>
                                     </View> : null
                             }
+
+                            <ListItem
+                                title={'Paranoid Logout'}
+                                subtitle={'Closing the Screen will automatically kill the Session'}
+                                iconType="pinCode"
+                                onPress={this.handleParanoidLogout}
+                                rightContent="switch"
+                                switchParams={{ value: !!this.state.paranoidLogout, onPress: this.handleParanoidLogout}}
+                            />
 
                             {
                                 this.state.accounts && this.state.accounts.length > 0 ?

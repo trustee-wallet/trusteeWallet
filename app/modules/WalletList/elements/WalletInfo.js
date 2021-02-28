@@ -39,6 +39,7 @@ import { HIT_SLOP } from '../../../themes/Themes';
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 import { SIZE } from '../helpers';
+import { AppWalletConnect } from '../../../services/Back/AppWalletConnect/AppWalletConnect'
 
 let CACHE_PREV_CURRENCY = false
 
@@ -149,7 +150,7 @@ class WalletInfo extends Component {
         } = this.props
         const { isViolet } = this.state
         const { colors, GRID_SIZE } = this.context
-
+        const isWalletConnected = AppWalletConnect.isConnected()
         // @misha to optimize
         const date = new Date()
         const todayPrep = `${strings('homeScreen.today')}, ${date.getDate()} ${capitalize(moment(date).format('MMM'))}`
@@ -224,6 +225,17 @@ class WalletInfo extends Component {
                                 }
 
                             </TouchableOpacity>
+
+                            {isWalletConnected ? (
+                            <TouchableOpacity onPress={() => NavStore.goNext('WalletConnectScreen')} hitSlop={HIT_SLOP}>
+                                <Text style={[
+                                    { color: isViolet ? colors.homeScreen.text1Violet : colors.common.text1 }
+                                ]}>
+                                    WalletConnect
+                                </Text>
+                            </TouchableOpacity>
+                                )
+                                : null }
 
                             <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
                                 {isBalanceVisible ? (
