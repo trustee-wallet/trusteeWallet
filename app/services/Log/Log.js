@@ -13,7 +13,6 @@ import changeableTester from '../../config/changeable.tester'
 import { FileSystem } from '../FileSystem/FileSystem'
 import { strings } from '../i18n'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import DaemonCache from '../../daemons/DaemonCache'
 
 const DEBUG = config.debug.appLogs // set true to see usual logs in console
 const DEBUG_DAEMON = config.debug.appDaemonLogs // set true to see cron jobs logs in console
@@ -305,7 +304,9 @@ class Log {
 
             if (!config.debug.appErrors) {
                 if (typeof crashlytics().recordError !== 'undefined') {
-                    crashlytics().recordError(new Error('FRNT_2021_02 ' + line))
+                    const e = new Error('FRNT_2021_02 ' + line)
+                    e.stack = line
+                    crashlytics().recordError(e)
                 } else {
                     crashlytics().log('FRNT_2021_02 ' + line)
                     crashlytics().crash()
