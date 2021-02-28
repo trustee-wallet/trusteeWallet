@@ -91,18 +91,18 @@ class MarketingEvent {
 
         }
 
-        this._reinitTgMessage(testerMode)
+        await this._reinitTgMessage(testerMode)
 
         // after this is a little bit long soooo we will pass variables any time we could
         this.DATA.LOG_WALLET = await BlocksoftKeysStorage.getSelectedWallet()
-        this._reinitTgMessage(testerMode)
+        await this._reinitTgMessage(testerMode)
 
         await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET })
         this.DATA.LOG_CASHBACK = CashBackUtils.getWalletToken()
-        this._reinitTgMessage(testerMode)
+        await this._reinitTgMessage(testerMode)
 
         this.DATA.LOG_PARENT = CashBackUtils.getParentToken()
-        this._reinitTgMessage(testerMode)
+        await this._reinitTgMessage(testerMode)
 
         let tmp = await AsyncStorage.getItem('CACHE_BALANCE')
         if (tmp) {
@@ -126,13 +126,13 @@ class MarketingEvent {
         this.DATA.LOG_CASHBACK = CashBackUtils.getWalletToken()
         this.DATA.LOG_PARENT = CashBackUtils.getParentToken()
 
-        this._reinitTgMessage(this.UI_DATA.IS_TESTER)
+        await this._reinitTgMessage(this.UI_DATA.IS_TESTER)
     }
 
     /**
      * @private
      */
-    _reinitTgMessage(testerMode) {
+    async _reinitTgMessage(testerMode) {
 
         this.TG_MESSAGE = ''
 
@@ -167,8 +167,8 @@ class MarketingEvent {
             }
         }
 
-        Log._reinitTgMessage(testerMode, this.DATA, this.TG_MESSAGE)
-        BlocksoftCryptoLog._reinitTgMessage(testerMode, this.DATA, this.TG_MESSAGE)
+        await Log._reinitTgMessage(testerMode, this.DATA, this.TG_MESSAGE)
+        await BlocksoftCryptoLog._reinitTgMessage(testerMode, this.DATA, this.TG_MESSAGE)
 
     }
 
@@ -187,7 +187,7 @@ class MarketingEvent {
             } else {
                 this.DATA.LOG_TOKEN = await AsyncStorage.getItem(ASYNC_CACHE_TITLE)
                 if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
-                    this._reinitTgMessage()
+                    await this._reinitTgMessage()
                 }
             }
 

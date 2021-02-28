@@ -46,7 +46,7 @@ class Log {
         this.TG_MSG = ''
     }
 
-    _reinitTgMessage(testerMode, obj, msg) {
+    async _reinitTgMessage(testerMode, obj, msg) {
 
         if (testerMode === 'TESTER') {
             this.TG.API_KEY = changeableTester.tg.info.theBot
@@ -62,8 +62,8 @@ class Log {
 
         this.TG_MSG = msg
 
-        this.FS.DAEMON.checkOverflow()
-        this.FS.ALL.checkOverflow()
+        await this.FS.DAEMON.checkOverflow()
+        await this.FS.ALL.checkOverflow()
     }
 
     _simpleStringify(object, replacer = null, space = '\t\t\t\t\t', level = 0) {

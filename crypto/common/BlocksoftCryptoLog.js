@@ -32,7 +32,7 @@ class BlocksoftCryptoLog {
         this.TG_MSG = ''
     }
 
-    _reinitTgMessage(testerMode, obj, msg) {
+    async _reinitTgMessage(testerMode, obj, msg) {
 
         if (testerMode === 'TESTER') {
             this.TG.API_KEY = changeableTester.tg.info.theBot
@@ -49,7 +49,7 @@ class BlocksoftCryptoLog {
         this.TG_MSG = msg
 
         // noinspection JSIgnoredPromiseFromCall
-        this.FS.checkOverflow()
+        await this.FS.checkOverflow()
     }
 
     async log(txtOrObj, txtOrObj2 = false, txtOrObj3 = false) {
