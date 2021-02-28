@@ -893,7 +893,7 @@
      "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Insufficient balance of native currency %{symbol} to pay - click yes, to take some fee from the recipient's amount, then in the next step you will see the recalculated transaction data",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Transaction replacement fee is too small",
      "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Transaction already mined",
-     "SERVER_RESPONSE_NONCE_ALREADY_MINED" : "Nonce already mined",
+     "SERVER_RESPONSE_NONCE_ALREADY_MINED" : "Nonce %{nonce} already mined",
      "SERVER_RESPONSE_NOT_CONNECTED": "Network is unreachable - please repeat the operation later",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "Insufficient balance to make the transaction and to pay the minimal fee",
      "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "Please wait for the other transactions to be mined or turn ON an option \"Use unconfirmed transactions\" ",

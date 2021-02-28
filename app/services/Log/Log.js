@@ -116,13 +116,18 @@ class Log {
 
         this.log(title + ' error logged ' + e.message + ' ' + additional)
         let newMessage = ''
+        let params = {}
+        if (typeof e.logData !== 'undefined') {
+            params = e.logData
+        }
+        params.symbol = currencyCode
         try {
-            newMessage = strings('send.errors.' + e.message, { symbol: currencyCode })
+            newMessage = strings('send.errors.' + e.message, params)
         } catch (e2) {
-            newMessage = strings(e.message, { symbol: currencyCode })
+            newMessage = strings(e.message, params)
         }
         if (newMessage.indexOf('translation') !== -1) {
-            newMessage = strings(e.message, { symbol: currencyCode })
+            newMessage = strings(e.message, params)
         }
         e.message = newMessage
         return e

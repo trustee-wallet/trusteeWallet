@@ -885,7 +885,7 @@
       "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT": "ძალიან მცირეა საკომისიო ტრანზაქციის შეცვლისთვის - თუ თქვენ დამიდასტურებთ, რომ საკომისიოს აღება შესაძლებელია მიმღების თანხიდან, მომდევნო ნაბიჯზე ნახავთ გადათვლილ მონაცემებს ტრანზაქციისთვის",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "ძალიან მცირეა საკომისიო ტრანზაქციის ცვლილებისთვის",
       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED": "ტრანზაქცია უკვე დადასტურებულია",
-      "SERVER_RESPONSE_NONCE_ALREADY_MINED": "Nonce უკვე გამოყენებულია დადასტურებულ ტრანზაქციაში",
+      "SERVER_RESPONSE_NONCE_ALREADY_MINED": "Nonce %{nonce} უკვე გამოყენებულია დადასტურებულ ტრანზაქციაში",
       "SERVER_RESPONSE_NOT_CONNECTED": "ქსელი არ პასუხობს - გთხოვთ, გაიმეოროთ ოპერაცია მოგვიანებით",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "არასაკმარისია თანხა ტრანზაქციების განსახორციელებლად და მინიმალური საკომისიოსთვის",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "გთხოვთ, დაელოდოთ სხვა ტრანზაქციების დადასტურებას ან ჩართეთ ფუნქცია \"დაუდასტურებელი ტრანზაქციების გამოყენება\" ",

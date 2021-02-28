@@ -207,7 +207,7 @@ export default class SendBasicScreen extends Component {
         } else if (typeof selectedFee.showNonce !== 'undefined' && selectedFee.showNonce) {
             nonceForTxTitle = 'send.receiptScreen.nonce'
         }
-        
+
         return (
             <>
                 <CheckData

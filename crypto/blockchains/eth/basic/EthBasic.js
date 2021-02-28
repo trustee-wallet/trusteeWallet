@@ -124,11 +124,18 @@ export default class EthBasic {
 
         if (e.message.indexOf('nonce too low') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError0.1 ' + e.message + ' for ' + data.addressFrom, logData)
+            let e2
             if (txRBF) {
-                throw new Error('SERVER_RESPONSE_TRANSACTION_ALREADY_MINED')
+               e2 = new Error('SERVER_RESPONSE_TRANSACTION_ALREADY_MINED')
             } else {
-                throw new Error('SERVER_RESPONSE_NONCE_ALREADY_MINED')
+               e2 = new Error('SERVER_RESPONSE_NONCE_ALREADY_MINED')
             }
+            let nonce = logData.nonce || logData.setNonce
+            if (typeof nonce === 'undefined') {
+                nonce = ''
+            }
+            e2.logData = {nonce}
+            throw e2
         } else if (e.message.indexOf('gas required exceeds allowance') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError0.2 ' + e.message + ' for ' + data.addressFrom, logData)
             if (this._settings.currencyCode === 'ETH') {

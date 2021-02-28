@@ -895,7 +895,7 @@
       "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Слишком маленькая комиссия за транзакцию для замены - если Вы подтвердите, что комиссию можно взять из суммы получателя - то на следующем шаге увидите пересчитанные данные транзакции",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Слишком маленькая комиссия за транзакцию для замены",
       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Транзакция уже подтверждена",
-      "SERVER_RESPONSE_NONCE_ALREADY_MINED" : "Nonce уже использован в подтвержденной транзакции",
+      "SERVER_RESPONSE_NONCE_ALREADY_MINED" : "Nonce %{nonce} уже использован в подтвержденной транзакции",
       "SERVER_RESPONSE_NOT_CONNECTED": "Сеть не отвечает - пожалуйста, повторите операцию позже",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостаточно средств для транзакции и оплаты минимальной комиссии",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Пожалуйста, подождите пока другие транзакции будут подтверждены или включите функцию \"Использовать неподтвержденные транзакции\" ",
