@@ -164,7 +164,7 @@ const transactionActions = {
 
         const transaction = _transaction ? JSON.parse(JSON.stringify(_transaction)) : {
             currencyCode: _currencyCode,
-            transactionHash: exchangeOrder.orderHash,
+            transactionHash: false,
             transactionDirection : 'outcome',
             transactionOfTrusteeWallet : false,
             transactionStatus : '?',

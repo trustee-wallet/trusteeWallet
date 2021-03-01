@@ -42,7 +42,6 @@ class Daemon {
         if (typeof params.noCashbackApi === 'undefined') {
             await UpdateCashBackDataDaemon.updateCashBackDataDaemon()
         }
-        await UpdateTradeOrdersDaemon.fromDB()
     }
 }
 

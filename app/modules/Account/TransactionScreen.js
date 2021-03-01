@@ -724,10 +724,7 @@ class TransactionScreen extends Component {
         array.push({ icon: 'delete', title: strings('account.transactionScreen.remove'), action: async () => {
                 setLoaderStatus(true)
                 try {
-                    await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({
-                        force: true,
-                        removeId: transaction.bseOrderData.orderId
-                    })
+                    await UpdateTradeOrdersDaemon.removeId(transaction.bseOrderData.orderId)
                 } catch (e) {
                     Log.err('TransactionScreen.removeButton error ' + e.message)
                 }
@@ -828,9 +825,11 @@ class TransactionScreen extends Component {
     }
 
     shareTransaction = (transaction, linkUrl) => {
-        const shareOptions = {}
-        shareOptions.message = strings('account.transactionScreen.transactionHash') + ` ${linkUrl}\n` +
-            strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackStore.dataFromApi.cashbackLink}\n` + strings('account.transactionScreen.thanks')
+        const shareOptions = { message : ''}
+        if (transaction.transactionHash) {
+            shareOptions.message += strings('account.transactionScreen.transactionHash') + ` ${linkUrl}\n`
+        }
+        shareOptions.message += strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackStore.dataFromApi.cashbackLink}\n` + strings('account.transactionScreen.thanks')
         if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData) {
             shareOptions.message = strings(`account.transaction.orderId`) + ` ${transaction.bseOrderData.orderHash}\n` + shareOptions.message
         }

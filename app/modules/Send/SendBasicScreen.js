@@ -115,7 +115,6 @@ export default class SendBasicScreen extends Component {
             } else {
                 ApiV3.setExchangeStatus(removeId, 'CLOSE')
             }
-            UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, removeId, source: 'CANCEL' })
         }
 
         if (closeScreen) {
