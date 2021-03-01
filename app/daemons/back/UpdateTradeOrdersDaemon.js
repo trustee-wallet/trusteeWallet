@@ -28,10 +28,14 @@ const LIMIT_FOR_CURRENCY = 20
 
 class UpdateTradeOrdersDaemon {
 
+    getSavedOrdersHash = () => {
+        return CACHE_ORDERS_HASH
+    }
+
     fromApi = async (walletHash, orderHash) => {
 
         const now = new Date().getTime()
-        if ( typeof CACHE_ONE_ORDER[orderHash] !== 'undefined') {
+        if (typeof CACHE_ONE_ORDER[orderHash] !== 'undefined') {
             const diff = now - CACHE_ONE_ORDER[orderHash].now
             if (diff < CACHE_VALID_TIME) {
                 Log.daemon('UpdateTradeOrders.fromApi ' + orderHash + ' skipped by diff ' + diff)
@@ -47,7 +51,7 @@ class UpdateTradeOrdersDaemon {
             if (typeof tmpTradeOrdersV3 !== 'undefined' && tmpTradeOrdersV3 && tmpTradeOrdersV3.length > 0) {
                 for (const one of tmpTradeOrdersV3) {
                     if (one.orderHash === orderHash) {
-                        CACHE_ONE_ORDER[orderHash] = {one, now}
+                        CACHE_ONE_ORDER[orderHash] = { one, now }
                         return one
                     }
                 }
@@ -57,7 +61,7 @@ class UpdateTradeOrdersDaemon {
             if (tmpTradeOrders && typeof tmpTradeOrders.length !== 'undefined' && tmpTradeOrders.length > 0) {
                 for (const one of tmpTradeOrders) {
                     if (one.orderId === orderHash) {
-                        CACHE_ONE_ORDER[orderHash] = {one, now}
+                        CACHE_ONE_ORDER[orderHash] = { one, now }
                         return one
                     }
                 }
@@ -127,11 +131,10 @@ class UpdateTradeOrdersDaemon {
             return false
         }
 
-        const now = new Date().getTime()
         const nowAt = new Date().toISOString()
         try {
 
-            const res = await ApiProxy.getAll({source : 'UpdateTradeOrdersDaemon.updateTradeOrders'})
+            const res = await ApiProxy.getAll({ source: 'UpdateTradeOrdersDaemon.updateTradeOrders' })
             const tmpTradeOrders = typeof res.cbOrders !== 'undefined' ? res.cbOrders : false
 
             /*
@@ -161,26 +164,30 @@ class UpdateTradeOrdersDaemon {
                         if (total > 100) {
                             break
                         }
+                        if (typeof item.orderId === 'undefined' || !item.orderId || item.orderId === '' || item.orderId === 'undefined') {
+                            continue
+                        }
+
                         if (typeof item.uiApiVersion === 'undefined') {
                             item.uiApiVersion = 'v2'
                         }
+
                         try {
                             const tmps = [
                                 {
                                     currencyCode: item.requestedInAmount.currencyCode || false,
-                                    addressAmount : item.requestedInAmount.amount || 0,
+                                    addressAmount: item.requestedInAmount.amount || 0,
                                     updateHash: item.inTxHash || false,
                                     suffix: 'in'
                                 },
                                 {
                                     currencyCode: item.requestedOutAmount.currencyCode || false,
-                                    addressAmount :  item.requestedOutAmount.amount || 0,
+                                    addressAmount: item.requestedOutAmount.amount || 0,
                                     updateHash: item.outTxHash || false,
                                     suffix: 'out'
                                 }
                             ]
 
-                            let savedToTx = false
                             let currencyCode = 'NONE'
                             let someIsUpdatedAllWillUpdate = false
 
@@ -199,52 +206,91 @@ class UpdateTradeOrdersDaemon {
                             if (!someIsUpdatedAllWillUpdate) continue
 
 
+                            let savedToTx = {}
+                            let askedSimple = false
                             for (const tmp of tmps) {
                                 if (!tmp.currencyCode) continue
                                 currencyCode = tmp.currencyCode
                                 let sql
-                                if (tmp.updateHash) {
+                                let sqlUpdateDir = ''
+                                if (tmp.updateHash && tmp.updateHash !== '' && tmp.updateHash !== 'null') {
+                                    sqlUpdateDir = `bse_order_id_${tmp.suffix}='${item.orderId}', bse_order_id='${item.orderId}', `
                                     sql = `
-                                     UPDATE transactions
-                                     SET bse_order_id_${tmp.suffix}='${item.orderId}',
-                                     bse_order_id='${item.orderId}',
-                                     bse_order_data='${dbInterface.escapeString(JSON.stringify(item))}'
+                                     SELECT id, bse_order_data, transaction_hash, transactions_scan_log FROM transactions
                                      WHERE (transaction_hash='${tmp.updateHash}' AND currency_code='${tmp.currencyCode}')
                                      OR bse_order_id='${item.orderId}'
                                      `
-                                } else {
+                                } else if (!askedSimple) {
+                                    askedSimple = true
                                     sql = `
-                                     UPDATE transactions
-                                     SET bse_order_data='${dbInterface.escapeString(JSON.stringify(item))}'
+                                     SELECT id, bse_order_data, transaction_hash, transactions_scan_log FROM transactions
                                      WHERE bse_order_id='${item.orderId}'
                                      `
-                                    // could be true could be not
+                                } else {
+                                    continue // do nothing if already asked
                                 }
-                                const res = await dbInterface.setQueryString(sql).query(true)
-                                if (res.rowsAffected > 0) {
-                                    savedToTx = true
+                                const found = await dbInterface.setQueryString(sql).query(true)
+                                if (found && found.array && found.array.length > 0) {
+
+                                    savedToTx[tmp.currencyCode] = true
+
+                                    let id = found.array[0].id
+                                    let toRemove = []
+                                    if (found.array.length > 1) {
+                                        for (const row of found.array) {
+                                            if (row.transaction_hash && row.transaction_hash !== '') {
+                                                id = row.id
+                                            } else {
+                                                toRemove.push(row.id)
+                                            }
+                                        }
+                                    }
+                                    for (const row of found.array) {
+                                        if (id !== row.id) continue
+                                        const escaped = dbInterface.escapeString(JSON.stringify(item))
+
+                                        if (!(row.bse_order_data === escaped)) {
+
+                                            let scanLog = row.transactions_scan_log
+                                            if (scanLog.indexOf(` UPDATED ORDER ${item.orderId} `) === -1) {
+                                                scanLog = ` ${nowAt} UPDATED ORDER ${item.orderId} / ${scanLog}`
+                                                if (scanLog.length > 1000) {
+                                                    scanLog = scanLog.substr(0, 1000)
+                                                }
+                                                sqlUpdateDir +=  `transactions_scan_log = '${scanLog}', `
+                                            }
+
+                                            const sql2 = ` UPDATE transactions SET ${sqlUpdateDir} bse_order_data='${escaped}' WHERE id=${row.id} `
+                                            await dbInterface.setQueryString(sql2).query(true)
+                                        }
+                                    }
+                                    if (toRemove.length > 0) {
+                                        const sql3 = ` DELETE FROM transactions WHERE id IN (${toRemove.join(',')}) AND id != ${id} `
+                                        await dbInterface.setQueryString(sql3).query(true)
+                                    }
                                 }
                             }
 
-                            if (!savedToTx) {
-                                if (typeof CACHE_REMOVED[item.orderId] !== 'undefined') {
-                                    continue
-                                }
 
-                                for (const tmp of tmps) {
-                                    if (!tmp.currencyCode || tmp.addressAmount === 0) continue
-                                    currencyCode = tmp.currencyCode
+                            if (typeof CACHE_REMOVED[item.orderId] !== 'undefined') {
+                                continue
+                            }
 
-                                    const createdAt = new Date(item.createdAt).toISOString()
-                                    const sql = `
+                            for (const tmp of tmps) {
+                                if (!tmp.currencyCode || tmp.addressAmount === 0) continue
+                                if (typeof savedToTx[tmp.currencyCode] !== 'undefined') continue
+                                currencyCode = tmp.currencyCode
+
+                                const createdAt = new Date(item.createdAt).toISOString()
+                                const sql = `
                                             INSERT INTO transactions (currency_code, wallet_hash, account_id, transaction_hash, transaction_hash_basic, transaction_status, transactions_scan_log, created_at,
                                             address_amount, address_to, bse_order_id, bse_order_id_${tmp.suffix}, bse_order_data) 
-                                            VALUES ('${currencyCode}', '${walletHash}', '0', '', '${tmp.updateHash ? tmp.updateHash : ''}', '', 'FROM ORDER ${nowAt}', '${createdAt}',
+                                            VALUES ('${currencyCode}', '${walletHash}', '0', '', '${tmp.updateHash ? tmp.updateHash : ''}', '', 'FROM ORDER ${createdAt} ${item.orderId}', '${createdAt}',
                                             '${tmp.addressAmount}', '', '${item.orderId}', '${item.orderId}', '${dbInterface.escapeString(JSON.stringify(item))}')
                                        `
-                                    await dbInterface.setQueryString(sql).query(true)
-                                }
+                                await dbInterface.setQueryString(sql).query(true)
                             }
+
                             total++
 
                         } catch (e) {

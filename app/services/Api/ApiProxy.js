@@ -15,6 +15,7 @@ import ApiV3 from './ApiV3'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import customCurrencyDS from '../../appstores/DataSource/CustomCurrency/CustomCurrency'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
+import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 
 async function _getAll(params) {
     const { mode: exchangeMode } = config.exchange
@@ -74,6 +75,7 @@ async function _getAll(params) {
     }
 
     const cbOrders = {
+        CACHE_ORDERS_HASH : UpdateTradeOrdersDaemon.getSavedOrdersHash(),
         cashbackToken,
         signedData,
         timestamp: +new Date()
