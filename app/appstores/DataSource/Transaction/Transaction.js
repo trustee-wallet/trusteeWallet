@@ -261,7 +261,7 @@ class Transaction {
             where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
         }
         if (typeof params.minAmount !== 'undefined' && params.currencyCode !== 'XLM') {
-           where.push(`(address_amount>${params.minAmount} AND address_amount IS NOT NULL)`)
+           where.push(`((address_amount>${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id!='' AND bse_order_id IS NOT NULL AND bse_order_id!='null'))`)
            where.push(`address_to NOT LIKE '% Simple Send%'`)
         }
 
@@ -270,7 +270,7 @@ class Transaction {
             order = ''
             where.push(`transaction_hash !=''`)
         } else {
-            where.push(`hidden_at IS NULL`)
+            where.push(`(hidden_at IS NULL OR hidden_at='null')`)
         }
 
         // where.push(`'${source}' = '${source}'`)
