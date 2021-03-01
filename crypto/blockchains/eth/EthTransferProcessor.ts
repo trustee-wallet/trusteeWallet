@@ -46,7 +46,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             txRBF = data.transactionReplaceByFee
             txRBFed = 'RBFed'
         } else {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate started')
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' started')
             txRBFed = 'usualSend'
             if (data.addressTo !== '' && (data.addressTo.indexOf('0x') === -1 || data.addressTo.indexOf('0x') !== 0)) {
                 throw new Error('SERVER_RESPONSE_BAD_DESTINATION')
@@ -321,6 +321,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 nonceForTx,
                 nonceLog,
                 needSpeed,
+                ethAllowBlockedBalance,
+                ethAllowLongQuery,
+                isTransferAll: data.isTransferAll,
                 amountForTx: amount
             }
             if (BlocksoftUtils.diff(newGasPrice, prevGasPrice).indexOf('-') === -1) {
@@ -385,13 +388,16 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     const tmp = {
                         langMsg: title,
                         gasPrice: newGasPrice,
-                        gasPriceGwei: newGasPrice !== '0' ? BlocksoftUtils.toGwei(newGasPrice).toString() : '0',
+                        gasPriceGwei: typeof newGasPrice !== 'undefined' && newGasPrice !== '0' ? BlocksoftUtils.toGwei(newGasPrice).toString() : '0',
                         gasLimit: gasLimit.toString(),
                         feeForTx: fee.toString(),
                         amountForTx: amount,
                         nonceForTx,
                         nonceLog,
-                        needSpeed
+                        needSpeed,
+                        ethAllowBlockedBalance,
+                        ethAllowLongQuery,
+                        isTransferAll: data.isTransferAll
                     }
                     // @ts-ignore
                     prevGasPrice = tmp.gasPrice
@@ -440,6 +446,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             } else {
                 fee = fee.toString()
             }
+            const needSpeed = typeof keys[index] !== 'undefined' && typeof gasPrice[keys[index]] !== 'undefined' ? gasPrice[keys[index]].toString() : '?'
             const tmp = {
                 langMsg: 'eth_speed_slowest',
                 gasPrice: fee,
@@ -449,7 +456,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 amountForTx,
                 nonceForTx,
                 nonceLog,
-                needSpeed: gasPrice[keys[index]].toString()
+                needSpeed,
+                ethAllowBlockedBalance,
+                ethAllowLongQuery,
+                isTransferAll: data.isTransferAll
             }
 
             BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate feeForTx ' + titles[index] + ' ' + tmp.feeForTx + ' corrected for balance ' + balance + ' with gasPrice ' + tmp.gasPrice + ' / gasLimit ' + tmp.gasLimit)
@@ -526,21 +536,21 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
 
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' started')
-        let balance = data.amount
         if (!data.amount || data.amount === '0') {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' started with load balance needed')
             try {
                 // @ts-ignore
-                balance = await this._web3.eth.getBalance(data.addressFrom).toString()
+                data.amount = await this._web3.eth.getBalance(data.addressFrom).toString()
             } catch (e) {
                 this.checkError(e, data)
             }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' started with loaded balance ' + data.amount)
+        } else {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' started with preset balance ' + data.amount)
         }
 
-        // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + balance)
         // noinspection EqualityComparisonWithCoercionJS
-        if (balance === '0') {
+        if (data.amount === '0' || data.amount === '') {
             return {
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -1,
@@ -557,6 +567,16 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 selectedFeeIndex: -2,
                 fees: [],
                 countedForBasicBalance: '0'
+            }
+        }
+        if (this._useThisBalance) {
+            try {
+                for (const fee of fees.fees) {
+                    fee.totalFeePlusAmountETH = BlocksoftUtils.toEther(BlocksoftUtils.add(fee.amountForTx, fee.feeForTx))
+                }
+                fees.selectedTransferAllBalanceETH = BlocksoftUtils.toEther(fees.fees[fees.selectedFeeIndex].amountForTx)
+            } catch (e) {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + balance + ' error on logging ' + e.message)
             }
         }
         return {

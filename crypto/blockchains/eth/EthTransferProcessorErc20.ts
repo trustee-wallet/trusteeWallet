@@ -124,17 +124,20 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
     }
 
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
-        // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getTransferAllBalance estimateBalance started token ' + this._tokenAddress)
         const tmpData = { ...data }
-        if (!data.amount || data.amount === '0') {
+        if (!tmpData.amount || tmpData.amount === '0') {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessorErc20.getTransferAllBalance ' + data.addressFrom + ' token ' + this._tokenAddress + ' started with load balance needed')
             try {
                 // @ts-ignore
                 tmpData.amount = await this._token.methods.balanceOf(data.addressFrom).call()
             } catch (e) {
                 this.checkError(e, data)
             }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessorErc20.getTransferAllBalance ' + data.addressFrom + ' token ' + this._tokenAddress + ' started with loaded balance ' + tmpData.amount)
+        } else {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessorErc20.getTransferAllBalance ' + data.addressFrom + ' token ' + this._tokenAddress + ' started with preset balance ' + tmpData.amount)
         }
+
         const result = await super.getTransferAllBalance(tmpData, privateData, additionalData)
         result.shouldChangeBalance = false
         return result
