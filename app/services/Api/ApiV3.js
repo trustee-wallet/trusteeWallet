@@ -29,6 +29,7 @@ const V3_ENTRY_POINT_SELL = '/mobile-sell'
 const V3_ENTRY_POINT_BUY = '/mobile-buy'
 const V3_ENTRY_POINT_CHECK = '/mobile-check'
 const V3_ENTRY_POINT_SET_STATUS = '/order/update-payment-status'
+const V3_ENTRY_POINT_MARKET = '/mobile-market'
 
 const V3_PUB = '818ef87763ee0f9eaee49ff1f27d4b87e76dc1a8309187b82de52687783d832705f4bafe4a51efad26ccca9367419f9e28e07cea849b8b15108a56e054128a8c'
 const V3_KEY_PREFIX = 'TrusteeExchange'
@@ -191,8 +192,11 @@ export default {
     async initData(type, currencyCode = false, isLight) {
 
         let { mode: exchangeMode, apiEndpoints } = config.exchange
-        const entryURL = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
+        let entryURL = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
+
+        entryURL = type === 'MARKET' ? exchangeMode === 'DEV' ? apiEndpoints.entryMarketURLTest : apiEndpoints.entryMarketURL : entryURL
+    
 
         let entryPoint
         if (type === 'EXCHANGE') {
@@ -201,6 +205,8 @@ export default {
             entryPoint = V3_ENTRY_POINT_SELL
         } else if (type === 'BUY') {
             entryPoint = V3_ENTRY_POINT_BUY
+        } else if (type === 'MARKET') {
+            entryPoint = V3_ENTRY_POINT_MARKET
         } else {
             throw new Error('ApiV3 invalid settings type ' + type)
         }

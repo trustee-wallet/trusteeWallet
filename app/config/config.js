@@ -14,8 +14,10 @@ const config = {
             baseURLTest: 'https://testapi.v2.blocksoftlab.com',
             baseV3URL: 'https://api.v3.trustee.deals',
             baseV3URLTest: 'https://testapiv3.trustee.deals',
+            entryMarketURL: 'https://trustee.exchange',
             entryURL: 'https://exchange.trustee.deals',
-            entryURLTest: 'https://testexchange.trustee.deals'
+            entryURLTest: 'https://testexchange.trustee.deals',
+            entryMarketURLTest: 'https://test.trustee.exchange'
         }
     },
     language: {

@@ -82,7 +82,7 @@ class MainDataScreen extends Component {
     handleTryV3 = () => {
         Log.log('EXC/Main.handleTryV3 init')
         Keyboard.dismiss()
-        NavStore.goNext('TradeV3ScreenStack')
+        NavStore.goNext('MainV3DataScreen')
     }
 
     handleConvertToPaymentCurrency = (fromCurrency, amount) => amount
