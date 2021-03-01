@@ -195,14 +195,14 @@ class UpdateTradeOrdersDaemon {
                             if (tmp.updateHash && tmp.updateHash !== '' && tmp.updateHash !== 'null') {
                                 sqlUpdateDir = `bse_order_id_${tmp.suffix}='${item.orderId}', bse_order_id='${item.orderId}', `
                                 sql = `
-                                     SELECT id, bse_order_data, transaction_hash, transactions_scan_log FROM transactions
+                                     SELECT id, bse_order_data, transaction_hash, transactions_scan_log, hidden_at FROM transactions
                                      WHERE (transaction_hash='${tmp.updateHash}' AND currency_code='${tmp.currencyCode}')
                                      OR bse_order_id='${item.orderId}'
                                      `
                             } else if (!askedSimple) {
                                 askedSimple = true
                                 sql = `
-                                     SELECT id, bse_order_data, transaction_hash, transactions_scan_log FROM transactions
+                                     SELECT id, bse_order_data, transaction_hash, transactions_scan_log, hidden_at FROM transactions
                                      WHERE bse_order_id='${item.orderId}'
                                      `
                             } else {
@@ -214,7 +214,7 @@ class UpdateTradeOrdersDaemon {
                                 savedToTx[tmp.currencyCode] = true
 
                                 let id = found.array[0].id
-                                let toRemove = []
+                                const toRemove = []
                                 if (found.array.length > 1) {
                                     for (const row of found.array) {
                                         if (row.transaction_hash && row.transaction_hash !== '') {
@@ -226,6 +226,7 @@ class UpdateTradeOrdersDaemon {
                                 }
                                 for (const row of found.array) {
                                     if (id !== row.id) continue
+                                    if (row.hidden_at !== '' && row.hidden_at !== 'null') continue
                                     const escaped = dbInterface.escapeString(JSON.stringify(item))
 
                                     if (!(row.bse_order_data === escaped)) {
@@ -250,10 +251,6 @@ class UpdateTradeOrdersDaemon {
                             }
                         }
 
-
-                        if (typeof CACHE_REMOVED[item.orderId] !== 'undefined') {
-                            continue
-                        }
 
                         for (const tmp of tmps) {
                             if (!tmp.currencyCode || tmp.addressAmount === 0) continue
