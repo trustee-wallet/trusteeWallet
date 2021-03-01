@@ -130,7 +130,7 @@ class MainV3DataScreen extends Component {
         try {
             const allData = JSON.parse(event.nativeEvent.data)
             const { address, amount, orderHash, comment, inCurrencyCode, dataExchange, error,
-                backToOld, close, homePage, useAllFunds } = allData
+                backToOld, close, homePage, useAllFunds, goToNew } = allData
 
             Log.log('EXC/MainV3Screen.onMessage parsed', event.nativeEvent.data)
 
@@ -144,6 +144,11 @@ class MainV3DataScreen extends Component {
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
                 AsyncStorage.setItem('isNewInterface', 'false')
                 NavStore.goNext('HomeScreen')
+            }
+
+            if (goToNew) {
+                NavStore.goNext('MarketScreen')
+                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
             }
 
             if (typeof homePage !== 'undefined' && (homePage === true || homePage === false)) {
@@ -267,7 +272,9 @@ class MainV3DataScreen extends Component {
             if (config.debug.cryptoErrors) {
                 console.log('EXC/MainV3Screen.handleTransferAll', e)
             }
-
+            
+            this.webref.postMessage(JSON.stringify({serverError: true}))
+            
             Log.errorTranslate(e, 'Trade/MainV3Screen.handleTransferAll', extend)
 
             showModal({

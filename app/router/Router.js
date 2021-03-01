@@ -20,7 +20,6 @@ import QRCodeScannerScreen from '../modules/QRCodeScanner/QRCodeScannerScreen'
 import HomeScreenStack from './HomeStack'
 import ExchangeV3ScreenStack from './ExchangeV3ScreenStack'
 import TradeScreenStack from './TradeScreenStack'
-import TradeV3ScreenStack from './TradeV3ScreenStack'
 import SettingsScreenStack from './SettingsStack'
 
 import NotificationsScreen from '../modules/Notifications'
@@ -54,6 +53,10 @@ import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
 import SMSCodeScreen from '../modules/Trade/SMSCodeScreen'
 import WalletConnectScreen from '../modules/WalletConnect/WalletConnectScreen'
 
+import MarketScreen from '../modules/Market/MainScreen'
+import MainV3DataScreen from '../modules/Trade/MainV3DataScreen'
+import SMSV3CodeScreen from '../modules/Trade/SMSV3CodeScreen'
+
 
 const MainNavigator = createStackNavigator({
         InitScreen: {
@@ -72,6 +75,27 @@ const MainNavigator = createStackNavigator({
 
         WalletConnectScreen: {
             screen: WalletConnectScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        MainV3DataScreen: {
+            screen: MainV3DataScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        SMSV3CodeScreen: {
+            screen: SMSV3CodeScreen,
+            navigationOptions: {
+                headerShown: false
+            }
+        },
+
+        MarketScreen: {
+            screen: MarketScreen,
             navigationOptions: {
                 headerShown: false
             }
@@ -258,13 +282,6 @@ const MainNavigator = createStackNavigator({
 
         ExchangeV3ScreenStack: {
             screen: ExchangeV3ScreenStack,
-            navigationOptions: {
-                headerShown: false
-            }
-        },
-
-        TradeV3ScreenStack: {
-            screen: TradeV3ScreenStack,
             navigationOptions: {
                 headerShown: false
             }

@@ -1,7 +1,8 @@
 /**
- * @version 0.3
+ * @version 0.30
  * @author yura
  */
+
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
@@ -12,32 +13,36 @@ import {
     Platform,
     BackHandler,
     StatusBar,
+    StyleSheet,
     Keyboard,
     ActivityIndicator,
     SafeAreaView
 } from 'react-native'
 
-
+import { WebView } from 'react-native-webview'
+import AsyncStorage from '@react-native-community/async-storage'
+import { CardIOModule, CardIOUtilities } from 'react-native-awesome-card-io'
+import valid from 'card-validator'
+import _ from 'lodash'
 
 import NavStore from '../../components/navigation/NavStore'
 
 import ApiV3 from '../../services/Api/ApiV3'
 import Log from '../../services/Log/Log'
+import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 
-import { WebView } from 'react-native-webview'
+
 import { i18n, strings, sublocale } from '../../services/i18n'
-import AsyncStorage from '@react-native-community/async-storage'
 import cardDS from '../../appstores/DataSource/Card/Card'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { FileSystem } from '../../services/FileSystem/FileSystem'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import { Camera } from '../../services/Camera/Camera'
-import { CardIOModule, CardIOUtilities } from 'react-native-awesome-card-io'
+
 import countriesDict from '../../assets/jsons/other/country-codes'
 import Validator from '../../services/UI/Validator/Validator'
-import valid from 'card-validator'
-import _ from 'lodash'
+
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
@@ -54,30 +59,25 @@ import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 
-const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
+const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
 
-class MainV3DataScreen extends Component {
+class MarketScreen extends Component {
 
     constructor() {
         super()
         this.state = {
             show: false,
             inited: false,
-            apiUrl: 'https://testexchange.trustee.deals/waiting',
+            apiUrl: null,
             homePage: false,
-            countedFees: {},
-            selectedFee: {}
+            countedFees: false,
+            selectedFee: false
         }
     }
 
     init = async () => {
-
-        const { currencyCode } = this.props.cryptoCurrency
-
-        const prev = NavStore.getPrevRoute().routeName
-
         const key = 'onlyOne'
         if (CACHE_INIT_KEY === key && this.state.inited) {
             return
@@ -86,10 +86,7 @@ class MainV3DataScreen extends Component {
         this.setState({ inited: true })
 
         // here to do upload
-        const { tradeType } = this.props.exchangeStore
-        const type = this.props.navigation.getParam('tradeType')
-
-        let apiUrl = await ApiV3.initData(type ? type : tradeType, prev === 'AccountScreen' && currencyCode)
+        let apiUrl = await ApiV3.initData('MARKET')
 
         setTimeout(() => {
             this.setState({
@@ -97,7 +94,6 @@ class MainV3DataScreen extends Component {
                 apiUrl
             })
         }, 10)
-
     }
 
     componentDidMount() {
@@ -245,10 +241,10 @@ class MainV3DataScreen extends Component {
         try {
             const allData = JSON.parse(event.nativeEvent.data)
             const { error, backToOld, close, homePage, cardData, tradeType, takePhoto, scanCard, deleteCard,
-                updateCard, orderData, injectScript, currencySelect, dataSell, didMount, navigationState, message, exchangeStatus, 
-                useAllFunds, goToNew } = allData
+                updateCard, orderData, injectScript, currencySelect, dataSend, didMount, navigationState, message, exchangeStatus,
+                useAllFunds, checkCamera } = allData
 
-            Log.log('Trade/MainV3Screen.onMessage parsed', event.nativeEvent.data)
+            Log.log('Market/MainScreen.onMessage parsed', event.nativeEvent.data)
 
             if (error || close) {
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
@@ -256,20 +252,19 @@ class MainV3DataScreen extends Component {
                 return
             }
 
-            if (backToOld) {
-                if (tradeType === 'SELL') {
-                    ExchangeActions.handleSetNewInterface(false, 'SELL')
-                    NavStore.goNext('TradeScreenStack')
-                } else if (tradeType === 'BUY') {
-                    ExchangeActions.handleSetNewInterface(false, 'BUY')
-                    NavStore.goNext('TradeScreenStack')
-                }
-                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
-            }
+            // if (backToOld) {
+            //     if (tradeType === 'SELL') {
+            //         ExchangeActions.handleSetNewInterface(false, 'SELL')
+            //         NavStore.goNext('TradeScreenStack')
+            //     } else if (tradeType === 'BUY') {
+            //         ExchangeActions.handleSetNewInterface(false, 'BUY')
+            //         NavStore.goNext('TradeScreenStack')
+            //     }
+            //     StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
+            // }
 
-            if (goToNew) {
-                NavStore.goNext('MarketScreen')
-                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
+            if (checkCamera) {
+                this.checkCameraForWebView()
             }
 
             if (typeof homePage !== 'undefined' && (homePage === true || homePage === false)) {
@@ -281,13 +276,13 @@ class MainV3DataScreen extends Component {
             }
 
             if (cardData) {
-                Log.log('Trade/MainV3Screen.onMessage cardData', cardData)
+                Log.log('Market/MainScreen.onMessage cardData', cardData)
                 if (typeof cardData.actionType === 'undefined' || cardData.actionType === 'ADD') {
                     this.onSaveCard(cardData)
                 }
             } else if (takePhoto) {
-                Log.log('Trade/MainV3Screen.onMessage takePhoto' + JSON.stringify(takePhoto))
-                this.onTakePhoto(typeof takePhoto.number === 'undefined' ? { number: takePhoto } : takePhoto) // внимательно проверяй что внутри функций
+                Log.log('Market/MainScreen.onMessage takePhoto' + JSON.stringify(takePhoto))
+                this.onTakePhoto(typeof takePhoto.number === 'undefined' ? { number: takePhoto } : takePhoto)
             } else if (scanCard) {
                 this.handleScan()
             } else if (deleteCard) {
@@ -315,38 +310,43 @@ class MainV3DataScreen extends Component {
                 })
             }
 
-            if (dataSell) {
-                this.sellV3(dataSell)
+            if (dataSend) {
+                this.send(dataSend)
             }
 
         } catch {
-            Log.err('Trade/MainV3Screen.onMessage parse error ', event.nativeEvent)
+            Log.err('Market/MainScreen.onMessage parse error ', event.nativeEvent)
         }
     }
 
-    async sellV3(data) {
-        // console.log('Trade/MainV3Screen dataSell', JSON.stringify(data))
+    async checkCameraForWebView() {
+        const res = await Camera.checkCameraOn('Market/MainScreen validateCard')
+        this.webref.postMessage(JSON.stringify({ cameraRes: res }))
+    }
+
+    async send(data) {
         const limits = JSON.parse(data.limits)
         const trusteeFee = JSON.parse(data.trusteeFee)
 
         const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits)
 
         try {
-            Log.log('Trade/MainV3Screen dataSell', data)
+            Log.log('Market/MainScreen dataSend', data)
 
             const bseOrderData = {
                 amountReceived: null,
                 depositAddress: data.address,
                 exchangeRate: null,
-                exchangeWayType: 'SELL',
+                exchangeWayType: data.exchangeWayType,
                 inTxHash: null,
                 orderHash: data.orderHash,
                 orderId: data.orderHash,
-                outDestination: data.outDestination.substr(0,2) + '***' + data.outDestination.substr(-4, 4),
+                outDestination: data.exchangeWayType === 'SELL' ? `${data.outDestination.substr(0, 2)}***${data.outDestination.substr(-4, 4)}` :
+                    data.outDestination,
                 outTxHash: null,
                 payinUrl: null,
-                requestedInAmount: {amount: data.amount, currencyCode: data.currencyCode},
-                requestedOutAmount: {amount: data.outAmount, currencyCode: data.outCurrency},
+                requestedInAmount: { amount: data.amount, currencyCode: data.currencyCode },
+                requestedOutAmount: { amount: data.outAmount, currencyCode: data.outCurrency },
                 status: "pending_payin"
             }
 
@@ -369,64 +369,65 @@ class MainV3DataScreen extends Component {
                 currencyCode: data.currencyCode,
                 isTransferAll: data.useAllFunds,
                 bseOrderId: data.orderHash || data.orderId,
-                bseMinCrypto : minCrypto,
-                bseTrusteeFee : {
-                    value : trusteeFee.trusteeFee,
-                    currencyCode : trusteeFee.currencyCode,
-                    type : 'SELL',
-                    from : data.currencyCode,
-                    to : data.outCurrency
+                bseMinCrypto: minCrypto,
+                bseTrusteeFee: {
+                    value: trusteeFee.trusteeFee,
+                    currencyCode: trusteeFee.currencyCode,
+                    type: data.exchangeWayType,
+                    from: data.currencyCode,
+                    to: data.outCurrency
                 },
                 bseOrderData: bseOrderData
             })
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('Trade/MainV3Screen.sellV3', e)
+                console.log('Market/MainScreen.send', e)
             }
             throw e
         }
     }
 
     async onTakePhoto(cardData) {
-        if (!await Camera.checkCameraOn('TRADE/Cards validateCard')) {
+        if (!await Camera.checkCameraOn('Market/MainScreen validateCard')) {
             return
         }
 
-        // @ksu check this
         // setLoaderStatus(true)
         try {
-            Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery started')
-            const res = await Camera.openCameraOrGallery('TRADE/Cards validateCard')
-            Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery res', res)
+            Log.log('Market/MainScreen validateCard Camera.openCameraOrGallery started')
+            const res = await Camera.openCameraOrGallery('Market/MainScreen validateCard')
+            Log.log('Market/MainScreen validateCard Camera.openCameraOrGallery res', res)
 
             let showError = true
             let msgError = typeof res.error !== 'undefined' ? res.error : ''
             if (!res) {
-                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery no result')
+                Log.log('Market/MainScreen validateCard Camera.openCameraOrGallery no result')
                 msgError += ' no result'
             } else if (res.didCancel) {
-                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery cancelled')
+                Log.log('Market/MainScreen validateCard Camera.openCameraOrGallery cancelled')
                 msgError += ', need to select from gallery'
                 if (msgError.indexOf('file path of photo') !== 'undefined') {
                     msgError = strings('tradeScreen.modalError.selectPhoto')
                 }
             } else if (res.error) {
-                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ', res.error)
+                Log.log('Market/MainScreen validateCard Camera.openCameraOrGallery error ', res.error)
                 msgError += ' ' + res.error
             } else if (typeof res.path === 'undefined' || !res.path || res.path === '') {
-                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery no path')
+                Log.log('Market/MainScreen validateCard Camera.openCameraOrGallery no path')
                 msgError += ' no path from gallery'
             } else if (typeof res.base64 === 'undefined' || !res.base64 || res.base64 === '') {
-                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery not loaded from gallery')
+                Log.log('Market/MainScreen validateCard Camera.openCameraOrGallery not loaded from gallery')
                 msgError += ' not loaded from gallery'
             } else {
-                Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery path ' + res.path)
+                Log.log('Market/MainScreen validateCard Camera.openCameraOrGallery path ' + res.path)
                 this._onTakePhotoInner(res, cardData)
                 showError = false
             }
-
+            console.log('showError', msgError)
             // setLoaderStatus(false)
             if (showError) {
+                this.webref.postMessage(JSON.stringify({ notPhoto: true }))
+
                 showModal({
                     type: 'INFO_MODAL',
                     icon: 'INFO',
@@ -437,10 +438,10 @@ class MainV3DataScreen extends Component {
 
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ' + e.message, e)
+                console.log('Market/MainScreen validateCard Camera.openCameraOrGallery error ' + e.message, e)
             }
             // setLoaderStatus(false)
-            Log.log('TRADE/Cards validateCard Camera.openCameraOrGallery error ' + e.message)
+            Log.log('Market/MainScreen validateCard Camera.openCameraOrGallery error ' + e.message)
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
@@ -456,25 +457,21 @@ class MainV3DataScreen extends Component {
                 setLoaderStatus(false)
             }
 
-            Log.log('Trade/MainV3Screen._onTakePhotoInner cardData', JSON.parse(JSON.stringify(cardData)))
+            Log.log('Market/MainScreen._onTakePhotoInner cardData', JSON.parse(JSON.stringify(cardData)))
 
             let path = response.path
 
             if (typeof response.path === 'undefined')
                 return
 
-            // if (Platform.OS === 'ios') {
-            //     path = path.substring(path.indexOf('/Documents'))
-            // }
-
             if (response.didCancel) {
-                Log.log('Trade/MainV3Screen._onTakePhotoInner User cancelled image picker')
+                Log.log('Market/MainScreen._onTakePhotoInner User cancelled image picker')
             } else if (response.error) {
-                Log.log('Trade/MainV3Screen._onTakePhotoInnerImagePicker error ', response.error)
+                Log.log('Market/MainScreen._onTakePhotoInnerImagePicker error ', response.error)
             } else {
                 const passData = { alreadySaved: true, photoSource: path }
                 if (typeof cardData.number === 'undefined') {
-                    Log.log('Trade/MainV3DataScreen._onTakePhotoInner cardData.number === undefined')
+                    Log.log('Market/MainScreen._onTakePhotoInner cardData.number === undefined')
                     throw new Error('YURA! do number in cardData')
                 }
                 passData.number = cardData.number
@@ -485,7 +482,9 @@ class MainV3DataScreen extends Component {
                 this.onSaveCard(passData)
             }
         } catch (e) {
-            Log.err('Trade/MainV3Screen._onTakePhotoInner error ' + e.message)
+            Log.err('Market/MainScreen._onTakePhotoInner error ' + e.message)
+
+            this.webref.postMessage(JSON.stringify({ notPhoto: true }))
 
             showModal({
                 type: 'INFO_MODAL',
@@ -518,7 +517,7 @@ class MainV3DataScreen extends Component {
                     card_details_json: cardData.cardDetailsJson
                 }]
             })
-            Log.log('Trade/MainV3DataScreen save cardData' + JSON.stringify(cardData))
+            Log.log('Market/MainScreen save cardData' + JSON.stringify(cardData))
         }
         if (cardData.type === 'visa' || cardData.type === 'mastercard' || cardData.type === 'mir' || cardData.type === 'maestro') {
             await this._verifyCard(cardData)
@@ -548,11 +547,11 @@ class MainV3DataScreen extends Component {
 
             let msg = ''
             try {
-                Log.log('Trade/MainV3DataScreen._verifyCard will ask time from server')
+                Log.log('Market/MainScreen._verifyCard will ask time from server')
                 const now = await BlocksoftAxios.get(`${entryUrl}/data/server-time`)
                 if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
                     msg = now.data.serverTime
-                    Log.log('Trade/MainV3DataScreen._verifyCard msg from server ' + msg)
+                    Log.log('Market/MainScreen._verifyCard msg from server ' + msg)
                 }
             } catch (e) {
                 // do nothing
@@ -586,9 +585,14 @@ class MainV3DataScreen extends Component {
                 data.append('image', 'data:image/jpeg;base64,' + base64)
             }
 
-            let res = await ApiV3.validateCard(data, exchangeMode)
-            // todo send data to front if error send data
-            res = res.data
+            let res
+            try {
+                res = await ApiV3.validateCard(data, exchangeMode)
+                res = res.data
+            } catch (e) {
+                this.webref.postMessage(JSON.stringify({ serverError: true }))
+                Log.log('Market.MainScreen ApiV3.validateCard error', JSON.stringify(e))
+            }
 
             await cardDS.updateCard({
                 key: {
@@ -599,7 +603,7 @@ class MainV3DataScreen extends Component {
                 }
             })
 
-            Log.log('Trade/MainV3Screen res for card ' + cardID, res)
+            Log.log('Market/MainScreen res for card ' + cardID, res)
 
             const cardJson = res
             const numberCard = cardData.number
@@ -608,11 +612,13 @@ class MainV3DataScreen extends Component {
                 (cardJson.verificationStatus === 'PENDING' || cardJson.verificationStatus === 'WAIT_FOR_PHOTO')) {
                 await this.resCardToWebView(numberCard)
             } else {
-                this.webref.postMessage(JSON.stringify({ "res": { cardID, res, numberCard } }))
+                if (res) {
+                    this.webref.postMessage(JSON.stringify({ res: { cardID, res, numberCard } }))
+                }
             }
 
         } catch (e) {
-            Log.err('Trade/MainV3Screen validate e', e)
+            Log.err('Market/MainScreen validate e', e)
         }
     }
 
@@ -641,7 +647,7 @@ class MainV3DataScreen extends Component {
         try {
             await cardDS.deleteCard(cardID)
         } catch (e) {
-            Log.err('Trade/Cards deleteCard error ' + e.message)
+            Log.err('Market/MainScreen deleteCard error ' + e.message)
         }
     }
 
@@ -667,7 +673,7 @@ class MainV3DataScreen extends Component {
             },
             updateObj
         })
-        Log.log('Trade/MainV3DataScreen card updated')
+        Log.log('Market/MainScreen card updated')
 
         if (item.type === 'visa' || item.type === 'mastercard' || item.type === 'mir' || item.type === 'maestro') {
             if (typeof item.number !== 'undefined') {
@@ -689,17 +695,17 @@ class MainV3DataScreen extends Component {
                 addressTo: addressToForTransferAll
             })
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
-            this.webref.postMessage(JSON.stringify({ fees: { countedFees: 'notUsedNotPassed', selectedFee: 'notUsedNotPassed', amount: amount ? amount : 0 } }))
+            this.webref.postMessage(JSON.stringify({ fees: { amount: amount ? amount : 0 } }))
             return {
                 currencyBalanceAmount: amount,
                 currencyBalanceAmountRaw: transferBalance
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('Trade/MainV3Screen.handleTransferAll', e)
+                console.log('Market/MainScreen.handleTransferAll', e)
             }
 
-            Log.errorTranslate(e, 'Trade/MainV3Screen.handleTransferAll', extend)
+            Log.errorTranslate(e, 'Market/MainScreen.handleTransferAll', extend)
 
             showModal({
                 type: 'INFO_MODAL',
@@ -710,7 +716,6 @@ class MainV3DataScreen extends Component {
             })
         }
     }
-
 
     modal() {
         showModal({
@@ -728,13 +733,15 @@ class MainV3DataScreen extends Component {
         return (
             <ActivityIndicator
                 size="large"
-                style={{ backgroundColor: colors.common.header.bg, position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                justifyContent: 'center',
-                alignItems: 'center' }}
+                style={{
+                    backgroundColor: colors.common.header.bg, position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}
                 color={this.context.colors.common.text2}
             />
         )
@@ -742,10 +749,12 @@ class MainV3DataScreen extends Component {
 
     render() {
 
+        UpdateOneByOneDaemon.pause()
+
         const { colors, isLight } = this.context
 
         this.init()
-        MarketingAnalytics.setCurrentScreen('Trade.MainV3Screen')
+        MarketingAnalytics.setCurrentScreen('Market.MainScreen')
 
         const INJECTEDJAVASCRIPT = `const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta)`
 
@@ -760,42 +769,44 @@ class MainV3DataScreen extends Component {
                             enabled={false}
                             hideKeyboardAccessoryView={false}
                             contentContainerStyle={{ flex: 1 }}
-                            style={{ flexGrow: 1 }}>
+                            style={{ flexGrow: 1 }} >
                             <WebView
                                 ref={webView => (this.webref = webView)}
                                 javaScriptEnabled={true}
+                                onNavigationStateChange={this.handleWebViewNavigationStateChange}
                                 source={{ uri: this.state.apiUrl }}
                                 injectedJavaScript={INJECTEDJAVASCRIPT}
                                 scalesPageToFit={false}
                                 scrollEnabled={false}
                                 style={{ flex: 1 }}
                                 renderError={(e) => {
-                                    Log.err('Trade.WebViewMainScreen.render error ' + e)
+                                    Log.err('Market.MainScreen.render error ' + e)
                                     this.modal()
+                                    NavStore.goNext('HomeScreen')
                                 }}
                                 onError={(e) => {
-                                    Log.err('Trade.WebViewMainScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.description)
+                                    Log.err('Market.MainScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.description)
                                     this.modal()
+                                    NavStore.goNext('HomeScreen')
                                 }}
                                 onHttpError={(e) => {
-                                    Log.log('Trade.WebViewMainScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
+                                    Log.log('Market.MainScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
                                     this.modal()
+                                    NavStore.goNext('HomeScreen')
                                 }}
                                 onMessage={e => {
                                     this.onMessage(e)
                                 }}
                                 onLoadProgress={(e) => {
-                                    Log.log('Trade.WebViewMainScreen.on load progress ' + e.nativeEvent.title + ' ' + e.nativeEvent.progress)
+                                    Log.log('Market.MainScreen.on load progress ' + e.nativeEvent.title + ' ' + e.nativeEvent.progress)
                                 }}
                                 onContentProcessDidTerminate={(e) => {
-                                    Log.log('Trade.WebViewMainScreen.on content terminate ' + e.nativeEvent.title)
+                                    Log.log('Market.MainScreen.on content terminate ' + e.nativeEvent.title)
                                 }}
                                 onShouldStartLoadWithRequest={(e) => {
-                                    Log.log('Trade.WebViewMainScreen.on start load with request ' + e.navigationType)
+                                    Log.log('Market.MainScreen.on start load with request ' + e.navigationType)
                                     return true
                                 }}
-                                // onLoadStart={StatusBar.setBarStyle('dark-content')}
-                                // onLoad={StatusBar.setBarStyle('dark-content')}
                                 useWebKit={true}
                                 startInLoadingState={true}
                                 renderLoading={this.renderLoading}
@@ -803,37 +814,19 @@ class MainV3DataScreen extends Component {
                         </KeyboardAvoidingView> :
                         <>
                             {this.renderLoading()}
-                        </>
-                        }
+                        </>}
                 </View>
             </View>
         )
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        settingsStore: state.settingsStore,
-        mainStore: state.mainStore,
-        wallet: state.mainStore.selectedWallet,
-        selectedInAccount: state.mainStore.selectedInAccount,
-        selectedOutAccount: state.mainStore.selectedOutAccount,
-        exchangeStore: state.exchangeStore,
-        cryptoCurrency: state.mainStore.selectedCryptoCurrency,
-    }
-}
+MarketScreen.contextType = ThemeContext
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
+export default MarketScreen
 
-MainV3DataScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(MainV3DataScreen)
-
-const styles = {
+const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
         height: WINDOW_HEIGHT,
@@ -872,4 +865,5 @@ const styles = {
         marginHorizontal: 30,
         marginBottom: 40
     }
-}
+})
+

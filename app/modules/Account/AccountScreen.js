@@ -185,7 +185,7 @@ class Account extends Component {
     handleBuy = async () => {
         const isNewInterfaceBuy = await AsyncStorage.getItem('isNewInterfaceBuy')
         ExchangeActions.handleSetTradeType({ tradeType: 'BUY' })
-        NavStore.goNext('TradeV3ScreenStack')
+        NavStore.goNext('MainV3DataScreen')
     }
 
     _showModalNoOldConfigs = async () => {

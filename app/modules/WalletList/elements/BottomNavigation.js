@@ -83,10 +83,10 @@ class BottomNavigation extends Component {
 
             if (type === 'SELL') {
                     ExchangeActions.handleSetNewInterface(false, 'SELL')
-                    NavStore.goNext('TradeV3ScreenStack')
+                    NavStore.goNext('MainV3DataScreen')
             } else if (type === 'BUY') {
                     ExchangeActions.handleSetNewInterface(false, 'BUY')
-                    NavStore.goNext('TradeV3ScreenStack')
+                    NavStore.goNext('MainV3DataScreen')
             } else {
                 await this._showModalNoOldConfigs()
                 NavStore.goNext('TradeScreenStack')
