@@ -364,6 +364,18 @@ const Currencies = {
         currencyExplorerLink: 'https://tronscan.org/#/address/',
         currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
     },
+    'BNB_SMART_USDT': {
+        currencyType: 'token',
+        currencyName: 'Tether Binance-Peg',
+        currencyCode: 'BNB_SMART_USDT',
+        currencySymbol: 'USDT',
+        ratesCurrencyCode: 'USDT',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0x55d398326f99059ff775485246999027b3197955',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0x55d398326f99059ff775485246999027b3197955?a='
+    },
     'TRX_BTT': {
         currencyType: 'token',
         currencyName: 'BitTorrent',
@@ -393,6 +405,7 @@ const Currencies = {
         tokenAddress: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
         currencyExplorerLink: 'https://etherscan.io/token/0xB8c77482e45F1F44dE1745F52C74426C631bDD52?a='
     },
+
     'ETH_USDC': {
         currencyType: 'token',
         currencyName: 'USD Coin',
@@ -407,6 +420,19 @@ const Currencies = {
         currencyExplorerLink: 'https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48?a=',
         currencyExplorerTxLink: 'https://etherscan.io/tx/'
     },
+    'BNB_SMART_USDC': {
+        currencyType: 'token',
+        currencyName: 'USDC Binance-Peg',
+        currencyCode: 'BNB_SMART_USDC',
+        currencySymbol: 'USDC',
+        ratesCurrencyCode: 'USDC',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d?a='
+    },
+
     'ETH_PAX': {
         currencyType: 'token',
         currencyName: 'Paxos Standard',
@@ -612,29 +638,31 @@ const Currencies = {
         tokenBlockchain: 'BNB',
         currencyExplorerLink: 'https://bscscan.com/token/0x2170ed0880ac9a755fd29b2688956bd959f933f8?a='
     },
+    'ETH_BUSD': {
+        currencyType: 'token',
+        currencyName: 'Binance USD ERC20',
+        currencyCode: 'ETH_BUSD',
+        currencySymbol: 'BUSD',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'BUSD',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0xe9e7cea3dedca5984780bafc599bd69add087d56',
+        currencyExplorerLink: 'https://etherscan.io/token/0xe9e7cea3dedca5984780bafc599bd69add087d56?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
     'BNB_SMART_USD': {
         currencyType: 'token',
         currencyName: 'USD Binance-Peg',
         currencyCode: 'BNB_SMART_USD',
-        currencySymbol: 'USD',
-        ratesCurrencyCode: 'USD',
+        currencySymbol: 'BUSD',
+        ratesCurrencyCode: 'BUSD',
         extendsProcessor: 'BNB_SMART_CAKE',
         addressUiChecker: 'ETH',
         tokenAddress: '0xe9e7cea3dedca5984780bafc599bd69add087d56',
         tokenBlockchain: 'BNB',
         currencyExplorerLink: 'https://bscscan.com/token/0xe9e7cea3dedca5984780bafc599bd69add087d56?a='
-    },
-    'BNB_SMART_USDT': {
-        currencyType: 'token',
-        currencyName: 'USDT Binance-Peg',
-        currencyCode: 'BNB_SMART_USDT',
-        currencySymbol: 'USDT',
-        ratesCurrencyCode: 'USDT',
-        extendsProcessor: 'BNB_SMART_CAKE',
-        addressUiChecker: 'ETH',
-        tokenAddress: '0x55d398326f99059ff775485246999027b3197955',
-        tokenBlockchain: 'BNB',
-        currencyExplorerLink: 'https://bscscan.com/token/0x55d398326f99059ff775485246999027b3197955?a='
     },
     'BNB_SMART_LTC': {
         currencyType: 'token',
@@ -671,9 +699,407 @@ const Currencies = {
         tokenAddress: '0x3ee2200efb3400fabb9aacf31297cbdd1d435d47',
         tokenBlockchain: 'BNB',
         currencyExplorerLink: 'https://bscscan.com/token/0x3ee2200efb3400fabb9aacf31297cbdd1d435d47?a='
-    }
+    },
+
+    'ETH_LINK': {
+        currencyType: 'token',
+        currencyName: 'ChainLink Token ERC20',
+        currencyCode: 'ETH_LINK',
+        currencySymbol: 'LINK',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'LINK',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x514910771af9ca656af840dff83e8264ecf986ca',
+        currencyExplorerLink: 'https://etherscan.io/token/0x514910771af9ca656af840dff83e8264ecf986ca?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'BNB_SMART_LINK': {
+        currencyType: 'token',
+        currencyName: 'ChainLink Binance-Peg',
+        currencyCode: 'BNB_SMART_LINK',
+        currencySymbol: 'LINK',
+        ratesCurrencyCode: 'LINK',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0xf8a0bf9cf54bb92f17374d9e9a321e6a111a51bd',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0xf8a0bf9cf54bb92f17374d9e9a321e6a111a51bd?a='
+    },
+
+    'ETH_SUSHI': {
+        currencyType: 'token',
+        currencyName: 'Sushi Token',
+        currencyCode: 'ETH_SUSHI',
+        currencySymbol: 'SUSHI',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'SUSHI',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2',
+        currencyExplorerLink: 'https://etherscan.io/token/0x6b3595068778dd592e39a122f4f5a5cf09c90fe2?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_HUOBI': {
+        currencyType: 'token',
+        currencyName: 'Huobi Token',
+        currencyCode: 'ETH_HUOBI',
+        currencySymbol: 'HT',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'HT',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x6f259637dcd74c767781e37bc6133cd6a68aa161',
+        currencyExplorerLink: 'https://etherscan.io/token/0x6f259637dcd74c767781e37bc6133cd6a68aa161?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
 
 
+
+    'ETH_UNI': {
+        currencyType: 'token',
+        currencyName: 'Uniswap Token ERC20',
+        currencyCode: 'ETH_UNI',
+        currencySymbol: 'UNI',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'UNI',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
+        currencyExplorerLink: 'https://etherscan.io/token/0x1f9840a85d5af5bf1d1762f925bdaddc4201f984?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'BNB_SMART_UNI': {
+        currencyType: 'token',
+        currencyName: 'Uniswap Binance-Peg',
+        currencyCode: 'BNB_SMART_UNI',
+        currencySymbol: 'UNI',
+        ratesCurrencyCode: 'UNI',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0xbf5140a22578168fd562dccf235e5d43a02ce9b1',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0xbf5140a22578168fd562dccf235e5d43a02ce9b1?a='
+    },
+
+    'ETH_ENJ': {
+        currencyType: 'token',
+        currencyName: 'EnjinCoin',
+        currencyCode: 'ETH_ENJ',
+        currencySymbol: 'ENJ',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'ENJ',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0xf629cbd94d3791c9250152bd8dfbdf380e2a3b9c',
+        currencyExplorerLink: 'https://etherscan.io/token/0xf629cbd94d3791c9250152bd8dfbdf380e2a3b9c?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_AAVE': {
+        currencyType: 'token',
+        currencyName: 'Aave Token',
+        currencyCode: 'ETH_AAVE',
+        currencySymbol: 'AAVE',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'AAVE',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
+        currencyExplorerLink: 'https://etherscan.io/token/0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_GRT': {
+        currencyType: 'token',
+        currencyName: 'Graph Token',
+        currencyCode: 'ETH_GRT',
+        currencySymbol: 'GRT',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'GRT',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0xc944e90c64b2c07662a292be6244bdf05cda44a7',
+        currencyExplorerLink: 'https://etherscan.io/token/0xc944e90c64b2c07662a292be6244bdf05cda44a7?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+
+
+    'ETH_CRV': {
+        currencyType: 'token',
+        currencyName: 'Curve DAO Token',
+        currencyCode: 'ETH_CRV',
+        currencySymbol: 'CRV',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'CRV',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0xd533a949740bb3306d119cc777fa900ba034cd52',
+        currencyExplorerLink: 'https://etherscan.io/token/0xd533a949740bb3306d119cc777fa900ba034cd52?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_MATIC': {
+        currencyType: 'token',
+        currencyName: 'Polygon',
+        currencyCode: 'ETH_MATIC',
+        currencySymbol: 'MATIC',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'MATIC',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0',
+        currencyExplorerLink: 'https://etherscan.io/token/0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_OMG': {
+        currencyType: 'token',
+        currencyName: 'OMG Network',
+        currencyCode: 'ETH_OMG',
+        currencySymbol: 'OMG',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'OMG',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0xd26114cd6ee289accf82350c8d8487fedb8a0c07',
+        currencyExplorerLink: 'https://etherscan.io/token/0xd26114cd6ee289accf82350c8d8487fedb8a0c07?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_CHZ': {
+        currencyType: 'token',
+        currencyName: 'Chiliz',
+        currencyCode: 'ETH_CHZ',
+        currencySymbol: 'CHZ',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'CHZ',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x3506424f91fd33084466f402d5d97f05f8e3b4af',
+        currencyExplorerLink: 'https://etherscan.io/tokEN/0X3506424F91FD33084466F402D5D97F05F8E3B4AF?A=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_BAT': {
+        currencyType: 'token',
+        currencyName: 'Basic Attention Token',
+        currencyCode: 'ETH_BAT',
+        currencySymbol: 'BAT',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'BAT',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x0d8775f648430679a709e98d2b0cb6250d2887ef',
+        currencyExplorerLink: 'https://etherscan.io/token/0x0d8775f648430679a709e98d2b0cb6250d2887ef?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'BNB_SMART_BAT': {
+        currencyType: 'token',
+        currencyName: 'Basic Attention Token Binance-Peg',
+        currencyCode: 'BNB_SMART_BAT',
+        currencySymbol: 'BAT',
+        ratesCurrencyCode: 'BAT',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0x101d82428437127bf1608f699cd651e6abf9766e',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0x101d82428437127bf1608f699cd651e6abf9766e?a='
+    },
+
+    'ETH_YFI': {
+        currencyType: 'token',
+        currencyName: 'yearn.finance',
+        currencyCode: 'ETH_YFI',
+        currencySymbol: 'YFI',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'YFI',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e',
+        currencyExplorerLink: 'https://etherscan.io/token/0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_ZRX': {
+        currencyType: 'token',
+        currencyName: '0x',
+        currencyCode: 'ETH_ZRX',
+        currencySymbol: 'ZRX',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'ZRX',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0xe41d2489571d322189246dafa5ebde1f4699f498',
+        currencyExplorerLink: 'https://etherscan.io/token/0xe41d2489571d322189246dafa5ebde1f4699f498?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_SNX': {
+        currencyType: 'token',
+        currencyName: 'Synthetix',
+        currencyCode: 'ETH_SNX',
+        currencySymbol: 'SNX',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'SNX',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f',
+        currencyExplorerLink: 'https://etherscan.io/token/0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_RSR': {
+        currencyType: 'token',
+        currencyName: 'Reserve Rights',
+        currencyCode: 'ETH_RSR',
+        currencySymbol: 'RSR',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'RSR',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x8762db106b2c2a0bccb3a80d1ed41273552616e8',
+        currencyExplorerLink: 'https://etherscan.io/token/0x8762db106b2c2a0bccb3a80d1ed41273552616e8?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_SXP': {
+        currencyType: 'token',
+        currencyName: 'Swipe',
+        currencyCode: 'ETH_SXP',
+        currencySymbol: 'SXP',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'SXP',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x8ce9137d39326ad0cd6491fb5cc0cba0e089b6a9',
+        currencyExplorerLink: 'https://etherscan.io/token/0x8ce9137d39326ad0cd6491fb5cc0cba0e089b6a9?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'BNB_SMART_SXP': {
+        currencyType: 'token',
+        currencyName: 'Swipe Token Binance-Peg',
+        currencyCode: 'BNB_SMART_SXP',
+        currencySymbol: 'SXP',
+        ratesCurrencyCode: 'SXP',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0x47bead2563dcbf3bf2c9407fea4dc236faba485a',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0x47bead2563dcbf3bf2c9407fea4dc236faba485a?a='
+    },
+
+    'ETH_CRO': {
+        currencyType: 'token',
+        currencyName: 'Crypto.com Coin',
+        currencyCode: 'ETH_CRO',
+        currencySymbol: 'CRO',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'CRO',
+        decimals: 8,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b',
+        currencyExplorerLink: 'https://etherscan.io/token/0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_BADGER': {
+        currencyType: 'token',
+        currencyName: 'Badger DAO',
+        currencyCode: 'ETH_BADGER',
+        currencySymbol: 'BADGER',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'BADGER',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x3472a5a71965499acd81997a54bba8d852c6e53d',
+        currencyExplorerLink: 'https://etherscan.io/token/0x3472a5a71965499acd81997a54bba8d852c6e53d?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'ETH_BTC': {
+        currencyType: 'token',
+        currencyName: 'Wrapped BTC ERC20',
+        currencyCode: 'ETH_BTC',
+        currencySymbol: 'BTC',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'BTC',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+        currencyExplorerLink: 'https://etherscan.io/token/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+
+    'ETH_ALPHA': {
+        currencyType: 'token',
+        currencyName: 'Alpha Finance Lab',
+        currencyCode: 'ETH_ALPHA',
+        currencySymbol: 'ALPHA',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: 'ALPHA',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0xa1faa113cbe53436df28ff0aee54275c13b40975',
+        currencyExplorerLink: 'https://etherscan.io/token/0xa1faa113cbe53436df28ff0aee54275c13b40975?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
+
+    'BNB_SMART_ALPHA': {
+        currencyType: 'token',
+        currencyName: 'Alpha Finance Binance-Peg',
+        currencyCode: 'BNB_SMART_ALPHA',
+        currencySymbol: 'ALPHA',
+        ratesCurrencyCode: 'ALPHA',
+        extendsProcessor: 'BNB_SMART_CAKE',
+        addressUiChecker: 'ETH',
+        tokenAddress: '0xa1faa113cbe53436df28ff0aee54275c13b40975',
+        tokenBlockchain: 'BNB',
+        currencyExplorerLink: 'https://bscscan.com/token/0xa1faa113cbe53436df28ff0aee54275c13b40975?a='
+    },
+
+    'ETH_1INCH': {
+        currencyType: 'token',
+        currencyName: '1inch',
+        currencyCode: 'ETH_1INCH',
+        currencySymbol: '1INCH',
+        extendsProcessor: 'ETH_TRUE_USD',
+        addressUiChecker: 'ETH',
+        ratesCurrencyCode: '1INCH',
+        decimals: 18,
+        tokenBlockchain: 'ETHEREUM',
+        tokenAddress: '0x111111111117dc0aa78b770fa6a738034120c302',
+        currencyExplorerLink: 'https://etherscan.io/token/0x111111111117dc0aa78b770fa6a738034120c302?a=',
+        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+    },
 }
 
 const CurrenciesForTests = {
