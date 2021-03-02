@@ -46,9 +46,9 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
     }
 
     async getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
-                     feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
-                     additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
-                     subtitle: string = 'default')
+                           feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
+                           additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
+                           subtitle: string = 'default')
         : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx> {
         let res = await super._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle + ' usdted')
         let inputIsFound = false
@@ -203,7 +203,10 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
             }
         }
         if (result.length === 1) {
-            const amount = result[0].amount
+            let amount = result[0].amount.toString()
+            if (amount === '0' || BlocksoftUtils.diff(amount, this.DUST_FIRST_TRY.toString()).toString().indexOf('-') !== -1) {
+                amount = this.DUST_FIRST_TRY.toString()
+            }
             result = []
             result.push({
                 isUsdt: true,
@@ -214,7 +217,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
             })
             result.push({
                 isUsdt: true,
-                amount: amount,
+                amount,
                 to: addressTo,
                 logType: 'FOR_USDT_AMOUNT1'
             })
