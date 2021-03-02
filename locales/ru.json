@@ -1068,7 +1068,9 @@
     "wallet": "Кошелек",
     "exchange": "Обмен",
     "earn": "Заработать",
-    "settings": "Больше"
+    "settings": "Больше",
+    "support": "Поддержка",
+    "market": "Market"
   },
   "modal": {
     "titles": {

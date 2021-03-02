@@ -1066,7 +1066,9 @@
     "wallet": "Wallet",
     "exchange": "Exchange",
     "earn": "Earn",
-    "settings": "More"
+    "settings": "More",
+    "support": "Support",
+    "market": "Market"
   },
   "modal": {
     "titles": {

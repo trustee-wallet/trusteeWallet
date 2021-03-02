@@ -27,6 +27,9 @@ import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 import AsyncStorage from '@react-native-community/async-storage'
 import settingsStoreReducer from '../../../appstores/Stores/Settings/SettingsStore'
+import config from '../../../config/config'
+
+import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
 
 
 class BottomNavigation extends Component {
@@ -101,6 +104,26 @@ class BottomNavigation extends Component {
         }
     }
 
+    handleMainMarket = async () => {
+        try {
+            await Netinfo.isInternetReachable()
+
+            NavStore.goNext('MarketScreen')
+
+        } catch (e) {
+            if (Log.isNetworkError(e.message)) {
+                Log.log('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)
+            } else {
+                Log.err('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)
+            }
+        }
+    }
+
+    handleSupport = async () => {
+        const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
+        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
+    }
+
     handleCashback = () => {
         NavStore.goNext('CashbackScreen')
     }
@@ -138,27 +161,47 @@ class BottomNavigation extends Component {
                 </View>
                 <View style={[styles.contentWrapper, { backgroundColor: colors.homeScreen.tabBarBackground }]}>
                     <View style={styles.itemStub} />
+                    {config.exchange.mode === 'DEV' ? 
+                        <>
+                            <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleMainMarket}>
+                                <CustomIcon name="buy" style={{ color: colors.common.text1 }} size={21} />
+                                <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.market')}</Text>
+                            </TouchableOpacity>
 
-                    <View style={{ alignItems: 'center', flex: 4 }}>
-                        <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={150}
-                            MainComponent={this.returnBuyTooltip} />
-                    </View>
-                    {/* </TouchableOpacity> */}
+                            <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleCashback}>
+                                <CustomIcon name="earn" style={{ color: colors.common.text1 }} size={20} />
+                                <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.earn')}</Text>
+                            </TouchableOpacity>
 
-                    <View style={{ alignItems: 'center', flex: 4 }}>
-                        <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={150} MainComponent={this.renderExchangeTooltip} />
-                    </View>
-                    {/* </TouchableOpacity> */}
+                            <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleSupport}>
+                                <CustomIcon name="support" style={{ color: colors.common.text1 }} size={20} />
+                                <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.support')}</Text>
+                            </TouchableOpacity>
 
-                    <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={() => this.handleMainBtn('SELL')}>
-                        <CustomIcon name="sell" style={{ color: colors.common.text1 }} size={21} />
-                        <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.sell')}</Text>
-                    </TouchableOpacity>
+                        </> :
+                        <>
+                            <View style={{ alignItems: 'center', flex: 4 }}>
+                                <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={150}
+                                    MainComponent={this.returnBuyTooltip} />
+                            </View>
+                            {/* </TouchableOpacity> */}
 
-                    <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={this.handleCashback}>
-                        <CustomIcon name="earn" style={{ color: colors.common.text1 }} size={20} />
-                        <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.earn')}</Text>
-                    </TouchableOpacity>
+                            <View style={{ alignItems: 'center', flex: 4 }}>
+                                <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={150} MainComponent={this.renderExchangeTooltip} />
+                            </View>
+                            {/* </TouchableOpacity> */}
+
+                            <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={() => this.handleMainBtn('SELL')}>
+                                <CustomIcon name="sell" style={{ color: colors.common.text1 }} size={21} />
+                                <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.sell')}</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={this.handleCashback}>
+                                <CustomIcon name="earn" style={{ color: colors.common.text1 }} size={20} />
+                                <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.earn')}</Text>
+                            </TouchableOpacity>
+                        </>
+                    }
 
                     <View style={styles.itemStub} />
                 </View>
