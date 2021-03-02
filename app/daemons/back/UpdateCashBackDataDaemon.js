@@ -34,9 +34,9 @@ class UpdateCashBackDataDaemon {
         let data = false
         try {
             data = await ApiProxy.getAll({...params, source: 'UpdateCashBackDataDaemon.updateCashBackData'})
-            if (typeof data.cbData !== 'undefined') {
+            if (typeof data.cbData !== 'undefined' && typeof data.cbData.data !== 'undefined') {
                 data = data.cbData.data
-                if (typeof data.cashbackToken !== 'undefined') {
+                if (typeof data !== 'undefined' && typeof data.cashbackToken !== 'undefined') {
                     MarketingEvent.DATA.LOG_CASHBACK = data.cashbackToken
                 }
             }

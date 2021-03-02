@@ -196,7 +196,7 @@ export default {
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
 
         entryURL = type === 'MARKET' ? exchangeMode === 'DEV' ? apiEndpoints.entryMarketURLTest : apiEndpoints.entryMarketURL : entryURL
-    
+
 
         let entryPoint
         if (type === 'EXCHANGE') {
@@ -244,7 +244,7 @@ export default {
             })
         }
 
-        let msg = ''
+        let msg = new Date().getTime() + ''
         let date = new Date()
         if (true || CACHE_SERVER_TIME_NEED_TO_ASK) { // lets check if the error
             try {
@@ -282,14 +282,14 @@ export default {
                 + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
 
             await Log.log('ApiV3.initData start json link ' + link)
-            const text = JSON.stringify(data)
-            await Log.log('ApiV3.initData start encryption')
-            const encrypted = await PubEncrypt.encryptWithPublicKey(V3_PUB, text)
-            await Log.log('ApiV3.initData end encryption')
-            encrypted.key = currentToken // for firebase key read rule
+            //const text = JSON.stringify(data)
+            //await Log.log('ApiV3.initData start encryption')
+            //const encrypted = await PubEncrypt.encryptWithPublicKey(V3_PUB, text)
+            //await Log.log('ApiV3.initData end encryption')
+            //encrypted.key = currentToken // for firebase key read rule
 
             await Log.log('ApiV3.initData start save to firebase')
-            await database().ref(keyTitle).set(encrypted)
+            await database().ref(keyTitle).set(data)
             await Log.log('ApiV3.initData end save to firebase link ' + link)
             return link
         } catch (e) {
