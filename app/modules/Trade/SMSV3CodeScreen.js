@@ -128,6 +128,8 @@ class SMSV3CodeScreen extends Component {
     }
 
     closeAction = () => {
+        Log.log('Trade.SMSV3CodeScreen.closeAction user click')
+
         if (this.state.additionalData.close) {
             this.setExchangeStatus(this.state.api, this.state.orderHash, 'CLOSE')
         }
@@ -135,6 +137,8 @@ class SMSV3CodeScreen extends Component {
     }
 
     backAction = () => {
+        Log.log('Trade.SMSV3CodeScreen.backAction user click')
+
         if (this.state.additionalData.close) {
             this.setExchangeStatus(this.state.api, this.state.orderHash, 'BACK')
         }

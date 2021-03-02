@@ -1058,7 +1058,9 @@
     "wallet": "საფულე",
     "exchange": "გაცვლა",
     "earn": "გამომუშავება",
-    "settings": "მეტი"
+    "settings": "მეტი",
+    "support": "მხარდაჭერა",
+    "market": "Market"
   },
   "modal": {
     "titles": {

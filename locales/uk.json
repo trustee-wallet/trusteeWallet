@@ -1069,7 +1069,9 @@
     "wallet": "Гаманець",
     "exchange": "Обмін",
     "earn": "Заробити",
-    "settings": "Більше"
+    "settings": "Більше",
+    "support": "Підтримка",
+    "market": "Market"
   },
   "modal": {
     "titles": {
