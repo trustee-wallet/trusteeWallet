@@ -1052,7 +1052,7 @@ class SendScreen extends SendBasicScreenScreen {
             }
         )
 
-        const amountPrep = BlocksoftPrettyNumbers.makeCut(amountPretty).cutted
+        const amountPrep = BlocksoftPrettyNumbers.makeCut(amountPretty).separated
 
         const { colors } = this.context
 
