@@ -99,6 +99,7 @@ class UpdateAccountListDaemon extends Update {
                     tmpWalletHashes.push(tmpCurrency.walletHash)
                 }
                 if (tmpCurrency.currencyCode === 'BTC' && typeof walletPub[tmpCurrency.walletHash] !== 'undefined') {
+
                     if (typeof reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode] !== 'undefined') {
                         if (reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].address.substr(0, 1) === '3') {
                             reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].address = tmpCurrency.address
@@ -115,6 +116,7 @@ class UpdateAccountListDaemon extends Update {
                     let tmpBalance = new BlocksoftBN(0)
                     let tmpUnconfirmed = new BlocksoftBN(0)
                     let tmpBalanceLog = ''
+                    let tmpBalanceScanError = ''
                     const keys = ['btc.44', 'btc.49', 'btc.84']
                     let key
                     for (key of keys) {
@@ -143,6 +145,9 @@ class UpdateAccountListDaemon extends Update {
                         if (pub[key].balance) {
                             tmpBalance.add(pub[key].balance)
                             tmpBalanceLog += ' ' + pub[key].balance + '(' + key + ')'
+                        }
+                        if (pub[key].balanceScanError && pub[key].balanceScanError !== '' && pub[key].balanceScanError !== 'null') {
+                            tmpBalanceScanError = pub[key].balanceScanError
                         }
 
                         if (pub[key].unconfirmed) {
@@ -190,6 +195,7 @@ class UpdateAccountListDaemon extends Update {
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmedFix = ''
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceAddingLog = tmpBalanceLog
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceScanTime = tmpBalanceScanTime
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceScanError = tmpBalanceScanError
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].transactionsScanTime = tmpTransactionsScanTime
 
                 } else {

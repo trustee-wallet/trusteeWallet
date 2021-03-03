@@ -39,7 +39,7 @@ class BlocksoftBN {
 
     add(val) {
         // console.log('BlocksoftBN add ', JSON.stringify(val))
-        if (typeof val === 'undefined' || !val || val.toString() === '0') {
+        if (typeof val === 'undefined' || !val || val.toString() === '0' || val === 'null' || val === 'false') {
             return this
         }
         let val2
