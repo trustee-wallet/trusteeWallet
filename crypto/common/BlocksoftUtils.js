@@ -306,6 +306,11 @@ class BlocksoftUtils {
         return Web3.utils.hexToUtf8(hex)
     }
 
+    static utfToHex(str) {
+        return Web3.utils.utf8ToHex(str)
+    }
+
+
     static hexToDecimal(hex) {
         if (hex.toString().indexOf('0x') === 0) {
             return Web3.utils.hexToNumber(hex)

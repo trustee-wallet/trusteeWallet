@@ -15,6 +15,7 @@ import BlocksoftKeysForRef from '../../../../crypto/actions/BlocksoftKeysForRef/
 import CashBackActions from './CashBackActions'
 import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 import BlocksoftKeysStorage from '../../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import ApiProxy from '../../../services/Api/ApiProxy'
 
 const NativeLinking = require('../../../../node_modules/react-native/Libraries/Linking/NativeLinking').default
 const CACHE_PARENT_TITLE = 'parentTokenRechecked'
@@ -211,7 +212,10 @@ class CashBackUtils {
             let tmp = true
             if (actualSign) {
                 if (!msg) {
-                    msg = new Date().getTime()
+                    msg = await ApiProxy.getServerTimestampIfNeeded()
+                    if (!msg) {
+                        msg = new Date().getTime()
+                    }
                 }
                 tmp = await BlocksoftKeysForRef.signDataForApi(msg + '', privateKey)
                 tmp.signedAddress = address

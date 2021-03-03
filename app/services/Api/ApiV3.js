@@ -24,6 +24,8 @@ import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 import BlocksoftBalances from '../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import BlocksoftCryptoUtils from '../../../crypto/common/BlocksoftCryptoUtils'
+import ApiProxy from './ApiProxy'
 
 const V3_ENTRY_POINT_EXCHANGE = '/mobile-exchanger'
 const V3_ENTRY_POINT_SELL = '/mobile-sell'
@@ -36,7 +38,7 @@ const V3_PUB = '818ef87763ee0f9eaee49ff1f27d4b87e76dc1a8309187b82de52687783d8327
 const V3_KEY_PREFIX = 'TrusteeExchange'
 
 
-let CACHE_SERVER_TIME_NEED_TO_ASK = false
+let CACHE_SERVER_TIME_NEED_TO_ASK = true
 
 export default {
 
@@ -141,14 +143,14 @@ export default {
                 currencyCode,
                 address: account.address,
                 isHidden: currencies[currencyCode].isHidden,
-                balance : account.balancePretty,
+                balance: account.balancePretty,
                 unconfirmed: account.unconfirmedPretty,
                 raw: account.balanceRaw,
-                currencyRateUsd : currencies[currencyCode].currencyRateUsd,
+                currencyRateUsd: currencies[currencyCode].currencyRateUsd,
                 basicCurrencyCode: account.basicCurrencyCode,
                 basicCurrencyRate: account.basicCurrencyRate,
-                basicCurrencyBalance : account.basicCurrencyBalance,
-                basicCurrencyUnconfirmed : account.basicCurrencyUnconfirmed
+                basicCurrencyBalance: account.basicCurrencyBalance,
+                basicCurrencyUnconfirmed: account.basicCurrencyUnconfirmed
             }
             if (currencyCode.indexOf('CUSTOM_') !== -1) {
                 const currencySettings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
@@ -241,31 +243,19 @@ export default {
             })
         }
 
-        let msg = new Date().getTime() + ''
-        let date = new Date()
-        if (true || CACHE_SERVER_TIME_NEED_TO_ASK) { // lets check if the error
-            try {
-                await Log.log('ApiV3.initData will ask time from server ' + (CACHE_SERVER_TIME_NEED_TO_ASK ? ' need ask ' : ' no ask but we forced'))
-
-                const now = await BlocksoftAxios.get(`${baseUrl}/data/server-time`)
-                if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
-                    msg = now.data.serverTime
-                    date = new Date(msg)
-                    const oldNow = +new Date()
-                    await Log.log('ApiV3.initData msg from server ' + msg + ' - old ' + oldNow + ' = ' + Math.abs(msg * 1 - oldNow * 1))
-                } else {
-                    await Log.log('ApiV3.initData msg from server - no time ', now.data)
-                }
-            } catch (e) {
-                // do nothing
-            }
+        let msg = await ApiProxy.getServerTimestampIfNeeded()
+        if (!msg) {
+            msg = new Date().getTime() + ''
         }
 
-        const sign = await CashBackUtils.createWalletSignature(true, msg)
+        const dataHexed = BlocksoftUtils.utfToHex(JSON.stringify({ cards: data.cards, wallets: data.wallets }))
+        const hash = BlocksoftCryptoUtils.sha256(dataHexed)
+
+        const sign = await CashBackUtils.createWalletSignature(true, msg + '_' + hash)
         data.sign = sign
 
         const currentToken = CashBackUtils.getWalletToken()
-        date = date.toISOString().split('T')
+        const date = new Date().toISOString().split('T')
         const keyTitle = V3_KEY_PREFIX + '/' + date[0] + '/' + currentToken
         try {
             const link = entryURL + entryPoint
@@ -420,19 +410,8 @@ export default {
             // do nothing
         }
 
-        if (res && typeof res.data !== 'undefined') {
-            if (typeof res.data.serverTime !== 'undefined') {
-                const diff = Math.abs(now - res.data.serverTime)
-                if (diff > 6000) {
-                    await Log.daemon('ApiV3 getExchangeOrders will ask server time diff ' + diff + ' with time ' + res.data.serverTime)
-                    CACHE_SERVER_TIME_NEED_TO_ASK = true
-                } else {
-                    CACHE_SERVER_TIME_NEED_TO_ASK = false
-                }
-            }
-            if (typeof res.data.orders !== 'undefined') {
-                return res.data.orders
-            }
+        if (res && typeof res.data !== 'undefined' && typeof res.data.orders !== 'undefined') {
+            return res.data.orders
         }
         return res
     }
