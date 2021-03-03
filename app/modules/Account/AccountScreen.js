@@ -64,6 +64,7 @@ import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAcco
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import AppLockBlur from "../../components/AppLockBlur";
 
+import { diffTimeScan } from './helpers'
 
 let CACHE_ASKED = false
 
@@ -259,17 +260,6 @@ class Account extends Component {
         })
     }
 
-    diffTimeScan = (timeScan) => {
-        const lastScan = new Date(timeScan).getTime()
-        const timeNow = new Date().getTime()
-
-        let diffTime = (timeNow - lastScan) / 1000
-
-        diffTime /= 60
-
-        return Math.abs(Math.round(diffTime));
-    }
-
     renderSynchronized = (cryptoCurrency, account, allTransactionsToView) => {
 
         // const { cryptoCurrency, account, allTransactionsToView } = props
@@ -284,17 +274,17 @@ class Account extends Component {
         const { colors, GRID_SIZE, isLight } = this.context
 
 
-        const diffTimeScan = this.diffTimeScan(this.props.account.balanceScanTime * 1000)
+        const diff = diffTimeScan(this.props.account.balanceScanTime)
         let diffTimeText = ''
-        if (diffTimeScan > 60) {
+        if (diff > 60) {
            diffTimeText =  strings('account.soLong')
         } else {
-            if (diffTimeScan < 1) {
+            if (diff < 1) {
                 diffTimeText = strings('account.justScan')
             } else {
-                diffTimeText = strings('account.scan', { time: diffTimeScan })
+                diffTimeText = strings('account.scan', { time: diff })
             }
-            if (this.props.account.balanceScanError && this.props.account.balanceScanError !== '') {
+            if (this.props.account.balanceScanError && this.props.account.balanceScanError !== '' && this.props.account.balanceScanError!=='null') {
                 diffTimeText += '\n' + strings(this.props.account.balanceScanError)
             }
         }

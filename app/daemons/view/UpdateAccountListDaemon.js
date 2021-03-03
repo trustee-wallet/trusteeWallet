@@ -104,6 +104,7 @@ class UpdateAccountListDaemon extends Update {
                             reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].address = tmpCurrency.address
                             reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].derivationPath = tmpCurrency.derivationPath
                         }
+                        reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].walletPubs = walletPub[tmpCurrency.walletHash]
                         continue
                     }
                     const pub = walletPub[tmpCurrency.walletHash]

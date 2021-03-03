@@ -41,7 +41,7 @@ class HeaderBlocks extends Component {
         }
     }
 
-    handleOpenLink = async (address) => {
+    handleOpenLink = async (address, forceLink = false) => {
         const now = new Date().getTime()
         const diff = now - this.props.cacheAsked * 1
         if (!this.props.cacheAsked || diff > 10000) {
@@ -53,10 +53,10 @@ class HeaderBlocks extends Component {
             }, () => {
                 AsyncStorage.setItem('asked', now + '')
                 this.props.cacheAsked = now
-                this.actualOpen(address)
+                this.actualOpen(address, forceLink)
             })
         } else {
-            this.actualOpen(address)
+            this.actualOpen(address, forceLink)
         }
     }
 
@@ -79,9 +79,11 @@ class HeaderBlocks extends Component {
         })
     }
 
-    actualOpen = (address) => {
-        const { currencyExplorerLink } = this.props.cryptoCurrency
-
+    actualOpen = (address, forceLink = false) => {
+        let { currencyExplorerLink } = this.props.cryptoCurrency
+        if (forceLink) {
+            currencyExplorerLink = forceLink
+        }
         Linking.canOpenURL(`${currencyExplorerLink}${address}`).then(supported => {
             if (supported) {
                 let linkUrl = `${currencyExplorerLink}${address}`
@@ -219,9 +221,19 @@ class HeaderBlocks extends Component {
         const { mainStore, account, cryptoCurrency, settingsStore } = this.props
         const address = account.address
 
-        const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
+        let shownAddress = address
+        let forceLink = false
+        if (cryptoCurrency.currencyCode === 'BTC') {
+            let isSegwit = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit'
+            if (typeof account.walletPubs === 'undefined' || !account.walletPubs) {
+                shownAddress = isSegwit ? account.segwitAddress : account.legacyAddress
+            } else {
+                isSegwit = isSegwit ? 'btc.84' : 'btc.44'
+                shownAddress = account.walletPubs[isSegwit].walletPubValue
+                forceLink = 'https://blockchair.com/bitcoin/xpub/'
+            }
+        }
 
-        const shownAddress = cryptoCurrency.currencyCode === 'BTC' ? btcAddress : address
 
         const addressPrep = BlocksoftPrettyStrings.makeCut(shownAddress, 6, 6)
 
@@ -235,7 +247,7 @@ class HeaderBlocks extends Component {
                                 padding: 20,
                                 paddingTop: 0,
                                 alignItems: 'center'
-                            }} onPress={() => this.handleOpenLink(shownAddress)}
+                            }} onPress={() => this.handleOpenLink(shownAddress, forceLink)}
                                 onLongPress={() => this.handleOpenLinkLongPress()}
                                 delayLongPress={5000}>
                                 <View style={{ position: 'relative', width: 50, height: 50 }}>
