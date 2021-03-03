@@ -23,6 +23,7 @@ import axios from 'axios'
 import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
+import BlocksoftBalances from '../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
 
 const V3_ENTRY_POINT_EXCHANGE = '/mobile-exchanger'
 const V3_ENTRY_POINT_SELL = '/mobile-sell'
@@ -173,15 +174,11 @@ export default {
                         type: 'LEGACY'
                     }
                 ]
-            } else if (currencyCode === 'XRP'  || currencyCode === 'XLM') {
-                let balance = account.balancePretty
-                if (currencyCode === 'XRP') {
-                    balance = account.balancePretty * 1 - 20
-                    resultAccount.balance = balance
-                } else if (currencyCode === 'XLM') {
-                    balance = account.balancePretty * 1 - 1
-                    resultAccount.balance = balance
-                }
+            }
+            const hodl = await (BlocksoftBalances.setCurrencyCode(currencyCode)).getBalanceHodl(account)
+            resultAccount.balanceHodl = hodl
+            if (hodl > 0) {
+                resultAccount.balance = account.balancePretty * 1 - hodl
                 resultAccount.basicCurrencyBalance = BlocksoftUtils.mul(resultAccount.balance, resultAccount.basicCurrencyRate)
             }
             accounts.push(resultAccount)

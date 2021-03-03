@@ -59,6 +59,7 @@ import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import Validator from '../../services/UI/Validator/Validator'
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import BlocksoftBalances from '../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -613,10 +614,9 @@ class SendScreen extends SendBasicScreenScreen {
 
             if (!forceSendAmount) {
                 let diff = BlocksoftUtils.diff(amountRaw, balanceRaw)
-                if (cryptoCurrency.currencyCode === 'XRP') {
-                    diff = BlocksoftUtils.add(diff, 20)
-                } else if (cryptoCurrency.currencyCode === 'XLM') {
-                    diff = BlocksoftUtils.add(diff, 1)
+                const hodl = await (BlocksoftBalances.setCurrencyCode(cryptoCurrency.currencyCode)).getBalanceHodl(account)
+                if (hodl > 0) {
+                    diff = BlocksoftUtils.add(diff, hodl)
                 }
                 if (diff > 0) {
                     // Log.log('Send.SendScreen.handleSendTransaction ' + cryptoCurrency.currencyCode + ' not ok diff ' + diff, {amountRaw,balanceRaw})

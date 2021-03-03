@@ -95,6 +95,20 @@ class BlocksoftBalances {
         BlocksoftCryptoLog.log('BlocksoftBalances.getBalance ' + this._data.currencyCode + ' ' + this._data.address + ' ended ' + JSON.stringify(res))
         return res
     }
+
+    async getBalanceHodl(account) {
+        const currencyCode = this._data.currencyCode
+        if (!currencyCode) {
+            throw new Error('plz set currencyCode before calling')
+        }
+        let hodl = 0
+        if (currencyCode === 'XRP') {
+            hodl = 20
+        } else if (currencyCode === 'XLM') {
+            hodl = 1
+        }
+        return hodl
+    }
 }
 
 const singleBlocksoftBalances = new BlocksoftBalances()
