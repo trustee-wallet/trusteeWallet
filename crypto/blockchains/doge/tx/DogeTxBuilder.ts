@@ -65,7 +65,7 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
 
     _getRawTxAddOutput(txb: TransactionBuilder, output: BlocksoftBlockchainTypes.OutputTx): void {
         // @ts-ignore
-        const amount = output.amount * 1
+        const amount = Math.round(output.amount * 1)
         if (amount === 0) {
             // do nothing or txb.addOutput(output.to, 546)
         } else {
