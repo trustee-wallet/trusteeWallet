@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 
 import walletDS from '../Wallet/Wallet'
@@ -17,7 +17,6 @@ class AppNews {
      * @param {string} appNews.newsName
      */
     setRemoved = async (appNews) => {
-        const dbInterface = new DBInterface()
         const now = Math.round(new Date().getTime() / 1000)
         let sql
         if (typeof appNews.id !== 'undefined') {
@@ -25,7 +24,7 @@ class AppNews {
         } else {
             sql = `UPDATE app_news SET news_removed=${now} WHERE news_name='${appNews.newsName}'`
         }
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
     }
 
     /**
@@ -33,9 +32,8 @@ class AppNews {
      * @param {number} appNews.newsNeedPopup
      */
     setNewsNeedPopup = async (appNews) => {
-        const dbInterface = new DBInterface()
         const sql = `UPDATE app_news SET news_need_popup=${appNews.newsNeedPopup} WHERE id=${appNews.id}`
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
     }
 
     /**
@@ -61,18 +59,17 @@ class AppNews {
      * @param {string} appNews.newsServerHash
      */
     saveAppNews = async (appNews) => {
-        const dbInterface = new DBInterface()
         const now = Math.round(new Date().getTime() / 1000)
 
         if (typeof appNews.newsCustomText !== 'undefined' && appNews.newsCustomText) {
-            appNews.newsCustomText = dbInterface.escapeString(appNews.newsCustomText)
+            appNews.newsCustomText = Database.escapeString(appNews.newsCustomText)
         }
         if (typeof appNews.newsCustomTitle !== 'undefined' && appNews.newsCustomTitle) {
-            appNews.newsCustomTitle = dbInterface.escapeString(appNews.newsCustomTitle)
+            appNews.newsCustomTitle = Database.escapeString(appNews.newsCustomTitle)
         }
         if (typeof appNews.newsJson !== 'undefined' && appNews.newsJson) {
             if (typeof appNews.newsJson !== 'string') {
-                appNews.newsJson = dbInterface.escapeString(JSON.stringify(appNews.newsJson))
+                appNews.newsJson = Database.escapeString(JSON.stringify(appNews.newsJson))
             }
         }
         if (typeof appNews.newsNeedPopup !== 'undefined') {
@@ -94,7 +91,7 @@ class AppNews {
             if (typeof appNews.walletHash !== 'undefined') {
                 sql += ` AND wallet_hash='${appNews.walletHash}'`
             }
-            await dbInterface.setQueryString(sql).query()
+            await Database.setQueryString(sql).query()
             delete appNews.onlyOne
         }
         let isUpdate = false
@@ -111,7 +108,7 @@ class AppNews {
                 where += ` AND (wallet_hash IS NULL OR wallet_hash = '')`
             }
             const saved = `SELECT id, news_name, news_server_hash, news_log FROM app_news WHERE ${where}`
-            const tmp = await dbInterface.setQueryString(saved).query()
+            const tmp = await Database.setQueryString(saved).query()
             if (tmp && tmp.array && typeof tmp.array[0] !== 'undefined' && tmp.array[0]) {
                 const found = tmp.array[0]
                 if (typeof appNews.newsServerHash !== 'undefined' && appNews.newsServerHash) {
@@ -134,34 +131,30 @@ class AppNews {
             } else {
                 appNews.newsLog = ' UPDATE / ' + updateLog
             }
-            await dbInterface.setTableName(tableName).setUpdateData( {key: { id: updateId }, updateObj: appNews }).update()
+            await Database.setTableName(tableName).setUpdateData( {key: { id: updateId }, updateObj: appNews }).update()
         } else {
-            await dbInterface.setTableName(tableName).setInsertData({ insertObjs: [appNews] }).insert()
+            await Database.setTableName(tableName).setInsertData({ insertObjs: [appNews] }).insert()
         }
     }
 
     clear = async() => {
-        const dbInterface = new DBInterface()
-        await dbInterface.setQueryString('UPDATE ' + tableName + ' SET news_removed=1 WHERE news_removed IS NULL').query()
+        await Database.setQueryString('UPDATE ' + tableName + ' SET news_removed=1 WHERE news_removed IS NULL').query()
     }
 
     shownPopup = async (id) => {
         if (typeof id === 'undefined' || !id) return
-        const dbInterface = new DBInterface()
-        await dbInterface.setQueryString('UPDATE ' + tableName + ' SET news_shown_popup=1 WHERE id=' + id).query()
+        await Database.setQueryString('UPDATE ' + tableName + ' SET news_shown_popup=1 WHERE id=' + id).query()
     }
 
     markAsOpened = async (id) => {
         if (typeof id === 'undefined' || !id) return
-        const dbInterface = new DBInterface()
         const now = Math.round(new Date().getTime() / 1000)
-        await dbInterface.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE id=' + id).query()
+        await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE id=' + id).query()
     }
 
     markAllAsOpened = async () => {
-        const dbInterface = new DBInterface()
         const now = Math.round(new Date().getTime() / 1000)
-        await dbInterface.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE news_opened_at IS NULL').query()
+        await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE news_opened_at IS NULL').query()
     }
 
     /**
@@ -169,8 +162,6 @@ class AppNews {
      * @param {string} params.limit
      */
     getAppNewsForServer = async (params) => {
-        const dbInterface = new DBInterface()
-
         let where = [
             `app_news.news_server_id IS NOT NULL`,
             `(app_news.news_to_send_status IS NOT NULL AND app_news.news_to_send_status>0)`
@@ -203,7 +194,7 @@ class AppNews {
         `
 
         try {
-            const res = await dbInterface.setQueryString(sql).query()
+            const res = await Database.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('DS/AppNews getAppNewsForServer finished as empty')
                 return []
@@ -217,8 +208,7 @@ class AppNews {
 
     saveAppNewsSentForServer = async (ids) => {
         if (typeof ids === 'undefined' || !ids) return
-        const dbInterface = new DBInterface()
-        await dbInterface.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=0 WHERE id IN (' + ids.join(',') + ')').query()
+        await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=0 WHERE id IN (' + ids.join(',') + ')').query()
     }
 
     /**
@@ -228,8 +218,6 @@ class AppNews {
      * @param {string} params.limit
      */
     getAppNews = async (params) => {
-        const dbInterface = new DBInterface()
-
         const wallets = await walletDS.getWallets()
         const names = {}
         let useNames = false
@@ -304,7 +292,7 @@ class AppNews {
 
         let res = []
         try {
-            res = await dbInterface.setQueryString(sql).query()
+            res = await Database.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('AppNews getAppNews finished as empty')
                 return false
@@ -318,9 +306,9 @@ class AppNews {
                 }
                 if (!res[i].newsJson || res[i].newsJson === 'false') continue
 
-                const string = dbInterface.unEscapeString(res[i].newsJson)
-                res[i].newsCustomText = dbInterface.unEscapeString(res[i].newsCustomText)
-                res[i].newsCustomTitle = dbInterface.unEscapeString(res[i].newsCustomTitle)
+                const string = Database.unEscapeString(res[i].newsJson)
+                res[i].newsCustomText = Database.unEscapeString(res[i].newsCustomText)
+                res[i].newsCustomTitle = Database.unEscapeString(res[i].newsCustomTitle)
                 try {
                     res[i].newsJson = JSON.parse(string)
                 } catch (e) {

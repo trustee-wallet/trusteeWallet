@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 
 const tableName = 'account_balance'
@@ -18,22 +18,20 @@ export default {
      * @return {Promise<void>}
      */
     updateAccountBalance: async (data, account) => {
-
-        const dbInterface = new DBInterface()
         if (data.updateObj.balanceScanLog.length > 1000) {
             data.updateObj.balanceScanLog = data.updateObj.balanceScanLog.substr(0, 1000)
         }
-        data.updateObj.balanceScanLog = dbInterface.escapeString(data.updateObj.balanceScanLog)
-        const {array : find} = await dbInterface.setQueryString(`SELECT account_id FROM ${tableName} WHERE account_id=${account.id}`).query()
+        data.updateObj.balanceScanLog = Database.escapeString(data.updateObj.balanceScanLog)
+        const {array : find} = await Database.setQueryString(`SELECT account_id FROM ${tableName} WHERE account_id=${account.id}`).query()
         if (find.length > 0) {
             data.key = {accountId : account.id}
-            await dbInterface.setTableName(tableName).setUpdateData(data).update()
+            await Database.setTableName(tableName).setUpdateData(data).update()
         } else {
             data.updateObj.accountId = account.id
             data.updateObj.status = 0
             data.updateObj.currencyCode = account.currencyCode
             data.updateObj.walletHash = account.walletHash
-            await dbInterface.setTableName(tableName).setInsertData({insertObjs : [data.updateObj]}).insert()
+            await Database.setTableName(tableName).setInsertData({insertObjs : [data.updateObj]}).insert()
             Log.daemon( 'DS/AccountBalance updateAccountBalance with balanceCreate finished' )
         }
     },
@@ -44,9 +42,6 @@ export default {
      * @return {Promise<void>}
      */
     insertAccountBalance: async (data) => {
-        const dbInterface = new DBInterface()
-
-        await dbInterface.setTableName(tableName).setInsertData(data).insert()
-
+        await Database.setTableName(tableName).setInsertData(data).insert()
     }
 }

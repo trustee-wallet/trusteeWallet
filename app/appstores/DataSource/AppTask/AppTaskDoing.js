@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 
 export default {
@@ -11,10 +11,9 @@ export default {
      * @returns {Promise<void>}
      */
     setStarted : async (appTask) => {
-        const dbInterface = new DBInterface()
         const now = Math.round(new Date().getTime() / 1000)
         const sql = `UPDATE app_task SET task_started=${now} WHERE id = ${appTask.id}`
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
     },
 
     /**
@@ -24,11 +23,10 @@ export default {
      * @returns {Promise<void>}
      */
     setFinished : async (appTask) => {
-        const dbInterface = new DBInterface()
         const now = Math.round(new Date().getTime() / 1000)
-        appTask.taskLog = dbInterface.escapeString(new Date().toISOString() + ' ' + appTask.taskLog.substr(0, 1000))
+        appTask.taskLog = Database.escapeString(new Date().toISOString() + ' ' + appTask.taskLog.substr(0, 1000))
         const sql = `UPDATE app_task SET task_finished=${now}, task_log='${appTask.taskLog}' WHERE id = ${appTask.id}`
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
     },
 
     /**
@@ -39,9 +37,6 @@ export default {
      * @return {Promise<{id, currencyCode, walletHash, taskGroup, taskName, taskJson, taskStatus, taskLog}[]>}
      */
     getTasksForRun: async (params) => {
-
-        const dbInterface = new DBInterface()
-
         Log.daemon('AppTaskDoing getTasksForRun called')
 
         const now = Math.round(new Date().getTime() / 1000) - 60 // 1 minute before
@@ -60,14 +55,14 @@ export default {
             where = ''
         }
 
-        const sql = ` 
-            SELECT 
-            app_task.id, 
-            app_task.currency_code AS currencyCode,  
+        const sql = `
+            SELECT
+            app_task.id,
+            app_task.currency_code AS currencyCode,
             app_task.wallet_hash AS walletHash,
             app_task.task_group AS taskGroup,
             app_task.task_name AS taskName,
-            app_task.task_json AS taskJson,                
+            app_task.task_json AS taskJson,
             app_task.task_status AS taskStatus,
             app_task.task_log AS taskLog
             FROM app_task
@@ -77,7 +72,7 @@ export default {
         `
         let res = []
         try {
-            res = await dbInterface.setQueryString(sql).query()
+            res = await Database.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('AppTaskDoing getTasksForRun finished as empty')
                 return false
@@ -86,7 +81,7 @@ export default {
             for (let i = 0, ic = res.length; i < ic; i++) {
                 if (!res[i].taskJson || res[i].taskJson === 'false') continue
 
-                const string = dbInterface.unEscapeString(res[i].taskJson)
+                const string = Database.unEscapeString(res[i].taskJson)
                 try {
                     Log.daemon('AppTaskDoing getTasksForRun will parse ' + string)
                     res[i].taskJson = JSON.parse(string)

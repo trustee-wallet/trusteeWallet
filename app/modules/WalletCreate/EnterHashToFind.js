@@ -25,7 +25,7 @@ import { strings } from '../../services/i18n'
 
 import Log from '../../services/Log/Log'
 import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWallets'
-import DBInterface from '../../appstores/DataSource/DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import LetterSpacing from '../../components/elements/LetterSpacing'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 import Navigation from '../../components/navigation/Navigation'
@@ -62,13 +62,12 @@ class EnterHashToFind extends Component {
 
             const walletHash = await cryptoWalletsDS.getSelectedWallet()
 
-            const dbInterface = new DBInterface()
             const sql = `SELECT account.wallet_hash AS walletHash, account.currency_code AS currencyCode, account.address, account.derivation_path as derivationPath
             FROM account
             WHERE wallet_hash='${walletHash}'
             ORDER BY account.id
         `
-            const res = await dbInterface.setQueryString(sql).query()
+            const res = await Database.setQueryString(sql).query()
 
             const unique = {}
             const addresses = []

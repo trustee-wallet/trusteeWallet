@@ -1,6 +1,6 @@
 import { NativeModules } from 'react-native'
 
-import DBInterface from '../../app/appstores/DataSource/DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 
 const { RNFastCrypto } = NativeModules
 
@@ -1215,10 +1215,9 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
         return false
     }
     if (currencyCode === 'ETH_LAND') {
-        const dbInterface = new DBInterface()
-        dbInterface.setQueryString(`DELETE FROM account WHERE currency_code='ETH_LAND'`).query()
-        dbInterface.setQueryString(`DELETE FROM account_balance WHERE currency_code='ETH_LAND'`).query()
-        dbInterface.setQueryString(`DELETE FROM currency WHERE currency_code='ETH_LAND'`).query()
+        Database.setQueryString(`DELETE FROM account WHERE currency_code='ETH_LAND'`).query()
+        Database.setQueryString(`DELETE FROM account_balance WHERE currency_code='ETH_LAND'`).query()
+        Database.setQueryString(`DELETE FROM currency WHERE currency_code='ETH_LAND'`).query()
     }
 
     if (typeof currencyCodeOrObject.currencyCode !== 'undefined') {
