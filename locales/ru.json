@@ -779,7 +779,7 @@
     "notEnoughForFeeConfirmed": "Для отправки токенов необходимо иметь положительный подтвержденный баланс в нативной монете %{symbol}, подождите подтверждения",
     "publicFioAddressNotFound": "%{symbol} публичный адрес не связан с указанным FIO адресом",
     "domainResolution": {
-      "resolving": "Разрешение %{domain}...",
+      "resolving": "Поиск %{domain}...",
       "success": "%{domain} преобразован в %{address}",
       "fail": "Нет записей для %{domain}"
     },

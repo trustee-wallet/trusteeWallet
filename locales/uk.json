@@ -780,8 +780,8 @@
 
     "publicFioAddressNotFound": "%{symbol} публічна адреса не пов'язана з вказаною FIO адресою",
     "domainResolution": {
-      "resolving": "Вирішення %{domain}...",
-      "success": "%{domain} вирішив %{address}",
+      "resolving": "Пошук %{domain}...",
+      "success": "%{domain} преобразован в %{address}",
       "fail": "Немає записів для %{domain}"
     },
     "setting": {

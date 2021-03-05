@@ -760,7 +760,7 @@
     "title": "Send",
     "description": "Paste the recipient's wallet address or scan the QR-code",
     "descriptionExchange": "The recipient's wallet address is set automatically. This is the address of the exchange provider. Assets exchange and payout will be executed after a successful transaction",
-    "address": "Address or domain",
+    "address": "Destination address",
     "value": "value",
     "comment": "Comment",
     "send": "Next",
