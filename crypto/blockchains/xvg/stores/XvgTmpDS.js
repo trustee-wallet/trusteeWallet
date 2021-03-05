@@ -1,4 +1,5 @@
-import DBInterface from '../../../../app/appstores/DataSource/DB/DBInterface'
+
+import Database from '@app/appstores/DataSource/Database';
 
 const tableName = ' transactions_scanners_tmp'
 
@@ -10,11 +11,10 @@ class XvgTmpDS {
     _currencyCode = 'XVG'
 
     async getCache(address) {
-        const dbInterface = new DBInterface()
-        const res = await dbInterface.setQueryString(`
+        const res = await Database.setQueryString(`
                 SELECT tmp_key, tmp_sub_key, tmp_val
-                FROM ${tableName} 
-                WHERE currency_code='${this._currencyCode}' 
+                FROM ${tableName}
+                WHERE currency_code='${this._currencyCode}'
                 AND address='${address}'
                 AND (tmp_sub_key='coins' OR tmp_sub_key='data')
                 `).query()
@@ -24,7 +24,7 @@ class XvgTmpDS {
             for (row of res.array) {
                 let val = 1
                 if (row.tmp_sub_key !== 'data') {
-                    val = JSON.parse(dbInterface.unEscapeString(row.tmp_val))
+                    val = JSON.parse(Database.unEscapeString(row.tmp_val))
                 }
                 tmp[row.tmp_key + '_' + row.tmp_sub_key] = val
             }
@@ -33,17 +33,16 @@ class XvgTmpDS {
     }
 
     async saveCache(address, key, subKey, value) {
-        const dbInterface = new DBInterface()
         const now = new Date().toISOString()
         const prepared = [{
             currency_code : this._currencyCode,
             address : address,
             tmp_key : key,
             tmp_sub_key : subKey,
-            tmp_val : dbInterface.escapeString(JSON.stringify(value)),
+            tmp_val : Database.escapeString(JSON.stringify(value)),
             created_at : now
         }]
-        await dbInterface.setTableName(tableName).setInsertData({insertObjs : prepared}).insert()
+        await Database.setTableName(tableName).setInsertData({insertObjs : prepared}).insert()
     }
 }
 

@@ -5,7 +5,7 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import EthScannerProcessorErc20 from './EthScannerProcessorErc20'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import BlocksoftUtils from '../../common/BlocksoftUtils'
-import DBInterface from '../../../app/appstores/DataSource/DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 const TXS_PATH = 'https://api.xreserve.fund/delegated-transactions?address='
 
 const CACHE_VALID_TIME = 300000 // 300 sec
@@ -18,14 +18,13 @@ const CACHED = {
 async function replaceTx(old, txid, notReplacing) {
 
     const now = new Date().toISOString()
-    const dbInterface = new DBInterface()
 
     let oldTx = false
     let oldJson = false
     if (typeof notReplacing[old] !== 'undefined') {
         oldTx = notReplacing[old]
         try {
-            oldJson = JSON.parse(dbInterface.unEscapeString(oldTx.transactionJson))
+            oldJson = JSON.parse(Database.unEscapeString(oldTx.transactionJson))
         } catch (e) {
 
         }
@@ -35,7 +34,7 @@ async function replaceTx(old, txid, notReplacing) {
         if (oldTx) {
             // hidden_at need to set!
             BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions checked kuna already replacing in db ' + old + ' actual ' + txid + ' but need to hide old')
-            await dbInterface.setQueryString(`UPDATE transactions SET hidden_at = '${now}' WHERE LOWER(transaction_hash)=LOWER('${old}') AND currency_code='ETH_UAX'`).query()
+            await Database.setQueryString(`UPDATE transactions SET hidden_at = '${now}' WHERE LOWER(transaction_hash)=LOWER('${old}') AND currency_code='ETH_UAX'`).query()
         } else {
             BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions checked kuna already replacing in db ' + old + ' actual ' + txid + ' and old is hidden')
         }
@@ -45,7 +44,7 @@ async function replaceTx(old, txid, notReplacing) {
 
     let newJson = false
     try {
-        newJson = JSON.parse(dbInterface.unEscapeString(notReplacing[txid].transactionJson))
+        newJson = JSON.parse(Database.unEscapeString(notReplacing[txid].transactionJson))
     } catch (e) {
 
     }
@@ -83,21 +82,21 @@ async function replaceTx(old, txid, notReplacing) {
 
     let updateSql
     if (oldTx) {
-        updateSql = `UPDATE transactions 
-                     SET 
-                     transaction_of_trustee_wallet=${oldTx.transactionOfTrusteeWallet}, 
-                     transaction_json='${dbInterface.escapeString(JSON.stringify(newJson))}',
+        updateSql = `UPDATE transactions
+                     SET
+                     transaction_of_trustee_wallet=${oldTx.transactionOfTrusteeWallet},
+                     transaction_json='${Database.escapeString(JSON.stringify(newJson))}',
                      transactions_other_hashes='${old}',
                      created_at ='${oldTx.createdAt}'
                      WHERE LOWER(transaction_hash)=LOWER('${txid}') AND currency_code='ETH_UAX'`
     } else {
-        updateSql = `UPDATE transactions 
-                     SET transactions_other_hashes='${old}' 
+        updateSql = `UPDATE transactions
+                     SET transactions_other_hashes='${old}'
                      WHERE LOWER(transaction_hash)=LOWER('${txid}') AND currency_code='ETH_UAX'`
     }
-    await dbInterface.setQueryString(updateSql).query()
+    await Database.setQueryString(updateSql).query()
     BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions put kuna update in db ' + old + ' actual ' + txid, updateSql)
-    await dbInterface.setQueryString(`UPDATE transactions SET hidden_at = '${now}' WHERE LOWER(transaction_hash)=LOWER('${old}') AND currency_code='ETH_UAX'`).query()
+    await Database.setQueryString(`UPDATE transactions SET hidden_at = '${now}' WHERE LOWER(transaction_hash)=LOWER('${old}') AND currency_code='ETH_UAX'`).query()
     BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions put kuna dropped in db ' + old + ' actual ' + txid)
 
 }
@@ -123,14 +122,12 @@ export default class EthScannerProcessorUAX extends EthScannerProcessorErc20 {
 
         // BlocksoftCryptoLog.log('txs', JSON.parse(JSON.stringify(txs.data)))
 
-        const dbInterface = new DBInterface()
-
         const delegatedByNonces = {}
-        let sql = `SELECT tmp_sub_key, tmp_val FROM transactions_scanners_tmp 
-            WHERE currency_code='ETH_UAX' 
+        let sql = `SELECT tmp_sub_key, tmp_val FROM transactions_scanners_tmp
+            WHERE currency_code='ETH_UAX'
             AND address='${address}'
             AND tmp_key='nonce'`
-        let saved = await dbInterface.setQueryString(sql).query()
+        let saved = await Database.setQueryString(sql).query()
         if (saved && saved.array && saved.array.length > 0) {
             let tmp
             for (tmp of saved.array) {
@@ -139,14 +136,14 @@ export default class EthScannerProcessorUAX extends EthScannerProcessorErc20 {
         }
 
         const notReplacing = {}
-        sql = `SELECT id, transaction_hash AS transactionHash, 
+        sql = `SELECT id, transaction_hash AS transactionHash,
                 transaction_of_trustee_wallet AS transactionOfTrusteeWallet,
                 transaction_json AS transactionJson,
                 created_at AS createdAt
                 FROM transactions WHERE currency_code='ETH_UAX'
                 AND (transactions_other_hashes IS NULL OR transactions_other_hashes = '')
                 AND hidden_at IS NULL`
-        saved = await dbInterface.setQueryString(sql).query()
+        saved = await Database.setQueryString(sql).query()
         if (saved && saved.array && saved.array.length > 0) {
             let tmp
             for (tmp of saved.array) {

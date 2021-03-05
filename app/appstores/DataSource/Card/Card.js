@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 
 const tableName = 'card'
@@ -13,7 +13,6 @@ export default {
      * @returns {Promise<boolean|*>}
      */
     getCards: async (params) => {
-        const dbInterface = new DBInterface()
         let where = []
         if (params) {
             if (typeof params.isPending !== 'undefined' && params.isPending) {
@@ -28,8 +27,8 @@ export default {
         } else {
             where = ''
         }
-        const res = await dbInterface.setQueryString(`
-                SELECT 
+        const res = await Database.setQueryString(`
+                SELECT
                 id,
                 card_name AS cardName,
                 card_holder AS cardHolder,
@@ -52,23 +51,20 @@ export default {
     },
 
     updateCard: async (data) => {
-        const dbInterface = new DBInterface()
         if (typeof data.updateObj.cardVerificationJson !== 'undefined') {
-            data.updateObj.cardVerificationJson = dbInterface.escapeString(data.updateObj.cardVerificationJson)
+            data.updateObj.cardVerificationJson = Database.escapeString(data.updateObj.cardVerificationJson)
         }
-        await dbInterface.setTableName(tableName).setUpdateData(data).update()
+        await Database.setTableName(tableName).setUpdateData(data).update()
         Log.log('DS/Card updateCard finished')
     },
 
     saveCard: async (data) => {
-        const dbInterface = new DBInterface()
-        await dbInterface.setTableName(tableName).setInsertData(data).insert()
+        await Database.setTableName(tableName).setInsertData(data).insert()
         Log.log('DS/Card saveCard finished')
     },
 
     deleteCard: async (cardID) => {
-        const dbInterface = new DBInterface()
-        await dbInterface.setQueryString(`DELETE FROM card WHERE id=${cardID}`).query()
+        await Database.setQueryString(`DELETE FROM card WHERE id=${cardID}`).query()
         Log.log('DS/Card deleteCard finished')
     }
 }

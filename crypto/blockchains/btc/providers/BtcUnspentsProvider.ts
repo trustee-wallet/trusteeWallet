@@ -6,7 +6,7 @@
 import { BlocksoftBlockchainTypes } from '../../BlocksoftBlockchainTypes'
 import DogeUnspentsProvider from '../../doge/providers/DogeUnspentsProvider'
 
-import DBInterface from '../../../../app/appstores/DataSource/DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 
 const CACHE_FOR_CHANGE = {}
@@ -19,14 +19,12 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
         }
         await BlocksoftCryptoLog.log('BtcUnspentsProvider.getCache ' + walletHash + ' started as ' + JSON.stringify(CACHE_FOR_CHANGE[walletHash]))
 
-        const dbInterface = new DBInterface()
-
         const sqlPub = `SELECT wallet_pub_value as walletPub
             FROM wallet_pub
             WHERE wallet_hash = '${walletHash}
             AND currency_code='BTC'
         `
-        const resPub = await dbInterface.setQueryString(sqlPub).query()
+        const resPub = await Database.setQueryString(sqlPub).query()
         if (resPub && resPub.array && resPub.array.length > 0) {
 
             const sql = `SELECT account.address
@@ -36,7 +34,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             AND derivation_type!='main'
             ORDER BY derivation_index ASC
         `
-            const res = await dbInterface.setQueryString(sql).query()
+            const res = await Database.setQueryString(sql).query()
             for (const row of res.array) {
                 const prefix = row.address.substr(0, 1)
                 await BlocksoftCryptoLog.log('BtcUnspentsProvider.getCache started HD CACHE_FOR_CHANGE ' + walletHash)
@@ -66,7 +64,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             WHERE account.wallet_hash = '${walletHash}'
             AND currency_code='BTC'
         `
-            const res = await dbInterface.setQueryString(sql).query()
+            const res = await Database.setQueryString(sql).query()
             for (const row of res.array) {
                 // @ts-ignore
                 await BlocksoftCryptoLog.log('BtcUnspentsProvider.getUnspents started CACHE_FOR_CHANGE ' + walletHash)
@@ -101,14 +99,13 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
     }
 
     async getUnspents(address: string): Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
-        const dbInterface = new DBInterface()
         const sqlPub = `SELECT wallet_pub_value as walletPub
             FROM wallet_pub
             WHERE wallet_hash = (SELECT wallet_hash FROM account WHERE address='${address}')
             AND currency_code='BTC'
         `
         const totalUnspents = []
-        const resPub = await dbInterface.setQueryString(sqlPub).query()
+        const resPub = await Database.setQueryString(sqlPub).query()
         if (resPub && resPub.array && resPub.array.length > 0) {
             for (const row of resPub.array) {
                 const unspents = await super.getUnspents(row.walletPub)
@@ -127,7 +124,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             AND derivation_type!='main'
             ORDER BY derivation_index ASC
         `
-            const res = await dbInterface.setQueryString(sql).query()
+            const res = await Database.setQueryString(sql).query()
             for (const row of res.array) {
                 const walletHash = row.walletHash
                 const prefix = row.address.substr(0, 1)
@@ -158,7 +155,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             WHERE account.wallet_hash = (SELECT wallet_hash FROM account WHERE address='${address}')
             AND currency_code='BTC'
         `
-            const res = await dbInterface.setQueryString(sql).query()
+            const res = await Database.setQueryString(sql).query()
             for (const row of res.array) {
                 const walletHash = row.walletHash
                 const unspents = await super.getUnspents(row.address)
@@ -177,7 +174,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
                 if (unspents) {
                     for (const unspent of unspents) {
                         unspent.address = row.address
-                        unspent.derivationPath = dbInterface.unEscapeString(row.derivationPath)
+                        unspent.derivationPath = Database.unEscapeString(row.derivationPath)
                         totalUnspents.push(unspent)
                     }
                 }

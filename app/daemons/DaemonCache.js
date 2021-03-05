@@ -1,7 +1,7 @@
 /**
  * @version 0.11
  */
-import DBInterface from '../appstores/DataSource/DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 
 import transactionDS from '../appstores/DataSource/Transaction/Transaction'
 
@@ -10,7 +10,7 @@ import BlocksoftFixBalance from '../../crypto/common/BlocksoftFixBalance'
 class DaemonCache {
 
     CACHE_WALLET_COUNT = 0
-    
+
     CACHE_WALLET_SUMS = {}
     CACHE_WALLET_TOTAL = { balance: 0, unconfirmed: 0 }
     CACHE_RATES = {}
@@ -76,9 +76,8 @@ class DaemonCache {
     }
 
     async _getFromDB(walletHash, currencyCode) {
-        const dbInterface = new DBInterface()
         const sql = ` SELECT balance_fix AS balanceFix, balance_txt AS balanceTxt FROM account_balance WHERE currency_code='${currencyCode}' AND wallet_hash='${walletHash}'`
-        const res = await dbInterface.setQueryString(sql).query()
+        const res = await Database.setQueryString(sql).query()
         if (!res || !res.array || res.array.length === 0) {
             return {balance : 0, from : 'noDb'}
         }
