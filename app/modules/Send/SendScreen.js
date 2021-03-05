@@ -11,8 +11,6 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
 import AsyncStorage from '@react-native-community/async-storage'
 
-import Resolution from '@unstoppabledomains/resolution'
-
 import AddressInput from '../../components/elements/NewInput'
 import AmountInput from './elements/Input'
 import MemoInput from '../../components/elements/NewInput'
@@ -89,8 +87,6 @@ const USDT_LIMIT = 600
 class SendScreen extends SendBasicScreenScreen {
 
     _screenName = 'SEND'
-
-    domainResolution
 
     constructor(props) {
         super(props)
@@ -843,40 +839,6 @@ class SendScreen extends SendBasicScreenScreen {
                     contactAddress = toContactAddress
                     addressTo = toContactAddress
                 } else {
-                    if (!this.state.domainResolving) {
-                        if (/^.+\.crypto$/.test(addressTo)) {
-                            if (!this.domainResolution) {
-                                this.domainResolution = new Resolution()
-                            }
-                            this.domainResolution
-                              .addr(addressTo, currencyCode)
-                              .then(address => {
-                                  this.addressInput.setState({value: address})
-                                  this.setState({
-                                      domainResolving: false,
-                                      domainAddress: address,
-                                  })
-                              })
-                              .catch((e) => {
-                                  this.addressInput.setState({focus: true})
-                                  this.setState({
-                                      domainResolving: false,
-                                      domainResolveFailed: true,
-                                  })
-                              })
-                            this.setState({
-                                domainResolving: true,
-                                domainName: addressTo,
-                            })
-                        } else if (this.state.domainName) {
-                            this.setState({
-                                domainResolving: false,
-                                domainName: '',
-                                domainAddress: '',
-                                domainResolveFailed: false,
-                            })
-                        }
-                    }
                     contactName = false
                     contactAddress = false
                     const obj = { type: addressValidateType, value: addressTo, ...this.state.cryptoCurrency }
@@ -1070,44 +1032,6 @@ class SendScreen extends SendBasicScreenScreen {
         }
     }
 
-    renderDomainResolveStatus = () => {
-        const { domainResolving, domainAddress, domainName, domainResolveFailed } = this.state
-        const { colors, GRID_SIZE } = this.context
-
-        if (domainResolving || domainAddress || domainResolveFailed) {
-            let text
-            const params = {
-                domain: domainName,
-                address: domainAddress,
-            }
-            if (domainResolving) {
-                text = strings('send.domainResolution.resolving', params)
-            } else if (domainAddress) {
-                text = strings('send.domainResolution.success', params)
-            } else {
-                text = strings('send.domainResolution.fail', params)
-            }
-            return (
-              <View style={{marginVertical: GRID_SIZE}}>
-                  <View style={style.texts}>
-                      {domainResolveFailed ?
-                          <View style={style.texts__icon}>
-                              <Icon
-                                name='information-outline'
-                                size={22}
-                                color='#864DD9'
-                              />
-                          </View> : null
-                      }
-                      <Text style={{...style.texts__item, color: colors.common.text3}}>
-                          {text}
-                      </Text>
-                  </View>
-              </View>
-            )
-        }
-    }
-
     getBalanceVisibility = () => {
         const originalVisibility = this.props.settingsStore.data.isBalanceVisible
         this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
@@ -1195,7 +1119,7 @@ class SendScreen extends SendBasicScreenScreen {
 
     disabled = () => {
 
-        if (this.state.loadFee || this.state.domainResolving) {
+        if (this.state.loadFee) {
             return true
         }
 
@@ -1440,10 +1364,8 @@ class SendScreen extends SendBasicScreenScreen {
                                     callback={(value) => {
                                         this.amountInputCallback(false, false, value, false, extendedAddressUiChecker.toUpperCase() + '_ADDRESS')
                                     }}
-                                    disabled={this.state.domainResolving}
                                 />
                             </View>
-                            { this.renderDomainResolveStatus() }
                             { this.renderAddressError() }
                             {
                                 currencyCode === 'XRP' ?
