@@ -16,7 +16,6 @@ import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNum
 
 import Log from '../../../services/Log/Log'
 import { strings } from '../../../services/i18n'
-import { SendActions } from '../../../appstores/Stores/Send/SendActions'
 import config from '../../../config/config'
 
 
@@ -95,10 +94,10 @@ class AmountInput extends Component {
 
             Log.log('TRADE/AmountInput.handleSellAll start')
 
-            const { transferBalance } = await SendActions.countTransferAllBeforeStartSend({
+            const { transferBalance } = 0 /*await SendActions.countTransferAllBeforeStartSend({
                 currencyCode,
                 addressTo: tmpAddressForEstimate
-            })
+            })*/
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'amountInput.amount')
 
             Log.log('TRADE/AmountInput.handleSellAll done with amount ' + amount + ' to address ' + tmpAddressForEstimate)

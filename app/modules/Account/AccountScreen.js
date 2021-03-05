@@ -23,7 +23,7 @@ import Transaction from './elements/Transaction'
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus, setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
+
 
 import Log from '../../services/Log/Log'
 import checkTransferHasError from '../../services/UI/CheckTransferHasError/CheckTransferHasError'
@@ -50,7 +50,7 @@ import DaemonCache from '../../daemons/DaemonCache'
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 
-import Header from '../../modules/Send/elements/Header'
+import Header from './elements/Header'
 import HeaderBlocks from './elements/HeaderBlocks'
 import AccountButtons from './elements/accountButtons'
 
@@ -65,6 +65,7 @@ import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import AppLockBlur from "../../components/AppLockBlur";
 
 import { diffTimeScan } from './helpers'
+import { SendStartActions } from '../../appstores/Stores/Send/SendStartActions'
 
 let CACHE_ASKED = false
 
@@ -163,15 +164,7 @@ class Account extends Component {
 
         if (isSynchronized) {
 
-            await SendActions.cleanData()
-            SendActions.setUiType({
-                ui: {
-                    uiType: 'ACCOUNT_SCREEN'
-                }
-            })
-            await SendActions.startSend({
-                currencyCode : account.currencyCode,
-            })
+           await SendStartActions.startFromAccountScreen(cryptoCurrency, account)
 
         } else {
             showModal({

@@ -13,10 +13,10 @@ import Moment from 'moment';
 import { setLoaderStatus, setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
 import Log from '../../services/Log/Log'
 import { connect } from 'react-redux'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
+import { SendStartActions } from '../../appstores/Stores/Send/SendStartActions'
 
 class FioRequestDetails extends Component {
 
@@ -56,24 +56,9 @@ class FioRequestDetails extends Component {
 
     handleConfirm = async () => {
         const { content } = this.state.requestDetailData
-        const currency = this.props.currencyStore.cryptoCurrencies.find(item => item.currencyCode === content?.chain_code)
-
         setLoaderStatus(true)
         try {
-            await SendActions.cleanData()
-            SendActions.setUiType({
-                ui: {
-                    uiType : 'FIO_REQUESTS'
-                },
-                addData: {
-                    gotoReceipt : true,
-                }
-            })
-            await SendActions.startSend({
-                fioRequestDetails : this.state.requestDetailData,
-                currencyCode : currency.currencyCode,
-            })
-
+            await SendStartActions.startFromFioRequest(content?.chain_code, this.state.requestDetailData)
         } catch (e) {
             await Log.err('FioRequestDetails handleConfirm error ' + e.message, content?.chain_code)
         } finally {

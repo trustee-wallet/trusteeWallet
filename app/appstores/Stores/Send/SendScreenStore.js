@@ -1,11 +1,12 @@
 /**
- * @version 30
+ * @version 0.31
  * @author yura
  */
 
 const INITIAL_STATE = {
-    ui: {},
-    addData: {}
+    ui: {
+
+    }
 }
 
 const sendScreenStoreReducer = (state = INITIAL_STATE, action) => {
@@ -16,15 +17,10 @@ const sendScreenStoreReducer = (state = INITIAL_STATE, action) => {
                     ...state.ui,
                     ...action.ui
                 },
-                addData: {
-                    ...state.addData,
-                    ...action.addData
-                }
             }
         case 'CLEAN_DATA':
             return {
-                ui: {},
-                addData: {}
+                ui: {}
             }
         default:
             return state

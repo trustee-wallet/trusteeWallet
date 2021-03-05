@@ -26,7 +26,6 @@ import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 import TmpConstants from './elements/TmpConstants'
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import Log from '../../services/Log/Log'
 import config from '../../config/config'
 
@@ -206,6 +205,7 @@ class ConfirmScreen extends Component {
                 console.log('Trade/V2 dataSell', res.data)
             }
 
+            /*
             const bseOrderData = {
                 amountReceived: null,
                 depositAddress: res.data.address,
@@ -248,6 +248,8 @@ class ConfirmScreen extends Component {
                     to : exchangeStore.tradeType === 'BUY' ? selectedCryptocurrency.currencyCode : selectedFiatCurrency.cc,
                 }
             })
+
+             */
 
             setLoaderStatus(false)
 

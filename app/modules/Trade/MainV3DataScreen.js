@@ -46,7 +46,6 @@ import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumber
 import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import config from '../../config/config'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import { Cards } from '../../services/Cards/Cards'
@@ -245,7 +244,7 @@ class MainV3DataScreen extends Component {
         try {
             const allData = JSON.parse(event.nativeEvent.data)
             const { error, backToOld, close, homePage, cardData, tradeType, takePhoto, scanCard, deleteCard,
-                updateCard, orderData, injectScript, currencySelect, dataSell, didMount, navigationState, message, exchangeStatus, 
+                updateCard, orderData, injectScript, currencySelect, dataSell, didMount, navigationState, message, exchangeStatus,
                 useAllFunds, goToNew } = allData
 
             Log.log('Trade/MainV3Screen.onMessage parsed', event.nativeEvent.data)
@@ -334,6 +333,7 @@ class MainV3DataScreen extends Component {
         try {
             Log.log('Trade/MainV3Screen dataSell', data)
 
+            /*
             const bseOrderData = {
                 amountReceived: null,
                 depositAddress: data.address,
@@ -379,6 +379,8 @@ class MainV3DataScreen extends Component {
                 },
                 bseOrderData: bseOrderData
             })
+
+             */
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('Trade/MainV3Screen.sellV3', e)
@@ -683,11 +685,11 @@ class MainV3DataScreen extends Component {
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
-            const { transferBalance } = await SendActions.countTransferAllBeforeStartSend({
+            //const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
+            const { transferBalance } = 0 /*await SendActions.countTransferAllBeforeStartSend({
                 currencyCode,
                 addressTo: addressToForTransferAll
-            })
+            })*/
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
             this.webref.postMessage(JSON.stringify({ fees: { countedFees: 'notUsedNotPassed', selectedFee: 'notUsedNotPassed', amount: amount ? amount : 0 } }))
             return {

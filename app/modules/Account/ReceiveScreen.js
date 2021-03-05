@@ -64,7 +64,7 @@ import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfe
 import Buttons from './elements/buttons'
 import Tabs from '../../components/elements/new/Tabs'
 
-import AmountInput from '../Send/elements/Input'
+import AmountInput from './elements/ReceiveInput'
 import { normalizeInputWithDecimals } from '../../services/UI/Normalize/NormalizeInput'
 
 import UtilsService from '../../services/UI/PrettyNumber/UtilsService'
@@ -316,8 +316,8 @@ class ReceiveScreen extends Component {
                                         disabled={originalVisibility}
                                         hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
                                     >
-                                        {isBalanceVisible ? 
-                                            <LetterSpacing text={sumPrep} textStyle={{ ...styles.accountDetail__text, color: '#999999', height: Platform.OS === 'ios' ? 15 : 18, fontSize: 14}} letterSpacing={1} /> : 
+                                        {isBalanceVisible ?
+                                            <LetterSpacing text={sumPrep} textStyle={{ ...styles.accountDetail__text, color: '#999999', height: Platform.OS === 'ios' ? 15 : 18, fontSize: 14}} letterSpacing={1} /> :
                                                 <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, height: Platform.OS === 'ios' ? 15 : 18, fontSize: 24 }}>
                                                 ****</Text>
                                         }

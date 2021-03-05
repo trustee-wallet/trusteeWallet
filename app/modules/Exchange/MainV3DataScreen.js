@@ -36,7 +36,6 @@ import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
 import config from '../../config/config'
 
@@ -197,6 +196,7 @@ class MainV3DataScreen extends Component {
         try {
             Log.log('Exchange/MainV3Screen dataExchange', data)
 
+            /*
             const bseOrderData = {
                 amountReceived: null,
                 depositAddress: data.address,
@@ -242,6 +242,8 @@ class MainV3DataScreen extends Component {
                 },
                 bseOrderData: bseOrderData
             })
+
+             */
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('EXC/MainV3Screen exchangeV3', e)
@@ -257,11 +259,11 @@ class MainV3DataScreen extends Component {
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
-            const { transferBalance } = await SendActions.countTransferAllBeforeStartSend({
+            //const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
+            const { transferBalance } = 0 /*await SendActions.countTransferAllBeforeStartSend({
                 currencyCode,
                 addressTo: addressToForTransferAll
-            })
+            })*/
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.exchangeAll')
             this.webref.postMessage(JSON.stringify({ fees: { countedFees: 'notUsedNotPassed', selectedFee : 'notUsedNotPassed', amount: amount ? amount : 0 } }))
             return {
@@ -272,9 +274,9 @@ class MainV3DataScreen extends Component {
             if (config.debug.cryptoErrors) {
                 console.log('EXC/MainV3Screen.handleTransferAll', e)
             }
-            
+
             this.webref.postMessage(JSON.stringify({serverError: true}))
-            
+
             Log.errorTranslate(e, 'Trade/MainV3Screen.handleTransferAll', extend)
 
             showModal({
