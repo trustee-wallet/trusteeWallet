@@ -4,7 +4,7 @@
 import Log from './Log'
 import { FileSystem } from '../FileSystem/FileSystem'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
-import DBExport from '../../appstores/DataSource/DB/DBExport/DBExport'
+import { getSqlForExport } from '@app/appstores/DataSource/Database';
 import AsyncStorage from '@react-native-community/async-storage'
 
 import { zip } from 'react-native-zip-archive'
@@ -20,22 +20,22 @@ class SendLog {
             // do nothing
         }
         try {
-            sql = await DBExport.getSql()
+            sql = await getSqlForExport()
         } catch (e) {
             // do nothing again
         }
-        const logs = `    
-          
+        const logs = `
+
                 ↑↑↑ Send to: contact@trustee.deals ↑↑↑
-                
+
                 ${deviceToken}
-                 
+
                 ${basicText}
-                
-                --LOG-- 
-                ${Log.getHeaders()} 
-                                
-                --SQL-- 
+
+                --LOG--
+                ${Log.getHeaders()}
+
+                --SQL--
                 ${sql}
             `
 

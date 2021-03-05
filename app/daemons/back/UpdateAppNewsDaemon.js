@@ -5,7 +5,6 @@ import Log from '../../services/Log/Log'
 import Api from '../../services/Api/Api'
 
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
-import DBInterface from '../../appstores/DataSource/DB/DBInterface'
 import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWallets'
 import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
