@@ -11,6 +11,7 @@ import Log from '@app/services/Log/Log'
 import Validator from '@app/services/UI/Validator/Validator'
 import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 class InputAndButtonsInput extends Component {
 
@@ -39,6 +40,7 @@ class InputAndButtonsInput extends Component {
 
         if (additional === 'NUMBER') {
             value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
+            value = BlocksoftPrettyNumbers.makeCut(value).separatedForInput
             this.setState({
                 value,
                 fontSize: value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
