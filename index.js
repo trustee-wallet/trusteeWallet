@@ -11,9 +11,10 @@ import './global'
 import App from './App'
 import { name as appName } from './app.json'
 
-import MarketingEvent from './app/services/Marketing/MarketingEvent'
-import PushNotification from "react-native-push-notification"
-import AppNotificationPopup from './app/services/AppNotification/AppNotificationPopup'
+import PushNotification from 'react-native-push-notification'
+
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import AppNotificationPopup from '@app/services/AppNotification/AppNotificationPopup'
 
 MarketingEvent.initMarketing(false)
 
