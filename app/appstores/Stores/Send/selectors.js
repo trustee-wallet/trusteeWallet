@@ -7,3 +7,8 @@ export const getSendScreenData = createSelector(
     [state => state.sendScreenStore],
     (data => data)
 )
+
+export const getSendScreenDataDict = createSelector(
+    [state => state.sendScreenStore.dict],
+    (data => data)
+)

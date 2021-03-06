@@ -11,22 +11,24 @@ import config from '../../../app/config/config'
 
 const DEBUG = false
 
+type DataCache = {
+    [key in BlocksoftDictTypes.Code]: {
+        key: string,
+        time: number
+    }
+}
+
+const CACHE_DOUBLE_TO: DataCache = {} as DataCache
+const CACHE_VALID_TIME = 20000 // 2 minute
+
 export namespace BlocksoftTransfer {
 
-    type DataCache = {
-        [key in BlocksoftDictTypes.Code]: {
-            key: string,
-            time: number
-        }
-    }
-    const CACHE_DOUBLE_TO: DataCache = {} as DataCache
-    const CACHE_VALID_TIME = 20000 // 2 minute
-
     export const getTransferAllBalance = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
-        if (config.debug.sendLogs) {
+        //if (config.debug.sendLogs) {
             console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance`, JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
-        }
+        //}
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
+        data.isTransferAll = true
         let transferAllCount
         try {
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance started ${data.addressFrom} `)

@@ -17,6 +17,7 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 
 const amountInput = {
@@ -33,12 +34,12 @@ class InputAndButtons extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            inputType : this.props.sendScreenStore.ui.inputType,
-            inputValue : '',
-            equivalentValue : '0.00',
-            cryptoValue : '',
-            partBalance : 0,
-            isCounting : false
+            inputType: this.props.sendScreenStore.ui.inputType,
+            inputValue: '',
+            equivalentValue: '0.00',
+            cryptoValue: 0,
+            partBalance: 0,
+            isCountingTransferAll: false
         }
         this.valueInput = React.createRef()
     }
@@ -50,7 +51,7 @@ class InputAndButtons extends Component {
         this.setState({
             inputType,
             inputValue: equivalentValue,
-            equivalentValue : this.state.inputValue ? this.state.inputValue : '0.00'
+            equivalentValue: this.state.inputValue ? this.state.inputValue : '0.00'
         })
         this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(equivalentValue).separated, false)
     }
@@ -58,41 +59,69 @@ class InputAndButtons extends Component {
     handlePartBalance = (newPartBalance) => {
         // if newPartBalance = 4 = 100%
         this.setState({
-            partBalance : newPartBalance,
-            isCounting : true
+            partBalance: newPartBalance,
+            isCountingTransferAll: true
+        }, async () => {
+            const transferAllBalance = await SendActionsBlockchainWrapper.getTransferAllBalance()
+            this.transferAllCallback(transferAllBalance)
         })
-        this.handlePartBalanceFinish()
+
     }
 
-    handlePartBalanceFinish = async () => {
-        await SendActionsBlockchainWrapper.getTransferAllBalance()
-        this.setState({
-            isCounting : false
-        })
+    transferAllCallback = (transferAllBalance) => {
+        const { currencyCode, basicCurrencyRate } = this.props.sendScreenStore.dict
+        let cryptoValue, inputValue
+        if (this.state.partBalance === 4 || transferAllBalance === 0) {
+            cryptoValue = transferAllBalance
+        } else {
+            cryptoValue = BlocksoftUtils.mul(BlocksoftUtils.div(transferAllBalance, 4), this.state.partBalance)
+        }
+
+        const cryptoPrettyValue = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(cryptoValue)
+        const fiatPrettyValue = RateEquivalent.mul({ value: cryptoPrettyValue, currencyCode, basicCurrencyRate })
+
+        if (this.state.inputType === 'CRYPTO') {
+            inputValue = cryptoPrettyValue
+            this.setState({
+                cryptoValue,
+                isCountingTransferAll: false,
+                inputValue,
+                equivalentValue: fiatPrettyValue
+            })
+        } else {
+            inputValue = fiatPrettyValue
+            this.setState({
+                cryptoValue,
+                isCountingTransferAll: false,
+                inputValue,
+                equivalentValue: cryptoPrettyValue
+            })
+        }
+        this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(inputValue).separated, false)
     }
 
     amountInputCallback = async (value) => {
         if (!value || value === '' || value === '0' || value === '0.00') {
             this.setState({
-                equivalentValue : '0.00',
-                cryptoValue : 0,
-                partBalance : 0
+                equivalentValue: '0.00',
+                cryptoValue: 0,
+                partBalance: 0
             })
         } else {
             const { currencyCode, basicCurrencyRate } = this.props.sendScreenStore.dict
             let equivalentValue, cryptoValue
             if (this.state.inputType === 'CRYPTO') {
                 equivalentValue = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
-                cryptoValue = value
+                cryptoValue = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(value)
             } else {
                 equivalentValue = RateEquivalent.div({ value, currencyCode, basicCurrencyRate })
-                cryptoValue = equivalentValue
+                cryptoValue = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(equivalentValue)
             }
             this.setState({
                 inputValue: value,
                 equivalentValue,
                 cryptoValue,
-                partBalance : 0
+                partBalance: 0
             })
         }
     }
@@ -103,6 +132,10 @@ class InputAndButtons extends Component {
         const { colors, GRID_SIZE } = this.context
         const { decimals, currencySymbol, basicCurrencyCode, balanceTotalPretty } = this.props.sendScreenStore.dict
         const { inputType, equivalentValue } = this.state
+
+        if (this.state.isCountingTransferAll && this.props.sendScreenStore.fromBlockchain.transferAllBalance) {
+            this.transferAllCallback(this.props.sendScreenStore.fromBlockchain.transferAllBalance)
+        }
 
 
         const notEquivalentValue = '~ ' + BlocksoftPrettyNumbers.makeCut(equivalentValue).separated + ' ' + (inputType !== 'CRYPTO' ? currencySymbol : basicCurrencyCode)
@@ -135,10 +168,10 @@ class InputAndButtons extends Component {
                     </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                    <LetterSpacing text={this.state.isCounting ? 'Loading...' : notEquivalentValue} textStyle={{ ...style.notEquivalentValue, color: '#999999' }}
+                    <LetterSpacing text={this.state.isCountingTransferAll ? 'Loading...' : notEquivalentValue} textStyle={{ ...style.notEquivalentValue, color: '#999999' }}
                                    letterSpacing={1.5} />
                 </View>
-                { balanceTotalPretty > 0  && (
+                {balanceTotalPretty > 0 && (
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: GRID_SIZE }}>
                         <InputAndButtonsPartBalanceButton
                             action={() => {
@@ -210,5 +243,5 @@ const style = StyleSheet.create({
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 15,
         lineHeight: 19
-    },
+    }
 })

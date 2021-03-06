@@ -2,7 +2,6 @@
  * @version 0.41
  * Init App
  */
-
 import React, { Component, useEffect } from 'react'
 
 import { Provider } from 'react-redux'

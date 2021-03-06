@@ -2,7 +2,6 @@
  * @version 0.41
  * @author yura
  */
-
 import React from 'react'
 import { Text, TouchableOpacity, StyleSheet } from 'react-native'
 

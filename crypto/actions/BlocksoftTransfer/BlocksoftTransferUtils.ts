@@ -21,7 +21,6 @@ export namespace BlocksoftTransferUtils {
         if (data.currencyCode === BlocksoftDictTypes.Code.XLM) {
             const tmp1 = 'GCVPV3D4PAYFA7H2CHGFRTSPAHMSU4KQR4CHBUBUR4X23JUDJWHYZDYZ'
             const tmp2 = 'GAQA5FITDUZW36J6VFXAH4YDNTTDEGRNWIXHIOR3FNN4DVJCXCNHUR4E'
-            console.log('address to')
             return data.address === tmp1 ? tmp2 : tmp1
 
         }

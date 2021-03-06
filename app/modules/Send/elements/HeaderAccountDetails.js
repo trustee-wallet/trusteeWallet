@@ -11,7 +11,7 @@ import Log from '@app/services/Log/Log'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
-import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
+import { getSendScreenDataDict } from '@app/appstores/Stores/Send/selectors'
 
 class HeaderAccountDetails extends Component {
 
@@ -32,7 +32,7 @@ class HeaderAccountDetails extends Component {
         const originalVisibility = this.props.isBalanceVisible
         const isBalanceVisible = this.state.isBalanceVisible || originalVisibility
 
-        const { currencySymbol, currencyName, currencyCode, balanceTotalPretty, basicCurrencyBalanceTotal, basicCurrencySymbol } = this.props.sendScreenStore.dict
+        const { currencySymbol, currencyName, currencyCode, balanceTotalPretty, basicCurrencyBalanceTotal, basicCurrencySymbol } = this.props.sendScreenStoreDict
 
 
         const amountPrep = BlocksoftPrettyNumbers.makeCut(balanceTotalPretty).cutted
@@ -77,7 +77,7 @@ HeaderAccountDetails.contextType = ThemeContext
 const mapStateToProps = (state) => {
     return {
         isBalanceVisible: state.settingsStore.data.isBalanceVisible,
-        sendScreenStore : getSendScreenData(state)
+        sendScreenStoreDict : getSendScreenDataDict(state)
     }
 }
 
