@@ -60,7 +60,7 @@ import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import AppLockBlur from "../../components/AppLockBlur";
 
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-import { SendStartActions } from '@app/appstores/Stores/Send/SendStartActions'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 let CACHE_SET_WALLET_HASH = false
 
@@ -193,7 +193,7 @@ class HomeScreen extends React.Component {
 
     // separated from stores not to be updated from outside
     handleSend = async (cryptoCurrency, account) => {
-        await SendStartActions.startFromHomeScreen(cryptoCurrency, account)
+        await SendActionsStart.startFromHomeScreen(cryptoCurrency, account)
     }
 
     // linked to stores as rates / addresses could be changed outside

@@ -62,7 +62,7 @@ import {
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
-import { SendStartActions } from '../../appstores/Stores/Send/SendStartActions'
+import { SendActionsStart } from '../../appstores/Stores/Send/SendActionsStart'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -703,7 +703,7 @@ class TransactionScreen extends Component {
             return false
         }
         array.push({ icon: 'canceled', title: strings('account.transactionScreen.removeRbf'), action: async () => {
-            await SendStartActions.startFromTransactionScreenRemove(account, transaction)
+            await SendActionsStart.startFromTransactionScreenRemove(account, transaction)
         }})
 
     }
@@ -759,7 +759,7 @@ class TransactionScreen extends Component {
                         return false
                     }
                 }
-                await SendStartActions.startFromTransactionScreenBoost(account, transaction)
+                await SendActionsStart.startFromTransactionScreenBoost(account, transaction)
         }})
     }
 

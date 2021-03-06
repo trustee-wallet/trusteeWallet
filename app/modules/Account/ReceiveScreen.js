@@ -262,18 +262,8 @@ class ReceiveScreen extends Component {
     renderAccountDetail = () => {
 
         const { currencySymbol, currencyName, currencyCode } = this.props.cryptoCurrency
-        const { basicCurrencyRate, balancePretty, unconfirmedPretty } = this.props.account
-        const { walletUseUnconfirmed } = this.props.wallet
+        const { balanceTotalPretty, basicCurrencyBalanceTotal, basicCurrencySymbol } = this.props.account
         const { isBalanceVisible, originalVisibility } = this.state
-
-        const amountPretty = BlocksoftTransferUtils.getBalanceForTransfer({
-            walletUseUnconfirmed: walletUseUnconfirmed === 1,
-            balancePretty,
-            unconfirmedPretty,
-            currencyCode
-        })
-
-        const amountPrep = BlocksoftPrettyNumbers.makeCut(amountPretty).cutted
 
         const { colors } = this.context
 
@@ -282,19 +272,14 @@ class ReceiveScreen extends Component {
             cryptoCurrency: this.props.cryptoCurrency
         })
 
+        const amountPrep = BlocksoftPrettyNumbers.makeCut(balanceTotalPretty).cutted
         let sumPrep = amountPrep + ' ' + currencySymbol
-        if (amountPretty && currencyCode && basicCurrencyRate) {
-            try {
-                const basicCurrencySymbol = this.props.account.basicCurrencySymbol || '$'
-                const basicAmount = RateEquivalent.mul({ value: amountPretty, currencyCode, basicCurrencyRate })
-                const basicAmountPrep = BlocksoftPrettyNumbers.makeCut(basicAmount, 2).cutted
-                sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicAmountPrep
-            } catch (e) {
-                Log.err('Send.SendScreen renderAccountDetail error ' + e.message)
-            }
+        try {
+            sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicCurrencyBalanceTotal
+        } catch (e) {
+            Log.err('Send.SendScreen renderAccountDetail error ' + e.message)
         }
 
-        // const currencyAmountPrep = BlocksoftPrettyNumbers.makeCut(balancePretty).separated
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View>

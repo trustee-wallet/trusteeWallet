@@ -1,11 +1,11 @@
 /**
- * @version 0.30
+ * @version 0.41
  */
 import { Linking } from 'react-native'
 import Log from '../../../services/Log/Log'
 
 import { decodeTransactionQrCode } from '../../../services/UI/Qr/QrScan'
-import { SendStartActions } from './SendStartActions'
+import { SendActionsStart } from './SendActionsStart'
 
 const NativeLinking = require('../../../../node_modules/react-native/Libraries/Linking/NativeLinking').default
 
@@ -63,7 +63,7 @@ export namespace SendDeepLinking {
             if (initialURL.indexOf('trustee.page.link') !== -1) return
 
             await Log.log('SendDeepLinking.handleInitialURL decode success and will go to Send')
-            await SendStartActions.startFromDeepLinking(parsed)
+            await SendActionsStart.startFromDeepLinking(parsed)
 
         } catch (e) {
             Log.err('SendDeepLinking.handleInitialURL decode error ' + e.message)

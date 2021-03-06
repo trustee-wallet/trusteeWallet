@@ -112,11 +112,12 @@ export namespace BlocksoftBlockchainTypes {
         addressFrom: string,
         addressTo: string,
         amount: string,
-        unconfirmed: string,
         useOnlyConfirmed: boolean,
         allowReplaceByFee: boolean,
         useLegacy : number,
         isHd : boolean,
+
+        accountBalanceRaw : string,
         isTransferAll: boolean,
 
         memo?: string,

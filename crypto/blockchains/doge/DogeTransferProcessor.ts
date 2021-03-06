@@ -400,11 +400,6 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
     }
 
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
-        const balance = data.unconfirmed && data.unconfirmed.toString().indexOf('-') === -1 ? BlocksoftUtils.add(data.amount, data.unconfirmed).toString() : data.amount
-
-        // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + data.amount + ' + ' + data.unconfirmed + ' = ' + balance)
-
         data.isTransferAll = true
         const result = await this.getFeeRate(data, privateData, additionalData)
         // @ts-ignore
@@ -413,7 +408,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -2,
                 fees: [],
-                countedForBasicBalance: balance
+                countedForBasicBalance: data.amount
             }
         }
         // @ts-ignore
@@ -421,7 +416,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             ...result,
             selectedTransferAllBalance: result.fees[result.selectedFeeIndex].amountForTx,
             shouldChangeBalance: true,
-            countedForBasicBalance: balance
+            countedForBasicBalance: data.amount
         }
     }
 

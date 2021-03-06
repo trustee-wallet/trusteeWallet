@@ -1,4 +1,54 @@
-export namespace SendStartActions {
+/**
+ * @version 0.41
+ */
+import NavStore from '@app/components/navigation/NavStore'
+
+import AsyncStorage from '@react-native-community/async-storage'
+import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
+
+import store from '@app/store'
+const { dispatch } = store
+
+let CACHE_SEND_INPUT_TYPE = 'none'
+export namespace SendActionsStart {
+
+    export const setBasicInputType = async (inputType : string) => {
+        CACHE_SEND_INPUT_TYPE = inputType
+        AsyncStorage.setItem('sendInputType', inputType)
+    }
+
+    export const startFromAccountScreen = async (cryptoCurrency : any, account : any, uiType = 'ACCOUNT_SCREEN') => {
+        const dict = {
+            decimals : cryptoCurrency.decimals,
+            currencySymbol : account.currencySymbol,
+            currencyName : cryptoCurrency.currencyName,
+            currencyCode : account.currencyCode,
+            balanceTotalPretty : account.balanceTotalPretty,
+            basicCurrencyBalanceTotal : account.basicCurrencyBalanceTotal,
+            basicCurrencySymbol : account.basicCurrencySymbol,
+            basicCurrencyCode : account.basicCurrencyCode,
+            basicCurrencyRate : account.basicCurrencyRate
+        }
+        if (CACHE_SEND_INPUT_TYPE === 'none') {
+            CACHE_SEND_INPUT_TYPE = (await AsyncStorage.getItem('sendInputType') !== 'CRYPTO') ? 'FIAT' : 'CRYPTO'
+        }
+        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
+        dispatch({
+            type: 'RESET_DATA',
+            ui: {
+                uiType,
+                inputType : CACHE_SEND_INPUT_TYPE
+            },
+            dict
+        })
+        NavStore.goNext('SendScreen')
+    }
+
+    export const startFromHomeScreen = async (cryptoCurrency : any, account : any)  => {
+        return startFromAccountScreen(cryptoCurrency, account, 'HOME_SCREEN')
+    }
+
+
     export const startFromDeepLinking = async (data :{
         needToDisable?: boolean,
         address: string,
@@ -68,38 +118,6 @@ export namespace SendStartActions {
          */
     }
 
-    export const startFromAccountScreen = async (cryptoCurrency : any, account : {
-        currencyCode : string
-    }) => {
-        /*
-         await SendActions.cleanData()
-            SendActions.setUiType({
-                ui: {
-                    uiType: 'ACCOUNT_SCREEN'
-                }
-            })
-            await SendActions.startSend({
-                currencyCode : account.currencyCode,
-            })
-         */
-    }
-
-    export const startFromHomeScreen = async (cryptoCurrency : any, account : {
-        currencyCode : string
-    })  => {
-        /*
-        await SendActions.cleanData()
-        SendActions.setUiType({
-            ui: {
-                uiType: 'HOME_SCREEN'
-            }
-        })
-        await SendActions.startSend({
-            currencyCode: cryptoCurrency.currencyCode
-        })
-         */
-    }
-
     export const startFromTransactionScreenRemove = async (account : any, transaction : any) => {
         /*
                     await SendActions.cleanData()
@@ -146,7 +164,7 @@ export namespace SendStartActions {
          */
     }
 
-    export const startFromFioRequest = async (currencyCode, fioRequestDetails) => {
+    export const startFromFioRequest = async (currencyCode : any, fioRequestDetails : any) => {
         /*
                     await SendActions.cleanData()
             SendActions.setUiType({

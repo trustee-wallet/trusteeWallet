@@ -25,7 +25,7 @@ import { openQrGallery } from '../../services/UI/Qr/QrGallery'
 import Header from '../../components/elements/new/Header'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-import { SendStartActions } from '@app/appstores/Stores/Send/SendStartActions'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
 const SCREEN_WIDTH = Dimensions.get('window').width
@@ -159,7 +159,7 @@ class QRCodeScannerScreen extends Component {
                 }
 
                 const parsed = res.data
-                await SendStartActions.startFromQRCodeScanner(parsed, cryptoCurrency, 'MAIN_SCANNER')
+                await SendActionsStart.startFromQRCodeScanner(parsed, cryptoCurrency, 'MAIN_SCANNER')
             } else if (type === 'ADD_CUSTOM_TOKEN_SCANNER') {
                 NavStore.goNext('AddAssetScreen', {
                     tokenData: {
@@ -170,7 +170,7 @@ class QRCodeScannerScreen extends Component {
                 if (res.status === 'success' && res.data.currencyCode === currencyCode) {
                     const parsed = res.data
                     parsed.currencyCode = oldCurrency.currencyCode
-                    await SendStartActions.startFromQRCodeScanner(parsed, oldCurrency, 'SEND_SCANNER')
+                    await SendActionsStart.startFromQRCodeScanner(parsed, oldCurrency, 'SEND_SCANNER')
                 } else if (res.status === 'success' && res.data.currencyCode !== currencyCode) {
                     showModal({
                         type: 'INFO_MODAL',
@@ -187,7 +187,7 @@ class QRCodeScannerScreen extends Component {
                     const parsed = {
                         address : res.data.parsedUrl
                     }
-                    await SendStartActions.startFromQRCodeScanner(parsed, oldCurrency, 'SEND_SCANNER')
+                    await SendActionsStart.startFromQRCodeScanner(parsed, oldCurrency, 'SEND_SCANNER')
                 }
             }
         } catch (e) {

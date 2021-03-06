@@ -65,7 +65,7 @@ import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import AppLockBlur from "../../components/AppLockBlur";
 
 import { diffTimeScan } from './helpers'
-import { SendStartActions } from '../../appstores/Stores/Send/SendStartActions'
+import { SendActionsStart } from '../../appstores/Stores/Send/SendActionsStart'
 
 let CACHE_ASKED = false
 
@@ -164,7 +164,7 @@ class Account extends Component {
 
         if (isSynchronized) {
 
-           await SendStartActions.startFromAccountScreen(cryptoCurrency, account)
+           await SendActionsStart.startFromAccountScreen(cryptoCurrency, account)
 
         } else {
             showModal({

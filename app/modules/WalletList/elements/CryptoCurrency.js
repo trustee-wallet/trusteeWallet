@@ -94,7 +94,7 @@ class CryptoCurrency extends React.PureComponent {
                     <RoundButton
                         type="send"
                         containerStyle={styles.hiddenLayer__roundButton}
-                        onPress={this.props.handleSend}
+                        onPress={() => this.props.handleSend(this.props.account)}
                         noTitle
                     />
                 </View>

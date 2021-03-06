@@ -16,7 +16,7 @@ import { connect } from 'react-redux'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import Header from '../../components/elements/new/Header'
-import { SendStartActions } from '../../appstores/Stores/Send/SendStartActions'
+import { SendActionsStart } from '../../appstores/Stores/Send/SendActionsStart'
 
 class FioRequestDetails extends Component {
 
@@ -58,7 +58,7 @@ class FioRequestDetails extends Component {
         const { content } = this.state.requestDetailData
         setLoaderStatus(true)
         try {
-            await SendStartActions.startFromFioRequest(content?.chain_code, this.state.requestDetailData)
+            await SendActionsStart.startFromFioRequest(content?.chain_code, this.state.requestDetailData)
         } catch (e) {
             await Log.err('FioRequestDetails handleConfirm error ' + e.message, content?.chain_code)
         } finally {
