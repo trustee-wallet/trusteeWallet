@@ -13,6 +13,7 @@ const bech = require('bech32')
 
 const UVarInt = require('../utils/UVarInt').UVarInt
 const Encode = require('../utils/Encode')
+const _tinySecp256k = require('tiny-secp256k1')
 
 function decodeAddress(value: any) {
     const decodeAddress = bech.decode(value)
@@ -91,9 +92,8 @@ export class BnbTxSendProvider {
 
         const msgHash = createHash('sha256').update(signBytesHex, 'hex').digest()
         const keypair = ec.keyFromPrivate(privateData.privateKey, 'hex')
-        const signature = keypair.sign(msgHash.toString('hex'))
-        const signatureHex = signature.r.toString('hex') + signature.s.toString('hex')
-
+        const signature = _tinySecp256k.sign(msgHash, Buffer.from(privateData.privateKey, 'hex'))
+        const signatureHex = signature.toString('hex')
 
         const pubKey = keypair.getPublic()
         const pubSerialize = serializePubKey(pubKey)
