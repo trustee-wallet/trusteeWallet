@@ -99,7 +99,7 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
         // [{"code": 0, "hash": "1C27B1BBCC3DE3BFDA9639BDB17DB5AD199CA689ACD2872F9DEEF3AF56942622", "log": "", "ok": true}]
         const result = await this._provider.sendRaw(raw)
         if (typeof result.message !== 'undefined') {
-            if (result.message.indexOf('insufficient fund') !== -1) {
+            if (result.message.indexOf('insufficient fund') !== -1 || result.message.indexOf('BNB <') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
             } else {
                 throw new Error(result.message)
