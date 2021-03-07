@@ -37,10 +37,21 @@ export default class TrxScannerProcessor {
             address = await TronUtils.addressHexToStr(addressHex)
         }
         let result = await this._tronscanProvider.get(address, this._tokenName)
+        let subresult = false
+        BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronScan ' + JSON.stringify(result))
+
         if (result === false) {
+            subresult = await this._tronscanProvider.get(address, '_')
             result = await this._trongridProvider.get(addressHex, this._tokenName)
+            BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronGrid ' + JSON.stringify(result))
         }
-        BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result ', result)
+
+        if (result === false && this._tokenName !== '_') {
+            if (subresult !== false) {
+                BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' subresult tronScan ' + JSON.stringify(subresult))
+                return { balance: 0, unconfirmed : 0, provider: 'tronscan-ok-but-no-token' }
+            }
+        }
         return result
     }
 

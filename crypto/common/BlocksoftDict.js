@@ -1166,7 +1166,8 @@ function addAndUnifyCustomCurrency(currencyObject) {
         currencyName: currencyObject.currencyName,
         currencyCode: 'CUSTOM_' + currencyObject.currencyCode,
         currencySymbol: currencyObject.currencySymbol,
-        ratesCurrencyCode: currencyObject.currencyCode
+        ratesCurrencyCode: currencyObject.currencyCode,
+        decimals: currencyObject.tokenDecimals
 
     }
     tmp.currencyType = 'custom'

@@ -456,8 +456,8 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         const logData = {}
         logData.currencyCode = this._settings.currencyCode
         logData.selectedFee = uiData.selectedFee
-        logData.from = data.addressFrom.toLowerCase()
-        logData.basicAddressTo = data.addressTo.toLowerCase()
+        logData.from = data.addressFrom
+        logData.basicAddressTo = data.addressTo
         logData.basicAmount = data.amount
         logData.pushLocale = sublocale()
         logData.pushSetting = await settingsActions.getSetting('transactionsNotifs')
@@ -482,9 +482,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             const transactionLog = typeof result.logData !== 'undefined' ? result.logData : logData
             const inputsLog = JSON.stringify(uiData.selectedFee.blockchainData.preparedInputsOutputs.inputs)
             const transactionRaw = uiData.selectedFee.blockchainData.rawTxHex + ''
-            if (typeof transactionLog.selectedFee !== 'undefined' && typeof transactionLog.selectedFee.blockchainData !== 'undefined') {
-                transactionLog.selectedFee.blockchainData = '*'
-            }
+            //if (typeof transactionLog.selectedFee !== 'undefined' && typeof transactionLog.selectedFee.blockchainData !== 'undefined') {
+            //    transactionLog.selectedFee.blockchainData = '*'
+            //}
             await DogeRawDS.saveRaw({
                 address: data.addressFrom,
                 currencyCode: this._settings.currencyCode,
