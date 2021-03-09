@@ -347,13 +347,38 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 } while (doBuild)
             } catch (e) {
                 if (config.debug.cryptoErrors) {
-                    console.log(this._settings.currencyCode + ' DogeTransferProcessor.getRawTx error ' + e.message, preparedInputsOutputs)
+                    console.log(this._settings.currencyCode + ' DogeTransferProcessor.getRawTx error ' + e.message)
+                    /*
+                    console.log('')
+                    console.log('')
+                    if (preparedInputsOutputs.inputs) {
+                        let i = 0
+                        for (let input of preparedInputsOutputs.inputs) {
+                            console.log('ERR inputs [' + i + ']', JSON.parse(JSON.stringify(input)))
+                            i++
+                        }
+                    }
+                    if (preparedInputsOutputs.outputs) {
+                        let i = 0
+                        for (let output of preparedInputsOutputs.outputs) {
+                            console.log('ERR outputs [' + i + ']', JSON.parse(JSON.stringify(output)))
+                            i++
+                        }
+                    }
+                    console.log('ERR fee msg ', preparedInputsOutputs.msg)
+                    console.log('ERR diffInOutS', logInputsOutputs.diffInOut)
+                    console.log('ERR diffInOutR', logInputsOutputs.diffInOutReadable)
+                    console.log('---------------------')
+                    console.log('')
+                    */
                 }
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getRawTx error '+ e.message)
+                MarketingEvent.logOnlyRealTime('v20_doge_error_tx_builder_fees ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message.toString(), logInputsOutputs)
+
                 if (e.message.indexOf('Transaction has absurd fees') !== -1) {
                     isError = 'SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION'
                     continue
                 } else {
-                    MarketingEvent.logOnlyRealTime('v20_doge_error_tx_builder ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message.toString(), logInputsOutputs)
                     throw e
                 }
             }
@@ -516,7 +541,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             if (config.debug.cryptoErrors) {
                 console.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error', e, uiData)
             }
-
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error '+ e.message)
             // noinspection ES6MissingAwait
             MarketingEvent.logOnlyRealTime('v20_doge_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
             throw e

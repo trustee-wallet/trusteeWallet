@@ -31,6 +31,7 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
     async _reInit() {
         const fromExt = await BlocksoftExternalSettings.get(this._settings.currencyCode + '_MAX_FOR_BYTE_TX_BUILDER', 'DogeTxBuilder._reInit')
         this._feeMaxForByteSatoshi = fromExt && fromExt * 1 > 0 ? fromExt * 1 : this._builderSettings.feeMaxForByteSatoshi
+        await BlocksoftCryptoLog.log('DogeTxBuilder.getRawTx ' + this._settings.currencyCode + ' _feeMaxForByteSatoshi ' + this._feeMaxForByteSatoshi + ' fromExt ' + fromExt )
     }
 
     _getRawTxValidateKeyPair(privateData: BlocksoftBlockchainTypes.TransferPrivateData, data: BlocksoftBlockchainTypes.TransferData): void {
@@ -172,7 +173,6 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
                 throw e
             }
         }
-        ``
         let rawTxHex
         try {
             rawTxHex = txb.build().toHex()
