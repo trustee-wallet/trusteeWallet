@@ -12,3 +12,7 @@ export const getSendScreenDataDict = createSelector(
     [state => state.sendScreenStore.dict],
     (data => data)
 )
+export const sendScreenStoreTransferAllBalance = createSelector(
+    [state => state.sendScreenStore.fromBlockchain.transferAllBalance],
+    (data => data)
+)

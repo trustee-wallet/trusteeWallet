@@ -6,18 +6,29 @@ import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from 'react-nati
 import { connect } from 'react-redux'
 
 import { HIT_SLOP } from '@app/themes/Themes'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { strings } from '@app/services/i18n'
+
 import AmountInput from '@app/modules/Send/elements/InputAndButtonsInput'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
+import { getSendScreenDataDict, sendScreenStoreTransferAllBalance } from '@app/appstores/Stores/Send/selectors'
 
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+
 import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
-import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+
+
+import DaemonCache from '@app/daemons/DaemonCache'
+import Log from '@app/services/Log/Log'
+import config from '@app/config/config'
+import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 
 
 const amountInput = {
@@ -29,17 +40,23 @@ const amountInput = {
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
+const USDT_LIMIT = 600
+
 class InputAndButtons extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            inputType: this.props.sendScreenStore.ui.inputType,
+            inputType: this.props.sendScreenStoreDict.inputType,
             inputValue: '',
             equivalentValue: '0.00',
-            cryptoValue: 0,
+            cryptoValue: '',
             partBalance: 0,
-            isCountingTransferAll: false
+            isCountingTransferAll: false,
+            enoughFunds: {
+                isAvailable: true,
+                messages: []
+            }
         }
         this.valueInput = React.createRef()
     }
@@ -69,7 +86,7 @@ class InputAndButtons extends Component {
     }
 
     transferAllCallback = (transferAllBalance) => {
-        const { currencyCode, basicCurrencyRate } = this.props.sendScreenStore.dict
+        const { currencyCode, basicCurrencyRate } = this.props.sendScreenStoreDict
         let cryptoValue, inputValue
         if (this.state.partBalance === 4 || transferAllBalance === 0) {
             cryptoValue = transferAllBalance
@@ -83,18 +100,18 @@ class InputAndButtons extends Component {
         if (this.state.inputType === 'CRYPTO') {
             inputValue = cryptoPrettyValue
             this.setState({
-                cryptoValue,
                 isCountingTransferAll: false,
                 inputValue,
-                equivalentValue: fiatPrettyValue
+                equivalentValue: fiatPrettyValue,
+                cryptoValue
             })
         } else {
             inputValue = fiatPrettyValue
             this.setState({
-                cryptoValue,
                 isCountingTransferAll: false,
                 inputValue,
-                equivalentValue: cryptoPrettyValue
+                equivalentValue: cryptoPrettyValue,
+                cryptoValue
             })
         }
         this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(inputValue).separated, false)
@@ -104,11 +121,10 @@ class InputAndButtons extends Component {
         if (!value || value === '' || value === '0' || value === '0.00') {
             this.setState({
                 equivalentValue: '0.00',
-                cryptoValue: 0,
                 partBalance: 0
             })
         } else {
-            const { currencyCode, basicCurrencyRate } = this.props.sendScreenStore.dict
+            const { currencyCode, basicCurrencyRate } = this.props.sendScreenStoreDict
             let equivalentValue, cryptoValue
             if (this.state.inputType === 'CRYPTO') {
                 equivalentValue = RateEquivalent.mul({ value, currencyCode, basicCurrencyRate })
@@ -120,21 +136,151 @@ class InputAndButtons extends Component {
             this.setState({
                 inputValue: value,
                 equivalentValue,
-                cryptoValue,
-                partBalance: 0
+                partBalance: 0,
+                cryptoValue
             })
         }
     }
 
-    render() {
-        console.log('SendScreen.inputAndButtons render', JSON.stringify(this.props))
+    async disabledGotoWhy(toState = false) {
+        const { balanceTotalPretty, balanceRaw, currencyCode, walletHash, addressFrom } = this.props.sendScreenStoreDict
+        if (balanceTotalPretty <= 0) {
+            this.setState({
+                enoughFunds: {
+                    isAvailable: false,
+                    messages: [strings('send.notEnough')]
+                }
+            })
+            return {
+                status : 'fail'
+            }
+        }
+        if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '') {
+            this.setState({
+                enoughFunds: {
+                    isAvailable: false,
+                    messages: [strings('send.notValidAmount')]
+                }
+            })
+            return {
+                status : 'fail'
+            }
+        }
+
+        // enough balance check
+        let msg = false
+        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+        if (typeof extend.delegatedTransfer === 'undefined' && typeof extend.feesCurrencyCode !== 'undefined' && typeof extend.skipParentBalanceCheck === 'undefined') {
+            const parentCurrency = await DaemonCache.getCacheAccount(walletHash, extend.feesCurrencyCode)
+            if (parentCurrency) {
+                let msg = false
+                const parentBalance = parentCurrency.balance * 1
+                if (currencyCode === 'USDT' && parentBalance < USDT_LIMIT) {
+                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed * 1 >= USDT_LIMIT) {
+                        // @todo mark to turn on unconfirmed
+                        // msg = strings('send.errors.SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM', { symbol: extend.addressCurrencyCode })
+                    } else {
+                        msg = strings('send.errors.SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT', { symbol: extend.addressCurrencyCode })
+                    }
+                } else if (parentBalance === 0) {
+                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed > 0) {
+                        msg = strings('send.notEnoughForFeeConfirmed', { symbol: parentCurrency.currencySymbol })
+                    } else {
+                        msg = strings('send.notEnoughForFee', { symbol: parentCurrency.currencySymbol })
+                    }
+                }
+                if (msg) {
+                    Log.log('Send.SendScreen.handleSendTransaction ' + currencyCode + ' from ' + addressFrom + ' parentBalance not ok' + parentBalance, parentCurrency)
+                    if (config.debug.appErrors) {
+                        console.log('Send.SendScreen.handleSendTransaction ' + currencyCode + ' from ' + addressFrom + ' parentBalance not ok' + parentBalance, parentCurrency)
+                    }
+                }
+            }
+        }
+
+        if (!msg) {
+            let diff = BlocksoftUtils.diff(this.state.cryptoValue, balanceRaw)
+            const hodl = await (BlocksoftBalances.setCurrencyCode(currencyCode)).getBalanceHodl()
+            if (hodl > 0) {
+                diff = BlocksoftUtils.add(diff, hodl)
+            }
+            if (diff > 0) {
+                msg = strings('send.notEnough')
+            }
+        }
+
+        if (msg) {
+            this.setState({
+                enoughFunds: {
+                    isAvailable: false,
+                    messages: [msg]
+                }
+            })
+            return {
+                status: 'fail'
+            }
+        }
+
+
+        if (!this.state.enoughFunds.isAvailable) {
+            this.setState({
+                enoughFunds: {
+                    isAvailable: true,
+                    messages: ''
+                }
+            })
+        }
+        return {
+            status : 'success',
+            value : this.state.cryptoValue
+        }
+    }
+
+    renderEnoughFundsError = () => {
+        const { enoughFunds } = this.state
 
         const { colors, GRID_SIZE } = this.context
-        const { decimals, currencySymbol, basicCurrencyCode, balanceTotalPretty } = this.props.sendScreenStore.dict
+
+        if (enoughFunds.isAvailable) return
+
+        return (
+            <View style={{ marginTop: GRID_SIZE }}>
+                {
+                    enoughFunds.messages.map((item, index) => {
+                        return (
+                            <View key={index} style={style.texts}>
+                                <View style={style.texts__icon}>
+                                    <Icon
+                                        name='information-outline'
+                                        size={22}
+                                        color='#864DD9'
+                                    />
+                                </View>
+                                <View>
+                                    <TouchableOpacity delayLongPress={500} onLongPress={() => this.handleOkForce()}>
+                                        <Text style={{ ...style.texts__item, color: colors.common.text3 }}>
+                                            {item}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )
+                    })
+                }
+            </View>
+        )
+
+    }
+
+    render() {
+        console.log('SendScreen.inputAndButtons render')
+
+        const { colors, GRID_SIZE } = this.context
+        const { decimals, currencySymbol, basicCurrencyCode, balanceTotalPretty } = this.props.sendScreenStoreDict
         const { inputType, equivalentValue } = this.state
 
-        if (this.state.isCountingTransferAll && this.props.sendScreenStore.fromBlockchain.transferAllBalance) {
-            this.transferAllCallback(this.props.sendScreenStore.fromBlockchain.transferAllBalance)
+        if (this.state.isCountingTransferAll && this.props.sendScreenStoreTransferAllBalance) {
+            this.transferAllCallback(this.props.sendScreenStoreTransferAllBalance)
         }
 
 
@@ -208,6 +354,9 @@ class InputAndButtons extends Component {
                         />
                     </View>
                 )}
+
+                {this.renderEnoughFundsError()}
+
             </View>
         )
     }
@@ -217,11 +366,12 @@ InputAndButtons.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        sendScreenStore: getSendScreenData(state)
+        sendScreenStoreDict: getSendScreenDataDict(state),
+        sendScreenStoreTransferAllBalance: sendScreenStoreTransferAllBalance(state)
     }
 }
 
-export default connect(mapStateToProps, {})(InputAndButtons)
+export default connect(mapStateToProps, null, null, { forwardRef: true })(InputAndButtons)
 
 const style = StyleSheet.create({
     ticker: {
@@ -243,5 +393,19 @@ const style = StyleSheet.create({
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 15,
         lineHeight: 19
+    },
+    texts: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 30
+    },
+    texts__item: {
+        fontSize: 14,
+        fontFamily: 'SFUIDisplay-Semibold',
+        letterSpacing: 1
+    },
+    texts__icon: {
+        marginRight: 10,
+        transform: [{ rotate: '180deg' }]
     }
 })

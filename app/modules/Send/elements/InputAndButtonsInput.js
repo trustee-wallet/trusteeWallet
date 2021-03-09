@@ -34,14 +34,20 @@ class InputAndButtonsInput extends Component {
 
     handleInput = async (value, useCallback) => {
 
-        value === '' && !this.state.focus ? value = this.state.value : value
+        if (value === '' && !this.state.focus) {
+            value = this.state.value
+        }
 
         const { id, name, type, subtype, cuttype, additional, decimals, callback, isTextarea = false } = this.props
 
+        const basicValue = value
+
         if (additional === 'NUMBER') {
             value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
-            value = BlocksoftPrettyNumbers.makeCut(value).separatedForInput
-            this.setState({
+            if (value !== '' && value !== '0.') {
+                value = BlocksoftPrettyNumbers.makeCut(value).separatedForInput
+            }
+            this.setState( {
                 value,
                 fontSize: value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
             })

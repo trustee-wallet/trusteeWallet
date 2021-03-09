@@ -237,7 +237,7 @@ class Input extends Component {
             isTextarea = false,
             info,
             tabInfo,
-            adrressError
+            addressError
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
@@ -290,7 +290,7 @@ class Input extends Component {
                                 disabled={isDisabled}
                                 disabledLineType={'none'}
                                 onChangeText={(value) => this.handleInput(value)}
-                                style={noEdit ? { ...styles.fontFamily, color: colors.sendScreen.amount } : { ...styles.fontFamily, color: adrressError && error ? '#864DD9' : colors.sendScreen.amount }}
+                                style={noEdit ? { ...styles.fontFamily, color: colors.sendScreen.amount } : { ...styles.fontFamily, color: addressError && error ? '#864DD9' : colors.sendScreen.amount }}
                                 multiline={isTextarea}
                                 autoCorrect={false}
                                 spellCheck={false}
@@ -317,25 +317,25 @@ class Input extends Component {
                     {
                         typeof fio !== 'undefined' && fio ?
                             <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
-                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="contacts" size={25} color={adrressError && error ? '#864DD9' : colors.common.text1} />
+                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="contacts" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof copy !== 'undefined' && copy ?
                             <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-copy" size={25} color={adrressError && error ? '#864DD9' : colors.common.text1} />
+                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-copy" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof paste !== 'undefined' && paste ?
                             <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-paste" size={25} color={adrressError && error ? '#864DD9' : colors.common.text1} />
+                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-paste" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof qr !== 'undefined' && qr ?
                             <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
-                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }} name="qrcode" size={25} color={adrressError && error ? '#864DD9' : colors.common.text1} />
+                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }} name="qrcode" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                     {
@@ -406,7 +406,7 @@ const styles = {
     },
     line: {
         position: 'absolute',
-        // top: 50, 
+        // top: 50,
         width: '100%',
         height: 2,
         borderRadius: 2

@@ -6,12 +6,16 @@
 const INITIAL_STATE = {
     ui: {
         uiType: 'ACCOUNT_SCREEN',
-        inputType : 'CRYPTO',
-        inputValue : '',
-        equivalentValue : ''
+        addressTo : '',
+        memo : '',
+        cryptoValue : ''
     },
     dict : {
+        inputType : 'CRYPTO',
         decimals : '',
+        extendsProcessor : '',
+        addressUiChecker : '',
+        network : '',
         currencySymbol : '',
         currencyName : '',
         currencyCode : '',

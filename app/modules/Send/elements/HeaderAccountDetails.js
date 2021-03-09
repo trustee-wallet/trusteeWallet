@@ -27,7 +27,7 @@ class HeaderAccountDetails extends Component {
     }
 
     render() {
-        console.log('SendScreen.header render', JSON.stringify(this.props))
+        console.log('SendScreen.header render')
         const { colors } = this.context
         const originalVisibility = this.props.isBalanceVisible
         const isBalanceVisible = this.state.isBalanceVisible || originalVisibility

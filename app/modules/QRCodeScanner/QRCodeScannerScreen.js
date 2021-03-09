@@ -169,8 +169,8 @@ class QRCodeScannerScreen extends Component {
             } else if (type === 'SEND_SCANNER') {
                 if (res.status === 'success' && res.data.currencyCode === currencyCode) {
                     const parsed = res.data
-                    parsed.currencyCode = oldCurrency.currencyCode
-                    await SendActionsStart.startFromQRCodeScanner(parsed, oldCurrency, 'SEND_SCANNER')
+                    parsed.currencyCode = currencyCode
+                    await SendActionsStart.startFromQRCodeScanner(parsed, 'SEND_SCANNER')
                 } else if (res.status === 'success' && res.data.currencyCode !== currencyCode) {
                     showModal({
                         type: 'INFO_MODAL',
@@ -185,9 +185,10 @@ class QRCodeScannerScreen extends Component {
                     })
                 } else {
                     const parsed = {
-                        address : res.data.parsedUrl
+                        address : res.data.parsedUrl,
+                        currencyCode
                     }
-                    await SendActionsStart.startFromQRCodeScanner(parsed, oldCurrency, 'SEND_SCANNER')
+                    await SendActionsStart.startFromQRCodeScanner(parsed, 'SEND_SCANNER')
                 }
             }
         } catch (e) {

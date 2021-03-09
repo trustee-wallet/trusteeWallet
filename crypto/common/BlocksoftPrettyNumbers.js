@@ -59,7 +59,6 @@ class BlocksoftPrettyNumbers {
         const def = '0.' + '0'.repeat(size)
         let firstPart = false
         let secondPart = false
-        const hasDot = splitted.length > 1
         if (splitted[0] === '0') {
             if (typeof splitted[1] !== 'undefined' && splitted[1]) {
                 cutted = splitted[0] + '.' + splitted[1].substr(0, size)
@@ -103,7 +102,7 @@ class BlocksoftPrettyNumbers {
         }
 
         let separated = justCutted
-        let separatedForInput = justCutted
+        let separatedForInput = false
         if (firstPart) {
             const len = firstPart.length
             if (len > 3) {
@@ -128,7 +127,9 @@ class BlocksoftPrettyNumbers {
             separated = '0.' + secondPart
             separatedForInput = '0'
         }
-        if (typeof splitted[1] !== 'undefined') {
+        if (separatedForInput === false) {
+            separatedForInput = justCutted
+        } else if (typeof splitted[1] !== 'undefined') {
             separatedForInput += '.' + splitted[1]
         }
 

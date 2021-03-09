@@ -18,26 +18,35 @@ export namespace SendActionsStart {
     }
 
     export const startFromAccountScreen = async (cryptoCurrency : any, account : any, uiType = 'ACCOUNT_SCREEN') => {
+        if (CACHE_SEND_INPUT_TYPE === 'none') {
+            CACHE_SEND_INPUT_TYPE = (await AsyncStorage.getItem('sendInputType') !== 'CRYPTO') ? 'FIAT' : 'CRYPTO'
+        }
         const dict = {
+            inputType : CACHE_SEND_INPUT_TYPE,
             decimals : cryptoCurrency.decimals,
-            currencySymbol : account.currencySymbol,
+            extendsProcessor : cryptoCurrency.extendsProcessor,
+            addressUiChecker : cryptoCurrency.addressUiChecker,
+            network : cryptoCurrency.network,
+            currencySymbol : cryptoCurrency.currencySymbol,
             currencyName : cryptoCurrency.currencyName,
+            walletHash : account.walletHash,
+            addressFrom : account.addressFrom,
             currencyCode : account.currencyCode,
+            balanceRaw : account.balanceRaw,
             balanceTotalPretty : account.balanceTotalPretty,
             basicCurrencyBalanceTotal : account.basicCurrencyBalanceTotal,
             basicCurrencySymbol : account.basicCurrencySymbol,
             basicCurrencyCode : account.basicCurrencyCode,
             basicCurrencyRate : account.basicCurrencyRate
         }
-        if (CACHE_SEND_INPUT_TYPE === 'none') {
-            CACHE_SEND_INPUT_TYPE = (await AsyncStorage.getItem('sendInputType') !== 'CRYPTO') ? 'FIAT' : 'CRYPTO'
-        }
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
         dispatch({
             type: 'RESET_DATA',
             ui: {
                 uiType,
-                inputType : CACHE_SEND_INPUT_TYPE
+                addressTo : '',
+                memo : '',
+                cryptoValue : ''
             },
             dict
         })
@@ -76,7 +85,7 @@ export namespace SendActionsStart {
          */
     }
 
-    export const startFromQRCodeScanner = async (parsed : any, cryptoCurrency : any, uiType = 'MAIN_SCANNER') => {
+    export const startFromQRCodeScanner = async (parsed : any, uiType = 'MAIN_SCANNER') => {
         /*
                         await SendActions.cleanData()
                 SendActions.setUiType({

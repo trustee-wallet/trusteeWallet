@@ -2,6 +2,7 @@
  * @version 0.41
  */
 import React, { Component } from 'react'
+import NavStore from '@app/components/navigation/NavStore'
 
 export default class SendBasicScreen extends Component {
 
@@ -10,4 +11,7 @@ export default class SendBasicScreen extends Component {
         this.setState(() => ({ headerHeight }))
     }
 
+    openAdvancedSettings = async (additionalParams) => {
+        NavStore.goNext('SendAdvancedScreen')
+    }
 }
