@@ -1,8 +1,8 @@
 /**
  * @version 0.41
  */
-import React, { Component } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, Dimensions, StyleSheet } from 'react-native'
+import React from 'react'
+import { View, ScrollView } from 'react-native'
 import { connect } from 'react-redux'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
@@ -20,8 +20,12 @@ import InputAndButtons from '@app/modules/Send/elements/InputAndButtons'
 import InputAddress from '@app/modules/Send/elements/InputAddress'
 import InputMemo from '@app/modules/Send/elements/InputMemo'
 
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
+import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
+
+let CACHE_IS_COUNTING = false
 
 class SendScreen extends SendBasicScreen {
 
@@ -58,7 +62,28 @@ class SendScreen extends SendBasicScreen {
         return false
     }
 
+
+    openAdvancedSettings = async () => {
+        if (CACHE_IS_COUNTING) {
+           return true
+        }
+        setLoaderStatus(true)
+        CACHE_IS_COUNTING = true
+        await SendActionsBlockchainWrapper.getFeeRate()
+        setLoaderStatus(false)
+        CACHE_IS_COUNTING = false
+        NavStore.goNext('SendAdvancedScreen')
+    }
+
     handleGotoReceipt = async () => {
+        if (CACHE_IS_COUNTING) {
+            return true
+        }
+        setLoaderStatus(true)
+        CACHE_IS_COUNTING = true
+        await SendActionsBlockchainWrapper.getFeeRate()
+        setLoaderStatus(false)
+        CACHE_IS_COUNTING = false
         NavStore.goNext('ReceiptScreen')
     }
 
@@ -98,16 +123,19 @@ class SendScreen extends SendBasicScreen {
                             <InputAndButtons
                                 sendScreenStoreDict={this.props.sendScreenStore.dict}
                                 sendScreenStoreTransferAllBalance={this.props.sendScreenStore.fromBlockchain.transferAllBalance}
+                                sendScreenStoreUi={this.props.sendScreenStore.ui}
                                 ref={component => this.inputAndButtonsComponent = component}
                             />
 
                             <InputAddress
                                 sendScreenStoreDict={this.props.sendScreenStore.dict}
+                                sendScreenStoreValue={this.props.sendScreenStore.ui.addressTo}
                                 ref={component => this.inputAddressComponent = component}
                             />
 
                             <InputMemo
                                 sendScreenStoreDict={this.props.sendScreenStore.dict}
+                                sendScreenStoreValue={this.props.sendScreenStore.ui.memo}
                                 ref={component => this.inputMemoComponent = component}
                             />
                         </View>

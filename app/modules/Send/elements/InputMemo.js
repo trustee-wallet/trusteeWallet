@@ -23,6 +23,12 @@ class InputMemo extends React.PureComponent {
         this.memoInput = React.createRef()
     }
 
+    componentDidMount() {
+        if (this.memoInput) {
+            this.memoInput.handleInput(this.props.sendScreenStoreValue, false)
+        }
+    }
+
     onFocus = () => {
         this.setState({
             focused: true

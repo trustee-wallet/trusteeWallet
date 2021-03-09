@@ -44,9 +44,9 @@ export namespace SendActionsStart {
             type: 'RESET_DATA',
             ui: {
                 uiType,
-                addressTo : '',
-                memo : '',
-                cryptoValue : ''
+                addressTo : 'bnb146lec0enyzz2x5kpna8kwelky8kumfhj05aspz',
+                memo : 'fgfxg',
+                cryptoValue : '0.001'
             },
             dict
         })

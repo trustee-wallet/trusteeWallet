@@ -42,6 +42,47 @@ export namespace SendActionsBlockchainWrapper {
         } as BlocksoftBlockchainTypes.TransferData
     }
 
+    export const getFeeRate = async () => {
+        const { ui } = store.getState().sendScreenStore
+        try {
+            const newCountedFeesData = {... CACHE_DATA.countedFeesData}
+            newCountedFeesData.addressTo = ui.addressTo
+            newCountedFeesData.amount = ui.cryptoValue
+            newCountedFeesData.memo = ui.memo
+            if (CACHE_DATA.countedFeesData === newCountedFeesData) {
+                return
+            }
+            const countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData)
+            let selectedFee = false
+            if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
+                // @ts-ignore
+                selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
+            }
+            CACHE_DATA.countedFeesData = newCountedFeesData
+            dispatch({
+                type: 'SET_DATA_BLOCKCHAIN',
+                fromBlockchain: {
+                    countedFees,
+                    selectedFee
+                }
+            })
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('SendActionsBlockchainWrapper.getFeeRate error ' + e.message)
+            }
+            if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.exchange.sorry'),
+                    description: strings('send.errors.' + e.message)
+                })
+            } else {
+                Log.err('SendActionsBlockchainWrapper.getFeeRate error ' + e.message)
+            }
+        }
+    }
+
     export const getTransferAllBalance = async () => {
         try {
             const newCountedFeesData = {... CACHE_DATA.countedFeesData}
@@ -67,6 +108,7 @@ export namespace SendActionsBlockchainWrapper {
             dispatch({
                 type: 'SET_DATA_BLOCKCHAIN',
                 fromBlockchain: {
+                    countedFees,
                     selectedFee,
                     transferAllBalance
                 }

@@ -15,6 +15,7 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import NavStore from '@app/components/navigation/NavStore'
+import TextInput from '@app/components/elements/new/TextInput'
 
 const addressInput = {
     id: 'address',
@@ -26,9 +27,19 @@ class InputAddress extends React.PureComponent {
     constructor(props) {
         super(props)
         this.state = {
-            addressError: false
+            addressError: false,
         }
         this.addressInput = React.createRef()
+    }
+
+    componentDidMount() {
+        if (this.addressInput) {
+            this.addressInput.handleInput(this.props.sendScreenStoreValue, false)
+        }
+    }
+
+    handleChangeAddress = () => {
+        this.setState(() => ({ addressError: false }))
     }
 
     onFocus = () => {
@@ -51,7 +62,7 @@ class InputAddress extends React.PureComponent {
                 addressError: true
             })
             return {
-                status : 'fail'
+                status: 'fail'
             }
         }
 
@@ -61,7 +72,7 @@ class InputAddress extends React.PureComponent {
                 addressError: true
             })
             return {
-                status : 'fail'
+                status: 'fail'
             }
         }
 
@@ -72,8 +83,8 @@ class InputAddress extends React.PureComponent {
         }
 
         return {
-            status : 'success',
-            value : addressValidation.value
+            status: 'success',
+            value: addressValidation.value
         }
     }
 
@@ -125,6 +136,8 @@ class InputAddress extends React.PureComponent {
                         fio={false}
                         copy={false}
                         qr={true}
+                        onChangeText={this.handleChangeAddress}
+                        callback={this.handleChangeAddress}
                         addressError={false}
                         qrCallback={() => {
                             setQRConfig({
@@ -136,13 +149,6 @@ class InputAddress extends React.PureComponent {
                             })
                             setQRValue('')
                             NavStore.goNext('QRCodeScannerScreen')
-                        }}
-                        callback={(value) => {
-                            if (this.state.addressError) {
-                                this.setState({
-                                    addressError : false
-                                })
-                            }
                         }}
                         validPlaceholder={true}
                     />

@@ -26,6 +26,10 @@ const INITIAL_STATE = {
         basicCurrencyRate : ''
     },
     fromBlockchain : {
+        countedFees : {
+            fees : [],
+            selectedFeeIndex : -1
+        },
         selectedFee : false,
         transferAllBalance : false
     }

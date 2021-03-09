@@ -11,7 +11,4 @@ export default class SendBasicScreen extends Component {
         this.setState(() => ({ headerHeight }))
     }
 
-    openAdvancedSettings = async (additionalParams) => {
-        NavStore.goNext('SendAdvancedScreen')
-    }
 }

@@ -60,6 +60,12 @@ class InputAndButtons extends React.PureComponent {
         this.valueInput = React.createRef()
     }
 
+    componentDidMount() {
+        if (this.valueInput) {
+            this._setCryptoValue(this.props.sendScreenStoreUi.cryptoValue, this.props.sendScreenStoreUi.inputType)
+        }
+    }
+
     handleChangeEquivalentType = () => {
         const inputType = this.state.inputType === 'CRYPTO' ? 'FIAT' : 'CRYPTO'
         SendActionsStart.setBasicInputType(inputType)
@@ -85,22 +91,28 @@ class InputAndButtons extends React.PureComponent {
     }
 
     transferAllCallback = (transferAllBalance) => {
-        const { currencyCode, basicCurrencyRate } = this.props.sendScreenStoreDict
-        let cryptoValue, inputValue
+        let cryptoValue
         if (this.state.partBalance === 4 || transferAllBalance === 0) {
             cryptoValue = transferAllBalance
         } else {
             cryptoValue = BlocksoftUtils.mul(BlocksoftUtils.div(transferAllBalance, 4), this.state.partBalance)
         }
 
+        this._setCryptoValue(cryptoValue, this.state.inputType)
+    }
+
+    _setCryptoValue = (cryptoValue, inputType) => {
+        const { currencyCode, basicCurrencyRate } = this.props.sendScreenStoreDict
+        let inputValue
         const cryptoPrettyValue = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(cryptoValue)
         const fiatPrettyValue = RateEquivalent.mul({ value: cryptoPrettyValue, currencyCode, basicCurrencyRate })
 
-        if (this.state.inputType === 'CRYPTO') {
+        if (inputType === 'CRYPTO') {
             inputValue = cryptoPrettyValue
             this.setState({
                 isCountingTransferAll: false,
                 inputValue,
+                inputType,
                 equivalentValue: fiatPrettyValue,
                 cryptoValue,
                 enoughFunds: {
@@ -113,6 +125,7 @@ class InputAndButtons extends React.PureComponent {
             this.setState({
                 isCountingTransferAll: false,
                 inputValue,
+                inputType,
                 equivalentValue: cryptoPrettyValue,
                 cryptoValue,
                 enoughFunds: {
