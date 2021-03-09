@@ -1,19 +1,17 @@
 /**
  * @version 0.41
  */
-import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from 'react-native'
+import React from 'react'
+import { View, Text, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
 
-import { HIT_SLOP } from '@app/themes/Themes'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { strings } from '@app/services/i18n'
 
 import AddressInput from '@app/components/elements/NewInput'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import { getSendScreenDataDict } from '@app/appstores/Stores/Send/selectors'
 import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import NavStore from '@app/components/navigation/NavStore'
@@ -23,7 +21,7 @@ const addressInput = {
     type: 'ETH_ADDRESS'
 }
 
-class InputAddress extends Component {
+class InputAddress extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -104,8 +102,6 @@ class InputAddress extends Component {
     }
 
     render() {
-        console.log('SendScreen.inputAddress render')
-
         const { GRID_SIZE } = this.context
         const { currencySymbol, currencyCode, extendsProcessor, addressUiChecker, network } = this.props.sendScreenStoreDict
 
@@ -141,6 +137,13 @@ class InputAddress extends Component {
                             setQRValue('')
                             NavStore.goNext('QRCodeScannerScreen')
                         }}
+                        callback={(value) => {
+                            if (this.state.addressError) {
+                                this.setState({
+                                    addressError : false
+                                })
+                            }
+                        }}
                         validPlaceholder={true}
                     />
                 </View>
@@ -152,13 +155,7 @@ class InputAddress extends Component {
 
 InputAddress.contextType = ThemeContext
 
-const mapStateToProps = (state) => {
-    return {
-        sendScreenStoreDict: getSendScreenDataDict(state)
-    }
-}
-
-export default connect(mapStateToProps, null, null, { forwardRef: true })(InputAddress)
+export default connect(null, null, null, { forwardRef: true })(InputAddress)
 
 const style = StyleSheet.create({
     inputWrapper: {

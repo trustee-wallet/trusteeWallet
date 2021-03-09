@@ -13,7 +13,6 @@ import AmountInput from '@app/modules/Send/elements/InputAndButtonsInput'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-import { getSendScreenDataDict, sendScreenStoreTransferAllBalance } from '@app/appstores/Stores/Send/selectors'
 
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -42,7 +41,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 const USDT_LIMIT = 600
 
-class InputAndButtons extends Component {
+class InputAndButtons extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -103,7 +102,11 @@ class InputAndButtons extends Component {
                 isCountingTransferAll: false,
                 inputValue,
                 equivalentValue: fiatPrettyValue,
-                cryptoValue
+                cryptoValue,
+                enoughFunds: {
+                    isAvailable: true,
+                    messages: ''
+                }
             })
         } else {
             inputValue = fiatPrettyValue
@@ -111,7 +114,11 @@ class InputAndButtons extends Component {
                 isCountingTransferAll: false,
                 inputValue,
                 equivalentValue: cryptoPrettyValue,
-                cryptoValue
+                cryptoValue,
+                enoughFunds: {
+                    isAvailable: true,
+                    messages: ''
+                }
             })
         }
         this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(inputValue).separated, false)
@@ -152,7 +159,7 @@ class InputAndButtons extends Component {
                 }
             })
             return {
-                status : 'fail'
+                status: 'fail'
             }
         }
         if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '') {
@@ -163,7 +170,7 @@ class InputAndButtons extends Component {
                 }
             })
             return {
-                status : 'fail'
+                status: 'fail'
             }
         }
 
@@ -231,8 +238,8 @@ class InputAndButtons extends Component {
             })
         }
         return {
-            status : 'success',
-            value : this.state.cryptoValue
+            status: 'success',
+            value: this.state.cryptoValue
         }
     }
 
@@ -273,8 +280,6 @@ class InputAndButtons extends Component {
     }
 
     render() {
-        console.log('SendScreen.inputAndButtons render')
-
         const { colors, GRID_SIZE } = this.context
         const { decimals, currencySymbol, basicCurrencyCode, balanceTotalPretty } = this.props.sendScreenStoreDict
         const { inputType, equivalentValue } = this.state
@@ -364,14 +369,7 @@ class InputAndButtons extends Component {
 
 InputAndButtons.contextType = ThemeContext
 
-const mapStateToProps = (state) => {
-    return {
-        sendScreenStoreDict: getSendScreenDataDict(state),
-        sendScreenStoreTransferAllBalance: sendScreenStoreTransferAllBalance(state)
-    }
-}
-
-export default connect(mapStateToProps, null, null, { forwardRef: true })(InputAndButtons)
+export default connect(null, null, null, { forwardRef: true })(InputAndButtons)
 
 const style = StyleSheet.create({
     ticker: {

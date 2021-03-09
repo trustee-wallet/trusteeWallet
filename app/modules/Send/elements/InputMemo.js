@@ -1,14 +1,12 @@
 /**
  * @version 0.41
  */
-import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from 'react-native'
+import React from 'react'
+import { View, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
 import MemoInput from '@app/components/elements/NewInput'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-
-import { getSendScreenDataDict } from '@app/appstores/Stores/Send/selectors'
 
 import { strings } from '@app/services/i18n'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
@@ -18,7 +16,7 @@ const memoInput = {
     type: 'string'
 }
 
-class InputMemo extends Component {
+class InputMemo extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -71,8 +69,6 @@ class InputMemo extends Component {
 
 
     render() {
-        console.log('SendScreen.inputMemo render')
-
         const { GRID_SIZE } = this.context
         const { currencyCode } = this.props.sendScreenStoreDict
 
@@ -151,13 +147,7 @@ class InputMemo extends Component {
 
 InputMemo.contextType = ThemeContext
 
-const mapStateToProps = (state) => {
-    return {
-        sendScreenStoreDict: getSendScreenDataDict(state)
-    }
-}
-
-export default connect(mapStateToProps, null, null, { forwardRef: true })(InputMemo)
+export default connect(null, null, null, { forwardRef: true })(InputMemo)
 
 
 const style = StyleSheet.create({

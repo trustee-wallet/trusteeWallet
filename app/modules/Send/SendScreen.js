@@ -48,7 +48,6 @@ class SendScreen extends SendBasicScreen {
     // will show notices on fields
     disabledGotoWhy = async () => {
         const disableInput = await this.inputAndButtonsComponent.disabledGotoWhy()
-        console.log('disableInput ', disableInput )
         const disableAddress = await this.inputAddressComponent.disabledGotoWhy()
         const disableMemo = await this.inputMemoComponent.disabledGotoWhy()
         if (disableInput.status !== 'success' || disableAddress.status !== 'success' || disableMemo.status !== 'success') {
@@ -64,9 +63,6 @@ class SendScreen extends SendBasicScreen {
     }
 
     render() {
-        console.log('')
-        console.log('SendScreen render')
-
         const { colors, GRID_SIZE } = this.context
 
         return (
@@ -80,6 +76,7 @@ class SendScreen extends SendBasicScreen {
                     rightParams={{ 'close': true }}
                     title={strings('send.title')}
                     ExtraView={HeaderAccountDetails}
+                    ExtraViewParams={{ isBalanceVisible: this.props.isBalanceVisible, sendScreenStoreDict: this.props.sendScreenStore.dict }}
                     setHeaderHeight={this.setHeaderHeight}
                 />
                 <KeyboardAwareView>
@@ -99,14 +96,18 @@ class SendScreen extends SendBasicScreen {
                     >
                         <View>
                             <InputAndButtons
+                                sendScreenStoreDict={this.props.sendScreenStore.dict}
+                                sendScreenStoreTransferAllBalance={this.props.sendScreenStore.fromBlockchain.transferAllBalance}
                                 ref={component => this.inputAndButtonsComponent = component}
                             />
 
                             <InputAddress
+                                sendScreenStoreDict={this.props.sendScreenStore.dict}
                                 ref={component => this.inputAddressComponent = component}
                             />
 
                             <InputMemo
+                                sendScreenStoreDict={this.props.sendScreenStore.dict}
                                 ref={component => this.inputMemoComponent = component}
                             />
                         </View>
@@ -150,6 +151,7 @@ SendScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
+        isBalanceVisible: state.settingsStore.data.isBalanceVisible,
         sendScreenStore: getSendScreenData(state)
     }
 }

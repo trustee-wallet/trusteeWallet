@@ -11,9 +11,8 @@ import Log from '@app/services/Log/Log'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
-import { getSendScreenDataDict } from '@app/appstores/Stores/Send/selectors'
 
-class HeaderAccountDetails extends Component {
+class HeaderAccountDetails extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -27,12 +26,10 @@ class HeaderAccountDetails extends Component {
     }
 
     render() {
-        console.log('SendScreen.header render')
         const { colors } = this.context
-        const originalVisibility = this.props.isBalanceVisible
+        const originalVisibility = this.props.ExtraViewParams.isBalanceVisible
         const isBalanceVisible = this.state.isBalanceVisible || originalVisibility
-
-        const { currencySymbol, currencyName, currencyCode, balanceTotalPretty, basicCurrencyBalanceTotal, basicCurrencySymbol } = this.props.sendScreenStoreDict
+        const { currencySymbol, currencyName, currencyCode, balanceTotalPretty, basicCurrencyBalanceTotal, basicCurrencySymbol } = this.props.ExtraViewParams.sendScreenStoreDict
 
 
         const amountPrep = BlocksoftPrettyNumbers.makeCut(balanceTotalPretty).cutted
@@ -74,14 +71,7 @@ class HeaderAccountDetails extends Component {
 
 HeaderAccountDetails.contextType = ThemeContext
 
-const mapStateToProps = (state) => {
-    return {
-        isBalanceVisible: state.settingsStore.data.isBalanceVisible,
-        sendScreenStoreDict : getSendScreenDataDict(state)
-    }
-}
-
-export default connect(mapStateToProps, {})(HeaderAccountDetails)
+export default connect(null, {})(HeaderAccountDetails)
 
 const styles = StyleSheet.create({
     accountDetail: {

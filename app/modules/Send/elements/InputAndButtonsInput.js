@@ -13,7 +13,7 @@ import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/Normalize
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-class InputAndButtonsInput extends Component {
+class InputAndButtonsInput extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -39,8 +39,6 @@ class InputAndButtonsInput extends Component {
         }
 
         const { id, name, type, subtype, cuttype, additional, decimals, callback, isTextarea = false } = this.props
-
-        const basicValue = value
 
         if (additional === 'NUMBER') {
             value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
