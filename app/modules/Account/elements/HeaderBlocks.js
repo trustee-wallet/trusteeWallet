@@ -212,6 +212,8 @@ class HeaderBlocks extends Component {
             return this.handleSettingAccount(currencyCode)
         } else if (currencyCode === 'TRX') {
             return this.handleSettingAccount(currencyCode)
+        } else if (currencyCode === 'BNB') {
+            return this.handleSettingAccount(currencyCode)
         } else {
             return null
         }

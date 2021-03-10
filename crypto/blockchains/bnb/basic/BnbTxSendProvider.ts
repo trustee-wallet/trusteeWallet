@@ -16,8 +16,12 @@ const Encode = require('../utils/Encode')
 const _tinySecp256k = require('tiny-secp256k1')
 
 function decodeAddress(value: any) {
-    const decodeAddress = bech.decode(value)
-    return Buffer.from(bech.fromWords(decodeAddress.words))
+    try {
+        const decodeAddress = bech.decode(value)
+        return Buffer.from(bech.fromWords(decodeAddress.words))
+    } catch (e) {
+        throw new Error(e.message + ' while decodeAddress ' + value)
+    }
 }
 
 function convertObjectToSignBytes(obj: any) {
@@ -62,19 +66,56 @@ export class BnbTxSendProvider {
         const account = res.data
 
         const unified = BlocksoftUtils.fromUnified(data.amount, 8) * 1
-        const msg = {
-            'inputs': [{
-                'address': data.addressFrom, 'coins': [{
-                    'amount': unified,
-                    'denom': 'BNB'
+        let msg
+        let txMsg
+        if (typeof data.blockchainData !== 'undefined' && typeof data.blockchainData.action !== 'undefined' && data.blockchainData.action === 'BnbToSmart') {
+            let addressTo = data.addressTo
+            if (addressTo.substr(0,2) === '0x') {
+                addressTo = addressTo.substr(2)
+            }
+            msg = {
+                from: data.addressFrom,
+                to: data.addressTo,
+                amount: { 'denom': 'BNB', 'amount': unified },
+                expire_time: data.blockchainData.expire_time
+            }
+            txMsg = {
+                from: decodeAddress(data.addressFrom),
+                to: Buffer.from(addressTo, 'hex'),
+                amount: { 'denom': 'BNB', 'amount': unified },
+                expire_time: data.blockchainData.expire_time,
+                aminoPrefix: '800819C0'
+            }
+        } else {
+            msg = {
+                'inputs': [{
+                    'address': data.addressFrom, 'coins': [{
+                        'amount': unified,
+                        'denom': 'BNB'
+                    }]
+                }],
+                'outputs': [{
+                    'address': data.addressTo, 'coins': [{
+                        'amount': unified,
+                        'denom': 'BNB'
+                    }]
                 }]
-            }],
-            'outputs': [{
-                'address': data.addressTo, 'coins': [{
-                    'amount': unified,
-                    'denom': 'BNB'
-                }]
-            }]
+            }
+            txMsg = {
+                'inputs': [{
+                    'address': decodeAddress(data.addressFrom), 'coins': [{
+                        'denom': 'BNB',
+                        'amount': unified
+                    }]
+                }],
+                'outputs': [{
+                    'address': decodeAddress(data.addressTo), 'coins': [{
+                        'denom': 'BNB',
+                        'amount': unified
+                    }]
+                }],
+                aminoPrefix: '2A2C87FA'
+            }
         }
         const memo = (typeof data.memo === 'undefined' || !data.memo) ? '' : data.memo
         const signMsg = {
@@ -98,7 +139,7 @@ export class BnbTxSendProvider {
         const pubKey = keypair.getPublic()
         const pubSerialize = serializePubKey(pubKey)
 
-        const signatures =  [{
+        const signatures = [{
             pub_key: pubSerialize,
             signature: Buffer.from(signatureHex, 'hex'),
             account_number: account.account_number,
@@ -108,21 +149,7 @@ export class BnbTxSendProvider {
             sequence: account.sequence + '',
             accountNumber: account.account_number + '',
             chainId: 'Binance-Chain-Tigris',
-            msg: {
-                'inputs': [{
-                    'address': decodeAddress(data.addressFrom), 'coins': [{
-                        'denom': 'BNB',
-                        'amount': unified,
-                    }]
-                }],
-                'outputs': [{
-                    'address': decodeAddress(data.addressTo), 'coins': [{
-                        'denom': 'BNB',
-                        'amount': unified,
-                    }]
-                }],
-                aminoPrefix: '2A2C87FA'
-            },
+            msg: txMsg,
             baseMsg: undefined,
             memo: memo,
             source: 0,
