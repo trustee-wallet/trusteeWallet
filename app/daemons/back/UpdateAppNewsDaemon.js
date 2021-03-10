@@ -57,7 +57,7 @@ class UpdateAppNewsDaemon {
             this._canUpdate = true
             return false
         }
-        if (typeof res.news === 'undefined' || !res.news || res.news.length === 0 || res.newsHash === CACHE_NEWS_HASH) {
+        if (!res || typeof res === 'undefined' || typeof res.news === 'undefined' || !res.news || res.news.length === 0 || res.newsHash === CACHE_NEWS_HASH) {
             if (res && typeof res.forServerIds !== 'undefined' && res.forServerIds.length > 0) {
                 await appNewsDS.saveAppNewsSentForServer(res.forServerIds)
             }
