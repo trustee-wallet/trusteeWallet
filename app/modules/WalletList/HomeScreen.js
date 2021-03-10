@@ -64,7 +64,7 @@ import AppLockBlur from "../../components/AppLockBlur";
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
 let CACHE_SET_WALLET_HASH = false
-
+let CACHE_IS_SCANNING = false
 
 async function storeCurrenciesOrder(walletHash, data) {
     AsyncStorage.setItem(`${walletHash}:currenciesOrder`, JSON.stringify(data))
@@ -149,28 +149,6 @@ class HomeScreen extends React.Component {
                 Log.errDaemon('WalletList.HomeScreen handleRefresh error updateCurrencyRateDaemon ' + e.message)
             }
 
-            /*
-            try {
-                await UpdateAppNewsDaemon.updateAppNewsDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
-                await UpdateAppNewsListDaemon.updateAppNewsListDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
-            } catch (e) {
-                Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAppNewsDaemon both fromServer and forView ' + e.message)
-            }
-
-            try {
-                await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ force: true })
-            } catch (e) {
-                Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountBalanceAndTransactionsDaemon ' + e.message)
-            }
-
-            try {
-                await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({ force: true })
-            } catch (e) {
-                Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountBalanceAndTransactionsHDDaemon ' + e.message)
-            }
-
-            */
-
             try {
                 await UpdateAccountListDaemon.forceDaemonUpdate()
             } catch (e) {
@@ -181,6 +159,44 @@ class HomeScreen extends React.Component {
         } catch (e) {
             Log.err('WalletList.HomeScreen handleRefresh error ' + e.message)
         }
+
+        this.handleLateRefresh()
+    }
+
+    handleLateRefresh = async () => {
+        if (CACHE_IS_SCANNING) return false
+        CACHE_IS_SCANNING = true
+        try {
+
+            try {
+                await UpdateAppNewsDaemon.updateAppNewsDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
+                await UpdateAppNewsListDaemon.updateAppNewsListDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
+            } catch (e) {
+                Log.errDaemon('WalletList.HomeScreen handleLateRefresh error updateAppNewsDaemon both fromServer and forView ' + e.message)
+            }
+
+
+            try {
+                await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ force: true })
+            } catch (e) {
+                Log.errDaemon('WalletList.HomeScreen handleLateRefresh error updateAccountBalanceAndTransactionsDaemon ' + e.message)
+            }
+
+            try {
+                await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({ force: true })
+            } catch (e) {
+                Log.errDaemon('WalletList.HomeScreen handleLateRefresh error updateAccountBalanceAndTransactionsHDDaemon ' + e.message)
+            }
+
+            try {
+                await UpdateAccountListDaemon.forceDaemonUpdate()
+            } catch (e) {
+                Log.errDaemon('WalletList.HomeScreen handleLateRefresh error updateAccountListDaemon ' + e.message)
+            }
+        } catch (e) {
+            Log.err('WalletList.HomeScreen handleLateRefresh error ' + e.message)
+        }
+        CACHE_IS_SCANNING = false
     }
 
     // linked to stores

@@ -28,8 +28,6 @@ class Transaction {
      * @param {integer} updateId
      */
     saveTransaction = async (transaction, updateId = false, source = '') => {
-        Database.setTableName('transactions')
-
         if (!transaction.updatedAt) {
             transaction.updatedAt = new Date().toISOString()
         }
@@ -75,7 +73,7 @@ class Transaction {
             if (typeof copy.createdAt === 'undefined' || !copy.createdAt) {
                 copy.createdAt = new Date().toISOString()
             }
-            await Database.setInsertData({ insertObjs: [copy] }).insert()
+            await Database.setTableName('transactions').setInsertData({ insertObjs: [copy] }).insert()
             // Log.daemon('Transaction saveTransaction finished inserted')
         } else {
             // Log.daemon('Transaction saveTransaction finished skipped')
