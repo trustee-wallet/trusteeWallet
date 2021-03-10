@@ -80,19 +80,22 @@ class HeaderBlocks extends Component {
     }
 
     actualOpen = (address, forceLink = false) => {
-        let { currencyExplorerLink } = this.props.cryptoCurrency
+        const{ currencyExplorerLink } = this.props.cryptoCurrency
+        let actualLink
         if (forceLink) {
-            currencyExplorerLink = forceLink
+            actualLink = forceLink
+        } else {
+            actualLink = currencyExplorerLink + address
         }
-        Linking.canOpenURL(`${currencyExplorerLink}${address}`).then(supported => {
+        Linking.canOpenURL(actualLink).then(supported => {
             if (supported) {
-                let linkUrl = `${currencyExplorerLink}${address}`
+                let linkUrl = actualLink
                 if (linkUrl.indexOf('?') === -1) {
                     linkUrl += '?from=trustee'
                 }
                 Linking.openURL(linkUrl)
             } else {
-                Log.err('Account.AccountScreen Dont know how to open URI', `${currencyExplorerLink}${address}`)
+                Log.err('Account.AccountScreen Dont know how to open URI', actualLink)
             }
         })
     }
@@ -150,7 +153,7 @@ class HeaderBlocks extends Component {
                                     {balancePrettyPrep2}
                                 </Text>
                             </Text>
-                            : 
+                            :
                                 <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, marginTop: 10, paddingHorizontal: 15, fontSize: 52, lineHeight: 60 }}>
                                     ****</Text>
                             }
@@ -209,6 +212,8 @@ class HeaderBlocks extends Component {
             return this.handleSettingAccount(currencyCode)
         } else if (currencyCode === 'TRX') {
             return this.handleSettingAccount(currencyCode)
+        } else if (currencyCode === 'BNB') {
+            return this.handleSettingAccount(currencyCode)
         } else {
             return null
         }
@@ -225,12 +230,10 @@ class HeaderBlocks extends Component {
         let forceLink = false
         if (cryptoCurrency.currencyCode === 'BTC') {
             let isSegwit = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit'
-            if (typeof account.walletPubs === 'undefined' || !account.walletPubs) {
-                shownAddress = isSegwit ? account.segwitAddress : account.legacyAddress
-            } else {
+            shownAddress = isSegwit ? account.segwitAddress : account.legacyAddress
+            if (typeof account.walletPubs !== 'undefined' && account.walletPubs) {
                 isSegwit = isSegwit ? 'btc.84' : 'btc.44'
-                shownAddress = account.walletPubs[isSegwit].walletPubValue
-                forceLink = 'https://blockchair.com/bitcoin/xpub/'
+                forceLink = 'https://blockchair.com/bitcoin/xpub/' + account.walletPubs[isSegwit].walletPubValue
             }
         }
 
