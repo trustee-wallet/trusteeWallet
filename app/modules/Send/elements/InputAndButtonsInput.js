@@ -6,12 +6,13 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { TextInput, View, Platform, StyleSheet } from 'react-native'
 
-import Log from '@app/services/Log/Log'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import Validator from '@app/services/UI/Validator/Validator'
 import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+
+import Log from '@app/services/Log/Log'
 
 class InputAndButtonsInput extends React.PureComponent {
 

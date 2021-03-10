@@ -1,7 +1,7 @@
 /**
  * @version 0.41
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
@@ -10,6 +10,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { strings } from '@app/services/i18n'
 
 import AmountInput from '@app/modules/Send/elements/InputAndButtonsInput'
+import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
+
 import CustomIcon from '@app/components/elements/CustomIcon'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
@@ -18,17 +20,15 @@ import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 
-import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 
 
-import DaemonCache from '@app/daemons/DaemonCache'
 import Log from '@app/services/Log/Log'
 import config from '@app/config/config'
-import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
-
+import DaemonCache from '@app/daemons/DaemonCache'
 
 const amountInput = {
     id: 'value',
@@ -162,73 +162,8 @@ class InputAndButtons extends React.PureComponent {
         }
     }
 
-    async disabledGotoWhy(toState = false) {
-        const { balanceTotalPretty, balanceRaw, currencyCode, walletHash, addressFrom } = this.props.sendScreenStoreDict
-        if (balanceTotalPretty <= 0) {
-            this.setState({
-                enoughFunds: {
-                    isAvailable: false,
-                    messages: [strings('send.notEnough')]
-                }
-            })
-            return {
-                status: 'fail'
-            }
-        }
-        if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '') {
-            this.setState({
-                enoughFunds: {
-                    isAvailable: false,
-                    messages: [strings('send.notValidAmount')]
-                }
-            })
-            return {
-                status: 'fail'
-            }
-        }
-
-        // enough balance check
-        let msg = false
-        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
-        if (typeof extend.delegatedTransfer === 'undefined' && typeof extend.feesCurrencyCode !== 'undefined' && typeof extend.skipParentBalanceCheck === 'undefined') {
-            const parentCurrency = await DaemonCache.getCacheAccount(walletHash, extend.feesCurrencyCode)
-            if (parentCurrency) {
-                let msg = false
-                const parentBalance = parentCurrency.balance * 1
-                if (currencyCode === 'USDT' && parentBalance < USDT_LIMIT) {
-                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed * 1 >= USDT_LIMIT) {
-                        // @todo mark to turn on unconfirmed
-                        // msg = strings('send.errors.SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM', { symbol: extend.addressCurrencyCode })
-                    } else {
-                        msg = strings('send.errors.SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT', { symbol: extend.addressCurrencyCode })
-                    }
-                } else if (parentBalance === 0) {
-                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed > 0) {
-                        msg = strings('send.notEnoughForFeeConfirmed', { symbol: parentCurrency.currencySymbol })
-                    } else {
-                        msg = strings('send.notEnoughForFee', { symbol: parentCurrency.currencySymbol })
-                    }
-                }
-                if (msg) {
-                    Log.log('Send.SendScreen.handleSendTransaction ' + currencyCode + ' from ' + addressFrom + ' parentBalance not ok' + parentBalance, parentCurrency)
-                    if (config.debug.appErrors) {
-                        console.log('Send.SendScreen.handleSendTransaction ' + currencyCode + ' from ' + addressFrom + ' parentBalance not ok' + parentBalance, parentCurrency)
-                    }
-                }
-            }
-        }
-
-        if (!msg) {
-            let diff = BlocksoftUtils.diff(this.state.cryptoValue, balanceRaw)
-            const hodl = await (BlocksoftBalances.setCurrencyCode(currencyCode)).getBalanceHodl()
-            if (hodl > 0) {
-                diff = BlocksoftUtils.add(diff, hodl)
-            }
-            if (diff > 0) {
-                msg = strings('send.notEnough')
-            }
-        }
-
+    async disabledGotoWhy() {
+        const msg = await this._disabledGotoWhy()
         if (msg) {
             this.setState({
                 enoughFunds: {
@@ -240,8 +175,6 @@ class InputAndButtons extends React.PureComponent {
                 status: 'fail'
             }
         }
-
-
         if (!this.state.enoughFunds.isAvailable) {
             this.setState({
                 enoughFunds: {
@@ -254,6 +187,62 @@ class InputAndButtons extends React.PureComponent {
             status: 'success',
             value: this.state.cryptoValue
         }
+    }
+
+    async _disabledGotoWhy() {
+        const { balanceTotalPretty, balanceRaw, currencyCode, walletHash, addressFrom } = this.props.sendScreenStoreDict
+
+        if (balanceTotalPretty <= 0) {
+            return strings('send.notEnough')
+        }
+
+        if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '') {
+            return strings('send.notValidAmount')
+        }
+
+
+        // enough balance check
+        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+        if (typeof extend.delegatedTransfer === 'undefined' && typeof extend.feesCurrencyCode !== 'undefined' && typeof extend.skipParentBalanceCheck === 'undefined') {
+            const parentCurrency = await DaemonCache.getCacheAccount(walletHash, extend.feesCurrencyCode)
+            if (parentCurrency) {
+                let msg = false
+                const parentBalance = parentCurrency.balance * 1
+                const parentSettings = BlocksoftDict.getCurrencyAllSettings(extend.feesCurrencyCode)
+                const symbol = parentCurrency.currencySymbol || parentSettings.currencySymbol
+                if (currencyCode === 'USDT' && parentBalance < USDT_LIMIT) {
+                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed * 1 >= USDT_LIMIT) {
+                        // @todo mark to turn on unconfirmed
+                        // msg = strings('send.errors.SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM', { symbol: extend.addressCurrencyCode })
+                    } else {
+                        msg = strings('send.errors.SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT', { symbol })
+                    }
+                } else if (parentBalance === 0) {
+                    if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed > 0) {
+                        msg = strings('send.notEnoughForFeeConfirmed', { symbol })
+                    } else {
+                        msg = strings('send.notEnoughForFee', { symbol })
+                    }
+                }
+                if (msg) {
+                    Log.log('Send.SendScreen.handleSendTransaction ' + currencyCode + ' from ' + addressFrom + ' parentBalance ' + extend.feesCurrencyCode + ' ' + symbol + ' not ok ' + parentBalance, parentCurrency)
+                    if (config.debug.appErrors) {
+                        console.log('Send.SendScreen.handleSendTransaction ' + currencyCode + ' from ' + addressFrom + ' parentBalance ' + extend.feesCurrencyCode + ' ' + symbol + ' not ok ' + parentBalance, parentCurrency)
+                    }
+                    return msg
+                }
+            }
+        }
+
+        let diff = BlocksoftUtils.diff(this.state.cryptoValue, balanceRaw)
+        const hodl = await (BlocksoftBalances.setCurrencyCode(currencyCode)).getBalanceHodl()
+        if (hodl*1 > 0) {
+            diff = BlocksoftUtils.add(diff, hodl)
+        }
+        if (diff*1 > 0) {
+            return strings('send.notEnough')
+        }
+        return false
     }
 
     renderEnoughFundsError = () => {

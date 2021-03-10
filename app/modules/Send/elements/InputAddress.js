@@ -15,7 +15,6 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import NavStore from '@app/components/navigation/NavStore'
-import TextInput from '@app/components/elements/new/TextInput'
 
 const addressInput = {
     id: 'address',

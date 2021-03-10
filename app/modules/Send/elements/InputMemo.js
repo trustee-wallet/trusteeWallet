@@ -24,7 +24,7 @@ class InputMemo extends React.PureComponent {
     }
 
     componentDidMount() {
-        if (this.memoInput) {
+        if (typeof this.memoInput.handleInput !== 'undefined') {
             this.memoInput.handleInput(this.props.sendScreenStoreValue, false)
         }
     }

@@ -30,7 +30,7 @@ export namespace SendActionsStart {
             currencySymbol : cryptoCurrency.currencySymbol,
             currencyName : cryptoCurrency.currencyName,
             walletHash : account.walletHash,
-            addressFrom : account.addressFrom,
+            addressFrom : account.address,
             currencyCode : account.currencyCode,
             balanceRaw : account.balanceRaw,
             balanceTotalPretty : account.balanceTotalPretty,

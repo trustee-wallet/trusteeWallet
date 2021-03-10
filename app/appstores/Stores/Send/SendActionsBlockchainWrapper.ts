@@ -43,8 +43,8 @@ export namespace SendActionsBlockchainWrapper {
     }
 
     export const getFeeRate = async () => {
-        const { ui } = store.getState().sendScreenStore
         try {
+            const { ui } = store.getState().sendScreenStore
             const newCountedFeesData = {... CACHE_DATA.countedFeesData}
             newCountedFeesData.addressTo = ui.addressTo
             newCountedFeesData.amount = ui.cryptoValue
@@ -85,8 +85,11 @@ export namespace SendActionsBlockchainWrapper {
 
     export const getTransferAllBalance = async () => {
         try {
+            const { ui } = store.getState().sendScreenStore
             const newCountedFeesData = {... CACHE_DATA.countedFeesData}
-            if (newCountedFeesData.addressTo === '?') {
+            newCountedFeesData.addressTo = ui.addressTo
+            newCountedFeesData.memo = ui.memo
+            if (!newCountedFeesData.addressTo || newCountedFeesData.addressTo === '' || newCountedFeesData.addressTo === '?') {
                 newCountedFeesData.addressTo =  BlocksoftTransferUtils.getAddressToForTransferAll({
                     currencyCode : newCountedFeesData.currencyCode,
                     address : newCountedFeesData.addressFrom
