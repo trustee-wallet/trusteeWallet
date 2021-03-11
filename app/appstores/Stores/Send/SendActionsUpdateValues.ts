@@ -16,4 +16,13 @@ export namespace SendActionsUpdateValues {
             }
         })
     }
+
+    export const setComment = (comment : string) => {
+        dispatch({
+            type: 'SET_DATA',
+            ui: {
+                comment,
+            }
+        })
+    }
 }

@@ -20,11 +20,10 @@ import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
 class ReceiptData extends React.PureComponent {
 
-
     render() {
         const { colors, GRID_SIZE } = this.context
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStoreDict
-        const { addressTo, memo, isFioRequest, bseOrderId } = this.props.sendScreenStoreUi
+        const { addressTo, memo, comment, isFioRequest, bseOrderId } = this.props.sendScreenStoreUi
 
         let memoTitle = strings('send.xrp_memo')
         if (currencyCode === 'XMR' || currencyCode === 'XLM') {
@@ -72,6 +71,21 @@ class ReceiptData extends React.PureComponent {
             />
 
 
+            {
+                typeof comment !== 'undefined' && comment ?
+                <>
+                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{ ...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
+                    </View>
+
+                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: 24 }}>
+                        <Text style={{ ...styles.name, color: colors.sendScreen.amount }}>{strings('send.setting.note')}</Text>
+                        <Text style={{ ...styles.valueComment, color: colors.sendScreen.amount }}>{comment}</Text>
+                    </View>
+                </>
+                : null
+            }
+
             <View style={{ paddingHorizontal: GRID_SIZE, flexDirection: 'row', marginTop: 44 }}>
                 <CustomIcon name='shield' size={28} style={{ color: colors.sendScreen.amount }} />
                 <Text style={{ ...styles.info, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.trusteeInfo')}</Text>
@@ -92,5 +106,23 @@ const styles = StyleSheet.create({
         lineHeight: 18,
         letterSpacing: 1,
         textAlign: 'left'
+    },
+    line: {
+        borderBottomWidth: 1,
+        height: 24,
+        width: '70%'
+    },
+    name: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 0.5
+    },
+    valueComment: {
+        fontFamily: 'SFUIDisplay-Bold',
+        fontSize: 14,
+        lineHeight: 14,
+        letterSpacing: 1,
+        marginTop: 1
     }
 })

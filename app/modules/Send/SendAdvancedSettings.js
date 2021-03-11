@@ -20,6 +20,7 @@ import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import SendAdvancedFees from '@app/modules/Send/advanced/SendAdvancedFees'
 
 import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
+import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
 
 
 
@@ -30,7 +31,6 @@ class SendAdvancedSettings extends Component {
 
         this.state = {
             dropMenu: false,
-            devMode: false,
             comment: '',
             headerHeight: 0,
         }
@@ -38,13 +38,10 @@ class SendAdvancedSettings extends Component {
         this.customFee = React.createRef()
     }
 
-    onFocus = () => {
-        setTimeout(() => {
-            try {
-                this.scrollView.scrollTo({ y: 350 })
-            } catch (e) {
-            }
-        }, 500)
+    componentDidMount() {
+        this.setState({
+            comment : this.props.sendScreenStore.ui.comment
+        })
     }
 
     toggleDropMenu = () => {
@@ -55,7 +52,25 @@ class SendAdvancedSettings extends Component {
 
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0)
-        this.setState(() => ({ headerHeight }))
+        this.setState({
+            headerHeight
+        })
+    }
+
+    onChangeComment = (value) => {
+        this.setState({
+            comment: value
+        })
+    }
+
+    handleBack = () => {
+        NavStore.goBack()
+    }
+
+    handleApply = async () => {
+        const comment = this.state.comment
+        SendActionsUpdateValues.setComment(comment)
+        NavStore.goBack()
     }
 
 
@@ -106,10 +121,27 @@ class SendAdvancedSettings extends Component {
                                     />
                                 </View>
                                 : null }
+
                             <View style={{ marginVertical: GRID_SIZE }}>
+                                <LetterSpacing text={strings('send.setting.optional').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE, color: colors.sendScreen.amount }}  letterSpacing={1.5} />
+                                <TextInput
+                                    value={this.state.comment}
+                                    placeholder={strings('send.setting.note')}
+                                    onChangeText={this.onChangeComment}
+                                />
                             </View>
                         </View>
                         <View style={{ marginTop: GRID_SIZE }}>
+                            <TwoButtons
+                                mainButton={{
+                                    onPress: this.handleApply,
+                                    title: strings('send.setting.apply')
+                                }}
+                                secondaryButton={{
+                                    type: 'back',
+                                    onPress: this.handleBack,
+                                }}
+                            />
                         </View>
 
                     </ScrollView>
