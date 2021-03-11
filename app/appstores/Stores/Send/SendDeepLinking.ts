@@ -20,6 +20,7 @@ export namespace SendDeepLinking {
         CACHE_ALREADY_INITED = true
         return true
     }
+
     const handleInitialURL = async (needGetUrl: boolean, url: string) => {
         let initialURL = url
 

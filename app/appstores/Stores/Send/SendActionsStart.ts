@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 
 import store from '@app/store'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 const { dispatch } = store
 
 let CACHE_SEND_INPUT_TYPE = 'none'
@@ -30,7 +31,28 @@ const findWalletPlus = function(currencyCode: string): { wallet: any, cryptoCurr
         account = accountList[selectedWallet.walletHash][cryptoCurrency.currencyCode]
     }
     return { wallet: selectedWallet, cryptoCurrency, account }
+}
 
+const formatDict = function(cryptoCurrency : any, account : any) {
+    return {
+        inputType : '',
+        decimals : cryptoCurrency.decimals,
+        extendsProcessor : cryptoCurrency.extendsProcessor,
+        addressUiChecker : cryptoCurrency.addressUiChecker,
+        network : cryptoCurrency.network,
+        currencySymbol : cryptoCurrency.currencySymbol,
+        currencyName : cryptoCurrency.currencyName,
+        walletHash : account.walletHash,
+        accountId : account.accountId,
+        addressFrom : account.address,
+        currencyCode : account.currencyCode,
+        balanceRaw : account.balanceRaw,
+        balanceTotalPretty : account.balanceTotalPretty,
+        basicCurrencyBalanceTotal : account.basicCurrencyBalanceTotal,
+        basicCurrencySymbol : account.basicCurrencySymbol,
+        basicCurrencyCode : account.basicCurrencyCode,
+        basicCurrencyRate : account.basicCurrencyRate
+    }
 }
 
 export namespace SendActionsStart {
@@ -44,25 +66,8 @@ export namespace SendActionsStart {
         if (CACHE_SEND_INPUT_TYPE === 'none') {
             CACHE_SEND_INPUT_TYPE = (await AsyncStorage.getItem('sendInputType') !== 'CRYPTO') ? 'FIAT' : 'CRYPTO'
         }
-        const dict = {
-            inputType : CACHE_SEND_INPUT_TYPE,
-            decimals : cryptoCurrency.decimals,
-            extendsProcessor : cryptoCurrency.extendsProcessor,
-            addressUiChecker : cryptoCurrency.addressUiChecker,
-            network : cryptoCurrency.network,
-            currencySymbol : cryptoCurrency.currencySymbol,
-            currencyName : cryptoCurrency.currencyName,
-            walletHash : account.walletHash,
-            accountId : account.accountId,
-            addressFrom : account.address,
-            currencyCode : account.currencyCode,
-            balanceRaw : account.balanceRaw,
-            balanceTotalPretty : account.balanceTotalPretty,
-            basicCurrencyBalanceTotal : account.basicCurrencyBalanceTotal,
-            basicCurrencySymbol : account.basicCurrencySymbol,
-            basicCurrencyCode : account.basicCurrencyCode,
-            basicCurrencyRate : account.basicCurrencyRate
-        }
+        const dict = formatDict(cryptoCurrency, account)
+        dict.inputType = CACHE_SEND_INPUT_TYPE
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
         dispatch({
             type: 'RESET_DATA',
@@ -94,25 +99,7 @@ export namespace SendActionsStart {
 
     }) => {
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
-        const dict = {
-            inputType : '',
-            decimals : cryptoCurrency.decimals,
-            extendsProcessor : cryptoCurrency.extendsProcessor,
-            addressUiChecker : cryptoCurrency.addressUiChecker,
-            network : cryptoCurrency.network,
-            currencySymbol : cryptoCurrency.currencySymbol,
-            currencyName : cryptoCurrency.currencyName,
-            walletHash : account.walletHash,
-            accountId : account.accountId,
-            addressFrom : account.address,
-            currencyCode : account.currencyCode,
-            balanceRaw : account.balanceRaw,
-            balanceTotalPretty : account.balanceTotalPretty,
-            basicCurrencyBalanceTotal : account.basicCurrencyBalanceTotal,
-            basicCurrencySymbol : account.basicCurrencySymbol,
-            basicCurrencyCode : account.basicCurrencyCode,
-            basicCurrencyRate : account.basicCurrencyRate
-        }
+        const dict = formatDict(cryptoCurrency, account)
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
             addressTo : data.addressTo,
             amount :  data.amount,
@@ -141,24 +128,31 @@ export namespace SendActionsStart {
         currencyCode: string,
         label: string
     }) => {
-        /*
-            await SendActions.cleanData()
-            SendActions.setUiType({
-                ui: {
-                    uiType: 'DEEP_LINKING'
-                },
-                addData: {
-                    gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
-                    uiInputAddress: typeof parsed.address !== 'undefined' && parsed.address && parsed.address !== '',
-                    comment: parsed.label || ''
-                }
-            })
-            await SendActions.startSend({
-                addressTo: parsed.address,
-                amountPretty: parsed.amount ? parsed.toString() : '0',
-                currencyCode: parsed.currencyCode
-            })
-         */
+        const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
+        const dict = formatDict(cryptoCurrency, account)
+        const amount = data.amount ? data.amount.toString() : '0'
+        const amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(amount)
+
+        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
+            addressTo : data.address,
+            amount :  amountRaw,
+        })
+        dispatch({
+            type: 'RESET_DATA',
+            ui: {
+                uiType : 'DEEP_LINKING',
+                addressTo : data.address,
+                comment : data.label,
+                cryptoValue : amountRaw
+            },
+            dict
+        })
+
+        if (typeof data.needToDisable !== 'undefined' && data.needToDisable) {
+            NavStore.goNext('ReceiptScreen')
+        } else {
+            NavStore.goNext('SendScreen')
+        }
     }
 
     export const startFromQRCodeScanner = async (parsed : any, uiType = 'MAIN_SCANNER') => {
