@@ -17,7 +17,7 @@ import LetterSpacing from '@app/components/elements/LetterSpacing'
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 
 
-import SendAdvancedFees from '@app/modules/Send/elements/SendAdvancedFees'
+import SendAdvancedFees from '@app/modules/Send/advanced/SendAdvancedFees'
 
 import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
 

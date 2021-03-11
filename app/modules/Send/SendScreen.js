@@ -57,7 +57,6 @@ class SendScreen extends SendBasicScreen {
         if (disableInput.status !== 'success' || disableAddress.status !== 'success' || disableMemo.status !== 'success') {
             return true
         }
-
         SendActionsUpdateValues.setStepOne(disableInput.value, disableAddress.value, disableMemo.value)
         return false
     }
@@ -65,14 +64,20 @@ class SendScreen extends SendBasicScreen {
 
     openAdvancedSettings = async () => {
         if (CACHE_IS_COUNTING) {
-           return true
+            return true
         }
         setLoaderStatus(true)
         CACHE_IS_COUNTING = true
-        await SendActionsBlockchainWrapper.getFeeRate()
-        setLoaderStatus(false)
-        CACHE_IS_COUNTING = false
-        NavStore.goNext('SendAdvancedScreen')
+        try {
+            await SendActionsBlockchainWrapper.getFeeRate()
+            setLoaderStatus(false)
+            CACHE_IS_COUNTING = false
+            NavStore.goNext('SendAdvancedScreen')
+        } catch (e) {
+            console.log('ReceiptScreen.openAdvancedSettings error ' + e.message)
+            setLoaderStatus(false)
+            CACHE_IS_COUNTING = false
+        }
     }
 
     handleGotoReceipt = async () => {
@@ -81,10 +86,16 @@ class SendScreen extends SendBasicScreen {
         }
         setLoaderStatus(true)
         CACHE_IS_COUNTING = true
-        await SendActionsBlockchainWrapper.getFeeRate()
-        setLoaderStatus(false)
-        CACHE_IS_COUNTING = false
-        NavStore.goNext('ReceiptScreen')
+        try {
+            await SendActionsBlockchainWrapper.getFeeRate()
+            setLoaderStatus(false)
+            CACHE_IS_COUNTING = false
+            NavStore.goNext('ReceiptScreen')
+        } catch (e) {
+            console.log('ReceiptScreen.handleGotoReceipt error ' + e.message)
+            setLoaderStatus(false)
+            CACHE_IS_COUNTING = false
+        }
     }
 
     render() {
@@ -148,7 +159,7 @@ class SendScreen extends SendBasicScreen {
                                         if (await this.disabledGotoWhy()) {
                                             return false
                                         } else {
-                                            this.handleGotoReceipt(false)
+                                            await this.handleGotoReceipt(false)
                                         }
                                     },
                                     title: strings('walletBackup.step0Screen.next')
@@ -160,7 +171,7 @@ class SendScreen extends SendBasicScreen {
                                         if (await this.disabledGotoWhy()) {
                                             return false
                                         } else {
-                                            this.openAdvancedSettings(false)
+                                            await this.openAdvancedSettings()
                                         }
                                     }
                                 }}

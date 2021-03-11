@@ -59,7 +59,7 @@ class Transaction {
             if (copy.addressFrom === '') {
                 delete copy.addressFrom
             }
-            await Database.setUpdateData({ key: { id: updateId }, updateObj: copy }).update()
+            await Database.setTableName('transactions').setUpdateData({ key: { id: updateId }, updateObj: copy }).update()
             // Log.daemon('Transaction saveTransaction finished updated')
             return true
         }

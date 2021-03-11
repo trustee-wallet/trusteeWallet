@@ -15,6 +15,7 @@ const { dispatch } = store
 const CACHE_DATA = {
     countedFeesData : {} as BlocksoftBlockchainTypes.TransferData,
     countedFees : {},
+    selectedFee : {},
     transferAllBalance : '0'
 }
 export namespace SendActionsBlockchainWrapper {
@@ -109,6 +110,7 @@ export namespace SendActionsBlockchainWrapper {
             const transferAllBalance = countedFees.selectedTransferAllBalance
             CACHE_DATA.countedFeesData = newCountedFeesData
             CACHE_DATA.transferAllBalance = transferAllBalance
+            CACHE_DATA.selectedFee = selectedFee
             dispatch({
                 type: 'SET_DATA_BLOCKCHAIN',
                 fromBlockchain: {
@@ -134,5 +136,12 @@ export namespace SendActionsBlockchainWrapper {
             }
         }
         return '0'
+    }
+
+    export const actualSend = async ( uiErrorConfirmed : any) => {
+        const newCountedFeesData = {... CACHE_DATA.countedFeesData}
+        const selectedFee = {... CACHE_DATA.selectedFee}
+        // @ts-ignore
+        return await BlocksoftTransfer.sendTx(newCountedFeesData, { uiErrorConfirmed, selectedFee})
     }
 }

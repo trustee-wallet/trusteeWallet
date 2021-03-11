@@ -53,6 +53,7 @@ export namespace SendActionsStart {
             currencySymbol : cryptoCurrency.currencySymbol,
             currencyName : cryptoCurrency.currencyName,
             walletHash : account.walletHash,
+            accountId : account.accountId,
             addressFrom : account.address,
             currencyCode : account.currencyCode,
             balanceRaw : account.balanceRaw,
@@ -66,10 +67,7 @@ export namespace SendActionsStart {
         dispatch({
             type: 'RESET_DATA',
             ui: {
-                uiType,
-                addressTo : 'bnb146lec0enyzz2x5kpna8kwelky8kumfhj05aspz',
-                memo : 'fgfxg',
-                cryptoValue : '0.001'
+                uiType
             },
             dict
         })
@@ -105,6 +103,7 @@ export namespace SendActionsStart {
             currencySymbol : cryptoCurrency.currencySymbol,
             currencyName : cryptoCurrency.currencyName,
             walletHash : account.walletHash,
+            accountId : account.accountId,
             addressFrom : account.address,
             currencyCode : account.currencyCode,
             balanceRaw : account.balanceRaw,

@@ -9,7 +9,14 @@ const INITIAL_STATE = {
         addressTo : '',
         memo : '',
         cryptoValue : '',
-        comment : ''
+        comment : '',
+
+        bseProviderType : false,
+        bseOrderId: false,
+        bseMinCrypto : false,
+        bseTrusteeFee : false,
+        bseOrderData : false,
+        isFioRequest : false
     },
     dict : {
         inputType : 'CRYPTO',
