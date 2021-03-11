@@ -56,8 +56,6 @@ import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import { Cards } from '../../services/Cards/Cards'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
-import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
-
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
@@ -250,17 +248,6 @@ class MarketScreen extends Component {
                 NavStore.goNext('HomeScreen')
                 return
             }
-
-            // if (backToOld) {
-            //     if (tradeType === 'SELL') {
-            //         ExchangeActions.handleSetNewInterface(false, 'SELL')
-            //         NavStore.goNext('TradeScreenStack')
-            //     } else if (tradeType === 'BUY') {
-            //         ExchangeActions.handleSetNewInterface(false, 'BUY')
-            //         NavStore.goNext('TradeScreenStack')
-            //     }
-            //     StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
-            // }
 
             if (checkCamera) {
                 this.checkCameraForWebView()

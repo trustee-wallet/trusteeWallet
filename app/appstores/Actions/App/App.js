@@ -18,7 +18,6 @@ import walletActions from '../../Stores/Wallet/WalletActions'
 import currencyActions from '../../Stores/Currency/CurrencyActions'
 import settingsActions from '../../Stores/Settings/SettingsActions'
 import customCurrencyActions from '../CustomCurrencyActions'
-import exchangeActions from '../../Stores/Exchange/ExchangeActions'
 
 import Database from '@app/appstores/DataSource/Database';
 
@@ -199,8 +198,6 @@ class App {
 
         } else if (firstTimeCall === 'second') {
             // second step of init
-            await exchangeActions.init()
-
             await UpdateAccountListDaemon.forceDaemonUpdate(params)
 
             await UpdateCashBackDataDaemon.updateCashBackDataDaemon()

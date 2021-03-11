@@ -756,7 +756,6 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         cryptoCurrency: state.mainStore.selectedCryptoCurrency,
         account: state.mainStore.selectedAccount,
-        exchangeStore: state.exchangeStore,
         settingsStore: state.settingsStore,
         wallet: state.mainStore.selectedWallet,
     }

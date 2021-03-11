@@ -9,7 +9,6 @@ import { Dimensions, View } from 'react-native'
 import MnemonicFailModal from '../../modules/WalletBackup/elements/MnemomicFail'
 import SkipModal from '../../modules/WalletBackup/elements/Skip'
 import CongratsModal from '../../modules/WalletCreate/elements/CongratsModal'
-import ChooseInfoModal from '../../modules/Trade/elements/InfoChooseModal'
 
 import LicenseTermsModal from './elements/LicenseTermsModal'
 import SelectCoinModal from './elements/SelectCoinModal'
@@ -27,9 +26,6 @@ import InputModal from './elements/InputModal'
 import PaymentSystemInfo from './elements/PaymentSystemInfo'
 import WalletSettingsModal from './elements/WallletSettingsModa'
 import NotificationModal from './elements/NotificationModal'
-
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-
 
 const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -75,8 +71,6 @@ class MainModal extends Component {
                 return <SkipModal show={show}/>
             case 'WALLET_CREATE_CONGRATS_MODAL':
                 return <CongratsModal show={show}/>
-            case 'CHOOSE_INFO_MODAL':
-                return <ChooseInfoModal show={show} data={data} callback={callback}/>
             case 'LOGIN_MODAL':
                 return <LoginModal show={show} data={data} callback={callback}/>
             case 'INFO_MODAL':

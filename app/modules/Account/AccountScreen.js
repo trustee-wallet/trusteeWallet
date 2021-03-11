@@ -48,7 +48,6 @@ import config from '../../config/config'
 import DaemonCache from '../../daemons/DaemonCache'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 
 import Header from './elements/Header'
 import HeaderBlocks from './elements/HeaderBlocks'
@@ -177,25 +176,7 @@ class Account extends Component {
     }
 
     handleBuy = async () => {
-        const isNewInterfaceBuy = await AsyncStorage.getItem('isNewInterfaceBuy')
-        ExchangeActions.handleSetTradeType({ tradeType: 'BUY' })
-        NavStore.goNext('MainV3DataScreen')
-    }
-
-    _showModalNoOldConfigs = async () => {
-        if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
-            setLoaderStatus(true)
-            await ExchangeActions.init()
-            setLoaderStatus(false)
-        }
-        if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: 'INFO',
-                title: strings('modal.exchange.sorry'),
-                description: strings('tradeScreen.modalError.serviceUnavailable')
-            })
-        }
+        NavStore.goNext('MainV3DataScreen', { tradeType: 'BUY', currencyCode : this.props.account.currencyCode })
     }
 
     handleRefresh = async (click= false) => {
@@ -562,7 +543,6 @@ const mapStateToProps = (state) => {
         account: state.mainStore.selectedAccount,
         settingsStore: state.settingsStore,
         cashBackStore: state.cashBackStore,
-        exchangeStore: state.exchangeStore,
         blurVisibility: state.mainStore.blurVisibility
     }
 }

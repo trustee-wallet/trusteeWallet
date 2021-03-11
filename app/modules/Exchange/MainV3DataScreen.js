@@ -1,11 +1,8 @@
 /**
- * @version 0.30
+ * @version 0.41
  * @author yura
  */
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-
-
 
 import {
     View,
@@ -19,28 +16,27 @@ import {
     SafeAreaView
 } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-
-import NavStore from '../../components/navigation/NavStore'
-
-import ApiV3 from '../../services/Api/ApiV3'
-import Log from '../../services/Log/Log'
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
-
 import { WebView } from 'react-native-webview'
-import { strings } from '../../services/i18n'
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 import AsyncStorage from '@react-native-community/async-storage'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
+import NavStore from '@app/components/navigation/NavStore'
+
+import ApiV3 from '@app/services/Api/ApiV3'
+import Log from '@app/services/Log/Log'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+
+
+import { strings } from '@app/services/i18n'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import config from '../../config/config'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -70,7 +66,7 @@ class MainV3DataScreen extends Component {
         this.setState({ inited: true })
 
         // here to do upload
-        let apiUrl = await ApiV3.initData('EXCHANGE')
+        const apiUrl = await ApiV3.initData('EXCHANGE')
 
         const navigationViewV3 = BlocksoftExternalSettings.getStatic('navigationViewV3') === 1
         setTimeout(() => {
@@ -187,14 +183,12 @@ class MainV3DataScreen extends Component {
     }
 
     exchangeV3 = async (data) => {
-        // console.log('Exchange/MainV3Screen dataExchange', JSON.stringify(data))
-        const limits = JSON.parse(data.limits)
-        const trusteeFee = JSON.parse(data.trusteeFee)
-
-        const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits)
-
         try {
             Log.log('Exchange/MainV3Screen dataExchange', data)
+
+            const limits = JSON.parse(data.limits)
+            const trusteeFee = JSON.parse(data.trusteeFee)
+            const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits)
 
             /*
             const bseOrderData = {
@@ -393,26 +387,9 @@ class MainV3DataScreen extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        settingsStore: state.settingsStore,
-        mainStore: state.mainStore,
-        wallet: state.mainStore.selectedWallet,
-        selectedInAccount: state.mainStore.selectedInAccount,
-        selectedOutAccount: state.mainStore.selectedOutAccount,
-        exchangeStore: state.exchangeStore
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
 MainV3DataScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(MainV3DataScreen)
+export default MainV3DataScreen
 
 const styles = {
     wrapper: {

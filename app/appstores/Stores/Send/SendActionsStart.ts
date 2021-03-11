@@ -10,6 +10,29 @@ import store from '@app/store'
 const { dispatch } = store
 
 let CACHE_SEND_INPUT_TYPE = 'none'
+
+const findWalletPlus = function(currencyCode: string): { wallet: any, cryptoCurrency: any, account: any } {
+
+    const { selectedWallet } = store.getState().mainStore
+    const { cryptoCurrencies } = store.getState().currencyStore
+    const { accountList } = store.getState().accountStore
+
+    let cryptoCurrency = { currencyCode: false }
+    let account = false
+    // @ts-ignore
+    for (const tmp of cryptoCurrencies) {
+        if (tmp.currencyCode === currencyCode) {
+            cryptoCurrency = tmp
+        }
+    }
+    if (cryptoCurrency.currencyCode) {
+        // @ts-ignore
+        account = accountList[selectedWallet.walletHash][cryptoCurrency.currencyCode]
+    }
+    return { wallet: selectedWallet, cryptoCurrency, account }
+
+}
+
 export namespace SendActionsStart {
 
     export const setBasicInputType = async (inputType : string) => {
@@ -53,9 +76,63 @@ export namespace SendActionsStart {
         NavStore.goNext('SendScreen')
     }
 
+
     export const startFromHomeScreen = async (cryptoCurrency : any, account : any)  => {
         return startFromAccountScreen(cryptoCurrency, account, 'HOME_SCREEN')
     }
+
+    export const startFromBSE = (data : {
+        amount : string,
+        addressTo : string,
+        memo : string,
+        comment : string,
+        currencyCode : string,
+
+        bseProviderType : any,
+        bseOrderId: any,
+        bseMinCrypto : any,
+        bseTrusteeFee : any,
+        bseOrderData : any
+
+    }) => {
+        const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
+        const dict = {
+            inputType : '',
+            decimals : cryptoCurrency.decimals,
+            extendsProcessor : cryptoCurrency.extendsProcessor,
+            addressUiChecker : cryptoCurrency.addressUiChecker,
+            network : cryptoCurrency.network,
+            currencySymbol : cryptoCurrency.currencySymbol,
+            currencyName : cryptoCurrency.currencyName,
+            walletHash : account.walletHash,
+            addressFrom : account.address,
+            currencyCode : account.currencyCode,
+            balanceRaw : account.balanceRaw,
+            balanceTotalPretty : account.balanceTotalPretty,
+            basicCurrencyBalanceTotal : account.basicCurrencyBalanceTotal,
+            basicCurrencySymbol : account.basicCurrencySymbol,
+            basicCurrencyCode : account.basicCurrencyCode,
+            basicCurrencyRate : account.basicCurrencyRate
+        }
+        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
+            addressTo : data.addressTo,
+            amount :  data.amount,
+            memo : data.memo
+        })
+        dispatch({
+            type: 'RESET_DATA',
+            ui: {
+                uiType : 'TRADE_SEND',
+                addressTo : data.addressTo,
+                memo : data.memo,
+                comment : data.comment,
+                cryptoValue : data.amount
+            },
+            dict
+        })
+        NavStore.goNext('ReceiptScreen')
+    }
+
 
 
     export const startFromDeepLinking = async (data :{

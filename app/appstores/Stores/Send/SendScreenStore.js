@@ -8,7 +8,8 @@ const INITIAL_STATE = {
         uiType: 'ACCOUNT_SCREEN',
         addressTo : '',
         memo : '',
-        cryptoValue : ''
+        cryptoValue : '',
+        comment : ''
     },
     dict : {
         inputType : 'CRYPTO',

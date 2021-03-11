@@ -19,7 +19,7 @@ const CACHE_DATA = {
 }
 export namespace SendActionsBlockchainWrapper {
 
-    export const beforeRender = (cryptoCurrency : any, account : any) => {
+    export const beforeRender = (cryptoCurrency : any, account : any, additional : any = {}) => {
         const { selectedWallet } = store.getState().mainStore
         const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee, walletUseLegacy, walletIsHd } = selectedWallet
         const { address, currencyCode, derivationPath, accountJson } = account
@@ -30,8 +30,9 @@ export namespace SendActionsBlockchainWrapper {
             walletHash: walletHash,
             derivationPath: derivationPath,
             addressFrom: address,
-            addressTo: '?',
-            amount : account.balanceRaw,
+            addressTo: additional.addressTo || '?',
+            amount : additional.amount || account.balanceRaw,
+            memo : additional.memo || null,
             accountBalanceRaw : account.balanceRaw,
             isTransferAll: false,
             useOnlyConfirmed: !(walletUseUnconfirmed === 1),

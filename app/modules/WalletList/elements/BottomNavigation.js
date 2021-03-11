@@ -15,7 +15,6 @@ import CustomIcon from '../../../components/elements/CustomIcon'
 import { strings } from '../../../services/i18n'
 
 import ToolTipsActions from '../../../appstores/Stores/ToolTips/ToolTipsActions'
-import ExchangeActions from '../../../appstores/Stores/Exchange/ExchangeActions'
 
 import Log from '../../../services/Log/Log'
 import Netinfo from '../../../services/Netinfo/Netinfo'
@@ -40,7 +39,6 @@ class BottomNavigation extends Component {
             btnType: 'BUY',
             tips: true
         }
-        this.buySellBtnTooltip = React.createRef()
     }
 
     handleModal = async () => {
@@ -56,43 +54,18 @@ class BottomNavigation extends Component {
         }
     }
 
-    handleSellBtn = () => {
-        NavStore.goNext('SellV3ScreenStack')
-    }
-
-    _showModalNoOldConfigs = async () => {
-        if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
-            setLoaderStatus(true)
-            await ExchangeActions.init()
-            setLoaderStatus(false)
-        }
-        if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: 'INFO',
-                title: strings('modal.exchange.sorry'),
-                description: strings('tradeScreen.modalError.serviceUnavailable')
-            })
-        }
-    }
-
-    handleMainBtn = async (type) => {
+    handleMainBtn = async (tradeType) => {
         try {
             await Netinfo.isInternetReachable()
 
             ToolTipsActions.setToolTipState('HOME_SCREEN_BUY_SELL_BTN_TIP')
 
-            ExchangeActions.handleSetTradeType({ tradeType: type })
-
-            if (type === 'SELL') {
-                    ExchangeActions.handleSetNewInterface(false, 'SELL')
-                    NavStore.goNext('MainV3DataScreen')
-            } else if (type === 'BUY') {
-                    ExchangeActions.handleSetNewInterface(false, 'BUY')
-                    NavStore.goNext('MainV3DataScreen')
+            if (tradeType === 'SELL') {
+                NavStore.reset('MainV3DataScreen', { oldInterface : false, tradeType })
+            } else if (tradeType === 'BUY') {
+                NavStore.reset('MainV3DataScreen', { oldInterface : false, tradeType })
             } else {
-                await this._showModalNoOldConfigs()
-                NavStore.goNext('TradeScreenStack')
+               throw new Error('plz use type SELL or BUY, provided ' + tradeType)
             }
 
         } catch (e) {
@@ -161,7 +134,7 @@ class BottomNavigation extends Component {
                 </View>
                 <View style={[styles.contentWrapper, { backgroundColor: colors.homeScreen.tabBarBackground }]}>
                     <View style={styles.itemStub} />
-                    {config.exchange.mode === 'DEV' ? 
+                    {config.exchange.mode === 'DEV' ?
                         <>
                             <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleMainMarket}>
                                 <CustomIcon name="buy" style={{ color: colors.common.text1 }} size={21} />
@@ -212,7 +185,6 @@ class BottomNavigation extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        exchangeStore: state.exchangeStore,
         language: state.settingsStore.data.language
     }
 }
