@@ -182,25 +182,16 @@ class ReceiveScreen extends Component {
     handleExchange = async () => {
 
         try {
+            await Netinfo.isInternetReachable()
 
-            const newInterface = await AsyncStorage.getItem('isNewInterface')
+            NavStore.goNext('MarketScreen')
 
-            if (newInterface === 'true') {
-                NavStore.goNext('ExchangeV3ScreenStack')
-            } else {
-                setLoaderStatus(true)
-
-                NavStore.goNext('ExchangeScreenStack',
-                    {
-                        exchangeScreenParam: {
-                            selectedOutCurrency: this.props.cryptoCurrency
-                        }
-                    })
-            }
         } catch (e) {
-            // noinspection ES6MissingAwait
-            Log.err('ReceiveScreen.handleExchange error ' + e.message)
-            setLoaderStatus(false)
+            if (Log.isNetworkError(e.message)) {
+                Log.log('ReceiveScreen.handleExchange error ' + e.message)
+            } else {
+                Log.err('ReceiveScreen.handleExchange error ' + e.message)
+            }
         }
     }
 

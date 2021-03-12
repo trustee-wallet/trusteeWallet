@@ -1,32 +1,27 @@
 /**
- * @version 0.9
+ * @version 0.30
+ * @author yura
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Clipboard, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Clipboard, Text, TouchableOpacity, View, Platform } from 'react-native'
 
 import { TextField } from 'react-native-material-textfield'
 import QR from 'react-native-vector-icons/FontAwesome'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import Ionicons from 'react-native-vector-icons/Ionicons'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
-import GradientView from './GradientView'
-
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
-import { capitalize } from '../../services/UI/Capitalize/Capitalize'
-import { checkQRPermission } from '../../services/UI/Qr/QrPermissions'
-import Validator from '../../services/UI/Validator/Validator'
-import Toast from '../../services/UI/Toast/Toast'
-import { strings } from '../../services/i18n'
-import { normalizeInputWithDecimals } from '../../services/UI/Normalize/NormalizeInput'
-import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
-import Log from '../../services/Log/Log'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
+import Validator from '@app/services/UI/Validator/Validator'
+import Toast from '@app/services/UI/Toast/Toast'
+import { strings } from '@app/services/i18n'
+import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
+import Log from '@app/services/Log/Log'
 import NavStore from '../navigation/NavStore'
-import LetterSpacing from './LetterSpacing'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import { color } from 'react-native-reanimated'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 
 class Input extends Component {
@@ -44,28 +39,6 @@ class Input extends Component {
         }
         this.inputRef = React.createRef()
     }
-
-    // componentDidMount() {
-        // setTimeout(() => {
-        //     this.setState({
-        //         show: true
-        //     })
-        // }, 200)
-
-        // setTimeout(() => {
-        //     const { autoFocus } = this.props
-        //     if (typeof autoFocus !== 'undefined') {
-        //         this.setState({
-        //             autoFocus,
-        //             show: false
-        //         }, () => {
-        //             this.setState({
-        //                 show: true
-        //             })
-        //         })
-        //     }
-        // }, 500)
-    // }
 
     // eslint-disable-next-line camelcase
     UNSAFE_componentWillReceiveProps(props) {
@@ -205,7 +178,6 @@ class Input extends Component {
         const {
             id,
             name,
-            mark,
             action,
             actionBtnStyles,
             paste,
@@ -214,26 +186,14 @@ class Input extends Component {
             qr,
             style,
             onFocus,
-            subTitle,
             disabled,
             qrCallback,
-            bottomLeftText,
             keyboardType,
-            inputBaseColor,
-            inputTextColor,
-            markStyle,
-            tapText,
-            tapCallback,
-            tapWrapperStyles,
-            tapContentStyles,
-            tapTextStyles,
-            tapIconStyle = {},
             tintColor,
             validPlaceholder,
             onSubmitEditing,
             noEdit,
             isCapitalize = true,
-            isLine = true,
             isTextarea = false,
             info,
             tabInfo,
@@ -265,11 +225,13 @@ class Input extends Component {
             }
         }
 
+        const inputWidth = ( fio || copy || paste || qr || info || tabInfo ) ? '75%' : '95%'
+
         return (
             <View style={{ ...styles.wrapper, ...elementStyle, backgroundColor: colors.sendScreen.addressBg, borderRadius: 10 }}>
                 {
                     show ?
-                        <View style={{ backgroundColor: colors.sendScreen.addressBg, width: '75%', borderRadius: 10}} >
+                        <View style={{ backgroundColor: colors.sendScreen.addressBg, width: inputWidth, borderRadius: 10}} >
                             <TextField
                                 ref={ref => this.inputRef = ref}
                                 keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'default'}
@@ -283,7 +245,6 @@ class Input extends Component {
                                 placeholderStyle={{ ...styles.fontFamily, fontFamily: 'Montserrat-Semibold' }}
                                 value={validPlaceholder ? !this.state.errors.length && value !== '' && focus === false ? BlocksoftPrettyStrings.makeCut(value, 8) : value : value}
                                 returnKeyLabel={'Buy'}
-                                // returnKeyType={'done'}
                                 onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
                                 }}
                                 autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
@@ -341,7 +302,7 @@ class Input extends Component {
                     {
                         typeof info !== 'undefined' && typeof tabInfo !== 'undefined' && info && tabInfo ?
                             <TouchableOpacity onPress={tabInfo} style={styles.actionBtn}>
-                                <Icon
+                                <MaterialCommunityIcons
                                     name="information-outline"
                                     size={25}
                                     color={error ? '#864DD9' : colors.common.text1}
@@ -385,9 +346,6 @@ const styles = {
     wrapper: {
         flex: 1,
         position: 'relative',
-        // maxHeight: 70,
-        // minHeight: 70,
-        // marginBottom: 10,
 
         zIndex: 3,
     },
@@ -406,7 +364,6 @@ const styles = {
     },
     line: {
         position: 'absolute',
-        // top: 50, 
         width: '100%',
         height: 2,
         borderRadius: 2
@@ -419,14 +376,11 @@ const styles = {
     },
     fontFamily: {
         fontFamily: 'SFUIDisplay-Semibold',
-        // marginRight: 10,
         marginLeft: 16,
         marginTop: -3,
         letterSpacing: 1,
-        // textDecoration: 'none'
     },
     mark: {
-        // position: 'absolute',
         right: 0,
         bottom: 0,
         fontFamily: 'SFUIDisplay-Regular',
@@ -450,7 +404,6 @@ const styles = {
     },
     actions: {
         position: 'absolute',
-        // top: -5,
         right: 0,
         height: '100%',
         flexDirection: 'row',
@@ -553,7 +506,6 @@ const styles = {
         flex: 1,
 
         marginHorizontal: 4,
-        // marginTop: 11,
         marginBottom: Platform.OS === 'android' ? 6 : 0,
 
         backgroundColor: '#fff',
@@ -580,8 +532,6 @@ const styles = {
 
         backgroundColor: '#fff',
 
-        // borderRadius: 16,
-
         width: 350,
         height: 63,
         border: 6,
@@ -591,9 +541,7 @@ const styles = {
         y: 0,
         style: {
             flexDirection: 'row',
-            // marginVertical: 5,
             position: 'absolute',
-            // margin: 1
         }
     },
 }
