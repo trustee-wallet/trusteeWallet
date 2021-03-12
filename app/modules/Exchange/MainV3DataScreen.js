@@ -3,9 +3,6 @@
  * @author yura
  */
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-
-
 
 import {
     View,
@@ -19,8 +16,6 @@ import {
     SafeAreaView
 } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-
 import NavStore from '../../components/navigation/NavStore'
 
 import ApiV3 from '../../services/Api/ApiV3'
@@ -29,7 +24,6 @@ import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 
 import { WebView } from 'react-native-webview'
 import { strings } from '../../services/i18n'
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
 import AsyncStorage from '@react-native-community/async-storage'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
@@ -55,7 +49,6 @@ class MainV3DataScreen extends Component {
             show: false,
             inited: false,
             apiUrl: 'https://testexchange.trustee.deals/waiting',
-            navigationViewV3 : true,
             homePage: false,
             countedFees: false,
             selectedFee: false
@@ -73,12 +66,10 @@ class MainV3DataScreen extends Component {
         // here to do upload
         let apiUrl = await ApiV3.initData('EXCHANGE')
 
-        const navigationViewV3 = BlocksoftExternalSettings.getStatic('navigationViewV3') === 1
         setTimeout(() => {
             this.setState({
                 show: true,
-                apiUrl,
-                navigationViewV3
+                apiUrl
             })
         }, 10)
 
@@ -375,8 +366,6 @@ class MainV3DataScreen extends Component {
                                     Log.log('Exchanger.WebViewMainScreen.on start load with request ' + e.navigationType)
                                     return true
                                 }}
-                                // onLoadStart={StatusBar.setBarStyle("dark-content")}
-                                // onLoad={StatusBar.setBarStyle("dark-content")}
                                 useWebKit={true}
                                 startInLoadingState={true}
                                 renderLoading={this.renderLoading}
@@ -390,27 +379,9 @@ class MainV3DataScreen extends Component {
         )
     }
 }
-
-const mapStateToProps = (state) => {
-    return {
-        settingsStore: state.settingsStore,
-        mainStore: state.mainStore,
-        wallet: state.mainStore.selectedWallet,
-        selectedInAccount: state.mainStore.selectedInAccount,
-        selectedOutAccount: state.mainStore.selectedOutAccount,
-        exchangeStore: state.exchangeStore
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
 MainV3DataScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(MainV3DataScreen)
+export default MainV3DataScreen
 
 const styles = {
     wrapper: {
