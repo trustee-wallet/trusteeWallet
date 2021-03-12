@@ -4,27 +4,27 @@
  */
 import Log from '../Log/Log'
 import { sublocale } from '../i18n'
-import DaemonCache from '../../daemons/DaemonCache'
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-import accountDS from '../../appstores/DataSource/Account/Account'
-import walletPubDS from '../../appstores/DataSource/Wallet/WalletPub'
-import walletDS from '../../appstores/DataSource/Wallet/Wallet'
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
+import DaemonCache from '@app/daemons/DaemonCache'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import accountDS from '@app/appstores/DataSource/Account/Account'
+import walletPubDS from '@app/appstores/DataSource/Wallet/WalletPub'
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
+import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
 import database from '@react-native-firebase/database'
 
 import PubEncrypt from './PubEncrypt/PubEncrypt'
-import config from '../../config/config'
-import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
-import currencyDS from '../../appstores/DataSource/Currency/Currency'
-import cardDS from '../../appstores/DataSource/Card/Card'
+import config from '@app/config/config'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import currencyDS from '@app/appstores/DataSource/Currency/Currency'
+import cardDS from '@app/appstores/DataSource/Card/Card'
 import MarketingEvent from '../Marketing/MarketingEvent'
 import axios from 'axios'
-import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
-import BlocksoftBalances from '../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
-import BlocksoftCryptoUtils from '../../../crypto/common/BlocksoftCryptoUtils'
+import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import BlocksoftCryptoUtils from '@crypto/common/BlocksoftCryptoUtils'
 import ApiProxy from './ApiProxy'
 
 const V3_ENTRY_POINT_EXCHANGE = '/mobile-exchanger'
@@ -188,7 +188,7 @@ export default {
         return accounts
     },
 
-    async initData(type, currencyCode = false, isLight) {
+    async initData(type, currencyCode = false, side) {
 
         let { mode: exchangeMode, apiEndpoints } = config.exchange
         let entryURL = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
@@ -217,7 +217,8 @@ export default {
             deviceToken: MarketingEvent.DATA.LOG_TOKEN,
             wallets: [],
             cards: await cardDS.getCards(),
-            selectedCurrency: currencyCode
+            selectedCurrency: currencyCode,
+            sideWay: side
         }
         if (!data.cards || typeof data.cards === 'undefined') {
             data.cards = []
