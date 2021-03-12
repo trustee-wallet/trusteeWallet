@@ -2,11 +2,10 @@
  * @version 0.41
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, TextInput, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
-import ListItem from 'react-native-paper/src/components/List/ListItem'
 
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
@@ -14,8 +13,9 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import Header from '@app/components/elements/new/Header'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
+import ListItem from '@app/components/elements/new/list/ListItem/Setting'
+import TextInput from '@app/components/elements/new/TextInput'
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
-
 
 import SendAdvancedFees from '@app/modules/Send/advanced/SendAdvancedFees'
 
@@ -39,6 +39,7 @@ class SendAdvancedSettings extends Component {
     }
 
     componentDidMount() {
+        SendActionsUpdateValues.setTmpSelectedFee(false)
         this.setState({
             comment : this.props.sendScreenStore.ui.comment
         })
@@ -64,12 +65,13 @@ class SendAdvancedSettings extends Component {
     }
 
     handleBack = () => {
+        SendActionsUpdateValues.setTmpSelectedFee(false)
         NavStore.goBack()
     }
 
     handleApply = async () => {
         const comment = this.state.comment
-        SendActionsUpdateValues.setComment(comment)
+        SendActionsUpdateValues.setCommentAndFeeFromTmp(comment)
         NavStore.goBack()
     }
 
@@ -81,7 +83,7 @@ class SendAdvancedSettings extends Component {
         const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
         const langMsg = selectedFee ? selectedFee.langMsg : 'none'
         const dropMenu = langMsg !== 'none' ? !!this.state.dropMenu : true
-        const showFees = !(countedFees && typeof countedFees.selectedFeeIndex !== -1 && countedFees.selectedFeeIndex < -2)
+        const showFees = countedFees && typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex*1 >= -2
 
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
@@ -116,6 +118,7 @@ class SendAdvancedSettings extends Component {
                                         switchParams={{ value: dropMenu, onPress: this.toggleDropMenu }}
                                         type={'dropdown'}
                                         ExtraView={SendAdvancedFees}
+                                        ExtraViewParams={this.props.sendScreenStore}
                                         subtitle={langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) :
                                             strings(`send.fee.text.${langMsg}`) : null}
                                     />

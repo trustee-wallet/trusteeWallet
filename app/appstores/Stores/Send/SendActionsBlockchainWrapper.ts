@@ -51,7 +51,7 @@ export namespace SendActionsBlockchainWrapper {
             newCountedFeesData.addressTo = ui.addressTo
             newCountedFeesData.amount = ui.cryptoValue
             newCountedFeesData.memo = ui.memo
-            if (CACHE_DATA.countedFeesData === newCountedFeesData) {
+            if (JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
                 return
             }
             const countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData)
@@ -62,7 +62,7 @@ export namespace SendActionsBlockchainWrapper {
             }
             CACHE_DATA.countedFeesData = newCountedFeesData
             dispatch({
-                type: 'SET_DATA_BLOCKCHAIN',
+                type: 'RESET_DATA_BLOCKCHAIN',
                 fromBlockchain: {
                     countedFees,
                     selectedFee
@@ -98,7 +98,7 @@ export namespace SendActionsBlockchainWrapper {
                 })
             }
             newCountedFeesData.amount = newCountedFeesData.accountBalanceRaw
-            if (CACHE_DATA.countedFeesData === newCountedFeesData) {
+            if (JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
                 return CACHE_DATA.transferAllBalance
             }
             const countedFees = await BlocksoftTransfer.getTransferAllBalance(newCountedFeesData)
@@ -112,7 +112,7 @@ export namespace SendActionsBlockchainWrapper {
             CACHE_DATA.transferAllBalance = transferAllBalance
             CACHE_DATA.selectedFee = selectedFee
             dispatch({
-                type: 'SET_DATA_BLOCKCHAIN',
+                type: 'RESET_DATA_BLOCKCHAIN',
                 fromBlockchain: {
                     countedFees,
                     selectedFee,

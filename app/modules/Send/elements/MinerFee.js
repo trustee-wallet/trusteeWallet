@@ -9,9 +9,7 @@ import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 
 import CheckData from '@app/modules/Send/elements/CheckData'
-
-import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
+import { feeTitles } from '@app/modules/Send/advanced/helpers'
 
 class MinerFee extends React.PureComponent {
 
@@ -22,23 +20,7 @@ class MinerFee extends React.PureComponent {
             return false
         }
 
-        const {currencySymbol, currencyCode, basicCurrencySymbol, basicCurrencyRate} = this.props.sendScreenStoreDict
-
-        let feeCurrencyCode = currencyCode
-        let feeCurrencySymbol = currencySymbol
-        let feeCurrencyRate = basicCurrencyRate
-
-        let fee = selectedFee.feeForTx
-        let feePretty = BlocksoftPrettyNumbers.setCurrencyCode(feeCurrencyCode).makePretty(fee)
-        let fiatFee = RateEquivalent.mul({ value: feePretty, currencyCode : feeCurrencyCode, basicCurrencyRate : feeCurrencyRate })
-
-        if (Number(fiatFee) < 0.01) {
-            fiatFee = `< ${basicCurrencySymbol} 0.01`
-        } else {
-            fiatFee = `${basicCurrencySymbol} ${BlocksoftPrettyNumbers.makeCut(fiatFee).justCutted}`
-        }
-
-
+        const {feePretty, feeCurrencySymbol, fiatFee} = feeTitles(selectedFee, this.props.sendScreenStoreDict)
 
         let nonceForTxTitle = false
         if (selectedFee.isCustomFee) {

@@ -45,7 +45,7 @@ const INITIAL_STATE = {
 
 const sendScreenStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
-        case 'SET_DATA_BLOCKCHAIN':
+        case 'RESET_DATA_BLOCKCHAIN':
             return {
                 ui: {
                     ...state.ui,
@@ -68,7 +68,8 @@ const sendScreenStoreReducer = (state = INITIAL_STATE, action) => {
                     ...action.dict
                 },
                 fromBlockchain: {
-                    ...state.fromBlockchain
+                    ...state.fromBlockchain,
+                    ...action.fromBlockchain
                 },
             }
         case 'RESET_DATA':

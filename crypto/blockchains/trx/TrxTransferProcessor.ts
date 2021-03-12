@@ -74,9 +74,6 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const result: BlocksoftBlockchainTypes.FeeRateResult = {
             selectedFeeIndex: -3
         } as BlocksoftBlockchainTypes.FeeRateResult
-        if (data.addressTo && data.addressTo === data.addressFrom) {
-            return result
-        }
         try {
             const link = 'https://apilist.tronscan.org/api/account?address=' + data.addressFrom
             const res = await BlocksoftAxios.getWithoutBraking(link)
@@ -119,6 +116,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         } catch (e) {
             // do nothing
         }
+        console.log('result', result)
         return result
     }
 

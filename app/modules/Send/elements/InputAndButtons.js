@@ -196,7 +196,7 @@ class InputAndButtons extends React.PureComponent {
             return strings('send.notEnough')
         }
 
-        if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '') {
+        if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '' || this.valueInput.state.value === '0') {
             return strings('send.notValidAmount')
         }
 

@@ -1,9 +1,7 @@
 /**
  * @version 0.41
  */
-import ApiV3 from '@app/services/Api/ApiV3'
 import Log from '@app/services/Log/Log'
-
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 import { strings } from '@app/services/i18n'
