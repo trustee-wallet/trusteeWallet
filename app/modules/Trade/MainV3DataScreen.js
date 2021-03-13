@@ -255,9 +255,11 @@ class MainV3DataScreen extends Component {
             if (backToOld) {
                 if (tradeType === 'SELL') {
                     ExchangeActions.handleSetNewInterface(false, 'SELL')
+                    ExchangeActions.handleSetTradeType({ tradeType: 'SELL' })
                     NavStore.goNext('TradeScreenStack')
                 } else if (tradeType === 'BUY') {
                     ExchangeActions.handleSetNewInterface(false, 'BUY')
+                    ExchangeActions.handleSetTradeType({ tradeType: 'BUY' })
                     NavStore.goNext('TradeScreenStack')
                 }
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
