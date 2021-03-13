@@ -189,8 +189,11 @@ class Account extends Component {
         try {
             await Netinfo.isInternetReachable()
 
-            NavStore.goNext('MarketScreen')
-
+            if (config.exchange.mode === 'DEV') {
+                NavStore.goNext('MarketScreen')
+            } else {
+                NavStore.goNext('MainV3DataScreen', { tradeType: 'BUY' })
+            }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)

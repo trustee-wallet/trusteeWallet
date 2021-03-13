@@ -1307,7 +1307,7 @@
       "addressCopiedSuccess": "Адрес кошелька скопирован!"
     },
     "notificationModal": {
-      "unsubscribe": "Отписатся"
+      "unsubscribe": "Отписаться"
     }
   },
   "lockScreen": {
