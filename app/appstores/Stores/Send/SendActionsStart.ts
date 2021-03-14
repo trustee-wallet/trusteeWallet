@@ -51,7 +51,11 @@ const formatDict = function(cryptoCurrency : any, account : any) {
         basicCurrencyBalanceTotal : account.basicCurrencyBalanceTotal,
         basicCurrencySymbol : account.basicCurrencySymbol,
         basicCurrencyCode : account.basicCurrencyCode,
-        basicCurrencyRate : account.basicCurrencyRate
+        basicCurrencyRate : account.basicCurrencyRate,
+        feeBasicCurrencyRate : account.feeRates.basicCurrencyRate,
+        feeBasicCurrencySymbol : account.feeRates.basicCurrencySymbol,
+        feesCurrencyCode : account.feesCurrencyCode,
+        feesCurrencySymbol : account.feesCurrencySymbol
     }
 }
 
@@ -74,7 +78,7 @@ export namespace SendActionsStart {
             ui: {
                 uiType,
                 addressTo : '0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99',
-                cryptoValue : '123456789012345'
+                cryptoValue : '123499'
             },
             dict
         })

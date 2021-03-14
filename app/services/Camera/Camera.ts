@@ -7,7 +7,7 @@ import { Linking, Platform } from 'react-native'
 import Log from '../Log/Log'
 import ImagePicker from 'react-native-image-picker'
 import { strings } from '../i18n'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import { showModal, hideModal } from '../../appstores/Stores/Modal/ModalActions'
 import { FileSystem } from '../FileSystem/FileSystem'
 
 
@@ -77,12 +77,12 @@ const getGalleryPhoto = async (source: string): Promise<any> => {
 export namespace Camera {
 
     export const checkCameraOn = async (source: string): Promise<boolean> => {
-        if (Platform.OS !== 'ios') return true // @todo android
 
         Log.log(source + ' checkCameraOn started')
-        const res = await check(PERMISSIONS.IOS.CAMERA)
+        const res = await check(Platform.OS !== 'ios' ? PERMISSIONS.ANDROID.CAMERA : PERMISSIONS.IOS.CAMERA)
         Log.log(source + ' checkCameraOn result', res)
-        if (res !== 'blocked') {
+
+        if (res !== 'blocked' && res !== 'denied' ) {
             return true
         }
         showModal({
@@ -92,7 +92,9 @@ export namespace Camera {
             description: strings('modal.openSettingsModal.description'),
             btnSubmitText: strings('modal.openSettingsModal.btnSubmitText')
         }, () => {
-            Linking.openURL('app-settings:')
+            Platform.OS !== 'ios' ? Linking.openSettings() : Linking.openURL('app-settings:')
+            hideModal()
+
         })
         return false
 

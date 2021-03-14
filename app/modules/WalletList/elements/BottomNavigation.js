@@ -39,6 +39,7 @@ class BottomNavigation extends Component {
             btnType: 'BUY',
             tips: true
         }
+        this.buySellBtnTooltip = React.createRef()
     }
 
     handleModal = async () => {
@@ -54,16 +55,21 @@ class BottomNavigation extends Component {
         }
     }
 
-    handleMainBtn = async (tradeType) => {
+    handleSellBtn = () => {
+        NavStore.goNext('SellV3ScreenStack')
+    }
+
+
+    handleMainBtn = async (type) => {
         try {
             await Netinfo.isInternetReachable()
 
             ToolTipsActions.setToolTipState('HOME_SCREEN_BUY_SELL_BTN_TIP')
 
-            if (tradeType === 'SELL') {
-                NavStore.reset('MainV3DataScreen', { oldInterface : false, tradeType })
-            } else if (tradeType === 'BUY') {
-                NavStore.reset('MainV3DataScreen', { oldInterface : false, tradeType })
+            if (type === 'SELL') {
+                    NavStore.goNext('MainV3DataScreen', { tradeType: 'SELL' })
+            } else if (type === 'BUY') {
+                    NavStore.goNext('MainV3DataScreen', { tradeType: 'BUY' })
             } else {
                throw new Error('plz use type SELL or BUY, provided ' + tradeType)
             }
@@ -134,8 +140,8 @@ class BottomNavigation extends Component {
                 </View>
                 <View style={[styles.contentWrapper, { backgroundColor: colors.homeScreen.tabBarBackground }]}>
                     <View style={styles.itemStub} />
-                    {config.exchange.mode === 'DEV' ?
-                        <>
+                    {config.exchange.mode === 'DEV' ? 
+                        <View style={{ flexDirection: 'row', flex: 6 }}>
                             <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleMainMarket}>
                                 <CustomIcon name="buy" style={{ color: colors.common.text1 }} size={21} />
                                 <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.market')}</Text>
@@ -150,9 +156,9 @@ class BottomNavigation extends Component {
                                 <CustomIcon name="support" style={{ color: colors.common.text1 }} size={20} />
                                 <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.support')}</Text>
                             </TouchableOpacity>
-
-                        </> :
-                        <>
+                        </View> 
+                        :
+                        <View style={{ flexDirection: 'row', flex: 8 }}>
                             <View style={{ alignItems: 'center', flex: 4 }}>
                                 <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={150}
                                     MainComponent={this.returnBuyTooltip} />
@@ -173,7 +179,7 @@ class BottomNavigation extends Component {
                                 <CustomIcon name="earn" style={{ color: colors.common.text1 }} size={20} />
                                 <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.earn')}</Text>
                             </TouchableOpacity>
-                        </>
+                        </View>
                     }
 
                     <View style={styles.itemStub} />

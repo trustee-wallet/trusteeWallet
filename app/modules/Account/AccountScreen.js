@@ -24,7 +24,6 @@ import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus, setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
 
-
 import Log from '../../services/Log/Log'
 import checkTransferHasError from '../../services/UI/CheckTransferHasError/CheckTransferHasError'
 
@@ -62,6 +61,8 @@ import whiteLoader from '../../assets/jsons/animations/refreshWhite.json'
 import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAccountBalanceAndTransactionsHD'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import AppLockBlur from "../../components/AppLockBlur";
+
+import Netinfo from '../../services/Netinfo/Netinfo'
 
 import { diffTimeScan } from './helpers'
 import { SendActionsStart } from '../../appstores/Stores/Send/SendActionsStart'
@@ -176,7 +177,18 @@ class Account extends Component {
     }
 
     handleBuy = async () => {
-        NavStore.goNext('MainV3DataScreen', { tradeType: 'BUY', currencyCode : this.props.account.currencyCode })
+        try {
+            await Netinfo.isInternetReachable()
+
+            NavStore.goNext('MarketScreen', { tradeType: 'BUY', currencyCode : this.props.account.currencyCode })
+
+        } catch (e) {
+            if (Log.isNetworkError(e.message)) {
+                Log.log('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)
+            } else {
+                Log.err('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)
+            }
+        }
     }
 
     handleRefresh = async (click= false) => {
