@@ -180,8 +180,11 @@ class Account extends Component {
         try {
             await Netinfo.isInternetReachable()
 
-            NavStore.goNext('MarketScreen', { tradeType: 'BUY', currencyCode : this.props.account.currencyCode })
-
+            if (config.exchange.mode === 'DEV') {
+                NavStore.goNext('MarketScreen', { tradeType: 'BUY', currencyCode : this.props.account.currencyCode })
+            } else {
+                NavStore.goNext('MainV3DataScreen', { tradeType: 'BUY', currencyCode : this.props.account.currencyCode })
+            }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)

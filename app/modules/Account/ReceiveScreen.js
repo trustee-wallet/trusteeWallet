@@ -74,6 +74,7 @@ import Button from '../../components/elements/new/buttons/Button'
 import blackLoader from '../../assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '../../assets/jsons/animations/refreshWhite.json'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import config from '@app/config/config'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -184,8 +185,11 @@ class ReceiveScreen extends Component {
         try {
             await Netinfo.isInternetReachable()
 
-            NavStore.goNext('MarketScreen')
-
+            if (config.exchange.mode === 'DEV') {
+                NavStore.goNext('MarketScreen')
+            } else {
+                NavStore.goNext('ExchangeV3ScreenStack')
+            }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('ReceiveScreen.handleExchange error ' + e.message)
