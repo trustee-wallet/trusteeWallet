@@ -6,7 +6,7 @@ import React from 'react'
 import { View, Text } from 'react-native'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
-
+import SendCustomFeeETH from '@app/modules/Send/advanced/SendCustomFeeETH'
 
 class SendCustomFee extends React.PureComponent {
 
@@ -37,7 +37,7 @@ class SendCustomFee extends React.PureComponent {
 
         switch (prefix) {
             case 'ETH':
-                return <View><Text>eth gxfgxfg</Text></View>
+                return <SendCustomFeeETH ExtraViewParams={this.props.ExtraViewParams}/>
             case 'BTC':
             case 'LTC':
             case 'XVG':
@@ -48,8 +48,7 @@ class SendCustomFee extends React.PureComponent {
             case 'BCH':
                 return <View><Text>btc gxfgxfg</Text></View>
             default:
-
-                return <View><Text>gxfgxfg</Text></View>
+                return null
         }
     }
 }

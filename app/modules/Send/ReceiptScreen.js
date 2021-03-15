@@ -78,20 +78,21 @@ class ReceiptScreen extends SendBasicScreen {
 
         const { needPasswordConfirm } = this.state
 
-        let passwordChecked = false
-        if (needPasswordConfirm && typeof keystore.askPinCodeWhenSending !== 'undefined' && +keystore.askPinCodeWhenSending) {
+        if (needPasswordConfirm
+            && typeof keystore.askPinCodeWhenSending !== 'undefined' && +keystore.askPinCodeWhenSending
+            && typeof keystore.lockScreenStatus !== 'undefined' && +keystore.lockScreenStatus
+        ) {
             if (passwordCheck) {
                 lockScreenAction.setFlowType({ flowType: 'CONFIRM_SEND_CRYPTO' })
                 lockScreenAction.setActionCallback({ actionCallback: this.handleSend })
                 NavStore.goNext('LockScreen')
                 return
-            } else {
-                passwordChecked = true
             }
         }
 
-        setLoaderStatus(true)
         CACHE_IS_SENDING = true
+        setLoaderStatus(true)
+
         let tx = false
         let e = false
 

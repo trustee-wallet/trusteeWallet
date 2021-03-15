@@ -74,13 +74,22 @@ class SendAdvancedFees extends React.PureComponent {
     }
 
     setCustomFee() {
-
+        const { selectedFee } = this.props.ExtraViewParams.fromBlockchain
+        const currentSelectedFee = this.state.currentSelectedFee ? this.state.currentSelectedFee : selectedFee
+        const item = {...currentSelectedFee, isCustomFee : true}
+        SendActionsUpdateValues.setTmpSelectedFee(item)
+        this.setState({
+            currentSelectedFee : item
+        })
     }
 
     render() {
         const { selectedFee, countedFees } = this.props.ExtraViewParams.fromBlockchain
+        const { isTransferAll, bse } = this.props.ExtraViewParams.ui
+        const { bseProviderType } = bse
 
         const currentSelectedFee = this.state.currentSelectedFee ? this.state.currentSelectedFee : selectedFee
+        const isCustomFee = typeof currentSelectedFee.isCustomFee !== 'undefined' ? currentSelectedFee.isCustomFee : false
         return (
             <View style={{ paddingLeft: 40 }}>
                 {
@@ -92,7 +101,7 @@ class SendAdvancedFees extends React.PureComponent {
                                 <SubSetting
                                     title={strings(`send.fee.text.${item.langMsg}`)}
                                     subtitle={subtitle}
-                                    checked={item.langMsg === currentSelectedFee.langMsg}
+                                    checked={!isCustomFee && item.langMsg === currentSelectedFee.langMsg}
                                     radioButtonFirst={true}
                                     withoutLine={true}
                                     onPress={() => this.setFee(item)}
@@ -104,17 +113,18 @@ class SendAdvancedFees extends React.PureComponent {
                 }
 
 
-                {//(uiProviderType !== 'FIXED' || !isTransferAll) ?
+                { (bseProviderType !== 'FIXED' || !isTransferAll) ?
                     <SubSetting
                         title={strings(`send.fee.customFee.title`)}
-                        checked={false}
+                        checked={isCustomFee}
                         radioButtonFirst={true}
                         withoutLine={true}
                         onPress={() => this.setCustomFee()}
                         checkedStyle={true}
                         ExtraView={SendCustomFee}
-                        ExtraViewParams={this.props.ExtraViewParams}
+                        ExtraViewParams={{...this.props.ExtraViewParams, currentSelectedFee}}
                     />
+                    : null
                 }
 
             </View>
@@ -124,4 +134,4 @@ class SendAdvancedFees extends React.PureComponent {
 
 SendAdvancedFees.contextType = ThemeContext
 
-export default connect(null, {})(SendAdvancedFees)
+export default SendAdvancedFees

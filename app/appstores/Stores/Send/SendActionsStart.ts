@@ -6,7 +6,6 @@ import NavStore from '@app/components/navigation/NavStore'
 import AsyncStorage from '@react-native-community/async-storage'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchainTypes'
 import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 
@@ -81,9 +80,7 @@ export namespace SendActionsStart {
         dispatch({
             type: 'RESET_DATA',
             ui: {
-                uiType,
-                addressTo : '0x08A04d923D481FEB370309F74c13F090554f8D7a',
-                cryptoValue : '123456789123411111'
+                uiType
             },
             dict
         })
@@ -96,9 +93,10 @@ export namespace SendActionsStart {
     }
 
     export const getTransferAllBalanceFromBSE = async (data : {
-        currencyCode : BlocksoftBlockchainTypes.Code,
+        currencyCode : string,
         address : string
     }) => {
+        // @ts-ignore
         const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll(data)
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
         const dict = await formatDict(cryptoCurrency, account)
