@@ -167,6 +167,7 @@ export namespace BlocksoftBlockchainTypes {
         countedForBasicBalance: string,
         selectedFeeIndex: number,
         fees: Fee[],
+        shouldShowFees ?: boolean,
         shouldChangeBalance?: boolean,
         showBigGasNotice?:number,
         showSmallFeeNotice?: number,

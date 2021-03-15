@@ -82,9 +82,11 @@ class SendAdvancedSettings extends Component {
 
         const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
         const langMsg = selectedFee ? selectedFee.langMsg : 'none'
+        const isCustomFee = typeof selectedFee.isCustomFee !== 'undefined' ? selectedFee.isCustomFee : false
+
         const dropMenu = langMsg !== 'none' ? !!this.state.dropMenu : true
         const showFees = countedFees && typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex*1 >= -2
-
+        const shouldShowFees = countedFees && typeof countedFees.shouldShowFees !== 'undefined' ? countedFees.shouldShowFees : true
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
@@ -107,7 +109,7 @@ class SendAdvancedSettings extends Component {
                         style={{ marginTop: this.state.headerHeight }}
                     >
                         <View>
-                            { showFees ?
+                            { shouldShowFees && showFees ?
                                 <View>
                                     <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE, color: colors.sendScreen.amount }} letterSpacing={1.5} />
                                     <ListItem
@@ -119,8 +121,11 @@ class SendAdvancedSettings extends Component {
                                         type={'dropdown'}
                                         ExtraView={SendAdvancedFees}
                                         ExtraViewParams={this.props.sendScreenStore}
-                                        subtitle={langMsg ? this.state.isCustomFee ? strings(`send.fee.customFee.title`) :
-                                            strings(`send.fee.text.${langMsg}`) : null}
+                                        subtitle={langMsg
+                                            ? (
+                                                isCustomFee ? strings(`send.fee.customFee.title`) : strings(`send.fee.text.${langMsg}`)
+                                            )
+                                            : null}
                                     />
                                 </View>
                                 : null }

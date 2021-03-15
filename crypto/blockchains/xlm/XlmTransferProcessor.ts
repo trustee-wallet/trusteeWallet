@@ -68,7 +68,8 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         const result: BlocksoftBlockchainTypes.FeeRateResult = {
-            selectedFeeIndex: -1
+            selectedFeeIndex: -1,
+            shouldShowFees : false
         } as BlocksoftBlockchainTypes.FeeRateResult
 
         // @ts-ignore

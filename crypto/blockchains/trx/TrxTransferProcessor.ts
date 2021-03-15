@@ -11,6 +11,7 @@ import TrxTronscanProvider from './basic/TrxTronscanProvider'
 import TrxTrongridProvider from './basic/TrxTrongridProvider'
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 import BlocksoftDispatcher from '../BlocksoftDispatcher'
+import config from '@app/config/config'
 
 export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: any
@@ -72,7 +73,8 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         const result: BlocksoftBlockchainTypes.FeeRateResult = {
-            selectedFeeIndex: -3
+            selectedFeeIndex: -3,
+            shouldShowFees : false
         } as BlocksoftBlockchainTypes.FeeRateResult
         try {
             const link = 'https://apilist.tronscan.org/api/account?address=' + data.addressFrom
@@ -114,9 +116,11 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 result.selectedFeeIndex = 0
             }
         } catch (e) {
-            // do nothing
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate error ' + e.message)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate error ' + e.message)
         }
-        console.log('result', result)
         return result
     }
 
