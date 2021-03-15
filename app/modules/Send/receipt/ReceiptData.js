@@ -23,7 +23,7 @@ class ReceiptData extends React.PureComponent {
     render() {
         const { colors, GRID_SIZE } = this.context
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStoreDict
-        const { addressTo, memo, comment, isFioRequest, bse } = this.props.sendScreenStoreUi
+        const { addressTo, memo, comment, isFioRequest, bse, addressName } = this.props.sendScreenStoreUi
         const { bseOrderId } = bse
 
         let memoTitle = strings('send.xrp_memo')
@@ -45,6 +45,12 @@ class ReceiptData extends React.PureComponent {
                 />
                 : null
             }
+            {typeof addressName !== 'undefined' && addressName && addressName !== '' ?
+                <CheckData
+                    name={strings('send.receiptScreen.recepient')}
+                    value={BlocksoftPrettyStrings.makeCut(addressName, 6)}
+                />
+                : null}
             {multiShow ?
                 multiAddress.map((item, index) => {
                     return (

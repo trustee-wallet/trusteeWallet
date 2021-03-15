@@ -15,6 +15,7 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import NavStore from '@app/components/navigation/NavStore'
+import { SendActionsContactBook } from '@app/appstores/Stores/Send/SendActionsContactBook'
 
 const addressInput = {
     id: 'address',
@@ -27,6 +28,7 @@ class InputAddress extends React.PureComponent {
         super(props)
         this.state = {
             addressError: false,
+            addressErrorText : ''
         }
         this.addressInput = React.createRef()
     }
@@ -58,17 +60,40 @@ class InputAddress extends React.PureComponent {
 
         if (typeof this.addressInput.state === 'undefined' || this.addressInput.state.value === '') {
             this.setState({
-                addressError: true
+                addressError: true,
+                addressErrorText : ''
             })
             return {
                 status: 'fail'
             }
         }
 
+        const { currencyCode } = this.props.sendScreenStoreDict
         const addressValidation = await this.addressInput.handleValidate()
+        let addressTo = addressValidation.value
+        let addressName = false
+        if (addressTo.indexOf('@') !== -1) {
+            try {
+                const tmp = await SendActionsContactBook.getContactAddress({ addressName: addressTo, currencyCode })
+                if (tmp) {
+                    addressName = addressTo
+                    addressTo = tmp
+                }
+            } catch (e) {
+                this.setState({
+                    addressError: true,
+                    addressErrorText : e.message
+                })
+                return {
+                    status: 'fail'
+                }
+            }
+        }
+
         if (addressValidation.status !== 'success') {
             this.setState({
-                addressError: true
+                addressError: true,
+                addressErrorText : ''
             })
             return {
                 status: 'fail'
@@ -83,12 +108,13 @@ class InputAddress extends React.PureComponent {
 
         return {
             status: 'success',
-            value: addressValidation.value
+            value: addressTo,
+            addressName
         }
     }
 
     renderAddressError = () => {
-        const { addressError } = this.state
+        const { addressError, addressErrorText } = this.state
         const { colors, GRID_SIZE } = this.context
 
         if (!addressError) return
@@ -103,7 +129,7 @@ class InputAddress extends React.PureComponent {
                         />
                     </View>
                     <Text style={{ ...style.texts__item, color: colors.common.text3 }}>
-                        {strings('send.addressError')}
+                        {addressErrorText === '' ? strings('send.addressError') : addressErrorText}
                     </Text>
                 </View>
             </View>

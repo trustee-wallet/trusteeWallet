@@ -7,6 +7,7 @@ const INITIAL_STATE = {
     ui: {
         uiType: 'ACCOUNT_SCREEN',
         addressTo : '',
+        addressName : '',
         memo : '',
         cryptoValue : '',
         comment : '',
@@ -18,7 +19,7 @@ const INITIAL_STATE = {
             bseTrusteeFee : false,
             bseOrderData : false
         },
-        isFioRequest : false
+        fioRequestDetails : false
     },
     dict : {
         inputType : 'CRYPTO',

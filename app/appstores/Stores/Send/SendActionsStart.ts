@@ -194,6 +194,51 @@ export namespace SendActionsStart {
         }
     }
 
+    export const startFromFioRequest = async (currencyCode : any,
+        fioRequestDetails :  {
+            // eslint-disable-next-line camelcase
+            content: {amount: string, memo: string, payee_public_address: string},
+            // eslint-disable-next-line camelcase
+            fio_request_id: number,
+            // eslint-disable-next-line camelcase
+            payee_fio_address: string,
+            // eslint-disable-next-line camelcase
+            payee_fio_public_key: string,
+            // eslint-disable-next-line camelcase
+            payer_fio_address: string,
+            // eslint-disable-next-line camelcase
+            payer_fio_public_key: string,
+            // eslint-disable-next-line camelcase
+            time_stamp: string
+        }) => {
+        const { cryptoCurrency, account } = findWalletPlus(currencyCode)
+        const dict = formatDict(cryptoCurrency, account)
+
+        const amount = fioRequestDetails.content.amount
+        const amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(amount)
+
+        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
+            addressTo: fioRequestDetails.content.payee_public_address,
+            amount: amountRaw,
+        })
+        const ui = {
+            uiType: 'FIO_REQUEST',
+            addressTo: fioRequestDetails.content.payee_public_address,
+            addressName:  fioRequestDetails.payee_fio_address,
+            comment: fioRequestDetails.content.memo,
+            cryptoValue: amountRaw,
+            fioRequestDetails
+        }
+        dispatch({
+            type: 'RESET_DATA',
+            ui,
+            dict
+        })
+
+        await SendActionsBlockchainWrapper.getFeeRate(ui)
+        NavStore.goNext('ReceiptScreen')
+    }
+
     export const startFromQRCodeScanner = async (parsed : any, uiType = 'MAIN_SCANNER') => {
         /*
                         await SendActions.cleanData()
@@ -278,24 +323,6 @@ export namespace SendActionsStart {
                 addData: {
                     gotoReceipt: true,
                 }
-            })
-         */
-    }
-
-    export const startFromFioRequest = async (currencyCode : any, fioRequestDetails : any) => {
-        /*
-                    await SendActions.cleanData()
-            SendActions.setUiType({
-                ui: {
-                    uiType : 'FIO_REQUESTS'
-                },
-                addData: {
-                    gotoReceipt : true,
-                }
-            })
-            await SendActions.startSend({
-                fioRequestDetails : this.state.requestDetailData,
-                currencyCode : currency.currencyCode,
             })
          */
     }

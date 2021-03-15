@@ -56,7 +56,12 @@ class SendScreen extends SendBasicScreen {
         if (disableInput.status !== 'success' || disableAddress.status !== 'success' || disableMemo.status !== 'success') {
             return true
         }
-        SendActionsUpdateValues.setStepOne(disableInput.value, disableAddress.value, disableMemo.value)
+        SendActionsUpdateValues.setStepOne({
+            cryptoValue: disableInput.value,
+            addressTo : disableAddress.value,
+            addressName : disableAddress.addressName,
+            memo : disableMemo.value
+        })
         return false
     }
 

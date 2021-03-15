@@ -8,14 +8,10 @@ let CACHE_SELECTED_FEE = false
 
 export namespace SendActionsUpdateValues {
 
-    export const setStepOne = (cryptoValue : string, addressTo : string, memo : string) => {
+    export const setStepOne = (data : {cryptoValue : string, addressTo : string,  addressName: string, memo : string}) => {
         dispatch({
             type: 'SET_DATA',
-            ui: {
-                cryptoValue,
-                addressTo,
-                memo
-            }
+            ui: data
         })
     }
 
@@ -32,7 +28,9 @@ export namespace SendActionsUpdateValues {
             const ui = {
                 comment,
             }
+            // @ts-ignore
             if (typeof CACHE_SELECTED_FEE.amountForTx !== 'undefined' && CACHE_SELECTED_FEE.amountForTx) {
+                // @ts-ignore
                 ui.cryptoValue = CACHE_SELECTED_FEE.amountForTx
             }
             dispatch({

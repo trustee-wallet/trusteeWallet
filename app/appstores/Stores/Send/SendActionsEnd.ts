@@ -8,15 +8,34 @@ import { setSelectedCryptoCurrency, setSelectedAccount } from '@app/appstores/St
 import store from '@app/store'
 import Log from '@app/services/Log/Log'
 
-import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 import config from '@app/config/config'
 import ApiRates from '@app/services/Api/ApiRates'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
-import ApiV3 from '@app/services/Api/ApiV3'
 
+import ApiV3 from '@app/services/Api/ApiV3'
+import { recordFioObtData } from '@crypto/blockchains/fio/FioUtils'
+
+const logFio = async function(transaction: any, tx: any, logData: any, sendScreenStore: any) {
+    const { fioRequestDetails } = sendScreenStore.ui
+
+    if (typeof fioRequestDetails === 'undefined' || !fioRequestDetails) return
+
+    await recordFioObtData({
+        fioRequestId: fioRequestDetails.fio_request_id,
+        payerFioAddress: fioRequestDetails.payer_fio_address,
+        payeeFioAddress: fioRequestDetails.payee_fio_address,
+        payerTokenPublicAddress: transaction.addressFromBasic,
+        payeeTokenPublicAddress: transaction.addressToBasic,
+        amount: transaction.addressAmount,
+        chainCode: transaction.currencyCode,
+        tokenCode: transaction.currencyCode,
+        obtId: transaction.transactionHash,
+        memo: fioRequestDetails.content.memo
+    })
+}
 
 const logSendSell = async function(transaction: any, tx: any, logData: any, sendScreenStore: any) {
     const { bseOrderId, bseTrusteeFee, bseOrderData } = sendScreenStore.ui.bse
@@ -121,7 +140,7 @@ export namespace SendActionsEnd {
             NavStore.reset('DashboardStack')
         } else {
             // fio request etc - direct to receipt
-            NavStore.goBack(null)
+            NavStore.goBack()
         }
 
     }
@@ -210,6 +229,8 @@ export namespace SendActionsEnd {
         }
 
         await logSendSell(transaction, tx, logData, sendScreenStore)
+
+        await logFio(transaction, tx, logData, sendScreenStore)
 
         const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
 
