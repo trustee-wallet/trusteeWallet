@@ -111,6 +111,7 @@ class ReceiptScreen extends SendBasicScreen {
 
 
     closeAction = async (closeScreen = false) => {
+        await SendActionsEnd.endClose(this.props.sendScreenStore)
         if (closeScreen) {
             NavStore.reset('DashboardStack')
         } else {
@@ -128,10 +129,18 @@ class ReceiptScreen extends SendBasicScreen {
         const dict = new UIDict(currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
         const amountPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(cryptoValue)
-        const amountPrettySeparated = BlocksoftPrettyNumbers.makeCut(amountPretty).separated
 
-        const equivalent = RateEquivalent.mul({ value: amountPretty, currencyCode, basicCurrencyRate })
-        const equivalentSeparated = BlocksoftPrettyNumbers.makeCut(equivalent).separated
+        let amountPrettySeparated = 0
+        let equivalent = false
+        let equivalentSeparated = false
+        if (typeof bseOrderId === 'undefined' || !bseOrderId) {
+            amountPrettySeparated = BlocksoftPrettyNumbers.makeCut(amountPretty).separated
+            equivalent = RateEquivalent.mul({ value: amountPretty, currencyCode, basicCurrencyRate })
+            equivalentSeparated = BlocksoftPrettyNumbers.makeCut(equivalent).separated
+        } else {
+            // from bse its longer hmmm
+            amountPrettySeparated = BlocksoftPrettyNumbers.makeCut(amountPretty, 6).separated
+        }
 
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
@@ -172,7 +181,11 @@ class ReceiptScreen extends SendBasicScreen {
                                         textStyle={{ ...styles.notEquivalent, color: '#999999' }}
                                         letterSpacing={1} />
 
-                                    : null
+                                    :  <LetterSpacing
+                                        text={strings(`account.transaction.orderId`) + ' ' + bseOrderId}
+                                        numberOfLines={1}
+                                        textStyle={{ ...styles.notEquivalent, color: '#999999' }}
+                                        letterSpacing={1} />
                             }
                             <View style={{ ...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
                         </View>

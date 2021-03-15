@@ -61,9 +61,9 @@ export namespace BlocksoftTransfer {
     }
 
     export const getFeeRate = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
-        if (DEBUG) {
+        //if (DEBUG) {
             console.log('BlocksoftTransfer.getFeeRate', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
-        }
+        //}
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
         let feesCount
         try {

@@ -55,6 +55,7 @@ import config from '@app/config/config'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
+
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
@@ -347,9 +348,8 @@ class MainV3DataScreen extends Component {
                     amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
                     memo: data.memo,
                     comment: data.comment || '',
-                    currencyCode: data.currencyCode
-
-                    // isTransferAll: data.useAllFunds,
+                    currencyCode: data.currencyCode,
+                    isTransferAll: data.useAllFunds,
                 }, {
                     bseProviderType: data.providerType || 'NONE', //  'FIXED' || 'FLOATING'
                     bseOrderId: data.orderHash || data.orderId,
@@ -669,11 +669,7 @@ class MainV3DataScreen extends Component {
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            //const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
-            const { transferBalance } = 0 /*await SendActions.countTransferAllBeforeStartSend({
-                currencyCode,
-                addressTo: addressToForTransferAll
-            })*/
+            const transferBalance = await SendActionsStart.getTransferAllBalanceFromBSE({ currencyCode, address })
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
             this.webref.postMessage(JSON.stringify({ fees: { countedFees: 'notUsedNotPassed', selectedFee: 'notUsedNotPassed', amount: amount ? amount : 0 } }))
             return {

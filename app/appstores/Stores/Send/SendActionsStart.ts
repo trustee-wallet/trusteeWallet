@@ -4,10 +4,14 @@
 import NavStore from '@app/components/navigation/NavStore'
 
 import AsyncStorage from '@react-native-community/async-storage'
+
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import { BlocksoftBlockchainTypes } from '../../blockchains/BlocksoftBlockchainTypes'
+import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 
 import store from '@app/store'
-import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+
 const { dispatch } = store
 
 let CACHE_SEND_INPUT_TYPE = 'none'
@@ -88,12 +92,38 @@ export namespace SendActionsStart {
         return startFromAccountScreen(cryptoCurrency, account, 'HOME_SCREEN')
     }
 
+    export const getTransferAllBalanceFromBSE = async (data : {
+        currencyCode : BlocksoftBlockchainTypes.Code,
+        address : string
+    }) => {
+        const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll(data)
+        const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
+        const dict = formatDict(cryptoCurrency, account)
+        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
+            addressTo : addressToForTransferAll,
+            amount :  '0',
+        })
+        const ui = {
+            uiType : 'TRADE_SEND',
+            addressTo : addressToForTransferAll,
+            cryptoValue : '0',
+            isTransferAll : true
+        }
+        dispatch({
+            type: 'RESET_DATA',
+            ui,
+            dict
+        })
+        return await SendActionsBlockchainWrapper.getTransferAllBalance()
+    }
+
     export const startFromBSE = async (data : {
         amount : string,
         addressTo : string,
         memo : string,
         comment : string,
-        currencyCode : string
+        currencyCode : string,
+        isTransferAll : boolean
     }, bse : {
         bseProviderType : any,
         bseOrderId: any,
@@ -114,6 +144,7 @@ export namespace SendActionsStart {
             memo : data.memo,
             comment : data.comment,
             cryptoValue : data.amount,
+            isTransferAll : data.isTransferAll,
             bse
         }
         dispatch({

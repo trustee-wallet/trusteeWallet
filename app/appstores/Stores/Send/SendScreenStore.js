@@ -10,7 +10,7 @@ const INITIAL_STATE = {
         memo : '',
         cryptoValue : '',
         comment : '',
-
+        isTransferAll : false,
         bse : {
             bseProviderType : false,
             bseOrderId: false,

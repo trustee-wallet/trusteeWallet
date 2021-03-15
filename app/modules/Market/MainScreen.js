@@ -48,13 +48,13 @@ import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
 import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
-import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 import config from '../../config/config'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import { Cards } from '../../services/Cards/Cards'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -319,7 +319,7 @@ class MarketScreen extends Component {
         try {
             Log.log('Market/MainScreen dataSend', data)
 
-            /*
+
             const bseOrderData = {
                 amountReceived: null,
                 depositAddress: data.address,
@@ -328,8 +328,9 @@ class MarketScreen extends Component {
                 inTxHash: null,
                 orderHash: data.orderHash,
                 orderId: data.orderHash,
-                outDestination: data.exchangeWayType === 'SELL' ? `${data.outDestination.substr(0, 2)}***${data.outDestination.substr(-4, 4)}` :
-                    data.outDestination,
+                outDestination: data.exchangeWayType === 'SELL'
+                    ? `${data.outDestination.substr(0, 2)}***${data.outDestination.substr(-4, 4)}`
+                    :  data.outDestination,
                 outTxHash: null,
                 payinUrl: null,
                 requestedInAmount: { amount: data.amount, currencyCode: data.currencyCode },
@@ -337,37 +338,26 @@ class MarketScreen extends Component {
                 status: "pending_payin"
             }
 
-            SendActions.setUiType({
-                ui: {
-                    uiType: 'TRADE_SEND',
-                    uiApiVersion: 'v3',
-                    uiProviderType: data.providerType, // 'FIXED' || 'FLOATING'
-                    uiInputAddress: typeof data.address !== 'undefined' && data.address && data.address !== ''
-                },
-                addData: {
-                    gotoReceipt: true,
-                    comment: data.comment || ''
-                }
-            })
-            await SendActions.startSend({
+            await SendActionsStart.startFromBSE({
                 addressTo: data.address,
-                amountPretty: data.amount.toString(),
+                amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
                 memo: data.memo,
+                comment: data.comment || '',
                 currencyCode: data.currencyCode,
                 isTransferAll: data.useAllFunds,
+            }, {
+                bseProviderType: data.providerType || 'NONE', //  'FIXED' || 'FLOATING'
                 bseOrderId: data.orderHash || data.orderId,
                 bseMinCrypto: minCrypto,
                 bseTrusteeFee: {
                     value: trusteeFee.trusteeFee,
                     currencyCode: trusteeFee.currencyCode,
-                    type: data.exchangeWayType,
+                    type: 'MARKET',
                     from: data.currencyCode,
                     to: data.outCurrency
                 },
                 bseOrderData: bseOrderData
             })
-
-             */
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('Market/MainScreen.send', e)
@@ -678,11 +668,7 @@ class MarketScreen extends Component {
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            //const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
-            const { transferBalance } = 0 /*await SendActions.countTransferAllBeforeStartSend({
-                currencyCode,
-                addressTo: addressToForTransferAll
-            })*/
+            const transferBalance = await SendActionsStart.getTransferAllBalanceFromBSE({ currencyCode, address })
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
             this.webref.postMessage(JSON.stringify({ fees: { amount: amount ? amount : 0 } }))
             return {

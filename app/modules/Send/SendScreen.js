@@ -13,7 +13,6 @@ import NavStore from '@app/components/navigation/NavStore'
 import Header from '@app/components/elements/new/Header'
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 
-
 import SendBasicScreen from './elements/SendBasicScreen'
 import HeaderAccountDetails from '@app/modules/Send/elements/HeaderAccountDetails'
 import InputAndButtons from '@app/modules/Send/elements/InputAndButtons'

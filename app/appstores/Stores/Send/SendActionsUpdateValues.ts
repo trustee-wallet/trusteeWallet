@@ -20,6 +20,7 @@ export namespace SendActionsUpdateValues {
     }
 
     export const setCommentAndFeeFromTmp = (comment : string) => {
+        console.log('CACHE_SELECTED_FEE', JSON.stringify(CACHE_SELECTED_FEE))
         if (!CACHE_SELECTED_FEE) {
             dispatch({
                 type: 'SET_DATA',
@@ -28,11 +29,15 @@ export namespace SendActionsUpdateValues {
                 }
             })
         } else {
+            const ui = {
+                comment,
+            }
+            if (typeof CACHE_SELECTED_FEE.amountForTx !== 'undefined' && CACHE_SELECTED_FEE.amountForTx) {
+                ui.cryptoValue = CACHE_SELECTED_FEE.amountForTx
+            }
             dispatch({
                 type: 'SET_DATA',
-                ui: {
-                    comment,
-                },
+                ui,
                 fromBlockchain : {
                     selectedFee : CACHE_SELECTED_FEE
                 }

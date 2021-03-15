@@ -15,6 +15,7 @@ import config from '@app/config/config'
 import ApiRates from '@app/services/Api/ApiRates'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
+import ApiV3 from '@app/services/Api/ApiV3'
 
 
 const logSendSell = async function(transaction: any, tx: any, logData: any, sendScreenStore: any) {
@@ -123,6 +124,13 @@ export namespace SendActionsEnd {
             NavStore.goBack(null)
         }
 
+    }
+
+    export const endClose = async (sendScreenStore : any) => {
+        const { bse } = sendScreenStore.ui
+        const { bseOrderId } = bse
+        if (typeof bseOrderId === 'undefined' || !bseOrderId) return
+        return ApiV3.setExchangeStatus(bseOrderId, 'CLOSE')
     }
 
     export const saveTx = async (tx: any, sendScreenStore: any) => {
