@@ -62,7 +62,7 @@ class InputAndButtons extends React.PureComponent {
 
     componentDidMount() {
         if (this.valueInput) {
-            this._setCryptoValue(this.props.sendScreenStoreUi.cryptoValue, this.props.sendScreenStoreUi.inputType)
+            this._setCryptoValue(this.props.sendScreenStoreUi.cryptoValue, this.props.sendScreenStoreDict.inputType)
         }
     }
 

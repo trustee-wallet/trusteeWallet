@@ -31,6 +31,7 @@ import { showSendError } from './receipt/helpers'
 import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 import { SendActionsEnd } from '@app/appstores/Stores/Send/SendActionsEnd'
+import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
 
 
 let CACHE_IS_COUNTING = false
@@ -42,7 +43,8 @@ class ReceiptScreen extends SendBasicScreen {
         super(props)
 
         this.state = {
-            headerHeight: 0
+            headerHeight: 0,
+            needPasswordConfirm : true
         }
     }
 
@@ -67,10 +69,27 @@ class ReceiptScreen extends SendBasicScreen {
         }
     }
 
-    handleSend = async () => {
+    handleSend = async (passwordCheck = true, uiErrorConfirmed = false) => {
         if (CACHE_IS_SENDING) {
             return true
         }
+
+        const { keystore } = this.props.settingsStore
+
+        const { needPasswordConfirm } = this.state
+
+        let passwordChecked = false
+        if (needPasswordConfirm && typeof keystore.askPinCodeWhenSending !== 'undefined' && +keystore.askPinCodeWhenSending) {
+            if (passwordCheck) {
+                lockScreenAction.setFlowType({ flowType: 'CONFIRM_SEND_CRYPTO' })
+                lockScreenAction.setActionCallback({ actionCallback: this.handleSend })
+                NavStore.goNext('LockScreen')
+                return
+            } else {
+                passwordChecked = true
+            }
+        }
+
         setLoaderStatus(true)
         CACHE_IS_SENDING = true
         let tx = false
@@ -219,6 +238,7 @@ ReceiptScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
+        settingsStore: state.settingsStore,
         sendScreenStore: getSendScreenData(state)
     }
 }

@@ -6,7 +6,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import AsyncStorage from '@react-native-community/async-storage'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-import { BlocksoftBlockchainTypes } from '../../blockchains/BlocksoftBlockchainTypes'
+import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchainTypes'
 import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 
@@ -37,8 +37,8 @@ const findWalletPlus = function(currencyCode: string): { wallet: any, cryptoCurr
     return { wallet: selectedWallet, cryptoCurrency, account }
 }
 
-const formatDict = function(cryptoCurrency : any, account : any) {
-    return {
+const formatDict = async function(cryptoCurrency : any, account : any) {
+    const dict = {
         inputType : '',
         decimals : cryptoCurrency.decimals,
         extendsProcessor : cryptoCurrency.extendsProcessor,
@@ -61,6 +61,11 @@ const formatDict = function(cryptoCurrency : any, account : any) {
         feesCurrencyCode : account.feesCurrencyCode,
         feesCurrencySymbol : account.feesCurrencySymbol
     }
+    if (CACHE_SEND_INPUT_TYPE === 'none') {
+        CACHE_SEND_INPUT_TYPE = (await AsyncStorage.getItem('sendInputType') !== 'CRYPTO') ? 'FIAT' : 'CRYPTO'
+    }
+    dict.inputType = CACHE_SEND_INPUT_TYPE
+    return dict
 }
 
 export namespace SendActionsStart {
@@ -71,16 +76,14 @@ export namespace SendActionsStart {
     }
 
     export const startFromAccountScreen = async (cryptoCurrency : any, account : any, uiType = 'ACCOUNT_SCREEN') => {
-        if (CACHE_SEND_INPUT_TYPE === 'none') {
-            CACHE_SEND_INPUT_TYPE = (await AsyncStorage.getItem('sendInputType') !== 'CRYPTO') ? 'FIAT' : 'CRYPTO'
-        }
-        const dict = formatDict(cryptoCurrency, account)
-        dict.inputType = CACHE_SEND_INPUT_TYPE
+        const dict = await formatDict(cryptoCurrency, account)
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
         dispatch({
             type: 'RESET_DATA',
             ui: {
                 uiType,
+                addressTo : '0x08A04d923D481FEB370309F74c13F090554f8D7a',
+                cryptoValue : '123456789123411111'
             },
             dict
         })
@@ -98,7 +101,7 @@ export namespace SendActionsStart {
     }) => {
         const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll(data)
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
-        const dict = formatDict(cryptoCurrency, account)
+        const dict = await formatDict(cryptoCurrency, account)
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
             addressTo : addressToForTransferAll,
             amount :  '0',
@@ -132,7 +135,7 @@ export namespace SendActionsStart {
         bseOrderData : any
     }) => {
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
-        const dict = formatDict(cryptoCurrency, account)
+        const dict = await formatDict(cryptoCurrency, account)
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
             addressTo : data.addressTo,
             amount :  data.amount,
@@ -166,7 +169,7 @@ export namespace SendActionsStart {
         label: string
     }, uiType = 'DEEP_LINKING') => {
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
-        const dict = formatDict(cryptoCurrency, account)
+        const dict = await formatDict(cryptoCurrency, account)
         const addressTo = data.address ? data.address : ''
         const amount = data.amount ? data.amount.toString() : '0'
         const amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(amount)
@@ -177,7 +180,6 @@ export namespace SendActionsStart {
         })
         const ui = {
             uiType,
-            uiInputType: amount !== '0' ? 'CRYPTO' : 'any',
             addressTo : addressTo,
             comment : data.label || '',
             cryptoValue : amountRaw
@@ -221,7 +223,7 @@ export namespace SendActionsStart {
             time_stamp: string
         }) => {
         const { cryptoCurrency, account } = findWalletPlus(currencyCode)
-        const dict = formatDict(cryptoCurrency, account)
+        const dict = await formatDict(cryptoCurrency, account)
 
         const amount = fioRequestDetails.content.amount
         const amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(amount)
