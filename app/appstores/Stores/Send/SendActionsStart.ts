@@ -164,20 +164,22 @@ export namespace SendActionsStart {
         amount: string | number,
         currencyCode: string,
         label: string
-    }) => {
+    }, uiType = 'DEEP_LINKING') => {
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
         const dict = formatDict(cryptoCurrency, account)
+        const addressTo = data.address ? data.address : ''
         const amount = data.amount ? data.amount.toString() : '0'
         const amountRaw = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(amount)
 
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
-            addressTo : data.address,
+            addressTo : addressTo,
             amount :  amountRaw,
         })
         const ui = {
-            uiType : 'DEEP_LINKING',
-            addressTo : data.address,
-            comment : data.label,
+            uiType,
+            uiInputType: amount !== '0' ? 'CRYPTO' : 'any',
+            addressTo : addressTo,
+            comment : data.label || '',
             cryptoValue : amountRaw
         }
         dispatch({
@@ -186,12 +188,19 @@ export namespace SendActionsStart {
             dict
         })
 
-        if (typeof data.needToDisable !== 'undefined' && data.needToDisable && data.address && amountRaw) {
+        if (typeof data.needToDisable !== 'undefined' && data.needToDisable
+            && addressTo && addressTo !== ''
+            && amount && amount !== '' && amount !== '0'
+        ) {
             await SendActionsBlockchainWrapper.getFeeRate(ui)
             NavStore.goNext('ReceiptScreen')
         } else {
             NavStore.goNext('SendScreen')
         }
+    }
+
+    export const startFromQRCodeScanner = async (data : any, uiType = 'MAIN_SCANNER') => {
+        return startFromDeepLinking(data, uiType)
     }
 
     export const startFromFioRequest = async (currencyCode : any,
@@ -237,48 +246,6 @@ export namespace SendActionsStart {
 
         await SendActionsBlockchainWrapper.getFeeRate(ui)
         NavStore.goNext('ReceiptScreen')
-    }
-
-    export const startFromQRCodeScanner = async (parsed : any, uiType = 'MAIN_SCANNER') => {
-        /*
-                        await SendActions.cleanData()
-                SendActions.setUiType({
-                    ui: {
-                        uiType: 'MAIN_SCANNER',
-                        uiInputType: parsed.amount ? 'CRYPTO' : 'any',
-                        uiInputAddress: typeof parsed.address !== 'undefined' && parsed.address && parsed.address !== ''
-                    },
-                    addData: {
-                        gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
-                        comment: parsed.label
-                    }
-                })
-                await SendActions.startSend({
-                    addressTo: parsed.address,
-                    amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
-                    currencyCode: parsed.currencyCode,
-                })
-         */
-
-        /*
-                            await SendActions.cleanData()
-                    SendActions.setUiType({
-                        ui: {
-                            uiType: 'SEND_SCANNER',
-                            uiInputType: parsed.amount ? 'CRYPTO' : 'any',
-                            uiInputAddress: typeof parsed.address !== 'undefined' && parsed.address && parsed.address !== ''
-                        },
-                        addData: {
-                            gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
-                            comment: parsed.label
-                        }
-                    })
-                    await SendActions.startSend({
-                        addressTo: parsed.address,
-                        amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
-                        currencyCode: parsed.currencyCode,
-                    })
-         */
     }
 
     export const startFromTransactionScreenRemove = async (account : any, transaction : any) => {

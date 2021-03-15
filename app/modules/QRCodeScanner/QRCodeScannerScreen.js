@@ -159,7 +159,8 @@ class QRCodeScannerScreen extends Component {
                 }
 
                 const parsed = res.data
-                await SendActionsStart.startFromQRCodeScanner(parsed, cryptoCurrency, 'MAIN_SCANNER')
+                parsed.currencyCode = cryptoCurrency.currencyCode
+                await SendActionsStart.startFromQRCodeScanner(parsed,'MAIN_SCANNER')
             } else if (type === 'ADD_CUSTOM_TOKEN_SCANNER') {
                 NavStore.goNext('AddAssetScreen', {
                     tokenData: {
