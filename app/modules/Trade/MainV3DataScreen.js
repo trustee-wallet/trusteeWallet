@@ -572,9 +572,14 @@ class MainV3DataScreen extends Component {
                 data.append('image', 'data:image/jpeg;base64,' + base64)
             }
 
-            let res = await ApiV3.validateCard(data, exchangeMode)
-            // todo send data to front if error send data
-            res = res.data
+            let res
+            try {
+                res = await ApiV3.validateCard(data, exchangeMode)
+                res = res.data
+            } catch (e) {
+                this.webref.postMessage(JSON.stringify({ serverError: true }))
+                Log.log('Trade/MainV3Screen ApiV3.validateCard error', JSON.stringify(e))
+            }
 
             await cardDS.updateCard({
                 key: {
@@ -680,6 +685,8 @@ class MainV3DataScreen extends Component {
             if (config.debug.cryptoErrors) {
                 console.log('Trade/MainV3Screen.handleTransferAll', e)
             }
+
+            this.webref.postMessage(JSON.stringify({ serverError: true }))
 
             Log.errorTranslate(e, 'Trade/MainV3Screen.handleTransferAll', extend)
 
