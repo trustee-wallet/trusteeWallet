@@ -18,18 +18,17 @@ import transactionActions from '@app/appstores/Actions/TransactionActions'
 
 
 const logSendSell = async function(transaction: any, tx: any, logData: any, sendScreenStore: any) {
-    const { bseMinCrypto, bseOrderId, bseTrusteeFee, bseOrderData } = sendScreenStore.ui
+    const { bseOrderId, bseTrusteeFee, bseOrderData } = sendScreenStore.ui.bse
 
     if (typeof bseOrderId === 'undefined' || !bseOrderId) return
+
     transaction.bseOrderId = bseOrderId
     transaction.bseOrderIdOut = bseOrderId
     if (typeof bseOrderData !== 'undefined' && bseOrderData) {
         transaction.bseOrderData = bseOrderData
     }
     logData.bseOrderId = bseOrderId.toString()
-    if (typeof bseMinCrypto !== 'undefined' && bseMinCrypto) {
-        logData.bseMinCrypto = bseMinCrypto.toString()
-    }
+
 
     // https://rnfirebase.io/reference/analytics#logPurchase
     let usdValue = bseTrusteeFee.value
@@ -68,7 +67,7 @@ const logSendSell = async function(transaction: any, tx: any, logData: any, send
                 item_category2: bseTrusteeFee.to,
                 item_id: bseOrderId,
                 item_name: bseTrusteeFee.from + '_' + bseTrusteeFee.to,
-                quantity: BlocksoftPrettyNumbers.setCurrencyCode(transaction.currencyCode).makePretty(transaction.addressAmount)
+                quantity: transaction.addressAmount * 1
             }]
         }
 
@@ -81,6 +80,7 @@ const logSendSell = async function(transaction: any, tx: any, logData: any, send
         }
         await Log.err('v20_sell_tx error ' + e.message)
     }
+
 }
 
 export namespace SendActionsEnd {
@@ -91,7 +91,6 @@ export namespace SendActionsEnd {
         if (uiType === 'MAIN_SCANNER') {
             NavStore.reset('DashboardStack')
         } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {
-            // NavStore.reset('AccountScreen')
             NavStore.goNext('TransactionScreen', {
                 txData: {
                     transactionHash: tx.transactionHash
@@ -128,10 +127,21 @@ export namespace SendActionsEnd {
 
     export const saveTx = async (tx: any, sendScreenStore: any) => {
         const { currencyCode, accountId, walletHash, addressFrom } = sendScreenStore.dict
-        const { addressTo, cryptoValue, memo, comment, bseMinCrypto } = sendScreenStore.ui
+        const { addressTo, cryptoValue, memo, comment, bse } = sendScreenStore.ui
         const { selectedFee } = sendScreenStore.fromBlockchain
+        const { bseMinCrypto } = bse
 
         const now = new Date().toISOString()
+
+        const logData = {
+            walletHash: walletHash,
+            currencyCode: currencyCode,
+            transactionHash: tx.transactionHash,
+            addressTo: addressTo,
+            addressFrom: addressFrom,
+            addressAmount: cryptoValue,
+            fee: JSON.stringify(selectedFee)
+        }
 
         let transactionJson = {}
         if (memo) {
@@ -140,8 +150,9 @@ export namespace SendActionsEnd {
         if (comment) {
             transactionJson.comment = comment
         }
-        if (bseMinCrypto) {
+        if (typeof bseMinCrypto !== 'undefined' && bseMinCrypto) {
             transactionJson.bseMinCrypto = bseMinCrypto
+            logData.bseMinCrypto = bseMinCrypto.toString()
         }
         if (typeof tx.transactionJson !== 'undefined') {
             let key
@@ -188,16 +199,6 @@ export namespace SendActionsEnd {
         if (typeof tx.transactionTimestamp !== 'undefined' && tx.transactionTimestamp) {
             transaction.createdAt = new Date(tx.transactionTimestamp).toISOString()
             transaction.updatedAt = new Date(tx.transactionTimestamp).toISOString()
-        }
-
-        const logData = {
-            walletHash: walletHash,
-            currencyCode: currencyCode,
-            transactionHash: tx.transactionHash,
-            addressTo: addressTo,
-            addressFrom: addressFrom,
-            addressAmount: cryptoValue,
-            fee: JSON.stringify(selectedFee)
         }
 
         await logSendSell(transaction, tx, logData, sendScreenStore)

@@ -9,7 +9,7 @@ import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 
 import CheckData from '@app/modules/Send/elements/CheckData'
-import { feeTitles } from '@app/modules/Send/advanced/helpers'
+import { feesTitles } from '@app/modules/Send/advanced/helpers'
 
 class MinerFee extends React.PureComponent {
 
@@ -20,7 +20,7 @@ class MinerFee extends React.PureComponent {
             return false
         }
 
-        const {feePretty, feeCurrencySymbol, fiatFee} = feeTitles(selectedFee, this.props.sendScreenStoreDict)
+        const {feesPretty, feesCurrencySymbol, fiatFee} = feesTitles(selectedFee, this.props.sendScreenStoreDict)
 
         let nonceForTxTitle = false
         if (selectedFee.isCustomFee) {
@@ -33,7 +33,7 @@ class MinerFee extends React.PureComponent {
             <>
                 <CheckData
                     name={strings('send.receiptScreen.minerFee')}
-                    value={`${feePretty} ${feeCurrencySymbol}`}
+                    value={`${feesPretty} ${feesCurrencySymbol}`}
                     subvalue={fiatFee}
                 />
                 {

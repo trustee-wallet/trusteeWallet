@@ -11,11 +11,13 @@ const INITIAL_STATE = {
         cryptoValue : '',
         comment : '',
 
-        bseProviderType : false,
-        bseOrderId: false,
-        bseMinCrypto : false,
-        bseTrusteeFee : false,
-        bseOrderData : false,
+        bse : {
+            bseProviderType : false,
+            bseOrderId: false,
+            bseMinCrypto : false,
+            bseTrusteeFee : false,
+            bseOrderData : false
+        },
         isFioRequest : false
     },
     dict : {

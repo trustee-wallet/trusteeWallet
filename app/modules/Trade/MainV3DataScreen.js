@@ -99,22 +99,22 @@ class MainV3DataScreen extends Component {
         const { isLight } = this.context
 
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
-        Keyboard.addListener('keyboardWillShow', this.onKeyboardShow);
-        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
+        Keyboard.addListener('keyboardWillShow', this.onKeyboardShow)
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
     componentWiilUnmount() {
         const { isLight } = this.context
 
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
-        Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow);
-        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
+        Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow)
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
     onKeyboardShow = () => {
         const { isLight } = this.context
 
-        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
     handlerBackPress = () => {
@@ -155,8 +155,7 @@ class MainV3DataScreen extends Component {
 
             cardData.numberPlaceholder = value.replace(' ', '')
 
-        }
-        else if (name === 'date') {
+        } else if (name === 'date') {
             cardData.datePlaceholder = ((value.replace(' ', '')).concat('00000000')).substring(0, 5)
         }
 
@@ -239,9 +238,11 @@ class MainV3DataScreen extends Component {
 
         try {
             const allData = JSON.parse(event.nativeEvent.data)
-            const { error, backToOld, close, homePage, cardData, tradeType, takePhoto, scanCard, deleteCard,
+            const {
+                error, backToOld, close, homePage, cardData, tradeType, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSell, didMount, navigationState, message, exchangeStatus,
-                useAllFunds, goToNew } = allData
+                useAllFunds, goToNew
+            } = allData
 
             Log.log('Trade/MainV3Screen.onMessage parsed', event.nativeEvent.data)
 
@@ -253,9 +254,9 @@ class MainV3DataScreen extends Component {
 
             if (backToOld) {
                 if (tradeType === 'SELL') {
-                    NavStore.reset('MainV3DataScreen', { oldInterface : true, tradeType })
+                    NavStore.reset('MainV3DataScreen', { oldInterface: true, tradeType })
                 } else if (tradeType === 'BUY') {
-                    NavStore.reset('MainV3DataScreen', { oldInterface : true, tradeType })
+                    NavStore.reset('MainV3DataScreen', { oldInterface: true, tradeType })
                 }
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
             }
@@ -333,31 +334,32 @@ class MainV3DataScreen extends Component {
                 inTxHash: null,
                 orderHash: data.orderHash,
                 orderId: data.orderHash,
-                outDestination: data.outDestination.substr(0,2) + '***' + data.outDestination.substr(-4, 4),
+                outDestination: data.outDestination.substr(0, 2) + '***' + data.outDestination.substr(-4, 4),
                 outTxHash: null,
                 payinUrl: null,
-                requestedInAmount: {amount: data.amount, currencyCode: data.currencyCode},
-                requestedOutAmount: {amount: data.outAmount, currencyCode: data.outCurrency},
-                status: "pending_payin"
+                requestedInAmount: { amount: data.amount, currencyCode: data.currencyCode },
+                requestedOutAmount: { amount: data.outAmount, currencyCode: data.outCurrency },
+                status: 'pending_payin'
             }
 
-            SendActionsStart.startFromBSE({
+            await SendActionsStart.startFromBSE({
                     addressTo: data.address,
                     amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
                     memo: data.memo,
-                    comment : data.comment || '',
-                    currencyCode: data.currencyCode,
+                    comment: data.comment || '',
+                    currencyCode: data.currencyCode
 
                     // isTransferAll: data.useAllFunds,
-                    bseProviderType : data.providerType || 'NONE', //  'FIXED' || 'FLOATING'
+                }, {
+                    bseProviderType: data.providerType || 'NONE', //  'FIXED' || 'FLOATING'
                     bseOrderId: data.orderHash || data.orderId,
-                    bseMinCrypto : minCrypto,
-                    bseTrusteeFee : {
-                        value : trusteeFee.trusteeFee,
-                        currencyCode : trusteeFee.currencyCode,
-                        type : 'SELL',
-                        from : data.currencyCode,
-                        to : data.outCurrency
+                    bseMinCrypto: minCrypto,
+                    bseTrusteeFee: {
+                        value: trusteeFee.trusteeFee,
+                        currencyCode: trusteeFee.currencyCode,
+                        type: 'SELL',
+                        from: data.currencyCode,
+                        to: data.outCurrency
                     },
                     bseOrderData: bseOrderData
                 }
@@ -592,7 +594,7 @@ class MainV3DataScreen extends Component {
                 (cardJson.verificationStatus === 'PENDING' || cardJson.verificationStatus === 'WAIT_FOR_PHOTO')) {
                 await this.resCardToWebView(numberCard)
             } else {
-                this.webref.postMessage(JSON.stringify({ "res": { cardID, res, numberCard } }))
+                this.webref.postMessage(JSON.stringify({ 'res': { cardID, res, numberCard } }))
             }
 
         } catch (e) {
@@ -610,10 +612,10 @@ class MainV3DataScreen extends Component {
         }
 
         if (cardStatus.verificationStatus === 'SUCCESS' || cardStatus.verificationStatus === 'CANCELED') {
-            this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
+            this.webref.postMessage(JSON.stringify({ 'res': { 'res': cardStatus, numberCard } }))
             return true
         } else {
-            this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
+            this.webref.postMessage(JSON.stringify({ 'res': { 'res': cardStatus, numberCard } }))
             setTimeout(async () => {
                 await this.resCardToWebView(numberCard)
             }, 30e3) //30 sec
@@ -711,14 +713,16 @@ class MainV3DataScreen extends Component {
         const { colors } = this.context
         return (
             <ActivityIndicator
-                size="large"
-                style={{ backgroundColor: colors.common.header.bg, position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                justifyContent: 'center',
-                alignItems: 'center' }}
+                size='large'
+                style={{
+                    backgroundColor: colors.common.header.bg, position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}
                 color={this.context.colors.common.text2}
             />
         )
@@ -788,7 +792,7 @@ class MainV3DataScreen extends Component {
                         <>
                             {this.renderLoading()}
                         </>
-                        }
+                    }
                 </View>
             </View>
         )

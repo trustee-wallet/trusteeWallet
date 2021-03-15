@@ -13,8 +13,10 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 import SubSetting from '@app/components/elements/new/list/ListItem/SubSetting'
-import { feeTitles } from '@app/modules/Send/advanced/helpers'
+import { feesTitles } from '@app/modules/Send/advanced/helpers'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
+import SendCustomFee from '@app/modules/Send/advanced/SendCustomFee'
+
 
 class SendAdvancedFees extends React.PureComponent {
 
@@ -46,10 +48,10 @@ class SendAdvancedFees extends React.PureComponent {
             needSpeed = ''
         }
 
-        const { feePretty, feeCurrencySymbol, fiatFee } = feeTitles(item, this.props.ExtraViewParams.dict)
+        const { feesPretty, feesCurrencySymbol, fiatFee } = feesTitles(item, this.props.ExtraViewParams.dict)
 
         let subtitle
-        subtitle = `${feePretty} ${feeCurrencySymbol}`
+        subtitle = `${feesPretty} ${feesCurrencySymbol}`
         if (devFee) {
             subtitle += ` ${devFee}`
             if (devMode) {
@@ -69,6 +71,10 @@ class SendAdvancedFees extends React.PureComponent {
         this.setState({
             currentSelectedFee : item
         })
+    }
+
+    setCustomFee() {
+
     }
 
     render() {
@@ -96,6 +102,21 @@ class SendAdvancedFees extends React.PureComponent {
                         )
                     }).reverse() : <View></View>
                 }
+
+
+                {//(uiProviderType !== 'FIXED' || !isTransferAll) ?
+                    <SubSetting
+                        title={strings(`send.fee.customFee.title`)}
+                        checked={false}
+                        radioButtonFirst={true}
+                        withoutLine={true}
+                        onPress={() => this.setCustomFee()}
+                        checkedStyle={true}
+                        ExtraView={SendCustomFee}
+                        ExtraViewParams={this.props.ExtraViewParams}
+                    />
+                }
+
             </View>
         )
     }

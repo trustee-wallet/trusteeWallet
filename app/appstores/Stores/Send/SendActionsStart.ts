@@ -52,8 +52,8 @@ const formatDict = function(cryptoCurrency : any, account : any) {
         basicCurrencySymbol : account.basicCurrencySymbol,
         basicCurrencyCode : account.basicCurrencyCode,
         basicCurrencyRate : account.basicCurrencyRate,
-        feeBasicCurrencyRate : account.feeRates.basicCurrencyRate,
-        feeBasicCurrencySymbol : account.feeRates.basicCurrencySymbol,
+        feesBasicCurrencyRate : account.feeRates.basicCurrencyRate,
+        feesBasicCurrencySymbol : account.feeRates.basicCurrencySymbol,
         feesCurrencyCode : account.feesCurrencyCode,
         feesCurrencySymbol : account.feesCurrencySymbol
     }
@@ -77,8 +77,6 @@ export namespace SendActionsStart {
             type: 'RESET_DATA',
             ui: {
                 uiType,
-                addressTo : '0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99',
-                cryptoValue : '123499'
             },
             dict
         })
@@ -90,19 +88,18 @@ export namespace SendActionsStart {
         return startFromAccountScreen(cryptoCurrency, account, 'HOME_SCREEN')
     }
 
-    export const startFromBSE = (data : {
+    export const startFromBSE = async (data : {
         amount : string,
         addressTo : string,
         memo : string,
         comment : string,
-        currencyCode : string,
-
+        currencyCode : string
+    }, bse : {
         bseProviderType : any,
         bseOrderId: any,
         bseMinCrypto : any,
         bseTrusteeFee : any,
         bseOrderData : any
-
     }) => {
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
         const dict = formatDict(cryptoCurrency, account)
@@ -111,17 +108,20 @@ export namespace SendActionsStart {
             amount :  data.amount,
             memo : data.memo
         })
+        const ui = {
+            uiType : 'TRADE_SEND',
+            addressTo : data.addressTo,
+            memo : data.memo,
+            comment : data.comment,
+            cryptoValue : data.amount,
+            bse
+        }
         dispatch({
             type: 'RESET_DATA',
-            ui: {
-                uiType : 'TRADE_SEND',
-                addressTo : data.addressTo,
-                memo : data.memo,
-                comment : data.comment,
-                cryptoValue : data.amount
-            },
+            ui,
             dict
         })
+        await SendActionsBlockchainWrapper.getFeeRate(ui)
         NavStore.goNext('ReceiptScreen')
     }
 
@@ -143,18 +143,20 @@ export namespace SendActionsStart {
             addressTo : data.address,
             amount :  amountRaw,
         })
+        const ui = {
+            uiType : 'DEEP_LINKING',
+            addressTo : data.address,
+            comment : data.label,
+            cryptoValue : amountRaw
+        }
         dispatch({
             type: 'RESET_DATA',
-            ui: {
-                uiType : 'DEEP_LINKING',
-                addressTo : data.address,
-                comment : data.label,
-                cryptoValue : amountRaw
-            },
+            ui,
             dict
         })
 
-        if (typeof data.needToDisable !== 'undefined' && data.needToDisable) {
+        if (typeof data.needToDisable !== 'undefined' && data.needToDisable && data.address && amountRaw) {
+            await SendActionsBlockchainWrapper.getFeeRate(ui)
             NavStore.goNext('ReceiptScreen')
         } else {
             NavStore.goNext('SendScreen')

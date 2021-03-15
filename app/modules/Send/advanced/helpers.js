@@ -4,27 +4,35 @@
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 
-const feeTitles = function(item, dict) {
-    const { currencySymbol, currencyCode, basicCurrencySymbol, basicCurrencyRate } = dict
+const feesTitles = function(item, dict) {
+    let { currencySymbol, currencyCode, basicCurrencySymbol, basicCurrencyRate, feesBasicCurrencyRate, feesBasicCurrencySymbol, feesCurrencyCode, feesCurrencySymbol } = dict
 
-    let feeCurrencyCode = currencyCode
-    let feeCurrencySymbol = currencySymbol
-    let feeCurrencyRate = basicCurrencyRate
+    if (typeof feesCurrencyCode === 'undefined' || !feesCurrencyCode) feesCurrencyCode = currencyCode
+    if (typeof feesCurrencySymbol === 'undefined' || !feesCurrencySymbol) feesCurrencySymbol = currencySymbol
+    if (typeof feesBasicCurrencyRate === 'undefined' || !feesBasicCurrencyRate) feesBasicCurrencyRate = basicCurrencyRate
+    if (typeof feesBasicCurrencySymbol === 'undefined' || !feesBasicCurrencySymbol) feesBasicCurrencySymbol = basicCurrencySymbol
 
-    let fee = item.feeForTx
-    let feePretty = BlocksoftPrettyNumbers.setCurrencyCode(feeCurrencyCode).makePretty(fee)
-    let fiatFee = RateEquivalent.mul({ value: feePretty, currencyCode: feeCurrencyCode, basicCurrencyRate: feeCurrencyRate })
-
-    if (Number(fiatFee) < 0.01) {
-        fiatFee = `< ${basicCurrencySymbol} 0.01`
+    let feesPretty, fiatFee
+    if (typeof item.feeForTxDelegated !== 'undefined') {
+        feesPretty = item.feeForTxCurrencyAmount
+        feesCurrencyCode = currencyCode
+        feesCurrencySymbol = currencySymbol
+        fiatFee = item.feeForTxBasicAmount
+        feesBasicCurrencySymbol = item.feeForTxBasicSymbol
     } else {
-        fiatFee = `${basicCurrencySymbol} ${BlocksoftPrettyNumbers.makeCut(fiatFee).justCutted}`
+        feesPretty = BlocksoftPrettyNumbers.setCurrencyCode(feesCurrencyCode).makePretty(item.feeForTx)
+        fiatFee = RateEquivalent.mul({ value: feesPretty, currencyCode: feesCurrencyCode, basicCurrencyRate: feesBasicCurrencyRate })
     }
 
-    return { feePretty, feeCurrencySymbol, fiatFee }
+    if (Number(fiatFee) < 0.01) {
+        fiatFee = `< ${feesBasicCurrencySymbol} 0.01`
+    } else {
+        fiatFee = `${feesBasicCurrencySymbol} ${BlocksoftPrettyNumbers.makeCut(fiatFee).justCutted}`
+    }
 
+    return { feesPretty, feesCurrencySymbol, fiatFee }
 }
 
 export {
-    feeTitles
+    feesTitles
 }

@@ -58,7 +58,10 @@ class ReceiptScreen extends SendBasicScreen {
             CACHE_IS_COUNTING = false
             NavStore.goNext('SendAdvancedScreen')
         } catch (e) {
-            console.log('ReceiptScreen.openAdvancedSettings error ' + e.message)
+            if (config.debug.appErrors) {
+                console.log('ReceiptScreen.openAdvancedSettings error ' + e.message)
+            }
+            Log.log('ReceiptScreen.openAdvancedSettings error ' + e.message)
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
         }
@@ -72,8 +75,10 @@ class ReceiptScreen extends SendBasicScreen {
         CACHE_IS_SENDING = true
         let tx = false
         let e = false
+
+        const { selectedFee } = this.props.sendScreenStore.fromBlockchain
         try {
-            tx = await SendActionsBlockchainWrapper.actualSend()
+            tx = await SendActionsBlockchainWrapper.actualSend(false, selectedFee)
         } catch (e1) {
             if (config.debug.appErrors) {
                 console.log('ReceiptScreen.handleSend error ' + e1.message)
@@ -117,7 +122,8 @@ class ReceiptScreen extends SendBasicScreen {
         const { colors, GRID_SIZE, isLight } = this.context
 
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStore.dict
-        const { cryptoValue, uiType } = this.props.sendScreenStore.ui
+        const { cryptoValue, bse } = this.props.sendScreenStore.ui
+        const { bseOrderId } = bse
 
         const dict = new UIDict(currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
@@ -159,7 +165,7 @@ class ReceiptScreen extends SendBasicScreen {
                             <Text style={{ ...styles.title, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.totalSend')}</Text>
                             <Text style={{ ...styles.value, color: color }}>{`${amountPrettySeparated} ${currencySymbol}`}</Text>
                             {
-                                uiType !== 'TRADE_SEND' ?
+                                typeof bseOrderId === 'undefined' || !bseOrderId ?
                                     <LetterSpacing
                                         text={`${basicCurrencySymbol} ${equivalentSeparated}`}
                                         numberOfLines={1}

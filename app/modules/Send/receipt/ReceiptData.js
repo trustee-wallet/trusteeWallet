@@ -23,7 +23,8 @@ class ReceiptData extends React.PureComponent {
     render() {
         const { colors, GRID_SIZE } = this.context
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStoreDict
-        const { addressTo, memo, comment, isFioRequest, bseOrderId } = this.props.sendScreenStoreUi
+        const { addressTo, memo, comment, isFioRequest, bse } = this.props.sendScreenStoreUi
+        const { bseOrderId } = bse
 
         let memoTitle = strings('send.xrp_memo')
         if (currencyCode === 'XMR' || currencyCode === 'XLM') {

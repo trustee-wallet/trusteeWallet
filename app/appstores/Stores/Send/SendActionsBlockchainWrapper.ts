@@ -10,31 +10,36 @@ import Log from '@app/services/Log/Log'
 import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
+
 const { dispatch } = store
 
 const CACHE_DATA = {
-    countedFeesData : {} as BlocksoftBlockchainTypes.TransferData,
-    countedFees : {},
-    selectedFee : {},
-    transferAllBalance : '0'
+    countedFeesData: {} as BlocksoftBlockchainTypes.TransferData,
+    transferAllBalance: '0'
 }
 export namespace SendActionsBlockchainWrapper {
 
-    export const beforeRender = (cryptoCurrency : any, account : any, additional : any = {}) => {
+    export const beforeRender = (cryptoCurrency: any, account: any, additional: any = {}) => {
         const { selectedWallet } = store.getState().mainStore
-        const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee, walletUseLegacy, walletIsHd } = selectedWallet
+        const {
+            walletHash,
+            walletUseUnconfirmed,
+            walletAllowReplaceByFee,
+            walletUseLegacy,
+            walletIsHd
+        } = selectedWallet
         const { address, currencyCode, derivationPath, accountJson } = account
 
 
-        CACHE_DATA.countedFeesData = {
+        const newCountedFeesData = {
             currencyCode: currencyCode,
             walletHash: walletHash,
             derivationPath: derivationPath,
             addressFrom: address,
             addressTo: additional.addressTo || '?',
-            amount : additional.amount || account.balanceRaw,
-            memo : additional.memo || null,
-            accountBalanceRaw : account.balanceRaw,
+            amount: additional.amount || account.balanceRaw,
+            memo: additional.memo || null,
+            accountBalanceRaw: account.balanceRaw,
             isTransferAll: false,
             useOnlyConfirmed: !(walletUseUnconfirmed === 1),
             allowReplaceByFee: walletAllowReplaceByFee === 1,
@@ -42,15 +47,24 @@ export namespace SendActionsBlockchainWrapper {
             isHd: walletIsHd,
             accountJson
         } as BlocksoftBlockchainTypes.TransferData
+        if (JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
+            return
+        }
+        if (newCountedFeesData.addressFrom !== CACHE_DATA.countedFeesData.addressFrom) {
+            CACHE_DATA.transferAllBalance = '0'
+        }
+        CACHE_DATA.countedFeesData = newCountedFeesData
     }
 
-    export const getFeeRate = async () => {
+    export const getFeeRate = async (uiData = {}) => {
         try {
-            const { ui } = store.getState().sendScreenStore
-            const newCountedFeesData = {... CACHE_DATA.countedFeesData}
-            newCountedFeesData.addressTo = ui.addressTo
-            newCountedFeesData.amount = ui.cryptoValue
-            newCountedFeesData.memo = ui.memo
+            if (typeof uiData === 'undefined' || typeof uiData.addressTo === 'undefined') {
+                uiData = store.getState().sendScreenStore.ui
+            }
+            const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
+            newCountedFeesData.addressTo = uiData.addressTo
+            newCountedFeesData.amount = uiData.cryptoValue
+            newCountedFeesData.memo = uiData.memo
             if (JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
                 return
             }
@@ -61,6 +75,7 @@ export namespace SendActionsBlockchainWrapper {
                 selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
             }
             CACHE_DATA.countedFeesData = newCountedFeesData
+
             dispatch({
                 type: 'RESET_DATA_BLOCKCHAIN',
                 fromBlockchain: {
@@ -68,6 +83,7 @@ export namespace SendActionsBlockchainWrapper {
                     selectedFee
                 }
             })
+
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('SendActionsBlockchainWrapper.getFeeRate error ' + e.message)
@@ -88,13 +104,13 @@ export namespace SendActionsBlockchainWrapper {
     export const getTransferAllBalance = async () => {
         try {
             const { ui } = store.getState().sendScreenStore
-            const newCountedFeesData = {... CACHE_DATA.countedFeesData}
+            const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
             newCountedFeesData.addressTo = ui.addressTo
             newCountedFeesData.memo = ui.memo
             if (!newCountedFeesData.addressTo || newCountedFeesData.addressTo === '' || newCountedFeesData.addressTo === '?') {
-                newCountedFeesData.addressTo =  BlocksoftTransferUtils.getAddressToForTransferAll({
-                    currencyCode : newCountedFeesData.currencyCode,
-                    address : newCountedFeesData.addressFrom
+                newCountedFeesData.addressTo = BlocksoftTransferUtils.getAddressToForTransferAll({
+                    currencyCode: newCountedFeesData.currencyCode,
+                    address: newCountedFeesData.addressFrom
                 })
             }
             newCountedFeesData.amount = newCountedFeesData.accountBalanceRaw
@@ -110,7 +126,6 @@ export namespace SendActionsBlockchainWrapper {
             const transferAllBalance = countedFees.selectedTransferAllBalance
             CACHE_DATA.countedFeesData = newCountedFeesData
             CACHE_DATA.transferAllBalance = transferAllBalance
-            CACHE_DATA.selectedFee = selectedFee
             dispatch({
                 type: 'RESET_DATA_BLOCKCHAIN',
                 fromBlockchain: {
@@ -138,10 +153,9 @@ export namespace SendActionsBlockchainWrapper {
         return '0'
     }
 
-    export const actualSend = async ( uiErrorConfirmed : any) => {
-        const newCountedFeesData = {... CACHE_DATA.countedFeesData}
-        const selectedFee = {... CACHE_DATA.selectedFee}
+    export const actualSend = async (uiErrorConfirmed: any, selectedFee : any) => {
+        const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
         // @ts-ignore
-        return await BlocksoftTransfer.sendTx(newCountedFeesData, { uiErrorConfirmed, selectedFee})
+        return await BlocksoftTransfer.sendTx(newCountedFeesData, { uiErrorConfirmed, selectedFee })
     }
 }
