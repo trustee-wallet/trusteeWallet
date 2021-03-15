@@ -456,7 +456,7 @@
     "balanceBadBlock" : "Устаревший номер блока",
     "scan": "Отсканированно %{time} мин назад",
     "justScan": "Только что отсканированно",
-    "soLong": "Сканированние было  давно",
+    "soLong": "Сканирование было  давно",
     "noTransactions": "У Вас еще нет транзакций. Но вы можете решить эту проблему быстро, просто нажав кнопку КУПИТЬ.",
     "showMore": "Показать еще",
     "assetSettings": "Настройки актива",
@@ -779,7 +779,7 @@
     "notEnoughForFeeConfirmed": "Для отправки токенов необходимо иметь положительный подтвержденный баланс в нативной монете %{symbol}, подождите подтверждения",
     "publicFioAddressNotFound": "%{symbol} публичный адрес не связан с указанным FIO адресом",
     "domainResolution": {
-      "resolving": "Разрешение %{domain}...",
+      "resolving": "Поиск %{domain}...",
       "success": "%{domain} преобразован в %{address}",
       "fail": "Нет записей для %{domain}"
     },
@@ -1307,7 +1307,7 @@
       "addressCopiedSuccess": "Адрес кошелька скопирован!"
     },
     "notificationModal": {
-      "unsubscribe": "Отписатся"
+      "unsubscribe": "Отписаться"
     }
   },
   "lockScreen": {

@@ -1,14 +1,14 @@
 import { NativeModules } from 'react-native'
 
-import DBInterface from '../../app/appstores/DataSource/DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 
 const { RNFastCrypto } = NativeModules
 
 const VisibleCodes = [
-    'BTC', 'ETH', 'ETH_USDT', 'ETH_SOUL' // add code here to show on start screen
+    'BTC', 'ETH', 'ETH_USDT', 'TRX', 'TRX_USDT', 'ETH_SOUL'// add code here to show on start screen
 ]
 const Codes = [
-    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'BNB', 'BNB_SMART', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'ETH_DAIM', 'TRX', 'FIO'   // add code here for autocreation the wallet address with the currency
+    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'TRX', 'TRX_USDT', 'BNB', 'BNB_SMART', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'ETH_DAIM', 'FIO'   // add code here for autocreation the wallet address with the currency
 ]
 
 const Currencies = {
@@ -1166,7 +1166,8 @@ function addAndUnifyCustomCurrency(currencyObject) {
         currencyName: currencyObject.currencyName,
         currencyCode: 'CUSTOM_' + currencyObject.currencyCode,
         currencySymbol: currencyObject.currencySymbol,
-        ratesCurrencyCode: currencyObject.currencyCode
+        ratesCurrencyCode: currencyObject.currencyCode,
+        decimals: currencyObject.tokenDecimals
 
     }
     tmp.currencyType = 'custom'
@@ -1215,10 +1216,9 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
         return false
     }
     if (currencyCode === 'ETH_LAND') {
-        const dbInterface = new DBInterface()
-        dbInterface.setQueryString(`DELETE FROM account WHERE currency_code='ETH_LAND'`).query()
-        dbInterface.setQueryString(`DELETE FROM account_balance WHERE currency_code='ETH_LAND'`).query()
-        dbInterface.setQueryString(`DELETE FROM currency WHERE currency_code='ETH_LAND'`).query()
+        Database.setQueryString(`DELETE FROM account WHERE currency_code='ETH_LAND'`).query()
+        Database.setQueryString(`DELETE FROM account_balance WHERE currency_code='ETH_LAND'`).query()
+        Database.setQueryString(`DELETE FROM currency WHERE currency_code='ETH_LAND'`).query()
     }
 
     if (typeof currencyCodeOrObject.currencyCode !== 'undefined') {

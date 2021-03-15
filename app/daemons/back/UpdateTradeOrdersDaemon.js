@@ -2,7 +2,7 @@
  * @version 0.30
  */
 
-import DBInterface from '../../appstores/DataSource/DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 
 import Log from '../../services/Log/Log'
 import Api from '../../services/Api/Api'
@@ -81,10 +81,9 @@ class UpdateTradeOrdersDaemon {
     removeId = async (removeId) => {
         Log.daemon('UpdateTradeOrders removeId ' + removeId)
         try {
-            const dbInterface = new DBInterface()
             const nowAt = new Date().toISOString()
             const sql = ` UPDATE transactions SET hidden_at='${nowAt}' WHERE bse_order_id = '${removeId}' `
-            await dbInterface.setQueryString(sql).query(true)
+            await Database.setQueryString(sql).query(true)
         } catch (e) {
             Log.errDaemon('UpdateTradeOrders removeId ' + removeId + ' error ' + e.message)
         }
@@ -107,8 +106,6 @@ class UpdateTradeOrdersDaemon {
         }
 
         Log.daemon('UpdateTradeOrders called ' + JSON.stringify(params))
-
-        const dbInterface = new DBInterface()
 
         const walletHash = await BlocksoftKeysStorage.getSelectedWallet()
         if (!walletHash) {
@@ -208,7 +205,7 @@ class UpdateTradeOrdersDaemon {
                             } else {
                                 continue // do nothing if already asked
                             }
-                            const found = await dbInterface.setQueryString(sql).query(true)
+                            const found = await Database.setQueryString(sql).query(true)
                             if (found && found.array && found.array.length > 0) {
 
                                 savedToTx[tmp.currencyCode] = true
@@ -227,7 +224,7 @@ class UpdateTradeOrdersDaemon {
                                 for (const row of found.array) {
                                     if (id !== row.id) continue
                                     if (row.hidden_at !== '' && row.hidden_at !== 'null') continue
-                                    const escaped = dbInterface.escapeString(JSON.stringify(item))
+                                    const escaped = Database.escapeString(JSON.stringify(item))
 
                                     if (!(row.bse_order_data === escaped)) {
 
@@ -241,12 +238,12 @@ class UpdateTradeOrdersDaemon {
                                         }
 
                                         const sql2 = ` UPDATE transactions SET ${sqlUpdateDir} bse_order_data='${escaped}' WHERE id=${row.id} `
-                                        await dbInterface.setQueryString(sql2).query(true)
+                                        await Database.setQueryString(sql2).query(true)
                                     }
                                 }
                                 if (toRemove.length > 0) {
                                     const sql3 = ` DELETE FROM transactions WHERE id IN (${toRemove.join(',')}) AND id != ${id} `
-                                    await dbInterface.setQueryString(sql3).query(true)
+                                    await Database.setQueryString(sql3).query(true)
                                 }
                             }
                         }
@@ -260,11 +257,11 @@ class UpdateTradeOrdersDaemon {
                             const createdAt = new Date(item.createdAt).toISOString()
                             const sql = `
                                             INSERT INTO transactions (currency_code, wallet_hash, account_id, transaction_hash, transaction_hash_basic, transaction_status, transactions_scan_log, created_at,
-                                            address_amount, address_to, bse_order_id, bse_order_id_${tmp.suffix}, bse_order_data) 
+                                            address_amount, address_to, bse_order_id, bse_order_id_${tmp.suffix}, bse_order_data)
                                             VALUES ('${currencyCode}', '${walletHash}', '0', '', '${tmp.updateHash ? tmp.updateHash : ''}', '', 'FROM ORDER ${createdAt} ${item.orderId}', '${createdAt}',
-                                            '${tmp.addressAmount}', '', '${item.orderId}', '${item.orderId}', '${dbInterface.escapeString(JSON.stringify(item))}')
+                                            '${tmp.addressAmount}', '', '${item.orderId}', '${item.orderId}', '${Database.escapeString(JSON.stringify(item))}')
                                        `
-                            await dbInterface.setQueryString(sql).query(true)
+                            await Database.setQueryString(sql).query(true)
                         }
 
                         total++

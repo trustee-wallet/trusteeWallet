@@ -13,9 +13,9 @@ RUN apt-get -y update && \
     python3 -m pip install gplaycli && \
     rm -f ./get-pip.py && \
     curl -sL -o /usr/local/bin/apktool https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool && \
-    curl -sL -o /usr/local/bin/apktool.jar https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.4.1.jar && \
+    curl -sL -o /usr/local/bin/apktool.jar https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.5.0.jar && \
     chmod +x /usr/local/bin/apktool /usr/local/bin/apktool.jar && \
-    curl -sL -o bundletool.jar https://github.com/google/bundletool/releases/download/1.3.0/bundletool-all-1.3.0.jar && \
+    curl -sL -o bundletool.jar https://github.com/google/bundletool/releases/download/1.5.0/bundletool-all-1.5.0.jar && \
     chmod 644 bundletool.jar && \
     curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
     apt-get -y install nodejs && \

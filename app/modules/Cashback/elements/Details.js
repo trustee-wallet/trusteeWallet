@@ -42,13 +42,21 @@ class DetailsContent extends React.Component {
 
     componentDidMount() {
         this.setState(() => ({ inviteLink: this.props.inviteLink, inviteLinkError: false }), () => {
-            if (this.props.inviteLink) this.handleSubmitInviteLink()
+            if (this.props.inviteLink) {
+                console.log('CashBackScreen.Details init handleSubmitInviteLink')
+                this.handleSubmitInviteLink()
+            } else {
+                console.log('CashBackScreen.Details init no handleSubmitInviteLink')
+            }
         })
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
         if (nextProps.inviteLink) {
-            this.setState(() => ({ inviteLink: nextProps.inviteLink, inviteLinkError: false }), () => this.handleSubmitInviteLink())
+            this.setState(() => ({ inviteLink: nextProps.inviteLink, inviteLinkError: false }), () => {
+                console.log('CashBackScreen.Details props handleSubmitInviteLink')
+                this.handleSubmitInviteLink()
+            })
         }
     }
 
@@ -66,7 +74,10 @@ class DetailsContent extends React.Component {
 
     handleSubmitInviteLink = async () => {
         const { inviteLink } = this.state
-        if (!inviteLink) return
+        if (!inviteLink) {
+            console.log('CashBackScreen.Details handleSubmitInviteLink no invite link')
+            return
+        }
 
         let cashbackLink = this.props.cashbackStore.dataFromApi.cashbackLink || false
         if (!cashbackLink || cashbackLink === '') {
@@ -97,8 +108,14 @@ class DetailsContent extends React.Component {
             return
         }
 
-        let cashbackParentToken = inviteLink.split('/')
-        cashbackParentToken = cashbackParentToken[cashbackParentToken.length - 1]
+        const tmp = inviteLink.split('/')
+        let cashbackParentToken = inviteLink
+        if (tmp.length > 0) {
+            cashbackParentToken = tmp[tmp.length - 1]
+        }
+        if (!cashbackParentToken || cashbackParentToken === '') {
+            return
+        }
 
         try {
             await CashBackUtils.setParentToken(cashbackParentToken)
@@ -109,7 +126,7 @@ class DetailsContent extends React.Component {
                 description: strings('modal.cashbackTokenLinkModal.success.description')
             })
         } catch (e) {
-            console.log(e)
+            Log.err('CashBackScreen.Details handleSubmitInviteLink error ' + e.message)
         }
     }
 

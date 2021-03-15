@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
 
@@ -14,9 +14,6 @@ export default {
      * @return {Promise<{id, currencyCode, walletPubType, walletPubValue, transactionsScanTime, balance, balanceFix, balanceTxt, balanceProvider, balanceScanTime, balanceScanLog}[]>}
      */
     getWalletPubsForScan: async (params) => {
-
-        const dbInterface = new DBInterface()
-
         Log.daemon('WalletPubScanning getWalletPubsForScan called')
 
         let where = []
@@ -35,27 +32,27 @@ export default {
             where = ''
         }
 
-        const sql = ` 
-            SELECT 
-            wallet_pub.id, 
-            wallet_pub.currency_code AS currencyCode,  
+        const sql = `
+            SELECT
+            wallet_pub.id,
+            wallet_pub.currency_code AS currencyCode,
             wallet_pub.wallet_hash AS walletHash,
             wallet_pub.wallet_pub_type AS walletPubType,
-            wallet_pub.wallet_pub_value AS walletPubValue, 
-             
-            wallet_pub.transactions_scan_time AS transactionsScanTime, 
-            
-            wallet_pub.balance_fix AS balanceFix, 
+            wallet_pub.wallet_pub_value AS walletPubValue,
+
+            wallet_pub.transactions_scan_time AS transactionsScanTime,
+
+            wallet_pub.balance_fix AS balanceFix,
             wallet_pub.balance_txt AS balanceTxt,
-            wallet_pub.unconfirmed_fix AS unconfirmedFix, 
+            wallet_pub.unconfirmed_fix AS unconfirmedFix,
             wallet_pub.unconfirmed_txt AS unconfirmedTxt,
-            
+
             wallet_pub.balance_provider AS balanceProvider,
             wallet_pub.balance_scan_time AS balanceScanTime,
             wallet_pub.balance_scan_error AS balanceScanError,
             wallet_pub.balance_scan_log AS balanceScanLog,
             wallet_pub.balance_scan_block AS balanceScanBlock
-            
+
             FROM wallet_pub
             LEFT JOIN currency ON currency.currency_code=wallet_pub.currency_code
             ${where}
@@ -65,7 +62,7 @@ export default {
         let res = []
         const unique = {}
         try {
-            res = await dbInterface.setQueryString(sql).query()
+            res = await Database.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('WalletPubScanning getWalletPubsForScan finished as empty')
                 return false
@@ -100,13 +97,12 @@ export default {
      */
     updateBalance: async (data, walletPub) => {
         Log.daemon('DS/WalletPub updateBalance called')
-        const dbInterface = new DBInterface()
         if (data.updateObj.balanceScanLog.length > 1000) {
             data.updateObj.balanceScanLog = data.updateObj.balanceScanLog.substr(0,1000)
         }
-        data.updateObj.balanceScanLog = dbInterface.escapeString(data.updateObj.balanceScanLog)
+        data.updateObj.balanceScanLog = Database.escapeString(data.updateObj.balanceScanLog)
         data.key = { id: walletPub.id }
-        await dbInterface.setTableName('wallet_pub').setUpdateData(data).update()
+        await Database.setTableName('wallet_pub').setUpdateData(data).update()
         Log.daemon('DS/WalletPub updateBalance finished')
     },
 
@@ -121,13 +117,12 @@ export default {
      */
     updateTransactions: async (data, walletPub) => {
         Log.daemon('DS/WalletPub updateTransactions called')
-        const dbInterface = new DBInterface()
         if (data.updateObj.transactionsScanLog.length > 1000) {
             data.updateObj.transactionsScanLog = data.updateObj.transactionsScanLog.substr(0, 1000)
         }
-        data.updateObj.transactionsScanLog = dbInterface.escapeString(data.updateObj.transactionsScanLog)
+        data.updateObj.transactionsScanLog = Database.escapeString(data.updateObj.transactionsScanLog)
         data.key = { id: walletPub.id }
-        await dbInterface.setTableName('wallet_pub').setUpdateData(data).update()
+        await Database.setTableName('wallet_pub').setUpdateData(data).update()
         Log.daemon('DS/WalletPub updateTransactions finished')
     }
 }
