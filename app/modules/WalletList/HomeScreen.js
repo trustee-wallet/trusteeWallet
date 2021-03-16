@@ -76,7 +76,7 @@ class HomeScreen extends React.Component {
             enableVerticalScroll: true
         }
         this.getCurrenciesOrder()
-        SendDeepLinking.init()
+        SendDeepLinking.initDeepLinking()
     }
 
     componentDidMount() {
