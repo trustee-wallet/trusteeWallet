@@ -21,9 +21,13 @@ import SendAdvancedFees from '@app/modules/Send/advanced/SendAdvancedFees'
 
 import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import { showSendError } from '@app/modules/Send/receipt/helpers'
+import config from '@app/config/config'
+import Log from '@app/services/Log/Log'
 
 
-
+let CACHE_IS_COUNTING = false
 class SendAdvancedSettings extends Component {
 
     constructor(props) {
@@ -71,7 +75,19 @@ class SendAdvancedSettings extends Component {
 
     handleApply = async () => {
         const comment = this.state.comment
-        SendActionsUpdateValues.setCommentAndFeeFromTmp(comment)
+        setLoaderStatus(true)
+        CACHE_IS_COUNTING = true
+        try {
+            await SendActionsUpdateValues.setCommentAndFeeFromTmp(comment)
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('SendAdvancedSettings.handleApply error ' + e.message)
+            }
+            Log.log('SendAdvancedSettings.handleApply error ' + e.message)
+        }
+
+        CACHE_IS_COUNTING = false
+        setLoaderStatus(false)
         NavStore.goBack()
     }
 

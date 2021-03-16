@@ -2,6 +2,7 @@
  * @version 0.41
  */
 import store from '@app/store'
+import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 const { dispatch } = store
 
 let CACHE_SELECTED_FEE = false
@@ -15,8 +16,7 @@ export namespace SendActionsUpdateValues {
         })
     }
 
-    export const setCommentAndFeeFromTmp = (comment : string) => {
-        console.log('CACHE_SELECTED_FEE', JSON.stringify(CACHE_SELECTED_FEE))
+    export const setCommentAndFeeFromTmp = async (comment : string) => {
         if (!CACHE_SELECTED_FEE) {
             dispatch({
                 type: 'SET_DATA',
@@ -28,8 +28,18 @@ export namespace SendActionsUpdateValues {
             const ui = {
                 comment,
             }
-            // @ts-ignore
-            if (typeof CACHE_SELECTED_FEE.amountForTx !== 'undefined' && CACHE_SELECTED_FEE.amountForTx) {
+
+            let newFee = false
+            if (typeof CACHE_SELECTED_FEE.isCustomFee !== 'undefined' && CACHE_SELECTED_FEE.isCustomFee) {
+                const countedCustomFee = await SendActionsBlockchainWrapper.getCustomFeeRate(CACHE_SELECTED_FEE)
+                if (countedCustomFee) {
+                    newFee = countedCustomFee
+                    newFee.isCustomFee = true
+                }
+            } else {
+                newFee = CACHE_SELECTED_FEE
+            }
+            if (newFee && typeof newFee.amountForTx !== 'undefined' && newFee.amountForTx) {
                 // @ts-ignore
                 ui.cryptoValue = CACHE_SELECTED_FEE.amountForTx
             }
@@ -37,7 +47,7 @@ export namespace SendActionsUpdateValues {
                 type: 'SET_DATA',
                 ui,
                 fromBlockchain : {
-                    selectedFee : CACHE_SELECTED_FEE
+                    selectedFee : newFee
                 }
             })
         }

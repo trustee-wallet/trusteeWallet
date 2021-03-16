@@ -109,7 +109,7 @@ class ReceiptScreen extends SendBasicScreen {
 
         if (e) {
             try {
-                showSendError(e, this)
+                showSendError(e, this, passwordCheck)
             } catch (e1) {
                 if (config.debug.appErrors) {
                     console.log('ReceiptScreen.handleSendError error ' + e1.message)

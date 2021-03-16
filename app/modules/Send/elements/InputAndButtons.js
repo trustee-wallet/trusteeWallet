@@ -185,7 +185,8 @@ class InputAndButtons extends React.PureComponent {
         }
         return {
             status: 'success',
-            value: this.state.cryptoValue
+            value: this.state.cryptoValue,
+            isTransferAll : this.state.partBalance === 4
         }
     }
 
@@ -288,8 +289,11 @@ class InputAndButtons extends React.PureComponent {
 
         if (this.state.isCountingTransferAll && this.props.sendScreenStoreTransferAllBalance) {
             this.transferAllCallback(this.props.sendScreenStoreTransferAllBalance)
+        } else if (this.props.sendScreenStoreUi.cryptoValue !== this.state.cryptoValue) {
+            if (this.valueInput) {
+                this._setCryptoValue(this.props.sendScreenStoreUi.cryptoValue, this.props.sendScreenStoreDict.inputType)
+            }
         }
-
 
         const notEquivalentValue = '~ ' + BlocksoftPrettyNumbers.makeCut(equivalentValue).separated + ' ' + (inputType !== 'CRYPTO' ? currencySymbol : basicCurrencyCode)
         return (

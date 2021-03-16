@@ -56,6 +56,33 @@ export namespace SendActionsBlockchainWrapper {
         CACHE_DATA.countedFeesData = newCountedFeesData
     }
 
+    export const getCustomFeeRate = async (newFee : any) => {
+        try {
+            const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
+            const countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData, newFee )
+            let selectedFee = false
+            if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
+                // @ts-ignore
+                selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
+            }
+            return selectedFee
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('SendActionsBlockchainWrapper.getCustomFeeRate error ' + e.message)
+            }
+            if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.exchange.sorry'),
+                    description: strings('send.errors.' + e.message)
+                })
+            } else {
+                Log.err('SendActionsBlockchainWrapper.getCustomFeeRate error ' + e.message)
+            }
+        }
+    }
+
     export const getFeeRate = async (uiData = {}) => {
         try {
             if (typeof uiData === 'undefined' || typeof uiData.addressTo === 'undefined') {

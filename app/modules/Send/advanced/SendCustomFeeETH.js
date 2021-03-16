@@ -17,9 +17,9 @@ import Nonce from '@app/components/elements/NewInput'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
-import { connect } from 'react-redux'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
 
 class SendCustomFeeETH extends React.PureComponent {
 
@@ -27,7 +27,6 @@ class SendCustomFeeETH extends React.PureComponent {
         super(props)
 
         this.state = {
-            fees: 0,
             feesPretty: 0
         }
         this.gasPriceInput = React.createRef()
@@ -48,7 +47,6 @@ class SendCustomFeeETH extends React.PureComponent {
         const fees = BlocksoftUtils.mul(currentSelectedFee.gasLimit, currentSelectedFee.gasPriceGwei)
         const feesPretty = BlocksoftUtils.toUnified(fees, 9)
         this.setState({
-            fees,
             feesPretty,
             gasPriceGwei : currentSelectedFee.gasPriceGwei,
             gasLimit : currentSelectedFee.gasLimit,
@@ -105,8 +103,11 @@ class SendCustomFeeETH extends React.PureComponent {
         const feesPretty = BlocksoftUtils.toUnified(fees, 9)
         const nonceForTx = _nonce === false || _nonce === '' ? _nonce : Math.round(_nonce * 1)
 
+        const gasPrice = BlocksoftUtils.toWei(gasPriceGwei, 'gwei')
+        const item = {gasLimit, gasPrice, gasPriceGwei, nonceForTx, isCustomFee : true}
+        SendActionsUpdateValues.setTmpSelectedFee(item)
+
         this.setState({
-            fees,
             feesPretty,
             gasPriceGwei,
             gasLimit,
@@ -191,6 +192,7 @@ class SendCustomFeeETH extends React.PureComponent {
                         inputBaseColor={'#f4f4f4'}
                         inputTextColor={'#f4f4f4'}
                         tintColor={'#7127ac'}
+                        callback={(value) => this.handleRecount('nonce', value)}
                     />
                 </View>
             </View>

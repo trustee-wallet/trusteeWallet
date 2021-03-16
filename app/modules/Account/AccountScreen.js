@@ -204,10 +204,12 @@ class Account extends Component {
 
         UpdateOneByOneDaemon._canUpdate = false
 
-        try {
-            await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_REFRESH' })
-        } catch (e) {
-            Log.errDaemon('AccountScreen handleRefresh error updateTradeOrdersDaemon ' + e.message)
+        if (account.currencyCode !== 'ETH_ROPSTEN') {
+            try {
+                await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_REFRESH' })
+            } catch (e) {
+                Log.errDaemon('AccountScreen handleRefresh error updateTradeOrdersDaemon ' + e.message)
+            }
         }
 
         try {

@@ -8,25 +8,21 @@ import { strings } from '@app/services/i18n'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 
-
-const showSendError = function(e, _this) {
+const showSendError = function(e, _this, passwordCheck) {
     const { bseOrderId, currencyCode } = _this.props.sendScreenStore.dict
     const { uiApiVersion } = _this.props.sendScreenStore.ui
 
-    console.log('FEE change ' + uiApiVersion + ' ' + bseOrderId)
-    if (uiApiVersion === 'v3' && bseOrderId) {
-        console.log('not sending but could be FEE change ' + uiApiVersion + ' ' + bseOrderId)
+
+    //if (uiApiVersion === 'v3' && bseOrderId) {
+        // console.log('not sending but could be FEE change ' + uiApiVersion + ' ' + bseOrderId)
         // ApiV3.setExchangeStatus(bseOrderId, 'FAIL')
-    }
+    //}
 
 
     if (e.message.indexOf('UI_') === 0) {
 
-        /*
+
         Log.log('ReceiptScreen.showSendError protection ' + e.message)
-
-
-        const allData = this.state.data
 
         showModal({
             type: 'YES_NO_MODAL',
@@ -34,16 +30,15 @@ const showSendError = function(e, _this) {
             title: strings('send.confirmModal.title'),
             description: strings('send.errors.' + e.message)
         }, async () => {
-            CACHE_IS_SENDING = false
-            if (typeof e.newAmount !== 'undefined') {
-                allData.amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(e.newAmount)
-                this.setState({ amountRaw: e.newAmount, data: allData })
-                await this.fee.changeAmountRaw(e.newAmount)
-            } else {
-                this.handleSend(passwordCheck, e.message)
-            }
+            //if (typeof e.newAmount !== 'undefined') {
+            //    allData.amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(e.newAmount)
+            //    this.setState({ amountRaw: e.newAmount, data: allData })
+            //    await this.fee.changeAmountRaw(e.newAmount)
+            //} else {
+                _this.handleSend(passwordCheck, e.message)
+            //}
         })
-            */
+
         return false
     }
 

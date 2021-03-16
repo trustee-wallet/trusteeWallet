@@ -58,6 +58,7 @@ class SendScreen extends SendBasicScreen {
         }
         SendActionsUpdateValues.setStepOne({
             cryptoValue: disableInput.value,
+            isTransferAll : disableInput.isTransferAll,
             addressTo : disableAddress.value,
             addressName : disableAddress.addressName,
             memo : disableMemo.value
