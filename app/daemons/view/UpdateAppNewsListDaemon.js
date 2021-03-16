@@ -1,12 +1,13 @@
 /**
  * @version 0.11
  */
+import store from '@app/store'
+
+import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
+import { AppNewsActions } from '@app/appstores/Stores/AppNews/AppNewsActions'
+
 import Update from '../Update'
 
-import store from '../../store'
-
-import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
-import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
 
 const TO_BADGE_TIME = 3600000 * 24 * 4
 
@@ -43,7 +44,7 @@ class UpdateAppNewsListDaemon extends Update {
 
         store.dispatch({
             type: 'SET_APP_NEWS_LIST',
-            appNewsList: appNewsList
+            appNewsList: appNewsList || []
         })
 
         if (appNewsList && appNewsList.length > 0) {

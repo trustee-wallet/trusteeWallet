@@ -9,37 +9,35 @@ import {
     Text,
     Animated,
     TouchableOpacity,
-    Image,
-    Platform,
 } from 'react-native'
 
 import AsyncStorage from '@react-native-community/async-storage'
 import Entypo from 'react-native-vector-icons/Entypo'
 import moment from 'moment'
 
-import IconVisible from '../../../assets/images/icon_visible'
-import IconHidden from '../../../assets/images/icon_hidden'
-import NavStore from '../../../components/navigation/NavStore'
-import ToolTips from '../../../components/elements/ToolTips'
-import GradientView from '../../../components/elements/GradientView'
-import LetterSpacing from '../../../components/elements/LetterSpacing'
+import IconVisible from '@app/assets/images/icon_visible'
+import IconHidden from '@app/assets/images/icon_hidden'
+import NavStore from '@app/components/navigation/NavStore'
+import ToolTips from '@app/components/elements/ToolTips'
+import GradientView from '@app/components/elements/GradientView'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
 
-import { setQRConfig, setQRValue } from '../../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import { sublocale, strings } from '../../../services/i18n'
+import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { saveSelectedBasicCurrencyCode } from '@app/appstores/Stores/Main/MainStoreActions'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
-import Log from '../../../services/Log/Log'
+import { strings } from '@app/services/i18n'
+import Log from '@app/services/Log/Log'
+import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
+import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 
-import { capitalize } from '../../../services/UI/Capitalize/Capitalize'
-import { checkQRPermission } from '../../../services/UI/Qr/QrPermissions'
-import { saveSelectedBasicCurrencyCode } from '../../../appstores/Stores/Main/MainStoreActions'
-import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
+import { HIT_SLOP } from '@app/themes/Themes'
 
-import { HIT_SLOP } from '../../../themes/Themes';
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { SIZE } from '../helpers'
 
-import { SIZE } from '../helpers';
-import { AppWalletConnect } from '../../../services/Back/AppWalletConnect/AppWalletConnect'
 
 let CACHE_PREV_CURRENCY = false
 
@@ -145,7 +143,6 @@ class WalletInfo extends Component {
             triggerBalanceVisibility,
             isBalanceVisible,
             originalVisibility,
-            selectedBasicCurrency,
             balanceData
         } = this.props
         const { isViolet } = this.state

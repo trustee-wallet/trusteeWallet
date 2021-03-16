@@ -8,7 +8,6 @@ import DBInit from './core/init';
 import {
   toPreparedObject,
   toPreparedObjects,
-  toSnake,
 } from './helpers';
 
 

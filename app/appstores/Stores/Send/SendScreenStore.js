@@ -22,10 +22,7 @@ const sendScreenStoreReducer = (state = INITIAL_STATE, action) => {
                 }
             }
         case 'CLEAN_DATA':
-            return {
-                ui: {},
-                addData: {}
-            }
+            return INITIAL_STATE
         default:
             return state
     }
