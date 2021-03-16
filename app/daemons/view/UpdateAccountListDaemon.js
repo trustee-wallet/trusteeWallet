@@ -470,6 +470,12 @@ class UpdateAccountListDaemon extends Update {
                 Log.errDaemon('UpdateAccountListDaemon error on setSelected ' + e.message)
             }
 
+            // FIXME: remove it, temporary solution to fix UI changing on home screen when user change local currency
+            store.dispatch({
+                type: 'SET_SELECTED_BASIC_CURRENCY',
+                selectedBasicCurrency: currentStore.mainStore.selectedBasicCurrency
+            })
+
             this._canUpdate = true
 
         } catch (e) {

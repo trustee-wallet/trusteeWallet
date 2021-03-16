@@ -15,7 +15,7 @@ import countries from '@app/assets/jsons/other/country-codes';
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 103,
+        maxVersion: 109,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -730,6 +730,30 @@ export default function getTableUpdateQueries() {
             },
 
             103: {
+                queryString: `ALTER TABLE wallet_pub ADD COLUMN balance_scan_error TEXT NULL`
+            },
+
+            104: {
+                queryString: `ALTER TABLE transactions_raw ADD COLUMN transaction_log TEXT NULL`
+            },
+
+            105: {
+                queryString: `ALTER TABLE custom_currency ADD COLUMN is_added_to_api INTEGER NULL DEFAULT 0`
+            },
+
+            106: {
+                queryString: `ALTER TABLE transactions ADD COLUMN transaction_hash_basic VARCHAR(256) NULL`
+            },
+
+            107: {
+                queryString: `ALTER TABLE account ADD COLUMN transactions_scan_error TEXT NULL`
+            },
+
+            108: {
+                queryString: `ALTER TABLE account_balance ADD COLUMN balance_scan_error TEXT NULL`
+            },
+
+            109: {
                 queryString: `ALTER TABLE wallet_pub ADD COLUMN balance_scan_error TEXT NULL`
             },
         }

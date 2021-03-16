@@ -16,7 +16,7 @@
         "no-return-assign": 0,
         "new-cap": 0,
         "dot-notation": 0,
-        "no-unused-vars": 1
+        "no-unused-vars": 2
     },
     "settings": {
         "import/resolver": {

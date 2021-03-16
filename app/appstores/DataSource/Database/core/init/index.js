@@ -42,7 +42,7 @@ export default class DBInit {
         const { initQuery, isEmptyQuery } = this.#tableQueries;
         const res = await this.#db.setQueryString(isEmptyQuery).query();
         let countError = 0;
-
+        let updateError = false
         try {
             if (res.array.length !== 0) {
                 Log.log(this.#isEmptyStatus.success);
@@ -51,6 +51,7 @@ export default class DBInit {
             }
         } catch (e) {
             Log.err('DBInit error on update');
+            updateError = true
             countError++;
         }
 
@@ -72,8 +73,10 @@ export default class DBInit {
             }
         }
 
-        await this._initSettings();
-        await this._initCurrency();
+        if (!updateError) {
+            await this._initSettings();
+            await this._initCurrency();
+        }
     }
 
     /**
@@ -92,7 +95,7 @@ export default class DBInit {
         }
 
         Log.log(this.#updateTableStatus.init);
-        Log.log('!!! UPDATING CURRENT VERSION ' + currentVersion + ' NEXT VERSION ' + maxVersion);
+        Log.log('!!! UPDATING CURRENT VERSION ' + currentVersion + ' NEXT VERSION_2 ' + maxVersion);
 
         for (let i = currentVersion + 1; i <= maxVersion; i++) {
             if (!updateQuery[i]) continue;
@@ -110,10 +113,11 @@ export default class DBInit {
                     }
                 }
                 if (typeof afterFunction !== 'undefined') {
-                    await afterFunction(Database)
+                    await afterFunction(this.#db)
                 }
                 await this.#db.setQueryString(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`).query()
             } catch (e) {
+                console.log(e)
                 if (e.message.indexOf('duplicate column name') === -1) {
                     Log.err('DBInit._update error ' + e.message)
                     throw new Error('DB update error')

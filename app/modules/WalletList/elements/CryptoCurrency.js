@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import {
     View,
@@ -229,8 +229,8 @@ class CryptoCurrency extends React.PureComponent {
                 rightOpenValue={-70}
                 stopLeftSwipe={160}
                 stopRightSwipe={-90}
-                swipeToOpenPercent={20}
-                swipeToClosePercent={10}
+                swipeToOpenPercent={5}
+                swipeToClosePercent={5}
                 setScrollEnabled={this.props.setScrollEnabled}
             >
                 {this.renderHiddenLayer()}
