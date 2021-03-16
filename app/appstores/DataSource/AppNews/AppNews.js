@@ -2,11 +2,9 @@
  * @version 0.9
  */
 import Database from '@app/appstores/DataSource/Database';
-import Log from '../../../services/Log/Log'
-
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import Log from '@app/services/Log/Log'
 import walletDS from '../Wallet/Wallet'
-import app from 'react-native-orientation/demo/app'
-import settingsActions from '../../Stores/Settings/SettingsActions'
 
 const tableName = 'app_news'
 
@@ -295,7 +293,7 @@ class AppNews {
             res = await Database.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('AppNews getAppNews finished as empty')
-                return false
+                return []
             }
             res = res.array
             for (let i = 0, ic = res.length; i < ic; i++) {

@@ -8,10 +8,10 @@ const INITIAL_STATE = {
 const walletStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case 'SET_WALLET_LIST':
-            return new Object({
+            return {
                 ...state,
                 wallets: action.wallets
-            })
+            }
         default:
             return state
     }

@@ -8,10 +8,10 @@ const INITIAL_STATE = {
 const cardStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case 'SET_CARDS':
-            return new Object({
+            return {
                 ...state,
                 cards: action.cards
-            })
+            }
         default:
             return state
     }

@@ -11,22 +11,22 @@ const INITIAL_STATE = {
 const modalStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case 'SHOW_MODAL':
-            return new Object({
+            return {
                 show: true,
                 data: action.data,
                 callback: action.callback
-            })
+            }
         case 'HIDE_MODAL':
-            return new Object({
+            return {
                 show: false,
                 data: action.data,
                 callback: action.callback
-            })
+            }
         case 'SET_DATA_MODAL':
-            return new Object({
+            return {
                 ...state,
                 data: action.data
-            })
+            }
     }
 
     return state
