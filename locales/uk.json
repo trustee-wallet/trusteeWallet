@@ -489,6 +489,8 @@
       "self" : "Собі",
       "freeze" : "Заморожено",
       "claim" : "Винагорода",
+      "swap_income" : "Swap Вхідна",
+      "swap_outcome" : "Swap Вихідна",
       "exchange": "Обмін",
       "buy": "Покупка",
       "sell": "Продаж",

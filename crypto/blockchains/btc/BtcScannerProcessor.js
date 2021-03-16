@@ -134,7 +134,9 @@ export default class BtcScannerProcessor {
         }
     }
 
-    async getAddressesBlockchain(address, data, walletHash, source = '') {
+    async getAddressesBlockchain(scanData, source = '') {
+        const address = scanData.account.address.trim()
+        const data = scanData.additional
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses started', address)
         let res = await this._get(address, data, source)
         if (typeof res.data !== 'undefined') {
@@ -169,12 +171,15 @@ export default class BtcScannerProcessor {
     }
 
     /**
-     * @param {string} address
-     * @param {*} data
+     * @param {string} scanData.account.address
+     * @param {*} scanData.additional
+     * @param {string} scanData.account.walletHash
      * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactionsBlockchain(address, data, walletHash, source = '') {
-        address = address.trim()
+    async getTransactionsBlockchain(scanData, source = '') {
+        const address = scanData.account.address.trim()
+        const data = scanData.additional
+
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions started ' + address)
         let res = await this._get(address, data, source)
         if (typeof res.data !== 'undefined') {

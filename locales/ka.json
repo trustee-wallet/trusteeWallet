@@ -487,6 +487,8 @@
       "self": "სელფი",
       "freeze": "გაყინვა",
       "claim": "ჯილდო",
+      "swap_income" : "Swap Income",
+      "swap_outcome" : "Swap Outcome",
       "exchange": "გაცვლა",
       "buy": "ყიდვა",
       "sell": "გაყიდვა",

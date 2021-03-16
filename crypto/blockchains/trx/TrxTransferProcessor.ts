@@ -64,7 +64,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             return { isOk: true }
         }
 
-        const transactionsBasic = await balanceProviderBasic.getTransactionsBlockchain(data.addressTo)
+        const transactionsBasic = await balanceProviderBasic.getTransactionsBlockchain({account : {address : data.addressTo}})
         if (transactionsBasic !== false) {
             return { isOk: true }
         }

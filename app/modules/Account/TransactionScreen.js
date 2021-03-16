@@ -619,7 +619,7 @@ class TransactionScreen extends Component {
 
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ color: colors.common.text1, fontSize: 17 }} />
 
-        if (transactionDirection === 'income' || transactionDirection === 'claim') {
+        if (transactionDirection === 'income' || transactionDirection === 'claim' || transactionDirection === 'swap_income') {
             arrowIcon = <Feather name={'arrow-down-left'} style={{ color: colors.common.text1, fontSize: 17 }} />
         }
         if (transactionDirection === 'self') {

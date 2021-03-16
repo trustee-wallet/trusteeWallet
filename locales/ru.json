@@ -489,6 +489,8 @@
       "self" : "Себе",
       "freeze" : "Заморозка",
       "claim" : "Награда",
+      "swap_income" : "Swap Входящая",
+      "swap_outcome" : "Swap Исходящая",
       "exchange": "Обмен",
       "buy": "Покупка",
       "sell": "Продажа",

@@ -41,10 +41,11 @@ export default class BsvScannerProcessor {
     /**
      * https://explorer.viabtc.com/res/bsv/transactions/addressv2?address=1KiTAxJQJ2cv4hTZsJXtCgc3ZaaqZCF7Un
      * https://bsv-chain.api.btc.com/v3/address/1KiTAxJQJ2cv4hTZsJXtCgc3ZaaqZCF7Un/tx
-     * @param {string} address
+     * @param {string} scanData.account.address
      * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactionsBlockchain(address) {
+    async getTransactionsBlockchain(scanData) {
+        const address = scanData.account.address.trim()
         const link = API_TX_PATH + address + '/tx'
         await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions started ' + address + ' ' + link)
         const tmp = await BlocksoftAxios.getWithoutBraking(link)
