@@ -27,22 +27,13 @@ const appNewsStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case 'SET_APP_NEWS_LIST': {
             let hasNews = false
-            // sometimes broken as ? operator not ok when false / not null
-            if (typeof action.appNewsList === 'undefined' || !action.appNewsList || typeof action.appNewsList?.forEach === 'undefined') {
-                return new Object({
-                    ...state,
-                    appNewsList: [],
-                    hasNews
-                })
-            } else {
-                action.appNewsList?.forEach((news) => {
-                    if (ALLOWED_NOTIFICATIONS.includes(news.newsGroup) && news.newsOpenedAt === null) hasNews = true
-                })
-                return new Object({
-                    ...state,
-                    appNewsList: action.appNewsList,
-                    hasNews
-                })
+            action.appNewsList.forEach((news) => {
+                if (ALLOWED_NOTIFICATIONS.includes(news.newsGroup) && news.newsOpenedAt === null) hasNews = true
+            })
+            return {
+                ...state,
+                appNewsList: action.appNewsList,
+                hasNews
             }
         }
         default:

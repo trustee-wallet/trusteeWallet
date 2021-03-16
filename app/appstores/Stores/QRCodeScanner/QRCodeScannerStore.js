@@ -9,15 +9,15 @@ const INITIAL_STATE = {
 const qrCodeScannerStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case 'SET_VALUE':
-            return new Object({
+            return {
                 ...state,
                 value: action.value
-            })
+            }
         case 'SET_CONFIG':
-            return new Object({
+            return {
                 ...state,
                 config: action.config
-            })
+            }
         default:
             return state
     }
