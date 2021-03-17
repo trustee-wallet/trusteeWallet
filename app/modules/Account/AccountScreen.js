@@ -64,6 +64,8 @@ import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAcco
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import AppLockBlur from "../../components/AppLockBlur";
 
+import Netinfo from '../../services/Netinfo/Netinfo'
+
 import { diffTimeScan } from './helpers'
 
 let CACHE_ASKED = false
@@ -184,9 +186,21 @@ class Account extends Component {
     }
 
     handleBuy = async () => {
-        const isNewInterfaceBuy = await AsyncStorage.getItem('isNewInterfaceBuy')
-        ExchangeActions.handleSetTradeType({ tradeType: 'BUY' })
-        NavStore.goNext('MainV3DataScreen')
+        try {
+            await Netinfo.isInternetReachable()
+
+            if (config.exchange.mode === 'DEV') {
+                NavStore.goNext('MarketScreen')
+            } else {
+                NavStore.goNext('MainV3DataScreen', { tradeType: 'BUY' })
+            }
+        } catch (e) {
+            if (Log.isNetworkError(e.message)) {
+                Log.log('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)
+            } else {
+                Log.err('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)
+            }
+        }
     }
 
     _showModalNoOldConfigs = async () => {

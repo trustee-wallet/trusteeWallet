@@ -20,44 +20,41 @@ import {
 } from 'react-native'
 
 import { WebView } from 'react-native-webview'
-import AsyncStorage from '@react-native-community/async-storage'
-import { CardIOModule, CardIOUtilities } from 'react-native-awesome-card-io'
+import { CardIOModule } from 'react-native-awesome-card-io'
 import valid from 'card-validator'
 import _ from 'lodash'
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import ApiV3 from '../../services/Api/ApiV3'
-import Log from '../../services/Log/Log'
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+import ApiV3 from '@app/services/Api/ApiV3'
+import Log from '@app/services/Log/Log'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
 
-import { i18n, strings, sublocale } from '../../services/i18n'
-import cardDS from '../../appstores/DataSource/Card/Card'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { FileSystem } from '../../services/FileSystem/FileSystem'
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-import { Camera } from '../../services/Camera/Camera'
+import { strings, sublocale } from '@app/services/i18n'
+import cardDS from '@app/appstores/DataSource/Card/Card'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { FileSystem } from '@app/services/FileSystem/FileSystem'
+import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import { Camera } from '@app/services/Camera/Camera'
 
-import countriesDict from '../../assets/jsons/other/country-codes'
-import Validator from '../../services/UI/Validator/Validator'
+import countriesDict from '@app/assets/jsons/other/country-codes'
+import Validator from '@app/services/UI/Validator/Validator'
 
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
-import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import config from '../../config/config'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
+import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import config from '@app/config/config'
+import { SendActions } from '@app/appstores/Stores/Send/SendActions'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import { Cards } from '../../services/Cards/Cards'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-
-import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { Cards } from '@app/services/Cards/Cards'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -78,6 +75,15 @@ class MarketScreen extends Component {
     }
 
     init = async () => {
+
+        let { currencyCode } = this.props.cryptoCurrency
+
+        const prev = NavStore.getPrevRoute().routeName
+
+        const side = prev === 'AccountScreen' ? 'OUT' : prev === 'ReceiveScreen' ? 'IN' : null
+
+        currencyCode = (prev === 'AccountScreen' || prev === 'ReceiveScreen') ? currencyCode : null
+
         const key = 'onlyOne'
         if (CACHE_INIT_KEY === key && this.state.inited) {
             return
@@ -86,7 +92,7 @@ class MarketScreen extends Component {
         this.setState({ inited: true })
 
         // here to do upload
-        let apiUrl = await ApiV3.initData('MARKET')
+        let apiUrl = await ApiV3.initData('MARKET', currencyCode, side)
 
         setTimeout(() => {
             this.setState({
@@ -240,7 +246,7 @@ class MarketScreen extends Component {
 
         try {
             const allData = JSON.parse(event.nativeEvent.data)
-            const { error, backToOld, close, homePage, cardData, tradeType, takePhoto, scanCard, deleteCard,
+            const { error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSend, didMount, navigationState, message, exchangeStatus,
                 useAllFunds, checkCamera } = allData
 
@@ -252,16 +258,16 @@ class MarketScreen extends Component {
                 return
             }
 
-            // if (backToOld) {
-            //     if (tradeType === 'SELL') {
-            //         ExchangeActions.handleSetNewInterface(false, 'SELL')
-            //         NavStore.goNext('TradeScreenStack')
-            //     } else if (tradeType === 'BUY') {
-            //         ExchangeActions.handleSetNewInterface(false, 'BUY')
-            //         NavStore.goNext('TradeScreenStack')
-            //     }
-            //     StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
-            // }
+            if (backToOld) {
+                if (backToOld === 'SELL') {
+                    NavStore.goNext('MainV3DataScreen', { tradeType: backToOld })
+                } else if (backToOld === 'BUY') {
+                    NavStore.goNext('MainV3DataScreen', { tradeType: backToOld })
+                } else if (backToOld === 'EXCHANGE') {
+                    NavStore.goNext('ExchangeV3ScreenStack')
+                }
+                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
+            }
 
             if (checkCamera) {
                 this.checkCameraForWebView()
@@ -388,7 +394,9 @@ class MarketScreen extends Component {
     }
 
     async onTakePhoto(cardData) {
-        if (!await Camera.checkCameraOn('Market/MainScreen validateCard')) {
+        const res = await Camera.checkCameraOn('Market/MainScreen validateCard')
+        this.webref.postMessage(JSON.stringify({ cameraRes: res }))
+        if (!res) {
             return
         }
 
@@ -423,8 +431,7 @@ class MarketScreen extends Component {
                 this._onTakePhotoInner(res, cardData)
                 showError = false
             }
-            console.log('showError', msgError)
-            // setLoaderStatus(false)
+            setLoaderStatus(false)
             if (showError) {
                 this.webref.postMessage(JSON.stringify({ notPhoto: true }))
 
@@ -695,7 +702,7 @@ class MarketScreen extends Component {
                 addressTo: addressToForTransferAll
             })
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
-            this.webref.postMessage(JSON.stringify({ fees: { amount: amount ? amount : 0 } }))
+            this.webref.postMessage(JSON.stringify({ fees: { amount: amount || 0 } }))
             return {
                 currencyBalanceAmount: amount,
                 currencyBalanceAmountRaw: transferBalance
@@ -704,6 +711,8 @@ class MarketScreen extends Component {
             if (config.debug.cryptoErrors) {
                 console.log('Market/MainScreen.handleTransferAll', e)
             }
+
+            this.webref.postMessage(JSON.stringify({ serverError: true }))
 
             Log.errorTranslate(e, 'Market/MainScreen.handleTransferAll', extend)
 
@@ -821,9 +830,21 @@ class MarketScreen extends Component {
     }
 }
 
+const mapStateToProps = (state) => {
+    return {
+        cryptoCurrency: state.mainStore.selectedCryptoCurrency,
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        dispatch
+    }
+}
+
 MarketScreen.contextType = ThemeContext
 
-export default MarketScreen
+export default connect(mapStateToProps, mapDispatchToProps)(MarketScreen)
 
 
 const styles = StyleSheet.create({

@@ -5,7 +5,6 @@ import Log from '../../services/Log/Log'
 import Api from '../../services/Api/Api'
 
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
-import DBInterface from '../../appstores/DataSource/DB/DBInterface'
 import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWallets'
 import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
@@ -58,7 +57,7 @@ class UpdateAppNewsDaemon {
             this._canUpdate = true
             return false
         }
-        if (typeof res.news === 'undefined' || !res.news || res.news.length === 0 || res.newsHash === CACHE_NEWS_HASH) {
+        if (!res || typeof res === 'undefined' || typeof res.news === 'undefined' || !res.news || res.news.length === 0 || res.newsHash === CACHE_NEWS_HASH) {
             if (res && typeof res.forServerIds !== 'undefined' && res.forServerIds.length > 0) {
                 await appNewsDS.saveAppNewsSentForServer(res.forServerIds)
             }

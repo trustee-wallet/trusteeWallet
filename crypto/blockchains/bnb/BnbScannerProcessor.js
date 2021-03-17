@@ -57,7 +57,7 @@ export default class BnbScannerProcessor {
         const apiServer = await BlocksoftExternalSettings.getStatic('BNB_SERVER')
 
         // @todo get last from db - 3 days
-        const linkTxs = `${apiServer}/api/v1/transactions/?address=${address}&startTime=1609452000000&txAsset=BNB&txType=TRANSFER` // 2021-01-01
+        const linkTxs = `${apiServer}/api/v1/transactions/?address=${address}&startTime=1609452000000&txAsset=BNB` // 2021-01-01
 
         const res = await BlocksoftAxios.getWithoutBraking(linkTxs)
         if (!res || typeof res.data === 'undefined' || !res.data) {
@@ -107,19 +107,41 @@ export default class BnbScannerProcessor {
      **/
     async _unifyTransaction(address, transaction) {
         try {
-            const tx = {
-                transactionHash: transaction.txHash,
-                blockHash: transaction.blockHeight,
-                blockNumber: transaction.blockHeight,
-                blockTime: transaction.timeStamp,
-                blockConfirmations: transaction.txAge,
-                transactionDirection: '?',
-                addressFrom: transaction.fromAddr === address ? '' : transaction.fromAddr,
-                addressTo: transaction.toAddr === address ? '' : transaction.toAddr,
-                addressAmount: transaction.value,
-                transactionStatus: transaction.code === 0 ? 'success' : (transaction.txAge === 0 ? 'new' : 'fail'),
-                transactionFee: transaction.txFee
+            let tx
+            if (transaction.txType === 'TRANSFER') {
+                tx = {
+                    transactionHash: transaction.txHash,
+                    blockHash: transaction.blockHeight,
+                    blockNumber: transaction.blockHeight,
+                    blockTime: transaction.timeStamp,
+                    blockConfirmations: transaction.txAge,
+                    transactionDirection: '?',
+                    addressFrom: transaction.fromAddr === address ? '' : transaction.fromAddr,
+                    addressTo: transaction.toAddr === address ? '' : transaction.toAddr,
+                    addressAmount: transaction.value,
+                    transactionStatus: transaction.code === 0 ? 'success' : (transaction.txAge === 0 ? 'new' : 'fail'),
+                    transactionFee: transaction.txFee
+                }
+            } else if (transaction.txType === 'CROSS_TRANSFER_OUT' && typeof transaction.data !== 'undefined') {
+                const tmp = JSON.parse(transaction.data)
+                if (typeof tmp.amount.denom === 'undefined' || tmp.amount.denom !== 'BNB') return  false
+                tx = {
+                    transactionHash: transaction.txHash,
+                    blockHash: transaction.blockHeight,
+                    blockNumber: transaction.blockHeight,
+                    blockTime: transaction.timeStamp,
+                    blockConfirmations: transaction.txAge,
+                    transactionDirection: '?',
+                    addressFrom: tmp.from === address ? '' : tmp.from,
+                    addressTo: tmp.to === address ? '' : tmp.to,
+                    addressAmount: BlocksoftUtils.fromUnified(tmp.amount.amount, 8),
+                    transactionStatus: transaction.code === 0 ? 'success' : (transaction.txAge === 0 ? 'new' : 'fail'),
+                    transactionFee: transaction.txFee
+                }
+            } else {
+                return false
             }
+
             if (tx.addressTo === '' || !tx.addressTo) {
                 if (tx.addressFrom === '') {
                     tx.transactionDirection = 'self'
@@ -131,7 +153,7 @@ export default class BnbScannerProcessor {
             }
 
             if (typeof transaction.memo !== 'undefined' && transaction.memo !== '') {
-                    tx.transactionJson = { memo: transaction.memo }
+                tx.transactionJson = { memo: transaction.memo }
             }
 
             return tx

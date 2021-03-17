@@ -1,4 +1,5 @@
-import DBInterface from '../../../../app/appstores/DataSource/DB/DBInterface'
+
+import Database from '@app/appstores/DataSource/Database';
 import BlocksoftBN from '../../../common/BlocksoftBN'
 
 const tableName = 'transactions_scanners_tmp'
@@ -13,17 +14,15 @@ class EthTmpDS {
     _currencyCode = 'ETH'
 
     async setSuccess(txHash) {
-        const dbInterface = new DBInterface()
-        await dbInterface.setQueryString(`UPDATE transactions SET transaction_status = 'success' WHERE transaction_hash='${txHash}' AND (currency_code LIKE '%ETH%' OR currency_code LIKE 'CUSTOM_%') `).query()
+        await Database.setQueryString(`UPDATE transactions SET transaction_status = 'success' WHERE transaction_hash='${txHash}' AND (currency_code LIKE '%ETH%' OR currency_code LIKE 'CUSTOM_%') `).query()
     }
 
     async getCache(scanAddress, toRemove = false) {
         const address = scanAddress.toLowerCase()
-        const dbInterface = new DBInterface()
-        const res = await dbInterface.setQueryString(`
+        const res = await Database.setQueryString(`
                 SELECT id, tmp_key, tmp_sub_key, tmp_val, created_at
-                FROM ${tableName} 
-                WHERE currency_code='${this._currencyCode}' 
+                FROM ${tableName}
+                WHERE currency_code='${this._currencyCode}'
                 AND address='${address}'
                 AND tmp_key='nonces'
                 `).query()
@@ -61,7 +60,7 @@ class EthTmpDS {
                         const txHash = tmp[1]
                         if (toRemove && typeof toRemove[txHash] !== 'undefined') {
                             console.log('remove ' + txHash)
-                            await dbInterface.setQueryString(`DELETE FROM ${tableName} WHERE id=${row.id}`).query()
+                            await Database.setQueryString(`DELETE FROM ${tableName} WHERE id=${row.id}`).query()
                         } else {
                             if (val > maxSuccess) {
                                 forBalances[txHash] = val
@@ -76,11 +75,11 @@ class EthTmpDS {
         let queryLength = 0
         let queryTxs = []
         for (const txHash in forBalances) {
-            const tmps = await dbInterface.setQueryString(`SELECT currency_code AS currencyCode, 
-                        address_amount as addressAmount, 
+            const tmps = await Database.setQueryString(`SELECT currency_code AS currencyCode,
+                        address_amount as addressAmount,
                         transaction_status as transactionStatus
-                        FROM transactions 
-                        WHERE transaction_hash='${txHash}' 
+                        FROM transactions
+                        WHERE transaction_hash='${txHash}'
                         AND (currency_code LIKE '%ETH%' OR currency_code LIKE 'CUSTOM_%')
                         `).query()
             if (tmps && tmps.array && typeof tmps.array[0] !== 'undefined') {
@@ -149,9 +148,8 @@ class EthTmpDS {
             return false
         }
         const address = scanAddress.toLowerCase()
-        const dbInterface = new DBInterface()
         const where = `WHERE currency_code='${this._currencyCode}' AND address='${address}' AND tmp_key='nonces' AND tmp_sub_key='${key}'`
-        await dbInterface.setQueryString(`DELETE FROM ${tableName} ${where}`).query()
+        await Database.setQueryString(`DELETE FROM ${tableName} ${where}`).query()
         await this.getCache(address)
     }
 
@@ -160,17 +158,16 @@ class EthTmpDS {
             return false
         }
         const address = scanAddress.toLowerCase()
-        const dbInterface = new DBInterface()
         const now = new Date().toISOString()
         value = value * 1
 
         const where = `WHERE currency_code='${this._currencyCode}' AND address='${address}' AND tmp_key='nonces' AND tmp_sub_key='${key}'`
-        const res = await dbInterface.setQueryString(`SELECT tmp_val FROM ${tableName} ${where}`).query()
+        const res = await Database.setQueryString(`SELECT tmp_val FROM ${tableName} ${where}`).query()
         if (res && res.array && res.array.length > 0) {
             if (res.array[0].tmp_val * 1 >= value) {
                 return true
             }
-            await dbInterface.setQueryString(`DELETE FROM ${tableName} ${where}`).query()
+            await Database.setQueryString(`DELETE FROM ${tableName} ${where}`).query()
         }
 
         const prepared = [{
@@ -181,7 +178,7 @@ class EthTmpDS {
             tmp_val: value,
             created_at: now
         }]
-        await dbInterface.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
+        await Database.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
         await this.getCache(address)
     }
 }

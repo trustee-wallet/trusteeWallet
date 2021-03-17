@@ -20,8 +20,7 @@ import settingsActions from '../../Stores/Settings/SettingsActions'
 import customCurrencyActions from '../CustomCurrencyActions'
 import exchangeActions from '../../Stores/Exchange/ExchangeActions'
 
-import DBOpen from '../../DataSource/DB/DBOpen'
-import DBInit from '../../DataSource/DB/DBInit/DBInit'
+import Database from '@app/appstores/DataSource/Database';
 
 import Log from '../../../services/Log/Log'
 import AppLockScreenIdleTime from '../../../services/AppLockScreenIdleTime/AppLockScreenIdleTime'
@@ -55,7 +54,6 @@ class App {
         const navigateToInit = typeof params.navigateToInit !== 'undefined' ? params.navigateToInit : true
         const source = typeof params.source !== 'undefined' ? params.source : ''
         try {
-            // console.log(new Date().toISOString() + ' start ' + source)
 
             await FilePermissions.init()
 
@@ -76,13 +74,9 @@ class App {
 
             if (navigateToInit) {
 
-                await DBOpen.open()
+                this.initStatus = 'await Database.start()'
 
-                this.initStatus = 'await DBOpen.open()'
-
-                await DBInit.init()
-
-                this.initStatus = 'await DBInit.init()'
+                await Database.start();
 
                 if (!(await walletDS.hasWallet())) {
 

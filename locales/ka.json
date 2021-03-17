@@ -769,6 +769,11 @@
     "notEnoughForFee": "ტოკენების გასაგზავნად აუცილებელია ადგილობრივ ვალუტაში დადებითი ბალანსის არსებობა %{symbol}",
     "notEnoughForFeeConfirmed": "ტოკენების გასაგზავნად აუცილებელია დადებითი დადასტურებული ბალანსი ადგილობრივ ვალუტაში %{symbol}, დაელოდეთ დადასტურებას",
     "publicFioAddressNotFound": "%{symbol} საჯარო მისამართი არაა დაკავშირებული FIO მისამართთან",
+    "domainResolution": {
+      "resolving": "გადაჭრის %{domain}...",
+      "success": "%{domain} გადაწყდა %{address}",
+      "fail": "ინფორმაცია არ არის %{domain}"
+    },
     "setting": {
       "title": "დამატებით",
       "apply": "მიღება",

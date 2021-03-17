@@ -62,12 +62,14 @@ class QRCodeScannerScreen extends Component {
                     || param.data.indexOf('https://trustee.deals/link/') === 0
                 )
             )) {
-                // @todo cashback scanner without sendStore
-                await Log.log('QRCodeScanner.onSuccess ' + type + ' link ' + param.data)
+                let link = param.data
+                link = link.split('/')
+                link = link[link.length - 1]
+                await Log.log('QRCodeScanner.onSuccess ' + type + ' link ' + link + ' from ' + param.data)
                 NavStore.goNext('CashbackScreen', {
                     qrData: {
                         isCashbackLink: true,
-                        qrCashbackLink: param.data
+                        qrCashbackLink: link
                     }
                 })
                 return

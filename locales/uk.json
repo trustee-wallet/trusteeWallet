@@ -779,6 +779,11 @@
     "notEnoughForFeeConfirmed": "Для надсилання токенів потрібно мати позитивний підтверджений баланс у нативній монеті %{symbol}, зачекайте на підтвердження",
 
     "publicFioAddressNotFound": "%{symbol} публічна адреса не пов'язана з вказаною FIO адресою",
+    "domainResolution": {
+      "resolving": "Пошук %{domain}...",
+      "success": "%{domain} преобразован в %{address}",
+      "fail": "Немає записів для %{domain}"
+    },
     "setting": {
       "title": "Додатково",
       "apply": "Застосувати",

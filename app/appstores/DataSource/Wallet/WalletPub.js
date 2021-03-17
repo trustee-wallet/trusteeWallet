@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 
 import accountDS from '../Account/Account'
@@ -28,19 +28,17 @@ class WalletPub {
      * @param {string} walletPub.unconfirmed
      */
     saveWalletPub = async (walletPub, source) => {
-        const dbInterface = new DBInterface()
-
         const now = Math.round(new Date().getTime() / 1000)
 
-        let sql = `INSERT INTO wallet_pub (wallet_hash, currency_code, wallet_pub_type, wallet_pub_value, balance_scan_time, transactions_scan_time) 
+        let sql = `INSERT INTO wallet_pub (wallet_hash, currency_code, wallet_pub_type, wallet_pub_value, balance_scan_time, transactions_scan_time)
         VALUES ('${walletPub.walletHash}', '${walletPub.currencyCode}', '${walletPub.walletPubType}','${walletPub.walletPubValue}', 0, 0)`
         if (typeof walletPub.balance !== 'undefined') {
             sql = `INSERT INTO wallet_pub (wallet_hash, currency_code, wallet_pub_type, wallet_pub_value, balance_scan_time, transactions_scan_time,
-                    balance_fix, balance_txt, unconfirmed_fix, unconfirmed_txt) 
+                    balance_fix, balance_txt, unconfirmed_fix, unconfirmed_txt)
                     VALUES ('${walletPub.walletHash}', '${walletPub.currencyCode}', '${walletPub.walletPubType}','${walletPub.walletPubValue}', '${now}', '${now}',
                     ${walletPub.balance * 1}, '${walletPub.balance}', ${walletPub.unconfirmed * 1}, '${walletPub.unconfirmed}')`
         }
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
         CACHE[walletPub.walletHash] = false
     }
 
@@ -73,17 +71,15 @@ class WalletPub {
             where = ''
         }
 
-        const dbInterface = new DBInterface()
-
-        const res = await dbInterface.setQueryString(`
-        SELECT id, 
+        const res = await Database.setQueryString(`
+        SELECT id,
         wallet_hash AS walletHash,
-        wallet_pub_type AS walletPubType, 
-        wallet_pub_value AS walletPubValue, 
-        wallet_pub_last_index AS walletPubLastIndex, 
+        wallet_pub_type AS walletPubType,
+        wallet_pub_value AS walletPubValue,
+        wallet_pub_last_index AS walletPubLastIndex,
         wallet_hash AS walletHash,
         currency_code AS currencyCode,
-        balance_fix AS balanceFix, 
+        balance_fix AS balanceFix,
         balance_txt AS balanceTxt,
         unconfirmed_fix AS unconfirmedFix,
         unconfirmed_txt AS unconfirmedTxt,
@@ -91,7 +87,7 @@ class WalletPub {
         balance_scan_time AS balanceScanTime,
         balance_scan_error AS balanceScanError,
         transactions_scan_time AS transactionsScanTime
-        FROM wallet_pub 
+        FROM wallet_pub
         ${where}
         `).query()
         if (!res || !res.array || !res.array.length) return false
@@ -122,9 +118,9 @@ class WalletPub {
             let tmp
             for (tmp of toRemove) {
                 const sql3 = `UPDATE account SET wallet_pub_id=${tmp.to} WHERE wallet_pub_id=${tmp.old}`
-                await dbInterface.setQueryString(sql3).query()
+                await Database.setQueryString(sql3).query()
                 const sql4 = `DELETE FROM wallet_pub WHERE id=${tmp.old}`
-                await dbInterface.setQueryString(sql4).query()
+                await Database.setQueryString(sql4).query()
             }
         }
 

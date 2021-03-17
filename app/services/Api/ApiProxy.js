@@ -161,26 +161,37 @@ export default {
             } else {
                 all = await _getAll(params)
             }
-            if (typeof all.data.status !== 'undefined') {
-                if (all.data.status !== 'success') {
-                    if (typeof all.data.subdata !== 'undefined' && typeof all.data.subdata.serverTimestamp !== 'undefined') {
-                        if (typeof params === 'undefined') {
-                            params = {}
+            let serverTimestamp = false
+            try {
+                if (typeof all.data.status !== 'undefined') {
+                    if (all.data.status !== 'success') {
+                        if (typeof all.data.subdata !== 'undefined' && typeof all.data.subdata.serverTimestamp !== 'undefined') {
+                            if (typeof params === 'undefined') {
+                                params = {}
+                            }
+                            // error timestamp
+                            params.timestamp = all.data.subdata.serverTimestamp
+                            serverTimestamp = all.data.serverTimestamp
+                            all = false
+                        } else if (typeof all.data.serverTimestamp !== 'undefined') {
+                            // error timestamp
+                            params.timestamp = all.data.serverTimestamp
+                            serverTimestamp = all.data.serverTimestamp
+                            all = false
+                        } else {
+                            throw new Error(JSON.stringify(all.data))
                         }
-                        // error timestamp
-                        params.timestamp = all.data.subdata.serverTimestamp
-                        all = false
-                    }  else if (typeof all.data.serverTimestamp !== 'undefined') {
-                        // error timestamp
-                        params.timestamp = all.data.serverTimestamp
-                        all = false
-                    } else {
-                        throw new Error(JSON.stringify(all.data))
                     }
                 }
+            } catch (e) {
+                throw new Error(e.message + ' while _getServerTimestamp')
             }
-            if (typeof all.data.serverTimestamp !== 'undefined') {
-                _checkServerTimestamp(all.data.serverTimestamp)
+            try {
+                if (serverTimestamp) {
+                    _checkServerTimestamp(serverTimestamp)
+                }
+            } catch (e) {
+                throw new Error(e.message + ' while _checkServerTimestamp')
             }
             index++
         } while (all === false && index < 3)
