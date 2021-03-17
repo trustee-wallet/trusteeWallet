@@ -44,8 +44,10 @@ class SendCustomFeeETH extends React.PureComponent {
             nonceForTx = currentSelectedFee.nonceForTx.toString() === '-1' ? '' : currentSelectedFee.nonceForTx.toString()
             this.nonceInput.handleInput(nonceForTx, false)
         }
-        const fees = BlocksoftUtils.mul(currentSelectedFee.gasLimit, currentSelectedFee.gasPriceGwei)
-        const feesPretty = BlocksoftUtils.toUnified(fees, 9)
+        const gasPrice = BlocksoftUtils.toWei(currentSelectedFee.gasPriceGwei, 'gwei')
+        const feeForTx = BlocksoftUtils.mul(currentSelectedFee.gasLimit, gasPrice)
+        const feesPretty = BlocksoftUtils.toEther(feeForTx)
+
         this.setState({
             feesPretty,
             gasPriceGwei : currentSelectedFee.gasPriceGwei,
@@ -99,12 +101,13 @@ class SendCustomFeeETH extends React.PureComponent {
             return false
         }
 
-        const fees = BlocksoftUtils.mul(gasLimit, gasPriceGwei)
-        const feesPretty = BlocksoftUtils.toUnified(fees, 9)
+        const gasPrice = BlocksoftUtils.toWei(gasPriceGwei, 'gwei')
+        const feeForTx = BlocksoftUtils.mul(gasLimit, gasPrice)
+        const feesPretty = BlocksoftUtils.toEther(feeForTx)
+
         const nonceForTx = _nonce === false || _nonce === '' ? _nonce : Math.round(_nonce * 1)
 
-        const gasPrice = BlocksoftUtils.toWei(gasPriceGwei, 'gwei')
-        const item = {gasLimit, gasPrice, gasPriceGwei, nonceForTx, isCustomFee : true}
+        const item = {feeForTx, gasLimit, gasPrice, gasPriceGwei, nonceForTx, isCustomFee : true}
         SendActionsUpdateValues.setTmpSelectedFee(item)
 
         this.setState({

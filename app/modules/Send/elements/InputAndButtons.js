@@ -50,6 +50,7 @@ class InputAndButtons extends React.PureComponent {
             inputValue: '',
             equivalentValue: '0.00',
             cryptoValue: '',
+            cryptoValueRecounted: '0',
             partBalance: 0,
             isCountingTransferAll: false,
             enoughFunds: {
@@ -61,9 +62,21 @@ class InputAndButtons extends React.PureComponent {
     }
 
     componentDidMount() {
-        if (this.valueInput) {
-            this._setCryptoValue(this.props.sendScreenStoreUi.cryptoValue, this.props.sendScreenStoreDict.inputType)
-        }
+        if (!this.valueInput || typeof this.valueInput.handleInput === 'undefined') return
+        this._setCryptoValue(this.props.sendScreenStoreUi.cryptoValue, this.props.sendScreenStoreDict.inputType)
+    }
+
+    _checkInputCallback = () => {
+        if (!this.valueInput || typeof this.valueInput.handleInput === 'undefined') return
+
+        const { cryptoValueRecounted, cryptoValue } = this.props.sendScreenStoreUi
+        if (typeof cryptoValue === 'undefined') return
+        if (typeof cryptoValueRecounted === 'undefined' || cryptoValueRecounted === 0) return
+        if (cryptoValueRecounted === this.state.cryptoValueRecounted) return
+        if (cryptoValue === this.state.cryptoValue) return
+
+        this._setCryptoValue(cryptoValue, this.props.sendScreenStoreDict.inputType, cryptoValueRecounted)
+
     }
 
     handleChangeEquivalentType = () => {
@@ -101,40 +114,32 @@ class InputAndButtons extends React.PureComponent {
         this._setCryptoValue(cryptoValue, this.state.inputType)
     }
 
-    _setCryptoValue = (cryptoValue, inputType) => {
+    _setCryptoValue = (cryptoValue, inputType, cryptoValueRecounted = false) => {
         const { currencyCode, basicCurrencyRate } = this.props.sendScreenStoreDict
-        let inputValue
+
         const cryptoPrettyValue = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(cryptoValue)
         const fiatPrettyValue = RateEquivalent.mul({ value: cryptoPrettyValue, currencyCode, basicCurrencyRate })
-
-        if (inputType === 'CRYPTO') {
-            inputValue = cryptoPrettyValue
-            this.setState({
-                isCountingTransferAll: false,
-                inputValue,
-                inputType,
-                equivalentValue: fiatPrettyValue,
-                cryptoValue,
-                enoughFunds: {
-                    isAvailable: true,
-                    messages: ''
-                }
-            })
-        } else {
-            inputValue = fiatPrettyValue
-            this.setState({
-                isCountingTransferAll: false,
-                inputValue,
-                inputType,
-                equivalentValue: cryptoPrettyValue,
-                cryptoValue,
-                enoughFunds: {
-                    isAvailable: true,
-                    messages: ''
-                }
-            })
+        const toUpdate = {
+            isCountingTransferAll: false,
+            inputValue: '0',
+            inputType,
+            equivalentValue: fiatPrettyValue,
+            cryptoValue,
+            enoughFunds: {
+                isAvailable: true,
+                messages: ''
+            }
         }
-        this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(inputValue).separated, false)
+        if (inputType === 'CRYPTO') {
+            toUpdate.inputValue = cryptoPrettyValue
+        } else {
+            toUpdate.inputValue = fiatPrettyValue
+        }
+        if (cryptoValueRecounted) {
+            toUpdate.cryptoValueRecounted = cryptoValueRecounted
+        }
+        this.setState(toUpdate)
+        this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(toUpdate.inputValue).separated, false)
     }
 
     amountInputCallback = async (value) => {
@@ -186,7 +191,7 @@ class InputAndButtons extends React.PureComponent {
         return {
             status: 'success',
             value: this.state.cryptoValue,
-            isTransferAll : this.state.partBalance === 4
+            isTransferAll: this.state.partBalance === 4
         }
     }
 
@@ -237,10 +242,10 @@ class InputAndButtons extends React.PureComponent {
 
         let diff = BlocksoftUtils.diff(this.state.cryptoValue, balanceRaw)
         const hodl = await (BlocksoftBalances.setCurrencyCode(currencyCode)).getBalanceHodl()
-        if (hodl*1 > 0) {
+        if (hodl * 1 > 0) {
             diff = BlocksoftUtils.add(diff, hodl)
         }
-        if (diff*1 > 0) {
+        if (diff * 1 > 0) {
             return strings('send.notEnough')
         }
         return false
@@ -289,10 +294,8 @@ class InputAndButtons extends React.PureComponent {
 
         if (this.state.isCountingTransferAll && this.props.sendScreenStoreTransferAllBalance) {
             this.transferAllCallback(this.props.sendScreenStoreTransferAllBalance)
-        } else if (this.props.sendScreenStoreUi.cryptoValue !== this.state.cryptoValue) {
-            if (this.valueInput) {
-                this._setCryptoValue(this.props.sendScreenStoreUi.cryptoValue, this.props.sendScreenStoreDict.inputType)
-            }
+        } else {
+            this._checkInputCallback()
         }
 
         const notEquivalentValue = '~ ' + BlocksoftPrettyNumbers.makeCut(equivalentValue).separated + ' ' + (inputType !== 'CRYPTO' ? currencySymbol : basicCurrencyCode)

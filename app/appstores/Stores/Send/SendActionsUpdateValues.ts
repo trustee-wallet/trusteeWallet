@@ -22,11 +22,13 @@ export namespace SendActionsUpdateValues {
                 type: 'SET_DATA',
                 ui: {
                     comment,
+                    cryptoValueRecounted : 0
                 }
             })
         } else {
             const ui = {
                 comment,
+                cryptoValueRecounted : 0
             }
 
             let newFee = false
@@ -41,7 +43,8 @@ export namespace SendActionsUpdateValues {
             }
             if (newFee && typeof newFee.amountForTx !== 'undefined' && newFee.amountForTx) {
                 // @ts-ignore
-                ui.cryptoValue = CACHE_SELECTED_FEE.amountForTx
+                ui.cryptoValue = newFee.amountForTx
+                ui.cryptoValueRecounted = new Date().getTime()
             }
             dispatch({
                 type: 'SET_DATA',

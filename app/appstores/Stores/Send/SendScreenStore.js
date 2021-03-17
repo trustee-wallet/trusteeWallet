@@ -10,6 +10,7 @@ const INITIAL_STATE = {
         addressName : '',
         memo : '',
         cryptoValue : '',
+        cryptoValueRecounted : 0,
         comment : '',
         isTransferAll : false,
         bse : {

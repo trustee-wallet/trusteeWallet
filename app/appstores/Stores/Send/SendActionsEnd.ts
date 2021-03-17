@@ -110,6 +110,28 @@ export namespace SendActionsEnd {
         const { uiType } = sendScreenStore.ui
         if (uiType === 'MAIN_SCANNER') {
             NavStore.reset('DashboardStack')
+        } else if (tx === false || uiType === 'DEEP_LINKING' || uiType === 'HOME_SCREEN') {
+            // account was not opened before or no tx could be done
+            const { cryptoCurrencies } = store.getState().currencyStore
+            const { selectedCryptoCurrency } = store.getState().mainStore
+            if (selectedCryptoCurrency.currencyCode === currencyCode) {
+                NavStore.reset('AccountScreen')
+            } else {
+                let cryptoCurrency = { currencyCode: false }
+                // @ts-ignore
+                for (const tmp of cryptoCurrencies) {
+                    if (tmp.currencyCode === currencyCode) {
+                        cryptoCurrency = tmp
+                    }
+                }
+                if (cryptoCurrency.currencyCode) {
+                    setSelectedCryptoCurrency(cryptoCurrency)
+                    await setSelectedAccount()
+                    NavStore.reset('AccountScreen')
+                } else {
+                    NavStore.reset('DashboardStack')
+                }
+            }
         } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {
             NavStore.goNext('TransactionScreen', {
                 txData: {
@@ -122,22 +144,6 @@ export namespace SendActionsEnd {
                     transactionHash: tx.transactionHash
                 }
             })
-        } else if (uiType === 'DEEP_LINKING' || uiType === 'HOME_SCREEN') {
-            // account was not opened before
-            const { cryptoCurrencies } = store.getState().currencyStore
-            let cryptoCurrency = { currencyCode: false }
-            // @ts-ignore
-            for (const tmp of cryptoCurrencies) {
-                if (tmp.currencyCode === currencyCode) {
-                    cryptoCurrency = tmp
-                }
-            }
-            if (cryptoCurrency.currencyCode) {
-                setSelectedCryptoCurrency(cryptoCurrency)
-                await setSelectedAccount()
-                NavStore.reset('AccountScreen')
-            }
-            NavStore.reset('DashboardStack')
         } else {
             // fio request etc - direct to receipt
             NavStore.goBack()

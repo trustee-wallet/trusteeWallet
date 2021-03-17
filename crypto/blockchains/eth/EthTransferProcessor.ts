@@ -526,7 +526,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 fee.showNonce = true
             }
         }
-
         result.showBigGasNotice = showBigGasNotice ? new Date().getTime() : 0
         return result
     }

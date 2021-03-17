@@ -27,15 +27,21 @@ import ReceiptData from '@app/modules/Send/receipt/ReceiptData'
 import Log from '@app/services/Log/Log'
 import config from '@app/config/config'
 
-import { showSendError } from './receipt/helpers'
+import { showSendError, checkLoadedFee } from './receipt/helpers'
 import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 import { SendActionsEnd } from '@app/appstores/Stores/Send/SendActionsEnd'
 import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
 
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+
 
 let CACHE_IS_COUNTING = false
 let CACHE_IS_SENDING = false
+let CACHE_WARNING_NOTICE = false
 
 class ReceiptScreen extends SendBasicScreen {
 
@@ -91,12 +97,31 @@ class ReceiptScreen extends SendBasicScreen {
         }
 
         CACHE_IS_SENDING = true
+        const checkLoadedFeeResult = checkLoadedFee(this)
+
+        if (checkLoadedFeeResult.msg && CACHE_WARNING_NOTICE !== checkLoadedFeeResult.cacheWarningNoticeValue) {
+            Log.log('countedFees notice' + JSON.stringify(checkLoadedFeeResult))
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.titles.attention'),
+                description: checkLoadedFeeResult.msg
+            }, async () => {
+                if (checkLoadedFeeResult.goBack) {
+                    await SendActionsEnd.endRedirect(false, this.props.sendScreenStore)
+                } else {
+                    CACHE_WARNING_NOTICE = checkLoadedFeeResult.cacheWarningNoticeValue
+                }
+            })
+            CACHE_IS_SENDING = false
+            return false
+        }
+
         setLoaderStatus(true)
 
+        const { selectedFee } = this.props.sendScreenStore.fromBlockchain
         let tx = false
         let e = false
-
-        const { selectedFee } = this.props.sendScreenStore.fromBlockchain
         try {
             tx = await SendActionsBlockchainWrapper.actualSend(false, selectedFee)
         } catch (e1) {
@@ -140,6 +165,10 @@ class ReceiptScreen extends SendBasicScreen {
     }
 
     render() {
+        UpdateOneByOneDaemon.pause()
+        UpdateAccountListDaemon.pause()
+        MarketingAnalytics.setCurrentScreen('Send.ReceiptScreen')
+
         const { colors, GRID_SIZE, isLight } = this.context
 
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStore.dict

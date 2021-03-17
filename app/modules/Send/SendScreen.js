@@ -24,6 +24,10 @@ import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+
 let CACHE_IS_COUNTING = false
 
 class SendScreen extends SendBasicScreen {
@@ -104,6 +108,10 @@ class SendScreen extends SendBasicScreen {
     }
 
     render() {
+        UpdateOneByOneDaemon.pause()
+        UpdateAccountListDaemon.pause()
+        MarketingAnalytics.setCurrentScreen('Send.SendScreen')
+
         const { colors, GRID_SIZE } = this.context
 
         return (

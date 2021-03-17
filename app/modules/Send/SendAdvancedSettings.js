@@ -22,10 +22,13 @@ import SendAdvancedFees from '@app/modules/Send/advanced/SendAdvancedFees'
 import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
-import { showSendError } from '@app/modules/Send/receipt/helpers'
+
 import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
 
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 let CACHE_IS_COUNTING = false
 class SendAdvancedSettings extends Component {
@@ -93,6 +96,9 @@ class SendAdvancedSettings extends Component {
 
 
     render() {
+        UpdateOneByOneDaemon.pause()
+        UpdateAccountListDaemon.pause()
+        MarketingAnalytics.setCurrentScreen('Send.SendAdvancedSettings')
 
         const { colors, GRID_SIZE } = this.context
 

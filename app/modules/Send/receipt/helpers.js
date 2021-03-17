@@ -6,37 +6,23 @@ import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 import { strings } from '@app/services/i18n'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 
 const showSendError = function(e, _this, passwordCheck) {
-    const { bseOrderId, currencyCode } = _this.props.sendScreenStore.dict
-    const { uiApiVersion } = _this.props.sendScreenStore.ui
-
-
-    //if (uiApiVersion === 'v3' && bseOrderId) {
-        // console.log('not sending but could be FEE change ' + uiApiVersion + ' ' + bseOrderId)
-        // ApiV3.setExchangeStatus(bseOrderId, 'FAIL')
-    //}
-
+    const { currencyCode } = _this.props.sendScreenStore.dict
 
     if (e.message.indexOf('UI_') === 0) {
-
-
         Log.log('ReceiptScreen.showSendError protection ' + e.message)
-
         showModal({
             type: 'YES_NO_MODAL',
             icon: 'WARNING',
             title: strings('send.confirmModal.title'),
             description: strings('send.errors.' + e.message)
         }, async () => {
-            //if (typeof e.newAmount !== 'undefined') {
-            //    allData.amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(e.newAmount)
-            //    this.setState({ amountRaw: e.newAmount, data: allData })
-            //    await this.fee.changeAmountRaw(e.newAmount)
-            //} else {
-                _this.handleSend(passwordCheck, e.message)
-            //}
+            _this.handleSend(passwordCheck, e.message)
         })
 
         return false
@@ -62,6 +48,72 @@ const showSendError = function(e, _this, passwordCheck) {
 
 }
 
+
+const checkLoadedFee = function(_this) {
+    const { countedFees, selectedFee } = _this.props.sendScreenStore.fromBlockchain
+    const { currencyCode } = _this.props.sendScreenStore.dict
+    const { bse } = _this.props.sendScreenStore.ui
+    const { bseMinCrypto, bseOrderId } = bse
+
+    let msg = false
+    let goBack = false
+    let cacheWarningNoticeValue = ''
+
+    if (typeof bseMinCrypto !== 'undefined' && bseMinCrypto * 1 > 0) {
+        if ((typeof selectedFee === 'undefined' || !selectedFee) && typeof countedFees.bseMinCryptoNotOk !== 'undefined' && countedFees.bseMinCryptoNotOk) {
+            msg = strings('modal.send.bseMinCryptoNoFee', { limit: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(bseMinCrypto) })
+            goBack = true
+            cacheWarningNoticeValue = 'bseMinCrypto_' + bseOrderId + '_noFee'
+        } else if (typeof selectedFee.amountForTx !== 'undefined' && bseMinCrypto * 1 > selectedFee.amountForTx * 1) {
+            msg = strings('modal.send.bseMinCrypto', { limit: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(bseMinCrypto) })
+            goBack = true
+            cacheWarningNoticeValue = 'bseMinCrypto_' + bseOrderId + '_' + selectedFee.amountForTx
+        }
+    }
+
+    if (!goBack) {
+        if (
+            (typeof selectedFee.isCustomFee === 'undefined' || !selectedFee.isCustomFee)
+            && typeof countedFees.showBigGasNotice !== 'undefined' && countedFees.showBigGasNotice
+        ) {
+            msg = strings('modal.send.bigGas', { gasLimit: selectedFee.gasLimit })
+            goBack = BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT_FORCE_QUIT') > 0
+            cacheWarningNoticeValue = countedFees.showBigGasNotice
+        } else if (typeof countedFees.showBlockedBalanceNotice !== 'undefined' && countedFees.showBlockedBalanceNotice) {
+            msg = strings('modal.send.blockedBalance', { free: countedFees.showBlockedBalanceFree })
+            goBack = BlocksoftExternalSettings.getStatic('ETH_BLOCKED_BALANCE_FORCE_QUIT') > 0
+            cacheWarningNoticeValue = countedFees.showBlockedBalanceNotice
+        } else if (typeof selectedFee.isCustomFee !== 'undefined' && selectedFee.isCustomFee) {
+            // do nothing !!!!
+        } else {
+            if (typeof countedFees.showLongQueryNotice !== 'undefined' && countedFees.showLongQueryNotice) {
+                const ethAllowLongQuery = settingsActions.getSettingStatic('ethAllowLongQuery')
+                if (ethAllowLongQuery !== '1') {
+                    msg = strings('modal.send.longQuerySettingOff')
+                    goBack = BlocksoftExternalSettings.getStatic('ETH_LONG_QUERY_FORCE_QUIT') > 0
+                } else {
+                    msg = strings('modal.send.longQuery')
+                }
+                if (countedFees.showLongQueryNoticeTxs && countedFees.showLongQueryNoticeTxs[0] !== 'undefined') {
+                    msg += ' ' + countedFees.showLongQueryNoticeTxs[0].currencyCode
+                    msg += ' ' + countedFees.showLongQueryNoticeTxs[0].txHash
+                }
+                cacheWarningNoticeValue = countedFees.showLongQueryNotice
+            }
+            if (typeof countedFees.showSmallFeeNotice !== 'undefined' && countedFees.showSmallFeeNotice) {
+                if (msg) {
+                    msg += ' + '
+                    cacheWarningNoticeValue += '_' + countedFees.showSmallFeeNotice
+                } else {
+                    msg = ''
+                    cacheWarningNoticeValue = countedFees.showSmallFeeNotice
+                }
+                msg += strings('modal.send.feeSmallAmount')
+            }
+        }
+    }
+    return {msg, cacheWarningNoticeValue, goBack}
+}
 export {
-    showSendError
+    showSendError, checkLoadedFee
 }
