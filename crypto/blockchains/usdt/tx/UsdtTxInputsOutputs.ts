@@ -55,6 +55,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         let newInputs = []
         let oldInputs = []
         let addressFromUsdtOutputs = 0
+        let newInputAdded = false
         for (const input of res.inputs) {
             if (input.address === data.addressFrom) {
                 if (!inputIsFound) {
@@ -73,6 +74,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
                 if (unspent.address === data.addressFrom) {
                     if (!inputIsFound) {
                         newInputs.push(unspent)
+                        newInputAdded = unspent
                     }
                     inputIsFound = true
                     addressFromUsdtOutputs++
@@ -81,6 +83,25 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
         }
         for (const input of oldInputs) {
             newInputs.push(input)
+        }
+        if (newInputAdded) {
+            let changeIsFound = false
+            for (const output of res.outputs) {
+                if (typeof output.isChange !== 'undefined' && output.isChange) {
+                    output.amount = BlocksoftUtils.add(output.amount, newInputAdded.value)
+                    changeIsFound = true
+                }
+            }
+            if (!changeIsFound && newInputAdded.value !== '546') {
+                res.outputs.push({
+                    // @ts-ignore
+                    to: data.addressFrom,
+                    // @ts-ignore
+                    amount: newInputAdded.value.toString(),
+                    // @ts-ignore
+                    isChange: true
+                })
+            }
         }
         const tmp = typeof additionalData.balance !== 'undefined' && additionalData.balance ? { balance: additionalData.balance } : DaemonCache.getCacheAccountStatiс(data.walletHash, 'USDT')
         let needOneOutput = false

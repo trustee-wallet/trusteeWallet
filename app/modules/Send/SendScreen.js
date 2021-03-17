@@ -129,6 +129,11 @@ class SendScreen extends SendBasicScreenScreen {
 
             isBalanceVisible: false,
             originalVisibility: false,
+
+            domainResolving: false,
+            domainName: '',
+            domainAddress: '',
+            domainResolveFailed: false,
         }
         this.addressInput = React.createRef()
         this.memoInput = React.createRef()
@@ -164,7 +169,6 @@ class SendScreen extends SendBasicScreenScreen {
         // Log.log('')
         const sendScreenData = SendTmpData.getData()
         const { account, cryptoCurrency, wallet } = SendActions.findWalletPlus(sendScreenData.currencyCode)
-
         let selectedFee = false // typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
         if (!selectedFee) {
             const tmp = SendTmpData.getCountedFees()

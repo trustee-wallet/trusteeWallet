@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
 
@@ -28,20 +28,13 @@ class Transaction {
      * @param {integer} updateId
      */
     saveTransaction = async (transaction, updateId = false, source = '') => {
-
-        // console.log('Transaction saveTransaction called ' + transaction.transactionHash + ' ' + source, transaction)
-
-        const dbInterface = new DBInterface()
-
-        dbInterface.setTableName('transactions')
-
         if (!transaction.updatedAt) {
             transaction.updatedAt = new Date().toISOString()
         }
         const copy = JSON.parse(JSON.stringify(transaction))
         if (typeof copy.transactionJson !== 'undefined') {
             if (typeof copy.transactionJson !== 'string') {
-                copy.transactionJson = dbInterface.escapeString(JSON.stringify(copy.transactionJson))
+                copy.transactionJson = Database.escapeString(JSON.stringify(copy.transactionJson))
             }
         }
 
@@ -49,13 +42,13 @@ class Transaction {
             if (copy.transactionsScanLog.length > 1000) {
                 copy.transactionsScanLog = copy.transactionsScanLog.substr(0, 1000)
             }
-            copy.transactionsScanLog = dbInterface.escapeString(copy.transactionsScanLog)
+            copy.transactionsScanLog = Database.escapeString(copy.transactionsScanLog)
         } else {
             copy.transactionsScanLog = 'UNDEFINED TX SCAN LOG ' + source
         }
 
         if (typeof copy.bseOrderData !== 'undefined' && copy.bseOrderData) {
-            copy.bseOrderData = dbInterface.escapeString(JSON.stringify(copy.bseOrderData))
+            copy.bseOrderData = Database.escapeString(JSON.stringify(copy.bseOrderData))
         }
 
 
@@ -66,21 +59,21 @@ class Transaction {
             if (copy.addressFrom === '') {
                 delete copy.addressFrom
             }
-            await dbInterface.setUpdateData({ key: { id: updateId }, updateObj: copy }).update()
+            await Database.setTableName('transactions').setUpdateData({ key: { id: updateId }, updateObj: copy }).update()
             // Log.daemon('Transaction saveTransaction finished updated')
             return true
         }
 
         // sometimes db could be doubled so....
         const sql = `SELECT id FROM transactions WHERE currency_code='${transaction.currencyCode}'
-                        AND wallet_hash='${transaction.walletHash}' 
+                        AND wallet_hash='${transaction.walletHash}'
                         AND transaction_hash='${transaction.transactionHash}' LIMIT 1`
-        const res = await dbInterface.setQueryString(sql).query()
+        const res = await Database.setQueryString(sql).query()
         if (!res || res.array.length === 0) {
             if (typeof copy.createdAt === 'undefined' || !copy.createdAt) {
                 copy.createdAt = new Date().toISOString()
             }
-            await dbInterface.setInsertData({ insertObjs: [copy] }).insert()
+            await Database.setTableName('transactions').setInsertData({ insertObjs: [copy] }).insert()
             // Log.daemon('Transaction saveTransaction finished inserted')
         } else {
             // Log.daemon('Transaction saveTransaction finished skipped')
@@ -106,20 +99,15 @@ class Transaction {
      * @returns {Promise<void>}
      */
     updateTransaction = async (transaction) => {
-
-        // console.log('Transaction updateTransaction called ' + transaction.transactionHash, transaction)
-
-        const dbInterface = new DBInterface()
-
         let transactionJson = ''
         if (typeof transaction.transactionJson !== 'undefined') {
             if (typeof transaction.transactionJson !== 'string') {
-                transactionJson = dbInterface.escapeString(JSON.stringify(transaction.transactionJson))
+                transactionJson = Database.escapeString(JSON.stringify(transaction.transactionJson))
             }
         }
 
-        let sql = `UPDATE transactions 
-                        SET transaction_hash='${transaction.transactionHash}', 
+        let sql = `UPDATE transactions
+                        SET transaction_hash='${transaction.transactionHash}',
                         transactions_other_hashes='${transaction.transactionsOtherHashes}',
                         updated_at='${new Date().toISOString()}'
                      `
@@ -155,24 +143,16 @@ class Transaction {
             sql += ` AND currency_code='${transaction.currencyCode}' `
         }
 
-        // console.log('tx', JSON.parse(JSON.stringify(transaction)))
-        // console.log('sql ' + sql)
-
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
 
     }
 
     removeTransactions = async (ids) => {
-        const dbInterface = new DBInterface()
         const sql = `DELETE FROM transactions WHERE id IN (` + ids.join(',') + `)`
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
     }
 
     getTransactionsCount = async (params, source = '?') => {
-        const dbInterface = new DBInterface()
-
-        // Log.daemon('DS/Transaction getTransactions called')
-
         let where = []
         if (params.walletHash) {
             where.push(`wallet_hash='${params.walletHash}'`)
@@ -209,14 +189,14 @@ class Transaction {
             where = ''
         }
 
-        const sql = ` 
+        const sql = `
             SELECT COUNT(id) AS cn
-            FROM transactions 
+            FROM transactions
             ${where}
             `
         let res = []
         try {
-            res = await dbInterface.setQueryString(sql).query()
+            res = await Database.setQueryString(sql).query()
             if (typeof res.array !== 'undefined') {
                 res = res.array
             }
@@ -240,10 +220,6 @@ class Transaction {
      * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson}]>}
      */
     getTransactions = async (params, source = '?') => {
-        const dbInterface = new DBInterface()
-
-        // Log.daemon('DS/Transaction getTransactions called')
-
         let where = []
         if (params.walletHash) {
             where.push(`wallet_hash='${params.walletHash}'`)
@@ -289,30 +265,30 @@ class Transaction {
             limit += ' OFFSET ' + params.limitFrom
         }
 
-        const sql = ` 
-            SELECT id, 
-            created_at AS createdAt, 
-            updated_at AS updatedAt, 
+        const sql = `
+            SELECT id,
+            created_at AS createdAt,
+            updated_at AS updatedAt,
             mined_at AS minedAt,
-            block_time AS blockTime, 
-            block_hash AS blockHash, 
-            block_number AS blockNumber,  
+            block_time AS blockTime,
+            block_hash AS blockHash,
+            block_number AS blockNumber,
             block_confirmations AS blockConfirmations,
-            transaction_hash AS transactionHash, 
+            transaction_hash AS transactionHash,
             transaction_hash_basic AS transactionHashBasic,
-            address_from AS addressFrom, 
+            address_from AS addressFrom,
             address_from_basic AS addressFromBasic,
-            address_amount AS addressAmount, 
-            address_to AS addressTo, 
-            address_to_basic AS addressToBasic, 
+            address_amount AS addressAmount,
+            address_to AS addressTo,
+            address_to_basic AS addressToBasic,
             transaction_fee AS transactionFee,
             transaction_fee_currency_code AS transactionFeeCurrencyCode,
-            transaction_status AS transactionStatus, 
+            transaction_status AS transactionStatus,
             transaction_direction AS transactionDirection,
-            account_id AS accountId, 
-            wallet_hash AS walletHash, 
-            currency_code AS currencyCode, 
-            transaction_of_trustee_wallet AS transactionOfTrusteeWallet, 
+            account_id AS accountId,
+            wallet_hash AS walletHash,
+            currency_code AS currencyCode,
+            transaction_of_trustee_wallet AS transactionOfTrusteeWallet,
             transaction_json AS transactionJson,
             transactions_scan_log AS transactionsScanLog,
             transactions_other_hashes AS transactionsOtherHashes,
@@ -320,14 +296,14 @@ class Transaction {
             bse_order_id_out AS bseOrderOutID,
             bse_order_id_in AS bseOrderInID,
             bse_order_data AS bseOrderData
-            FROM transactions 
+            FROM transactions
             ${where}
             ${order}
             ${limit}
             `
         let res = []
         try {
-            res = await dbInterface.setQueryString(sql).query()
+            res = await Database.setQueryString(sql).query()
             if (typeof res.array !== 'undefined') {
                 res = res.array
             }

@@ -1,7 +1,7 @@
 /**
  * @version 0.11
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 import BlocksoftAxios from '../../../../crypto/common/BlocksoftAxios'
 
@@ -19,27 +19,26 @@ export default {
         if (params.newAddress === params.oldAddress) {
             return true
         }
-        const dbInterface = new DBInterface()
 
         Log.daemon('DS/AccountHD setMainAddress called ', params)
 
         const now = new Date().toISOString()
 
-        let res = await dbInterface.setQueryString(`SELECT * FROM account WHERE address='${params.newAddress}' AND currency_code='${params.currencyCode}'`).query()
+        let res = await Database.setQueryString(`SELECT * FROM account WHERE address='${params.newAddress}' AND currency_code='${params.currencyCode}'`).query()
         if (res.array && res.array.length > 1) {
             const sql = ` UPDATE account SET is_main=1, changes_log='${now} CHANGED MAIN ${params.oldAddress} => ${params.newAddress} ' || changes_log WHERE currency_code='${params.currencyCode}' AND address='${params.newAddress}'`
-            await dbInterface.setQueryString(sql).query()
+            await Database.setQueryString(sql).query()
             const sql2 = ` UPDATE account SET is_main=0, changes_log='${now} CHANGED NOT MAIN ${params.oldAddress} => ${params.newAddress} ' || changes_log WHERE currency_code='${params.currencyCode}' AND address='${params.oldAddress}'`
-            await dbInterface.setQueryString(sql2).query()
+            await Database.setQueryString(sql2).query()
 
             Log.daemon('DS/AccountHD setMainAddress updated', params)
         } else {
-            res = await dbInterface.setQueryString(`SELECT * FROM account WHERE address='${params.newAddress}' AND currency_code='BTC'`).query()
+            res = await Database.setQueryString(`SELECT * FROM account WHERE address='${params.newAddress}' AND currency_code='BTC'`).query()
             Log.daemon('res2', JSON.parse(JSON.stringify(res)))
             if (res.array && res.array.length > 0) {
                 res = res.array[0]
             } else {
-                const xpub = await dbInterface.setQueryString(`SELECT wallet_pub_value AS xpub FROM wallet_pub WHERE wallet_hash='${params.walletHash}' AND wallet_pub_type='btc.44'`).query()
+                const xpub = await Database.setQueryString(`SELECT wallet_pub_value AS xpub FROM wallet_pub WHERE wallet_hash='${params.walletHash}' AND wallet_pub_type='btc.44'`).query()
                 Log.daemon('xpub', JSON.parse(JSON.stringify(xpub)))
                 if (!xpub || !xpub.array || xpub.array.length < 1) {
                     throw new Error('no Xpub')
@@ -62,7 +61,7 @@ export default {
                     }
                     res = {
                         address: found.name,
-                        path: dbInterface.escapeString(found.path),
+                        path: Database.escapeString(found.path),
                         derivation_index: '0',
                         derivation_type: 'main'
                     }
@@ -84,10 +83,10 @@ export default {
             }
             Log.daemon('DS/AccountHD setMainAddress to insert', JSON.parse(JSON.stringify(insert)))
 
-            await dbInterface.setTableName('account').setInsertData({ insertObjs: [insert] }).insert()
+            await Database.setTableName('account').setInsertData({ insertObjs: [insert] }).insert()
 
             const sql = ` UPDATE account SET is_main=0, changes_log='${now} CHANGED NOT MAIN ${params.oldAddress} => ${params.newAddress} ' || changes_log WHERE currency_code='${params.currencyCode}' AND address='${params.oldAddress}'`
-            await dbInterface.setQueryString(sql).query()
+            await Database.setQueryString(sql).query()
 
             Log.daemon('DS/AccountHD setMainAddress inserted', params)
 
@@ -101,10 +100,7 @@ export default {
      * @returns {Promise<{accountsDerivationIndex: number, accountsTotal: number}>}
      */
     getAccountsMaxForScanPub: async (params, source = '') => {
-
-        const dbInterface = new DBInterface()
-
-         Log.daemon('DS/AccountHD getAccountsMaxForScanPub ' + source + ' called')
+        Log.daemon('DS/AccountHD getAccountsMaxForScanPub ' + source + ' called')
 
         let where = [`account.derivation_type='main'`]
 
@@ -113,10 +109,10 @@ export default {
         where = ' WHERE ' + where.join(' AND ')
 
 
-        const sql = ` 
+        const sql = `
             SELECT SUM(CASE WHEN account.already_shown IS NULL OR account.already_shown=0 THEN 1 ELSE 0 END) AS accountsTotal,
             COUNT(account.id) AS accountsIncludingUsed, MAX(derivation_index) AS accountsDerivationIndex
-            FROM account 
+            FROM account
             ${where}
         `
         //
@@ -125,7 +121,7 @@ export default {
 
         let total = { accountsTotal: 0, accountsIncludingUsed: 0, accountsDerivationIndex: -1 }
         try {
-            const res = await dbInterface.setQueryString(sql).query(true)
+            const res = await Database.setQueryString(sql).query(true)
             if (!res || !res.array || !res.array.length) {
                  Log.daemon('DS/AccountHD getAccountsMaxForScanPub finished as empty')
                 return total
@@ -137,14 +133,14 @@ export default {
                         SELECT id, derivation_path AS derivationPath, derivation_index AS derivationIndex FROM account
                         ${where}
                     `
-                    const addresses = await dbInterface.setQueryString(sql2).query()
+                    const addresses = await Database.setQueryString(sql2).query()
                     if (!addresses || !addresses.array || addresses.array.length === 0) {
                         return total
                     }
 
                     let address
                     for (address of addresses.array) {
-                        let path = dbInterface.unEscapeString(address.derivationPath)
+                        let path = Database.unEscapeString(address.derivationPath)
                         path = path.split('/')
                         const ic = path.length
                         if (ic.length < 2) {
@@ -160,7 +156,7 @@ export default {
                         }
                         if (max > 0) {
                             const sql3 = `UPDATE account SET derivation_index=${max} WHERE id=${address.id}`
-                            await dbInterface.setQueryString(sql3).query()
+                            await Database.setQueryString(sql3).query()
                              Log.daemon('DS/AccountHD getAccountsMaxForScanPub updated address ', sql3)
                         }
                     }
@@ -180,10 +176,7 @@ export default {
      * @returns {Promise<{accountsDerivationIndex: number, accountsTotal: number}>}
      */
     getAccountForChange: async (params) => {
-
-        const dbInterface = new DBInterface()
-
-         Log.daemon('DS/AccountHD getAccountForChange called')
+        Log.daemon('DS/AccountHD getAccountForChange called')
 
         let where = [`account.derivation_type='change'`]
         where.push(`(account.already_shown IS NULL OR account.already_shown=0)`)
@@ -194,13 +187,13 @@ export default {
             where = ''
         }
 
-        const sql = ` 
-            SELECT address FROM account 
+        const sql = `
+            SELECT address FROM account
             ${where}
             LIMIT 1
         `
 
-        const res = await dbInterface.setQueryString(sql).query()
+        const res = await Database.setQueryString(sql).query()
         if (!res || !res.array || !res.array.length) {
              Log.daemon('DS/AccountHD getAccountForChange finished as empty')
             return false
@@ -210,10 +203,8 @@ export default {
     },
 
     countUsed: async (params) => {
-        const dbInterface = new DBInterface()
-
         const sql = `SELECT COUNT(*) AS cn FROM account WHERE already_shown=1 AND wallet_hash='${params.walletHash}' AND currency_code='${params.currencyCode}'`
-        const res = await dbInterface.setQueryString(sql).query()
+        const res = await Database.setQueryString(sql).query()
         if (!res || typeof res.array === 'undefined' || !res.array || typeof res.array[0] === 'undefined' || !res.array[0]) {
             return 0
         }
@@ -221,10 +212,8 @@ export default {
     },
 
     backUsed: async (params) => {
-        const dbInterface = new DBInterface()
-
         const sql = `UPDATE account SET already_shown=0 WHERE already_shown=2 AND wallet_hash='${params.walletHash}' AND currency_code='${params.currencyCode}'`
-        const res = await dbInterface.setQueryString(sql).query()
+        const res = await Database.setQueryString(sql).query()
         if (!res || typeof res.rowsAffected === 'undefined') {
             return 0
         }

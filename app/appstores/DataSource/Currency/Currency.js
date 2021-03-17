@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 
 import Log from '../../../services/Log/Log'
 
@@ -18,15 +18,12 @@ export default {
      * @return {Promise<void>}
      */
     updateCurrency: async (data) => {
-
-        const dbInterface = new DBInterface()
-
         if (typeof data.updateObj.currencyRateJson !== 'undefined') {
             if (typeof data.updateObj.currencyRateJson !== 'string') {
-                data.updateObj.currencyRateJson = dbInterface.escapeString(JSON.stringify(data.updateObj.currencyRateJson))
+                data.updateObj.currencyRateJson = Database.escapeString(JSON.stringify(data.updateObj.currencyRateJson))
             }
         }
-        const updated = await dbInterface.setTableName(tableName).setUpdateData(data).update()
+        const updated = await Database.setTableName(tableName).setUpdateData(data).update()
 
         if (!updated || typeof updated.res === 'undefined' || typeof updated.res[0] === 'undefined') {
             Log.err('DS/Currency updateCurrency error - no rows updated ' + JSON.stringify(data))
@@ -50,11 +47,7 @@ export default {
      * @returns {Promise<void>}
      */
     insertCurrency: async (data) => {
-
-        const dbInterface = new DBInterface()
-
-        await dbInterface.setTableName(tableName).setInsertData(data).insert()
-
+        await Database.setTableName(tableName).setInsertData(data).insert()
     },
 
     /**
@@ -62,16 +55,13 @@ export default {
      * @returns {Promise<{currencyCode, currencyRateUsd, currencyRateJson, currencyRateScanTime, priceProvider, priceChangePercentage24h, priceLastUpdate}[]>}
      */
     getCurrencies: async () => {
-
-        const dbInterface = new DBInterface()
-
-        const res = await dbInterface.setQueryString(`
-            SELECT 
+        const res = await Database.setQueryString(`
+            SELECT
               is_hidden AS isHidden,
               currency_code AS currencyCode,
               currency_rate_usd AS currencyRateUsd,
               currency_rate_json AS currencyRateJson,
-              currency_rate_scan_time AS currencyRateScanTime,                
+              currency_rate_scan_time AS currencyRateScanTime,
               price_provider AS priceProvider,
               price_change_percentage_24h AS priceChangePercentage24h,
               price_last_updated AS priceLastUpdate
@@ -84,7 +74,7 @@ export default {
 
         let tmp
         for (tmp of res.array) {
-            tmp.currencyRateJson = dbInterface.unEscapeString(tmp.currencyRateJson)
+            tmp.currencyRateJson = Database.unEscapeString(tmp.currencyRateJson)
             if (tmp.currencyRateJson) {
                 try {
                     tmp.currencyRateJson = JSON.parse(tmp.currencyRateJson)
@@ -101,10 +91,7 @@ export default {
      * @returns {Promise<[]>}
      */
     getCurrenciesCodesActivated: async () => {
-
-        const dbInterface = new DBInterface()
-
-        const res = await dbInterface.setQueryString(`SELECT currency_code AS currencyCode FROM ${tableName}`).query()
+        const res = await Database.setQueryString(`SELECT currency_code AS currencyCode FROM ${tableName}`).query()
 
         if (!res || !res.array) {
             return BlocksoftDict.Codes

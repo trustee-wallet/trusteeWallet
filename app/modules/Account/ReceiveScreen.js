@@ -74,6 +74,7 @@ import Button from '../../components/elements/new/buttons/Button'
 import blackLoader from '../../assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '../../assets/jsons/animations/refreshWhite.json'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import config from '@app/config/config'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -182,25 +183,19 @@ class ReceiveScreen extends Component {
     handleExchange = async () => {
 
         try {
+            await Netinfo.isInternetReachable()
 
-            const newInterface = await AsyncStorage.getItem('isNewInterface')
-
-            if (newInterface === 'true') {
-                NavStore.goNext('ExchangeV3ScreenStack')
+            if (config.exchange.mode === 'DEV') {
+                NavStore.goNext('MarketScreen')
             } else {
-                setLoaderStatus(true)
-
-                NavStore.goNext('ExchangeScreenStack',
-                    {
-                        exchangeScreenParam: {
-                            selectedOutCurrency: this.props.cryptoCurrency
-                        }
-                    })
+                NavStore.goNext('ExchangeV3ScreenStack')
             }
         } catch (e) {
-            // noinspection ES6MissingAwait
-            Log.err('ReceiveScreen.handleExchange error ' + e.message)
-            setLoaderStatus(false)
+            if (Log.isNetworkError(e.message)) {
+                Log.log('ReceiveScreen.handleExchange error ' + e.message)
+            } else {
+                Log.err('ReceiveScreen.handleExchange error ' + e.message)
+            }
         }
     }
 

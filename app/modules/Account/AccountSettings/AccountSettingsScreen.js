@@ -27,6 +27,7 @@ import SettingsUSDT from './elements/SettingsUSDT'
 import SettingsETH from './elements/SettingsETH'
 import SettingsXMR from './elements/SettingsXMR'
 import SettingsTRX from './elements/SettingsTRX'
+import SettingsBNB from './elements/SettingsBNB'
 
 import config from '../../../config/config'
 
@@ -95,6 +96,10 @@ class AccountSettingScreen extends React.Component {
             settingsComponent =
                 <SettingsTRX containerStyle={{ overflow: 'hidden' }}
                     wallet={mainStore.selectedWallet} account={account} />
+        } else if (account.currencyCode === 'BNB') {
+            settingsComponent =
+                <SettingsBNB containerStyle={{ overflow: 'hidden' }}
+                             wallet={mainStore.selectedWallet} account={account} />
         }
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors.mainColor

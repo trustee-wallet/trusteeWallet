@@ -9,7 +9,7 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BtcFindAddressFunction from './basic/BtcFindAddressFunction'
 import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
 import config from '../../../app/config/config'
-import DBInterface from '../../../app/appstores/DataSource/DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 
 const CACHE_VALID_TIME = 60000 // 60 seconds
 const CACHE = {}
@@ -100,12 +100,11 @@ export default class BtcScannerProcessor {
         if (typeof CACHE_WALLET_PUBS[walletHash] !== 'undefined') {
             return CACHE_WALLET_PUBS[walletHash]
         }
-        const dbInterface = new DBInterface()
         const sqlPub = `SELECT wallet_pub_value as walletPub
                     FROM wallet_pub
                     WHERE wallet_hash = '${walletHash}'
                     AND currency_code='BTC'`
-        const resPub = await dbInterface.setQueryString(sqlPub).query()
+        const resPub = await Database.setQueryString(sqlPub).query()
         CACHE_WALLET_PUBS[walletHash] = {}
         if (resPub && resPub.array && resPub.array.length > 0) {
             for (const row of resPub.array) {

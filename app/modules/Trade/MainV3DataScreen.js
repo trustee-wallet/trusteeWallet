@@ -17,23 +17,20 @@ import {
     SafeAreaView
 } from 'react-native'
 
-
-
 import NavStore from '../../components/navigation/NavStore'
 
 import ApiV3 from '../../services/Api/ApiV3'
 import Log from '../../services/Log/Log'
 
 import { WebView } from 'react-native-webview'
-import { i18n, strings, sublocale } from '../../services/i18n'
-import AsyncStorage from '@react-native-community/async-storage'
+import { strings, sublocale } from '../../services/i18n'
 import cardDS from '../../appstores/DataSource/Card/Card'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { FileSystem } from '../../services/FileSystem/FileSystem'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import { Camera } from '../../services/Camera/Camera'
-import { CardIOModule, CardIOUtilities } from 'react-native-awesome-card-io'
+import { CardIOModule } from 'react-native-awesome-card-io'
 import countriesDict from '../../assets/jsons/other/country-codes'
 import Validator from '../../services/UI/Validator/Validator'
 import valid from 'card-validator'
@@ -86,10 +83,9 @@ class MainV3DataScreen extends Component {
         this.setState({ inited: true })
 
         // here to do upload
-        const { tradeType } = this.props.exchangeStore
         const type = this.props.navigation.getParam('tradeType')
 
-        let apiUrl = await ApiV3.initData(type ? type : tradeType, prev === 'AccountScreen' && currencyCode)
+        let apiUrl = await ApiV3.initData(type, prev === 'AccountScreen' && currencyCode)
 
         setTimeout(() => {
             this.setState({
@@ -259,9 +255,11 @@ class MainV3DataScreen extends Component {
             if (backToOld) {
                 if (tradeType === 'SELL') {
                     ExchangeActions.handleSetNewInterface(false, 'SELL')
+                    ExchangeActions.handleSetTradeType({ tradeType: 'SELL' })
                     NavStore.goNext('TradeScreenStack')
                 } else if (tradeType === 'BUY') {
                     ExchangeActions.handleSetNewInterface(false, 'BUY')
+                    ExchangeActions.handleSetTradeType({ tradeType: 'BUY' })
                     NavStore.goNext('TradeScreenStack')
                 }
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
@@ -586,9 +584,14 @@ class MainV3DataScreen extends Component {
                 data.append('image', 'data:image/jpeg;base64,' + base64)
             }
 
-            let res = await ApiV3.validateCard(data, exchangeMode)
-            // todo send data to front if error send data
-            res = res.data
+            let res
+            try {
+                res = await ApiV3.validateCard(data, exchangeMode)
+                res = res.data
+            } catch (e) {
+                this.webref.postMessage(JSON.stringify({ serverError: true }))
+                Log.log('Trade/MainV3Screen ApiV3.validateCard error', JSON.stringify(e))
+            }
 
             await cardDS.updateCard({
                 key: {
@@ -699,6 +702,8 @@ class MainV3DataScreen extends Component {
                 console.log('Trade/MainV3Screen.handleTransferAll', e)
             }
 
+            this.webref.postMessage(JSON.stringify({ serverError: true }))
+
             Log.errorTranslate(e, 'Trade/MainV3Screen.handleTransferAll', extend)
 
             showModal({
@@ -794,8 +799,6 @@ class MainV3DataScreen extends Component {
                                     Log.log('Trade.WebViewMainScreen.on start load with request ' + e.navigationType)
                                     return true
                                 }}
-                                // onLoadStart={StatusBar.setBarStyle('dark-content')}
-                                // onLoad={StatusBar.setBarStyle('dark-content')}
                                 useWebKit={true}
                                 startInLoadingState={true}
                                 renderLoading={this.renderLoading}
@@ -813,11 +816,6 @@ class MainV3DataScreen extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        settingsStore: state.settingsStore,
-        mainStore: state.mainStore,
-        wallet: state.mainStore.selectedWallet,
-        selectedInAccount: state.mainStore.selectedInAccount,
-        selectedOutAccount: state.mainStore.selectedOutAccount,
         exchangeStore: state.exchangeStore,
         cryptoCurrency: state.mainStore.selectedCryptoCurrency,
     }

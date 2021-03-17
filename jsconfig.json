@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@app/*": ["./app/*"],
+      "@crypto/*": ["./crypto/*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "ios",
+    "android"
+  ],
+}

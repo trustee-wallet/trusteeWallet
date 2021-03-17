@@ -17,7 +17,7 @@ import Router from './app/router'
 import Themes from './app/themes/Themes'
 
 import Application from './app/appstores/Actions/App/App'
-import SendActions from './app/appstores/Stores/Send/SendActions'
+import { SendDeepLinking } from './app/appstores/Stores/Send/SendDeepLinking'
 
 export default class App extends Component {
 
@@ -28,7 +28,7 @@ export default class App extends Component {
 
     componentDidMount() {
         Application.init({ source: 'App.mount' })
-        Linking.addEventListener('url', (data) => SendActions.handleInitialURL(data.url))
+        Linking.addEventListener('url', (data) => SendDeepLinking.handleInitialURL(data.url))
     }
 
     render() {

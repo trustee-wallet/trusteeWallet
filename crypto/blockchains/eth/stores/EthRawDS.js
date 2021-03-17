@@ -2,7 +2,7 @@
  * @author Ksu
  * @version 0.32
  */
-import DBInterface from '../../../../app/appstores/DataSource/DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import EthTxSendProvider from '../basic/EthTxSendProvider'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
@@ -26,7 +26,6 @@ class EthRawDS {
             if (typeof data.currencyCode !== 'undefined') {
                 this._currencyCode = data.currencyCode === 'ETH_ROPSTEN' ? 'ETH_ROPSTEN' : 'ETH'
             }
-            const dbInterface = new DBInterface()
             const sql = `
         SELECT id,
         transaction_unique_key AS transactionUnique,
@@ -37,12 +36,12 @@ class EthRawDS {
         broadcast_updated AS broadcastUpdated,
         created_at AS transactionCreated,
         is_removed, removed_at
-        FROM transactions_raw 
-        WHERE 
+        FROM transactions_raw
+        WHERE
         (is_removed=0 OR is_removed IS NULL)
         AND currency_code='${this._currencyCode}'
         AND address='${data.address.toLowerCase()}'`
-            const result = await dbInterface.setQueryString(sql).query()
+            const result = await Database.setQueryString(sql).query()
             if (!result || !result.array || result.array.length === 0) {
                 return {}
             }
@@ -69,7 +68,7 @@ class EthRawDS {
                     ret[row.transactionUnique] = row
                     let transactionLog
                     try {
-                        transactionLog = row.transactionLog ? JSON.parse(dbInterface.unEscapeString(row.transactionLog)) : row.transactionLog
+                        transactionLog = row.transactionLog ? JSON.parse(Database.unEscapeString(row.transactionLog)) : row.transactionLog
                     } catch (e) {
                         // do nothing
                     }
@@ -96,8 +95,8 @@ class EthRawDS {
                             transactionLog.successResult = checkResult.data
                         }
 
-                        await dbInterface.setTableName('transactions_raw').setUpdateData({
-                            updateObj: { transactionLog: dbInterface.escapeString(JSON.stringify(transactionLog)) },
+                        await Database.setTableName('transactions_raw').setUpdateData({
+                            updateObj: { transactionLog: Database.escapeString(JSON.stringify(transactionLog)) },
                             key: { id: row.id }
                         }).update()
                     }
@@ -203,7 +202,7 @@ class EthRawDS {
                     if (this._currencyCode === 'ETH' || this._currencyCode === 'ETH_ROPSTEN') {
                         updateObj.broadcastLog = broadcastLog
 
-                        await dbInterface.setTableName('transactions_raw').setUpdateData({
+                        await Database.setTableName('transactions_raw').setUpdateData({
                             updateObj,
                             key: { id: row.id }
                         }).update()
@@ -222,15 +221,14 @@ class EthRawDS {
     async cleanRawHash(data) {
         BlocksoftCryptoLog.log('EthRawDS cleanRawHash ', data)
 
-        const dbInterface = new DBInterface()
         const now = new Date().toISOString()
         const sql = `UPDATE transactions_raw
         SET is_removed=1, removed_at = '${now}'
-        WHERE 
+        WHERE
         (is_removed=0 OR is_removed IS NULL)
         AND (currency_code='ETH' OR currency_code='ETH_ROPSTEN')
         AND transaction_hash='${data.transactionHash}'`
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
     }
 
     async cleanRaw(data) {
@@ -240,33 +238,31 @@ class EthRawDS {
             this._currencyCode = data.currencyCode === 'ETH_ROPSTEN' ? 'ETH_ROPSTEN' : 'ETH'
         }
 
-        const dbInterface = new DBInterface()
         const now = new Date().toISOString()
         const sql = `UPDATE transactions_raw
         SET is_removed=1, removed_at = '${now}'
-        WHERE 
+        WHERE
         (is_removed=0 OR is_removed IS NULL)
         AND currency_code='${this._currencyCode}'
         AND address='${data.address.toLowerCase()}'
         AND transaction_unique_key='${data.transactionUnique}'`
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
     }
 
     async saveRaw(data) {
         if (typeof data.currencyCode !== 'undefined') {
             this._currencyCode = data.currencyCode === 'ETH_ROPSTEN' ? 'ETH_ROPSTEN' : 'ETH'
         }
-        const dbInterface = new DBInterface()
         const now = new Date().toISOString()
 
         const sql = `UPDATE transactions_raw
         SET is_removed=1, removed_at = '${now}'
-        WHERE 
+        WHERE
         (is_removed=0 OR is_removed IS NULL)
         AND currency_code='${this._currencyCode}'
         AND address='${data.address.toLowerCase()}'
         AND transaction_unique_key='${data.transactionUnique.toLowerCase()}'`
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
 
         const prepared = [{
             currency_code: this._currencyCode,
@@ -274,11 +270,11 @@ class EthRawDS {
             transaction_unique_key: data.transactionUnique.toLowerCase(),
             transaction_hash: data.transactionHash,
             transaction_raw: data.transactionRaw,
-            transaction_log: dbInterface.escapeString(JSON.stringify(data.transactionLog)),
+            transaction_log: Database.escapeString(JSON.stringify(data.transactionLog)),
             created_at: now,
             is_removed: 0
         }]
-        await dbInterface.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
+        await Database.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
     }
 }
 
