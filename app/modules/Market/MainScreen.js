@@ -569,7 +569,6 @@ class MarketScreen extends Component {
                 res = await ApiV3.validateCard(data, exchangeMode)
                 res = res.data
             } catch (e) {
-                this.webref.postMessage(JSON.stringify({ serverError: true }))
                 Log.log('Market.MainScreen ApiV3.validateCard error', JSON.stringify(e))
             }
 
@@ -597,6 +596,7 @@ class MarketScreen extends Component {
             }
 
         } catch (e) {
+            this.webref.postMessage(JSON.stringify({ serverError: true }))
             Log.err('Market/MainScreen validate e', e)
         }
     }

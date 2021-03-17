@@ -577,7 +577,6 @@ class MainV3DataScreen extends Component {
                 res = await ApiV3.validateCard(data, exchangeMode)
                 res = res.data
             } catch (e) {
-                this.webref.postMessage(JSON.stringify({ serverError: true }))
                 Log.log('Trade/MainV3Screen ApiV3.validateCard error', JSON.stringify(e))
             }
 
@@ -603,6 +602,7 @@ class MainV3DataScreen extends Component {
             }
 
         } catch (e) {
+            this.webref.postMessage(JSON.stringify({ serverError: true }))
             Log.err('Trade/MainV3Screen validate e', e)
         }
     }
