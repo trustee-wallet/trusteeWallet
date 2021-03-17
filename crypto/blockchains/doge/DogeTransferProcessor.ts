@@ -443,7 +443,6 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         return {
             ...result,
             selectedTransferAllBalance: result.fees[result.selectedFeeIndex].amountForTx,
-            shouldChangeBalance: true,
             countedForBasicBalance: data.amount
         }
     }

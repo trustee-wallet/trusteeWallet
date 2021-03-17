@@ -428,9 +428,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     feeForTx = BlocksoftUtils.mul(fee, gasLimit)
                     if (this._useThisBalance && (data.isTransferAll || txRBF)) {
                         amountForTx = BlocksoftUtils.diff(balance, feeForTx) // change amount for send all calculations
-                        if (txRBF) {
-                            result.shouldChangeBalance = true
-                        }
                     }
                 } else {
                     feeForTx = 0
@@ -581,8 +578,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         }
         return {
             ...fees,
-            selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].amountForTx,
-            shouldChangeBalance: true
+            selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].amountForTx
         }
     }
 

@@ -134,6 +134,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -1,
                 fees: [],
+                shouldShowFees : false,
                 countedForBasicBalance: '0'
             }
         }
@@ -143,13 +144,14 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 selectedTransferAllBalance: balance,
                 selectedFeeIndex: -3,
                 fees: [],
+                shouldShowFees : false,
                 countedForBasicBalance: balance
             }
         }
         return {
             ...fees,
-            selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].amountForTx,
-            shouldChangeBalance: false
+            shouldShowFees : false,
+            selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].amountForTx
         }
     }
 

@@ -70,8 +70,8 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
         result.fees[result.selectedFeeIndex].amountForTx = newAmount
         const tmp = {
             ...result,
-            selectedTransferAllBalance: result.fees[result.selectedFeeIndex].amountForTx,
-            shouldChangeBalance: true
+            shouldShowFees : false,
+            selectedTransferAllBalance: result.fees[result.selectedFeeIndex].amountForTx
         }
         // console.log('tmp', JSON.stringify(tmp))
         return tmp

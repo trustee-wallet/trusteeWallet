@@ -68,8 +68,7 @@ export default class FioTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     amountForTx: diff
                 }
             ],
-            selectedTransferAllBalance: diff,
-            shouldChangeBalance: false
+            selectedTransferAllBalance: diff
         } as BlocksoftBlockchainTypes.TransferAllBalanceResult
         return result
     }
