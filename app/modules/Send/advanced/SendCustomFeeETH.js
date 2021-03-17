@@ -35,7 +35,7 @@ class SendCustomFeeETH extends React.PureComponent {
     }
 
     componentDidMount() {
-        const { currentSelectedFee } = this.props.ExtraViewParams
+        const currentSelectedFee = this.props.currentSelectedFee
         this.gasPriceInput.handleInput(currentSelectedFee.gasPriceGwei.toString(), false)
         this.gasLimitInput.handleInput(currentSelectedFee.gasLimit.toString(), false)
         // -1 is default nonce as "will be used one from node"
@@ -124,9 +124,9 @@ class SendCustomFeeETH extends React.PureComponent {
 
         const feesCurrencySymbol = 'ETH'
 
-        const { feesBasicCurrencyRate, feesBasicCurrencySymbol } = this.props.ExtraViewParams.dict
+        const { feesBasicCurrencyRate, feesBasicCurrencySymbol } = this.props.sendScreenStore.dict
 
-        const { isTransferAll } = this.props.ExtraViewParams.ui
+        const { isTransferAll } = this.props.sendScreenStore.ui
 
         let fiatFee = RateEquivalent.mul({ value: this.state.feesPretty, currencyCode: 'ETH', basicCurrencyRate: feesBasicCurrencyRate })
         if (Number(fiatFee) < 0.01) {
@@ -159,6 +159,7 @@ class SendCustomFeeETH extends React.PureComponent {
                         inputTextColor={'#f4f4f4'}
                         tintColor={'#7127ac'}
                         callback={(value) => this.handleRecount('gasPrice', value)}
+                        onFocus={this.props.onFocus}
                     />
                 </View>
                 <View style={{ marginBottom: GRID_SIZE }}>
@@ -178,6 +179,7 @@ class SendCustomFeeETH extends React.PureComponent {
                         tintColor={'#7127ac'}
                         disabled={isTransferAll}
                         callback={(value) => this.handleRecount('gasLimit', value)}
+                        onFocus={this.props.onFocus}
                     />
                 </View>
                 <View style={{ marginBottom: GRID_SIZE }}>
@@ -196,6 +198,7 @@ class SendCustomFeeETH extends React.PureComponent {
                         inputTextColor={'#f4f4f4'}
                         tintColor={'#7127ac'}
                         callback={(value) => this.handleRecount('nonce', value)}
+                        onFocus={this.props.onFocus}
                     />
                 </View>
             </View>

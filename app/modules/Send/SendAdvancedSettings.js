@@ -141,8 +141,10 @@ class SendAdvancedSettings extends Component {
                                         rightContent={dropMenu ? 'arrow_up' : "arrow_down"}
                                         switchParams={{ value: dropMenu, onPress: this.toggleDropMenu }}
                                         type={'dropdown'}
-                                        ExtraView={SendAdvancedFees}
-                                        ExtraViewParams={this.props.sendScreenStore}
+                                        ExtraView={() => <SendAdvancedFees
+                                            sendScreenStore={this.props.sendScreenStore}
+                                            scrollView={this.scrollView}
+                                        />}
                                         subtitle={langMsg
                                             ? (
                                                 isCustomFee ? strings(`send.fee.customFee.title`) : strings(`send.fee.text.${langMsg}`)

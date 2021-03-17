@@ -19,7 +19,7 @@ class SendCustomFee extends React.PureComponent {
 
     render = () => {
 
-        const { currencyCode } = this.props.ExtraViewParams.dict
+        const { currencyCode } = this.props.sendScreenStore.dict
 
         let prefix = currencyCode
         if (typeof currencyCode !== 'undefined' && currencyCode) {
@@ -37,7 +37,11 @@ class SendCustomFee extends React.PureComponent {
 
         switch (prefix) {
             case 'ETH':
-                return <SendCustomFeeETH ExtraViewParams={this.props.ExtraViewParams}/>
+                return <SendCustomFeeETH
+                    sendScreenStore={this.props.sendScreenStore}
+                    currentSelectedFee={this.props.currentSelectedFee}
+                    onFocus={this.props.onFocus}
+                />
             case 'BTC':
             case 'LTC':
             case 'XVG':

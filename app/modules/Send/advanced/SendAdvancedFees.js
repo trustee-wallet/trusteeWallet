@@ -3,7 +3,6 @@
  */
 import React from 'react'
 import { View } from 'react-native'
-import { connect } from 'react-redux'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
@@ -48,7 +47,7 @@ class SendAdvancedFees extends React.PureComponent {
             needSpeed = ''
         }
 
-        const { feesPretty, feesCurrencySymbol, fiatFee } = feesTitles(item, this.props.ExtraViewParams.dict)
+        const { feesPretty, feesCurrencySymbol, fiatFee } = feesTitles(item, this.props.sendScreenStore.dict)
 
         let subtitle
         subtitle = `${feesPretty} ${feesCurrencySymbol}`
@@ -74,8 +73,16 @@ class SendAdvancedFees extends React.PureComponent {
     }
 
     setCustomFee() {
-        const { selectedFee } = this.props.ExtraViewParams.fromBlockchain
+        const { selectedFee } = this.props.sendScreenStore.fromBlockchain
         const currentSelectedFee = this.state.currentSelectedFee ? this.state.currentSelectedFee : selectedFee
+        if (typeof currentSelectedFee.isCustomFee === 'undefined' || currentSelectedFee.isCustomFee === false) {
+            setTimeout(() => {
+                try {
+                    this.props.scrollView.scrollTo({ y: 250 })
+                } catch (e) {
+                }
+            }, 500)
+        }
         const item = {...currentSelectedFee, isCustomFee : true}
         SendActionsUpdateValues.setTmpSelectedFee(item)
         this.setState({
@@ -83,9 +90,18 @@ class SendAdvancedFees extends React.PureComponent {
         })
     }
 
+    onFocus = () => {
+        setTimeout(() => {
+            try {
+                this.props.scrollView.scrollTo({ y: 350 })
+            } catch (e) {
+            }
+        }, 500)
+    }
+
     render() {
-        const { selectedFee, countedFees } = this.props.ExtraViewParams.fromBlockchain
-        const { isTransferAll, bse } = this.props.ExtraViewParams.ui
+        const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
+        const { isTransferAll, bse } = this.props.sendScreenStore.ui
         const { bseProviderType } = bse
 
         const currentSelectedFee = this.state.currentSelectedFee ? this.state.currentSelectedFee : selectedFee
@@ -121,8 +137,11 @@ class SendAdvancedFees extends React.PureComponent {
                         withoutLine={true}
                         onPress={() => this.setCustomFee()}
                         checkedStyle={true}
-                        ExtraView={SendCustomFee}
-                        ExtraViewParams={{...this.props.ExtraViewParams, currentSelectedFee}}
+                        ExtraView={() => <SendCustomFee
+                            sendScreenStore={this.props.sendScreenStore}
+                            currentSelectedFee={currentSelectedFee}
+                            onFocus={() => this.onFocus()}
+                        />}
                     />
                     : null
                 }
