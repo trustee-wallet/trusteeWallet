@@ -842,7 +842,7 @@
         "title": "Ручная",
         "fixedFeeTitle": "ფიქსირებული\nსაკომისიო",
         "customFeeTitle": "დაყენება\nხელით",
-        "calculetedFee": "საანგარიშო საკომისიო:",
+        "calculatedFee": "საანგარიშო საკომისიო:",
         "eth": {
           "gasPrice": "გაზის ფასი",
           "gasLimit": "გაზის ლიმიტი",

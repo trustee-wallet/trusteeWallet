@@ -136,7 +136,7 @@ class SendCustomFeeETH extends React.PureComponent {
         }
 
 
-        const customFee = strings(`send.fee.customFee.calculetedFee`) + `\n${this.state.feesPretty} ${feesCurrencySymbol} / ${fiatFee} `
+        const customFee = strings(`send.fee.customFee.calculatedFee`) + `\n${this.state.feesPretty} ${feesCurrencySymbol} / ${fiatFee} `
 
         return (
             <View style={{ marginTop: 10 }}>

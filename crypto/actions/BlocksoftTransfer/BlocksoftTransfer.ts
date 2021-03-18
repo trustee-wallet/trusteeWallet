@@ -9,7 +9,6 @@ import { BlocksoftTransferPrivate } from './BlocksoftTransferPrivate'
 import { BlocksoftDictTypes } from '../../common/BlocksoftDictTypes'
 import config from '../../../app/config/config'
 
-const DEBUG = false
 
 type DataCache = {
     [key in BlocksoftDictTypes.Code]: {
@@ -24,9 +23,9 @@ const CACHE_VALID_TIME = 20000 // 2 minute
 export namespace BlocksoftTransfer {
 
     export const getTransferAllBalance = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
-        //if (config.debug.sendLogs) {
+        if (config.debug.sendLogs) {
             console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance`, JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
-        //}
+        }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
         data.isTransferAll = true
         let transferAllCount
@@ -61,9 +60,9 @@ export namespace BlocksoftTransfer {
     }
 
     export const getFeeRate = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
-        //if (DEBUG) {
+        if (config.debug.sendLogs) {
             console.log('BlocksoftTransfer.getFeeRate', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
-        //}
+        }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
         let feesCount
         try {
@@ -95,7 +94,7 @@ export namespace BlocksoftTransfer {
     }
 
     export const sendTx = async function(data: BlocksoftBlockchainTypes.TransferData, uiData: BlocksoftBlockchainTypes.TransferUiData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
-        if (DEBUG) {
+        if (config.debug.sendLogs) {
             console.log('BlocksoftTransfer.sendTx', data, uiData)
         }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')

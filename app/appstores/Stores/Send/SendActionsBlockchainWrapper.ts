@@ -45,8 +45,25 @@ export namespace SendActionsBlockchainWrapper {
             allowReplaceByFee: walletAllowReplaceByFee === 1,
             useLegacy: walletUseLegacy,
             isHd: walletIsHd,
-            accountJson
+            accountJson,
+            transactionJson : {}
         } as BlocksoftBlockchainTypes.TransferData
+
+        if (typeof additional.tbk !== 'undefined' && additional.tbk && additional.tbk.transactionAction) {
+            if (additional.tbk.transactionAction === 'transactionSpeedUp') {
+                newCountedFeesData.transactionSpeedUp = additional.tbk.transactionBoost.transactionHash
+            } else if (additional.tbk.transactionAction === 'transactionReplaceByFee') {
+                newCountedFeesData.transactionReplaceByFee = additional.tbk.transactionBoost.transactionHash
+            } else if (additional.tbk.transactionAction === 'transactionRemoveByFee') {
+                newCountedFeesData.transactionReplaceByFee = additional.tbk.transactionBoost.transactionHash
+            } else {
+                throw new Error('undefined SendActionsBlockchainWrapper beforeRender transactionAction ' + additional.tbk.transactionAction)
+            }
+            if (typeof additional.tbk.transactionBoost.transactionJson !== 'undefined' && additional.tbk.transactionBoost.transactionJson) {
+                newCountedFeesData.transactionJson = additional.tbk.transactionBoost.transactionJson
+            }
+        }
+
         if (JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
             return
         }

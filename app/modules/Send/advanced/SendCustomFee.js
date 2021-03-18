@@ -3,10 +3,10 @@
  */
 import React from 'react'
 
-import { View, Text } from 'react-native'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 import SendCustomFeeETH from '@app/modules/Send/advanced/SendCustomFeeETH'
+import SendCustomFeeBTC from '@app/modules/Send/advanced/SendCustomFeeBTC'
 
 class SendCustomFee extends React.PureComponent {
 
@@ -50,7 +50,11 @@ class SendCustomFee extends React.PureComponent {
             case 'BSV':
             case 'BTG':
             case 'BCH':
-                return <View><Text>btc gxfgxfg</Text></View>
+                return <SendCustomFeeBTC
+                    sendScreenStore={this.props.sendScreenStore}
+                    currentSelectedFee={this.props.currentSelectedFee}
+                    onFocus={this.props.onFocus}
+                />
             default:
                 return null
         }

@@ -3,6 +3,7 @@
  */
 import store from '@app/store'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
+import config from '@app/config/config'
 const { dispatch } = store
 
 let CACHE_SELECTED_FEE = false
@@ -45,6 +46,11 @@ export namespace SendActionsUpdateValues {
                 // @ts-ignore
                 ui.cryptoValue = newFee.amountForTx
                 ui.cryptoValueRecounted = new Date().getTime()
+            }
+            if (config.debug.sendLogs) {
+                console.log('')
+                console.log('NEW_FEE', JSON.stringify(newFee))
+                console.log('')
             }
             dispatch({
                 type: 'SET_DATA',

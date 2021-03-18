@@ -158,6 +158,91 @@ export namespace SendActionsStart {
     }
 
 
+    export const startFromTransactionScreenBoost = async (account : any, transaction : any) => {
+        const { cryptoCurrency } = findWalletPlus(account.currencyCode)
+        const dict = await formatDict(cryptoCurrency, account)
+
+        const ui = {
+            uiType : 'TRANSACTION_SCREEN',
+            cryptoValue : transaction.addressAmount,
+            tbk : {
+                transactionBoost: transaction,
+                transactionAction: 'transactionReplaceByFee',
+            },
+            addressTo : transaction.addressTo,
+            bse : {},
+            comment : ''
+        }
+        if (transaction.transactionDirection === 'income') {
+            ui.tbk.transactionAction = 'transactionSpeedUp'
+            ui.addressTo = account.address
+        } else {
+            if (typeof transaction.bseOrderId !== 'undefined') {
+                ui.bse.bseOrderId = transaction.bseOrderId
+            }
+            if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson !== {}) {
+                if (transaction.transactionJson.bseMinCrypto !== 'undefined') {
+                    ui.bse.bseMinCrypto = transaction.transactionJson.bseMinCrypto
+                }
+                if (transaction.transactionJson.comment !== 'undefined') {
+                    ui.comment = transaction.transactionJson.comment
+                }
+            }
+        }
+
+        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
+            addressTo : ui.addressTo,
+            amount :  transaction.addressAmount,
+            tbk : ui.tbk
+        })
+        dispatch({
+            type: 'RESET_DATA',
+            ui,
+            dict
+        })
+
+        await SendActionsBlockchainWrapper.getFeeRate(ui)
+        NavStore.goNext('ReceiptScreen')
+    }
+
+    export const startFromTransactionScreenRemove = async (account : any, transaction : any) => {
+
+        const { cryptoCurrency } = findWalletPlus(account.currencyCode)
+        const dict = await formatDict(cryptoCurrency, account)
+
+        const ui = {
+            uiType : 'TRANSACTION_SCREEN',
+            cryptoValue : transaction.addressAmount,
+            tbk : {
+                transactionBoost: transaction,
+                transactionAction: 'transactionRemoveByFee',
+            },
+            addressTo : account.address,
+            bse : {},
+            comment : ''
+        }
+        if (typeof transaction.bseOrderId !== 'undefined') {
+            ui.bse.bseOrderId = transaction.bseOrderId
+        }
+        if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson !== {}) {
+            if (transaction.transactionJson.comment !== 'undefined') {
+                ui.comment = transaction.transactionJson.comment
+            }
+        }
+        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
+            addressTo : ui.addressTo,
+            amount :  transaction.addressAmount,
+            tbk : ui.tbk
+        })
+        dispatch({
+            type: 'RESET_DATA',
+            ui,
+            dict
+        })
+
+        await SendActionsBlockchainWrapper.getFeeRate(ui)
+        NavStore.goNext('ReceiptScreen')
+    }
 
     export const startFromDeepLinking = async (data :{
         needToDisable?: boolean,
@@ -246,51 +331,5 @@ export namespace SendActionsStart {
 
         await SendActionsBlockchainWrapper.getFeeRate(ui)
         NavStore.goNext('ReceiptScreen')
-    }
-
-    export const startFromTransactionScreenRemove = async (account : any, transaction : any) => {
-        /*
-                    await SendActions.cleanData()
-            SendActions.setUiType({
-                ui: {
-                    uiType : 'TRANSACTION_SCREEN_REMOVE'
-                },
-                addData: {
-                    gotoReceipt: true,
-                }
-            })
-            await SendActions.startSend({
-                addressTo : account.address,
-                amountRaw : transaction.addressAmount,
-                transactionRemoveByFee : transaction.transactionHash,
-                transactionBoost : transaction
-            })
-         */
-    }
-
-    export const startFromTransactionScreenBoost = async (account : any, transaction : any) => {
-        /*
-
-                    const params = {
-                amountRaw : transaction.addressAmount,
-                transactionBoost : transaction
-            }
-            if (transaction.transactionDirection === 'income') {
-                params.transactionSpeedUp = transaction.transactionHash
-                params.addressTo = account.address
-            } else {
-                params.transactionReplaceByFee = transaction.transactionHash
-                params.addressTo = transaction.addressTo
-            }
-            await SendActions.cleanData()
-            SendActions.setUiType({
-                ui: {
-                    uiType : 'TRANSACTION_SCREEN'
-                },
-                addData: {
-                    gotoReceipt: true,
-                }
-            })
-         */
     }
 }

@@ -337,7 +337,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
         prevGasPrice = 0
         if (txRBF) {
-            if (result.fees.length < 2) {
+            let recheck = result.fees.length < 2
+            if (typeof additionalData.isCustomFee !== 'undefined' && additionalData.isCustomFee) {
+                recheck = result.fees.length === 0
+            }
+            if (recheck) {
                 for (let index = 0; index <= 2; index++) {
                     if (typeof result.fees[index] !== 'undefined') {
                         result.fees[index].langMsg = titles[index]

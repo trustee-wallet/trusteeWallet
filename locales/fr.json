@@ -849,7 +849,7 @@
         "title": "Manually",
         "fixedFeeTitle": "FIXED FEE",
         "customFeeTitle": "SET\nMANUALLY",
-        "calculetedFee": "Calculeted fee:",
+        "calculаtedFee": "Calculаted fee:",
         "eth": {
           "gasPrice": "Gas price",
           "gasLimit": "Gas limit",

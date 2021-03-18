@@ -107,8 +107,16 @@ export namespace SendActionsEnd {
 
     export const endRedirect = async (tx: any, sendScreenStore: any) => {
         const { currencyCode } = sendScreenStore.dict
-        const { uiType } = sendScreenStore.ui
-        if (uiType === 'MAIN_SCANNER') {
+        const { uiType, tbk } = sendScreenStore.ui
+        const { transactionAction } = tbk
+        if (typeof transactionAction !== 'undefined' && transactionAction !== '') {
+            NavStore.reset('TransactionScreen', {
+                txData: {
+                    transactionHash: tx.transactionHash,
+                    toOpenAccountBack: true
+                }
+            })
+        } else if (uiType === 'MAIN_SCANNER') {
             NavStore.reset('DashboardStack')
         } else if (tx === false || uiType === 'DEEP_LINKING' || uiType === 'HOME_SCREEN') {
             // account was not opened before or no tx could be done
@@ -160,9 +168,10 @@ export namespace SendActionsEnd {
 
     export const saveTx = async (tx: any, sendScreenStore: any) => {
         const { currencyCode, accountId, walletHash, addressFrom } = sendScreenStore.dict
-        const { addressTo, cryptoValue, memo, comment, bse } = sendScreenStore.ui
+        const { addressTo, cryptoValue, memo, comment, bse, tbk } = sendScreenStore.ui
         const { selectedFee } = sendScreenStore.fromBlockchain
         const { bseMinCrypto } = bse
+        const { transactionAction, transactionBoost } = tbk
 
         const now = new Date().toISOString()
 
@@ -194,58 +203,107 @@ export namespace SendActionsEnd {
             }
         }
 
-
-        const transaction = {
-            currencyCode: currencyCode,
-            accountId: accountId,
-            walletHash: walletHash,
-            transactionHash: tx.transactionHash,
-            transactionStatus: 'new',
-            addressTo: addressTo,
-            addressToBasic: addressTo,
-            addressFrom: '',
-            addressFromBasic: addressFrom,
-            addressAmount: typeof tx.amountForTx !== 'undefined' ? tx.amountForTx : cryptoValue,
-            transactionFee: tx.transactionFee || '',
-            transactionFeeCurrencyCode: tx.transactionFeeCurrencyCode || '',
-            transactionOfTrusteeWallet: 1,
-            transactionJson,
-            blockConfirmations: 0,
-            createdAt: now,
-            updatedAt: now,
-            transactionDirection: addressTo === addressFrom ? 'self' : 'outcome',
-            transactionsScanLog: now + ' CREATED '
-        }
-        if (typeof tx.amountForTx !== 'undefined') {
-            transaction.addressAmount = tx.amountForTx
-        }
-        if (typeof tx.blockHash !== 'undefined') {
-            transaction.blockHash = tx.blockHash
-        }
-        if (typeof tx.transactionStatus !== 'undefined') {
-            transaction.transactionStatus = tx.transactionStatus
-        }
-        if (transaction.addressTo === addressFrom) {
-            transaction.addressTo = ''
-            transaction.transactionDirection = 'self'
-        }
-        if (typeof tx.transactionTimestamp !== 'undefined' && tx.transactionTimestamp) {
-            transaction.createdAt = new Date(tx.transactionTimestamp).toISOString()
-            transaction.updatedAt = new Date(tx.transactionTimestamp).toISOString()
+        let txRBF = false
+        let txRBFed = ''
+        if (typeof transactionAction !== 'undefined' && transactionAction !== '') {
+            if (transactionAction === 'transactionRemoveByFee') {
+                txRBF = transactionBoost.transactionHash
+                txRBFed = 'RBFremoved'
+                // @ts-ignore
+                logData.transactionRemoveByFee = transactionBoost.transactionHash
+            } else if (transactionAction === 'transactionReplaceByFee') {
+                txRBF = transactionBoost.transactionHash
+                txRBFed = 'RBFed'
+                // @ts-ignore
+                logData.transactionReplaceByFee = transactionBoost.transactionHash
+            } else if (transactionAction === 'transactionSpeedUp') {
+                // @ts-ignore
+                txRBFed = 'SpeedUp ' + transactionBoost.transactionHash
+                logData.transactionSpeedUp = transactionBoost.transactionHash
+            } else {
+                throw new Error('undefined SendActionsEnd saveTx transactionAction ' + transactionAction)
+            }
         }
 
-        await logSendSell(transaction, tx, logData, sendScreenStore)
+        if (txRBF) {
+            const transaction = {
+                currencyCode: currencyCode,
+                accountId: accountId,
+                transactionHash: tx.transactionHash,
+                transactionStatus: 'new',
+                addressTo: addressTo,
+                addressToBasic: addressTo,
+                addressFrom: '',
+                addressFromBasic: addressFrom,
+                addressAmount: typeof tx.amountForTx !== 'undefined' ? tx.amountForTx : cryptoValue,
+                transactionFee: tx.transactionFee || '',
+                transactionFeeCurrencyCode: tx.transactionFeeCurrencyCode || '',
+                transactionOfTrusteeWallet: 1,
+                transactionJson,
+                blockConfirmations: 0,
+                updatedAt: now,
+                transactionDirection: addressTo === addressFrom ? 'self' : 'outcome',
+                transactionUpdateHash: txRBF,
+                transactionsOtherHashes: txRBF,
+                transactionsScanLog: now + ' ' + txRBFed + ' ' + txRBF + ' => ' + tx.transactionHash + ' '
+            }
+            if (txRBFed === 'RBFremoved') {
+                transaction.addressTo = ''
+                transaction.addressToBasic = addressFrom
+                transaction.transactionDirection = 'self'
+                transaction.transactionJson.isRemovedByFee = true
+            }
+            await transactionActions.updateTransaction(transaction)
+        } else {
 
-        await logFio(transaction, tx, logData, sendScreenStore)
+            const transaction = {
+                currencyCode: currencyCode,
+                accountId: accountId,
+                walletHash: walletHash,
+                transactionHash: tx.transactionHash,
+                transactionStatus: 'new',
+                addressTo: addressTo,
+                addressToBasic: addressTo,
+                addressFrom: '',
+                addressFromBasic: addressFrom,
+                addressAmount: typeof tx.amountForTx !== 'undefined' ? tx.amountForTx : cryptoValue,
+                transactionFee: tx.transactionFee || '',
+                transactionFeeCurrencyCode: tx.transactionFeeCurrencyCode || '',
+                transactionOfTrusteeWallet: 1,
+                transactionJson,
+                blockConfirmations: 0,
+                createdAt: now,
+                updatedAt: now,
+                transactionDirection: addressTo === addressFrom ? 'self' : 'outcome',
+                transactionsScanLog: now + ' CREATED ' + txRBFed
+            }
+            if (typeof tx.amountForTx !== 'undefined') {
+                transaction.addressAmount = tx.amountForTx
+            }
+            if (typeof tx.blockHash !== 'undefined') {
+                transaction.blockHash = tx.blockHash
+            }
+            if (typeof tx.transactionStatus !== 'undefined') {
+                transaction.transactionStatus = tx.transactionStatus
+            }
+            if (transaction.addressTo === addressFrom) {
+                transaction.addressTo = ''
+                transaction.transactionDirection = 'self'
+            }
+            if (typeof tx.transactionTimestamp !== 'undefined' && tx.transactionTimestamp) {
+                transaction.createdAt = new Date(tx.transactionTimestamp).toISOString()
+                transaction.updatedAt = new Date(tx.transactionTimestamp).toISOString()
+            }
 
-        const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+            await logSendSell(transaction, tx, logData, sendScreenStore)
 
-        if (config.debug.sendLogs) {
-            console.log('SendActionsEnd.saveTx new', transaction)
+            await logFio(transaction, tx, logData, sendScreenStore)
+
+            const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+
+            // @ts-ignore
+            await transactionActions.saveTransaction(transaction, line + ' HANDLE SEND ')
         }
-
-        // @ts-ignore
-        await transactionActions.saveTransaction(transaction, line + ' HANDLE SEND ')
     }
 
 }

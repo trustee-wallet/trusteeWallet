@@ -20,6 +20,10 @@ const INITIAL_STATE = {
             bseTrusteeFee : false,
             bseOrderData : false
         },
+        tbk: {
+            transactionBoost : false,
+            transactionAction : false
+        },
         fioRequestDetails : false
     },
     dict : {

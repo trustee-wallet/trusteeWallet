@@ -851,7 +851,7 @@
         "title": "Вручную",
         "fixedFeeTitle": "ФИКСИРОВАННАЯ\nКОМИССИЯ",
         "customFeeTitle": "УСТАНОВИТЬ\nВРУЧНУЮ",
-        "calculetedFee": "Расчетная комиссия:",
+        "calculatedFee": "Расчетная комиссия:",
         "eth": {
           "gasPrice": "Цена за газ",
           "gasLimit": "Лимит газа",

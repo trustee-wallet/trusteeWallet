@@ -22,8 +22,9 @@ class ReceiptData extends React.PureComponent {
     render() {
         const { colors, GRID_SIZE } = this.context
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStoreDict
-        const { addressTo, memo, comment, isFioRequest, bse, addressName } = this.props.sendScreenStoreUi
+        const { addressTo, memo, comment, isFioRequest, bse, addressName, tbk } = this.props.sendScreenStoreUi
         const { bseOrderId } = bse
+        const { transactionAction, transactionBoost } = tbk
 
         let memoTitle = strings('send.xrp_memo')
         if (currencyCode === 'XMR' || currencyCode === 'XLM') {
@@ -44,6 +45,24 @@ class ReceiptData extends React.PureComponent {
                 />
                 : null
             }
+            {transactionAction === 'transactionReplaceByFee' ?
+                <CheckData
+                    name={strings('send.receiptScreen.replaceTransactionHash')}
+                    value={BlocksoftPrettyStrings.makeCut(transactionBoost.transactionHash, 6)}
+                />
+                : null}
+            {transactionAction === 'transactionRemoveByFee' ?
+                <CheckData
+                    name={strings('send.receiptScreen.removeTransactionHash')}
+                    value={BlocksoftPrettyStrings.makeCut(transactionBoost.transactionHash, 6)}
+                />
+                : null}
+            {transactionAction === 'transactionSpeedUp' ?
+                <CheckData
+                    name={strings('send.receiptScreen.speedUpTransactionHash')}
+                    value={BlocksoftPrettyStrings.makeCut(transactionBoost.transactionHash, 6)}
+                />
+                : null}
             {typeof addressName !== 'undefined' && addressName && addressName !== '' ?
                 <CheckData
                     name={strings('send.receiptScreen.recepient')}
