@@ -5,16 +5,15 @@ import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
-
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { strings } from '@app/services/i18n'
 
+import NavStore from '@app/components/navigation/NavStore'
 import AddressInput from '@app/components/elements/NewInput'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
-import NavStore from '@app/components/navigation/NavStore'
 import { SendActionsContactBook } from '@app/appstores/Stores/Send/SendActionsContactBook'
 
 const addressInput = {

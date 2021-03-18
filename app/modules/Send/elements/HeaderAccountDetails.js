@@ -3,7 +3,6 @@
  */
 import React from 'react'
 import { View, Text, TouchableOpacity, Platform, StyleSheet } from 'react-native'
-import { connect } from 'react-redux'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import Log from '@app/services/Log/Log'
@@ -71,7 +70,7 @@ class HeaderAccountDetails extends React.PureComponent {
 
 HeaderAccountDetails.contextType = ThemeContext
 
-export default connect(null, {})(HeaderAccountDetails)
+export default HeaderAccountDetails
 
 const styles = StyleSheet.create({
     accountDetail: {

@@ -2,7 +2,6 @@
  * @version 0.41
  */
 import React from 'react'
-import { connect } from 'react-redux'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
@@ -50,4 +49,4 @@ class MinerFee extends React.PureComponent {
 
 MinerFee.contextType = ThemeContext
 
-export default connect(null, {})(MinerFee)
+export default MinerFee

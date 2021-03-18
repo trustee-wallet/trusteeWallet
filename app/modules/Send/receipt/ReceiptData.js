@@ -3,7 +3,6 @@
  */
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
-import { connect } from 'react-redux'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
@@ -103,7 +102,7 @@ class ReceiptData extends React.PureComponent {
 
 ReceiptData.contextType = ThemeContext
 
-export default connect(null, {})(ReceiptData)
+export default ReceiptData
 
 const styles = StyleSheet.create({
     info: {

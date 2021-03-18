@@ -1,8 +1,7 @@
 /**
  * @version 0.41
  */
-import React, { Component } from 'react'
-import NavStore from '@app/components/navigation/NavStore'
+import { Component } from 'react'
 
 export default class SendBasicScreen extends Component {
 
@@ -10,5 +9,4 @@ export default class SendBasicScreen extends Component {
         const headerHeight = Math.round(height || 0)
         this.setState(() => ({ headerHeight }))
     }
-
 }

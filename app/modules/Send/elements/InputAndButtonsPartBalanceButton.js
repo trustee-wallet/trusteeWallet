@@ -10,7 +10,7 @@ import { useTheme } from '@app/modules/theme/ThemeProvider'
 const InputAndButtonsPartBalanceButton = (props) => {
 
     const { colors } = useTheme()
-    const { text, type, action, inverse } = props
+    const { text, action, inverse } = props
 
     return (
         <TouchableOpacity style={{...styles.button, backgroundColor: inverse ? colors.common.text1 : colors.common.background, borderColor: colors.common.text1}} onPress={action}>
