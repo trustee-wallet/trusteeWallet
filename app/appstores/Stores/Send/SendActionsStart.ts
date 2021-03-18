@@ -111,7 +111,7 @@ export namespace SendActionsStart {
             addressTo : addressToForTransferAll,
             cryptoValue : '0',
             isTransferAll : true,
-            memo : data.memo : false
+            memo : data.memo || false
         }
         dispatch({
             type: 'RESET_DATA',
