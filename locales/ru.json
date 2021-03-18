@@ -489,6 +489,8 @@
       "self" : "Себе",
       "freeze" : "Заморозка",
       "claim" : "Награда",
+      "swap_income" : "Contract Входящая",
+      "swap_outcome" : "Contract Исходящая",
       "exchange": "Обмен",
       "buy": "Покупка",
       "sell": "Продажа",
@@ -849,7 +851,7 @@
         "title": "Вручную",
         "fixedFeeTitle": "ФИКСИРОВАННАЯ\nКОМИССИЯ",
         "customFeeTitle": "УСТАНОВИТЬ\nВРУЧНУЮ",
-        "calculetedFee": "Расчетная комиссия:",
+        "calculatedFee": "Расчетная комиссия:",
         "eth": {
           "gasPrice": "Цена за газ",
           "gasLimit": "Лимит газа",

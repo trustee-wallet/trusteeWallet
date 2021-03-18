@@ -13,7 +13,6 @@ import NavStore from '../../components/navigation/NavStore'
 
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { strings } from '../../services/i18n'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import _ from 'lodash'
 
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
@@ -26,6 +25,7 @@ import { openQrGallery } from '../../services/UI/Qr/QrGallery'
 import Header from '../../components/elements/new/Header'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
 const SCREEN_WIDTH = Dimensions.get('window').width
@@ -159,23 +159,8 @@ class QRCodeScannerScreen extends Component {
                 }
 
                 const parsed = res.data
-                await SendActions.cleanData()
-                SendActions.setUiType({
-                    ui: {
-                        uiType: 'MAIN_SCANNER',
-                        uiInputType: parsed.amount ? 'CRYPTO' : 'any',
-                        uiInputAddress: typeof parsed.address !== 'undefined' && parsed.address && parsed.address !== ''
-                    },
-                    addData: {
-                        gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
-                        comment: parsed.label
-                    }
-                })
-                await SendActions.startSend({
-                    addressTo: parsed.address,
-                    amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
-                    currencyCode: parsed.currencyCode,
-                })
+                parsed.currencyCode = cryptoCurrency.currencyCode
+                await SendActionsStart.startFromQRCodeScanner(parsed,'MAIN_SCANNER')
             } else if (type === 'ADD_CUSTOM_TOKEN_SCANNER') {
                 NavStore.goNext('AddAssetScreen', {
                     tokenData: {
@@ -184,27 +169,9 @@ class QRCodeScannerScreen extends Component {
                 })
             } else if (type === 'SEND_SCANNER') {
                 if (res.status === 'success' && res.data.currencyCode === currencyCode) {
-
                     const parsed = res.data
-                    parsed.currencyCode = oldCurrency.currencyCode
-                    await SendActions.cleanData()
-                    SendActions.setUiType({
-                        ui: {
-                            uiType: 'SEND_SCANNER',
-                            uiInputType: parsed.amount ? 'CRYPTO' : 'any',
-                            uiInputAddress: typeof parsed.address !== 'undefined' && parsed.address && parsed.address !== ''
-                        },
-                        addData: {
-                            gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
-                            comment: parsed.label
-                        }
-                    })
-                    await SendActions.startSend({
-                        addressTo: parsed.address,
-                        amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
-                        currencyCode: parsed.currencyCode,
-                    })
-
+                    parsed.currencyCode = currencyCode
+                    await SendActionsStart.startFromQRCodeScanner(parsed, 'SEND_SCANNER')
                 } else if (res.status === 'success' && res.data.currencyCode !== currencyCode) {
                     showModal({
                         type: 'INFO_MODAL',
@@ -218,17 +185,11 @@ class QRCodeScannerScreen extends Component {
                         }
                     })
                 } else {
-                    await SendActions.cleanData()
-                    SendActions.setUiType({
-                        ui: {
-                            uiType: 'SEND_SCANNER',
-                            uiInputAddress: typeof res.data.parsedUrl !== 'undefined' && res.data.parsedUrl && res.data.parsedUrl !== ''
-                        }
-                    })
-                    await SendActions.startSend({
-                        addressTo: res.data.parsedUrl,
-                        currencyCode: oldCurrency.currencyCode,
-                    })
+                    const parsed = {
+                        address : res.data.parsedUrl,
+                        currencyCode
+                    }
+                    await SendActionsStart.startFromQRCodeScanner(parsed, 'SEND_SCANNER')
                 }
             }
         } catch (e) {

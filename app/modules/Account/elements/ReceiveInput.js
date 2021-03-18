@@ -19,7 +19,7 @@ import Log from '../../../services/Log/Log'
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 
-class Input extends Component {
+class ReceiveInput extends Component {
 
     constructor(props) {
         super(props)
@@ -72,14 +72,14 @@ class Input extends Component {
             value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
             this.setState({
                 value,
-                fontSize: value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
+                fontSize: value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
             })
         } else {
             const validation = await Validator.arrayValidation([{ id, name, type, subtype, cuttype, value }])
             this.setState({
                 value,
                 errors: validation.errorArr,
-                fontSize: value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40 
+                fontSize: value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
             })
         }
 
@@ -187,7 +187,7 @@ class Input extends Component {
 
         return (
             <View style={styles.wrapper}>
-                <TextInput 
+                <TextInput
                     ref={component => this.valueInput = component}
                     keyboardType={'numeric'}
                     placeholder={'0.00'}
@@ -196,8 +196,8 @@ class Input extends Component {
                     selectionColor={'#7127ac'}
                     textAlign={'center'}
                     value={value}
-                    style={noEdit ? { ...styles.fontFamily, color: colors.sendScreen.amount, maxWidth: maxWidth } : 
-                        { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : colors.sendScreen.amount, maxWidth: maxWidth, lineHeight: fontSize + 4, 
+                    style={noEdit ? { ...styles.fontFamily, color: colors.sendScreen.amount, maxWidth: maxWidth } :
+                        { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : colors.sendScreen.amount, maxWidth: maxWidth, lineHeight: fontSize + 4,
                         bottom: Platform.OS === 'android' ? fontSize === 20 ? -6 : 0 : fontSize === 20 ? -4 : 0 }}
                     onChangeText={(value) => this.handleInput(value)}
                     onBlur={() => {
@@ -218,9 +218,9 @@ class Input extends Component {
     }
 }
 
-Input.contextType = ThemeContext
+ReceiveInput.contextType = ThemeContext
 
-export default connect(null, null, null, { forwardRef: true })(Input)
+export default connect(null, null, null, { forwardRef: true })(ReceiveInput)
 
 const styles = {
     wrapper: {

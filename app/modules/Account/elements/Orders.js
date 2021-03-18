@@ -204,8 +204,7 @@ class Orders extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        settingsStore: state.settingsStore,
-        exchangeStore: state.exchangeStore
+        settingsStore: state.settingsStore
     }
 }
 

@@ -194,12 +194,15 @@ export default class XmrScannerProcessor {
     }
 
     /**
-     * @param {string} address
-     * @param {*} additionalData
-     *  @param {string} walletHash
+     * @param {string} scanData.account.address
+     * @param {*} scanData.additional
+     * @param {string} scanData.account.walletHash
      * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactionsBlockchain(address, additionalData, walletHash) {
+    async getTransactionsBlockchain(scanData, source = '') {
+        const address = scanData.account.address.trim()
+        const additionalData = scanData.additional
+        const walletHash = scanData.account.walletHash
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor.getTransactions started ' + address + ' of ' + walletHash)
         const res = await this._get(address, additionalData, walletHash)
         if (!res || typeof res === 'undefined') return []

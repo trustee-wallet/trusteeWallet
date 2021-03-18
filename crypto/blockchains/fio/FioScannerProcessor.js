@@ -58,12 +58,13 @@ export default class FioScannerProcessor {
     }
 
     /**
-     * @param {string} address
-     * @param {*} additionalData
-     *  @param {string} walletHash
-     * @return {Promise<UnifiedTransaction[]>}
+     * @param {string} scanData.account.address
+     * @param {string} scanData.account.walletHash
+     * @return {Promise<[UnifiedTransaction]>}
      */
-    async getTransactionsBlockchain(address, additionalData, walletHash) {
+    async getTransactionsBlockchain(scanData) {
+        const address = scanData.account.address.trim()
+        const walletHash = scanData.account.walletHash
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' FioScannerProcessor.getTransactionsBlockchain started ' + address + ' of ' + walletHash)
         const response = await getTransactions(address)
         const actions = response['actions'] || []

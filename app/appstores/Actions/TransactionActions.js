@@ -127,7 +127,7 @@ const transactionActions = {
 
     preformatWithBSEforShowInner(transaction) {
         const direction = transaction.transactionDirection
-        transaction.addressAmountPrettyPrefix = (direction === 'outcome' || direction === 'self' || direction === 'freeze') ? '-' : '+'
+        transaction.addressAmountPrettyPrefix = (direction === 'outcome' || direction === 'self' || direction === 'freeze' || direction === 'swap_outcome') ? '-' : '+'
         if (typeof transaction.wayType === 'undefined' || !transaction.wayType) {
             transaction.wayType = transaction.transactionDirection
         }

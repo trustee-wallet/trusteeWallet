@@ -29,6 +29,7 @@ class MarketingEvent {
         LOG_WALLET: '',
         LOG_CASHBACK: '',
         LOG_PARENT: '',
+        LOG_DEV : false,
         LOG_TESTER: false
     }
 

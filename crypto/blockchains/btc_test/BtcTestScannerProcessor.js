@@ -56,11 +56,11 @@ export default class BtcTestScannerProcessor {
 
     /**
      * https://testnet-api.smartbit.com.au/v1/blockchain/address/mn5hqUL6kXUV4yocWxfJh9JGBv7mT3MgJe
-     * @param {string} address
-     * @param {*} jsonData
+     * @param {string} scanData.account.address
      * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactionsBlockchain(address, jsonData = {}) {
+    async getTransactionsBlockchain(scanData) {
+        const address = scanData.account.address.trim()
         BlocksoftCryptoLog.log('BtcTestScannerProcessor.getTransactions started ' + address)
         const res = await this._get(address)
         if (!res || typeof res.transactions === 'undefined') {
