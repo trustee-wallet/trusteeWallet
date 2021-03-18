@@ -205,7 +205,7 @@ export namespace SendActionsEnd {
 
         let txRBF = false
         let txRBFed = ''
-        if (typeof transactionAction !== 'undefined' && transactionAction !== '') {
+        if (typeof transactionAction !== 'undefined' && transactionAction && transactionAction !== '') {
             if (transactionAction === 'transactionRemoveByFee') {
                 txRBF = transactionBoost.transactionHash
                 txRBFed = 'RBFremoved'

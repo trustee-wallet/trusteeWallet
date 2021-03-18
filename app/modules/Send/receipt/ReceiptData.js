@@ -22,6 +22,7 @@ class ReceiptData extends React.PureComponent {
     render() {
         const { colors, GRID_SIZE } = this.context
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStoreDict
+        const { blockchainData }= this.props.sendScreenStoreSelectedFee
         const { addressTo, memo, comment, isFioRequest, bse, addressName, tbk } = this.props.sendScreenStoreUi
         const { bseOrderId } = bse
         const { transactionAction, transactionBoost } = tbk
@@ -37,6 +38,15 @@ class ReceiptData extends React.PureComponent {
 
         let multiAddress = []
         let multiShow = false
+        if (typeof blockchainData !== 'undefined'
+            && typeof blockchainData.preparedInputsOutputs !== 'undefined'
+            && typeof blockchainData.preparedInputsOutputs.multiAddress !== 'undefined'
+        ) {
+            multiAddress = blockchainData.preparedInputsOutputs.multiAddress
+            if (multiAddress.length > 1) {
+                multiShow = true
+            }
+        }
         return <View>
             {typeof bseOrderId === 'undefined' || !bseOrderId ?
                 <CheckData

@@ -15,7 +15,8 @@ const { dispatch } = store
 
 const CACHE_DATA = {
     countedFeesData: {} as BlocksoftBlockchainTypes.TransferData,
-    transferAllBalance: '0'
+    transferAllBalance: '0',
+    additionalData : false as any
 }
 export namespace SendActionsBlockchainWrapper {
 
@@ -46,7 +47,7 @@ export namespace SendActionsBlockchainWrapper {
             useLegacy: walletUseLegacy,
             isHd: walletIsHd,
             accountJson,
-            transactionJson : {}
+            transactionJson: {}
         } as BlocksoftBlockchainTypes.TransferData
 
         if (typeof additional.tbk !== 'undefined' && additional.tbk && additional.tbk.transactionAction) {
@@ -64,6 +65,7 @@ export namespace SendActionsBlockchainWrapper {
             }
         }
 
+        CACHE_DATA.additionalData = false
         if (JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
             return
         }
@@ -71,12 +73,14 @@ export namespace SendActionsBlockchainWrapper {
             CACHE_DATA.transferAllBalance = '0'
         }
         CACHE_DATA.countedFeesData = newCountedFeesData
+
     }
 
     export const getCustomFeeRate = async (newFee : any) => {
         try {
             const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
-            const countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData, newFee )
+            const countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData,
+                CACHE_DATA.additionalData ? {...newFee, ... CACHE_DATA.additionalData} : newFee )
             let selectedFee = false
             if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
                 // @ts-ignore
@@ -116,11 +120,14 @@ export namespace SendActionsBlockchainWrapper {
             if (JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
                 return
             }
-            const countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData)
+            const countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData, CACHE_DATA.additionalData ? CACHE_DATA.additionalData : {})
             let selectedFee = false
             if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
                 // @ts-ignore
                 selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
+            }
+            if (typeof countedFees.additionalData !== 'undefined' && countedFees.additionalData) {
+                CACHE_DATA.additionalData = countedFees.additionalData
             }
             CACHE_DATA.countedFeesData = newCountedFeesData
 
@@ -168,11 +175,14 @@ export namespace SendActionsBlockchainWrapper {
             if (JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
                 return CACHE_DATA.transferAllBalance
             }
-            const countedFees = await BlocksoftTransfer.getTransferAllBalance(newCountedFeesData)
+            const countedFees = await BlocksoftTransfer.getTransferAllBalance(newCountedFeesData, CACHE_DATA.additionalData ? CACHE_DATA.additionalData : {})
             let selectedFee = false
             if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
                 // @ts-ignore
                 selectedFee = countedFees.fees[countedFees.selectedFeeIndex]
+            }
+            if (typeof countedFees.additionalData !== 'undefined' && countedFees.additionalData) {
+                CACHE_DATA.additionalData = countedFees.additionalData
             }
             const transferAllBalance = countedFees.selectedTransferAllBalance
             CACHE_DATA.countedFeesData = newCountedFeesData
@@ -213,6 +223,6 @@ export namespace SendActionsBlockchainWrapper {
         newCountedFeesData.memo = uiData.memo
         newCountedFeesData.isTransferAll = uiData.isTransferAll
 
-        return await BlocksoftTransfer.sendTx(newCountedFeesData, { uiErrorConfirmed, selectedFee })
+        return BlocksoftTransfer.sendTx(newCountedFeesData, { uiErrorConfirmed, selectedFee }, {})
     }
 }

@@ -49,7 +49,7 @@ export namespace SendActionsUpdateValues {
             }
             if (config.debug.sendLogs) {
                 console.log('')
-                console.log('NEW_FEE', JSON.stringify(newFee))
+                console.log('NEW_FEE', JSON.parse(JSON.stringify(newFee)))
                 console.log('')
             }
             dispatch({

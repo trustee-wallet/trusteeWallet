@@ -144,10 +144,20 @@ class ReceiptScreen extends SendBasicScreen {
         }
 
         if (tx) {
-            await SendActionsEnd.saveTx(tx, this.props.sendScreenStore)
-            setLoaderStatus(false)
-            CACHE_IS_SENDING = false
-            await SendActionsEnd.endRedirect(tx, this.props.sendScreenStore)
+            try {
+                await SendActionsEnd.saveTx(tx, this.props.sendScreenStore)
+                setLoaderStatus(false)
+                CACHE_IS_SENDING = false
+                await SendActionsEnd.endRedirect(tx, this.props.sendScreenStore)
+
+            } catch (e1) {
+                if (config.debug.appErrors) {
+                    console.log('ReceiptScreen.handleSendSaveTx error ' + e.message)
+                }
+                Log.log('ReceiptScreen.handleSendSaveTx error ' + e.message)
+                setLoaderStatus(false)
+                CACHE_IS_SENDING = false
+            }
         } else {
             setLoaderStatus(false)
             CACHE_IS_SENDING = false
@@ -171,13 +181,15 @@ class ReceiptScreen extends SendBasicScreen {
 
         const { colors, GRID_SIZE, isLight } = this.context
 
+        const { selectedFee } = this.props.sendScreenStore.fromBlockchain
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStore.dict
         const { cryptoValue, bse } = this.props.sendScreenStore.ui
         const { bseOrderId } = bse
 
         const dict = new UIDict(currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
-        const amountPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(cryptoValue)
+        const value = selectedFee.amountForTx !== 'undefined' && selectedFee.amountForTx ? selectedFee.amountForTx : cryptoValue
+        const amountPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value)
 
         let amountPrettySeparated = 0
         let equivalent = false

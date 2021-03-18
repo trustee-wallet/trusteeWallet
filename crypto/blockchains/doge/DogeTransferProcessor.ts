@@ -385,8 +385,6 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
 
             isError = false
             // @ts-ignore
-            blockchainData.unspents = unspents
-            // @ts-ignore
             blockchainData.isTransferAll = data.isTransferAll
             blockchainData.isRBFed = { transactionRemoveByFee, transactionReplaceByFee, transactionSpeedUp }
 
@@ -423,6 +421,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 result.showSmallFeeNotice = new Date().getTime()
             }
         }
+        result.additionalData = { unspents }
 
         return result
     }
