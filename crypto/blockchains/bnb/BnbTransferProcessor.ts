@@ -34,6 +34,7 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const feeForTx = BlocksoftUtils.toUnified(fees.send, 8)
         const result: BlocksoftBlockchainTypes.FeeRateResult = {
             selectedFeeIndex: 0,
+            shouldShowFees : false,
             fees : [
                 {
                     langMsg: 'xrp_speed_one',
@@ -69,8 +70,8 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
         result.fees[result.selectedFeeIndex].amountForTx = newAmount
         const tmp = {
             ...result,
-            selectedTransferAllBalance: result.fees[result.selectedFeeIndex].amountForTx,
-            shouldChangeBalance: true
+            shouldShowFees : false,
+            selectedTransferAllBalance: result.fees[result.selectedFeeIndex].amountForTx
         }
         // console.log('tmp', JSON.stringify(tmp))
         return tmp

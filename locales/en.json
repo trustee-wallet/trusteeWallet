@@ -488,6 +488,8 @@
       "income": "Income",
       "freeze" : "Freeze",
       "claim" : "Claim",
+      "swap_income" : "Contract Income",
+      "swap_outcome" : "Contract Outcome",
       "self": "Self",
       "exchange": "Exchange",
       "buy": "Buy",
@@ -849,7 +851,7 @@
         "title": "Manually",
         "fixedFeeTitle": "FIXED FEE",
         "customFeeTitle": "SET\nMANUALLY",
-        "calculetedFee": "Calculeted fee:",
+        "calculatedFee": "Calculated fee:",
         "eth": {
           "gasPrice": "Gas price",
           "gasLimit": "Gas limit",

@@ -25,6 +25,7 @@ export default class FioTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const { fee = 0 } = await getFioSdk().getFee('transfer_tokens_pub_key')
         const result: BlocksoftBlockchainTypes.FeeRateResult = {
             selectedFeeIndex: 0,
+            shouldShowFees : false,
             fees : [
                 {
                     langMsg: 'xrp_speed_one',
@@ -67,8 +68,7 @@ export default class FioTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     amountForTx: diff
                 }
             ],
-            selectedTransferAllBalance: diff,
-            shouldChangeBalance: false
+            selectedTransferAllBalance: diff
         } as BlocksoftBlockchainTypes.TransferAllBalanceResult
         return result
     }

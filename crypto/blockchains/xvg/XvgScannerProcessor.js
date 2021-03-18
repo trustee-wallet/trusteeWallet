@@ -39,11 +39,13 @@ export default class XvgScannerProcessor {
     }
 
     /**
-     * @param {string} address
+     * @param {string} scanData.account.address
+     * @param {*} scanData.additional
+     * @param {string} scanData.account.walletHash
      * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactionsBlockchain(address) {
-        address = address.trim()
+    async getTransactionsBlockchain(scanData, source = '') {
+        const address = scanData.account.address.trim()
         BlocksoftCryptoLog.log('XvgScannerProcessor.getTransactions started ' + address)
         const link = `${API_PATH}/address/${address}/txs`
         BlocksoftCryptoLog.log('XvgScannerProcessor.getTransactions call ' + link)

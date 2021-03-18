@@ -1,22 +1,16 @@
 /**
- * @version 0.1
+ * @version 0.41
  * @author yura
  */
-
 import React from 'react'
-import {
-    Text,
-    TouchableOpacity,
-    View,
-    StyleSheet,
-} from 'react-native'
+import { Text, TouchableOpacity, StyleSheet } from 'react-native'
 
-import { useTheme } from '../../../modules/theme/ThemeProvider'
+import { useTheme } from '@app/modules/theme/ThemeProvider'
 
-const PartBalanceButton = (props) => {
+const InputAndButtonsPartBalanceButton = (props) => {
 
     const { colors } = useTheme()
-    const { text, type, action, inverse } = props
+    const { text, action, inverse } = props
 
     return (
         <TouchableOpacity style={{...styles.button, backgroundColor: inverse ? colors.common.text1 : colors.common.background, borderColor: colors.common.text1}} onPress={action}>
@@ -25,9 +19,9 @@ const PartBalanceButton = (props) => {
     )
 }
 
-export default PartBalanceButton
+export default InputAndButtonsPartBalanceButton
 
-const styles = {
+const styles = StyleSheet.create({
     button: {
         borderWidth: 2,
         height: 40,
@@ -41,4 +35,4 @@ const styles = {
         fontSize: 16,
         color: '#5C5C5C'
     }
-}
+})

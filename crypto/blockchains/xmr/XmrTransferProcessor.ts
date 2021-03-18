@@ -171,14 +171,15 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -2,
                 fees: [],
+                shouldShowFees : false,
                 countedForBasicBalance: balance
             }
         }
         // @ts-ignore
         return {
             ...result,
+            shouldShowFees : false,
             selectedTransferAllBalance: result.fees[result.selectedFeeIndex].amountForTx,
-            shouldChangeBalance: true,
             countedForBasicBalance: balance
         }
     }

@@ -102,10 +102,15 @@ async function replaceTx(old, txid, notReplacing) {
 }
 
 export default class EthScannerProcessorUAX extends EthScannerProcessorErc20 {
-    async getTransactionsBlockchain(address) {
+    /**
+     * @param {string} scanData.account.address
+     * @return {Promise<[UnifiedTransaction]>}
+     */
+    async getTransactionsBlockchain(scanData) {
+        const address = scanData.account.address.toLowerCase()
         BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions started ' + address)
 
-        const txsBasic = await super.getTransactionsBlockchain(address)
+        const txsBasic = await super.getTransactionsBlockchain(scanData)
         const now = new Date().getTime()
         let txs
         if (CACHED.time > 0 && now - CACHED.time < CACHE_VALID_TIME) {

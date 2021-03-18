@@ -15,7 +15,6 @@ import CustomIcon from '../../../components/elements/CustomIcon'
 import { strings } from '../../../services/i18n'
 
 import ToolTipsActions from '../../../appstores/Stores/ToolTips/ToolTipsActions'
-import ExchangeActions from '../../../appstores/Stores/Exchange/ExchangeActions'
 
 import Log from '../../../services/Log/Log'
 import Netinfo from '../../../services/Netinfo/Netinfo'
@@ -60,21 +59,6 @@ class BottomNavigation extends Component {
         NavStore.goNext('SellV3ScreenStack')
     }
 
-    _showModalNoOldConfigs = async () => {
-        if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
-            setLoaderStatus(true)
-            await ExchangeActions.init()
-            setLoaderStatus(false)
-        }
-        if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: 'INFO',
-                title: strings('modal.exchange.sorry'),
-                description: strings('tradeScreen.modalError.serviceUnavailable')
-            })
-        }
-    }
 
     handleMainBtn = async (type) => {
         try {
@@ -87,8 +71,7 @@ class BottomNavigation extends Component {
             } else if (type === 'BUY') {
                     NavStore.goNext('MainV3DataScreen', { tradeType: 'BUY' })
             } else {
-                await this._showModalNoOldConfigs()
-                NavStore.goNext('TradeScreenStack')
+               throw new Error('plz use type SELL or BUY, provided ' + tradeType)
             }
 
         } catch (e) {
@@ -157,47 +140,45 @@ class BottomNavigation extends Component {
                 </View>
                 <View style={[styles.contentWrapper, { backgroundColor: colors.homeScreen.tabBarBackground }]}>
                     <View style={styles.itemStub} />
-                    {config.exchange.mode === 'DEV' ? 
-                        <View style={{ flexDirection: 'row', flex: 6 }}>
-                            <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleMainMarket}>
-                                <CustomIcon name="buy" style={{ color: colors.common.text1 }} size={21} />
-                                <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.market')}</Text>
-                            </TouchableOpacity>
+                        {config.exchange.mode === 'DEV' ?
+                            <>
+                                <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleMainMarket}>
+                                    <CustomIcon name="buy" style={{ color: colors.common.text1 }} size={21} />
+                                    <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.market')}</Text>
+                                </TouchableOpacity>
 
-                            <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleCashback}>
-                                <CustomIcon name="earn" style={{ color: colors.common.text1 }} size={20} />
-                                <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.earn')}</Text>
-                            </TouchableOpacity>
+                                <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleCashback}>
+                                    <CustomIcon name="earn" style={{ color: colors.common.text1 }} size={20} />
+                                    <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.earn')}</Text>
+                                </TouchableOpacity>
 
-                            <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleSupport}>
-                                <CustomIcon name="support" style={{ color: colors.common.text1 }} size={20} />
-                                <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.support')}</Text>
-                            </TouchableOpacity>
-                        </View> 
-                        :
-                        <View style={{ flexDirection: 'row', flex: 8 }}>
-                            <View style={{ alignItems: 'center', flex: 4 }}>
-                                <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={150}
-                                    MainComponent={this.returnBuyTooltip} />
-                            </View>
-                            {/* </TouchableOpacity> */}
+                                <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleSupport}>
+                                    <CustomIcon name="support" style={{ color: colors.common.text1 }} size={20} />
+                                    <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.support')}</Text>
+                                </TouchableOpacity>
+                            </>
+                            :
+                            <>
+                                <View style={{ alignItems: 'center', flex: 4}}>
+                                    <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={150}
+                                        MainComponent={this.returnBuyTooltip} />
+                                </View>
 
-                            <View style={{ alignItems: 'center', flex: 4 }}>
-                                <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={150} MainComponent={this.renderExchangeTooltip} />
-                            </View>
-                            {/* </TouchableOpacity> */}
+                                <View style={{ alignItems: 'center', flex: 4}}>
+                                    <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={150} MainComponent={this.renderExchangeTooltip} />
+                                </View>
 
-                            <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={() => this.handleMainBtn('SELL')}>
-                                <CustomIcon name="sell" style={{ color: colors.common.text1 }} size={21} />
-                                <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.sell')}</Text>
-                            </TouchableOpacity>
+                                <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={() => this.handleMainBtn('SELL')}>
+                                    <CustomIcon name="sell" style={{ color: colors.common.text1 }} size={21} />
+                                    <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.sell')}</Text>
+                                </TouchableOpacity>
 
-                            <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={this.handleCashback}>
-                                <CustomIcon name="earn" style={{ color: colors.common.text1 }} size={20} />
-                                <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.earn')}</Text>
-                            </TouchableOpacity>
-                        </View>
-                    }
+                                <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={this.handleCashback}>
+                                    <CustomIcon name="earn" style={{ color: colors.common.text1 }} size={20} />
+                                    <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]} numberOfLines={1} >{strings('dashboardStack.earn')}</Text>
+                                </TouchableOpacity>
+                            </>
+                        }
 
                     <View style={styles.itemStub} />
                 </View>
@@ -208,7 +189,6 @@ class BottomNavigation extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        exchangeStore: state.exchangeStore,
         language: state.settingsStore.data.language
     }
 }

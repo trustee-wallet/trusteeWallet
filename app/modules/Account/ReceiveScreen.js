@@ -64,7 +64,7 @@ import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfe
 import Buttons from './elements/buttons'
 import Tabs from '../../components/elements/new/Tabs'
 
-import AmountInput from '../Send/elements/Input'
+import AmountInput from './elements/ReceiveInput'
 import { normalizeInputWithDecimals } from '../../services/UI/Normalize/NormalizeInput'
 
 import UtilsService from '../../services/UI/PrettyNumber/UtilsService'
@@ -257,18 +257,8 @@ class ReceiveScreen extends Component {
     renderAccountDetail = () => {
 
         const { currencySymbol, currencyName, currencyCode } = this.props.cryptoCurrency
-        const { basicCurrencyRate, balancePretty, unconfirmedPretty } = this.props.account
-        const { walletUseUnconfirmed } = this.props.wallet
+        const { balanceTotalPretty, basicCurrencyBalanceTotal, basicCurrencySymbol } = this.props.account
         const { isBalanceVisible, originalVisibility } = this.state
-
-        const amountPretty = BlocksoftTransferUtils.getBalanceForTransfer({
-            walletUseUnconfirmed: walletUseUnconfirmed === 1,
-            balancePretty,
-            unconfirmedPretty,
-            currencyCode
-        })
-
-        const amountPrep = BlocksoftPrettyNumbers.makeCut(amountPretty).cutted
 
         const { colors } = this.context
 
@@ -277,19 +267,14 @@ class ReceiveScreen extends Component {
             cryptoCurrency: this.props.cryptoCurrency
         })
 
+        const amountPrep = BlocksoftPrettyNumbers.makeCut(balanceTotalPretty).cutted
         let sumPrep = amountPrep + ' ' + currencySymbol
-        if (amountPretty && currencyCode && basicCurrencyRate) {
-            try {
-                const basicCurrencySymbol = this.props.account.basicCurrencySymbol || '$'
-                const basicAmount = RateEquivalent.mul({ value: amountPretty, currencyCode, basicCurrencyRate })
-                const basicAmountPrep = BlocksoftPrettyNumbers.makeCut(basicAmount, 2).cutted
-                sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicAmountPrep
-            } catch (e) {
-                Log.err('Send.SendScreen renderAccountDetail error ' + e.message)
-            }
+        try {
+            sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicCurrencyBalanceTotal
+        } catch (e) {
+            Log.err('Send.SendScreen renderAccountDetail error ' + e.message)
         }
 
-        // const currencyAmountPrep = BlocksoftPrettyNumbers.makeCut(balancePretty).separated
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View>
@@ -311,8 +296,8 @@ class ReceiveScreen extends Component {
                                         disabled={originalVisibility}
                                         hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
                                     >
-                                        {isBalanceVisible ? 
-                                            <LetterSpacing text={sumPrep} textStyle={{ ...styles.accountDetail__text, color: '#999999', height: Platform.OS === 'ios' ? 15 : 18, fontSize: 14}} letterSpacing={1} /> : 
+                                        {isBalanceVisible ?
+                                            <LetterSpacing text={sumPrep} textStyle={{ ...styles.accountDetail__text, color: '#999999', height: Platform.OS === 'ios' ? 15 : 18, fontSize: 14}} letterSpacing={1} /> :
                                                 <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, height: Platform.OS === 'ios' ? 15 : 18, fontSize: 24 }}>
                                                 ****</Text>
                                         }
@@ -766,7 +751,6 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         cryptoCurrency: state.mainStore.selectedCryptoCurrency,
         account: state.mainStore.selectedAccount,
-        exchangeStore: state.exchangeStore,
         settingsStore: state.settingsStore,
         wallet: state.mainStore.selectedWallet,
     }

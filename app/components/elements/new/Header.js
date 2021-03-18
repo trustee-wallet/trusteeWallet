@@ -89,7 +89,7 @@ export default class Header extends React.Component {
     processHeaderHeight = (e) => { this.props.setHeaderHeight?.(e.nativeEvent.layout.height) }
 
     render() {
-        const { title, setHeaderHeight, ExtraView, setStatusBar } = this.props
+        const { title, setHeaderHeight, ExtraView, ExtraViewParams, setStatusBar } = this.props
         const {
             colors,
             isLight,
@@ -122,7 +122,7 @@ export default class Header extends React.Component {
 
                     {ExtraView && (
                         <View style={[styles.extraView, { backgroundColor: colors.common.header.bg, paddingHorizontal: GRID_SIZE * 2 }]}>
-                            <ExtraView />
+                            <ExtraView ExtraViewParams={ExtraViewParams} />
                         </View>
                     )}
                 </View>

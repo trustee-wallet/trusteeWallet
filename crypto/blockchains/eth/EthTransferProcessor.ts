@@ -337,7 +337,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
         prevGasPrice = 0
         if (txRBF) {
-            if (result.fees.length < 2) {
+            let recheck = result.fees.length < 2
+            if (typeof additionalData.isCustomFee !== 'undefined' && additionalData.isCustomFee) {
+                recheck = result.fees.length === 0
+            }
+            if (recheck) {
                 for (let index = 0; index <= 2; index++) {
                     if (typeof result.fees[index] !== 'undefined') {
                         result.fees[index].langMsg = titles[index]
@@ -428,9 +432,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     feeForTx = BlocksoftUtils.mul(fee, gasLimit)
                     if (this._useThisBalance && (data.isTransferAll || txRBF)) {
                         amountForTx = BlocksoftUtils.diff(balance, feeForTx) // change amount for send all calculations
-                        if (txRBF) {
-                            result.shouldChangeBalance = true
-                        }
                     }
                 } else {
                     feeForTx = 0
@@ -529,7 +530,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 fee.showNonce = true
             }
         }
-
         result.showBigGasNotice = showBigGasNotice ? new Date().getTime() : 0
         return result
     }
@@ -581,8 +581,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         }
         return {
             ...fees,
-            selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].amountForTx,
-            shouldChangeBalance: true
+            selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].amountForTx
         }
     }
 

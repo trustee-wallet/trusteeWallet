@@ -54,7 +54,6 @@ import InsertShadow from 'react-native-inset-shadow'
 import GradientView from '../../components/elements/GradientView'
 import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 import config from '../../config/config'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import {
     setLoaderStatus,
     setSelectedAccount,
@@ -63,6 +62,7 @@ import {
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
+import { SendActionsStart } from '../../appstores/Stores/Send/SendActionsStart'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -170,7 +170,13 @@ class TransactionScreen extends Component {
                 currencyCode = transaction.currencyCode
             }
 
-            const { cryptoCurrency } = SendActions.findWalletPlus(currencyCode)
+            const { cryptoCurrencies } = store.getState().currencyStore
+            let cryptoCurrency = { currencyCode: false }
+            for (const tmp of cryptoCurrencies) {
+                if (tmp.currencyCode === currencyCode) {
+                    cryptoCurrency = tmp
+                }
+            }
 
             this.init(tx, cryptoCurrency)
 
@@ -613,7 +619,7 @@ class TransactionScreen extends Component {
 
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ color: colors.common.text1, fontSize: 17 }} />
 
-        if (transactionDirection === 'income' || transactionDirection === 'claim') {
+        if (transactionDirection === 'income' || transactionDirection === 'claim' || transactionDirection === 'swap_income') {
             arrowIcon = <Feather name={'arrow-down-left'} style={{ color: colors.common.text1, fontSize: 17 }} />
         }
         if (transactionDirection === 'self') {
@@ -697,21 +703,7 @@ class TransactionScreen extends Component {
             return false
         }
         array.push({ icon: 'canceled', title: strings('account.transactionScreen.removeRbf'), action: async () => {
-            await SendActions.cleanData()
-            SendActions.setUiType({
-                ui: {
-                    uiType : 'TRANSACTION_SCREEN_REMOVE'
-                },
-                addData: {
-                    gotoReceipt: true,
-                }
-            })
-            await SendActions.startSend({
-                addressTo : account.address,
-                amountRaw : transaction.addressAmount,
-                transactionRemoveByFee : transaction.transactionHash,
-                transactionBoost : transaction
-            })
+            await SendActionsStart.startFromTransactionScreenRemove(account, transaction)
         }})
 
     }
@@ -742,8 +734,7 @@ class TransactionScreen extends Component {
         if (!account || typeof account.currencyCode === 'undefined') {
             return false
         }
-        // Log.log('TransactionScreen.renderReplaceByFee', transaction)
-        if (transaction.transactionHash === 'undefined' || !transaction.transactionHash) {
+        if (transaction.transactionHash === 'undefined' || !transaction.transactionHash || transaction.transactionHash === '') {
             return false
         }
         if (transaction.transactionBlockchainStatus !== 'new' && transaction.transactionBlockchainStatus !== 'missing') {
@@ -757,9 +748,7 @@ class TransactionScreen extends Component {
             return false
         }
         array.push({ icon: 'rbf', title: strings('account.transactionScreen.booster'), action: async () => {
-
-
-                if (transaction.bseOrderData && typeof transaction.bseOrderData.disableTBK  !== 'undefined') {
+                if (transaction.bseOrderData && typeof transaction.bseOrderData.disableTBK !== 'undefined') {
                     if (transaction.bseOrderData.disableTBK) {
                         showModal({
                             type: 'INFO_MODAL',
@@ -770,28 +759,7 @@ class TransactionScreen extends Component {
                         return false
                     }
                 }
-
-            const params = {
-                amountRaw : transaction.addressAmount,
-                transactionBoost : transaction
-            }
-            if (transaction.transactionDirection === 'income') {
-                params.transactionSpeedUp = transaction.transactionHash
-                params.addressTo = account.address
-            } else {
-                params.transactionReplaceByFee = transaction.transactionHash
-                params.addressTo = transaction.addressTo
-            }
-            await SendActions.cleanData()
-            SendActions.setUiType({
-                ui: {
-                    uiType : 'TRANSACTION_SCREEN'
-                },
-                addData: {
-                    gotoReceipt: true,
-                }
-            })
-            await SendActions.startSend(params)
+                await SendActionsStart.startFromTransactionScreenBoost(account, transaction)
         }})
     }
 
@@ -1105,7 +1073,6 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         cryptoCurrency: state.mainStore.selectedCryptoCurrency,
         account: state.mainStore.selectedAccount,
-        exchangeStore: state.exchangeStore,
         settingsStore: state.settingsStore,
         cashBackStore: state.cashBackStore
     }

@@ -487,6 +487,8 @@
       "self": "სელფი",
       "freeze": "გაყინვა",
       "claim": "ჯილდო",
+      "swap_income" : "Contract Income",
+      "swap_outcome" : "Contract Outcome",
       "exchange": "გაცვლა",
       "buy": "ყიდვა",
       "sell": "გაყიდვა",
@@ -840,7 +842,7 @@
         "title": "Ручная",
         "fixedFeeTitle": "ფიქსირებული\nსაკომისიო",
         "customFeeTitle": "დაყენება\nხელით",
-        "calculetedFee": "საანგარიშო საკომისიო:",
+        "calculatedFee": "საანგარიშო საკომისიო:",
         "eth": {
           "gasPrice": "გაზის ფასი",
           "gasLimit": "გაზის ლიმიტი",
@@ -1062,7 +1064,7 @@
     "sell": "გაყიდვა",
     "wallet": "საფულე",
     "exchange": "გაცვლა",
-    "earn": "გამომუშავება",
+    "earn": "შოვნა",
     "settings": "მეტი",
     "support": "მხარდაჭერა",
     "market": "Market"

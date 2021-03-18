@@ -38,7 +38,7 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import { SendDeepLinking } from '@app/appstores/Stores/Send/SendDeepLinking'
-import { SendActions } from '@app/appstores/Stores/Send/SendActions'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { setLoaderStatus, setSelectedAccount, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
@@ -76,8 +76,7 @@ class HomeScreen extends React.Component {
             enableVerticalScroll: true
         }
         this.getCurrenciesOrder()
-        SendDeepLinking.init()
-        SendActions.cleanData()
+        SendDeepLinking.initDeepLinking()
     }
 
     componentDidMount() {
@@ -199,16 +198,8 @@ class HomeScreen extends React.Component {
     }
 
     // separated from stores not to be updated from outside
-    handleSend = async (cryptoCurrency) => {
-        await SendActions.cleanData()
-        SendActions.setUiType({
-            ui: {
-                uiType: 'HOME_SCREEN'
-            }
-        })
-        await SendActions.startSend({
-            currencyCode: cryptoCurrency.currencyCode
-        })
+    handleSend = async (cryptoCurrency, account) => {
+        await SendActionsStart.startFromHomeScreen(cryptoCurrency, account)
     }
 
     // linked to stores as rates / addresses could be changed outside
@@ -373,7 +364,7 @@ class HomeScreen extends React.Component {
                                     onDrag={drag}
                                     isActive={isActive}
                                     handleReceive={account => this.handleReceive(item, account)}
-                                    handleSend={() => this.handleSend(item)}
+                                    handleSend={account => this.handleSend(item, account)}
                                     handleHide={() => this.handleHide(item)}
                                     setScrollEnabled={this.setScrollEnabled}
                                 />

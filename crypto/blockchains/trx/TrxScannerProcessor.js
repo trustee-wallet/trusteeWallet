@@ -57,18 +57,17 @@ export default class TrxScannerProcessor {
 
 
     /**
-     * @param {string} address
-     * @return {Promise<[UnifiedTransaction]>}
      * https://github.com/jakeonchain/tron-wallet-chrome/blob/fecea42771cc5cbda3fada4a1c8cfe8de251c008/src/App.js
+     * @param  {string} scanData.account.address
+     * @return {Promise<[UnifiedTransaction]>}
      */
-    async getTransactionsBlockchain(address) {
-        address = address.trim()
+    async getTransactionsBlockchain(scanData) {
         let result
         if (this._tokenName[0] === 'T') {
             this._transactionsTrc20Provider.setLink(this._tokenName)
-            result = await this._transactionsTrc20Provider.get(address, this._tokenName)
+            result = await this._transactionsTrc20Provider.get(scanData, this._tokenName)
         } else {
-            result = await this._transactionsProvider.get(address, this._tokenName)
+            result = await this._transactionsProvider.get(scanData, this._tokenName)
         }
 
         return result

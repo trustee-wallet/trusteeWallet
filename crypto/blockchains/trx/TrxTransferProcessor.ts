@@ -11,6 +11,7 @@ import TrxTronscanProvider from './basic/TrxTronscanProvider'
 import TrxTrongridProvider from './basic/TrxTrongridProvider'
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 import BlocksoftDispatcher from '../BlocksoftDispatcher'
+import config from '@app/config/config'
 
 export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: any
@@ -63,7 +64,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             return { isOk: true }
         }
 
-        const transactionsBasic = await balanceProviderBasic.getTransactionsBlockchain(data.addressTo)
+        const transactionsBasic = await balanceProviderBasic.getTransactionsBlockchain({account : {address : data.addressTo}})
         if (transactionsBasic !== false) {
             return { isOk: true }
         }
@@ -72,11 +73,9 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         const result: BlocksoftBlockchainTypes.FeeRateResult = {
-            selectedFeeIndex: -3
+            selectedFeeIndex: -3,
+            shouldShowFees : false
         } as BlocksoftBlockchainTypes.FeeRateResult
-        if (data.addressTo && data.addressTo === data.addressFrom) {
-            return result
-        }
         try {
             const link = 'https://apilist.tronscan.org/api/account?address=' + data.addressFrom
             const res = await BlocksoftAxios.getWithoutBraking(link)
@@ -117,7 +116,10 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 result.selectedFeeIndex = 0
             }
         } catch (e) {
-            // do nothing
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate error ' + e.message)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate error ' + e.message)
         }
         return result
     }
@@ -132,6 +134,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -1,
                 fees: [],
+                shouldShowFees : false,
                 countedForBasicBalance: '0'
             }
         }
@@ -141,13 +144,14 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 selectedTransferAllBalance: balance,
                 selectedFeeIndex: -3,
                 fees: [],
+                shouldShowFees : false,
                 countedForBasicBalance: balance
             }
         }
         return {
             ...fees,
-            selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].amountForTx,
-            shouldChangeBalance: false
+            shouldShowFees : false,
+            selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].amountForTx
         }
     }
 

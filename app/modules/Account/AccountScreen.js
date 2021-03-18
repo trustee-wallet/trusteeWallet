@@ -23,7 +23,6 @@ import Transaction from './elements/Transaction'
 import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus, setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
 
 import Log from '../../services/Log/Log'
 import checkTransferHasError from '../../services/UI/CheckTransferHasError/CheckTransferHasError'
@@ -48,9 +47,8 @@ import config from '../../config/config'
 import DaemonCache from '../../daemons/DaemonCache'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 
-import Header from '../../modules/Send/elements/Header'
+import Header from './elements/Header'
 import HeaderBlocks from './elements/HeaderBlocks'
 import AccountButtons from './elements/accountButtons'
 
@@ -67,6 +65,7 @@ import AppLockBlur from "../../components/AppLockBlur";
 import Netinfo from '../../services/Netinfo/Netinfo'
 
 import { diffTimeScan } from './helpers'
+import { SendActionsStart } from '../../appstores/Stores/Send/SendActionsStart'
 
 let CACHE_ASKED = false
 
@@ -165,15 +164,7 @@ class Account extends Component {
 
         if (isSynchronized) {
 
-            await SendActions.cleanData()
-            SendActions.setUiType({
-                ui: {
-                    uiType: 'ACCOUNT_SCREEN'
-                }
-            })
-            await SendActions.startSend({
-                currencyCode : account.currencyCode,
-            })
+           await SendActionsStart.startFromAccountScreen(cryptoCurrency, account)
 
         } else {
             showModal({
@@ -190,9 +181,9 @@ class Account extends Component {
             await Netinfo.isInternetReachable()
 
             if (config.exchange.mode === 'DEV') {
-                NavStore.goNext('MarketScreen')
+                NavStore.goNext('MarketScreen', { tradeType: 'BUY', currencyCode : this.props.account.currencyCode })
             } else {
-                NavStore.goNext('MainV3DataScreen', { tradeType: 'BUY' })
+                NavStore.goNext('MainV3DataScreen', { tradeType: 'BUY', currencyCode : this.props.account.currencyCode })
             }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
@@ -200,22 +191,6 @@ class Account extends Component {
             } else {
                 Log.err('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)
             }
-        }
-    }
-
-    _showModalNoOldConfigs = async () => {
-        if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
-            setLoaderStatus(true)
-            await ExchangeActions.init()
-            setLoaderStatus(false)
-        }
-        if (typeof this.props.exchangeStore.tradeApiConfig.exchangeWays === 'undefined') {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: 'INFO',
-                title: strings('modal.exchange.sorry'),
-                description: strings('tradeScreen.modalError.serviceUnavailable')
-            })
         }
     }
 
@@ -229,10 +204,12 @@ class Account extends Component {
 
         UpdateOneByOneDaemon._canUpdate = false
 
-        try {
-            await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_REFRESH' })
-        } catch (e) {
-            Log.errDaemon('AccountScreen handleRefresh error updateTradeOrdersDaemon ' + e.message)
+        if (account.currencyCode !== 'ETH_ROPSTEN') {
+            try {
+                await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_REFRESH' })
+            } catch (e) {
+                Log.errDaemon('AccountScreen handleRefresh error updateTradeOrdersDaemon ' + e.message)
+            }
         }
 
         try {
@@ -583,7 +560,6 @@ const mapStateToProps = (state) => {
         account: state.mainStore.selectedAccount,
         settingsStore: state.settingsStore,
         cashBackStore: state.cashBackStore,
-        exchangeStore: state.exchangeStore,
         blurVisibility: state.mainStore.blurVisibility
     }
 }

@@ -68,7 +68,8 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         const result: BlocksoftBlockchainTypes.FeeRateResult = {
-            selectedFeeIndex: -1
+            selectedFeeIndex: -1,
+            shouldShowFees : false
         } as BlocksoftBlockchainTypes.FeeRateResult
 
         // @ts-ignore
@@ -111,6 +112,7 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -1,
                 fees: [],
+                shouldShowFees : false,
                 countedForBasicBalance: '0'
             }
         }
@@ -123,6 +125,7 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -2,
                 fees: [],
+                shouldShowFees : false,
                 countedForBasicBalance: balance
             }
         }
@@ -137,8 +140,8 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
         result.fees[result.selectedFeeIndex].amountForTx = newAmount
         const tmp = {
             ...result,
-            selectedTransferAllBalance: result.fees[result.selectedFeeIndex].amountForTx,
-            shouldChangeBalance: true
+            shouldShowFees : false,
+            selectedTransferAllBalance: result.fees[result.selectedFeeIndex].amountForTx
         }
         // console.log('tmp', JSON.stringify(tmp))
         return tmp

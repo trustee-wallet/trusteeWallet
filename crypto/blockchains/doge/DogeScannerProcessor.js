@@ -105,11 +105,13 @@ export default class DogeScannerProcessor {
     }
 
     /**
-     * @param {string} address
+     * @param {string} scanData.account.address
+     * @param {*} scanData.additional
      * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactionsBlockchain(address, jsonData = {}) {
-        address = address.trim()
+    async getTransactionsBlockchain(scanData) {
+        const address = scanData.account.address.trim()
+        const jsonData = scanData.additional
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeScannerProcessor.getTransactions started ' + address)
 
         const notBroadcasted = await DogeRawDS.getForAddress({ address, currencyCode: this._settings.currencyCode })

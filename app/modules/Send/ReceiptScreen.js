@@ -1,781 +1,177 @@
 /**
- * @version 0.30
- * @author yura
+ * @version 0.41
  */
-import React, { Component } from 'react'
-
+import React from 'react'
+import { View, ScrollView, Text, StatusBar, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
-import { View, ScrollView, Keyboard, Text, StatusBar } from 'react-native'
+import { strings } from '@app/services/i18n'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import NavStore from '@app/components/navigation/NavStore'
 
-import analytics from '@react-native-firebase/analytics'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
-import NavStore from '../../components/navigation/NavStore'
+import Header from '@app/components/elements/new/Header'
+import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
 
-import { strings } from '../../services/i18n'
+import UIDict from '@app/services/UIDict/UIDict'
 
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import SendBasicScreen from '@app/modules/Send/elements/SendBasicScreen'
 
-import Log from '../../services/Log/Log'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 
-import LetterSpacing from '../../components/elements/LetterSpacing'
-import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
+import ReceiptData from '@app/modules/Send/receipt/ReceiptData'
 
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+import Log from '@app/services/Log/Log'
+import config from '@app/config/config'
 
-import TwoButtons from '../../components/elements/new/buttons/TwoButtons'
-import Header from '../../components/elements/new/Header'
+import { showSendError, checkLoadedFee } from './receipt/helpers'
+import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
+import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
+import { SendActionsEnd } from '@app/appstores/Stores/Send/SendActionsEnd'
+import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 
-import UIDict from '../../services/UIDict/UIDict'
-
-import CheckData from './elements/CheckData'
-import CustomIcon from '../../components/elements/CustomIcon'
-import SendBasicScreenScreen from './SendBasicScreen'
-
-import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
-import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
-import transactionActions from '../../appstores/Actions/TransactionActions'
-import { recordFioObtData } from '../../../crypto/blockchains/fio/FioUtils'
-import { hideModal, showModal } from '../../appstores/Stores/Modal/ModalActions'
-
-import config from '../../config/config'
-import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
-import { SendTmpData } from '../../appstores/Stores/Send/SendTmpData'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
-import {
-    setLoaderStatus,
-    setSelectedAccount,
-    setSelectedCryptoCurrency
-} from '../../appstores/Stores/Main/MainStoreActions'
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
-
-import ApiV3 from '../../services/Api/ApiV3'
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-import ApiRates from '../../services/Api/ApiRates'
-import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
-
-let CACHE_WARNING_AMOUNT_TIME = ''
-let CACHE_WARNING_AMOUNT = ''
-let CACHE_WARNING_NOTICE = ''
+let CACHE_IS_COUNTING = false
 let CACHE_IS_SENDING = false
-let CACHE_IS_FEE_LOADING = false
+let CACHE_WARNING_NOTICE = false
 
-class ReceiptScreen extends SendBasicScreenScreen {
-
-    _screenName = 'Receipt'
+class ReceiptScreen extends SendBasicScreen {
 
     constructor(props) {
         super(props)
+
         this.state = {
-            init: false,
-            account: {
-                address: '',
-                balance: '',
-                basicCurrencySymbol: '',
-                basicCurrencyRate: 0,
-                balancePretty: 0,
-                unconfirmedPretty: 0
-            },
-            cryptoCurrency: {
-                currencyCode: 'DOGE'
-            },
-            wallet: {
-                walletUseUnconfirmed: false
-            },
-            sendScreenData: {},
-
             headerHeight: 0,
-            needPasswordConfirm: false,
-
-            loadFee: false,
-
-            sendInProcess: null
-
+            needPasswordConfirm : true
         }
     }
 
-    componentDidMount() {
-        // when usual open (moved from unsafe)
-        this.init()
-
-        // when back by history
-        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-            this.init()
-        })
-    }
-
-    startLoadFee = async () => {
-        if (CACHE_IS_FEE_LOADING) {
-            return
+    openAdvancedSettings = async () => {
+        if (CACHE_IS_COUNTING) {
+            return true
         }
-
-        CACHE_IS_FEE_LOADING = true
-        const { sendScreenData } = this.state
-        const uiSendScreenData = this.props.sendScreenStore
-        // typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee
-
-        let tmp = SendTmpData.getCountedFees()
-        let selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
-        if (!selectedFee || uiSendScreenData.ui.uiNeedToCountFees) {
-            this.setState({
-                loadFee: true
-            })
-            tmp = await this.recountFees(sendScreenData, 'Send.ReceiptScreen.startLoadFee')
-            selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
-        }
-        sendScreenData.selectedFee = selectedFee
-        uiSendScreenData.ui.uiNeedToCountFees = false
-
-        this.setState({
-            sendScreenData,
-            countedFees: tmp.countedFees,
-            loadFee: false
-        })
-        CACHE_IS_FEE_LOADING = false
-    }
-
-    checkLoadedFee = (countedFees, selectedFee) => {
-        const data = SendTmpData.getData()
-
-        let msg = false
-        let goBack = false
-        let cacheWarningNoticeValue = ''
-        if (typeof data.bseMinCrypto !== 'undefined' && data.bseMinCrypto*1 > 0) {
-            if ((typeof selectedFee === 'undefined' || !selectedFee) && typeof countedFees.bseMinCryptoNotOk !== 'undefined' && countedFees.bseMinCryptoNotOk) {
-                msg = strings('modal.send.bseMinCryptoNoFee', { limit: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.bseMinCrypto) })
-                goBack = true
-                cacheWarningNoticeValue = 'bseMinCrypto_' + data.bseOrderId + '_noFee'
-            } else if (typeof selectedFee.amountForTx !== 'undefined' && data.bseMinCrypto*1>selectedFee.amountForTx*1) {
-                msg = strings('modal.send.bseMinCrypto', { limit: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makePretty(data.bseMinCrypto) })
-                goBack = true
-                cacheWarningNoticeValue = 'bseMinCrypto_' + data.bseOrderId + '_' + selectedFee.amountForTx
+        setLoaderStatus(true)
+        CACHE_IS_COUNTING = true
+        try {
+            await SendActionsBlockchainWrapper.getFeeRate()
+            setLoaderStatus(false)
+            CACHE_IS_COUNTING = false
+            NavStore.goNext('SendAdvancedScreen')
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('ReceiptScreen.openAdvancedSettings error ' + e.message)
             }
+            Log.log('ReceiptScreen.openAdvancedSettings error ' + e.message)
+            setLoaderStatus(false)
+            CACHE_IS_COUNTING = false
         }
-
-        if (!goBack) {
-            if (
-                (typeof selectedFee.isCustomFee === 'undefined' || !selectedFee.isCustomFee)
-                && typeof countedFees.showBigGasNotice !== 'undefined' && countedFees.showBigGasNotice
-            ) {
-                msg = strings('modal.send.bigGas', { gasLimit: selectedFee.gasLimit })
-                goBack = BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT_FORCE_QUIT') > 0
-                cacheWarningNoticeValue = countedFees.showBigGasNotice
-            } else if (typeof countedFees.showBlockedBalanceNotice !== 'undefined' && countedFees.showBlockedBalanceNotice) {
-                msg = strings('modal.send.blockedBalance', { free: countedFees.showBlockedBalanceFree })
-                goBack = BlocksoftExternalSettings.getStatic('ETH_BLOCKED_BALANCE_FORCE_QUIT') > 0
-                cacheWarningNoticeValue = countedFees.showBlockedBalanceNotice
-            } else if (typeof selectedFee.isCustomFee !== 'undefined' && selectedFee.isCustomFee) {
-                // do nothing !!!!
-            } else {
-                if (typeof countedFees.showLongQueryNotice !== 'undefined' && countedFees.showLongQueryNotice) {
-                    const ethAllowLongQuery = settingsActions.getSettingStatic('ethAllowLongQuery')
-                    if (ethAllowLongQuery !== '1') {
-                        msg = strings('modal.send.longQuerySettingOff')
-                        goBack = BlocksoftExternalSettings.getStatic('ETH_LONG_QUERY_FORCE_QUIT') > 0
-                    } else {
-                        msg = strings('modal.send.longQuery')
-                    }
-                    if (countedFees.showLongQueryNoticeTxs && countedFees.showLongQueryNoticeTxs[0] !== 'undefined') {
-                        msg += ' ' + countedFees.showLongQueryNoticeTxs[0].currencyCode
-                        msg += ' ' + countedFees.showLongQueryNoticeTxs[0].txHash
-                    }
-                    cacheWarningNoticeValue = countedFees.showLongQueryNotice
-                }
-                if (typeof countedFees.showSmallFeeNotice !== 'undefined' && countedFees.showSmallFeeNotice) {
-                    if (msg) {
-                        msg += ' + '
-                        cacheWarningNoticeValue += '_' + countedFees.showSmallFeeNotice
-                    } else {
-                        msg = ''
-                        cacheWarningNoticeValue = countedFees.showSmallFeeNotice
-                    }
-                    msg += strings('modal.send.feeSmallAmount')
-                }
-            }
-        }
-        if (msg && CACHE_WARNING_NOTICE !== cacheWarningNoticeValue) {
-            Log.log('countedFees notice ' + msg, countedFees)
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.titles.attention'),
-                description: msg
-            }, async () => {
-                if (goBack) {
-                    // account was not opened before
-                    setSelectedCryptoCurrency(this.state.cryptoCurrency)
-                    await setSelectedAccount()
-                    NavStore.reset('AccountScreen')
-                } else {
-                    CACHE_WARNING_NOTICE = cacheWarningNoticeValue
-                }
-            })
-            return false
-        }
-        return true
-    }
-
-    init = async () => {
-        const sendScreenData = SendTmpData.getData()
-        if (config.debug.sendLogs) {
-            console.log('')
-            console.log('')
-            console.log('Send.ReceiptScreen.init', JSON.parse(JSON.stringify(sendScreenData)))
-            console.log('Send.ReceiptScreen.init sendScreenStore', JSON.parse(JSON.stringify(this.props.sendScreenStore)))
-        }
-
-        const { account, cryptoCurrency, wallet } = SendActions.findWalletPlus(sendScreenData.currencyCode)
-
-        this.setState(
-            {
-                sendScreenData,
-                account,
-                cryptoCurrency,
-                wallet,
-                useAllFunds: sendScreenData.isTransferAll,
-                init: true
-            }, () => {
-
-                this.startLoadFee()
-
-                this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-                    const lockScreenStatus = this.props.settingsStore.keystore.lockScreenStatus
-                    if (+lockScreenStatus) {
-                        this.setState({
-                            needPasswordConfirm: true
-                        })
-                    }
-                })
-
-                setLoaderStatus(false)
-            }
-        )
     }
 
     handleSend = async (passwordCheck = true, uiErrorConfirmed = false) => {
-
-        if (config.debug.sendLogs) {
-            console.log('Send.ReceiptScreen.handleSend state', JSON.parse(JSON.stringify(this.state)))
+        if (CACHE_IS_SENDING) {
+            return true
         }
 
-        this.setState({
-            sendInProcess: true
-        })
-
-        const { settingsStore } = this.props
+        const { keystore } = this.props.settingsStore
 
         const { needPasswordConfirm } = this.state
 
-        let passwordChecked = false
-        if (needPasswordConfirm && typeof settingsStore.keystore.askPinCodeWhenSending !== 'undefined' && +settingsStore.keystore.askPinCodeWhenSending) {
+        if (needPasswordConfirm
+            && typeof keystore.askPinCodeWhenSending !== 'undefined' && +keystore.askPinCodeWhenSending
+            && typeof keystore.lockScreenStatus !== 'undefined' && +keystore.lockScreenStatus
+        ) {
             if (passwordCheck) {
                 lockScreenAction.setFlowType({ flowType: 'CONFIRM_SEND_CRYPTO' })
                 lockScreenAction.setActionCallback({ actionCallback: this.handleSend })
                 NavStore.goNext('LockScreen')
                 return
-            } else {
-                passwordChecked = true
             }
         }
 
         CACHE_IS_SENDING = true
+        const checkLoadedFeeResult = checkLoadedFee(this)
 
-        const { account, wallet, sendScreenData } = this.state
-        const { walletHash, walletUseUnconfirmed, walletAllowReplaceByFee } = wallet
-        const { address, derivationPath, accountJson, currencyCode, accountId } = account
-
-        const uiSendScreenData = this.props.sendScreenStore
-
-        let selectedFee = typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
-        let tmp = SendTmpData.getCountedFees()
-        if (!selectedFee) {
-            selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
-        }
-        if (!selectedFee || uiSendScreenData.ui.uiNeedToCountFees) {
-            tmp = await SendActions.countFees(sendScreenData)
-            selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
-        }
-
-        if (typeof tmp.countedFees !== 'undefined' && tmp.countedFees) {
-            Log.log('Send.ReceiptScreen.handleSend checkLoadedFee check notice init')
-            if (!this.checkLoadedFee(tmp.countedFees, selectedFee)) {
-                Log.log('Send.ReceiptScreen.handleSend checkLoadedFee check notice stopped')
-                CACHE_IS_SENDING = false
-                this.setState({
-                    sendInProcess: false
-                })
-                return false
-            }
-        }
-
-        Log.log('Send.ReceiptScreen.handleSend checkLoadedFee check notice passed')
-
-
-        if (typeof tmp !== 'undefined' && typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined' && !passwordChecked) {
-            const newAmount = selectedFee.amountForTx.toString()
-            const tmpAmount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(sendScreenData.amountRaw)
-            const newAmountPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newAmount)
-            const newAmountSubstr = newAmountPretty.substring(0, tmpAmount.length)
-            if (newAmountSubstr !== tmpAmount) {
-                sendScreenData.amountRaw = newAmount
-                if (CACHE_WARNING_AMOUNT_TIME !== tmp.countedFees.countedTime || CACHE_WARNING_AMOUNT !== tmpAmount) {
-                    Log.log('Send.ReceiptScreen.handleSend change amount check stopped ')
-                    if (config.debug.sendLogs) {
-                        console.log('Send.ReceiptScreen.handleSend change amount check ', JSON.parse(JSON.stringify({
-                            newAmount,
-                            newAmountSubstr,
-                            tmpAmount,
-                            isEqual: newAmountSubstr !== tmpAmount,
-                            isEqualTxt : newAmountSubstr + '!=' + tmpAmount
-                        })))
-                    }
-                    // @yura here should be alert when fixed receipt and no tx
-                    showModal({
-                        type: 'INFO_MODAL',
-                        icon: null,
-                        title: strings('modal.titles.attention'),
-                        description: strings('modal.send.feeChangeAmount')
-                    })
-                    CACHE_WARNING_AMOUNT = tmpAmount
-                    CACHE_WARNING_AMOUNT_TIME = tmp.countedFees.countedTime
-                    CACHE_IS_SENDING = false
-                    this.setState({
-                        sendInProcess: false
-                    })
-                    return false
-                }
-            } else {
-                if (config.debug.sendLogs) {
-                    console.log('Send.ReceiptScreen.handleSend change amount ok ', JSON.parse(JSON.stringify({
-                        newAmount,
-                        newAmountSubstr,
-                        tmpAmount,
-                        isEqual: newAmountSubstr !== tmpAmount,
-                        isEqualTxt : newAmountSubstr + '!=' + tmpAmount
-                    })))
-                }
-            }
-        }
-
-        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
-
-        // also will go to actions later
-        try {
-            const txData = {
-                currencyCode,
-                walletHash,
-                derivationPath: derivationPath,
-                addressFrom: address,
-                addressTo: sendScreenData.addressTo,
-                amount: sendScreenData.amountRaw,
-                isTransferAll: sendScreenData.isTransferAll,
-                useOnlyConfirmed: !(walletUseUnconfirmed === 1),
-                allowReplaceByFee: walletAllowReplaceByFee === 1,
-                accountJson,
-                transactionJson: sendScreenData.transactionJson,
-            }
-            let memo = false
-            let comment = false
-            if (typeof sendScreenData.memo !== 'undefined') {
-                memo = sendScreenData.memo
-                txData.memo = memo
-            }
-            if (typeof uiSendScreenData.addData !== 'undefined' && typeof uiSendScreenData.addData.comment !== 'undefined') {
-                comment = uiSendScreenData.addData.comment
-            }
-            const contactName = sendScreenData.contactName || false
-            if ((!txData.addressTo || txData.addressTo === '') && contactName) {
-                txData.addressTo = contactName
-            }
-            if (typeof selectedFee !== 'undefined' && selectedFee) {
-                if (typeof selectedFee.amountForTx !== 'undefined') {
-                    txData.amount = selectedFee.amountForTx
-                }
-                if (typeof selectedFee.addressToTx !== 'undefined') {
-                    txData.addressTo = selectedFee.addressToTx
-                }
-            }
-            let txRBF = false
-            let txRBFed = ''
-            if (sendScreenData.transactionRemoveByFee) {
-                txData.transactionRemoveByFee = sendScreenData.transactionRemoveByFee
-                txRBF = txData.transactionRemoveByFee
-                txRBFed = 'RBFremoved'
-            }
-            if (sendScreenData.transactionReplaceByFee) {
-                txData.transactionReplaceByFee = sendScreenData.transactionReplaceByFee
-                txRBF = txData.transactionReplaceByFee
-                txRBFed = 'RBFed'
-            }
-            if (sendScreenData.transactionSpeedUp) {
-                txData.transactionSpeedUp = sendScreenData.transactionSpeedUp
-            }
-            console.log('')
-            console.log('')
-            console.log('')
-            console.log('uiSendScreenData', JSON.parse(JSON.stringify(uiSendScreenData)))
-            console.log('')
-            console.log('')
-            console.log('')
-            if (config.debug.sendLogs) {
-                console.log('ReceiptScreen txData', txData)
-            }
-            const tx = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed, selectedFee })
-            if (config.debug.sendLogs) {
-                console.log('ReceiptScreen tx', txData)
-            }
-            let transactionJson = sendScreenData.transactionJson
-            if (!transactionJson || typeof transactionJson === 'undefined' || transactionJson === null) {
-                transactionJson = {}
-            }
-            if (memo) {
-                transactionJson.memo = memo
-            }
-            if (comment) {
-                transactionJson.comment = comment
-            }
-            if (typeof sendScreenData.bseMinCrypto !== 'undefined') {
-                transactionJson.bseMinCrypto = sendScreenData.bseMinCrypto
-            }
-            if (typeof tx.transactionJson !== 'undefined') {
-                let key
-                for (key in tx.transactionJson) {
-                    transactionJson[key] = tx.transactionJson[key]
-                }
-            }
-
-
-            const now = new Date().toISOString()
-            if (txRBF) {
-                const transaction = {
-                    currencyCode,
-                    accountId,
-                    addressAmount: typeof tx.amountForTx !== 'undefined' ? tx.amountForTx : txData.amount,
-                    addressTo: txData.addressTo,
-                    addressToBasic : txData.addressTo,
-                    transactionHash: tx.transactionHash,
-                    transactionStatus: 'new',
-                    transactionUpdateHash: txRBF,
-                    transactionsOtherHashes: txRBF,
-                    transactionJson,
-                    transactionsScanLog: now + ' ' + txRBFed + ' ' + txRBF + ' => ' + tx.transactionHash + ' '
-                }
-                if (typeof tx.transactionFeeCurrencyCode !== 'undefined') {
-                    transaction.transactionFeeCurrencyCode = tx.transactionFeeCurrencyCode
-                }
-                if (typeof tx.transactionFee !== 'undefined') {
-                    transaction.transactionFee = tx.transactionFee
-                }
-                if (typeof tx.amountForTx !== 'undefined') {
-                    transaction.addressAmount = tx.amountForTx
-                }
-                if (sendScreenData.transactionRemoveByFee) {
-                    transaction.transactionJson.isRemovedByFee = true
-                }
-                if (sendScreenData.transactionRemoveByFee || txData.addressTo === account.address) {
-                    transaction.addressTo = ''
-                    transaction.transactionDirection = 'self'
-                }
-                if (typeof txData.addressFrom !== 'undefined' && txData.addressFrom) {
-                    transaction.addressFromBasic = txData.addressFrom.toLowerCase()
-                }
-                if (config.debug.sendLogs) {
-                    console.log('ReceiptScreen.saveTx RBFed', transaction)
-                }
-                await transactionActions.updateTransaction(transaction)
-            } else {
-                const transaction = {
-                    currencyCode: currencyCode,
-                    accountId: accountId,
-                    walletHash: walletHash,
-                    transactionHash: tx.transactionHash,
-                    transactionStatus: 'new',
-                    addressTo: txData.addressTo,
-                    addressToBasic : txData.addressTo,
-                    addressFrom: '',
-                    addressFromBasic: txData.addressFrom.toLowerCase(),
-                    addressAmount: typeof tx.amountForTx !== 'undefined' ? tx.amountForTx : txData.amount,
-                    transactionFee: tx.transactionFee || '',
-                    transactionFeeCurrencyCode: tx.transactionFeeCurrencyCode || '',
-                    transactionOfTrusteeWallet: 1,
-                    transactionJson,
-                    blockConfirmations: 0,
-                    createdAt: now,
-                    updatedAt: now,
-                    transactionDirection: txData.addressTo === account.address ? 'self' : 'outcome',
-                    transactionsScanLog: now + ' CREATED '
-                }
-                if (sendScreenData.transactionSpeedUp) {
-                    transaction.transactionsScanLog += 'SPEED UP ' + sendScreenData.transactionSpeedUp + ' '
-                    transaction.addressTo = ''
-                    transaction.transactionDirection = 'self'
-                } else if (account.address === transaction.addressTo) {
-                    transaction.addressTo = ''
-                    transaction.transactionDirection = 'self'
-                }
-                if (typeof tx.amountForTx !== 'undefined') {
-                    transaction.addressAmount = tx.amountForTx
-                }
-                if (typeof tx.blockHash !== 'undefined') {
-                    transaction.blockHash = tx.blockHash
-                }
-                if (typeof tx.transactionStatus !== 'undefined') {
-                    transaction.transactionStatus = tx.transactionStatus
-                }
-                if (transaction.addressTo === txData.addressFrom) {
-                    transaction.addressTo = ''
-                    transaction.transactionDirection = 'self'
-                }
-                if (typeof tx.transactionTimestamp !== 'undefined' && tx.transactionTimestamp) {
-                    transaction.createdAt = new Date(tx.transactionTimestamp).toISOString()
-                    transaction.updatedAt = new Date(tx.transactionTimestamp).toISOString()
-                }
-
-                const logData = {
-                    walletHash: walletHash,
-                    currencyCode: currencyCode,
-                    transactionHash: tx.transactionHash,
-                    addressTo: txData.addressTo,
-                    addressFrom: txData.addressFrom,
-                    addressAmount: txData.amountRaw,
-                    fee: JSON.stringify(selectedFee)
-                }
-                if (sendScreenData.transactionSpeedUp) {
-                    logData.transactionSpeedUp = sendScreenData.transactionSpeedUp
-                }
-                if (typeof sendScreenData.bseOrderId !== 'undefined' && sendScreenData.bseOrderId) {
-                    transaction.bseOrderId = sendScreenData.bseOrderId
-                    transaction.bseOrderIdOut = sendScreenData.bseOrderId
-                    if (typeof sendScreenData.bseOrderData !== 'undefined') {
-                        transaction.bseOrderData = sendScreenData.bseOrderData
-                    }
-                    logData.bseOrderId = sendScreenData.bseOrderId.toString()
-                    if (typeof sendScreenData.bseMinCrypto !== 'undefined') {
-                        logData.bseMinCrypto = sendScreenData.bseMinCrypto.toString()
-                    }
-
-
-
-                    // https://rnfirebase.io/reference/analytics#logPurchase
-                    let usdValue = sendScreenData.bseTrusteeFee.value
-                    let localCurrency = sendScreenData.bseTrusteeFee.currencyCode.toLowerCase()
-                    let usdCurrency = 'usd'
-                    Log.log('sendScreenData.bseTrusteeFee in ' + localCurrency + ' ' + usdValue, sendScreenData.bseTrusteeFee)
-                    if (usdValue * 1 > 0) {
-                        if (localCurrency !== 'usd') {
-                            const rate = ApiRates.getRatesWithLocal()
-                            if (localCurrency.indexOf('usdt') !== -1) {
-                                usdValue = typeof rate.usdttousd !== 'undefined' && rate.usdttousd > 0 ? BlocksoftUtils.mul(rate.usdttousd, usdValue) : usdValue
-                                Log.log('sendScreenData.bseTrusteeFee rate1 ' + rate.usdttousd + ' => ' + usdValue)
-                            } else if (typeof rate['usdto' + localCurrency] !== 'undefined') {
-                                usdValue = BlocksoftUtils.div(usdValue, rate['usdto' + localCurrency])
-                                Log.log('sendScreenData.bseTrusteeFee rate2 ' + rate['usdto' + localCurrency] + ' => ' + usdValue)
-                            } else if (typeof rate[localCurrency] !== 'undefined') {
-                                usdValue = BlocksoftUtils.div(usdValue, rate[localCurrency])
-                                Log.log('sendScreenData.bseTrusteeFee rate3 ' + rate[localCurrency] + ' => ' + usdValue)
-                            } else {
-                                Log.log('sendScreenData.bseTrusteeFee rate4 not found ' + localCurrency)
-                                usdCurrency = 'uah'
-                            }
-                        } else {
-                            usdValue = sendScreenData.bseTrusteeFee.value
-                        }
-                    }
-                    let gaParams = {}
-                    try {
-                        gaParams = {
-                            transaction_id :  sendScreenData.bseOrderId,
-                            value : usdValue * 1,
-                            currency : usdCurrency,
-                            items : [{
-                                item_brand : sendScreenData.bseTrusteeFee.type,
-                                item_category : sendScreenData.bseTrusteeFee.from,
-                                item_category2: sendScreenData.bseTrusteeFee.to,
-                                item_id :sendScreenData.bseOrderId,
-                                item_name :  sendScreenData.bseTrusteeFee.from + '_' + sendScreenData.bseTrusteeFee.to,
-                                quantity : sendScreenData.amountPretty * 1
-                            }]
-                        }
-
-                        await MarketingEvent.logEvent('v20_sell_tx', gaParams, 'SELL')
-                        await Log.log('v20_sell_tx', gaParams)
-                        await analytics().logPurchase(gaParams)
-                    } catch (e) {
-                        if (config.debug.appErrors) {
-                            console.log('v20_sell_tx error ' + e.message, gaParams )
-                        }
-                        await Log.err('v20_sell_tx error ' + e.message)
-                    }
+        if (checkLoadedFeeResult.msg && CACHE_WARNING_NOTICE !== checkLoadedFeeResult.cacheWarningNoticeValue) {
+            Log.log('countedFees notice' + JSON.stringify(checkLoadedFeeResult))
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.titles.attention'),
+                description: checkLoadedFeeResult.msg
+            }, async () => {
+                if (checkLoadedFeeResult.goBack) {
+                    await SendActionsEnd.endRedirect(false, this.props.sendScreenStore)
                 } else {
-                    if (config.debug.appErrors) {
-                        console.log('v20_sell_tx noOrder for ' + transaction.transactionHash)
-                    }
-                    await Log.log('v20_sell_tx noOrder for ' + transaction.transactionHash)
+                    CACHE_WARNING_NOTICE = checkLoadedFeeResult.cacheWarningNoticeValue
                 }
-
-                const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
-
-                if (config.debug.sendLogs) {
-                    console.log('ReceiptScreen.saveTx new', transaction)
-                }
-                await transactionActions.saveTransaction(transaction, line + ' HANDLE SEND ')
-            }
-
-
-            if (typeof sendScreenData.fioRequestDetails !== 'undefined' && sendScreenData.fioRequestDetails) {
-                const tmp = sendScreenData.fioRequestDetails
-                await recordFioObtData({
-                    fioRequestId: tmp.fio_request_id,
-                    payerFioAddress: tmp.payer_fio_address,
-                    payeeFioAddress: tmp.payee_fio_address,
-                    payerTokenPublicAddress: txData.addressFrom,
-                    payeeTokenPublicAddress: txData.addressTo,
-                    amount: txData.amountRaw,
-                    chainCode: currencyCode,
-                    tokenCode: currencyCode,
-                    obtId: tx.transactionHash,
-                    memo: tmp.memo
-                })
-            }
-
-            hideModal()
-
-            let successMessage = strings('modal.send.txSuccess')
-            if (typeof tx.successMessage !== 'undefined') {
-                successMessage = tx.successMessage // @yura @todo support of the message
-            }
-
-            this.setState({
-                    sendInProcess: false
-                },
-
-                // showModal({
-                //     type: 'INFO_MODAL',
-                //     icon: true,
-                //     title: strings('modal.send.success'),
-                //     description: successMessage
-                // },
-                async () => {
-
-                    const { uiType, uiApiVersion } = uiSendScreenData.ui
-                    const { bseOrderId } = sendScreenData
-
-                    if (sendScreenData.transactionSpeedUp || sendScreenData.transactionReplaceByFee || sendScreenData.transactionRemoveByFee) {
-                        NavStore.reset('TransactionScreen', {
-                            txData: {
-                                transactionHash: tx.transactionHash,
-                                toOpenAccountBack: true
-                            }
-                        })
-                    } else if (uiType === 'MAIN_SCANNER') {
-                        NavStore.reset('DashboardStack')
-                    } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {
-                        // NavStore.reset('AccountScreen')
-                        NavStore.goNext('TransactionScreen', {
-                            txData: {
-                                transactionHash: tx.transactionHash
-                            }
-                        })
-                    } else if (uiType === 'TRADE_SEND') {
-                        if (uiApiVersion === 'v3' && bseOrderId) {
-                            ApiV3.setExchangeStatus(bseOrderId, 'SUCCESS')
-                        }
-                        NavStore.reset('TransactionScreen', {
-                            txData: {
-                                transactionHash: tx.transactionHash
-                            }
-                        })
-                    } else if (uiType === 'DEEP_LINKING' || uiType === 'HOME_SCREEN') {
-                        // account was not opened before
-                        setSelectedCryptoCurrency(this.state.cryptoCurrency)
-                        await setSelectedAccount()
-                        NavStore.reset('AccountScreen')
-                    } else {
-                        // fio request etc - direct to receipt
-                        NavStore.goBack(null)
-                    }
-                })
-
-        } catch (e) {
-
-            Keyboard.dismiss()
-
-            this.setState({
-                sendInProcess: false
             })
-            // @ksu check this plz
-            // can i set paymentStatus for order v3 here?
-            const { bseOrderId } = this.state.sendScreenData
-            const { uiApiVersion } = uiSendScreenData.ui
+            CACHE_IS_SENDING = false
+            return false
+        }
 
-            if (uiApiVersion === 'v3' && bseOrderId) {
-                ApiV3.setExchangeStatus(bseOrderId, 'FAIL')
-            }
+        setLoaderStatus(true)
 
+        const { selectedFee } = this.props.sendScreenStore.fromBlockchain
+        let tx = false
+        let e = false
+        try {
+            tx = await SendActionsBlockchainWrapper.actualSend(false, selectedFee)
+        } catch (e1) {
             if (config.debug.appErrors) {
-                console.log('Send.ConfirmSendScreen.handleSend error', e)
+                console.log('ReceiptScreen.handleSend error ' + e1.message)
             }
+            Log.log('ReceiptScreen.handleSend error ' + e1.message)
+            e = e1
+        }
 
-            if (e.message.indexOf('UI_') === 0) {
-                Log.log('Send.ConfirmSendScreen.handleSend protection ' + e.message)
-
-
-                const allData = this.state.data
-
-                showModal({
-                    type: 'YES_NO_MODAL',
-                    icon: 'WARNING',
-                    title: strings('send.confirmModal.title'),
-                    description: strings('send.errors.' + e.message)
-                }, async () => {
-                    CACHE_IS_SENDING = false
-                    if (typeof e.newAmount !== 'undefined') {
-                        allData.amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(e.newAmount)
-                        this.setState({ amountRaw: e.newAmount, data: allData })
-                        await this.fee.changeAmountRaw(e.newAmount)
-                    } else {
-                        this.handleSend(passwordCheck, e.message)
-                    }
-                })
-
-            } else {
-                const msg = e.message
-                Log.errorTranslate(e, 'Send.ConfirmSendScreen.handleSend', extend)
-
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: null,
-                    title: strings('modal.exchange.sorry'),
-                    description: e.message
-                }, async () => {
-                    if (
-                        msg.indexOf('SERVER_RESPONSE_PLEASE_SELECT_FEE') !== -1
-                        || msg.indexOf('SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION') !== -1
-                    ) {
-                        this.openAdvancedSettings({ toOpenCustom: true })
-                    }
-                })
+        if (e) {
+            try {
+                showSendError(e, this, passwordCheck)
+            } catch (e1) {
+                if (config.debug.appErrors) {
+                    console.log('ReceiptScreen.handleSendError error ' + e1.message)
+                }
+                Log.log('ReceiptScreen.handleSendError error ' + e1.message)
             }
+        }
+
+        if (tx) {
+            try {
+                await SendActionsEnd.saveTx(tx, this.props.sendScreenStore)
+                setLoaderStatus(false)
+                CACHE_IS_SENDING = false
+                await SendActionsEnd.endRedirect(tx, this.props.sendScreenStore)
+
+            } catch (e1) {
+                if (config.debug.appErrors) {
+                    console.log('ReceiptScreen.handleSendSaveTx error ' + e.message)
+                }
+                Log.log('ReceiptScreen.handleSendSaveTx error ' + e.message)
+                setLoaderStatus(false)
+                CACHE_IS_SENDING = false
+            }
+        } else {
+            setLoaderStatus(false)
             CACHE_IS_SENDING = false
         }
-
-
     }
 
-    disabled = () => {
 
-        if (this.state.loadFee) {
-            return true
+    closeAction = async (closeScreen = false) => {
+        await SendActionsEnd.endClose(this.props.sendScreenStore)
+        if (closeScreen) {
+            NavStore.reset('DashboardStack')
+        } else {
+            NavStore.goBack()
         }
-
-        return false
     }
 
     render() {
@@ -785,126 +181,27 @@ class ReceiptScreen extends SendBasicScreenScreen {
 
         const { colors, GRID_SIZE, isLight } = this.context
 
-        let { headerHeight, sendScreenData, cryptoCurrency, account, sendInProcess } = this.state
+        const { selectedFee } = this.props.sendScreenStore.fromBlockchain
+        const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStore.dict
+        const { cryptoValue, bse } = this.props.sendScreenStore.ui
+        const { bseOrderId } = bse
 
-        const uiSendScreenData = this.props.sendScreenStore
-
-        Log.log('Send.ReceiptScreen.render data', JSON.parse(JSON.stringify(sendScreenData)))
-        Log.log('Send.ReceiptScreen.render uiSendScreenData', JSON.parse(JSON.stringify(uiSendScreenData)))
-
-        if (typeof account === 'undefined' || typeof account.basicCurrencySymbol === 'undefined') {
-            const tmp = SendActions.findWalletPlus(sendScreenData.currencyCode)
-            account = tmp.account
-            cryptoCurrency = tmp.cryptoCurrency
-        }
-
-        let selectedFee = typeof sendScreenData.selectedFee !== 'undefined' ? sendScreenData.selectedFee : false
-        const tmp = SendTmpData.getCountedFees()
-        if (!selectedFee) {
-            selectedFee = typeof tmp.selectedFee !== 'undefined' ? tmp.selectedFee : false
-        }
-        let amount = sendScreenData.amountPretty
-        let address = sendScreenData.addressTo || ''
-        let memo = sendScreenData.memo || ''
-        let contactName = sendScreenData.contactName || false
-        if (contactName === address) {
-            contactName = false
-        }
-        if (!address && contactName) {
-            address = contactName
-            contactName = false
-        }
-        let isFioRequest = false
-        if (typeof sendScreenData.fioRequestDetails !== 'undefined' && typeof sendScreenData.fioRequestDetails.content !== 'undefined') {
-            memo = sendScreenData.fioRequestDetails.content.memo // dont do inside is different fields actually!
-            isFioRequest = true
-        }
-
-
-        if (typeof selectedFee !== 'undefined' && selectedFee) {
-            if (typeof selectedFee !== 'undefined' && selectedFee && typeof selectedFee.amountForTx !== 'undefined') {
-                const newAmount = BlocksoftPrettyNumbers.setCurrencyCode(cryptoCurrency.currencyCode).makePretty(selectedFee.amountForTx)
-                if (typeof amount === 'undefined') {
-                    amount = newAmount
-                } else {
-                    const tmpAmount = amount.toString().trim()
-                    const newAmountSubstr = newAmount.substring(0, tmpAmount.length).trim()
-                    if (newAmountSubstr !== tmpAmount) {
-                        amount = newAmount
-                        if (!sendScreenData.transactionRemoveByFee
-                            && (CACHE_WARNING_AMOUNT_TIME !== tmp.countedFees.countedTime || CACHE_WARNING_AMOUNT !== amount)
-                        ) {
-                            if (config.debug.sendLogs) {
-                                console.log('Send.ReceiptScreen.render change amount checked ', JSON.parse(JSON.stringify({
-                                    newAmount,
-                                    newAmountSubstr,
-                                    tmpAmount,
-                                    isEqual: newAmountSubstr !== tmpAmount,
-                                    isEqualTxt : newAmountSubstr + '!=' + tmpAmount
-                                })))
-                            }
-                            showModal({
-                                type: 'INFO_MODAL',
-                                icon: null,
-                                title: strings('modal.titles.attention'),
-                                description: strings('modal.send.feeChangeAmount')
-                            })
-                        }
-                        CACHE_WARNING_AMOUNT = amount
-                        CACHE_WARNING_AMOUNT_TIME = tmp.countedFees.countedTime
-                    }
-                }
-                if (config.debug.sendLogs) {
-                    console.log('Send.ReceiptScreen amountFromFee ' + amount, JSON.parse(JSON.stringify(selectedFee)))
-                }
-            }
-            if (typeof selectedFee.addressToTx !== 'undefined') {
-                address = selectedFee.addressToTx
-            }
-        }
-
-        const currencySymbol = typeof cryptoCurrency !== 'undefined' && cryptoCurrency.currencySymbol ? cryptoCurrency.currencySymbol : ''
-        const basicCurrencySymbol = account.basicCurrencySymbol
-
-        const dict = new UIDict(account.currencyCode)
+        const dict = new UIDict(currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
+        const value = selectedFee.amountForTx !== 'undefined' && selectedFee.amountForTx ? selectedFee.amountForTx : cryptoValue
+        const amountPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value)
 
-        let equivalent = ''
-        try {
-            if (typeof amount !== 'undefined') {
-                equivalent = BlocksoftPrettyNumbers.makeCut(RateEquivalent.mul({
-                    value: amount,
-                    currencyCode: account.currencyCode,
-                    basicCurrencyRate: account.basicCurrencyRate
-                }), 2).justCutted
-            }
-        } catch (e) {
-            if (config.debug.appErrors) {
-                console.log('Send.ReceiptScreen.render equivalent error', e)
-            }
+        let amountPrettySeparated = 0
+        let equivalent = false
+        let equivalentSeparated = false
+        if (typeof bseOrderId === 'undefined' || !bseOrderId) {
+            amountPrettySeparated = BlocksoftPrettyNumbers.makeCut(amountPretty).separated
+            equivalent = RateEquivalent.mul({ value: amountPretty, currencyCode, basicCurrencyRate })
+            equivalentSeparated = BlocksoftPrettyNumbers.makeCut(equivalent).separated
+        } else {
+            // from bse its longer hmmm
+            amountPrettySeparated = BlocksoftPrettyNumbers.makeCut(amountPretty, 6).separated
         }
-
-        let multiShow = false
-        let multiAddress = false
-        if (selectedFee && typeof selectedFee.blockchainData !== 'undefined'
-            && typeof selectedFee.blockchainData.preparedInputsOutputs !== 'undefined'
-            && typeof selectedFee.blockchainData.preparedInputsOutputs.multiAddress !== 'undefined'
-            && selectedFee.blockchainData.preparedInputsOutputs.multiAddress
-            && selectedFee.blockchainData.preparedInputsOutputs.multiAddress.length > 1
-        ) {
-            address = selectedFee.blockchainData.preparedInputsOutputs.multiAddress[0]
-            multiShow = true
-            multiAddress = selectedFee.blockchainData.preparedInputsOutputs.multiAddress
-        }
-        let memoTitle = strings('send.xrp_memo')
-        if (account.currencyCode === 'XMR' || account.currencyCode === 'XLM') {
-            memoTitle = strings('send.xmr_memo')
-        } else if (account.currencyCode === 'BNB') {
-            memoTitle = strings('send.bnb_memo')
-        }else if (isFioRequest) {
-            memoTitle = strings('send.fio_memo')
-        }
-
 
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
@@ -913,7 +210,7 @@ class ReceiptScreen extends SendBasicScreenScreen {
                     leftAction={this.closeAction}
                     leftParams={{ 'close': false }}
                     rightType='close'
-                    rightAction={sendInProcess ? this.nothingCloseAction : this.closeAction}
+                    rightAction={this.closeAction}
                     rightParams={{ 'close': true }}
                     title={strings('send.receiptScreen.title')}
                     setHeaderHeight={this.setHeaderHeight}
@@ -931,104 +228,42 @@ class ReceiptScreen extends SendBasicScreenScreen {
                         padding: GRID_SIZE,
                         paddingBottom: GRID_SIZE * 2
                     }}
-                    style={{ marginTop: headerHeight }}
+                    style={{ marginTop: this.state.headerHeight }}
                 >
                     <View style={{ flex: 1 }}>
                         <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                             <Text style={{ ...styles.title, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.totalSend')}</Text>
-                            <Text style={{ ...styles.value, color: color }}>{`${amount} ${currencySymbol}`}</Text>
+                            <Text style={{ ...styles.value, color: color }}>{`${amountPrettySeparated} ${currencySymbol}`}</Text>
                             {
-                                uiSendScreenData.ui.uiProviderType !== 'TRADE_SEND' ?
+                                typeof bseOrderId === 'undefined' || !bseOrderId ?
                                     <LetterSpacing
-                                        text={`${basicCurrencySymbol} ${equivalent}`}
+                                        text={`${basicCurrencySymbol} ${equivalentSeparated}`}
                                         numberOfLines={1}
                                         textStyle={{ ...styles.notEquivalent, color: '#999999' }}
                                         letterSpacing={1} />
 
-                                    : null
+                                    :  <LetterSpacing
+                                        text={strings(`account.transaction.orderId`) + ' ' + bseOrderId}
+                                        numberOfLines={1}
+                                        textStyle={{ ...styles.notEquivalent, color: '#999999' }}
+                                        letterSpacing={1} />
                             }
                             <View style={{ ...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
                         </View>
                         <View style={{ marginTop: 12 }}>
-                            { typeof sendScreenData.bseOrderId === 'undefined' || !sendScreenData.bseOrderId ?
-                                <CheckData
-                                    name={strings('send.receiptScreen.rate', { currencyCode: currencySymbol })}
-                                    value={`${account.basicCurrencySymbol} ${BlocksoftPrettyNumbers.makeCut(account.basicCurrencyRate).cutted}`}
-                                />
-                                : null
-                            }
-                            {sendScreenData.transactionReplaceByFee ?
-                                <CheckData
-                                    name={strings('send.receiptScreen.replaceTransactionHash')}
-                                    value={BlocksoftPrettyStrings.makeCut(sendScreenData.transactionReplaceByFee, 6)}
-                                />
-                                : null}
-                            {sendScreenData.transactionRemoveByFee ?
-                                <CheckData
-                                    name={strings('send.receiptScreen.removeTransactionHash')}
-                                    value={BlocksoftPrettyStrings.makeCut(sendScreenData.transactionRemoveByFee, 6)}
-                                />
-                                : null}
-                            {sendScreenData.transactionSpeedUp ?
-                                <CheckData
-                                    name={strings('send.receiptScreen.speedUpTransactionHash')}
-                                    value={BlocksoftPrettyStrings.makeCut(sendScreenData.transactionSpeedUp, 6)}
-                                />
-                                : null}
-                            {contactName ?
-                                <CheckData
-                                    name={strings('send.receiptScreen.recepient')}
-                                    value={BlocksoftPrettyStrings.makeCut(contactName, 6)}
-                                />
-                                : null}
-                            {multiShow ?
-                                multiAddress.map((item, index) => {
-                                    return (
-                                        <CheckData
-                                            name={`${strings('send.receiptScreen.recepient')} ${index + 1}`}
-                                            value={BlocksoftPrettyStrings.makeCut(item, 6)}
-                                        />
-                                    )
-                                })
-                                :
-                                <CheckData
-                                    name={strings('send.receiptScreen.destinationAddress')}
-                                    value={BlocksoftPrettyStrings.makeCut(address, 6)}
-                                />}
 
-                            {memo ?
-                                <CheckData
-                                    name={memoTitle}
-                                    value={memo}
-                                /> : null
-                            }
+                            <ReceiptData
+                                sendScreenStoreDict={this.props.sendScreenStore.dict}
+                                sendScreenStoreUi={this.props.sendScreenStore.ui}
+                                sendScreenStoreSelectedFee={this.props.sendScreenStore.fromBlockchain.selectedFee}
+                            />
 
-                            {this.renderMinerFee()}
-                            {typeof uiSendScreenData.addData !== 'undefined' && typeof uiSendScreenData.addData.comment !== 'undefined' && uiSendScreenData.addData.comment ?
-                                <>
-                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <View style={{ ...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
-                                    </View>
-
-                                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: 24 }}>
-                                        <Text style={{ ...styles.name, color: colors.sendScreen.amount }}>{strings('send.setting.note')}</Text>
-                                        <Text style={{ ...styles.valueComment, color: colors.sendScreen.amount }}>{uiSendScreenData.addData.comment}</Text>
-                                    </View>
-                                </>
-                                : null}
-
-                            <View style={{ paddingHorizontal: GRID_SIZE, flexDirection: 'row', marginTop: 44 }}>
-                                <CustomIcon name='shield' size={28} style={{ color: colors.sendScreen.amount }} />
-                                <Text style={{ ...styles.info, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.trusteeInfo')}</Text>
-                            </View>
                         </View>
                     </View>
                     <TwoButtons
                         mainButton={{
-                            disabled: this.disabled() || sendInProcess,
                             onPress: this.handleSend,
-                            title: strings('send.receiptScreen.send'),
-                            sendInProcess: sendInProcess
+                            title: strings('send.receiptScreen.send')
                         }}
                         secondaryButton={{
                             type: 'settings',
@@ -1038,7 +273,6 @@ class ReceiptScreen extends SendBasicScreenScreen {
                 </ScrollView>
             </View>
         )
-
     }
 }
 
@@ -1047,19 +281,13 @@ ReceiptScreen.contextType = ThemeContext
 const mapStateToProps = (state) => {
     return {
         settingsStore: state.settingsStore,
-        sendScreenStore: state.sendScreenStore
+        sendScreenStore: getSendScreenData(state)
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
+export default connect(mapStateToProps, {})(ReceiptScreen)
 
-export default connect(mapStateToProps, mapDispatchToProps, null)(ReceiptScreen)
-
-const styles = {
+const styles = StyleSheet.create({
     title: {
         fontFamily: 'Montserrat-Medium',
         fontSize: 18,
@@ -1082,25 +310,17 @@ const styles = {
         height: 24,
         width: '70%'
     },
-    info: {
-        paddingHorizontal: 12,
-        fontFamily: 'SFUIDisplay-Semibold',
-        fontSize: 14,
-        lineHeight: 18,
-        letterSpacing: 1,
-        textAlign: 'left'
-    },
     name: {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 14,
-        fontHeight: 18,
+        lineHeight: 18,
         letterSpacing: 0.5
     },
     valueComment: {
         fontFamily: 'SFUIDisplay-Bold',
         fontSize: 14,
-        fontHeight: 14,
+        lineHeight: 14,
         letterSpacing: 1,
         marginTop: 1
     }
-}
+})
