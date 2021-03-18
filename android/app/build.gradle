@@ -78,8 +78,14 @@ import com.android.build.OutputFile
 
 project.ext.react = [
     entryFile: "index.js",
-    enableHermes: false,  // clean and rebuild if changing
+    enableHermes: true,  // clean and rebuild if changing
 ]
+
+configurations.all {
+        resolutionStrategy {
+            force "com.facebook.soloader:soloader:0.8.0"
+        }
+    }
 
 apply from: "../../node_modules/react-native/react.gradle"
 
