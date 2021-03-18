@@ -94,7 +94,8 @@ export namespace SendActionsStart {
 
     export const getTransferAllBalanceFromBSE = async (data : {
         currencyCode : string,
-        address : string
+        address : string,
+        memo : string,
     }) => {
         // @ts-ignore
         const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll(data)
@@ -103,12 +104,14 @@ export namespace SendActionsStart {
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
             addressTo : addressToForTransferAll,
             amount :  '0',
+            memo : data.memo || false ,
         })
         const ui = {
             uiType : 'TRADE_SEND',
             addressTo : addressToForTransferAll,
             cryptoValue : '0',
-            isTransferAll : true
+            isTransferAll : true,
+            memo : data.memo : false
         }
         dispatch({
             type: 'RESET_DATA',
