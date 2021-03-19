@@ -3,6 +3,9 @@ import Database from './main';
 
 
 export async function getSqlForExport() {
+    // cleanup
+    await (Database.setQueryString(`UPDATE transactions SET transactions_scan_log='' WHERE created_at<'2020-01-01'`)).query(true)
+
     const tables = await (Database.setQueryString(`SELECT * FROM sqlite_master WHERE type='table' ORDER BY name`)).query()
     if (!tables.array.length) {
         return 'no tables'

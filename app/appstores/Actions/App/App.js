@@ -19,7 +19,7 @@ import currencyActions from '../../Stores/Currency/CurrencyActions'
 import settingsActions from '../../Stores/Settings/SettingsActions'
 import customCurrencyActions from '../CustomCurrencyActions'
 
-import Database from '@app/appstores/DataSource/Database';
+import Database, { cleanupNotNeeded } from '@app/appstores/DataSource/Database'
 
 import Log from '../../../services/Log/Log'
 import AppLockScreenIdleTime from '../../../services/AppLockScreenIdleTime/AppLockScreenIdleTime'
@@ -198,6 +198,8 @@ class App {
 
         } else if (firstTimeCall === 'second') {
             // second step of init
+            await cleanupNotNeeded()
+
             await UpdateAccountListDaemon.forceDaemonUpdate(params)
 
             await UpdateCashBackDataDaemon.updateCashBackDataDaemon()

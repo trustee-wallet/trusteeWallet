@@ -4,7 +4,7 @@
 import Log from './Log'
 import { FileSystem } from '../FileSystem/FileSystem'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
-import { getSqlForExport } from '@app/appstores/DataSource/Database';
+import { getSqlForExport, cleanupNotNeeded } from '@app/appstores/DataSource/Database';
 import AsyncStorage from '@react-native-community/async-storage'
 
 import { zip } from 'react-native-zip-archive'
@@ -20,6 +20,7 @@ class SendLog {
             // do nothing
         }
         try {
+            await cleanupNotNeeded()
             sql = await getSqlForExport()
         } catch (e) {
             // do nothing again

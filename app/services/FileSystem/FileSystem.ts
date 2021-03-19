@@ -101,7 +101,7 @@ export class FileSystem {
                 return
             }
         } catch (e) {
-            CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error1 ' + moving + ' ' + e.message
+            CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error11 ' + moving + ' ' + e.message
             return
         }
 
@@ -118,16 +118,21 @@ export class FileSystem {
                 }
             }
         } catch (e) {
-            CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error2 ' + moving + ' ' + e.message
+            CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error12 ' + moving + ' ' + e.message
             return
         }
 
         try {
             await RNFS.unlink(path + '-1.txt')
+        } catch (e) {
+            // do nothing
+        }
+
+        try {
             moving = path + ' => ' + path + '-1.txt'
             await RNFS.moveFile(path, path + '-1.txt')
         } catch (e) {
-            CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error3 ' + moving + ' ' + e.message
+            CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error13 ' + moving + ' ' + e.message
         }
     }
 
