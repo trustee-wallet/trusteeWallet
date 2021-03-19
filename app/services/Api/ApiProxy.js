@@ -17,6 +17,7 @@ import customCurrencyDS from '../../appstores/DataSource/CustomCurrency/CustomCu
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 import Log from '../Log/Log'
+import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
 async function _getAll(params) {
     const { mode: exchangeMode } = config.exchange
@@ -82,13 +83,18 @@ async function _getAll(params) {
         timestamp: +new Date()
     }
 
+    let walletHash = MarketingEvent.DATA.LOG_WALLET
+    if (!walletHash) {
+        walletHash = await BlocksoftKeysStorage.getSelectedWallet()
+        MarketingEvent.DATA.LOG_WALLET = walletHash
+    }
     const allData = {
         newsData,
         cbData,
         cbOrders,
         forCustomTokens,
         marketingAll: MarketingEvent.DATA,
-        walletAll: await ApiV3.initWallet({walletHash : MarketingEvent.DATA.LOG_WALLET})
+        walletAll: await ApiV3.initWallet({walletHash})
     }
 
     const all = await BlocksoftAxios.post(link, allData)

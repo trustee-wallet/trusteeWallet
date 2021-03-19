@@ -31,6 +31,7 @@ class SendAdvancedFees extends React.PureComponent {
 
         let devFee = false
         let needSpeed = item.needSpeed || false
+        let devFeeSub = false
         if (typeof item.feeForByte !== 'undefined') {
             devFee = item.feeForByte + ' sat/B '
             if (needSpeed) {
@@ -41,6 +42,9 @@ class SendAdvancedFees extends React.PureComponent {
             if (needSpeed) {
                 needSpeed = ' rec. ' + BlocksoftPrettyNumbers.makeCut(BlocksoftUtils.toGwei(needSpeed), 2).justCutted + ' gwei/gas'
             }
+        }
+        if (typeof item.blockchainData !== 'undefined' && item.blockchainData && typeof item.blockchainData.preparedInputsOutputs !== 'undefined') {
+            devFeeSub = 'ins: ' + item.blockchainData.preparedInputsOutputs.inputs.length + ' outs: ' + item.blockchainData.preparedInputsOutputs.outputs.length
         }
 
         if (!needSpeed) {
@@ -58,6 +62,9 @@ class SendAdvancedFees extends React.PureComponent {
                     needSpeed = ''
                 }
                 subtitle += `${needSpeed}`
+            }
+            if (devFeeSub) {
+                subtitle += `\n${devFeeSub}`
             }
         }
         subtitle += `\n${fiatFee}`

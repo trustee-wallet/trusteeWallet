@@ -44,8 +44,6 @@ class UpdateCardsDaemon {
 
         Log.daemon('UpdateCardsDaemon called')
 
-        const allCards = await cardDS.getCards()
-
         const toVerifyParams = {isPenging : true}
         if (typeof params.numberCard !== 'undefined') {
             toVerifyParams.number = params.numberCard

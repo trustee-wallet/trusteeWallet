@@ -9,6 +9,7 @@ import Log from '@app/services/Log/Log'
 
 import CheckData from '@app/modules/Send/elements/CheckData'
 import { feesTitles } from '@app/modules/Send/advanced/helpers'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 class MinerFee extends React.PureComponent {
 
@@ -19,6 +20,7 @@ class MinerFee extends React.PureComponent {
             return false
         }
 
+        const devMode = MarketingEvent.DATA.LOG_DEV
         const {feesPretty, feesCurrencySymbol, fiatFee} = feesTitles(selectedFee, this.props.sendScreenStoreDict)
 
         let nonceForTxTitle = false
@@ -27,7 +29,6 @@ class MinerFee extends React.PureComponent {
         } else if (typeof selectedFee.showNonce !== 'undefined' && selectedFee.showNonce) {
             nonceForTxTitle = 'send.receiptScreen.nonce'
         }
-
         return (
             <>
                 <CheckData
@@ -35,6 +36,14 @@ class MinerFee extends React.PureComponent {
                     value={`${feesPretty} ${feesCurrencySymbol}`}
                     subvalue={fiatFee}
                 />
+                {
+                    devMode && selectedFee && typeof selectedFee.blockchainData !== 'undefined' && selectedFee.blockchainData && typeof selectedFee.blockchainData.preparedInputsOutputs !== 'undefined' ?
+                        <CheckData
+                            name={'DEV Mode'}
+                            value={ selectedFee.feeForByte + ' sat/B ' + (typeof selectedFee.needSpeed !== 'undefined' && selectedFee.needSpeed ? (' rec. ' + selectedFee.needSpeed + ' sat/B') : '')}
+                            subvalue={'ins: ' + selectedFee.blockchainData.preparedInputsOutputs.inputs.length + ' outs: ' + selectedFee.blockchainData.preparedInputsOutputs.outputs.length}
+                        /> : null
+                }
                 {
                     nonceForTxTitle && typeof selectedFee.nonceForTx !== 'undefined' && (selectedFee.nonceForTx || selectedFee.nonceForTx.toString() === '0') && selectedFee.nonceForTx.toString() !== '-1' ?
                         <CheckData

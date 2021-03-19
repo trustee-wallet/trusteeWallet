@@ -83,10 +83,11 @@ class InputAndButtons extends React.PureComponent {
         const inputType = this.state.inputType === 'CRYPTO' ? 'FIAT' : 'CRYPTO'
         SendActionsStart.setBasicInputType(inputType)
         const equivalentValue = this.state.equivalentValue && this.state.equivalentValue > 0 ? this.state.equivalentValue : '0.00'
+        const inputValue = this.state.inputValue && this.state.inputValue > 0 ? this.state.inputValue : '0.00'
         this.setState({
             inputType,
             inputValue: equivalentValue,
-            equivalentValue: this.state.inputValue && this.state.inputValue > 0 ? this.state.inputValue : '0.00'
+            equivalentValue: inputValue
         })
         this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(equivalentValue).separated, false)
     }
