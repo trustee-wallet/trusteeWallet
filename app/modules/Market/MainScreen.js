@@ -1,10 +1,9 @@
 /**
- * @version 0.30
+ * @version 0.31
  * @author yura
  */
 
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 
 import {
     View,
@@ -20,7 +19,6 @@ import {
 } from 'react-native'
 
 import { WebView } from 'react-native-webview'
-import AsyncStorage from '@react-native-community/async-storage'
 import { CardIOModule, CardIOUtilities } from 'react-native-awesome-card-io'
 import valid from 'card-validator'
 import _ from 'lodash'
@@ -83,7 +81,9 @@ class MarketScreen extends Component {
         this.setState({ inited: true })
 
         // here to do upload
-        let apiUrl = await ApiV3.initData('MARKET')
+        const side = this.props.navigation.getParam('side')
+        const currencyCode = this.props.navigation.getParam('currencyCode')
+        let apiUrl = await ApiV3.initData('MARKET', currencyCode, side)
 
         setTimeout(() => {
             this.setState({
@@ -227,7 +227,7 @@ class MarketScreen extends Component {
                     }
                 }
             }
-            this.webref.postMessage(JSON.stringify({ 'data': cardData }))
+            this.webref && this.webref.postMessage(JSON.stringify({ 'data': cardData }))
         }
     }
 
@@ -237,7 +237,7 @@ class MarketScreen extends Component {
 
         try {
             const allData = JSON.parse(event.nativeEvent.data)
-            const { error, backToOld, close, homePage, cardData, tradeType, takePhoto, scanCard, deleteCard,
+            const { error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSend, didMount, navigationState, message, exchangeStatus,
                 useAllFunds, checkCamera } = allData
 
@@ -251,6 +251,17 @@ class MarketScreen extends Component {
 
             if (checkCamera) {
                 this.checkCameraForWebView()
+            }
+
+            if (backToOld) {
+                if (backToOld === 'SELL') {
+                    NavStore.goNext('MainV3DataScreen', { tradeType: backToOld })
+                } else if (backToOld === 'BUY') {
+                    NavStore.goNext('MainV3DataScreen', { tradeType: backToOld })
+                } else if (backToOld === 'EXCHANGE') {
+                    NavStore.goNext('ExchangeV3ScreenStack')
+                }
+                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
             }
 
             if (typeof homePage !== 'undefined' && (homePage === true || homePage === false)) {
@@ -307,7 +318,7 @@ class MarketScreen extends Component {
 
     async checkCameraForWebView() {
         const res = await Camera.checkCameraOn('Market/MainScreen validateCard')
-        this.webref.postMessage(JSON.stringify({ cameraRes: res }))
+        this.webref && this.webref.postMessage(JSON.stringify({ cameraRes: res }))
     }
 
     async send(data) {
@@ -330,7 +341,7 @@ class MarketScreen extends Component {
                 orderId: data.orderHash,
                 outDestination: data.exchangeWayType === 'SELL'
                     ? `${data.outDestination.substr(0, 2)}***${data.outDestination.substr(-4, 4)}`
-                    :  data.outDestination,
+                    : data.outDestination,
                 outTxHash: null,
                 payinUrl: null,
                 requestedInAmount: { amount: data.amount, currencyCode: data.currencyCode },
@@ -368,7 +379,11 @@ class MarketScreen extends Component {
 
     async onTakePhoto(cardData) {
         if (!await Camera.checkCameraOn('Market/MainScreen validateCard')) {
-            return
+            const res = await Camera.checkCameraOn('Market/MainScreen validateCard')
+            this.webref && this.webref.postMessage(JSON.stringify({ cameraRes: res }))
+            if (!res) {
+                return
+            }
         }
 
         // setLoaderStatus(true)
@@ -402,10 +417,9 @@ class MarketScreen extends Component {
                 this._onTakePhotoInner(res, cardData)
                 showError = false
             }
-            console.log('showError', msgError)
             // setLoaderStatus(false)
             if (showError) {
-                this.webref.postMessage(JSON.stringify({ notPhoto: true }))
+                this.webref && this.webref.postMessage(JSON.stringify({ notPhoto: true }))
 
                 showModal({
                     type: 'INFO_MODAL',
@@ -463,7 +477,7 @@ class MarketScreen extends Component {
         } catch (e) {
             Log.err('Market/MainScreen._onTakePhotoInner error ' + e.message)
 
-            this.webref.postMessage(JSON.stringify({ notPhoto: true }))
+            this.webref && this.webref.postMessage(JSON.stringify({ notPhoto: true }))
 
             showModal({
                 type: 'INFO_MODAL',
@@ -591,12 +605,12 @@ class MarketScreen extends Component {
                 await this.resCardToWebView(numberCard)
             } else {
                 if (res) {
-                    this.webref.postMessage(JSON.stringify({ res: { cardID, res, numberCard } }))
+                    this.webref && this.webref.postMessage(JSON.stringify({ res: { cardID, res, numberCard } }))
                 }
             }
 
         } catch (e) {
-            this.webref.postMessage(JSON.stringify({ serverError: true }))
+            this.webref && this.webref.postMessage(JSON.stringify({ serverError: true }))
             Log.err('Market/MainScreen validate e', e)
         }
     }
@@ -611,10 +625,10 @@ class MarketScreen extends Component {
         }
 
         if (cardStatus.verificationStatus === 'SUCCESS' || cardStatus.verificationStatus === 'CANCELED') {
-            this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
+            this.webref && this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
             return true
         } else {
-            this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
+            this.webref && this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
             setTimeout(async () => {
                 await this.resCardToWebView(numberCard)
             }, 30e3) //30 sec
@@ -670,7 +684,7 @@ class MarketScreen extends Component {
         try {
             const transferBalance = await SendActionsStart.getTransferAllBalanceFromBSE({ currencyCode, address })
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
-            this.webref.postMessage(JSON.stringify({ fees: { amount: amount ? amount : 0 } }))
+            this.webref && this.webref.postMessage(JSON.stringify({ fees: { amount: amount ? amount : 0 } }))
             return {
                 currencyBalanceAmount: amount,
                 currencyBalanceAmountRaw: transferBalance
