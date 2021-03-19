@@ -737,7 +737,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
     }
 
     async setMissingTx(data: BlocksoftBlockchainTypes.DbAccount, transaction: BlocksoftBlockchainTypes.DbTransaction): Promise<boolean> {
-        if (typeof transaction.transactionJson !== 'undefined' && typeof transaction.transactionJson.nonce !== 'undefined') {
+        if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson && typeof transaction.transactionJson.nonce !== 'undefined') {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferPRocessor.setMissingTx remove nonce ' + transaction.transactionJson.nonce + ' ' + transaction.transactionHash)
             await EthTmpDS.removeNonce(this._mainCurrencyCode, data.address, 'send_' + transaction.transactionHash)
         }
