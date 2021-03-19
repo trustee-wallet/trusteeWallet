@@ -185,11 +185,7 @@ class ReceiveScreen extends Component {
         try {
             await Netinfo.isInternetReachable()
 
-            if (config.exchange.mode === 'DEV') {
-                NavStore.goNext('MarketScreen')
-            } else {
-                NavStore.goNext('ExchangeV3ScreenStack')
-            }
+            NavStore.goNext('MarketScreen', { side: 'IN', currencyCode : this.props.account.currencyCode })
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('ReceiveScreen.handleExchange error ' + e.message)

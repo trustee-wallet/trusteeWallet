@@ -82,10 +82,9 @@ class MainV3DataScreen extends Component {
         CACHE_INIT_KEY = key
         this.setState({ inited: true })
 
-        const { isLight } = this.context
         const tradeType = this.props.navigation.getParam('tradeType')
         const currencyCode = this.props.navigation.getParam('currencyCode')
-        const apiUrl = await ApiV3.initData(tradeType, currencyCode, isLight)
+        const apiUrl = await ApiV3.initData(tradeType, currencyCode)
 
         setTimeout(() => {
             this.setState({
@@ -344,25 +343,25 @@ class MainV3DataScreen extends Component {
             }
 
             await SendActionsStart.startFromBSE({
-                    addressTo: data.address,
-                    amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
-                    memo: data.memo,
-                    comment: data.comment || '',
-                    currencyCode: data.currencyCode,
-                    isTransferAll: data.useAllFunds,
-                }, {
-                    bseProviderType: data.providerType || 'NONE', //  'FIXED' || 'FLOATING'
-                    bseOrderId: data.orderHash || data.orderId,
-                    bseMinCrypto: minCrypto,
-                    bseTrusteeFee: {
-                        value: trusteeFee.trusteeFee,
-                        currencyCode: trusteeFee.currencyCode,
-                        type: 'SELL',
-                        from: data.currencyCode,
-                        to: data.outCurrency
-                    },
-                    bseOrderData: bseOrderData
-                }
+                addressTo: data.address,
+                amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
+                memo: data.memo,
+                comment: data.comment || '',
+                currencyCode: data.currencyCode,
+                isTransferAll: data.useAllFunds,
+            }, {
+                bseProviderType: data.providerType || 'NONE', //  'FIXED' || 'FLOATING'
+                bseOrderId: data.orderHash || data.orderId,
+                bseMinCrypto: minCrypto,
+                bseTrusteeFee: {
+                    value: trusteeFee.trusteeFee,
+                    currencyCode: trusteeFee.currencyCode,
+                    type: 'SELL',
+                    from: data.currencyCode,
+                    to: data.outCurrency
+                },
+                bseOrderData: bseOrderData
+            }
             )
 
         } catch (e) {

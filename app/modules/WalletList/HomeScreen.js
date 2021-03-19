@@ -13,7 +13,6 @@ import {
 import { connect } from 'react-redux'
 import _orderBy from 'lodash/orderBy'
 import _isEqual from 'lodash/isEqual'
-// import DraggableFlatList from 'react-native-draggable-flatlist'
 
 import AsyncStorage from '@react-native-community/async-storage'
 
@@ -371,47 +370,6 @@ class HomeScreen extends React.Component {
                             )}
                             keyExtractor={item => item.currencyCode}
                         />
-                        {/* <DraggableFlatList
-                            data={this.state.data}
-                            showsVerticalScrollIndicator={false}
-                            contentContainerStyle={styles.list}
-                            onScrollOffsetChange={this.updateOffset}
-                            autoscrollSpeed={300}
-                            refreshControl={
-                                <RefreshControl
-                                    style={styles.refreshControl}
-                                    enabled={!this.state.isCurrentlyDraggable}
-                                    tintColor={colors.common.text1}
-                                    refreshing={this.state.refreshing}
-                                    onRefresh={this.handleRefresh}
-                                />
-                            }
-
-                            ListHeaderComponent={(
-                                <WalletInfo
-                                    isBalanceVisible={this.state.isBalanceVisible}
-                                    originalVisibility={this.state.originalVisibility}
-                                    changeBalanceVisibility={this.changeBalanceVisibility}
-                                    triggerBalanceVisibility={this.triggerBalanceVisibility}
-                                    balanceData={balanceData}
-                                />
-                            )}
-                            renderItem={({ item, drag, isActive }) => (
-                                <CryptoCurrency
-                                    cryptoCurrency={item}
-                                    isBalanceVisible={this.state.isBalanceVisible}
-                                    onDrag={drag}
-                                    isActive={isActive}
-                                    handleReceive={account => this.handleReceive(item, account)}
-                                    handleSend={() => this.handleSend(item)}
-                                    handleHide={() => this.handleHide(item)}
-                                />
-                            )}
-                            keyExtractor={item => item.currencyCode}
-                            activationDistance={15}
-                            onDragEnd={this.onDragEnd}
-                            onDragBegin={this.onDragBegin}
-                        /> */}
                         <BottomNavigation />
                     </View>
                 </SafeAreaView>
@@ -423,7 +381,6 @@ class HomeScreen extends React.Component {
 const mapStateToProps = (state) => {
     return {
         mainStore: state.mainStore,
-        toolTipsStore: state.toolTipsStore,
         currencies: getVisibleCurrencies(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore)
     }

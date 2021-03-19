@@ -78,6 +78,7 @@ class SendScreen extends SendBasicScreen {
         setLoaderStatus(true)
         CACHE_IS_COUNTING = true
         try {
+            // Ksu, proposition - return if error
             await SendActionsBlockchainWrapper.getFeeRate()
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false

@@ -3,33 +3,30 @@
  * @author yura
  */
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import { Animated, Dimensions, Linking, View } from 'react-native'
 
 import LottieView from 'lottie-react-native'
 
 import { WebView } from 'react-native-webview'
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import Log from '../../services/Log/Log'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
+import Log from '@app/services/Log/Log'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-import Header from '../../components/elements/new/Header'
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+import Header from '@app/components/elements/new/Header'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
-import { strings } from '../../services/i18n'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 
-import Api from '../../services/Api/ApiV3'
+import Api from '@app/services/Api/ApiV3'
 
-import store from '../../store'
+import store from '@app/store'
 import _ from 'lodash'
 
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
-import config from '../../config/config'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import config from '@app/config/config'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 import axios from 'axios'
 
@@ -215,20 +212,7 @@ class SMSV3CodeScreen extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        exchange: state.exchangeStore.data,
-        settingsStore: state.settingsStore
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(SMSV3CodeScreen)
+export default SMSV3CodeScreen
 
 const styles = {
     wrapper: {

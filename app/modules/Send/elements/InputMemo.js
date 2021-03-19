@@ -104,7 +104,7 @@ class InputMemo extends React.PureComponent {
                         <MemoInput
                             ref={component => this.memoInput = component}
                             id={memoInput.id}
-                            name={strings('send.xrp_memo')}
+                            name={strings('send.bnb_memo')}
                             type={'XLM_DESTINATION_TAG'}
                             onFocus={() => this.onFocus()}
                             keyboardType={'default'}
