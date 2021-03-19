@@ -1,5 +1,5 @@
 /**
- * @version 0.11
+ * @version 0.31
  * @author yura
  */
 import React, { Component } from 'react'
@@ -18,7 +18,6 @@ import moment from 'moment'
 import IconVisible from '@app/assets/images/icon_visible'
 import IconHidden from '@app/assets/images/icon_hidden'
 import NavStore from '@app/components/navigation/NavStore'
-import ToolTips from '@app/components/elements/ToolTips'
 import GradientView from '@app/components/elements/GradientView'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 
@@ -124,19 +123,6 @@ class WalletInfo extends Component {
         })
     }
 
-    renderTooltip = () => {
-        const { isViolet } = this.state
-        const { colors } = this.context
-        return (
-            <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
-                <Entypo style={[styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]} size={13} name="plus" />
-                <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]}>
-                    {strings('settings.assets.addAsset').toUpperCase()}
-                </Text>
-            </View>
-        )
-    }
-
     render() {
         const {
             changeBalanceVisibility,
@@ -184,7 +170,12 @@ class WalletInfo extends Component {
                                 />
                             </View>
                             <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')}>
-                                <ToolTips type={'HOME_SCREEN_ADD_CRYPTO_BTN_TIP'} height={150} MainComponent={() => this.renderTooltip()} />
+                                <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
+                                    <Entypo style={[styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]} size={13} name="plus" />
+                                    <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]}>
+                                        {strings('settings.assets.addAsset').toUpperCase()}
+                                    </Text>
+                                </View>
                             </TouchableOpacity>
                         </View>
 

@@ -5,40 +5,26 @@ import React, { Component } from 'react'
 import { View, Text, TouchableOpacity, Platform } from 'react-native'
 import { connect } from 'react-redux'
 
-import IconAwesome from 'react-native-vector-icons/FontAwesome'
-import FontistoIcon from 'react-native-vector-icons/Fontisto'
+import NavStore from '@app/components/navigation/NavStore'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
-import NavStore from '../../../components/navigation/NavStore'
-import ToolTips from '../../../components/elements/ToolTips'
-import CustomIcon from '../../../components/elements/CustomIcon'
+import { strings } from '@app/services/i18n'
 
-import { strings } from '../../../services/i18n'
+import Log from '@app/services/Log/Log'
+import Netinfo from '@app/services/Netinfo/Netinfo'
 
-import ToolTipsActions from '../../../appstores/Stores/ToolTips/ToolTipsActions'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import Log from '../../../services/Log/Log'
-import Netinfo from '../../../services/Netinfo/Netinfo'
+import config from '@app/config/config'
 
-import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
-import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
-
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
-
-import AsyncStorage from '@react-native-community/async-storage'
-import settingsStoreReducer from '../../../appstores/Stores/Settings/SettingsStore'
-import config from '../../../config/config'
-
-import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 class BottomNavigation extends Component {
 
     constructor() {
         super()
-        this.state = {
-            btnType: 'BUY',
-            tips: true
-        }
+        this.state = {}
         this.buySellBtnTooltip = React.createRef()
     }
 
@@ -63,8 +49,6 @@ class BottomNavigation extends Component {
     handleMainBtn = async (type) => {
         try {
             await Netinfo.isInternetReachable()
-
-            ToolTipsActions.setToolTipState('HOME_SCREEN_BUY_SELL_BTN_TIP')
 
             if (type === 'SELL') {
                     NavStore.goNext('MainV3DataScreen', { tradeType: 'SELL' })
@@ -107,30 +91,6 @@ class BottomNavigation extends Component {
         NavStore.goNext('CashbackScreen')
     }
 
-    returnBuyTooltip = () => {
-        const { colors } = this.context
-        return (
-            <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleMainBtn('BUY')}>
-            <View style={{ alignItems: 'center' }}>
-                <CustomIcon name="buy" style={{ color: colors.common.text1 }} size={21} />
-                <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 3 }}>{strings('dashboardStack.buy')}</Text>
-            </View>
-            </TouchableOpacity>
-        )
-    }
-
-    renderExchangeTooltip = () => {
-        const { colors } = this.context
-        return (
-            <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleModal()}>
-            <View style={{ alignItems: 'center' }}>
-                <CustomIcon name="exchange" style={{ color: colors.common.text1 }} size={21} />
-                <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 3 }}>{strings('dashboardStack.exchange')}</Text>
-            </View>
-            </TouchableOpacity>
-        )
-    }
-
     render() {
         const { colors } = this.context
         return (
@@ -140,8 +100,8 @@ class BottomNavigation extends Component {
                 </View>
                 <View style={[styles.contentWrapper, { backgroundColor: colors.homeScreen.tabBarBackground }]}>
                     <View style={styles.itemStub} />
-                        {config.exchange.mode === 'DEV' ?
-                            <>
+                        {/* {config.exchange.mode === 'PROD' ?
+                            <> */}
                                 <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleMainMarket}>
                                     <CustomIcon name="buy" style={{ color: colors.common.text1 }} size={21} />
                                     <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.market')}</Text>
@@ -156,29 +116,30 @@ class BottomNavigation extends Component {
                                     <CustomIcon name="support" style={{ color: colors.common.text1 }} size={20} />
                                     <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.support')}</Text>
                                 </TouchableOpacity>
-                            </>
+                            {/* </>
                             :
                             <>
-                                <View style={{ alignItems: 'center', flex: 4}}>
-                                    <ToolTips showAfterRender={true} type={'HOME_SCREEN_BUY_BTN_TIP'} height={150}
-                                        MainComponent={this.returnBuyTooltip} />
-                                </View>
+                                <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleMainBtn('BUY')}>
+                                    <CustomIcon name="buy" style={{ color: colors.common.text1 }} size={21} />
+                                    <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 3 }}>{strings('dashboardStack.buy')}</Text>
+                                </TouchableOpacity>
 
-                                <View style={{ alignItems: 'center', flex: 4}}>
-                                    <ToolTips type={'HOME_SCREEN_EXCHANGE_BTN_TIP'} height={150} MainComponent={this.renderExchangeTooltip} />
-                                </View>
+                                <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleModal()}>
+                                    <CustomIcon name="exchange" style={{ color: colors.common.text1 }} size={21} />
+                                    <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 3 }}>{strings('dashboardStack.exchange')}</Text>
+                                </TouchableOpacity>
 
-                                <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={() => this.handleMainBtn('SELL')}>
+                                <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleMainBtn('SELL')}>
                                     <CustomIcon name="sell" style={{ color: colors.common.text1 }} size={21} />
                                     <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.sell')}</Text>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 4}} onPress={this.handleCashback}>
+                                <TouchableOpacity style={styles.navigation__item} onPress={this.handleCashback}>
                                     <CustomIcon name="earn" style={{ color: colors.common.text1 }} size={20} />
                                     <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]} numberOfLines={1} >{strings('dashboardStack.earn')}</Text>
                                 </TouchableOpacity>
                             </>
-                        }
+                        } */}
 
                     <View style={styles.itemStub} />
                 </View>
@@ -230,7 +191,8 @@ const styles = {
         paddingTop: 8,
         paddingBottom: 6,
         justifyContent: 'space-between',
-        padding: 10
+        alignItems: 'center',
+        flex: 4
     },
     navigation__item__text: {
         fontSize: 12,

@@ -1,5 +1,6 @@
 /**
- * @version 0.10
+ * @version 0.31
+ * @author yura
  */
 import React from 'react'
 import { connect } from 'react-redux'
@@ -15,25 +16,25 @@ import {
     StyleSheet
 } from 'react-native'
 
-import MenuIcon from '../../../assets/images/menu_icon'
-import NotificationIcon from '../../../assets/images/notification_icon'
-import QRCodeBtn from '../../../assets/images/qrCodeBtn'
+import MenuIcon from '@app/assets/images/menu_icon'
+import NotificationIcon from '@app/assets/images/notification_icon'
+import QRCodeBtn from '@app/assets/images/qrCodeBtn'
 
 import WalletName from './WalletName/WalletName'
 
-import NavStore from '../../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import { setQRConfig, setQRValue } from '../../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import { AppNewsActions } from '../../../appstores/Stores/AppNews/AppNewsActions'
-import { strings } from '../../../services/i18n'
+import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { AppNewsActions } from '@app/appstores/Stores/AppNews/AppNewsActions'
+import { strings } from '@app/services/i18n'
 
-import Log from '../../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import { checkQRPermission } from '../../../services/UI/Qr/QrPermissions'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 
-import { HIT_SLOP } from '../../../themes/Themes';
+import { HIT_SLOP } from '@app/themes/Themes';
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 
 const headerHeight = 44
