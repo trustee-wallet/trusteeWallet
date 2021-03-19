@@ -175,7 +175,7 @@ export namespace SendActions {
         if (typeof data.transactionBoost !== 'undefined') {
             if (typeof data.transactionBoost.transactionJson !== 'undefined' && data.transactionBoost.transactionJson !== {}) {
                 countedFeesData.transactionJson = data.transactionBoost.transactionJson
-                if (bseMinCryptoFromOld && data.transactionBoost.transactionJson.bseMinCrypto !== 'undefined') {
+                if (bseMinCryptoFromOld && data.transactionBoost.transactionJson && typeof data.transactionBoost.transactionJson.bseMinCrypto !== 'undefined') {
                     data.bseMinCrypto = data.transactionBoost.transactionJson.bseMinCrypto
                 }
             }
