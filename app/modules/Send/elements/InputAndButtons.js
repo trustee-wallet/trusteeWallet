@@ -82,11 +82,11 @@ class InputAndButtons extends React.PureComponent {
     handleChangeEquivalentType = () => {
         const inputType = this.state.inputType === 'CRYPTO' ? 'FIAT' : 'CRYPTO'
         SendActionsStart.setBasicInputType(inputType)
-        const equivalentValue = this.state.equivalentValue
+        const equivalentValue = this.state.equivalentValue && this.state.equivalentValue > 0 ? this.state.equivalentValue : '0.00'
         this.setState({
             inputType,
             inputValue: equivalentValue,
-            equivalentValue: this.state.inputValue ? this.state.inputValue : '0.00'
+            equivalentValue: this.state.inputValue && this.state.inputValue > 0 ? this.state.inputValue : '0.00'
         })
         this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(equivalentValue).separated, false)
     }
@@ -121,7 +121,7 @@ class InputAndButtons extends React.PureComponent {
         const fiatPrettyValue = RateEquivalent.mul({ value: cryptoPrettyValue, currencyCode, basicCurrencyRate })
         const toUpdate = {
             isCountingTransferAll: false,
-            inputValue: '0',
+            inputValue: '',
             inputType,
             equivalentValue: fiatPrettyValue,
             cryptoValue,
@@ -132,14 +132,18 @@ class InputAndButtons extends React.PureComponent {
         }
         if (inputType === 'CRYPTO') {
             toUpdate.inputValue = cryptoPrettyValue
+            toUpdate.equivalentValue = fiatPrettyValue > 0 ? fiatPrettyValue : '0.00'
         } else {
             toUpdate.inputValue = fiatPrettyValue
+            toUpdate.equivalentValue = cryptoPrettyValue > 0 ? cryptoPrettyValue : '0.00'
         }
         if (cryptoValueRecounted) {
             toUpdate.cryptoValueRecounted = cryptoValueRecounted
         }
         this.setState(toUpdate)
-        this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(toUpdate.inputValue).separated, false)
+        if (toUpdate.inputValue > 0) {
+            this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(toUpdate.inputValue).separated, false)
+        }
     }
 
     amountInputCallback = async (value) => {
@@ -307,11 +311,19 @@ class InputAndButtons extends React.PureComponent {
                             ref={component => this.valueInput = component}
                             // onFocus={() => this.onFocus()}
                             decimals={decimals < 10 ? decimals : 10}
-                            enoughFunds={true} //!this.state.enoughFunds.isAvailable}
+                            enoughFunds={!this.state.enoughFunds.isAvailable}
                             id={amountInput.id}
                             additional={amountInput.additional}
                             type={amountInput.type}
-                            callback={(value) => this.amountInputCallback(value, true)}
+                            callback={(value) => {
+                                this.amountInputCallback(value, true)
+                                this.setState({
+                                    enoughFunds: {
+                                        isAvailable: true,
+                                        messages: ''
+                                    }
+                                })
+                            }}
                             maxLength={17}
                             maxWidth={SCREEN_WIDTH * 0.6}
                         />
@@ -323,13 +335,13 @@ class InputAndButtons extends React.PureComponent {
                 <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                     <View style={{ ...style.line, backgroundColor: colors.sendScreen.colorLine }} />
                     <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
-                                      onPress={this.handleChangeEquivalentType} hitSlop={HIT_SLOP}>
+                        onPress={this.handleChangeEquivalentType} hitSlop={HIT_SLOP}>
                         <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
                     </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                     <LetterSpacing text={this.state.isCountingTransferAll ? 'Loading...' : notEquivalentValue} textStyle={{ ...style.notEquivalentValue, color: '#999999' }}
-                                   letterSpacing={1.5} />
+                        letterSpacing={1.5} />
                 </View>
                 {balanceTotalPretty > 0 && (
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: GRID_SIZE }}>
