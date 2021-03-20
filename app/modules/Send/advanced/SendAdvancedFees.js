@@ -62,9 +62,9 @@ class SendAdvancedFees extends React.PureComponent {
                     needSpeed = ''
                 }
                 subtitle += `${needSpeed}`
-            }
-            if (devFeeSub) {
-                subtitle += `\n${devFeeSub}`
+                if (devFeeSub) {
+                    subtitle += `\n${devFeeSub}`
+                }
             }
         }
         subtitle += `\n${fiatFee}`
