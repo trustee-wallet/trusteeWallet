@@ -49,6 +49,8 @@ const logSendSell = async function(transaction: any, tx: any, logData: any, send
     }
     logData.bseOrderId = bseOrderId.toString()
 
+    ApiV3.setExchangeStatus(bseOrderId,'SUCCESS', transaction.transactionHash)
+
 
     // https://rnfirebase.io/reference/analytics#logPurchase
     let usdValue = bseTrusteeFee.value

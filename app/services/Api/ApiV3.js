@@ -250,7 +250,7 @@ export default {
         }
     },
 
-    setExchangeStatus: async (orderHash, status) => {
+    setExchangeStatus: async (orderHash, status, transactionHash = '') => {
 
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
@@ -266,16 +266,22 @@ export default {
         data.cashbackToken = cashbackToken
 
         data.orderHash = orderHash
+        data.transactionHash = transactionHash
         data.paymentStatus = status
 
         try {
             const link = baseUrl + V3_ENTRY_POINT_SET_STATUS
-            Log.log('ApiV3 setExchangeStatus axios ' + link + ' status ' + status)
-            return BlocksoftAxios.post(link, data, false)
-
+            Log.log('ApiV3 setExchangeStatus axios ' + link + ' ' + orderHash + ' ' + transactionHash + ' status ' + status)
+            if (config.debug.appErrors) {
+                console.log('ApiV3 setExchangeStatus start axios ' + link + ' ' + orderHash + ' ' + transactionHash + ' status ' + status)
+            }
+            const res = await BlocksoftAxios.post(link, data, false)
+            if (config.debug.appErrors) {
+                console.log('ApiV3 setExchangeStatus end', JSON.stringify(res.data))
+            }
+            return res
         } catch (e) {
             Log.err('ApiV3 setExchangeStatus e.response.data ' + e.response.data)
-            Log.err('ApiV3 setExchangeStatus e.response.data.message ' + e.response.data.message)
         }
     },
 
