@@ -2,7 +2,7 @@
  * @version 0.41
  * @author yura
  */
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import { TextInput, View, Platform, StyleSheet } from 'react-native'
 
@@ -14,7 +14,7 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import Log from '@app/services/Log/Log'
 
-class InputAndButtonsInput extends React.PureComponent {
+class InputAndButtonsInput extends PureComponent {
 
     constructor(props) {
         super(props)
@@ -160,7 +160,7 @@ class InputAndButtonsInput extends React.PureComponent {
                 <TextInput
                     ref={component => this.valueInput = component}
                     keyboardType={'numeric'}
-                    placeholder={'0.00'}
+                    placeholder={this.state.focus ? '' : '0.00'}
                     placeholderTextColor={colors.sendScreen.amount }
                     fontSize={this.state.fontSize}
                     selectionColor={'#7127ac'}
