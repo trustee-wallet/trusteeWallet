@@ -98,6 +98,18 @@ export class FileSystem {
             const res = await RNFS.stat(path)
             // @ts-ignore
             if (res.size * 1 < 700000) { // 0.7 mb
+                for (let index = 5; index >= 1; index--) {
+                    try {
+                        if (await RNFS.exists(path + '-' + index + '.txt')) {
+                            const res2 = await RNFS.stat(path + '-' + index + '.txt')
+                            if (res2 && typeof res2.size !== 'undefined' && res2.size * 1 > 900000) {
+                                await RNFS.unlink(path + '-' + index + '.txt')
+                            }
+                        }
+                    } catch (e) {
+                        // nothing
+                    }
+                }
                 return
             }
         } catch (e) {
