@@ -66,6 +66,7 @@ import { SendActionsStart } from '../../appstores/Stores/Send/SendActionsStart'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
+let CACHE_DELETE_ORDER_ID = ''
 class TransactionScreen extends Component {
 
     constructor(props) {
@@ -714,13 +715,16 @@ class TransactionScreen extends Component {
             return false
         }
         array.push({ icon: 'delete', title: strings('account.transactionScreen.remove'), action: async () => {
+                // called 3 times on one click!!!
+                if (CACHE_DELETE_ORDER_ID === transaction.bseOrderData.orderId) return false
+                CACHE_DELETE_ORDER_ID = transaction.bseOrderData.orderId
                 setLoaderStatus(true)
                 try {
                     await UpdateTradeOrdersDaemon.removeId(transaction.bseOrderData.orderId)
                 } catch (e) {
+                    CACHE_DELETE_ORDER_ID = false
                     Log.err('TransactionScreen.removeButton error ' + e.message)
                 }
-                NavStore.goBack()
                 setLoaderStatus(false)
         }})
     }
