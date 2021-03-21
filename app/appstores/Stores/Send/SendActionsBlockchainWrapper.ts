@@ -214,15 +214,22 @@ export namespace SendActionsBlockchainWrapper {
         return '0'
     }
 
-    export const actualSend = async (uiErrorConfirmed: any, selectedFee : any) => {
+    export const actualSend = async (sendScreenStore : any, uiErrorConfirmed: any, selectedFee : any) => {
         const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
-        const uiData = store.getState().sendScreenStore.ui
+        const {ui} = sendScreenStore
+        const {bse} = ui
+        const { bseOrderId, bseMinCrypto } = bse
+        if (typeof bseOrderId !== 'undefined' && bseOrderId) {
+            selectedFee.bseOrderId = bseOrderId
+        }
+        if (typeof bseMinCrypto !== 'undefined' && bseMinCrypto) {
+            selectedFee.bseMinCrypto = bseMinCrypto
+        }
+        newCountedFeesData.addressTo = ui.addressTo
+        newCountedFeesData.amount = ui.cryptoValue
+        newCountedFeesData.memo = ui.memo
+        newCountedFeesData.isTransferAll = ui.isTransferAll
 
-        newCountedFeesData.addressTo = uiData.addressTo
-        newCountedFeesData.amount = uiData.cryptoValue
-        newCountedFeesData.memo = uiData.memo
-        newCountedFeesData.isTransferAll = uiData.isTransferAll
-
-        return BlocksoftTransfer.sendTx(newCountedFeesData, { uiErrorConfirmed, selectedFee }, {})
+        return BlocksoftTransfer.sendTx(newCountedFeesData, { uiErrorConfirmed, selectedFee }, CACHE_DATA.additionalData)
     }
 }

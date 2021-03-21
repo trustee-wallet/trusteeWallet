@@ -20,7 +20,7 @@ const feesTitles = function(item, dict) {
         fiatFee = item.feeForTxBasicAmount
         feesBasicCurrencySymbol = item.feeForTxBasicSymbol
     } else {
-        feesPretty = BlocksoftPrettyNumbers.setCurrencyCode(feesCurrencyCode).makePretty(item.feeForTx)
+        feesPretty = BlocksoftPrettyNumbers.makeCut(BlocksoftPrettyNumbers.setCurrencyCode(feesCurrencyCode).makePretty(item.feeForTx)).separated
         fiatFee = RateEquivalent.mul({ value: feesPretty, currencyCode: feesCurrencyCode, basicCurrencyRate: feesBasicCurrencyRate })
     }
 

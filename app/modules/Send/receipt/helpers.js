@@ -52,7 +52,7 @@ const showSendError = function(e, _this, passwordCheck) {
 const checkLoadedFee = function(_this) {
     const { countedFees, selectedFee } = _this.props.sendScreenStore.fromBlockchain
     const { currencyCode } = _this.props.sendScreenStore.dict
-    const { bse } = _this.props.sendScreenStore.ui
+    const { bse, cryptoValue } = _this.props.sendScreenStore.ui
     const { bseMinCrypto, bseOrderId } = bse
 
     let msg = false
@@ -60,14 +60,14 @@ const checkLoadedFee = function(_this) {
     let cacheWarningNoticeValue = ''
 
     if (typeof bseMinCrypto !== 'undefined' && bseMinCrypto * 1 > 0) {
-        if ((typeof selectedFee === 'undefined' || !selectedFee) && typeof countedFees.bseMinCryptoNotOk !== 'undefined' && countedFees.bseMinCryptoNotOk) {
-            msg = strings('modal.send.bseMinCryptoNoFee', { limit: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(bseMinCrypto) })
-            goBack = true
-            cacheWarningNoticeValue = 'bseMinCrypto_' + bseOrderId + '_noFee'
-        } else if (typeof selectedFee.amountForTx !== 'undefined' && bseMinCrypto * 1 > selectedFee.amountForTx * 1) {
+        if (typeof selectedFee.amountForTx !== 'undefined' && bseMinCrypto * 1 > selectedFee.amountForTx * 1) {
             msg = strings('modal.send.bseMinCrypto', { limit: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(bseMinCrypto) })
             goBack = true
             cacheWarningNoticeValue = 'bseMinCrypto_' + bseOrderId + '_' + selectedFee.amountForTx
+        } else if (typeof cryptoValue !== 'undefined' && bseMinCrypto * 1 > cryptoValue * 1) {
+            msg = strings('modal.send.bseMinCrypto', { limit: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(bseMinCrypto) })
+            goBack = true
+            cacheWarningNoticeValue = 'bseMinCrypto_' + bseOrderId + '_' + cryptoValue
         }
     }
 
@@ -112,7 +112,7 @@ const checkLoadedFee = function(_this) {
             }
         }
     }
-    return {msg, cacheWarningNoticeValue, goBack}
+    return { msg, cacheWarningNoticeValue, goBack }
 }
 export {
     showSendError, checkLoadedFee

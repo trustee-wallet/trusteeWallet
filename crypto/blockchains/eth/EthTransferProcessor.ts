@@ -326,7 +326,8 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 isTransferAll: data.isTransferAll,
                 amountForTx: amount
             }
-            if (BlocksoftUtils.diff(newGasPrice, prevGasPrice).indexOf('-') === -1) {
+
+            if (BlocksoftUtils.diff(newGasPrice, prevGasPrice).indexOf('-') === -1 && newGasPrice !== prevGasPrice) {
                 prevGasPrice = tmp.gasPrice
                 BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate added feeForTx ' + titles[index] + ' ' + tmp.feeForTx + ' with gasPrice ' + tmp.gasPrice + ' / gasLimit ' + tmp.gasLimit)
                 result.fees.push(tmp)
