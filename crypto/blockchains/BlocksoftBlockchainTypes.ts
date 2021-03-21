@@ -154,7 +154,7 @@ export namespace BlocksoftBlockchainTypes {
     }
 
     export interface TransferAllBalanceResult {
-        additionalData: { unspents: any[] }
+        additionalData?: { unspents: any[] }
         selectedTransferAllBalance: string,
         selectedFeeIndex: number,
         countedForBasicBalance: string,
