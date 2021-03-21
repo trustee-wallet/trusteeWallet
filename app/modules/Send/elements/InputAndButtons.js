@@ -1,7 +1,7 @@
 /**
  * @version 0.41
  */
-import React from 'react'
+import React, { PureComponent } from 'react'
 import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
@@ -41,7 +41,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 const USDT_LIMIT = 600
 
-class InputAndButtons extends React.PureComponent {
+class InputAndButtons extends PureComponent {
 
     constructor(props) {
         super(props)
@@ -82,14 +82,17 @@ class InputAndButtons extends React.PureComponent {
     handleChangeEquivalentType = () => {
         const inputType = this.state.inputType === 'CRYPTO' ? 'FIAT' : 'CRYPTO'
         SendActionsStart.setBasicInputType(inputType)
-        const equivalentValue = this.state.equivalentValue && this.state.equivalentValue > 0 ? this.state.equivalentValue : '0.00'
-        const inputValue = this.state.inputValue && this.state.inputValue > 0 ? this.state.inputValue : '0.00'
+        const equivalentValue = this.state.equivalentValue && this.state.equivalentValue > 0 ? this.state.equivalentValue : ''
+        const inputValue = this.state.inputValue && this.state.inputValue > 0 ? this.state.inputValue : ''
         this.setState({
             inputType,
             inputValue: equivalentValue,
             equivalentValue: inputValue
         })
-        this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(equivalentValue).separated, false)
+
+        if (equivalentValue && equivalentValue > 0) {
+            this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(equivalentValue).separated, false)
+        }
     }
 
     handlePartBalance = (newPartBalance) => {
@@ -295,7 +298,7 @@ class InputAndButtons extends React.PureComponent {
     render() {
         const { colors, GRID_SIZE } = this.context
         const { decimals, currencySymbol, basicCurrencyCode, balanceTotalPretty } = this.props.sendScreenStoreDict
-        const { inputType, equivalentValue } = this.state
+        let { inputType, equivalentValue } = this.state
 
         if (this.state.isCountingTransferAll && this.props.sendScreenStoreTransferAllBalance) {
             this.transferAllCallback(this.props.sendScreenStoreTransferAllBalance)
@@ -303,7 +306,13 @@ class InputAndButtons extends React.PureComponent {
             this._checkInputCallback()
         }
 
-        const notEquivalentValue = '~ ' + BlocksoftPrettyNumbers.makeCut(equivalentValue).separated + ' ' + (inputType !== 'CRYPTO' ? currencySymbol : basicCurrencyCode)
+        if (equivalentValue && equivalentValue > 0) {
+            equivalentValue = BlocksoftPrettyNumbers.makeCut(equivalentValue).separated
+        } else {
+            equivalentValue = '0.00'
+        }
+
+        const notEquivalentValue = `~ ${equivalentValue} ${inputType !== 'CRYPTO' ? currencySymbol : basicCurrencyCode}`
         return (
             <View>
                 <View style={{ width: '75%', alignSelf: 'center', alignItems: 'center' }}>
