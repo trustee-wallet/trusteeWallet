@@ -82,9 +82,16 @@ export namespace Camera {
         const res = await check(Platform.OS !== 'ios' ? PERMISSIONS.ANDROID.CAMERA : PERMISSIONS.IOS.CAMERA)
         Log.log(source + ' checkCameraOn result', res)
 
-        if (res !== 'blocked' && res !== 'denied' ) {
-            return true
+        if (Platform.OS !== 'ios') {
+            if (res !== 'blocked' && res !== 'denied' ) {
+                return true
+            }
+        } else {
+            if (res !== 'blocked') {
+                return true
+            }
         }
+
         showModal({
             type: 'OPEN_SETTINGS_MODAL',
             icon: false,
