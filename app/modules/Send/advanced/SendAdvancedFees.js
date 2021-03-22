@@ -19,13 +19,6 @@ import SendCustomFee from '@app/modules/Send/advanced/SendCustomFee'
 
 class SendAdvancedFees extends React.PureComponent {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            currentSelectedFee : false
-        }
-    }
-
     getFeeTitle(item) {
         const devMode = MarketingEvent.DATA.LOG_DEV
 
@@ -74,14 +67,14 @@ class SendAdvancedFees extends React.PureComponent {
 
     setFee(item) {
         SendActionsUpdateValues.setTmpSelectedFee(item)
-        this.setState({
-            currentSelectedFee : item
+        this.props.setParentState({
+            selectedFee: item
         })
     }
 
     setCustomFee() {
         const { selectedFee } = this.props.sendScreenStore.fromBlockchain
-        const currentSelectedFee = this.state.currentSelectedFee ? this.state.currentSelectedFee : selectedFee
+        const currentSelectedFee = selectedFee
         if (typeof currentSelectedFee.isCustomFee === 'undefined' || currentSelectedFee.isCustomFee === false) {
             setTimeout(() => {
                 try {
@@ -90,10 +83,10 @@ class SendAdvancedFees extends React.PureComponent {
                 }
             }, 500)
         }
-        const item = {...currentSelectedFee, isCustomFee : true}
+        const item = { ...currentSelectedFee, isCustomFee: true }
         SendActionsUpdateValues.setTmpSelectedFee(item)
-        this.setState({
-            currentSelectedFee : item
+        this.props.setParentState({
+            selectedFee: item
         })
     }
 
@@ -107,11 +100,11 @@ class SendAdvancedFees extends React.PureComponent {
     }
 
     render() {
-        const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
+        const { countedFees } = this.props.sendScreenStore.fromBlockchain
         const { isTransferAll, bse } = this.props.sendScreenStore.ui
+        const { currentSelectedFee } = this.props
         const { bseProviderType } = bse
 
-        const currentSelectedFee = this.state.currentSelectedFee ? this.state.currentSelectedFee : selectedFee
         const isCustomFee = typeof currentSelectedFee.isCustomFee !== 'undefined' ? currentSelectedFee.isCustomFee : false
         return (
             <View style={{ paddingLeft: 40 }}>
@@ -136,7 +129,7 @@ class SendAdvancedFees extends React.PureComponent {
                 }
 
 
-                { (bseProviderType !== 'FIXED' || !isTransferAll) ?
+                {(bseProviderType !== 'FIXED' || !isTransferAll) ?
                     <SubSetting
                         title={strings(`send.fee.customFee.title`)}
                         checked={isCustomFee}

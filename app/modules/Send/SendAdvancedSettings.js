@@ -40,6 +40,7 @@ class SendAdvancedSettings extends Component {
             dropMenu: false,
             comment: '',
             headerHeight: 0,
+            selectedFee : false
         }
 
         this.customFee = React.createRef()
@@ -63,6 +64,10 @@ class SendAdvancedSettings extends Component {
         this.setState({
             headerHeight
         })
+    }
+
+    setFee = (newData) => {
+        this.setState(newData)
     }
 
     onChangeComment = (value) => {
@@ -103,8 +108,11 @@ class SendAdvancedSettings extends Component {
         const { colors, GRID_SIZE } = this.context
 
         const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
-        const langMsg = selectedFee ? selectedFee.langMsg : 'none'
-        const isCustomFee = typeof selectedFee.isCustomFee !== 'undefined' ? selectedFee.isCustomFee : false
+
+        const currentSelectedFee = this.state.selectedFee ? this.state.selectedFee : selectedFee
+
+        const langMsg = currentSelectedFee ? currentSelectedFee.langMsg : 'none'
+        const isCustomFee = typeof currentSelectedFee.isCustomFee !== 'undefined' ? currentSelectedFee.isCustomFee : false
 
         const dropMenu = langMsg !== 'none' ? !!this.state.dropMenu : true
         const showFees = countedFees && typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex*1 >= -2
@@ -143,7 +151,9 @@ class SendAdvancedSettings extends Component {
                                         type={'dropdown'}
                                         ExtraView={() => <SendAdvancedFees
                                             sendScreenStore={this.props.sendScreenStore}
+                                            currentSelectedFee={currentSelectedFee}
                                             scrollView={this.scrollView}
+                                            setParentState={this.setFee}
                                         />}
                                         subtitle={langMsg
                                             ? (
