@@ -50,7 +50,8 @@ class ReceiptScreen extends SendBasicScreen {
 
         this.state = {
             headerHeight: 0,
-            needPasswordConfirm : true
+            needPasswordConfirm : true,
+            sendInProcess: false
         }
     }
 
@@ -79,6 +80,10 @@ class ReceiptScreen extends SendBasicScreen {
         if (CACHE_IS_SENDING) {
             return true
         }
+
+        this.setState({
+            sendInProcess: true
+        })
 
         const { keystore } = this.props.settingsStore
 
@@ -117,8 +122,6 @@ class ReceiptScreen extends SendBasicScreen {
             return false
         }
 
-        setLoaderStatus(true)
-
         const { selectedFee } = this.props.sendScreenStore.fromBlockchain
         let tx = false
         let e = false
@@ -146,7 +149,9 @@ class ReceiptScreen extends SendBasicScreen {
         if (tx) {
             try {
                 await SendActionsEnd.saveTx(tx, this.props.sendScreenStore)
-                setLoaderStatus(false)
+                this.setState({
+                    sendInProcess: false
+                })
                 CACHE_IS_SENDING = false
                 await SendActionsEnd.endRedirect(tx, this.props.sendScreenStore)
 
@@ -155,11 +160,15 @@ class ReceiptScreen extends SendBasicScreen {
                     console.log('ReceiptScreen.handleSendSaveTx error ' + e.message)
                 }
                 Log.log('ReceiptScreen.handleSendSaveTx error ' + e.message)
-                setLoaderStatus(false)
+                this.setState({
+                    sendInProcess: false
+                })
                 CACHE_IS_SENDING = false
             }
         } else {
-            setLoaderStatus(false)
+            this.setState({
+                sendInProcess: false
+            })
             CACHE_IS_SENDING = false
         }
     }
@@ -185,6 +194,7 @@ class ReceiptScreen extends SendBasicScreen {
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStore.dict
         const { cryptoValue, bse } = this.props.sendScreenStore.ui
         const { bseOrderId } = bse
+        const { sendInProcess } = this.state
 
         const dict = new UIDict(currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
@@ -263,7 +273,8 @@ class ReceiptScreen extends SendBasicScreen {
                     <TwoButtons
                         mainButton={{
                             onPress: this.handleSend,
-                            title: strings('send.receiptScreen.send')
+                            title: strings('send.receiptScreen.send'),
+                            sendInProcess
                         }}
                         secondaryButton={{
                             type: 'settings',
