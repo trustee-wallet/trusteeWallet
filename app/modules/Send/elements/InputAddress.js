@@ -38,6 +38,12 @@ class InputAddress extends React.PureComponent {
         }
     }
 
+    componentDidUpdate(prevProps) {
+        if (this.addressInput && prevProps.sendScreenStoreValue !== this.props.sendScreenStoreValue) {
+            this.addressInput.handleInput(this.props.sendScreenStoreValue, false)
+        }
+    }
+
     handleChangeAddress = () => {
         this.setState(() => ({ addressError: false }))
     }
@@ -166,7 +172,6 @@ class InputAddress extends React.PureComponent {
                         qrCallback={() => {
                             setQRConfig({
                                 currencyCode: currencyCode,
-                                inputType: this.state.inputType,
                                 title: strings('modal.qrScanner.success.title'),
                                 description: strings('modal.qrScanner.success.description'),
                                 type: 'SEND_SCANNER'

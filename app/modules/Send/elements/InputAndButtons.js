@@ -66,6 +66,12 @@ class InputAndButtons extends PureComponent {
         this._setCryptoValue(this.props.sendScreenStoreUi.cryptoValue, this.props.sendScreenStoreDict.inputType)
     }
 
+    componentDidUpdate(prevProps) {
+        if (this.valueInput && prevProps.sendScreenStoreUi.cryptoValue !== this.props.sendScreenStoreUi.cryptoValue) {
+            this._setCryptoValue(this.props.sendScreenStoreUi.cryptoValue, this.props.sendScreenStoreDict.inputType)
+        }
+    }
+
     _checkInputCallback = () => {
         if (!this.valueInput || typeof this.valueInput.handleInput === 'undefined') return
 

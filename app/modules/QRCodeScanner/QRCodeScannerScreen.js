@@ -26,6 +26,8 @@ import Header from '../../components/elements/new/Header'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
+import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
 const SCREEN_WIDTH = Dimensions.get('window').width
@@ -48,11 +50,8 @@ class QRCodeScannerScreen extends Component {
     async onSuccess(param) {
         try {
             const {
-                account: oldAccount,
-                cryptoCurrency: oldCurrency,
                 currencyCode,
                 type,
-                inputType
             } = this.props.qrCodeScanner.config
 
             if (type === 'CASHBACK_LINK' || (
@@ -82,10 +81,10 @@ class QRCodeScannerScreen extends Component {
                 const { lockScreenStatus } = this.props.settings.keystore
                 if (+lockScreenStatus) {
                     lockScreenAction.setFlowType({
-                        flowType: 'WALLET_CONNECT',
+                        flowType: 'WALLET_CONNECT'
                     })
                     lockScreenAction.setBackData({
-                        backData : {walletConnect : res.data.walletConnect}
+                        backData: { walletConnect: res.data.walletConnect }
                     })
                     NavStore.goNext('LockScreen')
                 } else {
@@ -160,7 +159,7 @@ class QRCodeScannerScreen extends Component {
 
                 const parsed = res.data
                 parsed.currencyCode = cryptoCurrency.currencyCode
-                await SendActionsStart.startFromQRCodeScanner(parsed,'MAIN_SCANNER')
+                await SendActionsStart.startFromQRCodeScanner(parsed, 'MAIN_SCANNER')
             } else if (type === 'ADD_CUSTOM_TOKEN_SCANNER') {
                 NavStore.goNext('AddAssetScreen', {
                     tokenData: {
@@ -168,11 +167,7 @@ class QRCodeScannerScreen extends Component {
                     }
                 })
             } else if (type === 'SEND_SCANNER') {
-                if (res.status === 'success' && res.data.currencyCode === currencyCode) {
-                    const parsed = res.data
-                    parsed.currencyCode = currencyCode
-                    await SendActionsStart.startFromQRCodeScanner(parsed, 'SEND_SCANNER')
-                } else if (res.status === 'success' && res.data.currencyCode !== currencyCode) {
+                if (res.status === 'success' && typeof res.data.currencyCode !== 'undefined' && res.data.currencyCode && res.data.currencyCode !== currencyCode) {
                     showModal({
                         type: 'INFO_MODAL',
                         icon: false,
@@ -185,11 +180,28 @@ class QRCodeScannerScreen extends Component {
                         }
                     })
                 } else {
-                    const parsed = {
-                        address : res.data.parsedUrl,
-                        currencyCode
+                    let parsed
+                    if (res.status === 'success' && res.data.currencyCode === currencyCode) {
+                        parsed = res.data
+                        parsed.currencyCode = currencyCode
+                    } else {
+                        parsed = {
+                            address: res.data.parsedUrl
+                        }
                     }
-                    await SendActionsStart.startFromQRCodeScanner(parsed, 'SEND_SCANNER')
+                    const newValue = {}
+                    if (typeof parsed.address !== 'undefined') {
+                        newValue.addressTo = parsed.address
+                    }
+                    if (typeof parsed.amount !== 'undefined' && parsed.amount && parsed.amount * 1 > 0) {
+                        newValue.cryptoValue = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(parsed.amount)
+                    }
+                    if (typeof parsed.label !== 'undefined' && parsed.label && parsed.label !== '') {
+                        newValue.memo = parsed.label
+                    }
+                    Log.log('QRCodeScanner.onSuccess from ' + type + ' parsed ' + JSON.stringify(parsed))
+                    SendActionsUpdateValues.setStepOne(newValue)
+                    NavStore.goNext('SendScreen')
                 }
             }
         } catch (e) {
