@@ -92,14 +92,12 @@ class AddAssetScreen extends React.Component {
 
     handleAddCurrency = async (currencyToAdd) => {
         await currencyActions.addCurrency(currencyToAdd)
-        const cryptoCurrencies = await currencyActions.setCryptoCurrencies()
-        this.prepareData(cryptoCurrencies)
+        this.prepareData()
     }
 
     toggleCurrencyVisibility = async (currencyCode, isHidden) => {
-        currencyActions.toggleCurrencyVisibility({ currencyCode, isHidden })
-        const cryptoCurrencies = await currencyActions.setCryptoCurrencies()
-        this.prepareData(cryptoCurrencies)
+        await currencyActions.toggleCurrencyVisibility({ currencyCode, isHidden })
+        this.prepareData()
     }
 
     handleOpenQr = () => {

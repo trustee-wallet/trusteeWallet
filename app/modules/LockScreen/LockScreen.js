@@ -29,7 +29,6 @@ import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import UpdateOneByOneDaemon from "../../daemons/back/UpdateOneByOneDaemon";
 import UpdateAccountListDaemon from "../../daemons/view/UpdateAccountListDaemon";
 import UpdateAppNewsListDaemon from "../../daemons/view/UpdateAppNewsListDaemon";
-import UpdateCurrencyListDaemon from "../../daemons/view/UpdateCurrencyListDaemon";
 
 
 class LockScreen extends Component {
@@ -75,7 +74,6 @@ class LockScreen extends Component {
         UpdateOneByOneDaemon.unstop()
         UpdateAccountListDaemon.unstop()
         UpdateAppNewsListDaemon.unstop()
-        UpdateCurrencyListDaemon.unstop()
 
         if (flowType === 'WALLET_CONNECT') {
             lockScreenAction.setFlowType({

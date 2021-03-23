@@ -1,18 +1,18 @@
 
 import _forEach from 'lodash/forEach'
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import customCurrencyActions from '../../appstores/Actions/CustomCurrencyActions'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
+import customCurrencyActions from '@app/appstores/Actions/CustomCurrencyActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
-import { strings } from '../../services/i18n'
-import Log from '../../services/Log/Log'
-import config from '../../config/config'
+import { strings } from '@app/services/i18n'
+import Log from '@app/services/Log/Log'
+import config from '@app/config/config'
 
 
 export const ASSESTS_GROUP = {
@@ -214,15 +214,6 @@ export async function addCustomToken(tokenAddress) {
             console.log('AddCustomTokenScreen.addToken secondStep error ' + e.message)
         }
         Log.log('AddCustomTokenScreen.addToken secondStep error ' + e.message)
-    }
-
-    try {
-        await currencyActions.setCryptoCurrencies()
-    } catch (e) {
-        if (config.debug.appErrors) {
-            console.log('AddCustomTokenScreen.addToken thirdStep error ' + e.message)
-        }
-        Log.log('AddCustomTokenScreen.addToken thirdStep error ' + e.message)
     }
 
     setLoaderStatus(false)

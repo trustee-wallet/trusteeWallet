@@ -6,7 +6,6 @@ import UpdateOneByOneDaemon from './back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from './view/UpdateAccountListDaemon'
 import UpdateAppNewsListDaemon from './view/UpdateAppNewsListDaemon'
 import UpdateCurrencyRateDaemon from './back/UpdateCurrencyRateDaemon'
-import UpdateCurrencyListDaemon from './view/UpdateCurrencyListDaemon'
 import UpdateCashBackDataDaemon from './back/UpdateCashBackDataDaemon'
 
 import config from '../config/config'
@@ -20,9 +19,6 @@ class Daemon {
         UpdateOneByOneDaemon
             .setTime(daemon.updateTimes.oneByOne)
             .start()
-        UpdateCurrencyListDaemon
-            .setTime(daemon.updateTimes.view)
-            .start()
         UpdateAccountListDaemon
             .setTime(daemon.updateTimes.view)
             .start()
@@ -35,7 +31,6 @@ class Daemon {
         if (typeof params.noRatesApi === 'undefined') {
             await UpdateCurrencyRateDaemon.updateCurrencyRate(params)
         }
-        await UpdateCurrencyListDaemon.updateCurrencyListDaemon(params)
         await UpdateAccountListDaemon.forceDaemonUpdate(params)
         // await UpdateAppNewsDaemon.updateAppNewsDaemon(params)
         await UpdateAppNewsListDaemon.updateAppNewsListDaemon(params)

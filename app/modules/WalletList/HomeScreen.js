@@ -192,8 +192,6 @@ class HomeScreen extends React.Component {
             currencyCode: cryptoCurrency.currencyCode,
             isHidden: 0
         })
-        // this is for store reload
-        await currencyActions.setCryptoCurrencies()
     }
 
     // separated from stores not to be updated from outside
