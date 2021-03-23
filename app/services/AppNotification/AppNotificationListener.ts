@@ -19,6 +19,7 @@ import AppNotificationPopup from './AppNotificationPopup'
 import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
 import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeystore'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
+import { Platform } from 'react-native'
 
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
 const ASYNC_CACHE_TIME = 'pushTokenTime'
@@ -91,6 +92,13 @@ export default new class AppNotificationListener {
                 Log.log('PUSH subscribe ' + topic + ' lang ' + locale)
                 await messaging().subscribeToTopic(topic)
                 await messaging().subscribeToTopic(topic + '_' + locale)
+                if (Platform.OS === 'ios') {
+                    await messaging().subscribeToTopic(topic + '_ios')
+                    await messaging().subscribeToTopic(topic + '_ios_' + locale)
+                } else {
+                    await messaging().subscribeToTopic(topic + '_android')
+                    await messaging().subscribeToTopic(topic + '_android_' + locale)
+                }
                 if (isDev) {
                     await messaging().subscribeToTopic(topic + '_dev')
                     await messaging().subscribeToTopic(topic + '_dev_' + locale)
@@ -102,6 +110,11 @@ export default new class AppNotificationListener {
                 Log.log('PUSH subscribe ' + topic + ' unlang ' + sub)
                 await messaging().unsubscribeFromTopic(topic + '_' + sub)
                 await messaging().unsubscribeFromTopic(topic + '_dev_' + sub)
+                if (Platform.OS === 'ios') {
+                    await messaging().unsubscribeFromTopic(topic + '_ios_' + sub)
+                } else {
+                    await messaging().unsubscribeFromTopic(topic + '_android_' + sub)
+                }
             }
         }
 
@@ -115,10 +128,20 @@ export default new class AppNotificationListener {
 
         await messaging().unsubscribeFromTopic(topic)
         await messaging().unsubscribeFromTopic(topic + '_dev')
+        if (Platform.OS === 'ios') {
+            await messaging().unsubscribeFromTopic(topic + '_ios')
+        } else {
+            await messaging().unsubscribeFromTopic(topic + '_android')
+        }
         for (const lang of languageList) {
             const sub = sublocale(lang.code)
             await messaging().unsubscribeFromTopic(topic + '_' + sub)
             await messaging().unsubscribeFromTopic(topic + '_dev_' + sub)
+            if (Platform.OS === 'ios') {
+                await messaging().unsubscribeFromTopic(topic + '_ios_' + sub)
+            } else {
+                await messaging().unsubscribeFromTopic(topic + '_android_' + sub)
+            }
         }
 
         Log.log('PUSH unsubscribe ' + topic + ' finished')
