@@ -219,6 +219,9 @@ export namespace SendActionsBlockchainWrapper {
         const {ui} = sendScreenStore
         const {bse} = ui
         const { bseOrderId, bseMinCrypto } = bse
+        if (selectedFee === false) {
+            selectedFee = {}
+        }
         if (typeof bseOrderId !== 'undefined' && bseOrderId) {
             selectedFee.bseOrderId = bseOrderId
         }
