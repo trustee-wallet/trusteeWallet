@@ -7,13 +7,51 @@ import {
     resolveChainCode,
     getPubAddress
 } from '@crypto/blockchains/fio/FioUtils'
+import { isUnstoppableAddressValid } from '@crypto/services/UnstoppableUtils'
+
+// import Resolution from '@unstoppabledomains/resolution'
+
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import Log from '@app/services/Log/Log'
 import { strings } from '@app/services/i18n'
 import config from '@app/config/config'
 
 
+
+
 export namespace SendActionsContactBook {
+
+    let DOMAIN_RESOLUTION = false
+
+    export const getContactAddressUnstoppable  = async function(data: { addressName: string, currencyCode: string }): Promise<string | boolean> {
+        if (!isUnstoppableAddressValid(data.addressName)) {
+            return false
+        }
+        throw new Error('unstoppable domains not supported')
+        /*
+        uncomment to try
+        if (DOMAIN_RESOLUTION === false) {
+            try {
+                // @ts-ignore
+                DOMAIN_RESOLUTION = new Resolution()
+            } catch (e) {
+                console.log('SendActionsContactBook.getContactAddressUnstoppable init error' + e.message)
+                return  false
+            }
+        }
+        console.log('SendActionsContactBook.getContactAddressUnstoppable checking ' + data.addressName)
+        let address = false
+        try {
+            // @ts-ignore
+            address = await DOMAIN_RESOLUTION.addr(data.addressName, data.currencyCode)
+            console.log('SendActionsContactBook.getContactAddressUnstoppable checked ' + address)
+        } catch (e) {
+            console.log('SendActionsContactBook.getContactAddressUnstoppable error ' + e.message)
+        }
+        return address
+        */
+    }
+
 
     export const getContactAddress = async function(data: { addressName: string, currencyCode: string }): Promise<string | boolean> {
 
@@ -21,7 +59,7 @@ export namespace SendActionsContactBook {
         let uiError = ''
         try {
             if (!isFioAddressValid(data.addressName)) {
-                return false
+                return getContactAddressUnstoppable(data)
             }
 
             Log.log('SendActionsContactBook.getContactAddress isFioAddress checked ' + data.addressName)

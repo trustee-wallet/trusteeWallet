@@ -77,7 +77,7 @@ class InputAddress extends React.PureComponent {
         const addressValidation = await this.addressInput.handleValidate()
         let addressTo = addressValidation.value
         let addressName = false
-        if (addressTo.indexOf('@') !== -1) {
+        if (addressTo.indexOf('@') !== -1 || addressTo.indexOf('.') !== -1) {
             try {
                 const tmp = await SendActionsContactBook.getContactAddress({ addressName: addressTo, currencyCode })
                 if (tmp) {
