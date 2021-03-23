@@ -207,9 +207,9 @@ export default {
                 + '&signature=' + sign.signature
                 + '&cashbackToken=' + currentToken
                 + '&locale=' + sublocale()
-                + '&version=' + MarketingEvent.DATA.LOG_VERSION
+                + '&version=' + (MarketingEvent.DATA.LOG_VERSION? MarketingEvent.DATA.LOG_VERSION.replace(/ /gi, '_') : '')
                 + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
-
+            
             await Log.log('ApiV3.initData start json link ' + link + ' and save to firebase ' + (data ? JSON.stringify(data).substr(0, 100) : ' no data'))
             await database().ref(keyTitle).set(data)
             await Log.log('ApiV3.initData end save to firebase link ' + link)
