@@ -23,8 +23,8 @@ const Currencies = {
         prettyNumberProcessor: 'ETH',
         network: 'mainnet', // network also used as mark of rate scanning
         decimals: 18,
-        currencyExplorerLink: 'https://etherscan.io/address/',
-        currencyExplorerTxLink: 'https://etherscan.io/tx/'
+        currencyExplorerLink: 'https://blockchair.com/ethereum/address/',
+        currencyExplorerTxLink: 'https://blockchair.com/ethereum/transaction/'
     },
     'TRX': {
         currencyType: 'coin',
