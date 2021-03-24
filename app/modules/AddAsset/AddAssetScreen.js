@@ -16,22 +16,22 @@ import {
 import _forEach from 'lodash/forEach'
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
-import Validator from '../../services/UI/Validator/Validator'
-import { setQRConfig, setQRValue } from '../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import Validator from '@app/services/UI/Validator/Validator'
+import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
-import { strings } from '../../services/i18n'
-import { checkQRPermission } from '../../services/UI/Qr/QrPermissions'
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import TextInput from '../../components/elements/new/TextInput'
-import Button from '../../components/elements/new/buttons/Button'
-import ListItem from '../../components/elements/new/list/ListItem/Asset'
-import Tabs from '../../components/elements/new/Tabs'
+import { strings } from '@app/services/i18n'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import TextInput from '@app/components/elements/new/TextInput'
+import Button from '@app/components/elements/new/buttons/Button'
+import ListItem from '@app/components/elements/new/list/ListItem/Asset'
+import Tabs from '@app/components/elements/new/Tabs'
 import Header from './elements/Header'
 
-import QrCodeIcon from '../../assets/images/qrCodeBtn';
+import QrCodeIcon from '@app/assets/images/qrCodeBtn';
 
 import {
     getTabs,
@@ -39,7 +39,7 @@ import {
     prepareDataForDisplaying,
     addCustomToken
 } from './helpers'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 
 class AddAssetScreen extends React.Component {
@@ -179,6 +179,7 @@ class AddAssetScreen extends React.Component {
                         activeGroup === ASSESTS_GROUP.CUSTOM && !searchQuery ? (
                             <FlatList
                                 {...this.commonHeaderProps}
+                                ListEmptyComponent={null}
                                 data={data}
                                 ListHeaderComponent={!!searchQuery ? null : () => (
                                     <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
