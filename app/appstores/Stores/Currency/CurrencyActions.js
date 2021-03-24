@@ -182,6 +182,7 @@ const currencyActions = {
 
             await currencyDS.insertCurrency({ insertObjs: [currencyInsertObjs] })
 
+            await currencyActions.setCryptoCurrencies()
             await UpdateCurrencyRateDaemon.updateCurrencyRate({ source: 'ACT/Currency addCurrency' })
             await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ force: true, currencyCode: currencyToAdd.currencyCode })
 
