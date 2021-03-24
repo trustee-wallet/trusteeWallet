@@ -177,8 +177,22 @@ class MarketingEvent {
         if (this.DATA.LOG_DEV) {
             return false
         }
+        let logDataString = ''
+        let logDataObject = {}
+        if (typeof logData === 'string') {
+            logDataString = logData
+            logDataObject = {
+                'txt' : logData
+            }
+        } else {
+            logDataString = JSON.stringify(logData)
+            logDataObject = logData
+            if (!logDataObject) {
+                logDataObject = {}
+            }
+        }
 
-        const tmp = logTitle + ' ' + JSON.stringify(logData)
+        const tmp = logTitle + ' ' + logDataString
         if (tmp === this._cacheLastLog) return true
 
         const date = (new Date()).toISOString().split('T')
@@ -191,31 +205,25 @@ class MarketingEvent {
                     await this._reinitTgMessage()
                 }
             }
-
             this._cacheLastLog = tmp
-
-            if (!logData) {
-                logData = {}
-            }
-            logData.date = date
-
+            logDataObject.date = date
         } catch (e) {
-            await Log.err(`DMN/MarketingEvent prepare error ${logTitle} ` + e.message.toString() + ' with logData ' + JSON.stringify(logData))
+            await Log.err(`DMN/MarketingEvent prepare error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
             return false
         }
 
         if (PREFIX !== 'RTM') {
             try {
-                await analytics().logEvent(logTitle.replace(' ', '_'), logData)
+                await analytics().logEvent(logTitle.replace(' ', '_'), logDataObject)
             } catch (e) {
-                await Log.err(`DMN/MarketingEvent send analytics error ${logTitle} ` + e.message.toString() + ' with logData ' + JSON.stringify(logData))
+                await Log.err(`DMN/MarketingEvent send analytics error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
             }
         }
 
         try {
             await this.TG.send(PREFIX + `_2021_02_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
         } catch (e) {
-            await Log.err(`DMN/MarketingEvent send TG error ${logTitle} ` + e.message.toString() + ' with logData ' + JSON.stringify(logData))
+            await Log.err(`DMN/MarketingEvent send TG error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
         }
     }
 

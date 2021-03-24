@@ -92,9 +92,10 @@ const logSendSell = async function(transaction: any, tx: any, logData: any, send
                 quantity: transaction.addressAmount * 1
             }]
         }
+        const gaParamsStr = JSON.stringify(gaParams)
 
-        await MarketingEvent.logEvent('v20_sell_tx', gaParams, 'SELL')
-        await Log.log('v20_sell_tx', gaParams)
+        await MarketingEvent.logEvent('v20_sell_tx', gaParamsStr, 'SELL')
+        await Log.log('v20_sell_tx', gaParamsStr)
         await analytics().logPurchase(gaParams)
     } catch (e) {
         if (config.debug.appErrors) {
