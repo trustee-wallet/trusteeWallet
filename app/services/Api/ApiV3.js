@@ -57,7 +57,7 @@ export default {
         }
     },
 
-    async initWallet(wallet) {
+    async initWallet(wallet, source) {
         const btcLegacyOrSegWit = settingsActions.getSettingStatic('btc_legacy_or_segwit')
         const btcShowTwoAddress = settingsActions.getSettingStatic('btcShowTwoAddress')
         let showType = 'segwit'
@@ -65,18 +65,22 @@ export default {
             showType = 'legacy'
         }
 
-        const tmps = store.getState().currencyStore.cryptoCurrencies
-        const currencies = {}
-        for (const tmp of tmps) {
-            currencies[tmp.currencyCode] = tmp
-        }
         const accountList = store.getState().accountStore.accountList
         if (typeof accountList[wallet.walletHash] === 'undefined') {
+            if (source === 'ApiProxy') {
+                return []
+            }
             if (config.debug.appErrors) {
                 console.log('ApiV3 initWallet ' + wallet.walletHash + ' accountList[wallet.walletHash] is not set')
             }
             Log.log('ApiV3 initWallet ' + wallet.walletHash + ' accountList[wallet.walletHash] is not set')
             return []
+        }
+
+        const tmps = store.getState().currencyStore.cryptoCurrencies
+        const currencies = {}
+        for (const tmp of tmps) {
+            currencies[tmp.currencyCode] = tmp
         }
 
         const accounts = []
@@ -170,7 +174,7 @@ export default {
             for (let wallet of wallets) {
                 const walletHash = wallet.walletName
                 wallet = await walletDS._redoCashback(wallet)
-                const accounts = await this.initWallet(wallet)
+                const accounts = await this.initWallet(wallet, 'ApiV3')
                 data.wallets.push({
                     walletHash,
                     walletName: wallet.walletName,
@@ -209,7 +213,7 @@ export default {
                 + '&locale=' + sublocale()
                 + '&version=' + (MarketingEvent.DATA.LOG_VERSION? MarketingEvent.DATA.LOG_VERSION.replace(/ /gi, '_') : '')
                 + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
-            
+
             await Log.log('ApiV3.initData start json link ' + link + ' and save to firebase ' + (data ? JSON.stringify(data).substr(0, 100) : ' no data'))
             await database().ref(keyTitle).set(data)
             await Log.log('ApiV3.initData end save to firebase link ' + link)

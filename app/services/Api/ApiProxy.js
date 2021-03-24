@@ -94,7 +94,7 @@ async function _getAll(params) {
         cbOrders,
         forCustomTokens,
         marketingAll: MarketingEvent.DATA,
-        walletAll: await ApiV3.initWallet({walletHash})
+        walletAll: await ApiV3.initWallet({walletHash}, 'ApiProxy')
     }
 
     const all = await BlocksoftAxios.post(link, allData)
