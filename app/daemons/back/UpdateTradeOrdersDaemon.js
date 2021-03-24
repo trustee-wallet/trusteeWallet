@@ -188,7 +188,7 @@ class UpdateTradeOrdersDaemon {
                             tmps.push({
                                 currencyCode: item.requestedInAmount.currencyCode || false,
                                 addressAmount: item.requestedInAmount.amount || 0,
-                                addressTo : typeof item.depositAddress !== 'undefined' ? item.depositAddress : false,
+                                addressTo: typeof item.depositAddress !== 'undefined' ? item.depositAddress : false,
                                 updateHash: item.inTxHash || false,
                                 suffix: 'in'
                             })
@@ -197,6 +197,7 @@ class UpdateTradeOrdersDaemon {
                             tmps.push({
                                 currencyCode: item.requestedOutAmount.currencyCode || false,
                                 addressAmount: item.requestedOutAmount.amount || 0,
+                                addressTo: typeof item.outDestination !== 'undefined' && item.outDestination && item.outDestination.toString().indexOf('*') === -1 ? item.outDestination : false,
                                 updateHash: item.outTxHash || false,
                                 suffix: 'out'
                             })
@@ -250,31 +251,32 @@ class UpdateTradeOrdersDaemon {
                             let found = await Database.setQueryString(sql).query(true)
 
                             if (!found || !found.array || found.array.length === 0 || found.array[0].transaction_hash === '') {
-                                if (noHash && item.status === "DONE_PAYOUT") {
-                                        let sql2 = ''
-                                        const rawAmount = BlocksoftPrettyNumbers.setCurrencyCode(tmp.currencyCode).makeUnPretty(tmp.addressAmount)
-                                        if (typeof tmp.addressTo !== 'undefined' && tmp.addressTo) {
-                                            sql2 = `
+                                if (typeof item.searchHashByAmount !== 'undefined' && item.searchHashByAmount && noHash) {
+                                    Log.daemon('UpdateTradeOrders called inner search ' + JSON.stringify(item))
+                                    let sql2 = ''
+                                    const rawAmount = BlocksoftPrettyNumbers.setCurrencyCode(tmp.currencyCode).makeUnPretty(tmp.addressAmount)
+                                    if (typeof tmp.addressTo !== 'undefined' && tmp.addressTo) {
+                                        sql2 = `
                                              SELECT  id, bse_order_data, transaction_hash, transactions_scan_log, hidden_at, created_at, address_amount FROM transactions
                                              WHERE transaction_hash != '' AND (bse_order_id IS NULL OR bse_order_id='') AND currency_code='${tmp.currencyCode}'
                                              AND LOWER(address_to)='${tmp.addressTo.toLowerCase()}'
                                              `
-                                        }
-                                        if (sql2) {
-                                            const found2 = await Database.setQueryString(sql2).query(true)
-                                            if (found2 && found2.array) {
-                                                for (const found22 of found2.array) {
-                                                    if (Math.abs(BlocksoftUtils.diff(found22.address_amount, rawAmount).toString() * 1) > 10 ) continue
-                                                    const createdAt = new Date(found22.created_at).getTime()
-                                                    if (Math.abs(createdAt - item.createdAt) > 1200000) continue //60 * 1000 * 20 minutes
-                                                    if (!found || !found.array) {
-                                                        found = {array : []}
-                                                    }
-                                                    sqlUpdateDir = `bse_order_id='${item.orderId}', `
-                                                    found.array.push(found22)
+                                    }
+                                    if (sql2) {
+                                        const found2 = await Database.setQueryString(sql2).query(true)
+                                        if (found2 && found2.array) {
+                                            for (const found22 of found2.array) {
+                                                if (Math.abs(BlocksoftUtils.diff(found22.address_amount, rawAmount).toString() * 1) > 10) continue
+                                                const createdAt = new Date(found22.created_at).getTime()
+                                                if (Math.abs(createdAt - item.createdAt) > 12000000) continue //60 * 1000 * 200 minutes
+                                                if (!found || !found.array) {
+                                                    found = { array: [] }
                                                 }
+                                                sqlUpdateDir = `bse_order_id='${item.orderId}', `
+                                                found.array.push(found22)
                                             }
                                         }
+                                    }
                                 }
                             }
 
