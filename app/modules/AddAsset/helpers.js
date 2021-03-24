@@ -82,7 +82,7 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
 
     if (activeTab.group === ASSESTS_GROUP.TOKENS && !searchQuery) {
         const dataGrouped = fullData.reduce((grouped, asset) => {
-            if (asset.currencyType !== 'token') return grouped
+            if (asset.currencyType === 'coin') return grouped
             if (!grouped[asset.tokenBlockchain]) grouped[asset.tokenBlockchain] = []
             grouped[asset.tokenBlockchain].push(asset)
             return grouped
@@ -94,6 +94,10 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
                 data: arr
             })
         })
+    }
+
+    if (activeTab.group === ASSESTS_GROUP.CUSTOM && !searchQuery) {
+        data = [...fullData.filter(currency => currency.currencyType === 'custom')]
     }
 
     this.setState(() => ({ data, tabs: newTabs, searchQuery }))

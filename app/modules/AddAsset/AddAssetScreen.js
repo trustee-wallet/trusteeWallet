@@ -113,6 +113,7 @@ class AddAssetScreen extends React.Component {
     handleChangeCustomAddress = (value) => { this.setState(() => ({ customAddress: value })) }
 
     handleAddCustomToken = async () => {
+        Keyboard.dismiss();
         const types = ['ETH_ADDRESS', 'TRX_ADDRESS', 'TRX_TOKEN']
         const { customAddress } = this.state
         const tmps = types.map(type => ({
@@ -176,47 +177,52 @@ class AddAssetScreen extends React.Component {
                 <SafeAreaView style={[styles.content, { backgroundColor: colors.common.background }]}>
                     {
                         activeGroup === ASSESTS_GROUP.CUSTOM && !searchQuery ? (
-                            <TouchableOpacity style={{ flex: 1, paddingBottom: GRID_SIZE * 2, paddingTop: contentPaddingTop }} activeOpacity={1} onPress={Keyboard.dismiss}>
-                                <View style={[{ paddingHorizontal: GRID_SIZE * 2, paddingBottom: GRID_SIZE / 2 }]}>
-                                    {this.renderTabs()}
-                                </View>
-                                <View style={[styles.customAddressConent, { paddingHorizontal: GRID_SIZE }]}>
-                                    <TextInput
-                                        label={strings('assets.addCustomLabel')}
-                                        labelColor={colors.common.text3}
-                                        placeholder={strings('assets.addCustomPlaceholder')}
-                                        onChangeText={this.handleChangeCustomAddress}
-                                        value={customAddress}
-                                        HelperAction={() => (
-                                            <TouchableOpacity onPress={() => checkQRPermission(this.handleOpenQr)}>
-                                                <QrCodeIcon width={20} height={20} color={colors.common.text1} />
-                                            </TouchableOpacity>
-                                        )}
-                                    />
-                                    <Button
-                                        title={strings('assets.addAssetButton')}
-                                        onPress={this.handleAddCustomToken}
-                                        disabled={!customAddress}
-                                    />
-                                </View>
-                            </TouchableOpacity>
+                            <FlatList
+                                {...this.commonHeaderProps}
+                                data={data}
+                                ListHeaderComponent={!!searchQuery ? null : () => (
+                                    <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
+                                        {this.renderTabs(false)}
+                                        <View style={[styles.customAddressConent, { marginHorizontal: -GRID_SIZE }]}>
+                                            <TextInput
+                                                label={strings('assets.addCustomLabel')}
+                                                labelColor={colors.common.text3}
+                                                placeholder={strings('assets.addCustomPlaceholder')}
+                                                onChangeText={this.handleChangeCustomAddress}
+                                                value={customAddress}
+                                                HelperAction={() => (
+                                                    <TouchableOpacity onPress={() => checkQRPermission(this.handleOpenQr)}>
+                                                        <QrCodeIcon width={20} height={20} color={colors.common.text1} />
+                                                    </TouchableOpacity>
+                                                )}
+                                            />
+                                            <Button
+                                                containerStyle={{ marginTop: GRID_SIZE * 2 }}
+                                                title={strings('assets.addAssetButton')}
+                                                onPress={this.handleAddCustomToken}
+                                                disabled={!customAddress}
+                                            />
+                                        </View>
+                                    </TouchableOpacity>
+                                )}
+                            />
                         ) : activeGroup === ASSESTS_GROUP.TOKENS && !searchQuery
-                                ? (
-                                    <SectionList
-                                        {...this.commonHeaderProps}
-                                        sections={data}
-                                        stickySectionHeadersEnabled={false}
-                                        ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(true)}
-                                        renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>}
-                                        renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
-                                    />
-                                ) : (
-                                    <FlatList
-                                        {...this.commonHeaderProps}
-                                        data={data}
-                                        ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
-                                    />
-                                )
+                            ? (
+                                <SectionList
+                                    {...this.commonHeaderProps}
+                                    sections={data}
+                                    stickySectionHeadersEnabled={false}
+                                    ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(true)}
+                                    renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>}
+                                    renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
+                                />
+                            ) : (
+                                <FlatList
+                                    {...this.commonHeaderProps}
+                                    data={data}
+                                    ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
+                                />
+                            )
                     }
                 </SafeAreaView>
             </View>
