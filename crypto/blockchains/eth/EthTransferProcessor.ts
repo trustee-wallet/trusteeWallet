@@ -120,7 +120,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
         let gasLimit
         try {
-            if (typeof additionalData === 'undefined' || typeof additionalData.estimatedGas === 'undefined' || !additionalData.estimatedGas) {
+            if (typeof additionalData === 'undefined' || typeof additionalData.gasLimit === 'undefined' || !additionalData.gasLimit) {
                 try {
                     let ok = false
                     let i = 0
@@ -154,7 +154,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     }
                 }
             } else {
-                gasLimit = additionalData.estimatedGas
+                gasLimit = additionalData.gasLimit
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate preestimatedGas ' + gasLimit)
             }
         } catch (e) {
@@ -162,12 +162,14 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         }
 
         let showBigGasNotice = false
-        try {
-            if (gasLimit * 1 > BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT') * 1) {
-                showBigGasNotice = true
+        if (typeof additionalData === 'undefined' || typeof additionalData.isCustomFee === 'undefined' || !additionalData.isCustomFee) {
+            try {
+                if (gasLimit * 1 > BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT') * 1) {
+                    showBigGasNotice = true
+                }
+            } catch (e) {
+                throw new Error(e.message + ' in get showBigGasNotice')
             }
-        } catch (e) {
-            throw new Error(e.message + ' in get showBigGasNotice')
         }
 
         if (!gasLimit) {

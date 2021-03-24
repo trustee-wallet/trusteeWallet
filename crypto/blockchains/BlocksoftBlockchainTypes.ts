@@ -145,10 +145,11 @@ export namespace BlocksoftBlockchainTypes {
         mnemonic?: string,
         prices?: { 'speed_blocks_2': string, 'speed_blocks_6': string, 'speed_blocks_12': string },
         feeForByte?: string,
-        estimatedGas?: number,
+        gasLimit?: number,
         gasPrice?: number,
         gasPriceTitle?: 'speed_blocks_2',
         nonceForTx?: number,
+        isCustomFee?: boolean,
         balance?: string,
         unspents?: []
     }

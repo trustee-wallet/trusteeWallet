@@ -20,6 +20,7 @@ import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 class SendCustomFeeETH extends React.PureComponent {
 
@@ -27,11 +28,14 @@ class SendCustomFeeETH extends React.PureComponent {
         super(props)
 
         this.state = {
-            feesPretty: 0
+            feesPretty: 0,
+            gasLimitError : false,
+            gasLimitErrorText : ''
         }
         this.gasPriceInput = React.createRef()
         this.gasLimitInput = React.createRef()
         this.nonceInput = React.createRef()
+        this.somePause = false
     }
 
     componentDidMount() {
@@ -57,6 +61,14 @@ class SendCustomFeeETH extends React.PureComponent {
     }
 
     handleRecount = async (field, value) => {
+        if (this.somePause !== false) {
+            clearTimeout(this.somePause)
+        }
+        this.somePause = setTimeout(() => {
+            this._handleRecount(field, value)
+        }, 100)
+    }
+    _handleRecount = async (field, value) => {
 
         let gasPriceInputValidate = { status: 'success', value }
         if (field !== 'gasPrice') {
@@ -76,13 +88,10 @@ class SendCustomFeeETH extends React.PureComponent {
             && gasPriceInputValidate.value !== 0
             && gasLimitInputValidate.value !== 0) {
             if (gasLimitInputValidate.value * 1 < 21000) {
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: null,
-                    title: strings('modal.exchange.sorry'),
-                    description: strings('send.errors.SERVER_RESPONSE_MIN_GAS_ETH')
+                this.setState({
+                    gasLimitError : true,
+                    gasLimitErrorText : strings('send.errors.SERVER_RESPONSE_MIN_GAS_ETH')
                 })
-                throw new Error('minimal gas limit not ok ' + gasLimitInputValidate.value)
             } else {
                 this._actualRecount(gasPriceInputValidate.value, gasLimitInputValidate.value, nonceValidate.value)
             }
@@ -115,7 +124,32 @@ class SendCustomFeeETH extends React.PureComponent {
             gasPriceGwei,
             gasLimit,
             nonceForTx,
+            gasLimitError : false
         })
+    }
+
+    renderGasError = () => {
+        const { gasLimitError, gasLimitErrorText } = this.state
+        const { colors, GRID_SIZE } = this.context
+
+        if (!gasLimitError) return
+        return (
+            <View style={{ marginVertical: GRID_SIZE }}>
+                <View style={styles.texts}>
+                    <View style={styles.texts__icon}>
+                        <Icon
+                            name='information-outline'
+                            size={22}
+                            color='#864DD9'
+                        />
+                    </View>
+                    <Text style={{ ...styles.texts__item, color: colors.common.text3 }}>
+                        {gasLimitErrorText}
+                    </Text>
+                </View>
+            </View>
+        )
+
     }
 
     render() {
@@ -182,6 +216,7 @@ class SendCustomFeeETH extends React.PureComponent {
                         onFocus={this.props.onFocus}
                     />
                 </View>
+                {this.renderGasError()}
                 <View style={{ marginBottom: GRID_SIZE }}>
                     <Text style={{ ...styles.customFee, color: colors.common.text1 }}>{strings(`send.fee.customFee.eth.nonce`)}</Text>
                 </View>
@@ -226,5 +261,19 @@ const styles = StyleSheet.create({
     customFee: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 14
+    },
+    texts: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 30
+    },
+    texts__item: {
+        fontSize: 14,
+        fontFamily: 'SFUIDisplay-Semibold',
+        letterSpacing: 1
+    },
+    texts__icon: {
+        marginRight: 10,
+        transform: [{ rotate: '180deg' }]
     }
 })
