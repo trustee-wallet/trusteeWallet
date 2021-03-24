@@ -1,71 +1,67 @@
 /**
- * @version 0.11
+ * @version 0.31
+ * @author yura
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { Linking, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import { Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 
 import LottieView from 'lottie-react-native'
 
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
-import GradientView from '../../components/elements/GradientView'
-import NavStore from '../../components/navigation/NavStore'
-import ToolTips from '../../components/elements/ToolTips'
-import CurrencyIcon from '../../components/elements/CurrencyIcon'
-import LetterSpacing from '../../components/elements/LetterSpacing'
-import Loader from '../../components/elements/LoaderItem'
-import IconAwesome from 'react-native-vector-icons/FontAwesome'
+import GradientView from '@app/components/elements/GradientView'
+import NavStore from '@app/components/navigation/NavStore'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
+import Loader from '@app/components/elements/LoaderItem'
 
 import Transaction from './elements/Transaction'
 
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { setLoaderStatus, setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setLoaderStatus, setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
 
-import Log from '../../services/Log/Log'
-import checkTransferHasError from '../../services/UI/CheckTransferHasError/CheckTransferHasError'
+import Log from '@app/services/Log/Log'
+import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
 
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
-import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
-import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
+import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
+import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 
-import { strings } from '../../services/i18n'
+import { strings } from '@app/services/i18n'
 
-import { HIT_SLOP } from '../../themes/Themes'
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import CustomIcon from '../../components/elements/CustomIcon'
+import { HIT_SLOP } from '@app/themes/Themes'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+import CustomIcon from '@app/components/elements/CustomIcon'
 import AsyncStorage from '@react-native-community/async-storage'
-import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
-import { getAccountFioName } from '../../../crypto/blockchains/fio/FioUtils'
-import config from '../../config/config'
-import DaemonCache from '../../daemons/DaemonCache'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
+import { getAccountFioName } from '@crypto/blockchains/fio/FioUtils'
+import config from '@app/config/config'
+import DaemonCache from '@app/daemons/DaemonCache'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import Header from './elements/Header'
 import HeaderBlocks from './elements/HeaderBlocks'
 import AccountButtons from './elements/accountButtons'
 
-import transactionDS from '../../appstores/DataSource/Transaction/Transaction'
-import transactionActions from '../../appstores/Actions/TransactionActions'
+import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
+import transactionActions from '@app/appstores/Actions/TransactionActions'
 import BalanceHeader from './elements/AccountData'
 
-import blackLoader from '../../assets/jsons/animations/refreshBlack.json'
-import whiteLoader from '../../assets/jsons/animations/refreshWhite.json'
-import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAccountBalanceAndTransactionsHD'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-import AppLockBlur from "../../components/AppLockBlur";
+import blackLoader from '@app/assets/jsons/animations/refreshBlack.json'
+import whiteLoader from '@app/assets/jsons/animations/refreshWhite.json'
+import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import AppLockBlur from "@app/components/AppLockBlur";
 
-import Netinfo from '../../services/Netinfo/Netinfo'
+import Netinfo from '@app/services/Netinfo/Netinfo'
 
 import { diffTimeScan } from './helpers'
-import { SendActionsStart } from '../../appstores/Stores/Send/SendActionsStart'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 let CACHE_ASKED = false
 
@@ -180,7 +176,11 @@ class Account extends Component {
         try {
             await Netinfo.isInternetReachable()
 
-            NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode : this.props.account.currencyCode })
+            if (config.exchange.mode === 'PROD') {
+                NavStore.goNext('MainV3DataScreen', {tradeType: 'BUY', currencyCode: this.props.account.currencyCode})
+            } else {
+                NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode: this.props.account.currencyCode })
+            }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)

@@ -1,5 +1,6 @@
 /**
- * @version 0.11
+ * @version 0.31
+ * @author yura
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -19,61 +20,59 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 
 import LottieView from 'lottie-react-native'
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import LetterSpacing from '../../components/elements/LetterSpacing'
-import CurrencyIcon from '../../components/elements/CurrencyIcon'
-import LightButton from '../../components/elements/LightButton'
-import CustomIcon from '../../components/elements/CustomIcon'
-import Loader from '../../components/elements/LoaderItem'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
+import CurrencyIcon from '@app/components/elements/CurrencyIcon'
+import LightButton from '@app/components/elements/LightButton'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import Loader from '@app/components/elements/LoaderItem'
 
-import { strings, sublocale } from '../../services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 
-import Toast from '../../services/UI/Toast/Toast'
-import Netinfo from '../../services/Netinfo/Netinfo'
-import Log from '../../services/Log/Log'
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
+import Toast from '@app/services/UI/Toast/Toast'
+import Netinfo from '@app/services/Netinfo/Netinfo'
+import Log from '@app/services/Log/Log'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 
-import { FileSystem } from '../../services/FileSystem/FileSystem'
+import { FileSystem } from '@app/services/FileSystem/FileSystem'
 
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { setLoaderStatus, setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
-import walletHDActions from '../../appstores/Actions/WalletHDActions'
-import walletActions from '../../appstores/Stores/Wallet/WalletActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setLoaderStatus, setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
+import walletHDActions from '@app/appstores/Actions/WalletHDActions'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 
-import { HIT_SLOP } from '../../themes/Themes'
+import { HIT_SLOP } from '@app/themes/Themes'
 
-import qrLogo from '../../assets/images/logoWithWhiteBG.png'
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
+import qrLogo from '@app/assets/images/logoWithWhiteBG.png'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
-import UIDict from '../../services/UIDict/UIDict'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import UIDict from '@app/services/UIDict/UIDict'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
-import QrCodeBox from '../../components/elements/QrCodeBox'
-import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import AsyncStorage from '@react-native-community/async-storage'
-import { resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
+import QrCodeBox from '@app/components/elements/QrCodeBox'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import { resolveChainCode } from '@crypto/blockchains/fio/FioUtils'
 
-import Header from '../../components/elements/new/Header'
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import Header from '@app/components/elements/new/Header'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
-import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
+import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import Buttons from './elements/buttons'
-import Tabs from '../../components/elements/new/Tabs'
+import Tabs from '@app/components/elements/new/Tabs'
 
 import AmountInput from './elements/ReceiveInput'
-import { normalizeInputWithDecimals } from '../../services/UI/Normalize/NormalizeInput'
+import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
 
-import UtilsService from '../../services/UI/PrettyNumber/UtilsService'
-import TextInput from '../../components/elements/new/TextInput'
-import Button from '../../components/elements/new/buttons/Button'
+import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
+import TextInput from '@app/components/elements/new/TextInput'
+import Button from '@app/components/elements/new/buttons/Button'
 
-import blackLoader from '../../assets/jsons/animations/refreshBlack.json'
-import whiteLoader from '../../assets/jsons/animations/refreshWhite.json'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import blackLoader from '@app/assets/jsons/animations/refreshBlack.json'
+import whiteLoader from '@app/assets/jsons/animations/refreshWhite.json'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import config from '@app/config/config'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -184,8 +183,11 @@ class ReceiveScreen extends Component {
 
         try {
             await Netinfo.isInternetReachable()
-
-            NavStore.goNext('MarketScreen', { side: 'IN', currencyCode : this.props.account.currencyCode })
+            if (config.exchange.mode === 'PROD') {
+                NavStore.goNext('ExchangeV3ScreenStack')
+            } else {
+                NavStore.goNext('MarketScreen', { side: 'IN', currencyCode : this.props.account.currencyCode })
+            }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('ReceiveScreen.handleExchange error ' + e.message)
