@@ -34,7 +34,6 @@ class MinerFee extends React.PureComponent {
         let changeAddress = false
         if (isOutputs) {
             for (const output of selectedFee.blockchainData.preparedInputsOutputs.outputs) {
-                console.log(output)
                 if (typeof output.isChange !== 'undefined' && output.isChange) {
                     changeAddress = output.to
                 }
@@ -46,6 +45,8 @@ class MinerFee extends React.PureComponent {
                     name={strings('send.receiptScreen.minerFee')}
                     value={`${feesPretty} ${feesCurrencySymbol}`}
                     subvalue={fiatFee}
+                    icon={this.props.icon}
+                    iconCallback={this.props.iconCallback}
                 />
                 {
                     isOutputs ?

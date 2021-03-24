@@ -15,6 +15,7 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 
 class ReceiptData extends React.PureComponent {
@@ -103,6 +104,16 @@ class ReceiptData extends React.PureComponent {
             <MinerFee
                 sendScreenStoreDict={this.props.sendScreenStoreDict}
                 sendScreenStoreSelectedFee={this.props.sendScreenStoreSelectedFee}
+                icon={'INFO'}
+                iconCallback={() => {
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: null,
+                        title: strings('send.infoModal.title'),
+                        description: strings('send.feeModal.description')
+                    })
+                }}
+
             />
 
 
