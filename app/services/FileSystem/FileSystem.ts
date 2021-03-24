@@ -78,10 +78,20 @@ export class FileSystem {
     cleanDir = async (): Promise<void> => {
         const items = await RNFS.readDir(this._fileDir)
         if (!items) return
-        let item
-        for (item of items) {
+        for (const item of items) {
             await RNFS.unlink(item.path)
         }
+    }
+
+    countDir = async (): Promise<string> => {
+        const items = await RNFS.readDir(this._fileDir)
+        if (!items) return 'empty'
+        let txt = ''
+        for (const item of items) {
+            const res = await RNFS.stat(item.path)
+            txt += '\n\n ' + item.path + ' size ' + res.size
+        }
+        return txt
     }
 
     checkOverflow = async (): Promise<void> => {

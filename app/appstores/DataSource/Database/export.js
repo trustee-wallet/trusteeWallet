@@ -15,9 +15,18 @@ export async function getSqlForExport() {
     let table
     for (table of tables.array) {
 
-        sql += '\n\n\n' + table.sql + ';\n\n'
+        if (table.name === 'transactions_scanners_tmp' || table.name === 'sqlite_sequence' || table.name === 'android_metadata') continue
+        //sql += '\n\n\n' + table.sql + ';\n\n'
 
-        const res = await (Database.setQueryString(`SELECT * FROM ${table.name}`)).query()
+        sql += '\n\n\nFOR BETA ONLY ' + table.name
+        const res2 = await (Database.setQueryString(`SELECT COUNT(*) AS cn FROM '${table.name}'`)).query()
+        if (res2 && res2.array && res2.array[0]) {
+            sql += ' count ' + res2.array[0].cn
+        }
+        sql += '\n\n'
+
+
+        const res = await (Database.setQueryString(`SELECT * FROM ${table.name} LIMIT 1`)).query()
         if (res.array.length) {
             const keys = Object.keys(res.array[0])
             sql += `INSERT INTO ${table.name} (${keys.join(', ')}) VALUES ` + '\n('

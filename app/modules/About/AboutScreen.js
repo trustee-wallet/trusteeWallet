@@ -39,6 +39,7 @@ import Header from '../../components/elements/new/Header'
 import RoundButton from '../../components/elements/new/buttons/RoundButton'
 import ListItem from '../../components/elements/new/list/ListItem/Setting'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 
 const getSocialLinksData = () => [

@@ -4,7 +4,7 @@
 import Log from './Log'
 import { FileSystem } from '../FileSystem/FileSystem'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
-import { getSqlForExport, cleanupNotNeeded } from '@app/appstores/DataSource/Database';
+import { getSqlForExport, cleanupNotNeeded } from '@app/appstores/DataSource/Database'
 import AsyncStorage from '@react-native-community/async-storage'
 
 import { zip } from 'react-native-zip-archive'
@@ -25,7 +25,7 @@ class SendLog {
         } catch (e) {
             // do nothing again
         }
-        const logs = `
+        let logs = `
 
                 ↑↑↑ Send to: contact@trustee.deals ↑↑↑
 
@@ -40,7 +40,17 @@ class SendLog {
                 ${sql}
             `
 
-        if (!FilePermissions.isOk()) {
+        let zipFsError = false
+        let zipFs
+        try {
+            const line = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '-').replace(/:/, '-').replace(/:/, '-')
+            zipFs = new FileSystem({ baseDir: 'zip', fileName: 'logs-' + line, fileExtension: 'zip' })
+            logs += '\n\nSIZES ' + await zipFs.countDir()
+        } catch (e) {
+            zipFsError = true
+            Log.err('APPLOG ZIP Error ' + e.message)
+        }
+        if (true || zipFsError || !FilePermissions.isOk()) { //4 beta
             // @ts-ignore
             Log.errFS(FilePermissions.getError())
             return {
@@ -51,7 +61,7 @@ class SendLog {
             }
         }
 
-        const fs = new FileSystem({fileEncoding: 'utf8', fileName : 'SQL', fileExtension : 'txt'})
+        const fs = new FileSystem({ fileEncoding: 'utf8', fileName: 'SQL', fileExtension: 'txt' })
         await fs.writeFile(logs)
 
         let tmp = Log.FS.ALL.getError()
@@ -70,22 +80,25 @@ class SendLog {
         }
 
         let urls = []
-        try {
-            const line = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '-').replace(/:/, '-').replace(/:/, '-')
-            const zipFs = new FileSystem({baseDir : 'zip', fileName : 'logs-' + line, fileExtension: 'zip'})
-            await zipFs.cleanDir()
+        if (!zipFsError) {
             try {
-                await zipFs.cleanDir()
-            } catch (e) {
-                // do nothing
-            }
+                try {
+                    await zipFs.cleanDir()
+                } catch (e) {
+                    // do nothing
+                }
 
-            const zipped = await this.actualZip(fs, zipFs)
-            Log.log('SendLog zip success ' + JSON.stringify(zipped))
-            urls = [
-                await zipFs.getPathOrBase64()
-            ]
-        } catch (e) {
+                const zipped = await this.actualZip(fs, zipFs)
+                Log.log('SendLog zip success ' + JSON.stringify(zipped))
+                urls = [
+                    await zipFs.getPathOrBase64()
+                ]
+                zipFsError = false
+            } catch (e) {
+                zipFsError = true
+            }
+        }
+        if (zipFsError) {
             urls = [
                 await fs.getPathOrBase64(),
                 await Log.FS.ALL.getPathOrBase64(),
