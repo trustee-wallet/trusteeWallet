@@ -39,12 +39,13 @@ class InputAndButtonsInput extends PureComponent {
             value = this.state.value
         }
 
-        const { id, name, type, subtype, cuttype, additional, decimals, callback, isTextarea = false } = this.props
+        const { id, name, type, subtype, cuttype, additional, decimals, callback } = this.props
 
+        const actualDecimals = typeof decimals !== 'undefined' ? decimals : 10
         if (additional === 'NUMBER') {
-            value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
+            value = normalizeInputWithDecimals(value, actualDecimals)
             if (value !== '' && value !== '0.') {
-                value = BlocksoftPrettyNumbers.makeCut(value).separatedForInput
+                value = BlocksoftPrettyNumbers.makeCut(value, actualDecimals).separatedForInput
             }
             this.setState( {
                 value,

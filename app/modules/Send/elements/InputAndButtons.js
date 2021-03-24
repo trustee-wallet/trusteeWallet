@@ -9,7 +9,7 @@ import { HIT_SLOP } from '@app/themes/Themes'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { strings } from '@app/services/i18n'
 
-import AmountInput from '@app/modules/Send/elements/InputAndButtonsInput'
+import InputAndButtonsInput from '@app/modules/Send/elements/InputAndButtonsInput'
 import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
@@ -323,10 +323,10 @@ class InputAndButtons extends PureComponent {
             <View>
                 <View style={{ width: '75%', alignSelf: 'center', alignItems: 'center' }}>
                     <View style={{ flexDirection: 'row' }}>
-                        <AmountInput
+                        <InputAndButtonsInput
                             ref={component => this.valueInput = component}
                             // onFocus={() => this.onFocus()}
-                            decimals={decimals < 10 ? decimals : 10}
+                            decimals={inputType === 'CRYPTO' ? decimals : 5}
                             enoughFunds={!this.state.enoughFunds.isAvailable}
                             id={amountInput.id}
                             additional={amountInput.additional}
