@@ -1,5 +1,5 @@
 /**
- * @version 0.11
+ * @version 0.41
  */
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
@@ -98,11 +98,11 @@ class UpdateCurrencyRateDaemon {
                 for (code of codes) {
                     delete toSearch[code]
                     if (typeof CACHE_SAVED[code] === 'undefined' || CACHE_SAVED[code] !== updateObj.currencyRateScanTime) {
-                        res = await currencyDS.updateCurrency({ updateObj, key: { currencyCode: code } })
                         updatedCurrencies.push({
                             ...updateObj,
                             currencyCode: code
                         })
+                        res = await currencyDS.updateCurrency({ updateObj, key: { currencyCode: code } })
                         CACHE_SAVED[code] = updateObj.currencyRateScanTime
                     } else {
                         res = true
