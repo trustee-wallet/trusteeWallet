@@ -32,7 +32,20 @@ class MinerFee extends React.PureComponent {
         }
         const isOutputs = devMode && selectedFee && typeof selectedFee.blockchainData !== 'undefined' && selectedFee.blockchainData && typeof selectedFee.blockchainData.preparedInputsOutputs !== 'undefined'
         let changeAddress = false
+
+        let feeForDev = ''
         if (isOutputs) {
+            if (selectedFee.feeForByte*1 > 1000) {
+                feeForDev = Math.round(selectedFee.feeForByte/1000) + ' ksat/B '
+                if (typeof selectedFee.needSpeed !== 'undefined' && selectedFee.needSpeed) {
+                    feeForDev += ' rec. ' +  Math.round(selectedFee.needSpeed/1000)
+                }
+            } else {
+                feeForDev = Math.round(selectedFee.feeForByte) + ' sat/B '
+                if (typeof selectedFee.needSpeed !== 'undefined' && selectedFee.needSpeed) {
+                    feeForDev += ' rec. ' +  Math.round(selectedFee.needSpeed)
+                }
+            }
             for (const output of selectedFee.blockchainData.preparedInputsOutputs.outputs) {
                 if (typeof output.isChange !== 'undefined' && output.isChange) {
                     changeAddress = output.to
@@ -52,7 +65,7 @@ class MinerFee extends React.PureComponent {
                     isOutputs ?
                         <CheckData
                             name={'DEV Mode'}
-                            value={ selectedFee.feeForByte + ' sat/B ' + (typeof selectedFee.needSpeed !== 'undefined' && selectedFee.needSpeed ? (' rec. ' + selectedFee.needSpeed + ' sat/B') : '')}
+                            value={feeForDev}
                             subvalue={'ins: ' + selectedFee.blockchainData.preparedInputsOutputs.inputs.length + ' outs: ' + selectedFee.blockchainData.preparedInputsOutputs.outputs.length
                                         + (changeAddress ? (' ch: ' + BlocksoftPrettyStrings.makeCut(changeAddress, 4)) : '') }
                         /> : null
