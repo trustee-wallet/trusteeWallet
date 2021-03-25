@@ -309,12 +309,11 @@ class UpdateAccountBalanceAndTransactions {
         try {
             Log.daemon('UpdateAccountBalanceAndTransactions newTransactions ' + account.currencyCode + ' ' + account.address)
             if (account.currencyCode === 'BTC') {
-                const addresses = await accountScanningDS.getAddresses({
+                const additional = {... account.accountJson}
+                additional.addresses = await accountScanningDS.getAddresses({
                     currencyCode: account.currencyCode,
                     walletHash: account.walletHash
                 })
-                const additional = account.accountJson
-                additional.addresses = addresses
                 if (account.walletIsHd) {
                     additional.walletPub = true // actually not needed pub - just flag
                 }

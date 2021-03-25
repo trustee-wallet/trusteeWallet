@@ -14,7 +14,6 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 class SendLog {
     async getAll(basicText = '') {
         let deviceToken = ''
-        let sql = ''
         try {
             deviceToken = await AsyncStorage.getItem('allPushTokens')
         } catch (e) {
