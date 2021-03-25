@@ -221,8 +221,7 @@ class UpdateTradeOrdersDaemon {
                         if (!someIsUpdatedAllWillUpdate) continue
 
 
-                        let savedToTx = {}
-                        let askedSimple = false
+                        const savedToTx = {}
                         for (const tmp of tmps) {
                             if (!tmp.currencyCode) continue
                             currencyCode = tmp.currencyCode
@@ -238,14 +237,11 @@ class UpdateTradeOrdersDaemon {
                                      AND currency_code='${tmp.currencyCode}'
                                      `
 
-                            } else if (!askedSimple) {
-                                askedSimple = true
+                            } else {
                                 sql = `
                                      SELECT id, bse_order_data, transaction_hash, transactions_scan_log, hidden_at FROM transactions
                                      WHERE bse_order_id='${item.orderId}' AND currency_code='${tmp.currencyCode}'
                                      `
-                            } else {
-                                continue // do nothing if already asked
                             }
 
                             let found = await Database.setQueryString(sql).query(true)
@@ -359,6 +355,7 @@ class UpdateTradeOrdersDaemon {
                                             '${tmp.addressAmount}', '', '${item.orderId}', '${item.orderId}', '${Database.escapeString(JSON.stringify(item))}')
                                        `
                             await Database.setQueryString(sql).query(true)
+                            savedToTx[tmp.currencyCode] = 1
                         }
 
                         total++
