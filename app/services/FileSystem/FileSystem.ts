@@ -75,6 +75,14 @@ export class FileSystem {
         return `${this._fileDir}/${this._fileName}.${this._fileExtension}`
     }
 
+    cleanFile = async (): Promise<void> => {
+        try {
+            await RNFS.unlink(this.getPath())
+        } catch (e) {
+            // do nothing
+        }
+    }
+
     cleanDir = async (): Promise<void> => {
         const items = await RNFS.readDir(this._fileDir)
         if (!items) return

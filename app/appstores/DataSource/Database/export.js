@@ -1,54 +1,80 @@
 
 import Database from './main';
+import config from '@app/config/config'
 
 
-export async function getSqlForExport() {
-    // cleanup
-    await (Database.setQueryString(`UPDATE transactions SET transactions_scan_log='' WHERE created_at<'2020-01-01'`)).query(true)
+export async function getSqlForExport(fs) {
+    const createdTs = new Date().getTime() - 480 * 3600000
+    const createdAt = new Date(createdTs).toISOString() // 20 days
 
     const tables = await (Database.setQueryString(`SELECT * FROM sqlite_master WHERE type='table' ORDER BY name`)).query()
     if (!tables.array.length) {
-        return 'no tables'
+        await fs.writeLine('no tables')
+        return false
     }
 
-    let sql = ''
     let table
     for (table of tables.array) {
 
-        if (table.name === 'transactions_scanners_tmp' || table.name === 'sqlite_sequence' || table.name === 'android_metadata') continue
-        //sql += '\n\n\n' + table.sql + ';\n\n'
+        if (table.name === 'transactions_scanners_tmp' || table.name === 'sqlite_sequence' || table.name === 'android_metadata' || table.name === 'settings') continue
+        await fs.writeLine('\n\n\n' + table.sql + ';\n\n')
 
-        sql += '\n\n\nFOR BETA ONLY ' + table.name
-        const res2 = await (Database.setQueryString(`SELECT COUNT(*) AS cn FROM '${table.name}'`)).query()
-        if (res2 && res2.array && res2.array[0]) {
-            sql += ' count ' + res2.array[0].cn
+
+        let selectSql = `SELECT * FROM ${table.name}`
+        let isPaging = true
+        if (table.name === 'app_news') {
+            selectSql += ' ORDER BY news_created DESC LIMIT 20'
+            isPaging = false
+        } else if (table.name === 'transactions') {
+            selectSql += ` WHERE created_at > '${createdAt}'`
         }
-        sql += '\n\n'
 
-
-        const res = await (Database.setQueryString(`SELECT * FROM ${table.name} LIMIT 1`)).query()
-        if (res.array.length) {
-            const keys = Object.keys(res.array[0])
-            sql += `INSERT INTO ${table.name} (${keys.join(', ')}) VALUES ` + '\n('
-            let i = 0
-            let row, key
-            for (row of res.array) {
-                let tmp = []
-                for (key of keys) {
-                    if (typeof row[key] === 'number') {
-                        tmp.push(row[key])
-                    } else {
-                        tmp.push("'" + row[key] + "'")
+        try {
+            const perPage = 20
+            let totalPages = 0
+            if (isPaging) {
+                const resCount = await (Database.setQueryString(`SELECT COUNT(*) AS cn FROM ${table.name}`)).query()
+                if (resCount && resCount.array) {
+                    totalPages = Math.floor(resCount.array[0].cn / perPage)
+                }
+            }
+            for (let i = 0; i <= totalPages; i++) {
+                let selectPagingSql = selectSql
+                if (isPaging) {
+                    selectPagingSql += ' LIMIT ' + perPage
+                    if (i > 0) {
+                        selectPagingSql += ' OFFSET ' + (perPage * i)
                     }
                 }
-                if (i > 0) {
-                    sql += '), \n('
+                const res = await (Database.setQueryString(selectPagingSql)).query()
+                if (res.array.length) {
+                    const keys = Object.keys(res.array[0])
+                    let tableTmp = `INSERT INTO ${table.name} (${keys.join(', ')}) VALUES ` + '\n('
+                    let i = 0
+                    for (const row of res.array) {
+                        const tmp = []
+                        for (const key of keys) {
+                            if (typeof row[key] === 'number') {
+                                tmp.push(row[key])
+                            } else {
+                                tmp.push("'" + row[key] + "'")
+                            }
+                        }
+                        if (i > 0) {
+                            tableTmp += '), \n('
+                        }
+                        tableTmp += tmp.join(', ')
+                        i++;
+                    }
+                    await fs.writeLine(tableTmp + ');\n\n')
                 }
-                sql += tmp.join(', ')
-                i++;
             }
-            sql += ');\n\n'
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('Database.export error ' + e.message)
+            }
+            await fs.writeLine('Database.export error ' + e.message)
         }
     }
-    return sql
+    return
 }

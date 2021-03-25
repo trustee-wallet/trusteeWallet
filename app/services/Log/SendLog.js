@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 
 import { zip } from 'react-native-zip-archive'
 import FilePermissions from '../FileSystem/FilePermissions'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 class SendLog {
     async getAll(basicText = '') {
@@ -19,13 +20,8 @@ class SendLog {
         } catch (e) {
             // do nothing
         }
-        try {
-            await cleanupNotNeeded()
-            sql = await getSqlForExport()
-        } catch (e) {
-            // do nothing again
-        }
-        let logs = `
+
+        const logs = `
 
                 ↑↑↑ Send to: contact@trustee.deals ↑↑↑
 
@@ -35,22 +31,23 @@ class SendLog {
 
                 --LOG--
                 ${Log.getHeaders()}
-
-                --SQL--
-                ${sql}
+                
             `
-
         let zipFsError = false
         let zipFs
+        let fs
+        let logSizes = ''
         try {
             const line = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '-').replace(/:/, '-').replace(/:/, '-')
             zipFs = new FileSystem({ baseDir: 'zip', fileName: 'logs-' + line, fileExtension: 'zip' })
-            logs += '\n\nSIZES ' + await zipFs.countDir()
+            fs = new FileSystem({ fileEncoding: 'utf8', fileName: 'SQL', fileExtension: 'txt' })
+            await fs.cleanFile()
         } catch (e) {
             zipFsError = true
             Log.err('APPLOG ZIP Error ' + e.message)
         }
-        if (true || zipFsError || !FilePermissions.isOk()) { //4 beta
+
+        if (zipFsError || !FilePermissions.isOk()) {
             // @ts-ignore
             Log.errFS(FilePermissions.getError())
             return {
@@ -61,8 +58,18 @@ class SendLog {
             }
         }
 
-        const fs = new FileSystem({ fileEncoding: 'utf8', fileName: 'SQL', fileExtension: 'txt' })
-        await fs.writeFile(logs)
+        try {
+            await fs.writeFile(logs)
+            await cleanupNotNeeded()
+            await getSqlForExport(fs)
+        } catch (e) {
+            // do nothing again
+        }
+
+        logSizes = '\n\nSIZES ' + await fs.countDir()
+        if (logSizes) {
+            MarketingEvent.logOnlyRealTime('LOGSIZES', logSizes)
+        }
 
         let tmp = Log.FS.ALL.getError()
         if (tmp && tmp !== '') {
@@ -78,6 +85,7 @@ class SendLog {
         if (tmp && tmp !== '') {
             Log.errFS('CRYPTOLOG ' + tmp)
         }
+
 
         let urls = []
         if (!zipFsError) {

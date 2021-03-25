@@ -9,6 +9,9 @@ export async function cleanupNotNeeded() {
 
     await (Database.setQueryString(`UPDATE transactions SET transactions_scan_log='' WHERE created_at<'${createdAt}'`)).query()
 
+    await (Database.setQueryString(`DELETE FROM app_task`)).query()
+
+
     const exchangeRatesNotifs = settingsActions.getSettingStatic('exchangeRatesNotifs')
     if (exchangeRatesNotifs === '0') {
         await (Database.setQueryString(`DELETE FROM app_news WHERE news_group='RATES_CHANGING'`)).query()
