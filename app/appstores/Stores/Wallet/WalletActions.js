@@ -1,16 +1,15 @@
 /**
  * @version 0.9
  */
-import store from '../../../store'
+import store from '@app/store'
 
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 
-import walletDS from '../../DataSource/Wallet/Wallet'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import { setSelectedWallet } from '@app/appstores/Stores/Main/MainStoreActions'
 
-import settingsActions from '../Settings/SettingsActions'
-import { setSelectedWallet } from '../Main/MainStoreActions'
-
-import App from '../../Actions/App/App'
-import Log from '../../../services/Log/Log'
+import Log from '@app/services/Log/Log'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const { dispatch } = store
 
@@ -20,6 +19,7 @@ const walletActions = {
         Log.log('ACT/Wallet setAvailableWallets called')
         const wallets = await walletDS.getWallets()
 
+        MarketingEvent.DATA.LOG_WALLETS_COUNT = wallets ? wallets.length.toString() : '0'
         Log.log('ACT/Wallet setAvailableWallets found', wallets)
         dispatch({
             type: 'SET_WALLET_LIST',

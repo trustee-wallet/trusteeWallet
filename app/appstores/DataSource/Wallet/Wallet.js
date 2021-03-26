@@ -110,6 +110,7 @@ class Wallet {
             return []
         }
         for (let i = 0, ic = res.array.length; i < ic; i++) {
+            res.array[i].walletNumber = (i + 1).toString()
             res.array[i] = this._prepWallet(res.array[i])
             this._redoCashback(res.array[i])
         }

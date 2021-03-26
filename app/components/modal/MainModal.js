@@ -8,7 +8,6 @@ import { Dimensions, View } from 'react-native'
 
 import MnemonicFailModal from '../../modules/WalletBackup/elements/MnemomicFail'
 import SkipModal from '../../modules/WalletBackup/elements/Skip'
-import CongratsModal from '../../modules/WalletCreate/elements/CongratsModal'
 
 import LicenseTermsModal from './elements/LicenseTermsModal'
 import SelectCoinModal from './elements/SelectCoinModal'
@@ -68,9 +67,7 @@ class MainModal extends Component {
             case 'SELECT_COIN_MODAL':
                 return <SelectCoinModal show={show} callback={callback} data={data}/>
             case 'BACKUP_SKIP_MODAL':
-                return <SkipModal show={show}/>
-            case 'WALLET_CREATE_CONGRATS_MODAL':
-                return <CongratsModal show={show}/>
+                return <SkipModal show={show} callback={callback}/>
             case 'LOGIN_MODAL':
                 return <LoginModal show={show} data={data} callback={callback}/>
             case 'INFO_MODAL':

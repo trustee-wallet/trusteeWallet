@@ -1,46 +1,46 @@
-
+/**
+ * @version 0.30
+ */
 import React, { Component } from 'react'
-import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    SafeAreaView,
-    Linking,
-    TouchableWithoutFeedback,
-    Keyboard,
-} from 'react-native'
+import { View, Text, StyleSheet,  SafeAreaView, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import { connect } from 'react-redux'
 
 
+import NavStore from '@app/components/navigation/NavStore'
 
-import NavStore from '../../components/navigation/NavStore'
+import { strings } from '@app/services/i18n'
 
-import { strings } from '../../../app/services/i18n'
+import { setWalletMnemonic, setMnemonicLength, setWalletName, proceedSaveGeneratedWallet, setCallback } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import {
-    setWalletMnemonic,
-    setMnemonicLength,
-    setWalletName,
-} from '../../appstores/Stores/CreateWallet/CreateWalletActions'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BlocksoftKeys from '@crypto/actions/BlocksoftKeys/BlocksoftKeys'
 
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
-import BlocksoftKeys from '../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import Log from '@app/services/Log/Log'
 
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-import Log from '../../services/Log/Log'
+import Header from '@app/components/elements/new/Header'
+import TextInput from '@app/components/elements/new/TextInput'
+import RadioButton from '@app/components/elements/new/RadioButton'
+import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
+import ListItem from '@app/components/elements/new/list/ListItem/Basic'
 
-import Header from '../../components/elements/new/Header'
-import TextInput from '../../components/elements/new/TextInput'
-import RadioButton from '../../components/elements/new/RadioButton'
-import TwoButtons from '../../components/elements/new/buttons/TwoButtons'
-import CheckBox from '../../components/elements/new/CheckBox'
-import ListItem from '../../components/elements/new/list/ListItem/Basic'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { setLoaderStatus, setSelectedWallet } from '@app/appstores/Stores/Main/MainStoreActions'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
+import App from '@app/appstores/Actions/App/App'
 
+/*
+import NavStore from '../../../components/navigation/NavStore'
+
+import Log from '../../../services/Log/Log'
+import App from '../../../appstores/Actions/App/App'
+import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
+import { setCallback, proceedSaveGeneratedWallet } from '../../../appstores/Stores/CreateWallet/CreateWalletActions'
+import walletActions from '../../../appstores/Stores/Wallet/WalletActions'
+ */
 
 class BackupSettingsScreen extends Component {
     state = {
@@ -83,6 +83,7 @@ class BackupSettingsScreen extends Component {
     handleSkip = () => {
         Log.log('WalletBackup.BackupStep1Screen handleSkip')
         const { lockScreenStatus } = this.props.settingsStore.keystore
+        const { walletName, walletMnemonic, callback, source, walletNumber } = this.props.createWalletStore
 
         if (+lockScreenStatus) {
             showModal({
@@ -94,7 +95,65 @@ class BackupSettingsScreen extends Component {
             return
         }
 
-        showModal({ type: 'BACKUP_SKIP_MODAL' })
+        showModal({ type: 'BACKUP_SKIP_MODAL'}, async () => {
+
+            try {
+                setLoaderStatus(true)
+
+                MarketingEvent.logEvent('gx_view_mnemonic_screen_skipped', { walletNumber, source }, 'GX')
+
+                let tmpWalletName = walletName
+
+                try {
+                    if (!tmpWalletName) {
+                        tmpWalletName = await walletActions.getNewWalletName()
+                    }
+                } catch (e) {
+                    e.message += ' while getNewWalletName'
+                    throw e
+                }
+
+                let walletHash = false
+                try {
+                    walletHash = await proceedSaveGeneratedWallet({
+                        walletName: tmpWalletName,
+                        walletMnemonic
+                    })
+                } catch (e) {
+                    e.message += ' while proceedSaveGeneratedWallet'
+                    throw e
+                }
+
+                try {
+                    await App.refreshWalletsStore({ firstTimeCall: 'skip', walletHash, source: 'WalletBackup.handleSkip' })
+                } catch (e) {
+                    e.message += ' while refreshWalletsStore'
+                    throw e
+                }
+
+                setLoaderStatus(false)
+
+                MarketingEvent.logEvent('gx_view_mnemonic_screen_success', { walletNumber, source }, 'GX')
+
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: true,
+                    title: strings('modal.walletBackup.success'),
+                    description: strings('modal.walletBackup.walletCreated'),
+                    noBackdropPress: true
+                }, async () => {
+                    if (callback === null) {
+                        NavStore.reset('DashboardStack')
+                    } else {
+                        callback()
+                        setCallback({ callback: null })
+                    }
+                })
+            } catch (e) {
+                Log.err('WalletBackup.Skip error ' + e.message)
+            }
+
+        })
     }
 
     handleSupport = async () => {

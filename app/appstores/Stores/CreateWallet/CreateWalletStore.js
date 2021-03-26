@@ -3,6 +3,9 @@
  */
 const INITIAL_STATE = {
     flowType: '',
+    source : false,
+    walletHash : false,
+    walletNumber : '0',
     walletName: '',
     walletMnemonic: '',
     mnemonicLength: 0,
@@ -31,7 +34,7 @@ const createWalletStoreReducer = (state = INITIAL_STATE, action) => {
         case 'SET_FLOW_TYPE':
             return {
                 ...state,
-                flowType: action.flowType
+                ...action
             }
         case 'SET_CALLBACK':
             return {

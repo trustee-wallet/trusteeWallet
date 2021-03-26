@@ -1,18 +1,15 @@
 /**
  * @version 0.9
  */
-import store from '../../../store'
-import Log from '../../../services/Log/Log'
+import store from '@app/store'
+import Log from '@app/services/Log/Log'
 
-import cryptoWalletsDS from '../../DataSource/CryptoWallets/CryptoWallets'
-import walletDS from '../../DataSource/Wallet/Wallet'
-import accountDS from '../../DataSource/Account/Account'
-import appTaskDS from '../../DataSource/AppTask/AppTask'
-import accountBalanceActions from '../Account/AccountBalancesActions'
-import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
-import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
-import UpdateAppTasksDaemon from '../../../daemons/back/UpdateAppTasksDaemon'
-import WalletHDActions from '../../Actions/WalletHDActions'
+import cryptoWalletsDS from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
+import accountDS from '@app/appstores/DataSource/Account/Account'
+import appTaskDS from '@app/appstores/DataSource/AppTask/AppTask'
+import accountBalanceActions from '@app/appstores/Stores/Account/AccountBalancesActions'
+import WalletHDActions from '@app/appstores/Actions/WalletHDActions'
 
 const { dispatch } = store
 
@@ -40,7 +37,10 @@ export function setWalletMnemonic(data) {
 export const setFlowType = (data) => {
     dispatch({
         type: 'SET_FLOW_TYPE',
-        flowType: data.flowType
+        flowType: data.flowType,
+        source : data.source || false,
+        walletHash : data.walletHash || false,
+        walletNumber : data.walletNumber || '0'
     })
 }
 
@@ -66,7 +66,6 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
         await walletDS.saveWallet({ walletHash: storedKey, walletName: wallet.walletName, walletIsBackedUp: wallet.walletIsBackedUp || 0 })
 
-        const prep = []
         if (source === 'IMPORT') {
             try {
                 await WalletHDActions.hdFromTrezor({ walletHash: storedKey, force: false, currencyCode: 'BTC' }, 'IMPORT')
@@ -81,47 +80,6 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
         await accountBalanceActions.initBalances(storedKey, source === 'IMPORT')
 
         await Log.log('ACT/MStore proceedSaveGeneratedWallet finished discover storedWallet ' + storedKey)
-
-        /*
-
-        const initedCurrencyCodes = await accountBalanceActions.initBalances(storedKey)
-        if (source === 'IMPORT') {
-            prep.push({
-                walletHash: storedKey,
-                currencyCode: 'BTC',
-                taskGroup: 'IMPORT',
-                taskName: 'DISCOVER_HD'
-            })
-            if (initedCurrencyCodes) {
-                let code
-                for (code in BlocksoftDict.Currencies) {
-                    if (typeof initedCurrencyCodes[code] !== 'undefined') continue
-                    if (code === 'BTC_TEST' || code === 'XRP' || code === 'XMR') continue
-                    prep.push({
-                        walletHash: storedKey,
-                        currencyCode: code,
-                        taskGroup: 'IMPORT',
-                        taskName: 'DISCOVER_BALANCES_NOT_ADDED'
-                    })
-                }
-                for (code of BlocksoftDict.VisibleCodes) {
-                    delete initedCurrencyCodes[code]  // not visible - need to scan balance anyway to show news
-                }
-                for (code in initedCurrencyCodes) {
-                    if (code === 'BTC_TEST') continue
-                    prep.push({
-                        walletHash: storedKey,
-                        currencyCode: code,
-                        taskGroup: 'IMPORT',
-                        taskName: 'DISCOVER_BALANCES_HIDDEN'
-                    })
-                }
-            }
-            await appTaskDS.saveAppTasks(prep)
-        }
-        */
-
-        Log.log('ACT/MStore proceedSaveGeneratedWallet finished save storedWallet ' + storedKey)
 
     } catch (e) {
 

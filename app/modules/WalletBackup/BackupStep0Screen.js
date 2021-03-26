@@ -1,6 +1,5 @@
 /**
  * @version 0.30
- * @todo clear commented code
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -16,41 +15,34 @@ import {
 
 import LottieView from 'lottie-react-native'
 
+import NavStore from '@app/components/navigation/NavStore'
+
+import { strings } from '@app/services/i18n'
+
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setWalletMnemonic, setMnemonicLength, setWalletName, setFlowType} from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
+
+import BlocksoftKeys from '@crypto/actions/BlocksoftKeys/BlocksoftKeys'
+import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import BlocksoftSecrets from '@crypto/actions/BlocksoftSecrets/BlocksoftSecrets'
+
+import Log from '@app/services/Log/Log'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import Toast from '@app/services/UI/Toast/Toast'
+
+import Header from '@app/components/elements/new/Header'
+import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
+import CheckBox from '@app/components/elements/new/CheckBox'
+
+import ProgressAnimation from '@app/assets/jsons/animations/pieWithStroke.json'
+import KeyIcon from '@app/assets/images/key'
+
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 
-import NavStore from '../../components/navigation/NavStore'
-
-import { strings } from '../../../app/services/i18n'
-
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import {
-    setWalletMnemonic,
-    setMnemonicLength,
-    setWalletName,
-    setFlowType,
-} from '../../appstores/Stores/CreateWallet/CreateWalletActions'
-
-import BlocksoftKeys from '../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
-import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
-
-import Log from '../../services/Log/Log'
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
-
-import BlocksoftSecrets from '../../../crypto/actions/BlocksoftSecrets/BlocksoftSecrets'
-import Toast from '../../services/UI/Toast/Toast'
-
-import Header from '../../components/elements/new/Header'
-import TwoButtons from '../../components/elements/new/buttons/TwoButtons'
-import CheckBox from '../../components/elements/new/CheckBox'
-
-import ProgressAnimation from '../../assets/jsons/animations/pieWithStroke.json'
-import KeyIcon from '../../assets/images/key'
-
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-
-
-const VISIBILITY_TIMEOUT = 4000;
+const VISIBILITY_TIMEOUT = 4000
 
 class BackupStep0Screen extends Component {
     visibilityTimer;
@@ -165,7 +157,7 @@ class BackupStep0Screen extends Component {
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
-        const { walletMnemonic, mnemonicLength } = nextProps.createWalletStore
+        const { walletMnemonic } = nextProps.createWalletStore
 
         if (this.props.createWalletStore.mnemonicLength !== nextProps.createWalletStore.mnemonicLength) {
             this.scrollView.scrollTo?.({ x: 0, y: 0, animated: true })
@@ -201,13 +193,6 @@ class BackupStep0Screen extends Component {
         NavStore.goNext('BackupSettingsScreen')
     }
 
-    // handleAfterPin = () => {
-    //     setLoaderStatus(false)
-    //     this.setState({
-    //         needPasswordConfirm: false
-    //     })
-    // }
-
     resetWalletStore = () => {
         setWalletName({ walletName: '' })
         setWalletMnemonic({ walletMnemonic: '' })
@@ -226,24 +211,26 @@ class BackupStep0Screen extends Component {
     }
 
     triggerMnemonicVisible = (visibility) => {
-        if (this.visibilityTimer) return;
-        this.setState(() => ({ isMnemonicVisible: visibility }))
+        if (this.visibilityTimer) return
+        const { source, walletNumber } = this.props.createWalletStore
+        if (visibility) {
+            this.setState(() => ({ isMnemonicVisible: visibility }), () => {
+                MarketingEvent.logEvent('gx_view_mnemonic_screen_tap_mnemonic', { walletNumber, source }, 'GX')
+            })
+        } else {
+            this.setState(() => ({ isMnemonicVisible: visibility }))
+        }
     }
 
-    // handleAfterPin = () => {
-    //     setLoaderStatus(false)
-    //     this.setState({
-    //         needPasswordConfirm: false
-    //     })
-    // }
-
     showMnemonic = () => {
+        const { source, walletNumber } = this.props.createWalletStore
         this.visibilityTimer = setTimeout(() => {
             this.visibilityTimer = null
             this.setState(() => ({ isMnemonicVisible: false }))
         }, VISIBILITY_TIMEOUT)
 
         this.setState(() => ({ isMnemonicVisible: true }), () => {
+            MarketingEvent.logEvent('gx_view_mnemonic_screen_tap_mnemonic', { walletNumber, source }, 'GX')
             Animated.timing(this.state.animationProgress, {
                 toValue: 1,
                 duration: VISIBILITY_TIMEOUT
@@ -270,18 +257,10 @@ class BackupStep0Screen extends Component {
     handleApproveBackup = () => { this.setState(state => ({ approvedBackup: !state.approvedBackup })) }
 
     render() {
-        const {
-            headerHeight,
-            walletMnemonicArray,
-            isMnemonicVisible,
-            approvedBackup,
-            animationProgress,
-            flowSubtype
-        } = this.state
-        const { flowType, mnemonicLength } = this.props.createWalletStore
+        const { headerHeight, walletMnemonicArray, isMnemonicVisible, approvedBackup, animationProgress, flowSubtype } = this.state
+        const { flowType } = this.props.createWalletStore
 
         const isShowingPhrase = flowSubtype === 'show'
-        const isBackUp = flowSubtype === 'backup'
         const isCreate = flowSubtype === 'createFirst' || flowSubtype === 'createAnother'
         const isXMR = flowType === 'BACKUP_WALLET_XMR'
         const { GRID_SIZE, colors } = this.context
@@ -385,125 +364,6 @@ class BackupStep0Screen extends Component {
                 </SafeAreaView>
             </View>
         )
-
-        // if (flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR') {
-        //     const {
-        //         needPasswordConfirm
-        //     } = this.state
-
-        //     if (needPasswordConfirm) {
-        //         lockScreenAction.setFlowType({ flowType: 'CONFIRM_BACKUP_WALLET' })
-        //         lockScreenAction.setActionCallback({ actionCallback: this.handleAfterPin })
-        //         NavStore.goNext('LockScreen')
-        //         return (
-        //             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
-        //                 <Navigation
-        //                     title={strings('walletBackup.title')}
-        //                     isClose={false}
-        //                 />
-        //                 <ScrollView
-        //                     showsVerticalScrollIndicator={false}
-        //                     style={styles.wrapper__scrollView}>
-        //                     <View style={styles.wrapper__content}>
-        //                         <TextView style={{ height: 90 }}>
-        //                             {strings('walletBackup.description', {
-        //                                 mnemonicLength: mnemonicLength === 256 ? 24 : 12,
-        //                                 words: mnemonicLength === 256 ? strings('walletCreate.words24') : strings('walletCreate.words12')
-        //                             })}
-        //                         </TextView>
-        //                         <Image
-        //                             style={styles.img}
-        //                             resizeMode='stretch'
-        //                             source={require('../../assets/images/importSave.png')}
-        //                         />
-        //                         <View style={styles.seed}>
-        //                             <Text>
-        //                                 {strings('walletBackup.pinProtected')}
-        //                             </Text>
-        //                         </View>
-        //                     </View>
-        //                 </ScrollView>
-        //             </GradientView>
-        //         )
-        //     }
-        // }
-
-        // return (
-        //     <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
-        //         {
-        //             flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR' ?
-        //                 <Navigation
-        //                     title={strings('walletBackup.title')}
-        //                     isClose={false}
-        //                 /> :
-        //                 <Navigation
-        //                     title={SIZE === 8 ? strings('walletBackup.titleNewWalletSmall') : strings('walletBackup.titleNewWallet')}
-        //                     nextTitle={strings('walletBackup.skip')}
-        //                     isBack={false}
-        //                     LeftComponent={this.renderSettingsIcon}
-        //                     closeAction={() => NavStore.goBack()}
-        //                 />
-        //         }
-        //         <ScrollView
-        //             showsVerticalScrollIndicator={false}
-        //             style={styles.wrapper__scrollView}>
-        //             <View style={styles.wrapper__content}>
-        //                 <TextView style={{ height: 90 }}>
-        //                     {
-
-        //                         flowType === 'BACKUP_WALLET' ? strings('walletBackup.description', {
-        //                             mnemonicLength: totalWords,
-        //                             words: totalWords === 24 ? strings('walletCreate.words24') : strings('walletCreate.words12')
-        //                         }) : strings('walletBackup.descriptionXMR')
-
-        //                     }
-        //                 </TextView>
-        //                 <Image
-        //                     style={styles.img}
-        //                     resizeMode='stretch'
-        //                     source={require('../../assets/images/importSave.png')}
-        //                 />
-        //                 <View style={styles.seed}>
-        //                     {
-        //                         this.state.walletMnemonicArray.map((item, index) => {
-        //                             return (
-        //                                 <View style={styles.seed__item} key={index}>
-        //                                     <View style={styles.seed__index}>
-        //                                         <Text style={styles.seed__index__text}>{index + 1}</Text>
-        //                                     </View>
-        //                                     <Text style={styles.seed__text}>{' ' + item}</Text>
-        //                                 </View>
-        //                             )
-        //                         })
-        //                     }
-        //                 </View>
-        //                 <TouchableOpacity onPress={() => this.handleCopyModal()} style={styles.copyBtn}>
-        //                     <Text style={styles.copyBtn__text}>
-        //                         {strings('account.copy')}
-        //                     </Text>
-        //                     <Copy name="content-copy" size={18} color="#946288" />
-        //                 </TouchableOpacity>
-
-        //                 {flowType !== 'BACKUP_WALLET_XMR' ?
-        //                     <View style={styles.warning}>
-        //                         <Icon style={styles.warning__icon} name="warning" size={20} color="#946288" />
-        //                         <Text style={styles.warning__text}>{strings('walletBackup.attention')}</Text>
-        //                     </View> : null}
-
-        //                 {flowType !== 'BACKUP_WALLET_XMR' ?
-        //                     <Button press={this.onPress} styles={{ marginBottom: 50 }}>
-        //                         {strings('walletBackup.written')}
-        //                     </Button> : null}
-
-        //                 {flowType !== 'BACKUP_WALLET_XMR' && false ?
-        //                     <Button press={this.onGoogle} styles={{ marginBottom: 50 }}>
-        //                         {strings('walletCreate.importGoogle')}
-        //                     </Button> : null}
-
-        //             </View>
-        //         </ScrollView>
-        //     </GradientView>
-        // )
     }
 }
 

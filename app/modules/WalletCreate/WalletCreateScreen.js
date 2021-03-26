@@ -1,49 +1,29 @@
 /**
- * @version 0.9
+ * @version 0.41
  */
 import React, { Component } from 'react'
-import {
-    View,
-    Image,
-    Animated,
-    Text,
-    Platform,
-    TouchableOpacity,
-    Dimensions,
-    StatusBar,
-} from 'react-native'
-import { connect } from 'react-redux'
+import { View, Image, Text, Dimensions, StatusBar, StyleSheet } from 'react-native'
 import { Pages } from 'react-native-pages'
 
-
-import LottieView from 'lottie-react-native'
-
 import Agreement from './elements/Agreement'
-import Button from '../../components/elements/new/buttons/Button'
+import Button from '@app/components/elements/new/buttons/Button'
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import {
-    setCallback,
-    setFlowType,
-    setMnemonicLength,
-    setWalletName
-} from '../../appstores/Stores/CreateWallet/CreateWalletActions'
+import { setCallback, setFlowType, setMnemonicLength, setWalletName } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 
-import Log from '../../services/Log/Log'
-import { strings, sublocale } from '../../services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import SliderImage1 from '../../assets/images/slider/1.png';
-import SliderImage2 from '../../assets/images/slider/2.png';
-import SliderImage3 from '../../assets/images/slider/3.png';
-import SliderImage4 from '../../assets/images/slider/4.png';
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-
+import SliderImage1 from '@app/assets/images/slider/1.png'
+import SliderImage2 from '@app/assets/images/slider/2.png'
+import SliderImage3 from '@app/assets/images/slider/3.png'
+import SliderImage4 from '@app/assets/images/slider/4.png'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -65,7 +45,7 @@ const getSliderData = () => [
         text: strings('walletCreateScreen.slider4'),
         textStyle: { textDecorationLine: 'line-through' }
     },
-];
+]
 
 const SLIDER_SCROLL_TIMEOUT = 4000
 
@@ -79,8 +59,6 @@ class WalletCreateScreen extends Component {
     sliderRef = React.createRef
 
     componentDidMount() {
-        Log.log('WalletCreateScreen is mounted')
-
         this.runSliderTimer()
     }
 
@@ -114,12 +92,12 @@ class WalletCreateScreen extends Component {
 
     handleCreate = () => {
         MarketingEvent.logEvent('gx_view_create_import_screen_tap_create', {number : '1', source : 'WalletCreateScreen'}, 'GX')
-        this.handleSelect({ flowType: 'CREATE_NEW_WALLET' })
+        this.handleSelect({ flowType: 'CREATE_NEW_WALLET', source : 'WalletCreateScreen', walletNumber : 1 })
     }
 
     handleImport = () => {
         MarketingEvent.logEvent('gx_view_create_import_screen_tap_import', {number : '1', source : 'WalletCreateScreen'}, 'GX')
-        this.handleSelect({ flowType: 'IMPORT_WALLET' })
+        this.handleSelect({ flowType: 'IMPORT_WALLET', source : 'WalletCreateScreen', walletNumber : 1 })
     }
 
     changeAgreementCallback = () => {
@@ -165,7 +143,6 @@ class WalletCreateScreen extends Component {
     }
 
     render() {
-        const { logoShow } = this.state
         const { colors, GRID_SIZE } = this.context
 
         MarketingAnalytics.setCurrentScreen('WalletCreate.WalletCreateScreen')
@@ -208,13 +185,9 @@ class WalletCreateScreen extends Component {
 
 WalletCreateScreen.contextType = ThemeContext
 
-const mapStateToProps = (state) => {
-    return {}
-}
+export default WalletCreateScreen
 
-export default connect(mapStateToProps, {})(WalletCreateScreen)
-
-const styles = {
+const styles = StyleSheet.create({
     container: {
         flex: 1
     },
@@ -253,4 +226,4 @@ const styles = {
     importButton: {
         marginTop: 8
     }
-};
+})
