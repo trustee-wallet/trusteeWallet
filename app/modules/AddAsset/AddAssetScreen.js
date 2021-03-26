@@ -27,8 +27,6 @@ import ListItem from '@app/components/elements/new/list/ListItem/Asset'
 import Tabs from '@app/components/elements/new/Tabs'
 import Header from './elements/Header'
 
-import QrCodeIcon from '@app/assets/images/qrCodeBtn';
-
 import {
     getTabs,
     ASSESTS_GROUP,
@@ -37,6 +35,7 @@ import {
 } from './helpers'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
 
 class AddAssetScreen extends React.Component {
@@ -192,7 +191,7 @@ class AddAssetScreen extends React.Component {
                                                 value={customAddress}
                                                 HelperAction={() => (
                                                     <TouchableOpacity onPress={() => checkQRPermission(this.handleOpenQr)}>
-                                                        <QrCodeIcon width={20} height={20} color={colors.common.text1} />
+                                                        <CustomIcon name={'qr'} size={20} color={colors.common.text1} />
                                                     </TouchableOpacity>
                                                 )}
                                             />

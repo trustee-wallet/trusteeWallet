@@ -9,21 +9,11 @@ import {
 
 import { Switch } from 'react-native-switch'
 
-import AntIcon from 'react-native-vector-icons/AntDesign'
-import EntypoIcon from 'react-native-vector-icons/Entypo'
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
-
-import NotificationIcon from '../../../../../assets/images/notification_icon'
-
-import CustomIcon from '../../../CustomIcon'
-
 import CurrencyIcon from '../../../CurrencyIcon'
 
-import { useTheme } from '../../../../../modules/theme/ThemeProvider'
+import { useTheme } from '@app/modules/theme/ThemeProvider'
 
-import { strings } from '../../../../../services/i18n'
+import { strings } from '@app/services/i18n'
 
 
 const getRightContent = (rightContent, params) => {

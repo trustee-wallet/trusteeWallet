@@ -35,12 +35,10 @@ import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import CheckBox from '@app/components/elements/new/CheckBox'
 
 import ProgressAnimation from '@app/assets/jsons/animations/pieWithStroke.json'
-import KeyIcon from '@app/assets/images/key'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
-import MarketingEvent from '@app/services/Marketing/MarketingEvent'
-
+import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
 const VISIBILITY_TIMEOUT = 4000
 
@@ -295,7 +293,9 @@ class BackupStep0Screen extends Component {
                                 {this.visibilityTimer ? (
                                     <LottieView color={colors.createWalletScreen.keyIcon} source={ProgressAnimation} style={{ width: 24, height: 24 }} progress={animationProgress} />
                                 ) : (
-                                    <KeyIcon color={colors.createWalletScreen.showMnemonic.showButtonText} />
+                                    <View style={[styles.keyCircle, {borderColor: colors.createWalletScreen.showMnemonic.showButtonText}]}>
+                                        <CustomIcon name={'recoveryPhrase'} size={16} color={colors.createWalletScreen.showMnemonic.showButtonText} />
+                                    </View>
                                 )}
                                 <Text style={[styles.infoText, { color: colors.common.text3 }]}>{infoText}</Text>
                             </View>
@@ -454,5 +454,13 @@ const styles = StyleSheet.create({
         lineHeight: 12,
         letterSpacing: 1.5,
         textTransform: 'uppercase',
+    },
+    keyCircle: {
+        width: 24,
+        height: 24,
+        borderRadius: 50,
+        borderWidth: 2,
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 })

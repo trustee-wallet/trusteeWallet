@@ -15,8 +15,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 import Entypo from 'react-native-vector-icons/Entypo'
 import moment from 'moment'
 
-import IconVisible from '@app/assets/images/icon_visible'
-import IconHidden from '@app/assets/images/icon_hidden'
+import CustomIcon from '@app/components/elements/CustomIcon'
 import NavStore from '@app/components/navigation/NavStore'
 import GradientView from '@app/components/elements/GradientView'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
@@ -227,9 +226,9 @@ class WalletInfo extends Component {
 
                             <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
                                 {isBalanceVisible ? (
-                                    <IconVisible color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
+                                    <CustomIcon name={'eye'} size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
                                 ) : (
-                                        <IconHidden color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
+                                    <CustomIcon name={'eyeClosed'} size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
                                     )}
                             </TouchableOpacity>
                         </View>

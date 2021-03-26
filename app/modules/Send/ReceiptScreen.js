@@ -81,6 +81,7 @@ class ReceiptScreen extends SendBasicScreen {
             return true
         }
 
+        setLoaderStatus(false)
         this.setState({
             sendInProcess: true
         })

@@ -4,7 +4,6 @@
 import React, { Component } from 'react'
 import { View, Text, TouchableOpacity, TextInput } from 'react-native'
 
-import Icon from 'react-native-vector-icons/SimpleLineIcons'
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -13,11 +12,8 @@ import NavStore from './NavStore'
 
 import GradientView from '../elements/GradientView'
 
-import { strings } from '../../services/i18n'
+import { strings } from '@app/services/i18n'
 import LetterSpacing from '../elements/LetterSpacing'
-
-import AsyncStorage from '@react-native-community/async-storage'
-import BackToOld from './element/backToOld'
 
 
 class Navigation extends Component {
@@ -71,11 +67,6 @@ class Navigation extends Component {
         }
     }
 
-    handleChangeInterface = () => {
-        AsyncStorage.setItem('isNewInterface', 'false')
-        NavStore.goNext('HomeScreen')
-    }
-
     render() {
 
         const { isBack } = this.state
@@ -89,16 +80,6 @@ class Navigation extends Component {
                     <View style={{ ...styles.wrapper__main__content, marginTop: typeof searchInputCallback != 'undefined' ? 10 : 0 }}>
                         {
                             typeof LeftComponent !== 'undefined' ? <LeftComponent/> : null
-                        }
-                        {
-                            newInterfaceSwitch ?
-                                <TouchableOpacity style={[styles.btn, { paddingLeft: 23 }]} onPress={this.handleChangeInterface}>
-                                    <View style={{ flex: 1, flexDirection: 'row' }}>
-                                        <BackToOld />  
-                                        <Text style={styles.toOld}>to old</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            : null
                         }
                         {
                             isBack ?
