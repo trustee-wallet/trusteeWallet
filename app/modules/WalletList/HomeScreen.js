@@ -49,6 +49,7 @@ import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
 import UpdateAppNewsListDaemon from '@app/daemons/view/UpdateAppNewsListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import AppLockBlur from '@app/components/AppLockBlur'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 
 let CACHE_SET_WALLET_HASH = false
@@ -188,6 +189,7 @@ class HomeScreen extends React.Component {
 
     // linked to stores
     handleHide = async (cryptoCurrency) => {
+        MarketingEvent.logEvent('gx_currency_hide', { currencyCode: cryptoCurrency.currencyCode , source : 'HomeScreen'}, 'GX')
         await currencyActions.toggleCurrencyVisibility({
             currencyCode: cryptoCurrency.currencyCode,
             isHidden: 0

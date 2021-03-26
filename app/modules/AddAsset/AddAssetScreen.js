@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import {
     View,
     Text,
-    ScrollView,
     SafeAreaView,
     SectionList,
     FlatList,
@@ -12,9 +11,6 @@ import {
     TouchableOpacity,
     Keyboard
 } from 'react-native'
-
-import _forEach from 'lodash/forEach'
-import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -40,6 +36,7 @@ import {
     addCustomToken
 } from './helpers'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 
 class AddAssetScreen extends React.Component {
@@ -87,15 +84,20 @@ class AddAssetScreen extends React.Component {
         } else {
             this.toggleCurrencyVisibility(currency.currencyCode, +currency.isHidden)
         }
-        return;
     }
 
     handleAddCurrency = async (currencyToAdd) => {
+        MarketingEvent.logEvent('gx_currency_add', { currencyCode: currencyToAdd.currencyCode }, 'GX')
         await currencyActions.addCurrency(currencyToAdd)
         this.prepareData()
     }
 
     toggleCurrencyVisibility = async (currencyCode, isHidden) => {
+        if (isHidden) {
+            MarketingEvent.logEvent('gx_currency_show', { currencyCode, source: 'AddAssetScreen' }, 'GX')
+        } else {
+            MarketingEvent.logEvent('gx_currency_hide', { currencyCode, source: 'AddAssetScreen' }, 'GX')
+        }
         await currencyActions.toggleCurrencyVisibility({ currencyCode, isHidden })
         this.prepareData()
     }
@@ -151,7 +153,6 @@ class AddAssetScreen extends React.Component {
     render() {
         const { colors, GRID_SIZE } = this.context
         const {
-            headerHeight,
             data,
             searchQuery,
             tabs,
@@ -161,8 +162,6 @@ class AddAssetScreen extends React.Component {
         const activeGroup = tabs.find(tab => tab.active).group
 
         MarketingAnalytics.setCurrentScreen('AddAssetScreen')
-
-        const contentPaddingTop = headerHeight + GRID_SIZE / 2
 
         return (
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>

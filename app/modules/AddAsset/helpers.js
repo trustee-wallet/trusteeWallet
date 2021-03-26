@@ -13,6 +13,7 @@ import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import config from '@app/config/config'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 
 export const ASSESTS_GROUP = {
@@ -185,6 +186,12 @@ export async function addCustomToken(tokenAddress) {
     }
 
     try {
+        MarketingEvent.logEvent('gx_currency_add', {
+            currencyCode: checked.currencyCode,
+            currencyName: checked.currencyName,
+            tokenType: checked.tokenType,
+            tokenAddress: checked.tokenAddress,
+        }, 'GX')
         await customCurrencyActions.addCustomCurrency({
             currencyCode: checked.currencyCode,
             currencyName: checked.currencyName,
