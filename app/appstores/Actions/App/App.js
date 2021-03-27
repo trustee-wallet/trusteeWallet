@@ -13,7 +13,6 @@ import walletDS from '../../DataSource/Wallet/Wallet'
 import NavStore from '../../../components/navigation/NavStore'
 
 import { setInitState, setInitError, setSelectedWallet } from '../../Stores/Main/MainStoreActions'
-import { setCards } from '../../Stores/Card/CardActions'
 import walletActions from '../../Stores/Wallet/WalletActions'
 import currencyActions from '../../Stores/Currency/CurrencyActions'
 import settingsActions from '../../Stores/Settings/SettingsActions'
@@ -140,9 +139,6 @@ class App {
             await this.refreshWalletsStore({ firstTimeCall: 'second', source: 'ACT/App init' })
 
             this.initStatus = 'await this.refreshWalletsStore(true)'
-
-            // noinspection ES6MissingAwait
-            setCards()
 
             this.initStatus = 'setCards()'
 

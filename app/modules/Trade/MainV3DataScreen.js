@@ -606,25 +606,31 @@ class MainV3DataScreen extends Component {
         }
     }
 
+
     async resCardToWebView(numberCard) {
-        const cacheJson = await UpdateCardsDaemon.updateCardsDaemon({ force: true, numberCard })
-        let cardStatus = cacheJson
-        let card
-        if (typeof cacheJson === 'undefined' || !cacheJson) {
-            card = await cardDS.getCards({ number: numberCard })
-            cardStatus = JSON.parse(card[0].cardVerificationJson)
+        try {
+            let cardStatus = await UpdateCardsDaemon.updateCardsDaemon({ force: true, numberCard })
+            if (typeof cardStatus === 'undefined' || !cardStatus) {
+                cardStatus = await cardDS.getCardVerificationJson(numberCard)
+            }
+            if (config.debug.appErrors) {
+                console.log('Trade/MainV3Screen resCardToWebView cardStatus ' + cardStatus.verificationStatus + ' ' + JSON.stringify(cardStatus))
+            }
+            if (cardStatus && typeof cardStatus.verificationStatus !== 'undefined' && (cardStatus.verificationStatus === 'SUCCESS' || cardStatus.verificationStatus === 'CANCELED')) {
+                this.webref && this.webref.postMessage(JSON.stringify({ 'res': { 'res': cardStatus, numberCard } }))
+                return true
+            } else {
+                this.webref.postMessage(JSON.stringify({ 'res': { 'res': cardStatus, numberCard } }))
+                setTimeout(async () => {
+                    await this.resCardToWebView(numberCard)
+                }, 30e3) //30 sec
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('Trade/MainV3Screen resCardToWebView error ' + e.message)
+            }
+            Log.err('Trade/MainV3Screen resCardToWebView error ' + e.message)
         }
-
-        if (cardStatus.verificationStatus === 'SUCCESS' || cardStatus.verificationStatus === 'CANCELED') {
-            this.webref.postMessage(JSON.stringify({ 'res': { 'res': cardStatus, numberCard } }))
-            return true
-        } else {
-            this.webref.postMessage(JSON.stringify({ 'res': { 'res': cardStatus, numberCard } }))
-            setTimeout(async () => {
-                await this.resCardToWebView(numberCard)
-            }, 30e3) //30 sec
-        }
-
     }
 
     async onDeleteCard(cardID) {

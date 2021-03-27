@@ -45,12 +45,13 @@ export default {
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
 
         try {
-            return await axios.post(`${baseUrl}/payment-details/validate-card`, data, {
+            let res = await axios.post(`${baseUrl}/payment-details/validate-card`, data, {
                 headers: {
                     'Accept': 'multipart/form-data',
                     'Content-Type': 'multipart/form-data'
                 }
             })
+            return res
         } catch (e) {
             Log.err('ApiV3 validateCard e.response.data ' + JSON.stringify(e.response.data))
             Log.err('ApiV3 validateCard e.response.data.message ' + JSON.stringify(e.response.data.message))

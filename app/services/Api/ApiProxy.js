@@ -1,23 +1,26 @@
 /**
  * @version 0.32
  */
-import config from '../../config/config'
+import config from '@app/config/config'
 
-import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
-
-import { sublocale } from '../i18n'
-
-import MarketingEvent from '../Marketing/MarketingEvent'
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
-import AppNotificationListener from '../AppNotification/AppNotificationListener'
-import ApiV3 from './ApiV3'
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-import customCurrencyDS from '../../appstores/DataSource/CustomCurrency/CustomCurrency'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
-import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
-import Log from '../Log/Log'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+
+import { sublocale } from '@app/services/i18n'
+
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
+import AppNotificationListener from '@app/services/AppNotification/AppNotificationListener'
+import ApiV3 from '@app/services/Api/ApiV3'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
+import customCurrencyDS from '@app/appstores/DataSource/CustomCurrency/CustomCurrency'
+import cardsDS from '@app/appstores/DataSource/Card/Card'
+
+import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
+import Log from '@app/services/Log/Log'
+import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 
 async function _getAll(params) {
     const { mode: exchangeMode } = config.exchange
@@ -31,7 +34,18 @@ async function _getAll(params) {
     }
     const link = config.proxy.apiEndpoints.baseURL + `/all?exchangeMode=${exchangeMode}&uid=${deviceToken}`
 
-    const time = typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false
+    let time = typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false
+
+    try {
+        const now = await BlocksoftAxios.get(`https://api.v3.trustee.deals/data/server-time`)
+        if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
+            time = now.data.serverTime
+            Log.daemon('UpdateCardsDaemon msg from server ' + time)
+        }
+    } catch (e) {
+        // do nothing
+    }
+
     const signedData = await CashBackUtils.createWalletSignature(true, time)
     if (!signedData) {
         throw new Error('No signed for getNews')
@@ -40,6 +54,7 @@ async function _getAll(params) {
     const parentToken = CashBackUtils.getParentToken()
 
     const forCustomTokens = await customCurrencyDS.getCustomCurrenciesForApi()
+    const forCards = await cardsDS.getCards()
     const forServer = await appNewsDS.getAppNewsForServer()
     const forServerIds = []
     if (forServer) {
@@ -93,6 +108,7 @@ async function _getAll(params) {
         cbData,
         cbOrders,
         forCustomTokens,
+        forCards,
         marketingAll: MarketingEvent.DATA,
         walletAll: await ApiV3.initWallet({walletHash}, 'ApiProxy')
     }
@@ -211,6 +227,9 @@ export default {
             CACHE_DATA = res
             CACHE_LAST_TIME = new Date().getTime()
             CACHE_LAST_WALLET = MarketingEvent.DATA.LOG_WALLET
+            if (params.source.indexOf('UpdateCardsDaemon') === -1 && typeof res.forCardsOk !== 'undefined' && res.forCardsOk) {
+                await UpdateCardsDaemon.updateCardsDaemon(params, res)
+            }
         }
         // console.log('ApiProxy finish ' + new Date().toISOString(), JSON.parse(JSON.stringify(params)))
         return res

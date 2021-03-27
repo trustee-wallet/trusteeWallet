@@ -11,6 +11,7 @@ import UpdateCashBackDataDaemon from './back/UpdateCashBackDataDaemon'
 import config from '../config/config'
 import UpdateAppNewsDaemon from './back/UpdateAppNewsDaemon'
 import UpdateTradeOrdersDaemon from './back/UpdateTradeOrdersDaemon'
+import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 
 class Daemon {
 
@@ -36,6 +37,9 @@ class Daemon {
         await UpdateAppNewsListDaemon.updateAppNewsListDaemon(params)
         if (typeof params.noCashbackApi === 'undefined') {
             await UpdateCashBackDataDaemon.updateCashBackDataDaemon()
+        }
+        if (typeof params.noCards === 'undefined') {
+            await UpdateCardsDaemon.updateCardsDaemon()
         }
     }
 }

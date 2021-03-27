@@ -97,22 +97,22 @@ class MarketScreen extends Component {
         const { isLight } = this.context
 
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
-        Keyboard.addListener('keyboardWillShow', this.onKeyboardShow);
-        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
+        Keyboard.addListener('keyboardWillShow', this.onKeyboardShow)
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
     componentWiilUnmount() {
         const { isLight } = this.context
 
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
-        Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow);
-        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
+        Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow)
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
     onKeyboardShow = () => {
         const { isLight } = this.context
 
-        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
     handlerBackPress = () => {
@@ -153,8 +153,7 @@ class MarketScreen extends Component {
 
             cardData.numberPlaceholder = value.replace(' ', '')
 
-        }
-        else if (name === 'date') {
+        } else if (name === 'date') {
             cardData.datePlaceholder = ((value.replace(' ', '')).concat('00000000')).substring(0, 5)
         }
 
@@ -237,9 +236,11 @@ class MarketScreen extends Component {
 
         try {
             const allData = JSON.parse(event.nativeEvent.data)
-            const { error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
+            const {
+                error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSend, didMount, navigationState, message, exchangeStatus,
-                useAllFunds, checkCamera } = allData
+                useAllFunds, checkCamera
+            } = allData
 
             Log.log('Market/MainScreen.onMessage parsed', event.nativeEvent.data)
 
@@ -346,7 +347,7 @@ class MarketScreen extends Component {
                 payinUrl: null,
                 requestedInAmount: { amount: data.amount, currencyCode: data.currencyCode },
                 requestedOutAmount: { amount: data.outAmount, currencyCode: data.outCurrency },
-                status: "pending_payin"
+                status: 'pending_payin'
             }
 
             await SendActionsStart.startFromBSE({
@@ -355,7 +356,7 @@ class MarketScreen extends Component {
                 memo: data.memo,
                 comment: data.comment || '',
                 currencyCode: data.currencyCode,
-                isTransferAll: data.useAllFunds,
+                isTransferAll: data.useAllFunds
             }, {
                 bseProviderType: data.providerType || 'NONE', //  'FIXED' || 'FLOATING'
                 bseOrderId: data.orderHash || data.orderId,
@@ -616,22 +617,29 @@ class MarketScreen extends Component {
     }
 
     async resCardToWebView(numberCard) {
-        const cacheJson = await UpdateCardsDaemon.updateCardsDaemon({ force: true, numberCard })
-        let cardStatus = cacheJson
-        let card
-        if (typeof cacheJson === 'undefined' || !cacheJson) {
-            card = await cardDS.getCards({ number: numberCard })
-            cardStatus = JSON.parse(card[0].cardVerificationJson)
-        }
+        try {
+            let cardStatus = await UpdateCardsDaemon.updateCardsDaemon({ force: true, numberCard })
+            if (typeof cardStatus === 'undefined' || !cardStatus) {
+                cardStatus = await cardDS.getCardVerificationJson(numberCard)
+            }
+            if (config.debug.appErrors) {
+                console.log('Market/MainScreen resCardToWebView cardStatus ' + cardStatus.verificationStatus + ' ' + JSON.stringify(cardStatus))
+            }
 
-        if (cardStatus.verificationStatus === 'SUCCESS' || cardStatus.verificationStatus === 'CANCELED') {
-            this.webref && this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
-            return true
-        } else {
-            this.webref && this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
-            setTimeout(async () => {
-                await this.resCardToWebView(numberCard)
-            }, 30e3) //30 sec
+            if (cardStatus.verificationStatus === 'SUCCESS' || cardStatus.verificationStatus === 'CANCELED') {
+                this.webref && this.webref.postMessage(JSON.stringify({ 'res': { 'res': cardStatus, numberCard } }))
+                return true
+            } else {
+                this.webref && this.webref.postMessage(JSON.stringify({ 'res': { 'res': cardStatus, numberCard } }))
+                setTimeout(async () => {
+                    await this.resCardToWebView(numberCard)
+                }, 30e3) //30 sec
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('Market/MainScreen resCardToWebView error ' + e.message)
+            }
+            Log.err('Market/MainScreen resCardToWebView error ' + e.message)
         }
 
     }
@@ -721,7 +729,7 @@ class MarketScreen extends Component {
         const { colors } = this.context
         return (
             <ActivityIndicator
-                size="large"
+                size='large'
                 style={{
                     backgroundColor: colors.common.header.bg, position: 'absolute',
                     top: 0,
@@ -758,7 +766,7 @@ class MarketScreen extends Component {
                             enabled={false}
                             hideKeyboardAccessoryView={false}
                             contentContainerStyle={{ flex: 1 }}
-                            style={{ flexGrow: 1 }} >
+                            style={{ flexGrow: 1 }}>
                             <WebView
                                 ref={webView => (this.webref = webView)}
                                 javaScriptEnabled={true}

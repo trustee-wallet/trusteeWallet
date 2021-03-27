@@ -25,7 +25,6 @@ import NotificationsScreen from '../modules/Notifications'
 
 import WebViewScreen from '../modules/WebView'
 
-import AddCardScreen from '../modules/Card'
 import SendScreen from '../modules/Send/SendScreen'
 import SendAdvancedSettingsScreen from '../modules/Send/SendAdvancedSettings'
 import ReceiptScreen from '../modules/Send/ReceiptScreen'
@@ -314,12 +313,6 @@ const MainNavigator = createStackNavigator({
         },
         AboutScreen: {
             screen: AboutScreen,
-            navigationOptions: {
-                headerShown: false
-            }
-        },
-        AddCardScreen: {
-            screen: AddCardScreen,
             navigationOptions: {
                 headerShown: false
             }
