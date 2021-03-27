@@ -19,7 +19,7 @@ import {
 } from 'react-native'
 
 import { WebView } from 'react-native-webview'
-import { CardIOModule, CardIOUtilities } from 'react-native-awesome-card-io'
+import { CardIOModule } from 'react-native-awesome-card-io'
 import valid from 'card-validator'
 import _ from 'lodash'
 
@@ -30,28 +30,28 @@ import Log from '../../services/Log/Log'
 import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 
 
-import { i18n, strings, sublocale } from '../../services/i18n'
-import cardDS from '../../appstores/DataSource/Card/Card'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { FileSystem } from '../../services/FileSystem/FileSystem'
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-import { Camera } from '../../services/Camera/Camera'
+import { strings, sublocale } from '../../services/i18n'
+import cardDS from '@app/appstores/DataSource/Card/Card'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { FileSystem } from '@app/services/FileSystem/FileSystem'
+import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import { Camera } from '@app/services/Camera/Camera'
 
-import countriesDict from '../../assets/jsons/other/country-codes'
-import Validator from '../../services/UI/Validator/Validator'
+import countriesDict from '@app/assets/jsons/other/country-codes'
+import Validator from '@app/services/UI/Validator/Validator'
 
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
-import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import config from '../../config/config'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import config from '@app/config/config'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import { Cards } from '../../services/Cards/Cards'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { Cards } from '@app/services/Cards/Cards'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -101,10 +101,10 @@ class MarketScreen extends Component {
         StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
-    componentWiilUnmount() {
+    componentWillUnmount() {
         const { isLight } = this.context
 
-        BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
+        BackHandler.removeEventListener('hardwareBackPress', this.handlerBackPress)
         Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow)
         StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
