@@ -16,7 +16,6 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import BlocksoftKeys from '@crypto/actions/BlocksoftKeys/BlocksoftKeys'
 
-import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import Log from '@app/services/Log/Log'
 
 import Header from '@app/components/elements/new/Header'
@@ -26,21 +25,14 @@ import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import ListItem from '@app/components/elements/new/list/ListItem/Basic'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
-import { setLoaderStatus, setSelectedWallet } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 import App from '@app/appstores/Actions/App/App'
 
-/*
-import NavStore from '../../../components/navigation/NavStore'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-import Log from '../../../services/Log/Log'
-import App from '../../../appstores/Actions/App/App'
-import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
-import { setCallback, proceedSaveGeneratedWallet } from '../../../appstores/Stores/CreateWallet/CreateWalletActions'
-import walletActions from '../../../appstores/Stores/Wallet/WalletActions'
- */
 
 class BackupSettingsScreen extends Component {
     state = {

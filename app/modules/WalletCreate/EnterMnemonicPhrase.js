@@ -30,15 +30,19 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import Header from '@app/components/elements/new/Header'
 import TextInput from '@app/components/elements/new/TextInput'
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
+import CustomIcon from '@app/components/elements/CustomIcon'
+
 import MnemonicWord from '../WalletBackup/elements/MnemonicWord'
 import SelectedMnemonic from '../WalletBackup/elements/SelectedMnemonic'
+
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import MNEMONIC_DICTIONARY from '@app/services/UI/Validator/_words/english.json'
 import Validator from '@app/services/UI/Validator/Validator'
+
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
-import CustomIcon from '@app/components/elements/CustomIcon'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 
 const callWithDelay = _debounce(

@@ -33,12 +33,14 @@ import Toast from '@app/services/UI/Toast/Toast'
 import Header from '@app/components/elements/new/Header'
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import CheckBox from '@app/components/elements/new/CheckBox'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
 import ProgressAnimation from '@app/assets/jsons/animations/pieWithStroke.json'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-import CustomIcon from '@app/components/elements/CustomIcon'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const VISIBILITY_TIMEOUT = 4000
 
