@@ -34,8 +34,8 @@ async function _getAll(params) {
     }
     const link = config.proxy.apiEndpoints.baseURL + `/all?exchangeMode=${exchangeMode}&uid=${deviceToken}`
 
-    let time = typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false
-
+    const time = typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false
+    /*
     try {
         const now = await BlocksoftAxios.get(`https://api.v3.trustee.deals/data/server-time`)
         if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
@@ -45,6 +45,7 @@ async function _getAll(params) {
     } catch (e) {
         // do nothing
     }
+    */
 
     const signedData = await CashBackUtils.createWalletSignature(true, time)
     if (!signedData) {
@@ -103,14 +104,15 @@ async function _getAll(params) {
         walletHash = await BlocksoftKeysStorage.getSelectedWallet()
         MarketingEvent.DATA.LOG_WALLET = walletHash
     }
+    const walletAll = await ApiV3.initWallet({ walletHash }, 'ApiProxy')
     const allData = {
         newsData,
         cbData,
         cbOrders,
         forCustomTokens,
         forCards,
-        marketingAll: MarketingEvent.DATA,
-        walletAll: await ApiV3.initWallet({walletHash}, 'ApiProxy')
+        marketingAll: { ...MarketingEvent.DATA, CACHE_SERVER_TIME_DIFF },
+        walletAll
     }
 
     const all = await BlocksoftAxios.post(link, allData)
@@ -138,9 +140,10 @@ async function _getRates(params) {
 }
 
 async function _checkServerTimestamp(serverTimestamp) {
-    const diff = Math.abs(new Date().getTime() - serverTimestamp)
-    if (diff > 6000) {
-        await Log.daemon('ApiProxy will ask server time diff ' + diff + ' with time ' + serverTimestamp)
+
+    CACHE_SERVER_TIME_DIFF = new Date().getTime() - serverTimestamp
+    if (Math.abs(CACHE_SERVER_TIME_DIFF) > 6000) {
+        await Log.daemon('ApiProxy will ask server time diff ' + CACHE_SERVER_TIME_DIFF + ' with time ' + serverTimestamp)
         CACHE_SERVER_TIME_NEED_TO_ASK = true
     } else {
         CACHE_SERVER_TIME_NEED_TO_ASK = false
@@ -152,6 +155,7 @@ let CACHE_LAST_TIME = false
 let CACHE_LAST_WALLET = false
 let CACHE_DATA = false
 let CACHE_SERVER_TIME_NEED_TO_ASK = false
+let CACHE_SERVER_TIME_DIFF = false // diff to make
 
 export default {
 
@@ -186,24 +190,22 @@ export default {
             let serverTimestamp = false
             try {
                 if (typeof all.data.status !== 'undefined') {
-                    if (all.data.status !== 'success') {
-                        if (typeof all.data.subdata !== 'undefined' && typeof all.data.subdata.serverTimestamp !== 'undefined') {
-                            if (typeof params === 'undefined') {
-                                params = {}
-                            }
-                            // error timestamp
-                            params.timestamp = all.data.subdata.serverTimestamp
-                            serverTimestamp = all.data.serverTimestamp
-                            all = false
-                        } else if (typeof all.data.serverTimestamp !== 'undefined') {
-                            // error timestamp
-                            params.timestamp = all.data.serverTimestamp
-                            serverTimestamp = all.data.serverTimestamp
-                            all = false
-                        } else {
-                            throw new Error(JSON.stringify(all.data))
+                    if (typeof all.data.subdata !== 'undefined' && typeof all.data.subdata.serverTimestamp !== 'undefined') {
+                        if (typeof params === 'undefined') {
+                            params = {}
                         }
+                        // error timestamp
+                        params.timestamp = all.data.subdata.serverTimestamp
+                        serverTimestamp = all.data.subdata.serverTimestamp
+                        all = false
+                    } else if (typeof all.data.serverTimestamp !== 'undefined') {
+                        // error timestamp
+                        params.timestamp = all.data.serverTimestamp
+                        serverTimestamp = all.data.serverTimestamp
+                    } else if (all.data.status !== 'success') {
+                        throw new Error(JSON.stringify(all.data))
                     }
+
                 }
             } catch (e) {
                 throw new Error(e.message + ' while _getServerTimestamp')
@@ -240,6 +242,11 @@ export default {
         if (!CACHE_SERVER_TIME_NEED_TO_ASK) {
             return false
         }
+
+        if (CACHE_SERVER_TIME_DIFF !== false) {
+            return new Date().getTime() + -1 * CACHE_SERVER_TIME_DIFF
+        }
+
 
         const link = `https://api.v3.trustee.deals/data/server-time`
         let msg = false
