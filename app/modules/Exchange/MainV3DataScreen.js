@@ -91,7 +91,7 @@ class MainV3DataScreen extends Component {
     componentWillUnmount() {
         const { isLight } = this.context
 
-        BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
+        BackHandler.removeEventListener('hardwareBackPress', this.handlerBackPress)
         Keyboard.removeListener( 'keyboardWillShow', this.onKeyboardShow );
 	    StatusBar.setBarStyle( isLight ? 'dark-content' : 'light-content' );
     }

@@ -17,7 +17,7 @@ import {
 } from 'react-native'
 
 import { WebView } from 'react-native-webview'
-import { CardIOModule, CardIOUtilities } from 'react-native-awesome-card-io'
+import { CardIOModule } from 'react-native-awesome-card-io'
 import valid from 'card-validator'
 import _ from 'lodash'
 
@@ -25,7 +25,7 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import ApiV3 from '@app/services/Api/ApiV3'
 import Log from '@app/services/Log/Log'
-import { i18n, strings, sublocale } from '@app/services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 
 
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
@@ -103,10 +103,10 @@ class MainV3DataScreen extends Component {
         StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
-    componentWiilUnmount() {
+    componentWillUnmount() {
         const { isLight } = this.context
 
-        BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
+        BackHandler.removeEventListener('hardwareBackPress', this.handlerBackPress)
         Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow)
         StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
