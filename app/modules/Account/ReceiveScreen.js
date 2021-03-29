@@ -74,6 +74,7 @@ import blackLoader from '@app/assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '@app/assets/jsons/animations/refreshWhite.json'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import config from '@app/config/config'
+import AsyncStorage from '@react-native-community/async-storage'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -183,10 +184,25 @@ class ReceiveScreen extends Component {
 
         try {
             await Netinfo.isInternetReachable()
+            
             if (config.exchange.mode === 'PROD') {
                 NavStore.goNext('ExchangeV3ScreenStack')
             } else {
-                NavStore.goNext('MarketScreen', { side: 'IN', currencyCode : this.props.account.currencyCode })
+                let showMsg = await AsyncStorage.getItem('smartSwapMsg')
+                showMsg = showMsg ? JSON.parse(showMsg) : false
+
+                if (typeof showMsg === 'undefined' || !showMsg) {
+                    showModal({
+                        type: 'MARKET_MODAL',
+                        icon: 'INFO',
+                        title: strings('modal.marketModal.title'),
+                        description: strings('modal.marketModal.description'),
+                    }, () => {
+                        NavStore.goNext('MarketScreen', { side: 'IN', currencyCode : this.props.account.currencyCode })
+                    })
+                } else {
+                    NavStore.goNext('MarketScreen', { side: 'IN', currencyCode : this.props.account.currencyCode })
+                }
             }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {

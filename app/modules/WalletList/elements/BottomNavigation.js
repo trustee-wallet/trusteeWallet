@@ -18,6 +18,8 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import config from '@app/config/config'
 
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import AsyncStorage from '@react-native-community/async-storage'
 
 
 class BottomNavigation extends Component {
@@ -71,7 +73,21 @@ class BottomNavigation extends Component {
         try {
             await Netinfo.isInternetReachable()
 
-            NavStore.goNext('MarketScreen')
+            let showMsg = await AsyncStorage.getItem('smartSwapMsg')
+            showMsg = showMsg ? JSON.parse(showMsg) : false
+
+            if (typeof showMsg === 'undefined' || !showMsg) {
+                showModal({
+                    type: 'MARKET_MODAL',
+                    icon: 'INFO',
+                    title: strings('modal.marketModal.title'),
+                    description: strings('modal.marketModal.description'),
+                }, () => {
+                    NavStore.goNext('MarketScreen')
+                })
+            } else {
+                NavStore.goNext('MarketScreen')
+            }
 
         } catch (e) {
             if (Log.isNetworkError(e.message)) {

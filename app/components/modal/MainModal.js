@@ -6,25 +6,17 @@ import { connect } from 'react-redux'
 import { Dimensions, View } from 'react-native'
 
 
-import MnemonicFailModal from '../../modules/WalletBackup/elements/MnemomicFail'
-import SkipModal from '../../modules/WalletBackup/elements/Skip'
+import MnemonicFailModal from '@app/modules/WalletBackup/elements/MnemomicFail'
+import SkipModal from '@app/modules/WalletBackup/elements/Skip'
 
-import LicenseTermsModal from './elements/LicenseTermsModal'
 import SelectCoinModal from './elements/SelectCoinModal'
-import LoginModal from './elements/LoginModal'
 import InfoModal from './elements/InfoModal'
-import SelectModal from './elements/SelectModal'
 import CustomReceiveAmountModal from './elements/CustomReceiveAmountModal'
-import ExchangeProviderInfoModal from './elements/ExchangeProviderInfoModal'
 import OpenSettingsModal from './elements/OpenSettingsModal'
 import YesNoModal from './elements/YesNoModal'
 import UpdateModal from './elements/UpdateModal'
-import NewInterface from './elements/NewInterface'
-import RbfModal from './elements/RbfModal'
-import InputModal from './elements/InputModal'
-import PaymentSystemInfo from './elements/PaymentSystemInfo'
-import WalletSettingsModal from './elements/WallletSettingsModa'
 import NotificationModal from './elements/NotificationModal'
+import MarketModal from './elements/MarketModal'
 
 const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -62,37 +54,21 @@ class MainModal extends Component {
                 return <CustomReceiveAmountModal show={show} data={data} callback={callback}/>
             case 'MNEMONIC_FAIL_MODAL':
                 return <MnemonicFailModal show={show} callback={callback}/>
-            case 'LICENSE_TERMS_MODAL':
-                return <LicenseTermsModal show={show} callback={callback}/>
             case 'SELECT_COIN_MODAL':
                 return <SelectCoinModal show={show} callback={callback} data={data}/>
             case 'BACKUP_SKIP_MODAL':
                 return <SkipModal show={show} callback={callback}/>
-            case 'LOGIN_MODAL':
-                return <LoginModal show={show} data={data} callback={callback}/>
             case 'INFO_MODAL':
                 return <InfoModal show={show} data={data} callback={callback}/>
-            case 'SELECT_MODAL':
-                return <SelectModal show={show} data={data} callback={callback}/>
-            case 'PAYMENT_SYSTEM_INFO_MODAL':
-                return <PaymentSystemInfo show={show} data={data} callback={callback}/>
-            case 'EXCHANGE_PROVIDER_INFO_MODAL':
-                return <ExchangeProviderInfoModal show={show} data={data} callback={callback}/>
             case 'OPEN_SETTINGS_MODAL':
                 return <OpenSettingsModal show={show} data={data} callback={callback}/>
-            case 'INPUT_MODAL':
-                return <InputModal show={show} data={data} callback={callback}/>
-            case 'WALLET_SETTINGS_MODAL':
-                return <WalletSettingsModal show={show} data={data} callback={callback}/>
             case 'WALLET_UPDATE':
             case 'UPDATE_MODAL':
                 return <UpdateModal show={show} data={data} callback={callback}/>
-            case 'NEW_INTERFACE':
-                return <NewInterface show={show} data={data} callback={callback}/>
-            case 'RBF_ACTIVE':
-                return <RbfModal show={show} data={data} callback={callback}/>
             case 'NOTIFICATION_MODAL':
                 return <NotificationModal show={show} data={data} callback={callback}/>
+            case 'MARKET_MODAL':
+                return <MarketModal show={show} data={data} callback={callback} />
             default:
                 return <View></View>
         }

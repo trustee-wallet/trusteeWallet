@@ -1313,6 +1313,12 @@
     },
     "notificationModal": {
       "unsubscribe": "Unsubscribe"
+    },
+    "marketModal": {
+      "title": "Welcome to Trustee Smart Swap",
+      "description": "Note that some information, for example, payment details, will be transferred to exchange providers to carry out the exchange operation.",
+      "notShowAgain": "Don't show again",
+      "continue": "Continue"
     }
   },
   "lockScreen": {

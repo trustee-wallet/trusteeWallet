@@ -179,7 +179,22 @@ class Account extends Component {
             if (config.exchange.mode === 'PROD') {
                 NavStore.goNext('MainV3DataScreen', {tradeType: 'BUY', currencyCode: this.props.account.currencyCode})
             } else {
-                NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode: this.props.account.currencyCode })
+                let showMsg = await AsyncStorage.getItem('smartSwapMsg')
+                showMsg = showMsg ? JSON.parse(showMsg) : false
+
+                if (typeof showMsg === 'undefined' || !showMsg) {
+                    showModal({
+                        type: 'MARKET_MODAL',
+                        icon: 'INFO',
+                        title: strings('modal.marketModal.title'),
+                        description: strings('modal.marketModal.description'),
+                    }, () => {
+                        NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode: this.props.account.currencyCode })
+                    })
+                } else {
+                    NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode: this.props.account.currencyCode })
+                }
+                
             }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
