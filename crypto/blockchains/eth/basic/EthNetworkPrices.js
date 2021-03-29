@@ -43,17 +43,21 @@ class EthNetworkPrices {
 
         BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider.getWithProxy started', logData)
         let checkResult = false
-        try {
-            checkResult = await BlocksoftAxios.post(proxy, {
-                address,
-                logData,
-                marketingData: MarketingEvent.DATA
-            })
-        } catch (e) {
-            if (config.debug.cryptoErrors) {
-                console.log('EthNetworkPricesProvider.getWithProxy proxy error checkError ' + e.message)
+        let index = 0
+        do {
+            try {
+                checkResult = await BlocksoftAxios.post(proxy, {
+                    address,
+                    logData,
+                    marketingData: MarketingEvent.DATA
+                })
+            } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    console.log('EthNetworkPricesProvider.getWithProxy proxy error checkError ' + e.message)
+                }
             }
-        }
+            index++
+        } while(index < 3 && !checkResult)
 
         if (checkResult !== false) {
             if (typeof checkResult.data !== 'undefined') {
@@ -137,7 +141,7 @@ class EthNetworkPrices {
         }
         logData.resultFeeSource = 'fromCache'
         const now = new Date().getTime()
-        if (CACHE_FEES_ETH && now - CACHE_FEES_ETH_TIME < CACHE_VALID_TIME) {
+        if (CACHE_FEES_ETH && (now - CACHE_FEES_ETH_TIME) < CACHE_VALID_TIME) {
             logData.resultFeeCacheTime = CACHE_FEES_ETH_TIME
             logData.resultFee = JSON.stringify(CACHE_FEES_ETH)
             // noinspection ES6MissingAwait
@@ -172,10 +176,14 @@ class EthNetworkPrices {
         }
 
         try {
-            await this._parseLoaded(CACHE_PREV_DATA, link)
+            await this._parseLoaded(mainCurrencyCode, CACHE_PREV_DATA, link)
         } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(mainCurrencyCode + ' EthNetworkPricesProvider.getOnlyFees _parseLoaded error ' + e.message)
+            }
             // noinspection ES6MissingAwait
             MarketingEvent.logEvent('estimate_fee_eth_parse_error', { link, data: e.message })
+            BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider.getOnlyFees _parseLoaded error ' + e.message)
             // do nothing
         }
         logData.resultFeeCacheTime = CACHE_FEES_ETH_TIME
@@ -196,13 +204,13 @@ class EthNetworkPrices {
      * @param {int} json.fastest
      * @private
      */
-    async _parseLoaded(json) {
+    async _parseLoaded(mainCurrencyCode, json) {
         CACHE_FEES_ETH = {}
 
         const externalSettings = await BlocksoftExternalSettings.getAll('ETH.getNetworkPrices')
-        addMultiply(2, json.fastest * 1, externalSettings)
-        addMultiply(6, json.average * 1, externalSettings)
-        addMultiply(12, json.safeLow * 1, externalSettings)
+        addMultiply(mainCurrencyCode,2, json.fastest * 1, externalSettings)
+        addMultiply(mainCurrencyCode,6, json.average * 1, externalSettings)
+        addMultiply(mainCurrencyCode,12, json.safeLow * 1, externalSettings)
 
         if (CACHE_FEES_ETH[12] === CACHE_FEES_ETH[6]) {
             if (CACHE_FEES_ETH[6] === CACHE_FEES_ETH[2]) {
@@ -233,7 +241,7 @@ class EthNetworkPrices {
     }
 }
 
-function addMultiply(blocks, fee, externalSettings) {
+function addMultiply(mainCurrencyCode, blocks, fee, externalSettings) {
     if (typeof externalSettings['ETH_CURRENT_PRICE_' + blocks] !== 'undefined' && externalSettings['ETH_CURRENT_PRICE_' + blocks] > 0) {
         CACHE_FEES_ETH[blocks] = externalSettings['ETH_CURRENT_PRICE_' + blocks]
         BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider current price result', { blocks, fee, current: externalSettings['ETH_CURRENT_PRICE_' + blocks], res: CACHE_FEES_ETH[blocks] })
