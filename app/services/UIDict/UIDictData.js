@@ -239,31 +239,31 @@ export default {
     "TRX_WINK": {
         colors: {
             mainColor: '#FBC509',
-            darkColor: '#FBC509'
+            darkColor: '#D1AB24'
         }
     },
     "TRX_SUN": {
         colors: {
             mainColor: '#FEDF3C',
-            darkColor: '#FEDF3C'
+            darkColor: '#D7C253'
         }
     },
     "TRX_JST": {
         colors: {
             mainColor: '#B41514',
-            darkColor: '#B41514'
+            darkColor: '#AB1D2D'
         }
     },
     "TRX_USDJ": {
         colors: {
             mainColor: '#B41514',
-            darkColor: '#B41514'
+            darkColor: '#AB1D2D'
         }
     },
     "TRX_WBTT": {
         colors: {
             mainColor: '#D73A64',
-            darkColor: '#D73A64'
+            darkColor: '#CA4D6F'
         }
     },
     "ETH_BADGER": {
@@ -275,19 +275,19 @@ export default {
     "ETH_CRO": {
         colors: {
             mainColor: '#103F68',
-            darkColor: '#103F68'
+            darkColor: '#356E9F'
         }
     },
     "ETH_BTC": {
         colors: {
             mainColor: '#282138',
-            darkColor: '#282138'
+            darkColor: '#6A6477'
         }
     },
     "ETH_RSR": {
         colors: {
             mainColor: '#161616',
-            darkColor: '#161616'
+            darkColor: '#B8B8B8'
         }
     },
     "ETH_YFI": {
@@ -299,13 +299,13 @@ export default {
     "ETH_CHZ": {
         colors: {
             mainColor: '#CD0124',
-            darkColor: '#CD0124'
+            darkColor: '#B9213B'
         }
     },
     "ETH_OMG": {
         colors: {
             mainColor: '#141414',
-            darkColor: '#141414'
+            darkColor: '#B8B8B8'
         }
     },
     "ETH_MATIC": {
@@ -323,19 +323,19 @@ export default {
     "ETH_ZRX": {
         colors: {
             mainColor: '#231815',
-            darkColor: '#231815'
+            darkColor: '#817E7D'
         }
     },
     "ETH_SNX": {
         colors: {
             mainColor: '#00D1FF',
-            darkColor: '#00D1FF'
+            darkColor: '#25AAC8'
         }
     },
     "ETH_1INCH": {
         colors: {
             mainColor: '#1B314F',
-            darkColor: '#1B314F'
+            darkColor: '#3C5A84'
         }
     },
     "ETH_ENJ": {
@@ -347,19 +347,19 @@ export default {
     "ETH_SUSHI": {
         colors: {
             mainColor: '#FA52A0',
-            darkColor: '#FA52A0'
+            darkColor: '#EA4E96'
         }
     },
     "ETH_HUOBI": {
         colors: {
             mainColor: '#357CE1',
-            darkColor: '#357CE1'
+            darkColor: '#2769C7'
         }
     },
     "ETH_AAVE": {
         colors: {
             mainColor: '#2EBAC6',
-            darkColor: '#2EBAC6'
+            darkColor: '#2DB1BC'
         }
     },
     "ETH_GRT": {
@@ -370,8 +370,8 @@ export default {
     },
     "ETH_CRV": {
         colors: {
-            mainColor: '#C5C5C5',
-            darkColor: '#C5C5C5'
+            mainColor: '#A30401',
+            darkColor: '#AB1D2D'
         }
     },
     "BNB_SMART_UNI": {
@@ -383,7 +383,7 @@ export default {
     "ETH_UNI": {
         colors: {
             mainColor: '#FF007A',
-            darkColor: '#FF007A'
+            darkColor: '#D02175'
         }
     },
     "ETH_LINK": {
@@ -401,7 +401,7 @@ export default {
     "ETH_SXP": {
         colors: {
             mainColor: '#FF5331',
-            darkColor: '#FF5331'
+            darkColor: '#E44B2D'
         }
     },
     "BNB_SMART_SXP": {
@@ -419,43 +419,43 @@ export default {
     "BNB_SMART_ALPHA": {
         colors: {
             mainColor: '#29B2FF',
-            darkColor: '#29B2FF'
+            darkColor: '#3A9DD5'
         }
     },
     "BNB_SMART_ADA": {
         colors: {
             mainColor: '#0033AD',
-            darkColor: '#0033AD'
+            darkColor: '#406DDA'
         }
     },
     "BNB_SMART_CAKE": {
         colors: {
-            mainColor: '#00D395',
-            darkColor: '#00D395'
+            mainColor: '#D1884F',
+            darkColor: '#D1884F'
         }
     },
     "BNB_SMART_USDT": {
         colors: {
             mainColor: '#F0B90B',
-            darkColor: '#F0B90B'
+            darkColor: '#C79C15'
         }
     },
     "ETH_BUSD": {
         colors: {
             mainColor: '#F0B90B',
-            darkColor: '#F0B90B'
+            darkColor: '#C79C15'
         }
     },
     "BNB_SMART_USD": {
         colors: {
             mainColor: '#F0B90B',
-            darkColor: '#F0B90B'
+            darkColor: '#C79C15'
         }
     },
     "BNB_SMART": {
         colors: {
             mainColor: '#F3B80C',
-            darkColor: '#F3B80C'
+            darkColor: '#C79C15'
         }
     },
     "BNB_SMART_USDC": {
