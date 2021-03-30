@@ -21,6 +21,8 @@ import cardsDS from '@app/appstores/DataSource/Card/Card'
 import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
 import Log from '@app/services/Log/Log'
 import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
+import store from '@app/store'
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 
 async function _getAll(params) {
     const { mode: exchangeMode } = config.exchange
@@ -52,7 +54,15 @@ async function _getAll(params) {
         throw new Error('No signed for getNews')
     }
     const cashbackToken = CashBackUtils.getWalletToken()
+    MarketingEvent.DATA.LOG_CASHBACK = cashbackToken
     const parentToken = CashBackUtils.getParentToken()
+    MarketingEvent.DATA.LOG_PARENT = parentToken
+    let walletHash = MarketingEvent.DATA.LOG_WALLET
+    if (!walletHash || walletHash === false) {
+        walletHash = await BlocksoftKeysStorage.getSelectedWallet()
+        MarketingEvent.DATA.LOG_WALLET = walletHash
+    }
+    MarketingEvent.reinitIfNever()
 
     const forCustomTokens = await customCurrencyDS.getCustomCurrenciesForApi()
     const forCards = await cardsDS.getCards()
@@ -68,6 +78,22 @@ async function _getAll(params) {
                 row.openedAt = row.openedAt + '000'
             }
         }
+    }
+    const forWallets = []
+    let wallet = store.getState().mainStore.selectedWallet
+    if (wallet && wallet.walletHash === walletHash) {
+        wallet = await walletDS._redoCashback(wallet)
+        forWallets.push({
+            walletToSendStatus: wallet.walletToSendStatus,
+            walletHash: wallet.walletHash,
+            walletCashback: wallet.walletCashback,
+            walletIsHd: wallet.walletIsHd,
+            walletName: wallet.walletName,
+            walletUseLegacy: wallet.walletUseLegacy,
+            walletUseUnconfirmed: wallet.walletUseUnconfirmed,
+            walletIsHideTransactionForFee: wallet.walletIsHideTransactionForFee,
+            walletAllowReplaceByFee: wallet.walletAllowReplaceByFee,
+        })
     }
 
     const newsData = {
@@ -99,19 +125,16 @@ async function _getAll(params) {
         timestamp: +new Date()
     }
 
-    let walletHash = MarketingEvent.DATA.LOG_WALLET
-    if (!walletHash) {
-        walletHash = await BlocksoftKeysStorage.getSelectedWallet()
-        MarketingEvent.DATA.LOG_WALLET = walletHash
-    }
     const walletAll = await ApiV3.initWallet({ walletHash }, 'ApiProxy')
+    const marketingAll = { ...MarketingEvent.DATA, CACHE_SERVER_TIME_DIFF}
     const allData = {
         newsData,
         cbData,
         cbOrders,
         forCustomTokens,
         forCards,
-        marketingAll: { ...MarketingEvent.DATA, CACHE_SERVER_TIME_DIFF },
+        forWallets,
+        marketingAll,
         walletAll
     }
 
@@ -121,6 +144,10 @@ async function _getAll(params) {
         if (typeof all.data.data.forCustomTokensOk !== 'undefined' && all.data.data.forCustomTokensOk && all.data.data.forCustomTokensOk.length > 0) {
             await customCurrencyDS.savedCustomCurrenciesForApi(all.data.data.forCustomTokensOk)
         }
+        if (typeof all.data.data.forWalletsOk !== 'undefined' && all.data.data.forWalletsOk) {
+            await walletDS.savedWalletForApi(all.data.data.forWalletsOk)
+        }
+
         let msg = ''
         msg += 'ApiProxy._getAll feesHash ' + (all.data.data.feesHash || 'none')
         msg += ' ratesHash ' + (all.data.data.ratesHash || 'none')

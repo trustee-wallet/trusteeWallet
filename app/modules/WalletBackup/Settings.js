@@ -94,21 +94,10 @@ class BackupSettingsScreen extends Component {
 
                 MarketingEvent.logEvent('gx_view_mnemonic_screen_skipped', { walletNumber, source }, 'GX')
 
-                let tmpWalletName = walletName
-
-                try {
-                    if (!tmpWalletName) {
-                        tmpWalletName = await walletActions.getNewWalletName()
-                    }
-                } catch (e) {
-                    e.message += ' while getNewWalletName'
-                    throw e
-                }
-
                 let walletHash = false
                 try {
                     walletHash = await proceedSaveGeneratedWallet({
-                        walletName: tmpWalletName,
+                        walletName,
                         walletMnemonic
                     })
                 } catch (e) {

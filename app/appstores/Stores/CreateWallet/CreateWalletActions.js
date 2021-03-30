@@ -8,8 +8,13 @@ import cryptoWalletsDS from '@app/appstores/DataSource/CryptoWallets/CryptoWalle
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 import accountDS from '@app/appstores/DataSource/Account/Account'
 import appTaskDS from '@app/appstores/DataSource/AppTask/AppTask'
+import cardDS from '@app/appstores/DataSource/Card/Card'
+
 import accountBalanceActions from '@app/appstores/Stores/Account/AccountBalancesActions'
 import WalletHDActions from '@app/appstores/Actions/WalletHDActions'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
+import ApiProxyLoad from '@app/services/Api/ApiProxyLoad'
+import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 
 const { dispatch } = store
 
@@ -64,9 +69,43 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
         await cryptoWalletsDS.setSelectedWallet(storedKey, 'ACT/MStore proceedSaveGeneratedWallet')
 
-        await walletDS.saveWallet({ walletHash: storedKey, walletName: wallet.walletName, walletIsBackedUp: wallet.walletIsBackedUp || 0 })
+        let tmpWalletName = wallet.walletName
 
+        let fromSaved = false
         if (source === 'IMPORT') {
+            const res = await ApiProxyLoad.getSaved(storedKey, wallet.walletName)
+
+            if (res && typeof res.forWalletsAll !== 'undefined' && typeof res.forWalletsAll[storedKey] !== 'undefined') {
+                const savedWallet = res.forWalletsAll[storedKey]
+                const fullWallet = {
+                    walletHash: storedKey,
+                    walletName: savedWallet.wallet_name,
+                    walletToSendStatus : 0,
+                    walletIsBackedUp: wallet.walletIsBackedUp || 0,
+                    walletIsHd : savedWallet.wallet_is_hd,
+                    walletAllowReplaceByFee : savedWallet.wallet_allow_replace_by_fee,
+                    walletIsHideTransactionForFee : savedWallet.wallet_is_hide_transaction_for_free,
+                    walletUseLegacy : savedWallet.wallet_use_legacy,
+                    walletUseUnconfirmed : savedWallet.wallet_use_unconfirmed
+                }
+                if (tmpWalletName && tmpWalletName !== '') {
+                    fullWallet.walletName = tmpWalletName
+                    fullWallet.walletToSendStatus = 1
+                }
+                await walletDS.saveWallet(fullWallet)
+                fromSaved = true
+
+                await UpdateCardsDaemon.updateCardsDaemon({force : true}, res)
+            }
+        }
+        if (!fromSaved) {
+            if (!tmpWalletName || tmpWalletName === '') {
+                tmpWalletName = await walletActions.getNewWalletName()
+            }
+            await walletDS.saveWallet({ walletHash: storedKey, walletName : tmpWalletName, walletIsBackedUp: wallet.walletIsBackedUp || 0 })
+        }
+
+        if (source === 'IMPORT' && !fromSaved) {
             try {
                 await WalletHDActions.hdFromTrezor({ walletHash: storedKey, force: false, currencyCode: 'BTC' }, 'IMPORT')
                 await walletDS.updateWallet({ walletHash : storedKey, walletIsHd: 1 })
@@ -85,9 +124,13 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
         Log.log('ACT/MStore proceedSaveGeneratedWallet tryWallet ' + storedKey + ' will clean by error ' + e.message)
 
+        // await cardDS.clearCards({ walletHash: storedKey })
+
         await accountDS.clearAccounts({ walletHash: storedKey })
 
         await walletDS.clearWallet({ walletHash: storedKey })
+
+        await appTaskDS.clearTasks({ walletHash: storedKey })
 
         await appTaskDS.clearTasks({ walletHash: storedKey })
 

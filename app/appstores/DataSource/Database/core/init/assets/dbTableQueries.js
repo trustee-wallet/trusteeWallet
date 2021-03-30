@@ -71,7 +71,9 @@ export default function getTableQueries() {
                     verification_server VARCHAR(32) NULL,
                     card_email VARCHAR(256) NULL,
                     card_details_json VARCHAR(256) NULL,
-                    card_status_p2p_json VARCHAR(256) NULL
+                    card_status_p2p_json VARCHAR(256) NULL,
+					card_to_send_status INTEGER NULL,
+					card_create_wallet_hash VARCHAR(256) NULL
                 )`
             },
             {
@@ -210,7 +212,8 @@ export default function getTableQueries() {
                     wallet_is_subscribed INTEGER NULL,
                     wallet_is_subscribed_json TEXT NULL,
 
-                    wallet_is_hide_transaction_for_fee INTEGER NULL
+                    wallet_is_hide_transaction_for_fee INTEGER NULL,
+					wallet_to_send_status INTEGER NULL
                 )`
             },
 

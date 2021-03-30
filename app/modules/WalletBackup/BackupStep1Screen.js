@@ -149,14 +149,8 @@ class BackupStep1Screen extends React.Component {
 
                 MarketingEvent.logEvent('gx_view_mnemonic_screen_confirmed_mnemonic', { walletNumber, source }, 'GX')
 
-                let tmpWalletName = walletName
-
-                if (!tmpWalletName) {
-                    tmpWalletName = await walletActions.getNewWalletName()
-                }
-
                 const walletHash = await proceedSaveGeneratedWallet({
-                    walletName: tmpWalletName,
+                    walletName,
                     walletMnemonic
                 })
 

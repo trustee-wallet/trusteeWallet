@@ -131,15 +131,8 @@ class EnterMnemonicPhrase extends Component {
 
             setLoaderStatus(true)
 
-            let tmpWalletName = walletName
-
-            if (!tmpWalletName) {
-                tmpWalletName = await walletActions.getNewWalletName()
-            }
-
-
             const walletHash = await proceedSaveGeneratedWallet({
-                walletName: tmpWalletName,
+                walletName,
                 walletMnemonic,
                 walletIsBackedUp: 1
             }, 'IMPORT')

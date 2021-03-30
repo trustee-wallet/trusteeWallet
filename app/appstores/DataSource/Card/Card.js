@@ -30,6 +30,7 @@ export default {
         const res = await Database.setQueryString(`
                 SELECT
                 id,
+                card_to_send_status AS cardToSendStatus,
                 card_name AS cardName,
                 card_holder AS cardHolder,
                 number AS number,
@@ -89,5 +90,9 @@ export default {
         CACHE_TOTAL = CACHE_TOTAL - 1
         MarketingEvent.logEvent('gx_cards_remove', { cardNumber : CACHE_TOTAL.toString()}, 'GX')
         Log.log('DS/Card deleteCard finished')
+    },
+
+    clearCards : async (data) => {
+        await Database.setQueryString(`DELETE FROM card WHERE card_create_wallet_hash='${data.walletHash}'`).query()
     }
 }

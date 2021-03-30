@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import Database from '@app/appstores/DataSource/Database';
+import Database from '@app/appstores/DataSource/Database'
 
 import BlocksoftKeysUtils from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeysUtils'
 import Log from '../../../services/Log/Log'
@@ -21,6 +21,9 @@ class Wallet {
      * @param {integer} wallet.walletIsBackedUp
      * @param {integer} wallet.walletIsHideTransactionForFee
      * @param {integer} wallet.walletAllowReplaceByFee
+     * @param {integer} wallet.walletUseLegacy
+     * @param {integer} wallet.walletUseUnconfirmed
+     * @param {integer} wallet.walletIsHd
      */
     saveWallet = async (wallet) => {
         if (typeof wallet.walletHash === 'undefined') {
@@ -30,10 +33,12 @@ class Wallet {
         const tmpWalletName = Database.escapeString(wallet.walletName)
         const tmpWalletJSON = Database.escapeString(wallet.walletJson)
 
-        const walletUseLegacy = 2
-        const walletUseUnconfirmed = 1
-        await Database.setQueryString(`INSERT INTO wallet (wallet_hash, wallet_name, wallet_json, wallet_is_hd, wallet_use_legacy, wallet_use_unconfirmed, wallet_allow_replace_by_fee, wallet_is_backed_up, wallet_is_hide_transaction_for_fee)
-        VALUES ('${wallet.walletHash}', '${tmpWalletName}','${tmpWalletJSON}', 0, ${walletUseLegacy}, ${walletUseUnconfirmed}, 1, ${wallet.walletIsBackedUp || 0}, ${wallet.walletIsHideTransactionForFee || 1})`).query(true)
+        const walletUseLegacy = typeof wallet.walletUseLegacy !== 'undefined' ? wallet.walletUseLegacy : 2
+        const walletUseUnconfirmed = typeof wallet.walletUseUnconfirmed !== 'undefined' ? wallet.walletUseUnconfirmed : 1
+        const walletIsHd = typeof wallet.walletIsHd !== 'undefined' ? wallet.walletIsHd : 0
+        const walletToSendStatus = typeof wallet.walletToSendStatus !== 'undefined' ? wallet.walletToSendStatus : 1
+        await Database.setQueryString(`INSERT INTO wallet (wallet_to_send_status, wallet_hash, wallet_name, wallet_json, wallet_is_hd, wallet_use_legacy, wallet_use_unconfirmed, wallet_allow_replace_by_fee, wallet_is_backed_up, wallet_is_hide_transaction_for_fee)
+        VALUES (${walletToSendStatus}, '${wallet.walletHash}', '${tmpWalletName}','${tmpWalletJSON}',  ${walletIsHd}, ${walletUseLegacy}, ${walletUseUnconfirmed}, 1, ${wallet.walletIsBackedUp || 0}, ${wallet.walletIsHideTransactionForFee || 1})`).query(true)
     }
 
     /**
@@ -49,6 +54,16 @@ class Wallet {
         Log.daemon('DS/Wallet clear wallet finished ' + wallet.walletHash)
     }
 
+    savedWalletForApi = async (data) => {
+        const hashes = []
+        for (let key in data) {
+            hashes.push(key)
+        }
+        if (!hashes.length) return false
+        const sql = `UPDATE wallet SET wallet_to_send_status=0 WHERE wallet_to_send_status=1 AND wallet_hash='${hashes.join(`','`)}'`
+        await Database.setQueryString(sql).query()
+    }
+
     /**
      * @param {string} wallet.walletHash
      * @param {string} wallet.walletCashback
@@ -62,17 +77,17 @@ class Wallet {
     updateWallet = async (wallet) => {
         let sql = ''
         if (typeof wallet.walletIsHd !== 'undefined') {
-            sql = `UPDATE wallet SET wallet_is_hd='${wallet.walletIsHd ? 1 : 0}' WHERE wallet_hash='${wallet.walletHash}'`
+            sql = `UPDATE wallet SET wallet_to_send_status=1, wallet_is_hd='${wallet.walletIsHd ? 1 : 0}' WHERE wallet_hash='${wallet.walletHash}'`
         } else if (typeof wallet.walletIsBackedUp !== 'undefined') {
-            sql = `UPDATE wallet SET wallet_is_backed_up='${wallet.walletIsBackedUp ? 1 : 0}' WHERE wallet_hash='${wallet.walletHash}'`
+            sql = `UPDATE wallet SET wallet_to_send_status=1, wallet_is_backed_up='${wallet.walletIsBackedUp ? 1 : 0}' WHERE wallet_hash='${wallet.walletHash}'`
         } else if (typeof wallet.walletUseLegacy !== 'undefined') {
-            sql = `UPDATE wallet SET wallet_use_legacy='${wallet.walletUseLegacy ? 1 : 0}' WHERE wallet_hash='${wallet.walletHash}'`
+            sql = `UPDATE wallet SET wallet_to_send_status=1, wallet_use_legacy='${wallet.walletUseLegacy ? 1 : 0}' WHERE wallet_hash='${wallet.walletHash}'`
         } else if (typeof wallet.walletAllowReplaceByFee !== 'undefined') {
-            sql = `UPDATE wallet SET wallet_allow_replace_by_fee='${wallet.walletAllowReplaceByFee ? 1 : 0}' WHERE wallet_hash='${wallet.walletHash}'`
+            sql = `UPDATE wallet SET wallet_to_send_status=1, wallet_allow_replace_by_fee='${wallet.walletAllowReplaceByFee ? 1 : 0}' WHERE wallet_hash='${wallet.walletHash}'`
         } else if (typeof wallet.walletIsHideTransactionForFee !== 'undefined') {
-            sql = `UPDATE wallet SET wallet_is_hide_transaction_for_fee='${wallet.walletIsHideTransactionForFee ? 1 : 0}' WHERE wallet_hash='${wallet.walletHash}'`
+            sql = `UPDATE wallet SET wallet_to_send_status=1, wallet_is_hide_transaction_for_fee='${wallet.walletIsHideTransactionForFee ? 1 : 0}' WHERE wallet_hash='${wallet.walletHash}'`
         } else if (typeof wallet.walletUseUnconfirmed !== 'undefined') {
-            sql = `UPDATE wallet SET wallet_use_unconfirmed='${wallet.walletUseUnconfirmed ? 1 : 0}' WHERE wallet_hash='${wallet.walletHash}'`
+            sql = `UPDATE wallet SET wallet_to_send_status=1, wallet_use_unconfirmed='${wallet.walletUseUnconfirmed ? 1 : 0}' WHERE wallet_hash='${wallet.walletHash}'`
         } else {
             throw new Error('could not update ' + JSON.stringify(wallet))
         }
@@ -85,7 +100,7 @@ class Wallet {
      * @param {string} newWalletName
      */
     changeWalletName = async (walletHash, newWalletName) => {
-        await Database.setQueryString(`UPDATE wallet SET wallet_name='${Database.escapeString(newWalletName)}' WHERE wallet_hash='${walletHash}'`).query()
+        await Database.setQueryString(`UPDATE wallet SET wallet_to_send_status=1, wallet_name='${Database.escapeString(newWalletName)}' WHERE wallet_hash='${walletHash}'`).query()
         CACHE[walletHash] = false
     }
 
@@ -95,6 +110,7 @@ class Wallet {
     getWallets = async () => {
         const res = await Database.setQueryString(`
                 SELECT
+                wallet_to_send_status AS walletToSendStatus,
                 wallet_hash AS walletHash,
                 wallet_cashback AS walletCashback,
                 wallet_name AS walletName,
@@ -161,6 +177,7 @@ class Wallet {
 
         const res = await Database.setQueryString(`
                 SELECT
+                wallet_to_send_status AS walletToSendStatus,
                 wallet_hash AS walletHash,
                 wallet_name AS walletName,
                 wallet_is_hd AS walletIsHd,

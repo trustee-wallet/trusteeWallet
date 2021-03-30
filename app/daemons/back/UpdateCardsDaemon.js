@@ -3,9 +3,9 @@
  */
 import Log from '@app/services/Log/Log'
 
-import cardDS from '@app/appstores/DataSource/Card/Card'
-
 import config from '@app/config/config'
+
+import cardDS from '@app/appstores/DataSource/Card/Card'
 import cryptoWalletsDS from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
 import ApiProxy from '@app/services/Api/ApiProxy'
 
@@ -30,15 +30,16 @@ class UpdateCardsDaemon {
     }
 
     _updateCardsDaemon = async (params, dataUpdate = false) => {
-        const authHash = await cryptoWalletsDS.getSelectedWallet()
-        if (!authHash) {
-            Log.daemon('UpdateCardsDaemon skipped as no auth')
-            return false
-        }
 
         Log.daemon('UpdateCardsDaemon called')
 
         if (!dataUpdate) {
+            const authHash = await cryptoWalletsDS.getSelectedWallet()
+            if (!authHash) {
+                Log.daemon('UpdateCardsDaemon skipped as no auth')
+                return false
+            }
+
             try {
                 dataUpdate = await ApiProxy.getAll({ ...params, source: 'UpdateCardsDaemon.updateCards' })
             } catch (e) {
@@ -49,14 +50,75 @@ class UpdateCardsDaemon {
             }
         }
 
-        if (!dataUpdate && !dataUpdate.forCardsOk) {
+        if (!dataUpdate) {
             return false
         }
 
-        try {
-            for (const number in dataUpdate.forCardsOk) {
-                const dataOne = dataUpdate.forCardsOk[number]
-                if (dataOne) {
+        if (typeof dataUpdate.forCardsAll !== 'undefined' && dataUpdate.forCardsAll) {
+            try {
+                const saved = await cardDS.getCards()
+                const cardsSaved = {}
+                if (saved) {
+                    for (const row of saved) {
+                        cardsSaved[row.number] = row
+                    }
+                }
+                for (const number in dataUpdate.forCardsAll) {
+                    const dataOne = dataUpdate.forCardsAll[number]
+                    if (!dataOne) continue
+                    const mapping = {
+                        number: dataOne.card_number,
+                        expirationDate: dataOne.card_expiration_date,
+                        type: dataOne.card_type,
+                        countryCode: dataOne.card_country_code,
+                        cardName: dataOne.card_name,
+                        cardHolder : dataOne.card_holder,
+                        currency: dataOne.card_currency,
+                        walletHash: dataOne.card_wallet_hash,
+                        verificationServer: dataOne.card_verification_server,
+                        cardEmail: dataOne.card_email,
+                        cardDetailsJson: dataOne.card_details_json,
+                        cardVerificationJson: dataOne.card_verification_json,
+                        cardCreateWalletHash : dataOne.log_wallet
+                    }
+                    if (typeof cardsSaved[number] === 'undefined') {
+                        await cardDS.saveCard({
+                            insertObjs: [mapping]
+                        })
+                    } else if (cardsSaved[number].cardToSendStatus && cardsSaved[number].cardToSendStatus*1=== 1) {
+                        // skip
+                    } else {
+                        const updateObj = {
+                            cardVerificationJson: dataOne.card_verification_json
+                        }
+                        for (const key in mapping) {
+                            if (key === 'cardCreateWalletHash') continue // to skip
+                            if (cardsSaved[number][key] !== mapping[key]) {
+                                updateObj[key] = mapping[key]
+                            }
+                        }
+                        const dataForSave = {
+                            key: {
+                                number
+                            },
+                            updateObj
+                        }
+                        await cardDS.updateCard(dataForSave)
+                    }
+                }
+
+            } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('UpdateCardsDaemon save error ' + e.message)
+                }
+                Log.errDaemon('UpdateCardsDaemon save error ' + e.message)
+                return false
+            }
+        } else if (typeof dataUpdate.forCardsOk !== 'undefined' && dataUpdate.forCardsOk) {
+            try {
+                for (const number in dataUpdate.forCardsOk) {
+                    const dataOne = dataUpdate.forCardsOk[number]
+                    if (!dataOne) continue
                     const dataForSave = {
                         key: {
                             number
@@ -67,14 +129,13 @@ class UpdateCardsDaemon {
                     }
                     await cardDS.updateCard(dataForSave)
                 }
+            } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('UpdateCardsDaemon status save error ' + e.message)
+                }
+                Log.errDaemon('UpdateCardsDaemon status save error ' + e.message)
+                return false
             }
-
-        } catch (e) {
-            if (config.debug.appErrors) {
-                console.log('UpdateCardsDaemon save error ' + e.message)
-            }
-            Log.errDaemon('UpdateCardsDaemon save error ' + e.message)
-            return false
         }
 
         if (typeof params !== 'undefined' && params && params.numberCard !== 'undefined') {

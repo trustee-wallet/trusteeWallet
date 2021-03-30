@@ -20,6 +20,7 @@ import changeableTester from '../../config/changeable.tester'
 import DeviceInfo from 'react-native-device-info'
 
 
+let CACHE_TG_INITED = false
 let CACHE_BALANCE = {}
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
 
@@ -93,19 +94,8 @@ class MarketingEvent {
 
         }
 
-        await this._reinitTgMessage(testerMode)
-
         // after this is a little bit long soooo we will pass variables any time we could
         this.DATA.LOG_WALLET = await BlocksoftKeysStorage.getSelectedWallet()
-        await this._reinitTgMessage(testerMode)
-
-        await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET })
-        this.DATA.LOG_CASHBACK = CashBackUtils.getWalletToken()
-        await this._reinitTgMessage(testerMode)
-
-        this.DATA.LOG_PARENT = CashBackUtils.getParentToken()
-        await this._reinitTgMessage(testerMode)
-
         let tmp = await AsyncStorage.getItem('CACHE_BALANCE')
         if (tmp) {
             try {
@@ -115,6 +105,11 @@ class MarketingEvent {
                 // do nothing
             }
         }
+    }
+
+    async reinitIfNever() {
+        if (CACHE_TG_INITED) return true
+        await this._reinitTgMessage(this.UI_DATA.IS_TESTER)
     }
 
     async reinitByWallet(walletHash) {
@@ -171,6 +166,7 @@ class MarketingEvent {
 
         await Log._reinitTgMessage(testerMode, this.DATA, this.TG_MESSAGE)
         await BlocksoftCryptoLog._reinitTgMessage(testerMode, this.DATA, this.TG_MESSAGE)
+        CACHE_TG_INITED = true
 
     }
 

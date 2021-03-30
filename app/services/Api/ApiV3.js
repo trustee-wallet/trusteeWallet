@@ -173,11 +173,10 @@ export default {
         try {
             const wallets = store.getState().walletStore.wallets
             for (let wallet of wallets) {
-                const walletHash = wallet.walletName
                 wallet = await walletDS._redoCashback(wallet)
                 const accounts = await this.initWallet(wallet, 'ApiV3')
                 data.wallets.push({
-                    walletHash,
+                    walletHash: wallet.walletHash,
                     walletName: wallet.walletName,
                     cashbackToken: wallet.walletCashback,
                     accounts
