@@ -758,7 +758,7 @@ export default function getTableUpdateQueries() {
             },
 
             110: {
-                queryString: `ALTER TABLE card ADD COLUMN card_status_p2p_json VARCHAR(256) NULL`
+                queryString: `ALTER TABLE card ADD COLUMN card_check_status VARCHAR(256) NULL`
             },
 
         }

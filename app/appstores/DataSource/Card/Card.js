@@ -42,7 +42,7 @@ export default {
                 verification_server AS verificationServer,
                 card_email AS cardEmail,
                 card_details_json AS cardDetailsJson,
-                card_status_p2p_json AS cardStatusP2PJson
+                card_check_status AS cardCheckStatus
                 FROM card ${where}`).query()
         if (!res || typeof res.array === 'undefined' || res.array.length === 0) {
             Log.log('DS/Card finished as empty')

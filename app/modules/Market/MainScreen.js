@@ -508,7 +508,8 @@ class MarketScreen extends Component {
                     wallet_hash: walletHash,
                     verification_server: 'V3',
                     card_email: cardData.email,
-                    card_details_json: cardData.cardDetailsJson
+                    card_details_json: cardData.cardDetailsJson,
+                    card_check_status: cardData.cardCheckStatus
                 }]
             })
             Log.log('Market/MainScreen save cardData' + JSON.stringify(cardData))
@@ -661,8 +662,8 @@ class MarketScreen extends Component {
             type: item.type,
             walletHash: item.walletHash,
             card_email: item.email,
-            card_details_json: item.cardDetailsJson
-            // cardVerificationJson: JSON.stringify(res)
+            card_details_json: item.cardDetailsJson,
+            card_check_status: item.cardCheckStatus
         }
         if (typeof item.number !== 'undefined') {
             updateObj.number = item.number
