@@ -116,8 +116,8 @@ class BottomNavigation extends Component {
                 </View>
                 <View style={[styles.contentWrapper, { backgroundColor: colors.homeScreen.tabBarBackground }]}>
                     <View style={styles.itemStub} />
-                        {config.exchange.mode === 'DEV' ?
-                            <>
+                        {/* {config.exchange.mode === 'DEV' ?
+                            <> */}
                                 <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleMainMarket}>
                                     <CustomIcon name="buy" style={{ color: colors.common.text1 }} size={21} />
                                     <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.market')}</Text>
@@ -132,7 +132,7 @@ class BottomNavigation extends Component {
                                     <CustomIcon name="support" style={{ color: colors.common.text1 }} size={20} />
                                     <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.support')}</Text>
                                 </TouchableOpacity>
-                            </>
+                            {/* </>
                             :
                             <>
                                 <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleMainBtn('BUY')}>
@@ -155,7 +155,7 @@ class BottomNavigation extends Component {
                                     <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]} numberOfLines={1} >{strings('dashboardStack.earn')}</Text>
                                 </TouchableOpacity>
                             </>
-                        }
+                        } */}
 
                     <View style={styles.itemStub} />
                 </View>
