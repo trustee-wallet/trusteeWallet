@@ -41,7 +41,8 @@ export default {
                 wallet_hash AS walletHash,
                 verification_server AS verificationServer,
                 card_email AS cardEmail,
-                card_details_json AS cardDetailsJson
+                card_details_json AS cardDetailsJson,
+                card_status_p2p_json AS cardStatusP2PJson
                 FROM card ${where}`).query()
         if (!res || typeof res.array === 'undefined' || res.array.length === 0) {
             Log.log('DS/Card finished as empty')

@@ -70,7 +70,8 @@ export default function getTableQueries() {
                     card_verification_json VARCHAR(256) NULL,
                     verification_server VARCHAR(32) NULL,
                     card_email VARCHAR(256) NULL,
-                    card_details_json VARCHAR(256) NULL
+                    card_details_json VARCHAR(256) NULL,
+                    card_status_p2p_json VARCHAR(256) NULL
                 )`
             },
             {
