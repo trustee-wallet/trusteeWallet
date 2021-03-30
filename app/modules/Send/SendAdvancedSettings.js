@@ -29,6 +29,8 @@ import Log from '@app/services/Log/Log'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { checkLoadedFee } from './receipt/helpers'
 
 let CACHE_IS_COUNTING = false
 class SendAdvancedSettings extends Component {
@@ -54,6 +56,20 @@ class SendAdvancedSettings extends Component {
     }
 
     toggleDropMenu = () => {
+
+        const { bse } = this.props.sendScreenStore.ui
+        const { bseProviderType } = bse
+        
+        if (bseProviderType === 'FIXED') {
+            showModal({
+                type: 'INFO_MODAL',
+                icon: false,
+                title: strings('modal.titles.attention'),
+                description: strings('modal.send.noChangeFee')
+            })
+            return
+        }
+
         this.setState({
             dropMenu: !this.state.dropMenu
         })
