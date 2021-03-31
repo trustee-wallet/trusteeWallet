@@ -234,6 +234,7 @@ class Wallet {
                 SELECT
                 wallet_to_send_status AS walletToSendStatus,
                 wallet_hash AS walletHash,
+                wallet_cashback AS walletCashback,
                 wallet_name AS walletName,
                 wallet_is_hd AS walletIsHd,
                 wallet_is_backed_up AS walletIsBackedUp,
