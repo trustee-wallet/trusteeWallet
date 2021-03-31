@@ -6,7 +6,6 @@ import store from '@app/store'
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
-import { setSelectedWallet } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import Log from '@app/services/Log/Log'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
@@ -46,12 +45,7 @@ const walletActions = {
      * @returns {Promise<void>}
      */
     setUse: async (wallet) => {
-
         await walletDS.updateWallet(wallet)
-
-        await walletActions.setAvailableWallets()
-
-        await setSelectedWallet('ACT/Wallet setUse')
     },
 
     setWalletBackedUpStatus: async (walletHash) => {
@@ -59,8 +53,6 @@ const walletActions = {
         await walletDS.updateWallet({ walletHash, walletIsBackedUp: 1 })
 
         await walletActions.setAvailableWallets()
-
-        await setSelectedWallet('ACT/Wallet setWalletBackedUpStatus')
 
     },
 
@@ -80,8 +72,7 @@ const walletActions = {
 
             if (tmpNewWalletName.length > 255) tmpNewWalletName = tmpNewWalletName.slice(0, 255)
 
-            await walletDS.changeWalletName(walletHash, tmpNewWalletName)
-            await setSelectedWallet('ACT/Wallet setNewWalletName')
+            await walletDS.updateWallet({walletHash, walletName : tmpNewWalletName})
             await walletActions.setAvailableWallets()
             return true
         } catch (e) {

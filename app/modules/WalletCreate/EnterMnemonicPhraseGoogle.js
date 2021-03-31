@@ -19,8 +19,6 @@ import { strings } from '../../services/i18n'
 import NavStore from '../../components/navigation/NavStore'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
-import DaemonCache from '../../daemons/DaemonCache'
-import { not } from 'react-native-reanimated'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -74,9 +72,9 @@ class EnterMnemonicPhraseGoogle extends Component {
                         for (const file of files) {
                             const fileName = file.name
                             const fileWallet = fileName.split('_remove_trustee_')[1]
-                            if (typeof DaemonCache.CACHE_WALLET_NAMES_AND_CB[fileWallet] === 'undefined') {
+                            // @todo from store if (typeof DaemonCache.CACHE_WALLET_NAMES_AND_CB[fileWallet] === 'undefined') {
                                 notImported.push(file)
-                            }
+                            //}
                         }
                         if (notImported.length === 0) {
                             selectedFile = files[0] // will autoshow but not import

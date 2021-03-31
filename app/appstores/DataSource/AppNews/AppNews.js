@@ -245,7 +245,7 @@ class AppNews {
 
         const exchangeRatesNotifs = await settingsActions.getSetting('exchangeRatesNotifs')
         if (exchangeRatesNotifs === '0') {
-            where.push(`app_news.news_group !='RATES_CHANGING'`)
+            where.push(`app_news.news_group !='RATES_CHANGING' AND app_news.news_group != 'GOOGLE_EVENTS'`)
         }
 
         if (where.length > 0) {

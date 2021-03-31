@@ -80,7 +80,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
                 const fullWallet = {
                     walletHash: storedKey,
                     walletName: savedWallet.wallet_name,
-                    walletToSendStatus : 0,
+                    walletToSendStatus : savedWallet.wallet_to_send_status * 1,
                     walletIsBackedUp: wallet.walletIsBackedUp || 0,
                     walletIsHd : savedWallet.wallet_is_hd,
                     walletAllowReplaceByFee : savedWallet.wallet_allow_replace_by_fee,
@@ -90,7 +90,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
                 }
                 if (tmpWalletName && tmpWalletName !== '') {
                     fullWallet.walletName = tmpWalletName
-                    fullWallet.walletToSendStatus = 1
+                    fullWallet.walletToSendStatus = Math.round(new Date().getTime() / 1000)
                 }
                 await walletDS.saveWallet(fullWallet)
                 fromSaved = true

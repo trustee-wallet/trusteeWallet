@@ -23,6 +23,7 @@ import Log from '@app/services/Log/Log'
 import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 import store from '@app/store'
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
+import UpdateWalletsDaemon from '@app/daemons/back/UpdateWalletsDaemon'
 
 async function _getAll(params) {
     const { mode: exchangeMode } = config.exchange
@@ -80,9 +81,8 @@ async function _getAll(params) {
         }
     }
     const forWallets = []
-    let wallet = store.getState().mainStore.selectedWallet
+    const wallet = store.getState().mainStore.selectedWallet
     if (wallet && wallet.walletHash === walletHash) {
-        wallet = await walletDS._redoCashback(wallet)
         forWallets.push({
             walletToSendStatus: wallet.walletToSendStatus,
             walletHash: wallet.walletHash,
@@ -93,6 +93,7 @@ async function _getAll(params) {
             walletUseUnconfirmed: wallet.walletUseUnconfirmed,
             walletIsHideTransactionForFee: wallet.walletIsHideTransactionForFee,
             walletAllowReplaceByFee: wallet.walletAllowReplaceByFee,
+            walletIsBackedUp : wallet.walletIsBackedUp
         })
     }
 
@@ -143,9 +144,6 @@ async function _getAll(params) {
         all.data.data.forServerIds = forServerIds
         if (typeof all.data.data.forCustomTokensOk !== 'undefined' && all.data.data.forCustomTokensOk && all.data.data.forCustomTokensOk.length > 0) {
             await customCurrencyDS.savedCustomCurrenciesForApi(all.data.data.forCustomTokensOk)
-        }
-        if (typeof all.data.data.forWalletsOk !== 'undefined' && all.data.data.forWalletsOk) {
-            await walletDS.savedWalletForApi(all.data.data.forWalletsOk)
         }
 
         let msg = ''
@@ -252,12 +250,17 @@ export default {
         }
         const res = all.data.data
 
-        if (typeof params === 'undefined' || typeof params.onlyRates === 'undefined') {
-            CACHE_DATA = res
-            CACHE_LAST_TIME = new Date().getTime()
-            CACHE_LAST_WALLET = MarketingEvent.DATA.LOG_WALLET
-            if (params.source.indexOf('UpdateCardsDaemon') === -1 && typeof res.forCardsOk !== 'undefined' && res.forCardsOk) {
-                await UpdateCardsDaemon.updateCardsDaemon(params, res)
+        if (res) {
+            if (typeof params === 'undefined' || typeof params.onlyRates === 'undefined') {
+                CACHE_DATA = res
+                CACHE_LAST_TIME = new Date().getTime()
+                CACHE_LAST_WALLET = MarketingEvent.DATA.LOG_WALLET
+                if (params.source.indexOf('UpdateCardsDaemon') === -1) {
+                    await UpdateCardsDaemon.updateCardsDaemon(params, res)
+                }
+                if (params.source.indexOf('UpdateWalletsDaemon') === -1) {
+                    await UpdateWalletsDaemon.updateWalletsDaemon(params, res)
+                }
             }
         }
         // console.log('ApiProxy finish ' + new Date().toISOString(), JSON.parse(JSON.stringify(params)))
