@@ -1291,7 +1291,8 @@
       "feeSmallAmount" : "Left for fee amount is too small - transaction could be take too long time to confirm",
       "longQuery" : "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one",
       "longQuerySettingOff" : "The ability to send a second transaction until the previous one is confirmed is disabled",
-      "noTBKprovider" : "Sorry, the function is disabled as exchange operator could not process speed up transactions"
+      "noTBKprovider" : "Sorry, the function is disabled as exchange operator could not process speed up transactions",
+      "noChangeFee": "For transactions with a fixed exchange rate, the miners fee cannot be changed"
     },
     "walletLog": {
       "sorry": "Attention!",

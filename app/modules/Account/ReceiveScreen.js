@@ -185,9 +185,9 @@ class ReceiveScreen extends Component {
         try {
             await Netinfo.isInternetReachable()
             
-            if (config.exchange.mode === 'PROD') {
-                NavStore.goNext('ExchangeV3ScreenStack')
-            } else {
+            // if (config.exchange.mode === 'PROD') {
+            //     NavStore.goNext('ExchangeV3ScreenStack')
+            // } else {
                 let showMsg = await AsyncStorage.getItem('smartSwapMsg')
                 showMsg = showMsg ? JSON.parse(showMsg) : false
 
@@ -203,7 +203,7 @@ class ReceiveScreen extends Component {
                 } else {
                     NavStore.goNext('MarketScreen', { side: 'IN', currencyCode : this.props.account.currencyCode })
                 }
-            }
+            // }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('ReceiveScreen.handleExchange error ' + e.message)

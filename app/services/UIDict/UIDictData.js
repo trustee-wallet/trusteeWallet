@@ -377,7 +377,7 @@ export default {
     "BNB_SMART_UNI": {
         colors: {
             mainColor: '#FF007A',
-            darkColor: '#FF007A'
+            darkColor: '#D02175'
         }
     },
     "ETH_UNI": {

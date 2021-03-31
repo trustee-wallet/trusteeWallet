@@ -71,9 +71,10 @@ export default function getTableQueries() {
                     verification_server VARCHAR(32) NULL,
                     card_email VARCHAR(256) NULL,
                     card_details_json VARCHAR(256) NULL,
-                    card_status_p2p_json VARCHAR(256) NULL,
-					card_to_send_status INTEGER NULL,
-					card_create_wallet_hash VARCHAR(256) NULL
+                    card_to_send_status INTEGER NULL,
+                    card_create_wallet_hash VARCHAR(256) NULL,
+                    card_check_status VARCHAR(256) NULL
+
                 )`
             },
             {

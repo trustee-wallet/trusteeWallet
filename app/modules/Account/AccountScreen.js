@@ -176,9 +176,9 @@ class Account extends Component {
         try {
             await Netinfo.isInternetReachable()
 
-            if (config.exchange.mode === 'PROD') {
-                NavStore.goNext('MainV3DataScreen', {tradeType: 'BUY', currencyCode: this.props.account.currencyCode})
-            } else {
+            // if (config.exchange.mode === 'PROD') {
+            //     NavStore.goNext('MainV3DataScreen', {tradeType: 'BUY', currencyCode: this.props.account.currencyCode})
+            // } else {
                 let showMsg = await AsyncStorage.getItem('smartSwapMsg')
                 showMsg = showMsg ? JSON.parse(showMsg) : false
 
@@ -195,7 +195,7 @@ class Account extends Component {
                     NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode: this.props.account.currencyCode })
                 }
                 
-            }
+            // }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)
