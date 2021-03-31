@@ -3,11 +3,11 @@
  */
 import store from '@app/store'
 
-import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
-import { AppNewsActions } from '@app/appstores/Stores/AppNews/AppNewsActions'
-
 import Update from '../Update'
 
+import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
+import { AppNewsActions } from '@app/appstores/Stores/AppNews/AppNewsActions'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const TO_BADGE_TIME = 3600000 * 24 * 4
 
@@ -40,6 +40,17 @@ class UpdateAppNewsListDaemon extends Update {
         }
         this._canUpdate = false
 
+        const appSpecialList = await appNewsDS.getSpecialNews()
+        if (appSpecialList && appSpecialList.length > 0) {
+            const ids = []
+            for (const item of appSpecialList) {
+                ids.push(item.id)
+                if (item.newsJson && typeof item.newsJson.googleEvent !== 'undefined' && item.newsJson.googleEvent && typeof item.newsJson.googleEvent.eventCode !== 'undefined') {
+                    await MarketingEvent.logEvent(item.newsJson.googleEvent.eventCode, item.newsJson.googleEvent.params, 'GX')
+                }
+            }
+            await appNewsDS.markAllAsOpened(ids)
+        }
         const appNewsList = await appNewsDS.getAppNews()
 
         store.dispatch({
@@ -52,7 +63,11 @@ class UpdateAppNewsListDaemon extends Update {
             const now = new Date().getTime()
             let toBadge = 0
             for (const item of appNewsList) {
-                if (now - item.newsCreated < TO_BADGE_TIME && item.newsOpenedAt === null) {
+                if (!(item.newsOpenedAt === null || item.newsOpenedAt === 0)) continue
+                if (item.newsJson && typeof item.newsJson.googleEvent !== 'undefined' && item.newsJson.googleEvent && typeof item.newsJson.googleEvent.eventCode !== 'undefined') {
+                    await MarketingEvent.logEvent(item.newsJson.googleEvent.eventCode, item.newsJson.googleEvent.params, 'GX')
+                }
+                if (now - item.newsCreated < TO_BADGE_TIME) {
                     if (item.newsGroup === 'NEWS' || item.newsGroup === 'BSE_ORDERS') {
                         toBadge++
                     }
