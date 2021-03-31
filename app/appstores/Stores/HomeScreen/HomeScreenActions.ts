@@ -50,7 +50,6 @@ export function saveNewWalletName(walletHash: string, newWalletName: string, old
 
             await walletDS.updateWallet({walletHash, walletName : tmpNewWalletName})
             Toast.setMessage(strings('toast.saved')).show()
-            await walletActions.setAvailableWallets()
             dispatch(setInputEditable(false))
         } catch (e) {
             if (config.debug.appErrors) {

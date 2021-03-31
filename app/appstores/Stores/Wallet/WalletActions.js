@@ -4,7 +4,6 @@
 import store from '@app/store'
 
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
-
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 import Log from '@app/services/Log/Log'
@@ -37,23 +36,12 @@ const walletActions = {
         return setting
     },
 
-    /**
-     * @param {string} wallet.walletHash
-     * @param {string} wallet.walletIsHideTransactionForFee
-     * @param {string} wallet.walletUseUnconfirmed
-     * @param {string} wallet.walletUseLegacy
-     * @returns {Promise<void>}
-     */
     setUse: async (wallet) => {
         await walletDS.updateWallet(wallet)
     },
 
     setWalletBackedUpStatus: async (walletHash) => {
-
         await walletDS.updateWallet({ walletHash, walletIsBackedUp: 1 })
-
-        await walletActions.setAvailableWallets()
-
     },
 
     getNewWalletName: async () => {
@@ -73,7 +61,6 @@ const walletActions = {
             if (tmpNewWalletName.length > 255) tmpNewWalletName = tmpNewWalletName.slice(0, 255)
 
             await walletDS.updateWallet({walletHash, walletName : tmpNewWalletName})
-            await walletActions.setAvailableWallets()
             return true
         } catch (e) {
             Log.err('walletActions.setNewWalletName error:', e.message)

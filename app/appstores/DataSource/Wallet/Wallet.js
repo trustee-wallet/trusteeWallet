@@ -33,7 +33,7 @@ class Wallet {
         }
 
         const tmpWalletName = Database.escapeString(wallet.walletName)
-        await Database.setQueryString(`INSERT INTO wallet (
+        const sql = `INSERT INTO wallet (
         wallet_to_send_status, wallet_hash, wallet_name, 
         wallet_is_hd, wallet_use_legacy, wallet_use_unconfirmed, 
         wallet_allow_replace_by_fee, wallet_is_backed_up, wallet_is_hide_transaction_for_fee)
@@ -41,7 +41,8 @@ class Wallet {
         ${wallet.walletToSendStatus || 0}, '${wallet.walletHash}', '${tmpWalletName}', 
         ${wallet.walletIsHd || 0}, ${wallet.walletUseLegacy || 2}, ${wallet.walletUseUnconfirmed || 1}, 
         ${wallet.walletAllowReplaceByFee || 1}, ${wallet.walletIsBackedUp || 0}, ${wallet.walletIsHideTransactionForFee || 1}
-        )`).query(true)
+        )`
+        await Database.setQueryString(sql).query(true)
     }
 
     /**
@@ -80,35 +81,35 @@ class Wallet {
         } else {
             walletHash = wallet.walletHash
             updateObj = {
-                walletToSendStatus : Math.round(new Date().getTime() / 1000)
+                walletToSendStatus: Math.round(new Date().getTime() / 1000)
             }
             if (typeof wallet.walletIsHd !== 'undefined') {
                 updateObj.walletIsHd = wallet.walletIsHd ? 1 : 0
             } else if (typeof wallet.walletIsBackedUp !== 'undefined') {
-                updateObj.walletIsBackedUp = wallet.walletIsBackedUp? 1 : 0
+                updateObj.walletIsBackedUp = wallet.walletIsBackedUp ? 1 : 0
             } else if (typeof wallet.walletUseLegacy !== 'undefined') {
-                updateObj.walletUseLegacy = wallet.walletUseLegacy? 1 : 0
+                updateObj.walletUseLegacy = wallet.walletUseLegacy ? 1 : 0
             } else if (typeof wallet.walletAllowReplaceByFee !== 'undefined') {
-                updateObj.walletAllowReplaceByFee = wallet.walletAllowReplaceByFee? 1 : 0
+                updateObj.walletAllowReplaceByFee = wallet.walletAllowReplaceByFee ? 1 : 0
             } else if (typeof wallet.walletIsHideTransactionForFee !== 'undefined') {
-                updateObj.walletIsHideTransactionForFee = wallet.walletIsHideTransactionForFee? 1 : 0
+                updateObj.walletIsHideTransactionForFee = wallet.walletIsHideTransactionForFee ? 1 : 0
             } else if (typeof wallet.walletUseUnconfirmed !== 'undefined') {
-                updateObj.walletUseUnconfirmed = wallet.walletUseUnconfirmed? 1 : 0
+                updateObj.walletUseUnconfirmed = wallet.walletUseUnconfirmed ? 1 : 0
             } else if (typeof wallet.walletName !== 'undefined') {
                 updateObj.walletName = Database.escapeString(wallet.walletName)
             } else {
                 throw new Error('could not update ' + JSON.stringify(wallet))
             }
             await Database.setTableName('wallet').setUpdateData({
-                key : {
+                key: {
                     walletHash
                 },
                 updateObj
             }).update()
         }
 
-        const selectedWallet = store.getState().mainStore.selectedWallet
-        if (selectedWallet.walletHash === walletHash ) {
+        let selectedWallet = store.getState().mainStore.selectedWallet
+        if (selectedWallet.walletHash === walletHash) {
             let changed = false
             for (const key in updateObj) {
                 let newVal = updateObj[key]
@@ -125,7 +126,31 @@ class Wallet {
                     type: 'SET_SELECTED_WALLET',
                     wallet: selectedWallet
                 })
-                UpdateWalletsDaemon.updateWalletsDaemon({force : true})
+                UpdateWalletsDaemon.updateWalletsDaemon({ force: true })
+            }
+        }
+
+
+        const selectedWallets = store.getState().walletStore.wallets
+        for (selectedWallet of selectedWallets) {
+            if (selectedWallet.walletHash === walletHash) {
+                let changed = false
+                for (const key in updateObj) {
+                    let newVal = updateObj[key]
+                    if (key === 'walletName') {
+                        newVal = Database.unEscapeString(updateObj[key])
+                    }
+                    if (newVal !== selectedWallet[key]) {
+                        selectedWallet[key] = newVal
+                        changed = true
+                    }
+                }
+                if (changed) {
+                    store.dispatch({
+                        type: 'SET_WALLET_LIST',
+                        wallets: selectedWallets
+                    })
+                }
             }
         }
 
