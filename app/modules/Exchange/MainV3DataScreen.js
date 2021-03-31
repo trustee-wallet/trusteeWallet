@@ -185,7 +185,10 @@ class MainV3DataScreen extends Component {
 
     exchangeV3 = async (data) => {
         try {
-            Log.log('Exchange/MainV3Screen dataExchange', data)
+            if (config.debug.cryptoErrors) {
+                console.log('EXC/MainV3Screen exchangeV3 data ' + JSON.stringify(data))
+            }
+            Log.log('EXC/MainV3Screen exchangeV3 data ', data)
 
             const limits = JSON.parse(data.limits)
             const trusteeFee = JSON.parse(data.trusteeFee)

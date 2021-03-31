@@ -323,14 +323,16 @@ class MarketScreen extends Component {
     }
 
     async send(data) {
-        const limits = JSON.parse(data.limits)
-        const trusteeFee = JSON.parse(data.trusteeFee)
-
-        const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits)
-
         try {
-            Log.log('Market/MainScreen dataSend', data)
+            if (config.debug.cryptoErrors) {
+                console.log('Market/MainScreen send data ' + JSON.stringify(data))
+            }
+            Log.log('Market/MainScreen send data', data)
 
+            const limits = data.limits ? JSON.parse(data.limits) : false
+            const trusteeFee = data.trusteeFee ? JSON.parse(data.trusteeFee) : false
+
+            const minCrypto = limits ? BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits) : false
 
             const bseOrderData = {
                 amountReceived: null,
@@ -362,8 +364,8 @@ class MarketScreen extends Component {
                 bseOrderId: data.orderHash || data.orderId,
                 bseMinCrypto: minCrypto,
                 bseTrusteeFee: {
-                    value: trusteeFee.trusteeFee,
-                    currencyCode: trusteeFee.currencyCode,
+                    value: trusteeFee ? trusteeFee.trusteeFee : 0,
+                    currencyCode: trusteeFee ? trusteeFee.currencyCode : 'USD',
                     type: 'MARKET',
                     from: data.currencyCode,
                     to: data.outCurrency
@@ -372,7 +374,7 @@ class MarketScreen extends Component {
             })
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('Market/MainScreen.send', e)
+                console.log('Market/MainScreen.send ' + e.message)
             }
             throw e
         }

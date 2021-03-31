@@ -320,7 +320,10 @@ class MainV3DataScreen extends Component {
 
     async sellV3(data) {
         try {
-            Log.log('Trade/MainV3Screen dataSell', data)
+            if (config.debug.cryptoErrors) {
+                console.log('Trade/MainV3Screen sellV3 data ' + JSON.stringify(data))
+            }
+            Log.log('Trade/MainV3Screen sellV3 data', data)
 
             const limits = JSON.parse(data.limits)
             const trusteeFee = JSON.parse(data.trusteeFee)
