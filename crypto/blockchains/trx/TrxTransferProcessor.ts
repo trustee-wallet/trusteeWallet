@@ -4,13 +4,21 @@
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftUtils from '../../common/BlocksoftUtils'
+import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 
 import TronUtils from './ext/TronUtils'
-
 import TrxTronscanProvider from './basic/TrxTronscanProvider'
 import TrxTrongridProvider from './basic/TrxTrongridProvider'
-import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
+import TrxSendProvider from '@crypto/blockchains/trx/providers/TrxSendProvider'
+
+
 import BlocksoftDispatcher from '../BlocksoftDispatcher'
+import config from '@app/config/config'
+import { sublocale } from '@app/services/i18n'
+
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+
 
 export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: any
@@ -19,6 +27,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
     private _trongridProvider: TrxTrongridProvider
     private _tokenName: string
     private _isToken20: boolean
+    private sendProvider: TrxSendProvider
 
     constructor(settings: any) {
         this._settings = settings
@@ -33,6 +42,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 this._isToken20 = true
             }
         }
+        this.sendProvider = new TrxSendProvider(this._settings, this._tronNodePath)
     }
 
     needPrivateForFee(): boolean {
@@ -63,7 +73,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             return { isOk: true }
         }
 
-        const transactionsBasic = await balanceProviderBasic.getTransactionsBlockchain(data.addressTo)
+        const transactionsBasic = await balanceProviderBasic.getTransactionsBlockchain({account : {address : data.addressTo}})
         if (transactionsBasic !== false) {
             return { isOk: true }
         }
@@ -72,11 +82,9 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         const result: BlocksoftBlockchainTypes.FeeRateResult = {
-            selectedFeeIndex: -3
+            selectedFeeIndex: -3,
+            shouldShowFees : false
         } as BlocksoftBlockchainTypes.FeeRateResult
-        if (data.addressTo && data.addressTo === data.addressFrom) {
-            return result
-        }
         try {
             const link = 'https://apilist.tronscan.org/api/account?address=' + data.addressFrom
             const res = await BlocksoftAxios.getWithoutBraking(link)
@@ -117,12 +125,15 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 result.selectedFeeIndex = 0
             }
         } catch (e) {
-            // do nothing
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate error ' + e.message)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate error ' + e.message)
         }
         return result
     }
 
-    async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: { estimatedGas?: number, gasPrice?: number[], balance?: string } = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
+    async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
         const balance = data.amount
         // @ts-ignore
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
@@ -132,6 +143,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -1,
                 fees: [],
+                shouldShowFees : false,
                 countedForBasicBalance: '0'
             }
         }
@@ -141,13 +153,14 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 selectedTransferAllBalance: balance,
                 selectedFeeIndex: -3,
                 fees: [],
+                shouldShowFees : false,
                 countedForBasicBalance: balance
             }
         }
         return {
             ...fees,
-            selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].amountForTx,
-            shouldChangeBalance: false
+            shouldShowFees : false,
+            selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].amountForTx
         }
     }
 
@@ -231,7 +244,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             // @ts-ignore
             if (typeof res.data.Error !== 'undefined') {
                 // @ts-ignore
-                this.checkError(res.data.Error.message || res.data.Error)
+                this.sendProvider.trxError(res.data.Error.message || res.data.Error)
             }
 
             // @ts-ignore
@@ -245,7 +258,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         res.data.result.message = BlocksoftUtils.hexToUtf('0x' + res.data.result.message)
                     }
                     // @ts-ignore
-                    this.checkError('No tx in contract data ' + JSON.stringify(res.data))
+                    this.sendProvider.trxError('No tx in contract data ' + JSON.stringify(res.data))
                 }
                 // @ts-ignore
                 tx = res.data.transaction
@@ -258,7 +271,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         res.data.result.message = BlocksoftUtils.hexToUtf('0x' + res.data.result.message)
                     }
                     // @ts-ignore
-                    this.checkError('No txID in data ' + JSON.stringify(res.data))
+                    this.sendProvider.trxError('No txID in data ' + JSON.stringify(res.data))
                 }
             }
         }
@@ -268,73 +281,35 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         tx.signature = [TronUtils.ECKeySign(Buffer.from(tx.txID, 'hex'), Buffer.from(privateData.privateKey, 'hex'))]
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx signed', tx)
 
-        const send = await BlocksoftAxios.post(this._tronNodePath + '/wallet/broadcasttransaction', tx)
-        // @ts-ignore
-        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx broadcast', send.data)
+        const logData = {}
+        logData.currencyCode = this._settings.currencyCode
+        logData.selectedFee = uiData.selectedFee
+        logData.from = data.addressFrom
+        logData.basicAddressTo = data.addressTo
+        logData.basicAmount = data.amount
+        logData.pushLocale = sublocale()
+        logData.pushSetting = await settingsActions.getSetting('transactionsNotifs')
+        logData.basicToken = this._tokenName
 
-        // @ts-ignore
-        if (!send.data) {
-            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
-        }
-        if (typeof send.data.code !== 'undefined') {
-            if (send.data.code === 'BANDWITH_ERROR') {
-                throw new Error('SERVER_RESPONSE_BANDWITH_ERROR_TRX')
-            } else if (send.data.code === 'SERVER_BUSY') {
-                throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+        let result = {} as BlocksoftBlockchainTypes.SendTxResult
+        try {
+            result = await this.sendProvider.sendTx(tx, '', false, logData)
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx broadcasted')
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' TrxTransferProcessor.sent error', e, uiData)
             }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sent error '+ e.message)
+            // noinspection ES6MissingAwait
+            MarketingEvent.logOnlyRealTime('v20_trx_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
+            throw e
         }
+        // noinspection ES6MissingAwait
+        MarketingEvent.logOnlyRealTime('v20_trx_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
 
-        // @ts-ignore
-        if (typeof send.data.Error !== 'undefined') {
-            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx broadcast error', send.data.Error)
-            // @ts-ignore
-            throw new Error(send.data.Error)
+        if (config.debug.cryptoErrors) {
+            console.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx result', JSON.parse(JSON.stringify(result)))
         }
-        // @ts-ignore
-        if (typeof send.data.result === 'undefined') {
-            // @ts-ignore
-            if (typeof send.data.message !== 'undefined') {
-                let msg = false
-                try {
-                    // @ts-ignore
-                    const buf = Buffer.from(send.data.message, 'hex')
-                    // @ts-ignore
-                    msg = buf.toString('')
-                } catch (e) {
-                    // do nothing
-                }
-                if (msg) {
-                    // @ts-ignore
-                    send.data.decoded = msg
-                    // @ts-ignore
-                    this.checkError(msg)
-                }
-            }
-            // @ts-ignore
-            this.checkError('no transaction result ' + JSON.stringify(send.data))
-        }
-        // @ts-ignore
-        if (send.data.result !== true) {
-            // @ts-ignore
-            this.checkError('transaction result is false ' + JSON.stringify(send.data))
-        }
-
-        return { transactionHash: tx.txID }
-    }
-
-    checkError(msg: string) {
-        if (this._settings.currencyCode !== 'TRX' && msg.indexOf('AccountResourceInsufficient') !== -1) {
-            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
-        } else if (msg.indexOf('balance is not sufficient') !== -1) {
-            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
-        } else if (msg.indexOf('account not exist') !== -1) {
-            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
-        } else if (msg.indexOf('Amount must greater than 0') !== -1) {
-            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
-        } else if (msg.indexOf('assetBalance must be greater than 0') !== -1 || msg.indexOf('assetBalance is not sufficient') !== -1) {
-            throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
-        } else {
-            throw new Error(msg)
-        }
+        return result
     }
 }

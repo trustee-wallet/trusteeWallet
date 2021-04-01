@@ -486,6 +486,8 @@
       "income": "Income",
       "freeze" : "Freeze",
       "claim" : "Claim",
+      "swap_income" : "Contract Income",
+      "swap_outcome" : "Contract Outcome",
       "self": "Self",
       "exchange": "Exchange",
       "buy": "Buy",
@@ -814,6 +816,9 @@
       "confirm": "Send",
       "force": "Do anyway?"
     },
+    "feeModal": {
+      "description": "The fee miners receive for confirming your transaction. The miner (network) fee is paid by the sender for the transfer of crypto assets to the recipient's address. This commission is calculated by the application based on the network data at the time of the transaction creation and does not depend on the transfer amount.\n\nImportant!\n The speed of confirmation of your transaction by miners directly depends from the size of the network fee. Please consider this information when manually changing the commission."
+    },
     "fee": {
       "smallFeeNoticeTitle": "Please, be careful",
       "smallFeeNoticeDesc": "Not enough balance for recommended fast transaction fee",
@@ -847,7 +852,7 @@
         "title": "Manually",
         "fixedFeeTitle": "FIXED FEE",
         "customFeeTitle": "SET\nMANUALLY",
-        "calculetedFee": "Calculeted fee:",
+        "calculatedFee": "Calculated fee:",
         "eth": {
           "gasPrice": "Gas price",
           "gasLimit": "Gas limit",
@@ -1073,7 +1078,7 @@
     "earn": "Earn",
     "settings": "More",
     "support": "Support",
-    "market": "Market"
+    "market": "Swap"
   },
   "modal": {
     "titles": {

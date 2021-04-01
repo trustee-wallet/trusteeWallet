@@ -157,7 +157,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
     }
 
 
-    async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: { estimatedGas?: number, gasPrice?: number[], balance?: string } = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
+    async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
         const balance = data.amount
 
         // @ts-ignore
@@ -171,14 +171,15 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -2,
                 fees: [],
+                shouldShowFees : false,
                 countedForBasicBalance: balance
             }
         }
         // @ts-ignore
         return {
             ...result,
+            shouldShowFees : false,
             selectedTransferAllBalance: result.fees[result.selectedFeeIndex].amountForTx,
-            shouldChangeBalance: true,
             countedForBasicBalance: balance
         }
     }

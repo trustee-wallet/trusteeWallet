@@ -102,6 +102,7 @@ class BlocksoftPrettyNumbers {
         }
 
         let separated = justCutted
+        let separatedForInput = false
         if (firstPart) {
             const len = firstPart.length
             if (len > 3) {
@@ -118,14 +119,21 @@ class BlocksoftPrettyNumbers {
             } else {
                 separated = firstPart
             }
+            separatedForInput = separated.toString()
             if (secondPart) {
                 separated += '.' + secondPart
             }
         } else if (secondPart) {
             separated = '0.' + secondPart
+            separatedForInput = '0'
+        }
+        if (separatedForInput === false) {
+            separatedForInput = justCutted
+        } else if (typeof splitted[1] !== 'undefined') {
+            separatedForInput += '.' + splitted[1]
         }
 
-        return { cutted, isSatoshi, justCutted, separated: separated.toString() }
+        return { cutted, isSatoshi, justCutted, separated: separated.toString(), separatedForInput }
     }
 
     /**

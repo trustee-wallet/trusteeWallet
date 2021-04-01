@@ -13,7 +13,6 @@ import NavStore from '../../components/navigation/NavStore'
 
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import { strings } from '../../services/i18n'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
 import _ from 'lodash'
 
 import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
@@ -26,6 +25,9 @@ import { openQrGallery } from '../../services/UI/Qr/QrGallery'
 import Header from '../../components/elements/new/Header'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
+import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
 const SCREEN_WIDTH = Dimensions.get('window').width
@@ -48,11 +50,8 @@ class QRCodeScannerScreen extends Component {
     async onSuccess(param) {
         try {
             const {
-                account: oldAccount,
-                cryptoCurrency: oldCurrency,
                 currencyCode,
                 type,
-                inputType
             } = this.props.qrCodeScanner.config
 
             if (type === 'CASHBACK_LINK' || (
@@ -82,10 +81,10 @@ class QRCodeScannerScreen extends Component {
                 const { lockScreenStatus } = this.props.settings.keystore
                 if (+lockScreenStatus) {
                     lockScreenAction.setFlowType({
-                        flowType: 'WALLET_CONNECT',
+                        flowType: 'WALLET_CONNECT'
                     })
                     lockScreenAction.setBackData({
-                        backData : {walletConnect : res.data.walletConnect}
+                        backData: { walletConnect: res.data.walletConnect }
                     })
                     NavStore.goNext('LockScreen')
                 } else {
@@ -159,23 +158,8 @@ class QRCodeScannerScreen extends Component {
                 }
 
                 const parsed = res.data
-                await SendActions.cleanData()
-                SendActions.setUiType({
-                    ui: {
-                        uiType: 'MAIN_SCANNER',
-                        uiInputType: parsed.amount ? 'CRYPTO' : 'any',
-                        uiInputAddress: typeof parsed.address !== 'undefined' && parsed.address && parsed.address !== ''
-                    },
-                    addData: {
-                        gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
-                        comment: parsed.label
-                    }
-                })
-                await SendActions.startSend({
-                    addressTo: parsed.address,
-                    amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
-                    currencyCode: parsed.currencyCode,
-                })
+                parsed.currencyCode = cryptoCurrency.currencyCode
+                await SendActionsStart.startFromQRCodeScanner(parsed, 'MAIN_SCANNER')
             } else if (type === 'ADD_CUSTOM_TOKEN_SCANNER') {
                 NavStore.goNext('AddAssetScreen', {
                     tokenData: {
@@ -183,29 +167,7 @@ class QRCodeScannerScreen extends Component {
                     }
                 })
             } else if (type === 'SEND_SCANNER') {
-                if (res.status === 'success' && res.data.currencyCode === currencyCode) {
-
-                    const parsed = res.data
-                    parsed.currencyCode = oldCurrency.currencyCode
-                    await SendActions.cleanData()
-                    SendActions.setUiType({
-                        ui: {
-                            uiType: 'SEND_SCANNER',
-                            uiInputType: parsed.amount ? 'CRYPTO' : 'any',
-                            uiInputAddress: typeof parsed.address !== 'undefined' && parsed.address && parsed.address !== ''
-                        },
-                        addData: {
-                            gotoReceipt: typeof parsed.needToDisable !== 'undefined' && !!(+parsed.needToDisable),
-                            comment: parsed.label
-                        }
-                    })
-                    await SendActions.startSend({
-                        addressTo: parsed.address,
-                        amountPretty: parsed.amount ? parsed.amount.toString() : 'old',
-                        currencyCode: parsed.currencyCode,
-                    })
-
-                } else if (res.status === 'success' && res.data.currencyCode !== currencyCode) {
+                if (res.status === 'success' && typeof res.data.currencyCode !== 'undefined' && res.data.currencyCode && res.data.currencyCode !== currencyCode) {
                     showModal({
                         type: 'INFO_MODAL',
                         icon: false,
@@ -218,17 +180,28 @@ class QRCodeScannerScreen extends Component {
                         }
                     })
                 } else {
-                    await SendActions.cleanData()
-                    SendActions.setUiType({
-                        ui: {
-                            uiType: 'SEND_SCANNER',
-                            uiInputAddress: typeof res.data.parsedUrl !== 'undefined' && res.data.parsedUrl && res.data.parsedUrl !== ''
+                    let parsed
+                    if (res.status === 'success' && res.data.currencyCode === currencyCode) {
+                        parsed = res.data
+                        parsed.currencyCode = currencyCode
+                    } else {
+                        parsed = {
+                            address: res.data.parsedUrl
                         }
-                    })
-                    await SendActions.startSend({
-                        addressTo: res.data.parsedUrl,
-                        currencyCode: oldCurrency.currencyCode,
-                    })
+                    }
+                    const newValue = {}
+                    if (typeof parsed.address !== 'undefined') {
+                        newValue.addressTo = parsed.address
+                    }
+                    if (typeof parsed.amount !== 'undefined' && parsed.amount && parsed.amount * 1 > 0) {
+                        newValue.cryptoValue = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(parsed.amount)
+                    }
+                    if (typeof parsed.label !== 'undefined' && parsed.label && parsed.label !== '') {
+                        newValue.memo = parsed.label
+                    }
+                    Log.log('QRCodeScanner.onSuccess from ' + type + ' parsed ' + JSON.stringify(parsed))
+                    SendActionsUpdateValues.setStepOne(newValue)
+                    NavStore.goNext('SendScreen')
                 }
             }
         } catch (e) {

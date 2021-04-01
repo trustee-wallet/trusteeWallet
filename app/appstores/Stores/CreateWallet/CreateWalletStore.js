@@ -3,6 +3,9 @@
  */
 const INITIAL_STATE = {
     flowType: '',
+    source : false,
+    walletHash : false,
+    walletNumber : '0',
     walletName: '',
     walletMnemonic: '',
     mnemonicLength: 0,
@@ -12,34 +15,32 @@ const INITIAL_STATE = {
 const createWalletStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case 'SET_MNEMONIC_LENGTH':
-            return new Object({
+            return {
                 ...state,
                 mnemonicLength: action.mnemonicLength
-            })
+            }
         case 'SET_WALLET_NAME':
-            return new Object({
+            return {
                 ...state,
                 walletName: action.walletName
-            })
+            }
         case 'SET_WALLET_MNEMONIC':
-            return new Object({
+            return {
                 ...state,
                 walletMnemonic: action.walletMnemonic
-            })
+            }
         case 'CLEAT_INIT_STATE':
-            return new Object({
-                ...INITIAL_STATE
-            })
+            return INITIAL_STATE
         case 'SET_FLOW_TYPE':
-            return new Object({
+            return {
                 ...state,
-                flowType: action.flowType
-            })
+                ...action
+            }
         case 'SET_CALLBACK':
-            return new Object({
+            return {
                 ...state,
                 callback: action.callback
-            })
+            }
         default:
             return state
     }

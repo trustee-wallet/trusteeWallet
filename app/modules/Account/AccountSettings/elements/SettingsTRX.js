@@ -127,7 +127,7 @@ class SettingsTRX extends Component {
                 frozen_balance: freeze * 1,
                 frozen_duration: 3,
                 resource: type
-            })
+            }, 'freeze ' + freeze + ' for ' + type + ' of ' + address )
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('SettingsTRX.handleFreeze error ', e)
@@ -157,7 +157,7 @@ class SettingsTRX extends Component {
             await this._sendTx('https://api.trongrid.io/wallet/unfreezebalance', {
                 owner_address: TronUtils.addressToHex(address),
                 resource: type
-            })
+            }, 'unfreeze for ' + type + ' of ' + address )
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('SettingsTRX.handleUnFreeze error ', e)
@@ -188,15 +188,16 @@ class SettingsTRX extends Component {
         const address = account.address
 
         try {
+            const voteAddress = BlocksoftExternalSettings.getStatic('TRX_VOTE_BEST')
             await this._sendTx('https://api.trongrid.io/wallet/votewitnessaccount', {
                 owner_address: TronUtils.addressToHex(address),
                 votes: [
                     {
-                        vote_address: TronUtils.addressToHex(BlocksoftExternalSettings.getStatic('TRX_VOTE_BEST')),
+                        vote_address: TronUtils.addressToHex(voteAddress),
                         vote_count: actualBalance.prettyVote * 1
                     }
                 ]
-            })
+            }, 'vote ' + actualBalance.prettyVote + ' for ' + voteAddress)
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('SettingsTRX.handleVote error ', e)
@@ -224,7 +225,7 @@ class SettingsTRX extends Component {
         try {
             await this._sendTx('https://api.trongrid.io/wallet/withdrawbalance', {
                 owner_address: TronUtils.addressToHex(address)
-            })
+            }, 'withdrawbalance to ' + address)
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('SettingsTRX.handleGetReward error ', e)
@@ -244,7 +245,7 @@ class SettingsTRX extends Component {
         setLoaderStatus(false)
     }
 
-    _sendTx = async (link, params) => {
+    _sendTx = async (link, params, langMsg) => {
 
         const tmp = await BlocksoftAxios.post(link, params)
         let blockchainData
@@ -269,7 +270,7 @@ class SettingsTRX extends Component {
             addressTo: '',
             blockchainData
         }
-        const result = await BlocksoftTransfer.sendTx(txData)
+        const result = await BlocksoftTransfer.sendTx(txData, {selectedFee: {langMsg}})
         if (result) {
             showModal({
                 type: 'INFO_MODAL',

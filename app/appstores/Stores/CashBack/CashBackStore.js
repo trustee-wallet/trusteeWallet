@@ -3,35 +3,38 @@
  */
 const INITIAL_STATE = {
     dataFromApi: {},
-    error : {},
-    cashbackLinkTitle : '',
-    cashbackLink : '',
-    parentToken : ''
+    error: {},
+    cashbackLinkTitle: '',
+    cashbackLink: '',
+    parentToken: ''
 }
 
 const cashBackStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case 'SET_CASHBACK_DATA_FROM_API':
-            return new Object({
+            return {
                 ...state,
-                dataFromApi: action.dataFromApi
-            })
+                dataFromApi: {
+                    ...state.dataFromApi,
+                    ...action.dataFromApi
+                }
+            }
         case 'SET_CASHBACK_ERROR':
-            return new Object({
+            return {
                 ...state,
                 error: action.error
-            })
+            }
         case 'SET_CASHBACK_LINK':
-            return new Object({
+            return {
                 ...state,
-                cashbackLinkTitle : action.cashbackLinkTitle,
-                cashbackLink : action.cashbackLink
-            })
-        case 'SET_PARENT_TOKEN' :
-            return new Object({
+                cashbackLinkTitle: action.cashbackLinkTitle,
+                cashbackLink: action.cashbackLink
+            }
+        case 'SET_PARENT_TOKEN':
+            return {
                 ...state,
-                parentToken : action.parentToken
-            })
+                parentToken: action.parentToken
+            }
         default:
             return state
     }

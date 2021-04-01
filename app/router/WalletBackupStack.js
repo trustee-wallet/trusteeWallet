@@ -1,11 +1,10 @@
 /**
- * @version 0.9
+ * @version 0.41
  */
 import { createStackNavigator } from 'react-navigation-stack'
-import BackupStep0Screen from '../modules/WalletBackup/BackupStep0Screen'
-// import BackupInfoScreen from '../modules/WalletBackup/BackupInfoScreen'
-import BackupStep1Screen from '../modules/WalletBackup/BackupStep1Screen'
-import BackupStepGoogle from '../modules/WalletBackup/BackupStepGoogle'
+import BackupStep0Screen from '@app/modules/WalletBackup/BackupStep0Screen'
+import BackupStep1Screen from '@app/modules/WalletBackup/BackupStep1Screen'
+import BackupStepGoogle from '@app/modules/WalletBackup/BackupStepGoogle'
 
 const WalletBackupStack = createStackNavigator(
     {
@@ -15,12 +14,6 @@ const WalletBackupStack = createStackNavigator(
                 headerShown: false
             }
         },
-        // BackupInfoScreen: {
-        //     screen: BackupInfoScreen,
-        //     navigationOptions: {
-        //         headerShown: false
-        //     }
-        // },
         BackupStep1Screen: {
             screen: BackupStep1Screen,
             navigationOptions: {
@@ -36,8 +29,6 @@ const WalletBackupStack = createStackNavigator(
     },
     {
         initialRouteName: 'BackupStep0Screen',
-        //mode: 'modal',
-        //cardStyle: { backgroundColor: AppStyle.backgroundColor }
     }
 );
 

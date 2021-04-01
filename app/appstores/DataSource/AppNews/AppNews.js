@@ -1,12 +1,12 @@
 /**
  * @version 0.9
  */
-import Database from '@app/appstores/DataSource/Database';
-import Log from '../../../services/Log/Log'
+import Database from '@app/appstores/DataSource/Database'
 
-import walletDS from '../Wallet/Wallet'
-import app from 'react-native-orientation/demo/app'
-import settingsActions from '../../Stores/Settings/SettingsActions'
+import store from '@app/store'
+
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import Log from '@app/services/Log/Log'
 
 const tableName = 'app_news'
 
@@ -152,9 +152,13 @@ class AppNews {
         await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE id=' + id).query()
     }
 
-    markAllAsOpened = async () => {
+    markAllAsOpened = async (ids = false) => {
         const now = Math.round(new Date().getTime() / 1000)
-        await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE news_opened_at IS NULL').query()
+        if (ids) {
+            await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE id IN (' + ids.join(',') + ')').query()
+        } else {
+            await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE news_opened_at IS NULL').query()
+        }
     }
 
     /**
@@ -213,12 +217,73 @@ class AppNews {
 
     /**
      * @param {string} params.walletHash
+     */
+    getSpecialNews = async (params) => {
+        let where = [`app_news.news_removed IS NULL AND app_news.news_group = 'GOOGLE_EVENTS'`]
+        where.push(`(app_news.news_opened_at=0 OR app_news.news_opened_at IS NULL)`)
+
+        if (params && params.walletHash) {
+            where.push(`app_news.wallet_hash='${params.walletHash}'`)
+        }
+        if (params && typeof params.newsServerId !== 'undefined') {
+            where.push(`app_news.news_server_id IS NOT NULL`)
+        }
+
+
+        if (where.length > 0) {
+            where = ' WHERE ' + where.join(' AND ')
+        } else {
+            where = ''
+        }
+
+        let limit = 10
+        if (params && typeof params.limit !== 'undefined' && params.limit > 0) {
+            limit = params.limit
+        }
+
+        const sql = `
+            SELECT
+                app_news.id,
+                app_news.news_custom_title AS newsCustomTitle,
+                app_news.news_json AS newsJson,
+                app_news.news_opened_at AS newsOpenedAt
+
+            FROM app_news
+            ${where}
+            ORDER BY app_news.news_priority, app_news.news_custom_created DESC, app_news.id DESC
+            LIMIT ${limit}
+        `
+
+        let res = []
+        try {
+            res = await Database.setQueryString(sql).query()
+            if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
+                return []
+            }
+            res = res.array
+            for (let i = 0, ic = res.length; i < ic; i++) {
+                const string = Database.unEscapeString(res[i].newsJson)
+                try {
+                    res[i].newsJson = JSON.parse(string)
+                } catch (e) {
+                    // noinspection ES6MissingAwait
+                    Log.errDaemon('DS/AppNews getSpecialNews json error ' + string + ' ' + e.message)
+                }
+            }
+            return res
+        } catch(e) {
+            Log.errDaemon('DS/AppNews getSpecialNews error ' + sql + ' ' + e.message)
+        }
+    }
+
+    /**
+     * @param {string} params.walletHash
      * @param {string} params.newsServerId
      * @param {string} params.newsNeedPopup
      * @param {string} params.limit
      */
     getAppNews = async (params) => {
-        const wallets = await walletDS.getWallets()
+        const wallets = store.getState().walletStore.wallets
         const names = {}
         let useNames = false
         if (wallets) {
@@ -247,7 +312,7 @@ class AppNews {
 
         const exchangeRatesNotifs = await settingsActions.getSetting('exchangeRatesNotifs')
         if (exchangeRatesNotifs === '0') {
-            where.push(`app_news.news_group !='RATES_CHANGING'`)
+            where.push(`app_news.news_group !='RATES_CHANGING' AND app_news.news_group != 'GOOGLE_EVENTS'`)
         }
 
         if (where.length > 0) {
@@ -295,7 +360,7 @@ class AppNews {
             res = await Database.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('AppNews getAppNews finished as empty')
-                return false
+                return []
             }
             res = res.array
             for (let i = 0, ic = res.length; i < ic; i++) {

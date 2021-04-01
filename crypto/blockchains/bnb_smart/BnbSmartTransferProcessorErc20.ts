@@ -10,6 +10,8 @@ export default class BnbSmartTransferProcessorErc20 extends EthTransferProcessor
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         additionalData.gasPrice = await BnbSmartNetworkPrices.getFees()
         additionalData.gasPriceTitle = 'speed_blocks_2'
-        return super.getFeeRate(data, privateData, additionalData)
+        const result = await super.getFeeRate(data, privateData, additionalData)
+        result.shouldShowFees = false
+        return result
     }
 }

@@ -1,27 +1,21 @@
-
+/**
+ * @version 0.41
+ */
 import React from 'react'
-import {
-    View,
-    Text,
-    ScrollView,
-    SafeAreaView,
-    StyleSheet
-} from 'react-native'
+import { View, ScrollView, SafeAreaView, StyleSheet} from 'react-native'
 
+import NavStore from '@app/components/navigation/NavStore'
 
+import { strings } from '@app/services/i18n'
 
-import NavStore from '../../components/navigation/NavStore'
+import { setFlowType, setMnemonicLength, setWalletName } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 
-import { strings } from '../../services/i18n'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import Header from '@app/components/elements/new/Header'
+import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 
-import { setFlowType, setMnemonicLength, setWalletName } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
-
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
-import ListItem from '../../components/elements/new/list/ListItem/Setting'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-import DaemonCache from '../../daemons/DaemonCache'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 
 class AddWalletScreen extends React.Component {
@@ -35,21 +29,17 @@ class AddWalletScreen extends React.Component {
     }
 
     handleImport = () => {
-        let number = DaemonCache.CACHE_WALLET_COUNT + 1
-        number = number ? number.toString() : '1'
-        MarketingEvent.logEvent('gx_view_create_import_screen_tap_import', {number, source : 'AddWalletScreen'}, 'GX')
-        setFlowType({
-            flowType: 'IMPORT_WALLET'
-        })
+        const walletNumber = (MarketingEvent.DATA.LOG_WALLETS_COUNT * 1 + 1).toString()
+        MarketingEvent.logEvent('gx_view_create_import_screen_tap_import', {walletNumber, source : 'WalletAddScreen'}, 'GX')
+        setFlowType({ flowType: 'IMPORT_WALLET', source : 'WalletAddScreen', walletNumber })
         setWalletName({ walletName: '' })
         NavStore.goNext('EnterMnemonicPhrase', { flowSubtype: 'importAnother' })
     }
 
     handleCreate = () => {
-        let number = DaemonCache.CACHE_WALLET_COUNT + 1
-        number = number ? number.toString() : '1'
-        MarketingEvent.logEvent('gx_view_create_import_screen_tap_create', {number, source : 'AddWalletScreen'}, 'GX')
-        setFlowType({ flowType: 'CREATE_NEW_WALLET' })
+        const walletNumber = (MarketingEvent.DATA.LOG_WALLETS_COUNT * 1 + 1).toString()
+        MarketingEvent.logEvent('gx_view_create_import_screen_tap_create', {walletNumber, source : 'WalletAddScreen'}, 'GX')
+        setFlowType({ flowType: 'CREATE_NEW_WALLET', source : 'WalletAddScreen', walletNumber })
         setWalletName({ walletName: '' })
         setMnemonicLength({ mnemonicLength: 128 })
         NavStore.goNext('BackupStep0Screen', { flowSubtype: 'createAnother' })

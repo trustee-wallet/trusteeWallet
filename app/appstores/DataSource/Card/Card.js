@@ -1,23 +1,23 @@
 /**
- * @version 0.9
+ * @version 0.41
  */
 import Database from '@app/appstores/DataSource/Database';
-import Log from '../../../services/Log/Log'
+import Log from '@app/services/Log/Log'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import config from '@app/config/config'
 
 const tableName = 'card'
 
+let CACHE_TOTAL = 0
 export default {
 
     /**
-     * @param {string} params.isPending
+     * @param {string} params.number
      * @returns {Promise<boolean|*>}
      */
     getCards: async (params) => {
         let where = []
         if (params) {
-            if (typeof params.isPending !== 'undefined' && params.isPending) {
-                where.push(`LOWER(card_verification_json) LIKE '%pending%'`)
-            }
             if (typeof params.number !== 'undefined' && params.number) {
                 where.push(`number='${params.number}'`)
             }
@@ -30,6 +30,7 @@ export default {
         const res = await Database.setQueryString(`
                 SELECT
                 id,
+                card_to_send_status AS cardToSendStatus,
                 card_name AS cardName,
                 card_holder AS cardHolder,
                 number AS number,
@@ -41,11 +42,15 @@ export default {
                 wallet_hash AS walletHash,
                 verification_server AS verificationServer,
                 card_email AS cardEmail,
-                card_details_json AS cardDetailsJson
+                card_details_json AS cardDetailsJson,
+                card_check_status AS cardCheckStatus
                 FROM card ${where}`).query()
         if (!res || typeof res.array === 'undefined' || res.array.length === 0) {
             Log.log('DS/Card finished as empty')
             return false
+        }
+        if (where === '') {
+            CACHE_TOTAL = res.array.length
         }
         return res.array
     },
@@ -55,16 +60,39 @@ export default {
             data.updateObj.cardVerificationJson = Database.escapeString(data.updateObj.cardVerificationJson)
         }
         await Database.setTableName(tableName).setUpdateData(data).update()
-        Log.log('DS/Card updateCard finished')
+    },
+
+    getCardVerificationJson : async (number) => {
+        const res = await Database.setQueryString(`
+                SELECT
+                card_verification_json AS cardVerificationJson
+                FROM card WHERE number='${number}'`).query()
+        if (!res || typeof res.array === 'undefined' || res.array.length === 0) {
+            console.log('DS/Card data finished as empty')
+            return false
+        }
+        const tmp = Database.unEscapeString(res.array[0].cardVerificationJson)
+        if (!tmp) {
+            return false
+        }
+        return JSON.parse(tmp)
     },
 
     saveCard: async (data) => {
         await Database.setTableName(tableName).setInsertData(data).insert()
+        CACHE_TOTAL = CACHE_TOTAL + 1
+        MarketingEvent.logEvent('gx_cards_add', { cardNumber : CACHE_TOTAL.toString()}, 'GX')
         Log.log('DS/Card saveCard finished')
     },
 
     deleteCard: async (cardID) => {
         await Database.setQueryString(`DELETE FROM card WHERE id=${cardID}`).query()
+        CACHE_TOTAL = CACHE_TOTAL - 1
+        MarketingEvent.logEvent('gx_cards_remove', { cardNumber : CACHE_TOTAL.toString()}, 'GX')
         Log.log('DS/Card deleteCard finished')
+    },
+
+    clearCards : async (data) => {
+        await Database.setQueryString(`DELETE FROM card WHERE card_create_wallet_hash='${data.walletHash}'`).query()
     }
 }

@@ -13,15 +13,16 @@ import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKey
 import BtcCashUtils from '../../../../crypto/blockchains/bch/ext/BtcCashUtils'
 import MoneroUtilsParser from '../../../../crypto/blockchains/xmr/ext/MoneroUtilsParser'
 import Log from '../../Log/Log'
-import { isFioAddressValid } from '../../../../crypto/blockchains/fio/FioUtils'
+
 import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
+import { isFioAddressValid } from '@crypto/blockchains/fio/FioUtils'
+import { isUnstoppableAddressValid } from '@crypto/services/UnstoppableUtils'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
 
 const cardNumberValid = require('fast-luhn')
 const DEFAULT_WORDS = require('./_words/english.json')
 const bitcoin = require('bitcoinjs-lib')
-const bech = require('bech32')
 
 async function _fioAddressValidation(obj) {
     const { value, type } = obj
@@ -29,7 +30,7 @@ async function _fioAddressValidation(obj) {
     if (!value || !type || !type.includes('_ADDRESS')) {
         return false
     }
-    return isFioAddressValid(value)
+    return isFioAddressValid(value) || isUnstoppableAddressValid(value)
 }
 
 async function _userDataValidation(obj) {

@@ -17,7 +17,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
 
     // in*148 + out*34 + 10 plus or minus 'in'
     SIZE_FOR_BASIC = 34
-    SIZE_FOR_INPUT = 148
+    SIZE_FOR_INPUT = 148 // TX_INPUT_PUBKEYHASH = 107
     SIZE_FOR_BC = 75
 
     constructor(settings: BlocksoftBlockchainTypes.CurrencySettings, builderSettings: BlocksoftBlockchainTypes.BuilderSettings) {
@@ -104,13 +104,17 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         const isRequired: any = {}
         let isAllRequired: boolean = true
         for (const unspent of unspents) {
-            utxos.push({
+            const input = {
                 txId: unspent.txid,
                 vout: unspent.vout,
                 // @ts-ignore
                 value: unspent.value * 1,
                 my: unspent
-            })
+            }// script
+            if (typeof unspent.address !== 'undefined' && unspent.address.indexOf('bc') === 0) {
+                input.script = '1234567890123456789012345678901234' // only for size in coinselect = 34
+            }
+            utxos.push(input)
             if (unspent.isRequired) {
                 if (typeof isRequired[unspent.txid] === 'undefined') {
                     isRequired[unspent.txid] = unspent
@@ -154,7 +158,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         console.log('---------------------')
         console.log('')
         */
-        
+
         const formatted = {
             inputs: [],
             outputs: [],

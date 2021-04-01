@@ -68,7 +68,8 @@ class AdvancedWalletScreen extends React.Component {
     }
 
     handleOpenRecoveryPhrase = (needPassword = true) => {
-        setFlowType({ flowType: 'BACKUP_WALLET' })
+        const { walletHash, walletNumber } = this.props.wallet
+        setFlowType({ flowType: 'BACKUP_WALLET', walletHash, walletNumber, source : 'AdvancedWalletScreen' })
         setLoaderStatus(false)
 
         const { lockScreenStatus } = this.props.settingsStore.keystore

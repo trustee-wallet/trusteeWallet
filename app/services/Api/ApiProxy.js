@@ -1,22 +1,29 @@
 /**
  * @version 0.32
  */
-import config from '../../config/config'
+import config from '@app/config/config'
 
-import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
-import { sublocale } from '../i18n'
+import { sublocale } from '@app/services/i18n'
 
-import MarketingEvent from '../Marketing/MarketingEvent'
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
-import AppNotificationListener from '../AppNotification/AppNotificationListener'
-import ApiV3 from './ApiV3'
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-import customCurrencyDS from '../../appstores/DataSource/CustomCurrency/CustomCurrency'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
-import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
-import Log from '../Log/Log'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
+import AppNotificationListener from '@app/services/AppNotification/AppNotificationListener'
+import ApiV3 from '@app/services/Api/ApiV3'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
+import customCurrencyDS from '@app/appstores/DataSource/CustomCurrency/CustomCurrency'
+import cardsDS from '@app/appstores/DataSource/Card/Card'
+
+import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
+import Log from '@app/services/Log/Log'
+import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
+import store from '@app/store'
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
+import UpdateWalletsDaemon from '@app/daemons/back/UpdateWalletsDaemon'
 
 async function _getAll(params) {
     const { mode: exchangeMode } = config.exchange
@@ -31,14 +38,35 @@ async function _getAll(params) {
     const link = config.proxy.apiEndpoints.baseURL + `/all?exchangeMode=${exchangeMode}&uid=${deviceToken}`
 
     const time = typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false
+    /*
+    try {
+        const now = await BlocksoftAxios.get(`https://api.v3.trustee.deals/data/server-time`)
+        if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
+            time = now.data.serverTime
+            Log.daemon('UpdateCardsDaemon msg from server ' + time)
+        }
+    } catch (e) {
+        // do nothing
+    }
+    */
+
     const signedData = await CashBackUtils.createWalletSignature(true, time)
     if (!signedData) {
         throw new Error('No signed for getNews')
     }
     const cashbackToken = CashBackUtils.getWalletToken()
+    MarketingEvent.DATA.LOG_CASHBACK = cashbackToken
     const parentToken = CashBackUtils.getParentToken()
+    MarketingEvent.DATA.LOG_PARENT = parentToken
+    let walletHash = MarketingEvent.DATA.LOG_WALLET
+    if (!walletHash || walletHash === false) {
+        walletHash = await BlocksoftKeysStorage.getSelectedWallet()
+        MarketingEvent.DATA.LOG_WALLET = walletHash
+    }
+    MarketingEvent.reinitIfNever()
 
     const forCustomTokens = await customCurrencyDS.getCustomCurrenciesForApi()
+    const forCards = await cardsDS.getCards()
     const forServer = await appNewsDS.getAppNewsForServer()
     const forServerIds = []
     if (forServer) {
@@ -51,6 +79,22 @@ async function _getAll(params) {
                 row.openedAt = row.openedAt + '000'
             }
         }
+    }
+    const forWallets = []
+    const wallet = store.getState().mainStore.selectedWallet
+    if (wallet && wallet.walletHash === walletHash) {
+        forWallets.push({
+            walletToSendStatus: wallet.walletToSendStatus,
+            walletHash: wallet.walletHash,
+            walletCashback: wallet.walletCashback,
+            walletIsHd: wallet.walletIsHd,
+            walletName: wallet.walletName,
+            walletUseLegacy: wallet.walletUseLegacy,
+            walletUseUnconfirmed: wallet.walletUseUnconfirmed,
+            walletIsHideTransactionForFee: wallet.walletIsHideTransactionForFee,
+            walletAllowReplaceByFee: wallet.walletAllowReplaceByFee,
+            walletIsBackedUp : wallet.walletIsBackedUp
+        })
     }
 
     const newsData = {
@@ -82,13 +126,17 @@ async function _getAll(params) {
         timestamp: +new Date()
     }
 
+    const walletAll = await ApiV3.initWallet({ walletHash }, 'ApiProxy')
+    const marketingAll = { ...MarketingEvent.DATA, CACHE_SERVER_TIME_DIFF}
     const allData = {
         newsData,
         cbData,
         cbOrders,
         forCustomTokens,
-        marketingAll: MarketingEvent.DATA,
-        walletAll: await ApiV3.initWallet(MarketingEvent.DATA.LOG_WALLET)
+        forCards,
+        forWallets,
+        marketingAll,
+        walletAll
     }
 
     const all = await BlocksoftAxios.post(link, allData)
@@ -97,6 +145,7 @@ async function _getAll(params) {
         if (typeof all.data.data.forCustomTokensOk !== 'undefined' && all.data.data.forCustomTokensOk && all.data.data.forCustomTokensOk.length > 0) {
             await customCurrencyDS.savedCustomCurrenciesForApi(all.data.data.forCustomTokensOk)
         }
+
         let msg = ''
         msg += 'ApiProxy._getAll feesHash ' + (all.data.data.feesHash || 'none')
         msg += ' ratesHash ' + (all.data.data.ratesHash || 'none')
@@ -116,9 +165,10 @@ async function _getRates(params) {
 }
 
 async function _checkServerTimestamp(serverTimestamp) {
-    const diff = Math.abs(new Date().getTime() - serverTimestamp)
-    if (diff > 6000) {
-        await Log.daemon('ApiProxy will ask server time diff ' + diff + ' with time ' + serverTimestamp)
+
+    CACHE_SERVER_TIME_DIFF = new Date().getTime() - serverTimestamp
+    if (Math.abs(CACHE_SERVER_TIME_DIFF) > 6000) {
+        await Log.daemon('ApiProxy will ask server time diff ' + CACHE_SERVER_TIME_DIFF + ' with time ' + serverTimestamp)
         CACHE_SERVER_TIME_NEED_TO_ASK = true
     } else {
         CACHE_SERVER_TIME_NEED_TO_ASK = false
@@ -130,6 +180,7 @@ let CACHE_LAST_TIME = false
 let CACHE_LAST_WALLET = false
 let CACHE_DATA = false
 let CACHE_SERVER_TIME_NEED_TO_ASK = false
+let CACHE_SERVER_TIME_DIFF = false // diff to make
 
 export default {
 
@@ -164,24 +215,22 @@ export default {
             let serverTimestamp = false
             try {
                 if (typeof all.data.status !== 'undefined') {
-                    if (all.data.status !== 'success') {
-                        if (typeof all.data.subdata !== 'undefined' && typeof all.data.subdata.serverTimestamp !== 'undefined') {
-                            if (typeof params === 'undefined') {
-                                params = {}
-                            }
-                            // error timestamp
-                            params.timestamp = all.data.subdata.serverTimestamp
-                            serverTimestamp = all.data.serverTimestamp
-                            all = false
-                        } else if (typeof all.data.serverTimestamp !== 'undefined') {
-                            // error timestamp
-                            params.timestamp = all.data.serverTimestamp
-                            serverTimestamp = all.data.serverTimestamp
-                            all = false
-                        } else {
-                            throw new Error(JSON.stringify(all.data))
+                    if (typeof all.data.subdata !== 'undefined' && typeof all.data.subdata.serverTimestamp !== 'undefined') {
+                        if (typeof params === 'undefined') {
+                            params = {}
                         }
+                        // error timestamp
+                        params.timestamp = all.data.subdata.serverTimestamp
+                        serverTimestamp = all.data.subdata.serverTimestamp
+                        all = false
+                    } else if (typeof all.data.serverTimestamp !== 'undefined') {
+                        // error timestamp
+                        params.timestamp = all.data.serverTimestamp
+                        serverTimestamp = all.data.serverTimestamp
+                    } else if (all.data.status !== 'success') {
+                        throw new Error(JSON.stringify(all.data))
                     }
+
                 }
             } catch (e) {
                 throw new Error(e.message + ' while _getServerTimestamp')
@@ -201,10 +250,18 @@ export default {
         }
         const res = all.data.data
 
-        if (typeof params === 'undefined' || typeof params.onlyRates === 'undefined') {
-            CACHE_DATA = res
-            CACHE_LAST_TIME = new Date().getTime()
-            CACHE_LAST_WALLET = MarketingEvent.DATA.LOG_WALLET
+        if (res) {
+            if (typeof params === 'undefined' || typeof params.onlyRates === 'undefined') {
+                CACHE_DATA = res
+                CACHE_LAST_TIME = new Date().getTime()
+                CACHE_LAST_WALLET = MarketingEvent.DATA.LOG_WALLET
+                if (params.source.indexOf('UpdateCardsDaemon') === -1) {
+                    await UpdateCardsDaemon.updateCardsDaemon(params, res)
+                }
+                if (params.source.indexOf('UpdateWalletsDaemon') === -1) {
+                    await UpdateWalletsDaemon.updateWalletsDaemon(params, res)
+                }
+            }
         }
         // console.log('ApiProxy finish ' + new Date().toISOString(), JSON.parse(JSON.stringify(params)))
         return res
@@ -215,6 +272,11 @@ export default {
         if (!CACHE_SERVER_TIME_NEED_TO_ASK) {
             return false
         }
+
+        if (CACHE_SERVER_TIME_DIFF !== false) {
+            return new Date().getTime() + -1 * CACHE_SERVER_TIME_DIFF
+        }
+
 
         const link = `https://api.v3.trustee.deals/data/server-time`
         let msg = false

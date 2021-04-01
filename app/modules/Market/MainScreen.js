@@ -1,10 +1,9 @@
 /**
- * @version 0.30
+ * @version 0.31
  * @author yura
  */
 
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 
 import {
     View,
@@ -24,14 +23,14 @@ import { CardIOModule } from 'react-native-awesome-card-io'
 import valid from 'card-validator'
 import _ from 'lodash'
 
-import NavStore from '@app/components/navigation/NavStore'
+import NavStore from '../../components/navigation/NavStore'
 
-import ApiV3 from '@app/services/Api/ApiV3'
-import Log from '@app/services/Log/Log'
-import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+import ApiV3 from '../../services/Api/ApiV3'
+import Log from '../../services/Log/Log'
+import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
 
 
-import { strings, sublocale } from '@app/services/i18n'
+import { strings, sublocale } from '../../services/i18n'
 import cardDS from '@app/appstores/DataSource/Card/Card'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { FileSystem } from '@app/services/FileSystem/FileSystem'
@@ -47,14 +46,13 @@ import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import config from '@app/config/config'
-import { SendActions } from '@app/appstores/Stores/Send/SendActions'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import { Cards } from '@app/services/Cards/Cards'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -75,15 +73,6 @@ class MarketScreen extends Component {
     }
 
     init = async () => {
-
-        let { currencyCode } = this.props.cryptoCurrency
-
-        const prev = NavStore.getPrevRoute().routeName
-
-        const side = prev === 'AccountScreen' ? 'OUT' : prev === 'ReceiveScreen' ? 'IN' : null
-
-        currencyCode = (prev === 'AccountScreen' || prev === 'ReceiveScreen') ? currencyCode : null
-
         const key = 'onlyOne'
         if (CACHE_INIT_KEY === key && this.state.inited) {
             return
@@ -92,6 +81,8 @@ class MarketScreen extends Component {
         this.setState({ inited: true })
 
         // here to do upload
+        const side = this.props.navigation.getParam('side')
+        const currencyCode = this.props.navigation.getParam('currencyCode')
         let apiUrl = await ApiV3.initData('MARKET', currencyCode, side)
 
         setTimeout(() => {
@@ -106,22 +97,22 @@ class MarketScreen extends Component {
         const { isLight } = this.context
 
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
-        Keyboard.addListener('keyboardWillShow', this.onKeyboardShow);
-        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
+        Keyboard.addListener('keyboardWillShow', this.onKeyboardShow)
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
-    componentWiilUnmount() {
+    componentWillUnmount() {
         const { isLight } = this.context
 
-        BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
-        Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow);
-        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
+        BackHandler.removeEventListener('hardwareBackPress', this.handlerBackPress)
+        Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow)
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
     onKeyboardShow = () => {
         const { isLight } = this.context
 
-        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
     handlerBackPress = () => {
@@ -162,8 +153,7 @@ class MarketScreen extends Component {
 
             cardData.numberPlaceholder = value.replace(' ', '')
 
-        }
-        else if (name === 'date') {
+        } else if (name === 'date') {
             cardData.datePlaceholder = ((value.replace(' ', '')).concat('00000000')).substring(0, 5)
         }
 
@@ -236,7 +226,7 @@ class MarketScreen extends Component {
                     }
                 }
             }
-            this.webref.postMessage(JSON.stringify({ 'data': cardData }))
+            this.webref && this.webref.postMessage(JSON.stringify({ 'data': cardData }))
         }
     }
 
@@ -246,9 +236,11 @@ class MarketScreen extends Component {
 
         try {
             const allData = JSON.parse(event.nativeEvent.data)
-            const { error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
+            const {
+                error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSend, didMount, navigationState, message, exchangeStatus,
-                useAllFunds, checkCamera } = allData
+                useAllFunds, checkCamera
+            } = allData
 
             Log.log('Market/MainScreen.onMessage parsed', event.nativeEvent.data)
 
@@ -256,6 +248,10 @@ class MarketScreen extends Component {
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
                 NavStore.goNext('HomeScreen')
                 return
+            }
+
+            if (checkCamera) {
+                this.checkCameraForWebView()
             }
 
             if (backToOld) {
@@ -267,10 +263,6 @@ class MarketScreen extends Component {
                     NavStore.goNext('ExchangeV3ScreenStack')
                 }
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
-            }
-
-            if (checkCamera) {
-                this.checkCameraForWebView()
             }
 
             if (typeof homePage !== 'undefined' && (homePage === true || homePage === false)) {
@@ -327,17 +319,20 @@ class MarketScreen extends Component {
 
     async checkCameraForWebView() {
         const res = await Camera.checkCameraOn('Market/MainScreen validateCard')
-        this.webref.postMessage(JSON.stringify({ cameraRes: res }))
+        this.webref && this.webref.postMessage(JSON.stringify({ cameraRes: res }))
     }
 
     async send(data) {
-        const limits = JSON.parse(data.limits)
-        const trusteeFee = JSON.parse(data.trusteeFee)
-
-        const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits)
-
         try {
-            Log.log('Market/MainScreen dataSend', data)
+            if (config.debug.cryptoErrors) {
+                console.log('Market/MainScreen send data ' + JSON.stringify(data))
+            }
+            Log.log('Market/MainScreen send data', data)
+
+            const limits = data.limits ? JSON.parse(data.limits) : false
+            const trusteeFee = data.trusteeFee ? JSON.parse(data.trusteeFee) : false
+
+            const minCrypto = typeof limits.limits !== 'undefined' && limits.limits ? BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits) : false
 
             const bseOrderData = {
                 amountReceived: null,
@@ -347,39 +342,31 @@ class MarketScreen extends Component {
                 inTxHash: null,
                 orderHash: data.orderHash,
                 orderId: data.orderHash,
-                outDestination: data.exchangeWayType === 'SELL' ? `${data.outDestination.substr(0, 2)}***${data.outDestination.substr(-4, 4)}` :
-                    data.outDestination,
+                outDestination: data.exchangeWayType === 'SELL'
+                    ? `${data.outDestination.substr(0, 2)}***${data.outDestination.substr(-4, 4)}`
+                    : data.outDestination,
                 outTxHash: null,
                 payinUrl: null,
                 requestedInAmount: { amount: data.amount, currencyCode: data.currencyCode },
                 requestedOutAmount: { amount: data.outAmount, currencyCode: data.outCurrency },
-                status: "pending_payin"
+                status: 'pending_payin'
             }
 
-            SendActions.setUiType({
-                ui: {
-                    uiType: 'TRADE_SEND',
-                    uiApiVersion: 'v3',
-                    uiProviderType: data.providerType, // 'FIXED' || 'FLOATING'
-                    uiInputAddress: typeof data.address !== 'undefined' && data.address && data.address !== ''
-                },
-                addData: {
-                    gotoReceipt: true,
-                    comment: data.comment || ''
-                }
-            })
-            await SendActions.startSend({
+            await SendActionsStart.startFromBSE({
                 addressTo: data.address,
-                amountPretty: data.amount.toString(),
+                amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
                 memo: data.memo,
+                comment: data.comment || '',
                 currencyCode: data.currencyCode,
-                isTransferAll: data.useAllFunds,
+                isTransferAll: data.useAllFunds
+            }, {
+                bseProviderType: data.providerType || 'NONE', //  'FIXED' || 'FLOATING'
                 bseOrderId: data.orderHash || data.orderId,
                 bseMinCrypto: minCrypto,
                 bseTrusteeFee: {
-                    value: trusteeFee.trusteeFee,
-                    currencyCode: trusteeFee.currencyCode,
-                    type: data.exchangeWayType,
+                    value: trusteeFee ? trusteeFee.trusteeFee : 0,
+                    currencyCode: trusteeFee ? trusteeFee.currencyCode : 'USD',
+                    type: 'MARKET',
                     from: data.currencyCode,
                     to: data.outCurrency
                 },
@@ -387,17 +374,19 @@ class MarketScreen extends Component {
             })
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('Market/MainScreen.send', e)
+                console.log('Market/MainScreen.send ' + e.message)
             }
             throw e
         }
     }
 
     async onTakePhoto(cardData) {
-        const res = await Camera.checkCameraOn('Market/MainScreen validateCard')
-        this.webref.postMessage(JSON.stringify({ cameraRes: res }))
-        if (!res) {
-            return
+        if (!await Camera.checkCameraOn('Market/MainScreen validateCard')) {
+            const res = await Camera.checkCameraOn('Market/MainScreen validateCard')
+            this.webref && this.webref.postMessage(JSON.stringify({ cameraRes: res }))
+            if (!res) {
+                return
+            }
         }
 
         // setLoaderStatus(true)
@@ -431,9 +420,9 @@ class MarketScreen extends Component {
                 this._onTakePhotoInner(res, cardData)
                 showError = false
             }
-            setLoaderStatus(false)
+            // setLoaderStatus(false)
             if (showError) {
-                this.webref.postMessage(JSON.stringify({ notPhoto: true }))
+                this.webref && this.webref.postMessage(JSON.stringify({ notPhoto: true }))
 
                 showModal({
                     type: 'INFO_MODAL',
@@ -491,7 +480,7 @@ class MarketScreen extends Component {
         } catch (e) {
             Log.err('Market/MainScreen._onTakePhotoInner error ' + e.message)
 
-            this.webref.postMessage(JSON.stringify({ notPhoto: true }))
+            this.webref && this.webref.postMessage(JSON.stringify({ notPhoto: true }))
 
             showModal({
                 type: 'INFO_MODAL',
@@ -521,7 +510,8 @@ class MarketScreen extends Component {
                     wallet_hash: walletHash,
                     verification_server: 'V3',
                     card_email: cardData.email,
-                    card_details_json: cardData.cardDetailsJson
+                    card_details_json: cardData.cardDetailsJson,
+                    card_check_status: cardData.cardCheckStatus
                 }]
             })
             Log.log('Market/MainScreen save cardData' + JSON.stringify(cardData))
@@ -619,33 +609,40 @@ class MarketScreen extends Component {
                 await this.resCardToWebView(numberCard)
             } else {
                 if (res) {
-                    this.webref.postMessage(JSON.stringify({ res: { cardID, res, numberCard } }))
+                    this.webref && this.webref.postMessage(JSON.stringify({ res: { cardID, res, numberCard } }))
                 }
             }
 
         } catch (e) {
-            this.webref.postMessage(JSON.stringify({ serverError: true }))
+            this.webref && this.webref.postMessage(JSON.stringify({ serverError: true }))
             Log.err('Market/MainScreen validate e', e)
         }
     }
 
     async resCardToWebView(numberCard) {
-        const cacheJson = await UpdateCardsDaemon.updateCardsDaemon({ force: true, numberCard })
-        let cardStatus = cacheJson
-        let card
-        if (typeof cacheJson === 'undefined' || !cacheJson) {
-            card = await cardDS.getCards({ number: numberCard })
-            cardStatus = JSON.parse(card[0].cardVerificationJson)
-        }
+        try {
+            let cardStatus = await UpdateCardsDaemon.updateCardsDaemon({ force: true, numberCard })
+            if (typeof cardStatus === 'undefined' || !cardStatus) {
+                cardStatus = await cardDS.getCardVerificationJson(numberCard)
+            }
+            if (config.debug.appErrors) {
+                console.log('Market/MainScreen resCardToWebView cardStatus ' + cardStatus.verificationStatus + ' ' + JSON.stringify(cardStatus))
+            }
 
-        if (cardStatus.verificationStatus === 'SUCCESS' || cardStatus.verificationStatus === 'CANCELED') {
-            this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
-            return true
-        } else {
-            this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
-            setTimeout(async () => {
-                await this.resCardToWebView(numberCard)
-            }, 30e3) //30 sec
+            if (cardStatus.verificationStatus === 'SUCCESS' || cardStatus.verificationStatus === 'CANCELED') {
+                this.webref && this.webref.postMessage(JSON.stringify({ 'res': { 'res': cardStatus, numberCard } }))
+                return true
+            } else {
+                this.webref && this.webref.postMessage(JSON.stringify({ 'res': { 'res': cardStatus, numberCard } }))
+                setTimeout(async () => {
+                    await this.resCardToWebView(numberCard)
+                }, 30e3) //30 sec
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('Market/MainScreen resCardToWebView error ' + e.message)
+            }
+            Log.err('Market/MainScreen resCardToWebView error ' + e.message)
         }
 
     }
@@ -667,8 +664,8 @@ class MarketScreen extends Component {
             type: item.type,
             walletHash: item.walletHash,
             card_email: item.email,
-            card_details_json: item.cardDetailsJson
-            // cardVerificationJson: JSON.stringify(res)
+            card_details_json: item.cardDetailsJson,
+            card_check_status: item.cardCheckStatus
         }
         if (typeof item.number !== 'undefined') {
             updateObj.number = item.number
@@ -696,13 +693,9 @@ class MarketScreen extends Component {
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
-            const { transferBalance } = await SendActions.countTransferAllBeforeStartSend({
-                currencyCode,
-                addressTo: addressToForTransferAll
-            })
+            const transferBalance = await SendActionsStart.getTransferAllBalanceFromBSE({ currencyCode, address })
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
-            this.webref.postMessage(JSON.stringify({ fees: { amount: amount || 0 } }))
+            this.webref && this.webref.postMessage(JSON.stringify({ fees: { amount: amount ? amount : 0 } }))
             return {
                 currencyBalanceAmount: amount,
                 currencyBalanceAmountRaw: transferBalance
@@ -711,8 +704,6 @@ class MarketScreen extends Component {
             if (config.debug.cryptoErrors) {
                 console.log('Market/MainScreen.handleTransferAll', e)
             }
-
-            this.webref.postMessage(JSON.stringify({ serverError: true }))
 
             Log.errorTranslate(e, 'Market/MainScreen.handleTransferAll', extend)
 
@@ -741,7 +732,7 @@ class MarketScreen extends Component {
         const { colors } = this.context
         return (
             <ActivityIndicator
-                size="large"
+                size='large'
                 style={{
                     backgroundColor: colors.common.header.bg, position: 'absolute',
                     top: 0,
@@ -778,7 +769,7 @@ class MarketScreen extends Component {
                             enabled={false}
                             hideKeyboardAccessoryView={false}
                             contentContainerStyle={{ flex: 1 }}
-                            style={{ flexGrow: 1 }} >
+                            style={{ flexGrow: 1 }}>
                             <WebView
                                 ref={webView => (this.webref = webView)}
                                 javaScriptEnabled={true}
@@ -830,21 +821,9 @@ class MarketScreen extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        cryptoCurrency: state.mainStore.selectedCryptoCurrency,
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
 MarketScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(MarketScreen)
+export default MarketScreen
 
 
 const styles = StyleSheet.create({

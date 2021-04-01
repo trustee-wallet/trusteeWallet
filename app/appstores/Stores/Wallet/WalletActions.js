@@ -1,16 +1,13 @@
 /**
  * @version 0.9
  */
-import store from '../../../store'
+import store from '@app/store'
 
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
-import walletDS from '../../DataSource/Wallet/Wallet'
-
-import settingsActions from '../Settings/SettingsActions'
-import { setSelectedWallet } from '../Main/MainStoreActions'
-
-import App from '../../Actions/App/App'
-import Log from '../../../services/Log/Log'
+import Log from '@app/services/Log/Log'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const { dispatch } = store
 
@@ -20,6 +17,7 @@ const walletActions = {
         Log.log('ACT/Wallet setAvailableWallets called')
         const wallets = await walletDS.getWallets()
 
+        MarketingEvent.DATA.LOG_WALLETS_COUNT = wallets ? wallets.length.toString() : '0'
         Log.log('ACT/Wallet setAvailableWallets found', wallets)
         dispatch({
             type: 'SET_WALLET_LIST',
@@ -38,30 +36,12 @@ const walletActions = {
         return setting
     },
 
-    /**
-     * @param {string} wallet.walletHash
-     * @param {string} wallet.walletIsHideTransactionForFee
-     * @param {string} wallet.walletUseUnconfirmed
-     * @param {string} wallet.walletUseLegacy
-     * @returns {Promise<void>}
-     */
     setUse: async (wallet) => {
-
         await walletDS.updateWallet(wallet)
-
-        await walletActions.setAvailableWallets()
-
-        await setSelectedWallet('ACT/Wallet setUse')
     },
 
     setWalletBackedUpStatus: async (walletHash) => {
-
         await walletDS.updateWallet({ walletHash, walletIsBackedUp: 1 })
-
-        await walletActions.setAvailableWallets()
-
-        await setSelectedWallet('ACT/Wallet setWalletBackedUpStatus')
-
     },
 
     getNewWalletName: async () => {
@@ -80,9 +60,7 @@ const walletActions = {
 
             if (tmpNewWalletName.length > 255) tmpNewWalletName = tmpNewWalletName.slice(0, 255)
 
-            await walletDS.changeWalletName(walletHash, tmpNewWalletName)
-            await setSelectedWallet('ACT/Wallet setNewWalletName')
-            await walletActions.setAvailableWallets()
+            await walletDS.updateWallet({walletHash, walletName : tmpNewWalletName})
             return true
         } catch (e) {
             Log.err('walletActions.setNewWalletName error:', e.message)

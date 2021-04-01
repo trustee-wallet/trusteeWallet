@@ -47,11 +47,11 @@ export default class BnbScannerProcessor {
      * https://dex.binance.org/api/v1/transactions/?address=bnb146lec0enyzz2x5kpna8kwelky8kumfhj05aspz&startTime=1609452000000&limit=100
      * https://docs.binance.org/api-reference/dex-api/paths.html#apiv1transactions
      * https://github.com/trustwallet/blockatlas/blob/b4f6dc360bed412ff555aa981d83e4421380f104/platform/binance/client.go#L43
-     * @param {string} address
+     * @param {string} scanData.account.address
      * @return {Promise<[UnifiedTransaction]>}
      */
-    async getTransactionsBlockchain(address) {
-        address = address.trim()
+    async getTransactionsBlockchain(scanData) {
+        const address = scanData.account.address.trim()
         BlocksoftCryptoLog.log('BnbScannerProcessor.getTransactions started', address)
 
         const apiServer = await BlocksoftExternalSettings.getStatic('BNB_SERVER')

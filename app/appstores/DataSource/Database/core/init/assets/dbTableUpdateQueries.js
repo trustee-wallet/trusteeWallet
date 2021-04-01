@@ -3,7 +3,6 @@ import axios from 'axios';
 import VersionCheck from 'react-native-version-check';
 
 import BlocksoftDict from '@crypto/common/BlocksoftDict';
-import { BlocksoftKeysStorage } from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage';
 
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions';
 import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystore';
@@ -15,7 +14,7 @@ import countries from '@app/assets/jsons/other/country-codes';
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 109,
+        maxVersion: 113,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -756,6 +755,24 @@ export default function getTableUpdateQueries() {
             109: {
                 queryString: `ALTER TABLE wallet_pub ADD COLUMN balance_scan_error TEXT NULL`
             },
+
+            110: {
+                queryString: `ALTER TABLE card ADD COLUMN card_check_status VARCHAR(256) NULL`
+            },
+
+			111: {
+                queryString: `ALTER TABLE card ADD COLUMN card_to_send_status INTEGER NULL`
+            },
+			
+			112: {
+                queryString: `ALTER TABLE card ADD COLUMN card_create_wallet_hash VARCHAR(256) NULL`
+            },
+
+			113: {
+                queryString: `ALTER TABLE wallet ADD COLUMN wallet_to_send_status INTEGER NULL`
+            },
+
+
         }
     }
 }

@@ -47,12 +47,12 @@ export default class XlmScannerProcessor {
 
     /**
      * https://horizon.stellar.org/accounts/GBH4TZYZ4IRCPO44CBOLFUHULU2WGALXTAVESQA6432MBJMABBB4GIYI/payments
-     * @param {string} address
-     * @return {Promise<[UnifiedTransaction]>}
+     * @param {string} scanData.account.address
+     * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactionsBlockchain(address) {
-        address = address.trim()
-        BlocksoftCryptoLog.log('XrpScannerProcessor.getTransactions started', address)
+    async getTransactionsBlockchain(scanData, source = '') {
+        const address = scanData.account.address.trim()
+        BlocksoftCryptoLog.log('XrpScannerProcessor.getTransactions started ' + address)
         const linkTxs = `${API_PATH}/accounts/${address}/transactions?order=desc&limit=50`
         let res = false
         try {
@@ -111,7 +111,7 @@ export default class XlmScannerProcessor {
         }
 
         const transactions = await this._unifyTransactions(address, res.data._embedded.records, basicTxs)
-        BlocksoftCryptoLog.log('XlmScannerProcessor.getTransactions finished', address)
+        BlocksoftCryptoLog.log('XlmScannerProcessor.getTransactions finished ' + address)
         return transactions
     }
 
