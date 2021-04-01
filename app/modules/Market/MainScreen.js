@@ -389,7 +389,6 @@ class MarketScreen extends Component {
             }
         }
 
-        // setLoaderStatus(true)
         try {
             Log.log('Market/MainScreen validateCard Camera.openCameraOrGallery started')
             const res = await Camera.openCameraOrGallery('Market/MainScreen validateCard')
@@ -420,7 +419,7 @@ class MarketScreen extends Component {
                 this._onTakePhotoInner(res, cardData)
                 showError = false
             }
-            // setLoaderStatus(false)
+
             if (showError) {
                 this.webref && this.webref.postMessage(JSON.stringify({ notPhoto: true }))
 
@@ -436,7 +435,7 @@ class MarketScreen extends Component {
             if (config.debug.appErrors) {
                 console.log('Market/MainScreen validateCard Camera.openCameraOrGallery error ' + e.message, e)
             }
-            // setLoaderStatus(false)
+
             Log.log('Market/MainScreen validateCard Camera.openCameraOrGallery error ' + e.message)
             showModal({
                 type: 'INFO_MODAL',
