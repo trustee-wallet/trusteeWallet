@@ -2,7 +2,7 @@
  * @version 0.41
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Keyboard } from 'react-native'
 import { connect } from 'react-redux'
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
@@ -93,11 +93,14 @@ class SendAdvancedSettings extends Component {
     }
 
     handleBack = () => {
+        Keyboard.dismiss()
         SendActionsUpdateValues.setTmpSelectedFee(false)
         NavStore.goBack()
     }
 
     handleApply = async () => {
+        Keyboard.dismiss()
+        
         const comment = this.state.comment
         setLoaderStatus(true)
         CACHE_IS_COUNTING = true

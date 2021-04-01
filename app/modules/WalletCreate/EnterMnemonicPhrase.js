@@ -271,7 +271,11 @@ class EnterMnemonicPhrase extends Component {
     }
 
     triggerMnemonicVisible = () => {
-        this.setState(state => ({ isMnemonicVisible: !state.isMnemonicVisible }))
+        if (!this.state.walletMnemonicSelected.length) {
+            this.textInput.focus()
+        } else {
+            this.setState(state => ({ isMnemonicVisible: !state.isMnemonicVisible }))
+        }
     }
 
     renderQrCode = () => {
@@ -346,6 +350,7 @@ class EnterMnemonicPhrase extends Component {
                                         placeholder={strings('walletCreate.phrasePlaceholder')}
                                         onChangeText={this.handleInputPhrase}
                                         value={phraseInputValue}
+                                        compRef={ref => {this.textInput = ref}}
                                         // HelperAction={this.renderQrCode}
                                     />
                                     {!!error && (

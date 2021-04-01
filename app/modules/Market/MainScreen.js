@@ -332,7 +332,7 @@ class MarketScreen extends Component {
             const limits = data.limits ? JSON.parse(data.limits) : false
             const trusteeFee = data.trusteeFee ? JSON.parse(data.trusteeFee) : false
 
-            const minCrypto = limits ? BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits) : false
+            const minCrypto = typeof limits.limits !== 'undefined' && limits.limits ? BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits) : false
 
             const bseOrderData = {
                 amountReceived: null,

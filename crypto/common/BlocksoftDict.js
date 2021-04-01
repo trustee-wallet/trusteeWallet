@@ -531,7 +531,7 @@ const Currencies = {
             currencyType: 'token',
             currencyName: 'BitTorrent TRC20',
             currencyCode: 'TRX_WBTT',
-            currencySymbol: 'BTT',
+            currencySymbol: 'WBTT',
             extendsProcessor: 'TRX_USDT',
             addressUiChecker: 'TRX',
             ratesCurrencyCode: 'BTT',
