@@ -272,7 +272,7 @@
         "description": "Приглашайте друзей и зарабатывайте деньги!",
         "descriptionSmall": "Приглашайте друзей и зарабатывайте!"
       },
-      "notifications": "Сообщения",
+      "notifications": "Уведомления",
       "localCurrency": "Локальная валюта",
       "scannerSettings" : "Сканирование",
       "scannerSubtitle": "Частота обновления балансов",
@@ -403,7 +403,7 @@
     "enterPromoPlaceholder": "Введите промокод",
     "enterInviteLinkPlaceholder": "Введите ссылку-приглашение",
     "applyButton": "Применить",
-    "wholeBalance": "Весь баланс",
+    "wholeBalance": "Всего заработано кешбэка",
     "cashbackBalance": "Баланс кешбэка",
     "cashbackToken": "Токен",
     "howItWorks": {
