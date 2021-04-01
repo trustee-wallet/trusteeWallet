@@ -1,7 +1,8 @@
 /**
- * @version 0.9
+ * @version 0.31
+ * @author yura
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import {
     View,
@@ -16,23 +17,22 @@ import { SwipeRow } from 'react-native-swipe-list-view'
 
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
-import RoundButton from '../../../components/elements/new/buttons/RoundButton'
+import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 
-import NavStore from '../../../components/navigation/NavStore'
-import GradientView from '../../../components/elements/GradientView'
-import CurrencyIcon from '../../../components/elements/CurrencyIcon'
-import ToolTips from '../../../components/elements/ToolTips'
+import NavStore from '@app/components/navigation/NavStore'
+import GradientView from '@app/components/elements/GradientView'
+import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 
-import { setSelectedAccount, setSelectedCryptoCurrency } from '../../../appstores/Stores/Main/MainStoreActions'
-import { getAccountCurrency } from '../../../appstores/Stores/Account/selectors'
-import currencyActions from '../../../appstores/Stores/Currency/CurrencyActions'
+import { setSelectedAccount, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
+import { getAccountCurrency } from '@app/appstores/Stores/Account/selectors'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
-import Log from '../../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import { strings } from '../../../services/i18n'
-import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
+import { strings } from '@app/services/i18n'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import { SIZE } from '../helpers';
 
@@ -94,7 +94,7 @@ class CryptoCurrency extends React.PureComponent {
                     <RoundButton
                         type="send"
                         containerStyle={styles.hiddenLayer__roundButton}
-                        onPress={this.props.handleSend}
+                        onPress={() => this.props.handleSend(this.props.account)}
                         noTitle
                     />
                 </View>
@@ -220,8 +220,9 @@ class CryptoCurrency extends React.PureComponent {
         )
     };
 
-    renderTooltip = (props) => {
-        if (typeof props === 'undefined') return <View />
+    render() {
+        // TODO: change condition - still need?
+        if (typeof this.props === 'undefined') return <View />
 
         return (
             <SwipeRow
@@ -229,32 +230,14 @@ class CryptoCurrency extends React.PureComponent {
                 rightOpenValue={-70}
                 stopLeftSwipe={160}
                 stopRightSwipe={-90}
-                swipeToOpenPercent={20}
-                swipeToClosePercent={10}
+                swipeToOpenPercent={5}
+                swipeToClosePercent={5}
                 setScrollEnabled={this.props.setScrollEnabled}
             >
                 {this.renderHiddenLayer()}
-                {this.renderVisibleLayer(props)}
+                {this.renderVisibleLayer(this.props)}
             </SwipeRow>
         );
-    }
-
-    render() {
-        const { cryptoCurrency, account } = this.props
-
-        // TODO: change condition
-        return cryptoCurrency.currencyCode === 'BTC'
-            ? (
-                <ToolTips
-                    animatePress={true}
-                    height={150}
-                    mainComponentProps={{ cryptoCurrency, account }}
-                    MainComponent={this.renderTooltip}
-                    type={'HOME_SCREEN_CRYPTO_BTN_TIP'}
-                    nextCallback={this.handleCurrencySelect}
-                />
-            )
-            : this.renderTooltip({ cryptoCurrency, account })
     }
 }
 
@@ -318,7 +301,6 @@ const styles = StyleSheet.create({
     },
     cryptoList__item: {
         borderRadius: SIZE,
-        minHeight: 102, // needed for tooltip
     },
     cryptoList__item__content: {
         flex: 1,

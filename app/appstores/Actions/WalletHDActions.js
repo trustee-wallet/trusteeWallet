@@ -1,17 +1,16 @@
 /**
  * @version 0.9
  */
-import store from '../../store'
+import store from '@app/store'
 
-import Log from '../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import walletActions from '../Stores/Wallet/WalletActions'
-import { setSelectedAccount, setSelectedWallet } from '../../appstores/Stores/Main/MainStoreActions'
+import { setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
 
-import walletPubDS from '../DataSource/Wallet/WalletPub'
-import walletDS from '../DataSource/Wallet/Wallet'
-import accountHdDS from '../DataSource/Account/AccountHd'
-import accountDS from '../DataSource/Account/Account'
+import walletPubDS from '@app/appstores/DataSource/Wallet/WalletPub'
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
+import accountHdDS from '@app/appstores/DataSource/Account/AccountHd'
+import accountDS from '@app/appstores/DataSource/Account/Account'
 
 const walletHDActions = {
 
@@ -20,8 +19,6 @@ const walletHDActions = {
         Log.log('ACT/WalletHD manual turnOn called ' + walletHash)
 
         await walletDS.updateWallet({ walletHash, walletIsHd: 1 })
-        await setSelectedWallet('ACT/WalletHD manual turnOn' )
-        await walletActions.setAvailableWallets()
 
         try {
             await walletHDActions.hdFromTrezor({ walletHash, force: true, currencyCode: 'BTC' }, 'TURN_ON')

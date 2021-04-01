@@ -73,11 +73,11 @@ class EthRawDS {
                         // do nothing
                     }
 
-                    if (typeof transactionLog.successResult === 'undefined' || !transactionLog.successResult) {
+                    if (transactionLog && typeof transactionLog.currencyCode !== 'undefined' && (typeof transactionLog.successResult === 'undefined' || !transactionLog.successResult)) {
                         const successProxy = config.proxy.apiEndpoints.baseURL + '/send/sendtx'
-
                         let checkResult = false
                         try {
+                            transactionLog.selectedFee.isRebroadcast = true
                             checkResult = await BlocksoftAxios.post(successProxy, {
                                 raw: row.transactionRaw,
                                 txRBF: typeof transactionLog.txRBF !== 'undefined' ? transactionLog.txRBF : false,

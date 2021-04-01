@@ -3,35 +3,24 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    SafeAreaView,
-    TouchableOpacity
-} from 'react-native'
-import AsyncStorage from '@react-native-community/async-storage'
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native'
 
 import EntypoIcon from 'react-native-vector-icons/Entypo'
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import { setFlowType, setWalletName } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
+import { strings } from '@app/services/i18n'
 
-import { strings } from '../../services/i18n'
-
-import DaemonCache from '../../daemons/DaemonCache'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import DaemonCache from '@app/daemons/DaemonCache'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import Wallet from './elements/Wallet'
-import Header from '../../components/elements/new/Header'
+import Header from '@app/components/elements/new/Header'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import Log from '../../services/Log/Log'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-import { getIsBalanceVisible } from '../../appstores/Stores/Settings/selectors'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
 
 class WalletListScreen extends Component {
@@ -50,7 +39,7 @@ class WalletListScreen extends Component {
     componentDidMount() {
         this.getBalanceVisibility()
     }
-    
+
     getBalanceVisibility = () => {
         const originalVisibility = this.props.isBalanceVisible
         this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
@@ -85,7 +74,6 @@ class WalletListScreen extends Component {
 
         const { selectedWallet, selectedBasicCurrency } = this.props.mainStore
         const { wallets } = this.props
-        const { accountList } = this.props.accountStore
 
         let totalBalance = 0
         let localCurrencySymbol = selectedBasicCurrency.symbol
@@ -126,12 +114,12 @@ class WalletListScreen extends Component {
                                 activeOpacity={0.9}
                                 hitSlop={{ top: 20, left: 20, right: isBalanceVisible ? 60 : 20, bottom: 30 }}
                             >
-                                <Text style={[styles.balaneTitle, { color: colors.common.text2 }]}>{strings('settings.walletList.totalBalance')}</Text>
+                                <Text style={[styles.balanceTitle, { color: colors.common.text2 }]}>{strings('settings.walletList.totalBalance')}</Text>
                                 {
                                     isBalanceVisible ? (
-                                        <Text style={[styles.balaneValue, { color: colors.common.text1 }]}>{localCurrencySymbol} {totalBalance}</Text>
+                                        <Text style={[styles.balanceValue, { color: colors.common.text1 }]}>{localCurrencySymbol} {totalBalance}</Text>
                                     ) : (
-                                        <Text style={[styles.balaneValue, styles.balanceValueHidden, { color: colors.common.text1 }]}>****</Text>
+                                        <Text style={[styles.balanceValue, styles.balanceValueHidden, { color: colors.common.text1 }]}>****</Text>
                                     )
                                 }
                             </TouchableOpacity>
@@ -220,13 +208,13 @@ const styles = StyleSheet.create({
         marginRight: 2,
         marginTop: 1,
     },
-    balaneTitle: {
+    balanceTitle: {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 14,
         lineHeight: 18,
         letterSpacing: 1,
     },
-    balaneValue: {
+    balanceValue: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 17,
         lineHeight: 17,

@@ -1,13 +1,13 @@
 /**
- * @version 0.11
+ * @version 0.41
  */
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
-import Log from '../../services/Log/Log'
-import ApiRates from '../../services/Api/ApiRates'
+import Log from '@app/services/Log/Log'
+import ApiRates from '@app/services/Api/ApiRates'
 
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
-import currencyDS from '../../appstores/DataSource/Currency/Currency'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import currencyDS from '@app/appstores/DataSource/Currency/Currency'
 
 const CACHE_SAVED = {}
 
@@ -17,7 +17,6 @@ class UpdateCurrencyRateDaemon {
      * @return {Promise<void>}
      */
     updateCurrencyRate = async (params) => {
-
         Log.daemon('UpdateCurrencyRateDaemon started ' + params.source)
 
         const res = await ApiRates.getRates(params)
@@ -74,6 +73,7 @@ class UpdateCurrencyRateDaemon {
             throw e
         }
 
+        const updatedCurrencies = []
         try {
             for (currency of res.cryptoCurrencies) {
                 let codes = false
@@ -98,6 +98,10 @@ class UpdateCurrencyRateDaemon {
                 for (code of codes) {
                     delete toSearch[code]
                     if (typeof CACHE_SAVED[code] === 'undefined' || CACHE_SAVED[code] !== updateObj.currencyRateScanTime) {
+                        updatedCurrencies.push({
+                            ...updateObj,
+                            currencyCode: code
+                        })
                         res = await currencyDS.updateCurrency({ updateObj, key: { currencyCode: code } })
                         CACHE_SAVED[code] = updateObj.currencyRateScanTime
                     } else {
@@ -116,7 +120,7 @@ class UpdateCurrencyRateDaemon {
         Log.daemon('UpdateCurrencyRateDaemon finished')
 
         try {
-            await currencyActions.setCryptoCurrencies()
+            if (updatedCurrencies.length) await currencyActions.updateCryptoCurrencies(updatedCurrencies)
         } catch (e) {
             e.message += 'in setCryptoCurrencies'
             throw e

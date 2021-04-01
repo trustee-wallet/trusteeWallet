@@ -18,7 +18,6 @@ import NavStore from '../../components/navigation/NavStore'
 
 import AsyncStorage from '@react-native-community/async-storage'
 
-import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
@@ -206,7 +205,6 @@ class SettingsMainScreen extends React.Component {
         })
 
         CashBackSettings.init()
-        ExchangeActions.init()
 
         Vibration.vibrate(100)
     }

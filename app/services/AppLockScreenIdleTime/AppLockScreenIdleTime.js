@@ -17,7 +17,6 @@ import {setBlurStatus} from "../../appstores/Stores/Main/MainStoreActions"
 import UpdateOneByOneDaemon from "../../daemons/back/UpdateOneByOneDaemon";
 import UpdateAccountListDaemon from "../../daemons/view/UpdateAccountListDaemon";
 import UpdateAppNewsListDaemon from "../../daemons/view/UpdateAppNewsListDaemon";
-import UpdateCurrencyListDaemon from "../../daemons/view/UpdateCurrencyListDaemon";
 
 const TIME_DIFF = 300000
 
@@ -77,7 +76,6 @@ class AppLockScreenIdleTime {
             UpdateOneByOneDaemon.stop()
             UpdateAccountListDaemon.stop()
             UpdateAppNewsListDaemon.stop()
-            UpdateCurrencyListDaemon.stop()
 
             initFunction(() => {
                 const {lockScreenStatus} = store.getState().settingsStore.keystore
@@ -113,7 +111,6 @@ class AppLockScreenIdleTime {
                         UpdateOneByOneDaemon.stop()
                         UpdateAccountListDaemon.stop()
                         UpdateAppNewsListDaemon.stop()
-                        UpdateCurrencyListDaemon.stop()
                         lockScreenAction.setFlowType({
                             flowType: ''
                         })
@@ -134,7 +131,6 @@ class AppLockScreenIdleTime {
                 UpdateOneByOneDaemon.unstop()
                 UpdateAccountListDaemon.unstop()
                 UpdateAppNewsListDaemon.unstop()
-                UpdateCurrencyListDaemon.unstop()
             }
             if (this._isBlur) {
                 setBlurStatus(false)

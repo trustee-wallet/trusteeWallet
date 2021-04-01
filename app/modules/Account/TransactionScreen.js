@@ -1,5 +1,6 @@
 /**
- * @version 0.30
+ * @version 0.31
+ * @author yura
  */
 import React, { Component } from 'react'
 import {
@@ -10,62 +11,58 @@ import {
     TouchableOpacity, Dimensions
 } from 'react-native'
 import { connect } from 'react-redux'
-import { strings } from '../../services/i18n'
+import { strings } from '@app/services/i18n'
 import Header from './elements/transactionHeader'
-import NavStore from '../../components/navigation/NavStore'
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import NavStore from '@app/components/navigation/NavStore'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import Feather from 'react-native-vector-icons/Feather'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 
+import AsyncStorage from '@react-native-community/async-storage'
 
-import Log from '../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import UIDict from '../../services/UIDict/UIDict'
+import UIDict from '@app/services/UIDict/UIDict'
 
-import LetterSpacing from '../../components/elements/LetterSpacing'
-import Loader from '../../components/elements/LoaderItem'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
 import TransactionItem from './elements/TransactionItem'
 
 import Buttons from './elements/buttons'
 
 import { Pages } from 'react-native-pages'
 
-import DaemonCache from '../../daemons/DaemonCache'
+import DaemonCache from '@app/daemons/DaemonCache'
 
-import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-import Api from '../../services/Api/ApiV3'
-import transactionDS from '../../appstores/DataSource/Transaction/Transaction'
-import transactionActions from '../../appstores/Actions/TransactionActions'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
+import transactionActions from '@app/appstores/Actions/TransactionActions'
 
-import { capitalize } from '../../services/UI/Capitalize/Capitalize'
+import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
 
-import store from '../../store'
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import { BlocksoftTransfer } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
-import Toast from '../../services/UI/Toast/Toast'
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
+import store from '@app/store'
+import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import Toast from '@app/services/UI/Toast/Toast'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 
-import InsertShadow from 'react-native-inset-shadow'
-import GradientView from '../../components/elements/GradientView'
-import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
-import config from '../../config/config'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
+import GradientView from '@app/components/elements/GradientView'
+import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
+import config from '@app/config/config'
 import {
     setLoaderStatus,
     setSelectedAccount,
     setSelectedCryptoCurrency
-} from '../../appstores/Stores/Main/MainStoreActions'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
+} from '@app/appstores/Stores/Main/MainStoreActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
+let CACHE_DELETE_ORDER_ID = ''
 class TransactionScreen extends Component {
 
     constructor(props) {
@@ -170,7 +167,13 @@ class TransactionScreen extends Component {
                 currencyCode = transaction.currencyCode
             }
 
-            const { cryptoCurrency } = SendActions.findWalletPlus(currencyCode)
+            const { cryptoCurrencies } = store.getState().currencyStore
+            let cryptoCurrency = { currencyCode: false }
+            for (const tmp of cryptoCurrencies) {
+                if (tmp.currencyCode === currencyCode) {
+                    cryptoCurrency = tmp
+                }
+            }
 
             this.init(tx, cryptoCurrency)
 
@@ -382,7 +385,39 @@ class TransactionScreen extends Component {
     }
 
     handleLink = (link) => {
-        NavStore.goNext('WebViewScreen', { url: link, title: strings('account.transactionScreen.explorer') })
+
+        const now = new Date().getTime()
+        const diff = now - this.props.cacheAsked * 1
+        if (!this.props.cacheAsked || diff > 10000) {
+            showModal({
+                type: 'YES_NO_MODAL',
+                title: strings('account.externalLink.title'),
+                icon: 'WARNING',
+                description: strings('account.externalLink.description')
+            }, () => {
+                AsyncStorage.setItem('asked', now + '')
+                this.props.cacheAsked = now
+                this.openLink(link)
+            })
+        } else {
+            this.openLink(link)
+        }
+
+        // NavStore.goNext('WebViewScreen', { url: link, title: strings('account.transactionScreen.explorer') })
+    }
+
+    openLink = (link) => {
+        Linking.canOpenURL(link).then(supported => {
+            if (supported) {
+                let linkUrl = link
+                if (linkUrl.indexOf('?') === -1) {
+                    linkUrl += '?from=trustee'
+                }
+                Linking.openURL(linkUrl)
+            } else {
+                Log.err('Account.AccountScreen Dont know how to open URI', link)
+            }
+        })
     }
 
     prepareTransactionFeeToView = (transaction) => {
@@ -613,7 +648,7 @@ class TransactionScreen extends Component {
 
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ color: colors.common.text1, fontSize: 17 }} />
 
-        if (transactionDirection === 'income' || transactionDirection === 'claim') {
+        if (transactionDirection === 'income' || transactionDirection === 'claim' || transactionDirection === 'swap_income') {
             arrowIcon = <Feather name={'arrow-down-left'} style={{ color: colors.common.text1, fontSize: 17 }} />
         }
         if (transactionDirection === 'self') {
@@ -697,21 +732,7 @@ class TransactionScreen extends Component {
             return false
         }
         array.push({ icon: 'canceled', title: strings('account.transactionScreen.removeRbf'), action: async () => {
-            await SendActions.cleanData()
-            SendActions.setUiType({
-                ui: {
-                    uiType : 'TRANSACTION_SCREEN_REMOVE'
-                },
-                addData: {
-                    gotoReceipt: true,
-                }
-            })
-            await SendActions.startSend({
-                addressTo : account.address,
-                amountRaw : transaction.addressAmount,
-                transactionRemoveByFee : transaction.transactionHash,
-                transactionBoost : transaction
-            })
+            await SendActionsStart.startFromTransactionScreenRemove(account, transaction)
         }})
 
     }
@@ -722,13 +743,16 @@ class TransactionScreen extends Component {
             return false
         }
         array.push({ icon: 'delete', title: strings('account.transactionScreen.remove'), action: async () => {
+                // called 3 times on one click!!!
+                if (CACHE_DELETE_ORDER_ID === transaction.bseOrderData.orderId) return false
+                CACHE_DELETE_ORDER_ID = transaction.bseOrderData.orderId
                 setLoaderStatus(true)
                 try {
                     await UpdateTradeOrdersDaemon.removeId(transaction.bseOrderData.orderId)
                 } catch (e) {
+                    CACHE_DELETE_ORDER_ID = false
                     Log.err('TransactionScreen.removeButton error ' + e.message)
                 }
-                NavStore.goBack()
                 setLoaderStatus(false)
         }})
     }
@@ -742,8 +766,7 @@ class TransactionScreen extends Component {
         if (!account || typeof account.currencyCode === 'undefined') {
             return false
         }
-        // Log.log('TransactionScreen.renderReplaceByFee', transaction)
-        if (transaction.transactionHash === 'undefined' || !transaction.transactionHash) {
+        if (transaction.transactionHash === 'undefined' || !transaction.transactionHash || transaction.transactionHash === '') {
             return false
         }
         if (transaction.transactionBlockchainStatus !== 'new' && transaction.transactionBlockchainStatus !== 'missing') {
@@ -757,9 +780,7 @@ class TransactionScreen extends Component {
             return false
         }
         array.push({ icon: 'rbf', title: strings('account.transactionScreen.booster'), action: async () => {
-
-
-                if (transaction.bseOrderData && typeof transaction.bseOrderData.disableTBK  !== 'undefined') {
+                if (transaction.bseOrderData && typeof transaction.bseOrderData.disableTBK !== 'undefined') {
                     if (transaction.bseOrderData.disableTBK) {
                         showModal({
                             type: 'INFO_MODAL',
@@ -770,28 +791,7 @@ class TransactionScreen extends Component {
                         return false
                     }
                 }
-
-            const params = {
-                amountRaw : transaction.addressAmount,
-                transactionBoost : transaction
-            }
-            if (transaction.transactionDirection === 'income') {
-                params.transactionSpeedUp = transaction.transactionHash
-                params.addressTo = account.address
-            } else {
-                params.transactionReplaceByFee = transaction.transactionHash
-                params.addressTo = transaction.addressTo
-            }
-            await SendActions.cleanData()
-            SendActions.setUiType({
-                ui: {
-                    uiType : 'TRANSACTION_SCREEN'
-                },
-                addData: {
-                    gotoReceipt: true,
-                }
-            })
-            await SendActions.startSend(params)
+                await SendActionsStart.startFromTransactionScreenBoost(account, transaction)
         }})
     }
 
@@ -1105,7 +1105,6 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         cryptoCurrency: state.mainStore.selectedCryptoCurrency,
         account: state.mainStore.selectedAccount,
-        exchangeStore: state.exchangeStore,
         settingsStore: state.settingsStore,
         cashBackStore: state.cashBackStore
     }

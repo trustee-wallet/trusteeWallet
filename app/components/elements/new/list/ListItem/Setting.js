@@ -141,7 +141,8 @@ export default function SettingListItem(props) {
         onLongPress,
         delayLongPress = 5000,
         type,
-        ExtraView
+        ExtraView,
+        ExtraViewParams
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -172,7 +173,7 @@ export default function SettingListItem(props) {
                     </View>
                 </TouchableOpacity>
                 {(ExtraView && switchParams.value) && (
-                    <ExtraView />
+                    <ExtraView ExtraViewParams={ExtraViewParams}/>
                 )}
             </>
         )
@@ -203,7 +204,7 @@ export default function SettingListItem(props) {
                     </View>
                 </TouchableOpacity>
                 {ExtraView && (
-                    <ExtraView />
+                    <ExtraView ExtraViewParams={ExtraViewParams} />
                 )}
                 { !last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }} />}
             </View>

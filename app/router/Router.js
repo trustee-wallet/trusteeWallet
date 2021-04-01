@@ -19,14 +19,12 @@ import QRCodeScannerScreen from '../modules/QRCodeScanner/QRCodeScannerScreen'
 
 import HomeScreenStack from './HomeStack'
 import ExchangeV3ScreenStack from './ExchangeV3ScreenStack'
-import TradeScreenStack from './TradeScreenStack'
 import SettingsScreenStack from './SettingsStack'
 
 import NotificationsScreen from '../modules/Notifications'
 
 import WebViewScreen from '../modules/WebView'
 
-import AddCardScreen from '../modules/Card'
 import SendScreen from '../modules/Send/SendScreen'
 import SendAdvancedSettingsScreen from '../modules/Send/SendAdvancedSettings'
 import ReceiptScreen from '../modules/Send/ReceiptScreen'
@@ -50,7 +48,6 @@ import ReceiveScreen from '../modules/Account/ReceiveScreen'
 import TransactionScreen from '../modules/Account/TransactionScreen'
 import CheckV3DataScreen from '../modules/Account/CheckV3'
 import AddAssetScreen from '../modules/AddAsset/AddAssetScreen'
-import SMSCodeScreen from '../modules/Trade/SMSCodeScreen'
 import WalletConnectScreen from '../modules/WalletConnect/WalletConnectScreen'
 
 import MarketScreen from '../modules/Market/MainScreen'
@@ -273,13 +270,6 @@ const MainNavigator = createStackNavigator({
             }
         },
 
-        TradeScreenStack: {
-            screen: TradeScreenStack,
-            navigationOptions: {
-                headerShown: false
-            }
-        },
-
         ExchangeV3ScreenStack: {
             screen: ExchangeV3ScreenStack,
             navigationOptions: {
@@ -327,20 +317,8 @@ const MainNavigator = createStackNavigator({
                 headerShown: false
             }
         },
-        AddCardScreen: {
-            screen: AddCardScreen,
-            navigationOptions: {
-                headerShown: false
-            }
-        },
         LoadScreen: {
             screen: LoadScreen,
-            navigationOptions: {
-                headerShown: false
-            }
-        },
-        SMSCodeScreen: {
-            screen: SMSCodeScreen,
             navigationOptions: {
                 headerShown: false
             }

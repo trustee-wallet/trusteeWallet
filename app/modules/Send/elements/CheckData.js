@@ -1,14 +1,15 @@
 /**
- * @version 0.1
+ * @version 0.31
  * @author yura
  */
 
 import React from 'react'
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 
-import LetterSpacing from '../../../components/elements/LetterSpacing'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
 
-import { useTheme } from '../../../modules/theme/ThemeProvider'
+import { useTheme } from '@app/modules/theme/ThemeProvider'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 
 const CheckData = (props) => {
@@ -18,14 +19,24 @@ const CheckData = (props) => {
     const {
         name,
         value,
-        subvalue
+        subvalue,
+        icon,
+        iconCallback
     } = props
 
     return (
         <View style={{ flexDirection: 'row', paddingHorizontal: 16, justifyContent: 'space-between', paddingTop: 22 }}>
-            <View style={{ width: '40%' }}>
+            <TouchableOpacity style={{ width: '40%', flexDirection: 'row', alignItems: 'center' }} disabled={!iconCallback} onPress={() => iconCallback ? iconCallback() : null}>
                 <Text style={{...styles.name, color: colors.sendScreen.amount }}>{name}</Text>
-            </View>
+                    {icon && 
+                    <MaterialCommunityIcons
+                        name="information-outline"
+                        size={20}
+                        color={'#864DD9'}
+                        style={{ paddingLeft: 2, marginTop: 3 }} 
+                        />
+                    }
+            </TouchableOpacity>
             <View style={{ alignItems: 'flex-end' }}>
                 <LetterSpacing numberOfLines={2} text={value} textStyle={{...styles.value, color: colors.sendScreen.amount}} letterSpacing={1} />
                 {subvalue && (
@@ -38,23 +49,23 @@ const CheckData = (props) => {
 
 export default CheckData
 
-const styles = {
+const styles  = StyleSheet.create({
     name: {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 14,
-        fontHeight: 18,
+        lineHeight: 18,
         letterSpacing: 0.5
     },
     value: {
         fontFamily: 'SFUIDisplay-Bold',
         fontSize: 14,
-        fontHeight: 14,
+        lineHeight: 18,
 
     },
     subValue: {
         fontFamily: 'SFUIDisplay-Bold',
         fontSize: 12,
-        fontHeight: 12,
+        lineHeight: 12,
         color: '#999999',
     }
-}
+})

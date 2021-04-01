@@ -1,93 +1,29 @@
 /**
- * @version 0.10
+ * @version 0.41
  */
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { View } from 'react-native'
+import React from 'react'
+import { StyleSheet, View } from 'react-native'
 
-import Layout from '../../../components/elements/modal/Layout'
-import Title from '../../../components/elements/modal/Title'
-import Text from '../../../components/elements/modal/Text'
-import Button from '../../../components/elements/modal/Button'
-import Icon from '../../../components/elements/modal/Icon'
+import Layout from '@app/components/elements/modal/Layout'
+import Title from '@app/components/elements/modal/Title'
+import Text from '@app/components/elements/modal/Text'
+import Button from '@app/components/elements/modal/Button'
+import Icon from '@app/components/elements/modal/Icon'
 
-import { hideModal, showModal } from '../../../appstores/Stores/Modal/ModalActions'
+import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import NavStore from '../../../components/navigation/NavStore'
+import { strings } from '@app/services/i18n'
 
-import Log from '../../../services/Log/Log'
-import { strings } from '../../../services/i18n'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import App from '../../../appstores/Actions/App/App'
-import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
-import { setCallback, proceedSaveGeneratedWallet } from '../../../appstores/Stores/CreateWallet/CreateWalletActions'
-import walletActions from '../../../appstores/Stores/Wallet/WalletActions'
-
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
-
-class Skip extends Component {
-
-    constructor(props) {
-        super(props)
-    }
+class Skip extends React.PureComponent {
 
     handleSkip = async () => {
-        hideModal()
-
-        const { walletName, walletMnemonic, callback } = this.props.createWallet
-
-        try {
-            setLoaderStatus(true)
-
-            let tmpWalletName = walletName
-
-            try {
-                if (!tmpWalletName) {
-                    tmpWalletName = await walletActions.getNewWalletName()
-                }
-            } catch (e) {
-                e.message += ' while getNewWalletName'
-                throw e
-            }
-
-            let walletHash = false
-            try {
-                walletHash = await proceedSaveGeneratedWallet({
-                    walletName: tmpWalletName,
-                    walletMnemonic
-                })
-            } catch (e) {
-                e.message += ' while proceedSaveGeneratedWallet'
-                throw e
-            }
-
-            try {
-                await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletBackup.handleSkip' })
-            } catch (e) {
-                e.message += ' while refreshWalletsStore'
-                throw e
-            }
-
-            setLoaderStatus(false)
-
-            showModal({
-                type: 'INFO_MODAL',
-                icon: true,
-                title: strings('modal.walletBackup.success'),
-                description: strings('modal.walletBackup.walletCreated'),
-                noBackdropPress: true
-            }, async () => {
-                if (callback === null) {
-                    NavStore.reset('DashboardStack')
-                } else {
-                    callback()
-                    setCallback({ callback: null })
-                }
-            })
-        } catch (e) {
-            Log.err('WalletBackup.Skip error ' + e.message)
+        const { callback } = this.props
+        if (callback) {
+            callback()
         }
-
+        hideModal()
     }
 
     handleHide = () => {
@@ -99,7 +35,7 @@ class Skip extends Component {
         const { colors } = this.context
 
         return (
-            <Layout visible={this.props.show}>
+            <Layout visible="true">
                 <View>
                     <Icon icon='warning'/>
                     <Title style={{...styles.title, color: colors.common.text1 }}>
@@ -124,18 +60,11 @@ class Skip extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        createWallet: state.createWalletStore,
-        skipModal: state.createWalletStore.skipModal
-    }
-}
-
 Skip.contextType = ThemeContext
 
-export default connect(mapStateToProps, {})(Skip)
+export default Skip
 
-const styles = {
+const styles = StyleSheet.create({
     title: {
         fontFamily: 'Montserrat-Bold',
         fontStyle: 'normal',
@@ -156,4 +85,4 @@ const styles = {
         letterSpacing: 0.5,
         marginBottom: -6
     }
-}
+})

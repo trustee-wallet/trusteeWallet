@@ -7,13 +7,11 @@ import { View } from 'react-native'
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs'
 import IconAwesome from 'react-native-vector-icons/FontAwesome'
 import IconAwesome5 from 'react-native-vector-icons/FontAwesome5'
-import Wallet from 'react-native-vector-icons/MaterialCommunityIcons'
 import Cycle from 'react-native-vector-icons/Entypo'
 
 import { strings } from '../services/i18n'
 
 import HomeScreenStack from './HomeStack'
-import TradeScreenStack from './TradeScreenStack'
 import SettingsScreenStack from './SettingsStack'
 import NavStore from '../components/navigation/NavStore'
 

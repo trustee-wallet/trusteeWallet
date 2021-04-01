@@ -73,7 +73,6 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 i
             countedForBasicBalance: balanceETH.toString(),
             fees : [],
             selectedFeeIndex: 0,
-            shouldChangeBalance: false
         } as BlocksoftBlockchainTypes.FeeRateResult
 
         if (balanceETH > MIN_FEE) {

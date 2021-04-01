@@ -38,12 +38,13 @@ export default function CheckBox(props) {
         checked = null,
         onPress,
         title,
+        style
     } = props
     const { colors } = useTheme()
     const preparedStyles = getStyle(checked)
 
     return (
-        <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
+        <TouchableOpacity style={[styles.container, { ...style }]} onPress={onPress} activeOpacity={0.8}>
             <View style={[preparedStyles.checkbox]}>
                 {checked && <Icon name="done" size={16} color={colors.common.background} />}
             </View>
@@ -74,6 +75,6 @@ const styles = StyleSheet.create({
         lineHeight: 18,
         marginLeft: 12,
         letterSpacing: 1,
-        flex: 1,
+        // flex: 1,
     }
 })

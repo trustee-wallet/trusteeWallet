@@ -100,7 +100,7 @@ class UpdateAccountBalanceAndTransactions {
 
             tmpAction = 'accounts init'
 
-            let accounts = await accountScanningDS.getAccountsForScan({...params, force : false})
+            let accounts = await accountScanningDS.getAccountsForScan({ ...params, force: false })
 
             if (force) {
                 if (!accounts || accounts.length === 0) {
@@ -309,18 +309,17 @@ class UpdateAccountBalanceAndTransactions {
         try {
             Log.daemon('UpdateAccountBalanceAndTransactions newTransactions ' + account.currencyCode + ' ' + account.address)
             if (account.currencyCode === 'BTC') {
-                const addresses = await accountScanningDS.getAddresses({
+                const additional = {... account.accountJson}
+                additional.addresses = await accountScanningDS.getAddresses({
                     currencyCode: account.currencyCode,
                     walletHash: account.walletHash
                 })
-                const additional = account.accountJson
-                additional.addresses  = addresses
                 if (account.walletIsHd) {
-                   additional.walletPub = true // actually not needed pub - just flag
+                    additional.walletPub = true // actually not needed pub - just flag
                 }
-                newTransactions = await (BlocksoftTransactions.setCurrencyCode(account.currencyCode).setAddress(account.address).setAdditional(additional).setWalletHash(account.walletHash)).getTransactions('AccountRunTransactionsBtc')
+                newTransactions = await BlocksoftTransactions.getTransactions({ account, additional }, 'AccountRunTransactionsBtc')
             } else {
-                newTransactions = await (BlocksoftTransactions.setCurrencyCode(account.currencyCode).setAddress(account.address).setAdditional(account.accountJson).setWalletHash(account.walletHash)).getTransactions('AccountRunTransactions')
+                newTransactions = await BlocksoftTransactions.getTransactions({ account, additional: account.accountJson }, 'AccountRunTransactions')
             }
             if (!newTransactions || newTransactions.length === 0) {
                 transactionsError = ' empty transactions ' + account.currencyCode + ' ' + account.address
@@ -329,8 +328,10 @@ class UpdateAccountBalanceAndTransactions {
             }
         } catch (e) {
             if (config.debug.appErrors) {
-                Log.errDaemon('UpdateAccountBalanceAndTransactions newTransactions something wrong ' + account.currencyCode + ' ' + account.address + ' => transactionsError ' + e.message)
+                console.log('UpdateAccountBalanceAndTransactions newTransactions something wrong ' + account.currencyCode + ' ' + account.address + ' => transactionsError ' + e.message, e)
             }
+            Log.errDaemon('UpdateAccountBalanceAndTransactions newTransactions something wrong ' + account.currencyCode + ' ' + account.address + ' => transactionsError ' + e.message)
+
             transactionsError = ' found transactionsError ' + e.message
         }
 

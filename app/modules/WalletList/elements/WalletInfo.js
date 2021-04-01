@@ -1,5 +1,5 @@
 /**
- * @version 0.11
+ * @version 0.31
  * @author yura
  */
 import React, { Component } from 'react'
@@ -9,37 +9,33 @@ import {
     Text,
     Animated,
     TouchableOpacity,
-    Image,
-    Platform,
 } from 'react-native'
 
 import AsyncStorage from '@react-native-community/async-storage'
 import Entypo from 'react-native-vector-icons/Entypo'
 import moment from 'moment'
 
-import IconVisible from '../../../assets/images/icon_visible'
-import IconHidden from '../../../assets/images/icon_hidden'
-import NavStore from '../../../components/navigation/NavStore'
-import ToolTips from '../../../components/elements/ToolTips'
-import GradientView from '../../../components/elements/GradientView'
-import LetterSpacing from '../../../components/elements/LetterSpacing'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import NavStore from '@app/components/navigation/NavStore'
+import GradientView from '@app/components/elements/GradientView'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
 
-import { setQRConfig, setQRValue } from '../../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import { sublocale, strings } from '../../../services/i18n'
+import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { saveSelectedBasicCurrencyCode } from '@app/appstores/Stores/Main/MainStoreActions'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
-import Log from '../../../services/Log/Log'
+import { strings } from '@app/services/i18n'
+import Log from '@app/services/Log/Log'
+import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
+import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 
-import { capitalize } from '../../../services/UI/Capitalize/Capitalize'
-import { checkQRPermission } from '../../../services/UI/Qr/QrPermissions'
-import { saveSelectedBasicCurrencyCode } from '../../../appstores/Stores/Main/MainStoreActions'
-import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
+import { HIT_SLOP } from '@app/themes/Themes'
 
-import { HIT_SLOP } from '../../../themes/Themes';
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { SIZE } from '../helpers'
 
-import { SIZE } from '../helpers';
-import { AppWalletConnect } from '../../../services/Back/AppWalletConnect/AppWalletConnect'
 
 let CACHE_PREV_CURRENCY = false
 
@@ -126,26 +122,12 @@ class WalletInfo extends Component {
         })
     }
 
-    renderTooltip = () => {
-        const { isViolet } = this.state
-        const { colors } = this.context
-        return (
-            <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
-                <Entypo style={[styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]} size={13} name="plus" />
-                <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]}>
-                    {strings('settings.assets.addAsset').toUpperCase()}
-                </Text>
-            </View>
-        )
-    }
-
     render() {
         const {
             changeBalanceVisibility,
             triggerBalanceVisibility,
             isBalanceVisible,
             originalVisibility,
-            selectedBasicCurrency,
             balanceData
         } = this.props
         const { isViolet } = this.state
@@ -187,7 +169,12 @@ class WalletInfo extends Component {
                                 />
                             </View>
                             <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')}>
-                                <ToolTips type={'HOME_SCREEN_ADD_CRYPTO_BTN_TIP'} height={150} MainComponent={() => this.renderTooltip()} />
+                                <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
+                                    <Entypo style={[styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]} size={13} name="plus" />
+                                    <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]}>
+                                        {strings('settings.assets.addAsset').toUpperCase()}
+                                    </Text>
+                                </View>
                             </TouchableOpacity>
                         </View>
 
@@ -239,9 +226,9 @@ class WalletInfo extends Component {
 
                             <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
                                 {isBalanceVisible ? (
-                                    <IconVisible color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
+                                    <CustomIcon name={'eye'} size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
                                 ) : (
-                                        <IconHidden color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
+                                    <CustomIcon name={'eyeClosed'} size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
                                     )}
                             </TouchableOpacity>
                         </View>

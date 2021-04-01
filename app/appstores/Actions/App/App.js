@@ -13,14 +13,12 @@ import walletDS from '../../DataSource/Wallet/Wallet'
 import NavStore from '../../../components/navigation/NavStore'
 
 import { setInitState, setInitError, setSelectedWallet } from '../../Stores/Main/MainStoreActions'
-import { setCards } from '../../Stores/Card/CardActions'
 import walletActions from '../../Stores/Wallet/WalletActions'
 import currencyActions from '../../Stores/Currency/CurrencyActions'
 import settingsActions from '../../Stores/Settings/SettingsActions'
 import customCurrencyActions from '../CustomCurrencyActions'
-import exchangeActions from '../../Stores/Exchange/ExchangeActions'
 
-import Database from '@app/appstores/DataSource/Database';
+import Database, { cleanupNotNeeded } from '@app/appstores/DataSource/Database'
 
 import Log from '../../../services/Log/Log'
 import AppLockScreenIdleTime from '../../../services/AppLockScreenIdleTime/AppLockScreenIdleTime'
@@ -142,9 +140,6 @@ class App {
 
             this.initStatus = 'await this.refreshWalletsStore(true)'
 
-            // noinspection ES6MissingAwait
-            setCards()
-
             this.initStatus = 'setCards()'
 
             // console.log(new Date().toISOString() + ' done')
@@ -199,7 +194,7 @@ class App {
 
         } else if (firstTimeCall === 'second') {
             // second step of init
-            await exchangeActions.init()
+            await cleanupNotNeeded()
 
             await UpdateAccountListDaemon.forceDaemonUpdate(params)
 
