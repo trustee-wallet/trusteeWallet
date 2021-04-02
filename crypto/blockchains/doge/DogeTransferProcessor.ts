@@ -90,8 +90,14 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         : Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         this._initProviders()
 
-        const isStaticFee = this._settings.currencyCode === 'DOGE' && (typeof additionalData.isCustomFee === 'undefined' || !additionalData.isCustomFee)
-
+        let isStaticFee = this._settings.currencyCode === 'DOGE' && (typeof additionalData.isCustomFee === 'undefined' || !additionalData.isCustomFee)
+        let feeStaticReadable
+        if (isStaticFee) {
+            feeStaticReadable = BlocksoftExternalSettings.getStatic('DOGE_STATIC')
+            if (!feeStaticReadable['useStatic']) {
+                isStaticFee = false
+            }
+        }
         let txRBF = false
         let transactionSpeedUp = false
         let transactionReplaceByFee = false
@@ -100,10 +106,12 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate remove started ' + data.addressFrom + ' => ' + data.amount)
             transactionRemoveByFee = data.transactionRemoveByFee
             txRBF = transactionRemoveByFee
+            isStaticFee = false
         } else if (typeof data.transactionReplaceByFee !== 'undefined' && data.transactionReplaceByFee) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate resend started ' + data.addressFrom + ' => ' + data.amount)
             transactionReplaceByFee = data.transactionReplaceByFee
             txRBF = transactionReplaceByFee
+            isStaticFee = false
         } else if (typeof data.transactionSpeedUp !== 'undefined' && data.transactionSpeedUp) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate speedup started ' + data.addressFrom + ' => ' + data.amount)
             transactionSpeedUp = data.transactionSpeedUp
@@ -233,7 +241,6 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             let logInputsOutputs, blockchainData, txSize, actualFeeForByte, actualFeeForByteNotRounded
             try {
                 if (isStaticFee) {
-                    const feeStaticReadable = BlocksoftExternalSettings.getStatic('DOGE_STATIC')
                     preparedInputsOutputs = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                             feeForByte : 'none',
                             feeForAll : BlocksoftUtils.fromUnified(feeStaticReadable[blocks], this._settings.decimals),
