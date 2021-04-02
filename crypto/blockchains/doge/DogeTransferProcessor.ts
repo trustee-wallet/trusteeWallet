@@ -34,6 +34,11 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         feeMaxAutoReadable2: 300, // for fee calc,
         feeMaxAutoReadable6: 150, // for fee calc
         feeMaxAutoReadable12: 100, // for fee calc
+
+        feeStaticReadable2: 2, // for fee static #1776
+        feeStaticReadable6: 1.5, // for fee static
+        feeStaticReadable12: 1, // for fee static
+
         changeTogether: true,
         minRbfStepSatoshi: 50,
         minSpeedUpMulti: 1.5,
@@ -87,6 +92,8 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {})
         : Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         this._initProviders()
+
+        const isStaticFee = this._settings.currencyCode === 'DOGE' && (typeof additionalData.isCustomFee === 'undefined' || !additionalData.isCustomFee)
 
         let txRBF = false
         let transactionSpeedUp = false
@@ -216,21 +223,34 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             const feeForByte = checkedPrices[key]
             let preparedInputsOutputs
             const subtitle = 'getFeeRate_' + key + ' ' + feeForByte
+            let feeStaticReadable = this._builderSettings.feeStaticReadable2 || 0
             let autoFeeLimitReadable = this._builderSettings.feeMaxAutoReadable2
             if (key === 'speed_blocks_6') {
+                feeStaticReadable = this._builderSettings.feeStaticReadable6 || 0
                 autoFeeLimitReadable = this._builderSettings.feeMaxAutoReadable6
             } else if (key === 'speed_blocks_12') {
+                feeStaticReadable = this._builderSettings.feeStaticReadable12 || 0
                 autoFeeLimitReadable = this._builderSettings.feeMaxAutoReadable12
             }
 
             let logInputsOutputs, blockchainData, txSize, actualFeeForByte, actualFeeForByteNotRounded
             try {
-                preparedInputsOutputs = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
-                    feeForByte,
-                    autoFeeLimitReadable
-                },
-                    additionalData,
-                    subtitle)
+                if (isStaticFee) {
+                    preparedInputsOutputs = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
+                            feeForByte : 'none',
+                            feeForAll : BlocksoftUtils.fromUnified(feeStaticReadable, this._settings.decimals),
+                            autoFeeLimitReadable
+                        },
+                        additionalData,
+                        subtitle)
+                } else {
+                    preparedInputsOutputs = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
+                            feeForByte,
+                            autoFeeLimitReadable
+                        },
+                        additionalData,
+                        subtitle)
+                }
 
                 if (typeof additionalData.feeForByte === 'undefined' && typeof this._builderSettings.feeMinTotalReadable !== 'undefined') {
                     logInputsOutputs = DogeLogs.logInputsOutputs(data, unspents, preparedInputsOutputs, this._settings, subtitle)
@@ -271,7 +291,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     actualFeeForByteNotRounded = BlocksoftUtils.div(logInputsOutputs.diffInOut, txSize)
                     actualFeeForByte = Math.floor(actualFeeForByteNotRounded)
                     let needAutoCorrect = false
-                    if (autocorrectFee) {
+                    if (autocorrectFee && !isStaticFee) {
                         needAutoCorrect = actualFeeForByte.toString() !== feeForByte.toString()
                     }
                     if (!actualFeeRebuild && needAutoCorrect) {

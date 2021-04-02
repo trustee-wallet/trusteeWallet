@@ -320,12 +320,11 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
 
         const {
             multiAddress,
-            basicWishedAmountBN,
             wishedAmountBN,
             outputs
         } = this._usualTargets(data, unspents)
 
-        if (typeof feeToCount.feeForByte !== 'undefined') {
+        if (typeof feeToCount.feeForByte !== 'undefined' && feeToCount.feeForByte !== 'none') {
             const result = await this._coinSelect(data, filteredUnspents, feeToCount.feeForByte, multiAddress, subtitle)
             if (result.inputs.length > 0) {
                 return result
