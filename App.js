@@ -30,10 +30,10 @@ appsFlyer.initSdk(
         timeToWaitForATTUserAuthorization: 10 // for iOS 14.5
     },
     (result) => {
-        console.log('appsFlyer', result)
+     //   console.log('appsFlyer', result)
     },
     (error) => {
-        console.error('appsFlyer', error)
+    //    console.error('appsFlyer', error)
     }
 );
 
