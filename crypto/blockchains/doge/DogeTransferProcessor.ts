@@ -18,6 +18,7 @@ import config from '../../../app/config/config'
 import { err } from 'react-native-svg/lib/typescript/xml'
 import { sublocale } from '../../../app/services/i18n'
 import settingsActions from '../../../app/appstores/Stores/Settings/SettingsActions'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 const networksConstants = require('../../common/ext/networks-constants')
@@ -34,10 +35,6 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         feeMaxAutoReadable2: 300, // for fee calc,
         feeMaxAutoReadable6: 150, // for fee calc
         feeMaxAutoReadable12: 100, // for fee calc
-
-        feeStaticReadable2: 2, // for fee static #1776
-        feeStaticReadable6: 1.5, // for fee static
-        feeStaticReadable12: 1, // for fee static
 
         changeTogether: true,
         minRbfStepSatoshi: 50,
@@ -223,22 +220,23 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             const feeForByte = checkedPrices[key]
             let preparedInputsOutputs
             const subtitle = 'getFeeRate_' + key + ' ' + feeForByte
-            let feeStaticReadable = this._builderSettings.feeStaticReadable2 || 0
+            let blocks = '2'
             let autoFeeLimitReadable = this._builderSettings.feeMaxAutoReadable2
             if (key === 'speed_blocks_6') {
-                feeStaticReadable = this._builderSettings.feeStaticReadable6 || 0
+                blocks = '6'
                 autoFeeLimitReadable = this._builderSettings.feeMaxAutoReadable6
             } else if (key === 'speed_blocks_12') {
-                feeStaticReadable = this._builderSettings.feeStaticReadable12 || 0
+                blocks = '12'
                 autoFeeLimitReadable = this._builderSettings.feeMaxAutoReadable12
             }
 
             let logInputsOutputs, blockchainData, txSize, actualFeeForByte, actualFeeForByteNotRounded
             try {
                 if (isStaticFee) {
+                    const feeStaticReadable = BlocksoftExternalSettings.getStatic('DOGE_STATIC')
                     preparedInputsOutputs = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                             feeForByte : 'none',
-                            feeForAll : BlocksoftUtils.fromUnified(feeStaticReadable, this._settings.decimals),
+                            feeForAll : BlocksoftUtils.fromUnified(feeStaticReadable[blocks], this._settings.decimals),
                             autoFeeLimitReadable
                         },
                         additionalData,
