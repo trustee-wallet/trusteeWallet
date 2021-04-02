@@ -45,7 +45,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@app/assets/images/currency/ethUAX.png')} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={14} />
+                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -58,7 +58,7 @@ export default class ButtonLine extends Component {
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@app/assets/images/currency/ETH_OKB.png')} />
                         </View>
                         <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                            <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={14} />
+                            <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                         </View>
                     </View>
                 )
@@ -78,7 +78,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name="ETH_ONE" style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={14} />
+                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -91,7 +91,7 @@ export default class ButtonLine extends Component {
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@app/assets/images/currency/TRX_SUN.png')} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <View style={{ marginTop: 1 }}>
-                                    <CustomIcon name="TRX" style={{ color: colorDict['TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={13} />
+                                    <CustomIcon name="TRX" style={{ color: colorDict['TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={13} />
                                 </View>
                             </View>
                         </View>
@@ -105,7 +105,7 @@ export default class ButtonLine extends Component {
                             <Image style={{ width: 22, height: 22 }} resize={'stretch'} source={require('@app/assets/images/currency/ethSOUL.png')} />
                             <View
                                 style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={14} />
+                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -118,7 +118,7 @@ export default class ButtonLine extends Component {
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@app/assets/images/currency/ETH_HUOBI.png')} />
                             <View
                                 style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={14} />
+                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -131,7 +131,7 @@ export default class ButtonLine extends Component {
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@app/assets/images/currency/ETH_BTC.png')} />
                             <View
                                 style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={14} />
+                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -144,7 +144,7 @@ export default class ButtonLine extends Component {
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@app/assets/images/currency/ETH_1INCH.png')} />
                             <View
                                 style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={14} />
+                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -157,7 +157,7 @@ export default class ButtonLine extends Component {
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@app/assets/images/currency/ETH_SUSHI.png')} />
                             <View
                                 style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={14} />
+                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -168,9 +168,8 @@ export default class ButtonLine extends Component {
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@app/assets/images/currency/ETH_BADGER.png')} />
-                            <View
-                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={14} />
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                <CustomIcon name={'ETH'} style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -181,9 +180,8 @@ export default class ButtonLine extends Component {
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@app/assets/images/currency/ETH_CRV.png')} />
-                            <View
-                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={14} />
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -235,7 +233,7 @@ export default class ButtonLine extends Component {
                             <CustomIcon name={currencyCode} style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <View style={{ marginTop: 1 }}>
-                                    <CustomIcon name="TRX" style={{ color: colorDict['TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={13} />
+                                    <CustomIcon name="TRX" style={{ color: colorDict['TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={13} />
                                 </View>
                             </View>
                         </View>
@@ -249,7 +247,7 @@ export default class ButtonLine extends Component {
                             <CustomIcon name={currencyCode === 'TRX_WBTT' ? 'TRX_BTT' : currencyCode} style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <View style={{ marginTop: 1 }}>
-                                    <CustomIcon name="TRX" style={{ color: colorDict['TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={13} />
+                                    <CustomIcon name="TRX" style={{ color: colorDict['TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={13} />
                                 </View>
                             </View>
                         </View>
@@ -290,7 +288,7 @@ export default class ButtonLine extends Component {
                                 <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <View style={{ marginTop: 1 }}>
                                         <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "ETH_BNB" : 'TRX'}
-                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "ETH_BNB" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={13} />
+                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "ETH_BNB" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={13} />
                                     </View>
                                 </View>}
                         </View>
@@ -307,7 +305,7 @@ export default class ButtonLine extends Component {
                                 <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <View style={{ marginTop: 1 }}>
                                         <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "ETH_BNB" : 'TRX'}
-                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "ETH_BNB" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={13} />
+                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "ETH_BNB" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={13} />
                                     </View>
                                 </View>}
                         </View>
@@ -325,7 +323,7 @@ export default class ButtonLine extends Component {
                                 <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <View style={{ marginTop: 1 }}>
                                         <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "ETH_BNB" : 'TRX'}
-                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "ETH_BNB" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={13} />
+                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "ETH_BNB" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={13} />
                                     </View>
                                 </View>}
                         </View>
@@ -344,7 +342,7 @@ export default class ButtonLine extends Component {
                                 <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <View style={{ marginTop: 1 }}>
                                         <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "ETH_BNB" : 'TRX'}
-                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "ETH_BNB" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={13} />
+                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "ETH_BNB" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={13} />
                                     </View>
                                 </View>}
                         </View>
@@ -395,13 +393,16 @@ export default class ButtonLine extends Component {
             case 'USDT':
             case 'TRX_USDT':
             case 'ETH_USDT':
+            case 'BNB_SMART_USDT':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <CustomIcon name="USDT" style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode === 'ETH_USDT' ? "ETH" : currencyCode === 'TRX_USDT' ? 'TRX' : 'BTC'}
-                                    style={{ color: colorDict[currencyCode === 'ETH_USDT' ? "ETH" : currencyCode === 'TRX_USDT' ? 'TRX' : 'BTC'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={13} />
+                                <CustomIcon name={currencyCode === 'ETH_USDT' ? "ETH" : currencyCode === 'TRX_USDT' ? 'TRX' : currencyCode === 'BNB_SMART_USDT' ? 'ETH_BNB' : 'BTC'}
+                                    style={{ color: colorDict[currencyCode === 'ETH_USDT' ? "ETH" : currencyCode === 'TRX_USDT' ? 
+                                        'TRX' : currencyCode === 'BNB_SMART_USDT' ? 'ETH_BNB' : 'BTC'].colors[isLight ? 'mainColor' : 'darkColor']
+                                    }} size={13} />
                             </View>
                         </View>
                     </View>
@@ -435,7 +436,7 @@ export default class ButtonLine extends Component {
                         <View style={styles.icon__item}>
                             <CustomIcon name={currencyCode} style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={14} />
+                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -511,7 +512,6 @@ export default class ButtonLine extends Component {
 
             case 'ETH_BUSD':
             case 'BNB_SMART_USD':
-            case 'BNB_SMART_USDT':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
@@ -544,7 +544,7 @@ export default class ButtonLine extends Component {
                             <CustomIcon name="ETH_MVT" style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                         </View>
                         <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                            <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={14} />
+                            <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                         </View>
                     </View>
                 )
@@ -557,7 +557,7 @@ export default class ButtonLine extends Component {
                             <CustomIcon name="ETH_TT" style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize, marginRight: 1 }} />
                         </View>
                         <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                            <CustomIcon name="TRX" style={{ color: colorDict['TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} fontSize={13} />
+                            <CustomIcon name="TRX" style={{ color: colorDict['TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={13} />
                         </View>
                     </View>
                 )
