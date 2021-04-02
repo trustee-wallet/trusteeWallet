@@ -15,6 +15,7 @@ import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import Log from '@app/services/Log/Log'
 import { strings } from '@app/services/i18n'
 import config from '@app/config/config'
+import store from '@app/store'
 
 
 
@@ -58,6 +59,15 @@ export namespace SendActionsContactBook {
         let isUiError = false
         let uiError = ''
         try {
+            const selectedWallets = store.getState().walletStore.wallets
+            for (const selectedWallet of selectedWallets) {
+                if (selectedWallet.walletName.toLowerCase().indexOf(data.addressName.toLowerCase()) === 0) {
+                    const selectedAccounts = store.getState().accountStore.accountList
+                    if (typeof selectedAccounts[selectedWallet.walletHash] !== 'undefined' && typeof selectedAccounts[selectedWallet.walletHash][data.currencyCode] !== 'undefined') {
+                        return selectedAccounts[selectedWallet.walletHash][data.currencyCode].address
+                    }
+                }
+            }
             if (!isFioAddressValid(data.addressName)) {
                 return getContactAddressUnstoppable(data)
             }

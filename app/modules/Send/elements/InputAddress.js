@@ -27,7 +27,7 @@ class InputAddress extends React.PureComponent {
         super(props)
         this.state = {
             addressError: false,
-            addressErrorText : ''
+            addressErrorText: ''
         }
         this.addressInput = React.createRef()
     }
@@ -66,7 +66,7 @@ class InputAddress extends React.PureComponent {
         if (typeof this.addressInput.state === 'undefined' || this.addressInput.state.value === '') {
             this.setState({
                 addressError: true,
-                addressErrorText : ''
+                addressErrorText: ''
             })
             return {
                 status: 'fail'
@@ -77,28 +77,29 @@ class InputAddress extends React.PureComponent {
         const addressValidation = await this.addressInput.handleValidate()
         let addressTo = addressValidation.value
         let addressName = false
-        if (addressTo.indexOf('@') !== -1 || addressTo.indexOf('.') !== -1) {
-            try {
-                const tmp = await SendActionsContactBook.getContactAddress({ addressName: addressTo, currencyCode })
-                if (tmp) {
-                    addressName = addressTo
-                    addressTo = tmp
-                }
-            } catch (e) {
-                this.setState({
-                    addressError: true,
-                    addressErrorText : e.message
-                })
-                return {
-                    status: 'fail'
-                }
+
+        try {
+            const tmp = await SendActionsContactBook.getContactAddress({ addressName: addressTo, currencyCode })
+            if (tmp) {
+                addressName = addressTo
+                addressTo = tmp
+                addressValidation.status = 'success'
+            }
+        } catch (e) {
+            this.setState({
+                addressError: true,
+                addressErrorText: e.message
+            })
+            return {
+                status: 'fail'
             }
         }
+
 
         if (addressValidation.status !== 'success') {
             this.setState({
                 addressError: true,
-                addressErrorText : ''
+                addressErrorText: ''
             })
             return {
                 status: 'fail'
