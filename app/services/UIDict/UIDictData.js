@@ -436,8 +436,8 @@ export default {
     },
     "BNB_SMART_USDT": {
         colors: {
-            mainColor: '#F0B90B',
-            darkColor: '#C79C15'
+            mainColor: '#31D182',
+            darkColor: '#2D9D66'
         }
     },
     "ETH_BUSD": {
