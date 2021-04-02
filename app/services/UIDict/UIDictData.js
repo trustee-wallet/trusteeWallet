@@ -230,6 +230,12 @@ export default {
             darkColor: '#C0C0C0'
         }
     },
+    "CUSTOM_XXP": {
+        colors: {
+            mainColor: '#FF7B2C',
+            darkColor: '#FF7B2C'
+        }
+    },
     "XLM": {
         colors: {
             mainColor: '#181818',
