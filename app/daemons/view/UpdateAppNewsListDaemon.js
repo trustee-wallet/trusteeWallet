@@ -8,6 +8,9 @@ import Update from '../Update'
 import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
 import { AppNewsActions } from '@app/appstores/Stores/AppNews/AppNewsActions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import analytics from '@react-native-firebase/analytics'
+import config from '@app/config/config'
+import Log from '@app/services/Log/Log'
 
 const TO_BADGE_TIME = 3600000 * 24 * 4
 
@@ -45,8 +48,19 @@ class UpdateAppNewsListDaemon extends Update {
             const ids = []
             for (const item of appSpecialList) {
                 ids.push(item.id)
-                if (item.newsJson && typeof item.newsJson.googleEvent !== 'undefined' && item.newsJson.googleEvent && typeof item.newsJson.googleEvent.eventCode !== 'undefined') {
-                    await MarketingEvent.logEvent(item.newsJson.googleEvent.eventCode, item.newsJson.googleEvent.params, 'GX')
+                try {
+                    // https://rnfirebase.io/reference/analytics#logPurchase
+                    if (item.newsJson && typeof item.newsJson.googleEvent !== 'undefined' && item.newsJson.googleEvent && typeof item.newsJson.googleEvent.eventCode !== 'undefined') {
+                        await MarketingEvent.logEvent(item.newsJson.googleEvent.eventCode, item.newsJson.googleEvent.params, 'GX')
+                        if (typeof item.newsJson.googleEvent.eCommerceParams !== 'undefined') {
+                            await analytics().logPurchase(item.newsJson.googleEvent.eCommerceParams)
+                        }
+                    }
+                } catch (e) {
+                    if (config.debug.appErrors) {
+                        console.log('v20_log_purchase2 error ' + e.message, item.newsJson.googleEvent)
+                    }
+                    await Log.err('v20_log_purchase2 error ' + e.message)
                 }
             }
             await appNewsDS.markAllAsOpened(ids)
@@ -64,9 +78,21 @@ class UpdateAppNewsListDaemon extends Update {
             let toBadge = 0
             for (const item of appNewsList) {
                 if (!(item.newsOpenedAt === null || item.newsOpenedAt === 0)) continue
-                if (item.newsJson && typeof item.newsJson.googleEvent !== 'undefined' && item.newsJson.googleEvent && typeof item.newsJson.googleEvent.eventCode !== 'undefined') {
-                    await MarketingEvent.logEvent(item.newsJson.googleEvent.eventCode, item.newsJson.googleEvent.params, 'GX')
+
+                try {
+                    if (item.newsJson && typeof item.newsJson.googleEvent !== 'undefined' && item.newsJson.googleEvent && typeof item.newsJson.googleEvent.eventCode !== 'undefined') {
+                        await MarketingEvent.logEvent(item.newsJson.googleEvent.eventCode, item.newsJson.googleEvent.params, 'GX')
+                        if (typeof item.newsJson.googleEvent.eCommerceParams !== 'undefined') {
+                            await analytics().logPurchase(item.newsJson.googleEvent.eCommerceParams)
+                        }
+                    }
+                } catch (e) {
+                    if (config.debug.appErrors) {
+                        console.log('v20_log_purchase error ' + e.message, item.newsJson.googleEvent)
+                    }
+                    await Log.err('v20_log_purchase error ' + e.message)
                 }
+
                 if (now - item.newsCreated < TO_BADGE_TIME) {
                     if (item.newsGroup === 'NEWS' || item.newsGroup === 'BSE_ORDERS') {
                         toBadge++

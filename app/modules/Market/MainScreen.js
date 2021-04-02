@@ -330,7 +330,7 @@ class MarketScreen extends Component {
             Log.log('Market/MainScreen send data', data)
 
             const limits = data.limits ? JSON.parse(data.limits) : false
-            const trusteeFee = data.trusteeFee ? JSON.parse(data.trusteeFee) : false
+            // const trusteeFee = data.trusteeFee ? JSON.parse(data.trusteeFee) : false
 
             const minCrypto = typeof limits.limits !== 'undefined' && limits.limits ? BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits) : false
 
@@ -364,8 +364,11 @@ class MarketScreen extends Component {
                 bseOrderId: data.orderHash || data.orderId,
                 bseMinCrypto: minCrypto,
                 bseTrusteeFee: {
-                    value: trusteeFee ? trusteeFee.trusteeFee : 0,
-                    currencyCode: trusteeFee ? trusteeFee.currencyCode : 'USD',
+                    // value: trusteeFee ? trusteeFee.trusteeFee : 0,
+                    // currencyCode: trusteeFee ? trusteeFee.currencyCode : 'USD',
+                    value :  data.amount, // to unify with Vlad
+                    currencyCode: data.currencyCode, // to unify
+
                     type: 'MARKET',
                     from: data.currencyCode,
                     to: data.outCurrency

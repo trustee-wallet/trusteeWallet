@@ -94,9 +94,9 @@ const logSendSell = async function(transaction: any, tx: any, logData: any, send
         }
         const gaParamsStr = JSON.stringify(gaParams)
 
-        await MarketingEvent.logEvent('v20_sell_tx', gaParamsStr, 'SELL')
-        await Log.log('v20_sell_tx', gaParamsStr)
-        await analytics().logPurchase(gaParams)
+        await MarketingEvent.logEvent('v20_sell_to_card', gaParamsStr, 'SELL')
+        await Log.log('v20_sell_to_card', gaParamsStr)
+        await analytics().logAddToCart(gaParams)
     } catch (e) {
         if (config.debug.appErrors) {
             console.log('v20_sell_tx error ' + e.message, gaParams)

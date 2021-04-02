@@ -191,7 +191,7 @@ class MainV3DataScreen extends Component {
             Log.log('EXC/MainV3Screen exchangeV3 data ', data)
 
             const limits = JSON.parse(data.limits)
-            const trusteeFee = JSON.parse(data.trusteeFee)
+            // const trusteeFee = JSON.parse(data.trusteeFee)
             const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits)
 
 
@@ -223,8 +223,10 @@ class MainV3DataScreen extends Component {
                     bseOrderId: data.orderHash || data.orderId,
                     bseMinCrypto: minCrypto,
                     bseTrusteeFee: {
-                        value: trusteeFee.trusteeFee,
-                        currencyCode: trusteeFee.currencyCode,
+                        // value: trusteeFee ? trusteeFee.trusteeFee : 0,
+                        // currencyCode: trusteeFee ? trusteeFee.currencyCode : 'USD',
+                        value :  data.amount, // to unify with Vlad
+                        currencyCode: data.currencyCode, // to unify
                         type: 'EXCHANGE',
                         from: data.currencyCode,
                         to: data.outCurrency
