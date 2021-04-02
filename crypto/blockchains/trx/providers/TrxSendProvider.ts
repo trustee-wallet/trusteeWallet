@@ -53,6 +53,9 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
         if (!send || typeof send.data === 'undefined' || !send.data) {
             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
         }
+
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxSendProvider._sendTx ' + subtitle + ' result ', send.data)
+
         if (typeof send.data.code !== 'undefined') {
             if (send.data.code === 'BANDWITH_ERROR') {
                 throw new Error('SERVER_RESPONSE_BANDWITH_ERROR_TRX')
@@ -89,11 +92,12 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
             }
             // @ts-ignore
             this.checkError('no transaction result ' + JSON.stringify(send.data))
-        }
-        // @ts-ignore
-        if (send.data.result !== true) {
+        } else {
             // @ts-ignore
-            this.checkError('transaction result is false ' + JSON.stringify(send.data))
+            if (send.data.result !== true) {
+                // @ts-ignore
+                this.checkError('transaction result is false ' + JSON.stringify(send.data))
+            }
         }
 
         return {transactionHash : tx.txID, logData}
