@@ -5,7 +5,6 @@
 import store from '@app/store'
 
 import currencyDS from '@app/appstores/DataSource/Currency/Currency'
-import appTaskDS from '@app/appstores/DataSource/AppTask/AppTask'
 import accountDS from '@app/appstores/DataSource/Account/Account'
 import accountBalanceDS from '@app/appstores/DataSource/AccountBalance/AccountBalance'
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
@@ -171,9 +170,6 @@ const currencyActions = {
                 errorStepMsg = 'accountBalanceDS.insertAccountBalance finished'
             }
 
-
-            await appTaskDS.clearTasksByCurrencyAdd({ currencyCode: currencyToAdd.currencyCode })
-
             const currencyInsertObjs = {
                 currencyCode: currencyToAdd.currencyCode,
                 currencyRateScanTime: 0,
@@ -205,7 +201,8 @@ const currencyActions = {
     /**
      *
      * @param {string} params.currencyCode
-     * @param {integer} params.isHidden
+     * @param {integer} params.newIsHidden
+     * @param {integer} params.currentIsHidden
      * @returns {Promise<void>}
      */
     toggleCurrencyVisibility: async (params) => {
@@ -215,18 +212,26 @@ const currencyActions = {
         Log.log('ACT/Currency toggleCurrencyVisibility called')
 
         try {
+
+            // binary from int - for support of old stored values
+            const selectedWalletNumber = store.getState().mainStore.selectedWallet.walletNumber
+            const currentIsHidden = Number(params.currentIsHidden || 0).toString(2).split('').reverse() // split to binary
+            for (let i = currentIsHidden.length; i < selectedWalletNumber; i++) {
+                currentIsHidden[i] = 0
+            }
+            currentIsHidden[selectedWalletNumber] = params.newIsHidden
+            const isHidden = parseInt(currentIsHidden.reverse().join(''), 2)
+            // back to binary
+
             await currencyDS.updateCurrency({
                 key: {
                     currencyCode: params.currencyCode
                 },
                 updateObj: {
-                    isHidden: params.isHidden ? 0 : 1
+                    isHidden
                 }
             })
-
-            await appTaskDS.clearTasksByCurrencyAdd({ currencyCode: params.currencyCode })
-
-            await currencyActions.updateCryptoCurrencies([{ currencyCode: params.currencyCode, isHidden: params.isHidden ? 0 : 1 }])
+            await currencyActions.updateCryptoCurrencies([{ currencyCode: params.currencyCode, isHidden }])
 
         } catch (e) {
             Log.err('ACT/Currency toggleCurrencyVisibility error ' + e.message)

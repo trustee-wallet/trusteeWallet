@@ -151,7 +151,8 @@ class BackupStep1Screen extends React.Component {
 
                 const walletHash = await proceedSaveGeneratedWallet({
                     walletName,
-                    walletMnemonic
+                    walletMnemonic,
+                    walletNumber
                 })
 
                 walletActions.setWalletBackedUpStatus(walletHash)

@@ -134,7 +134,8 @@ class EnterMnemonicPhrase extends Component {
             const walletHash = await proceedSaveGeneratedWallet({
                 walletName,
                 walletMnemonic,
-                walletIsBackedUp: 1
+                walletIsBackedUp: 1,
+                walletNumber,
             }, 'IMPORT')
 
             await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletCreate.EnterMnemonicPhrase' })

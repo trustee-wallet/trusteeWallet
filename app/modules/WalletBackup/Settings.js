@@ -98,7 +98,8 @@ class BackupSettingsScreen extends Component {
                 try {
                     walletHash = await proceedSaveGeneratedWallet({
                         walletName,
-                        walletMnemonic
+                        walletMnemonic,
+                        walletNumber
                     })
                 } catch (e) {
                     e.message += ' while proceedSaveGeneratedWallet'

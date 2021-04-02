@@ -86,7 +86,8 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
                     walletAllowReplaceByFee : savedWallet.wallet_allow_replace_by_fee,
                     walletIsHideTransactionForFee : savedWallet.wallet_is_hide_transaction_for_free,
                     walletUseLegacy : savedWallet.wallet_use_legacy,
-                    walletUseUnconfirmed : savedWallet.wallet_use_unconfirmed
+                    walletUseUnconfirmed : savedWallet.wallet_use_unconfirmed,
+                    walletNumber : wallet.walletNumber
                 }
                 if (tmpWalletName && tmpWalletName !== '') {
                     fullWallet.walletName = tmpWalletName
@@ -102,7 +103,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
             if (!tmpWalletName || tmpWalletName === '') {
                 tmpWalletName = await walletActions.getNewWalletName()
             }
-            await walletDS.saveWallet({ walletHash: storedKey, walletName : tmpWalletName, walletIsBackedUp: wallet.walletIsBackedUp || 0 })
+            await walletDS.saveWallet({ walletHash: storedKey, walletName : tmpWalletName, walletIsBackedUp: wallet.walletIsBackedUp || 0, walletNumber : wallet.walletNumber })
         }
 
         if (source === 'IMPORT' && !fromSaved) {

@@ -214,6 +214,8 @@ export default function getTableQueries() {
                     wallet_is_subscribed_json TEXT NULL,
 
                     wallet_is_hide_transaction_for_fee INTEGER NULL,
+					
+					wallet_number INTEGER NULL,
 					wallet_to_send_status INTEGER NULL
                 )`
             },

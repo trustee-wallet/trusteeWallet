@@ -36,11 +36,12 @@ class Wallet {
         const sql = `INSERT INTO wallet (
         wallet_to_send_status, wallet_hash, wallet_name, 
         wallet_is_hd, wallet_use_legacy, wallet_use_unconfirmed, 
-        wallet_allow_replace_by_fee, wallet_is_backed_up, wallet_is_hide_transaction_for_fee)
+        wallet_allow_replace_by_fee, wallet_is_backed_up, wallet_is_hide_transaction_for_fee, wallet_number)
         VALUES (
         ${wallet.walletToSendStatus || 0}, '${wallet.walletHash}', '${tmpWalletName}', 
         ${wallet.walletIsHd || 0}, ${wallet.walletUseLegacy || 2}, ${wallet.walletUseUnconfirmed || 1}, 
-        ${wallet.walletAllowReplaceByFee || 1}, ${wallet.walletIsBackedUp || 0}, ${wallet.walletIsHideTransactionForFee || 1}
+        ${wallet.walletAllowReplaceByFee || 1}, ${wallet.walletIsBackedUp || 0}, ${wallet.walletIsHideTransactionForFee || 1},
+        ${wallet.walletNumber || 1}
         )`
         await Database.setQueryString(sql).query(true)
     }
@@ -172,7 +173,8 @@ class Wallet {
                 wallet_use_unconfirmed AS walletUseUnconfirmed,
                 wallet_use_legacy AS walletUseLegacy,
                 wallet_allow_replace_by_fee AS walletAllowReplaceByFee,
-                wallet_is_hide_transaction_for_fee AS walletIsHideTransactionForFee
+                wallet_is_hide_transaction_for_fee AS walletIsHideTransactionForFee,
+                wallet_number AS walletNumber
                 FROM wallet`).query()
         if (!res || !res.array) {
             Log.log('DS/Wallet getWallets no result')
@@ -241,7 +243,8 @@ class Wallet {
                 wallet_use_unconfirmed AS walletUseUnconfirmed,
                 wallet_use_legacy AS walletUseLegacy,
                 wallet_allow_replace_by_fee AS walletAllowReplaceByFee,
-                wallet_is_hide_transaction_for_fee AS walletIsHideTransactionForFee
+                wallet_is_hide_transaction_for_fee AS walletIsHideTransactionForFee,
+                wallet_number AS walletNumber
                 FROM wallet WHERE wallet_hash='${walletHash}' LIMIT 1`).query()
         if (!res || !res.array || res.array.length === 0) return false
 

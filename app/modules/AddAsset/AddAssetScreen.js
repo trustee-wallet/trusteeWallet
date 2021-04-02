@@ -81,7 +81,7 @@ class AddAssetScreen extends React.Component {
         if (currency.isHidden === null) {
             this.handleAddCurrency(currency)
         } else {
-            this.toggleCurrencyVisibility(currency.currencyCode, +currency.isHidden)
+            this.toggleCurrencyVisibility(currency.currencyCode, currency.isHidden * 1 > 0 ? 0 : 1, currency.isHidden)
         }
     }
 
@@ -91,13 +91,13 @@ class AddAssetScreen extends React.Component {
         this.prepareData()
     }
 
-    toggleCurrencyVisibility = async (currencyCode, isHidden) => {
-        if (isHidden) {
-            MarketingEvent.logEvent('gx_currency_show', { currencyCode, source: 'AddAssetScreen' }, 'GX')
-        } else {
+    toggleCurrencyVisibility = async (currencyCode, newIsHidden, currentIsHidden) => {
+        if (newIsHidden) {
             MarketingEvent.logEvent('gx_currency_hide', { currencyCode, source: 'AddAssetScreen' }, 'GX')
+        } else {
+            MarketingEvent.logEvent('gx_currency_show', { currencyCode, source: 'AddAssetScreen' }, 'GX')
         }
-        await currencyActions.toggleCurrencyVisibility({ currencyCode, isHidden })
+        await currencyActions.toggleCurrencyVisibility({ currencyCode, newIsHidden, currentIsHidden : 0}) // add to all wallets
         this.prepareData()
     }
 

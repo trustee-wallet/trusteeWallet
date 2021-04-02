@@ -64,7 +64,7 @@ class UpdateCurrencyRateDaemon {
                 }
                 toSearch[code] = 1
 
-                if (currency.isHidden !== 1) {
+                if (currency.isHidden*1 === 0) {
                     toAddToNews[currency.currencyCode] = 1
                 }
             }

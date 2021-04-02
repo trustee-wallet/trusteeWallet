@@ -14,7 +14,7 @@ import countries from '@app/assets/jsons/other/country-codes';
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 113,
+        maxVersion: 115,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -771,8 +771,23 @@ export default function getTableUpdateQueries() {
 			113: {
                 queryString: `ALTER TABLE wallet ADD COLUMN wallet_to_send_status INTEGER NULL`
             },
+			
+			114 : {
+				queryString: `ALTER TABLE wallet ADD COLUMN wallet_number INTEGER NULL`
+			},
 
-
+			115: {
+                afterFunction: async (dbInterface) => {
+                    const wallets = await dbInterface.setQueryString('SELECT wallet_hash FROM wallet').query()
+					let index = 0
+                    if (typeof wallets.array !== 'undefined' && wallets.array) {
+                        for (const row of wallets.array) {
+							index++
+                            await  await dbInterface.setQueryString(`UPDATE wallet SET wallet_number=${index} WHERE wallet_hash='${row.wallet_hash}'`).query()
+                        }
+                    }
+                }
+			}
         }
     }
 }

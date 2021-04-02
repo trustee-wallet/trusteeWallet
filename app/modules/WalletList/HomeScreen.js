@@ -192,7 +192,8 @@ class HomeScreen extends React.Component {
         MarketingEvent.logEvent('gx_currency_hide', { currencyCode: cryptoCurrency.currencyCode , source : 'HomeScreen'}, 'GX')
         await currencyActions.toggleCurrencyVisibility({
             currencyCode: cryptoCurrency.currencyCode,
-            isHidden: 0
+            newIsHidden: 1,
+            currentIsHidden : cryptoCurrency.isHidden
         })
     }
 
