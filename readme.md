@@ -7,7 +7,6 @@
 
 All building steps are tested with Ubuntu 16.04
 
-
 #### Build Dependencies
 
 For successful build it's reqired to have build tools installed
