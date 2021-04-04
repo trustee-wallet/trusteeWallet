@@ -14,7 +14,7 @@ import countries from '@app/assets/jsons/other/country-codes';
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 115,
+        maxVersion: 116,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -787,7 +787,11 @@ export default function getTableUpdateQueries() {
                         }
                     }
                 }
-			}
+			},
+			
+			116: {
+                queryString: `ALTER TABLE card ADD COLUMN card_to_send_id INTEGER NULL`
+            },
         }
     }
 }

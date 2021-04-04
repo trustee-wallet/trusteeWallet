@@ -16,10 +16,10 @@ class UpdateCurrencyRateDaemon {
     /**
      * @return {Promise<void>}
      */
-    updateCurrencyRate = async (params) => {
+    updateCurrencyRate = async (params, dataUpdate = false) => {
         Log.daemon('UpdateCurrencyRateDaemon started ' + params.source)
 
-        const res = await ApiRates.getRates(params)
+        const res = await ApiRates.getRates(params, dataUpdate)
         if (!res || typeof res.cryptoCurrencies === 'undefined') {
             return []
         }

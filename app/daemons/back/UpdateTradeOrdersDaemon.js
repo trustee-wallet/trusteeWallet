@@ -128,7 +128,7 @@ class UpdateTradeOrdersDaemon {
      * @param params.source
      * @returns {Promise<boolean>}
      */
-    updateTradeOrdersDaemon = async (params) => {
+    updateTradeOrdersDaemon = async (params, dataUpdate = false) => {
 
         if (typeof params.source !== 'undefined' && params.source === 'ACCOUNT_OPEN' && CACHE_LAST_TIME) {
             const now = new Date().getTime()
@@ -149,8 +149,20 @@ class UpdateTradeOrdersDaemon {
         const nowAt = new Date().toISOString()
         try {
 
-            const res = await ApiProxy.getAll({ source: 'UpdateTradeOrdersDaemon.updateTradeOrders' })
+            let res = false
+            let asked = false
+            if (!dataUpdate) {
+                if (config.debug.appErrors) {
+                    console.log(new Date().toISOString() + ' UpdateTradeOrdersDaemon loading new')
+                }
+                asked = true
+                res = await ApiProxy.getAll({ source: 'UpdateTradeOrdersDaemon.updateTradeOrders' })
+            } else {
+                res = dataUpdate
+            }
+
             const tmpTradeOrders = typeof res.cbOrders !== 'undefined' ? res.cbOrders : false
+
 
             /*
             sometimes transaction hash should be unified with order status
@@ -163,6 +175,12 @@ class UpdateTradeOrdersDaemon {
 
                 if (typeof tmpTradeOrders === 'undefined' || !tmpTradeOrders || !tmpTradeOrders.length) {
                     return false
+                }
+
+                if (!asked) {
+                    if (config.debug.appErrors) {
+                        console.log(new Date().toISOString() + ' UpdateTradeOrdersDaemon loaded proxy')
+                    }
                 }
 
                 let item

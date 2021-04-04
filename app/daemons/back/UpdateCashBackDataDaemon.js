@@ -17,32 +17,55 @@ class UpdateCashBackDataDaemon {
     /**
      * @return {Promise<void>}
      */
-    updateCashBackDataDaemon = async (params = {}) => {
+    updateCashBackDataDaemon = async (params = {}, dataUpdate = false) => {
         if (!this._canUpdate) return false
 
         this._canUpdate = false
 
+        let data = false
         const authHash = await cryptoWalletsDS.getSelectedWallet()
-        if (!authHash) {
-            Log.daemon('UpdateCashBackDataDaemon skipped as no auth')
-            this._canUpdate = true
-            return false
+
+        let asked = false
+        if (!dataUpdate) {
+            if (!authHash) {
+                Log.daemon('UpdateCashBackDataDaemon skipped as no auth')
+                this._canUpdate = true
+                return false
+            }
+            if (config.debug.appErrors) {
+                console.log(new Date().toISOString() + ' UpdateCashBackDataDaemon loaded new')
+            }
+            asked = true
+            try {
+                data = await ApiProxy.getAll({ ...params, source: 'UpdateCashBackDataDaemon.updateCashBackData' })
+            } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('UpdateCashBackDataDaemon error ' + e.message)
+                }
+                await CashBackActions.setCashBackError({
+                    title: e.message,
+                    time: new Date().getTime()
+                })
+                this._canUpdate = true
+                return
+            }
+        } else {
+            data = dataUpdate
         }
 
-        Log.daemon('UpdateCashBackDataDaemon called')
-
-        let data = false
         try {
-            data = await ApiProxy.getAll({...params, source: 'UpdateCashBackDataDaemon.updateCashBackData'})
             if (typeof data.cbData !== 'undefined' && typeof data.cbData.data !== 'undefined') {
                 data = data.cbData.data
                 if (typeof data !== 'undefined' && typeof data.cashbackToken !== 'undefined') {
                     MarketingEvent.DATA.LOG_CASHBACK = data.cashbackToken
                 }
+            } else {
+                this._canUpdate = true
+                return
             }
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('UpdateCashBackDataDaemon error ' + e.message )
+                console.log('UpdateCashBackDataDaemon error ' + e.message)
             }
             await CashBackActions.setCashBackError({
                 title: e.message,
@@ -50,6 +73,12 @@ class UpdateCashBackDataDaemon {
             })
             this._canUpdate = true
             return
+        }
+
+        if (!asked) {
+            if (config.debug.appErrors) {
+                console.log(new Date().toISOString() + ' UpdateCashBackDataDaemon loaded proxy')
+            }
         }
 
         try {

@@ -3,14 +3,10 @@
  */
 import Update from '../Update'
 
-import UpdateCurrencyRateDaemon from './UpdateCurrencyRateDaemon'
 import UpdateAccountBalanceAndTransactions from './UpdateAccountBalanceAndTransactions'
 import UpdateAccountBalanceAndTransactionsHD from './UpdateAccountBalanceAndTransactionsHD'
 import UpdateAppNewsDaemon from './UpdateAppNewsDaemon'
-import UpdateAppTasksDaemon from './UpdateAppTasksDaemon'
-import UpdateCardsDaemon from './UpdateCardsDaemon'
-import UpdateTradeOrdersDaemon from './UpdateTradeOrdersDaemon'
-import UpdateCashBackDataDaemon from './UpdateCashBackDataDaemon'
+
 import { AsyncStorage } from 'react-native'
 
 import Log from '../../services/Log/Log'
@@ -20,18 +16,9 @@ const STEPS_ORDER = [
 
     'UPDATE_PROXIED',
     'UPDATE_ACCOUNT_BALANCES_DAEMON',
-    'UPDATE_CARDS_DAEMON',
     'UPDATE_ACCOUNT_BALANCES_HD_DAEMON',
-
-    'UPDATE_RATES_DAEMON',
     'UPDATE_ACCOUNT_BALANCES_DAEMON',
-    'UPDATE_CASHBACK_DATA',
     'UPDATE_ACCOUNT_BALANCES_DAEMON',
-
-    'UPDATE_NEWS_DAEMON',
-    'UPDATE_ACCOUNT_BALANCES_DAEMON',
-    'UPDATE_TRADE_ORDERS',
-    'UPDATE_ACCOUNT_BALANCES_HD_DAEMON',
 ]
 
 let CACHE_PAUSE = 0
@@ -42,14 +29,7 @@ let CACHE_STOPPED = false
 
 const CACHE_VALID_TIME = {
     'PAUSE' : 60000, // 60 seconds
-    'UPDATE_PROXIED' : 120000, // 120 seconds
-    'UPDATE_TRADE_ORDERS': 30000, // 30 seconds
-    'UPDATE_CASHBACK_DATA': 300000, // 5 minutes
-    'UPDATE_APP_TASKS_HD_DAEMON': 30000, // 30 seconds
-    'UPDATE_APP_TASKS_DAEMON': 300000, // 5 minutes
-    'UPDATE_CARD_DAEMON': 60000, // 1 minute
-    'UPDATE_RATES_DAEMON': 10000, // 10 second
-    'UPDATE_NEWS_DAEMON': 600000, // 10 minutes
+    'UPDATE_PROXIED' : 60000, // 60 seconds
     'UPDATE_ACCOUNT_BALANCES_DAEMON': 10000, // 10 sec
     'UPDATE_ACCOUNT_BALANCES_DAEMON_ALL': 100000, // 100 sec
     'UPDATE_ACCOUNT_BALANCES_HD_DAEMON': 30000 // 30 sec
@@ -123,28 +103,10 @@ class UpdateOneByOneDaemon extends Update {
             CACHE_TIMES[step] = now
             switch (step) {
                 case 'UPDATE_PROXIED' :
-                    await UpdateCurrencyRateDaemon.updateCurrencyRate({source})
+                    // await UpdateCurrencyRateDaemon.updateCurrencyRate({source})
                     await UpdateAppNewsDaemon.updateAppNewsDaemon({source})
-                    await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ source })
-                    await UpdateCashBackDataDaemon.updateCashBackDataDaemon({ source })
-                    break
-
-                case 'UPDATE_TRADE_ORDERS' :
-                    await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ source })
-                    break
-                case 'UPDATE_CASHBACK_DATA' :
-                    if (source === 'BACK') return
-                    await UpdateCashBackDataDaemon.updateCashBackDataDaemon({ source })
-                    break
-                case 'UPDATE_CARD_DAEMON' :
-                    if (source === 'BACK') return
-                    await UpdateCardsDaemon.updateCardsDaemon()
-                    break
-                case 'UPDATE_RATES_DAEMON':
-                    await UpdateCurrencyRateDaemon.updateCurrencyRate({source})
-                    break
-                case 'UPDATE_NEWS_DAEMON' :
-                    await UpdateAppNewsDaemon.updateAppNewsDaemon({source})
+                    //await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ source })
+                    //await UpdateCashBackDataDaemon.updateCashBackDataDaemon({ source })
                     break
                 case 'UPDATE_ACCOUNT_BALANCES_DAEMON':
                     await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ source })

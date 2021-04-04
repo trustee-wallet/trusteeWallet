@@ -9,6 +9,7 @@ import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWall
 import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import ApiProxy from '../../services/Api/ApiProxy'
+import config from '@app/config/config'
 
 let CACHE_NEWS_HASH = ''
 let CACHE_LAST_TIME = false
@@ -33,7 +34,7 @@ class UpdateAppNewsDaemon {
     /**
      * @return {Promise<void>}
      */
-    updateAppNewsDaemon = async (params = {}) => {
+    updateAppNewsDaemon = async (params = {}, dataUpdate = false) => {
         if (typeof params === 'undefined' || typeof params.force === 'undefined' || !params) {
             if (!this._canUpdate) {
                 return false
@@ -47,16 +48,24 @@ class UpdateAppNewsDaemon {
         }
         this._canUpdate = false
 
-        Log.daemon('UpdateAppNews called')
         const walletHash = await cryptoWalletsDS.getSelectedWallet()
-
         let res
-        try {
-            res = await ApiProxy.getAll({source : 'UpdateAppNewsDaemon.updateAppNews'})
-        } catch (e) {
-            this._canUpdate = true
-            return false
+        let asked = false
+        if (!dataUpdate) {
+            if (config.debug.appErrors) {
+                console.log(new Date().toISOString() + ' UpdateNewsDaemon loading new')
+            }
+            asked = true
+            try {
+                res = await ApiProxy.getAll({ source: 'UpdateAppNewsDaemon.updateAppNews' })
+            } catch (e) {
+                this._canUpdate = true
+                return false
+            }
+        } else {
+            res = dataUpdate
         }
+
         if (!res || typeof res === 'undefined' || typeof res.news === 'undefined' || !res.news || res.news.length === 0 || res.newsHash === CACHE_NEWS_HASH) {
             if (res && typeof res.forServerIds !== 'undefined' && res.forServerIds.length > 0) {
                 await appNewsDS.saveAppNewsSentForServer(res.forServerIds)
@@ -64,6 +73,13 @@ class UpdateAppNewsDaemon {
             this._canUpdate = true
             return false
         }
+
+        if (!asked) {
+            if (config.debug.appErrors) {
+                console.log(new Date().toISOString() + ' UpdateNewsDaemon loaded proxy')
+            }
+        }
+
         CACHE_NEWS_HASH = typeof res.newsHash !== 'undefined' ? res.newsHash : ''
 
         const keys = {

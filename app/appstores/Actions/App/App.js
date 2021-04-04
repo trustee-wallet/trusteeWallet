@@ -198,7 +198,7 @@ class App {
 
             await UpdateAccountListDaemon.forceDaemonUpdate(params)
 
-            await UpdateCashBackDataDaemon.updateCashBackDataDaemon()
+            // await UpdateCashBackDataDaemon.updateCashBackDataDaemon({source : 'UpdateCashBackDataDaemon.AppHomeScreen'})
 
             await CashBackUtils.init()
 

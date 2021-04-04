@@ -24,6 +24,9 @@ import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 import store from '@app/store'
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 import UpdateWalletsDaemon from '@app/daemons/back/UpdateWalletsDaemon'
+import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
+import UpdateCashBackDataDaemon from '@app/daemons/back/UpdateCashBackDataDaemon'
+import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon'
 
 async function _getAll(params) {
     const { mode: exchangeMode } = config.exchange
@@ -66,7 +69,7 @@ async function _getAll(params) {
     MarketingEvent.reinitIfNever()
 
     const forCustomTokens = await customCurrencyDS.getCustomCurrenciesForApi()
-    const forCards = await cardsDS.getCards()
+    const forCards = await cardsDS.getCards({walletHash, withRemoved : true})
     const forServer = await appNewsDS.getAppNewsForServer()
     const forServerIds = []
     if (forServer) {
@@ -95,6 +98,9 @@ async function _getAll(params) {
             walletAllowReplaceByFee: wallet.walletAllowReplaceByFee,
             walletIsBackedUp : wallet.walletIsBackedUp
         })
+        if (!cashbackToken) {
+            MarketingEvent.DATA.LOG_CASHBACK = wallet.walletCashback
+        }
     }
 
     const newsData = {
@@ -255,11 +261,23 @@ export default {
                 CACHE_DATA = res
                 CACHE_LAST_TIME = new Date().getTime()
                 CACHE_LAST_WALLET = MarketingEvent.DATA.LOG_WALLET
+                if (params.source.indexOf('UpdateCurrencyRateDaemon') === -1 && typeof res.rates !== 'undefined' && res.rates) {
+                    await UpdateCurrencyRateDaemon.updateCurrencyRate(params, res)
+                }
                 if (params.source.indexOf('UpdateCardsDaemon') === -1) {
                     await UpdateCardsDaemon.updateCardsDaemon(params, res)
                 }
                 if (params.source.indexOf('UpdateWalletsDaemon') === -1) {
                     await UpdateWalletsDaemon.updateWalletsDaemon(params, res)
+                }
+                if (params.source.indexOf('UpdateAppNewsDaemon') === -1) {
+                    await UpdateAppNewsDaemon.updateAppNewsDaemon(params, res)
+                }
+                if (params.source.indexOf('UpdateCashBack') === -1) {
+                    await UpdateCashBackDataDaemon.updateCashBackDataDaemon(params, res)
+                }
+                if (params.source.indexOf('UpdateTradeOrdersDaemon') === -1) {
+                    await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon(params, res)
                 }
             }
         }

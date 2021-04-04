@@ -156,7 +156,12 @@ export default {
             throw new Error('ApiV3 invalid settings type ' + type)
         }
 
-        await UpdateCardsDaemon.updateCardsDaemon({ force: true })
+        try {
+            await UpdateCardsDaemon.updateCardsDaemon({ force: true })
+        } catch (e) {
+            Log.log('ApiV3.initData cards recheck error ' + e.message)
+            // do nothing if nothing
+        }
 
         const data = {
             locale: sublocale(),
@@ -169,6 +174,7 @@ export default {
         if (!data.cards || typeof data.cards === 'undefined') {
             data.cards = []
         }
+        console.log('data.cards from DB ', JSON.stringify(data.cards))
 
         try {
             const wallets = store.getState().walletStore.wallets

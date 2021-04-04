@@ -36,10 +36,10 @@ class Daemon {
         // await UpdateAppNewsDaemon.updateAppNewsDaemon(params)
         await UpdateAppNewsListDaemon.updateAppNewsListDaemon(params)
         if (typeof params.noCashbackApi === 'undefined') {
-            await UpdateCashBackDataDaemon.updateCashBackDataDaemon()
+            await UpdateCashBackDataDaemon.updateCashBackDataDaemon(params)
         }
         if (typeof params.noCards === 'undefined') {
-            await UpdateCardsDaemon.updateCardsDaemon()
+            await UpdateCardsDaemon.updateCardsDaemon(params)
         }
     }
 }
