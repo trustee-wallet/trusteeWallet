@@ -184,7 +184,7 @@ class ReceiveScreen extends Component {
 
         try {
             await Netinfo.isInternetReachable()
-            
+
             // if (config.exchange.mode === 'PROD') {
             //     NavStore.goNext('ExchangeV3ScreenStack')
             // } else {
@@ -536,7 +536,7 @@ class ReceiveScreen extends Component {
 
             amount = this.state.customAmount ? amount : ''
 
-            if (currencyCode === 'BTC') {
+            if (currencyCode === 'BTC' || currencyCode === 'LTC') {
                 address = this.state.settingAddressType === 'segwit' ? this.props.account.segwitAddress : this.props.account.legacyAddress
             } else {
                 address = this.props.account.address
@@ -634,7 +634,7 @@ class ReceiveScreen extends Component {
                         }}
                     >
                         <View style={{ ...styles.wrapper__content, marginTop: headerHeight + GRID_SIZE * 2 }}>
-                            {currencyCode === 'BTC' ? this.renderSegWitLegacy() : null}
+                            {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderSegWitLegacy() : null}
                             <View style={styles.qr}>
                                 <QrCodeBox
                                     getRef={ref => this.refSvg = ref}
@@ -708,7 +708,7 @@ class ReceiveScreen extends Component {
                                         hitSlop={HIT_SLOP}>
                                         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                             <View style={{ flex: 1, marginHorizontal: GRID_SIZE }} >
-                                                <LetterSpacing text={currencyCode === 'BTC' ? btcAddress : address} numberOfLines={2} containerStyle={{
+                                                <LetterSpacing text={currencyCode === 'BTC' || currencyCode === 'LTC' ? btcAddress : address} numberOfLines={2} containerStyle={{
                                                     flexWrap: 'wrap',
                                                     justifyContent: 'center'
                                                 }} textStyle={{ ...styles.accountDetail__text, textAlign: 'center', color: colors.common.text1 }}

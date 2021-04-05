@@ -5,10 +5,10 @@ import Database from '@app/appstores/DataSource/Database'
 const { RNFastCrypto } = NativeModules
 
 const VisibleCodes = [
-    'BTC', 'ETH', 'ETH_USDT', 'TRX', 'TRX_USDT' // add code here to show on start screen
+    'LTC' // add code here to show on start screen
 ]
 const Codes = [
-    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'TRX', 'TRX_USDT', 'BNB', 'BNB_SMART', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'FIO'   // add code here for autocreation the wallet address with the currency
+    'LTC' // BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'TRX', 'TRX_USDT', 'BNB', 'BNB_SMART', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'FIO'   // add code here for autocreation the wallet address with the currency
 ]
 
 const Currencies = {
@@ -25,7 +25,9 @@ const Currencies = {
             network: 'mainnet',
             decimals: 8,
             currencyExplorerLink: 'https://blockchair.com/bitcoin/address/',
-            currencyExplorerTxLink: 'https://blockchair.com/bitcoin/transaction/'
+            currencyExplorerTxLink: 'https://blockchair.com/bitcoin/transaction/',
+            addressPrefix : '1',
+            defaultPath: `m/44'/0'/0'/0/0`
         },
     ETH:
         {
@@ -73,7 +75,9 @@ const Currencies = {
             network: 'litecoin',
             decimals: 8,
             currencyExplorerLink: 'https://blockchair.com/litecoin/address/',
-            currencyExplorerTxLink: 'https://blockchair.com/litecoin/transaction/'
+            currencyExplorerTxLink: 'https://blockchair.com/litecoin/transaction/',
+            addressPrefix : 'L',
+            defaultPath: `m/44'/2'/0'/0/0`
         },
     ETH_USDT:
         {
@@ -1293,7 +1297,9 @@ const CurrenciesForTests = {
         currencySymbol: 'BTC',
         addressProcessor: 'BTC_SEGWIT',
         extendsProcessor: 'BTC',
-        ratesCurrencyCode: 'BTC'
+        ratesCurrencyCode: 'BTC',
+        addressPrefix: 'bc1',
+        defaultPath: `m/84'/0'/0'/0/0`
     },
     'BTC_SEGWIT_COMPATIBLE': {
         currencyName: 'Bitcoin Compatible Segwit',
@@ -1301,7 +1307,19 @@ const CurrenciesForTests = {
         currencySymbol: 'BTC',
         addressProcessor: 'BTC_SEGWIT_COMPATIBLE',
         extendsProcessor: 'BTC',
-        ratesCurrencyCode: 'BTC'
+        ratesCurrencyCode: 'BTC',
+        addressPrefix: '3',
+        defaultPath: `m/49'/0'/0'/0/1`
+    },
+    'LTC_SEGWIT': {
+        currencyName: 'Bitcoin Segwit',
+        currencyCode: 'LTC_SEGWIT',
+        currencySymbol: 'LTC',
+        addressProcessor: 'LTC_SEGWIT',
+        extendsProcessor: 'LTC',
+        ratesCurrencyCode: 'LTC',
+        addressPrefix: 'ltc',
+        defaultPath: `m/84'/2'/0'/0/0`
     },
     'ETH_ROPSTEN_KSU_TOKEN': {
         currencyName: 'Some ERC-20 Ropsten',

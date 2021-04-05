@@ -27,6 +27,7 @@ import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendAct
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import config from '@app/config/config'
 
 let CACHE_IS_COUNTING = false
 
@@ -97,6 +98,9 @@ class SendScreen extends SendBasicScreen {
         setLoaderStatus(true)
         CACHE_IS_COUNTING = true
         try {
+            if (config.debug.sendLogs) {
+                console.log('handleGotoReceipt getFeeRate start')
+            }
             await SendActionsBlockchainWrapper.getFeeRate()
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false

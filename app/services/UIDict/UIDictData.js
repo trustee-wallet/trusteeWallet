@@ -80,18 +80,6 @@ export default {
             darkColor: '#B87A1E'
         }
     },
-    'BTC_SEGWIT': {
-        colors: {
-            mainColor: '#F79E1B',
-            darkColor: '#B87A1E'
-        }
-    },
-    'BTC_SEGWIT_COMPATIBLE': {
-        colors: {
-            mainColor: '#F79E1B',
-            darkColor: '#B87A1E'
-        }
-    },
     'BCH': {
         colors: {
             mainColor: '#F79E1B',

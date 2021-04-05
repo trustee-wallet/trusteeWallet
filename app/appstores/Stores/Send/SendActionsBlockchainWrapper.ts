@@ -120,6 +120,9 @@ export namespace SendActionsBlockchainWrapper {
             if (JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
                 return
             }
+            if (config.debug.sendLogs) {
+                console.log('SendActionsBlockchainWrapper.getFeeRate starting')
+            }
             const countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData, CACHE_DATA.additionalData ? CACHE_DATA.additionalData : {})
             let selectedFee = false
             if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {

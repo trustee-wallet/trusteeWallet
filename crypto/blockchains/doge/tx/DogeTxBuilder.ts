@@ -15,7 +15,7 @@ const MIN_SEQ = 4294960000 // for RBF
 
 export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder {
 
-    private _settings: BlocksoftBlockchainTypes.CurrencySettings
+    protected _settings: BlocksoftBlockchainTypes.CurrencySettings
     private _builderSettings: BlocksoftBlockchainTypes.BuilderSettings
     protected _bitcoinNetwork: any
     private _feeMaxForByteSatoshi: number | any

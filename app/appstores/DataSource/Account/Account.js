@@ -9,6 +9,7 @@ import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKey
 import currencyDS from '../Currency/Currency'
 
 import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 const tableName = 'account'
 let SAVED_UNIQUE = {}
@@ -43,7 +44,7 @@ class Account {
         let toIndex = 1
         let fullTree = false
         let currencyCode = params.currencyCode
-        let derivations = { 'BTC': [], 'BTC_SEGWIT': [], 'BTC_SEGWIT_COMPATIBLE' : [] }
+        let derivations = { 'BTC': [], 'BTC_SEGWIT': [], 'BTC_SEGWIT_COMPATIBLE' : [], 'LTC' : [], 'LTC_SEGWIT' : [] }
 
         if (params.fromIndex) {
             fromIndex = params.fromIndex
@@ -101,6 +102,8 @@ class Account {
             const tmp = accounts[code]
             if (code === 'BTC_SEGWIT' || code === 'BTC_SEGWIT_COMPATIBLE') {
                 code = 'BTC'
+            } else if (code === 'LTC_SEGWIT') {
+                code = 'LTC'
             }
             Log.daemon('DS/Account discoverAddresses ' + source + ' accounts ' + code + ' length ' + tmp.length + ' fromIndex ' + fromIndex + ' firstAddress ' + tmp[0].address + ' ' + tmp[0].path + ' index ' + tmp[0].index)
             for (account of tmp) {
@@ -237,6 +240,8 @@ class Account {
         let currencyCode =  account.currencyCode
         if (account.currencyCode === 'BTC_SEGWIT' || account.currencyCode === 'BTC_SEGWIT_COMPATIBLE') {
             currencyCode = 'BTC'
+        } else if (account.currencyCode === 'LTC_SEGWIT') {
+            currencyCode = 'LTC'
         }
         const findSql = `
                 SELECT
@@ -434,6 +439,7 @@ class Account {
                 for (account of res.array) {
                     account = this._prepAccount(account)
                     const key = account.currencyCode + '_' + account.walletHash
+                    const segwitPrefix = BlocksoftDict.CurrenciesForTests[account.currencyCode + '_SEGWIT'].addressPrefix
                     if (typeof uniqueAddresses[key] === 'undefined') {
                         uniqueAddresses[key] = { 1: 1 }
                     } else if (typeof (uniqueAddresses[key][account.address]) !== 'undefined') {
@@ -449,13 +455,13 @@ class Account {
                     account.unconfirmed = BlocksoftFixBalance(account, 'unconfirmed')
                     account.balanceProvider = account.balanceProvider || 'old'
                     accounts.push(account)
-                    const first = account.address.substr(0,1)
-                    if (first === 'b') {
+                    const first = account.address.substr(0, segwitPrefix.length)
+                    if (first === segwitPrefix) {
                         segwit.push(account)
-                    } else if (first === '1') {
+                    } else if (account.address[0] !== '3') {
+                        // bitcoin compatible skipped
                         legacy.push(account)
                     }
-                    // no compatible !!!!
                 }
                 accounts.segwit = segwit
                 accounts.legacy = legacy

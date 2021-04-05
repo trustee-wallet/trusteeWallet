@@ -102,7 +102,7 @@ export async function setSelectedAccount(setting) {
     let basicAccounts = store.getState().accountStore.accountList
 
     let accounts
-    if (currency.currencyCode === 'BTC') {
+    if (currency.currencyCode === 'BTC' || currency.currencyCode === 'LTC') {
         // Log.log('ACT/MStore setSelectedAccount BTC', { wallet, currency })
 
         accounts = await accountDS.getAccountData({
@@ -111,7 +111,7 @@ export async function setSelectedAccount(setting) {
             splitSegwit: true,
             notAlreadyShown: wallet.walletIsHd
         })
-        if (wallet.walletIsHd) {
+        if (currency.currencyCode === 'BTC' && wallet.walletIsHd) { // !!! no ltc hd for now
             let needSegwit = false
             let needLegacy = false
             if (typeof accounts.segwit === 'undefined' || !accounts.segwit || accounts.segwit.length === 0) {
@@ -176,15 +176,15 @@ export async function setSelectedAccount(setting) {
             Log.log('ACT/MStore setSelectedAccount GENERATE SEGWIT')
             const tmp = await accountDS.discoverAccounts({
                 walletHash: wallet.walletHash,
-                currencyCode: ['BTC_SEGWIT']
+                currencyCode: [currency.currencyCode + '_SEGWIT']
             }, 'MS_SELECT_ACCOUNT')
             accounts.segwit = tmp.accounts
         }
         if (typeof accounts.segwit[0] === 'undefined') {
-            throw new Error('ACT/MStore setSelectedAccount NOTHING SET BTC SEGWIT ' + JSON.stringify(accounts.segwit))
+            throw new Error('ACT/MStore setSelectedAccount NOTHING SET ' + currency.currencyCode + ' SEGWIT ' + JSON.stringify(accounts.segwit))
         }
         if (typeof accounts.legacy[0] === 'undefined') {
-            throw new Error('ACT/MStore setSelectedAccount NOTHING SET BTC LEGACY ' + JSON.stringify(accounts.legacy))
+            throw new Error('ACT/MStore setSelectedAccount NOTHING SET ' + currency.currencyCode + ' LEGACY ' + JSON.stringify(accounts.legacy))
         }
         const segwit = accounts.segwit[0]
         const legacy = accounts.legacy[0]

@@ -349,34 +349,6 @@ export default class ButtonLine extends Component {
                     </View>
                 )
 
-            case 'BTC_SEGWIT':
-                return (
-                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
-                        <View style={styles.icon__item}>
-                            <CustomIcon name="BTC" style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
-                            <View style={{ ...styles.icon__text, ...textContainerStyle }}>
-                                <Text style={{ ...styles.icon__text__item, backgroundColor: colors.common.iconMarkBg, ...textStyle }}>
-                                    SW
-                                </Text>
-                            </View>
-                        </View>
-                    </View>
-                )
-
-            case 'BTC_SEGWIT_COMPATIBLE':
-                return (
-                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
-                        <View style={styles.icon__item}>
-                            <CustomIcon name="BTC" style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
-                            <View style={{ ...styles.icon__text, ...textContainerStyle }}>
-                                <Text style={{ ...styles.icon__text__item, backgroundColor: colors.common.iconMarkBg, ...textStyle }}>
-                                    SWC
-                                </Text>
-                            </View>
-                        </View>
-                    </View>
-                )
-
             case 'BTG':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], borderWidth: 1, ...tmpContainerStyle }}>
@@ -400,7 +372,7 @@ export default class ButtonLine extends Component {
                             <CustomIcon name="USDT" style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <CustomIcon name={currencyCode === 'ETH_USDT' ? "ETH" : currencyCode === 'TRX_USDT' ? 'TRX' : currencyCode === 'BNB_SMART_USDT' ? 'ETH_BNB' : 'BTC'}
-                                    style={{ color: colorDict[currencyCode === 'ETH_USDT' ? "ETH" : currencyCode === 'TRX_USDT' ? 
+                                    style={{ color: colorDict[currencyCode === 'ETH_USDT' ? "ETH" : currencyCode === 'TRX_USDT' ?
                                         'TRX' : currencyCode === 'BNB_SMART_USDT' ? 'ETH_BNB' : 'BTC'].colors[isLight ? 'mainColor' : 'darkColor']
                                     }} size={13} />
                             </View>
@@ -561,7 +533,7 @@ export default class ButtonLine extends Component {
                         </View>
                     </View>
                 )
-            
+
             case 'CUSTOM_XXP':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>

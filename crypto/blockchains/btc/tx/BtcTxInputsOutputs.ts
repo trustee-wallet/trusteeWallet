@@ -7,12 +7,17 @@ import DogeTxInputsOutputs from '../../doge/tx/DogeTxInputsOutputs'
 import settingsActions from '../../../../app/appstores/Stores/Settings/SettingsActions'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import DaemonCache from '../../../../app/daemons/DaemonCache'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxInputsOutputs {
 
     async _addressForChange(data: BlocksoftBlockchainTypes.TransferData): string {
         const btcShowTwoAddress = settingsActions.getSettingStatic('btcShowTwoAddress')
         const btcLegacyOrSegwit = settingsActions.getSettingStatic('btc_legacy_or_segwit')
+
+        const mainCurrencyCode =  this._settings.currencyCode === 'LTC' ?  'LTC' : 'BTC'
+        const legacyPrefix = BlocksoftDict.Currencies[mainCurrencyCode].addressPrefix
+        const segwitPrefix = BlocksoftDict.CurrenciesForTests[mainCurrencyCode + '_SEGWIT'].addressPrefix
 
         let needFindSegwit = false
         if (btcShowTwoAddress === '1' || data.useLegacy === 1) {
@@ -31,20 +36,20 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
         try {
             let addressForChange
             if (needFindSegwit) {
-                addressForChange = CACHE_FOR_CHANGE['b']
+                addressForChange = CACHE_FOR_CHANGE[segwitPrefix]
             } else {
-                addressForChange = CACHE_FOR_CHANGE['1']
+                addressForChange = CACHE_FOR_CHANGE[legacyPrefix]
             }
 
             if (addressForChange === data.addressTo) {
                 if (!needFindSegwit) {
-                    addressForChange = CACHE_FOR_CHANGE['b']
+                    addressForChange = CACHE_FOR_CHANGE[segwitPrefix]
                 } else {
-                    addressForChange = CACHE_FOR_CHANGE['1']
+                    addressForChange = CACHE_FOR_CHANGE[legacyPrefix]
                 }
             }
             // @ts-ignore
-            BlocksoftCryptoLog.log('BtcTxInputsOutputs _addressForChange addressForChange logic ', {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' ' + mainCurrencyCode + ' BtcTxInputsOutputs _addressForChange addressForChange logic ', {
                 needFindSegwit,
                 addressForChange,
                 CACHE: CACHE_FOR_CHANGE
@@ -53,7 +58,7 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
                 return addressForChange
             }
         } catch (e) {
-            BlocksoftCryptoLog.err('BtcTxInputsOutputs _addressForChange error ' + e.message)
+            BlocksoftCryptoLog.err(this._settings.currencyCode + ' ' + mainCurrencyCode + ' BtcTxInputsOutputs _addressForChange error ' + e.message)
         }
 
         return data.addressFrom

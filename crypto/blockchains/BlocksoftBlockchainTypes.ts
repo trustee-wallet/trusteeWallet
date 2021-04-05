@@ -218,8 +218,8 @@ export namespace BlocksoftBlockchainTypes {
         feeMaxAutoReadable6: number,
         feeMaxAutoReadable12: number,
         changeTogether: boolean,
-        minRbfStepSatoshi: number,
-        minSpeedUpMulti: number,
+        minRbfStepSatoshi?: number,
+        minSpeedUpMulti?: number,
         feeMinTotalReadable?: number
     }
 

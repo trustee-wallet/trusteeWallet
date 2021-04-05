@@ -105,7 +105,7 @@ export default {
         }
         data.push('BTC_SEGWIT')
         data.push('BTC_SEGWIT_COMPATIBLE')
-
+        data.push('LTC_SEGWIT')
         return data
     }
 }
