@@ -11,10 +11,11 @@ export const getVisibleCurrencies = createSelector(
       return currencies.filter(c => {
           const mask = Number(c.isHidden || 0).toString(2).split('').reverse() // split to binary
           if (typeof mask[selectedWalletNumber] === 'undefined') {
-              return mask[mask.length - 1] === '0'
+              c.maskedHidden =  mask[mask.length - 1] === '0'
           } else {
-              return mask[selectedWalletNumber] === '0'
+              c.maskedHidden = mask[selectedWalletNumber] === '0'
           }
+          return c.maskedHidden
       })
   })
 )
