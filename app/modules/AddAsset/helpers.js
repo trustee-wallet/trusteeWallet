@@ -91,7 +91,7 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
 
         _forEach(dataGrouped, (arr, tokenBlockchain) => {
             data.push({
-                title: tokenBlockchain === 'BNB' ? 'BINANCE COIN' : tokenBlockchain,
+                title: tokenBlockchain === 'BNB' ? 'BINANCE SMART CHAIN (BEP-20)' : tokenBlockchain,
                 data: arr
             })
         })
