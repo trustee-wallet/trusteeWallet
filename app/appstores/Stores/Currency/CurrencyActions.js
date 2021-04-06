@@ -20,6 +20,7 @@ import settingsActions from '../Settings/SettingsActions'
 import ApiRates from '@app/services/Api/ApiRates'
 import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon'
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 const { dispatch } = store
 
 const BASIC_CURRENCIES_DICTS = {}
@@ -216,13 +217,13 @@ const currencyActions = {
             // binary from int - for support of old stored values
             const selectedWalletNumber = store.getState().mainStore.selectedWallet.walletNumber
             const currentIsHidden = Number(params.currentIsHidden || 0).toString(2).split('').reverse() // split to binary
-            for (let i = currentIsHidden.length; i < selectedWalletNumber; i++) {
-                currentIsHidden[i] = 0
+            for (let i = 0; i <= MarketingEvent.DATA.LOG_WALLETS_COUNT; i++) {
+                if (typeof currentIsHidden[i] === 'undefined') {
+                    currentIsHidden[i] = 0
+                }
             }
             currentIsHidden[selectedWalletNumber] = params.newIsHidden
             const isHidden = parseInt(currentIsHidden.reverse().join(''), 2)
-            // back to binary
-
             await currencyDS.updateCurrency({
                 key: {
                     currencyCode: params.currencyCode

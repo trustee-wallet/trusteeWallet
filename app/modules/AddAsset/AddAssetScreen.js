@@ -254,7 +254,7 @@ class AddAssetScreen extends React.Component {
                 iconType={item.currencyCode}
                 onPress={() => this.handleChangeCurrencyStatus(item)}
                 rightContent="switch"
-                switchParams={{ value: item.maskedHidden, onPress: () => this.handleChangeCurrencyStatus(item) }}
+                switchParams={{ value: item.isHidden !== null && !item.maskedHidden, onPress: () => this.handleChangeCurrencyStatus(item) }}
             />
         )
     }

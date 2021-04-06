@@ -381,7 +381,15 @@ class UpdateAccountListDaemon extends Update {
                         }
                         str += ' ' + account.basicCurrencyBalance + ' ' + account.basicCurrencyCode + ', '
 
-                        if (!tmpCurrency.isHidden) {
+                        const mask = Number(tmpCurrency.isHidden || 0).toString(2).split('').reverse() // split to binary
+                        let maskedHidden
+                        if (typeof mask[accountWallet.walletNumber] === 'undefined') {
+                            maskedHidden = mask.length === 1 ? ( mask[mask.length - 1] === '1' ) : false
+                        } else {
+                            maskedHidden = mask[accountWallet.walletNumber] === '1'
+                        }
+
+                        if (!maskedHidden) {
 
                             if (account.basicCurrencyBalanceNorm > 0) {
                                 try {
@@ -438,7 +446,6 @@ class UpdateAccountListDaemon extends Update {
                     basicCurrencyCode,
                     walletHash : tmpWalletHash })
             }
-
             Log.daemon('UpdateAccountListDaemon CACHE_WALLET_SUMS', DaemonCache.CACHE_WALLET_SUMS)
 
             if (typeof DaemonCache.CACHE_ALL_ACCOUNTS !== 'undefined') {

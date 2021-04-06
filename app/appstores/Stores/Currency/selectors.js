@@ -9,13 +9,17 @@ export const getVisibleCurrencies = createSelector(
   (currencies => {
       const selectedWalletNumber = store.getState().mainStore.selectedWallet.walletNumber
       return currencies.filter(c => {
-          const mask = Number(c.isHidden || 0).toString(2).split('').reverse() // split to binary
-          if (typeof mask[selectedWalletNumber] === 'undefined') {
-              c.maskedHidden =  mask[mask.length - 1] === '0'
+          if (c.isHidden === null) {
+              c.maskedHidden = true
           } else {
-              c.maskedHidden = mask[selectedWalletNumber] === '0'
+              const mask = Number(c.isHidden || 0).toString(2).split('').reverse() // split to binary
+              if (typeof mask[selectedWalletNumber] === 'undefined') {
+                  c.maskedHidden = mask.length === 1 ? (mask[mask.length - 1] === '1') : false
+              } else {
+                  c.maskedHidden = mask[selectedWalletNumber] === '1'
+              }
           }
-          return c.maskedHidden
+          return !c.maskedHidden
       })
   })
 )
