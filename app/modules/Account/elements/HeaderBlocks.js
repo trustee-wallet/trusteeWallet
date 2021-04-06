@@ -228,9 +228,11 @@ class HeaderBlocks extends Component {
 
         let shownAddress = address
         let forceLink = false
-        if (cryptoCurrency.currencyCode === 'BTC') {
-            let isSegwit = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit'
+        let isSegwit = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit'
+        if (typeof account.segwitAddress !== 'undefined' && account.segwitAddress) {
             shownAddress = isSegwit ? account.segwitAddress : account.legacyAddress
+        }
+        if (cryptoCurrency.currencyCode === 'BTC') {
             if (typeof account.walletPubs !== 'undefined' && account.walletPubs) {
                 isSegwit = isSegwit ? 'btc.84' : 'btc.44'
                 forceLink = 'https://blockchair.com/bitcoin/xpub/' + account.walletPubs[isSegwit].walletPubValue

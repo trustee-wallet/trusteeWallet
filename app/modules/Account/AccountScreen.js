@@ -435,9 +435,10 @@ class Account extends Component {
 
         const fioMemo = DaemonCache.getFioMemo(cryptoCurrency.currencyCode)
 
-        const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
-
-        const shownAddress = cryptoCurrency.currencyCode === 'BTC' ? btcAddress : address
+        let shownAddress = address
+        if (typeof account.segwitAddress !== 'undefined' && account.segwitAddress) {
+            shownAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
+        }
 
         if (account && account.balanceProvider) {
             const logData = {
@@ -455,7 +456,7 @@ class Account extends Component {
                 basicCurrencyRate: account.basicCurrencyRate + ''
             }
 
-            if (cryptoCurrency.currencyCode === 'BTC') {
+            if (typeof account.segwitAddress !== 'undefined' && account.segwitAddress) {
                 logData.legacyAddress = account.legacyAddress || ''
                 logData.segwitAddress = account.segwitAddress || ''
             }
