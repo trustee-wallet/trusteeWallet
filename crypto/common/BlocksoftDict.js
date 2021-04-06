@@ -5,10 +5,10 @@ import Database from '@app/appstores/DataSource/Database'
 const { RNFastCrypto } = NativeModules
 
 const VisibleCodes = [
-    'LTC' // add code here to show on start screen
+        'BTC', 'ETH', 'ETH_USDT', 'TRX', 'TRX_USDT' // add code here to show on start screen
 ]
 const Codes = [
-    'LTC' // BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'TRX', 'TRX_USDT', 'BNB', 'BNB_SMART', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'FIO'   // add code here for autocreation the wallet address with the currency
+        'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'TRX', 'TRX_USDT', 'BNB', 'BNB_SMART', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'FIO'   // add code here for autocreation the wallet address with the currency
 ]
 
 const Currencies = {
