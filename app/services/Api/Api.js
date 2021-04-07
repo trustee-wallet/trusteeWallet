@@ -7,7 +7,7 @@ import Log from '../Log/Log'
 import { strings, sublocale } from '../i18n'
 import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
 import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import CashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
+import cashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
 
 import MarketingEvent from '../Marketing/MarketingEvent'
 import AppNotificationListener from '../AppNotification/AppNotificationListener'
@@ -115,7 +115,6 @@ export default {
         if (res && typeof res.data !== 'undefined') {
             res.data.cashbackToken = cashbackToken
             res.data.signedData = signedData
-            res.data.publicAddress = CashBackUtils.getWalletPublicAddress()
             return res.data
         }
         return res
@@ -213,7 +212,7 @@ export default {
             getStatisticsReqData.parentToken = parentToken
         }
 
-        const link = `${CashBackSettings.getBase()}/activate-promo`
+        const link = `${cashBackSettings.getBase()}/activate-promo`
         let res
         let index = 0
         let serverTime = 0

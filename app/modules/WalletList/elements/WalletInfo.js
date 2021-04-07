@@ -2,13 +2,13 @@
  * @version 0.31
  * @author yura
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import {
     View,
     Text,
     Animated,
-    TouchableOpacity,
+    TouchableOpacity, StyleSheet
 } from 'react-native'
 
 import AsyncStorage from '@react-native-community/async-storage'
@@ -22,6 +22,7 @@ import LetterSpacing from '@app/components/elements/LetterSpacing'
 
 import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import { saveSelectedBasicCurrencyCode } from '@app/appstores/Stores/Main/MainStoreActions'
+import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 import { strings } from '@app/services/i18n'
@@ -29,6 +30,7 @@ import Log from '@app/services/Log/Log'
 import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import { HIT_SLOP } from '@app/themes/Themes'
 
@@ -39,7 +41,7 @@ import { SIZE } from '../helpers'
 
 let CACHE_PREV_CURRENCY = false
 
-class WalletInfo extends Component {
+class WalletInfo extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -128,7 +130,8 @@ class WalletInfo extends Component {
             triggerBalanceVisibility,
             isBalanceVisible,
             originalVisibility,
-            balanceData
+            balanceData,
+            walletNumber
         } = this.props
         const { isViolet } = this.state
         const { colors, GRID_SIZE } = this.context
@@ -162,11 +165,26 @@ class WalletInfo extends Component {
                                 ]}>
                                     {strings('homeScreen.balance')}
                                 </Text>
-                                <LetterSpacing
-                                    text={todayPrep}
-                                    textStyle={Object.assign({}, styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 })}
-                                    letterSpacing={1}
-                                />
+
+
+
+                                {MarketingEvent.DATA.LOG_TESTER ? (
+                                        <TouchableOpacity onPress={() => cryptoWalletActions.setNextWallet(walletNumber, 'HomeScreen.WalletInfo')} hitSlop={HIT_SLOP}>
+                                            <LetterSpacing
+                                                text={'NEXT WALLET'}
+                                                textStyle={Object.assign({}, styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 })}
+                                                letterSpacing={1}
+                                            />
+                                        </TouchableOpacity>
+                                    )
+                                    :
+                                    <LetterSpacing
+                                        text={todayPrep}
+                                        textStyle={Object.assign({}, styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 })}
+                                        letterSpacing={1}
+                                    />
+
+                                }
                             </View>
                             <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')}>
                                 <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
@@ -258,7 +276,7 @@ WalletInfo.contextType = ThemeContext
 export default connect(mapStateToProps, mapDispatchToProps)(WalletInfo)
 
 
-const styles = {
+const styles = StyleSheet.create({
     notificationButton: {
         paddingHorizontal: 12
     },
@@ -381,4 +399,4 @@ const styles = {
         marginRight: 2,
         marginTop: 1,
     },
-}
+})

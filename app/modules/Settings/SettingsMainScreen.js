@@ -21,7 +21,6 @@ import AsyncStorage from '@react-native-community/async-storage'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import CashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
 
 import config from '../../config/config'
 
@@ -203,8 +202,6 @@ class SettingsMainScreen extends React.Component {
         this.setState({
             mode
         })
-
-        CashBackSettings.init()
 
         Vibration.vibrate(100)
     }

@@ -20,7 +20,6 @@ import NavStore from '../../components/navigation/NavStore'
 
 import { strings, sublocale } from '../../services/i18n'
 
-import CashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
@@ -76,7 +75,6 @@ class AboutScreen extends React.Component {
         Toast.setMessage(strings('settings.config', { config: 'DEV' })).show()
         config.exchange.mode = 'DEV'
         config.cashback.mode = 'DEV'
-        CashBackSettings.init()
         Vibration.vibrate(100)
     }
 

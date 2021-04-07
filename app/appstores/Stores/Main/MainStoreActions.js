@@ -18,7 +18,6 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
-import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 
@@ -34,8 +33,6 @@ export async function setSelectedWallet(source) {
     if (!walletHash) {
         return false
     }
-
-    await CashBackUtils.createWalletSignature(false)
 
     const wallet = await walletDS.getWalletByHash(walletHash)
 

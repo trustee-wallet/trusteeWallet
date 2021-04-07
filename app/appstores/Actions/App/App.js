@@ -27,7 +27,6 @@ import AppNotification from '../../../services/AppNotification/AppNotificationLi
 
 import Daemon from '../../../daemons/Daemon'
 import CashBackActions from '../../Stores/CashBack/CashBackActions'
-import CashBackSettings from '../../Stores/CashBack/CashBackSettings'
 import CashBackUtils from '../../Stores/CashBack/CashBackUtils'
 
 import FilePermissions from '../../../services/FileSystem/FilePermissions'
@@ -186,8 +185,6 @@ class App {
 
         await currencyActions.init()
 
-        await CashBackSettings.init()
-
         if (firstTimeCall === 'first') {
             // first step of init
             await Daemon.forceAll({ ...params, noCashbackApi: true })
@@ -200,18 +197,11 @@ class App {
 
             // await UpdateCashBackDataDaemon.updateCashBackDataDaemon({source : 'UpdateCashBackDataDaemon.AppHomeScreen'})
 
-            await CashBackUtils.init()
-
-            await CashBackActions.setPublicLink()
+            await CashBackUtils.init({},'ACT/App appRefreshWalletsStates init ' + firstTimeCall)
         } else {
-            // reload from wallet import etc
-            await CashBackSettings.init()
-
             await Daemon.forceAll(params)
 
-            await CashBackUtils.init()
-
-            await CashBackActions.setPublicLink()
+            await CashBackUtils.init({}, 'ACT/App appRefreshWalletsStates init '  + firstTimeCall)
         }
 
         await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall) + ' finished')

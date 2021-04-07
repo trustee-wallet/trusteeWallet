@@ -1,17 +1,19 @@
-
+/**
+ * @version 0.42
+ */
 import React from 'react'
 import { View } from 'react-native'
 
-import { strings } from '../../../services/i18n'
+import { strings } from '@app/services/i18n'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
-import Button from '../../../components/elements/new/buttons/Button'
-import TextInput from '../../../components/elements/new/TextInput'
-import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
-import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import Button from '@app/components/elements/new/buttons/Button'
+import TextInput from '@app/components/elements/new/TextInput'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import Api from '../../../services/Api/Api'
-import config from '../../../config/config'
+import Api from '@app/services/Api/Api'
+import config from '@app/config/config'
 
 export default class PromoCodeContent extends React.Component {
     state = {
@@ -47,10 +49,7 @@ export default class PromoCodeContent extends React.Component {
     }
 
     render() {
-        const {
-            colors,
-            GRID_SIZE,
-        } = this.context
+        const { GRID_SIZE } = this.context
         const { promoCode } = this.state
 
         return (

@@ -118,7 +118,7 @@ class MarketingEvent {
         }
         this.DATA.LOG_WALLET = walletHash
 
-        await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET })
+        await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET }, 'MarketingEvent')
 
         this.DATA.LOG_CASHBACK = CashBackUtils.getWalletToken()
         this.DATA.LOG_PARENT = CashBackUtils.getParentToken()

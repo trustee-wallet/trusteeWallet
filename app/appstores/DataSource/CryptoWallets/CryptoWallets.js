@@ -91,8 +91,6 @@ const cryptoWallets = {
 
             storedSelectedWallet = await BlocksoftKeysStorage.setSelectedWallet(walletHash, source)
 
-            await MarketingEvent.reinitByWallet(storedSelectedWallet)
-
             // Log.log('DS/cryptoWallets setSelectedWallet finished ' + walletHash + ' from ' + source)
         } catch (e) {
             Log.err('DS/cryptoWallets setSelectedWallet error ' + e.message)

@@ -308,13 +308,13 @@ class HomeScreen extends React.Component {
 
         MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')
 
-        let walletHash = this.props.mainStore.selectedWallet.walletHash
+        let {walletHash, walletNumber} = this.props.mainStore.selectedWallet
         if (!walletHash || typeof walletHash === 'undefined') {
             if (!CACHE_SET_WALLET_HASH) {
                 CACHE_SET_WALLET_HASH = true
                 walletHash = cryptoWalletActions.setFirstWallet()
                 Log.log('HomeScreen empty wallet hash changed to ' + walletHash)
-                cryptoWalletActions.setSelectedWallet(walletHash, 'WalletList.HomeScreen', false)
+                cryptoWalletActions.setSelectedWalletFromHome(walletHash, 'WalletList.HomeScreen', false)
             }
         }
         const balanceData = this.getBalanceData()
@@ -355,6 +355,7 @@ class HomeScreen extends React.Component {
                                     changeBalanceVisibility={this.changeBalanceVisibility}
                                     triggerBalanceVisibility={this.triggerBalanceVisibility}
                                     balanceData={balanceData}
+                                    walletNumber={walletNumber}
                                 />
                             )}
                             renderItem={({ item, drag, isActive }) => (
