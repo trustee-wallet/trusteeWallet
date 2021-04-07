@@ -86,12 +86,14 @@ class AddAssetScreen extends React.Component {
     }
 
     handleAddCurrency = async (currencyToAdd) => {
+        Keyboard.dismiss()
         MarketingEvent.logEvent('gx_currency_add', { currencyCode: currencyToAdd.currencyCode }, 'GX')
         await currencyActions.addCurrency(currencyToAdd)
         this.prepareData()
     }
 
     toggleCurrencyVisibility = async (currencyCode, newIsHidden, currentIsHidden) => {
+        Keyboard.dismiss()
         if (newIsHidden) {
             MarketingEvent.logEvent('gx_currency_hide', { currencyCode, source: 'AddAssetScreen' }, 'GX')
         } else {
