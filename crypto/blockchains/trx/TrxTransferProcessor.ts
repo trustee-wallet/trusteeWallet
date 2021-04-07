@@ -92,19 +92,19 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             if (this._tokenName[0] === 'T') {
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate result ' + link, res.data.bandwidth)
                 if (res.data.bandwidth.freeNetRemaining.toString() === '0') {
-                    feeForTx = 48300
+                    feeForTx = 49000
                 } else {
-                    const diffB = 345 - res.data.bandwidth.freeNetRemaining.toString() * 1
+                    const diffB = 350 - res.data.bandwidth.freeNetRemaining.toString() * 1
                     if (diffB > 0) {
-                        feeForTx = BlocksoftUtils.mul(48300, BlocksoftUtils.div(diffB, 345))
+                        feeForTx = BlocksoftUtils.mul(49000, BlocksoftUtils.div(diffB, 350))
                     }
                 }
                 if (res.data.bandwidth.energyRemaining.toString() === '0') {
-                    feeForTx = feeForTx * 1 + 2048340
+                    feeForTx = feeForTx * 1 + 4148340
                 } else {
-                    const diffE = 14631 - res.data.bandwidth.energyRemaining.toString() * 1
+                    const diffE = 29631 - res.data.bandwidth.energyRemaining.toString() * 1
                     if (diffE > 0) {
-                        feeForTx = feeForTx * 1 + BlocksoftUtils.mul(2048340, BlocksoftUtils.div(diffE / 14631)) * 1
+                        feeForTx = feeForTx * 1 + BlocksoftUtils.mul(4148340, BlocksoftUtils.div(diffE / 29631)) * 1
                     }
                 }
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate feeForTx ' + feeForTx)
@@ -122,9 +122,15 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         amountForTx: data.amount
                     }
                 ]
+                if (res.data.balance * 1 < feeForTx * 1) {
+                    throw new Error('SERVER_RESPONSE_BANDWITH_ERROR_TRX')
+                }
                 result.selectedFeeIndex = 0
             }
         } catch (e) {
+            if (e.message.indexOf('SERVER_RESPONSE_') === 0) {
+                throw e
+            }
             if (config.debug.cryptoErrors) {
                 console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate error ' + e.message)
             }
@@ -178,6 +184,8 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         if (data.addressFrom === data.addressTo) {
             throw new Error('SERVER_RESPONSE_SELF_TX_FORBIDDEN')
         }
+        // check error
+        await this.getFeeRate(data, privateData)
 
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx started')
 
