@@ -9,6 +9,9 @@ import BlocksoftUtils from '../../common/BlocksoftUtils'
 const API_PATH = 'https://bsv-chain.api.btc.com/v3/address/'
 const API_TX_PATH = 'https://bsv-chain.api.btc.com/v3/address/'
 
+const CACHE = {
+    CACHE_BALANCE: {}
+}
 export default class BsvScannerProcessor {
     /**
      * @type {number}
@@ -22,6 +25,10 @@ export default class BsvScannerProcessor {
      * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalanceBlockchain(address) {
+        if (typeof CACHE.CACHE_BALANCE[address] !== 'undefined' && CACHE.CACHE_BALANCE[address]) {
+            await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getBalanceBlockchain started ' + address + ' from cache')
+            return CACHE.CACHE_BALANCE[address]
+        }
         const link = API_PATH + address
         await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getBalanceBlockchain started ' + address + ' ' + link)
         const res = await BlocksoftAxios.getWithoutBraking(link)
@@ -35,7 +42,9 @@ export default class BsvScannerProcessor {
                 return false
             }
         }
-        return { balance: res.data.data.balance, unconfirmed: 0, provider: 'btc.com' }
+        const formatted = { balance: res.data.data.balance, unconfirmed: 0, provider: 'btc.com' }
+        CACHE.CACHE_BALANCE[address] = formatted
+        return formatted
     }
 
     /**
@@ -61,6 +70,7 @@ export default class BsvScannerProcessor {
                 transactions.push(transaction)
             }
             await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
+            CACHE.CACHE_BALANCE[address] = false
             return transactions
         } catch (e) {
             if (e.message.indexOf('403 forbidden') === -1) {
