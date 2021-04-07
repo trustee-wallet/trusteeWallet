@@ -48,19 +48,26 @@ export default class BsvScannerProcessor {
         const address = scanData.account.address.trim()
         const link = API_TX_PATH + address + '/tx'
         await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions started ' + address + ' ' + link)
-        const tmp = await BlocksoftAxios.getWithoutBraking(link)
-        if (!tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.data === 'undefined' || !tmp.data.data || typeof tmp.data.data.list === 'undefined' || !tmp.data.data.list) {
-            await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions no data ' + address)
+        try {
+            const tmp = await BlocksoftAxios.getWithoutBraking(link)
+            if (!tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.data === 'undefined' || !tmp.data.data || typeof tmp.data.data.list === 'undefined' || !tmp.data.data.list) {
+                await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions no data ' + address)
+                return []
+            }
+            const transactions = []
+            await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions data ' + address, tmp.data.data.list)
+            for (const tx of tmp.data.data.list) {
+                const transaction = await this._unifyTransaction(address, tx)
+                transactions.push(transaction)
+            }
+            await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
+            return transactions
+        } catch (e) {
+            if (e.message.indexOf('403 forbidden') === -1) {
+                throw e
+            }
             return []
         }
-        const transactions = []
-        await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions data ' + address, tmp.data.data.list)
-        for (const tx of tmp.data.data.list) {
-            const transaction = await this._unifyTransaction(address, tx)
-            transactions.push(transaction)
-        }
-        await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
-        return transactions
     }
 
     async _unifyTransaction(address, transaction) {
