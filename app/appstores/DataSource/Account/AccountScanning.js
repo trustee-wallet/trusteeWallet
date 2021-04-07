@@ -34,7 +34,6 @@ class AccountScanning {
                 where.push(`(account.derivation_path = 'm/49quote/0quote/0/1/0' OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub))`)
             }
         } else {
-            where.push(`currency.is_hidden=0`)
             where.push(`(account.currency_code!='BTC' OR account.derivation_path = 'm/49quote/0quote/0/1/0' OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub))`)
         }
         if (typeof params.currencyFamily !== 'undefined' && params.currencyFamily) {
@@ -97,7 +96,7 @@ class AccountScanning {
             LIMIT ${limit}
         `
         Log.daemon('AccountScanning getAccountsForScan where ' + where + ' limit ' + limit)
-
+        
         let res = []
         const uniqueAddresses = {}
         const idsToRemove = []
