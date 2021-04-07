@@ -10,7 +10,6 @@ import BlocksoftBN from '../../common/BlocksoftBN'
 
 import EthTmpDS from './stores/EthTmpDS'
 import EthRawDS from './stores/EthRawDS'
-import { add } from 'react-native-reanimated'
 
 const CACHE_GET_MAX_BLOCK = { ETH: { max_block_number: 0, confirmations: 0 }, BNB: { max_block_number: 0, confirmations: 0 } }
 const CACHE_BLOCK_NUMBER_TO_HASH = { ETH: {}, BNB: {} }
