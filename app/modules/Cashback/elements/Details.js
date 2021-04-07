@@ -1,4 +1,6 @@
-
+/**
+ * @version 0.42
+ */
 import React from 'react'
 import { connect } from 'react-redux'
 import {
@@ -30,7 +32,6 @@ import TextInput from '@app/components/elements/new/TextInput'
 
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
-
 
 class DetailsContent extends React.Component {
     state = {
@@ -236,7 +237,7 @@ class DetailsContent extends React.Component {
         let balanceAfterDecimal = '?'
 
         if (typeof balance === 'number') {
-            let tmp = balance.toString().split('.')
+            const tmp = balance.toString().split('.')
             balanceBeforeDecimal = BlocksoftPrettyNumbers.makeCut(tmp[0]).separated
             balanceAfterDecimal = ''
             if (typeof tmp[1] !== 'undefined') {
