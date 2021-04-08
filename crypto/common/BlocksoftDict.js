@@ -1247,7 +1247,7 @@ const Currencies = {
             currencySymbol: 'WINK',
             extendsProcessor: 'TRX_USDT',
             addressUiChecker: 'TRX',
-            ratesCurrencyCode: 'WINK',
+            ratesCurrencyCode: 'WIN',
             network: 'trx',
             decimals: 6,
             tokenBlockchain: 'TRON',
