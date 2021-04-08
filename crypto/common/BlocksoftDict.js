@@ -334,7 +334,7 @@ const Currencies = {
     BNB_SMART_ALPHA:
         {
             currencyType: 'token',
-            currencyName: 'Alpha Finance Binance-Peg',
+            currencyName: 'Alpha Finance BEP20',
             currencyCode: 'BNB_SMART_ALPHA',
             currencySymbol: 'ALPHA',
             ratesCurrencyCode: 'ALPHA',
@@ -426,7 +426,7 @@ const Currencies = {
     BNB_SMART_BAT:
         {
             currencyType: 'token',
-            currencyName: 'Basic Attention Token Binance-Peg',
+            currencyName: 'Basic Attention Token ',
             currencyCode: 'BNB_SMART_BAT',
             currencySymbol: 'BAT',
             ratesCurrencyCode: 'BAT',
@@ -549,7 +549,7 @@ const Currencies = {
     BNB_SMART_BTC:
         {
             currencyType: 'token',
-            currencyName: 'BTC Binance-Peg',
+            currencyName: 'BTC BEP20',
             currencyCode: 'BNB_SMART_BTC',
             currencySymbol: 'BTC',
             ratesCurrencyCode: 'BTC',
@@ -579,7 +579,7 @@ const Currencies = {
     BNB_SMART_ADA:
         {
             currencyType: 'token',
-            currencyName: 'Cardano Binance-Peg',
+            currencyName: 'Cardano BEP20',
             currencyCode: 'BNB_SMART_ADA',
             currencySymbol: 'ADA',
             ratesCurrencyCode: 'ADA',
@@ -593,7 +593,7 @@ const Currencies = {
     BNB_SMART_LINK:
         {
             currencyType: 'token',
-            currencyName: 'ChainLink Binance-Peg',
+            currencyName: 'ChainLink BEP20',
             currencyCode: 'BNB_SMART_LINK',
             currencySymbol: 'LINK',
             ratesCurrencyCode: 'LINK',
@@ -717,7 +717,7 @@ const Currencies = {
     BNB_SMART_DOGE:
         {
             currencyType: 'token',
-            currencyName: 'DOGE Binance-Peg',
+            currencyName: 'DOGE BEP20',
             currencyCode: 'BNB_SMART_DOGE',
             currencySymbol: 'DOGE',
             ratesCurrencyCode: 'DOGE',
@@ -762,7 +762,7 @@ const Currencies = {
     BNB_SMART_ETH:
         {
             currencyType: 'token',
-            currencyName: 'ETH Binance-Peg',
+            currencyName: 'ETH BEP20',
             currencyCode: 'BNB_SMART_ETH',
             currencySymbol: 'ETH',
             ratesCurrencyCode: 'ETH',
@@ -916,7 +916,7 @@ const Currencies = {
     BNB_SMART_LTC:
         {
             currencyType: 'token',
-            currencyName: 'LTC Binance-Peg',
+            currencyName: 'LTC BEP20',
             currencyCode: 'BNB_SMART_LTC',
             currencySymbol: 'LTC',
             ratesCurrencyCode: 'LTC',
@@ -1124,7 +1124,7 @@ const Currencies = {
     BNB_SMART_SXP:
         {
             currencyType: 'token',
-            currencyName: 'Swipe Token Binance-Peg',
+            currencyName: 'Swipe Token BEP20',
             currencyCode: 'BNB_SMART_SXP',
             currencySymbol: 'SXP',
             ratesCurrencyCode: 'SXP',
@@ -1154,7 +1154,7 @@ const Currencies = {
     BNB_SMART_USDT:
         {
             currencyType: 'token',
-            currencyName: 'Tether Binance-Peg',
+            currencyName: 'Tether BEP20',
             currencyCode: 'BNB_SMART_USDT',
             currencySymbol: 'USDT',
             ratesCurrencyCode: 'USDT',
@@ -1168,7 +1168,7 @@ const Currencies = {
     BNB_SMART_UNI:
         {
             currencyType: 'token',
-            currencyName: 'Uniswap Binance-Peg',
+            currencyName: 'Uniswap BEP20',
             currencyCode: 'BNB_SMART_UNI',
             currencySymbol: 'UNI',
             ratesCurrencyCode: 'UNI',
@@ -1198,7 +1198,7 @@ const Currencies = {
     BNB_SMART_USD:
         {
             currencyType: 'token',
-            currencyName: 'USD Binance-Peg',
+            currencyName: 'USD BEP20',
             currencyCode: 'BNB_SMART_USD',
             currencySymbol: 'BUSD',
             ratesCurrencyCode: 'BUSD',
@@ -1212,7 +1212,7 @@ const Currencies = {
     BNB_SMART_USDC:
         {
             currencyType: 'token',
-            currencyName: 'USDC Binance-Peg',
+            currencyName: 'USDC BEP20',
             currencyCode: 'BNB_SMART_USDC',
             currencySymbol: 'USDC',
             ratesCurrencyCode: 'USDC',
