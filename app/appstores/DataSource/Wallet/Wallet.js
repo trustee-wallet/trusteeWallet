@@ -175,13 +175,12 @@ class Wallet {
                 wallet_allow_replace_by_fee AS walletAllowReplaceByFee,
                 wallet_is_hide_transaction_for_fee AS walletIsHideTransactionForFee,
                 wallet_number AS walletNumber
-                FROM wallet`).query()
+                FROM wallet ORDER BY wallet_number`).query()
         if (!res || !res.array) {
             Log.log('DS/Wallet getWallets no result')
             return []
         }
         for (let i = 0, ic = res.array.length; i < ic; i++) {
-            res.array[i].walletNumber = (i + 1).toString()
             res.array[i] = this._prepWallet(res.array[i])
             this._redoCashback(res.array[i])
         }
@@ -201,6 +200,7 @@ class Wallet {
     _prepWallet(wallet) {
         wallet.walletToSendStatus = wallet.walletToSendStatus * 1
         wallet.walletName = Database.unEscapeString(wallet.walletName)
+        wallet.walletNumber = wallet.walletNumber * 1
         wallet.walletIsHd = wallet.walletIsHd * 1 || 0
         if (typeof wallet.walletIsBackedUp !== 'undefined') {
             wallet.walletIsBackedUp = wallet.walletIsBackedUp * 1 || 0

@@ -8,8 +8,6 @@ import { setLoaderStatus, setSelectedWallet } from '@app/appstores/Stores/Main/M
 
 import cryptoWalletDS from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
-import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
-import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
