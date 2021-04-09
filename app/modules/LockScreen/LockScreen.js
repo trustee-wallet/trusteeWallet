@@ -1,34 +1,35 @@
 /**
- * @version 0.9
+ * @version 0.41
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, Image, Animated, Text, TouchableOpacity } from 'react-native'
+import { View, Image, Animated, TouchableOpacity, StyleSheet } from 'react-native'
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Orientation from 'react-native-orientation'
 
 import PINCode, { hasUserSetPinCode, deleteUserPinCode } from '@haskkor/react-native-pincode'
 
+import NavStore from '@app/components/navigation/NavStore'
+import Header from '@app/components/elements/new/Header'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
+import { strings } from '@app/services/i18n'
 
-import GradientView from '../../components/elements/GradientView'
-import NavStore from '../../components/navigation/NavStore'
-import Header from '../../components/elements/new/Header'
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
-import { strings } from '../../services/i18n'
+import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystore'
+import Log from '@app/services/Log/Log'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import Button from '../../components/elements/Button'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeystore'
-import Log from '../../services/Log/Log'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-import UpdateOneByOneDaemon from "../../daemons/back/UpdateOneByOneDaemon";
-import UpdateAccountListDaemon from "../../daemons/view/UpdateAccountListDaemon";
-import UpdateAppNewsListDaemon from "../../daemons/view/UpdateAppNewsListDaemon";
+import UpdateOneByOneDaemon from "@app/daemons/back/UpdateOneByOneDaemon"
+import UpdateAccountListDaemon from "@app/daemons/view/UpdateAccountListDaemon"
+import UpdateAppNewsListDaemon from "@app/daemons/view/UpdateAppNewsListDaemon"
+
+import { getLockScreenData } from '@app/appstores/Stores/LockScreen/selectors'
+import { getIsTouchIDStatus } from '@app/appstores/Stores/Settings/selectors'
 
 
 class LockScreen extends Component {
@@ -247,7 +248,7 @@ class LockScreen extends Component {
     render() {
         MarketingAnalytics.setCurrentScreen('LockScreen.index')
         const { flowType } = this.props.lockScreen
-        let touchIDStatus = this.props.settings.keystore.touchIDStatus
+        let touchIDStatus = this.props.touchIDStatus
         touchIDStatus = +touchIDStatus
         Log.log('LockScreen.render with touchIDStatus ' + JSON.stringify(touchIDStatus))
 
@@ -411,8 +412,8 @@ class LockScreen extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        settings: state.settingsStore,
-        lockScreen: state.lockScreenStore
+        touchIDStatus : getIsTouchIDStatus(state),
+        lockScreen: getLockScreenData(state)
     }
 }
 
@@ -420,13 +421,7 @@ LockScreen.contextType = ThemeContext
 
 export default connect(mapStateToProps, {})(LockScreen)
 
-const styles_ = {
-    array: ['#f5f5f5', '#f5f5f5'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
-}
-
-const styles = {
+const styles = StyleSheet.create({
     wrapper: {
         flex: 1
     },
@@ -490,4 +485,4 @@ const styles = {
         width: '100%',
         height: '100%',
     }
-}
+})
