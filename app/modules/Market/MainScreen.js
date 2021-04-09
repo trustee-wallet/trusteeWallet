@@ -330,6 +330,7 @@ class MarketScreen extends Component {
             Log.log('Market/MainScreen send data', data)
 
             const limits = data.limits ? JSON.parse(data.limits) : false
+
             // const trusteeFee = data.trusteeFee ? JSON.parse(data.trusteeFee) : false
 
             const minCrypto = typeof limits.limits !== 'undefined' && limits.limits ? BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits) : false
@@ -352,14 +353,7 @@ class MarketScreen extends Component {
                 status: 'pending_payin'
             }
 
-            await SendActionsStart.startFromBSE({
-                addressTo: data.address,
-                amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
-                memo: data.memo,
-                comment: data.comment || '',
-                currencyCode: data.currencyCode,
-                isTransferAll: data.useAllFunds
-            }, {
+            const bse = {
                 bseProviderType: data.providerType || 'NONE', //  'FIXED' || 'FLOATING'
                 bseOrderId: data.orderHash || data.orderId,
                 bseMinCrypto: minCrypto,
@@ -374,7 +368,28 @@ class MarketScreen extends Component {
                     to: data.outCurrency
                 },
                 bseOrderData: bseOrderData
-            })
+            }
+
+            if (typeof data.apiRaw !== 'undefined' && data.apiRaw && typeof data.apiRaw.dexCurrencyCode !== 'undefined' && data.apiRaw.dexCurrencyCode) {
+                bse.bseOrderData.status = 'dex'
+                await SendActionsStart.startFromDEX({
+                        amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
+                        currencyCode: data.currencyCode,
+                        dexCurrencyCode : data.apiRaw.dexCurrencyCode,
+                        dexOrderData : data.apiRaw.dexOrderData
+                    },
+                    bse)
+                return true
+            }
+
+            await SendActionsStart.startFromBSE({
+                addressTo: data.address,
+                amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
+                memo: data.memo,
+                comment: data.comment || '',
+                currencyCode: data.currencyCode,
+                isTransferAll: data.useAllFunds
+            }, bse)
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('Market/MainScreen.send ' + e.message)

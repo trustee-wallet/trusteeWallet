@@ -4,6 +4,7 @@
 import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
+import store from '@app/store'
 
 class AccountScanning {
 
@@ -18,6 +19,7 @@ class AccountScanning {
     async getAccountsForScan (params) {
         let where = []
         let limit = 3
+
         //where.push(`account.currency_code='ETH_UAX'`)
 
         if (typeof params.force === 'undefined' || !params.force) {
@@ -34,6 +36,14 @@ class AccountScanning {
                 where.push(`(account.derivation_path = 'm/49quote/0quote/0/1/0' OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub))`)
             }
         } else {
+            const currencies = store.getState().currencyStore.cryptoCurrencies
+            const codes = []
+            for (const tmp of currencies) {
+                if (!tmp.maskedHidden) {
+                    codes.push(`'${tmp.currencyCode}'`)
+                }
+            }
+            where.push('account.currency_code IN ('  + codes.join(',') + ')')
             where.push(`(account.currency_code!='BTC' OR account.derivation_path = 'm/49quote/0quote/0/1/0' OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub))`)
         }
         if (typeof params.currencyFamily !== 'undefined' && params.currencyFamily) {
@@ -86,7 +96,8 @@ class AccountScanning {
             account_balance.balance_scan_log AS balanceScanLog,
             account_balance.balance_scan_block AS balanceScanBlock,
 
-            account.account_json AS accountJson
+            account.account_json AS accountJson,
+            currency.is_hidden AS isHidden
             FROM account
             LEFT JOIN account_balance ON account_balance.account_id=account.id
             LEFT JOIN currency ON currency.currency_code=account.currency_code
@@ -96,7 +107,7 @@ class AccountScanning {
             LIMIT ${limit}
         `
         Log.daemon('AccountScanning getAccountsForScan where ' + where + ' limit ' + limit)
-        
+
         let res = []
         const uniqueAddresses = {}
         const idsToRemove = []

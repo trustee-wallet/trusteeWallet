@@ -220,7 +220,7 @@ export namespace SendActionsBlockchainWrapper {
     export const actualSend = async (sendScreenStore : any, uiErrorConfirmed: any, selectedFee : any) => {
         const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
         const {ui} = sendScreenStore
-        const {bse} = ui
+        const {bse, dexOrderData } = ui
         const { bseOrderId, bseMinCrypto } = bse
         if (selectedFee === false) {
             selectedFee = {}
@@ -230,6 +230,9 @@ export namespace SendActionsBlockchainWrapper {
         }
         if (typeof bseMinCrypto !== 'undefined' && bseMinCrypto) {
             selectedFee.bseMinCrypto = bseMinCrypto
+        }
+        if (typeof dexOrderData !== 'undefined') {
+            newCountedFeesData.dexOrderData = dexOrderData
         }
         newCountedFeesData.addressTo = ui.addressTo
         newCountedFeesData.amount = ui.cryptoValue

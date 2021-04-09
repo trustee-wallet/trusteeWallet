@@ -7,17 +7,19 @@ import BlocksoftTransactions from '@crypto/actions/BlocksoftTransactions/Blockso
 
 class UpdateAccountPendingTransactions {
 
-    updateAccountPendingTransactions = async (callParams) => {
+    updateAccountPendingTransactions = async (callParams = {}) => {
         Log.daemon('UpdateAccountPendingTransactions called ' + JSON.stringify(callParams))
         const source = callParams.source || 'FRONT'
+        let result = false
         try {
-            await (BlocksoftTransactions.getTransactionsPending({account : {currencyCode : 'TRX'}}, 'AccountRunPending from ' + source)) // only trx for now
+            result = await (BlocksoftTransactions.getTransactionsPending({account : {currencyCode : 'TRX'}}, 'AccountRunPending from ' + source)) // only trx for now
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('UpdateAccountPendingTransactions error ' + source + ' ' + e.message, e)
             }
             Log.errDaemon('UpdateAccountPendingTransactions error ' + source + ' ' + e.message)
         }
+        return result
     }
 }
 

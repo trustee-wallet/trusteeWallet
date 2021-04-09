@@ -80,7 +80,6 @@ const logSendSell = async function(transaction: any, tx: any, logData: any, send
     let gaParams = {}
     try {
         gaParams = {
-            transaction_id: bseOrderId,
             value: usdValue * 1,
             currency: usdCurrency,
             items: [{

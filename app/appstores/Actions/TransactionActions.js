@@ -184,7 +184,7 @@ const transactionActions = {
         transaction.transactionBlockchainStatus = transaction.transactionStatus
         transaction.transactionVisibleStatus = this.prepareStatus(transaction.transactionStatus)
 
-        if (typeof exchangeOrder.status !== 'undefined' && exchangeOrder.status) {
+        if (typeof exchangeOrder.status !== 'undefined' && exchangeOrder.status && exchangeOrder.status.toLowerCase() !== 'dex') {
             if (transaction.transactionStatus.toLowerCase() !== 'fail' || transaction.transactionStatus.toLowerCase() !== 'missing'
                 || transaction.transactionStatus.toLowerCase() !== 'out_of_energy'
                 || transaction.transactionStatus.toLowerCase() !== 'replaced') {

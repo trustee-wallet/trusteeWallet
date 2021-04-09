@@ -6,48 +6,50 @@
 const INITIAL_STATE = {
     ui: {
         uiType: 'ACCOUNT_SCREEN',
-        addressTo : '',
-        addressName : '',
-        memo : '',
-        cryptoValue : '',
-        cryptoValueRecounted : 0,
-        comment : '',
-        isTransferAll : false,
-        bse : {
-            bseProviderType : false,
+        addressTo: '',
+        addressName: '',
+        memo: '',
+        cryptoValue: '',
+        cryptoValueRecounted: 0,
+        comment: '',
+        isTransferAll: false,
+        dexCurrencyCode: false,
+        dexOrderData: false,
+        bse: {
+            bseProviderType: false,
             bseOrderId: false,
-            bseMinCrypto : false,
-            bseTrusteeFee : false,
-            bseOrderData : false
+            bseMinCrypto: false,
+            bseTrusteeFee: false,
+            bseOrderData: false
         },
         tbk: {
-            transactionBoost : false,
-            transactionAction : false
+            transactionBoost: false,
+            transactionAction: false
         },
-        fioRequestDetails : false
+        fioRequestDetails: false
     },
-    dict : {
-        inputType : 'CRYPTO',
-        decimals : '',
-        extendsProcessor : '',
-        addressUiChecker : '',
-        network : '',
-        currencySymbol : '',
-        currencyName : '',
-        currencyCode : '',
-        balanceTotalPretty : '',
-        basicCurrencyBalanceTotal : '',
-        basicCurrencySymbol : '',
-        basicCurrencyCode : '',
-        basicCurrencyRate : ''
+    dict: {
+        inputType: 'CRYPTO',
+        decimals: '',
+        extendsProcessor: '',
+        addressUiChecker: '',
+        network: '',
+        currencySymbol: '',
+        currencyName: '',
+        currencyCode: '',
+        balanceTotalPretty: '',
+        basicCurrencyBalanceTotal: '',
+        basicCurrencySymbol: '',
+        basicCurrencyCode: '',
+        basicCurrencyRate: ''
     },
-    fromBlockchain : {
-        countedFees : {
-            fees : [],
-            selectedFeeIndex : -1
+    fromBlockchain: {
+        countedFees: {
+            fees: [],
+            selectedFeeIndex: -1
         },
-        selectedFee : false,
-        transferAllBalance : false
+        selectedFee: false,
+        transferAllBalance: false
     }
 }
 
@@ -56,14 +58,14 @@ const sendScreenStoreReducer = (state = INITIAL_STATE, action) => {
         case 'RESET_DATA_BLOCKCHAIN':
             return {
                 ui: {
-                    ...state.ui,
+                    ...state.ui
                 },
                 dict: {
-                    ...state.dict,
+                    ...state.dict
                 },
                 fromBlockchain: {
                     ...action.fromBlockchain
-                },
+                }
             }
         case 'SET_DATA':
             return {
@@ -78,7 +80,7 @@ const sendScreenStoreReducer = (state = INITIAL_STATE, action) => {
                 fromBlockchain: {
                     ...state.fromBlockchain,
                     ...action.fromBlockchain
-                },
+                }
             }
         case 'RESET_DATA':
             return {

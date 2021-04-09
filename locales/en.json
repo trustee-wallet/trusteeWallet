@@ -670,6 +670,7 @@
     },
     "ordersStatus": {
       "exchange": {
+        "dex" : "DEX",
         "pending_payin": "Replenishment expected",
         "canceled_payin": "Replenishment canceled",
         "refunded_order": "Refund was made",
@@ -684,6 +685,7 @@
         "error_order": "An error occurred while execution. The order was processed manually."
       },
       "sell": {
+        "dex" : "DEX",
         "pending_payin": "Replenishment expected",
         "canceled_payin": "Replenishment canceled",
         "refunded_order": "Refund was made",
@@ -698,6 +700,7 @@
         "error_order": "An error occurred while execution. The order was processed manually."
       },
       "buy": {
+        "dex" : "DEX",
         "pending_payin": "Replenishment expected",
         "canceled_payin": "Replenishment canceled",
         "refunded_order": "Refund was made",

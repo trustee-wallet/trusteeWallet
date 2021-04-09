@@ -55,11 +55,10 @@ class BlocksoftTransactions {
         if (typeof this._processor[currencyCode].getTransactionsPendingBlockchain === 'undefined') {
             return false
         }
-        let resultData = []
+        let resultData = false
         try {
-            resultData = await this._processor[currencyCode].getTransactionsPendingBlockchain(data, source)
+            resultData = await this._processor[currencyCode].getTransactionsPendingBlockchain(data, source, false)
         } catch (e) {
-            e.code = 'ERROR_SYSTEM'
             e.message += ' on actual getTransactionsPending step '
             throw e
         }

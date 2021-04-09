@@ -19,6 +19,10 @@ import { sublocale } from '@app/services/i18n'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
+// https://developers.tron.network/docs/parameter-and-return-value-encoding-and-decoding
+const ethers = require('ethers')
+const AbiCoder = ethers.utils.AbiCoder
+
 
 export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: any
@@ -178,14 +182,6 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         if (typeof privateData.privateKey === 'undefined') {
             throw new Error('TRX transaction required privateKey')
         }
-        if (typeof data.addressTo === 'undefined') {
-            throw new Error('TRX transaction required addressTo')
-        }
-        if (data.addressFrom === data.addressTo) {
-            throw new Error('SERVER_RESPONSE_SELF_TX_FORBIDDEN')
-        }
-        // check error
-        await this.getFeeRate(data, privateData)
 
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx started')
 
@@ -193,58 +189,110 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         if (typeof data.blockchainData !== 'undefined' && data.blockchainData) {
             tx = data.blockchainData
         } else {
-            let toAddress, ownerAddress
-
-            try {
-                toAddress = TronUtils.addressToHex(data.addressTo)
-            } catch (e) {
-                e.message += ' inside TronUtils.addressToHex to_address ' + data.addressTo
-                throw e
-            }
-
-            try {
-                ownerAddress = TronUtils.addressToHex(data.addressFrom)
-            } catch (e) {
-                e.message += ' inside TronUtils.addressToHex owner_address ' + data.addressFrom
-                throw e
-            }
-
 
             let link, res, params
-            if (this._tokenName[0] === 'T') {
-                link = this._tronNodePath + '/wallet/triggersmartcontract'
-                params = {
+
+            if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+                // {"tokenContract":"41a2726afbecbd8e936000ed684cef5e2f5cf43008","contractMethod":"trxToTokenSwapInput(uint256)","options":{"callValue":"1000000"},"params":[{"type":"uint256","value":"116256"}]}
+                let ownerAddress
+
+                const abiCoder = new AbiCoder()
+                try {
+                    ownerAddress = TronUtils.addressToHex(data.addressFrom)
+                } catch (e) {
+                    e.message += ' inside TronUtils.addressToHex owner_address ' + data.addressFrom
+                    throw e
+                }
+                const link = this._tronNodePath + '/wallet/triggersmartcontract'
+                let parameter = ''
+                try {
+                    const types = []
+                    const values = []
+                    for (const tmp of data.dexOrderData.params) {
+                        let { type, value } = tmp
+                        if (type.indexOf('address') !== -1) {
+                            throw new Error('trx address abi to be supported')
+                        }
+                        types.push(type)
+                        values.push(value)
+                    }
+                    parameter = abiCoder.encode(types, values).replace(/^(0x)/, '')
+                } catch (e) {
+                    throw new Error(e.message + ' in abiCoder')
+                }
+
+                const params = {
                     owner_address: ownerAddress,
-                    contract_address: TronUtils.addressToHex(this._tokenName),
-                    function_selector: 'transfer(address,uint256)',
+                    contract_address: data.dexOrderData.tokenContract,
+                    function_selector: data.dexOrderData.contractMethod,
                     // @ts-ignore
-                    parameter: '0000000000000000000000' + toAddress.toUpperCase() + '00000000000000000000000000000000000000000000' + BlocksoftUtils.decimalToHex(data.amount * 1, 20),
+                    parameter,
                     fee_limit: 100000000,
-                    call_value: 0
+                    call_value: data.dexOrderData.options.callValue*1
                 }
                 res = await BlocksoftAxios.post(link, params)
             } else {
-                params = {
-                    owner_address: ownerAddress,
-                    to_address: toAddress,
-                    // @ts-ignore
-                    amount: data.amount * 1
+
+                if (typeof data.addressTo === 'undefined') {
+                    throw new Error('TRX transaction required addressTo')
+                }
+                if (data.addressFrom === data.addressTo) {
+                    throw new Error('SERVER_RESPONSE_SELF_TX_FORBIDDEN')
+                }
+                // check error
+                await this.getFeeRate(data, privateData)
+
+                let toAddress, ownerAddress
+
+                try {
+                    toAddress = TronUtils.addressToHex(data.addressTo)
+                } catch (e) {
+                    e.message += ' inside TronUtils.addressToHex to_address ' + data.addressTo
+                    throw e
                 }
 
-                if (this._tokenName === '_') {
-                    link = this._tronNodePath + '/wallet/createtransaction'
-                } else {
-                    // @ts-ignore
-                    params.asset_name = '0x' + Buffer.from(this._tokenName).toString('hex')
-                    link = this._tronNodePath + '/wallet/transferasset'
-                }
                 try {
-                    res = await BlocksoftAxios.post(link, params)
+                    ownerAddress = TronUtils.addressToHex(data.addressFrom)
                 } catch (e) {
-                    if (e.message.indexOf('timeout of') !== -1 || e.message.indexOf('network') !== -1) {
-                        throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+                    e.message += ' inside TronUtils.addressToHex owner_address ' + data.addressFrom
+                    throw e
+                }
+
+                if (this._tokenName[0] === 'T') {
+                    link = this._tronNodePath + '/wallet/triggersmartcontract'
+                    params = {
+                        owner_address: ownerAddress,
+                        contract_address: TronUtils.addressToHex(this._tokenName),
+                        function_selector: 'transfer(address,uint256)',
+                        // @ts-ignore
+                        parameter: '0000000000000000000000' + toAddress.toUpperCase() + '00000000000000000000000000000000000000000000' + BlocksoftUtils.decimalToHex(data.amount * 1, 20),
+                        fee_limit: 100000000,
+                        call_value: 0
+                    }
+                    res = await BlocksoftAxios.post(link, params)
+                } else {
+                    params = {
+                        owner_address: ownerAddress,
+                        to_address: toAddress,
+                        // @ts-ignore
+                        amount: data.amount * 1
+                    }
+
+                    if (this._tokenName === '_') {
+                        link = this._tronNodePath + '/wallet/createtransaction'
                     } else {
-                        throw e
+                        // @ts-ignore
+                        params.asset_name = '0x' + Buffer.from(this._tokenName).toString('hex')
+                        link = this._tronNodePath + '/wallet/transferasset'
+                    }
+                    try {
+                        res = await BlocksoftAxios.post(link, params)
+                    } catch (e) {
+                        if (e.message.indexOf('timeout of') !== -1 || e.message.indexOf('network') !== -1) {
+                            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+                        } else {
+                            throw e
+                        }
                     }
                 }
             }
@@ -257,7 +305,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
             // @ts-ignore
             tx = res.data
-            if (this._tokenName[0] === 'T') {
+            if ((typeof data.dexOrderData !== 'undefined' && data.dexOrderData) || (this._tokenName[0] === 'T')) {
                 // @ts-ignore
                 if (typeof res.data.transaction === 'undefined' || typeof res.data.result === 'undefined') {
                     // @ts-ignore

@@ -13,6 +13,7 @@ import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import config from '@app/config/config'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
+import needUpdate from 'react-native-version-check/src/needUpdate'
 
 export default class TrxScannerProcessor {
 
@@ -99,7 +100,9 @@ export default class TrxScannerProcessor {
             return false
         }
 
+        let needUpdateBalance = -1
         if (lastBlock === false) {
+            needUpdateBalance = 0
             try {
                 const linkBlock = 'https://api.trongrid.io/wallet/getnowblock'
                 const block = await BlocksoftAxios.post(linkBlock)
@@ -120,7 +123,9 @@ export default class TrxScannerProcessor {
                     value: row.transactionHash
                 })
                 if (typeof recheck.data !== 'undefined') {
-                    await this._unifyFromReceipt(recheck.data, row, lastBlock)
+                    if (await this._unifyFromReceipt(recheck.data, row, lastBlock) && needUpdateBalance === 0) {
+                        needUpdateBalance = 1
+                    }
                 }
             } catch (e1) {
                 if (config.debug.cryptoErrors) {
@@ -128,6 +133,8 @@ export default class TrxScannerProcessor {
                 }
             }
         }
+
+        return needUpdateBalance > 0
     }
 
     async _unifyFromReceipt(transaction, row, lastBlock) {
@@ -162,5 +169,6 @@ export default class TrxScannerProcessor {
             transactionStatus,
             transactionsScanLog : new Date().toISOString() + ' RECEIPT RECHECK ' + JSON.stringify(transaction) + ' ' + row.transactionsScanLog
         }, row.id, 'receipt')
+        return transactionStatus === 'success'
     }
 }

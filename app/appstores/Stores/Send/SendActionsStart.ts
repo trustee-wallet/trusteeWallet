@@ -92,6 +92,37 @@ export namespace SendActionsStart {
         return startFromAccountScreen(cryptoCurrency, account, 'HOME_SCREEN')
     }
 
+    export const startFromDEX = async (data : {
+        amount : string,
+        currencyCode : string,
+        dexCurrencyCode: string,
+        dexOrderData:
+            {
+                tokenContract: string,
+                contractMethod: string,
+                options: any,
+            }
+        }, bse : any) => {
+        const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
+        const dict = await formatDict(cryptoCurrency, account)
+        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
+        const ui = {
+            uiType : 'TRADE_SEND',
+            cryptoValue : data.amount,
+            addressTo : data.dexOrderData.tokenContract,
+            dexCurrencyCode : data.dexCurrencyCode,
+            dexOrderData : data.dexOrderData,
+            bse
+        }
+        dispatch({
+            type: 'RESET_DATA',
+            ui,
+            dict
+        })
+        await SendActionsBlockchainWrapper.getFeeRate(ui)
+        NavStore.goNext('ReceiptScreen')
+    }
+
     export const getTransferAllBalanceFromBSE = async (data : {
         currencyCode : string,
         address : string,

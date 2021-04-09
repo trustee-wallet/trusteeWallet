@@ -43,6 +43,7 @@ class UpdateAccountBalanceAndTransactions {
      * @param {string} callParams.source
      * @param {boolean} callParams.force
      * @param {boolean} callParams.allWallets
+     * @param {boolean} callParams.onlyBalances
      * @param {string} callParams.currencyCode
      * @returns {Promise<boolean>}
      */
@@ -51,7 +52,7 @@ class UpdateAccountBalanceAndTransactions {
         const source = callParams.source || 'FRONT'
         const force = callParams.force || false
         const allWallets = callParams.allWallets || false
-
+        const onlyBalances = callParams.onlyBalances || false
         if (!force || source === 'BACK') {
             const setting = await settingsActions.getSetting('scannerCode')
             if (!setting) {
@@ -130,7 +131,7 @@ class UpdateAccountBalanceAndTransactions {
                     continue
                 }
                 tmpAction = 'account run ' + JSON.stringify(account)
-                await this._accountRun(account, accounts, source, CACHE_VALID_TIME, force)
+                await this._accountRun(account, accounts, source, CACHE_VALID_TIME, force, onlyBalances)
                 running++
             }
 
@@ -141,7 +142,7 @@ class UpdateAccountBalanceAndTransactions {
                 }
                 if (typeof CACHE_CUSTOM_TIME[account.currencyCode] !== 'undefined') {
                     // if its the only ones not updated - lets do them faster
-                    await this._accountRun(account, accounts, source, running > 0 ? CACHE_CUSTOM_TIME[account.currencyCode] : CACHE_VALID_TIME, force)
+                    await this._accountRun(account, accounts, source, running > 0 ? CACHE_CUSTOM_TIME[account.currencyCode] : CACHE_VALID_TIME, force, onlyBalances)
                 }
             }
 
@@ -185,7 +186,7 @@ class UpdateAccountBalanceAndTransactions {
         }
     }
 
-    async _accountRun(account, accounts, source, time, force) {
+    async _accountRun(account, accounts, source, time, force, onlyBalances = false) {
 
         let newBalance = false
         let addressToScan = account.address
@@ -300,7 +301,7 @@ class UpdateAccountBalanceAndTransactions {
             throw e
         }
 
-        if (!continueWithTx) {
+        if (!continueWithTx || onlyBalances) {
             return true // balance error - tx will not be good also
         }
 

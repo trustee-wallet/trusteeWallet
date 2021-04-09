@@ -174,7 +174,6 @@ export default {
         if (!data.cards || typeof data.cards === 'undefined') {
             data.cards = []
         }
-        console.log('data.cards from DB ', JSON.stringify(data.cards))
 
         try {
             const wallets = store.getState().walletStore.wallets

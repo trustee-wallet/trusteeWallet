@@ -59,10 +59,13 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
+import UpdateAccountPendingTransactions from '@app/daemons/back/UpdateAccountPendingTransactions'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_DELETE_ORDER_ID = ''
+let CACHE_RESCAN_TX = false
+
 class TransactionScreen extends Component {
 
     constructor(props) {
@@ -83,8 +86,8 @@ class TransactionScreen extends Component {
             linkExplorer: null,
 
             focused: false,
-            notification : false,
-            toOpenAccountBack : false
+            notification: false,
+            toOpenAccountBack: false
         }
     }
 
@@ -199,7 +202,30 @@ class TransactionScreen extends Component {
 
     }
 
+    rescanOnInit = async (transaction, cryptoCurrency) => {
+        try {
+            if (CACHE_RESCAN_TX) {
+                return false
+            }
+            CACHE_RESCAN_TX = true
+            if (cryptoCurrency.currencyCode === 'TRX' || (typeof cryptoCurrency.tokenBlockchain !== 'undefined' && cryptoCurrency.tokenBlockchain === 'TRON')) {
+                const needRescanBalance = await UpdateAccountPendingTransactions.updateAccountPendingTransactions()
+                if (needRescanBalance) {
+                    await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ force: true, currencyCode: 'TRX', onlyBalances: true })
+                }
+            }
+            CACHE_RESCAN_TX = false
+        } catch (e) {
+            CACHE_RESCAN_TX = false
+            if (config.debug.appErrors) {
+                console.log('TransactionScreen.rescanOnInit error ' + e.message)
+            }
+        }
+    }
+
     init = (transaction, cryptoCurrency) => {
+        this.rescanOnInit(transaction, cryptoCurrency)
+
         Log.log('init transaction transaction', transaction)
         try {
 
@@ -658,7 +684,7 @@ class TransactionScreen extends Component {
         //     arrowIcon = <Feather name='x' style={{ color: colors.common.text1, fontSize: 17 }} />
         // }
 
-        let amountTxt = addressAmountPrettyPrefix  + ' ' + addressAmountPretty
+        let amountTxt = addressAmountPrettyPrefix + ' ' + addressAmountPretty
         let statusTxt = strings('account.transaction.' + wayType.toLowerCase())
         if (addressAmountPretty === '?') {
             if (transaction.bseOrderData) {
@@ -666,7 +692,7 @@ class TransactionScreen extends Component {
             }
             if (this.state.notification && this.state.notification.title) {
                 statusTxt = this.state.notification.title
-                if ( this.state.notification.newsName === 'ORDER_SUCCESS') {
+                if (this.state.notification.newsName === 'ORDER_SUCCESS') {
                     status = 'SUCCESS' // @hard fix todo remove
                 }
             }
@@ -674,7 +700,7 @@ class TransactionScreen extends Component {
         return (
             <View style={{ width: '100%', flexDirection: 'column', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row' }}>
-                    <Text style={{...styles.txDirection, color: colors.common.text1 }}>
+                    <Text style={{ ...styles.txDirection, color: colors.common.text1 }}>
                         {capitalize(statusTxt)}
                     </Text>
                     <View>
@@ -690,13 +716,13 @@ class TransactionScreen extends Component {
                     <View style={{ paddingHorizontal: 17, backgroundColor: colors.common.header.bg }}>
                         <View style={{ ...styles.statusBlock, backgroundColor: color }}>
                             <LetterSpacing text={this.prepareStatusHeaderToView(status)}
-                                textStyle={{...styles.status, color: colors.transactionScreen.status }} letterSpacing={1.5} />
+                                           textStyle={{ ...styles.status, color: colors.transactionScreen.status }} letterSpacing={1.5} />
                         </View>
                     </View>
                 </View>
                 <View style={styles.topContent__title}>
                     <>
-                        <Text style={{...styles.amount, color: colors.common.text1 }}>
+                        <Text style={{ ...styles.amount, color: colors.common.text1 }}>
                             {amountTxt}
                         </Text>
                         <Text style={{ ...styles.code, color: color }}>{currencySymbol}</Text>
@@ -728,12 +754,14 @@ class TransactionScreen extends Component {
             return false
         }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REMOVE')) {
-            Log.log('TransactionScreen.renderReplaceByFee could not remove', {account, transaction})
+            Log.log('TransactionScreen.renderReplaceByFee could not remove', { account, transaction })
             return false
         }
-        array.push({ icon: 'canceled', title: strings('account.transactionScreen.removeRbf'), action: async () => {
-            await SendActionsStart.startFromTransactionScreenRemove(account, transaction)
-        }})
+        array.push({
+            icon: 'canceled', title: strings('account.transactionScreen.removeRbf'), action: async () => {
+                await SendActionsStart.startFromTransactionScreenRemove(account, transaction)
+            }
+        })
 
     }
 
@@ -742,7 +770,8 @@ class TransactionScreen extends Component {
         if (!transaction.bseOrderData) {
             return false
         }
-        array.push({ icon: 'delete', title: strings('account.transactionScreen.remove'), action: async () => {
+        array.push({
+            icon: 'delete', title: strings('account.transactionScreen.remove'), action: async () => {
                 // called 3 times on one click!!!
                 if (CACHE_DELETE_ORDER_ID === transaction.bseOrderData.orderId) return false
                 CACHE_DELETE_ORDER_ID = transaction.bseOrderData.orderId
@@ -754,7 +783,8 @@ class TransactionScreen extends Component {
                     Log.err('TransactionScreen.removeButton error ' + e.message)
                 }
                 setLoaderStatus(false)
-        }})
+            }
+        })
     }
 
     renderReplaceByFee = (array) => {
@@ -776,10 +806,11 @@ class TransactionScreen extends Component {
             return false
         }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {
-            Log.log('TransactionScreen.renderReplaceByFee could not replace', {account, transaction})
+            Log.log('TransactionScreen.renderReplaceByFee could not replace', { account, transaction })
             return false
         }
-        array.push({ icon: 'rbf', title: strings('account.transactionScreen.booster'), action: async () => {
+        array.push({
+            icon: 'rbf', title: strings('account.transactionScreen.booster'), action: async () => {
                 if (transaction.bseOrderData && typeof transaction.bseOrderData.disableTBK !== 'undefined') {
                     if (transaction.bseOrderData.disableTBK) {
                         showModal({
@@ -792,7 +823,8 @@ class TransactionScreen extends Component {
                     }
                 }
                 await SendActionsStart.startFromTransactionScreenBoost(account, transaction)
-        }})
+            }
+        })
     }
 
     renderCheckV3 = (array) => {
@@ -825,7 +857,7 @@ class TransactionScreen extends Component {
     }
 
     shareTransaction = (transaction, linkUrl) => {
-        const shareOptions = { message : ''}
+        const shareOptions = { message: '' }
         if (transaction.transactionHash) {
             shareOptions.message += strings('account.transactionScreen.transactionHash') + ` ${linkUrl}\n`
         }
@@ -873,7 +905,7 @@ class TransactionScreen extends Component {
                                 subtitle={commentToView.description}
                             />
                         </TouchableOpacity> :
-                            <View style={{...styles.textInputWrapper, backgroundColor: colors.transactionScreen.comment}}>
+                        <View style={{ ...styles.textInputWrapper, backgroundColor: colors.transactionScreen.comment }}>
                             <TextInput
                                 ref={ref => this.commentInput = ref}
                                 placeholder={strings('account.transactionScreen.commentPlaceholder')}
@@ -892,7 +924,7 @@ class TransactionScreen extends Component {
                                 value={commentToView !== null ? commentToView.description : commentToView}
                                 inputBaseColor={'#f4f4f4'}
                                 inputTextColor={'#f4f4f4'}
-                                style={{...styles.input, color: colors.common.text2}}
+                                style={{ ...styles.input, color: colors.common.text2 }}
                                 placeholderTextColor={colors.common.text2}
                             />
                         </View>
@@ -914,7 +946,7 @@ class TransactionScreen extends Component {
         Toast.setMessage(strings('toast.copied')).show()
     }
 
-    renderButtons = (buttonsArray) =>  {
+    renderButtons = (buttonsArray) => {
         return (
             <View style={{ height: 120, paddingTop: 20 }}>
                 {buttonsArray[1].length === 0 ?
@@ -969,7 +1001,7 @@ class TransactionScreen extends Component {
 
 
         if (transaction.addressAmountPretty === '?') {
-            buttonsArray[0].splice(2,1)
+            buttonsArray[0].splice(2, 1)
         }
 
         const prev = NavStore.getPrevRoute().routeName
@@ -995,7 +1027,7 @@ class TransactionScreen extends Component {
                         justifyContent: 'space-between',
                         padding: GRID_SIZE,
                         paddingBottom: GRID_SIZE * 2,
-                        minHeight: WINDOW_HEIGHT - headerHeight,
+                        minHeight: WINDOW_HEIGHT - headerHeight
                     }}
                 >
                     <View style={{ marginTop: headerHeight }}>
@@ -1005,25 +1037,25 @@ class TransactionScreen extends Component {
                                     title={outDestinationCardToView.title}
                                     iconType='card'
                                     subtitle={outDestinationCardToView.description}
-                                    copyAction={() => this.handleSubContentPress({plain : outDestinationCardToView.description})}
+                                    copyAction={() => this.handleSubContentPress({ plain: outDestinationCardToView.description })}
                                 /> : fromToView ?
                                     <TransactionItem
                                         title={fromToView.title}
                                         iconType='addressFrom'
                                         subtitle={fromToView.description}
-                                        copyAction={() => this.handleSubContentPress({plain : fromToView.description})}
+                                        copyAction={() => this.handleSubContentPress({ plain: fromToView.description })}
                                     /> : addressToToView ?
                                         <TransactionItem
                                             title={addressToToView.title}
                                             iconType='addressTo'
                                             subtitle={addressToToView.description}
-                                            copyAction={() => this.handleSubContentPress({plain : addressToToView.description})}
+                                            copyAction={() => this.handleSubContentPress({ plain: addressToToView.description })}
                                         /> : addressExchangeToView ?
                                             <TransactionItem
                                                 title={addressExchangeToView.title}
                                                 iconType='exchangeTo'
                                                 subtitle={addressExchangeToView.description}
-                                                copyAction={() => this.handleSubContentPress({plain : addressExchangeToView.description})}
+                                                copyAction={() => this.handleSubContentPress({ plain: addressExchangeToView.description })}
                                             /> : null
                             }
                             {transaction.wayType === 'self' && (
@@ -1031,15 +1063,15 @@ class TransactionScreen extends Component {
                                     title={strings('account.transactionScreen.self')}
                                     iconType='self'
                                     // subtitle={'self'}
-                            />
-                            ) }
+                                />
+                            )}
                         </View>
                         {this.state.notification && (
                             <TransactionItem
                                 title={this.state.notification.subtitle}
                                 iconType='exchangeTo'
                                 // subtitle={addressExchangeToView.description}
-                                />
+                            />
                         )}
                         <View style={{ marginVertical: GRID_SIZE, marginTop: 6 }}>
                             {this.commentHandler()}
@@ -1066,23 +1098,23 @@ class TransactionScreen extends Component {
                                 borderRadius: 16,
                                 backgroundColor: '#F2F2F2'
                             }} shadowRadius={9} shadowColor={'#999999'} > */}
-                                {subContent.map((item) => {
-                                    return (
-                                        // eslint-disable-next-line react/jsx-key
-                                        <TransactionItem
-                                            title={item.title}
-                                            subtitle={item.description}
-                                            isLink={item.isLink}
-                                            linkUrl={item.linkUrl}
-                                            withoutBack={true}
-                                            handleLink={this.handleLink}
-                                            copyAction={() => this.handleSubContentPress(item)}
-                                        />
-                                    )
-                                })}
-                                {linkExplorer !== null ?
+                            {subContent.map((item) => {
+                                return (
+                                    // eslint-disable-next-line react/jsx-key
+                                    <TransactionItem
+                                        title={item.title}
+                                        subtitle={item.description}
+                                        isLink={item.isLink}
+                                        linkUrl={item.linkUrl}
+                                        withoutBack={true}
+                                        handleLink={this.handleLink}
+                                        copyAction={() => this.handleSubContentPress(item)}
+                                    />
+                                )
+                            })}
+                            {linkExplorer !== null ?
                                 <TouchableOpacity onPress={() => this.handleLink(linkExplorer)}>
-                                    <LetterSpacing textStyle={{...styles.viewExplorer, color: color}} text={strings('account.transactionScreen.viewExplorer').toUpperCase()} letterSpacing={1.5}
+                                    <LetterSpacing textStyle={{ ...styles.viewExplorer, color: color }} text={strings('account.transactionScreen.viewExplorer').toUpperCase()} letterSpacing={1.5}
                                     />
                                 </TouchableOpacity> : null}
                             {/* </InsertShadow> */}
@@ -1136,7 +1168,7 @@ const styles = {
     },
     amount: {
         fontSize: 32,
-        fontFamily: 'Montserrat-Medium',
+        fontFamily: 'Montserrat-Medium'
     },
     code: {
         fontSize: 20,
@@ -1155,7 +1187,7 @@ const styles = {
     },
     status: {
         fontFamily: 'Montserrat-Bold',
-        fontSize: 12,
+        fontSize: 12
     },
     statusLine: {
         position: 'absolute',
@@ -1289,5 +1321,5 @@ const styles = {
             height: 0
         },
         marginTop: 16
-    },
+    }
 }
