@@ -523,6 +523,7 @@
       "fail": "შეცდომა",
       "missing": "არ მოიძებნა",
       "replaced": "შეცვლილია",
+      "out_of_energy" : "No energy",
       "internal_success": "წარმატებულია ხელშეკრულებიდან",
       "internal_new": "ახალი ხელშეკრულებიდან",
       "internal_fail": "შეცდომა ხელშეკრულებიდან"
@@ -559,7 +560,8 @@
           "success": "წარმატებულია",
           "pending": "მუშავდება",
           "canceled": "გაუქმებულია",
-          "missing": "Not found"
+          "missing": "Not found",
+          "out_of_energy" : "No energy"
         }
       },
       "transactionHash": "ტრანზაქციის ჰაში:",

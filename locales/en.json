@@ -525,6 +525,7 @@
       "fail": "Fail",
       "missing" : "Not found",
       "replaced" : "Replaced",
+      "out_of_energy" : "No energy",
       "internal_success": "Success from Contract",
       "internal_new": "New from Contract",
       "internal_fail": "Fail from Contract"
@@ -561,7 +562,8 @@
           "success": "Success",
           "pending": "Pending",
           "canceled": "Canceled",
-          "missing": "Not found"
+          "missing": "Not found",
+          "out_of_energy" : "No energy"
         }
       },
       "transactionHash": "Transaction hash:",

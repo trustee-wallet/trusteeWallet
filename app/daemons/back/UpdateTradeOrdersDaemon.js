@@ -157,6 +157,9 @@ class UpdateTradeOrdersDaemon {
                 }
                 asked = true
                 res = await ApiProxy.getAll({ source: 'UpdateTradeOrdersDaemon.updateTradeOrders' })
+                if (config.debug.appErrors) {
+                    console.log(new Date().toISOString() + ' UpdateTradeOrdersDaemon loaded new finished')
+                }
             } else {
                 res = dataUpdate
             }

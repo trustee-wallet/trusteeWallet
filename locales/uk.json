@@ -525,6 +525,7 @@
       "fail": "Помилка",
       "missing" : "Не знайдена",
       "replaced" : "Замінена",
+      "out_of_energy" : "Немає енергії",
       "internal_success": "З контракту",
       "internal_new": "Нова з контракту",
       "internal_fail": "Помилка з контракту"
@@ -561,7 +562,8 @@
           "success": "Успішно",
           "pending": "Опрацьовується",
           "canceled": "Відмінено",
-          "missing": "Не знайдена"
+          "missing": "Не знайдена",
+          "out_of_energy" : "Немає енергії"
         }
       },
       "transactionHash": "Хеш транзакції:",

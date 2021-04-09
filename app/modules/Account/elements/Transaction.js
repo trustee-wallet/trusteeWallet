@@ -150,7 +150,7 @@ class Transaction extends Component {
             circleStyle = { backgroundColor: isStatus ? color : colors.accountScreen.transactions.circleBackground }
         }
         // if (status === 'fail' || status === 'missing' || status === 'replaced') {
-        if (visibleStatus.toUpperCase() === 'MISSING') {
+        if (visibleStatus.toUpperCase() === 'MISSING' || visibleStatus.toUpperCase() === 'OUT_OF_ENERGY') {
             arrowIcon = <Feather name="x" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 15 }} />
             circleStyle = { backgroundColor: colors.accountScreen.transactions.circleBackground }
         }
@@ -313,7 +313,7 @@ class Transaction extends Component {
                                     array={colors.accountScreen.transactions.transactionGradientArray}
                                     start={styles.transaction__item_bg.start}
                                     end={styles.transaction__item_bg.end}>
-                                    <View style={{ ...styles.transaction__item__content, opacity: transactionStatus === 'fail' || transactionStatus === 'missing' ? 0.5 : null }}>
+                                    <View style={{ ...styles.transaction__item__content, opacity: transactionStatus === 'fail' || transactionStatus === 'missing' || transactionStatus === 'out_of_energy' ? 0.5 : null }}>
                                         <View style={{ justifyContent: 'center', width: '75%' }}>
                                             <View style={{ flexDirection: 'row', alignItems: 'flex-end', width: subtitle ? '45%' : '100%' }}>
                                                 {/* width: subtitle ? '45%' : '100%' */}

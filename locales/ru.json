@@ -525,6 +525,7 @@
       "fail": "Ошибка",
       "missing" : "Не найдена",
       "replaced" : "Заменена",
+      "out_of_energy" : "Нет энергии",
       "internal_success": "Успешная от контракта",
       "internal_new": "Новая от контракта",
       "internal_fail": "Ошибка от контракта"
@@ -561,7 +562,8 @@
           "success": "Успешно",
           "pending": "Обрабатывается",
           "canceled": "Отменено",
-          "missing": "Не найдена"
+          "missing": "Не найдена",
+          "out_of_energy" : "Нет энергии"
         }
       },
     "transactionHash": "Хэш транзакции:",

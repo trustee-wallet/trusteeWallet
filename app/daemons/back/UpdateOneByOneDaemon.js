@@ -3,9 +3,10 @@
  */
 import Update from '../Update'
 
-import UpdateAccountBalanceAndTransactions from './UpdateAccountBalanceAndTransactions'
-import UpdateAccountBalanceAndTransactionsHD from './UpdateAccountBalanceAndTransactionsHD'
-import UpdateAppNewsDaemon from './UpdateAppNewsDaemon'
+import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
+import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
+import UpdateAccountPendingTransactions from '@app/daemons/back/UpdateAccountPendingTransactions'
+import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
 
 import { AsyncStorage } from 'react-native'
 
@@ -13,11 +14,15 @@ import Log from '../../services/Log/Log'
 import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWallets'
 
 const STEPS_ORDER = [
-
     'UPDATE_PROXIED',
+    'UPDATE_ACCOUNT_PENDING_DAEMON',
     'UPDATE_ACCOUNT_BALANCES_DAEMON',
+    'UPDATE_ACCOUNT_PENDING_DAEMON',
     'UPDATE_ACCOUNT_BALANCES_HD_DAEMON',
+    'UPDATE_PROXIED',
+    'UPDATE_ACCOUNT_PENDING_DAEMON',
     'UPDATE_ACCOUNT_BALANCES_DAEMON',
+    'UPDATE_ACCOUNT_PENDING_DAEMON',
     'UPDATE_ACCOUNT_BALANCES_DAEMON',
 ]
 
@@ -103,10 +108,10 @@ class UpdateOneByOneDaemon extends Update {
             CACHE_TIMES[step] = now
             switch (step) {
                 case 'UPDATE_PROXIED' :
-                    // await UpdateCurrencyRateDaemon.updateCurrencyRate({source})
                     await UpdateAppNewsDaemon.updateAppNewsDaemon({source})
-                    //await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ source })
-                    //await UpdateCashBackDataDaemon.updateCashBackDataDaemon({ source })
+                    break
+                case 'UPDATE_ACCOUNT_PENDING_DAEMON':
+                    await UpdateAccountPendingTransactions.updateAccountPendingTransactions({source})
                     break
                 case 'UPDATE_ACCOUNT_BALANCES_DAEMON':
                     await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ source })

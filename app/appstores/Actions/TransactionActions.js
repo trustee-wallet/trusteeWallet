@@ -146,6 +146,8 @@ const transactionActions = {
             case 'MISSING':
             case 'REPLACED':
                 return 'MISSING'
+            case 'OUT_OF_ENERGY':
+                return 'OUT_OF_ENERGY'
             default:
                 return 'PENDING'
         }
@@ -184,6 +186,7 @@ const transactionActions = {
 
         if (typeof exchangeOrder.status !== 'undefined' && exchangeOrder.status) {
             if (transaction.transactionStatus.toLowerCase() !== 'fail' || transaction.transactionStatus.toLowerCase() !== 'missing'
+                || transaction.transactionStatus.toLowerCase() !== 'out_of_energy'
                 || transaction.transactionStatus.toLowerCase() !== 'replaced') {
                 transaction.transactionVisibleStatus = this.prepareStatus(exchangeOrder.status)
             }
