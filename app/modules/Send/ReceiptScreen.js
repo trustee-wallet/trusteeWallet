@@ -119,6 +119,9 @@ class ReceiptScreen extends SendBasicScreen {
                     CACHE_WARNING_NOTICE = checkLoadedFeeResult.cacheWarningNoticeValue
                 }
             })
+            this.setState({
+                sendInProcess : false
+            })
             CACHE_IS_SENDING = false
             return false
         }
