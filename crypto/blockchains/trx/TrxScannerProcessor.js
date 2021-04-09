@@ -83,12 +83,13 @@ export default class TrxScannerProcessor {
     }
 
     async getTransactionsPendingBlockchain(scanData, source, lastBlock = false) {
-        const sql = `SELECT id, transaction_hash, block_number, block_confirmations, transaction_status
+        // id, transaction_hash, block_number, block_confirmations, transaction_status,
+        const sql = `SELECT id, transaction_hash AS transactionHash, transactions_scan_log AS transactionsScanLog
             FROM transactions
             WHERE 
             ((currency_code='${this._settings.currencyCode}' OR currency_code LIKE 'TRX%')
             AND transaction_of_trustee_wallet=1
-            AND block_confirmations=0
+            AND (block_number IS NULL OR block_number=0)
             )
             ORDER BY created_at DESC
             LIMIT 10
@@ -116,11 +117,10 @@ export default class TrxScannerProcessor {
             const linkRecheck = 'https://api.trongrid.io/wallet/gettransactioninfobyid'
             try {
                 const recheck = await BlocksoftAxios.post(linkRecheck, {
-                    value: row.transaction_hash
+                    value: row.transactionHash
                 })
-                if (typeof recheck.data !== 'undefined' && typeof recheck.data.result !== 'undefined') {
+                if (typeof recheck.data !== 'undefined') {
                     await this._unifyFromReceipt(recheck.data, row, lastBlock)
-                    recountBal
                 }
             } catch (e1) {
                 if (config.debug.cryptoErrors) {
@@ -136,8 +136,10 @@ export default class TrxScannerProcessor {
          * "receipt":{"origin_energy_usage":4783,"energy_usage_total":4783,"net_usage":345,"result":"OUT_OF_ENERGY"},
          * "result":"FAILED"
          */
-        let transactionStatus = false
-        if (transaction.result === 'FAILED') {
+        if (typeof transaction.blockNumber === 'undefined' || transaction.blockNumber*1 <= 1) return false
+
+        let transactionStatus = 'success'
+        if (typeof transaction.result !== 'undefined' && transaction.result === 'FAILED') {
             transactionStatus = 'fail'
             if (typeof transaction.receipt !== 'undefined' && typeof transaction.receipt.result !== 'undefined') {
                 if (transaction.receipt.result === 'OUT_OF_ENERGY') {
@@ -145,7 +147,6 @@ export default class TrxScannerProcessor {
                 }
             }
         }
-        if (!transactionStatus) return false
         let formattedTime
         try {
             formattedTime = BlocksoftUtils.toDate(transaction.blockTimeStamp / 1000)
@@ -158,7 +159,8 @@ export default class TrxScannerProcessor {
             blockNumber: transaction.blockNumber,
             blockTime: formattedTime,
             blockConfirmations: lastBlock - transaction.blockNumber,
-            transactionStatus
+            transactionStatus,
+            transactionsScanLog : new Date().toISOString() + ' RECEIPT RECHECK ' + JSON.stringify(transaction) + ' ' + row.transactionsScanLog
         }, row.id, 'receipt')
     }
 }

@@ -37,7 +37,7 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
         }
         logData = await this._check(tx.raw_data_hex, subtitle, txRBF, logData)
         if (config.debug.cryptoErrors) {
-            console.log(new Date().toISOString() + ' ' + this._settings.currencyCode + ' TrxSendProvider._sendTx ' + subtitle + ' ended check ')
+            BlocksoftCryptoLog.log(new Date().toISOString() + ' ' + this._settings.currencyCode + ' TrxSendProvider._sendTx ' + subtitle + ' ended check ')
         }
 
         let send = false
@@ -83,20 +83,21 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
                 } catch (e) {
                     // do nothing
                 }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxSendProvider._sendTx msg ' + msg)
                 if (msg) {
                     // @ts-ignore
                     send.data.decoded = msg
                     // @ts-ignore
-                    this.checkError(msg)
+                    this.trxError(msg)
                 }
             }
             // @ts-ignore
-            this.checkError('no transaction result ' + JSON.stringify(send.data))
+            this.trxError('no transaction result ' + JSON.stringify(send.data))
         } else {
             // @ts-ignore
             if (send.data.result !== true) {
                 // @ts-ignore
-                this.checkError('transaction result is false ' + JSON.stringify(send.data))
+                this.trxError('transaction result is false ' + JSON.stringify(send.data))
             }
         }
 
@@ -127,7 +128,11 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
         }
 
 
-        logData = await this._checkSuccess(transactionHash, tx.raw_data_hex, subtitle, txRBF, logData)
+        try {
+            logData = await this._checkSuccess(transactionHash, tx.raw_data_hex, subtitle, txRBF, logData)
+        } catch (e) {
+            throw new Error(e.message + ' in _checkSuccess wrapped TRX')
+        }
         return { transactionHash, transactionJson: {}, logData }
     }
 }
