@@ -235,7 +235,9 @@ class HeaderBlocks extends Component {
         if (cryptoCurrency.currencyCode === 'BTC') {
             if (typeof account.walletPubs !== 'undefined' && account.walletPubs) {
                 isSegwit = isSegwit ? 'btc.84' : 'btc.44'
-                forceLink = 'https://blockchair.com/bitcoin/xpub/' + account.walletPubs[isSegwit].walletPubValue
+                if (typeof account.walletPubs[isSegwit] !== 'undefined' && account.walletPubs[isSegwit].walletPubValue) {
+                    forceLink = 'https://blockchair.com/bitcoin/xpub/' + account.walletPubs[isSegwit].walletPubValue
+                }
             }
         }
 
