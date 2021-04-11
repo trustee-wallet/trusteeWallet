@@ -139,6 +139,14 @@ class ReceiptScreen extends SendBasicScreen {
             e = e1
         }
 
+        if (!e && (!tx || typeof tx.transactionHash === 'undefined' || !tx.transactionHash || tx.transactionHash === '')) {
+            if (config.debug.appErrors) {
+                console.log('ReceiptScreen.handleSendError errorTx ', JSON.stringify(tx))
+            }
+            Log.log('ReceiptScreen.handleSendError errorTx ', tx)
+            e = new Error('SERVER_RESPONSE_BAD_SEND_NODE')
+        }
+
         if (e) {
             try {
                 showSendError(e, this, passwordCheck)
@@ -148,6 +156,7 @@ class ReceiptScreen extends SendBasicScreen {
                 }
                 Log.log('ReceiptScreen.handleSendError error ' + e1.message)
             }
+            tx = false
         }
 
         if (tx) {
