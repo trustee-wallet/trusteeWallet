@@ -111,6 +111,21 @@ const styles = {
         height: 32,
         justifyContent: 'center',
         alignItems: 'center'
+    },
+
+    texts: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 30
+    },
+    texts__item: {
+        fontSize: 14,
+        fontFamily: 'SFUIDisplay-Semibold',
+        letterSpacing: 1
+    },
+    texts__icon: {
+        marginRight: 10,
+        transform: [{ rotate: '180deg' }]
     }
 }
 

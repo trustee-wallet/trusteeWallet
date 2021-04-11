@@ -1,49 +1,45 @@
 /**
- * @version 0.30
+ * @version 0.42
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native'
 
-import LetterSpacing from '../../../../components/elements/LetterSpacing'
-
-import { strings } from '../../../../services/i18n'
-
-import { showModal } from '../../../../appstores/Stores/Modal/ModalActions'
-import { setLoaderStatus } from '../../../../appstores/Stores/Main/MainStoreActions'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
+import { strings } from '@app/services/i18n'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
 
-import Log from '../../../../services/Log/Log'
-import BlocksoftBalances from '../../../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
-import BlocksoftAxios from '../../../../../crypto/common/BlocksoftAxios'
-import BlocksoftExternalSettings from '../../../../../crypto/common/BlocksoftExternalSettings'
-import BlocksoftPrettyNumbers from '../../../../../crypto/common/BlocksoftPrettyNumbers'
-import { BlocksoftTransfer } from '../../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
-import TronUtils from '../../../../../crypto/blockchains/trx/ext/TronUtils'
+import Log from '@app/services/Log/Log'
+import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import Input from '@app/components/elements/NewInput'
+import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 
-import Input from '../../../../components/elements/NewInput'
-import ListItem from '../../../../components/elements/new/list/ListItem/Setting'
+import config from '@app/config/config'
 
-import config from '../../../../config/config'
-
-import { ThemeContext } from '../../../theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import styles from './styles'
 import DaemonCache from '@app/daemons/DaemonCache'
-import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
-const CACHE_TIMEOUT = 3000
+let CACHE_SENDING = false
 
-class SettingsBNB extends Component {
+class SettingsBNB extends React.PureComponent {
 
     constructor(props) {
         super(props)
         this.state = {
-            smartAddress : '',
-            smartBalancePretty : '',
-            bnbAddress : '',
+            smartAddress: '',
+            smartBalancePretty: '',
+            bnbAddress: '',
             bnbBalancePretty: '',
-            bnbAll : false,
-            smartAll : false
+            bnbAll: false,
+            smartAll: false,
+            amountError: false,
+            amountErrorText: ''
         }
         this.smartAmountInput = React.createRef()
     }
@@ -60,19 +56,19 @@ class SettingsBNB extends Component {
         const bnb = await DaemonCache.getCacheAccount(walletHash, 'BNB')
 
         this.setState({
-            smartAddress : smart.address,
-            smartBalancePretty : smart.balancePretty,
-            bnbAddress : bnb.address,
-            bnbBalancePretty : bnb.balancePretty,
-            smartAll : smart,
-            bnbAll : bnb
+            smartAddress: smart.address,
+            smartBalancePretty: smart.balancePretty,
+            bnbAddress: bnb.address,
+            bnbBalancePretty: bnb.balancePretty,
+            smartAll: smart,
+            bnbAll: bnb
         })
         this.handleScan()
     }
 
 
     handleScan = async () => {
-        let {smartBalancePretty, bnbBalancePretty} = this.state
+        let { smartBalancePretty, bnbBalancePretty } = this.state
         const smartScan = await (BlocksoftBalances.setCurrencyCode('BNB_SMART').setAddress(this.state.smartAddress)).getBalance()
         const bnbScan = await (BlocksoftBalances.setCurrencyCode('BNB').setAddress(this.state.bnbAddress)).getBalance()
 
@@ -84,31 +80,49 @@ class SettingsBNB extends Component {
         }
         this.setState({
             smartBalancePretty,
-            bnbBalancePretty,
+            bnbBalancePretty
         })
     }
 
 
     handleToSmart = async () => {
-        setLoaderStatus(true)
+        if (CACHE_SENDING) {
+            return false
+        }
+        CACHE_SENDING = true
 
-        const {bnbAll, smartAddress} = this.state
+        const { bnbAll, smartAddress } = this.state
 
         try {
             const inputValidate = await this.smartAmountInput.handleValidate()
-            if (inputValidate.status !== 'success') {
-                throw new Error('invalid custom freeze value')
+            let amount = 0
+            if (inputValidate.status === 'success') {
+                Log.log('SettingsBNB.handleToSmart value ' + JSON.stringify(inputValidate.value))
+                amount = inputValidate.value * 1
             }
+            if (!(amount > 0)) {
+                this.setState({
+                    amountError : true,
+                    amountErrorText : strings('send.errors.SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
+                })
+                CACHE_SENDING = false
+                return false
+            }
+            this.setState({
+                amountError : false
+            })
+            setLoaderStatus(true)
+
             const txData = {
                 currencyCode: 'BNB',
-                amount : BlocksoftPrettyNumbers.setCurrencyCode('BNB').makeUnPretty(inputValidate.value),
+                amount: BlocksoftPrettyNumbers.setCurrencyCode('BNB').makeUnPretty(amount),
                 walletHash: bnbAll.walletHash,
                 derivationPath: bnbAll.derivationPath,
                 addressFrom: bnbAll.address,
                 addressTo: smartAddress,
-                blockchainData : {
-                    action : 'BnbToSmart',
-                    expire_time : new Date().getTime() + 10000
+                blockchainData: {
+                    action: 'BnbToSmart',
+                    expire_time: new Date().getTime() + 10000
                 }
             }
             const result = await BlocksoftTransfer.sendTx(txData)
@@ -125,7 +139,7 @@ class SettingsBNB extends Component {
             if (config.debug.cryptoErrors) {
                 console.log('SettingsBNB.handleToSmart error ', e)
             }
-            let msg = e.toString()
+            const msg = e.message.indexOf('SERVER_RESPONSE_') === -1 ? e.message : strings('send.errors.' + e.message)
             showModal({
                 type: 'INFO_MODAL',
                 icon: null,
@@ -133,10 +147,33 @@ class SettingsBNB extends Component {
                 description: msg
             })
         }
+        CACHE_SENDING = false
         setLoaderStatus(false)
     }
 
     handleFromSmart = async () => {
+
+    }
+
+    renderAmountError = () => {
+        const { amountError, amountErrorText } = this.state
+        const { colors, GRID_SIZE } = this.context
+
+        if (!amountError) return
+        return (
+                <View style={styles.texts}>
+                    <View style={styles.texts__icon}>
+                        <Icon
+                            name='information-outline'
+                            size={22}
+                            color='#864DD9'
+                        />
+                    </View>
+                    <Text style={{ ...styles.texts__item, color: colors.common.text3 }}>
+                        {amountErrorText}
+                    </Text>
+                </View>
+        )
 
     }
 
@@ -165,11 +202,17 @@ class SettingsBNB extends Component {
                                 id={'smartAmount'}
                                 name={'enter amount to exchange BNB'}
                                 keyboardType={'numeric'}
+                                type={'AMOUNT'}
+                                additional={'NUMBER'}
                                 inputBaseColor={'#f4f4f4'}
                                 inputTextColor={'#f4f4f4'}
                                 tintColor={'#7127ac'}
                             />
                         </View>
+                    </View>
+
+                    <View style={{ paddingTop: 10, paddingBottom: 20 }}>
+                        {this.renderAmountError()}
                     </View>
 
                     <View style={{ paddingTop: 5, flexDirection: 'row' }}>
@@ -193,7 +236,7 @@ class SettingsBNB extends Component {
                         <TouchableOpacity style={{ paddingLeft: 15, paddingRight: 15, flex: 2 }} onPress={() => this.handleScan()}>
                             <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
                                 <LetterSpacing text={'Refresh'} numberOfLines={2}
-                                               textStyle={{ color: colors.common.text1 }}/>
+                                               textStyle={{ color: colors.common.text1 }} />
                             </View>
                         </TouchableOpacity>
                     </View>
@@ -204,18 +247,7 @@ class SettingsBNB extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        mainStore: state.mainStore
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
 
 SettingsBNB.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(SettingsBNB)
+export default connect(null, null, null, { forwardRef: true })(SettingsBNB)
