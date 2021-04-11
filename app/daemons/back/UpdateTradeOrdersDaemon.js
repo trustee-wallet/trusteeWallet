@@ -366,6 +366,8 @@ class UpdateTradeOrdersDaemon {
                         for (const tmp of tmps) {
                             if (!tmp.currencyCode || tmp.addressAmount === 0) continue
                             if (typeof savedToTx[tmp.currencyCode] !== 'undefined') continue
+                            if (tmp.suffix === 'out' && !tmp.updateHash) continue
+
                             currencyCode = tmp.currencyCode
 
                             const createdAt = new Date(item.createdAt).toISOString()
