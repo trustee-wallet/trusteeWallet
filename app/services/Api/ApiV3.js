@@ -156,12 +156,15 @@ export default {
             throw new Error('ApiV3 invalid settings type ' + type)
         }
 
+        // yurchik update anyway so do load faster
+        /*
         try {
             await UpdateCardsDaemon.updateCardsDaemon({ force: true })
         } catch (e) {
             Log.log('ApiV3.initData cards recheck error ' + e.message)
             // do nothing if nothing
         }
+        */
 
         const data = {
             locale: sublocale(),

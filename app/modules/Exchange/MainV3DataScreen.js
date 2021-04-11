@@ -67,6 +67,7 @@ class MainV3DataScreen extends Component {
         this.setState({ inited: true })
 
         // here to do upload
+        UpdateOneByOneDaemon.pause()
         const apiUrl = await ApiV3.initData('EXCHANGE')
 
         const navigationViewV3 = BlocksoftExternalSettings.getStatic('navigationViewV3') === 1

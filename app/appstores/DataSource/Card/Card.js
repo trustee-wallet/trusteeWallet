@@ -103,19 +103,29 @@ export default {
             MarketingEvent.logEvent('gx_cards_add', { cardNumber: CACHE_TOTAL.toString() }, 'GX')
             Log.log('DS/Card saveCard finished')
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('DS/Card saveCard error ' + e.message + ' ' + JSON.stringify(data))
+            }
             throw new Error(e.message + ' while saveCard ' + JSON.stringify(data))
         }
     },
 
     deleteCard: async (cardID) => {
-        const sql = `UPDATE card
-            SET number='REMOVED', card_name='REMOVED', card_to_send_status='${Math.round(new Date().getTime() / 1000)}'
-            WHERE id=${cardID}
-            `
-        await Database.setQueryString(sql).query()
-        CACHE_TOTAL = CACHE_TOTAL - 1
-        MarketingEvent.logEvent('gx_cards_remove', { cardNumber: CACHE_TOTAL.toString() }, 'GX')
-        Log.log('DS/Card deleteCard finished')
+        try {
+            const sql = `UPDATE card
+                SET number='REMOVED', card_name='REMOVED', card_to_send_status='${Math.round(new Date().getTime() / 1000)}'
+                WHERE id=${cardID}
+                `
+            await Database.setQueryString(sql).query(true)
+            CACHE_TOTAL = CACHE_TOTAL - 1
+            MarketingEvent.logEvent('gx_cards_remove', { cardNumber: CACHE_TOTAL.toString() }, 'GX')
+            Log.log('DS/Card deleteCard finished')
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('DS/Card deleteCard error ' + e.message + '  ' + JSON.stringify(cardID))
+            }
+            throw new Error(e.message + ' while deleteCard ' + JSON.stringify(cardID))
+        }
     },
 
     clearCards: async (data) => {

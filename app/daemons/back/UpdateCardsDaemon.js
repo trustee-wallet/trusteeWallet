@@ -103,13 +103,13 @@ class UpdateCardsDaemon {
                         ) {
                             // do nothing to insert
                         } else {
-                            currentToUpdate = cardsSaved[dataOne.card_to_send_id]
+                            currentToUpdate = cardsSaved['sid_' + dataOne.card_to_send_id]
                         }
                     } else {
                         currentToUpdate = cardsSaved[number]
                     }
 
-                    if (currentToUpdate === false) {
+                    if (currentToUpdate === false && typeof currentToUpdate !== 'undefined') {
                         await cardDS.saveCard({
                             insertObjs: [mapping]
                         })
