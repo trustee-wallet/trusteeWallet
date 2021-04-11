@@ -166,16 +166,27 @@ export default {
         }
         */
 
+        const tmp = await cardDS.getCards()
+        const cards = []
+        if (tmp) {
+            for (const card of tmp) {
+                if (card.number === 'REMOVED') { // just in case
+                    continue
+                }
+                if (card.cardCheckStatus === 'null') {
+                    card.cardCheckStatus = null
+                }
+                cards.push(card)
+            }
+        }
+
         const data = {
             locale: sublocale(),
             deviceToken: MarketingEvent.DATA.LOG_TOKEN,
             wallets: [],
-            cards: await cardDS.getCards(),
+            cards,
             selectedCurrency: currencyCode,
             sideWay: side
-        }
-        if (!data.cards || typeof data.cards === 'undefined') {
-            data.cards = []
         }
 
         try {
