@@ -29,7 +29,6 @@ import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
-import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import { HIT_SLOP } from '@app/themes/Themes'
@@ -135,7 +134,6 @@ class WalletInfo extends React.PureComponent {
         } = this.props
         const { isViolet } = this.state
         const { colors, GRID_SIZE } = this.context
-        const isWalletConnected = AppWalletConnect.isConnected()
         // @misha to optimize
         const date = new Date()
         const todayPrep = `${strings('homeScreen.today')}, ${date.getDate()} ${capitalize(moment(date).format('MMM'))}`
@@ -230,17 +228,6 @@ class WalletInfo extends React.PureComponent {
                                 }
 
                             </TouchableOpacity>
-
-                            {isWalletConnected ? (
-                            <TouchableOpacity onPress={() => NavStore.goNext('WalletConnectScreen')} hitSlop={HIT_SLOP}>
-                                <Text style={[
-                                    { color: isViolet ? colors.homeScreen.text1Violet : colors.common.text1 }
-                                ]}>
-                                    WalletConnect
-                                </Text>
-                            </TouchableOpacity>
-                                )
-                                : null }
 
                             <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
                                 {isBalanceVisible ? (

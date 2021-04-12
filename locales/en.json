@@ -224,6 +224,11 @@
       "listTitle": "Payment accounts",
       "listSubtitle": "Accounts: %{number}"
     },
+    "walletConnect": {
+      "title": "Wallet connect",
+      "activated": "Activated",
+      "disabled": "Disabled"
+    },
     "walletManagement": {
       "title": "Wallets management",
       "backup": "Backup wallet",

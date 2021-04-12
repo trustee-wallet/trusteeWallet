@@ -224,6 +224,11 @@
       "listTitle": "Платежные счета",
       "listSubtitle": "Счета: %{number}"
     },
+    "walletConnect": {
+      "title": "Wallet connect",
+      "activated": "Активировано",
+      "disabled": "Отключено"
+    },
     "walletManagement": {
       "title": "Управление кошельками",
       "backup": "Резервировать кошелек",
@@ -1085,7 +1090,7 @@
     "earn": "Заработать",
     "settings": "Больше",
     "support": "Поддержка",
-    "market": "Обмен"
+    "market": "Обменник"
   },
   "modal": {
     "titles": {

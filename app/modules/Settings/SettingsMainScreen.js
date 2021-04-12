@@ -14,25 +14,26 @@ import {
 
 
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
 import AsyncStorage from '@react-native-community/async-storage'
 
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import config from '../../config/config'
+import config from '@app/config/config'
 
-import { strings } from '../../services/i18n'
-import Toast from '../../services/UI/Toast/Toast'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
+import { strings } from '@app/services/i18n'
+import Toast from '@app/services/UI/Toast/Toast'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import AppNotificationListener from '@app/services/AppNotification/AppNotificationListener'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
-import ListItem from '../../components/elements/new/list/ListItem/Setting'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import Header from '@app/components/elements/new/Header'
+import ListItem from '@app/components/elements/new/list/ListItem/Setting'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+
+import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 
 
 class SettingsMainScreen extends React.Component {
@@ -264,6 +265,8 @@ class SettingsMainScreen extends React.Component {
 
     handleBack = () => { NavStore.goBack() }
 
+    handleWalletConnect = () => { NavStore.goNext('WalletConnectScreen') }
+
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.SettingsMainScreen')
 
@@ -296,6 +299,8 @@ class SettingsMainScreen extends React.Component {
             mode,
         } = this.state
 
+        const isWalletConnected = AppWalletConnect.isConnected()
+
         // @todo uncomment payment accounts
         return (
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>
@@ -323,9 +328,8 @@ class SettingsMainScreen extends React.Component {
                                     iconType="wallet"
                                     onPress={this.handleWalletManagment}
                                     rightContent="arrow"
-                                    last
                                 />
-                                { false ? (
+                                { false && (
                                     <ListItem
                                     title={strings('settings.paymentAccounts.listTitle')}
                                     subtitle={strings('settings.paymentAccounts.listSubtitle', { number: 0 })}
@@ -334,7 +338,15 @@ class SettingsMainScreen extends React.Component {
                                     rightContent="arrow"
                                     last
                                 />
-                                ) : null }
+                                )}
+                                <ListItem
+                                    title={strings('settings.walletConnect.title')}
+                                    subtitle={strings(`settings.walletConnect.${isWalletConnected ? 'activated' : 'disabled'}`)}
+                                    iconType="walletConnect"
+                                    onPress={isWalletConnected && this.handleWalletConnect}
+                                    rightContent="arrow"
+                                    last
+                                />
                             </View>
 
 

@@ -220,6 +220,11 @@
       "listTitle": "Мої гаманці",
       "listSubtitle": "Гаманці: %{number}"
     },
+    "walletConnect": {
+      "title": "Wallet connect",
+      "activated": "Активовано",
+      "disabled": "Відключено"
+    },
     "paymentAccounts": {
       "listTitle": "Платіжні рахунки",
       "listSubtitle": "Рахунки: %{number}"
@@ -1086,7 +1091,7 @@
     "earn": "Заробити",
     "settings": "Більше",
     "support": "Підтримка",
-    "market": "Обмін"
+    "market": "Обмінник"
   },
   "modal": {
     "titles": {
