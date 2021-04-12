@@ -73,6 +73,7 @@
     "node-libs-browser": "^2.2.1",
     "patch-package": "^6.2.2",
     "path-browserify": "0.0.0",
+    "pbkdf2": "3.1.1",
     "process": "^0.11.10",
     "protocol-buffers-encodings": "^1.1.1",
     "punycode": "^1.4.1",
