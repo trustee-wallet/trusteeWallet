@@ -182,7 +182,7 @@ class EnterMnemonicPhrase extends Component {
     handleSelectWord = (word) => {
         const { source, walletNumber } = this.props.walletCreateStore
         if (!this.state.walletMnemonicSelected || this.state.walletMnemonicSelected.length === 0) {
-            MarketingEvent.logEvent('gx_view_mnemonic_import_screen_first_word', {walletNumber, source}, 'GX')
+            MarketingEvent.logEvent('gx_view_mnemonic_import_screen_first', {walletNumber, source}, 'GX')
         }
         this.setState(state => ({
             walletMnemonicSelected: [...state.walletMnemonicSelected, word],
@@ -228,7 +228,7 @@ class EnterMnemonicPhrase extends Component {
         if (spacesNumber >= 11) {
             const wordsArr = lowercasedValue.split(/\s+/g) // linebreaks could be
             const { source, walletNumber } = this.props.walletCreateStore
-            MarketingEvent.logEvent('gx_view_mnemonic_import_screen_first_word', {walletNumber, source}, 'GX')
+            MarketingEvent.logEvent('gx_view_mnemonic_import_screen_first', {walletNumber, source}, 'GX')
             this.setState(() => ({
                 walletMnemonicSelected: wordsArr,
                 wordsProposed: [],
