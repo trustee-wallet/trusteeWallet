@@ -107,6 +107,17 @@ class UpdateAccountListDaemon extends Update {
                             reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].derivationPath = tmpCurrency.derivationPath
                         }
                         reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].walletPubs = walletPub[tmpCurrency.walletHash]
+
+                        if (tmpCurrency.address.indexOf(BlocksoftDict.Currencies[tmpCurrency.currencyCode].addressPrefix) === 0) {
+                            if (typeof  reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].legacy === 'undefined') {
+                                reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].legacy = tmpCurrency.address
+                            }
+                        } else if (tmpCurrency.address.indexOf(BlocksoftDict.CurrenciesForTests[tmpCurrency.currencyCode + '_SEGWIT'].addressPrefix) === 0) {
+                            if (typeof reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].segwit  === 'undefined') {
+                                reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].segwit = tmpCurrency.address
+                            }
+                        }
+
                         continue
                     }
                     const pub = walletPub[tmpCurrency.walletHash]
@@ -158,8 +169,8 @@ class UpdateAccountListDaemon extends Update {
                                 Log.errDaemon('UpdateAccountListDaemon error on tmpUnconfirmed ' + e.message)
                             }
                         }
-
                     }
+
                     const badAddresses = await accountDS.getAccountData({ derivationPath: 'm/49quote/0quote/0/1/0' })
                     if (badAddresses) {
                         let bad
@@ -243,11 +254,13 @@ class UpdateAccountListDaemon extends Update {
                             Log.errDaemon('UpdateAccountListDaemon error on balanceAddingLog2 ' + e.message)
                         }
                     }
-                    const firstLetter = tmpCurrency.address.substr(0, 1)
-                    if (firstLetter === '1') {
-                        reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].legacy = tmpCurrency.address
-                    } else if (firstLetter === 'b') {
-                        reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].segwit = tmpCurrency.address
+
+                    if (typeof BlocksoftDict.CurrenciesForTests[tmpCurrency.currencyCode + '_SEGWIT'] !== 'undefined') {
+                        if (tmpCurrency.address.indexOf(BlocksoftDict.Currencies[tmpCurrency.currencyCode].addressPrefix) === 0) {
+                            reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].legacy = tmpCurrency.address
+                        } else if (tmpCurrency.address.indexOf(BlocksoftDict.CurrenciesForTests[tmpCurrency.currencyCode + '_SEGWIT'].addressPrefix) === 0) {
+                            reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].segwit = tmpCurrency.address
+                        }
                     }
                 }
             }
