@@ -34,19 +34,11 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
         const CACHE_FOR_CHANGE = await BtcUnspentsProvider.getCache(data.walletHash)
         BlocksoftCryptoLog.log('BtcTxInputsOutputs CACHE_FOR_CHANGE ' + data.walletHash, CACHE_FOR_CHANGE)
         try {
-            let addressForChange
+            let addressForChange = false
             if (needFindSegwit) {
                 addressForChange = CACHE_FOR_CHANGE[segwitPrefix]
             } else {
                 addressForChange = CACHE_FOR_CHANGE[legacyPrefix]
-            }
-
-            if (addressForChange === data.addressTo) {
-                if (!needFindSegwit) {
-                    addressForChange = CACHE_FOR_CHANGE[segwitPrefix]
-                } else {
-                    addressForChange = CACHE_FOR_CHANGE[legacyPrefix]
-                }
             }
             // @ts-ignore
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' ' + mainCurrencyCode + ' BtcTxInputsOutputs _addressForChange addressForChange logic ', {
@@ -54,7 +46,7 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
                 addressForChange,
                 CACHE: CACHE_FOR_CHANGE
             })
-            if (addressForChange !== '') {
+            if (addressForChange && addressForChange !== '') {
                 return addressForChange
             }
         } catch (e) {

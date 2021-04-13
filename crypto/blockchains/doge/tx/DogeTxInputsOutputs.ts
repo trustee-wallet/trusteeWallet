@@ -12,7 +12,7 @@ const coinSplit = require('coinselect/split')
 
 export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxInputsOutputs {
     private _builderSettings: BlocksoftBlockchainTypes.BuilderSettings
-    private _settings: BlocksoftBlockchainTypes.CurrencySettings
+    protected _settings: BlocksoftBlockchainTypes.CurrencySettings
     private _minOutputDust: any
     private _minChangeDust: any
 
