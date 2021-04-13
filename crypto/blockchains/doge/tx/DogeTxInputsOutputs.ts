@@ -5,6 +5,7 @@ import { BlocksoftBlockchainTypes } from '../../BlocksoftBlockchainTypes'
 import BlocksoftBN from '../../../common/BlocksoftBN'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 const coinSelect = require('coinselect')
 const coinSplit = require('coinselect/split')
@@ -103,6 +104,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         const utxos = []
         const isRequired: any = {}
         let isAllRequired: boolean = true
+        const segwitPrefix = typeof BlocksoftDict.CurrenciesForTests[this._settings.currencyCode + '_SEGWIT'] !== 'undefined' ? BlocksoftDict.CurrenciesForTests[this._settings.currencyCode + '_SEGWIT'].addressPrefix : false
         for (const unspent of unspents) {
             const input = {
                 txId: unspent.txid,
@@ -111,8 +113,9 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 value: unspent.value * 1,
                 my: unspent
             }// script
-            if (typeof unspent.address !== 'undefined' && unspent.address.indexOf('bc') === 0) {
-                input.script = '1234567890123456789012345678901234' // only for size in coinselect = 34
+            if (typeof unspent.address !== 'undefined' && unspent.address.indexOf(segwitPrefix) === 0) {
+                input.isSegwit = true
+                // https://github.com/bitcoinjs/coinselect/pull/63 wait for it to be merged
             }
             utxos.push(input)
             if (unspent.isRequired) {
