@@ -551,7 +551,7 @@ const globalStyles = {
         transaction__data: {
             fontFamily: 'SFUIDisplay-Semibold',
             fontSize: 14,
-            lineРeight: 18,
+            lineHeight: 18,
         },
     },
     themes: {

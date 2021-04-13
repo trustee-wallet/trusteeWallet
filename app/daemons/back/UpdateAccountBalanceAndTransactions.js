@@ -19,6 +19,7 @@ import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import config from '../../config/config'
 import { getFioObtData, resolveCryptoCodes } from '../../../crypto/blockchains/fio/FioUtils'
 import DaemonCache from '../DaemonCache'
+import store from '@app/store'
 
 const CACHE_SCANNING = {}
 const CACHE_VALID_TIME = 60000 // 1 minute
@@ -156,6 +157,15 @@ class UpdateAccountBalanceAndTransactions {
     }
 
     loadFioData = async (currencyCode) => {
+        const currencies = store.getState().currencyStore.cryptoCurrencies
+        let foundFio = false
+        for (const tmp of currencies) {
+            if (tmp.currencyCode === 'FIO' && !tmp.maskedHidden) {
+                foundFio = true
+                break
+            }
+        }
+        if (!foundFio) return false
         Log.daemon('UpdateAccountBalanceAndTransactions loadFioData ' + currencyCode)
         try {
             // eslint-disable-next-line camelcase
