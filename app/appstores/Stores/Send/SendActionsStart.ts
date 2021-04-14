@@ -109,7 +109,7 @@ export namespace SendActionsStart {
         const ui = {
             uiType : 'TRADE_SEND',
             cryptoValue : data.amount,
-            addressTo : data.dexOrderData.tokenContract,
+            addressTo : 'DEX ' + data.addressTo,
             dexCurrencyCode : data.dexCurrencyCode,
             dexOrderData : data.dexOrderData,
             bse

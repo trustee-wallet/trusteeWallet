@@ -296,11 +296,11 @@ export default {
             const link = baseUrl + V3_ENTRY_POINT_SET_STATUS
             Log.log('ApiV3 setExchangeStatus axios ' + link + ' ' + orderHash + ' ' + transactionHash + ' status ' + status)
             if (config.debug.appErrors) {
-                console.log('ApiV3 setExchangeStatus start axios ' + link + ' ' + orderHash + ' ' + transactionHash + ' status ' + status)
+                console.log(new Date().toISOString() + ' ApiV3 setExchangeStatus start axios ' + link + ' ' + orderHash + ' ' + transactionHash + ' status ' + status)
             }
             const res = await BlocksoftAxios.post(link, data, false)
             if (config.debug.appErrors) {
-                console.log('ApiV3 setExchangeStatus end', JSON.stringify(res.data))
+                console.log(new Date().toISOString() + ' ApiV3 setExchangeStatus end', JSON.stringify(res.data))
             }
             return res
         } catch (e) {

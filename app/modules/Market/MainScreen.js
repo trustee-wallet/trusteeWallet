@@ -374,6 +374,7 @@ class MarketScreen extends Component {
                 bse.bseOrderData.status = 'dex'
                 await SendActionsStart.startFromDEX({
                         amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
+                        addressTo : data.outDestination,
                         currencyCode: data.currencyCode,
                         dexCurrencyCode : data.apiRaw.dexCurrencyCode,
                         dexOrderData : data.apiRaw.dexOrderData

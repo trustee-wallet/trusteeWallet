@@ -14,13 +14,14 @@ import TrxSendProvider from '@crypto/blockchains/trx/providers/TrxSendProvider'
 
 import BlocksoftDispatcher from '../BlocksoftDispatcher'
 import config from '@app/config/config'
-import { sublocale } from '@app/services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 // https://developers.tron.network/docs/parameter-and-return-value-encoding-and-decoding
 const ethers = require('ethers')
+const ADDRESS_PREFIX_REGEX = /^(41)/
 const AbiCoder = ethers.utils.AbiCoder
 
 
@@ -77,7 +78,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             return { isOk: true }
         }
 
-        const transactionsBasic = await balanceProviderBasic.getTransactionsBlockchain({account : {address : data.addressTo}})
+        const transactionsBasic = await balanceProviderBasic.getTransactionsBlockchain({ account: { address: data.addressTo } })
         if (transactionsBasic !== false) {
             return { isOk: true }
         }
@@ -87,7 +88,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         const result: BlocksoftBlockchainTypes.FeeRateResult = {
             selectedFeeIndex: -3,
-            shouldShowFees : false
+            shouldShowFees: false
         } as BlocksoftBlockchainTypes.FeeRateResult
         try {
             const link = 'https://apilist.tronscan.org/api/account?address=' + data.addressFrom
@@ -153,7 +154,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -1,
                 fees: [],
-                shouldShowFees : false,
+                shouldShowFees: false,
                 countedForBasicBalance: '0'
             }
         }
@@ -163,13 +164,13 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 selectedTransferAllBalance: balance,
                 selectedFeeIndex: -3,
                 fees: [],
-                shouldShowFees : false,
+                shouldShowFees: false,
                 countedForBasicBalance: balance
             }
         }
         return {
             ...fees,
-            shouldShowFees : false,
+            shouldShowFees: false,
             selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].amountForTx
         }
     }
@@ -184,6 +185,17 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         }
 
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx started')
+
+
+        const logData = {}
+        logData.currencyCode = this._settings.currencyCode
+        logData.selectedFee = uiData.selectedFee
+        logData.from = data.addressFrom
+        logData.basicAddressTo = data.addressTo
+        logData.basicAmount = data.amount
+        logData.pushLocale = sublocale()
+        logData.pushSetting = await settingsActions.getSetting('transactionsNotifs')
+        logData.basicToken = this._tokenName
 
         let tx
         if (typeof data.blockchainData !== 'undefined' && data.blockchainData) {
@@ -204,33 +216,114 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     throw e
                 }
                 const link = this._tronNodePath + '/wallet/triggersmartcontract'
-                let parameter = ''
-                try {
-                    const types = []
-                    const values = []
-                    for (const tmp of data.dexOrderData.params) {
-                        let { type, value } = tmp
-                        if (type.indexOf('address') !== -1) {
-                            throw new Error('trx address abi to be supported')
-                        }
-                        types.push(type)
-                        values.push(value)
-                    }
-                    parameter = abiCoder.encode(types, values).replace(/^(0x)/, '')
-                } catch (e) {
-                    throw new Error(e.message + ' in abiCoder')
-                }
 
-                const params = {
-                    owner_address: ownerAddress,
-                    contract_address: data.dexOrderData.tokenContract,
-                    function_selector: data.dexOrderData.contractMethod,
-                    // @ts-ignore
-                    parameter,
-                    fee_limit: 100000000,
-                    call_value: data.dexOrderData.options.callValue*1
+
+                const total = data.dexOrderData.length
+                let index = 0
+                for (const order of data.dexOrderData) {
+                    index++
+                    let parameter = ''
+                    try {
+                        const types = []
+                        const values = []
+                        for (const tmp of order.params) {
+                            let { type, value } = tmp
+                            if (type === 'address') {
+                                value = value.replace(ADDRESS_PREFIX_REGEX, '0x')
+                            } else if (type === 'address[]') {
+                                value = value.map(v => TronUtils.addressToHex(v).replace(ADDRESS_PREFIX_REGEX, '0x'))
+                            }
+                            types.push(type)
+                            values.push(value)
+                        }
+                        parameter = abiCoder.encode(types, values).replace(/^(0x)/, '')
+                    } catch (e) {
+                        throw new Error(e.message + ' in abiCoder')
+                    }
+
+                    let params
+                    try {
+                        params = {
+                            owner_address: ownerAddress,
+                            contract_address: order.tokenContract,
+                            function_selector: order.contractMethod,
+                            // @ts-ignore
+                            parameter,
+                            fee_limit: 100000000
+                        }
+                        if (typeof order.options !== 'undefined' && typeof order.options.callValue !== 'undefined') {
+                            params.all_value = order.options.callValue * 1
+                        }
+                    } catch (e1) {
+                        throw new Error(e1.message + ' in params build')
+                    }
+                    if (index < total) {
+                        res = await BlocksoftAxios.post(link, params)
+
+                        tx = res.data.transaction
+                        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendSubTx tx', tx)
+
+                        tx.signature = [TronUtils.ECKeySign(Buffer.from(tx.txID, 'hex'), Buffer.from(privateData.privateKey, 'hex'))]
+                        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendSubTx signed', tx)
+
+                        let resultSub = {} as BlocksoftBlockchainTypes.SendTxResult
+                        try {
+                            resultSub = await this.sendProvider.sendTx(tx, '', false, logData)
+                            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendSubTx broadcasted')
+                        } catch (e) {
+                            if (config.debug.cryptoErrors) {
+                                console.log(this._settings.currencyCode + ' TrxTransferProcessor.sendSubTx error', e, uiData)
+                            }
+                            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendSubTx  error ' + e.message)
+                            // noinspection ES6MissingAwait
+                            MarketingEvent.logOnlyRealTime('v20_trx_tx_sub_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
+                            throw e
+                        }
+
+                        const linkRecheck = 'https://api.trongrid.io/wallet/gettransactioninfobyid'
+                        let checks = 0
+                        let mined = false
+                        do {
+                            checks++
+                            try {
+                                const recheck = await BlocksoftAxios.post(linkRecheck, {
+                                    value: tx.txID
+                                })
+                                if (typeof recheck.data !== 'undefined') {
+                                    if (typeof recheck.data.id !== 'undefined' && typeof recheck.data.blockNumber !== 'undefined'
+                                        && typeof recheck.data.receipt !== 'undefined' && typeof recheck.data.receipt.result !== 'undefined'
+                                    ) {
+
+                                        // @ts-ignore
+                                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendSubTx recheck ', {
+                                            id: recheck.data.id,
+                                            blockNumber: recheck.data.blockNumber,
+                                            receipt: recheck.data.receipt
+                                        })
+                                        mined = true
+                                        const minedStatus = recheck.data.receipt.result.toUpperCase()
+                                        if (minedStatus === 'OUT_OF_ENERGY') {
+                                            strings(`account.transactionStatuses.out_of_energy`)
+                                        } else if (minedStatus === 'FAILED') {
+                                            strings(`account.transactionStatuses.fail`)
+                                        } else if (minedStatus !== 'SUCCESS') {
+                                            throw new Error('Bad tx status ' + JSON.stringify(recheck.data.receipt))
+                                        }
+                                        break
+                                    }
+                                }
+                            } catch (e1) {
+                                if (config.debug.cryptoErrors) {
+                                    console.log(this._settings.currencyCode + ' TRX transaction recheck error ', e1)
+                                }
+                                BlocksoftCryptoLog.log(this._settings.currencyCode + ' TRX transaction recheck error ' + e1.message)
+                            }
+                        } while (checks < 100 && !mined)
+
+                    } else {
+                        res = await BlocksoftAxios.post(link, params)
+                    }
                 }
-                res = await BlocksoftAxios.post(link, params)
             } else {
 
                 if (typeof data.addressTo === 'undefined') {
@@ -337,25 +430,15 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         tx.signature = [TronUtils.ECKeySign(Buffer.from(tx.txID, 'hex'), Buffer.from(privateData.privateKey, 'hex'))]
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx signed', tx)
 
-        const logData = {}
-        logData.currencyCode = this._settings.currencyCode
-        logData.selectedFee = uiData.selectedFee
-        logData.from = data.addressFrom
-        logData.basicAddressTo = data.addressTo
-        logData.basicAmount = data.amount
-        logData.pushLocale = sublocale()
-        logData.pushSetting = await settingsActions.getSetting('transactionsNotifs')
-        logData.basicToken = this._tokenName
-
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
             result = await this.sendProvider.sendTx(tx, '', false, logData)
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx broadcasted')
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' TrxTransferProcessor.sent error', e, uiData)
+                console.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx error', e, uiData)
             }
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sent error '+ e.message)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx error ' + e.message)
             // noinspection ES6MissingAwait
             MarketingEvent.logOnlyRealTime('v20_trx_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
             throw e
