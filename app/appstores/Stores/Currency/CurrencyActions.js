@@ -210,7 +210,7 @@ const currencyActions = {
 
         setLoaderStatus(true)
 
-        Log.log('ACT/Currency toggleCurrencyVisibility called')
+        Log.log('ACT/Currency toggleCurrencyVisibility called ', params)
 
         try {
 
@@ -224,6 +224,7 @@ const currencyActions = {
             }
             currentIsHidden[selectedWalletNumber] = params.newIsHidden
             const isHidden = parseInt(currentIsHidden.reverse().join(''), 2)
+            Log.log('ACT/Currency toggleCurrencyVisibility selectedWalletNumber ' + selectedWalletNumber + ' isHidden ' + isHidden, JSON.stringify(currentIsHidden))
             await currencyDS.updateCurrency({
                 key: {
                     currencyCode: params.currencyCode

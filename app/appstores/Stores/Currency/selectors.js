@@ -1,13 +1,13 @@
 
 import { createSelector } from 'reselect'
-import _isEqual from 'lodash/isEqual'
 import store from '@app/store'
-
+import Log from '@app/services/Log/Log'
 
 export const getVisibleCurrencies = createSelector(
   [state => state.currencyStore.cryptoCurrencies],
   (currencies => {
       const selectedWalletNumber = store.getState().mainStore.selectedWallet.walletNumber
+      Log.log('ACT/Currency getVisibleCurrencies selectedWalletNumber ' + selectedWalletNumber)
       return currencies.filter(c => {
           if (c.isHidden === null) {
               c.maskedHidden = true
