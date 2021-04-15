@@ -115,7 +115,6 @@ class EnterMnemonicPhraseGoogle extends Component {
             <View style={styles.wrapper}>
                 <Navigation
                     self={this}
-                    navigation={this.props.navigation}
                     isBack={false}
                     closeAction={this.closeAction}
                     title={strings('walletCreate.importGoogle')}
