@@ -34,8 +34,8 @@ class FioRequestDetails extends Component {
     }
 
     async componentDidMount() {
-        const data = this.props.navigation.getParam('requestDetailScreenParam')
-        const type = this.props.navigation.getParam('requestDetailScreenType')
+        const data = NavStore.getParamWrapper(this, 'requestDetailScreenParam')
+        const type = NavStore.getParamWrapper(this, 'requestDetailScreenType')
 
         this.setState({
             requestDetailData: data,
@@ -68,7 +68,7 @@ class FioRequestDetails extends Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     render() {
 

@@ -31,7 +31,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const VISIBILITY_TIMEOUT = 4000
 
-class BackupStep1Screen extends React.Component {
+class BackupStep1Screen extends React.PureComponent {
     visibilityTimer;
 
     constructor(props) {
@@ -139,7 +139,7 @@ class BackupStep1Screen extends React.Component {
                 description: strings('modal.walletBackup.seedConfirm'),
                 noBackdropPress: true
             }, () => {
-                NavStore.reset('DashboardStack')
+                NavStore.reset('HomeScreen')
             })
         } else {
             const { walletName, walletMnemonic, callback, source, walletNumber } = this.props.createWalletStore
@@ -169,7 +169,7 @@ class BackupStep1Screen extends React.Component {
                     noBackdropPress: true
                 }, async () => {
                     if (callback === null) {
-                        NavStore.reset('DashboardStack')
+                        NavStore.reset('HomeScreen')
                         await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletBackup.BackupStep1Screen' })
                     } else {
                         callback()

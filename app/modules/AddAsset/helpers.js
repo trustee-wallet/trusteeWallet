@@ -235,6 +235,6 @@ export async function addCustomToken(tokenAddress) {
         title: strings('modal.infoAddCustomAssetModal.success.title'),
         description: strings('modal.infoAddCustomAssetModal.success.description')
     }, () => {
-        NavStore.reset('DashboardStack')
+        NavStore.reset('HomeScreen')
     })
 }

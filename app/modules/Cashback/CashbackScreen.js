@@ -37,6 +37,7 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 import UpdateCashBackDataDaemon from '@app/daemons/back/UpdateCashBackDataDaemon'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
+import NavStore from '@app/components/navigation/NavStore'
 
 
 class CashbackScreen extends React.Component {
@@ -52,7 +53,7 @@ class CashbackScreen extends React.Component {
 
     componentDidMount() {
         this.navigationListener = this.props.navigation.addListener('didFocus', () => {
-            const qrCodeData = this.props.navigation.getParam('qrData', null)
+            const qrCodeData = NavStore.getParamWrapper(this, 'qrData')
             if (qrCodeData && typeof qrCodeData.qrCashbackLink !== 'undefined' && qrCodeData.qrCashbackLink) {
                 this.setState(() => ({ inviteLink: qrCodeData.qrCashbackLink }))
             }

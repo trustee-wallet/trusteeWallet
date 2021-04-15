@@ -49,7 +49,7 @@ const getSliderData = () => [
 
 const SLIDER_SCROLL_TIMEOUT = 4000
 
-class WalletCreateScreen extends Component {
+class WalletCreateScreen extends React.PureComponent {
     state = {
         checked: false
     }
@@ -107,13 +107,13 @@ class WalletCreateScreen extends Component {
     handleTermsPress = () => {
         const lang = sublocale()
         const url = BlocksoftExternalSettings.getStatic(`TERMS_${lang}`)
-        NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.terms') })
+        NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.terms'), backOnClose: true })
     }
 
     handlePrivacyPolicyPress = () => {
         const lang = sublocale()
         const url = BlocksoftExternalSettings.getStatic(`PRIVACY_POLICY_${lang}`)
-        NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.privacyPolicy') })
+        NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.privacyPolicy'), backOnClose: true })
     }
 
     renderSliderPage = ({ image, text, textStyle }) => {

@@ -79,7 +79,7 @@ class FioAddresses extends Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     render() {
         Moment.locale( i18n.locale.split('-')[0] === 'uk' ? 'ru' : i18n.locale);

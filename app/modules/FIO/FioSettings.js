@@ -43,7 +43,7 @@ class FioSettings extends Component {
     }
 
     async componentDidMount() {
-        const fioAddress = this.props.navigation.getParam('fioAddress')
+        const fioAddress = NavStore.getParamWrapper(this, 'fioAddress')
 
         const { cryptoCurrencies } = this.props.currencyStore
         const availableCurrencies = cryptoCurrencies?.filter(c => !c.isHidden)
@@ -251,7 +251,7 @@ class FioSettings extends Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     render() {
         const { fioAddress, fioAddressExpiration } = this.state

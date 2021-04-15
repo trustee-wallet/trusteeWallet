@@ -40,7 +40,7 @@ import Header from '../../../components/elements/new/Header'
 import ListItem from '../../../components/elements/new/list/ListItem/Setting'
 import MarketingAnalytics from '../../../services/Marketing/MarketingAnalytics'
 
-class AccountSettingScreen extends React.Component {
+class AccountSettingScreen extends React.PureComponent {
     constructor() {
         super()
         this.state = {
@@ -61,7 +61,7 @@ class AccountSettingScreen extends React.Component {
     }
 
     handleClose = () => {
-        NavStore.reset('DashboardStack')
+        NavStore.reset('HomeScreen')
     }
 
     render() {

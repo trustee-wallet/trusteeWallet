@@ -58,7 +58,7 @@ const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
 
-class MarketScreen extends Component {
+class MarketScreen extends React.PureComponent {
 
     constructor() {
         super()
@@ -81,9 +81,9 @@ class MarketScreen extends Component {
         this.setState({ inited: true })
 
         // here to do upload
-        const side = this.props.navigation.getParam('side')
-        const currencyCode = this.props.navigation.getParam('currencyCode')
-        let apiUrl = await ApiV3.initData('MARKET', currencyCode, side)
+        const side = NavStore.getParamWrapper(this,'side')
+        const currencyCode = NavStore.getParamWrapper(this, 'currencyCode')
+        const apiUrl = await ApiV3.initData('MARKET', currencyCode, side)
 
         setTimeout(() => {
             this.setState({

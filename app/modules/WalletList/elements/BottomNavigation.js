@@ -1,9 +1,8 @@
 /**
- * @version 0.11
+ * @version 0.43
  */
-import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, Platform } from 'react-native'
-import { connect } from 'react-redux'
+import React from 'react'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
 import CustomIcon from '@app/components/elements/CustomIcon'
@@ -15,59 +14,12 @@ import Netinfo from '@app/services/Netinfo/Netinfo'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import config from '@app/config/config'
-
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import AsyncStorage from '@react-native-community/async-storage'
 
 
-class BottomNavigation extends Component {
-
-    constructor() {
-        super()
-        this.state = {}
-        this.buySellBtnTooltip = React.createRef()
-    }
-
-    handleModal = async () => {
-        try {
-            await Netinfo.isInternetReachable()
-            NavStore.goNext('ExchangeV3ScreenStack')
-        } catch (e) {
-            if (Log.isNetworkError(e.message) || e.message.includes('UI_ERROR')) {
-                Log.log('HomeScreen.BottomNavigation handleModal error ' + e.message)
-            } else {
-                Log.err('HomeScreen.BottomNavigation handleModal error ' + e.message)
-            }
-        }
-    }
-
-    handleSellBtn = () => {
-        NavStore.goNext('SellV3ScreenStack')
-    }
-
-
-    handleMainBtn = async (type) => {
-        try {
-            await Netinfo.isInternetReachable()
-
-            if (type === 'SELL') {
-                    NavStore.goNext('MainV3DataScreen', { tradeType: 'SELL' })
-            } else if (type === 'BUY') {
-                    NavStore.goNext('MainV3DataScreen', { tradeType: 'BUY' })
-            } else {
-               throw new Error('plz use type SELL or BUY, provided ' + tradeType)
-            }
-
-        } catch (e) {
-            if (Log.isNetworkError(e.message)) {
-                Log.log('HomeScreen.BottomNavigation handleMainBtn error ' + e.message)
-            } else {
-                Log.err('HomeScreen.BottomNavigation handleMainBtn error ' + e.message)
-            }
-        }
-    }
+class BottomNavigation extends React.PureComponent {
 
     handleMainMarket = async () => {
         try {
@@ -116,8 +68,7 @@ class BottomNavigation extends Component {
                 </View>
                 <View style={[styles.contentWrapper, { backgroundColor: colors.homeScreen.tabBarBackground }]}>
                     <View style={styles.itemStub} />
-                        {/* {config.exchange.mode === 'DEV' ?
-                            <> */}
+
                                 <TouchableOpacity style={{...styles.navigation__item, alignItems: 'center', flex: 3}} onPress={this.handleMainMarket}>
                                     <CustomIcon name="buy" style={{ color: colors.common.text1 }} size={21} />
                                     <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.market')}</Text>
@@ -132,30 +83,6 @@ class BottomNavigation extends Component {
                                     <CustomIcon name="support" style={{ color: colors.common.text1 }} size={20} />
                                     <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]}>{strings('dashboardStack.support')}</Text>
                                 </TouchableOpacity>
-                            {/* </>
-                            :
-                            <>
-                                <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleMainBtn('BUY')}>
-                                    <CustomIcon name="buy" style={{ color: colors.common.text1 }} size={21} />
-                                    <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 3 }}>{strings('dashboardStack.buy')}</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleModal()}>
-                                    <CustomIcon name="exchange" style={{ color: colors.common.text1 }} size={21} />
-                                    <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText, marginTop: 3 }}>{strings('dashboardStack.exchange')}</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity style={styles.navigation__item} onPress={() => this.handleMainBtn('SELL')}>
-                                    <CustomIcon name="sell" style={{ color: colors.common.text1 }} size={21} />
-                                    <Text style={{ ...styles.navigation__item__text, color: colors.homeScreen.tabBarText }}>{strings('dashboardStack.sell')}</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity style={styles.navigation__item} onPress={this.handleCashback}>
-                                    <CustomIcon name="earn" style={{ color: colors.common.text1 }} size={20} />
-                                    <Text style={[styles.navigation__item__text, { color: colors.homeScreen.tabBarText }]} numberOfLines={1} >{strings('dashboardStack.earn')}</Text>
-                                </TouchableOpacity>
-                            </>
-                        } */}
 
                     <View style={styles.itemStub} />
                 </View>
@@ -164,17 +91,11 @@ class BottomNavigation extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        language: state.settingsStore.data.language
-    }
-}
-
 BottomNavigation.contextType = ThemeContext
 
-export default connect(mapStateToProps, {})(BottomNavigation)
+export default BottomNavigation
 
-const styles = {
+const styles = StyleSheet.create({
     contentWrapper: {
         flexDirection: 'row',
         zIndex: 20,
@@ -215,4 +136,4 @@ const styles = {
         fontFamily: 'SFUIDisplay-Regular',
         marginTop: 3
     },
-}
+})

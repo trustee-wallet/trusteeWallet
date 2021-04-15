@@ -38,7 +38,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import CustomIcon from '@app/components/elements/CustomIcon'
 
 
-class AddAssetScreen extends React.Component {
+class AddAssetScreen extends React.PureComponent {
     state = {
         headerHeight: 109,
         searchQuery: '',
@@ -56,7 +56,7 @@ class AddAssetScreen extends React.Component {
     }
 
     checkIfWasScanned = () => {
-        const data = this.props.navigation.getParam('tokenData')
+        const data = NavStore.getParamWrapper(this, 'tokenData')
         if (data && typeof data !== 'undefined' && typeof data.address !== 'undefined' && data.address) {
             this.setState({ customAddress: data.address })
         }

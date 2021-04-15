@@ -37,7 +37,7 @@ import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 let styles
 
 
-class InitScreen extends Component {
+class InitScreen extends React.PureComponent {
 
     constructor() {
         super()
@@ -76,8 +76,8 @@ class InitScreen extends Component {
                 Log.log('InitScreen navigated to LockScreen')
                 NavStore.reset('LockScreen')
             } else {
-                Log.log('InitScreen navigated to DashboardStack')
-                NavStore.reset('DashboardStack')
+                Log.log('InitScreen navigated to HomeScreen')
+                NavStore.reset('HomeScreen')
             }
         } else {
             Log.log('!!!!!!!!!!!!!!!!InitScreen will be here till DB inited')

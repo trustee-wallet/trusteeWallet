@@ -33,7 +33,7 @@ import axios from 'axios'
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_IS_ERROR = false
-class SMSV3CodeScreen extends Component {
+class SMSV3CodeScreen extends React.PureComponent {
 
     constructor() {
         super()
@@ -107,12 +107,12 @@ class SMSV3CodeScreen extends Component {
     }
 
     async componentDidMount() {
-        const tradeWebParam = this.props.navigation.getParam('tradeWebParam')
+        const tradeWebParam = NavStore.getParamWrapper(this,'tradeWebParam')
         this.prepareFunction(tradeWebParam.didMount, tradeWebParam, this, 'GENERAL')
     }
 
     onMessage(e) {
-        const tradeWebParam = this.props.navigation.getParam('tradeWebParam').message
+        const tradeWebParam = NavStore.getParamWrapper(this,'tradeWebParam').message
         this.prepareFunction(tradeWebParam, e, this, 'MSG')
     }
 
@@ -130,7 +130,7 @@ class SMSV3CodeScreen extends Component {
         if (this.state.additionalData.close) {
             this.setExchangeStatus(this.state.api, this.state.orderHash, 'CLOSE')
         }
-        NavStore.reset('DashboardStack')
+        NavStore.reset('HomeScreen')
     }
 
     backAction = () => {

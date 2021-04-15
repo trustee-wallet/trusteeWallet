@@ -22,7 +22,7 @@ import EthNetworkPrices from '../../../crypto/blockchains/eth/basic/EthNetworkPr
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 import { strings } from '../../services/i18n'
 
-class WalletConnectScreen extends React.Component {
+class WalletConnectScreen extends React.PureComponent {
 
     state = {
         headerHeight: 0,
@@ -54,7 +54,7 @@ class WalletConnectScreen extends React.Component {
 
     async init() {
         Log.log('WalletConnectScreen.init')
-        const data = this.props.navigation.getParam('walletConnect')
+        const data = NavStore.getParamWrapper(this,'walletConnect')
         try {
             const clientData = await AppWalletConnect.init(data,
                 this.handleSessionRequest,
@@ -258,7 +258,7 @@ class WalletConnectScreen extends React.Component {
         if (this.state.paranoidLogout) {
             AppWalletConnect.killSession()
         }
-        NavStore.reset('DashboardStack')
+        NavStore.reset('HomeScreen')
     }
 
 

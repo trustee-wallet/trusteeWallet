@@ -21,11 +21,11 @@ import Header from '../../components/elements/new/Header'
 import Log from '../../services/Log/Log'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
-class WebViewScreen extends React.Component {
+class WebViewScreen extends React.PureComponent {
     state = {
         headerHeight: 0,
-        url: this.props.navigation.getParam('url', ''),
-        title: this.props.navigation.getParam('title', ''),
+        url: NavStore.getParamWrapper(this,'url', ''),
+        title: NavStore.getParamWrapper(this,'title', ''),
     }
 
     setHeaderHeight = (height) => {
@@ -36,11 +36,11 @@ class WebViewScreen extends React.Component {
     handleBack = () => { NavStore.goBack() }
 
     handleClose = () => {
-        const prev = NavStore.getPrevRoute().routeName
-        if (prev === 'WalletCreateScreen') {
+        const prev = NavStore.getParamWrapper(this, 'backOnClose')
+        if (prev) {
             NavStore.goBack()
         } else {
-            NavStore.reset('DashboardStack')
+            NavStore.reset('HomeScreen')
         }
     }
 
@@ -60,7 +60,7 @@ class WebViewScreen extends React.Component {
     }
 
     render() {
-        const { colors, GRID_SIZE } = this.context
+        const { colors } = this.context
         const { headerHeight, title, url } = this.state
 
         MarketingAnalytics.setCurrentScreen('WebViewScreen')

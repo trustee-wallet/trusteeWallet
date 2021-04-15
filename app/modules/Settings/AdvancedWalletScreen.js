@@ -34,7 +34,7 @@ import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
-class AdvancedWalletScreen extends React.Component {
+class AdvancedWalletScreen extends React.PureComponent {
     state = {
         headerHeight: 0,
         isEditing: false,
@@ -88,7 +88,7 @@ class AdvancedWalletScreen extends React.Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     render() {
         MarketingAnalytics.setCurrentScreen('WalletManagment.Advances')

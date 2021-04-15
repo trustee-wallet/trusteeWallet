@@ -1,9 +1,9 @@
 /**
  * @version 0.41
  */
-import { Component } from 'react'
+import React from 'react'
 
-export default class SendBasicScreen extends Component {
+export default class SendBasicScreen extends React.PureComponent {
 
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0)

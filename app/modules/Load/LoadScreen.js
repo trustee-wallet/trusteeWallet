@@ -19,7 +19,7 @@ import App from '../../appstores/Actions/App/App'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
-class LoadScreen extends Component {
+class LoadScreen extends React.PureComponent {
 
     constructor() {
         super()
@@ -57,8 +57,8 @@ class LoadScreen extends Component {
                 Log.log('InitScreen navigated to LockScreen')
                 NavStore.reset('LockScreen')
             } else {
-                Log.log('InitScreen navigated to DashboardStack')
-                NavStore.reset('DashboardStack')
+                Log.log('InitScreen navigated to HomeScreen')
+                NavStore.reset('HomeScreen')
             }
         } else {
             Log.log('!!!!!!!!!!!!!!!!InitScreen will be here till DB inited')

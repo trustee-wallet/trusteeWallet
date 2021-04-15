@@ -57,7 +57,7 @@ const callWithDelay = _debounce(
 )
 
 
-class EnterMnemonicPhrase extends Component {
+class EnterMnemonicPhrase extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -75,7 +75,7 @@ class EnterMnemonicPhrase extends Component {
     }
 
     componentDidMount() {
-        const flowSubtype = this.props.navigation.getParam('flowSubtype', 'createFirst')
+        const flowSubtype = NavStore.getParamWrapper(this,'flowSubtype', 'createFirst')
         this.setState(() => ({ flowSubtype }))
     }
 
@@ -152,7 +152,7 @@ class EnterMnemonicPhrase extends Component {
                 noBackdropPress: true,
             }, async () => {
                 if (callback === null) {
-                    NavStore.reset('DashboardStack')
+                    NavStore.reset('HomeScreen')
                 } else {
                     callback()
                     setCallback({ callback: null })
@@ -199,7 +199,7 @@ class EnterMnemonicPhrase extends Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     handleInputPhrase = (_value = '') => {
         const value = _value.trim()

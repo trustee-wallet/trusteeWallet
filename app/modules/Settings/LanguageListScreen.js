@@ -29,7 +29,7 @@ import ListItem from '../../components/elements/new/list/ListItem/SubSetting'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
-class LanguageListScreen extends Component {
+class LanguageListScreen extends React.PureComponent {
     state = {
         headerHeight: 0
     }
@@ -62,7 +62,7 @@ class LanguageListScreen extends Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.LanguageListScreen')

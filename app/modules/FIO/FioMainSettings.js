@@ -47,15 +47,15 @@ class FioMainSettings extends Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     handleSendFioRequest = () => { NavStore.goNext('FioSendRequest') }
 
     handleFioRequests = () => { NavStore.goNext('FioRequestsList') }
-    
+
     handleFioAddresses = () => { NavStore.goNext('FioAddresses') }
 
-    
+
 
 
     render() {

@@ -23,7 +23,7 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
 
-class WalletListScreen extends Component {
+class WalletListScreen extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -67,7 +67,7 @@ class WalletListScreen extends Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.WalletListScreen')

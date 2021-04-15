@@ -1,13 +1,12 @@
 /**
- * @version 0.41
+ * @version 0.43
  * Init App
  */
-import React, { Component, useEffect } from 'react'
+import React from 'react'
 
 import { Provider } from 'react-redux'
 import { AppearanceProvider } from 'react-native-appearance'
 import { Linking } from 'react-native'
-
 
 import store from '@app/store'
 
@@ -28,16 +27,10 @@ appsFlyer.initSdk(
         onInstallConversionDataListener: true, // Optional
         onDeepLinkListener: true, // Optional
         timeToWaitForATTUserAuthorization: 10 // for iOS 14.5
-    },
-    (result) => {
-     //   console.log('appsFlyer', result)
-    },
-    (error) => {
-    //    console.error('appsFlyer', error)
     }
 );
 
-export default class App extends Component {
+export default class App extends React.Component {
 
     // eslint-disable-next-line camelcase
     UNSAFE_componentWillMount() {

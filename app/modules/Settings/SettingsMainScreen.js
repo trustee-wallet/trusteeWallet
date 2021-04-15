@@ -36,7 +36,7 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 
 
-class SettingsMainScreen extends React.Component {
+class SettingsMainScreen extends React.PureComponent {
     constructor() {
         super()
         this.state = {

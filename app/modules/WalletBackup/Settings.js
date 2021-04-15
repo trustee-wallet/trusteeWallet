@@ -34,7 +34,7 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 
-class BackupSettingsScreen extends Component {
+class BackupSettingsScreen extends React.PureComponent {
     state = {
         headerHeight: 0,
         mnemonicLength: this.props.createWalletStore.mnemonicLength,
@@ -125,7 +125,7 @@ class BackupSettingsScreen extends Component {
                     noBackdropPress: true
                 }, async () => {
                     if (callback === null) {
-                        NavStore.reset('DashboardStack')
+                        NavStore.reset('HomeScreen')
                     } else {
                         callback()
                         setCallback({ callback: null })
@@ -141,7 +141,7 @@ class BackupSettingsScreen extends Component {
     handleSupport = async () => {
         const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
         MarketingEvent.logEvent('taki_support', { link, screen: 'SETTINGS' })
-        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
+        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle'), backOnClose: true })
     }
 
     render() {

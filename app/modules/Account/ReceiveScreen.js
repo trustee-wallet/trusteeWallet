@@ -85,7 +85,7 @@ const amountInput = {
     mark: 'ETH'
 }
 
-class ReceiveScreen extends Component {
+class ReceiveScreen extends React.PureComponent {
 
     constructor() {
         super()
@@ -439,7 +439,7 @@ class ReceiveScreen extends Component {
     }
 
     closeAction = () => {
-        NavStore.reset('DashboardStack')
+        NavStore.reset('HomeScreen')
     }
 
     setHeaderHeight = (height) => {

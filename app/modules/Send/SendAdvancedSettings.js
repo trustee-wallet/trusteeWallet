@@ -33,7 +33,7 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { checkLoadedFee } from './receipt/helpers'
 
 let CACHE_IS_COUNTING = false
-class SendAdvancedSettings extends Component {
+class SendAdvancedSettings extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -59,7 +59,7 @@ class SendAdvancedSettings extends Component {
 
         const { bse } = this.props.sendScreenStore.ui
         const { bseProviderType } = bse
-        
+
         if (bseProviderType === 'FIXED') {
             showModal({
                 type: 'INFO_MODAL',
@@ -100,7 +100,7 @@ class SendAdvancedSettings extends Component {
 
     handleApply = async () => {
         Keyboard.dismiss()
-        
+
         const comment = this.state.comment
         setLoaderStatus(true)
         CACHE_IS_COUNTING = true

@@ -1,27 +1,22 @@
 /**
- * @version 0.9
- * @misha check if commented out is needed
+ * @version 0.43
+ * https://reactnavigation.org/docs/navigating-without-navigation-prop
  */
-import React, { Component } from 'react'
-import {
-    View,
-    Dimensions,
-    StatusBar,
-    StyleSheet
-} from 'react-native'
-
-import Modal from '../components/modal/MainModal'
-import NavStore from '../components/navigation/NavStore.js'
-import Loader from '../components/elements/Loader'
-
-import Router from './Router'
+import React from 'react'
+import { View, StatusBar, StyleSheet } from 'react-native'
+import { NavigationContainer } from '@react-navigation/native'
 import ErrorBoundary from 'react-native-error-boundary'
-import ErrorScreen from '../modules/Error/ErrorScreen'
-import Log from '../services/Log/Log'
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
+import Modal from '@app/components/modal/MainModal'
+import Loader from '@app/components/elements/Loader'
 
-function getStackTrace(err) {
+import ErrorScreen from '@app/modules/Error/ErrorScreen'
+import Log from '@app/services/Log/Log'
+
+import NewRouter from './NewRouter'
+import { navigationRef } from '@app/components/navigation/NavRoot'
+
+const getStackTrace = (err) => {
     let stack = err.stack || ''
     let isIndex = false
     let deepIndex = 0
@@ -49,35 +44,19 @@ const myErrorHandler = (err) => {
     Log.err('myErrorHandler error ' + err.message, getStackTrace(err))
 }
 
-export default class MainStack extends Component {
-
-    // UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
-    //
-    //     if(!this.props.navigationStore.initialRouteName != nextProps.navigationStore.initialRouteName){
-    //         MainRouter = Router(nextProps.navigationStore)
-    //     }
-    // }
+export default class RouterMainWrapper extends React.Component {
 
     render() {
-
-        const { navigationStore } = this.props
-
-        // if(!MainRouter){
-        //     MainRouter = Router(navigationStore)
-        // }
 
         return (
             <ErrorBoundary onError={myErrorHandler} FallbackComponent={ErrorScreen}>
                 <View style={styles.container}>
-                    <Router
-                        // onNavigationStateChange={(prev, next) => NavStore.onNavigationStateChange(prev, next)}
-                        ref={(ref) => {
-                            NavStore.navigator = ref
-                        }}
-                    />
-                    <Modal/>
-                    <StatusBar translucent={true} backgroundColor={'transparent'} barStyle="dark-content"/>
-                    <Loader/>
+                    <NavigationContainer ref={navigationRef}>
+                        <NewRouter/>
+                    </NavigationContainer>
+                    <Modal />
+                    <StatusBar translucent={true} backgroundColor={'transparent'} barStyle='dark-content' />
+                    <Loader />
                 </View>
             </ErrorBoundary>
         )

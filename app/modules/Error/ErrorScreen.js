@@ -87,7 +87,6 @@ const handleLogs = async () => {
 }
 
 const ErrorScreen = (props) => {
-    // NavStore.goNext('SettingsScreenStack')
     let error = props.error || ''
     if (typeof props.navigation !== 'undefined'
         && typeof props.navigation.state !== 'undefined'

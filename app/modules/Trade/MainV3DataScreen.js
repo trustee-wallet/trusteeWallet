@@ -60,7 +60,7 @@ const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
 
-class MainV3DataScreen extends Component {
+class MainV3DataScreen extends React.PureComponent {
 
     constructor() {
         super()
@@ -82,8 +82,8 @@ class MainV3DataScreen extends Component {
         CACHE_INIT_KEY = key
         this.setState({ inited: true })
 
-        const tradeType = this.props.navigation.getParam('tradeType')
-        const currencyCode = this.props.navigation.getParam('currencyCode')
+        const tradeType = NavStore.getParamWrapper(this, 'tradeType')
+        const currencyCode = NavStore.getParamWrapper(this, 'currencyCode')
         const apiUrl = await ApiV3.initData(tradeType, currencyCode)
 
         setTimeout(() => {

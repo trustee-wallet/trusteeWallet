@@ -47,7 +47,7 @@ class SendScreen extends SendBasicScreen {
 
     closeAction = async (closeScreen = false) => {
         if (closeScreen) {
-            NavStore.reset('DashboardStack')
+            NavStore.reset('HomeScreen')
         } else {
             NavStore.goBack()
         }

@@ -51,7 +51,7 @@ const getSocialLinksData = () => [
     { name: 'faq', link: 'SOCIAL_LINK_FAQ' },
 ];
 
-class AboutScreen extends React.Component {
+class AboutScreen extends React.PureComponent {
     state = {
         headerHeight: 0
     }
@@ -85,7 +85,7 @@ class AboutScreen extends React.Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     handleTermsPress = () => {
         const lang = sublocale()

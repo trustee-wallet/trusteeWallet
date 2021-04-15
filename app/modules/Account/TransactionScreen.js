@@ -66,7 +66,7 @@ const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 let CACHE_DELETE_ORDER_ID = ''
 let CACHE_RESCAN_TX = false
 
-class TransactionScreen extends Component {
+class TransactionScreen extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -93,7 +93,7 @@ class TransactionScreen extends Component {
 
     async UNSAFE_componentWillMount() {
         try {
-            const data = this.props.navigation.getParam('txData')
+            const data = NavStore.getParamWrapper(this, 'txData')
 
             let { transactionHash, transactionStatus, currencyCode, orderHash, walletHash, transaction, notification, toOpenAccountBack } = data
             let tx
@@ -642,7 +642,7 @@ class TransactionScreen extends Component {
     }
 
     closeAction = () => {
-        NavStore.reset('DashboardStack')
+        NavStore.reset('HomeScreen')
     }
 
     getTransactionDate(transaction) {
@@ -1004,7 +1004,7 @@ class TransactionScreen extends Component {
             buttonsArray[0].splice(2, 1)
         }
 
-        const prev = NavStore.getPrevRoute().routeName
+        const prev = '' // @todo NavStore.getPrevRoute().routeName
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
@@ -1012,7 +1012,7 @@ class TransactionScreen extends Component {
                         || prev === 'SMSCodeScreen' || prev === 'SMSV3CodeScreen') ? null : 'back'}
                     leftAction={this.backAction}
                     rightType='close'
-                    rightAction={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen') ? () => NavStore.reset('DashboardStack') : this.closeAction}
+                    rightAction={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen') ? () => NavStore.reset('HomeScreen') : this.closeAction}
                     setHeaderHeight={this.setHeaderHeight}
                     ExtraView={() => transaction ? this.headerTrx(transaction, color, cryptoCurrency) : null}
                 />

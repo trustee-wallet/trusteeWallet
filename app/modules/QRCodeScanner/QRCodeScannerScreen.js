@@ -35,7 +35,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width
 console.disableYellowBox = true
 
 
-class QRCodeScannerScreen extends Component {
+class QRCodeScannerScreen extends React.PureComponent {
 
     componentDidMount() {
         this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {

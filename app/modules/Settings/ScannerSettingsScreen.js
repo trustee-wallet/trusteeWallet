@@ -28,7 +28,7 @@ import ListItem from '../../components/elements/new/list/ListItem/SubSetting'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
-class ScannerSettingsScreen extends React.Component {
+class ScannerSettingsScreen extends React.PureComponent {
     state = {
         headerHeight: 0
     }
@@ -51,7 +51,7 @@ class ScannerSettingsScreen extends React.Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.ScannerSettingsScreen')

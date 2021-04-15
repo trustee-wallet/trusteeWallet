@@ -12,7 +12,6 @@ import modalReducer from './Stores/Modal/ModalStore'
 import qrCodeScannerReducer from './Stores/QRCodeScanner/QRCodeScannerStore'
 import settingsReducer from './Stores/Settings/SettingsStore'
 import lockScreenReducer from './Stores/LockScreen/LockScreenStore'
-import navigationReducer from './Stores/Navigation/NavigationStore'
 import cashBackStoreReducer from './Stores/CashBack/CashBackStore'
 import toolTipsReducer from './Stores/ToolTips/ToolTipsStore'
 import appNewsStoreReducer from './Stores/AppNews/AppNewsReducer'
@@ -29,7 +28,6 @@ export default combineReducers({
     modalStore: modalReducer,
     settingsStore: settingsReducer,
     lockScreenStore: lockScreenReducer,
-    navigationStore: navigationReducer,
     cashBackStore: cashBackStoreReducer,
     toolTipsStore: toolTipsReducer,
     appNewsStore : appNewsStoreReducer,

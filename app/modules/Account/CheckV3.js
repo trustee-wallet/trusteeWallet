@@ -35,7 +35,7 @@ const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
 
-class CheckV3DataScreen extends Component {
+class CheckV3DataScreen extends React.PureComponent {
 
     constructor() {
         super()
@@ -142,7 +142,7 @@ class CheckV3DataScreen extends Component {
 
         const { colors, isLight } = this.context
 
-        const orderHash = this.props.navigation.getParam('orderHash')
+        const orderHash = NavStore.getParamWrapper(this, 'orderHash')
 
         this.init(orderHash)
         MarketingAnalytics.setCurrentScreen('BSE/CheckV3DataScreen')

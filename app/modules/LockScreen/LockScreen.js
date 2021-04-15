@@ -32,7 +32,7 @@ import { getLockScreenData } from '@app/appstores/Stores/LockScreen/selectors'
 import { getIsTouchIDStatus } from '@app/appstores/Stores/Settings/selectors'
 
 
-class LockScreen extends Component {
+class LockScreen extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -94,7 +94,7 @@ class LockScreen extends Component {
             lockScreenAction.setFlowType({
                 flowType: ''
             })
-            NavStore.reset('SettingsScreenStack')
+            NavStore.reset('SettingsScreen')
         } else if (flowType === 'DELETE_PINCODE') {
             await SettingsKeystore.setLockScreenStatus('0')
             await deleteUserPinCode('reactNativePinCode')
@@ -102,7 +102,7 @@ class LockScreen extends Component {
             lockScreenAction.setFlowType({
                 flowType: ''
             })
-            NavStore.reset('SettingsScreenStack')
+            NavStore.reset('SettingsScreen')
         } else if (flowType === 'CHANGE_TOUCHID_STATUS') {
             const touchIDStatus = await SettingsKeystore.getTouchIDStatus()
             await SettingsKeystore.setTouchIDStatus(touchIDStatus === '0' ? '1' : '0')
@@ -110,7 +110,7 @@ class LockScreen extends Component {
             lockScreenAction.setFlowType({
                 flowType: ''
             })
-            NavStore.reset('SettingsScreenStack')
+            NavStore.reset('SettingsScreen')
         } else if (flowType === 'CHANGE_ASKING_STATUS') {
             const askPinCodeWhenSending = await SettingsKeystore.getAskPinCodeWhenSending()
             await SettingsKeystore.setAskPinCodeWhenSending(askPinCodeWhenSending === '0' ? '1' : '0')
@@ -118,7 +118,7 @@ class LockScreen extends Component {
             lockScreenAction.setFlowType({
                 flowType: ''
             })
-            NavStore.reset('SettingsScreenStack')
+            NavStore.reset('SettingsScreen')
         } else if (flowType === 'CHANGE_PASSWORD_FIRST_STEP') {
             this.setState({
                 passwordState: 'choose'
@@ -205,7 +205,7 @@ class LockScreen extends Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0);

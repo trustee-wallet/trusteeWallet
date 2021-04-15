@@ -18,7 +18,7 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 
-class AddWalletScreen extends React.Component {
+class AddWalletScreen extends React.PureComponent {
     state = {
         headerHeight: 0,
     }
@@ -47,7 +47,7 @@ class AddWalletScreen extends React.Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     render() {
         MarketingAnalytics.setCurrentScreen('WalletManagment.AddWallet')

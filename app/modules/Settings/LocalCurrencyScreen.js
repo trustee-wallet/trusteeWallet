@@ -27,7 +27,7 @@ import ListItem from '../../components/elements/new/list/ListItem/SubSetting'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
 
-class LocalCurrencyScreen extends React.Component {
+class LocalCurrencyScreen extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -72,7 +72,7 @@ class LocalCurrencyScreen extends React.Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.LocalCurrencyScreen')

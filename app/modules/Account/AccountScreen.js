@@ -65,7 +65,7 @@ import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 let CACHE_ASKED = false
 
-class Account extends Component {
+class Account extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -194,7 +194,7 @@ class Account extends Component {
                 } else {
                     NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode: this.props.account.currencyCode })
                 }
-                
+
             // }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {

@@ -1,26 +1,20 @@
 /**
- * @version 0.9
+ * @version 0.43
+ * https://reactnavigation.org/docs/navigating-without-navigation-prop
+ * https://reactnavigation.org/docs/navigation-prop/
  */
-import { NavigationActions, StackActions } from 'react-navigation'
+import config from '@app/config/config'
 
-import navigationActions from '../../appstores/Stores/Navigation/NavigationActions'
-import { setCurrentScreen } from '../../appstores/Stores/Main/MainStoreActions'
-import config from '../../config/config'
+import { navigate, reset, goBack } from '@app/components/navigation/NavRoot'
 
 class ObservableNavStore {
-    navigator = null
 
-    getNavigator = () => this.navigator
-
-    reset = (routeName, params = null) => {
-
+    reset = (routeName) => {
         try {
-            const resetAction = StackActions.reset({
-                key: null,
+            reset({
                 index: 0,
-                actions: [NavigationActions.navigate({ routeName, params })]
+                routes: [{ name: routeName }],
             })
-            this.navigator.dispatch(resetAction)
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('NavStore.reset error ' + e.message)
@@ -30,50 +24,36 @@ class ObservableNavStore {
 
     goBack = () => {
         try {
-            if (this.navigator.state.nav.routes.length <= 1) {
-                this.reset('DashboardStack')
-            } else {
-                this.navigator.dispatch(NavigationActions.back())
-            }
-            setCurrentScreen(this.getCurrentRoute())
+           goBack()
         } catch (e) {
-
+            if (config.debug.appErrors) {
+                console.log('NavStore.goBack error ' + e.message)
+            }
         }
     }
 
-    getCurrentRoute = () => {
-        let route = this.navigator.state.nav
-        while (route.routes) {
-            route = route.routes[route.index]
+    getCurrentRoute = (screen) => {
+        try {
+            if (typeof screen.props.route !== 'undefined' && typeof screen.props.route.name !== 'undefined') {
+                return screen.props.route.name
+            }
+            return ''
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('NavStore.getCurrentRoute error ' + e.message)
+            }
         }
-        return route
-    }
-
-    getPrevRoute = () => {
-        let route = this.navigator.state.nav
-        route = route.index > 0 ? route.routes[route.index - 1] : false
-        return route
     }
 
     goNext = (routeName, params = null, reset = false) => {
+        if (reset) {
+            console.log('navstore reset is depressed')
+            this.reset(routeName)
+            return false
+        }
+
         try {
-            this.navigator && this.navigator.dispatch(NavigationActions.navigate({
-                routeName,
-                params
-            }))
-
-            if (reset) {
-                const resetAction = StackActions.reset({
-                    key: null,
-                    index: 0,
-                    actions: [NavigationActions.navigate({ routeName: 'DashboardStack', params })]
-                })
-                this.navigator.dispatch(resetAction)
-            }
-
-            // if(reset){
-            //     this.navigator.dismiss()
-            // }
+            navigate(routeName, params)
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('NavStore.goNext error ' + e.message)
@@ -81,12 +61,12 @@ class ObservableNavStore {
         }
     }
 
-    setDashboardInitialRouteName = (dashboardInitialRouteName) => {
-        navigationActions.setDashboardInitialRouteName(dashboardInitialRouteName)
-        return this
+    getParamWrapper = (screen, data, def = false) => {
+        if (typeof screen.props.route.params[data] === 'undefined') {
+            return def
+        }
+        return screen.props.route.params[data]
     }
-
-    getParam = (data) => this.navigator.dispatch(NavigationActions.getParam(data))
 }
 
 const NavStore = new ObservableNavStore()

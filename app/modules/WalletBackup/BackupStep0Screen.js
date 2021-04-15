@@ -44,7 +44,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const VISIBILITY_TIMEOUT = 4000
 
-class BackupStep0Screen extends Component {
+class BackupStep0Screen extends React.PureComponent {
     visibilityTimer;
 
     scrollView;
@@ -71,7 +71,8 @@ class BackupStep0Screen extends Component {
 
             const { flowType, mnemonicLength } = this.props.createWalletStore
 
-            const flowSubtype = this.props.navigation.getParam('flowSubtype', 'createFirst')
+            const flowSubtype = NavStore.getParamWrapper(this,'flowSubtype', 'createFirst')
+
             let walletMnemonic = ''
             let mnemonic = ''
             let needPasswordConfirm = false
@@ -131,7 +132,7 @@ class BackupStep0Screen extends Component {
                 this.headerProps.title = strings('walletBackup.titleCreate')
             } else {
                 this.headerProps.rightType = 'close'
-                this.headerProps.rightAction = () => this.handleClose('DashboardStack')
+                this.headerProps.rightAction = () => this.handleClose('HomeScreen')
                 this.headerProps.leftType = 'back'
                 this.headerProps.leftAction = this.handleBack
                 this.headerProps.title = flowSubtype === 'show'

@@ -58,7 +58,7 @@ const getIconType = (notif) => {
     }
 }
 
-class NotificationsScreen extends React.Component {
+class NotificationsScreen extends React.PureComponent {
     state = {
         headerHeight: 0,
         tabs: [

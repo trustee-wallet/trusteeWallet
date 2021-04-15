@@ -1,20 +1,15 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { View, StyleSheet, ScrollView, Text } from 'react-native'
+import Navigation from '@app/components/navigation/Navigation'
+import { strings, sublocale } from '@app/services/i18n'
+import ALL_TERMS from '@app/../__terms__/ALL'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 
-
-import Navigation from '../../../components/navigation/Navigation'
-
-import { strings, sublocale } from '../../../services/i18n'
-
-import ALL_TERMS from '../../../../__terms__/ALL'
-import MarketingAnalytics from '../../../services/Marketing/MarketingAnalytics'
-
-
-class TermsOfUseScreen extends Component {
+class TermsOfUseScreen extends React.PureComponent {
 
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.TermsOfUseScreen')

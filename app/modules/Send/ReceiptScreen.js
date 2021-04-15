@@ -190,7 +190,7 @@ class ReceiptScreen extends SendBasicScreen {
     closeAction = async (closeScreen = false) => {
         await SendActionsEnd.endClose(this.props.sendScreenStore)
         if (closeScreen) {
-            NavStore.reset('DashboardStack')
+            NavStore.reset('HomeScreen')
         } else {
             NavStore.goBack()
         }

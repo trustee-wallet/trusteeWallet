@@ -119,7 +119,7 @@ export namespace SendActionsEnd {
                 }
             })
         } else if (uiType === 'MAIN_SCANNER') {
-            NavStore.reset('DashboardStack')
+            NavStore.reset('HomeScreen')
         } else if (tx === false || uiType === 'DEEP_LINKING' || uiType === 'HOME_SCREEN') {
             // account was not opened before or no tx could be done
             const { cryptoCurrencies } = store.getState().currencyStore
@@ -139,7 +139,7 @@ export namespace SendActionsEnd {
                     await setSelectedAccount()
                     NavStore.reset('AccountScreen')
                 } else {
-                    NavStore.reset('DashboardStack')
+                    NavStore.reset('HomeScreen')
                 }
             }
         } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {

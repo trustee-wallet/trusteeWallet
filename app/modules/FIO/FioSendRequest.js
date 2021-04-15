@@ -179,7 +179,7 @@ class FioSendRequest extends Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     render() {
         const selectedCurrencyName = this.getSelectedCurrency()?.currencyName

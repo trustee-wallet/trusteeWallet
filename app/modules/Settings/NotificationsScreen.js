@@ -39,7 +39,7 @@ class NotificationsSettingScreen extends React.Component {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('DashboardStack') }
+    handleClose = () => { NavStore.reset('HomeScreen') }
 
     handleChangeNotifications = async () => {
         const { notifsStatus } = this.props.settings

@@ -63,7 +63,7 @@ class Navigation extends Component {
         if(typeof this.props.closeAction === 'function') {
             this.props.closeAction()
         } else {
-            NavStore.goNext('DashboardStack', null, true)
+            NavStore.reset('HomeScreen')
         }
     }
 
@@ -229,7 +229,7 @@ const styles = {
 
         flexDirection: 'row',
         alignItems: 'center',
-        
+
         paddingVertical: 10
     },
     btn__text: {

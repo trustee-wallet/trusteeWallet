@@ -59,7 +59,7 @@ async function storeCurrenciesOrder(walletHash, data) {
     AsyncStorage.setItem(`${walletHash}:currenciesOrder`, JSON.stringify(data))
 }
 
-class HomeScreen extends React.Component {
+class HomeScreen extends React.PureComponent {
 
     constructor(props) {
         super(props)

@@ -91,7 +91,7 @@ class WalletInfo extends React.PureComponent {
 
     handleScanQr = () => checkQRPermission(this.qrPermissionCallback)
 
-    handleOpenSettings = () => NavStore.goNext('SettingsScreenStack')
+    handleOpenSettings = () => NavStore.goNext('SettingsScreen')
 
     qrPermissionCallback = () => {
         Log.log('WalletInfo handleScanQr started')
