@@ -52,6 +52,7 @@ import LanguageListScreen from '@app/modules/Settings/LanguageListScreen'
 import ScannerSettingsScreen from '@app/modules/Settings/ScannerSettingsScreen'
 import TermsOfUseScreen from '@app/modules/About/screens/TermsOfUseScreen'
 import PrivacyPolicyScreen from '@app/modules/About/screens/PrivacyPolicyScreen'
+import CashbackScreen from '@app/modules/Cashback/CashbackScreen'
 
 const Stack = createStackNavigator()
 
@@ -105,5 +106,7 @@ export default () => {
         <Stack.Screen name='ScannerSettingsScreen' component={ScannerSettingsScreen} options={{headerShown : false}}/>
         <Stack.Screen name='TermsOfUseScreen' component={TermsOfUseScreen} options={{headerShown : false}}/>
         <Stack.Screen name='PrivacyPolicyScreen' component={PrivacyPolicyScreen} options={{headerShown : false}}/>
+
+        <Stack.Screen name='CashbackScreen' component={CashbackScreen} options={{headerShown : false}}/>
     </Stack.Navigator>
 }
