@@ -3,7 +3,8 @@
  */
 import React from 'react'
 
-import { createStackNavigator } from '@react-navigation/stack'
+import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'
+
 import LoadScreen from '@app/modules/Load/LoadScreen'
 import WalletCreateScreen from '@app/modules/WalletCreate/WalletCreateScreen'
 import BackupStep0Screen from '@app/modules/WalletBackup/BackupStep0Screen'
@@ -59,56 +60,61 @@ const Stack = createStackNavigator()
 
 // eslint-disable-next-line react/display-name
 export default () => {
-    return <Stack.Navigator initialRouteName="LoadScreen">
-        <Stack.Screen name='LoadScreen' component={LoadScreen} options={{headerShown : false}} />
-        <Stack.Screen name='WalletCreateScreen' component={WalletCreateScreen} options={{headerShown : false}} />
-        <Stack.Screen name='BackupStep0Screen' component={BackupStep0Screen} options={{headerShown : false}} />
-        <Stack.Screen name='BackupStep1Screen' component={BackupStep1Screen} options={{headerShown : false}} />
-        <Stack.Screen name='BackupSettingsScreen' component={BackupSettingsScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='EnterMnemonicPhrase' component={EnterMnemonicPhrase} options={{headerShown : false}}/>
-        <Stack.Screen name='InitScreen' component={InitScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='ErrorScreen' component={ErrorScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='HomeScreen' component={HomeScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='AboutScreen' component={AboutScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='LockScreen' component={LockScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='AddAssetScreen' component={AddAssetScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='WebViewScreen' component={WebViewScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='QRCodeScannerScreen' component={QRCodeScannerScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='WalletConnectScreen' component={WalletConnectScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='MainV3DataScreen' component={MainV3DataScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='SMSV3CodeScreen' component={SMSV3CodeScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='MarketScreen' component={MarketScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='SendScreen' component={SendScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='SendAdvancedScreen' component={SendAdvancedSettingsScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='ReceiptScreen' component={ReceiptScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='AccountScreen' component={AccountScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='AccountSettings' component={AccountSettingsScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='TransactionScreen' component={TransactionScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='CheckV3DataScreen' component={CheckV3DataScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='ReceiveScreen' component={ReceiveScreen} options={{headerShown : false}}/>
+
+    // https://reactnavigation.org/docs/stack-navigator/#animations
+    const transitionSpec = { open: TransitionSpecs.TransitionIOSSpec, close: TransitionSpecs.TransitionIOSSpec }
+    const cardStyleInterpolator = CardStyleInterpolators.forFadeFromBottomAndroid
+
+    return <Stack.Navigator initialRouteName='LoadScreen'>
+        <Stack.Screen name='LoadScreen' component={LoadScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='WalletCreateScreen' component={WalletCreateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='BackupStep0Screen' component={BackupStep0Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='BackupStep1Screen' component={BackupStep1Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='BackupSettingsScreen' component={BackupSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='EnterMnemonicPhrase' component={EnterMnemonicPhrase} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='InitScreen' component={InitScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='ErrorScreen' component={ErrorScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='HomeScreen' component={HomeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='LockScreen' component={LockScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='AddAssetScreen' component={AddAssetScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='WebViewScreen' component={WebViewScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='QRCodeScannerScreen' component={QRCodeScannerScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='WalletConnectScreen' component={WalletConnectScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='MainV3DataScreen' component={MainV3DataScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='SMSV3CodeScreen' component={SMSV3CodeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='MarketScreen' component={MarketScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='SendScreen' component={SendScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='SendAdvancedScreen' component={SendAdvancedSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='ReceiptScreen' component={ReceiptScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='AccountScreen' component={AccountScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='AccountSettings' component={AccountSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='TransactionScreen' component={TransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='CheckV3DataScreen' component={CheckV3DataScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='ReceiveScreen' component={ReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
 
-        <Stack.Screen name='FioChooseRecipient' component={FioChooseRecipient} options={{headerShown : false}}/>
-        <Stack.Screen name='FioChooseAddress' component={FioChooseAddress} options={{headerShown : false}}/>
-        <Stack.Screen name='FioSendRequest' component={FioSendRequest} options={{headerShown : false}}/>
-        <Stack.Screen name='FioRequestsList' component={FioRequestsList} options={{headerShown : false}}/>
-        <Stack.Screen name='FioRequestDetails' component={FioRequestDetails} options={{headerShown : false}}/>
-        <Stack.Screen name='FioAddresses' component={FioAddresses} options={{headerShown : false}}/>
-        <Stack.Screen name='FioMainSettings' component={FioMainSettings} options={{headerShown : false}}/>
-        <Stack.Screen name='FioSettings' component={FioSettings} options={{headerShown : false}}/>
+        <Stack.Screen name='FioChooseRecipient' component={FioChooseRecipient} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='FioChooseAddress' component={FioChooseAddress} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='FioSendRequest' component={FioSendRequest} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='FioRequestsList' component={FioRequestsList} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='FioRequestDetails' component={FioRequestDetails} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='FioAddresses' component={FioAddresses} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='FioMainSettings' component={FioMainSettings} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='FioSettings' component={FioSettings} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
-        <Stack.Screen name='SettingsMainScreen' component={SettingsMainScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='WalletListScreen' component={WalletListScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='AddWalletScreen' component={AddWalletScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='AdvancedWalletScreen' component={AdvancedWalletScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='LocalCurrencyScreen' component={LocalCurrencyScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='LanguageListScreen' component={LanguageListScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='ScannerSettingsScreen' component={ScannerSettingsScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='NotificationsSettingsScreen' component={NotificationsSettingScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='TermsOfUseScreen' component={TermsOfUseScreen} options={{headerShown : false}}/>
-        <Stack.Screen name='PrivacyPolicyScreen' component={PrivacyPolicyScreen} options={{headerShown : false}}/>
+        <Stack.Screen name='SettingsMainScreen' component={SettingsMainScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='WalletListScreen' component={WalletListScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='AddWalletScreen' component={AddWalletScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='AdvancedWalletScreen' component={AdvancedWalletScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='LocalCurrencyScreen' component={LocalCurrencyScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='LanguageListScreen' component={LanguageListScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='ScannerSettingsScreen' component={ScannerSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='NotificationsSettingsScreen' component={NotificationsSettingScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='TermsOfUseScreen' component={TermsOfUseScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='PrivacyPolicyScreen' component={PrivacyPolicyScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
-        <Stack.Screen name='CashbackScreen' component={CashbackScreen} options={{headerShown : false}}/>
+        <Stack.Screen name='CashbackScreen' component={CashbackScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
     </Stack.Navigator>
 }
