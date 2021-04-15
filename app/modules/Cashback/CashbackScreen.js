@@ -49,10 +49,12 @@ class CashbackScreen extends React.PureComponent {
         refreshing: false
     }
 
-    componentDidMount() {
+    componentDidUpdate(prevProps, prevState, snapshot) {
         const qrCodeData = NavStore.getParamWrapper(this, 'qrData')
         if (qrCodeData && typeof qrCodeData.qrCashbackLink !== 'undefined' && qrCodeData.qrCashbackLink) {
-            this.setState(() => ({ inviteLink: qrCodeData.qrCashbackLink }))
+            if (prevState.inviteLink !== qrCodeData.qrCashbackLink) {
+                this.setState(() => ({ inviteLink: qrCodeData.qrCashbackLink }))
+            }
         }
     }
 
