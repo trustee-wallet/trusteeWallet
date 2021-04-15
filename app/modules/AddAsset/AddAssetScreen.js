@@ -52,9 +52,14 @@ class AddAssetScreen extends React.PureComponent {
 
     componentDidMount() {
         this.prepareData()
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
         const data = NavStore.getParamWrapper(this, 'tokenData')
         if (data && typeof data !== 'undefined' && typeof data.address !== 'undefined' && data.address) {
-            this.setState({ customAddress: data.address })
+            if (prevState.customAddress !== data.address) {
+                this.setState({ customAddress: data.address })
+            }
         }
     }
 

@@ -1,33 +1,34 @@
 /**
  * @version 0.9
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
-import { View, Dimensions, Text, TouchableOpacity } from 'react-native'
+import { View, Dimensions, Text, StyleSheet } from 'react-native'
 import QRCodeScanner from 'react-native-qrcode-scanner'
 
 
 
-import Navigation from '../../components/navigation/Navigation'
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { strings } from '../../services/i18n'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { strings } from '@app/services/i18n'
 import _ from 'lodash'
 
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
-import { decodeTransactionQrCode } from '../../services/UI/Qr/QrScan'
-import Log from '../../services/Log/Log'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import { decodeTransactionQrCode } from '@app/services/UI/Qr/QrScan'
+import Log from '@app/services/Log/Log'
+import { openQrGallery } from '@app/services/UI/Qr/QrGallery'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import { openQrGallery } from '../../services/UI/Qr/QrGallery'
-import Header from '../../components/elements/new/Header'
-import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+
+import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
+
+import Header from '@app/components/elements/new/Header'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
 const SCREEN_WIDTH = Dimensions.get('window').width
@@ -38,16 +39,11 @@ console.disableYellowBox = true
 class QRCodeScannerScreen extends React.PureComponent {
 
     componentDidMount() {
-        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-            this.setState({})
-            try {
-                this.scanner.reactivate()
-            } catch {
-            }
-        })
+        this.scanner.reactivate()
     }
 
     async onSuccess(param) {
+        UpdateOneByOneDaemon.unpause()
         try {
             const {
                 currencyCode,
@@ -217,7 +213,7 @@ class QRCodeScannerScreen extends React.PureComponent {
         }
     }
 
-    async onOpenGallery() {
+    async handleOpenGallery() {
         try {
             const res = await openQrGallery()
             if (res) {
@@ -243,20 +239,6 @@ class QRCodeScannerScreen extends React.PureComponent {
                 }
             })
         }
-    }
-
-    renderOpenGallery() {
-        return (
-            <TouchableOpacity onPress={this.onOpenGallery.bind(this)}>
-                <View style={{ flex: 1, paddingLeft: 23, paddingRight: 23, justifyContent: 'center', alignSelf: 'center', marginTop: -36 }}>
-                    <MaterialCommunityIcons name='file-find' size={24} color='#855eab' />
-                </View>
-            </TouchableOpacity>
-        )
-    }
-
-    handleOpenGallery = () => {
-        this.onOpenGallery()
     }
 
     handleBack = () => {
@@ -356,7 +338,7 @@ const scanBarWidth = SCREEN_WIDTH * 0.46 // this is equivalent to 180 from a 393
 const scanBarHeight = SCREEN_WIDTH * 0.0025 // this is equivalent to 1 from a 393 device width
 const scanBarColor = '#22ff00'
 
-const styles = {
+const styles = StyleSheet.create({
     rectangleContainer: {
         flex: 1,
         width: '100%',
@@ -461,4 +443,4 @@ const styles = {
         fontFamily: 'SFUIDisplay-Regular',
         color: '#e3e6e9'
     }
-}
+})

@@ -70,6 +70,10 @@ class UpdateOneByOneDaemon extends Update {
         CACHE_PAUSE = new Date().getTime()
     }
 
+    unpause = () => {
+        CACHE_PAUSE = 0
+    }
+
     updateOneByOneDaemon = async (params, level = 0) => {
         if (CACHE_STOPPED) return false
 
